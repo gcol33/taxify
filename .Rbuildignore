@@ -1,0 +1,13 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^CLAUDE\.md$
+^plan\.md$
+^todo\.md$
+^memory$
+^\.run\.R$
