@@ -130,3 +130,114 @@ taxify_refresh_manifest <- function() {
   .taxify_env$manifest <- NULL
   invisible(NULL)
 }
+
+
+#' Activate a local manifest for dev/testing
+#'
+#' Scans `taxify_data_dir()` for installed backends, reads their `meta.json`
+#' version files, and builds an in-memory manifest using `file://` URLs that
+#' point at the local `.vtr` files.  Injects the result into
+#' `.taxify_env$manifest`, overriding any network-fetched manifest for the
+#' remainder of the session.
+#'
+#' Also clears `.taxify_env$.version_checked.*` flags so the next
+#' `taxify()` call re-runs the version check against the injected manifest
+#' (which will always report "current" since the local file IS the version).
+#'
+#' This is a dev-only helper.  Call `clear_local_manifest()` to revert.
+#'
+#' @return The injected manifest list (invisibly).
+#' @noRd
+use_local_manifest <- function() {
+  data_dir <- taxify_data_dir()
+
+  # Backend name -> vtr filename inside <backend>/latest/
+  backends <- list(
+    wfo      = "wfo.vtr",
+    col      = "col.vtr",
+    gbif     = "gbif.vtr",
+    register = "genus_register.vtr"
+  )
+
+  manifest <- list()
+  found <- character(0L)
+  not_found <- character(0L)
+
+  for (be_name in names(backends)) {
+    vtr_file <- backends[[be_name]]
+    vtr_path <- file.path(data_dir, be_name, "latest", vtr_file)
+
+    # Special case: register lives under "unified/latest/"
+    if (be_name == "register") {
+      vtr_path <- file.path(data_dir, "unified", "latest", vtr_file)
+    }
+
+    if (!file.exists(vtr_path)) {
+      not_found <- c(not_found, be_name)
+      next
+    }
+
+    # Read meta.json if present, otherwise fall back to "unknown"
+    meta_json <- file.path(dirname(vtr_path), "meta.json")
+    if (file.exists(meta_json)) {
+      meta <- jsonlite::read_json(meta_json, simplifyVector = TRUE)
+      version <- meta$version %||% "unknown"
+    } else {
+      version <- "unknown"
+    }
+
+    # Build a file:// URL.  On Windows, paths need three slashes for absolute.
+    # normalizePath() gives the canonical OS path; we convert separators.
+    abs_path <- normalizePath(vtr_path, winslash = "/", mustWork = TRUE)
+    file_url <- paste0("file:///", abs_path)
+
+    manifest[[be_name]] <- list(latest = version, url = file_url)
+    found <- c(found, sprintf("  %-10s v%-12s  ->  %s", be_name, version,
+                              file_url))
+  }
+
+  # Inject into session cache
+  .taxify_env$manifest <- manifest
+
+  # Clear version-check flags so taxify() re-evaluates against local manifest
+  for (be_name in names(backends)) {
+    check_key <- paste0(".version_checked.", be_name)
+    .taxify_env[[check_key]] <- NULL
+  }
+
+  # Report
+  if (length(found) > 0L) {
+    message("Local manifest active:")
+    for (line in found) message(line)
+  }
+  if (length(not_found) > 0L) {
+    message(sprintf("  (not installed: %s)", paste(not_found, collapse = ", ")))
+  }
+  if (length(found) == 0L) {
+    message("Local manifest active (no backends installed yet).")
+  }
+
+  invisible(manifest)
+}
+
+
+#' Clear the local manifest override
+#'
+#' Removes the session-level manifest cache and version-check flags so the
+#' next `taxify()` call fetches a fresh manifest from GitHub.
+#'
+#' @return `NULL` invisibly.
+#' @noRd
+clear_local_manifest <- function() {
+  .taxify_env$manifest <- NULL
+
+  # Clear all version-checked flags
+  keys <- ls(.taxify_env, all.names = TRUE)
+  check_keys <- keys[startsWith(keys, ".version_checked.")]
+  for (k in check_keys) {
+    .taxify_env[[k]] <- NULL
+  }
+
+  message("Local manifest cleared. Next taxify() call will fetch from GitHub.")
+  invisible(NULL)
+}

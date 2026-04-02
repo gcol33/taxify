@@ -155,7 +155,22 @@ download_backbone <- function(backend_name,
 
   tryCatch(
     {
-      curl::curl_download(url, tmp_path, quiet = !verbose)
+      if (startsWith(url, "file://")) {
+        # Strip file:// prefix to get the local path (handle both file:///C:/...
+        # on Windows and file:///path on Unix)
+        local_src <- sub("^file:///", "/", url)
+        # On Windows, file:///C:/... -> /C:/... which is wrong; restore drive letter
+        if (.Platform$OS.type == "windows" &&
+            grepl("^/[A-Za-z]:/", local_src)) {
+          local_src <- sub("^/", "", local_src)
+        }
+        if (!file.exists(local_src)) {
+          stop(sprintf("Local file not found: %s", local_src))
+        }
+        file.copy(local_src, tmp_path, overwrite = TRUE)
+      } else {
+        curl::curl_download(url, tmp_path, quiet = !verbose)
+      }
     },
     error = function(e) {
       stop(sprintf("Failed to download %s backbone from:\n  %s\nError: %s",

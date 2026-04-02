@@ -260,6 +260,12 @@ build_genus_register <- function(verbose = TRUE) {
   out_path <- register_vtr_path()
   vectra::write_vtr(resolved, out_path)
 
+  # Write meta.json so use_local_manifest() can read the version.
+  # Version is derived from the most recent backend version used.
+  register_version <- format(Sys.Date(), "%Y.%m")
+  write_version_meta(register_dir(), "register", register_version,
+                     pinned = FALSE)
+
   if (verbose) {
     message(sprintf("Genus register written: %s (%d genera)", out_path,
                     nrow(resolved)))

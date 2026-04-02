@@ -3,11 +3,9 @@
 # Offline matching against WFO Darwin Core snapshots from Zenodo.
 # Downloads classification.txt, converts to .vtr, queries via vectra.
 
-# Zenodo URLs for WFO backbone (same as RESOLVE's wfo.py)
-.wfo_urls <- list(
-  "2024-12" = "https://zenodo.org/records/14538251/files/_DwC_backbone_R.zip",
-  "2024-06" = "https://zenodo.org/records/12171908/files/_DwC_backbone_R.zip"
-)
+# Latest WFO backbone URL and version (updated with package releases)
+.wfo_url <- "https://zenodo.org/records/14538251/files/_DwC_backbone_R.zip"
+.wfo_version <- "2024-12"
 
 # Columns needed for matching (core + authorship + infraspecific)
 .wfo_match_cols <- c(
@@ -23,78 +21,61 @@
   "infraspecificEpithet"
 )
 
-# Extra columns for add_wfo_info() — all columns in classification.txt
+# Extra columns for add_wfo_info() — additional columns in classification file
 .wfo_extra_cols <- c(
   "scientificNameID",
   "parentNameUsageID",
   "namePublishedIn",
-  "higherClassification",
-  "taxonRemarks"
+  "nomenclaturalStatus",
+  "taxonRemarks",
+  "subfamily",
+  "tribe",
+  "subtribe",
+  "subgenus"
 )
 
 
 #' Create a WFO backend object
 #'
-#' @param version Character. WFO version (e.g., `"2024-12"`).
-#'   `"latest"` uses the most recent available version.
 #' @return A taxify_backend object of class `"taxify_wfo"`.
 #' @noRd
-wfo_backend <- function(version = "latest") {
-  if (version == "latest") version <- "2024-12"
-  available <- names(.wfo_urls)
-  if (!version %in% available) {
-    stop(sprintf("Unknown WFO version '%s'. Available: %s",
-                 version, paste(available, collapse = ", ")),
-         call. = FALSE)
-  }
+wfo_backend <- function() {
   new_backend(
     name = "wfo",
-    version = version,
+    version = .wfo_version,
     class = "taxify_wfo"
   )
 }
 
 
 #' @export
-taxify_download.taxify_wfo <- function(backend, dest = NULL, version = "latest",
+taxify_download.taxify_wfo <- function(backend, dest = NULL,
                                        verbose = TRUE, ...) {
-  if (version != "latest") backend$version <- version
-  dest <- dest %||% taxify_data_dir()
+  # Default to the versioned layout: <data_dir>/wfo/latest/
+  dest <- dest %||% versioned_dir("wfo", "latest")
   dir.create(dest, recursive = TRUE, showWarnings = FALSE)
 
-  vtr_path <- file.path(dest, paste0("wfo_", backend$version, ".vtr"))
+  vtr_path <- file.path(dest, "wfo.vtr")
+  url <- .wfo_url
+  zip_path <- file.path(dest, "wfo_download.zip")
 
-  # Skip if already converted
-
-  if (file.exists(vtr_path)) {
-    if (verbose) {
-      size_mb <- file.size(vtr_path) / (1024 * 1024)
-      message(sprintf("WFO backbone already exists: %s (%.0f MB)", vtr_path,
-                       size_mb))
-    }
-    return(invisible(vtr_path))
-  }
-
-  url <- .wfo_urls[[backend$version]]
-
-  zip_path <- file.path(dest, paste0("wfo_", backend$version, ".zip"))
-
-  # Download
+  # Download (always re-downloads to get latest)
   if (verbose) {
-    message(sprintf("Downloading WFO backbone %s from Zenodo...", backend$version))
+    message(sprintf("Downloading WFO backbone (%s) from Zenodo (~120 MB)...",
+                    backend$version))
     message(sprintf("  URL: %s", url))
   }
   utils::download.file(url, zip_path, mode = "wb", quiet = !verbose)
 
-  # Extract classification.txt
-  if (verbose) message("Extracting classification.txt...")
+  # Extract classification file (may be .txt or .csv depending on WFO release)
+  if (verbose) message("Extracting classification file...")
   txt_files <- utils::unzip(zip_path, list = TRUE)$Name
-  txt_target <- txt_files[grepl("classification\\.txt$", txt_files)]
+  txt_target <- txt_files[grepl("classification\\.(txt|csv)$", txt_files)]
   if (length(txt_target) == 0L) {
-    stop("classification.txt not found in downloaded archive", call. = FALSE)
+    stop("classification.txt/.csv not found in downloaded archive", call. = FALSE)
   }
   utils::unzip(zip_path, files = txt_target[1L], exdir = dest, junkpaths = TRUE)
-  txt_path <- file.path(dest, "classification.txt")
+  txt_path <- file.path(dest, basename(txt_target[1L]))
 
   # Convert TSV to .vtr
   # vectra's tbl_csv() is comma-only, so we read with read.delim and write_vtr
@@ -103,7 +84,6 @@ taxify_download.taxify_wfo <- function(backend, dest = NULL, version = "latest",
     txt_path,
     fileEncoding = "latin1",
     stringsAsFactors = FALSE,
-    quote = "",
     na.strings = ""
   )
 
@@ -119,7 +99,8 @@ taxify_download.taxify_wfo <- function(backend, dest = NULL, version = "latest",
     df$taxonRank <- toupper(df$taxonRank)
   }
 
-  # Strip whitespace from key text columns
+  # Fix mojibake: the source file contains UTF-8 × (bytes C3 97) which Latin-1
+  # reads as "Ã\x97". Normalize to proper × (U+00D7) in all text columns.
   text_cols <- intersect(
     c("scientificName", "family", "genus", "specificEpithet",
       "scientificNameAuthorship"),
@@ -127,9 +108,15 @@ taxify_download.taxify_wfo <- function(backend, dest = NULL, version = "latest",
   )
   for (col in text_cols) {
     df[[col]] <- trimws(df[[col]])
+    df[[col]] <- gsub("\u00c3\u0097", "\u00d7", df[[col]], fixed = TRUE)
   }
 
+  # Add normalized epithet column for Latin orthographic variant matching
+  df$normalizedName <- normalize_epithets(df$scientificName)
+
   vectra::write_vtr(df, vtr_path)
+  write_backbone_meta(vtr_path, "wfo", backend$version, url, nrow(df))
+  write_version_meta(dest, "wfo", backend$version, pinned = FALSE)
 
   # Clean up
   unlink(zip_path)
@@ -146,8 +133,7 @@ taxify_download.taxify_wfo <- function(backend, dest = NULL, version = "latest",
 
 #' @noRd
 taxify_load.taxify_wfo <- function(backend, path = NULL, ...) {
-  path <- path %||% file.path(taxify_data_dir(),
-                               paste0("wfo_", backend$version, ".vtr"))
+  path <- path %||% file.path(taxify_data_dir(), "wfo.vtr")
   if (!file.exists(path)) {
     stop(sprintf("WFO backbone not found at: %s\nRun taxify_download('wfo') first.",
                  path),
@@ -163,14 +149,17 @@ taxify_load.taxify_wfo <- function(backend, path = NULL, ...) {
 
 #' @noRd
 match_exact.taxify_wfo <- function(backend, names_df, backbone, ...) {
-  # names_df: data.frame with columns original, cleaned, is_hybrid, qualifier
+  # names_df: data.frame with columns original, cleaned, is_hybrid, qualifier,
+  #   genus_only
   # backbone: path to .vtr file (fresh tbl() created per query)
   #
   # Strategy: write cleaned names to temp .vtr, then join against backbone.
-  # Two passes: exact on cleaned_name, then case-insensitive.
+  # genus_only names match against genus column where taxonRank == "GENUS".
+  # Remaining names: exact on cleaned_name, then case-insensitive.
 
   bb_path <- backbone
   cleaned <- names_df$cleaned
+  genus_only <- names_df$genus_only
   has_name <- !is.na(cleaned)
 
   # Prepare empty results template
@@ -181,10 +170,101 @@ match_exact.taxify_wfo <- function(backend, names_df, backbone, ...) {
 
   if (!any(has_name)) return(result)
 
-  # Write input names to temp .vtr for vectra joins
+  # --- Genus-only pass: match against genus column where rank is GENUS ---
+  genus_mask <- has_name & genus_only
+  if (any(genus_mask)) {
+    genus_df <- data.frame(
+      row_idx = which(genus_mask),
+      cleaned_name = cleaned[genus_mask],
+      stringsAsFactors = FALSE
+    )
+    tmp_genus <- tempfile(fileext = ".vtr")
+    on.exit(unlink(tmp_genus), add = TRUE)
+    vectra::write_vtr(genus_df, tmp_genus)
+
+    genus_matches <- vectra::inner_join(
+      vectra::tbl(tmp_genus),
+      vectra::tbl(bb_path) |>
+        vectra::filter(taxonRank == "GENUS") |>
+        vectra::select(taxonID, scientificName, taxonRank, taxonomicStatus,
+                       acceptedNameUsageID, family, genus, specificEpithet,
+                       scientificNameAuthorship),
+      by = c("cleaned_name" = "scientificName")
+    ) |> vectra::collect()
+
+    if (nrow(genus_matches) > 0L) {
+      for (ri in unique(genus_matches$row_idx)) {
+        candidates <- genus_matches[genus_matches$row_idx == ri, , drop = FALSE]
+        best <- pick_best(candidates)
+        i <- best$row_idx
+        result$matched_name[i] <- best$cleaned_name
+        result$taxon_id[i] <- best$taxonID
+        result$rank[i] <- tolower(best$taxonRank)
+        result$taxonomicStatus[i] <- best$taxonomicStatus
+        result$accepted_id_raw[i] <- best$acceptedNameUsageID
+        result$family[i] <- best$family
+        result$genus[i] <- best$genus
+        result$epithet[i] <- best$specificEpithet
+        result$authorship[i] <- best$scientificNameAuthorship
+        result$match_type[i] <- "exact"
+        result$fuzzy_dist[i] <- NA_real_
+      }
+    }
+  }
+
+  # --- Species-level passes: skip genus_only rows ---
+  species_mask <- has_name & !genus_only
+  if (!any(species_mask)) return(result)
+
+  # --- Hybrid pass: for nothospecies, try "Genus × epithet" form first ---
+  hybrid_name <- names_df$hybrid_name
+  hybrid_mask <- species_mask & !is.na(hybrid_name)
+  if (any(hybrid_mask)) {
+    hb_df <- data.frame(
+      row_idx = which(hybrid_mask),
+      hybrid_name = hybrid_name[hybrid_mask],
+      stringsAsFactors = FALSE
+    )
+    tmp_hb <- tempfile(fileext = ".vtr")
+    on.exit(unlink(tmp_hb), add = TRUE)
+    vectra::write_vtr(hb_df, tmp_hb)
+
+    hb_matches <- vectra::inner_join(
+      vectra::tbl(tmp_hb),
+      vectra::tbl(bb_path) |>
+        vectra::select(taxonID, scientificName, taxonRank, taxonomicStatus,
+                       acceptedNameUsageID, family, genus, specificEpithet,
+                       scientificNameAuthorship),
+      by = c("hybrid_name" = "scientificName")
+    ) |> vectra::collect()
+
+    if (nrow(hb_matches) > 0L) {
+      for (ri in unique(hb_matches$row_idx)) {
+        candidates <- hb_matches[hb_matches$row_idx == ri, , drop = FALSE]
+        best <- pick_best(candidates)
+        i <- best$row_idx
+        result$matched_name[i] <- best$hybrid_name
+        result$taxon_id[i] <- best$taxonID
+        result$rank[i] <- tolower(best$taxonRank)
+        result$taxonomicStatus[i] <- best$taxonomicStatus
+        result$accepted_id_raw[i] <- best$acceptedNameUsageID
+        result$family[i] <- best$family
+        result$genus[i] <- best$genus
+        result$epithet[i] <- best$specificEpithet
+        result$authorship[i] <- best$scientificNameAuthorship
+        result$match_type[i] <- "exact"
+        result$fuzzy_dist[i] <- NA_real_
+      }
+    }
+  }
+
+  # Write input names to temp .vtr for vectra joins (skip already-matched hybrids)
+  remaining_mask <- species_mask & is.na(result$match_type)
+  if (!any(remaining_mask)) return(result)
+
   input_df <- data.frame(
-    row_idx = which(has_name),
-    cleaned_name = cleaned[has_name],
+    row_idx = which(remaining_mask),
+    cleaned_name = cleaned[remaining_mask],
     stringsAsFactors = FALSE
   )
   tmp_input <- tempfile(fileext = ".vtr")
@@ -221,7 +301,7 @@ match_exact.taxify_wfo <- function(backend, names_df, backbone, ...) {
   }
 
   # Pass 2: Case-insensitive for remaining unmatched
-  unmatched_mask <- has_name & is.na(result$match_type)
+  unmatched_mask <- species_mask & is.na(result$match_type)
   if (any(unmatched_mask)) {
     ci_df <- data.frame(
       row_idx = which(unmatched_mask),
@@ -258,6 +338,136 @@ match_exact.taxify_wfo <- function(backend, names_df, backbone, ...) {
         result$epithet[i] <- best$specificEpithet
         result$authorship[i] <- best$scientificNameAuthorship
         result$match_type[i] <- "exact_ci"
+        result$fuzzy_dist[i] <- NA_real_
+      }
+    }
+  }
+
+  # Pass 3: Latin orthographic normalization (ae/e, oe/e, ii/i, y/i, ph/f)
+  # Join normalized input against precomputed normalizedName column in backbone.
+  # For hybrids, also try the normalized "Genus × epithet" form.
+  norm_mask <- has_name & is.na(result$match_type)
+  if (any(norm_mask)) {
+    # Build all normalized variants for each unmatched name
+    norm_idx <- which(norm_mask)
+    norm_plain <- normalize_epithets(cleaned[norm_mask])
+
+    # For hybrids: also normalize the "Genus × epithet" form
+    norm_hybrid <- ifelse(
+      !is.na(hybrid_name[norm_mask]),
+      normalize_epithets(hybrid_name[norm_mask]),
+      NA_character_
+    )
+
+    # For infraspecific (3+ words): also normalize the species binomial
+    word_counts <- vapply(strsplit(cleaned[norm_mask], " ", fixed = TRUE),
+                          length, integer(1L))
+    norm_species <- ifelse(
+      word_counts >= 3L,
+      normalize_epithets(sub("^(\\S+\\s+\\S+)\\s+.*$", "\\1", cleaned[norm_mask])),
+      NA_character_
+    )
+
+    # Stack all variants into one data.frame for a single join
+    rows <- list()
+    for (j in seq_along(norm_idx)) {
+      rows[[length(rows) + 1L]] <- data.frame(
+        row_idx = norm_idx[j], norm_key = norm_plain[j],
+        stringsAsFactors = FALSE
+      )
+      if (!is.na(norm_hybrid[j])) {
+        rows[[length(rows) + 1L]] <- data.frame(
+          row_idx = norm_idx[j], norm_key = norm_hybrid[j],
+          stringsAsFactors = FALSE
+        )
+      }
+      if (!is.na(norm_species[j])) {
+        rows[[length(rows) + 1L]] <- data.frame(
+          row_idx = norm_idx[j], norm_key = norm_species[j],
+          stringsAsFactors = FALSE
+        )
+      }
+    }
+    norm_df <- do.call(rbind, rows)
+
+    tmp_norm <- tempfile(fileext = ".vtr")
+    on.exit(unlink(tmp_norm), add = TRUE)
+    vectra::write_vtr(norm_df, tmp_norm)
+
+    norm_matches <- vectra::inner_join(
+      vectra::tbl(tmp_norm),
+      vectra::tbl(bb_path) |>
+        vectra::select(taxonID, scientificName, normalizedName, taxonRank,
+                       taxonomicStatus, acceptedNameUsageID, family, genus,
+                       specificEpithet, scientificNameAuthorship),
+      by = c("norm_key" = "normalizedName")
+    ) |> vectra::collect()
+
+    if (nrow(norm_matches) > 0L) {
+      for (ri in unique(norm_matches$row_idx)) {
+        if (!is.na(result$match_type[ri])) next
+        candidates <- norm_matches[norm_matches$row_idx == ri, , drop = FALSE]
+        best <- pick_best(candidates)
+        i <- best$row_idx
+        result$matched_name[i] <- best$scientificName
+        result$taxon_id[i] <- best$taxonID
+        result$rank[i] <- tolower(best$taxonRank)
+        result$taxonomicStatus[i] <- best$taxonomicStatus
+        result$accepted_id_raw[i] <- best$acceptedNameUsageID
+        result$family[i] <- best$family
+        result$genus[i] <- best$genus
+        result$epithet[i] <- best$specificEpithet
+        result$authorship[i] <- best$scientificNameAuthorship
+        result$match_type[i] <- "exact_ci"
+        result$fuzzy_dist[i] <- NA_real_
+      }
+    }
+  }
+
+  # Pass 4: Infraspecific-to-species fallback
+  # After cleaning, names like "Genus epithet subsp. infraepithet" become
+  # "Genus epithet infraepithet" (3+ words). If still unmatched, try matching
+  # just the species binomial (first two words).
+  infraspec_mask <- has_name & is.na(result$match_type) &
+    vapply(strsplit(cleaned[seq_len(n)], " ", fixed = TRUE),
+           length, integer(1L)) >= 3L
+  if (any(infraspec_mask)) {
+    species_names <- sub("^(\\S+\\s+\\S+)\\s+.*$", "\\1",
+                         cleaned[infraspec_mask])
+    sp_df <- data.frame(
+      row_idx = which(infraspec_mask),
+      cleaned_name = cleaned[infraspec_mask],
+      species_name = species_names,
+      stringsAsFactors = FALSE
+    )
+    tmp_sp <- tempfile(fileext = ".vtr")
+    on.exit(unlink(tmp_sp), add = TRUE)
+    vectra::write_vtr(sp_df, tmp_sp)
+
+    sp_matches <- vectra::inner_join(
+      vectra::tbl(tmp_sp),
+      vectra::tbl(bb_path) |>
+        vectra::select(taxonID, scientificName, taxonRank, taxonomicStatus,
+                       acceptedNameUsageID, family, genus, specificEpithet,
+                       scientificNameAuthorship),
+      by = c("species_name" = "scientificName")
+    ) |> vectra::collect()
+
+    if (nrow(sp_matches) > 0L) {
+      for (ri in unique(sp_matches$row_idx)) {
+        candidates <- sp_matches[sp_matches$row_idx == ri, , drop = FALSE]
+        best <- pick_best(candidates)
+        i <- best$row_idx
+        result$matched_name[i] <- best$species_name
+        result$taxon_id[i] <- best$taxonID
+        result$rank[i] <- tolower(best$taxonRank)
+        result$taxonomicStatus[i] <- best$taxonomicStatus
+        result$accepted_id_raw[i] <- best$acceptedNameUsageID
+        result$family[i] <- best$family
+        result$genus[i] <- best$genus
+        result$epithet[i] <- best$specificEpithet
+        result$authorship[i] <- best$scientificNameAuthorship
+        result$match_type[i] <- "exact"
         result$fuzzy_dist[i] <- NA_real_
       }
     }
@@ -415,11 +625,8 @@ resolve_synonyms.taxify_wfo <- function(backend, matches, backbone, ...) {
       by = c("lookup_id" = "taxonID")
     ) |> vectra::collect()
 
-    # Build lookup
-    acc_lookup <- stats::setNames(
-      split(acc_info, acc_info$lookup_id),
-      acc_info$lookup_id
-    )
+    # Build lookup (split already returns a named list keyed by lookup_id)
+    acc_lookup <- split(acc_info, acc_info$lookup_id)
   } else {
     acc_lookup <- list()
   }
@@ -483,6 +690,7 @@ empty_match_result <- function(n) {
     match_type     = NA_character_,
     fuzzy_dist     = NA_real_,
     backend        = NA_character_,
+    backbone_version = NA_character_,
     # Internal columns (stripped before returning to user)
     taxonomicStatus  = NA_character_,
     accepted_id_raw  = NA_character_,
