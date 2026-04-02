@@ -201,6 +201,10 @@ taxify <- function(x,
   result$taxonomicStatus <- NULL
   result$accepted_id_raw <- NULL
 
+  # Register enrichment: classify unmatched names as out_of_scope when the
+  # genus exists in the register but was not covered by any requested backend
+  result <- enrich_with_register(result, names_df, backend)
+
   rownames(result) <- NULL
   result
 }
@@ -247,6 +251,75 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   result$taxonomicStatus <- NULL
   result$accepted_id_raw <- NULL
 
+  # Register enrichment: classify unmatched names as out_of_scope when the
+  # genus exists in the register but was not covered by the requested backend
+  result <- enrich_with_register(result, names_df, be$name)
+
   rownames(result) <- NULL
+  result
+}
+
+
+#' Enrich unmatched names using the unified genus register
+#'
+#' For names with `match_type = "none"`, extracts the genus from the cleaned
+#' name (or the first word of the input), looks it up in the register, and
+#' — if found — sets `match_type = "out_of_scope"` and fills the `life_form`
+#' column.
+#'
+#' Silently skips enrichment if the register is not available (no .vtr on disk
+#' and not already loaded in `.taxify_env`).
+#'
+#' @param result The match result data.frame (after match_type = "none" is set).
+#' @param names_df The cleaned names data.frame from `clean_names()`.
+#' @param backend Character scalar or vector of backend names that were tried.
+#' @return The result data.frame, possibly with `life_form` column added and
+#'   some rows promoted to `match_type = "out_of_scope"`.
+#' @noRd
+enrich_with_register <- function(result, names_df, backend) {
+  # Only proceed if register is available
+  reg <- tryCatch({
+    if (is.null(.taxify_env$register)) {
+      path <- register_vtr_path()
+      if (!file.exists(path)) return(result)
+      taxify_load_register(verbose = FALSE)
+    }
+    .taxify_env$register
+  }, error = function(e) NULL)
+
+  if (is.null(reg) || nrow(reg) == 0L) return(result)
+
+  # Ensure life_form column exists in result
+  if (!"life_form" %in% names(result)) {
+    result$life_form <- NA_character_
+  }
+
+  # Work only on "none" rows
+  none_rows <- which(result$match_type == "none" & !is.na(result$input_name))
+  if (length(none_rows) == 0L) return(result)
+
+  # Build genus -> register row lookup (fast: register is a data.frame)
+  reg_lookup <- stats::setNames(seq_len(nrow(reg)), reg$genus)
+
+  for (i in none_rows) {
+    # Extract genus: first word of cleaned name, or first word of original
+    cleaned_name <- names_df$cleaned[i]
+    if (!is.na(cleaned_name) && nzchar(cleaned_name)) {
+      genus_name <- sub(" .*", "", cleaned_name)
+    } else {
+      raw <- result$input_name[i]
+      if (is.na(raw) || !nzchar(raw)) next
+      genus_name <- sub(" .*", "", trimws(raw))
+    }
+
+    if (!nzchar(genus_name)) next
+    reg_idx <- reg_lookup[genus_name]
+    if (is.na(reg_idx)) next
+
+    # Genus is in the register — mark as out_of_scope, fill life_form
+    result$match_type[i] <- "out_of_scope"
+    result$life_form[i]  <- reg$life_form[reg_idx]
+  }
+
   result
 }

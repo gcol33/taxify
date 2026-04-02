@@ -19,7 +19,9 @@ utils::globalVariables(c(
   "notho_type", "nom_status", "bracket_authorship", "bracket_year",
   "name_published_in", "origin", "infra_specific_epithet",
   # vectra string distance functions (used in NSE mutate expressions)
-  "dl_dist_norm", "levenshtein_norm", "jaro_winkler"
+  "dl_dist_norm", "levenshtein_norm", "jaro_winkler",
+  # register column references
+  "query_genus", "life_form", "kingdom", "phylum", "class", "order"
 ))
 
 # Package-level backbone cache environment (paths to .vtr files)
