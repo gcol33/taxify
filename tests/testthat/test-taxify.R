@@ -9,16 +9,20 @@ setup_mock_backend <- function() {
   be
 }
 
-test_that("taxify returns correct 15-column schema", {
+test_that("taxify returns correct schema", {
   setup_mock_backend()
   result <- taxify("Quercus robur", verbose = FALSE)
+  expect_s3_class(result, "taxify_result")
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), 1L)
   expected_cols <- c("input_name", "matched_name", "accepted_name",
                      "taxon_id", "accepted_id", "rank", "family",
                      "genus", "epithet", "authorship", "is_synonym",
-                     "is_hybrid", "match_type", "fuzzy_dist", "backend")
-  expect_named(result, expected_cols)
+                     "is_hybrid", "match_type", "fuzzy_dist", "backend",
+                     "backbone_version", "life_form")
+  expect_true(all(expected_cols %in% names(result)),
+              info = paste("Missing cols:", paste(setdiff(expected_cols, names(result)),
+                                                  collapse = ", ")))
 })
 
 test_that("taxify matches known species", {
@@ -101,4 +105,81 @@ test_that("taxify rejects non-character input", {
 
 test_that("taxify rejects empty input", {
   expect_error(taxify(character(0)), "at least one element")
+})
+
+
+# ---- taxify_result class and metadata ----
+
+test_that("taxify() returns a taxify_result with taxify_meta attribute", {
+  setup_mock_backend()
+  result <- taxify(c("Quercus robur", "Pinus sylvestris", "Nonexistus foo"),
+                   verbose = FALSE)
+
+  expect_s3_class(result, "taxify_result")
+  meta <- attr(result, "taxify_meta")
+  expect_type(meta, "list")
+  expect_true(all(c("backend", "n_input", "match_tally",
+                    "out_of_scope_tally", "life_form_tally") %in% names(meta)))
+})
+
+test_that("taxify_meta tallies are correct", {
+  setup_mock_backend()
+  result <- taxify(c("Quercus robur", "Pinus sylvestris", "Nonexistus foo"),
+                   fuzzy = FALSE, verbose = FALSE)
+
+  meta <- attr(result, "taxify_meta")
+  expect_equal(meta$n_input, 3L)
+  expect_equal(meta$match_tally$exact, 2L)
+  expect_equal(meta$match_tally$unmatched, 1L)
+  expect_equal(meta$match_tally$fuzzy, 0L)
+  expect_equal(meta$match_tally$out_of_scope, 0L)
+})
+
+test_that("print.taxify_result() delegates to data.frame print", {
+  setup_mock_backend()
+  result <- taxify("Quercus robur", verbose = FALSE)
+  # print() should not error and should return invisibly
+  out <- capture.output(print(result))
+  expect_true(length(out) > 0L)
+})
+
+test_that("summary.taxify_result() produces output and returns invisibly", {
+  setup_mock_backend()
+  result <- taxify(c("Quercus robur", "Pinus sylvestris", "Nonexistus foo"),
+                   fuzzy = FALSE, verbose = FALSE)
+
+  out <- capture.output(ret <- summary(result))
+  # Should produce lines of output
+  expect_true(length(out) > 0L)
+  # Should mention the backend
+  expect_true(any(grepl("WFO", out, ignore.case = TRUE)))
+  # Should mention name count
+  expect_true(any(grepl("3", out)))
+  # Returns invisibly (same object)
+  expect_identical(ret, result)
+})
+
+test_that("summary.taxify_result() shows out_of_scope line when present", {
+  setup_mock_backend()
+  # Inject a mock register so Boletus gets classified as out_of_scope
+  .taxify_env$register <- data.frame(
+    genus     = c("Quercus", "Boletus"),
+    kingdom   = c("Plantae", "Fungi"),
+    phylum    = c("Tracheophyta", "Basidiomycota"),
+    class     = c("Magnoliopsida", NA_character_),
+    order     = c("Fagales", "Boletales"),
+    family    = c("Fagaceae", "Boletaceae"),
+    life_form = c("vascular", "fungus"),
+    stringsAsFactors = FALSE
+  )
+  on.exit(.taxify_env$register <- NULL, add = TRUE)
+
+  result <- taxify(c("Quercus robur", "Boletus edulis"),
+                   fuzzy = FALSE, verbose = FALSE)
+
+  meta <- attr(result, "taxify_meta")
+  expect_equal(meta$match_tally$out_of_scope, 1L)
+
+  out <- capture.output(summary(result))
+  expect_true(any(grepl("out of scope", out, ignore.case = TRUE)))
 })

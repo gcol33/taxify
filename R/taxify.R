@@ -201,11 +201,18 @@ taxify <- function(x,
   result$taxonomicStatus <- NULL
   result$accepted_id_raw <- NULL
 
+  # Ensure life_form column always exists (populated by enrich_with_register
+  # when the register is available; NA otherwise)
+  if (!"life_form" %in% names(result)) result$life_form <- NA_character_
+
   # Register enrichment: classify unmatched names as out_of_scope when the
   # genus exists in the register but was not covered by any requested backend
   result <- enrich_with_register(result, names_df, backend)
 
   rownames(result) <- NULL
+
+  # Attach S3 class and metadata before returning
+  result <- as_taxify_result(result, backend = backend)
   result
 }
 
@@ -251,11 +258,17 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   result$taxonomicStatus <- NULL
   result$accepted_id_raw <- NULL
 
+  # Ensure life_form column always exists
+  if (!"life_form" %in% names(result)) result$life_form <- NA_character_
+
   # Register enrichment: classify unmatched names as out_of_scope when the
   # genus exists in the register but was not covered by the requested backend
   result <- enrich_with_register(result, names_df, be$name)
 
   rownames(result) <- NULL
+
+  # Attach S3 class and metadata before returning
+  result <- as_taxify_result(result, backend = be$name)
   result
 }
 
@@ -294,32 +307,162 @@ enrich_with_register <- function(result, names_df, backend) {
     result$life_form <- NA_character_
   }
 
-  # Work only on "none" rows
-  none_rows <- which(result$match_type == "none" & !is.na(result$input_name))
-  if (length(none_rows) == 0L) return(result)
-
   # Build genus -> register row lookup (fast: register is a data.frame)
   reg_lookup <- stats::setNames(seq_len(nrow(reg)), reg$genus)
 
-  for (i in none_rows) {
-    # Extract genus: first word of cleaned name, or first word of original
-    cleaned_name <- names_df$cleaned[i]
-    if (!is.na(cleaned_name) && nzchar(cleaned_name)) {
-      genus_name <- sub(" .*", "", cleaned_name)
+  # Iterate over ALL rows with a non-NA input name
+  active_rows <- which(!is.na(result$input_name))
+  if (length(active_rows) == 0L) return(result)
+
+  for (i in active_rows) {
+    mt <- result$match_type[i]
+
+    # Determine genus to look up
+    if (!is.na(mt) && mt != "none") {
+      # Matched row: use the genus column when available (already resolved)
+      genus_name <- result$genus[i]
+      if (is.na(genus_name) || !nzchar(genus_name)) {
+        # Fall back to first word of matched_name
+        mn <- result$matched_name[i]
+        genus_name <- if (!is.na(mn)) sub(" .*", "", mn) else NA_character_
+      }
     } else {
-      raw <- result$input_name[i]
-      if (is.na(raw) || !nzchar(raw)) next
-      genus_name <- sub(" .*", "", trimws(raw))
+      # Unmatched row (match_type == "none" or NA): derive from cleaned name
+      cleaned_name <- names_df$cleaned[i]
+      if (!is.na(cleaned_name) && nzchar(cleaned_name)) {
+        genus_name <- sub(" .*", "", cleaned_name)
+      } else {
+        raw <- result$input_name[i]
+        if (is.na(raw) || !nzchar(raw)) next
+        genus_name <- sub(" .*", "", trimws(raw))
+      }
     }
 
-    if (!nzchar(genus_name)) next
+    if (is.na(genus_name) || !nzchar(genus_name)) next
     reg_idx <- reg_lookup[genus_name]
     if (is.na(reg_idx)) next
 
-    # Genus is in the register — mark as out_of_scope, fill life_form
-    result$match_type[i] <- "out_of_scope"
-    result$life_form[i]  <- reg$life_form[reg_idx]
+    # Fill life_form from register for all rows where the genus is found
+    result$life_form[i] <- reg$life_form[reg_idx]
+
+    # For "none" rows only: promote to out_of_scope
+    if (!is.na(mt) && mt == "none") {
+      result$match_type[i] <- "out_of_scope"
+    }
   }
 
+  result
+}
+
+
+#' Attach the taxify_result class and metadata attribute
+#'
+#' Called as the final step of `taxify()` and `taxify_single()`. Computes
+#' match tallies and life-form tallies from the assembled result data.frame
+#' and attaches them as the `"taxify_meta"` attribute.
+#'
+#' @param result A data.frame with the standard 16+ column schema.
+#' @param backend Character vector of backend name(s) that were tried.
+#' @return The same data.frame, classed as `c("taxify_result", "data.frame")`.
+#' @noRd
+as_taxify_result <- function(result, backend) {
+  n_input <- nrow(result)
+
+  # Match-type tallies
+  mt <- result$match_type
+  tally <- list(
+    exact            = sum(mt == "exact",       na.rm = TRUE),
+    case_insensitive = sum(mt == "exact_ci",    na.rm = TRUE),
+    fuzzy            = sum(mt == "fuzzy",        na.rm = TRUE),
+    out_of_scope     = sum(mt == "out_of_scope", na.rm = TRUE),
+    unmatched        = sum(mt == "none",         na.rm = TRUE)
+  )
+
+  # Out-of-scope breakdown by life_form (only rows with match_type == "out_of_scope")
+  oos_rows <- result[!is.na(mt) & mt == "out_of_scope", , drop = FALSE]
+  if (nrow(oos_rows) > 0L && "life_form" %in% names(oos_rows)) {
+    oos_lf  <- oos_rows$life_form
+    oos_be  <- if ("backend" %in% names(oos_rows)) {
+      oos_rows$backend
+    } else {
+      rep(backend[1L], nrow(oos_rows))
+    }
+    oos_lf[is.na(oos_lf)] <- "unknown"
+    oos_be[is.na(oos_be)]  <- backend[1L]
+    # Build a grouped count using a data.frame approach (no null separator needed)
+    oos_combo_df   <- data.frame(life_form = oos_lf, backend = oos_be,
+                                 stringsAsFactors = FALSE)
+    oos_tally_df   <- aggregate(
+      rep(1L, nrow(oos_combo_df)) ~ life_form + backend,
+      data = oos_combo_df,
+      FUN  = sum
+    )
+    names(oos_tally_df)[names(oos_tally_df) == "rep(1L, nrow(oos_combo_df))"] <- "n"
+    oos_tally_df   <- oos_tally_df[order(oos_tally_df$life_form), , drop = FALSE]
+    rownames(oos_tally_df) <- NULL
+  } else {
+    oos_tally_df <- data.frame(
+      life_form = character(0L),
+      backend   = character(0L),
+      n         = integer(0L),
+      stringsAsFactors = FALSE
+    )
+  }
+
+  # Full life-form breakdown across all rows
+  lf_tally_df <- if ("life_form" %in% names(result)) {
+    lf_vals <- result$life_form
+    lf_vals[is.na(lf_vals)] <- "unknown"
+    lf_tbl <- sort(table(lf_vals), decreasing = TRUE)
+    data.frame(
+      life_form = names(lf_tbl),
+      n         = as.integer(lf_tbl),
+      stringsAsFactors = FALSE,
+      row.names = NULL
+    )
+  } else {
+    data.frame(life_form = character(0L), n = integer(0L),
+               stringsAsFactors = FALSE)
+  }
+
+  # Unmatched rows' life-form breakdown (for the summary unmatched line)
+  none_rows <- result[!is.na(mt) & mt == "none", , drop = FALSE]
+  none_lf_df <- if (nrow(none_rows) > 0L && "life_form" %in% names(none_rows)) {
+    lf_vals <- none_rows$life_form
+    lf_vals[is.na(lf_vals)] <- "unknown"
+    lf_tbl <- sort(table(lf_vals), decreasing = TRUE)
+    data.frame(
+      life_form = names(lf_tbl),
+      n         = as.integer(lf_tbl),
+      stringsAsFactors = FALSE,
+      row.names = NULL
+    )
+  } else {
+    data.frame(life_form = character(0L), n = integer(0L),
+               stringsAsFactors = FALSE)
+  }
+
+  # Version: pull from backbone_version column of first matched row
+  version <- NA_character_
+  if ("backbone_version" %in% names(result)) {
+    bv <- result$backbone_version[!is.na(result$backbone_version)]
+    if (length(bv) > 0L) {
+      # backbone_version format: "wfo:2024-12 (2026-04-01)" — extract version part
+      version <- sub("^[^:]+:([^ ]+).*$", "\\1", bv[1L])
+    }
+  }
+
+  meta <- list(
+    backend                   = backend,
+    version                   = version,
+    n_input                   = n_input,
+    match_tally               = tally,
+    out_of_scope_tally        = oos_tally_df,
+    life_form_tally           = lf_tally_df,
+    unmatched_life_form_tally = none_lf_df
+  )
+
+  attr(result, "taxify_meta") <- meta
+  class(result) <- c("taxify_result", "data.frame")
   result
 }

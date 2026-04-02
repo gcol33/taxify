@@ -213,8 +213,11 @@ test_that("out_of_scope enrichment does not affect matched names", {
 
   # Both should be matched, not out_of_scope
   expect_true(all(result$match_type %in% c("exact", "exact_ci", "fuzzy")))
-  # life_form is NA for matched rows (not populated from register for matches)
-  expect_true(all(is.na(result$life_form)))
+  # life_form IS populated for matched rows when the register is available
+  expect_equal(result$life_form[result$input_name == "Quercus robur"],
+               "vascular")
+  expect_equal(result$life_form[result$input_name == "Pinus sylvestris"],
+               "gymnosperm")
 })
 
 
