@@ -15,6 +15,8 @@ BugReports: https://github.com/gcol33/taxify/issues
 Depends:
     R (>= 4.1.0)
 Imports:
+    curl,
+    jsonlite,
     rlang,
     vectra
 Suggests:

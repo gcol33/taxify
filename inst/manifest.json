@@ -1,0 +1,6 @@
+{
+  "wfo":      { "latest": "2024.12", "url": "https://zenodo.org/records/PLACEHOLDER/files/wfo_2024.12.vtr" },
+  "col":      { "latest": "2024.11", "url": "https://zenodo.org/records/PLACEHOLDER/files/col_2024.11.vtr" },
+  "gbif":     { "latest": "2024.10", "url": "https://zenodo.org/records/PLACEHOLDER/files/gbif_2024.10.vtr" },
+  "register": { "latest": "2024.12", "url": "https://zenodo.org/records/PLACEHOLDER/files/register_2024.12.vtr" }
+}

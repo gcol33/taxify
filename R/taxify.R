@@ -5,19 +5,23 @@
 #' containing the matched name, accepted name, taxonomic hierarchy, and
 #' match quality information.
 #'
+#' When multiple backends are specified, names are matched against each
+#' backend in order. Names matched by an earlier backend are not re-matched
+#' by later ones (fallback chain).
+#'
 #' @param x Character vector of taxonomic names.
-#' @param backend Character string or `taxify_backend` object. Currently
-#'   only `"wfo"` (World Flora Online) is supported. Default `"wfo"`.
+#' @param backend Character vector of backend names (e.g., `"wfo"`, `"col"`,
+#'   `"gbif"`) or a single `taxify_backend` object. When multiple backends
+#'   are given, they are tried in order as a fallback chain. Default `"wfo"`.
 #' @param fuzzy Logical. Enable fuzzy matching for names that fail exact
 #'   match. Default `TRUE`.
 #' @param fuzzy_threshold Numeric 0--1. Maximum normalized string distance
 #'   for fuzzy matches. Default `0.2` (roughly 1 edit per 5 characters).
 #' @param fuzzy_method Character. One of `"dl"` (Damerau-Levenshtein,
 #'   default), `"levenshtein"`, or `"jw"` (Jaro-Winkler).
-#' @param version Character. Backbone version. Default `"latest"`.
 #' @param verbose Logical. Print progress messages. Default `TRUE`.
 #'
-#' @return A data.frame with one row per input name and 15 columns:
+#' @return A data.frame with one row per input name and 16 columns:
 #' \describe{
 #'   \item{input_name}{The original name as provided.}
 #'   \item{matched_name}{Full name in the backbone that matched.}
@@ -35,7 +39,10 @@
 #'   \item{match_type}{One of `"exact"`, `"exact_ci"`, `"fuzzy"`, or
 #'     `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
-#'   \item{backend}{Which backend was used (e.g., `"wfo"`).}
+#'   \item{backend}{Which backend was used (e.g., `"wfo"`, `"col"`,
+#'     `"gbif"`).}
+#'   \item{backbone_version}{Backend name, version, and download date
+#'     (e.g., `"wfo:2024-12 (2026-04-01)"`). Useful for reproducibility.}
 #' }
 #'
 #' @examples
@@ -46,8 +53,9 @@
 #' # Disable fuzzy matching
 #' taxify("Quercus robus", fuzzy = FALSE)
 #'
-#' # Use Jaro-Winkler similarity
-#' taxify("Quercus robus", fuzzy_method = "jw")
+#' # Fallback chain: try WFO first, then COL for unmatched
+#' taxify(c("Quercus robur", "Panthera leo"),
+#'        backend = c("wfo", "col"))
 #' }
 #'
 #' @export
@@ -56,7 +64,6 @@ taxify <- function(x,
                    fuzzy = TRUE,
                    fuzzy_threshold = 0.2,
                    fuzzy_method = c("dl", "levenshtein", "jw"),
-                   version = "latest",
                    verbose = TRUE) {
 
   fuzzy_method <- match.arg(fuzzy_method)
@@ -69,20 +76,155 @@ taxify <- function(x,
     stop("x must have at least one element", call. = FALSE)
   }
 
-  # Resolve backend
-  be <- resolve_backend(backend, version)
+  # Handle single backend object
+  if (inherits(backend, "taxify_backend")) {
+    ensure_backends_current(backend$name, verbose = verbose)
+    return(taxify_single(x, backend, fuzzy, fuzzy_threshold, fuzzy_method,
+                         verbose))
+  }
 
-  # Ensure backbone is available (cache -> disk -> download)
+  # Handle character vector of backend names
+  if (!is.character(backend) || length(backend) == 0L) {
+    stop("backend must be a character vector or taxify_backend object",
+         call. = FALSE)
+  }
+
+  # Once-per-session version check: auto-downloads if any backend is outdated
+  ensure_backends_current(backend, verbose = verbose)
+
+  if (length(backend) == 1L) {
+    be <- resolve_backend(backend)
+    return(taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method, verbose))
+  }
+
+  # Multi-backend fallback chain
+  if (verbose) message(sprintf("Matching %d names against %d backends: %s",
+                                length(x), length(backend),
+                                paste(backend, collapse = " -> ")))
+
+  names_df <- clean_names(x)
+  result <- NULL
+
+  for (be_name in backend) {
+    be <- resolve_backend(be_name)
+    bb_path <- ensure_backbone(be, verbose = verbose)
+
+    if (is.null(result)) {
+      # First backend: match all names
+      if (verbose) message(sprintf("  [%s] Matching %d names...",
+                                    be_name, nrow(names_df)))
+      result <- match_exact(be, names_df, bb_path)
+
+      n_unmatched <- sum(is.na(result$match_type) & !is.na(names_df$cleaned))
+      if (fuzzy && n_unmatched > 0L) {
+        if (verbose) message(sprintf("  [%s] Fuzzy matching %d unmatched...",
+                                      be_name, n_unmatched))
+        result <- match_fuzzy(be, result, bb_path,
+                              method = fuzzy_method,
+                              threshold = fuzzy_threshold)
+      }
+
+      result <- resolve_synonyms(be, result, bb_path)
+      matched <- !is.na(result$match_type)
+      result$backend <- ifelse(matched, be$name, NA_character_)
+      bb_ver <- format_backbone_version(bb_path, be$name, be$version)
+      result$backbone_version[matched] <- bb_ver
+    } else {
+      # Subsequent backends: only try unmatched names
+      unmatched_idx <- which(is.na(result$match_type) &
+                             !is.na(result$input_name))
+      if (length(unmatched_idx) == 0L) {
+        if (verbose) message(sprintf("  [%s] Skipped (all names matched)",
+                                      be_name))
+        next
+      }
+
+      if (verbose) message(sprintf("  [%s] Matching %d remaining names...",
+                                    be_name, length(unmatched_idx)))
+
+      # Build a names_df subset for unmatched
+      sub_names_df <- data.frame(
+        original = names_df$original[unmatched_idx],
+        cleaned = names_df$cleaned[unmatched_idx],
+        is_hybrid = names_df$is_hybrid[unmatched_idx],
+        qualifier = names_df$qualifier[unmatched_idx],
+        genus_only = names_df$genus_only[unmatched_idx],
+        hybrid_name = names_df$hybrid_name[unmatched_idx],
+        stringsAsFactors = FALSE
+      )
+
+      sub_result <- match_exact(be, sub_names_df, bb_path)
+
+      n_still_unmatched <- sum(is.na(sub_result$match_type) &
+                               !is.na(sub_names_df$cleaned))
+      if (fuzzy && n_still_unmatched > 0L) {
+        if (verbose) message(sprintf("  [%s] Fuzzy matching %d unmatched...",
+                                      be_name, n_still_unmatched))
+        sub_result <- match_fuzzy(be, sub_result, bb_path,
+                                  method = fuzzy_method,
+                                  threshold = fuzzy_threshold)
+      }
+
+      sub_result <- resolve_synonyms(be, sub_result, bb_path)
+
+      # Merge sub_result back into main result
+      matched_in_sub <- which(!is.na(sub_result$match_type))
+      for (j in matched_in_sub) {
+        i <- unmatched_idx[j]
+        result$matched_name[i] <- sub_result$matched_name[j]
+        result$accepted_name[i] <- sub_result$accepted_name[j]
+        result$taxon_id[i] <- sub_result$taxon_id[j]
+        result$accepted_id[i] <- sub_result$accepted_id[j]
+        result$rank[i] <- sub_result$rank[j]
+        result$family[i] <- sub_result$family[j]
+        result$genus[i] <- sub_result$genus[j]
+        result$epithet[i] <- sub_result$epithet[j]
+        result$authorship[i] <- sub_result$authorship[j]
+        result$is_synonym[i] <- sub_result$is_synonym[j]
+        result$match_type[i] <- sub_result$match_type[j]
+        result$fuzzy_dist[i] <- sub_result$fuzzy_dist[j]
+        result$taxonomicStatus[i] <- sub_result$taxonomicStatus[j]
+        result$accepted_id_raw[i] <- sub_result$accepted_id_raw[j]
+        result$backend[i] <- be$name
+        result$backbone_version[i] <- format_backbone_version(
+          bb_path, be$name, be$version
+        )
+      }
+    }
+  }
+
+  # Set match_type = "none" for still-unmatched
+  result$match_type[is.na(result$match_type) &
+                    !is.na(result$input_name)] <- "none"
+
+  # Drop internal columns
+  result$taxonomicStatus <- NULL
+  result$accepted_id_raw <- NULL
+
+  rownames(result) <- NULL
+  result
+}
+
+
+#' Run the full matching pipeline against a single backend
+#'
+#' @param x Character vector of names.
+#' @param be A taxify_backend object.
+#' @param fuzzy Logical.
+#' @param fuzzy_threshold Numeric.
+#' @param fuzzy_method Character.
+#' @param verbose Logical.
+#' @return A data.frame with the 16-column output schema.
+#' @noRd
+taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
+                          verbose) {
   bb_path <- ensure_backbone(be, verbose = verbose)
 
-  # Clean names
   if (verbose) message(sprintf("Matching %d names...", length(x)))
   names_df <- clean_names(x)
 
-  # Exact matching
   result <- match_exact(be, names_df, bb_path)
 
-  # Fuzzy matching on unmatched
   n_unmatched <- sum(is.na(result$match_type) & !is.na(names_df$cleaned))
   if (fuzzy && n_unmatched > 0L) {
     if (verbose) message(sprintf("  Fuzzy matching %d unmatched names...",
@@ -92,22 +234,19 @@ taxify <- function(x,
                           threshold = fuzzy_threshold)
   }
 
-  # Resolve synonyms
   result <- resolve_synonyms(be, result, bb_path)
 
-  # Fill backend column
-  result$backend <- ifelse(is.na(result$match_type), NA_character_, be$name)
+  matched <- !is.na(result$match_type)
+  result$backend <- ifelse(matched, be$name, NA_character_)
+  result$backbone_version[matched] <- format_backbone_version(
+    bb_path, be$name, be$version
+  )
+  result$match_type[is.na(result$match_type) &
+                    !is.na(result$input_name)] <- "none"
 
-  # Set match_type = "none" for unmatched
-
-  result$match_type[is.na(result$match_type) & !is.na(result$input_name)] <- "none"
-
-  # Drop internal columns and return the 15-column schema
   result$taxonomicStatus <- NULL
   result$accepted_id_raw <- NULL
 
-  # Reset row names
   rownames(result) <- NULL
-
   result
 }
