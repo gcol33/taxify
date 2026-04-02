@@ -10,15 +10,15 @@ taxify(
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
   fuzzy_method = c("dl", "levenshtein", "jw"),
-  version = "latest",
   verbose = TRUE
 )
 }
 \arguments{
 \item{x}{Character vector of taxonomic names.}
 
-\item{backend}{Character string or \code{taxify_backend} object. Currently
-only \code{"wfo"} (World Flora Online) is supported. Default \code{"wfo"}.}
+\item{backend}{Character vector of backend names (e.g., \code{"wfo"}, \code{"col"},
+\code{"gbif"}) or a single \code{taxify_backend} object. When multiple backends
+are given, they are tried in order as a fallback chain. Default \code{"wfo"}.}
 
 \item{fuzzy}{Logical. Enable fuzzy matching for names that fail exact
 match. Default \code{TRUE}.}
@@ -29,12 +29,10 @@ for fuzzy matches. Default \code{0.2} (roughly 1 edit per 5 characters).}
 \item{fuzzy_method}{Character. One of \code{"dl"} (Damerau-Levenshtein,
 default), \code{"levenshtein"}, or \code{"jw"} (Jaro-Winkler).}
 
-\item{version}{Character. Backbone version. Default \code{"latest"}.}
-
 \item{verbose}{Logical. Print progress messages. Default \code{TRUE}.}
 }
 \value{
-A data.frame with one row per input name and 15 columns:
+A data.frame with one row per input name and 16 columns:
 \describe{
 \item{input_name}{The original name as provided.}
 \item{matched_name}{Full name in the backbone that matched.}
@@ -52,7 +50,10 @@ if not a synonym).}
 \item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, or
 \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
-\item{backend}{Which backend was used (e.g., \code{"wfo"}).}
+\item{backend}{Which backend was used (e.g., \code{"wfo"}, \code{"col"},
+\code{"gbif"}).}
+\item{backbone_version}{Backend name, version, and download date
+(e.g., \code{"wfo:2024-12 (2026-04-01)"}). Useful for reproducibility.}
 }
 }
 \description{
@@ -60,6 +61,11 @@ Matches a vector of taxonomic names against locally stored Darwin Core
 backbone databases. Returns a data.frame with one row per input name
 containing the matched name, accepted name, taxonomic hierarchy, and
 match quality information.
+}
+\details{
+When multiple backends are specified, names are matched against each
+backend in order. Names matched by an earlier backend are not re-matched
+by later ones (fallback chain).
 }
 \examples{
 \dontrun{
@@ -69,8 +75,9 @@ taxify(c("Quercus robur", "Pinus sylvestris"))
 # Disable fuzzy matching
 taxify("Quercus robus", fuzzy = FALSE)
 
-# Use Jaro-Winkler similarity
-taxify("Quercus robus", fuzzy_method = "jw")
+# Fallback chain: try WFO first, then COL for unmatched
+taxify(c("Quercus robur", "Panthera leo"),
+       backend = c("wfo", "col"))
 }
 
 }

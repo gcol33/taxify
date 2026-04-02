@@ -266,48 +266,69 @@ resolve_kingdom_via_gbif <- function(resolved, gbif_path) {
     "Viruses"   = "unknown"
   )
 
-  # For each unknown genus, find its GBIF id, then walk parent_key to KINGDOM
-  genus_ids <- gbif_df$id[
-    gbif_df$canonical_name %in% unknown_genera &
-    !is.na(gbif_df$rank) & gbif_df$rank == "GENUS"
-  ]
-  genus_id_map <- stats::setNames(
-    gbif_df$canonical_name[match(genus_ids, gbif_df$id)],
-    genus_ids
+  # Vectorized parent_key traversal — repeated joins instead of a per-genus loop.
+  # Start: match each unknown genus name to its GBIF id.
+  genus_rows <- gbif_df[!is.na(gbif_df$rank) & gbif_df$rank == "GENUS" &
+                          gbif_df$canonical_name %in% unknown_genera, ,
+                        drop = FALSE]
+
+  if (nrow(genus_rows) == 0L) return(resolved)
+
+  # working table: genus_name | current_id | kingdom_name (NA until resolved)
+  work <- data.frame(
+    genus_name   = genus_rows$canonical_name,
+    current_id   = genus_rows$id,
+    kingdom_name = NA_character_,
+    stringsAsFactors = FALSE
   )
+  # deduplicate: one row per genus (take first GBIF hit)
+  work <- work[!duplicated(work$genus_name), , drop = FALSE]
 
-  for (gid in genus_ids) {
-    genus_name <- genus_id_map[gid]
-    if (is.na(genus_name)) next
+  # pre-build lookup vectors once
+  id_to_parent    <- stats::setNames(gbif_df$parent_key,    gbif_df$id)
+  id_to_rank      <- stats::setNames(gbif_df$rank,          gbif_df$id)
+  id_to_canonical <- stats::setNames(gbif_df$canonical_name, gbif_df$id)
 
-    # Walk up the hierarchy
-    current_id <- gid
-    kingdom_name <- NA_character_
-    max_steps <- 20L  # safety guard against cycles
-    for (step in seq_len(max_steps)) {
-      r <- id_to_rank[current_id]
-      if (!is.na(r) && r == "KINGDOM") {
-        kingdom_name <- id_to_canonical[current_id]
-        break
-      }
-      parent <- id_to_parent[current_id]
-      if (is.na(parent) || parent == current_id) break
-      current_id <- parent
+  # iteratively hop to parent until all rows hit KINGDOM or exhaust depth
+  for (step in seq_len(20L)) {
+    pending <- is.na(work$kingdom_name)
+    if (!any(pending)) break
+
+    cur_ids  <- work$current_id[pending]
+    cur_rank <- id_to_rank[cur_ids]
+
+    # rows that reached KINGDOM this step
+    at_kingdom <- !is.na(cur_rank) & cur_rank == "KINGDOM"
+    if (any(at_kingdom)) {
+      idx <- which(pending)[at_kingdom]
+      work$kingdom_name[idx] <- id_to_canonical[work$current_id[idx]]
     }
 
-    if (is.na(kingdom_name)) next
+    # rows still pending: hop to parent
+    still_pending <- pending & is.na(work$kingdom_name)
+    if (!any(still_pending)) break
+    parents <- id_to_parent[work$current_id[still_pending]]
+    # stop rows that hit NA parent or self-loop
+    dead <- is.na(parents) | parents == work$current_id[still_pending]
+    if (any(dead)) work$kingdom_name[which(still_pending)[dead]] <- "unknown_stop"
+    work$current_id[still_pending] <- parents
+  }
 
-    kg <- kingdom_group_map[kingdom_name]
-    tg <- kingdom_taxon_map[kingdom_name]
-    if (is.na(kg)) next
+  # map kingdom names to kingdom_group / taxon_group
+  kg_vec <- kingdom_group_map[work$kingdom_name]
+  tg_vec <- kingdom_taxon_map[work$kingdom_name]
+  kg_vec[is.na(kg_vec)] <- "unknown"
+  tg_vec[is.na(tg_vec)] <- "unknown"
 
-    # Update all rows for this genus
-    rows <- which(resolved$genus == genus_name &
-                  (resolved$taxon_group == "unknown" |
-                   resolved$kingdom_group == "unknown"))
-    resolved$kingdom_group[rows] <- unname(kg)
-    resolved$taxon_group[rows]   <- unname(tg)
-    resolved$life_form[rows]     <- gsub("_", " ", unname(tg), fixed = TRUE)
+  # apply to resolved data.frame via match (vectorized)
+  m <- match(resolved$genus[unknown_idx], work$genus_name)
+  hit <- !is.na(m)
+  if (any(hit)) {
+    update_idx <- unknown_idx[hit]
+    resolved$kingdom_group[update_idx] <- unname(kg_vec[m[hit]])
+    resolved$taxon_group[update_idx]   <- unname(tg_vec[m[hit]])
+    resolved$life_form[update_idx]     <-
+      gsub("_", " ", unname(tg_vec[m[hit]]), fixed = TRUE)
   }
 
   resolved

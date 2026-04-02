@@ -6,3 +6,4 @@
 *.Rproj
 .run.R
 inst/doc
+.claude/worktrees/

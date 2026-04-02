@@ -7,7 +7,8 @@ mock_backbone_df <- function() {
       "wfo-0000001", "wfo-0000002", "wfo-0000003", "wfo-0000004",
       "wfo-0000005", "wfo-0000006", "wfo-0000007", "wfo-0000008",
       "wfo-0000009", "wfo-0000010", "wfo-0000011", "wfo-0000012",
-      "wfo-0000013", "wfo-0000014", "wfo-0000015"
+      "wfo-0000013", "wfo-0000014", "wfo-0000015",
+      "wfo-0000016", "wfo-0000017"
     ),
     scientificName = c(
       "Quercus robur",          # accepted species
@@ -24,55 +25,65 @@ mock_backbone_df <- function() {
       "Quercus hispanica",      # accepted nothospecies
       "Festulolium",            # accepted nothogenus
       "Abies alba",             # accepted species
-      "Abies pectinata"         # synonym -> wfo-0000014
+      "Abies pectinata",        # synonym -> wfo-0000014
+      "Quercus",                # accepted genus
+      "Pinus"                   # accepted genus
     ),
     taxonRank = c(
       "SPECIES", "SPECIES", "SUBSPECIES", "SPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SUBSPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SPECIES",
-      "GENUS", "SPECIES", "SPECIES"
+      "GENUS", "SPECIES", "SPECIES",
+      "GENUS", "GENUS"
     ),
     taxonomicStatus = c(
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "SYNONYM",
       "ACCEPTED", "SYNONYM", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "ACCEPTED",
-      "ACCEPTED", "ACCEPTED", "SYNONYM"
+      "ACCEPTED", "ACCEPTED", "SYNONYM",
+      "ACCEPTED", "ACCEPTED"
     ),
     acceptedNameUsageID = c(
       NA, NA, NA, "wfo-0000001",
       NA, "wfo-0000005", NA, NA,
       NA, NA, NA, NA,
-      NA, NA, "wfo-0000014"
+      NA, NA, "wfo-0000014",
+      NA, NA
     ),
     family = c(
       "Fagaceae", "Fagaceae", "Fagaceae", "Fagaceae",
       "Pinaceae", "Pinaceae", "Poaceae", "Poaceae",
       "Salicaceae", "Salicaceae", "Rosaceae", "Fagaceae",
-      "Poaceae", "Pinaceae", "Pinaceae"
+      "Poaceae", "Pinaceae", "Pinaceae",
+      "Fagaceae", "Pinaceae"
     ),
     genus = c(
       "Quercus", "Quercus", "Quercus", "Quercus",
       "Pinus", "Pinus", "Festuca", "Festuca",
       "Salix", "Salix", "Rosa", "Quercus",
-      "Festulolium", "Abies", "Abies"
+      "Festulolium", "Abies", "Abies",
+      "Quercus", "Pinus"
     ),
     specificEpithet = c(
       "robur", "petraea", "robur", "pedunculata",
       "sylvestris", "silvestris", "rubra", "rubra",
       "alba", "fragilis", "canina", "hispanica",
-      NA, "alba", "pectinata"
+      NA, "alba", "pectinata",
+      NA, NA
     ),
     scientificNameAuthorship = c(
       "L.", "(Matt.) Liebl.", "L.", "(Mattusch.) Bonnier & Layens",
       "L.", NA, "L.", "L.",
       "L.", "L.", "L.", "Lam.",
-      NA, "Mill.", "(Lam.) Kunze"
+      NA, "Mill.", "(Lam.) Kunze",
+      "L.", "L."
     ),
     infraspecificEpithet = c(
       NA, NA, "robur", NA,
       NA, NA, NA, "rubra",
       NA, NA, NA, NA,
-      NA, NA, NA
+      NA, NA, NA,
+      NA, NA
     ),
     stringsAsFactors = FALSE
   )
@@ -84,6 +95,7 @@ mock_backbone_df <- function() {
 #' @return Path to the temporary .vtr file.
 mock_backbone_vtr <- function() {
   df <- mock_backbone_df()
+  df$normalizedName <- normalize_epithets(df$scientificName)
   tmp <- tempfile(fileext = ".vtr")
   vectra::write_vtr(df, tmp)
   tmp

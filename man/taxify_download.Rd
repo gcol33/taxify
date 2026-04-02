@@ -4,7 +4,7 @@
 \alias{taxify_download}
 \title{Download a backbone database}
 \usage{
-taxify_download(backend, dest = NULL, version = "latest", verbose = TRUE, ...)
+taxify_download(backend, dest = NULL, verbose = TRUE, ...)
 }
 \arguments{
 \item{backend}{A \code{taxify_backend} object or a character string
@@ -12,8 +12,6 @@ taxify_download(backend, dest = NULL, version = "latest", verbose = TRUE, ...)
 
 \item{dest}{Character. Destination directory. Defaults to
 \code{\link[=taxify_data_dir]{taxify_data_dir()}}.}
-
-\item{version}{Character. Backbone version (e.g., \code{"2024-12"}).}
 
 \item{verbose}{Logical. Print progress messages.}
 
@@ -23,6 +21,11 @@ taxify_download(backend, dest = NULL, version = "latest", verbose = TRUE, ...)
 The path to the \code{.vtr} file (invisibly).
 }
 \description{
-Downloads the Darwin Core snapshot for the specified backend and converts
-it to vectra's \code{.vtr} format for fast repeated queries.
+Downloads the latest Darwin Core snapshot for the specified backend and
+converts it to vectra's \code{.vtr} format for fast repeated queries.
+}
+\details{
+Always re-downloads the latest release, overwriting any existing backbone.
+Use \code{\link[=taxify]{taxify()}} for day-to-day matching — it auto-downloads on first use
+and reuses the local copy thereafter.
 }

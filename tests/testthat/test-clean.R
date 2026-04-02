@@ -69,7 +69,7 @@ test_that("clean_names returns correct data.frame", {
   df <- clean_names(nms)
   expect_s3_class(df, "data.frame")
   expect_equal(nrow(df), 3L)
-  expect_named(df, c("original", "cleaned", "is_hybrid", "qualifier"))
+  expect_named(df, c("original", "cleaned", "is_hybrid", "qualifier", "genus_only", "hybrid_name"))
   expect_equal(df$original, nms)
   expect_equal(df$cleaned[1L], "Quercus robur")
   expect_equal(df$qualifier[2L], "cf.")

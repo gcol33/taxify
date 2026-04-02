@@ -17,22 +17,25 @@ new_backend <- function(name, ..., class = character()) {
 
 #' Download a backbone database
 #'
-#' Downloads the Darwin Core snapshot for the specified backend and converts
-#' it to vectra's `.vtr` format for fast repeated queries.
+#' Downloads the latest Darwin Core snapshot for the specified backend and
+#' converts it to vectra's `.vtr` format for fast repeated queries.
+#'
+#' Always re-downloads the latest release, overwriting any existing backbone.
+#' Use [taxify()] for day-to-day matching — it auto-downloads on first use
+#' and reuses the local copy thereafter.
 #'
 #' @param backend A `taxify_backend` object or a character string
 #'   (e.g., `"wfo"`).
 #' @param dest Character. Destination directory. Defaults to
 #'   [taxify_data_dir()].
-#' @param version Character. Backbone version (e.g., `"2024-12"`).
 #' @param verbose Logical. Print progress messages.
 #' @param ... Additional arguments passed to methods.
 #' @return The path to the `.vtr` file (invisibly).
 #' @export
-taxify_download <- function(backend, dest = NULL, version = "latest",
-                            verbose = TRUE, ...) {
+taxify_download <- function(backend, dest = NULL, verbose = TRUE, ...) {
   if (is.character(backend)) {
-    backend <- resolve_backend(backend, version)
+    backend <- resolve_backend(backend)
+    return(taxify_download(backend, dest = dest, verbose = verbose, ...))
   }
   UseMethod("taxify_download")
 }
@@ -97,14 +100,15 @@ resolve_synonyms <- function(backend, matches, backbone, ...) {
 #' Resolve a backend name to an S3 object
 #'
 #' @param backend Character string or taxify_backend object.
-#' @param version Character. Backbone version.
 #' @return A taxify_backend object.
 #' @noRd
-resolve_backend <- function(backend, version = "latest") {
+resolve_backend <- function(backend) {
   if (inherits(backend, "taxify_backend")) return(backend)
   switch(backend,
-    wfo = wfo_backend(version = version),
-    stop(sprintf("Unknown backend '%s'. Available: wfo", backend),
+    wfo = wfo_backend(),
+    col = col_backend(),
+    gbif = gbif_backend(),
+    stop(sprintf("Unknown backend '%s'. Available: wfo, col, gbif", backend),
          call. = FALSE)
   )
 }
