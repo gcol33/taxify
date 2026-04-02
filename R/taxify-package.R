@@ -21,7 +21,8 @@ utils::globalVariables(c(
   # vectra string distance functions (used in NSE mutate expressions)
   "dl_dist_norm", "levenshtein_norm", "jaro_winkler",
   # register column references
-  "query_genus", "life_form", "kingdom", "phylum", "class", "order"
+  "query_genus", "life_form", "kingdom_group", "taxon_group",
+  "kingdom", "phylum", "class", "order"
 ))
 
 # Package-level backbone cache environment (paths to .vtr files)

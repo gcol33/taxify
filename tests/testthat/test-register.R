@@ -1,64 +1,160 @@
-test_that("assign_life_form() works for class-level hits", {
+test_that("assign_life_form() returns correct taxon_group for known families", {
+  chk <- function(fam, expected_tg) {
+    res <- assign_life_form(fam)
+    expect_equal(res$taxon_group, expected_tg,
+                 info = sprintf("family: %s", fam))
+  }
+
   # Mosses
-  expect_equal(assign_life_form("Plantae", "Bryopsida"), "moss")
-  expect_equal(assign_life_form("Plantae", "Sphagnopsida"), "moss")
-  expect_equal(assign_life_form("Plantae", "Polytrichopsida"), "moss")
+  chk("Sphagnaceae",   "moss")
+  chk("Polytrichaceae", "moss")
+  chk("Bryaceae",       "moss")
 
   # Liverworts
-  expect_equal(assign_life_form("Plantae", "Marchantiopsida"), "liverwort")
-  expect_equal(assign_life_form("Plantae", "Jungermanniopsida"), "liverwort")
+  chk("Marchantiaceae",  "liverwort")
+  chk("Jungermanniaceae", "liverwort")
 
   # Hornworts
-  expect_equal(assign_life_form("Plantae", "Anthocerotopsida"), "hornwort")
+  chk("Anthocerotaceae", "hornwort")
 
   # Lycophytes
-  expect_equal(assign_life_form("Plantae", "Lycopodiopsida"), "lycophyte")
+  chk("Lycopodiaceae",  "lycophyte")
+  chk("Selaginellaceae", "lycophyte")
+  chk("Isoetaceae",     "lycophyte")
 
   # Ferns
-  expect_equal(assign_life_form("Plantae", "Polypodiopsida"), "fern")
-  expect_equal(assign_life_form("Plantae", "Equisetopsida"), "fern")
-
-  # Angiosperms
-  expect_equal(assign_life_form("Plantae", "Liliopsida"), "vascular")
-  expect_equal(assign_life_form("Plantae", "Magnoliopsida"), "vascular")
+  chk("Polypodiaceae",  "fern")
+  chk("Dryopteridaceae", "fern")
+  chk("Cyatheaceae",    "fern")
 
   # Gymnosperms
-  expect_equal(assign_life_form("Plantae", "Pinopsida"), "gymnosperm")
-  expect_equal(assign_life_form("Plantae", "Cycadopsida"), "gymnosperm")
+  chk("Pinaceae",     "gymnosperm")
+  chk("Cupressaceae", "gymnosperm")
+  chk("Cycadaceae",   "gymnosperm")
+  chk("Ginkgoaceae",  "gymnosperm")
+
+  # Angiosperms
+  chk("Asteraceae", "angiosperm")
+  chk("Poaceae",    "angiosperm")
+  chk("Fabaceae",   "angiosperm")
+  chk("Rosaceae",   "angiosperm")
+  chk("Fagaceae",   "angiosperm")
 
   # Lichens
-  expect_equal(assign_life_form("Fungi", "Lecanoromycetes"), "lichen")
-  expect_equal(assign_life_form("Fungi", "Arthoniomycetes"), "lichen")
+  chk("Parmeliaceae", "lichen")
+  chk("Cladoniaceae", "lichen")
+  chk("Physciaceae",  "lichen")
+
+  # Fungi (non-lichen)
+  chk("Agaricaceae", "fungus")
+  chk("Boletaceae",  "fungus")
+  chk("Amanitaceae", "fungus")
+
+  # Algae (differentiated)
+  chk("Characeae",    "green_alga")
+  chk("Fucaceae",     "brown_alga")
+  chk("Corallinaceae", "red_alga")
+
+  # Chromista
+  chk("Peronosporaceae", "oomycete")
+  chk("Bacillariaceae",  "diatom")
+
+  # Slime moulds
+  chk("Physaraceae", "slime_mould")
 })
 
 
-test_that("assign_life_form() uses kingdom fallback when class is NA", {
-  expect_equal(assign_life_form("Fungi", NA_character_), "fungus")
-  expect_equal(assign_life_form("Animalia", NA_character_), "animal")
-  expect_equal(assign_life_form("Chromista", NA_character_), "alga")
-  expect_equal(assign_life_form("Protozoa", NA_character_), "protozoa")
-  expect_equal(assign_life_form("Bacteria", NA_character_), "microbe")
-  expect_equal(assign_life_form("Archaea", NA_character_), "microbe")
+test_that("assign_life_form() returns correct kingdom_group for known families", {
+  chk_kg <- function(fam, expected_kg) {
+    res <- assign_life_form(fam)
+    expect_equal(res$kingdom_group, expected_kg,
+                 info = sprintf("family: %s", fam))
+  }
+
+  chk_kg("Asteraceae",     "plantae")
+  chk_kg("Pinaceae",       "plantae")
+  chk_kg("Sphagnaceae",    "plantae")
+  chk_kg("Characeae",      "plantae")   # green alga → plantae
+  chk_kg("Corallinaceae",  "plantae")   # red alga → plantae
+  chk_kg("Parmeliaceae",   "fungi")
+  chk_kg("Agaricaceae",    "fungi")
+  chk_kg("Fucaceae",       "chromista") # brown alga → chromista
+  chk_kg("Peronosporaceae", "chromista")
+  chk_kg("Bacillariaceae", "chromista")
+  chk_kg("Physaraceae",    "protozoa")
 })
 
 
-test_that("assign_life_form() returns 'unknown' for unrecognized kingdom+class", {
-  expect_equal(assign_life_form("Unknownia", NA_character_), "unknown")
-  expect_equal(assign_life_form(NA_character_, NA_character_), "unknown")
+test_that("assign_life_form() life_form uses spaces not underscores", {
+  res <- assign_life_form("Fucaceae")
+  expect_equal(res$life_form, "brown alga")
+
+  res2 <- assign_life_form("Physaraceae")
+  expect_equal(res2$life_form, "slime mould")
+
+  res3 <- assign_life_form("Characeae")
+  expect_equal(res3$life_form, "green alga")
 })
 
 
-test_that("assign_life_form() is vectorized", {
-  kingdom <- c("Plantae", "Fungi", "Animalia", "Plantae")
-  class   <- c("Bryopsida", NA_character_, NA_character_, "Liliopsida")
-  result  <- assign_life_form(kingdom, class)
-  expect_equal(result, c("moss", "fungus", "animal", "vascular"))
+test_that("assign_life_form() uses kingdom fallback when family is NA or unknown", {
+  chk <- function(fam, kg, exp_tg, exp_kg) {
+    res <- assign_life_form(fam, kg)
+    expect_equal(res$taxon_group,   exp_tg,  info = sprintf("fam=%s kg=%s", fam, kg))
+    expect_equal(res$kingdom_group, exp_kg,  info = sprintf("fam=%s kg=%s", fam, kg))
+  }
+
+  chk(NA_character_, "Fungi",    "fungus",  "fungi")
+  chk(NA_character_, "Animalia", "animal",  "animalia")
+  chk(NA_character_, "Chromista", "unknown", "chromista")
+  chk(NA_character_, "Protozoa",  "unknown", "protozoa")
+  chk(NA_character_, "Bacteria",  "unknown", "bacteria")
+  chk(NA_character_, "Archaea",   "unknown", "archaea")
+  chk(NA_character_, "Plantae",   "unknown", "plantae")
+  chk(NA_character_, "Viruses",   "unknown", "viruses")
 })
 
 
-test_that("assign_life_form() errors on mismatched lengths", {
-  expect_error(assign_life_form(c("Plantae", "Fungi"), "Bryopsida"),
-               "same length")
+test_that("assign_life_form() returns 'unknown' when family and kingdom both miss", {
+  chk_unk <- function(fam, kg = NULL) {
+    res <- assign_life_form(fam, kg)
+    expect_equal(res$taxon_group,   "unknown")
+    expect_equal(res$kingdom_group, "unknown")
+    expect_equal(res$life_form,     "unknown")
+  }
+
+  chk_unk("Unknowniaceae")
+  chk_unk(NA_character_)
+  chk_unk(NA_character_, NA_character_)
+  chk_unk(NA_character_, "Unknownia")
+})
+
+
+test_that("assign_life_form() is vectorized and returns three equal-length vectors", {
+  family  <- c("Sphagnaceae", NA_character_, NA_character_, "Fucaceae")
+  kingdom <- c("Plantae",     "Fungi",       "Animalia",   "Chromista")
+  result  <- assign_life_form(family, kingdom)
+
+  expect_type(result, "list")
+  expect_named(result, c("kingdom_group", "taxon_group", "life_form"))
+  expect_equal(length(result$taxon_group),   4L)
+  expect_equal(length(result$kingdom_group), 4L)
+  expect_equal(length(result$life_form),     4L)
+
+  expect_equal(result$taxon_group,   c("moss",    "fungus", "animal", "brown_alga"))
+  expect_equal(result$kingdom_group, c("plantae", "fungi",  "animalia", "chromista"))
+  expect_equal(result$life_form,     c("moss",    "fungus", "animal", "brown alga"))
+})
+
+
+test_that("assign_life_form() family hit takes priority over kingdom", {
+  res <- assign_life_form("Parmeliaceae", "Fungi")
+  expect_equal(res$taxon_group,   "lichen")
+  expect_equal(res$kingdom_group, "fungi")
+
+  res2 <- assign_life_form("Pinaceae", "Plantae")
+  expect_equal(res2$taxon_group,   "gymnosperm")
+  expect_equal(res2$kingdom_group, "plantae")
 })
 
 
@@ -67,13 +163,15 @@ test_that("assign_life_form() errors on mismatched lengths", {
 #' Build a minimal mock register and inject it into .taxify_env
 setup_mock_register <- function() {
   reg <- data.frame(
-    genus     = c("Quercus", "Boletus", "Aspergillus"),
-    kingdom   = c("Plantae", "Fungi", "Fungi"),
-    phylum    = c("Tracheophyta", "Basidiomycota", "Ascomycota"),
-    class     = c("Magnoliopsida", NA_character_, NA_character_),
-    order     = c("Fagales", "Boletales", "Eurotiales"),
-    family    = c("Fagaceae", "Boletaceae", "Aspergillaceae"),
-    life_form = c("vascular", "fungus", "fungus"),
+    genus         = c("Quercus",     "Boletus",       "Aspergillus"),
+    kingdom       = c("Plantae",     "Fungi",         "Fungi"),
+    phylum        = c("Tracheophyta","Basidiomycota",  "Ascomycota"),
+    class         = c("Magnoliopsida", NA_character_,  NA_character_),
+    order         = c("Fagales",     "Boletales",     "Eurotiales"),
+    family        = c("Fagaceae",    "Boletaceae",    "Aspergillaceae"),
+    kingdom_group = c("plantae",     "fungi",         "fungi"),
+    taxon_group   = c("angiosperm",  "fungus",        "fungus"),
+    life_form     = c("angiosperm",  "fungus",        "fungus"),
     stringsAsFactors = FALSE
   )
   .taxify_env$register <- reg
@@ -92,9 +190,11 @@ test_that("lookup_genus() returns the correct row", {
   hit <- lookup_genus("Quercus")
   expect_false(is.null(hit))
   expect_equal(nrow(hit), 1L)
-  expect_equal(hit$genus, "Quercus")
-  expect_equal(hit$life_form, "vascular")
-  expect_equal(hit$family, "Fagaceae")
+  expect_equal(hit$genus,         "Quercus")
+  expect_equal(hit$life_form,     "angiosperm")
+  expect_equal(hit$taxon_group,   "angiosperm")
+  expect_equal(hit$kingdom_group, "plantae")
+  expect_equal(hit$family,        "Fagaceae")
 })
 
 
@@ -129,13 +229,15 @@ test_that("taxify() sets match_type = 'out_of_scope' and life_form for genus-in-
 
   # Set up a register that includes Boletus (a fungus genus not in WFO backbone)
   .taxify_env$register <- data.frame(
-    genus     = c("Quercus", "Pinus", "Boletus"),
-    kingdom   = c("Plantae", "Plantae", "Fungi"),
-    phylum    = c("Tracheophyta", "Tracheophyta", "Basidiomycota"),
-    class     = c("Magnoliopsida", "Pinopsida", NA_character_),
-    order     = c("Fagales", "Pinales", "Boletales"),
-    family    = c("Fagaceae", "Pinaceae", "Boletaceae"),
-    life_form = c("vascular", "gymnosperm", "fungus"),
+    genus         = c("Quercus",    "Pinus",      "Boletus"),
+    kingdom       = c("Plantae",    "Plantae",    "Fungi"),
+    phylum        = c("Tracheophyta","Tracheophyta","Basidiomycota"),
+    class         = c("Magnoliopsida","Pinopsida", NA_character_),
+    order         = c("Fagales",    "Pinales",    "Boletales"),
+    family        = c("Fagaceae",   "Pinaceae",   "Boletaceae"),
+    kingdom_group = c("plantae",    "plantae",    "fungi"),
+    taxon_group   = c("angiosperm", "gymnosperm", "fungus"),
+    life_form     = c("angiosperm", "gymnosperm", "fungus"),
     stringsAsFactors = FALSE
   )
 
@@ -167,11 +269,11 @@ test_that("taxify() does not enrich when register is unavailable", {
   set_backbone_path("wfo", bb_path)
   on.exit({
     set_backbone_path("wfo", NULL)
-    .taxify_env$register <- NULL
+    .taxify_env$register <- NULL  # restore to allow real register on next load
   }, add = TRUE)
 
-  # Ensure register is NOT loaded
-  .taxify_env$register <- NULL
+  # Ensure register is NOT loaded (empty sentinel — prevents file load)
+  .taxify_env$register <- data.frame()
 
   result <- taxify(
     c("Quercus robur", "Boletus edulis"),
@@ -194,13 +296,15 @@ test_that("out_of_scope enrichment does not affect matched names", {
   }, add = TRUE)
 
   .taxify_env$register <- data.frame(
-    genus     = c("Quercus", "Pinus"),
-    kingdom   = c("Plantae", "Plantae"),
-    phylum    = c("Tracheophyta", "Tracheophyta"),
-    class     = c("Magnoliopsida", "Pinopsida"),
-    order     = c("Fagales", "Pinales"),
-    family    = c("Fagaceae", "Pinaceae"),
-    life_form = c("vascular", "gymnosperm"),
+    genus         = c("Quercus",    "Pinus"),
+    kingdom       = c("Plantae",    "Plantae"),
+    phylum        = c("Tracheophyta","Tracheophyta"),
+    class         = c("Magnoliopsida","Pinopsida"),
+    order         = c("Fagales",    "Pinales"),
+    family        = c("Fagaceae",   "Pinaceae"),
+    kingdom_group = c("plantae",    "plantae"),
+    taxon_group   = c("angiosperm", "gymnosperm"),
+    life_form     = c("angiosperm", "gymnosperm"),
     stringsAsFactors = FALSE
   )
 
@@ -213,10 +317,14 @@ test_that("out_of_scope enrichment does not affect matched names", {
 
   # Both should be matched, not out_of_scope
   expect_true(all(result$match_type %in% c("exact", "exact_ci", "fuzzy")))
-  # life_form IS populated for matched rows when the register is available
+  # life_form and taxon_group are populated for matched rows when register available
   expect_equal(result$life_form[result$input_name == "Quercus robur"],
-               "vascular")
+               "angiosperm")
   expect_equal(result$life_form[result$input_name == "Pinus sylvestris"],
+               "gymnosperm")
+  expect_equal(result$taxon_group[result$input_name == "Quercus robur"],
+               "angiosperm")
+  expect_equal(result$taxon_group[result$input_name == "Pinus sylvestris"],
                "gymnosperm")
 })
 

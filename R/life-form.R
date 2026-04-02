@@ -1,102 +1,870 @@
 # ---- Life form classification ----
 #
-# Maps (kingdom, class) pairs to a human-readable life-form category.
+# Maps family names to fine-grained taxon_group and coarse kingdom_group.
 # Used by build_genus_register() to annotate each genus row.
+#
+# Schema:
+#   kingdom_group — coarse: plantae | fungi | chromista | animalia |
+#                           protozoa | bacteria | archaea | viruses | unknown
+#   taxon_group   — fine: angiosperm | gymnosperm | fern | lycophyte |
+#                         moss | liverwort | hornwort | green_alga | red_alga |
+#                         fungus | lichen | oomycete | brown_alga | diatom |
+#                         slime_mould | animal | unknown
+#   life_form     — display string: taxon_group with underscores → spaces
+#
+# Strategy:
+#   1. Look up family in .family_taxon_group (most reliable).
+#   2. Fall back to kingdom when family is unknown or NA.
+#   3. Return "unknown" when neither matches.
 
-# Class-level lookup: most specific, checked first.
-# Each row: class -> life_form
-.life_form_table <- data.frame(
-  class = c(
-    # Bryophytes
-    "Bryopsida", "Sphagnopsida", "Andreaeopsida", "Oedipodiopsida",
-    "Polytrichopsida", "Tetraphidopsida",
-    # Liverworts
-    "Marchantiopsida", "Jungermanniopsida",
-    # Hornworts
-    "Anthocerotopsida",
-    # Lycophytes
-    "Lycopodiopsida",
-    # Ferns
-    "Polypodiopsida", "Psilotopsida", "Equisetopsida", "Marattiopsida",
-    # Angiosperms
-    "Liliopsida", "Magnoliopsida",
-    # Gymnosperms
-    "Pinopsida", "Gnetopsida", "Cycadopsida", "Ginkgoopsida",
-    # Lichens (fungal classes with obligate photobionts)
-    "Lecanoromycetes", "Arthoniomycetes", "Lichinomycetes",
-    "Candelariomycetes", "Coniocybomycetes"
-  ),
-  life_form = c(
-    # Bryophytes
-    "moss", "moss", "moss", "moss", "moss", "moss",
-    # Liverworts
-    "liverwort", "liverwort",
-    # Hornworts
-    "hornwort",
-    # Lycophytes
-    "lycophyte",
-    # Ferns
-    "fern", "fern", "fern", "fern",
-    # Angiosperms
-    "vascular", "vascular",
-    # Gymnosperms
-    "gymnosperm", "gymnosperm", "gymnosperm", "gymnosperm",
-    # Lichens
-    "lichen", "lichen", "lichen", "lichen", "lichen"
-  ),
-  stringsAsFactors = FALSE
+
+# ---- Taxon-group → kingdom-group mapping ----
+
+.taxon_group_to_kingdom <- c(
+  angiosperm  = "plantae",
+  gymnosperm  = "plantae",
+  fern        = "plantae",
+  lycophyte   = "plantae",
+  moss        = "plantae",
+  liverwort   = "plantae",
+  hornwort    = "plantae",
+  green_alga  = "plantae",
+  red_alga    = "plantae",
+  fungus      = "fungi",
+  lichen      = "fungi",
+  oomycete    = "chromista",
+  brown_alga  = "chromista",
+  diatom      = "chromista",
+  slime_mould = "protozoa",
+  animal      = "animalia"
 )
 
-# Note: "Graphidales" is an order, not a class — it belongs to Lecanoromycetes.
-# It is already covered by that entry. No separate row needed.
 
-# Kingdom-level fallback: when class is missing or unknown
-.kingdom_life_form <- c(
-  "Plantae"   = "vascular",   # generic fallback for plants without class
-  "Fungi"     = "fungus",
-  "Chromista" = "alga",
+# ---- Family → taxon_group lookup table (APG IV + bryophytes + algae + fungi) ----
+
+.family_taxon_group <- c(
+
+  # ---- Angiosperms (APG IV, ~450 families) ----
+  # Core eudicots — Asterids
+  "Asteraceae"           = "angiosperm",
+  "Apiaceae"             = "angiosperm",
+  "Araliaceae"           = "angiosperm",
+  "Pittosporaceae"       = "angiosperm",
+  "Myoporaceae"          = "angiosperm",
+  "Apocynaceae"          = "angiosperm",
+  "Gentianaceae"         = "angiosperm",
+  "Rubiaceae"            = "angiosperm",
+  "Loganiaceae"          = "angiosperm",
+  "Gelsemiaceae"         = "angiosperm",
+  "Solanaceae"           = "angiosperm",
+  "Convolvulaceae"       = "angiosperm",
+  "Boraginaceae"         = "angiosperm",
+  "Hydrophyllaceae"      = "angiosperm",
+  "Lamiaceae"            = "angiosperm",
+  "Plantaginaceae"       = "angiosperm",
+  "Scrophulariaceae"     = "angiosperm",
+  "Orobanchaceae"        = "angiosperm",
+  "Lentibulariaceae"     = "angiosperm",
+  "Acanthaceae"          = "angiosperm",
+  "Bignoniaceae"         = "angiosperm",
+  "Pedaliaceae"          = "angiosperm",
+  "Martyniaceae"         = "angiosperm",
+  "Phrymaceae"           = "angiosperm",
+  "Paulowniaceae"        = "angiosperm",
+  "Mazaceae"             = "angiosperm",
+  "Linderniaceae"        = "angiosperm",
+  "Stilbaceae"           = "angiosperm",
+  "Verbascaceae"         = "angiosperm",
+  "Verbenaceae"          = "angiosperm",
+  "Calceolariaceae"      = "angiosperm",
+  "Oleaceae"             = "angiosperm",
+  "Tetrachondraceae"     = "angiosperm",
+  "Plocospermataceae"    = "angiosperm",
+  "Carlemanniaceae"      = "angiosperm",
+  "Adoxaceae"            = "angiosperm",
+  "Caprifoliaceae"       = "angiosperm",
+  "Valerianaceae"        = "angiosperm",
+  "Dipsacaceae"          = "angiosperm",
+  "Morinaceae"           = "angiosperm",
+  "Linnaeaceae"          = "angiosperm",
+  "Campanulaceae"        = "angiosperm",
+  "Lobeliaceae"          = "angiosperm",
+  "Menyanthaceae"        = "angiosperm",
+  "Goodeniaceae"         = "angiosperm",
+  "Calyceraceae"         = "angiosperm",
+  "Stylidiaceae"         = "angiosperm",
+  "Pentaphragmataceae"   = "angiosperm",
+  "Aquifoliaceae"        = "angiosperm",
+  "Helwingiaceae"        = "angiosperm",
+  "Phyllonomaceae"       = "angiosperm",
+  "Ericaceae"            = "angiosperm",
+  "Primulaceae"          = "angiosperm",
+  "Theaceae"             = "angiosperm",
+  "Symplocaceae"         = "angiosperm",
+  "Styracaceae"          = "angiosperm",
+  "Diapensiaceae"        = "angiosperm",
+  "Polemoniaceae"        = "angiosperm",
+  "Fouquieriaceae"       = "angiosperm",
+  "Mitrastemonaceae"     = "angiosperm",
+  "Ebenaceae"            = "angiosperm",
+  "Sapotaceae"           = "angiosperm",
+  "Maesaceae"            = "angiosperm",
+  "Theophrastaceae"      = "angiosperm",
+  "Myrsinaceae"          = "angiosperm",
+  "Aegicerataceae"       = "angiosperm",
+  # Core eudicots — Lamiids (continued)
+  "Icacinaceae"          = "angiosperm",
+  "Oncothecaceae"        = "angiosperm",
+  "Metteniusaceae"       = "angiosperm",
+  "Garryaceae"           = "angiosperm",
+  "Eucommiaceae"         = "angiosperm",
+  "Aucubaceae"           = "angiosperm",
+  # Core eudicots — Campanulids
+  "Paracryphiaceae"      = "angiosperm",
+  "Escalloniaceae"       = "angiosperm",
+  # Core eudicots — Rosids
+  "Rosaceae"             = "angiosperm",
+  "Fabaceae"             = "angiosperm",
+  "Polygalaceae"         = "angiosperm",
+  "Surianaceae"          = "angiosperm",
+  "Quillajaceae"         = "angiosperm",
+  "Rhamnaceae"           = "angiosperm",
+  "Ulmaceae"             = "angiosperm",
+  "Cannabaceae"          = "angiosperm",
+  "Moraceae"             = "angiosperm",
+  "Urticaceae"           = "angiosperm",
+  "Fagaceae"             = "angiosperm",
+  "Betulaceae"           = "angiosperm",
+  "Casuarinaceae"        = "angiosperm",
+  "Myricaceae"           = "angiosperm",
+  "Juglandaceae"         = "angiosperm",
+  "Ticodendraceae"       = "angiosperm",
+  "Nothofagaceae"        = "angiosperm",
+  "Cucurbitaceae"        = "angiosperm",
+  "Begoniaceae"          = "angiosperm",
+  "Datiscaceae"          = "angiosperm",
+  "Tetramelaceae"        = "angiosperm",
+  "Cactaceae"            = "angiosperm",
+  "Portulacaceae"        = "angiosperm",
+  "Anacampserotaceae"    = "angiosperm",
+  "Talinaceae"           = "angiosperm",
+  "Caryophyllaceae"      = "angiosperm",
+  "Amaranthaceae"        = "angiosperm",
+  "Chenopodiaceae"       = "angiosperm",
+  "Polygonaceae"         = "angiosperm",
+  "Plumbaginaceae"       = "angiosperm",
+  "Tamaricaceae"         = "angiosperm",
+  "Frankeniaceae"        = "angiosperm",
+  "Droseraceae"          = "angiosperm",
+  "Nepenthaceae"         = "angiosperm",
+  "Drosophyllaceae"      = "angiosperm",
+  "Ancistrocladaceae"    = "angiosperm",
+  "Dioncophyllaceae"     = "angiosperm",
+  "Brassicaceae"         = "angiosperm",
+  "Resedaceae"           = "angiosperm",
+  "Gyrostemonaceae"      = "angiosperm",
+  "Tovariaceae"          = "angiosperm",
+  "Capparaceae"          = "angiosperm",
+  "Cleomaceae"           = "angiosperm",
+  "Caricaceae"           = "angiosperm",
+  "Moringaceae"          = "angiosperm",
+  "Salvadoraceae"        = "angiosperm",
+  "Bataceae"             = "angiosperm",
+  "Koeberliniaceae"      = "angiosperm",
+  "Limnanthaceae"        = "angiosperm",
+  "Setchellanthaceae"    = "angiosperm",
+  "Geraniaceae"          = "angiosperm",
+  "Melianthaceae"        = "angiosperm",
+  "Vivianiaceae"         = "angiosperm",
+  "Francoaceae"          = "angiosperm",
+  "Greyiaceae"           = "angiosperm",
+  "Biebersteiniaceae"    = "angiosperm",
+  "Nitrariaceae"         = "angiosperm",
+  "Zygophyllaceae"       = "angiosperm",
+  "Krameriaceae"         = "angiosperm",
+  "Oxalidaceae"          = "angiosperm",
+  "Connaraceae"          = "angiosperm",
+  "Cunoniaceae"          = "angiosperm",
+  "Elaeocarpaceae"       = "angiosperm",
+  "Cephalotaceae"        = "angiosperm",
+  "Brunelliaceae"        = "angiosperm",
+  "Huaceae"              = "angiosperm",
+  "Celastraceae"         = "angiosperm",
+  "Parnassiaceae"        = "angiosperm",
+  "Lepidobotryaceae"     = "angiosperm",
+  "Malpighiaceae"        = "angiosperm",
+  "Elatinaceae"          = "angiosperm",
+  "Hypericaceae"         = "angiosperm",
+  "Podostemaceae"        = "angiosperm",
+  "Clusiaceae"           = "angiosperm",
+  "Calophyllaceae"       = "angiosperm",
+  "Bonnetiaceae"         = "angiosperm",
+  "Lophopyxidaceae"      = "angiosperm",
+  "Putranjivaceae"       = "angiosperm",
+  "Irvingiaceae"         = "angiosperm",
+  "Ixonanthaceae"        = "angiosperm",
+  "Linaceae"             = "angiosperm",
+  "Humiriaceae"          = "angiosperm",
+  "Erythroxylaceae"      = "angiosperm",
+  "Rhizophoraceae"       = "angiosperm",
+  "Erythropalaceae"      = "angiosperm",
+  "Strombosiaceae"       = "angiosperm",
+  "Coulaceae"            = "angiosperm",
+  "Aptandraceae"         = "angiosperm",
+  "Olacaceae"            = "angiosperm",
+  "Loranthaceae"         = "angiosperm",
+  "Misodendraceae"       = "angiosperm",
+  "Schoepfiaceae"        = "angiosperm",
+  "Santalaceae"          = "angiosperm",
+  "Viscaceae"            = "angiosperm",
+  "Opiliaceae"           = "angiosperm",
+  "Balanophoraceae"      = "angiosperm",
+  "Cytinaceae"           = "angiosperm",
+  "Apodanthaceae"        = "angiosperm",
+  "Violaceae"            = "angiosperm",
+  "Salicaceae"           = "angiosperm",
+  "Lacistemataceae"      = "angiosperm",
+  "Scyphostegiaceae"     = "angiosperm",
+  "Passifloraceae"       = "angiosperm",
+  "Turneraceae"          = "angiosperm",
+  "Malesherbiaceae"      = "angiosperm",
+  "Euphorbiaceae"        = "angiosperm",
+  "Phyllanthaceae"       = "angiosperm",
+  "Picrodendraceae"      = "angiosperm",
+  "Peraceae"             = "angiosperm",
+  "Rafflesiaceae"        = "angiosperm",
+  "Chrysobalanaceae"     = "angiosperm",
+  "Dichapetalaceae"      = "angiosperm",
+  "Trigoniaceae"         = "angiosperm",
+  "Euphroniaceae"        = "angiosperm",
+  "Vochysiaceae"         = "angiosperm",
+  "Combretaceae"         = "angiosperm",
+  "Lythraceae"           = "angiosperm",
+  "Onagraceae"           = "angiosperm",
+  "Myrtaceae"            = "angiosperm",
+  "Vochysiaceae"         = "angiosperm",
+  "Melastomataceae"      = "angiosperm",
+  "Crypteroniaceae"      = "angiosperm",
+  "Alzateaceae"          = "angiosperm",
+  "Penaeaceae"           = "angiosperm",
+  "Myrothamniaceae"      = "angiosperm",
+  "Haloragaceae"         = "angiosperm",
+  "Aphanopetalaceae"     = "angiosperm",
+  "Gunneraceae"          = "angiosperm",
+  "Saxifragaceae"        = "angiosperm",
+  "Grossulariaceae"      = "angiosperm",
+  "Iteaceae"             = "angiosperm",
+  "Pterostemonaceae"     = "angiosperm",
+  "Hamamelidaceae"       = "angiosperm",
+  "Altingiaceae"         = "angiosperm",
+  "Cercidiphyllaceae"    = "angiosperm",
+  "Daphniphyllaceae"     = "angiosperm",
+  "Paeoniaceae"          = "angiosperm",
+  "Trochodendraceae"     = "angiosperm",
+  "Buxaceae"             = "angiosperm",
+  "Proteaceae"           = "angiosperm",
+  "Nelumbonaceae"        = "angiosperm",
+  "Platanaceae"          = "angiosperm",
+  "Sabiaceae"            = "angiosperm",
+  "Ranunculaceae"        = "angiosperm",
+  "Berberidaceae"        = "angiosperm",
+  "Menispermaceae"       = "angiosperm",
+  "Coriariaceae"         = "angiosperm",
+  "Lardizabalaceae"      = "angiosperm",
+  "Papaveraceae"         = "angiosperm",
+  "Fumariaceae"          = "angiosperm",
+  "Eupteleaceae"         = "angiosperm",
+  "Circaeasteraceae"     = "angiosperm",
+  "Meliosmaceae"         = "angiosperm",
+  "Vitaceae"             = "angiosperm",
+  "Leeaceae"             = "angiosperm",
+  # Malvids (Eurosids II)
+  "Malvaceae"            = "angiosperm",
+  "Dipterocarpaceae"     = "angiosperm",
+  "Sarcolaenaceae"       = "angiosperm",
+  "Sphaerosepalaceae"    = "angiosperm",
+  "Cytinaceae"           = "angiosperm",
+  "Cistaceae"            = "angiosperm",
+  "Bixaceae"             = "angiosperm",
+  "Cochlospermaceae"     = "angiosperm",
+  "Tropaeolaceae"        = "angiosperm",
+  "Akaniaceae"           = "angiosperm",
+  "Bretschneideraceae"   = "angiosperm",
+  "Meliaceae"            = "angiosperm",
+  "Rutaceae"             = "angiosperm",
+  "Burseraceae"          = "angiosperm",
+  "Anacardiaceae"        = "angiosperm",
+  "Simaroubaceae"        = "angiosperm",
+  "Picramniaceae"        = "angiosperm",
+  "Nitrariaceae"         = "angiosperm",
+  "Sapindaceae"          = "angiosperm",
+  "Aceraceae"            = "angiosperm",
+  "Hippocastanaceae"     = "angiosperm",
+  "Balsaminaceae"        = "angiosperm",
+  "Tetrameristaceae"     = "angiosperm",
+  "Marcgraviaceae"       = "angiosperm",
+  "Balsaminaceae"        = "angiosperm",
+  # Magnoliids
+  "Magnoliaceae"         = "angiosperm",
+  "Degeneriaceae"        = "angiosperm",
+  "Himantandraceae"      = "angiosperm",
+  "Eupomatiaceae"        = "angiosperm",
+  "Annonaceae"           = "angiosperm",
+  "Myristicaceae"        = "angiosperm",
+  "Canellaceae"          = "angiosperm",
+  "Winteraceae"          = "angiosperm",
+  "Lauraceae"            = "angiosperm",
+  "Hernandiaceae"        = "angiosperm",
+  "Monimiaceae"          = "angiosperm",
+  "Gomortegaceae"        = "angiosperm",
+  "Atherospermataceae"   = "angiosperm",
+  "Siparunaceae"         = "angiosperm",
+  "Calycanthaceae"       = "angiosperm",
+  "Piperaceae"           = "angiosperm",
+  "Saururaceae"          = "angiosperm",
+  "Aristolochiaceae"     = "angiosperm",
+  "Asaraceae"            = "angiosperm",
+  "Lactoridaceae"        = "angiosperm",
+  "Hydnoraceae"          = "angiosperm",
+  # Basal angiosperms
+  "Chloranthaceae"       = "angiosperm",
+  "Ceratophyllaceae"     = "angiosperm",
+  "Amborellaceae"        = "angiosperm",
+  "Nymphaeaceae"         = "angiosperm",
+  "Cabombaceae"          = "angiosperm",
+  "Austrobaileyaceae"    = "angiosperm",
+  "Trimeniaceae"         = "angiosperm",
+  "Schisandraceae"       = "angiosperm",
+  "Illiciaceae"          = "angiosperm",
+  # Monocots
+  "Orchidaceae"          = "angiosperm",
+  "Iridaceae"            = "angiosperm",
+  "Hypoxidaceae"         = "angiosperm",
+  "Doryanthaceae"        = "angiosperm",
+  "Ixioliriaceae"        = "angiosperm",
+  "Tecophilaeaceae"      = "angiosperm",
+  "Asphodelaceae"        = "angiosperm",
+  "Amaryllidaceae"       = "angiosperm",
+  "Asparagaceae"         = "angiosperm",
+  "Liliaceae"            = "angiosperm",
+  "Colchicaceae"         = "angiosperm",
+  "Melanthiaceae"        = "angiosperm",
+  "Smilacaceae"          = "angiosperm",
+  "Ripogonaceae"         = "angiosperm",
+  "Philesiaceae"         = "angiosperm",
+  "Alstroemeriaceae"     = "angiosperm",
+  "Campynemataceae"      = "angiosperm",
+  "Xeronemataceae"       = "angiosperm",
+  "Arecaceae"            = "angiosperm",
+  "Dasypogonaceae"       = "angiosperm",
+  "Bromeliaceae"         = "angiosperm",
+  "Typhaceae"            = "angiosperm",
+  "Sparganiaceae"        = "angiosperm",
+  "Zingiberaceae"        = "angiosperm",
+  "Costaceae"            = "angiosperm",
+  "Cannaceae"            = "angiosperm",
+  "Marantaceae"          = "angiosperm",
+  "Musaceae"             = "angiosperm",
+  "Heliconiaceae"        = "angiosperm",
+  "Strelitziaceae"       = "angiosperm",
+  "Lowiaceae"            = "angiosperm",
+  "Commelinaceae"        = "angiosperm",
+  "Haemodoraceae"        = "angiosperm",
+  "Pontederiaceae"       = "angiosperm",
+  "Philydraceae"         = "angiosperm",
+  "Hanguanaceae"         = "angiosperm",
+  "Cyperaceae"           = "angiosperm",
+  "Juncaceae"            = "angiosperm",
+  "Poaceae"              = "angiosperm",
+  "Flagellariaceae"      = "angiosperm",
+  "Restionaceae"         = "angiosperm",
+  "Anarthriaceae"        = "angiosperm",
+  "Centrolepidaceae"     = "angiosperm",
+  "Joinvilleaceae"       = "angiosperm",
+  "Ecdeiocoleaceae"      = "angiosperm",
+  "Thurniaceae"          = "angiosperm",
+  "Xyridaceae"           = "angiosperm",
+  "Mayacaceae"           = "angiosperm",
+  "Eriocaulaceae"        = "angiosperm",
+  "Rapateaceae"          = "angiosperm",
+  "Araceae"              = "angiosperm",
+  "Lemnaceae"            = "angiosperm",
+  "Tofieldiaceae"        = "angiosperm",
+  "Alismataceae"         = "angiosperm",
+  "Butomaceae"           = "angiosperm",
+  "Hydrocharitaceae"     = "angiosperm",
+  "Scheuchzeriaceae"     = "angiosperm",
+  "Aponogetonaceae"      = "angiosperm",
+  "Juncaginaceae"        = "angiosperm",
+  "Maundiaceae"          = "angiosperm",
+  "Posidoniaceae"        = "angiosperm",
+  "Ruppiaceae"           = "angiosperm",
+  "Potamogetonaceae"     = "angiosperm",
+  "Zosteraceae"          = "angiosperm",
+  "Cymodoceaceae"        = "angiosperm",
+  "Hydatellaceae"        = "angiosperm",
+  "Dioscoreaceae"        = "angiosperm",
+  "Burmanniaceae"        = "angiosperm",
+  "Thismiaceae"          = "angiosperm",
+  "Taccaceae"            = "angiosperm",
+  "Nartheciaceae"        = "angiosperm",
+  "Corsiaceae"           = "angiosperm",
+  "Pandanaceae"          = "angiosperm",
+  "Cyclanthaceae"        = "angiosperm",
+  "Velloziaceae"         = "angiosperm",
+  "Petermanniaceae"      = "angiosperm",
+  # Additional eudicots
+  "Crassulaceae"         = "angiosperm",
+  "Penthomaceae"         = "angiosperm",
+  "Haloragaceae"         = "angiosperm",
+  "Berberidopsidaceae"   = "angiosperm",
+  "Aextoxicaceae"        = "angiosperm",
+  "Cornaceae"            = "angiosperm",
+  "Nyssaceae"            = "angiosperm",
+  "Loasaceae"            = "angiosperm",
+  "Hydrangeaceae"        = "angiosperm",
+  "Hydrostachyaceae"     = "angiosperm",
+  "Penthoraceae"         = "angiosperm",
+  "Vahliaceae"           = "angiosperm",
+  "Tetracarpaeaceae"     = "angiosperm",
+  "Parnassiaceae"        = "angiosperm",
+  "Lepuropetalaceae"     = "angiosperm",
+  "Peridiscaceae"        = "angiosperm",
+  "Geissolomataceae"     = "angiosperm",
+  "Ixerbaceae"           = "angiosperm",
+  "Strasburgeriaceae"    = "angiosperm",
+  "Aphloiaceae"          = "angiosperm",
+  "Crossosomataceae"     = "angiosperm",
+  "Stachyuraceae"        = "angiosperm",
+  "Staphyleaceae"        = "angiosperm",
+  "Guamatelaceae"        = "angiosperm",
+  "Picramniaceae"        = "angiosperm",
+  "Picrodendraceae"      = "angiosperm",
+  "Simmondsiaceae"       = "angiosperm",
+  "Asteropeiaceae"       = "angiosperm",
+  "Physenaceae"          = "angiosperm",
+  "Cneoraceae"           = "angiosperm",
+  "Tepuianthaceae"       = "angiosperm",
+  "Cytinaceae"           = "angiosperm",
+  "Rhabdodendraceae"     = "angiosperm",
+  "Kewaceae"             = "angiosperm",
+  "Halophytaceae"        = "angiosperm",
+  "Achatocarpaceae"      = "angiosperm",
+  "Gisekiaceae"          = "angiosperm",
+  "Lophiocarpaceae"      = "angiosperm",
+  "Montiaceae"           = "angiosperm",
+  "Molluginaceae"        = "angiosperm",
+  "Aizoaceae"            = "angiosperm",
+  "Phytolaccaceae"       = "angiosperm",
+  "Barbeuiaceae"         = "angiosperm",
+  "Microteaceae"         = "angiosperm",
+  "Simmondsiaceae"       = "angiosperm",
+  "Basellaceae"          = "angiosperm",
+  "Didiereaceae"         = "angiosperm",
+  "Nyctaginaceae"        = "angiosperm",
+  "Petiveriaceae"        = "angiosperm",
+  "Agdestidaceae"        = "angiosperm",
+  "Stegnospermataceae"   = "angiosperm",
+
+  # ---- Gymnosperms ----
+  "Pinaceae"             = "gymnosperm",
+  "Cupressaceae"         = "gymnosperm",
+  "Araucariaceae"        = "gymnosperm",
+  "Podocarpaceae"        = "gymnosperm",
+  "Taxaceae"             = "gymnosperm",
+  "Cephalotaxaceae"      = "gymnosperm",
+  "Ginkgoaceae"          = "gymnosperm",
+  "Cycadaceae"           = "gymnosperm",
+  "Zamiaceae"            = "gymnosperm",
+  "Stangeriaceae"        = "gymnosperm",
+  "Welwitschiaceae"      = "gymnosperm",
+  "Gnetaceae"            = "gymnosperm",
+  "Ephedraceae"          = "gymnosperm",
+  "Sciadopityaceae"      = "gymnosperm",
+
+  # ---- Ferns (PPG I, including horsetails and whisk ferns) ----
+  "Polypodiaceae"        = "fern",
+  "Dryopteridaceae"      = "fern",
+  "Aspleniaceae"         = "fern",
+  "Athyriaceae"          = "fern",
+  "Pteridaceae"          = "fern",
+  "Blechnaceae"          = "fern",
+  "Thelypteridaceae"     = "fern",
+  "Dennstaedtiaceae"     = "fern",
+  "Osmundaceae"          = "fern",
+  "Hymenophyllaceae"     = "fern",
+  "Gleicheniaceae"       = "fern",
+  "Marattiaceae"         = "fern",
+  "Ophioglossaceae"      = "fern",
+  "Salviniaceae"         = "fern",
+  "Azollaceae"           = "fern",
+  "Marsileaceae"         = "fern",
+  "Cyatheaceae"          = "fern",
+  "Dicksoniaceae"        = "fern",
+  "Equisetaceae"         = "fern",
+  "Psilotaceae"          = "fern",
+  "Botrychiaceae"        = "fern",
+  "Cibotiaceae"          = "fern",
+  "Plagiogyriaceae"      = "fern",
+  "Culcitaceae"          = "fern",
+  "Metaxyaceae"          = "fern",
+  "Lindsaeaceae"         = "fern",
+  "Lonchitidaceae"       = "fern",
+  "Saccolomataceae"      = "fern",
+  "Cystodiaceae"         = "fern",
+  "Loxsomataceae"        = "fern",
+  "Dipteridaceae"        = "fern",
+  "Matoniaceae"          = "fern",
+  "Schizaeaceae"         = "fern",
+  "Anemiaceae"           = "fern",
+  "Lygodiaceae"          = "fern",
+  "Vittariaceae"         = "fern",
+  "Woodsiaceae"          = "fern",
+  "Cystopteridaceae"     = "fern",
+  "Rhachidosoraceae"     = "fern",
+  "Diplaziopsidaceae"    = "fern",
+  "Onocleaceae"          = "fern",
+  "Nephrolepidaceae"     = "fern",
+  "Tectariaceae"         = "fern",
+  "Oleandraceae"         = "fern",
+  "Davalliaceae"         = "fern",
+  "Lomariopsidaceae"     = "fern",
+
+  # ---- Lycophytes ----
+  "Lycopodiaceae"        = "lycophyte",
+  "Selaginellaceae"      = "lycophyte",
+  "Isoetaceae"           = "lycophyte",
+
+  # ---- Mosses (Bryophyta) ----
+  "Sphagnaceae"          = "moss",
+  "Bryaceae"             = "moss",
+  "Dicranaceae"          = "moss",
+  "Pottiaceae"           = "moss",
+  "Grimmiaceae"          = "moss",
+  "Hypnaceae"            = "moss",
+  "Amblystegiaceae"      = "moss",
+  "Brachytheciaceae"     = "moss",
+  "Mniaceae"             = "moss",
+  "Orthotrichaceae"      = "moss",
+  "Leskeaceae"           = "moss",
+  "Thuidiaceae"          = "moss",
+  "Plagiotheciaceae"     = "moss",
+  "Sematophyllaceae"     = "moss",
+  "Polytrichaceae"       = "moss",
+  "Andreaeaceae"         = "moss",
+  "Fissidentaceae"       = "moss",
+  "Encalyptaceae"        = "moss",
+  "Bartramiaceae"        = "moss",
+  "Meesiaceae"           = "moss",
+  "Calymperaceae"        = "moss",
+  "Hookeriaceae"         = "moss",
+  "Neckeraceae"          = "moss",
+  "Fontinalaceae"        = "moss",
+  "Hedwigiaceae"         = "moss",
+  "Leucobryaceae"        = "moss",
+  "Ditrichaceae"         = "moss",
+  "Seligeriaceae"        = "moss",
+  "Archidiaceae"         = "moss",
+  "Bruchiaceae"          = "moss",
+  "Aulacomniaceae"       = "moss",
+  "Ptychomitriaceae"     = "moss",
+  "Rhabdoweisiaceae"     = "moss",
+  "Scouleriaceae"        = "moss",
+  "Timmiaceae"           = "moss",
+  "Mitteniaceae"         = "moss",
+  "Spiridentaceae"       = "moss",
+  "Rhizogoniaceae"       = "moss",
+  "Hypnodendraceae"      = "moss",
+  "Pterobryaceae"        = "moss",
+  "Meteoriaceae"         = "moss",
+  "Prionodontaceae"      = "moss",
+  "Leptodontaceae"       = "moss",
+  "Cryphaeaceae"         = "moss",
+  "Leucodontaceae"       = "moss",
+  "Myuriaceae"           = "moss",
+  "Fabroniaceae"         = "moss",
+  "Pylaisiaceae"         = "moss",
+  "Entodontaceae"        = "moss",
+  "Hypnodendraceae"      = "moss",
+
+  # ---- Liverworts (Marchantiophyta) ----
+  "Marchantiaceae"       = "liverwort",
+  "Jungermanniaceae"     = "liverwort",
+  "Lophoziaceae"         = "liverwort",
+  "Plagiochilaceae"      = "liverwort",
+  "Porellaceae"          = "liverwort",
+  "Lejeuneaceae"         = "liverwort",
+  "Radulaceae"           = "liverwort",
+  "Frullaniaceae"        = "liverwort",
+  "Metzgeriaceae"        = "liverwort",
+  "Pelliaceae"           = "liverwort",
+  "Conocephalaceae"      = "liverwort",
+  "Aytoniaceae"          = "liverwort",
+  "Ricciaceae"           = "liverwort",
+  "Targioniaceae"        = "liverwort",
+  "Corsiniaceae"         = "liverwort",
+  "Aneuraceae"           = "liverwort",
+  "Blasiaceae"           = "liverwort",
+  "Calypogeiaceae"       = "liverwort",
+  "Cephaloziaceae"       = "liverwort",
+  "Cephaloziellaceae"    = "liverwort",
+  "Gymnomitriaceae"      = "liverwort",
+  "Herbertaceae"         = "liverwort",
+  "Scapaniaceae"         = "liverwort",
+  "Solenostomataceae"    = "liverwort",
+
+  # ---- Hornworts (Anthocerotophyta) ----
+  "Anthocerotaceae"      = "hornwort",
+  "Notothyladaceae"      = "hornwort",
+  "Phymatoceraceae"      = "hornwort",
+  "Dendrocerotaceae"     = "hornwort",
+  "Leiosporocerotaceae"  = "hornwort",
+
+  # ---- Green algae (Plantae: Viridiplantae) ----
+  "Characeae"            = "green_alga",
+  "Hydrodictyaceae"      = "green_alga",
+  "Volvocaceae"          = "green_alga",
+  "Scenedesmaceae"       = "green_alga",
+  "Chlorellaceae"        = "green_alga",
+  "Ulvaceae"             = "green_alga",
+  "Cladophoraceae"       = "green_alga",
+  "Chlamydomonadaceae"   = "green_alga",
+  "Desmidiaceae"         = "green_alga",
+  "Codiaceae"            = "green_alga",
+  "Caulerpaceae"         = "green_alga",
+  "Dasycladaceae"        = "green_alga",
+  "Bryopsidaceae"        = "green_alga",
+  "Ostreobiumaceae"      = "green_alga",
+  "Trentepohliales"      = "green_alga",
+
+  # ---- Red algae (Rhodophyta, in Plantae per GBIF/COL) ----
+  "Corallinaceae"        = "red_alga",
+  "Gigartinaceae"        = "red_alga",
+  "Rhodymeniaceae"       = "red_alga",
+  "Ceramiaceae"          = "red_alga",
+  "Delesseriaceae"       = "red_alga",
+  "Gracilariaceae"       = "red_alga",
+  "Gelidiaceae"          = "red_alga",
+  "Bangiaceae"           = "red_alga",
+  "Porphyraceae"         = "red_alga",
+  "Solieriaceae"         = "red_alga",
+  "Phyllophoraceae"      = "red_alga",
+  "Rhodymeniales"        = "red_alga",
+
+  # ---- Lichens (lichen-forming fungi) ----
+  "Parmeliaceae"         = "lichen",
+  "Cladoniaceae"         = "lichen",
+  "Physciaceae"          = "lichen",
+  "Lecanoraceae"         = "lichen",
+  "Teloschistaceae"      = "lichen",
+  "Ramalinaceae"         = "lichen",
+  "Peltigeraceae"        = "lichen",
+  "Collemataceae"        = "lichen",
+  "Lobariaceae"          = "lichen",
+  "Stereocaulaceae"      = "lichen",
+  "Umbilicariaceae"      = "lichen",
+  "Graphidaceae"         = "lichen",
+  "Caliciaceae"          = "lichen",
+  "Verrucariaceae"       = "lichen",
+  "Arthoniaceae"         = "lichen",
+  "Lichinaceae"          = "lichen",
+  "Candelariaceae"       = "lichen",
+  "Porpidiaceae"         = "lichen",
+  "Rhizocarpaceae"       = "lichen",
+  "Lecideaceae"          = "lichen",
+  "Bacidiaceae"          = "lichen",
+  "Catillariaceae"       = "lichen",
+  "Megalariaceae"        = "lichen",
+  "Trapeliaceae"         = "lichen",
+  "Hymeneliaceae"        = "lichen",
+  "Acarosporaceae"       = "lichen",
+  "Pannariaceae"         = "lichen",
+  "Placynthiaceae"       = "lichen",
+  "Solorinaceae"         = "lichen",
+  "Stictiaceae"          = "lichen",
+  "Massalongiaceae"      = "lichen",
+  "Candelariellaceae"    = "lichen",
+  "Fuscideaceae"         = "lichen",
+  "Brigantiaeaceae"      = "lichen",
+  "Mycoblastaceae"       = "lichen",
+  "Caloplaceae"          = "lichen",
+  "Squamarinaceae"       = "lichen",
+  "Coccocarpiaceae"      = "lichen",
+  "Koerberiaceae"        = "lichen",
+
+  # ---- Non-lichenized fungi ----
+  "Agaricaceae"          = "fungus",
+  "Boletaceae"           = "fungus",
+  "Russulaceae"          = "fungus",
+  "Polyporaceae"         = "fungus",
+  "Tricholomataceae"     = "fungus",
+  "Cortinariaceae"       = "fungus",
+  "Amanitaceae"          = "fungus",
+  "Pleurotaceae"         = "fungus",
+  "Morchellaceae"        = "fungus",
+  "Tuberaceae"           = "fungus",
+  "Clavariaceae"         = "fungus",
+  "Cantharellaceae"      = "fungus",
+  "Ganodermataceae"      = "fungus",
+  "Phallaceae"           = "fungus",
+  "Nidulariaceae"        = "fungus",
+  "Sclerodermataceae"    = "fungus",
+  "Pezizaceae"           = "fungus",
+  "Helotiaceae"          = "fungus",
+  "Sclerotiniaceae"      = "fungus",
+  "Erysiphaceae"         = "fungus",
+  "Ustilaginaceae"       = "fungus",
+  "Pucciniaceae"         = "fungus",
+  "Meruliaceae"          = "fungus",
+  "Schizophyllaceae"     = "fungus",
+  "Marasmiaceae"         = "fungus",
+  "Psathyrellaceae"      = "fungus",
+  "Inocybaceae"          = "fungus",
+  "Hymenogastraceae"     = "fungus",
+  "Entolomataceae"       = "fungus",
+  "Hygrophoraceae"       = "fungus",
+  "Strophariaceae"       = "fungus",
+  "Bolbitiaceae"         = "fungus",
+  "Crepidotaceae"        = "fungus",
+  "Fistulinaceae"        = "fungus",
+  "Fomitopsidaceae"      = "fungus",
+  "Phanerochaetaceae"    = "fungus",
+  "Stereaceae"           = "fungus",
+  "Clavulinaceae"        = "fungus",
+  "Dacryomycetaceae"     = "fungus",
+  "Tremellaceae"         = "fungus",
+  "Auriculariaceae"      = "fungus",
+  "Chytridiaceae"        = "fungus",
+  "Blastocladiaceae"     = "fungus",
+  "Mucoraceae"           = "fungus",
+  "Mortierellaceae"      = "fungus",
+  "Glomeraceae"          = "fungus",
+  "Claroideoglomeraceae" = "fungus",
+  "Aspergillaceae"       = "fungus",
+
+  # ---- Oomycetes (Chromista: Oomycota) ----
+  "Peronosporaceae"      = "oomycete",
+  "Phytophthoraceae"     = "oomycete",
+  "Pythiaceae"           = "oomycete",
+  "Saprolegniaceae"      = "oomycete",
+  "Albuginaceae"         = "oomycete",
+
+  # ---- Brown algae (Chromista: Phaeophyceae) ----
+  "Fucaceae"             = "brown_alga",
+  "Laminariaceae"        = "brown_alga",
+  "Sargassaceae"         = "brown_alga",
+  "Ectocarpaceae"        = "brown_alga",
+  "Desmarestiaceae"      = "brown_alga",
+  "Dictyotaceae"         = "brown_alga",
+  "Chordaceae"           = "brown_alga",
+  "Alariaceae"           = "brown_alga",
+
+  # ---- Diatoms (Chromista: Bacillariophyta) ----
+  "Bacillariaceae"       = "diatom",
+  "Naviculaceae"         = "diatom",
+  "Fragilariaceae"       = "diatom",
+  "Coscinodiscaceae"     = "diatom",
+  "Thalassiosiraceae"    = "diatom",
+  "Cymbellaceae"         = "diatom",
+  "Nitzschiaceae"        = "diatom",
+
+  # ---- Slime moulds (Protozoa: Mycetozoa) ----
+  "Physaraceae"          = "slime_mould",
+  "Trichiaceae"          = "slime_mould",
+  "Arcyriaceae"          = "slime_mould",
+  "Stemonitaceae"        = "slime_mould",
+  "Ceratiomyxaceae"      = "slime_mould",
+  "Myxariaceae"          = "slime_mould"
+)
+
+
+# ---- Derived: family → kingdom_group ----
+# Computed once from .family_taxon_group + .taxon_group_to_kingdom.
+
+.family_kingdom_group <- .taxon_group_to_kingdom[.family_taxon_group]
+names(.family_kingdom_group) <- names(.family_taxon_group)
+
+
+# ---- Kingdom-level fallback ----
+
+.kingdom_to_kingdom_group <- c(
+  "Plantae"   = "plantae",
+  "Fungi"     = "fungi",
+  "Chromista" = "chromista",
   "Protozoa"  = "protozoa",
+  "Animalia"  = "animalia",
+  "Bacteria"  = "bacteria",
+  "Archaea"   = "archaea",
+  "Viruses"   = "viruses"
+)
+
+.kingdom_to_taxon_group_fallback <- c(
+  "Plantae"   = "unknown",   # can't determine fine group from kingdom alone
+  "Fungi"     = "fungus",
+  "Chromista" = "unknown",
+  "Protozoa"  = "unknown",
   "Animalia"  = "animal",
-  "Bacteria"  = "microbe",
-  "Archaea"   = "microbe"
+  "Bacteria"  = "unknown",
+  "Archaea"   = "unknown",
+  "Viruses"   = "unknown"
 )
 
 
-#' Assign life form from kingdom and class
+#' Assign kingdom_group, taxon_group, and life_form from family and kingdom
 #'
-#' Vectorized lookup: checks class against `.life_form_table` first, then
-#' falls back to `.kingdom_life_form` when class is missing or unknown.
+#' Vectorized lookup: checks family against `.family_taxon_group` first, then
+#' falls back to `.kingdom_to_*` mappings when family is missing or unknown.
 #'
-#' @param kingdom Character vector. Kingdom names.
-#' @param class Character vector. Class names (may contain NAs).
-#' @return Character vector of life-form labels, same length as `kingdom`.
-#'   Returns `"unknown"` when neither class nor kingdom matches.
+#' @param family Character vector. Family names (may contain NAs).
+#' @param kingdom Character vector or NULL. Kingdom names used as fallback
+#'   when family lookup fails. Recycled to match `length(family)` if scalar.
+#'   Default `NULL` (no kingdom fallback — returns "unknown" for misses).
+#' @return A list with three character vectors of the same length as `family`:
+#'   `kingdom_group`, `taxon_group`, and `life_form`.
 #' @noRd
-assign_life_form <- function(kingdom, class) {
-  n <- length(kingdom)
-  if (length(class) != n) {
-    stop("kingdom and class must have the same length", call. = FALSE)
+assign_life_form <- function(family, kingdom = NULL) {
+  n <- length(family)
+
+  if (!is.null(kingdom)) {
+    kingdom <- rep_len(kingdom, n)
   }
 
-  # Build class -> life_form hash once
-  class_lf <- stats::setNames(.life_form_table$life_form, .life_form_table$class)
+  taxon_group   <- character(n)
+  kingdom_group <- character(n)
 
-  result <- character(n)
+  # Step 1: family-level lookup → taxon_group
+  from_family <- .family_taxon_group[family]    # NA for unknown/missing family
+  has_family_hit <- !is.na(from_family)
+  taxon_group[has_family_hit]   <- unname(from_family[has_family_hit])
+  kingdom_group[has_family_hit] <- unname(
+    .taxon_group_to_kingdom[taxon_group[has_family_hit]]
+  )
 
-  # Step 1: class-level lookup (covers plants, some fungi)
-  from_class <- class_lf[class]                # NA for unknown/missing class
-  has_class_hit <- !is.na(from_class)
-  result[has_class_hit] <- unname(from_class[has_class_hit])
-
-  # Step 2: kingdom fallback for rows with no class hit
-  needs_fallback <- !has_class_hit
+  # Step 2: kingdom fallback for rows with no family hit
+  needs_fallback <- !has_family_hit
   if (any(needs_fallback)) {
-    from_kingdom <- .kingdom_life_form[kingdom[needs_fallback]]
-    has_kingdom_hit <- !is.na(from_kingdom)
-    idx <- which(needs_fallback)
-    result[idx[has_kingdom_hit]] <- unname(from_kingdom[has_kingdom_hit])
-    result[idx[!has_kingdom_hit]] <- "unknown"
+    if (!is.null(kingdom)) {
+      k  <- kingdom[needs_fallback]
+      kg <- .kingdom_to_kingdom_group[k]
+      tg <- .kingdom_to_taxon_group_fallback[k]
+
+      has_kingdom_hit <- !is.na(kg)
+      idx <- which(needs_fallback)
+
+      kingdom_group[idx[has_kingdom_hit]]  <- unname(kg[has_kingdom_hit])
+      taxon_group[idx[has_kingdom_hit]]    <- unname(tg[has_kingdom_hit])
+      kingdom_group[idx[!has_kingdom_hit]] <- "unknown"
+      taxon_group[idx[!has_kingdom_hit]]   <- "unknown"
+    } else {
+      kingdom_group[needs_fallback] <- "unknown"
+      taxon_group[needs_fallback]   <- "unknown"
+    }
   }
 
-  result
+  # Step 3: life_form = taxon_group with underscores replaced by spaces
+  life_form <- gsub("_", " ", taxon_group, fixed = TRUE)
+
+  list(kingdom_group = kingdom_group,
+       taxon_group   = taxon_group,
+       life_form     = life_form)
 }

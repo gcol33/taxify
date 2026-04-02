@@ -67,12 +67,18 @@ summary.taxify_result <- function(object, ...) {
               tally$case_insensitive %||% 0L,
               tally$fuzzy %||% 0L))
 
+  # Helper: pick the label column (taxon_group if present, else life_form)
+  tally_label_col <- function(df) {
+    if (!is.null(df) && "taxon_group" %in% names(df)) "taxon_group" else "life_form"
+  }
+
   # Out-of-scope line (only if n > 0)
   if (n_oos > 0L) {
     oos_parts <- character(0L)
     if (!is.null(oos_df) && nrow(oos_df) > 0L) {
+      lc <- tally_label_col(oos_df)
       oos_parts <- vapply(seq_len(nrow(oos_df)), function(i) {
-        sprintf("%s: %d", oos_df$life_form[i], oos_df$n[i])
+        sprintf("%s: %d", oos_df[[lc]][i], oos_df$n[i])
       }, character(1L))
     }
     oos_backends <- if (!is.null(oos_df) && nrow(oos_df) > 0L) {
@@ -97,24 +103,20 @@ summary.taxify_result <- function(object, ...) {
     }
   }
 
-  # Unmatched line (always shown, breakdown by life_form helps diagnose)
+  # Unmatched line (always shown, breakdown by taxon_group helps diagnose)
   if (n_none > 0L) {
     none_lf_parts <- character(0L)
     if (!is.null(lf_df) && nrow(lf_df) > 0L) {
-      # Only show life forms that appear in unmatched rows: approximate from
-      # full life_form_tally minus out_of_scope counts
-      # We keep it simple: show all life_form counts from unmatched rows
-      # (computed separately in meta as unmatched_life_form_tally if present,
-      # otherwise fall back to life_form_tally)
       none_tally <- meta$unmatched_life_form_tally %||% lf_df
       if (!is.null(none_tally) && nrow(none_tally) > 0L) {
+        lc <- tally_label_col(none_tally)
         none_lf_parts <- vapply(seq_len(nrow(none_tally)), function(i) {
-          sprintf("%s: %d", none_tally$life_form[i], none_tally$n[i])
+          sprintf("%s: %d", none_tally[[lc]][i], none_tally$n[i])
         }, character(1L))
       }
     }
     if (length(none_lf_parts) > 0L) {
-      cat(sprintf("  unmatched   %5d  (life_form: %s)\n",
+      cat(sprintf("  unmatched   %5d  (taxon_group: %s)\n",
                   n_none, paste(none_lf_parts, collapse = ", ")))
     } else {
       cat(sprintf("  unmatched   %5d\n", n_none))
@@ -123,12 +125,13 @@ summary.taxify_result <- function(object, ...) {
 
   cat(sprintf("  %s\n", rule))
 
-  # Life-form summary line
+  # Taxon-group summary line
   if (!is.null(lf_df) && nrow(lf_df) > 0L) {
+    lc <- tally_label_col(lf_df)
     lf_parts <- vapply(seq_len(nrow(lf_df)), function(i) {
-      sprintf("%s: %d", lf_df$life_form[i], lf_df$n[i])
+      sprintf("%s: %d", lf_df[[lc]][i], lf_df$n[i])
     }, character(1L))
-    cat(sprintf("  life forms:  %s\n", paste(lf_parts, collapse = "  ")))
+    cat(sprintf("  taxon groups: %s\n", paste(lf_parts, collapse = "  ")))
   }
 
   invisible(object)

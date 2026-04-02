@@ -201,11 +201,125 @@ resolve_genus_classification <- function(genera_list) {
 
 # ---- Build functions (maintainer-facing, unexported) ----
 
+#' Resolve unknown genera to kingdom_group via GBIF parent_key traversal
+#'
+#' For genera where taxon_group is "unknown", walks the GBIF backbone
+#' parent_key chain upward until a KINGDOM-rank row is found, then maps
+#' the kingdom name to kingdom_group and taxon_group.
+#'
+#' This runs only during build_genus_register() — one-time build cost.
+#'
+#' @param unknown_genera Character vector of genus names with unknown classification.
+#' @param resolved data.frame with genus/kingdom_group/taxon_group columns
+#'   (modified in-place via environment — returns updated resolved).
+#' @param gbif_path Character. Path to GBIF .vtr file.
+#' @return Updated resolved data.frame.
+#' @noRd
+resolve_kingdom_via_gbif <- function(resolved, gbif_path) {
+  if (!file.exists(gbif_path)) return(resolved)
+
+  unknown_idx <- which(resolved$taxon_group == "unknown" |
+                       resolved$kingdom_group == "unknown")
+  if (length(unknown_idx) == 0L) return(resolved)
+
+  unknown_genera <- resolved$genus[unknown_idx]
+  if (length(unknown_genera) == 0L) return(resolved)
+
+  # Load the GBIF backbone columns needed for traversal
+  # id, parent_key, rank, canonical_name — subset to minimize memory
+  if (is.null(.taxify_env$gbif_hierarchy_cache)) {
+    gbif_df <- tryCatch({
+      vectra::tbl(gbif_path) |>
+        vectra::select(id, parent_key, rank, canonical_name) |>
+        vectra::collect()
+    }, error = function(e) NULL)
+    if (is.null(gbif_df) || nrow(gbif_df) == 0L) return(resolved)
+    .taxify_env$gbif_hierarchy_cache <- gbif_df
+  } else {
+    gbif_df <- .taxify_env$gbif_hierarchy_cache
+  }
+
+  # Build hash maps for fast traversal
+  id_to_parent   <- stats::setNames(gbif_df$parent_key,    gbif_df$id)
+  id_to_rank     <- stats::setNames(gbif_df$rank,          gbif_df$id)
+  id_to_canonical <- stats::setNames(gbif_df$canonical_name, gbif_df$id)
+
+  # Kingdom name → kingdom_group mapping
+  kingdom_group_map <- c(
+    "Plantae"   = "plantae",
+    "Fungi"     = "fungi",
+    "Animalia"  = "animalia",
+    "Chromista" = "chromista",
+    "Protozoa"  = "protozoa",
+    "Bacteria"  = "bacteria",
+    "Archaea"   = "archaea",
+    "Viruses"   = "viruses"
+  )
+  kingdom_taxon_map <- c(
+    "Plantae"   = "unknown",
+    "Fungi"     = "fungus",
+    "Animalia"  = "animal",
+    "Chromista" = "unknown",
+    "Protozoa"  = "unknown",
+    "Bacteria"  = "unknown",
+    "Archaea"   = "unknown",
+    "Viruses"   = "unknown"
+  )
+
+  # For each unknown genus, find its GBIF id, then walk parent_key to KINGDOM
+  genus_ids <- gbif_df$id[
+    gbif_df$canonical_name %in% unknown_genera &
+    !is.na(gbif_df$rank) & gbif_df$rank == "GENUS"
+  ]
+  genus_id_map <- stats::setNames(
+    gbif_df$canonical_name[match(genus_ids, gbif_df$id)],
+    genus_ids
+  )
+
+  for (gid in genus_ids) {
+    genus_name <- genus_id_map[gid]
+    if (is.na(genus_name)) next
+
+    # Walk up the hierarchy
+    current_id <- gid
+    kingdom_name <- NA_character_
+    max_steps <- 20L  # safety guard against cycles
+    for (step in seq_len(max_steps)) {
+      r <- id_to_rank[current_id]
+      if (!is.na(r) && r == "KINGDOM") {
+        kingdom_name <- id_to_canonical[current_id]
+        break
+      }
+      parent <- id_to_parent[current_id]
+      if (is.na(parent) || parent == current_id) break
+      current_id <- parent
+    }
+
+    if (is.na(kingdom_name)) next
+
+    kg <- kingdom_group_map[kingdom_name]
+    tg <- kingdom_taxon_map[kingdom_name]
+    if (is.na(kg)) next
+
+    # Update all rows for this genus
+    rows <- which(resolved$genus == genus_name &
+                  (resolved$taxon_group == "unknown" |
+                   resolved$kingdom_group == "unknown"))
+    resolved$kingdom_group[rows] <- unname(kg)
+    resolved$taxon_group[rows]   <- unname(tg)
+    resolved$life_form[rows]     <- gsub("_", " ", unname(tg), fixed = TRUE)
+  }
+
+  resolved
+}
+
+
 #' Build the genus register from installed backbones
 #'
 #' Reads genus-rank rows from each installed backbone, unions them, resolves
-#' classification conflicts (COL > GBIF > WFO), assigns life_form, and writes
-#' `genus_register.vtr` to `taxify_data_dir()/unified/latest/`.
+#' classification conflicts (COL > GBIF > WFO), assigns kingdom_group,
+#' taxon_group, and life_form, and writes `genus_register.vtr` to
+#' `taxify_data_dir()/unified/latest/`.
 #'
 #' Only processes backbones that are actually installed (i.e., their .vtr
 #' exists on disk). Silently skips missing backbones.
@@ -223,6 +337,7 @@ build_genus_register <- function(verbose = TRUE) {
   )
 
   genera_list <- list()
+  gbif_path   <- NULL
 
   for (be_name in names(backends)) {
     be   <- backends[[be_name]]$be
@@ -232,6 +347,7 @@ build_genus_register <- function(verbose = TRUE) {
       if (verbose) message(sprintf("  [%s] Not installed, skipping.", be_name))
       next
     }
+    if (be_name == "gbif") gbif_path <- path
     if (verbose) message(sprintf("  [%s] Extracting genus rows...", be_name))
     genera_list[[be_name]] <- backends[[be_name]]$extract_fn(path)
     if (verbose) {
@@ -249,11 +365,29 @@ build_genus_register <- function(verbose = TRUE) {
   resolved <- resolve_genus_classification(genera_list)
 
   if (verbose) message("Assigning life forms...")
-  resolved$life_form <- assign_life_form(resolved$kingdom, resolved$class)
+  lf <- assign_life_form(resolved$family, resolved$kingdom)
+  resolved$kingdom_group <- lf$kingdom_group
+  resolved$taxon_group   <- lf$taxon_group
+  resolved$life_form     <- lf$life_form
+
+  # Second pass: use GBIF parent_key traversal to resolve remaining unknowns
+  n_unknown_before <- sum(resolved$taxon_group == "unknown", na.rm = TRUE)
+  if (n_unknown_before > 0L && !is.null(gbif_path)) {
+    if (verbose) message(sprintf(
+      "  Resolving %d unknown genera via GBIF hierarchy...", n_unknown_before
+    ))
+    resolved <- resolve_kingdom_via_gbif(resolved, gbif_path)
+    n_unknown_after <- sum(resolved$taxon_group == "unknown", na.rm = TRUE)
+    if (verbose) message(sprintf(
+      "  %d resolved; %d still unknown.",
+      n_unknown_before - n_unknown_after, n_unknown_after
+    ))
+  }
 
   # Reorder columns
   resolved <- resolved[, c("genus", "kingdom", "phylum", "class", "order",
-                            "family", "life_form"), drop = FALSE]
+                            "family", "kingdom_group", "taxon_group",
+                            "life_form"), drop = FALSE]
   resolved <- resolved[order(resolved$genus), , drop = FALSE]
   rownames(resolved) <- NULL
 
