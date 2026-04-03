@@ -13,11 +13,17 @@ utils::globalVariables(c(
   "higherClassification", "taxonRemarks", "infraspecificEpithet",
   # COL-specific column references
   "canonicalName", "genericName",
+  # ITIS-specific column references (unified schema)
+  "taxon_id", "taxon_rank", "taxonomic_status", "accepted_name_usage_id",
   # GBIF-specific column references
   "id", "canonical_name", "genus_or_above", "specific_epithet",
   "is_synonym_flag", "accepted_id", "status", "authorship",
   "notho_type", "nom_status", "bracket_authorship", "bracket_year",
   "name_published_in", "origin", "infra_specific_epithet",
+  # Precomputed key columns (compiled backbone)
+  "key_ci", "key_normalized", "key_species",
+  "accepted_name", "accepted_family", "accepted_genus",
+  "accepted_taxon_id", "is_synonym",
   # vectra string distance functions (used in NSE mutate expressions)
   "dl_dist_norm", "levenshtein_norm", "jaro_winkler",
   # register column references

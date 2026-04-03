@@ -60,26 +60,28 @@ test_that("GBIF unmatched names have NA match_type", {
   expect_true(is.na(result$matched_name[1L]))
 })
 
-test_that("GBIF exact matching finds synonyms", {
+test_that("GBIF exact matching finds synonyms and resolves accepted info", {
   be <- gbif_backend()
   backbone <- mock_gbif_backbone_vtr()
   names_df <- clean_names("Quercus pedunculata")
 
   result <- match_exact(be, names_df, backbone)
   expect_equal(result$matched_name[1L], "Quercus pedunculata")
-  expect_equal(result$taxonomicStatus[1L], "SYNONYM")
-  expect_equal(result$accepted_id_raw[1L], "2878688")
+  expect_true(result$is_synonym[1L])
+  expect_equal(result$accepted_name[1L], "Quercus robur")
+  expect_equal(result$accepted_id[1L], "2878688")
 })
 
-test_that("GBIF maps HOMOTYPIC_SYNONYM to SYNONYM", {
+test_that("GBIF maps HOMOTYPIC_SYNONYM and resolves accepted", {
   be <- gbif_backend()
   backbone <- mock_gbif_backbone_vtr()
   names_df <- clean_names("Pinus silvestris")
 
   result <- match_exact(be, names_df, backbone)
   expect_equal(result$matched_name[1L], "Pinus silvestris")
-  expect_equal(result$taxonomicStatus[1L], "SYNONYM")
-  expect_equal(result$accepted_id_raw[1L], "5285637")
+  expect_true(result$is_synonym[1L])
+  expect_equal(result$accepted_name[1L], "Pinus sylvestris")
+  expect_equal(result$accepted_id[1L], "5285637")
 })
 
 
@@ -112,44 +114,38 @@ test_that("GBIF fuzzy matching respects threshold", {
 })
 
 
-# -- Synonym resolution --
+# -- Precomputed accepted info --
 
-test_that("GBIF synonym resolution works", {
+test_that("GBIF accepted info is precomputed for synonyms", {
   be <- gbif_backend()
   backbone <- mock_gbif_backbone_vtr()
 
   names_df <- clean_names("Quercus pedunculata")
   result <- match_exact(be, names_df, backbone)
-  result$backend <- "gbif"
-  result <- resolve_synonyms(be, result, backbone)
 
   expect_equal(result$accepted_name[1L], "Quercus robur")
   expect_equal(result$accepted_id[1L], "2878688")
   expect_true(result$is_synonym[1L])
 })
 
-test_that("GBIF HOMOTYPIC_SYNONYM resolves correctly", {
+test_that("GBIF HOMOTYPIC_SYNONYM accepted info is precomputed", {
   be <- gbif_backend()
   backbone <- mock_gbif_backbone_vtr()
 
   names_df <- clean_names("Pinus silvestris")
   result <- match_exact(be, names_df, backbone)
-  result$backend <- "gbif"
-  result <- resolve_synonyms(be, result, backbone)
 
   expect_equal(result$accepted_name[1L], "Pinus sylvestris")
   expect_equal(result$accepted_id[1L], "5285637")
   expect_true(result$is_synonym[1L])
 })
 
-test_that("GBIF accepted names resolve to themselves", {
+test_that("GBIF accepted info is self for accepted names", {
   be <- gbif_backend()
   backbone <- mock_gbif_backbone_vtr()
 
   names_df <- clean_names("Quercus robur")
   result <- match_exact(be, names_df, backbone)
-  result$backend <- "gbif"
-  result <- resolve_synonyms(be, result, backbone)
 
   expect_equal(result$accepted_name[1L], "Quercus robur")
   expect_equal(result$accepted_id[1L], "2878688")

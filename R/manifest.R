@@ -73,7 +73,7 @@ local_manifest <- function() {
 #' @noRd
 check_version <- function(backend_name) {
   manifest <- fetch_manifest()
-  entry <- manifest[[backend_name]]
+  entry <- resolve_manifest_entry(manifest, backend_name)
   if (is.null(entry)) return(FALSE)  # Unknown backend — skip
 
   latest <- entry$latest
@@ -98,24 +98,54 @@ check_version <- function(backend_name) {
 #' @noRd
 manifest_url <- function(backend_name, version = "latest") {
   manifest <- fetch_manifest()
-  entry <- manifest[[backend_name]]
+  entry <- resolve_manifest_entry(manifest, backend_name)
   if (is.null(entry)) {
     stop(sprintf("Backend '%s' not found in manifest.", backend_name),
          call. = FALSE)
   }
+  # v2 schema uses full_url; v1 uses url
+  url <- entry$full_url %||% entry$url
   if (version == "latest") {
-    entry$url
+    url
   } else {
-    # For pinned versions, derive URL by substituting the version string.
-    # This assumes the URL pattern is consistent (Zenodo path ends with
-    # <backend>_<version>.vtr). Maintainer should update the manifest to
-    # include per-version URLs when publishing pinned releases.
     gsub(
       paste0(backend_name, "_[^/]+\\.vtr"),
       sprintf("%s_%s.vtr", backend_name, version),
-      entry$url
+      url
     )
   }
+}
+
+
+#' Resolve a manifest entry, handling both v1 and v2 schema
+#'
+#' v1: flat structure `{ "wfo": { "latest": ..., "url": ... } }`
+#' v2: nested `{ "schema_version": 2, "backends": { "wfo": { ... } } }`
+#'
+#' @param manifest The parsed manifest list.
+#' @param backend_name Character.
+#' @return The entry list, or NULL.
+#' @noRd
+resolve_manifest_entry <- function(manifest, backend_name) {
+  if (!is.null(manifest$schema_version) && manifest$schema_version >= 2L) {
+    manifest$backends[[backend_name]]
+  } else {
+    manifest[[backend_name]]
+  }
+}
+
+
+#' Get the xdelta3 patch URL for a backend (if available)
+#'
+#' @param backend_name Character.
+#' @param version Character.
+#' @return Character URL or NULL if no delta available.
+#' @noRd
+manifest_delta_url <- function(backend_name, version = "latest") {
+  manifest <- fetch_manifest()
+  entry <- resolve_manifest_entry(manifest, backend_name)
+  if (is.null(entry)) return(NULL)
+  entry$delta_url  # NULL if not present in manifest
 }
 
 
@@ -156,6 +186,7 @@ use_local_manifest <- function() {
     wfo      = "wfo.vtr",
     col      = "col.vtr",
     gbif     = "gbif.vtr",
+    itis     = "itis.vtr",
     register = "genus_register.vtr"
   )
 

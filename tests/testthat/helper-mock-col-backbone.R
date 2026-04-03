@@ -121,11 +121,31 @@ mock_col_backbone_df <- function() {
 
 #' Create a mock COL backbone as a vectra .vtr file
 #'
+#' Uses the same precomputation pipeline as taxify_download.taxify_col.
+#'
 #' @return Path to the temporary .vtr file.
 mock_col_backbone_vtr <- function() {
   df <- mock_col_backbone_df()
+
+  # Precompute keys (COL uses canonicalName + genericName)
+  df <- precompute_keys(df, "canonicalName", "genericName", "specificEpithet")
+
+  # Embed accepted taxon info
+  df <- embed_accepted(df,
+    id_col     = "taxonID",
+    acc_id_col = "acceptedNameUsageID",
+    name_col   = "canonicalName",
+    family_col = "family",
+    genus_col  = "genericName",
+    status_col = "taxonomicStatus"
+  )
+
+  # Sort by genus for zone-map pruning
+  df <- df[order(df$genericName, na.last = TRUE), ]
+  rownames(df) <- NULL
+
   tmp <- tempfile(fileext = ".vtr")
-  vectra::write_vtr(df, tmp)
+  vectra::write_vtr(df, tmp, batch_size = 50000L)
   tmp
 }
 

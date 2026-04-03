@@ -19,3 +19,34 @@ pick_best <- function(candidates) {
   ord <- order(status_score, rank_score, candidates$taxonID)
   candidates[ord[1L], , drop = FALSE]
 }
+
+
+#' Vectorized best-match selection: one best row per group
+#'
+#' Replaces the pattern of looping `for (ri in unique(matches$row_idx))`
+#' with a single sort + dedup. Returns one row per unique value of
+#' `group_col`, choosing the best candidate by the same priority as
+#' `pick_best()`.
+#'
+#' @param matches A data.frame with at least `taxonomicStatus`, `taxonRank`,
+#'   `taxonID`, and the grouping column.
+#' @param group_col Character. Column name to group by (default `"row_idx"`).
+#' @return A data.frame with one row per unique group value.
+#' @noRd
+pick_best_vec <- function(matches, group_col = "row_idx") {
+  nr <- nrow(matches)
+  if (nr == 0L) return(matches[0L, , drop = FALSE])
+  if (nr == 1L) return(matches)
+
+  grp <- matches[[group_col]]
+
+  # Fast path: if all groups are singletons, no sorting needed
+  if (!anyDuplicated(grp)) return(matches)
+
+  status_score <- ifelse(matches$taxonomicStatus == "ACCEPTED", 0L, 1L)
+  rank_score <- ifelse(toupper(matches$taxonRank) == "SPECIES", 0L, 1L)
+
+  ord <- order(grp, status_score, rank_score, matches$taxonID)
+  sorted <- matches[ord, , drop = FALSE]
+  sorted[!duplicated(sorted[[group_col]]), , drop = FALSE]
+}

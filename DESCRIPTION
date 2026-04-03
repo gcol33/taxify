@@ -6,7 +6,7 @@ Authors@R:
            role = c("aut", "cre"),
            comment = c(ORCID = "0009-0009-4927-3681"))
 Description: Match taxonomic names against locally stored Darwin Core backbone
-    databases (WFO, COL, GBIF). Provides offline fuzzy and exact matching with
+    databases (WFO, COL, GBIF, ITIS). Provides offline fuzzy and exact matching with
     synonym resolution, hybrid name detection, and a unified output schema
     across backends. All heavy computation runs in vectra's C11 columnar engine.
 License: MIT + file LICENSE
@@ -20,6 +20,8 @@ Imports:
     rlang,
     vectra
 Suggests:
+    DBI,
+    RSQLite,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Encoding: UTF-8

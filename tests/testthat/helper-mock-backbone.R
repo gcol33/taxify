@@ -92,12 +92,32 @@ mock_backbone_df <- function() {
 
 #' Create a mock backbone as a vectra .vtr file
 #'
+#' Uses the same precomputation pipeline as the real download functions:
+#' `precompute_keys()` + `embed_accepted()` + sort by genus + index.
+#'
 #' @return Path to the temporary .vtr file.
 mock_backbone_vtr <- function() {
   df <- mock_backbone_df()
-  df$normalizedName <- normalize_epithets(df$scientificName)
+
+  # Precompute keys (same as taxify_download.taxify_wfo)
+  df <- precompute_keys(df, "scientificName", "genus", "specificEpithet")
+
+  # Embed accepted taxon info (synonym self-join)
+  df <- embed_accepted(df,
+    id_col     = "taxonID",
+    acc_id_col = "acceptedNameUsageID",
+    name_col   = "scientificName",
+    family_col = "family",
+    genus_col  = "genus",
+    status_col = "taxonomicStatus"
+  )
+
+  # Sort by genus for zone-map pruning
+  df <- df[order(df$genus, na.last = TRUE), ]
+  rownames(df) <- NULL
+
   tmp <- tempfile(fileext = ".vtr")
-  vectra::write_vtr(df, tmp)
+  vectra::write_vtr(df, tmp, batch_size = 50000L)
   tmp
 }
 

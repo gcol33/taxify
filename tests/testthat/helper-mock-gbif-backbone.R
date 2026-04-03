@@ -164,10 +164,34 @@ mock_gbif_backbone_df <- function() {
 
 #' Create a mock GBIF backbone as a vectra .vtr file
 #'
+#' Uses the same precomputation pipeline as taxify_download.taxify_gbif.
+#'
 #' @return Path to the temporary .vtr file.
 mock_gbif_backbone_vtr <- function() {
   df <- mock_gbif_backbone_df()
+
+  # Normalize status to standard ACCEPTED/SYNONYM (same as GBIF download)
+  df$status <- gbif_status_to_standard(df$status)
+
+  # Precompute keys (GBIF uses canonical_name + genus_or_above)
+  df <- precompute_keys(df, "canonical_name", "genus_or_above",
+                        "specific_epithet")
+
+  # Embed accepted taxon info
+  df <- embed_accepted(df,
+    id_col     = "id",
+    acc_id_col = "accepted_id",
+    name_col   = "canonical_name",
+    family_col = "family",
+    genus_col  = "genus_or_above",
+    status_col = "status"
+  )
+
+  # Sort by genus for zone-map pruning
+  df <- df[order(df$genus_or_above, na.last = TRUE), ]
+  rownames(df) <- NULL
+
   tmp <- tempfile(fileext = ".vtr")
-  vectra::write_vtr(df, tmp)
+  vectra::write_vtr(df, tmp, batch_size = 50000L)
   tmp
 }

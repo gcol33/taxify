@@ -118,7 +118,7 @@ download_backbone <- function(backend_name,
 
   # Resolve actual version string and download URL from manifest
   manifest <- fetch_manifest()
-  entry <- manifest[[backend_name]]
+  entry <- resolve_manifest_entry(manifest, backend_name)
   if (is.null(entry)) {
     stop(sprintf("Backend '%s' not found in manifest.", backend_name),
          call. = FALSE)
@@ -153,31 +153,62 @@ download_backbone <- function(backend_name,
   tmp_path <- tempfile(tmpdir = dest_dir, fileext = ".vtr.tmp")
   on.exit(if (file.exists(tmp_path)) unlink(tmp_path), add = TRUE)
 
-  tryCatch(
-    {
-      if (startsWith(url, "file://")) {
-        # Strip file:// prefix to get the local path (handle both file:///C:/...
-        # on Windows and file:///path on Unix)
-        local_src <- sub("^file:///", "/", url)
-        # On Windows, file:///C:/... -> /C:/... which is wrong; restore drive letter
-        if (.Platform$OS.type == "windows" &&
-            grepl("^/[A-Za-z]:/", local_src)) {
-          local_src <- sub("^/", "", local_src)
+  # ---- Try xdelta3 patching first (if local .vtr exists + delta available) ----
+  patched <- FALSE
+  if (file.exists(vtr_path) && has_xdelta3()) {
+    delta_url <- manifest_delta_url(backend_name, version)
+    if (!is.null(delta_url)) {
+      patched <- tryCatch(
+        {
+          if (verbose) message("  Trying xdelta3 patch...")
+          delta_tmp <- tempfile(tmpdir = dest_dir, fileext = ".xdelta")
+          on.exit(if (file.exists(delta_tmp)) unlink(delta_tmp), add = TRUE)
+          curl::curl_download(delta_url, delta_tmp, quiet = !verbose)
+          status <- system2("xdelta3", c("-d", "-s", vtr_path, delta_tmp,
+                                         tmp_path))
+          if (status == 0L) {
+            if (verbose) {
+              delta_mb <- file.size(delta_tmp) / 1048576
+              message(sprintf("  Patched via xdelta3 (%.1f MB patch).", delta_mb))
+            }
+            TRUE
+          } else {
+            FALSE
+          }
+        },
+        error = function(e) {
+          if (verbose) message("  xdelta3 patch failed, falling back to full download.")
+          FALSE
         }
-        if (!file.exists(local_src)) {
-          stop(sprintf("Local file not found: %s", local_src))
-        }
-        file.copy(local_src, tmp_path, overwrite = TRUE)
-      } else {
-        curl::curl_download(url, tmp_path, quiet = !verbose)
-      }
-    },
-    error = function(e) {
-      stop(sprintf("Failed to download %s backbone from:\n  %s\nError: %s",
-                   backend_name, url, conditionMessage(e)),
-           call. = FALSE)
+      )
     }
-  )
+  }
+
+  # ---- Full download (if patching didn't work) ----
+  if (!patched) {
+    tryCatch(
+      {
+        if (startsWith(url, "file://")) {
+          local_src <- sub("^file:///", "/", url)
+          if (.Platform$OS.type == "windows" &&
+              grepl("^/[A-Za-z]:/", local_src)) {
+            local_src <- sub("^/", "", local_src)
+          }
+          if (!file.exists(local_src)) {
+            stop(sprintf("Local file not found: %s", local_src))
+          }
+          file.copy(local_src, tmp_path, overwrite = TRUE)
+        } else {
+          curl::curl_download(url, tmp_path, quiet = !verbose)
+        }
+      },
+      error = function(e) {
+        stop(sprintf("Failed to download %s backbone from:\n  %s\nError: %s",
+                     backend_name, url, conditionMessage(e)),
+             call. = FALSE)
+      }
+    )
+  }
 
   # Atomic rename
   file.rename(tmp_path, vtr_path)
@@ -191,6 +222,22 @@ download_backbone <- function(backend_name,
   }
 
   invisible(vtr_path)
+}
+
+
+#' Check if xdelta3 is available on PATH
+#'
+#' @return Logical.
+#' @noRd
+has_xdelta3 <- function() {
+  tryCatch(
+    {
+      out <- system2("xdelta3", "-V", stdout = TRUE, stderr = TRUE)
+      length(out) > 0L
+    },
+    error = function(e) FALSE,
+    warning = function(w) FALSE
+  )
 }
 
 

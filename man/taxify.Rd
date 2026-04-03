@@ -23,8 +23,15 @@ are given, they are tried in order as a fallback chain. Default \code{"wfo"}.}
 \item{fuzzy}{Logical. Enable fuzzy matching for names that fail exact
 match. Default \code{TRUE}.}
 
-\item{fuzzy_threshold}{Numeric 0--1. Maximum normalized string distance
-for fuzzy matches. Default \code{0.2} (roughly 1 edit per 5 characters).}
+\item{fuzzy_threshold}{Numeric. Maximum allowed distance for fuzzy matches.
+Two modes depending on the value:
+\itemize{
+\item \strong{Fractional} (\verb{0 < fuzzy_threshold < 1}): normalized distance
+(edits / max name length). Default \code{0.2} ≈ 1 edit per 5 characters.
+\item \strong{Integer} (\code{fuzzy_threshold >= 1}): maximum raw edit count, e.g.
+\code{fuzzy_threshold = 2L} allows at most 2 insertions/deletions/substitutions
+regardless of name length. Not supported for \code{fuzzy_method = "jw"}.
+}}
 
 \item{fuzzy_method}{Character. One of \code{"dl"} (Damerau-Levenshtein,
 default), \code{"levenshtein"}, or \code{"jw"} (Jaro-Winkler).}

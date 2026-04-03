@@ -15,8 +15,13 @@
 #'   are given, they are tried in order as a fallback chain. Default `"wfo"`.
 #' @param fuzzy Logical. Enable fuzzy matching for names that fail exact
 #'   match. Default `TRUE`.
-#' @param fuzzy_threshold Numeric 0--1. Maximum normalized string distance
-#'   for fuzzy matches. Default `0.2` (roughly 1 edit per 5 characters).
+#' @param fuzzy_threshold Numeric. Maximum allowed distance for fuzzy matches.
+#'   Two modes depending on the value:
+#'   - **Fractional** (`0 < fuzzy_threshold < 1`): normalized distance
+#'     (edits / max name length). Default `0.2` ≈ 1 edit per 5 characters.
+#'   - **Integer** (`fuzzy_threshold >= 1`): maximum raw edit count, e.g.
+#'     `fuzzy_threshold = 2L` allows at most 2 insertions/deletions/substitutions
+#'     regardless of name length. Not supported for `fuzzy_method = "jw"`.
 #' @param fuzzy_method Character. One of `"dl"` (Damerau-Levenshtein,
 #'   default), `"levenshtein"`, or `"jw"` (Jaro-Winkler).
 #' @param verbose Logical. Print progress messages. Default `TRUE`.
@@ -68,7 +73,6 @@ taxify <- function(x,
 
   fuzzy_method <- match.arg(fuzzy_method)
 
-  # Validate input
   if (!is.character(x)) {
     stop("x must be a character vector", call. = FALSE)
   }
@@ -83,13 +87,11 @@ taxify <- function(x,
                          verbose))
   }
 
-  # Handle character vector of backend names
   if (!is.character(backend) || length(backend) == 0L) {
     stop("backend must be a character vector or taxify_backend object",
          call. = FALSE)
   }
 
-  # Once-per-session version check: auto-downloads if any backend is outdated
   ensure_backends_current(backend, verbose = verbose)
 
   if (length(backend) == 1L) {
@@ -113,7 +115,9 @@ taxify <- function(x,
       # First backend: match all names
       if (verbose) message(sprintf("  [%s] Matching %d names...",
                                     be_name, nrow(names_df)))
+
       result <- match_exact(be, names_df, bb_path)
+      result <- prefilter_out_of_scope(result, names_df, be_name)
 
       n_unmatched <- sum(is.na(result$match_type) & !is.na(names_df$cleaned))
       if (fuzzy && n_unmatched > 0L) {
@@ -121,10 +125,10 @@ taxify <- function(x,
                                       be_name, n_unmatched))
         result <- match_fuzzy(be, result, bb_path,
                               method = fuzzy_method,
-                              threshold = fuzzy_threshold)
+                              threshold = fuzzy_threshold,
+                              names_df = names_df)
       }
 
-      result <- resolve_synonyms(be, result, bb_path)
       matched <- !is.na(result$match_type)
       result$backend <- ifelse(matched, be$name, NA_character_)
       bb_ver <- format_backbone_version(bb_path, be$name, be$version)
@@ -142,7 +146,6 @@ taxify <- function(x,
       if (verbose) message(sprintf("  [%s] Matching %d remaining names...",
                                     be_name, length(unmatched_idx)))
 
-      # Build a names_df subset for unmatched
       sub_names_df <- data.frame(
         original = names_df$original[unmatched_idx],
         cleaned = names_df$cleaned[unmatched_idx],
@@ -154,6 +157,7 @@ taxify <- function(x,
       )
 
       sub_result <- match_exact(be, sub_names_df, bb_path)
+      sub_result <- prefilter_out_of_scope(sub_result, sub_names_df, be_name)
 
       n_still_unmatched <- sum(is.na(sub_result$match_type) &
                                !is.na(sub_names_df$cleaned))
@@ -162,33 +166,31 @@ taxify <- function(x,
                                       be_name, n_still_unmatched))
         sub_result <- match_fuzzy(be, sub_result, bb_path,
                                   method = fuzzy_method,
-                                  threshold = fuzzy_threshold)
+                                  threshold = fuzzy_threshold,
+                                  names_df = sub_names_df)
       }
-
-      sub_result <- resolve_synonyms(be, sub_result, bb_path)
 
       # Merge sub_result back into main result
       matched_in_sub <- which(!is.na(sub_result$match_type))
-      for (j in matched_in_sub) {
-        i <- unmatched_idx[j]
-        result$matched_name[i] <- sub_result$matched_name[j]
-        result$accepted_name[i] <- sub_result$accepted_name[j]
-        result$taxon_id[i] <- sub_result$taxon_id[j]
-        result$accepted_id[i] <- sub_result$accepted_id[j]
-        result$rank[i] <- sub_result$rank[j]
-        result$family[i] <- sub_result$family[j]
-        result$genus[i] <- sub_result$genus[j]
-        result$epithet[i] <- sub_result$epithet[j]
-        result$authorship[i] <- sub_result$authorship[j]
-        result$is_synonym[i] <- sub_result$is_synonym[j]
-        result$match_type[i] <- sub_result$match_type[j]
-        result$fuzzy_dist[i] <- sub_result$fuzzy_dist[j]
-        result$taxonomicStatus[i] <- sub_result$taxonomicStatus[j]
-        result$accepted_id_raw[i] <- sub_result$accepted_id_raw[j]
-        result$backend[i] <- be$name
-        result$backbone_version[i] <- format_backbone_version(
-          bb_path, be$name, be$version
-        )
+      if (length(matched_in_sub) > 0L) {
+        bb_ver <- format_backbone_version(bb_path, be$name, be$version)
+        for (j in matched_in_sub) {
+          i <- unmatched_idx[j]
+          result$matched_name[i]    <- sub_result$matched_name[j]
+          result$accepted_name[i]   <- sub_result$accepted_name[j]
+          result$taxon_id[i]        <- sub_result$taxon_id[j]
+          result$accepted_id[i]     <- sub_result$accepted_id[j]
+          result$rank[i]            <- sub_result$rank[j]
+          result$family[i]          <- sub_result$family[j]
+          result$genus[i]           <- sub_result$genus[j]
+          result$epithet[i]         <- sub_result$epithet[j]
+          result$authorship[i]      <- sub_result$authorship[j]
+          result$is_synonym[i]      <- sub_result$is_synonym[j]
+          result$match_type[i]      <- sub_result$match_type[j]
+          result$fuzzy_dist[i]      <- sub_result$fuzzy_dist[j]
+          result$backend[i]         <- be$name
+          result$backbone_version[i] <- bb_ver
+        }
       }
     }
   }
@@ -197,25 +199,14 @@ taxify <- function(x,
   result$match_type[is.na(result$match_type) &
                     !is.na(result$input_name)] <- "none"
 
-  # Drop internal columns
-  result$taxonomicStatus <- NULL
-  result$accepted_id_raw <- NULL
-
-  # Ensure classification columns always exist (populated by enrich_with_register
-  # when the register is available; NA otherwise)
+  # Ensure classification columns always exist
   if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_
   if (!"taxon_group"   %in% names(result)) result$taxon_group   <- NA_character_
   if (!"life_form"     %in% names(result)) result$life_form     <- NA_character_
 
-  # Register enrichment: classify unmatched names as out_of_scope when the
-  # genus exists in the register but was not covered by any requested backend
   result <- enrich_with_register(result, names_df, backend)
-
   rownames(result) <- NULL
-
-  # Attach S3 class and metadata before returning
-  result <- as_taxify_result(result, backend = backend)
-  result
+  as_taxify_result(result, backend = backend)
 }
 
 
@@ -237,6 +228,7 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   names_df <- clean_names(x)
 
   result <- match_exact(be, names_df, bb_path)
+  result <- prefilter_out_of_scope(result, names_df, be$name)
 
   n_unmatched <- sum(is.na(result$match_type) & !is.na(names_df$cleaned))
   if (fuzzy && n_unmatched > 0L) {
@@ -244,10 +236,9 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                                   n_unmatched))
     result <- match_fuzzy(be, result, bb_path,
                           method = fuzzy_method,
-                          threshold = fuzzy_threshold)
+                          threshold = fuzzy_threshold,
+                          names_df = names_df)
   }
-
-  result <- resolve_synonyms(be, result, bb_path)
 
   matched <- !is.na(result$match_type)
   result$backend <- ifelse(matched, be$name, NA_character_)
@@ -257,44 +248,30 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   result$match_type[is.na(result$match_type) &
                     !is.na(result$input_name)] <- "none"
 
-  result$taxonomicStatus <- NULL
-  result$accepted_id_raw <- NULL
-
   # Ensure classification columns always exist
   if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_
   if (!"taxon_group"   %in% names(result)) result$taxon_group   <- NA_character_
   if (!"life_form"     %in% names(result)) result$life_form     <- NA_character_
 
-  # Register enrichment: classify unmatched names as out_of_scope when the
-  # genus exists in the register but was not covered by the requested backend
   result <- enrich_with_register(result, names_df, be$name)
-
   rownames(result) <- NULL
-
-  # Attach S3 class and metadata before returning
-  result <- as_taxify_result(result, backend = be$name)
-  result
+  as_taxify_result(result, backend = be$name)
 }
 
 
-#' Enrich unmatched names using the unified genus register
+#' Pre-filter out-of-scope names before fuzzy matching
 #'
-#' For names with `match_type = "none"`, extracts the genus from the cleaned
-#' name (or the first word of the input), looks it up in the register, and
-#' — if found — sets `match_type = "out_of_scope"` and fills the `life_form`
-#' column.
+#' Checks unmatched names against the genus register and backend coverage.
+#' Names whose genus is known but not covered by the requested backend are
+#' marked `"out_of_scope"` immediately.
 #'
-#' Silently skips enrichment if the register is not available (no .vtr on disk
-#' and not already loaded in `.taxify_env`).
-#'
-#' @param result The match result data.frame (after match_type = "none" is set).
+#' @param result The match result data.frame after exact matching.
 #' @param names_df The cleaned names data.frame from `clean_names()`.
-#' @param backend Character scalar or vector of backend names that were tried.
-#' @return The result data.frame, possibly with `life_form` column added and
-#'   some rows promoted to `match_type = "out_of_scope"`.
+#' @param backend Character scalar or vector of backend names being tried.
+#' @return The result data.frame, possibly with some NA match_type rows
+#'   promoted to `"out_of_scope"`.
 #' @noRd
-enrich_with_register <- function(result, names_df, backend) {
-  # Only proceed if register is available
+prefilter_out_of_scope <- function(result, names_df, backend) {
   reg <- tryCatch({
     if (is.null(.taxify_env$register)) {
       path <- register_vtr_path()
@@ -306,8 +283,71 @@ enrich_with_register <- function(result, names_df, backend) {
 
   if (is.null(reg) || nrow(reg) == 0L) return(result)
 
-  # Load backend coverage: set of genera covered by the requested backend(s).
-  # Cached per backend in .taxify_env$coverage_<backend>.
+  covered_genera <- tryCatch({
+    cov_path <- coverage_vtr_path()
+    if (!file.exists(cov_path)) return(NULL)
+    be_names <- if (is.character(backend)) backend else backend$name
+    covered <- character(0)
+    for (be in be_names) {
+      cache_key <- paste0("coverage_", be)
+      if (is.null(.taxify_env[[cache_key]])) {
+        cov <- vectra::tbl(cov_path) |>
+          vectra::filter(backend == be) |>
+          vectra::collect()
+        .taxify_env[[cache_key]] <- cov$genus
+      }
+      covered <- union(covered, .taxify_env[[cache_key]])
+    }
+    covered
+  }, error = function(e) NULL)
+
+  if (is.null(covered_genera)) return(result)
+
+  reg_lookup <- stats::setNames(seq_len(nrow(reg)), reg$genus)
+
+  unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
+  if (length(unmatched_rows) == 0L) return(result)
+
+  cleaned_um <- names_df$cleaned[unmatched_rows]
+  raw_um     <- result$input_name[unmatched_rows]
+  genus_names <- ifelse(!is.na(cleaned_um) & nzchar(cleaned_um),
+                        sub(" .*", "", cleaned_um),
+                        ifelse(!is.na(raw_um) & nzchar(raw_um),
+                               sub(" .*", "", trimws(raw_um)),
+                               NA_character_))
+
+  in_register   <- !is.na(genus_names) & nzchar(genus_names) &
+                   !is.na(reg_lookup[genus_names])
+  not_covered   <- !genus_names %in% covered_genera
+  oos_mask      <- in_register & not_covered
+
+  if (any(oos_mask)) {
+    result$match_type[unmatched_rows[oos_mask]] <- "out_of_scope"
+  }
+
+  result
+}
+
+
+#' Enrich unmatched names using the unified genus register
+#'
+#' @param result The match result data.frame.
+#' @param names_df The cleaned names data.frame from `clean_names()`.
+#' @param backend Character scalar or vector of backend names that were tried.
+#' @return The result data.frame with life_form enrichment.
+#' @noRd
+enrich_with_register <- function(result, names_df, backend) {
+  reg <- tryCatch({
+    if (is.null(.taxify_env$register)) {
+      path <- register_vtr_path()
+      if (!file.exists(path)) return(result)
+      taxify_load_register(verbose = FALSE)
+    }
+    .taxify_env$register
+  }, error = function(e) NULL)
+
+  if (is.null(reg) || nrow(reg) == 0L) return(result)
+
   covered_genera <- tryCatch({
     cov_path <- coverage_vtr_path()
     if (file.exists(cov_path)) {
@@ -329,60 +369,69 @@ enrich_with_register <- function(result, names_df, backend) {
     }
   }, error = function(e) NULL)
 
-  # Ensure classification columns exist in result
+  # Ensure classification columns exist
   if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_
   if (!"taxon_group"   %in% names(result)) result$taxon_group   <- NA_character_
   if (!"life_form"     %in% names(result)) result$life_form     <- NA_character_
 
-  # Detect whether register has the new three-column schema
   has_kingdom_group <- "kingdom_group" %in% names(reg)
   has_taxon_group   <- "taxon_group"   %in% names(reg)
 
-  # Build genus -> register row lookup (fast: register is a data.frame)
   reg_lookup <- stats::setNames(seq_len(nrow(reg)), reg$genus)
 
-  # Iterate over ALL rows with a non-NA input name
   active_rows <- which(!is.na(result$input_name))
   if (length(active_rows) == 0L) return(result)
 
-  for (i in active_rows) {
-    mt <- result$match_type[i]
+  mt <- result$match_type[active_rows]
+  is_matched <- !is.na(mt) & mt != "none" & mt != "out_of_scope"
 
-    # Determine genus to look up
-    if (!is.na(mt) && mt != "none") {
-      # Matched row: use the genus column when available (already resolved)
-      genus_name <- result$genus[i]
-      if (is.na(genus_name) || !nzchar(genus_name)) {
-        # Fall back to first word of matched_name
-        mn <- result$matched_name[i]
-        genus_name <- if (!is.na(mn)) sub(" .*", "", mn) else NA_character_
-      }
-    } else {
-      # Unmatched row (match_type == "none" or NA): derive from cleaned name
-      cleaned_name <- names_df$cleaned[i]
-      if (!is.na(cleaned_name) && nzchar(cleaned_name)) {
-        genus_name <- sub(" .*", "", cleaned_name)
-      } else {
-        raw <- result$input_name[i]
-        if (is.na(raw) || !nzchar(raw)) next
-        genus_name <- sub(" .*", "", trimws(raw))
-      }
+  genus_names <- rep(NA_character_, length(active_rows))
+
+  if (any(is_matched)) {
+    m_idx <- which(is_matched)
+    m_rows <- active_rows[m_idx]
+    g <- result$genus[m_rows]
+    fallback <- is.na(g) | !nzchar(g)
+    if (any(fallback)) {
+      mn <- result$matched_name[m_rows[fallback]]
+      g[fallback] <- ifelse(!is.na(mn), sub(" .*", "", mn), NA_character_)
     }
+    genus_names[m_idx] <- g
+  }
 
-    if (is.na(genus_name) || !nzchar(genus_name)) next
-    reg_idx <- reg_lookup[genus_name]
-    if (is.na(reg_idx)) next
+  if (any(!is_matched)) {
+    u_idx <- which(!is_matched)
+    u_rows <- active_rows[u_idx]
+    cleaned_u <- names_df$cleaned[u_rows]
+    raw_u     <- result$input_name[u_rows]
+    genus_names[u_idx] <- ifelse(
+      !is.na(cleaned_u) & nzchar(cleaned_u),
+      sub(" .*", "", cleaned_u),
+      ifelse(!is.na(raw_u) & nzchar(raw_u),
+             sub(" .*", "", trimws(raw_u)),
+             NA_character_)
+    )
+  }
 
-    # Fill classification columns from register for all rows where genus found
-    result$life_form[i] <- reg$life_form[reg_idx]
-    if (has_kingdom_group) result$kingdom_group[i] <- reg$kingdom_group[reg_idx]
-    if (has_taxon_group)   result$taxon_group[i]   <- reg$taxon_group[reg_idx]
+  reg_idx <- unname(reg_lookup[genus_names])
+  found <- !is.na(reg_idx)
 
-    # For "none" rows only: promote to out_of_scope if genus is NOT covered
-    # by the requested backend. If coverage is unavailable, leave as "none".
-    if (!is.na(mt) && mt == "none" && !is.null(covered_genera)) {
-      if (!genus_name %in% covered_genera) {
-        result$match_type[i] <- "out_of_scope"
+  if (any(found)) {
+    f_rows <- active_rows[found]
+    f_idx  <- reg_idx[found]
+    result$life_form[f_rows] <- reg$life_form[f_idx]
+    if (has_kingdom_group) result$kingdom_group[f_rows] <- reg$kingdom_group[f_idx]
+    if (has_taxon_group)   result$taxon_group[f_rows]   <- reg$taxon_group[f_idx]
+  }
+
+  if (!is.null(covered_genera)) {
+    none_mask <- !is.na(mt) & mt == "none" & found
+    if (any(none_mask)) {
+      none_genera <- genus_names[none_mask]
+      not_covered <- !none_genera %in% covered_genera
+      if (any(not_covered)) {
+        oos_rows <- active_rows[which(none_mask)[not_covered]]
+        result$match_type[oos_rows] <- "out_of_scope"
       }
     }
   }
@@ -393,10 +442,6 @@ enrich_with_register <- function(result, names_df, backend) {
 
 #' Attach the taxify_result class and metadata attribute
 #'
-#' Called as the final step of `taxify()` and `taxify_single()`. Computes
-#' match tallies and life-form tallies from the assembled result data.frame
-#' and attaches them as the `"taxify_meta"` attribute.
-#'
 #' @param result A data.frame with the standard 16+ column schema.
 #' @param backend Character vector of backend name(s) that were tried.
 #' @return The same data.frame, classed as `c("taxify_result", "data.frame")`.
@@ -404,7 +449,6 @@ enrich_with_register <- function(result, names_df, backend) {
 as_taxify_result <- function(result, backend) {
   n_input <- nrow(result)
 
-  # Match-type tallies
   mt <- result$match_type
   tally <- list(
     exact            = sum(mt == "exact",       na.rm = TRUE),
@@ -414,7 +458,7 @@ as_taxify_result <- function(result, backend) {
     unmatched        = sum(mt == "none",         na.rm = TRUE)
   )
 
-  # Out-of-scope breakdown by taxon_group (fine) + backend
+  # Out-of-scope breakdown by taxon_group
   oos_rows <- result[!is.na(mt) & mt == "out_of_scope", , drop = FALSE]
   tg_col   <- if ("taxon_group" %in% names(oos_rows)) "taxon_group" else "life_form"
   if (nrow(oos_rows) > 0L && tg_col %in% names(oos_rows)) {
@@ -446,7 +490,7 @@ as_taxify_result <- function(result, backend) {
     )
   }
 
-  # Full taxon_group breakdown across all rows
+  # Full taxon_group breakdown
   tg_col_all <- if ("taxon_group" %in% names(result)) "taxon_group" else "life_form"
   lf_tally_df <- if (tg_col_all %in% names(result)) {
     tg_vals <- result[[tg_col_all]]
@@ -463,7 +507,7 @@ as_taxify_result <- function(result, backend) {
                stringsAsFactors = FALSE)
   }
 
-  # Unmatched rows' taxon_group breakdown (for the summary unmatched line)
+  # Unmatched rows' taxon_group breakdown
   none_rows   <- result[!is.na(mt) & mt == "none", , drop = FALSE]
   tg_col_none <- if ("taxon_group" %in% names(none_rows)) "taxon_group" else "life_form"
   none_lf_df  <- if (nrow(none_rows) > 0L && tg_col_none %in% names(none_rows)) {
@@ -481,12 +525,10 @@ as_taxify_result <- function(result, backend) {
                stringsAsFactors = FALSE)
   }
 
-  # Version: pull from backbone_version column of first matched row
   version <- NA_character_
   if ("backbone_version" %in% names(result)) {
     bv <- result$backbone_version[!is.na(result$backbone_version)]
     if (length(bv) > 0L) {
-      # backbone_version format: "wfo:2024-12 (2026-04-01)" — extract version part
       version <- sub("^[^:]+:([^ ]+).*$", "\\1", bv[1L])
     }
   }

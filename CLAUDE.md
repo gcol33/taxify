@@ -50,6 +50,7 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 | `R/backend-wfo.R` | WFO backend: download from Zenodo, classification.txt → .vtr |
 | `R/backend-col.R` | COL backend: download from ChecklistBank, Taxon.tsv → .vtr (strips namespace prefixes, builds canonicalName) |
 | `R/backend-gbif.R` | GBIF backend: download simple.txt.gz (no header, positional cols), denormalizes family_key, synonym via parent_key |
+| `R/backend-itis.R` | ITIS backend: download SQLite dump from itis.gov, hierarchy walk for family/genus, synonym_links table |
 | `R/cache.R` | Backbone path caching + `taxify_data_dir()` + `ensure_backbone()` |
 | `R/pick.R` | Best-match selection (ACCEPTED > SYNONYM, SPECIES > higher, smallest ID) |
 | `R/add-hybrid-info.R` | Pipe extension: hybrid parents and type |
@@ -61,7 +62,7 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 
 ## Backends
 
-Three backends implemented: WFO, COL, GBIF. Adding a backend requires:
+Four backends implemented: WFO, COL, GBIF, ITIS. Adding a backend requires:
 1. Constructor function (e.g., `col_backend()`)
 2. S3 methods: `taxify_download`, `taxify_load`, `match_exact`, `match_fuzzy`, `resolve_synonyms`
 3. Register in `resolve_backend()` switch
@@ -71,6 +72,7 @@ Three backends implemented: WFO, COL, GBIF. Adding a backend requires:
 - **WFO**: Single `classification.txt` TSV. `scientificName` is canonical (no authorship). Column `genus`.
 - **COL**: Single `Taxon.tsv` with `dwc:`/`col:` prefixed headers (stripped on read). `scientificName` includes authorship → `canonicalName` computed by stripping authorship. Column `genericName` (not `genus`). Status values originally lowercase (uppercased on conversion). `SpeciesProfile.tsv` stored as separate `.vtr` for extinct/marine info.
 - **GBIF**: `simple.txt.gz` has NO header row (30 positional columns), `\N` for NULLs. `canonical_name` already exists. Column `genus_or_above`. No `family` text column — only `family_key` FK, denormalized during conversion via self-join. Synonyms use `parent_key` as accepted ID (not `acceptedNameUsageID`). Status values like `HOMOTYPIC_SYNONYM`, `HETEROTYPIC_SYNONYM` mapped to standard `SYNONYM`.
+- **ITIS**: SQLite dump from itis.gov. Uses unified backbone schema (`canonical_name`, `taxon_id`, etc.). Relational: `taxonomic_units` + `synonym_links` + `taxon_unit_types`. Family/genus resolved via `parent_tsn` hierarchy walk. `name_usage` (valid/accepted → ACCEPTED, invalid/not accepted → SYNONYM). Column `genus` (resolved). Requires RSQLite (Suggests) for build-from-source; pre-built .vtr preferred.
 
 ## Multi-backend fallback
 
@@ -80,4 +82,5 @@ Three backends implemented: WFO, COL, GBIF. Adding a backend requires:
 
 - **vectra** (Imports): columnar engine, joins, string distance
 - **rlang** (Imports): `%||%` operator only
+- **DBI**, **RSQLite** (Suggests): ITIS build-from-source only
 - **testthat** (Suggests): testing framework

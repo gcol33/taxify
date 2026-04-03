@@ -41,15 +41,16 @@ test_that("unmatched names have NA match_type", {
   expect_true(is.na(result$matched_name[1L]))
 })
 
-test_that("exact matching finds synonyms", {
+test_that("exact matching finds synonyms and resolves accepted info", {
   be <- wfo_backend()
   backbone <- mock_backbone_vtr()
   names_df <- clean_names("Quercus pedunculata")
 
   result <- match_exact(be, names_df, backbone)
   expect_equal(result$matched_name[1L], "Quercus pedunculata")
-  expect_equal(result$taxonomicStatus[1L], "SYNONYM")
-  expect_equal(result$accepted_id_raw[1L], "wfo-0000001")
+  expect_true(result$is_synonym[1L])
+  expect_equal(result$accepted_name[1L], "Quercus robur")
+  expect_equal(result$accepted_id[1L], "wfo-0000001")
 })
 
 test_that("fuzzy matching catches typos", {
@@ -81,28 +82,24 @@ test_that("fuzzy matching respects threshold", {
   expect_true(is.na(result$match_type[1L]))
 })
 
-test_that("synonym resolution works", {
+test_that("accepted info is precomputed for synonyms", {
   be <- wfo_backend()
   backbone <- mock_backbone_vtr()
 
   names_df <- clean_names("Quercus pedunculata")
   result <- match_exact(be, names_df, backbone)
-  result$backend <- "wfo"
-  result <- resolve_synonyms(be, result, backbone)
 
   expect_equal(result$accepted_name[1L], "Quercus robur")
   expect_equal(result$accepted_id[1L], "wfo-0000001")
   expect_true(result$is_synonym[1L])
 })
 
-test_that("accepted names resolve to themselves", {
+test_that("accepted info is self for accepted names", {
   be <- wfo_backend()
   backbone <- mock_backbone_vtr()
 
   names_df <- clean_names("Quercus robur")
   result <- match_exact(be, names_df, backbone)
-  result$backend <- "wfo"
-  result <- resolve_synonyms(be, result, backbone)
 
   expect_equal(result$accepted_name[1L], "Quercus robur")
   expect_equal(result$accepted_id[1L], "wfo-0000001")

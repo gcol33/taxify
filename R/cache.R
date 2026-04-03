@@ -155,20 +155,20 @@ taxify_data_dir <- function() {
 ensure_backbone <- function(backend, version = "latest", verbose = TRUE) {
   be_name <- backend$name
 
-  # 1. In-session cache hit
+  # 1. In-session cache hit (set_backbone_path only stores verified paths)
   cached <- get_backbone_path(be_name)
   if (!is.null(cached) && file.exists(cached)) return(cached)
 
   # 2. Versioned layout: <data_dir>/<backend>/<version>/<backend>.vtr
   versioned_path <- versioned_vtr_path(be_name, version)
-  if (file.exists(versioned_path)) {
+  if (file.exists(versioned_path) && is_compiled_backbone(versioned_path)) {
     set_backbone_path(be_name, versioned_path)
     return(versioned_path)
   }
 
   # 3. Legacy flat layout: <data_dir>/<backend>.vtr
   legacy_path <- file.path(taxify_data_dir(), paste0(be_name, ".vtr"))
-  if (file.exists(legacy_path)) {
+  if (file.exists(legacy_path) && is_compiled_backbone(legacy_path)) {
     set_backbone_path(be_name, legacy_path)
     return(legacy_path)
   }
