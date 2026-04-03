@@ -622,8 +622,12 @@ resolve_backend <- function(backend) {
     col = col_backend(),
     gbif = gbif_backend(),
     itis = itis_backend(),
-    stop(sprintf("Unknown backend '%s'. Available: wfo, col, gbif, itis", backend),
-         call. = FALSE)
+    ncbi = ncbi_backend(),
+    ott = ott_backend(),
+    worms = worms_backend(),
+    stop(sprintf(
+      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms",
+      backend), call. = FALSE)
   )
 }
 

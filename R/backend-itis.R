@@ -67,9 +67,9 @@ taxify_download.taxify_itis <- function(backend, dest = NULL,
   vtr_path <- file.path(dest, "itis.vtr")
   zip_path <- file.path(dest, "itisSqlite.zip")
 
-  # Download
+  # Download (use curl for reliable large file download)
   if (verbose) message("Downloading ITIS SQLite dump (~212 MB)...")
-  utils::download.file(.itis_url, zip_path, mode = "wb", quiet = !verbose)
+  curl::curl_download(.itis_url, zip_path, quiet = !verbose)
 
   if (verbose) message("Extracting...")
   utils::unzip(zip_path, exdir = dest)
