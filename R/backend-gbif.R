@@ -85,6 +85,7 @@ gbif_backend <- function() {
     version = .gbif_version,
     genus_col = "genus_or_above",
     col_map = .gbif_col_map,
+    unblocked_fallback = TRUE,
     class = "taxify_gbif"
   )
 }
@@ -157,47 +158,11 @@ taxify_download.taxify_gbif <- function(backend, dest = NULL,
   # Map all synonym-type statuses to "SYNONYM" for embed_accepted.
   df$status <- gbif_status_to_standard(df$status)
 
-  # ---- Compile: precompute keys ----
-  if (verbose) message("Precomputing match keys...")
-  df <- precompute_keys(df, "canonical_name", "genus_or_above",
-                        "specific_epithet")
-
-  # ---- Compile: embed accepted info (synonym self-join) ----
-  if (verbose) message("Embedding accepted taxon info...")
-  df <- embed_accepted(df,
-    id_col     = "id",
-    acc_id_col = "accepted_id",
-    name_col   = "canonical_name",
-    family_col = "family",
-    genus_col  = "genus_or_above",
-    status_col = "status"
-  )
-
-  # ---- Sort by genus_or_above for zone-map pruning ----
-  if ("genus_or_above" %in% names(df)) {
-    df <- df[order(df$genus_or_above, na.last = TRUE), ]
-    rownames(df) <- NULL
-  }
-
-  # ---- Write with controlled row-group size ----
-  if (verbose) message("Writing compiled backbone...")
-  vectra::write_vtr(df, vtr_path, batch_size = 50000L)
-  write_backbone_meta(vtr_path, "gbif", backend$version, url, nrow(df))
-  write_version_meta(dest, "gbif", backend$version, pinned = FALSE)
-
-  # ---- Build indexes ----
-  if (verbose) message("Building indexes...")
-  create_backbone_indexes(vtr_path, "canonical_name", "genus_or_above")
+  # Compile and write
+  compile_backbone(df, vtr_path, backend, url, verbose = verbose)
 
   # Clean up
   unlink(gz_path)
-
-  if (verbose) {
-    size_mb <- file.size(vtr_path) / (1024 * 1024)
-    message(sprintf("GBIF backbone saved: %s (%.0f MB)", vtr_path, size_mb))
-  }
-
-  invisible(vtr_path)
 }
 
 
@@ -228,135 +193,3 @@ gbif_status_to_standard <- function(status) {
 }
 
 
-#' @exportS3Method
-taxify_load.taxify_gbif <- function(backend, path = NULL, ...) {
-  path <- path %||% file.path(taxify_data_dir(), "gbif.vtr")
-  if (!file.exists(path)) {
-    stop(sprintf(
-      "GBIF backbone not found at: %s\nRun taxify_download('gbif') first.",
-      path
-    ), call. = FALSE)
-  }
-  path
-}
-
-
-# ------------------------------------------------------------------
-# Matching — delegates to shared compiled engine
-# ------------------------------------------------------------------
-
-#' @exportS3Method
-match_exact.taxify_gbif <- function(backend, names_df, backbone, ...) {
-  bb_path <- backbone
-  n <- nrow(names_df)
-  result <- empty_match_result(n)
-  result$input_name <- names_df$original
-  result$is_hybrid  <- names_df$is_hybrid
-
-  match_exact_compiled(result, names_df, bb_path, .gbif_col_map)
-}
-
-
-#' @exportS3Method
-match_fuzzy.taxify_gbif <- function(backend, unmatched_df, backbone,
-                                    method = "dl", threshold = 0.2,
-                                    names_df = NULL, ...) {
-  bb_path <- backbone
-  result  <- unmatched_df
-
-  # Main pass: genus-blocked fuzzy join
-  result <- fuzzy_match_via_join(result, names_df, bb_path, method, threshold,
-                                 .gbif_col_map)
-
-  # Prefix fallback for remaining unmatched (misspelled genus)
-  still_unmatched <- which(is.na(result$match_type) & !is.na(result$input_name))
-  if (length(still_unmatched) > 0L) {
-    for (i in still_unmatched) {
-      cleaned <- if (!is.null(names_df)) {
-        cl <- names_df$cleaned[i]
-        if (!is.na(cl) && nzchar(cl)) cl else clean_one(result$input_name[i])$cleaned
-      } else {
-        clean_one(result$input_name[i])$cleaned
-      }
-      if (is.na(cleaned) || !nzchar(cleaned)) next
-
-      prefix <- substr(cleaned, 1L, 3L)
-      candidates <- run_gbif_fuzzy_query(bb_path, prefix, cleaned, method,
-                                         threshold, by_genus = FALSE)
-      if (nrow(candidates) == 0L) next
-
-      if (method == "jw") candidates$dist <- 1.0 - candidates$dist
-      candidates <- candidates[order(candidates$dist), , drop = FALSE]
-
-      candidates$taxonID <- candidates$id
-      candidates$taxonRank <- candidates$rank
-      candidates$taxonomicStatus <- candidates$status
-
-      best <- pick_best(candidates)
-      result$matched_name[i]  <- best$canonical_name
-      result$taxon_id[i]      <- best$id
-      result$rank[i]          <- tolower(best$rank)
-      result$accepted_name[i] <- best$accepted_name
-      result$accepted_id[i]   <- best$accepted_taxon_id
-      result$family[i]        <- best$accepted_family
-      result$genus[i]         <- best$accepted_genus
-      result$epithet[i]       <- best$specific_epithet
-      result$authorship[i]    <- best$authorship
-      result$is_synonym[i]    <- best$is_synonym
-      result$match_type[i]    <- "fuzzy"
-      result$fuzzy_dist[i]    <- best$dist
-    }
-  }
-
-  result
-}
-
-
-#' Run a single fuzzy query against the GBIF backbone
-#'
-#' @param bb_path Path to backbone .vtr.
-#' @param filter_value Character.
-#' @param target Character.
-#' @param method Character.
-#' @param threshold Numeric.
-#' @param by_genus Logical.
-#' @return A data.frame of candidates (may be empty).
-#' @noRd
-run_gbif_fuzzy_query <- function(bb_path, filter_value, target,
-                                 method, threshold, by_genus) {
-  tryCatch({
-    bb <- vectra::tbl(bb_path) |>
-      vectra::select(id, canonical_name, rank, status,
-                     family, genus_or_above, specific_epithet, authorship,
-                     accepted_name, accepted_family, accepted_genus,
-                     accepted_taxon_id, is_synonym)
-
-    if (by_genus) {
-      bb <- bb |> vectra::filter(genus_or_above == filter_value)
-    } else {
-      bb <- bb |> vectra::filter(startsWith(canonical_name, filter_value))
-    }
-
-    if (method == "dl") {
-      bb <- bb |>
-        vectra::mutate(dist = dl_dist_norm(canonical_name, target)) |>
-        vectra::filter(dist <= threshold)
-    } else if (method == "levenshtein") {
-      bb <- bb |>
-        vectra::mutate(dist = levenshtein_norm(canonical_name, target)) |>
-        vectra::filter(dist <= threshold)
-    } else {
-      jw_thresh <- 1.0 - threshold
-      bb <- bb |>
-        vectra::mutate(dist = jaro_winkler(canonical_name, target)) |>
-        vectra::filter(dist >= jw_thresh)
-    }
-
-    bb |>
-      vectra::arrange(dist) |>
-      utils::head(5L) |>
-      vectra::collect()
-  }, error = function(e) {
-    data.frame()
-  })
-}

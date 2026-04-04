@@ -67,6 +67,7 @@ wfo_backend <- function() {
     version = .wfo_version,
     genus_col = "genus",
     col_map = .wfo_col_map,
+    unblocked_fallback = TRUE,
     class = "taxify_wfo"
   )
 }
@@ -130,149 +131,15 @@ taxify_download.taxify_wfo <- function(backend, dest = NULL,
     df[[col]] <- gsub("\u00c3\u0097", "\u00d7", df[[col]], fixed = TRUE)
   }
 
-  # ---- Compile: precompute keys ----
-  if (verbose) message("Precomputing match keys...")
+  # WFO-specific: extra normalized name column
   df$normalizedName <- normalize_epithets(df$scientificName)
-  df <- precompute_keys(df, "scientificName", "genus", "specificEpithet")
 
-  # ---- Compile: embed accepted info (synonym self-join) ----
-  if (verbose) message("Embedding accepted taxon info...")
-  df <- embed_accepted(df,
-    id_col    = "taxonID",
-    acc_id_col = "acceptedNameUsageID",
-    name_col  = "scientificName",
-    family_col = "family",
-    genus_col = "genus",
-    status_col = "taxonomicStatus"
-  )
-
-  # ---- Sort by genus for zone-map pruning ----
-  if ("genus" %in% names(df)) {
-    df <- df[order(df$genus, na.last = TRUE), ]
-    rownames(df) <- NULL
-  }
-
-  # ---- Write with controlled row-group size ----
-  if (verbose) message("Writing compiled backbone...")
-  vectra::write_vtr(df, vtr_path, batch_size = 50000L)
-  write_backbone_meta(vtr_path, "wfo", backend$version, url, nrow(df))
-  write_version_meta(dest, "wfo", backend$version, pinned = FALSE)
-
-  # ---- Build indexes ----
-  if (verbose) message("Building indexes...")
-  create_backbone_indexes(vtr_path, "scientificName", "genus")
+  # Compile and write
+  compile_backbone(df, vtr_path, backend, url, verbose = verbose)
 
   # Clean up
   unlink(zip_path)
   unlink(txt_path)
-
-  if (verbose) {
-    size_mb <- file.size(vtr_path) / (1024 * 1024)
-    message(sprintf("WFO backbone saved: %s (%.0f MB)", vtr_path, size_mb))
-  }
-
-  invisible(vtr_path)
 }
 
 
-#' @exportS3Method
-taxify_load.taxify_wfo <- function(backend, path = NULL, ...) {
-  path <- path %||% file.path(taxify_data_dir(), "wfo.vtr")
-  if (!file.exists(path)) {
-    stop(sprintf("WFO backbone not found at: %s\nRun taxify_download('wfo') first.",
-                 path),
-         call. = FALSE)
-  }
-  path
-}
-
-
-# ------------------------------------------------------------------
-# Matching — delegates to shared compiled engine
-# ------------------------------------------------------------------
-
-#' @exportS3Method
-match_exact.taxify_wfo <- function(backend, names_df, backbone, ...) {
-  bb_path <- backbone
-  n <- nrow(names_df)
-  result <- empty_match_result(n)
-  result$input_name <- names_df$original
-  result$is_hybrid  <- names_df$is_hybrid
-
-  match_exact_compiled(result, names_df, bb_path, .wfo_col_map)
-}
-
-
-#' @exportS3Method
-match_fuzzy.taxify_wfo <- function(backend, unmatched_df, backbone,
-                                   method = "dl", threshold = 0.2,
-                                   names_df = NULL, ...) {
-  bb_path <- backbone
-  result  <- unmatched_df
-
-  if (method == "jw" && threshold >= 1) {
-    stop("fuzzy_threshold must be < 1 for fuzzy_method = 'jw' (Jaro-Winkler range is 0-1)")
-  }
-
-  # Main pass: genus-blocked fuzzy join
-  result <- fuzzy_match_via_join(result, names_df, bb_path, method, threshold,
-                                 .wfo_col_map)
-
-  # Unblocked fallback for remaining unmatched (misspelled genus)
-  # Single fuzzy_join without genus blocking instead of per-name loop
-  result <- fuzzy_match_unblocked(result, names_df, bb_path, method, threshold,
-                                  .wfo_col_map)
-
-  result
-}
-
-
-#' Run a single fuzzy query against the backbone
-#'
-#' @param bb_path Path to backbone .vtr.
-#' @param filter_value Character. Genus name (if by_genus) or prefix string.
-#' @param target Character. The cleaned name to match against.
-#' @param method Character. "dl", "levenshtein", or "jw".
-#' @param threshold Numeric. Maximum distance.
-#' @param by_genus Logical.
-#' @return A data.frame of candidates (may be empty).
-#' @noRd
-run_fuzzy_query <- function(bb_path, filter_value, target,
-                            method, threshold, by_genus) {
-  tryCatch({
-    bb <- vectra::tbl(bb_path) |>
-      vectra::select(taxonID, scientificName, taxonRank, taxonomicStatus,
-                     family, genus, specificEpithet,
-                     scientificNameAuthorship,
-                     accepted_name, accepted_family, accepted_genus,
-                     accepted_taxon_id, is_synonym)
-
-    if (by_genus) {
-      bb <- bb |> vectra::filter(genus == filter_value)
-    } else {
-      bb <- bb |> vectra::filter(startsWith(scientificName, filter_value))
-    }
-
-    if (method == "dl") {
-      bb <- bb |>
-        vectra::mutate(dist = dl_dist_norm(scientificName, target)) |>
-        vectra::filter(dist <= threshold)
-    } else if (method == "levenshtein") {
-      bb <- bb |>
-        vectra::mutate(dist = levenshtein_norm(scientificName, target)) |>
-        vectra::filter(dist <= threshold)
-    } else {
-      jw_thresh <- 1.0 - threshold
-      bb <- bb |>
-        vectra::mutate(dist = jaro_winkler(scientificName, target)) |>
-        vectra::filter(dist >= jw_thresh)
-    }
-
-    bb |>
-      vectra::arrange(dist) |>
-      utils::head(5L) |>
-      vectra::collect()
-  }, error = function(e) {
-    data.frame()
-  })
-}

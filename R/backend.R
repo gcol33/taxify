@@ -87,6 +87,60 @@ match_fuzzy <- function(backend, unmatched_df, backbone,
 
 
 # ------------------------------------------------------------------
+# Default S3 methods — shared across all backends
+# ------------------------------------------------------------------
+
+#' @exportS3Method
+taxify_load.taxify_backend <- function(backend, path = NULL, ...) {
+  name <- backend$name
+  path <- path %||% file.path(taxify_data_dir(), paste0(name, ".vtr"))
+  if (!file.exists(path)) {
+    stop(sprintf(
+      "%s backbone not found at: %s\nRun taxify_download('%s') first.",
+      toupper(name), path, name
+    ), call. = FALSE)
+  }
+  path
+}
+
+
+#' @exportS3Method
+match_exact.taxify_backend <- function(backend, names_df, backbone, ...) {
+  bb_path <- backbone
+  n <- nrow(names_df)
+  result <- empty_match_result(n)
+  result$input_name <- names_df$original
+  result$is_hybrid  <- names_df$is_hybrid
+
+  match_exact_compiled(result, names_df, bb_path, backend$col_map)
+}
+
+
+#' @exportS3Method
+match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
+                                       method = "dl", threshold = 0.2,
+                                       names_df = NULL, ...) {
+  bb_path <- backbone
+  result  <- unmatched_df
+  col_map <- backend$col_map
+
+  if (method == "jw" && threshold >= 1) {
+    stop("fuzzy_threshold must be < 1 for fuzzy_method = 'jw' (Jaro-Winkler range is 0-1)")
+  }
+
+  result <- fuzzy_match_via_join(result, names_df, bb_path, method, threshold,
+                                 col_map)
+
+  if (isTRUE(backend$unblocked_fallback)) {
+    result <- fuzzy_match_unblocked(result, names_df, bb_path, method, threshold,
+                                    col_map)
+  }
+
+  result
+}
+
+
+# ------------------------------------------------------------------
 # Shared compiled matching engine
 # ------------------------------------------------------------------
 
@@ -201,6 +255,72 @@ precompute_keys <- function(df, name_col, genus_col, epithet_col) {
   )
 
   df
+}
+
+
+#' Compile a parsed backbone data.frame to .vtr
+#'
+#' Shared compilation step for all backends: precompute keys, embed accepted
+#' info, sort by genus, write .vtr, write metadata, build indexes.
+#'
+#' @param df The parsed backbone data.frame (variant-specific columns).
+#' @param vtr_path Path to write the compiled .vtr file.
+#' @param backend The taxify_backend object.
+#' @param url The source URL (for metadata).
+#' @param verbose Logical. Print progress messages.
+#' @param synonym_pattern Regex for embed_accepted (default "SYNONYM").
+#' @return The vtr_path (invisibly).
+#' @noRd
+compile_backbone <- function(df, vtr_path, backend, url, verbose = TRUE,
+                             synonym_pattern = "SYNONYM") {
+  col_map <- backend$col_map
+  name_col   <- col_map$name
+  genus_col  <- col_map$genus
+  epithet_col <- col_map$epithet
+
+  # Precompute keys
+  if (verbose) message("Precomputing match keys...")
+  df <- precompute_keys(df, name_col, genus_col, epithet_col)
+
+  # Embed accepted info (synonym self-join)
+  if (verbose) message("Embedding accepted taxon info...")
+  df <- embed_accepted(df,
+    id_col     = col_map$id,
+    acc_id_col = col_map$acc_id,
+    name_col   = name_col,
+    family_col = col_map$family,
+    genus_col  = genus_col,
+    status_col = col_map$status,
+    synonym_pattern = synonym_pattern
+  )
+
+  # Sort by genus for zone-map pruning
+  if (genus_col %in% names(df)) {
+    df <- df[order(df[[genus_col]], na.last = TRUE), ]
+    rownames(df) <- NULL
+  }
+
+  # Write .vtr
+  if (verbose) message("Writing compiled backbone...")
+  dest <- dirname(vtr_path)
+  vectra::write_vtr(df, vtr_path, batch_size = 50000L)
+  write_backbone_meta(vtr_path, backend$name, backend$version, url, nrow(df))
+  write_version_meta(dest, backend$name, backend$version, pinned = FALSE)
+
+  # Build indexes
+  if (verbose) message("Building indexes...")
+  create_backbone_indexes(vtr_path, name_col, genus_col)
+
+  if (verbose) {
+    size_mb <- file.size(vtr_path) / (1024 * 1024)
+    message(sprintf(
+      "%s backbone saved: %s (%.0f MB, %s rows)",
+      toupper(backend$name), vtr_path, size_mb,
+      format(nrow(df), big.mark = ",")
+    ))
+  }
+
+  invisible(vtr_path)
 }
 
 

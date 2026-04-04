@@ -98,48 +98,12 @@ taxify_download.taxify_algaebase <- function(backend, dest = NULL,
   if (verbose) message("Normalizing to unified schema (hierarchy walk)...")
   df <- algaebase_normalize(df, verbose = verbose)
 
-  # Precompute keys
-  if (verbose) message("Precomputing match keys...")
-  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
-
-  # Embed accepted info
-  if (verbose) message("Embedding accepted taxon info...")
-  df <- embed_accepted(df,
-    id_col     = "taxon_id",
-    acc_id_col = "accepted_name_usage_id",
-    name_col   = "canonical_name",
-    family_col = "family",
-    genus_col  = "genus",
-    status_col = "taxonomic_status"
-  )
-
-  # Sort by genus
-  df <- df[order(df$genus, na.last = TRUE), ]
-  rownames(df) <- NULL
-
-  # Write .vtr
-  if (verbose) message("Writing compiled backbone...")
-  vectra::write_vtr(df, vtr_path, batch_size = 50000L)
-  write_backbone_meta(vtr_path, "algaebase", backend$version,
-                      .algaebase_url, nrow(df))
-  write_version_meta(dest, "algaebase", backend$version, pinned = FALSE)
-
-  # Build indexes
-  if (verbose) message("Building indexes...")
-  create_backbone_indexes(vtr_path, "canonical_name", "genus")
+  # Compile and write
+  compile_backbone(df, vtr_path, backend, .algaebase_url, verbose = verbose)
 
   # Clean up
   unlink(zip_path)
   unlink(tsv_path)
-
-  if (verbose) {
-    size_mb <- file.size(vtr_path) / (1024 * 1024)
-    message(sprintf(
-      "AlgaeBase backbone saved: %s (%.0f MB, %s rows)",
-      vtr_path, size_mb, format(nrow(df), big.mark = ",")))
-  }
-
-  invisible(vtr_path)
 }
 
 
@@ -258,46 +222,3 @@ algaebase_normalize <- function(df, verbose = TRUE) {
 }
 
 
-#' @exportS3Method
-taxify_load.taxify_algaebase <- function(backend, path = NULL, ...) {
-  path <- path %||% file.path(taxify_data_dir(), "algaebase.vtr")
-  if (!file.exists(path)) {
-    stop(sprintf(
-      "AlgaeBase backbone not found at: %s\nRun taxify_download('algaebase') first.",
-      path
-    ), call. = FALSE)
-  }
-  path
-}
-
-
-# ------------------------------------------------------------------
-# Matching — delegates to shared compiled engine
-# ------------------------------------------------------------------
-
-#' @exportS3Method
-match_exact.taxify_algaebase <- function(backend, names_df, backbone, ...) {
-  bb_path <- backbone
-  n <- nrow(names_df)
-  result <- empty_match_result(n)
-  result$input_name <- names_df$original
-  result$is_hybrid  <- names_df$is_hybrid
-
-  match_exact_compiled(result, names_df, bb_path, .algaebase_col_map)
-}
-
-
-#' @exportS3Method
-match_fuzzy.taxify_algaebase <- function(backend, unmatched_df, backbone,
-                                         method = "dl", threshold = 0.2,
-                                         names_df = NULL, ...) {
-  bb_path <- backbone
-  result  <- unmatched_df
-
-  if (method == "jw" && threshold >= 1) {
-    stop("fuzzy_threshold must be < 1 for fuzzy_method = 'jw'")
-  }
-
-  fuzzy_match_via_join(result, names_df, bb_path, method, threshold,
-                       .algaebase_col_map)
-}
