@@ -112,7 +112,7 @@ result |> add_data("bird_morphometry.xlsx")
 
 When `sheet`, `start_row`, and `species_col` are all left at their defaults,
 `add_data()` scans the workbook to find the right combination automatically.
-It tests each sheet and up to 15 candidate header rows, probing character
+It tests each sheet and up to 20 candidate header rows, probing character
 columns against the backbone until it finds species names. This handles the
 common case where a colleague's spreadsheet has a title block, column
 descriptions, or notes above the actual data table.

@@ -39,7 +39,7 @@ file. Default \code{NULL} (auto-detect the sheet containing species names).
 Set explicitly to skip auto-detection.}
 
 \item{start_row}{Integer. Row where column headers begin in an \code{.xlsx} file.
-Default \code{NULL} (auto-detect by scanning the first 15 rows for a header
+Default \code{NULL} (auto-detect by scanning the first 20 rows for a header
 row that produces species name matches). Set explicitly when the layout
 is known.}
 

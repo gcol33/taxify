@@ -19,7 +19,7 @@
 #'   file. Default `NULL` (auto-detect the sheet containing species names).
 #'   Set explicitly to skip auto-detection.
 #' @param start_row Integer. Row where column headers begin in an `.xlsx` file.
-#'   Default `NULL` (auto-detect by scanning the first 15 rows for a header
+#'   Default `NULL` (auto-detect by scanning the first 20 rows for a header
 #'   row that produces species name matches). Set explicitly when the layout
 #'   is known.
 #' @param cols Character vector of column names from `data` to join. If `NULL`
@@ -413,7 +413,7 @@ detect_xlsx_layout <- function(path, backend, sheet = NULL, start_row = NULL,
   rows_to_try <- if (!is.null(start_row)) {
     start_row
   } else {
-    1L:15L
+    1L:20L
   }
 
   best <- list(sheet = 1L, start_row = 1L, species_col = NULL, rate = 0)
