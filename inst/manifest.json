@@ -11,47 +11,135 @@
     "conservation_status": {
       "latest": "2026.04",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/conservation_status.vtr",
-      "nrow": 59583
+      "nrow": 59583,
+      "source_url": "https://api.gbif.org/v1/species/search",
+      "source_format": "gbif_api",
+      "source_version": "2026.04",
+      "species_col": "canonicalName",
+      "trait_cols": ["conservation_status"],
+      "static": false
     },
     "griis": {
       "latest": "2026.04",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/griis.vtr",
-      "nrow": 98131
+      "nrow": 98131,
+      "source_url": "https://zenodo.org/records/6348164/files/GRIIS%20-%20Country%20Compendium%20V1_0.csv?download=1",
+      "source_format": "csv",
+      "source_version": "2026.04",
+      "species_col": "species",
+      "trait_cols": ["country_code", "invasive_status"],
+      "available_groups": null,
+      "static": false
     },
     "wcvp": {
       "latest": "2026.04",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/wcvp.vtr",
-      "nrow": 1973234
+      "nrow": 1973234,
+      "source_url": "https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip",
+      "source_format": "zip",
+      "source_version": "2026.04",
+      "species_col": "taxon_name",
+      "trait_cols": ["tdwg_code", "native_status"],
+      "available_groups": null,
+      "static": false
     },
     "eive": {
       "latest": "1.0",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/eive.vtr",
-      "nrow": 14835
+      "nrow": 14835,
+      "source_url": "https://zenodo.org/records/7534792/files/EIVE_Paper_1.0_SM_08.xlsx?download=1",
+      "source_format": "xlsx",
+      "source_version": "1.0",
+      "species_col": "TaxonConcept",
+      "trait_cols": ["light", "temperature", "moisture", "reaction", "nutrients"],
+      "static": true
     },
     "elton_traits": {
       "latest": "1.0",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/elton_traits.vtr",
-      "nrow": 15394
+      "nrow": 15394,
+      "source_url": "https://ndownloader.figshare.com/files/5631081",
+      "source_format": "tsv",
+      "source_version": "1.0",
+      "species_col": "Scientific",
+      "trait_cols": ["diet_inv", "diet_vend", "diet_vect", "diet_vfish", "diet_vunk", "diet_scav", "diet_fruit", "diet_nect", "diet_seed", "diet_plantother", "foraging_water", "foraging_ground", "foraging_understory", "foraging_midhigh", "foraging_canopy", "foraging_aerial", "body_mass_g", "nocturnal"],
+      "static": true
     },
     "avonet": {
       "latest": "1.0",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/avonet.vtr",
-      "nrow": 11009
+      "nrow": 11009,
+      "source_url": "https://ndownloader.figshare.com/files/34480856",
+      "source_format": "xlsx",
+      "source_version": "1.0",
+      "species_col": "Species1",
+      "trait_cols": ["beak_length", "beak_depth", "wing_length", "tail_length", "tarsus_length", "body_mass_g", "hand_wing_index", "habitat", "trophic_level", "trophic_niche", "migration"],
+      "static": true
     },
     "pantheria": {
       "latest": "1.0",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/pantheria.vtr",
-      "nrow": 5416
+      "nrow": 5416,
+      "source_url": "https://esapubs.org/archive/ecol/E090/184/PanTHERIA_1-0_WR05_Aug2008.txt",
+      "source_format": "tsv",
+      "source_version": "1.0",
+      "species_col": "MSW05_Binomial",
+      "trait_cols": ["body_mass_g", "longevity_mo", "litter_size", "gestation_d", "weaning_d", "home_range_km2", "diet_breadth", "habitat_breadth"],
+      "static": true
     },
     "amphibio": {
       "latest": "1.0",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/amphibio.vtr",
-      "nrow": 6776
+      "nrow": 6776,
+      "source_url": "https://ndownloader.figshare.com/files/8828578",
+      "source_format": "zip",
+      "source_version": "1.0",
+      "species_col": "Species",
+      "trait_cols": ["body_size_mm", "age_maturity_d", "longevity_d", "litter_size", "reproductive_output", "offspring_size_mm", "direct_development", "larval", "aquatic", "fossorial", "arboreal", "diurnal", "nocturnal_amphibio"],
+      "static": true
     },
     "common_names": {
       "latest": "2026.04",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/common_names.vtr",
-      "nrow": 650480
+      "nrow": 650480,
+      "source_url": "https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip",
+      "source_format": "zip",
+      "source_version": "2026.04",
+      "species_col": "canonicalName",
+      "trait_cols": ["lang", "common_name"],
+      "available_groups": null,
+      "static": false
+    },
+    "woodiness": {
+      "latest": "2014.1",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/woodiness.vtr",
+      "nrow": 49064,
+      "source_url": "https://datadryad.org/api/v2/datasets/doi%3A10.5061%2Fdryad.63q27/download",
+      "source_format": "dryad_zip",
+      "source_version": "2014.1",
+      "species_col": "gs",
+      "trait_cols": ["woodiness"],
+      "static": true
+    },
+    "diaz_traits": {
+      "latest": "2022.1",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/diaz_traits.vtr",
+      "source_url": "https://static-content.springer.com/esm/art%3A10.1038%2Fs41586-022-05606-z/MediaObjects/41586_2022_5606_MOESM3_ESM.xlsx",
+      "source_format": "xlsx",
+      "source_version": "2022.1",
+      "species_col": "Species",
+      "trait_cols": ["seed_mass_mg", "plant_height_m"],
+      "static": true
+    },
+    "leda": {
+      "latest": "2008.1",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/leda.vtr",
+      "source_url": "https://uol.de/fileadmin/user_upload/biologie/ag/landeco/download/LEDA/",
+      "source_format": "multi_tsv",
+      "source_version": "2008.1",
+      "species_col": "SBS_name",
+      "trait_cols": ["raunkiaer_life_form", "raunkiaer_variable", "dispersal_type", "terminal_velocity_ms", "leda_seed_mass_mg", "canopy_height_m", "leaf_mass_mg", "sla_mm2_mg", "clonal_growth", "buoyancy"],
+      "static": true
     }
   }
 }

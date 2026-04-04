@@ -44,45 +44,130 @@ read_enrichment_meta <- function(vtr_path) {
 }
 
 
+# ---- Version checking ----
+
+#' Check whether a local enrichment version is current
+#'
+#' Compares the version in the local meta.json against the manifest.
+#' Returns TRUE if an update is needed.
+#'
+#' @param name Character. Enrichment identifier.
+#' @return Logical. TRUE means a newer version is available.
+#' @noRd
+check_enrichment_version <- function(name) {
+  vtr_path <- enrichment_vtr_path(name)
+  meta <- read_enrichment_meta(vtr_path)
+
+  if (is.null(meta)) return(TRUE)  # No local copy
+
+  # Static enrichments (version-locked datasets) never need updates
+  if (isTRUE(meta$static)) return(FALSE)
+
+  manifest <- fetch_manifest()
+  entry <- resolve_enrichment_entry(manifest, name)
+  if (is.null(entry)) return(FALSE)
+
+  isTRUE(meta$version != entry$latest)
+}
+
+
 # ---- Ensure / download ----
 
 #' Ensure an enrichment .vtr is available
 #'
-#' Resolution order: session cache -> disk -> manifest download -> error.
+#' Resolution order:
+#' 1. Once-per-session version check (download update if needed)
+#' 2. Session cache
+#' 3. On disk
+#' 4. Download pre-built .vtr from manifest
+#' 5. Build from source (if enrichment is in the build registry)
+#' 6. Error with report link
 #'
 #' @param name Character. Enrichment identifier (e.g., "conservation_status").
 #' @param verbose Logical.
-#' @return Character. Path to the .vtr file.
+#' @return Character. Path to the .vtr file, or NULL if all paths failed
+#'   (only when called with `allow_null = TRUE` internally).
 #' @noRd
 ensure_enrichment <- function(name, verbose = TRUE) {
   cache_key <- paste0("enrichment_", name)
 
-  # 1. In-session cache
+  # 1. Version freshness check (once per session)
+  check_key <- paste0(".enrichment_version_checked.", name)
+  if (!isTRUE(.taxify_env[[check_key]])) {
+    .taxify_env[[check_key]] <- TRUE
+    tryCatch(
+      {
+        if (check_enrichment_version(name)) {
+          if (verbose) {
+            message(sprintf(
+              "Enrichment '%s' has a newer version. Updating...", name
+            ))
+          }
+          download_enrichment(name, verbose = verbose)
+          set_backbone_path(cache_key, NULL)
+        }
+      },
+      error = function(e) {
+        warning(
+          sprintf(
+            "Could not update enrichment '%s': %s\nUsing existing local version.",
+            name, conditionMessage(e)
+          ),
+          call. = FALSE
+        )
+      }
+    )
+  }
+
+  # 2. In-session cache
   cached <- get_backbone_path(cache_key)
   if (!is.null(cached) && file.exists(cached)) return(cached)
 
-  # 2. On disk
+  # 3. On disk
   vtr_path <- enrichment_vtr_path(name)
   if (file.exists(vtr_path)) {
     set_backbone_path(cache_key, vtr_path)
     return(vtr_path)
   }
 
-  # 3. Download from manifest
+  # 4. Download from manifest
   path <- tryCatch(
     download_enrichment(name, verbose = verbose),
-    error = function(e) {
-      stop(sprintf(
-        paste0("Enrichment '%s' not available.\n",
-               "  Install with: taxify_download_enrichment(\"%s\")\n",
-               "  Error: %s"),
-        name, name, conditionMessage(e)
-      ), call. = FALSE)
-    }
+    error = function(e) NULL
   )
+  if (!is.null(path) && file.exists(path)) {
+    set_backbone_path(cache_key, path)
+    return(path)
+  }
 
-  set_backbone_path(cache_key, path)
-  path
+  # 5. Build from source
+  if (name %in% names(.enrichment_build_registry)) {
+    if (verbose) {
+      message(sprintf(
+        "Pre-built .vtr not available for enrichment '%s'. Building from source...",
+        name
+      ))
+    }
+    path <- tryCatch(
+      build_enrichment_from_source(name, verbose = verbose),
+      error = function(e) {
+        if (verbose) {
+          message(sprintf(
+            "Build-from-source failed for '%s': %s", name, conditionMessage(e)
+          ))
+        }
+        NULL
+      }
+    )
+    if (!is.null(path) && file.exists(path)) {
+      set_backbone_path(cache_key, path)
+      return(path)
+    }
+  }
+
+  # 6. Return NULL — caller (enrich_simple/enrich_by_group) handles
+  #    emergency fallback or error
+  NULL
 }
 
 
@@ -143,7 +228,9 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
         }
         file.copy(local_src, tmp_path, overwrite = TRUE)
       } else {
-        curl::curl_download(url, tmp_path, quiet = !verbose)
+        h <- curl::new_handle()
+        curl::handle_setheaders(h, "User-Agent" = "R/4.5 taxify")
+        curl::curl_download(url, tmp_path, handle = h, quiet = !verbose)
       }
     },
     error = function(e) {
@@ -159,6 +246,7 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
   # Write meta.json
   meta <- list(
     version       = actual_version,
+    static        = isTRUE(entry$static),
     pinned        = (version != "latest"),
     downloaded_at = format(Sys.Date(), "%Y-%m-%d")
   )
@@ -236,6 +324,195 @@ taxify_download_enrichment <- function(enrichment,
 
 # ---- Shared enrichment join helpers ----
 
+
+#' In-memory enrichment join from a data.frame (emergency fallback)
+#'
+#' Joins an in-memory data.frame (from `enrichment_emergency_fallback()`) to
+#' a taxify result using `accepted_name == canonical_name`. Does NOT write to
+#' disk — results are ephemeral.
+#'
+#' @param x A taxify_result data.frame.
+#' @param df Data.frame with at least `canonical_name` plus trait columns.
+#' @param enrichment_name Character. Enrichment identifier.
+#' @param col_map Named character vector. Names = output columns,
+#'   values = source columns in `df`.
+#' @param source_label Character.
+#' @param na_types Named list of NA sentinels (optional).
+#' @return The enriched data.frame.
+#' @noRd
+enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
+                                  source_label, na_types = NULL) {
+  # Filter col_map to columns that exist in df
+  col_map <- col_map[col_map %in% names(df)]
+  if (length(col_map) == 0L) return(x)
+
+  # Initialize output columns
+  for (out_col in names(col_map)) {
+    na_val <- if (!is.null(na_types) && out_col %in% names(na_types)) {
+      na_types[[out_col]]
+    } else {
+      NA_character_
+    }
+    x[[out_col]] <- na_val
+  }
+
+  valid_rows <- which(!is.na(x$accepted_name))
+  if (length(valid_rows) == 0L) {
+    return(register_enrichment(x, enrichment_name, source_label,
+                               "emergency", 0L))
+  }
+
+  # Vectorized fill via match()
+  df <- df[!duplicated(df$canonical_name), , drop = FALSE]
+  idx <- match(x$accepted_name, df$canonical_name)
+  matched <- which(!is.na(idx))
+  for (out_col in names(col_map)) {
+    src_col <- col_map[[out_col]]
+    if (src_col %in% names(df)) {
+      x[[out_col]][matched] <- df[[src_col]][idx[matched]]
+    }
+  }
+
+  n_enriched <- sum(
+    rowSums(!is.na(x[, names(col_map), drop = FALSE])) > 0L
+  )
+  register_enrichment(x, enrichment_name, source_label, "emergency", n_enriched)
+}
+
+
+#' In-memory group-based enrichment join (emergency fallback)
+#'
+#' Group-based variant of `enrich_from_dataframe()` for enrichments that
+#' filter/pivot by a grouping column (country, language, etc.).
+#'
+#' @param x A taxify_result data.frame.
+#' @param df Data.frame with canonical_name, group_col, and value columns.
+#' @param enrichment_name Character.
+#' @param group_col Character. Column to filter/pivot on.
+#' @param groups Character vector of group values.
+#' @param value_cols Named character vector. Names = base output column names,
+#'   values = source columns in df.
+#' @param source_label Character.
+#' @param na_types Named list of NA sentinels (optional).
+#' @return The enriched data.frame.
+#' @noRd
+enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
+                                          groups, value_cols, source_label,
+                                          na_types = NULL) {
+  if (!group_col %in% names(df)) return(x)
+
+  # Resolve "all" groups
+  if (length(groups) == 1L && groups == "all") {
+    groups <- sort(unique(df[[group_col]]))
+    groups <- groups[!is.na(groups)]
+  }
+
+  # Build output column names and initialize with correct NA types
+  out_cols <- character(0L)
+  for (g in groups) {
+    for (base_col in names(value_cols)) {
+      out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+      out_cols <- c(out_cols, out_col)
+      na_val <- if (!is.null(na_types) && base_col %in% names(na_types)) {
+        na_types[[base_col]]
+      } else {
+        NA_character_
+      }
+      x[[out_col]] <- na_val
+    }
+  }
+
+  valid_rows <- which(!is.na(x$accepted_name))
+  if (length(valid_rows) == 0L) {
+    return(register_enrichment(x, enrichment_name, source_label,
+                               "emergency", 0L))
+  }
+
+  # Filter to requested groups
+  df <- df[df[[group_col]] %in% groups, , drop = FALSE]
+  if (nrow(df) == 0L) {
+    return(register_enrichment(x, enrichment_name, source_label,
+                               "emergency", 0L))
+  }
+
+  for (g in groups) {
+    g_data <- df[df[[group_col]] == g, , drop = FALSE]
+    if (nrow(g_data) == 0L) next
+    g_data <- g_data[!duplicated(g_data$canonical_name), , drop = FALSE]
+    idx <- match(x$accepted_name, g_data$canonical_name)
+    matched <- which(!is.na(idx))
+    if (length(matched) == 0L) next
+    for (base_col in names(value_cols)) {
+      src_col <- value_cols[[base_col]]
+      if (!src_col %in% names(g_data)) next
+      out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+      x[[out_col]][matched] <- g_data[[src_col]][idx[matched]]
+    }
+  }
+
+  n_enriched <- sum(
+    rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
+  )
+  register_enrichment(x, enrichment_name, source_label, "emergency", n_enriched)
+}
+
+
+#' Try emergency fallback for an enrichment
+#'
+#' Attempts to build the enrichment from source in memory. Returns the
+#' data.frame on success, or stops with an informative error.
+#'
+#' @param name Character. Enrichment identifier.
+#' @param download_error Character or NULL. The error that caused the fallback.
+#' @param verbose Logical.
+#' @return A data.frame with canonical_name + trait columns.
+#' @noRd
+try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) {
+  if (!name %in% names(.enrichment_build_registry)) {
+    stop(sprintf(
+      paste0("Enrichment '%s' is not available:\n",
+             "  %s\n",
+             "  No build-from-source recipe available for this enrichment.\n",
+             "  Report issues: https://github.com/gcol33/taxify/issues"),
+      name,
+      if (!is.null(download_error)) download_error else "download failed"
+    ), call. = FALSE)
+  }
+
+  df <- tryCatch(
+    enrichment_emergency_fallback(name, verbose = verbose),
+    error = function(e) {
+      stop(sprintf(
+        paste0("Enrichment '%s' is not available.\n",
+               "  Pre-built download: %s\n",
+               "  Build-from-source: %s\n",
+               "  Report issues: https://github.com/gcol33/taxify/issues"),
+        name,
+        if (!is.null(download_error)) download_error else "failed",
+        conditionMessage(e)
+      ), call. = FALSE)
+    }
+  )
+
+  reg <- .enrichment_build_registry[[name]]
+  if (verbose) {
+    warning(sprintf(
+      paste0("[enrichment/%s] Using emergency in-memory fallback.\n",
+             "  Source: %s (v%s)\n",
+             "  Rows: %s | License: %s\n",
+             "  Reason: %s\n",
+             "  This is temporary and will not be cached to disk.\n",
+             "  Report issues: https://github.com/gcol33/taxify/issues"),
+      name, reg$source_url, reg$version,
+      format(nrow(df), big.mark = ","), reg$license,
+      if (!is.null(download_error)) download_error else "pre-built .vtr unavailable"
+    ), call. = FALSE, immediate. = TRUE)
+  }
+
+  df
+}
+
+
 #' Simple name-based enrichment join
 #'
 #' Joins an enrichment .vtr on `accepted_name == canonical_name`. Used by
@@ -259,6 +536,14 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   }
 
   vtr_path <- ensure_enrichment(enrichment_name, verbose = verbose)
+
+  # Emergency fallback: ensure_enrichment() returned NULL → all paths failed
+
+  if (is.null(vtr_path)) {
+    df <- try_emergency_fallback(enrichment_name, verbose = verbose)
+    return(enrich_from_dataframe(x, df, enrichment_name, col_map,
+                                 source_label, na_types))
+  }
 
   # Initialize output columns
   for (out_col in names(col_map)) {
@@ -324,17 +609,14 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
     return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
   }
 
-  # Build lookup and fill
-  lookup <- split(joined, joined$lookup_name)
-  for (i in valid_rows) {
-    info <- lookup[[x$accepted_name[i]]]
-    if (!is.null(info) && nrow(info) > 0L) {
-      for (out_col in names(col_map)) {
-        src_col <- col_map[[out_col]]
-        if (src_col %in% names(info)) {
-          x[[out_col]][i] <- info[[src_col]][1L]
-        }
-      }
+  # Vectorized fill via match()
+  joined <- joined[!duplicated(joined$lookup_name), , drop = FALSE]
+  idx <- match(x$accepted_name, joined$lookup_name)
+  matched <- which(!is.na(idx))
+  for (out_col in names(col_map)) {
+    src_col <- col_map[[out_col]]
+    if (src_col %in% names(joined)) {
+      x[[out_col]][matched] <- joined[[src_col]][idx[matched]]
     }
   }
 
@@ -374,6 +656,14 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 
   vtr_path <- ensure_enrichment(enrichment_name, verbose = verbose)
 
+  # Emergency fallback: ensure_enrichment() returned NULL → all paths failed
+  if (is.null(vtr_path)) {
+    df <- try_emergency_fallback(enrichment_name, verbose = verbose)
+    return(enrich_from_dataframe_grouped(x, df, enrichment_name, group_col,
+                                          groups, value_cols, source_label,
+                                          na_types))
+  }
+
   # Check schema
   schema <- vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
   join_key <- if ("canonical_name" %in% names(schema)) {
@@ -393,33 +683,39 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     ), call. = FALSE)
   }
 
-  # Resolve "all" groups by reading distinct values
+  # Resolve "all" groups: manifest (O(1)) → vectra distinct() (fallback)
   if (length(groups) == 1L && groups == "all") {
-    all_data <- vectra::tbl(vtr_path) |>
-      vectra::select(!!as.name(group_col)) |>
-      vectra::collect()
-    groups <- sort(unique(all_data[[group_col]]))
-    groups <- groups[!is.na(groups)]
-  }
-
-  # Determine output column names
-  if (length(groups) == 1L) {
-    out_cols <- names(value_cols)
-  } else {
-    out_cols <- unlist(lapply(groups, function(g) {
-      paste0(names(value_cols), "_", g)
-    }))
-  }
-
-  # Initialize output columns
-  for (col in out_cols) {
-    na_val <- NA_character_
-    # Match base name for na_type lookup
-    base <- sub("_[^_]+$", "", col)
-    if (!is.null(na_types) && base %in% names(na_types)) {
-      na_val <- na_types[[base]]
+    manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
+    entry <- if (!is.null(manifest)) {
+      resolve_enrichment_entry(manifest, enrichment_name)
+    } else {
+      NULL
     }
-    x[[col]] <- na_val
+    if (!is.null(entry$available_groups)) {
+      groups <- entry$available_groups
+    } else {
+      all_data <- vectra::tbl(vtr_path) |>
+        vectra::select(!!as.name(group_col)) |>
+        vectra::distinct() |>
+        vectra::collect()
+      groups <- sort(all_data[[group_col]])
+      groups <- groups[!is.na(groups)]
+    }
+  }
+
+  # Build output column names and initialize with correct NA types
+  out_cols <- character(0L)
+  for (g in groups) {
+    for (base_col in names(value_cols)) {
+      out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+      out_cols <- c(out_cols, out_col)
+      na_val <- if (!is.null(na_types) && base_col %in% names(na_types)) {
+        na_types[[base_col]]
+      } else {
+        NA_character_
+      }
+      x[[out_col]] <- na_val
+    }
   }
 
   valid_rows <- which(!is.na(x$accepted_name))
@@ -461,23 +757,19 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
   }
 
-  # Build lookup: name -> list of group -> values
-  lookup <- split(joined, joined$lookup_name)
-
-  for (i in valid_rows) {
-    info <- lookup[[x$accepted_name[i]]]
-    if (is.null(info) || nrow(info) == 0L) next
-
-    for (g in groups) {
-      g_rows <- info[info[[group_col]] == g, , drop = FALSE]
-      if (nrow(g_rows) == 0L) next
-
-      for (base_col in names(value_cols)) {
-        src_col <- value_cols[[base_col]]
-        if (!src_col %in% names(g_rows)) next
-        out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
-        x[[out_col]][i] <- g_rows[[src_col]][1L]
-      }
+  # Vectorized fill: one match() per group
+  for (g in groups) {
+    g_data <- joined[joined[[group_col]] == g, , drop = FALSE]
+    if (nrow(g_data) == 0L) next
+    g_data <- g_data[!duplicated(g_data$lookup_name), , drop = FALSE]
+    idx <- match(x$accepted_name, g_data$lookup_name)
+    matched <- which(!is.na(idx))
+    if (length(matched) == 0L) next
+    for (base_col in names(value_cols)) {
+      src_col <- value_cols[[base_col]]
+      if (!src_col %in% names(g_data)) next
+      out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+      x[[out_col]][matched] <- g_data[[src_col]][idx[matched]]
     }
   }
 
@@ -487,4 +779,50 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
   )
   register_enrichment(x, enrichment_name, source_label, ver, n_enriched)
+}
+
+
+#' List available enrichments
+#'
+#' Returns a summary of all enrichment layers available in the taxify manifest,
+#' including version, row count, whether the dataset is static, and which
+#' trait columns are provided.
+#'
+#' @param verbose Logical. Default `TRUE`.
+#' @return A data.frame with columns: `name`, `version`, `nrow`, `static`,
+#'   `trait_cols` (comma-separated), and `source_url`.
+#'
+#' @examples
+#' \dontrun{
+#' list_enrichments()
+#' }
+#'
+#' @export
+list_enrichments <- function(verbose = TRUE) {
+  manifest <- fetch_manifest()
+  entries <- manifest$enrichments
+  if (is.null(entries) || length(entries) == 0L) {
+    if (verbose) message("No enrichments found in manifest.")
+    return(data.frame(
+      name = character(0L), version = character(0L),
+      nrow = integer(0L), static = logical(0L),
+      trait_cols = character(0L), source_url = character(0L),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  nms <- names(entries)
+  data.frame(
+    name       = nms,
+    version    = vapply(nms, function(n) entries[[n]]$latest %||% NA_character_, character(1L)),
+    nrow       = vapply(nms, function(n) as.integer(entries[[n]]$nrow %||% NA_integer_), integer(1L)),
+    static     = vapply(nms, function(n) isTRUE(entries[[n]]$static), logical(1L)),
+    trait_cols = vapply(nms, function(n) {
+      tc <- entries[[n]]$trait_cols
+      if (is.null(tc)) NA_character_ else paste(tc, collapse = ", ")
+    }, character(1L)),
+    source_url = vapply(nms, function(n) entries[[n]]$source_url %||% NA_character_, character(1L)),
+    stringsAsFactors = FALSE,
+    row.names = NULL
+  )
 }
