@@ -1,8 +1,8 @@
 # Add qualifier information
 
 Parses the `input_name` column from a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-to extract taxonomic qualifiers (cf., aff., s.l., etc.) and their
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result to extract taxonomic qualifiers (cf., aff., s.l., etc.) and their
 positions.
 
 ## Usage
@@ -16,7 +16,7 @@ add_qualifier_info(x)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 ## Value
 

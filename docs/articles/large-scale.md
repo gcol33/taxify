@@ -108,7 +108,7 @@ fuzzy matching is the knob that controls how long a run takes.
 ## Backbone loading and the session cache
 
 The first time
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) is
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) is
 called for a given backend, several things happen behind the scenes. The
 function resolves the backbone path through a four-step fallback:
 session cache, versioned directory on disk, legacy flat directory, and
@@ -117,7 +117,7 @@ is known, vectra materializes the `.vtr` into an in-memory columnar
 block and builds hash indexes on the name and genus columns. This
 initialization step takes 1-3 seconds for WFO (~400,000 rows) and 5-10
 seconds for GBIF (~7 million rows). Every subsequent
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 in the same R session reuses the materialized block. There is no
 repeated file I/O.
 
@@ -129,10 +129,11 @@ block itself, keyed by file path. It also stores the session manifest,
 version-check flags, enrichment paths, and coverage data for the genus
 register. Both are package-level environments that persist for the
 duration of the R session and are shared across all
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) calls.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+calls.
 
 The first
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 in a session also triggers a version check. taxify fetches a manifest
 from GitHub (a small JSON file listing the latest version of each
 backbone) and compares it against the locally installed version. If a
@@ -240,7 +241,7 @@ because the fuzzy engine does not need to allocate working memory or
 build query tables for the names that already matched exactly.
 
 One subtlety: the second call to
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) does
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) does
 not re-materialize the backbone. The session cache from the first call
 is still active, so the fuzzy-only pass starts immediately with the
 string-distance computation. There is no penalty for splitting the work
@@ -248,7 +249,7 @@ into two calls.
 
 ## Worked example: multi-backend fallback ordering
 
-When [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+When [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 receives multiple backends, it processes them as a sequential fallback
 chain. Names matched by an earlier backend are excluded from later ones.
 The order matters for performance: the first backend sees all names, the
@@ -318,7 +319,7 @@ General guidelines for backend ordering:
 ## Backbone sizes on disk
 
 Each backbone’s `.vtr` file is a one-time download stored in
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md).
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
 The sizes below are approximate and depend on the backbone version.
 
 | Backend | Rows (approx.) | .vtr size on disk | Scope                          |
@@ -353,7 +354,7 @@ roughly 1.5-2x the `.vtr` file size because the columnar block includes
 hash indexes and decompressed string data. WFO occupies about 80-100 MB
 in memory, COL about 400-500 MB, and GBIF about 800 MB-1 GB. The block
 persists for the session and is reused by every
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call.
 Loading a second backbone (e.g., during a multi-backend fallback) adds
 its own block to memory. The two blocks coexist independently.
 
@@ -368,10 +369,10 @@ roughly 10-20 MB. For 50,000 unmatched names against GBIF, it can reach
 fuzzy pass.
 
 Enrichment `.vtr` files are loaded on demand. Calling
-[`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md)
+[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
 loads the conservation_status enrichment (~60,000 rows, a few MB).
 Calling
-[`add_elton_traits()`](https://gcol33.github.io/taxify/reference/add_elton_traits.md)
+[`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md)
 loads EltonTraits (~15,000 rows). Enrichment joins use a different
 mechanism than backbone matching: they build a temporary `.vtr` of
 unique accepted names, run an `inner_join()` against the enrichment
@@ -422,21 +423,21 @@ Lists above 100,000 names are common in biodiversity informatics. A
 national herbarium digitization project might produce 500,000 label
 transcriptions. A metabarcoding pipeline might output 200,000 OTU
 labels. Processing these in a single
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 works, but splitting into chunks gives two practical benefits: progress
 monitoring and memory stability.
 
 taxify’s matching engine handles the full vector internally, and a
-single [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
-call on 500,000 names will produce correct results. But two practical
-issues arise at this scale. First, the fuzzy-join working set grows with
-input size: 500,000 names with 10% unmatched means 50,000 fuzzy
-comparisons, each scanning a genus block. The temporary `.vtr` files and
-distance matrices for this many comparisons can spike memory by several
-hundred MB. Second, if the R process is interrupted mid-run (Ctrl+C, OOM
-kill, session timeout), the entire result is lost. Chunking at
-50,000-100,000 names keeps peak memory predictable and provides natural
-restart points.
+single
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
+on 500,000 names will produce correct results. But two practical issues
+arise at this scale. First, the fuzzy-join working set grows with input
+size: 500,000 names with 10% unmatched means 50,000 fuzzy comparisons,
+each scanning a genus block. The temporary `.vtr` files and distance
+matrices for this many comparisons can spike memory by several hundred
+MB. Second, if the R process is interrupted mid-run (Ctrl+C, OOM kill,
+session timeout), the entire result is lost. Chunking at 50,000-100,000
+names keeps peak memory predictable and provides natural restart points.
 
 ``` r
 
@@ -522,9 +523,9 @@ cache stores materialized columnar blocks, the session manifest,
 version-check flags, and enrichment paths. Both persist until the R
 session ends or the user explicitly clears them.
 
-[`taxify_clear_cache()`](https://gcol33.github.io/taxify/reference/taxify_clear_cache.md)
+[`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md)
 removes all loaded backbone paths from memory. The next
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 will re-read from disk and re-materialize. This is useful after a large
 matching run when the backbone is no longer needed and the memory can be
 reclaimed.
@@ -538,7 +539,7 @@ gc()
 
 Clearing the cache does not delete any files from disk. The `.vtr` files
 remain in
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md)
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
 and will be reloaded on the next use. The cost of reloading is the same
 1-10 second initialization time that the first call in a session incurs.
 For a workflow where matching is done in one phase and downstream
@@ -546,15 +547,15 @@ modelling in another, this is a worthwhile trade: spend 3 seconds
 reloading WFO later if needed, but free 100 MB of RAM for a
 memory-intensive ordination or species distribution model.
 
-[`taxify_refresh_manifest()`](https://gcol33.github.io/taxify/reference/taxify_refresh_manifest.md)
+[`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md)
 is a narrower operation: it invalidates the cached copy of the remote
 manifest (the JSON file listing the latest version of each backbone and
 enrichment). This forces the next
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 to re-check for updates. Normally the manifest is fetched once per
 session and cached. In a long-running R session (e.g., an RStudio
 session that stays open for days), calling
-[`taxify_refresh_manifest()`](https://gcol33.github.io/taxify/reference/taxify_refresh_manifest.md)
+[`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md)
 before a batch run ensures you are working against the latest backbone
 version. If a new backbone release was published since the session
 started, the version check will detect it and trigger an automatic
@@ -568,7 +569,7 @@ taxify_refresh_manifest()
 ## Disk storage and sharing across projects
 
 All taxify data lives under
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md),
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md),
 which resolves to the platform-specific user data directory via
 `tools::R_user_dir("taxify", "data")`. The layout is:
 
@@ -601,7 +602,7 @@ version-control them.
 If multiple users on a shared server need the same backbones, one user
 can download them and the others can set the `R_USER_DATA_DIR`
 environment variable (or symlink
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md))
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md))
 to a shared location. The `.vtr` files are read-only at query time, so
 concurrent access from multiple R sessions is safe. No file locking is
 needed.
@@ -631,7 +632,7 @@ taxify_clear_cache()
 ```
 
 Deleting a backbone directory is safe. The next
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 for that backend will re-download it from Zenodo if needed.
 
 ## Worked example: pre-downloading resources
@@ -641,9 +642,9 @@ is cleaner to separate the download step from the analysis step.
 Downloads can fail due to network issues, and you want to know about
 that before a 2-hour matching run starts.
 
-[`taxify_download_vtr()`](https://gcol33.github.io/taxify/reference/taxify_download_vtr.md)
+[`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md)
 downloads one or more backbone `.vtr` files.
-[`taxify_download_enrichment()`](https://gcol33.github.io/taxify/reference/taxify_download_enrichment.md)
+[`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
 does the same for enrichment layers. Both are idempotent: if the file
 already exists and the version is current, they return immediately.
 
@@ -821,9 +822,9 @@ result <- taxify(noisy_names, backend = "wfo",
 |----|----|
 | `taxify(..., fuzzy = FALSE)` | Skip fuzzy matching for clean input |
 | `taxify(..., backend = c("wfo", "col"))` | Multi-backend fallback chain |
-| [`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md) | Find where backbones are stored |
-| [`taxify_download_vtr()`](https://gcol33.github.io/taxify/reference/taxify_download_vtr.md) | Pre-download backbone `.vtr` files |
-| [`taxify_download_enrichment()`](https://gcol33.github.io/taxify/reference/taxify_download_enrichment.md) | Pre-download enrichment `.vtr` files |
-| [`taxify_clear_cache()`](https://gcol33.github.io/taxify/reference/taxify_clear_cache.md) | Free backbone memory after matching |
-| [`taxify_refresh_manifest()`](https://gcol33.github.io/taxify/reference/taxify_refresh_manifest.md) | Force re-check for backbone updates |
-| [`list_enrichments()`](https://gcol33.github.io/taxify/reference/list_enrichments.md) | See available enrichments and versions |
+| [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md) | Find where backbones are stored |
+| [`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md) | Pre-download backbone `.vtr` files |
+| [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md) | Pre-download enrichment `.vtr` files |
+| [`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md) | Free backbone memory after matching |
+| [`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md) | Force re-check for backbone updates |
+| [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md) | See available enrichments and versions |

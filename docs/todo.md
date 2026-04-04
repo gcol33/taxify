@@ -26,17 +26,17 @@ canonicalName from scientificName, SpeciesProfile.tsv)
 GBIF backend (download simple.txt.gz, positional columns, family_key
 denormalization, parent_key synonym resolution)
 
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) main
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) main
 function (exact → fuzzy → synonym resolution → 16-col output)
 
 Multi-backend fallback chain (`backend = c("wfo", "col", "gbif")`)
 
 Pipe extensions:
-[`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md),
-[`add_wfo_info()`](https://gcol33.github.io/taxify/reference/add_wfo_info.md),
-[`add_col_info()`](https://gcol33.github.io/taxify/reference/add_col_info.md),
-[`add_gbif_info()`](https://gcol33.github.io/taxify/reference/add_gbif_info.md),
-[`add_qualifier_info()`](https://gcol33.github.io/taxify/reference/add_qualifier_info.md)
+[`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md),
+[`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md),
+[`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md),
+[`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md),
+[`add_qualifier_info()`](https://gillescolling.com/taxify/reference/add_qualifier_info.md)
 
 Best-match selection (`pick_best()`: ACCEPTED \> SYNONYM, SPECIES \>
 higher, smallest ID)
@@ -54,7 +54,7 @@ Git repo initialized, initial commit
 `.vtr`)
 
 Simplified API: removed `version` parameter,
-[`taxify_download()`](https://gcol33.github.io/taxify/reference/taxify_download.md)
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
 always re-downloads latest
 
 Download progress: size estimates in messages,
@@ -109,9 +109,9 @@ suffix)
 - GBIF simple.txt.gz has no header row (30 positional columns), `\N` for
   NULLs, family as FK only (denormalized during conversion), synonyms
   via `parent_key`.
-- [`taxify_download()`](https://gcol33.github.io/taxify/reference/taxify_download.md)
+- [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
   always re-downloads (no skip-if-exists).
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   auto-downloads on first use only.
 - `.meta` sidecar files store download provenance; `backbone_version`
   column reads from them.

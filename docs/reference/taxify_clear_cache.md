@@ -1,7 +1,7 @@
 # Clear all cached backbones
 
 Removes all loaded backbone handles from memory. The next call to
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) will
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) will
 re-load from disk.
 
 ## Usage

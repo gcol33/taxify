@@ -1,8 +1,8 @@
 # Add woodiness classification
 
 Joins woodiness data from Zanne et al. (2014) to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-by looking up `accepted_name`.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result by looking up `accepted_name`.
 
 ## Usage
 
@@ -15,7 +15,7 @@ add_woodiness(x, verbose = TRUE)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 - verbose:
 

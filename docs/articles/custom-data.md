@@ -3,7 +3,7 @@
 ## The problem
 
 Taxonomic name matching is rarely the last step. After
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 resolves your species list to accepted names and IDs, the next task is
 usually to attach trait data, occurrence records, or measurement tables
 from external sources. The trouble is that external datasets almost
@@ -18,7 +18,7 @@ simply do not match, and the merged data.frame is full of `NA`s where
 values should exist. The standard workaround is to run the external
 names through the backbone first, resolve them to accepted IDs, and then
 join on those IDs.
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 wraps that entire workflow into a single pipe step.
 
 ``` r
@@ -30,7 +30,7 @@ library(taxify)
 
 The most common case: we have trait measurements in a data.frame sitting
 in our R session, and we want to attach them to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result. Here we create a small table of specific leaf area (SLA) and
 maximum height for five European tree species.
 
@@ -57,10 +57,10 @@ traits <- data.frame(
 result <- result |> add_data(traits, species_col = "taxon")
 ```
 
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 takes the names from the `taxon` column, runs them through the same
 backbone(s) used in the original
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call,
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call,
 resolves each to an `accepted_id`, and left-joins on that ID. *Picea
 excelsa* is a synonym of *Picea abies* in WFO, so the SLA and height
 values land on the correct row even though the literal strings differ.
@@ -71,7 +71,7 @@ the existing result.
 
 When the data lives in a file rather than in memory, we can pass the
 path directly.
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 reads `.csv` and `.csv.gz` files via vectra’s CSV reader, which handles
 large files efficiently without loading everything into R at once.
 
@@ -103,7 +103,7 @@ result |> add_data("global_leaf_traits.csv.gz", species_col = "species")
 
 Spreadsheets are common in ecology, especially for hand-curated trait
 databases shared among collaborators.
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 reads `.xlsx` files via the openxlsx2 package, which must be installed
 separately.
 
@@ -118,12 +118,12 @@ multiple sheets, the simplest approach is to read the target sheet into
 a data.frame first using
 [`openxlsx2::read_xlsx()`](https://janmarvin.github.io/openxlsx2/reference/wb_to_df.html)
 and pass that data.frame to
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md).
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md).
 
 ## SQLite databases
 
 When trait data lives in a SQLite database,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 reads the table via vectra’s SQLite reader (which depends on DBI and
 RSQLite under the hood). Because a single `.sqlite` or `.db` file can
 hold many tables, the `table` argument is mandatory here. Omitting it
@@ -141,8 +141,8 @@ result |> add_data(
 
 This is particularly handy when we already maintain a relational
 database of measurements across projects. We can point
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md) at
-the relevant table without exporting to CSV first, and the backbone
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+at the relevant table without exporting to CSV first, and the backbone
 matching still runs the same way it does for any other format.
 
 ## vectra native format
@@ -165,7 +165,7 @@ be re-used in another without converting back through CSV.
 
 For formats not directly supported (`.tsv`, `.parquet`, `.rds`), reading
 the file into a data.frame first and passing it to
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 works in every case.
 
 ``` r
@@ -177,10 +177,10 @@ result |> add_data(my_data, species_col = "sp")
 ## Species column auto-detection
 
 When `species_col` is not specified,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 probes each character column in the external data. It takes the first 10
 rows of each column, runs them through
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 against the same backbone, and picks the column with the highest match
 rate. A column needs at least 50% of its probe names to match before it
 qualifies.
@@ -212,7 +212,7 @@ error message.
 ## Selecting columns with `cols`
 
 By default,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 joins all columns from the external data except the species column. When
 the external dataset has dozens of columns and we only need two or
 three, the `cols` argument keeps the output tidy.
@@ -242,9 +242,9 @@ collisions (discussed below) that we would rather avoid entirely.
 
 If the external data has columns with the same name as columns already
 present in the
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 prefixes the incoming columns with `data_`. Existing columns in the
 taxify result remain unchanged regardless of what the external data
 contains.
@@ -275,7 +275,7 @@ External datasets sometimes contain the same species more than once.
 This happens with repeated measurements across sites, multiple
 literature sources compiled into one table, or subspecies that resolve
 to the same accepted species.
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 distinguishes two cases.
 
 **Exact duplicates** occur when all trait values for a given species are
@@ -305,7 +305,7 @@ matches exactly across all rows for a given species do we consider the
 duplicates identical.
 
 Because
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 cannot decide which value is correct when a conflict exists, it raises
 an error and names the offending species.
 
@@ -347,7 +347,7 @@ the same key cannot coexist.
 ## How the join works
 
 The full pipeline inside
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 has five steps:
 
 1.  **Read** the external data. File paths are dispatched by extension
@@ -358,10 +358,10 @@ has five steps:
 
 2.  **Identify** the species column, either from the explicit
     `species_col` argument or via auto-detection. When auto-detecting,
-    [`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
     samples the first 10 rows of every character column and runs each
     sample through
-    [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
     against the same backbone(s). The column whose sample achieves the
     highest match rate wins, provided it clears the 50% threshold.
     Columns containing site codes, habitat labels, or observer names
@@ -370,11 +370,11 @@ has five steps:
 
 3.  **Match** the species names through the same backbone(s) used in the
     original
-    [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
     call. This produces an `accepted_id` for each row in the external
     data. The backbone choice is read from the `taxify_meta` attribute
     that
-    [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
     attaches to its output, so we do not need to specify it again. Fuzzy
     matching is on by default (controlled via `fuzzy` and
     `fuzzy_threshold`). Any names that fail to resolve are dropped from
@@ -388,7 +388,7 @@ has five steps:
     in the section above.
 
 5.  **Left join** on `accepted_id`. Every row in the original
-    [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
     result that has a matching `accepted_id` in the external data
     receives the trait columns. Rows without a match get `NA`. Column
     name collisions are resolved by prefixing the incoming columns with
@@ -403,9 +403,9 @@ through the backbone.
 ### Controlling fuzzy matching
 
 By default,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 uses the same fuzzy matching as
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) to
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) to
 resolve names in the external data. Fuzzy matching catches typos and
 minor spelling differences, but it can produce false matches for short
 or similar names. The `fuzzy_threshold` argument controls how permissive
@@ -426,7 +426,7 @@ cross-species contamination from approximate string matches.
 
 ## Combining add_data() with enrichments
 
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 fits naturally into a pipe chain alongside the built-in enrichment
 functions. Custom data and pre-built enrichments use the same
 `accepted_id` join key, so they can be stacked in any order.
@@ -441,7 +441,7 @@ result <- taxify(species, backend = "wfo") |>
 
 Each step appends columns to the result. The final data.frame contains
 the core
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 output, IUCN conservation status, woodiness classification, and our
 custom SLA and height measurements, all aligned by accepted species
 identity.

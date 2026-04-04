@@ -16,7 +16,7 @@
       → convert to compressed .vtr (v4: dict + RLE + LZ)
       → upload to Zenodo (one DOI per release)
 
-[`taxify_download()`](https://gcol33.github.io/taxify/reference/taxify_download.md)
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
 fetches precomputed .vtr from Zenodo. Zero conversion on user machines.
 
 ### File layout per backend

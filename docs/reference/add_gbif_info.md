@@ -1,9 +1,9 @@
 # Add GBIF-specific columns
 
 Joins extra GBIF backbone columns to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-by looking up `taxon_id` in the GBIF backbone. Only enriches rows where
-`backend == "gbif"`.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result by looking up `taxon_id` in the GBIF backbone. Only enriches rows
+where `backend == "gbif"`.
 
 ## Usage
 
@@ -16,8 +16,8 @@ add_gbif_info(x)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) with
-  `backend == "gbif"`.
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  with `backend == "gbif"`.
 
 ## Value
 

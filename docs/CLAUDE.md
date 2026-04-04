@@ -52,7 +52,7 @@ commands (segfault risk with inline `-e`).
 
 | File | Purpose |
 |----|----|
-| `R/taxify.R` | Main [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) + `taxify_single()` — user-facing entry point, multi-backend fallback |
+| `R/taxify.R` | Main [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) + `taxify_single()` — user-facing entry point, multi-backend fallback |
 | `R/clean.R` | Name cleaning pipeline (qualifiers, authorship, brackets, whitespace) |
 | `R/hybrid.R` | Hybrid detection (`detect_hybrid`) and formula parsing (`parse_hybrid_formula`) |
 | `R/backend.R` | S3 generic definitions + `resolve_backend()` |
@@ -63,7 +63,7 @@ commands (segfault risk with inline `-e`).
 | `R/backend-ncbi.R` | NCBI Taxonomy: taxdump.tar.gz, pipe-delimited .dmp files, hierarchy walk, synonyms as separate name rows |
 | `R/backend-ott.R` | Open Tree of Life: OTT taxonomy archive, pipe-delimited taxonomy.tsv + synonyms.tsv, hierarchy walk |
 | `R/backend-worms.R` | WoRMS: DwC-A from GBIF ChecklistBank, LSID→AphiaID extraction, denormalized classification |
-| `R/cache.R` | Backbone path caching + [`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md) + `ensure_backbone()` |
+| `R/cache.R` | Backbone path caching + [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md) + `ensure_backbone()` |
 | `R/pick.R` | Best-match selection (ACCEPTED \> SYNONYM, SPECIES \> higher, smallest ID) |
 | `R/add-hybrid-info.R` | Pipe extension: hybrid parents and type |
 | `R/add-wfo-info.R` | Pipe extension: extra WFO columns |
@@ -166,11 +166,11 @@ URL/version/license/reason.
 
 Enrichment `.vtr` files must be joinable regardless of which backbone
 produced the user’s
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result. The build pipeline in `taxify-backbones` resolves this:
 
 1.  Source names are run through
-    [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
     against **each of the 7 backends separately** (not as a fallback
     chain — fallback chains only return the first match)
 2.  The union of all unique `accepted_name` values is collected per
@@ -248,7 +248,7 @@ taxify-backbones build pipeline and synced via `sync_manifest.R`.
 
 ### Discovery
 
-[`list_enrichments()`](https://gcol33.github.io/taxify/reference/list_enrichments.md)
+[`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
 (exported) reads the manifest and returns a summary data.frame with
 name, version, nrow, static, trait_cols, and source_url.
 
@@ -260,19 +260,19 @@ name, version, nrow, static, trait_cols, and source_url.
 | `R/enrichment-build.R` | Build registry, download helpers, 12 parse functions, `build_enrichment_from_source()`, `enrichment_emergency_fallback()` |
 | `R/enrichment-vtr.R` | `build_local_enrichment_vtr()` — .vtr writer + meta.json sidecar |
 | `R/enrichment-meta.R` | `register_enrichment()`, summary display for enrichment metadata |
-| `R/add-data.R` | [`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md) — user-facing function to join custom external data (CSV/XLSX/SQLite/VTR/data.frame) via backbone matching |
-| `R/add-conservation-status.R` | [`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md) — IUCN status enrichment |
-| `R/add-invasive-status.R` | [`add_invasive_status()`](https://gcol33.github.io/taxify/reference/add_invasive_status.md) — GRIIS invasive status by country |
-| `R/add-wcvp.R` | [`add_wcvp()`](https://gcol33.github.io/taxify/reference/add_wcvp.md) — WCVP native range by TDWG region |
-| `R/add-eive.R` | [`add_eive()`](https://gcol33.github.io/taxify/reference/add_eive.md) — EIVE ecological indicator values |
-| `R/add-elton-traits.R` | [`add_elton_traits()`](https://gcol33.github.io/taxify/reference/add_elton_traits.md) — EltonTraits diet/foraging (birds + mammals) |
-| `R/add-avonet.R` | [`add_avonet()`](https://gcol33.github.io/taxify/reference/add_avonet.md) — AVONET bird morphology |
-| `R/add-pantheria.R` | [`add_pantheria()`](https://gcol33.github.io/taxify/reference/add_pantheria.md) — PanTHERIA mammal traits |
-| `R/add-amphibio.R` | [`add_amphibio()`](https://gcol33.github.io/taxify/reference/add_amphibio.md) — AmphiBIO amphibian traits |
-| `R/add-common-names.R` | [`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md) — GBIF vernacular names |
-| `R/add-woodiness.R` | [`add_woodiness()`](https://gcol33.github.io/taxify/reference/add_woodiness.md) — Zanne et al. woody/herbaceous |
-| `R/add-diaz-traits.R` | [`add_diaz_traits()`](https://gcol33.github.io/taxify/reference/add_diaz_traits.md) — Diaz et al. seed mass + plant height |
-| `R/add-leda.R` | [`add_leda()`](https://gcol33.github.io/taxify/reference/add_leda.md) — LEDA NW European plant traits |
+| `R/add-data.R` | [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md) — user-facing function to join custom external data (CSV/XLSX/SQLite/VTR/data.frame) via backbone matching |
+| `R/add-conservation-status.R` | [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md) — IUCN status enrichment |
+| `R/add-invasive-status.R` | [`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md) — GRIIS invasive status by country |
+| `R/add-wcvp.R` | [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) — WCVP native range by TDWG region |
+| `R/add-eive.R` | [`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md) — EIVE ecological indicator values |
+| `R/add-elton-traits.R` | [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md) — EltonTraits diet/foraging (birds + mammals) |
+| `R/add-avonet.R` | [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md) — AVONET bird morphology |
+| `R/add-pantheria.R` | [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md) — PanTHERIA mammal traits |
+| `R/add-amphibio.R` | [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md) — AmphiBIO amphibian traits |
+| `R/add-common-names.R` | [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) — GBIF vernacular names |
+| `R/add-woodiness.R` | [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md) — Zanne et al. woody/herbaceous |
+| `R/add-diaz-traits.R` | [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md) — Diaz et al. seed mass + plant height |
+| `R/add-leda.R` | [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md) — LEDA NW European plant traits |
 
 ## Multi-backend fallback
 
@@ -289,5 +289,5 @@ name.
 - **DBI**, **RSQLite** (Suggests): ITIS build-from-source only
 - **openxlsx2** (Suggests): XLSX reading for enrichments (EIVE, AVONET,
   Diaz) and
-  [`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+  [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 - **testthat** (Suggests): testing framework

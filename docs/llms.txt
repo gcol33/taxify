@@ -86,21 +86,21 @@ backbone-resolved accepted names:
 
 | Enrichment | Source | Taxa |
 |----|----|----|
-| [`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md) | IUCN Red List | All |
-| [`add_invasive_status()`](https://gcol33.github.io/taxify/reference/add_invasive_status.md) | GRIIS | All |
-| [`add_wcvp()`](https://gcol33.github.io/taxify/reference/add_wcvp.md) | WCVP | Plants |
-| [`add_woodiness()`](https://gcol33.github.io/taxify/reference/add_woodiness.md) | Zanne et al. | Plants |
-| [`add_eive()`](https://gcol33.github.io/taxify/reference/add_eive.md) | EIVE 1.0 | European plants |
-| [`add_diaz_traits()`](https://gcol33.github.io/taxify/reference/add_diaz_traits.md) | Diaz et al. | Plants |
-| [`add_leda()`](https://gcol33.github.io/taxify/reference/add_leda.md) | LEDA Traitbase | NW European plants |
-| [`add_elton_traits()`](https://gcol33.github.io/taxify/reference/add_elton_traits.md) | EltonTraits 1.0 | Birds, mammals |
-| [`add_avonet()`](https://gcol33.github.io/taxify/reference/add_avonet.md) | AVONET | Birds |
-| [`add_pantheria()`](https://gcol33.github.io/taxify/reference/add_pantheria.md) | PanTHERIA | Mammals |
-| [`add_amphibio()`](https://gcol33.github.io/taxify/reference/add_amphibio.md) | AmphiBIO | Amphibians |
-| [`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md) | GBIF | All |
+| [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md) | IUCN Red List | All |
+| [`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md) | GRIIS | All |
+| [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) | WCVP | Plants |
+| [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md) | Zanne et al. | Plants |
+| [`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md) | EIVE 1.0 | European plants |
+| [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md) | Diaz et al. | Plants |
+| [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md) | LEDA Traitbase | NW European plants |
+| [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md) | EltonTraits 1.0 | Birds, mammals |
+| [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md) | AVONET | Birds |
+| [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md) | PanTHERIA | Mammals |
+| [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md) | AmphiBIO | Amphibians |
+| [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | GBIF | All |
 
 Custom data can be joined via
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md),
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md),
 which accepts data.frames, CSV, XLSX, SQLite, and .vtr files.
 
 ### Name Cleaning
@@ -172,20 +172,20 @@ summary(result)
 ## Documentation
 
 - [Getting
-  started](https://gcol33.github.io/taxify/articles/quickstart.html)
+  started](https://gillescolling.com/taxify/articles/quickstart.html)
 - [Choosing and combining
-  backends](https://gcol33.github.io/taxify/articles/backends.html)
+  backends](https://gillescolling.com/taxify/articles/backends.html)
 - [Fuzzy
-  matching](https://gcol33.github.io/taxify/articles/fuzzy-matching.html)
-- [Enrichments](https://gcol33.github.io/taxify/articles/enrichments.html)
+  matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
+- [Enrichments](https://gillescolling.com/taxify/articles/enrichments.html)
 - [Custom
-  data](https://gcol33.github.io/taxify/articles/custom-data.html)
+  data](https://gillescolling.com/taxify/articles/custom-data.html)
 - [Hybrid
-  names](https://gcol33.github.io/taxify/articles/hybrid-names.html)
+  names](https://gillescolling.com/taxify/articles/hybrid-names.html)
 - [Migrating from taxize and
-  WorldFlora](https://gcol33.github.io/taxify/articles/migration.html)
+  WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
 - [Large-scale
-  workflows](https://gcol33.github.io/taxify/articles/large-scale.html)
+  workflows](https://gillescolling.com/taxify/articles/large-scale.html)
 
 ## Support
 
@@ -209,67 +209,67 @@ MIT (see the LICENSE.md file)
 
 ## All functions
 
-- [`add_amphibio()`](https://gcol33.github.io/taxify/reference/add_amphibio.md)
+- [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md)
   : Add amphibian life-history traits (AmphiBIO)
-- [`add_avonet()`](https://gcol33.github.io/taxify/reference/add_avonet.md)
+- [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md)
   : Add bird morphology and migration (AVONET)
-- [`add_col_info()`](https://gcol33.github.io/taxify/reference/add_col_info.md)
+- [`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md)
   : Add COL-specific columns
-- [`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md)
+- [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
   : Add common (vernacular) names
-- [`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md)
+- [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
   : Add conservation status
-- [`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+- [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
   : Add custom data by taxonomic matching
-- [`add_diaz_traits()`](https://gcol33.github.io/taxify/reference/add_diaz_traits.md)
+- [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md)
   : Add seed mass and plant height (Diaz et al. 2022)
-- [`add_eive()`](https://gcol33.github.io/taxify/reference/add_eive.md)
+- [`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md)
   : Add EIVE ecological indicator values
-- [`add_elton_traits()`](https://gcol33.github.io/taxify/reference/add_elton_traits.md)
+- [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md)
   : Add diet, foraging, and body mass (EltonTraits 1.0)
-- [`add_gbif_info()`](https://gcol33.github.io/taxify/reference/add_gbif_info.md)
+- [`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
   : Add GBIF-specific columns
-- [`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md)
+- [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
   : Add hybrid parent and type information
-- [`add_invasive_status()`](https://gcol33.github.io/taxify/reference/add_invasive_status.md)
+- [`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md)
   : Add invasive species status
-- [`add_leda()`](https://gcol33.github.io/taxify/reference/add_leda.md)
+- [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md)
   : Add plant traits from LEDA Traitbase
-- [`add_pantheria()`](https://gcol33.github.io/taxify/reference/add_pantheria.md)
+- [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md)
   : Add mammal life-history traits (PanTHERIA)
-- [`add_qualifier_info()`](https://gcol33.github.io/taxify/reference/add_qualifier_info.md)
+- [`add_qualifier_info()`](https://gillescolling.com/taxify/reference/add_qualifier_info.md)
   : Add qualifier information
-- [`add_wcvp()`](https://gcol33.github.io/taxify/reference/add_wcvp.md)
+- [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
   : Add WCVP native range status
-- [`add_wfo_info()`](https://gcol33.github.io/taxify/reference/add_wfo_info.md)
+- [`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md)
   : Add WFO-specific columns
-- [`add_woodiness()`](https://gcol33.github.io/taxify/reference/add_woodiness.md)
+- [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md)
   : Add woodiness classification
-- [`list_enrichments()`](https://gcol33.github.io/taxify/reference/list_enrichments.md)
+- [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
   : List available enrichments
-- [`lookup_genus()`](https://gcol33.github.io/taxify/reference/lookup_genus.md)
+- [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
   : Look up a genus in the register
-- [`print(`*`<taxify_result>`*`)`](https://gcol33.github.io/taxify/reference/print.taxify_result.md)
+- [`print(`*`<taxify_result>`*`)`](https://gillescolling.com/taxify/reference/print.taxify_result.md)
   : Print a taxify_result
-- [`summary(`*`<taxify_result>`*`)`](https://gcol33.github.io/taxify/reference/summary.taxify_result.md)
+- [`summary(`*`<taxify_result>`*`)`](https://gillescolling.com/taxify/reference/summary.taxify_result.md)
   : Summarise a taxify_result
-- [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) :
+- [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) :
   Match taxonomic names against local backbone databases
-- [`taxify_clear_cache()`](https://gcol33.github.io/taxify/reference/taxify_clear_cache.md)
+- [`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md)
   : Clear all cached backbones
-- [`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md)
+- [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
   : Get the taxify data directory
-- [`taxify_download()`](https://gcol33.github.io/taxify/reference/taxify_download.md)
+- [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
   : Download a backbone database
-- [`taxify_download_enrichment()`](https://gcol33.github.io/taxify/reference/taxify_download_enrichment.md)
+- [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
   : Download one or more enrichment .vtr files
-- [`taxify_download_vtr()`](https://gcol33.github.io/taxify/reference/taxify_download_vtr.md)
+- [`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md)
   : Download a taxify backbone
-- [`taxify_load_register()`](https://gcol33.github.io/taxify/reference/taxify_load_register.md)
+- [`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md)
   : Load the unified genus register into memory
-- [`taxify_refresh_manifest()`](https://gcol33.github.io/taxify/reference/taxify_refresh_manifest.md)
+- [`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md)
   : Invalidate the session manifest cache
-- [`taxify_register_coverage()`](https://gcol33.github.io/taxify/reference/taxify_register_coverage.md)
+- [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
   : Show backend coverage for a genus
 
 # Articles
@@ -277,24 +277,24 @@ MIT (see the LICENSE.md file)
 ### Getting started
 
 - [Getting started with
-  taxify](https://gcol33.github.io/taxify/articles/quickstart.md):
+  taxify](https://gillescolling.com/taxify/articles/quickstart.md):
 - [Migrating from taxize and
-  WorldFlora](https://gcol33.github.io/taxify/articles/migration.md):
+  WorldFlora](https://gillescolling.com/taxify/articles/migration.md):
 
 ### Core features
 
 - [Choosing and combining
-  backends](https://gcol33.github.io/taxify/articles/backends.md):
+  backends](https://gillescolling.com/taxify/articles/backends.md):
 - [Fuzzy matching: methods, thresholds, and
-  tuning](https://gcol33.github.io/taxify/articles/fuzzy-matching.md):
+  tuning](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
 - [Enriching results with trait and status
-  data](https://gcol33.github.io/taxify/articles/enrichments.md):
+  data](https://gillescolling.com/taxify/articles/enrichments.md):
 - [Joining custom data with
-  add_data()](https://gcol33.github.io/taxify/articles/custom-data.md):
+  add_data()](https://gillescolling.com/taxify/articles/custom-data.md):
 
 ### Special topics
 
 - [Hybrid name detection and
-  parsing](https://gcol33.github.io/taxify/articles/hybrid-names.md):
+  parsing](https://gillescolling.com/taxify/articles/hybrid-names.md):
 - [Working with large species
-  lists](https://gcol33.github.io/taxify/articles/large-scale.md):
+  lists](https://gillescolling.com/taxify/articles/large-scale.md):

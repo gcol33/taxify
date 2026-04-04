@@ -1,7 +1,7 @@
 # Add invasive species status
 
 Joins GRIIS (Global Register of Introduced and Invasive Species) data to
-a [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+a [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result, filtered by country.
 
 ## Usage
@@ -15,7 +15,7 @@ add_invasive_status(x, country, verbose = TRUE)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 - country:
 

@@ -86,21 +86,21 @@ backbone-resolved accepted names:
 
 | Enrichment | Source | Taxa |
 |----|----|----|
-| [`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md) | IUCN Red List | All |
-| [`add_invasive_status()`](https://gcol33.github.io/taxify/reference/add_invasive_status.md) | GRIIS | All |
-| [`add_wcvp()`](https://gcol33.github.io/taxify/reference/add_wcvp.md) | WCVP | Plants |
-| [`add_woodiness()`](https://gcol33.github.io/taxify/reference/add_woodiness.md) | Zanne et al. | Plants |
-| [`add_eive()`](https://gcol33.github.io/taxify/reference/add_eive.md) | EIVE 1.0 | European plants |
-| [`add_diaz_traits()`](https://gcol33.github.io/taxify/reference/add_diaz_traits.md) | Diaz et al. | Plants |
-| [`add_leda()`](https://gcol33.github.io/taxify/reference/add_leda.md) | LEDA Traitbase | NW European plants |
-| [`add_elton_traits()`](https://gcol33.github.io/taxify/reference/add_elton_traits.md) | EltonTraits 1.0 | Birds, mammals |
-| [`add_avonet()`](https://gcol33.github.io/taxify/reference/add_avonet.md) | AVONET | Birds |
-| [`add_pantheria()`](https://gcol33.github.io/taxify/reference/add_pantheria.md) | PanTHERIA | Mammals |
-| [`add_amphibio()`](https://gcol33.github.io/taxify/reference/add_amphibio.md) | AmphiBIO | Amphibians |
-| [`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md) | GBIF | All |
+| [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md) | IUCN Red List | All |
+| [`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md) | GRIIS | All |
+| [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) | WCVP | Plants |
+| [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md) | Zanne et al. | Plants |
+| [`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md) | EIVE 1.0 | European plants |
+| [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md) | Diaz et al. | Plants |
+| [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md) | LEDA Traitbase | NW European plants |
+| [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md) | EltonTraits 1.0 | Birds, mammals |
+| [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md) | AVONET | Birds |
+| [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md) | PanTHERIA | Mammals |
+| [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md) | AmphiBIO | Amphibians |
+| [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | GBIF | All |
 
 Custom data can be joined via
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md),
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md),
 which accepts data.frames, CSV, XLSX, SQLite, and .vtr files.
 
 ### Name Cleaning
@@ -172,20 +172,20 @@ summary(result)
 ## Documentation
 
 - [Getting
-  started](https://gcol33.github.io/taxify/articles/quickstart.html)
+  started](https://gillescolling.com/taxify/articles/quickstart.html)
 - [Choosing and combining
-  backends](https://gcol33.github.io/taxify/articles/backends.html)
+  backends](https://gillescolling.com/taxify/articles/backends.html)
 - [Fuzzy
-  matching](https://gcol33.github.io/taxify/articles/fuzzy-matching.html)
-- [Enrichments](https://gcol33.github.io/taxify/articles/enrichments.html)
+  matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
+- [Enrichments](https://gillescolling.com/taxify/articles/enrichments.html)
 - [Custom
-  data](https://gcol33.github.io/taxify/articles/custom-data.html)
+  data](https://gillescolling.com/taxify/articles/custom-data.html)
 - [Hybrid
-  names](https://gcol33.github.io/taxify/articles/hybrid-names.html)
+  names](https://gillescolling.com/taxify/articles/hybrid-names.html)
 - [Migrating from taxize and
-  WorldFlora](https://gcol33.github.io/taxify/articles/migration.html)
+  WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
 - [Large-scale
-  workflows](https://gcol33.github.io/taxify/articles/large-scale.html)
+  workflows](https://gillescolling.com/taxify/articles/large-scale.html)
 
 ## Support
 

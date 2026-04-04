@@ -1,9 +1,9 @@
 # Add plant traits from LEDA Traitbase
 
 Joins LEDA Traitbase (Kleyer et al. 2008) plant functional traits to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-by looking up `accepted_name`. LEDA provides species-level trait data
-for NW European plant species, covering life form, dispersal, seed,
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result by looking up `accepted_name`. LEDA provides species-level trait
+data for NW European plant species, covering life form, dispersal, seed,
 leaf, and clonality traits.
 
 ## Usage
@@ -17,7 +17,7 @@ add_leda(x, verbose = TRUE)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 - verbose:
 

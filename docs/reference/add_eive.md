@@ -1,10 +1,10 @@
 # Add EIVE ecological indicator values
 
 Joins EIVE 1.0 (Dengler et al. 2023) ecological indicator values to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-by looking up `accepted_name`. EIVE provides continuous indicator values
-for European vascular plants, superseding the original ordinal Ellenberg
-values.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result by looking up `accepted_name`. EIVE provides continuous indicator
+values for European vascular plants, superseding the original ordinal
+Ellenberg values.
 
 ## Usage
 
@@ -17,7 +17,7 @@ add_eive(x, verbose = TRUE)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 - verbose:
 

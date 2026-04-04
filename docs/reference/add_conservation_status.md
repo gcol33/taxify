@@ -1,8 +1,9 @@
 # Add conservation status
 
 Joins IUCN Red List conservation status to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-by looking up `accepted_name` in the conservation status enrichment.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result by looking up `accepted_name` in the conservation status
+enrichment.
 
 ## Usage
 
@@ -15,7 +16,7 @@ add_conservation_status(x, verbose = TRUE)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 - verbose:
 

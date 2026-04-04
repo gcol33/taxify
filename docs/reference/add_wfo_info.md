@@ -1,8 +1,8 @@
 # Add WFO-specific columns
 
 Joins extra World Flora Online columns to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-by looking up `taxon_id` in the WFO backbone.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result by looking up `taxon_id` in the WFO backbone.
 
 ## Usage
 
@@ -15,8 +15,8 @@ add_wfo_info(x)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) with
-  `backend == "wfo"`.
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  with `backend == "wfo"`.
 
 ## Value
 

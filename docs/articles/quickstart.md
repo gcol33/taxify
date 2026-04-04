@@ -55,11 +55,11 @@ library(taxify)
 ## Installing a backbone
 
 The first call to
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 auto-downloads the WFO backbone if no local copy exists. For a more
 deliberate setup, or to pre-install several backbones before an analysis
 session, use
-[`taxify_download_vtr()`](https://gcol33.github.io/taxify/reference/taxify_download_vtr.md).
+[`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md).
 
 ``` r
 
@@ -92,7 +92,7 @@ taxify_download_vtr(c("wfo", "col", "gbif"))
 
 taxify checks backbone versions once per R session. If a newer release
 appears on Zenodo, the next
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 downloads the update automatically. Pinned versions (useful for
 reproducibility) are also supported:
 `taxify_download_vtr("wfo", version = "2024.06")` downloads into a
@@ -106,7 +106,7 @@ WFO has published a new release in the interim.
 ## Basic matching
 
 The core function is
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md). It
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md). It
 accepts a character vector of taxonomic names and returns a data.frame
 with one row per input name.
 
@@ -145,7 +145,7 @@ consistent with the accepted name.
 
 ## Understanding the output
 
-Every [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+Every [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 call returns the same 16 columns, regardless of which backbone produced
 the match. This uniformity means downstream code never needs to branch
 on backend type.
@@ -243,7 +243,7 @@ clean. The following transformations happen in order:
     `s.l.`, `s.str.`, `sp.`, `spp.`, `subsp.`, `var.`, `f.`, `auct.`,
     `sensu`, `agg.` are removed. The qualifier is recorded separately
     and can be retrieved later with
-    [`add_qualifier_info()`](https://gcol33.github.io/taxify/reference/add_qualifier_info.md).
+    [`add_qualifier_info()`](https://gillescolling.com/taxify/reference/add_qualifier_info.md).
 
 2.  **Authorship removal.** Parenthesized authorship strings like “(L.)”
     or “(Aiton) Sm.” are stripped first, then trailing authorship
@@ -292,7 +292,7 @@ messy_result[, c("input_name", "accepted_name", "match_type")]
 The authorship “L.” after “Quercus robur” was removed before matching.
 The “cf.” prefix on “Betula pendula” was stripped (the qualifier itself
 is recorded internally and can be retrieved with
-[`add_qualifier_info()`](https://gcol33.github.io/taxify/reference/add_qualifier_info.md)).
+[`add_qualifier_info()`](https://gillescolling.com/taxify/reference/add_qualifier_info.md)).
 “Pinus sylvestris var. hamata” did not match at the variety rank, so
 taxify fell back to matching “Pinus sylvestris” at species rank and
 reported it as an exact match. The all-caps version of Acer
@@ -344,7 +344,7 @@ syn_result[, c("input_name", "matched_name", "accepted_name", "is_synonym")]
 Both “Pinus abies” and “Picea abies” resolve to the same
 `accepted_name`, and both share the same `accepted_id`. This is the key
 that enrichment joins and
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 use, so trait data attached via accepted ID propagates correctly
 regardless of which synonym the user submitted.
 
@@ -390,9 +390,9 @@ judged to represent the same species. taxify does not distinguish
 between the two in the output: the `is_synonym` column is TRUE for both.
 Some backbones (GBIF, COL) do record whether a synonym is homotypic or
 heterotypic, and that information is available via
-[`add_gbif_info()`](https://gcol33.github.io/taxify/reference/add_gbif_info.md)
+[`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
 or
-[`add_col_info()`](https://gcol33.github.io/taxify/reference/add_col_info.md),
+[`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md),
 but for most workflows the simple TRUE/FALSE flag is sufficient.
 
 Synonym resolution handles chains. If synonym A points to synonym B,
@@ -681,7 +681,7 @@ multiple sources contributed to the result.
 
 taxify ships with 12 enrichment layers that join external trait and
 status data to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result. Each enrichment is a separate .vtr file downloaded on first use
 and cached locally. The join key is `accepted_name`, so synonyms in the
 original input resolve correctly.
@@ -719,7 +719,7 @@ values from the enrichment layer. The enrichment .vtr files are built
 with cross-backbone name resolution, meaning a species name is resolved
 against all seven backbones during the enrichment build pipeline, and
 the union of all resulting accepted names is stored. This ensures that
-[`add_woodiness()`](https://gcol33.github.io/taxify/reference/add_woodiness.md)
+[`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md)
 works correctly regardless of whether the user matched against WFO, COL,
 or GBIF.
 
@@ -733,7 +733,7 @@ data, so the coverage gap is immediately visible.
 
 ### Conservation status
 
-[`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md)
+[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
 joins IUCN Red List categories. Coverage is global across all taxonomic
 groups, approximately 166,000 species.
 
@@ -766,7 +766,7 @@ both show EN; Quercus robur and Pinus sylvestris are LC.
 
 ### Common names
 
-[`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md)
+[`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
 joins GBIF vernacular names filtered by ISO 639-1 language code. The
 default is English.
 
@@ -811,7 +811,7 @@ language, the most commonly used one is returned.
 
 ### Woodiness
 
-[`add_woodiness()`](https://gcol33.github.io/taxify/reference/add_woodiness.md)
+[`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md)
 joins the Zanne et al. (2014) woodiness classification. Coverage is
 about 48,000 plant species, each labelled as “woody”, “herbaceous”, or
 “variable” (species that can be either depending on growth conditions).
@@ -861,7 +861,7 @@ stacked[, c("accepted_name", "conservation_status",
 
 ## Custom data
 
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 joins any external dataset to a taxify result through backbone matching.
 The external data’s species names are run through the same backbone(s)
 that produced the original result, and the join is performed on
@@ -904,7 +904,7 @@ The traits data.frame contained both “Quercus robur” and “Quercus
 pedunculata” (a synonym). Because both resolve to the same accepted ID,
 the join works correctly without deduplication on the user’s side. If
 the two rows had different trait values for the same accepted species,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 would raise an error rather than silently picking one.
 
 ### From a CSV file
@@ -916,12 +916,12 @@ enriched <- result |>
 ```
 
 When `species_col` is not specified,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 auto-detects it by probing the first 10 rows of each character column
 against the backbone. The column with the highest match rate wins. If no
 column reaches 50% match rate, an error asks the user to specify
 `species_col` explicitly. The auto-detection runs a small
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 internally, so it adds a brief delay on first use, but it saves time in
 exploratory workflows where the column name varies across datasets
 (“species”, “taxon”, “scientific_name”, “Taxon.name”, and so on).
@@ -932,17 +932,17 @@ name. This is the key difference from a naive
 contains “Quercus pedunculata” (a synonym) and the taxify result
 contains “Quercus robur” (the accepted name), a raw string merge would
 miss the connection. The
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 join resolves both names through the backbone, discovers that they share
 the same accepted ID, and links them correctly. Duplicate handling is
 strict: if two rows in the external data resolve to the same accepted ID
 with different trait values,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 raises an error rather than silently picking one row.
 
 ### Supported file formats
 
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 reads `.csv`, `.csv.gz`, `.xlsx` (requires the openxlsx2 package),
 `.sqlite`/`.db` (requires DBI and RSQLite), and `.vtr` files natively.
 For SQLite files, specify the table name with the `table` argument. Any
@@ -965,7 +965,7 @@ result |> add_data(traits, species_col = "species", cols = "max_height_m")
 taxify detects hybrid markers in input names (the multiplication sign,
 the letter x between genus and epithet, or between two binomials) and
 sets `is_hybrid = TRUE` in the output.
-[`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md)
+[`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
 goes further, parsing hybrid formulas to extract parent names and
 classify the hybrid type.
 
@@ -998,16 +998,16 @@ multiplication sign precedes the genus name).
 
 For formulas, the extracted parent names are full binomials that can be
 submitted to
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 themselves for further resolution. A common workflow for hybrid-heavy
 datasets (e.g., ornamental horticulture records) is to run
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) on the
-full list, then pipe through
-[`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md),
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) on
+the full list, then pipe through
+[`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md),
 and finally re-run
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) on the
-extracted parent names to obtain their full taxonomic resolution. The
-hybrid detection runs on the raw input before any cleaning, so it
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) on
+the extracted parent names to obtain their full taxonomic resolution.
+The hybrid detection runs on the raw input before any cleaning, so it
 correctly handles both the Unicode multiplication sign and the ASCII “x”
 notation.
 
@@ -1016,7 +1016,7 @@ notation.
 taxify maintains a unified genus register built from all installed
 backbones. It maps each genus to its family, higher classification, and
 a broad life-form category.
-[`lookup_genus()`](https://gcol33.github.io/taxify/reference/lookup_genus.md)
+[`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
 queries this register.
 
 ``` r
@@ -1043,7 +1043,7 @@ conflicts resolved by priority (COL \> GBIF \> WFO for higher taxonomy,
 since COL and GBIF carry kingdom through order while WFO only has
 family).
 
-[`taxify_register_coverage()`](https://gcol33.github.io/taxify/reference/taxify_register_coverage.md)
+[`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
 shows which backbones contain a given genus, which helps decide which
 backend to use for a particular taxonomic group.
 
@@ -1072,7 +1072,7 @@ automatically during matching, but it is also useful when planning which
 backends to install for a particular project. If your dataset is
 entirely marine invertebrates, you might check a few representative
 genera with
-[`taxify_register_coverage()`](https://gcol33.github.io/taxify/reference/taxify_register_coverage.md)
+[`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
 and discover that WoRMS is the only backend that covers them, saving the
 time of downloading WFO and COL.
 
@@ -1081,21 +1081,21 @@ the union of WFO, COL, and GBIF. It is rebuilt whenever
 `build_unified_register()` runs (typically after installing or updating
 a backbone). The register is small enough to fit comfortably in memory
 and is cached for the duration of the R session, so
-[`lookup_genus()`](https://gcol33.github.io/taxify/reference/lookup_genus.md)
+[`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
 calls are effectively instant.
 
 ## Cache management
 
 Backbone .vtr files, enrichment .vtr files, and the genus register all
 live under
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md).
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
 During an R session, taxify caches file paths in memory so that repeated
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) calls
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) calls
 do not re-scan the file system.
 
-[`taxify_clear_cache()`](https://gcol33.github.io/taxify/reference/taxify_clear_cache.md)
+[`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md)
 drops these in-memory handles. The next
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 will re-load from disk. This is rarely needed, but it can help after
 manually moving or deleting .vtr files.
 
@@ -1106,7 +1106,7 @@ taxify_clear_cache()
 
 To force a fresh manifest fetch (e.g., after the maintainer publishes a
 new backbone version mid-session), use
-[`taxify_refresh_manifest()`](https://gcol33.github.io/taxify/reference/taxify_refresh_manifest.md).
+[`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md).
 
 ``` r
 
@@ -1115,7 +1115,7 @@ taxify_refresh_manifest()
 
 The on-disk files themselves are never deleted by taxify. To reclaim
 disk space, delete the contents of
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md)
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
 manually.
 
 ``` r

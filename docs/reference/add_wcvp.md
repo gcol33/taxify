@@ -1,7 +1,7 @@
 # Add WCVP native range status
 
 Joins WCVP (World Checklist of Vascular Plants, Kew) native range data
-to a [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+to a [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result, filtered by TDWG botanical region.
 
 ## Usage
@@ -15,7 +15,7 @@ add_wcvp(x, region, verbose = TRUE)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 - region:
 

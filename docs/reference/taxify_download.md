@@ -18,7 +18,7 @@ taxify_download(backend, dest = NULL, verbose = TRUE, ...)
 - dest:
 
   Character. Destination directory. Defaults to
-  [`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md).
+  [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
 
 - verbose:
 
@@ -36,6 +36,6 @@ The path to the `.vtr` file (invisibly).
 
 Always re-downloads the latest release, overwriting any existing
 backbone. Use
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) for
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) for
 day-to-day matching — it auto-downloads on first use and reuses the
 local copy thereafter.

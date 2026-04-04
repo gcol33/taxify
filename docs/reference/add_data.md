@@ -1,10 +1,10 @@
 # Add custom data by taxonomic matching
 
 Joins an external data source (CSV file or data.frame) to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result. Species names in the external data are matched through the same
 backbone(s) used in the original
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call,
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call,
 and the join is performed on `accepted_id` — so synonyms in either
 dataset resolve to the same key.
 
@@ -28,7 +28,7 @@ add_data(
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 - data:
 
@@ -82,7 +82,7 @@ The workflow:
 2.  Identify the species column (explicit or auto-detected).
 
 3.  Match species names through the same backbone(s) as the original
-    [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
     call, obtaining `accepted_id` for each row.
 
 4.  Check for conflicting duplicates: if multiple rows in `data` resolve
@@ -95,7 +95,7 @@ The workflow:
 
 When `species_col` is not specified, `add_data()` takes the first 10
 rows of each character column and runs them through
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md). The
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md). The
 column with the highest match rate is selected. If no column achieves at
 least 50% matches, an error is raised asking the user to specify
 `species_col` explicitly.

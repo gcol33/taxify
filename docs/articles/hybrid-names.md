@@ -40,7 +40,7 @@ library(taxify)
 
 Detection happens early in the pipeline, during name cleaning and before
 any backbone matching. When
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 receives an input vector, each name passes through `clean_names()`,
 which calls the internal `detect_hybrid()` function. The function
 tokenizes the name, looks for the hybrid marker in specific positions,
@@ -48,13 +48,13 @@ and classifies the result as nothogenus, nothospecies, formula, or
 non-hybrid.
 
 The output of
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 includes an `is_hybrid` column (logical) that records whether a hybrid
 marker was found in the original input. This column is always present
 regardless of whether the name ultimately matched a backbone record. The
 finer classification into nothogenus, nothospecies, or formula is not
 exposed directly in the main output; it becomes available through
-[`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md),
+[`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md),
 which we cover below after looking at how matched hybrids behave in the
 result table.
 
@@ -75,7 +75,7 @@ can recover matches that the stripped form misses.
 
 Consider a list that includes ordinary species, a nothospecies, a
 nothogenus, and a hybrid formula. We pass them all to
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) in a
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) in a
 single call.
 
 ``` r
@@ -117,10 +117,10 @@ not of the match result.
 ## Extracting hybrid details with add_hybrid_info()
 
 The
-[`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md)
+[`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
 function takes a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-and parses the `input_name` column to extract structured hybrid
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result and parses the `input_name` column to extract structured hybrid
 information. It adds three columns:
 
 - `hybrid_parent_1`: the first parent binomial (for formulas) or NA
@@ -229,9 +229,9 @@ parent_result <- taxify(parents, backend = "wfo")
 This approach gives a full match result (accepted name, synonym status,
 authorship) for each parent individually. In a dataset with many hybrid
 formulas, we can extract the parent columns from
-[`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md)
+[`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
 and feed them back through
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) as a
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) as a
 batch.
 
 ``` r
@@ -314,7 +314,7 @@ taxify("Mentha x piperita L.", backend = "wfo")
 ```
 
 **Adding hybrid info is lightweight.**
-[`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md)
+[`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
 operates entirely on the `input_name` column via string parsing. It does
 not re-query any backbone or access any files on disk. On a result with
 10,000 rows, the function completes in milliseconds.

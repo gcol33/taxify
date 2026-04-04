@@ -2,7 +2,7 @@
 
 Enrichment layers add columns to already-matched taxify results. They
 are NOT matching backends — they join on `accepted_name` from a prior
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call.
 
 All enrichment data ships as `.vtr` files built in CI and distributed
 via GitHub Releases with xdelta3 diffs (same pipeline as matching
@@ -15,7 +15,7 @@ DOI, build date, and row count.
 
 Every enrichment `.vtr` must be joinable regardless of which backbone
 produced the user’s
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result. This means the build pipeline resolves source names against
 **all 7 backends** and stores the union of accepted names.
 
@@ -57,9 +57,9 @@ result. This means the build pipeline resolves source names against
 
 | Enrichment | Function | Source | Species | License | Scope |
 |----|----|----|----|----|----|
-| Conservation status | [`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md) | Public sources (GBIF, IUCN API) | ~166k | Factual data | Global, all taxa |
+| Conservation status | [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md) | Public sources (GBIF, IUCN API) | ~166k | Factual data | Global, all taxa |
 | Invasive status | `add_invasive_status(country)` | GRIIS (Zenodo CSV) | ~23k rows (name × country) | CC BY 4.0 | Global, 196 countries |
-| Woodiness | [`add_woodiness()`](https://gcol33.github.io/taxify/reference/add_woodiness.md) | Zanne et al. 2014 (Dryad) | ~50k | CC0 | Plants |
+| Woodiness | [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md) | Zanne et al. 2014 (Dryad) | ~50k | CC0 | Plants |
 | Native range | `add_native_range(region)` | WCVP (Kew SFTP) | ~340k | CC BY | Plants, global |
 | Indicator values | `add_indicator_values()` | EIVE 1.0 (Dengler et al. 2023, Zenodo) | ~14.5k | CC BY 4.0 | Plants, Europe |
 
@@ -67,12 +67,12 @@ result. This means the build pipeline resolves source names against
 
 | Enrichment | Function | Source | Species | License | Scope |
 |----|----|----|----|----|----|
-| Seed mass + plant height | [`add_diaz_traits()`](https://gcol33.github.io/taxify/reference/add_diaz_traits.md) | Diaz et al. 2022 (TRY File Archive) | ~46k | CC BY 3.0 | Plants, global |
-| Bird + mammal diet/foraging | [`add_elton_traits()`](https://gcol33.github.io/taxify/reference/add_elton_traits.md) | EltonTraits 1.0 (Wilman et al. 2014, Figshare) | ~15.4k | CC0 | Birds + mammals |
-| Bird morphology + migration | [`add_avonet()`](https://gcol33.github.io/taxify/reference/add_avonet.md) | AVONET (Tobias et al. 2022, Figshare) | ~11k | CC BY 4.0 | Birds |
-| Mammal life history | [`add_pantheria()`](https://gcol33.github.io/taxify/reference/add_pantheria.md) | PanTHERIA (Jones et al. 2009, Ecol. Archives) | ~5.4k | CC0 | Mammals |
-| Amphibian life history | [`add_amphibio()`](https://gcol33.github.io/taxify/reference/add_amphibio.md) | AmphiBIO (Oliveira et al. 2017, Figshare) | ~6.8k | CC BY 4.0 | Amphibians |
-| Raunkiær + dispersal + leaf | [`add_leda()`](https://gcol33.github.io/taxify/reference/add_leda.md) | LEDA Traitbase (Kleyer et al. 2008) | ~8k | Free download | Plants, NW Europe |
+| Seed mass + plant height | [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md) | Diaz et al. 2022 (TRY File Archive) | ~46k | CC BY 3.0 | Plants, global |
+| Bird + mammal diet/foraging | [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md) | EltonTraits 1.0 (Wilman et al. 2014, Figshare) | ~15.4k | CC0 | Birds + mammals |
+| Bird morphology + migration | [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md) | AVONET (Tobias et al. 2022, Figshare) | ~11k | CC BY 4.0 | Birds |
+| Mammal life history | [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md) | PanTHERIA (Jones et al. 2009, Ecol. Archives) | ~5.4k | CC0 | Mammals |
+| Amphibian life history | [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md) | AmphiBIO (Oliveira et al. 2017, Figshare) | ~6.8k | CC BY 4.0 | Amphibians |
+| Raunkiær + dispersal + leaf | [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md) | LEDA Traitbase (Kleyer et al. 2008) | ~8k | Free download | Plants, NW Europe |
 | Common names | `add_common_names(lang)` | GBIF backbone vernacular names | large | CC0 | Global, multi-language |
 
 ### P3 — If TRY request approved

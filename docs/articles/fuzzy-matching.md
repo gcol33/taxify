@@ -2,7 +2,7 @@
 
 ## What fuzzy matching does (and does not do)
 
-When [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+When [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 receives a name it cannot find by exact match, it falls back to fuzzy
 matching. Fuzzy matching computes a *string distance* between the input
 name and every candidate in the backbone, then returns the closest

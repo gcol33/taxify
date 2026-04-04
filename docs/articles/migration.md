@@ -50,17 +50,17 @@ with functions that have no direct equivalent.
 
 | taxize function | taxify equivalent | Notes |
 |----|----|----|
-| `gnr_resolve()` | [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) | Any backend; returns best match per name |
+| `gnr_resolve()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | Any backend; returns best match per name |
 | `get_tsn()` | `taxify(backend = "itis")` | `taxon_id` column holds the TSN |
 | `get_uid()` | `taxify(backend = "ncbi")` | `taxon_id` column holds the UID |
 | `get_gbifid()` | `taxify(backend = "gbif")` | `taxon_id` column holds the GBIF usage key |
 | `get_wormsid()` | `taxify(backend = "worms")` | `taxon_id` column holds the AphiaID |
-| `classification()` | [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) | Returns `family`, `genus`, `rank` directly; [`add_col_info()`](https://gcol33.github.io/taxify/reference/add_col_info.md) for full hierarchy |
-| `synonyms()` | [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) | `is_synonym` + `accepted_name` columns in the output |
-| `tax_name()` | [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) | `family`, `genus`, `rank` columns |
+| `classification()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | Returns `family`, `genus`, `rank` directly; [`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md) for full hierarchy |
+| `synonyms()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `is_synonym` + `accepted_name` columns in the output |
+| `tax_name()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `family`, `genus`, `rank` columns |
 | `itis_acceptname()` | `taxify(backend = "itis")` | `accepted_name` column |
-| `sci2comm()` | [`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md) | Pipe enrichment; GBIF vernacular names by language |
-| `get_nativecountry()` | [`add_wcvp()`](https://gcol33.github.io/taxify/reference/add_wcvp.md) | WCVP native range by TDWG region (plants) |
+| `sci2comm()` | [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | Pipe enrichment; GBIF vernacular names by language |
+| `get_nativecountry()` | [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) | WCVP native range by TDWG region (plants) |
 | `comm2sci()` | *no equivalent* | taxify matches scientific names, not common names |
 | `downstream()` | *no equivalent* | Use rotl or rgbif for child taxa |
 | phylogenetic tree functions | *no equivalent* | Use rotl for synthetic trees |
@@ -79,9 +79,9 @@ match quality are columns, not separate API calls.
 | WorldFlora function | taxify equivalent | Notes |
 |----|----|----|
 | [`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | `taxify(backend = "wfo")` | Exact + fuzzy in one call |
-| [`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) | Best-match selection is automatic |
+| [`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | Best-match selection is automatic |
 | [`WFO.match.fuzzyjoin()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html) | `taxify(fuzzy = TRUE)` | Enabled by default; genus-blocked Damerau-Levenshtein |
-| [`WFO.synonyms()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) | `is_synonym`, `accepted_name`, `accepted_id` in output |
+| [`WFO.synonyms()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `is_synonym`, `accepted_name`, `accepted_id` in output |
 
 WorldFlora returns a wide data.frame with WFO-specific column names
 (`scientificName`, `taxonID`, `taxonomicStatus`, `acceptedNameUsageID`,
@@ -89,14 +89,14 @@ plus the full authorship and bibliographic fields). taxify normalizes
 these into a backend-agnostic schema: `matched_name`, `taxon_id`,
 `accepted_name`, `accepted_id`, and so on. The WFO-specific columns are
 still accessible via
-[`add_wfo_info()`](https://gcol33.github.io/taxify/reference/add_wfo_info.md)
+[`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md)
 when needed, but the default output is the same 16 columns whether the
 backend is WFO, COL, or GBIF.
 
 WorldFlora also requires the user to download `classification.txt`
 manually and pass the file path or a pre-loaded data.frame to every
 call. taxify handles backbone management automatically: the first
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 downloads and converts the backbone, subsequent calls reuse the local
 copy, and a once-per-session version check keeps it current.
 
@@ -287,7 +287,7 @@ data.frame. The `backend` column records provenance.
 Enrichments attach additional data columns through the pipe. Each
 `add_*()` function downloads its dataset on first use (the same
 download-once pattern as backbones) and joins on `accepted_name`.
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 handles arbitrary external datasets: pass a CSV path, an XLSX file, a
 SQLite database, or a plain data.frame, and taxify matches the species
 names through the same backbone(s) before joining.
@@ -358,7 +358,7 @@ scope.
 **Common-to-scientific name lookup.** taxize had `comm2sci()` to go from
 “European robin” to *Erithacus rubecula*. taxify works in the opposite
 direction: it matches scientific names and can attach common names via
-[`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md),
+[`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
 but it cannot start from a vernacular name.
 
 **Downstream taxa.** taxize’s `downstream()` returned all children of a
@@ -435,25 +435,25 @@ list_enrichments()
 
 Each enrichment downloads automatically on first use and is cached
 locally, following the same pattern as backbones. The full list:
-[`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md),
-[`add_invasive_status()`](https://gcol33.github.io/taxify/reference/add_invasive_status.md),
-[`add_wcvp()`](https://gcol33.github.io/taxify/reference/add_wcvp.md),
-[`add_eive()`](https://gcol33.github.io/taxify/reference/add_eive.md),
-[`add_elton_traits()`](https://gcol33.github.io/taxify/reference/add_elton_traits.md),
-[`add_avonet()`](https://gcol33.github.io/taxify/reference/add_avonet.md),
-[`add_pantheria()`](https://gcol33.github.io/taxify/reference/add_pantheria.md),
-[`add_amphibio()`](https://gcol33.github.io/taxify/reference/add_amphibio.md),
-[`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md),
-[`add_woodiness()`](https://gcol33.github.io/taxify/reference/add_woodiness.md),
-[`add_diaz_traits()`](https://gcol33.github.io/taxify/reference/add_diaz_traits.md),
+[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md),
+[`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md),
+[`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md),
+[`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md),
+[`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md),
+[`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md),
+[`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md),
+[`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md),
+[`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
+[`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md),
+[`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md),
 and
-[`add_leda()`](https://gcol33.github.io/taxify/reference/add_leda.md).
+[`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md).
 
 ## Summary
 
 The migration path from taxize or WorldFlora to taxify is a structural
 simplification. Multiple API calls or manual file management collapse
-into [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+into [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 plus optional `add_*()` pipes. The output is a flat data.frame, not
 nested lists. Matching runs offline against versioned backbone files, so
 results do not change between sessions unless the user explicitly

@@ -1,8 +1,8 @@
 # Add common (vernacular) names
 
 Joins GBIF vernacular names to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-by looking up `accepted_name`, filtered by language.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result by looking up `accepted_name`, filtered by language.
 
 ## Usage
 
@@ -15,7 +15,7 @@ add_common_names(x, lang = "en", verbose = TRUE)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md).
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 - lang:
 

@@ -152,14 +152,14 @@ summary(result)
 
 ## Documentation
 
-- [Getting started](https://gcol33.github.io/taxify/articles/quickstart.html)
-- [Choosing and combining backends](https://gcol33.github.io/taxify/articles/backends.html)
-- [Fuzzy matching](https://gcol33.github.io/taxify/articles/fuzzy-matching.html)
-- [Enrichments](https://gcol33.github.io/taxify/articles/enrichments.html)
-- [Custom data](https://gcol33.github.io/taxify/articles/custom-data.html)
-- [Hybrid names](https://gcol33.github.io/taxify/articles/hybrid-names.html)
-- [Migrating from taxize and WorldFlora](https://gcol33.github.io/taxify/articles/migration.html)
-- [Large-scale workflows](https://gcol33.github.io/taxify/articles/large-scale.html)
+- [Getting started](https://gillescolling.com/taxify/articles/quickstart.html)
+- [Choosing and combining backends](https://gillescolling.com/taxify/articles/backends.html)
+- [Fuzzy matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
+- [Enrichments](https://gillescolling.com/taxify/articles/enrichments.html)
+- [Custom data](https://gillescolling.com/taxify/articles/custom-data.html)
+- [Hybrid names](https://gillescolling.com/taxify/articles/hybrid-names.html)
+- [Migrating from taxize and WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
+- [Large-scale workflows](https://gillescolling.com/taxify/articles/large-scale.html)
 
 ## Support
 

@@ -1,7 +1,7 @@
 # Enriching results with trait and status data
 
 Taxonomic name matching is rarely the end goal. Once
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) has
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) has
 resolved a list of species names against a backbone, the next step is
 usually joining ecological trait data, conservation assessments, or
 geographic range information to the matched names. This step is where
@@ -14,10 +14,10 @@ for moderately sized species lists.
 
 taxify ships with 12 enrichment layers that attach published trait and
 status datasets to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-in a single pipe call. Each enrichment is backed by a pre-built `.vtr`
-file that downloads automatically on first use and caches locally for
-all subsequent sessions. The enrichment system handles the name
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result in a single pipe call. Each enrichment is backed by a pre-built
+`.vtr` file that downloads automatically on first use and caches locally
+for all subsequent sessions. The enrichment system handles the name
 alignment problem at build time, so the join at analysis time is a
 simple, fast, exact-match operation.
 
@@ -26,7 +26,7 @@ through each of the 12 layers with worked examples, and discusses
 practical strategies for combining enrichments, interpreting coverage
 gaps, and choosing the right layers for a given taxon group. We also
 discuss the
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 function for joining custom datasets that go beyond the built-in
 enrichments.
 
@@ -34,10 +34,10 @@ enrichments.
 
 Every `add_*()` function performs the same underlying operation: a left
 join between the `accepted_name` column in a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-and the `canonical_name` column in an enrichment `.vtr` file. Because
-the join key is the accepted (resolved) name rather than the original
-input, synonyms that were resolved during matching contribute
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result and the `canonical_name` column in an enrichment `.vtr` file.
+Because the join key is the accepted (resolved) name rather than the
+original input, synonyms that were resolved during matching contribute
 automatically. If the input contained “Pinus abies” and the backbone
 resolved it to “Picea abies”, the enrichment join looks up “Picea abies”
 in the trait database. This means we never have to worry about whether
@@ -46,7 +46,7 @@ backbone resolution step has already normalized everything.
 
 This design has a deliberate consequence: enrichments only produce
 values for rows that were successfully matched by
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md). Rows
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md). Rows
 where `accepted_name` is `NA` (unmatched names) always receive `NA` in
 all enrichment columns. If a species could not be resolved against the
 backbone, it cannot be looked up in a trait database either. This is
@@ -102,9 +102,9 @@ enrichments).
 In practice, backends agree on more than 90% of names, so this expansion
 is modest (typically 1.1–1.5x the original row count). The result is
 that
-[`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md)
+[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
 works identically whether the upstream
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 used WFO, COL, or GBIF. We do not have to pick enrichments based on
 which backbone we used, and we do not have to worry about
 backbone-specific name variants falling through the cracks.
@@ -176,12 +176,12 @@ organized by enrichment name and version:
         ...
 
 The
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md)
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
 function returns the platform-appropriate data directory (typically
 `~/.local/share/taxify` on Linux/macOS or `%LOCALAPPDATA%/taxify` on
 Windows). This directory is also where backbone `.vtr` files are stored,
 so a single
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md)
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
 call reveals where all taxify data lives on the system. Enrichment files
 are modest in size: most are between 1 and 20 MB. The full set of 12
 enrichments totals roughly 100-150 MB.
@@ -189,7 +189,7 @@ enrichments totals roughly 100-150 MB.
 ## Discovering enrichments
 
 Before applying enrichments, we may want to see what is available.
-[`list_enrichments()`](https://gcol33.github.io/taxify/reference/list_enrichments.md)
+[`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
 queries the taxify manifest and returns a data.frame summarizing every
 available enrichment layer. The returned columns are: `name`, `version`,
 `nrow` (approximate row count), `static` (whether the dataset is
@@ -239,7 +239,7 @@ citation.
 For workflows that run on computing clusters, in Docker containers, or
 in any environment without reliable internet access, we can pre-download
 enrichments before the analysis begins. The
-[`taxify_download_enrichment()`](https://gcol33.github.io/taxify/reference/taxify_download_enrichment.md)
+[`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
 function accepts a character vector of enrichment names and downloads
 each one to the local data directory.
 
@@ -275,7 +275,7 @@ the requested version, it is not re-downloaded. The `.vtr` files live in
 Pre-downloading is also useful for teaching and workshop settings where
 many participants share a slow network connection. One person can
 download the enrichments, copy the
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md)
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
 contents to a shared drive or USB stick, and distribute it to all
 participants. Since the enrichment lookup path starts with the on-disk
 check, the copied files will be found immediately without any network
@@ -1001,7 +1001,7 @@ The `add_*()` functions return the same data.frame class
 metadata used by [`summary()`](https://rdrr.io/r/base/summary.html).
 This means they compose naturally with the pipe operator. A typical
 workflow chains
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) with
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) with
 several enrichment calls, building up the desired set of columns
 incrementally.
 
@@ -1296,7 +1296,7 @@ The `seed_mass_mg` collision between LEDA and Diaz was discussed
 earlier. In this stack, LEDA runs before Diaz, so the Diaz
 `seed_mass_mg` will be the value in the final result. If the LEDA value
 is preferred, reverse the order or omit
-[`add_diaz_traits()`](https://gcol33.github.io/taxify/reference/add_diaz_traits.md).
+[`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md).
 
 ### Vascular plants (global)
 
@@ -1392,7 +1392,7 @@ conservation status and common names enrichments cover marine species,
 and the WoRMS backend provides authoritative marine taxonomy. For
 marine- specific trait data (e.g., from FishBase, SeaLifeBase, or the
 World Register of Marine Species), the
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 function can join custom data from any CSV, XLSX, SQLite, or data.frame
 source.
 
@@ -1406,10 +1406,10 @@ result <- taxify(species_list, backend = "worms") |>
 
 This pattern generalizes to any taxon group or trait source not covered
 by the built-in enrichments. The key advantage of using
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 rather than a manual [`merge()`](https://rdrr.io/r/base/merge.html) is
 that
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 resolves names through the backbone before joining, so synonyms in the
 external data are handled correctly.
 
@@ -1417,12 +1417,12 @@ external data are handled correctly.
 
 No fungal trait enrichment is currently bundled with taxify. The COL and
 GBIF backends provide fungal taxonomy, and
-[`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md)
+[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
 covers the subset of fungal species that have been assessed by the IUCN
 (currently a small fraction of described fungi). Custom fungal trait
 data (e.g., from FungalTraits or the Global Soil Mycobiome consortium)
 can be joined via
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md).
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md).
 
 ### Mixed-taxon datasets
 
@@ -1479,9 +1479,9 @@ produces better inputs because it avoids rows with structurally missing
 values (values that are missing by design, not by data limitation).
 
 A middle ground is to apply
-[`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md)
+[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
 and
-[`add_common_names()`](https://gcol33.github.io/taxify/reference/add_common_names.md)
+[`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
 to the full dataset (since both cover all taxon groups), then split by
 group for the taxon-specific enrichments. This gives us conservation
 data and vernacular names for every species in a single data.frame,
@@ -1490,16 +1490,16 @@ while keeping the taxon-specific trait matrices clean.
 ## Joining custom data
 
 Beyond the 12 built-in enrichments,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 joins any external dataset to a taxify result. It accepts a file path
 (CSV, CSV.GZ, XLSX, SQLite/DB, or VTR) or an in-memory data.frame. The
 function identifies the species name column (automatically by running
 the first 10 rows of each character column through
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) and
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) and
 selecting the column with the highest match rate, or via an explicit
 `species_col` argument), resolves those names through the same
 backbone(s) used in the original
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call,
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call,
 and joins on `accepted_id`.
 
 ``` r
@@ -1522,7 +1522,7 @@ result |> add_data(my_traits, species_col = "species")
 ```
 
 Because
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 resolves names through the backbone before joining, it handles synonyms
 correctly. If the external data uses “Pinus abies” and the backbone
 resolves it to “Picea abies”, the join still works. This is the
@@ -1544,14 +1544,14 @@ prevent overwriting. If multiple rows in the external data resolve to
 the same `accepted_id` with identical trait values, they are silently
 deduplicated. If they resolve to the same `accepted_id` with conflicting
 values (e.g., two different height measurements for the same species),
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 raises an error asking the user to resolve the ambiguity before joining.
 This strict handling of duplicates prevents subtle data corruption that
 a plain [`merge()`](https://rdrr.io/r/base/merge.html) would silently
 allow.
 
 The
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 function also supports SQLite databases via the `table` argument, and
 `.vtr` files directly (useful for sharing pre-built enrichments between
 collaborators). For XLSX files, the openxlsx2 package is required
@@ -1567,9 +1567,9 @@ output includes the source and version for each applied enrichment,
 providing a starting point for the methods section. The original
 references are listed in each `add_*()` function’s help page (accessible
 via
-[`?add_avonet`](https://gcol33.github.io/taxify/reference/add_avonet.md),
-[`?add_leda`](https://gcol33.github.io/taxify/reference/add_leda.md),
-[`?add_pantheria`](https://gcol33.github.io/taxify/reference/add_pantheria.md),
+[`?add_avonet`](https://gillescolling.com/taxify/reference/add_avonet.md),
+[`?add_leda`](https://gillescolling.com/taxify/reference/add_leda.md),
+[`?add_pantheria`](https://gillescolling.com/taxify/reference/add_pantheria.md),
 etc.).
 
 For reproducibility, the version recorded in `meta.json` pins the exact
@@ -1597,7 +1597,7 @@ A minimal methods paragraph citing enrichments might read:
 > Taxonomic names were resolved against the WFO backbone (v2024.12)
 > using taxify (v0.x.x). Conservation status was obtained from the IUCN
 > Red List (v2025.1) via
-> [`add_conservation_status()`](https://gcol33.github.io/taxify/reference/add_conservation_status.md).
+> [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md).
 > Woodiness classification followed Zanne et al. (2014). Ecological
 > indicator values were sourced from EIVE 1.0 (Dengler et al. 2023). All
 > enrichment versions are recorded in the taxify result metadata and
@@ -1622,10 +1622,10 @@ enrichments have been applied, their source versions, and their coverage
 rates, supporting both exploratory analysis and reproducible reporting.
 
 For taxa or traits not covered by the built-in layers,
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 integrates any external dataset using the same backbone-resolved name
 matching. Between the 12 built-in enrichments and the
-[`add_data()`](https://gcol33.github.io/taxify/reference/add_data.md)
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 escape hatch, most common ecological analyses can go from raw species
 lists to trait-enriched analytical tables in a single pipe chain.
 

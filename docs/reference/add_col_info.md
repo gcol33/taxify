@@ -1,9 +1,9 @@
 # Add COL-specific columns
 
 Joins extra Catalogue of Life columns to a
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) result
-by looking up `taxon_id` in the COL backbone. Only enriches rows where
-`backend == "col"`.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result by looking up `taxon_id` in the COL backbone. Only enriches rows
+where `backend == "col"`.
 
 ## Usage
 
@@ -16,8 +16,8 @@ add_col_info(x)
 - x:
 
   A data.frame returned by
-  [`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) with
-  `backend == "col"`.
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  with `backend == "col"`.
 
 ## Value
 

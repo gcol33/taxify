@@ -10,7 +10,7 @@ taxonomic matching package.
 ### 1. Output Schema — SETTLED
 
 **Design: core + pipe extensions.**
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md)
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 returns a lean, universal schema. Extra detail via `add_*()` pipe
 functions.
 
@@ -128,13 +128,13 @@ resolved <- taxify_resolve(matches)
 ```
 
 Things to decide: - Does
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) always
-return one row per input name? Or can it return multiple candidates? -
-If multiple candidates, how does the user pick? Interactive?
-Score-based? Top-1 with alternatives in a list column? - Should fuzzy
-matching be opt-in (`fuzzy = TRUE`) or default? - How does the user
-specify the fallback chain? `backends = c("wfo", "col")` tries WFO
-first, then COL for unmatched?
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+always return one row per input name? Or can it return multiple
+candidates? - If multiple candidates, how does the user pick?
+Interactive? Score-based? Top-1 with alternatives in a list column? -
+Should fuzzy matching be opt-in (`fuzzy = TRUE`) or default? - How does
+the user specify the fallback chain? `backends = c("wfo", "col")` tries
+WFO first, then COL for unmatched?
 
 ### 3. Multi-Backend Architecture
 
@@ -162,7 +162,7 @@ candidate set
 
 Backbone storage: `.vtr` (vectra native format) after first download.
 First
-[`taxify_download()`](https://gcol33.github.io/taxify/reference/taxify_download.md)
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
 fetches Darwin Core CSV, converts to `.vtr` for fast repeated queries.
 
 Backends to support: - **WFO** — World Flora Online (plants, offline
@@ -237,15 +237,15 @@ snapshots. No rgbif/ritis/taxizedb dependency.
 
 **Output schema:** Core 15 columns (universal across backends) + pipe
 extensions
-([`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md),
-[`add_wfo_info()`](https://gcol33.github.io/taxify/reference/add_wfo_info.md),
-[`add_col_info()`](https://gcol33.github.io/taxify/reference/add_col_info.md),
-[`add_gbif_info()`](https://gcol33.github.io/taxify/reference/add_gbif_info.md),
+([`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md),
+[`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md),
+[`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md),
+[`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md),
 `add_itis_info()`)
 
 **Hybrid in core:** `is_hybrid` logical only. Parent parsing and hybrid
 type via
-[`add_hybrid_info()`](https://gcol33.github.io/taxify/reference/add_hybrid_info.md).
+[`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md).
 
 ## Open Questions
 

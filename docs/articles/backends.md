@@ -87,14 +87,14 @@ notice during AlgaeBase download to make this visible.
 taxify auto-downloads backbones on first use. When we call
 `taxify(names, backend = "wfo")` and no local WFO backbone exists,
 taxify fetches the pre-built `.vtr` file from Zenodo, writes it to
-[`taxify_data_dir()`](https://gcol33.github.io/taxify/reference/taxify_data_dir.md),
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md),
 and caches the path for the remainder of the R session. Subsequent
 calls, whether in the same session or future sessions, reuse the local
 copy without any network access.
 
 To download a backbone ahead of time (useful on a shared server or in a
 Docker image), use
-[`taxify_download_vtr()`](https://gcol33.github.io/taxify/reference/taxify_download_vtr.md):
+[`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md):
 
 ``` r
 
@@ -114,7 +114,7 @@ keys, embedded synonym resolution, and genus-level indexes, so they are
 ready for querying the moment the download completes.
 
 taxify checks for backbone updates once per R session. The first
-[`taxify()`](https://gcol33.github.io/taxify/reference/taxify.md) call
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 in a session fetches the manifest from GitHub, compares each requested
 backend’s local version against the latest available release, and
 downloads a new version only if one exists. If the network is
@@ -242,7 +242,7 @@ COL database, and vice versa.
 `genus`. WFO provides these directly from its classification file. COL
 stores the full Linnaean hierarchy (kingdom through order) in the
 Taxon.tsv, though these extra columns require
-[`add_col_info()`](https://gcol33.github.io/taxify/reference/add_col_info.md)
+[`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md)
 to access. GBIF provides family through a denormalized `family_key`
 self-join at build time. ITIS, NCBI, and OTT resolve family and genus
 via parent-hierarchy walks during backbone compilation; the walk
@@ -696,7 +696,7 @@ informative signal than a plain `"none"`.
 
 ### Looking up a genus
 
-[`lookup_genus()`](https://gcol33.github.io/taxify/reference/lookup_genus.md)
+[`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
 returns the register row for a single genus. The register is loaded into
 memory on first call and cached for the session.
 
@@ -716,7 +716,7 @@ lookup_genus("Panthera")
 
 ### Checking backend coverage
 
-[`taxify_register_coverage()`](https://gcol33.github.io/taxify/reference/taxify_register_coverage.md)
+[`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
 shows which backends contain a given genus and at what version. This is
 useful when diagnosing match failures: if the genus does not appear in
 the coverage table for the requested backend, the name is genuinely out
@@ -873,6 +873,6 @@ cite the `backbone_version` strings from the output.
 
 The manifest, which maps backend names to their download URLs and latest
 versions, is cached per session and can be refreshed with
-[`taxify_refresh_manifest()`](https://gcol33.github.io/taxify/reference/taxify_refresh_manifest.md).
+[`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md).
 For offline use, taxify falls back to the bundled manifest shipped with
 the package.
