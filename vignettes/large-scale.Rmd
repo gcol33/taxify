@@ -69,7 +69,9 @@ The exact pipeline is more thorough than a simple string comparison. It runs
 five passes in sequence, each catching a different class of name variation:
 
 1. **Case-sensitive exact match** against the canonical name column.
+
 2. **Case-insensitive match** against a precomputed lowercased key.
+
 3. **Latin orthographic normalization** that maps common epithet variants
    (e.g., *-ii* to *-i*, *-anum* to *-ana*) to a canonical form.
 4. **Infraspecific-to-species fallback** that strips variety/subspecies

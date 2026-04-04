@@ -1,35 +1,39 @@
 url: https://gcol33.github.io/taxify/
-
 template:
   bootstrap: 5
   bootswatch: sandstone
-  light-switch: true
-
+  light-switch: yes
+  includes:
+    in_header: pkgdown/mathjax-config.html
 figures:
   dev: svglite
   fig.ext: svg
-  bg: "#F5F6F8"
-
+  bg: '#F5F6F8'
 navbar:
   structure:
-    left: [intro, reference, articles]
-    right: [search, github, lightswitch]
-
+    left:
+    - intro
+    - reference
+    - articles
+    right:
+    - search
+    - github
+    - lightswitch
 articles:
-  - title: Getting started
-    navbar: Getting started
-    contents:
-      - quickstart
-      - migration
-  - title: Core features
-    navbar: Core features
-    contents:
-      - backends
-      - fuzzy-matching
-      - enrichments
-      - custom-data
-  - title: Special topics
-    navbar: Special topics
-    contents:
-      - hybrid-names
-      - large-scale
+- title: Getting started
+  navbar: Getting started
+  contents:
+  - quickstart
+  - migration
+- title: Core features
+  navbar: Core features
+  contents:
+  - backends
+  - fuzzy-matching
+  - enrichments
+  - custom-data
+- title: Special topics
+  navbar: Special topics
+  contents:
+  - hybrid-names
+  - large-scale

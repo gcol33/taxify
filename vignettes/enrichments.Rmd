@@ -70,7 +70,9 @@ When we call an enrichment function, taxify executes the following steps:
 1. Ensures the enrichment `.vtr` file is present on disk (downloading it if
    needed).
 2. Extracts the unique `accepted_name` values from the result.
+
 3. Writes those unique names into a temporary `.vtr` file.
+
 4. Performs a vectra `inner_join()` between the temporary names and the
    enrichment `.vtr` on the name column.
 5. Uses a vectorized `match()` to fill the new trait columns back into the
@@ -434,11 +436,17 @@ The full column set includes:
 - `dispersal_type`: primary dispersal vector (anemochory, zoochory,
   hydrochory, autochory, barochory, dysochory).
 - `terminal_velocity_ms`: seed terminal velocity in m/s (species median).
+
 - `seed_mass_mg`: seed mass in mg (species median).
+
 - `canopy_height_m`: canopy height in metres (species median).
+
 - `leaf_mass_mg`: leaf dry mass in mg (species median).
+
 - `sla_mm2_mg`: specific leaf area in mm^2/mg (species median).
+
 - `clonal_growth`: capable of clonal growth (1 = yes, 0 = no).
+
 - `buoyancy`: seed buoyancy classification.
 
 The Raunkiaer life form column classifies plants by where their
@@ -490,11 +498,17 @@ species |> add_conservation_status()
 The seven categories in order of increasing threat are:
 
 - **LC** (Least Concern): population stable, no significant threats.
+
 - **NT** (Near Threatened): close to qualifying for a threatened category.
+
 - **VU** (Vulnerable): facing a high risk of extinction in the wild.
+
 - **EN** (Endangered): facing a very high risk of extinction.
+
 - **CR** (Critically Endangered): facing an extremely high risk.
+
 - **EW** (Extinct in the Wild): survives only in captivity or cultivation.
+
 - **EX** (Extinct): no known living individuals.
 
 Species not yet assessed by the IUCN receive `NA`. The IUCN has assessed
@@ -822,13 +836,21 @@ distributions. Level 2 regions are continent-scale units.
 The `region` argument takes TDWG Level 2 codes. Common codes include:
 
 - `EUR` (Europe)
+
 - `NAM` (Northern America)
+
 - `SAM` (Southern America)
+
 - `AFR` (Africa)
+
 - `AUS` (Australasia)
+
 - `ASI` (Asia-Temperate)
+
 - `AST` (Asia-Tropical)
+
 - `PAC` (Pacific)
+
 - `ANT` (Antarctica)
 
 ```{r wcvp-single}

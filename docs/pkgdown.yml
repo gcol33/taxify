@@ -1,0 +1,16 @@
+pandoc: 3.8.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  backends: backends.html
+  custom-data: custom-data.html
+  enrichments: enrichments.html
+  fuzzy-matching: fuzzy-matching.html
+  hybrid-names: hybrid-names.html
+  large-scale: large-scale.html
+  migration: migration.html
+  quickstart: quickstart.html
+last_built: 2026-04-04T16:43Z
+urls:
+  reference: https://gcol33.github.io/taxify/reference
+  article: https://gcol33.github.io/taxify/articles

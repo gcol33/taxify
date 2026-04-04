@@ -56,8 +56,11 @@ taxify supports three string distance algorithms, selected via the
 Damerau-Levenshtein counts four edit operations, each costing 1:
 
 - **Insertion**: add a character (*Querus* to *Quercus*)
+
 - **Deletion**: remove a character (*Quercuss* to *Quercus*)
+
 - **Substitution**: replace one character with another (*Quarcus* to *Quercus*)
+
 - **Transposition**: swap two adjacent characters (*Qurecus* to *Quercus*)
 
 The transposition operation is what distinguishes Damerau-Levenshtein from
