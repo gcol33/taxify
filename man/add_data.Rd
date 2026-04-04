@@ -23,8 +23,8 @@ add_data(
 \item{data}{One of:
 \itemize{
 \item A \strong{data.frame} already in R.
-\item A \strong{file path} to a \code{.csv}, \code{.csv.gz}, \code{.xlsx}, \code{.sqlite}/\code{.db}, or
-\code{.vtr} file (read via vectra).
+\item A \strong{file path} to a \code{.csv}, \code{.csv.gz}, \code{.tsv}, \code{.tsv.gz}, \code{.xlsx},
+\code{.sqlite}/\code{.db}, or \code{.vtr} file (read via vectra).
 }}
 
 \item{species_col}{Character. Name of the column in \code{data} that contains

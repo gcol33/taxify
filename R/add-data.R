@@ -8,8 +8,8 @@
 #' @param x A data.frame returned by [taxify()].
 #' @param data One of:
 #'   - A **data.frame** already in R.
-#'   - A **file path** to a `.csv`, `.csv.gz`, `.xlsx`, `.sqlite`/`.db`, or
-#'     `.vtr` file (read via vectra).
+#'   - A **file path** to a `.csv`, `.csv.gz`, `.tsv`, `.tsv.gz`, `.xlsx`,
+#'     `.sqlite`/`.db`, or `.vtr` file (read via vectra).
 #' @param species_col Character. Name of the column in `data` that contains
 #'   species names. If `NULL` (default), auto-detected by matching `head(10)`
 #'   of each character column against the backbone.
@@ -104,6 +104,8 @@ add_data <- function(x, data,
         stop("table argument is required for SQLite files.", call. = FALSE)
       }
       data <- vectra::tbl_sqlite(data, table) |> vectra::collect()
+    } else if (ext == "tsv" || (ext == "gz" && grepl("\\.tsv\\.gz$", data, ignore.case = TRUE))) {
+      data <- utils::read.delim(data, stringsAsFactors = FALSE, quote = "")
     } else if (ext == "csv" || (ext == "gz" && grepl("\\.csv\\.gz$", data, ignore.case = TRUE))) {
       data <- vectra::tbl_csv(data) |> vectra::collect()
     } else if (ext == "xlsx") {
@@ -132,7 +134,7 @@ add_data <- function(x, data,
       data <- vectra::tbl(data) |> vectra::collect()
     } else {
       stop(sprintf(
-        "Unsupported file format '.%s'. Supported: .csv, .csv.gz, .xlsx, .sqlite, .db, .vtr.\n  For other formats, read into a data.frame first.",
+        "Unsupported file format '.%s'. Supported: .csv, .csv.gz, .tsv, .tsv.gz, .xlsx, .sqlite, .db, .vtr.\n  For other formats, read into a data.frame first.",
         ext
       ), call. = FALSE)
     }
