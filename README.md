@@ -49,7 +49,18 @@ taxify occupies a different niche: offline matching across multiple backbones wi
 
 ### Speed
 
-All matching in taxify is vectorized at the C level with genus-blocked joins. Names are cleaned (authorship stripped, qualifiers removed, orthography normalized) before matching, so the fuzzy pass only runs on names that genuinely differ from the backbone.
+All matching in taxify is vectorized at the C level with genus-blocked joins. Before matching, input names are cleaned automatically:
+
+```r
+# What you provide:              What taxify matches against the backbone:
+"Quercus robur L."            →  "Quercus robur"        # authorship stripped
+"Pinus cf. sylvestris"        →  "Pinus sylvestris"      # qualifier removed
+"Nothofagus × alpina"         →  "Nothofagus alpina"     # hybrid marker normalized
+"Oenothera"                   →  "Oenothera"             # ae/oe alternation handled
+"Betula pendula (Roth) Doll"  →  "Betula pendula"        # parenthesized author stripped
+```
+
+This means the fuzzy pass only runs on names that genuinely differ from the backbone, not on names that just carry extra authorship or qualifiers.
 
 Benchmark on the same WFO backbone, same 5,000 plant names (Windows, R 4.5.2):
 
