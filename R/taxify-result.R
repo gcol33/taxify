@@ -144,11 +144,17 @@ summary.taxify_result <- function(object, ...) {
     }, character(1L))))
     for (e in enrichments) {
       src_str <- if (is.na(e$version)) e$source else paste0(e$source, " ", e$version)
-      cat(sprintf("    %-*s  (%s)%s \u2014 %d of %d matched\n",
+      lic_str <- if (!is.null(e$license) && !is.na(e$license)) {
+        sprintf(" [%s]", e$license)
+      } else {
+        ""
+      }
+      cat(sprintf("    %-*s  (%s)%s \u2014 %d of %d matched%s\n",
                   max_name, e$name,
                   src_str,
                   strrep(" ", max_src - nchar(src_str)),
-                  e$n_matched, e$n_total))
+                  e$n_matched, e$n_total,
+                  lic_str))
     }
   }
 

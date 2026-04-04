@@ -26,9 +26,8 @@ names as your backbone. A CSV of leaf trait measurements might record
 as *Pinus nigra*. A colleague's spreadsheet might list *Picea excelsa*
 (a synonym retired decades ago), while WFO recognises *Picea abies*.
 
-Joining on raw species strings fails silently in these cases: the rows
-simply do not match, and the merged data.frame is full of `NA`s where
-values should exist. The standard workaround is to run the external names
+Joining on raw species strings misses these cases: the rows do not
+match, and the merged data.frame has `NA`s where values should exist. The standard workaround is to run the external names
 through the backbone first, resolve them to accepted IDs, and then join on
 those IDs. `add_data()` wraps that entire workflow into a single pipe step.
 
@@ -356,7 +355,7 @@ The full pipeline inside `add_data()` has five steps:
 
 The join preserves every row of the original result; nothing is dropped.
 Species present in the external data but absent from the original result
-are silently ignored. A summary message reports how many species were
+are ignored. A summary message reports how many species were
 matched and how many names in the external data could not be resolved
 through the backbone.
 

@@ -137,7 +137,7 @@ fetches a manifest from GitHub (a small JSON file listing the latest version
 of each backbone) and compares it against the locally installed version. If
 a newer backbone is available, it is downloaded automatically. This check
 runs once per backend per session. Subsequent calls skip it entirely. If the
-network is unavailable, the check fails silently and the local copy is used
+network is unavailable, the check is skipped and the local copy is used
 as-is.
 
 To see where backbones live on disk:

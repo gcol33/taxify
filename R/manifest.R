@@ -15,7 +15,7 @@
 #' Fetch the remote manifest, with session-level caching
 #'
 #' Returns the parsed manifest list. On network failure, falls back to the
-#' bundled `inst/manifest.json`. Never throws — returns the fallback silently
+#' bundled `inst/manifest.json`. Never throws — returns the fallback
 #' with a warning so callers can decide whether to proceed.
 #'
 #' @return A named list with one entry per backend (e.g., `$wfo$latest`,

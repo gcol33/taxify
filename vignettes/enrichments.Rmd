@@ -1453,12 +1453,12 @@ backbone; `fuzzy_threshold` controls the maximum allowed string distance.
 Column names from the external data that collide with existing columns in
 the taxify result are automatically prefixed with `"data_"` to prevent
 overwriting. If multiple rows in the external data resolve to the same
-`accepted_id` with identical trait values, they are silently deduplicated.
+`accepted_id` with identical trait values, they are deduplicated.
 If they resolve to the same `accepted_id` with conflicting values (e.g.,
 two different height measurements for the same species), `add_data()` raises
 an error asking the user to resolve the ambiguity before joining. This
-strict handling of duplicates prevents subtle data corruption that a plain
-`merge()` would silently allow.
+strict handling of duplicates prevents the row duplication that a plain
+`merge()` would produce.
 
 The `add_data()` function also supports SQLite databases via the `table`
 argument, and `.vtr` files directly (useful for sharing pre-built

@@ -912,7 +912,7 @@ The traits data.frame contained both "Quercus robur" and "Quercus
 pedunculata" (a synonym). Because both resolve to the same accepted ID, the
 join works correctly without deduplication on the user's side. If the two
 rows had different trait values for the same accepted species, `add_data()`
-would raise an error rather than silently picking one.
+would raise an error rather than picking one arbitrarily.
 
 ### From a CSV file
 
@@ -938,7 +938,7 @@ connection. The `add_data()` join resolves both names through the backbone,
 discovers that they share the same accepted ID, and links them correctly.
 Duplicate handling is strict: if two rows in the external data resolve to
 the same accepted ID with different trait values, `add_data()` raises an
-error rather than silently picking one row.
+error rather than picking one row arbitrarily.
 
 ### Supported file formats
 

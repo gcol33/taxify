@@ -356,10 +356,14 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
     x[[out_col]] <- na_val
   }
 
+  # Look up license from build registry for emergency fallback
+  reg <- .enrichment_build_registry[[enrichment_name]]
+  lic <- if (!is.null(reg)) reg$license %||% NA_character_ else NA_character_
+
   valid_rows <- which(!is.na(x$accepted_name))
   if (length(valid_rows) == 0L) {
     return(register_enrichment(x, enrichment_name, source_label,
-                               "emergency", 0L))
+                               "emergency", 0L, license = lic))
   }
 
   # Vectorized fill via match()
@@ -376,7 +380,8 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
   n_enriched <- sum(
     rowSums(!is.na(x[, names(col_map), drop = FALSE])) > 0L
   )
-  register_enrichment(x, enrichment_name, source_label, "emergency", n_enriched)
+  register_enrichment(x, enrichment_name, source_label, "emergency", n_enriched,
+                      license = lic)
 }
 
 
@@ -400,6 +405,10 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
                                           groups, value_cols, source_label,
                                           na_types = NULL) {
   if (!group_col %in% names(df)) return(x)
+
+  # Look up license from build registry for emergency fallback
+  reg <- .enrichment_build_registry[[enrichment_name]]
+  lic <- if (!is.null(reg)) reg$license %||% NA_character_ else NA_character_
 
   # Resolve "all" groups
   if (length(groups) == 1L && !anyNA(groups) && groups == "all") {
@@ -425,14 +434,14 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
   valid_rows <- which(!is.na(x$accepted_name))
   if (length(valid_rows) == 0L) {
     return(register_enrichment(x, enrichment_name, source_label,
-                               "emergency", 0L))
+                               "emergency", 0L, license = lic))
   }
 
   # Filter to requested groups
   df <- df[df[[group_col]] %in% groups, , drop = FALSE]
   if (nrow(df) == 0L) {
     return(register_enrichment(x, enrichment_name, source_label,
-                               "emergency", 0L))
+                               "emergency", 0L, license = lic))
   }
 
   for (g in groups) {
@@ -453,7 +462,8 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
   n_enriched <- sum(
     rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
   )
-  register_enrichment(x, enrichment_name, source_label, "emergency", n_enriched)
+  register_enrichment(x, enrichment_name, source_label, "emergency", n_enriched,
+                      license = lic)
 }
 
 
@@ -559,7 +569,9 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   if (length(valid_rows) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
+    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
+    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
+                               license = lic))
   }
 
   # Check which source columns exist in the .vtr
@@ -568,7 +580,9 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   if (length(available_src) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
+    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
+    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
+                               license = lic))
   }
 
   # Filter col_map to available columns
@@ -606,7 +620,9 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   if (nrow(joined) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
+    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
+    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
+                               license = lic))
   }
 
   # Vectorized fill via match()
@@ -622,10 +638,12 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
 
   meta <- read_enrichment_meta(vtr_path)
   ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
+  lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
   n_enriched <- sum(
     rowSums(!is.na(x[, names(col_map), drop = FALSE])) > 0L
   )
-  register_enrichment(x, enrichment_name, source_label, ver, n_enriched)
+  register_enrichment(x, enrichment_name, source_label, ver, n_enriched,
+                      license = lic)
 }
 
 
@@ -722,7 +740,9 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   if (length(valid_rows) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
+    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
+    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
+                               license = lic))
   }
 
   # Build temp .vtr with unique accepted names
@@ -746,7 +766,9 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   if (nrow(joined) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
+    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
+    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
+                               license = lic))
   }
 
   # Filter to requested groups (NA-safe: %in% drops NA, so handle explicitly)
@@ -759,7 +781,9 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   if (nrow(joined) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
+    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
+    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
+                               license = lic))
   }
 
   # Vectorized fill: one match() per group
@@ -784,10 +808,12 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 
   meta <- read_enrichment_meta(vtr_path)
   ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
+  lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
   n_enriched <- sum(
     rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
   )
-  register_enrichment(x, enrichment_name, source_label, ver, n_enriched)
+  register_enrichment(x, enrichment_name, source_label, ver, n_enriched,
+                      license = lic)
 }
 
 
