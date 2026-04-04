@@ -566,8 +566,7 @@ result <- taxify(my_names, fuzzy_threshold = 2L)
 ```
 
 Integer thresholds are not available for Jaro-Winkler. Passing an
-integer with `fuzzy_method = "jw"` raises an error immediately rather
-than producing silently wrong results.
+integer with `fuzzy_method = "jw"` raises an error.
 
 ### A two-pass workflow for messy data
 

@@ -904,7 +904,7 @@ pedunculata” (a synonym). Because both resolve to the same accepted ID,
 the join works correctly without deduplication on the user’s side. If
 the two rows had different trait values for the same accepted species,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-would raise an error rather than silently picking one.
+would raise an error rather than picking one arbitrarily.
 
 ### From a CSV file
 
@@ -937,7 +937,7 @@ the same accepted ID, and links them correctly. Duplicate handling is
 strict: if two rows in the external data resolve to the same accepted ID
 with different trait values,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-raises an error rather than silently picking one row.
+raises an error rather than picking one row arbitrarily.
 
 ### Supported file formats
 
@@ -1127,8 +1127,8 @@ taxify_data_dir()
 ```
 
 The total disk footprint depends on how many backbones and enrichments
-are installed. WFO alone is about 150 MB; all nine backbones plus all 12
-enrichments total roughly 2.5 GB.
+are installed. WFO alone is about 150 MB; all seven backbones plus all
+12 enrichments total roughly 2.5 GB.
 
 ## The full pipeline
 

@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,14 +127,13 @@
 <div class="section level3">
 <h3 id="related-packages">Related packages<a class="anchor" aria-label="anchor" href="#related-packages"></a>
 </h3>
-<p>R has a rich ecosystem for taxonomic name resolution. Two packages cover similar ground:</p>
 <ul>
 <li>
-<a href="https://docs.ropensci.org/taxize/" class="external-link"><strong>taxize</strong></a> (rOpenSci) queries a dozen web APIs in real time. It is the right choice when you need live access to upstream databases or features that taxify does not cover (e.g., <code>downstream()</code>, <code>comm2sci()</code>).</li>
+<a href="https://docs.ropensci.org/taxize/" class="external-link"><strong>taxize</strong></a> (rOpenSci) queries web APIs in real time. It was removed from CRAN for two years and is back, but depends on third-party API endpoints that break without warning. Good when you need live access to upstream databases; less good for reproducible, large-scale matching.</li>
 <li>
-<a href="https://cran.r-project.org/package=WorldFlora" class="external-link"><strong>WorldFlora</strong></a> matches names offline against the WFO backbone. It is well-tested and straightforward for small to medium plant lists.</li>
+<a href="https://cran.r-project.org/package=WorldFlora" class="external-link"><strong>WorldFlora</strong></a> matches names offline against the WFO backbone. Straightforward for small plant lists, but WFO-only and slow at scale (see benchmarks below).</li>
 </ul>
-<p>taxify does something different: it matches offline across nine backbones at once, resolves synonyms, and pipes the result straight into trait enrichments.</p>
+<p>taxify matches offline across seven backbones at once, resolves synonyms, and pipes the result straight into trait enrichments — all at C-level speed.</p>
 </div>
 <div class="section level3">
 <h3 id="speed">Speed<a class="anchor" aria-label="anchor" href="#speed"></a>
@@ -534,9 +533,9 @@
 <p>taxify itself is MIT-licensed. However, the backbone databases and enrichment datasets have their own licenses and citation requirements. When you publish results, please cite:</p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>The backbone(s) you used</strong> – each backbone has its own citation. Run <code><a href="reference/taxify.html">taxify()</a></code> and check the <code>backbone_version</code> column for which version you matched against.</li>
+<strong>The backbone(s) you used</strong> — each backbone has its own citation. Run <code><a href="reference/taxify.html">taxify()</a></code> and check the <code>backbone_version</code> column for which version you matched against.</li>
 <li>
-<strong>The enrichment datasets you used</strong> – the enrichment table above links to each source. Most are CC BY or CC BY-NC licensed and require citation of the original publication.</li>
+<strong>The enrichment datasets you used</strong> — the enrichment table above links to each source. Most are CC BY or CC BY-NC licensed and require citation of the original publication.</li>
 <li>
 <strong>taxify</strong> (optional but appreciated).</li>
 </ol>
@@ -560,7 +559,7 @@
 <h2 id="support">Support<a class="anchor" aria-label="anchor" href="#support"></a>
 </h2>
 <blockquote>
-<p>“Software is like sex: it’s better when it’s free.” – Linus Torvalds</p>
+<p>“Software is like sex: it’s better when it’s free.” — Linus Torvalds</p>
 </blockquote>
 <p>I’m a PhD student who builds R packages in my free time because I believe good tools should be free and open. I started these projects for my own work and figured others might find them useful too.</p>
 <p>If this package saved you some time, buying me a coffee is a nice way to say thanks. It helps with my coffee addiction.</p>

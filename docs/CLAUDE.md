@@ -142,7 +142,9 @@ amphibio, common_names, woodiness, diaz_traits, leda.
 - **Two join patterns:** `enrich_simple()` for flat joins (woodiness,
   conservation_status, etc.), `enrich_by_group()` for
   group-filtered/pivoted joins (griis by country, wcvp by tdwg_code,
-  common_names by lang).
+  common_names by lang). Group filtering is NA-safe: NCBI/OTT common
+  names have `lang = NA` and can be queried with
+  `add_common_names(lang = NA)`.
 
 ### Enrichment fallback chain
 
@@ -211,7 +213,11 @@ scan if the manifest field is absent.
 `{source_url, download_fn, parse_fn, requires, ...}`. 12 entries share
 generic download helpers (`download_curl_file`, `download_and_unzip`,
 `download_gbif_api_pages`) + per-enrichment parse functions (~20-50
-lines each).
+lines each). The `common_names` entry downloads three sources (GBIF
+backbone, NCBI taxdump, OTT taxonomy) and `parse_common_names()` merges
+them via three sub-parsers (`parse_gbif_common_names`,
+`parse_ncbi_common_names`, `parse_ott_common_names`). GBIF provides ISO
+639-1 language codes; NCBI and OTT common names have `lang = NA`.
 
 `R/enrichment-vtr.R` has `build_local_enrichment_vtr()` — sorts by
 canonical_name, writes .vtr with indexes, extracts `available_groups`
@@ -244,7 +250,10 @@ bundled copy.
 Group-based enrichments (griis, wcvp, common_names) have an
 `available_groups` field listing all valid group values (ISO country
 codes, TDWG codes, language codes). This is populated by the
-taxify-backbones build pipeline and synced via `sync_manifest.R`.
+taxify-backbones build pipeline and synced via `sync_manifest.R`. Note:
+`available_groups` excludes `NA` values; NCBI/OTT common names with
+`lang = NA` are queryable but not listed in the manifest’s
+`available_groups`.
 
 ### Discovery
 
@@ -269,7 +278,7 @@ name, version, nrow, static, trait_cols, and source_url.
 | `R/add-avonet.R` | [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md) — AVONET bird morphology |
 | `R/add-pantheria.R` | [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md) — PanTHERIA mammal traits |
 | `R/add-amphibio.R` | [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md) — AmphiBIO amphibian traits |
-| `R/add-common-names.R` | [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) — GBIF vernacular names |
+| `R/add-common-names.R` | [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) — vernacular names (GBIF + NCBI + OTT) |
 | `R/add-woodiness.R` | [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md) — Zanne et al. woody/herbaceous |
 | `R/add-diaz-traits.R` | [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md) — Diaz et al. seed mass + plant height |
 | `R/add-leda.R` | [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md) — LEDA NW European plant traits |

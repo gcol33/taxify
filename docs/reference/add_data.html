@@ -26,7 +26,7 @@ on accepted_id — so synonyms in either dataset resolve to the same key."></hea
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,6 +88,8 @@ on <code>accepted_id</code> — so synonyms in either dataset resolve to the sam
 <span>  <span class="va">data</span>,</span>
 <span>  species_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  table <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sheet <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  start_row <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fuzzy <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  fuzzy_threshold <span class="op">=</span> <span class="fl">0.2</span>,</span>
@@ -105,8 +107,8 @@ on <code>accepted_id</code> — so synonyms in either dataset resolve to the sam
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>One of:</p><ul><li><p>A <strong>data.frame</strong> already in R.</p></li>
-<li><p>A <strong>file path</strong> to a <code>.csv</code>, <code>.csv.gz</code>, <code>.xlsx</code>, <code>.sqlite</code>/<code>.db</code>, or
-<code>.vtr</code> file (read via vectra).</p></li>
+<li><p>A <strong>file path</strong> to a <code>.csv</code>, <code>.csv.gz</code>, <code>.tsv</code>, <code>.tsv.gz</code>, <code>.xlsx</code>,
+<code>.sqlite</code>/<code>.db</code>, or <code>.vtr</code> file (read via vectra).</p></li>
 </ul></dd>
 
 
@@ -119,6 +121,19 @@ of each character column against the backbone.</p></dd>
 <dt id="arg-table">table<a class="anchor" aria-label="anchor" href="#arg-table"></a></dt>
 <dd><p>Character. Required when <code>data</code> is a SQLite file — the table
 name to read.</p></dd>
+
+
+<dt id="arg-sheet">sheet<a class="anchor" aria-label="anchor" href="#arg-sheet"></a></dt>
+<dd><p>Integer or character. Sheet to read when <code>data</code> is an <code>.xlsx</code>
+file. Default <code>NULL</code> (auto-detect the sheet containing species names).
+Set explicitly to skip auto-detection.</p></dd>
+
+
+<dt id="arg-start-row">start_row<a class="anchor" aria-label="anchor" href="#arg-start-row"></a></dt>
+<dd><p>Integer. Row where column headers begin in an <code>.xlsx</code> file.
+Default <code>NULL</code> (auto-detect by scanning the first 20 rows for a header
+row that produces species name matches). Set explicitly when the layout
+is known.</p></dd>
 
 
 <dt id="arg-cols">cols<a class="anchor" aria-label="anchor" href="#arg-cols"></a></dt>

@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -225,7 +225,7 @@ listing the latest version of each backbone) and compares it against the
 locally installed version. If a newer backbone is available, it is
 downloaded automatically. This check runs once per backend per session.
 Subsequent calls skip it entirely. If the network is unavailable, the
-check fails silently and the local copy is used as-is.</p>
+check is skipped and the local copy is used as-is.</p>
 <p>To see where backbones live on disk:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span></span>

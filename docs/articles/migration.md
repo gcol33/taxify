@@ -12,7 +12,7 @@ switch.
 
 That said, there are situations where taxify offers a better fit:
 
-- **Multiple backbones.** taxify matches against nine backbones offline
+- **Multiple backbones.** taxify matches against seven backbones offline
   and can chain them in a single call:
   `taxify(names, backend = c("wfo", "col", "gbif"))`.
 - **Speed at scale.** The matching engine is written in C with
@@ -217,7 +217,7 @@ result |> add_data(my_traits, species_col = "species")
 locally. After the initial download (typically 50–300 MB depending on
 the backbone), no internet connection is needed.
 
-**Multi-backend.** taxify supports nine backbones through a single
+**Multi-backend.** taxify supports seven backbones through a single
 function, with optional fallback chains that cascade unmatched names
 automatically.
 
@@ -261,10 +261,10 @@ Several things that taxize or other packages handle are outside its
 scope.
 
 **Common-to-scientific name lookup.** taxize had `comm2sci()` to go from
-“European robin” to *Erithacus rubecula*. taxify works in the opposite
-direction: it matches scientific names and can attach common names via
-[`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
-but it cannot start from a vernacular name.
+“European robin” to *Erithacus rubecula*. taxify matches scientific
+names, not vernacular input. For that direction, the GBIF API
+([`rgbif::name_suggest()`](https://docs.ropensci.org/rgbif/reference/name_suggest.html))
+accepts common names and returns candidates.
 
 **Downstream taxa.** taxize’s `downstream()` returned all children of a
 higher taxon (e.g., all species in a genus). taxify does not enumerate
@@ -293,7 +293,7 @@ taxify is not a universal replacement for every taxize use case. A few
 situations where the other tools may be more appropriate:
 
 - **Common-to-scientific lookups** (`comm2sci()`). If the starting point
-  is vernacular names, taxify cannot help. The GBIF API
+  is vernacular names, the GBIF API
   ([`rgbif::name_suggest()`](https://docs.ropensci.org/rgbif/reference/name_suggest.html))
   accepts common names and returns scientific name candidates.
 

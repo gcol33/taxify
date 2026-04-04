@@ -76,7 +76,7 @@ even though the literal strings differ. The output has two new columns,
 When the data lives in a file rather than in memory, we can pass the path
 directly. `add_data()` reads `.csv` and `.csv.gz` files via vectra's CSV
 reader, which handles large files efficiently without loading everything
-into R at once.
+into R at once. Tab-separated files (`.tsv`, `.tsv.gz`) are also supported.
 
 ```{r}
 result <- taxify(species, backend = "wfo")
@@ -175,11 +175,38 @@ result |> add_data("prebuilt_traits.vtr", species_col = "canonical_name")
 
 This is mainly useful when sharing processed trait tables between team
 members or across projects. A `.vtr` file produced by one workflow can be
-re-used in another without converting back through CSV.
+re-used in another without converting back through CSV. The `export_data()`
+function makes this easy:
+
+```{r}
+# Save a taxify result (with enrichments) as .vtr
+result |> export_data("processed_traits.vtr")
+
+# A colleague can load it directly
+other_result |> add_data("processed_traits.vtr")
+```
+
+`export_data()` also supports `.csv`, `.tsv`, and `.xlsx` for interoperability
+with tools outside R.
+
+```{r}
+result |> export_data("for_excel_users.xlsx")
+result |> export_data("for_python.csv")
+```
+
+## Joining from a TSV file
+
+Tab-separated files work the same way as CSV. `add_data()` reads `.tsv`
+and `.tsv.gz` files via `read.delim()`.
+
+```{r}
+result |> add_data("leaf_traits.tsv", species_col = "species")
+result |> add_data("leaf_traits.tsv.gz")
+```
 
 ## Other file formats
 
-For formats not directly supported (`.tsv`, `.parquet`, `.rds`), reading the
+For formats not directly supported (`.parquet`, `.rds`), reading the
 file into a data.frame first and passing it to `add_data()` works in every
 case.
 
@@ -343,7 +370,7 @@ cannot coexist.
 The full pipeline inside `add_data()` has five steps:
 
 1. **Read** the external data. File paths are dispatched by extension
-   (`.csv`, `.csv.gz`, `.xlsx`, `.sqlite`, `.vtr`). Data.frames pass
+   (`.csv`, `.csv.gz`, `.tsv`, `.tsv.gz`, `.xlsx`, `.sqlite`, `.vtr`). Data.frames pass
    through directly. The format detection is based solely on the file
    extension, so a misnamed file (e.g., a tab-separated file saved as
    `.csv`) will produce a read error rather than silent misparse.

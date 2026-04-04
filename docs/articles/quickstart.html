@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -940,8 +940,8 @@ key.</p>
 pedunculata” (a synonym). Because both resolve to the same accepted ID,
 the join works correctly without deduplication on the user’s side. If
 the two rows had different trait values for the same accepted species,
-<code><a href="../reference/add_data.html">add_data()</a></code> would raise an error rather than silently
-picking one.</p>
+<code><a href="../reference/add_data.html">add_data()</a></code> would raise an error rather than picking one
+arbitrarily.</p>
 </div>
 <div class="section level3">
 <h3 id="from-a-csv-file">From a CSV file<a class="anchor" aria-label="anchor" href="#from-a-csv-file"></a>
@@ -967,8 +967,8 @@ name), a raw string merge would miss the connection. The
 discovers that they share the same accepted ID, and links them
 correctly. Duplicate handling is strict: if two rows in the external
 data resolve to the same accepted ID with different trait values,
-<code><a href="../reference/add_data.html">add_data()</a></code> raises an error rather than silently picking one
-row.</p>
+<code><a href="../reference/add_data.html">add_data()</a></code> raises an error rather than picking one row
+arbitrarily.</p>
 </div>
 <div class="section level3">
 <h3 id="supported-file-formats">Supported file formats<a class="anchor" aria-label="anchor" href="#supported-file-formats"></a>
@@ -1108,8 +1108,8 @@ manually.</p>
 <span><span class="co"># To remove all taxify data (backbones, enrichments, register):</span></span>
 <span><span class="co"># unlink(taxify_data_dir(), recursive = TRUE)</span></span></code></pre></div>
 <p>The total disk footprint depends on how many backbones and
-enrichments are installed. WFO alone is about 150 MB; all nine backbones
-plus all 12 enrichments total roughly 2.5 GB.</p>
+enrichments are installed. WFO alone is about 150 MB; all seven
+backbones plus all 12 enrichments total roughly 2.5 GB.</p>
 </div>
 <div class="section level2">
 <h2 id="the-full-pipeline">The full pipeline<a class="anchor" aria-label="anchor" href="#the-full-pipeline"></a>

@@ -16,6 +16,8 @@ add_data(
   data,
   species_col = NULL,
   table = NULL,
+  sheet = NULL,
+  start_row = NULL,
   cols = NULL,
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
@@ -36,8 +38,8 @@ add_data(
 
   - A **data.frame** already in R.
 
-  - A **file path** to a `.csv`, `.csv.gz`, `.xlsx`, `.sqlite`/`.db`, or
-    `.vtr` file (read via vectra).
+  - A **file path** to a `.csv`, `.csv.gz`, `.tsv`, `.tsv.gz`, `.xlsx`,
+    `.sqlite`/`.db`, or `.vtr` file (read via vectra).
 
 - species_col:
 
@@ -49,6 +51,19 @@ add_data(
 
   Character. Required when `data` is a SQLite file — the table name to
   read.
+
+- sheet:
+
+  Integer or character. Sheet to read when `data` is an `.xlsx` file.
+  Default `NULL` (auto-detect the sheet containing species names). Set
+  explicitly to skip auto-detection.
+
+- start_row:
+
+  Integer. Row where column headers begin in an `.xlsx` file. Default
+  `NULL` (auto-detect by scanning the first 20 rows for a header row
+  that produces species name matches). Set explicitly when the layout is
+  known.
 
 - cols:
 

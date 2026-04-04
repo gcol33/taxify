@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1580,13 +1580,12 @@ distance.</p>
 columns in the taxify result are automatically prefixed with
 <code>"data_"</code> to prevent overwriting. If multiple rows in the
 external data resolve to the same <code>accepted_id</code> with
-identical trait values, they are silently deduplicated. If they resolve
-to the same <code>accepted_id</code> with conflicting values (e.g., two
+identical trait values, they are deduplicated. If they resolve to the
+same <code>accepted_id</code> with conflicting values (e.g., two
 different height measurements for the same species),
 <code><a href="../reference/add_data.html">add_data()</a></code> raises an error asking the user to resolve the
 ambiguity before joining. This strict handling of duplicates prevents
-subtle data corruption that a plain <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> would silently
-allow.</p>
+the row duplication that a plain <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> would produce.</p>
 <p>The <code><a href="../reference/add_data.html">add_data()</a></code> function also supports SQLite databases
 via the <code>table</code> argument, and <code>.vtr</code> files
 directly (useful for sharing pre-built enrichments between

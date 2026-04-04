@@ -853,9 +853,9 @@ keeping the search space manageable.
 The `backbone_version` column encodes the exact data snapshot used. For
 a published analysis, we recommend recording these strings in the
 methods section or supplementary material. taxify pins the backbone
-version at download time and does not silently update mid-session.
-Version checks happen once per R session, and any update is logged to
-the console with the old and new version numbers.
+version at download time and does not update mid-session. Version checks
+happen once per R session, and any update is logged to the console with
+the old and new version numbers.
 
 To lock a specific backbone version for a project:
 

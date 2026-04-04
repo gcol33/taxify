@@ -52,20 +52,19 @@ snapshots, so results are fully reproducible.
 
 ### Related packages
 
-R has a rich ecosystem for taxonomic name resolution. Two packages cover
-similar ground:
-
-- [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries a
-  dozen web APIs in real time. It is the right choice when you need live
-  access to upstream databases or features that taxify does not cover
-  (e.g., `downstream()`, `comm2sci()`).
+- [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries web
+  APIs in real time. It was removed from CRAN for two years and is back,
+  but depends on third-party API endpoints that break without warning.
+  Good when you need live access to upstream databases; less good for
+  reproducible, large-scale matching.
 - [**WorldFlora**](https://cran.r-project.org/package=WorldFlora)
-  matches names offline against the WFO backbone. It is well-tested and
-  straightforward for small to medium plant lists.
+  matches names offline against the WFO backbone. Straightforward for
+  small plant lists, but WFO-only and slow at scale (see benchmarks
+  below).
 
-taxify does something different: it matches offline across nine
-backbones at once, resolves synonyms, and pipes the result straight into
-trait enrichments.
+taxify matches offline across seven backbones at once, resolves
+synonyms, and pipes the result straight into trait enrichments — all at
+C-level speed.
 
 ### Speed
 
@@ -288,12 +287,12 @@ taxify itself is MIT-licensed. However, the backbone databases and
 enrichment datasets have their own licenses and citation requirements.
 When you publish results, please cite:
 
-1.  **The backbone(s) you used** – each backbone has its own citation.
+1.  **The backbone(s) you used** — each backbone has its own citation.
     Run
     [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
     and check the `backbone_version` column for which version you
     matched against.
-2.  **The enrichment datasets you used** – the enrichment table above
+2.  **The enrichment datasets you used** — the enrichment table above
     links to each source. Most are CC BY or CC BY-NC licensed and
     require citation of the original publication.
 3.  **taxify** (optional but appreciated).
@@ -322,7 +321,7 @@ lists full citations for each dataset.
 
 ## Support
 
-> “Software is like sex: it’s better when it’s free.” – Linus Torvalds
+> “Software is like sex: it’s better when it’s free.” — Linus Torvalds
 
 I’m a PhD student who builds R packages in my free time because I
 believe good tools should be free and open. I started these projects for
@@ -378,6 +377,8 @@ MIT (see the LICENSE.md file)
   : Add WFO-specific columns
 - [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md)
   : Add woodiness classification
+- [`export_data()`](https://gillescolling.com/taxify/reference/export_data.md)
+  : Export a taxify result to file
 - [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
   : List available enrichments
 - [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)

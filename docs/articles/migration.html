@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,7 +112,7 @@ reason to switch.</p>
 <p>That said, there are situations where taxify offers a better fit:</p>
 <ul>
 <li>
-<strong>Multiple backbones.</strong> taxify matches against nine
+<strong>Multiple backbones.</strong> taxify matches against seven
 backbones offline and can chain them in a single call:
 <code>taxify(names, backend = c("wfo", "col", "gbif"))</code>.</li>
 <li>
@@ -376,7 +376,7 @@ cascade to the next backbone automatically.</p>
 <p><strong>Offline matching.</strong> taxify downloads backbone files
 once and matches locally. After the initial download (typically 50–300
 MB depending on the backbone), no internet connection is needed.</p>
-<p><strong>Multi-backend.</strong> taxify supports nine backbones
+<p><strong>Multi-backend.</strong> taxify supports seven backbones
 through a single function, with optional fallback chains that cascade
 unmatched names automatically.</p>
 <p><strong>Output format.</strong> taxify always returns a data.frame
@@ -497,10 +497,9 @@ Several things that taxize or other packages handle are outside its
 scope.</p>
 <p><strong>Common-to-scientific name lookup.</strong> taxize had
 <code>comm2sci()</code> to go from “European robin” to <em>Erithacus
-rubecula</em>. taxify works in the opposite direction: it matches
-scientific names and can attach common names via
-<code><a href="../reference/add_common_names.html">add_common_names()</a></code>, but it cannot start from a vernacular
-name.</p>
+rubecula</em>. taxify matches scientific names, not vernacular input.
+For that direction, the GBIF API (<code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code>)
+accepts common names and returns candidates.</p>
 <p><strong>Downstream taxa.</strong> taxize’s <code>downstream()</code>
 returned all children of a higher taxon (e.g., all species in a genus).
 taxify does not enumerate children. For tree-based queries, the rotl
@@ -528,8 +527,8 @@ few situations where the other tools may be more appropriate:</p>
 <ul>
 <li><p><strong>Common-to-scientific lookups</strong>
 (<code>comm2sci()</code>). If the starting point is vernacular names,
-taxify cannot help. The GBIF API (<code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code>)
-accepts common names and returns scientific name candidates.</p></li>
+the GBIF API (<code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code>) accepts common names
+and returns scientific name candidates.</p></li>
 <li><p><strong>Downstream taxa enumeration.</strong> If the goal is to
 list all species in a family or all subspecies of a species, taxify does
 not provide that query. Use

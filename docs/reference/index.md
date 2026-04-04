@@ -38,6 +38,8 @@
   : Add WFO-specific columns
 - [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md)
   : Add woodiness classification
+- [`export_data()`](https://gillescolling.com/taxify/reference/export_data.md)
+  : Export a taxify result to file
 - [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
   : List available enrichments
 - [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)

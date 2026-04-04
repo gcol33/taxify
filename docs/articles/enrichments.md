@@ -1541,14 +1541,13 @@ maximum allowed string distance.
 Column names from the external data that collide with existing columns
 in the taxify result are automatically prefixed with `"data_"` to
 prevent overwriting. If multiple rows in the external data resolve to
-the same `accepted_id` with identical trait values, they are silently
+the same `accepted_id` with identical trait values, they are
 deduplicated. If they resolve to the same `accepted_id` with conflicting
 values (e.g., two different height measurements for the same species),
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 raises an error asking the user to resolve the ambiguity before joining.
-This strict handling of duplicates prevents subtle data corruption that
-a plain [`merge()`](https://rdrr.io/r/base/merge.html) would silently
-allow.
+This strict handling of duplicates prevents the row duplication that a
+plain [`merge()`](https://rdrr.io/r/base/merge.html) would produce.
 
 The
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)

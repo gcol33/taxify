@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -706,8 +706,7 @@ but a 25-character name gets 5 edits.</p>
 <code class="sourceCode R"><span><span class="co"># Uniform 2-edit budget, regardless of name length</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">my_names</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></code></pre></div>
 <p>Integer thresholds are not available for Jaro-Winkler. Passing an
-integer with <code>fuzzy_method = "jw"</code> raises an error
-immediately rather than producing silently wrong results.</p>
+integer with <code>fuzzy_method = "jw"</code> raises an error.</p>
 </div>
 <div class="section level3">
 <h3 id="a-two-pass-workflow-for-messy-data">A two-pass workflow for messy data<a class="anchor" aria-label="anchor" href="#a-two-pass-workflow-for-messy-data"></a>

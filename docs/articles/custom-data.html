@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,12 +113,12 @@ CSV of leaf trait measurements might record <em>Pinus nigra</em> subsp.
 <em>Pinus nigra</em>. A colleague’s spreadsheet might list <em>Picea
 excelsa</em> (a synonym retired decades ago), while WFO recognises
 <em>Picea abies</em>.</p>
-<p>Joining on raw species strings fails silently in these cases: the
-rows simply do not match, and the merged data.frame is full of
-<code>NA</code>s where values should exist. The standard workaround is
-to run the external names through the backbone first, resolve them to
-accepted IDs, and then join on those IDs. <code><a href="../reference/add_data.html">add_data()</a></code> wraps
-that entire workflow into a single pipe step.</p>
+<p>Joining on raw species strings misses these cases: the rows do not
+match, and the merged data.frame has <code>NA</code>s where values
+should exist. The standard workaround is to run the external names
+through the backbone first, resolve them to accepted IDs, and then join
+on those IDs. <code><a href="../reference/add_data.html">add_data()</a></code> wraps that entire workflow into a
+single pipe step.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -137,7 +137,7 @@ leaf area (SLA) and maximum height for five European tree species.</p>
 <span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># External trait data -- note one synonym and one subspecies</span></span>
+<span><span class="co"># External trait data — note one synonym and one subspecies</span></span>
 <span><span class="va">traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  taxon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Picea excelsa"</span>,</span>
@@ -147,7 +147,7 @@ leaf area (SLA) and maximum height for five European tree species.</p>
 <span>  max_height_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">35</span>, <span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">30</span>, <span class="fl">25</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Join -- "Picea excelsa" resolves to "Picea abies" through the backbone</span></span>
+<span><span class="co"># Join — "Picea excelsa" resolves to "Picea abies" through the backbone</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/add_data.html">add_data()</a></code> takes the names from the <code>taxon</code>
 column, runs them through the same backbone(s) used in the original
@@ -164,7 +164,9 @@ differ. The output has two new columns, <code>sla</code> and
 <p>When the data lives in a file rather than in memory, we can pass the
 path directly. <code><a href="../reference/add_data.html">add_data()</a></code> reads <code>.csv</code> and
 <code>.csv.gz</code> files via vectra’s CSV reader, which handles large
-files efficiently without loading everything into R at once.</p>
+files efficiently without loading everything into R at once.
+Tab-separated files (<code>.tsv</code>, <code>.tsv.gz</code>) are also
+supported.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"path/to/leaf_traits.csv"</span><span class="op">)</span></span></code></pre></div>
@@ -190,11 +192,32 @@ databases shared among collaborators. <code><a href="../reference/add_data.html"
 installed separately.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("openxlsx2")  # if not already installed</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, species_col <span class="op">=</span> <span class="st">"species_name"</span><span class="op">)</span></span></code></pre></div>
-<p>The function reads the first sheet by default. If the data spans
-multiple sheets, the simplest approach is to read the target sheet into
-a data.frame first using <code><a href="https://janmarvin.github.io/openxlsx2/reference/wb_to_df.html" class="external-link">openxlsx2::read_xlsx()</a></code> and pass
-that data.frame to <code><a href="../reference/add_data.html">add_data()</a></code>.</p>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span><span class="op">)</span></span></code></pre></div>
+<p>When <code>sheet</code>, <code>start_row</code>, and
+<code>species_col</code> are all left at their defaults,
+<code><a href="../reference/add_data.html">add_data()</a></code> scans the workbook to find the right combination
+automatically. It tests each sheet and up to 20 candidate header rows,
+probing character columns against the backbone until it finds species
+names. This handles the common case where a colleague’s spreadsheet has
+a title block, column descriptions, or notes above the actual data
+table.</p>
+<p>The scan reports what it found:</p>
+<pre><code>Scanning Excel layout...
+  Detected: sheet 'measurements', header row 3, species column 'latin_name' (90% match rate)</code></pre>
+<p>To skip auto-detection, specify any combination of
+<code>sheet</code>, <code>start_row</code>, and <code>species_col</code>
+explicitly:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Specific sheet by name or number</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"measurements"</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Known header row (e.g., rows 1-2 are title/notes)</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, start_row <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># All three specified — no scanning at all</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="fl">1</span>, start_row <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                   species_col <span class="op">=</span> <span class="st">"latin_name"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="sqlite-databases">SQLite databases<a class="anchor" aria-label="anchor" href="#sqlite-databases"></a>
@@ -205,8 +228,8 @@ RSQLite under the hood). Because a single <code>.sqlite</code> or
 <code>.db</code> file can hold many tables, the <code>table</code>
 argument is mandatory here. Omitting it raises an informative error
 rather than guessing.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># SQLite -- requires DBI and RSQLite</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># SQLite — requires DBI and RSQLite</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span></span>
 <span>  <span class="st">"traits.sqlite"</span>,</span>
 <span>  table <span class="op">=</span> <span class="st">"plant_traits"</span>,</span>
@@ -225,21 +248,42 @@ other format.</p>
 that taxify uses internally for backbone storage), they can be passed
 directly. vectra reads these with near-zero overhead because no parsing
 or type inference is needed.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"prebuilt_traits.vtr"</span>, species_col <span class="op">=</span> <span class="st">"canonical_name"</span><span class="op">)</span></span></code></pre></div>
 <p>This is mainly useful when sharing processed trait tables between
 team members or across projects. A <code>.vtr</code> file produced by
 one workflow can be re-used in another without converting back through
-CSV.</p>
+CSV. The <code><a href="../reference/export_data.html">export_data()</a></code> function makes this easy:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Save a taxify result (with enrichments) as .vtr</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/export_data.html">export_data</a></span><span class="op">(</span><span class="st">"processed_traits.vtr"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># A colleague can load it directly</span></span>
+<span><span class="va">other_result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"processed_traits.vtr"</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/export_data.html">export_data()</a></code> also supports <code>.csv</code>,
+<code>.tsv</code>, and <code>.xlsx</code> for interoperability with
+tools outside R.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/export_data.html">export_data</a></span><span class="op">(</span><span class="st">"for_excel_users.xlsx"</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/export_data.html">export_data</a></span><span class="op">(</span><span class="st">"for_python.csv"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="joining-from-a-tsv-file">Joining from a TSV file<a class="anchor" aria-label="anchor" href="#joining-from-a-tsv-file"></a>
+</h2>
+<p>Tab-separated files work the same way as CSV. <code><a href="../reference/add_data.html">add_data()</a></code>
+reads <code>.tsv</code> and <code>.tsv.gz</code> files via
+<code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim()</a></code>.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"leaf_traits.tsv"</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"leaf_traits.tsv.gz"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="other-file-formats">Other file formats<a class="anchor" aria-label="anchor" href="#other-file-formats"></a>
 </h2>
-<p>For formats not directly supported (<code>.tsv</code>,
-<code>.parquet</code>, <code>.rds</code>), reading the file into a
-data.frame first and passing it to <code><a href="../reference/add_data.html">add_data()</a></code> works in
-every case.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>For formats not directly supported (<code>.parquet</code>,
+<code>.rds</code>), reading the file into a data.frame first and passing
+it to <code><a href="../reference/add_data.html">add_data()</a></code> works in every case.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"legacy_traits.rds"</span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">my_data</span>, species_col <span class="op">=</span> <span class="st">"sp"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -252,7 +296,7 @@ data. It takes the first 10 rows of each column, runs them through
 <code><a href="../reference/taxify.html">taxify()</a></code> against the same backbone, and picks the column
 with the highest match rate. A column needs at least 50% of its probe
 names to match before it qualifies.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Auto-detection in action</span></span>
 <span><span class="va">traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  site <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span><span class="op">)</span>,</span>
@@ -280,7 +324,7 @@ confusing error message.</p>
 external data except the species column. When the external dataset has
 dozens of columns and we only need two or three, the <code>cols</code>
 argument keeps the output tidy.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Full trait table with many columns</span></span>
 <span><span class="va">big_traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span>,</span>
@@ -307,7 +351,7 @@ already present in the <code><a href="../reference/taxify.html">taxify()</a></co
 <code><a href="../reference/add_data.html">add_data()</a></code> prefixes the incoming columns with
 <code>data_</code>. Existing columns in the taxify result remain
 unchanged regardless of what the external data contains.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The taxify result already has a "family" column</span></span>
 <span><span class="co"># External data also has a "family" column (taxonomic family from a</span></span>
 <span><span class="co"># different source) plus a "leaf_area" column</span></span>
@@ -335,7 +379,7 @@ cases.</p>
 <p><strong>Exact duplicates</strong> occur when all trait values for a
 given species are identical across the repeated rows. This is harmless:
 the duplicates are collapsed into a single row with a warning.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Harmless: same species, same values (perhaps from two sites)</span></span>
 <span><span class="va">dup_ok</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span>,</span>
@@ -357,7 +401,7 @@ duplicates identical.</p>
 <p>Because <code><a href="../reference/add_data.html">add_data()</a></code> cannot decide which value is correct
 when a conflict exists, it raises an error and names the offending
 species.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Conflicting: same species, different SLA values</span></span>
 <span><span class="va">dup_bad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span>,</span>
@@ -374,7 +418,7 @@ represent data entry errors, removing the bad rows resolves the issue.
 The <code>cols</code> argument can also help when only some columns
 conflict: selecting the non-conflicting subset lets the join
 proceed.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Aggregate first, then join</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
 <span><span class="va">dup_agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="va">sla</span> <span class="op">~</span> <span class="va">species</span>, data <span class="op">=</span> <span class="va">dup_bad</span>, FUN <span class="op">=</span> <span class="va">mean</span><span class="op">)</span></span>
@@ -393,11 +437,11 @@ accepted ID, and conflicting values for the same key cannot coexist.</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Read</strong> the external data. File paths are
 dispatched by extension (<code>.csv</code>, <code>.csv.gz</code>,
-<code>.xlsx</code>, <code>.sqlite</code>, <code>.vtr</code>).
-Data.frames pass through directly. The format detection is based solely
-on the file extension, so a misnamed file (e.g., a tab-separated file
-saved as <code>.csv</code>) will produce a read error rather than silent
-misparse.</p></li>
+<code>.tsv</code>, <code>.tsv.gz</code>, <code>.xlsx</code>,
+<code>.sqlite</code>, <code>.vtr</code>). Data.frames pass through
+directly. The format detection is based solely on the file extension, so
+a misnamed file (e.g., a tab-separated file saved as <code>.csv</code>)
+will produce a read error rather than silent misparse.</p></li>
 <li><p><strong>Identify</strong> the species column, either from the
 explicit <code>species_col</code> argument or via auto-detection. When
 auto-detecting, <code><a href="../reference/add_data.html">add_data()</a></code> samples the first 10 rows of
@@ -430,9 +474,9 @@ collisions are resolved by prefixing the incoming columns with
 </ol>
 <p>The join preserves every row of the original result; nothing is
 dropped. Species present in the external data but absent from the
-original result are silently ignored. A summary message reports how many
-species were matched and how many names in the external data could not
-be resolved through the backbone.</p>
+original result are ignored. A summary message reports how many species
+were matched and how many names in the external data could not be
+resolved through the backbone.</p>
 <div class="section level3">
 <h3 id="controlling-fuzzy-matching">Controlling fuzzy matching<a class="anchor" aria-label="anchor" href="#controlling-fuzzy-matching"></a>
 </h3>
@@ -442,7 +486,7 @@ matching catches typos and minor spelling differences, but it can
 produce false matches for short or similar names. The
 <code>fuzzy_threshold</code> argument controls how permissive the
 matching is. Lower values are stricter.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Strict: only very close matches</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
@@ -461,7 +505,7 @@ matches.</p>
 the built-in enrichment functions. Custom data and pre-built enrichments
 use the same <code>accepted_id</code> join key, so they can be stacked
 in any order.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>

@@ -13,11 +13,11 @@ backbone stores the accepted name as *Pinus nigra*. A colleague’s
 spreadsheet might list *Picea excelsa* (a synonym retired decades ago),
 while WFO recognises *Picea abies*.
 
-Joining on raw species strings fails silently in these cases: the rows
-simply do not match, and the merged data.frame is full of `NA`s where
-values should exist. The standard workaround is to run the external
-names through the backbone first, resolve them to accepted IDs, and then
-join on those IDs.
+Joining on raw species strings misses these cases: the rows do not
+match, and the merged data.frame has `NA`s where values should exist.
+The standard workaround is to run the external names through the
+backbone first, resolve them to accepted IDs, and then join on those
+IDs.
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 wraps that entire workflow into a single pipe step.
 
@@ -43,7 +43,7 @@ species <- c(
 )
 result <- taxify(species, backend = "wfo")
 
-# External trait data -- note one synonym and one subspecies
+# External trait data — note one synonym and one subspecies
 traits <- data.frame(
   taxon = c(
     "Quercus robur", "Fagus sylvatica", "Picea excelsa",
@@ -53,7 +53,7 @@ traits <- data.frame(
   max_height_m = c(35, 40, 50, 30, 25)
 )
 
-# Join -- "Picea excelsa" resolves to "Picea abies" through the backbone
+# Join — "Picea excelsa" resolves to "Picea abies" through the backbone
 result <- result |> add_data(traits, species_col = "taxon")
 ```
 
@@ -74,6 +74,7 @@ path directly.
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 reads `.csv` and `.csv.gz` files via vectra’s CSV reader, which handles
 large files efficiently without loading everything into R at once.
+Tab-separated files (`.tsv`, `.tsv.gz`) are also supported.
 
 ``` r
 
@@ -110,15 +111,39 @@ separately.
 ``` r
 
 # install.packages("openxlsx2")  # if not already installed
-result |> add_data("bird_morphometry.xlsx", species_col = "species_name")
+result |> add_data("bird_morphometry.xlsx")
 ```
 
-The function reads the first sheet by default. If the data spans
-multiple sheets, the simplest approach is to read the target sheet into
-a data.frame first using
-[`openxlsx2::read_xlsx()`](https://janmarvin.github.io/openxlsx2/reference/wb_to_df.html)
-and pass that data.frame to
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md).
+When `sheet`, `start_row`, and `species_col` are all left at their
+defaults,
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+scans the workbook to find the right combination automatically. It tests
+each sheet and up to 20 candidate header rows, probing character columns
+against the backbone until it finds species names. This handles the
+common case where a colleague’s spreadsheet has a title block, column
+descriptions, or notes above the actual data table.
+
+The scan reports what it found:
+
+    Scanning Excel layout...
+      Detected: sheet 'measurements', header row 3, species column 'latin_name' (90% match rate)
+
+To skip auto-detection, specify any combination of `sheet`, `start_row`,
+and `species_col` explicitly:
+
+``` r
+
+# Specific sheet by name or number
+result |> add_data("bird_morphometry.xlsx", sheet = "measurements")
+result |> add_data("bird_morphometry.xlsx", sheet = 2)
+
+# Known header row (e.g., rows 1-2 are title/notes)
+result |> add_data("bird_morphometry.xlsx", start_row = 3)
+
+# All three specified — no scanning at all
+result |> add_data("bird_morphometry.xlsx", sheet = 1, start_row = 3,
+                   species_col = "latin_name")
+```
 
 ## SQLite databases
 
@@ -131,7 +156,7 @@ raises an informative error rather than guessing.
 
 ``` r
 
-# SQLite -- requires DBI and RSQLite
+# SQLite — requires DBI and RSQLite
 result |> add_data(
   "traits.sqlite",
   table = "plant_traits",
@@ -159,12 +184,46 @@ result |> add_data("prebuilt_traits.vtr", species_col = "canonical_name")
 
 This is mainly useful when sharing processed trait tables between team
 members or across projects. A `.vtr` file produced by one workflow can
-be re-used in another without converting back through CSV.
+be re-used in another without converting back through CSV. The
+[`export_data()`](https://gillescolling.com/taxify/reference/export_data.md)
+function makes this easy:
+
+``` r
+
+# Save a taxify result (with enrichments) as .vtr
+result |> export_data("processed_traits.vtr")
+
+# A colleague can load it directly
+other_result |> add_data("processed_traits.vtr")
+```
+
+[`export_data()`](https://gillescolling.com/taxify/reference/export_data.md)
+also supports `.csv`, `.tsv`, and `.xlsx` for interoperability with
+tools outside R.
+
+``` r
+
+result |> export_data("for_excel_users.xlsx")
+result |> export_data("for_python.csv")
+```
+
+## Joining from a TSV file
+
+Tab-separated files work the same way as CSV.
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+reads `.tsv` and `.tsv.gz` files via
+[`read.delim()`](https://rdrr.io/r/utils/read.table.html).
+
+``` r
+
+result |> add_data("leaf_traits.tsv", species_col = "species")
+result |> add_data("leaf_traits.tsv.gz")
+```
 
 ## Other file formats
 
-For formats not directly supported (`.tsv`, `.parquet`, `.rds`), reading
-the file into a data.frame first and passing it to
+For formats not directly supported (`.parquet`, `.rds`), reading the
+file into a data.frame first and passing it to
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 works in every case.
 
@@ -351,10 +410,11 @@ The full pipeline inside
 has five steps:
 
 1.  **Read** the external data. File paths are dispatched by extension
-    (`.csv`, `.csv.gz`, `.xlsx`, `.sqlite`, `.vtr`). Data.frames pass
-    through directly. The format detection is based solely on the file
-    extension, so a misnamed file (e.g., a tab-separated file saved as
-    `.csv`) will produce a read error rather than silent misparse.
+    (`.csv`, `.csv.gz`, `.tsv`, `.tsv.gz`, `.xlsx`, `.sqlite`, `.vtr`).
+    Data.frames pass through directly. The format detection is based
+    solely on the file extension, so a misnamed file (e.g., a
+    tab-separated file saved as `.csv`) will produce a read error rather
+    than silent misparse.
 
 2.  **Identify** the species column, either from the explicit
     `species_col` argument or via auto-detection. When auto-detecting,
@@ -396,9 +456,9 @@ has five steps:
 
 The join preserves every row of the original result; nothing is dropped.
 Species present in the external data but absent from the original result
-are silently ignored. A summary message reports how many species were
-matched and how many names in the external data could not be resolved
-through the backbone.
+are ignored. A summary message reports how many species were matched and
+how many names in the external data could not be resolved through the
+backbone.
 
 ### Controlling fuzzy matching
 
