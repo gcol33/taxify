@@ -90,7 +90,7 @@ taxify's throughput increases with batch size because the C engine amortizes set
 | `is_synonym` | Was the match a synonym? |
 | `is_hybrid` | Was a hybrid marker detected? |
 | `match_type` | `exact`, `exact_ci`, `fuzzy`, or `none` |
-| `fuzzy_dist` | Normalized string distance (0--1), NA if exact |
+| `fuzzy_dist` | Normalized string distance (0–1), NA if exact |
 | `backend` | Which backbone was used |
 | `backbone_version` | Backend, version, and download date |
 
@@ -243,8 +243,8 @@ summary(result)
 
 taxify itself is MIT-licensed. However, the backbone databases and enrichment datasets have their own licenses and citation requirements. When you publish results, please cite:
 
-1. **The backbone(s) you used** -- each backbone has its own citation. Run `taxify()` and check the `backbone_version` column for which version you matched against.
-2. **The enrichment datasets you used** -- the enrichment table above links to each source. Most are CC BY or CC BY-NC licensed and require citation of the original publication.
+1. **The backbone(s) you used** — each backbone has its own citation. Run `taxify()` and check the `backbone_version` column for which version you matched against.
+2. **The enrichment datasets you used** — the enrichment table above links to each source. Most are CC BY or CC BY-NC licensed and require citation of the original publication.
 3. **taxify** (optional but appreciated).
 
 The [enrichments vignette](https://gillescolling.com/taxify/articles/enrichments.html) lists full citations for each dataset.
@@ -262,7 +262,7 @@ The [enrichments vignette](https://gillescolling.com/taxify/articles/enrichments
 
 ## Support
 
-> "Software is like sex: it's better when it's free." -- Linus Torvalds
+> "Software is like sex: it's better when it's free." — Linus Torvalds
 
 I'm a PhD student who builds R packages in my free time because I believe good tools should be free and open. I started these projects for my own work and figured others might find them useful too.
 
