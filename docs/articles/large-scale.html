@@ -126,13 +126,12 @@ format written by the vectra C11 engine. Unlike CSV or TSV, the
 lightweight compression. taxify never parses text at query time. There
 is no <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> step, no string splitting, no quote
 escaping. The backbone is already in a query-ready binary layout.</p>
-<p>Reading a CSV backbone on every session start takes time (15-30
-seconds for WFO’s classification.txt), and calling a remote API per name
-adds network latency. taxify sidesteps both. The one-time conversion
-from Darwin Core CSV to <code>.vtr</code> happens at download time and
-never needs to be repeated. The resulting file is typically 30-50%
-smaller than the original CSV because the columnar layout compresses
-string columns more efficiently than row-oriented text.</p>
+<p>Backbones are distributed as pre-built <code>.vtr</code> files
+(hosted on Zenodo and GitHub Releases), so users download a single
+binary file that is ready to query immediately — no CSV parsing, no
+conversion step. The <code>.vtr</code> files are typically 30-50%
+smaller than the original Darwin Core CSV because the columnar layout
+compresses string columns more efficiently than row-oriented text.</p>
 </div>
 <div class="section level3">
 <h3 id="exact-matching-hash-indexed-lookups">Exact matching: hash-indexed lookups<a class="anchor" aria-label="anchor" href="#exact-matching-hash-indexed-lookups"></a>

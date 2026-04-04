@@ -31,12 +31,11 @@ never parses text at query time. There is no
 splitting, no quote escaping. The backbone is already in a query-ready
 binary layout.
 
-Reading a CSV backbone on every session start takes time (15-30 seconds
-for WFO’s classification.txt), and calling a remote API per name adds
-network latency. taxify sidesteps both. The one-time conversion from
-Darwin Core CSV to `.vtr` happens at download time and never needs to be
-repeated. The resulting file is typically 30-50% smaller than the
-original CSV because the columnar layout compresses string columns more
+Backbones are distributed as pre-built `.vtr` files (hosted on Zenodo
+and GitHub Releases), so users download a single binary file that is
+ready to query immediately — no CSV parsing, no conversion step. The
+`.vtr` files are typically 30-50% smaller than the original Darwin Core
+CSV because the columnar layout compresses string columns more
 efficiently than row-oriented text.
 
 ### Exact matching: hash-indexed lookups

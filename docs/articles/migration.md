@@ -12,16 +12,14 @@ switch.
 
 That said, there are situations where taxify offers a better fit:
 
-- **Multiple backbones.** taxize queries APIs one at a time; WorldFlora
-  supports WFO only. taxify matches against nine backbones offline and
-  can chain them in a single call:
+- **Multiple backbones.** taxify matches against nine backbones offline
+  and can chain them in a single call:
   `taxify(names, backend = c("wfo", "col", "gbif"))`.
-- **Speed at scale.** taxify’s matching engine is written in C with
-  genus-blocked fuzzy joins. Ten thousand names resolve in seconds, not
-  minutes.
-- **Enrichments.** taxify pipes results directly into twelve published
-  trait and status datasets (IUCN, GRIIS, WCVP, EIVE, EltonTraits, etc.)
-  with a single `|>` chain.
+- **Speed at scale.** The matching engine is written in C with
+  genus-blocked fuzzy joins. Ten thousand names resolve in seconds.
+- **Enrichments.** Results pipe directly into twelve published trait and
+  status datasets (IUCN, GRIIS, WCVP, EIVE, EltonTraits, etc.) with a
+  single `|>` chain.
 - **Reproducibility.** Backbones are versioned files on disk. The
   `backbone_version` column records exactly which snapshot was used.
 
@@ -31,34 +29,29 @@ does not cover.
 
 ## Function mapping: taxize to taxify
 
-The table below lists the taxize functions that taxify replaces, along
-with functions that have no direct equivalent.
+The table below maps the taxize name-resolution functions to their
+closest taxify equivalent.
 
 | taxize function | taxify equivalent | Notes |
 |----|----|----|
 | `gnr_resolve()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | Any backend; returns best match per name |
-| `get_tsn()` | `taxify(backend = "itis")` | `taxon_id` column holds the TSN |
-| `get_uid()` | `taxify(backend = "ncbi")` | `taxon_id` column holds the UID |
-| `get_gbifid()` | `taxify(backend = "gbif")` | `taxon_id` column holds the GBIF usage key |
-| `get_wormsid()` | `taxify(backend = "worms")` | `taxon_id` column holds the AphiaID |
-| `classification()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | Returns `family`, `genus`, `rank` directly; [`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md) for full hierarchy |
+| `classification()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `family`, `genus`, `rank` columns in the output; [`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md) for full hierarchy |
 | `synonyms()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `is_synonym` + `accepted_name` columns in the output |
 | `tax_name()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `family`, `genus`, `rank` columns |
-| `itis_acceptname()` | `taxify(backend = "itis")` | `accepted_name` column |
 | `sci2comm()` | [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | Pipe enrichment; GBIF vernacular names by language |
-| `get_nativecountry()` | [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) | WCVP native range by TDWG region (plants) |
-| `comm2sci()` | *no equivalent* | taxify matches scientific names, not common names |
-| `downstream()` | *no equivalent* | Use rotl or rgbif for child taxa |
-| phylogenetic tree functions | *no equivalent* | Use rotl for synthetic trees |
-| occurrence data functions | *no equivalent* | Use rgbif or spocc |
-| sequence retrieval | *no equivalent* | Use rentrez |
 
-The key structural difference is that taxize returned results in varied
-formats: `get_tsn()` returned a character vector with attributes,
-`classification()` returned a nested list of data.frames, `synonyms()`
-returned another nested list. taxify returns the same 16-column
-data.frame from every call. Synonym status, taxonomic hierarchy, and
-match quality are columns, not separate API calls.
+taxize also has functions that serve a different purpose (fetching
+database IDs, enumerating child taxa, retrieving occurrence or sequence
+data). These are not name-resolution functions, so taxify does not cover
+them. The “What taxify does not do” section below points to the right
+packages for those tasks.
+
+The key structural difference: taxize returned results in varied formats
+depending on the function (`classification()` gave a nested list of
+data.frames, `synonyms()` another nested list, `get_tsn()` a character
+vector with attributes). taxify returns the same 16-column data.frame
+from every call. Synonym status, classification, and match quality are
+columns, not separate API calls.
 
 ## Function mapping: WorldFlora to taxify
 
@@ -71,56 +64,40 @@ match quality are columns, not separate API calls.
 
 WorldFlora returns a wide data.frame with WFO-specific column names
 (`scientificName`, `taxonID`, `taxonomicStatus`, `acceptedNameUsageID`,
-plus the full authorship and bibliographic fields). taxify normalizes
-these into a backend-agnostic schema: `matched_name`, `taxon_id`,
-`accepted_name`, `accepted_id`, and so on. The WFO-specific columns are
-still accessible via
+plus authorship and bibliographic fields). taxify normalizes these into
+a backend-agnostic schema: `matched_name`, `taxon_id`, `accepted_name`,
+`accepted_id`, and so on. The WFO-specific columns are still accessible
+via
 [`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md)
 when needed, but the default output is the same 16 columns whether the
 backend is WFO, COL, or GBIF.
 
-WorldFlora also requires the user to download `classification.txt`
-manually and pass the file path or a pre-loaded data.frame to every
-call. taxify handles backbone management automatically: the first
+taxify also handles backbone management automatically: the first
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
-downloads and converts the backbone, subsequent calls reuse the local
-copy, and a once-per-session version check keeps it current.
+downloads the backbone, subsequent calls reuse the local copy, and a
+once-per-session version check keeps it current.
 
-## Example 1: Basic name resolution (taxize vs. taxify)
+## Example 1: Basic name resolution
 
-A typical taxize workflow resolved names through `gnr_resolve()`, then
-pulled classification and synonyms with separate calls. Each step hit a
-different API.
+With taxize, name resolution typically meant several separate calls:
+`gnr_resolve()` for matching, `get_gbifid()` for IDs, `classification()`
+for hierarchy, `synonyms()` for synonym status.
 
 ``` r
 
-# --- taxize (no longer on CRAN) ---
+# --- taxize ---
 library(taxize)
 
 names <- c("Quercus robur", "Pinus sylvestris", "Betula pendula",
            "Panthera leo", "Salmo trutta")
 
-# Step 1: resolve names via Global Names Resolver
-resolved <- gnr_resolve(names, best_match_only = TRUE)
-
-# Step 2: get GBIF IDs (separate API call)
-gbif_ids <- get_gbifid(names)
-
-# Step 3: get classification (yet another API call, per name)
+resolved  <- gnr_resolve(names, best_match_only = TRUE)
+gbif_ids  <- get_gbifid(names)
 class_list <- classification(gbif_ids, db = "gbif")
-
-# Step 4: check synonyms (another round of API calls)
-syn_list <- synonyms(gbif_ids, db = "gbif")
+syn_list   <- synonyms(gbif_ids, db = "gbif")
 ```
 
-Each of those four steps makes network requests. If the GBIF API is slow
-or rate-limiting, the whole pipeline stalls. The results come back in
-different shapes: `resolved` is a data.frame, `gbif_ids` is a character
-vector with class attributes, `class_list` is a list of data.frames (one
-per name), and `syn_list` is another list of data.frames.
-
-The taxify equivalent is one function call. Name resolution, synonym
-resolution, and classification are handled together.
+With taxify, all of that is one call:
 
 ``` r
 
@@ -130,10 +107,8 @@ library(taxify)
 names <- c("Quercus robur", "Pinus sylvestris", "Betula pendula",
            "Panthera leo", "Salmo trutta")
 
-# One call: resolve, classify, and check synonyms
 result <- taxify(names, backend = "gbif")
 
-# Everything is in the result data.frame:
 result$accepted_name
 result$family
 result$genus
@@ -142,57 +117,34 @@ result$taxon_id        # GBIF usage key
 ```
 
 The output is a data.frame with 16 columns and one row per input name.
-No nested lists, no per-name API calls, no internet connection required
-after the first run.
 
-## Example 2: WFO matching with fuzzy + synonyms (WorldFlora vs. taxify)
+## Example 2: WFO matching with fuzzy + synonyms
 
-WorldFlora’s standard workflow loads the classification file, runs exact
-matching, then applies fuzzy matching to unresolved names in a second
-pass.
+With WorldFlora, the typical workflow is: load the backbone, run exact
+matching, apply fuzzy matching separately, then pick the best match.
 
 ``` r
 
 # --- WorldFlora ---
 library(WorldFlora)
 
-# User must download classification.txt manually (~400 MB)
 wfo_data <- read.delim("classification.txt")
 
-# Exact match first
 names <- c("Quercus robur", "Quercus pedonculata",
            "Pinus silvestris", "Rosa canina")
 exact <- WFO.match(names, WFO.data = wfo_data)
-
-# Fuzzy match for unmatched (separate call, requires fuzzyjoin)
 fuzzy <- WFO.match.fuzzyjoin(names, WFO.data = wfo_data)
-
-# Pick best match per name
-best <- WFO.one(fuzzy)
-
-# Check synonym resolution
-best$taxonomicStatus
-best$acceptedNameUsageID
+best  <- WFO.one(fuzzy)
 ```
 
-The output is a wide data.frame with all WFO columns
-(`scientificNameAuthorship`, `namePublishedIn`, `references`,
-`acceptedNameUsageID`, and more). The user has to look at
-`taxonomicStatus` to tell accepted names from synonyms, and
-cross-reference `acceptedNameUsageID` against `taxonID` to find the
-accepted name string.
-
-taxify folds exact matching, fuzzy matching, and synonym resolution into
-a single call. Fuzzy matching is on by default and uses
-Damerau-Levenshtein distance with genus blocking, which is faster and
-more accurate than a full-table string distance computation.
+With taxify, exact matching, fuzzy matching, and synonym resolution
+happen in a single call:
 
 ``` r
 
 # --- taxify ---
 library(taxify)
 
-# No manual download needed (automatic on first use)
 names <- c("Quercus robur", "Quercus pedonculata",
            "Pinus silvestris", "Rosa canina")
 
@@ -211,23 +163,17 @@ result[, c("input_name", "is_synonym", "accepted_name")]
 ```
 
 `Quercus pedonculata` is both a misspelling and a synonym. taxify
-handles both in one pass: the fuzzy matcher corrects the spelling to
+handles both: the fuzzy matcher corrects the spelling to
 `Quercus pedunculata`, and the synonym resolver maps it to
-`Quercus robur` (the accepted name). WorldFlora requires the user to
-chain
-[`WFO.match.fuzzyjoin()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html)
-and then manually trace the `acceptedNameUsageID`.
+`Quercus robur`.
 
 ## Example 3: Multi-backend fallback with enrichments
 
-This workflow has no taxize or WorldFlora equivalent. taxize could query
-multiple databases, but each was a separate API call returning a
-different format. WorldFlora was WFO-only. taxify runs a fallback chain
-where unmatched names cascade to the next backbone automatically.
+taxify can chain multiple backbones in a single call. Unmatched names
+cascade to the next backbone automatically.
 
 ``` r
 
-# --- taxify only (no taxize/WorldFlora equivalent) ---
 library(taxify)
 
 # Mixed kingdom input: plants, animals, fungi
@@ -251,10 +197,10 @@ result[, c("input_name", "backend", "family")]
 # 4 Salmo trutta          gbif    Salmonidae
 # 5 Arabidopsis thaliana  wfo     Brassicaceae
 
-# Layer on enrichments via the pipe:
+# Enrich with traits:
 result |>
   add_conservation_status() |>
-  add_common_names(lang = "en")
+  add_woodiness()
 
 # Or join custom data:
 my_traits <- data.frame(
@@ -265,39 +211,18 @@ my_traits <- data.frame(
 result |> add_data(my_traits, species_col = "species")
 ```
 
-The fallback chain resolves plants through WFO (where nomenclatural
-coverage for vascular plants is strongest) and passes animals, fungi,
-and anything else WFO does not cover to GBIF. The user sees one
-data.frame. The `backend` column records provenance.
-
-Enrichments attach additional data columns through the pipe. Each
-`add_*()` function downloads its dataset on first use (the same
-download-once pattern as backbones) and joins on `accepted_name`.
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-handles arbitrary external datasets: pass a CSV path, an XLSX file, a
-SQLite database, or a plain data.frame, and taxify matches the species
-names through the same backbone(s) before joining.
-
 ## Key differences at a glance
 
-**Online vs. offline.** taxize sent HTTP requests for every name. taxify
-downloads backbone files once and matches locally. After the initial
-download (typically 50–300 MB depending on the backbone), no internet
-connection is needed. Queries against the local backbone run in
-milliseconds per name.
+**Offline matching.** taxify downloads backbone files once and matches
+locally. After the initial download (typically 50–300 MB depending on
+the backbone), no internet connection is needed.
 
-**Single database vs. multi-backend.** taxize could query multiple
-databases, but each was a separate function call with a different return
-type. WorldFlora supported only WFO. taxify supports nine backbones
-through a single function, with optional fallback chains that cascade
-unmatched names automatically.
+**Multi-backend.** taxify supports nine backbones through a single
+function, with optional fallback chains that cascade unmatched names
+automatically.
 
-**Output format.** taxize returned different types depending on the
-function: character vectors (`get_tsn()`), lists of data.frames
-(`classification()`), nested lists (`synonyms()`). WorldFlora returned
-wide data.frames with all WFO columns. taxify always returns a
-data.frame with 16 standardized columns, regardless of the backend. The
-columns are:
+**Output format.** taxify always returns a data.frame with 16
+standardized columns, regardless of the backend:
 
 | Column | Type | Content |
 |----|----|----|
@@ -318,21 +243,15 @@ columns are:
 | `backend` | character | Which backend matched this name |
 | `backbone_version` | character | Backend name, version, and download date |
 
-**Speed.** taxize was limited by network latency and API rate limits.
-WorldFlora’s
-[`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html)
-processes names sequentially against a loaded data.frame. taxify uses
-vectra’s C-level join engine with hash indexes and genus-blocked fuzzy
-joins, processing thousands of names per second on a single core. Fuzzy
-matching runs in parallel across four threads by default.
+**Speed.** taxify uses vectra’s C-level join engine with hash indexes
+and genus-blocked fuzzy joins, processing thousands of names per second.
 
-**Reproducibility.** taxize results changed whenever an upstream
-database updated. taxify pins backbone versions locally and records the
-version string in the `backbone_version` column of every result. The
+**Reproducibility.** taxify pins backbone versions locally and records
+the version string in the `backbone_version` column of every result. The
 same backbone file produces the same output indefinitely. Version
 pinning is also available:
 `taxify_download_vtr("wfo", version = "2024.06")` downloads a specific
-release that will never be overwritten.
+release.
 
 ## What taxify does not do
 
@@ -353,28 +272,25 @@ children. For tree-based queries, the rotl package provides access to
 the Open Tree of Life synthetic tree, and rgbif’s `name_usage()` can
 list children of a GBIF usage key.
 
-**Phylogenetic trees.** taxize had convenience wrappers for tree
-retrieval. For phylogenetic data, use rotl (Open Tree of Life) or
-phylomatic.
+**Phylogenetic trees.** For phylogenetic data, use rotl (Open Tree of
+Life) or phylomatic.
 
-**Occurrence data.** taxize could fetch occurrence records from GBIF.
-For occurrence data, rgbif and spocc are the standard tools.
+**Occurrence data.** For occurrence data, rgbif and spocc are the
+standard tools.
 
-**Sequence data.** taxize integrated with NCBI for sequence retrieval.
-The rentrez package handles GenBank/NCBI queries directly.
+**Sequence data.** For sequence retrieval, the rentrez package handles
+GenBank/NCBI queries directly.
 
 **Real-time API lookups.** By design, taxify queries local files. If a
 name was added to a backbone yesterday and taxify’s local copy is from
 last month, taxify will not find it until the backbone is updated. For
-research workflows where last-week freshness matters more than
-reproducibility, a direct API client (rgbif, worrms, ritis) may be the
-better fit.
+workflows where freshness matters more than reproducibility, a direct
+API client (rgbif, worrms, ritis) may be the better fit.
 
 ## When not to switch
 
 taxify is not a universal replacement for every taxize use case. A few
-situations where the old tools or their successors may be more
-appropriate:
+situations where the other tools may be more appropriate:
 
 - **Common-to-scientific lookups** (`comm2sci()`). If the starting point
   is vernacular names, taxify cannot help. The GBIF API
@@ -390,21 +306,14 @@ appropriate:
   taxize had interactive modes where the user could pick among multiple
   candidates. taxify picks the best match automatically (accepted name
   over synonym, species rank over higher ranks, lowest ID as
-  tiebreaker). If manual control over ambiguous matches is needed, the
-  taxize fork maintained on GitHub or direct API calls may be
-  preferable.
+  tiebreaker). If manual control over ambiguous matches is needed,
+  direct API calls may be preferable.
 
 - **Data freshness over reproducibility.** taxify’s strength is
   reproducible, versioned, offline matching. If the priority is to
   always use the very latest backbone update (published hours ago),
   querying the API directly via rgbif, worrms, or ritis avoids the delay
   between upstream publication and taxify’s next backbone release.
-
-For most biodiversity data analysis workflows, taxify covers the core
-need: take a list of names, resolve them to accepted names against an
-authoritative backbone, and move on to the analysis. The migration is
-straightforward, and the output format is designed to fit directly into
-downstream data pipelines without reshaping.
 
 ## Discovering available enrichments
 
@@ -437,15 +346,15 @@ and
 
 ## Summary
 
-The migration path from taxize or WorldFlora to taxify is a structural
-simplification. Multiple API calls or manual file management collapse
-into [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-plus optional `add_*()` pipes. The output is a flat data.frame, not
-nested lists. Matching runs offline against versioned backbone files, so
+Migrating from taxize or WorldFlora to taxify means replacing multiple
+function calls with
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) plus
+optional `add_*()` pipes. The output is a flat data.frame, not nested
+lists. Matching runs offline against versioned backbone files, so
 results do not change between sessions unless the user explicitly
 updates the backbone.
 
-For functions that taxify does not replace (downstream taxa, occurrence
-data, phylogenetic trees, sequence retrieval), the specialized packages
-(rotl, rgbif, spocc, rentrez) remain the right tools. taxify handles the
+For things taxify does not handle (downstream taxa, occurrence data,
+phylogenetic trees, sequence retrieval), the specialized packages (rotl,
+rgbif, spocc, rentrez) remain the right tools. taxify handles the
 name-matching step that comes before all of those.

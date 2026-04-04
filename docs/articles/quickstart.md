@@ -1076,10 +1076,10 @@ and discover that WoRMS is the only backend that covers them, saving the
 time of downloading WFO and COL.
 
 The register currently contains approximately 100,000 genera drawn from
-the union of WFO, COL, and GBIF. It is rebuilt whenever
-`build_unified_register()` runs (typically after installing or updating
-a backbone). The register is small enough to fit comfortably in memory
-and is cached for the duration of the R session, so
+the union of WFO, COL, and GBIF. It ships as a pre-built `.vtr` file and
+is updated with each taxify release. The register is small enough to fit
+comfortably in memory and is cached for the duration of the R session,
+so
 [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
 calls are effectively instant.
 
