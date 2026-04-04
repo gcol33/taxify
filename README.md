@@ -40,12 +40,10 @@ The core workflow is: clean input names, match against a backbone, resolve synon
 
 ### Related packages
 
-R has a rich ecosystem for taxonomic name resolution. Two packages cover similar ground:
+- [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries web APIs in real time. It was removed from CRAN for two years and is back, but depends on third-party API endpoints that break without warning. Good when you need live access to upstream databases; less good for reproducible, large-scale matching.
+- [**WorldFlora**](https://cran.r-project.org/package=WorldFlora) matches names offline against the WFO backbone. Straightforward for small plant lists, but WFO-only and slow at scale (see benchmarks below).
 
-- [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries a dozen web APIs in real time. It is the right choice when you need live access to upstream databases or features that taxify does not cover (e.g., `downstream()`, occurrence data).
-- [**WorldFlora**](https://cran.r-project.org/package=WorldFlora) matches names offline against the WFO backbone. It is well-tested and straightforward for small to medium plant lists.
-
-taxify does something different: it matches offline across nine backbones at once, resolves synonyms, and pipes the result straight into trait enrichments.
+taxify matches offline across seven backbones at once, resolves synonyms, and pipes the result straight into trait enrichments — all at C-level speed.
 
 ### Speed
 
