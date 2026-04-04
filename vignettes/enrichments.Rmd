@@ -104,7 +104,7 @@ the trait data duplicated. The final `.vtr` is then deduplicated by
 `canonical_name` (plus any group column for grouped enrichments).
 
 In practice, backends agree on more than 90% of names, so this expansion
-is modest (typically 1.1--1.5x the original row count). The result is that
+is modest (typically 1.1–1.5x the original row count). The result is that
 `add_conservation_status()` works identically whether the upstream
 `taxify()` call used WFO, COL, or GBIF. We do not have to pick enrichments
 based on which backbone we used, and we do not have to worry about

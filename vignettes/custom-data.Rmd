@@ -50,7 +50,7 @@ species <- c(
 )
 result <- taxify(species, backend = "wfo")
 
-# External trait data -- note one synonym and one subspecies
+# External trait data — note one synonym and one subspecies
 traits <- data.frame(
   taxon = c(
     "Quercus robur", "Fagus sylvatica", "Picea excelsa",
@@ -60,7 +60,7 @@ traits <- data.frame(
   max_height_m = c(35, 40, 50, 30, 25)
 )
 
-# Join -- "Picea excelsa" resolves to "Picea abies" through the backbone
+# Join — "Picea excelsa" resolves to "Picea abies" through the backbone
 result <- result |> add_data(traits, species_col = "taxon")
 ```
 
@@ -135,7 +135,7 @@ result |> add_data("bird_morphometry.xlsx", sheet = 2)
 # Known header row (e.g., rows 1-2 are title/notes)
 result |> add_data("bird_morphometry.xlsx", start_row = 3)
 
-# All three specified -- no scanning at all
+# All three specified — no scanning at all
 result |> add_data("bird_morphometry.xlsx", sheet = 1, start_row = 3,
                    species_col = "latin_name")
 ```
@@ -149,7 +149,7 @@ hood). Because a single `.sqlite` or `.db` file can hold many tables, the
 rather than guessing.
 
 ```{r}
-# SQLite -- requires DBI and RSQLite
+# SQLite — requires DBI and RSQLite
 result |> add_data(
   "traits.sqlite",
   table = "plant_traits",

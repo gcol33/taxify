@@ -173,7 +173,7 @@ needs to branch on backend type.
 | `is_synonym` | logical | TRUE if the matched name is a synonym |
 | `is_hybrid` | logical | TRUE if a hybrid marker was detected in the input |
 | `match_type` | character | One of `exact`, `exact_ci`, `fuzzy`, `out_of_scope`, or `none` |
-| `fuzzy_dist` | numeric | Normalized edit distance (0--1), NA for exact matches |
+| `fuzzy_dist` | numeric | Normalized edit distance (0–1), NA for exact matches |
 | `backend` | character | Which backbone was used (e.g., `wfo`, `col`, `gbif`) |
 | `backbone_version` | character | Backend name, version, and download date for reproducibility |
 
@@ -1107,7 +1107,7 @@ taxify_data_dir()
 ```
 
 The total disk footprint depends on how many backbones and enrichments are
-installed. WFO alone is about 150 MB; all nine backbones plus all 12
+installed. WFO alone is about 150 MB; all seven backbones plus all 12
 enrichments total roughly 2.5 GB.
 
 

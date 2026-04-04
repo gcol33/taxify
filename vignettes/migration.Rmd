@@ -27,7 +27,7 @@ switch.
 
 That said, there are situations where taxify offers a better fit:
 
-- **Multiple backbones.** taxify matches against nine backbones offline
+- **Multiple backbones.** taxify matches against seven backbones offline
   and can chain them in a single call:
   `taxify(names, backend = c("wfo", "col", "gbif"))`.
 - **Speed at scale.** The matching engine is written in C with
@@ -226,10 +226,10 @@ result |> add_data(my_traits, species_col = "species")
 ## Key differences at a glance
 
 **Offline matching.** taxify downloads backbone files once and matches
-locally. After the initial download (typically 50--300 MB depending on
+locally. After the initial download (typically 50–300 MB depending on
 the backbone), no internet connection is needed.
 
-**Multi-backend.** taxify supports nine backbones through a single
+**Multi-backend.** taxify supports seven backbones through a single
 function, with optional fallback chains that cascade unmatched names
 automatically.
 
