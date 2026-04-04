@@ -65,9 +65,6 @@ with functions that have no direct equivalent.
 | `get_nativecountry()` | `add_wcvp()` | WCVP native range by TDWG region (plants) |
 | `comm2sci()` | *no equivalent* | taxify matches scientific names, not common names |
 | `downstream()` | *no equivalent* | Use rotl or rgbif for child taxa |
-| phylogenetic tree functions | *no equivalent* | Use rotl for synthetic trees |
-| occurrence data functions | *no equivalent* | Use rgbif or spocc |
-| sequence retrieval | *no equivalent* | Use rentrez |
 
 The key structural difference is that taxize returned results in varied
 formats: `get_tsn()` returned a character vector with attributes,
