@@ -2,7 +2,7 @@
 
 ## What is taxify
 
-An R package for offline taxonomic name matching against local Darwin Core backbone databases (WFO, COL, GBIF). Replaces taxize (removed from CRAN) and WorldFlora (WFO-only, painful at scale).
+An R package for offline taxonomic name matching against local Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS). Replaces taxize (removed from CRAN) and WorldFlora (WFO-only, painful at scale).
 
 ## Architecture
 
@@ -51,6 +51,9 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 | `R/backend-col.R` | COL backend: download from ChecklistBank, Taxon.tsv → .vtr (strips namespace prefixes, builds canonicalName) |
 | `R/backend-gbif.R` | GBIF backend: download simple.txt.gz (no header, positional cols), denormalizes family_key, synonym via parent_key |
 | `R/backend-itis.R` | ITIS backend: download SQLite dump from itis.gov, hierarchy walk for family/genus, synonym_links table |
+| `R/backend-ncbi.R` | NCBI Taxonomy: taxdump.tar.gz, pipe-delimited .dmp files, hierarchy walk, synonyms as separate name rows |
+| `R/backend-ott.R` | Open Tree of Life: OTT taxonomy archive, pipe-delimited taxonomy.tsv + synonyms.tsv, hierarchy walk |
+| `R/backend-worms.R` | WoRMS: DwC-A from GBIF ChecklistBank, LSID→AphiaID extraction, denormalized classification |
 | `R/cache.R` | Backbone path caching + `taxify_data_dir()` + `ensure_backbone()` |
 | `R/pick.R` | Best-match selection (ACCEPTED > SYNONYM, SPECIES > higher, smallest ID) |
 | `R/add-hybrid-info.R` | Pipe extension: hybrid parents and type |
@@ -62,10 +65,12 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 
 ## Backends
 
-Four backends implemented: WFO, COL, GBIF, ITIS. Adding a backend requires:
+Seven backends implemented: WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS. Adding a backend requires:
 1. Constructor function (e.g., `col_backend()`)
-2. S3 methods: `taxify_download`, `taxify_load`, `match_exact`, `match_fuzzy`, `resolve_synonyms`
+2. S3 methods: `taxify_download`, `taxify_load`, `match_exact`, `match_fuzzy`
 3. Register in `resolve_backend()` switch
+
+**Build pipeline separation:** The taxify package contains backend R code (S3 methods, matching logic, build-from-source fallback). Pre-built `.vtr` files are built by the separate `taxify-backbones` repo (`C:\Users\Gilles Colling\Documents\dev\taxify-backbones`), which has its own shared normalize/precompute/build pipeline and CI workflows.
 
 ### Backend-specific notes
 
@@ -73,6 +78,9 @@ Four backends implemented: WFO, COL, GBIF, ITIS. Adding a backend requires:
 - **COL**: Single `Taxon.tsv` with `dwc:`/`col:` prefixed headers (stripped on read). `scientificName` includes authorship → `canonicalName` computed by stripping authorship. Column `genericName` (not `genus`). Status values originally lowercase (uppercased on conversion). `SpeciesProfile.tsv` stored as separate `.vtr` for extinct/marine info.
 - **GBIF**: `simple.txt.gz` has NO header row (30 positional columns), `\N` for NULLs. `canonical_name` already exists. Column `genus_or_above`. No `family` text column — only `family_key` FK, denormalized during conversion via self-join. Synonyms use `parent_key` as accepted ID (not `acceptedNameUsageID`). Status values like `HOMOTYPIC_SYNONYM`, `HETEROTYPIC_SYNONYM` mapped to standard `SYNONYM`.
 - **ITIS**: SQLite dump from itis.gov. Uses unified backbone schema (`canonical_name`, `taxon_id`, etc.). Relational: `taxonomic_units` + `synonym_links` + `taxon_unit_types`. Family/genus resolved via `parent_tsn` hierarchy walk. `name_usage` (valid/accepted → ACCEPTED, invalid/not accepted → SYNONYM). Column `genus` (resolved). Requires RSQLite (Suggests) for build-from-source; pre-built .vtr preferred.
+- **NCBI**: `taxdump.tar.gz` with pipe-delimited `.dmp` files (names.dmp, nodes.dmp). Unified schema. Synonyms are alternative name rows for the same `tax_id`, emitted as separate rows with synthetic IDs (`tax_id_syn_N`). Family/genus via hierarchy walk. No authorship data. Aggressive noise filtering (environmental samples, unclassified, metagenomes).
+- **OTT**: OTT taxonomy archive (`taxonomy.tsv` + `synonyms.tsv`, pipe-delimited). Unified schema. Synthetic taxonomy combining NCBI, GBIF, WoRMS, IRMNG. Status derived from flags column. Family/genus via hierarchy walk. Cross-references to source databases via `sourceinfo` column.
+- **WoRMS**: DwC-A from GBIF ChecklistBank (dataset 1010). Unified schema. Marine-focused. `taxonID` may be LSID (stripped to numeric AphiaID). Status uses `accepted`/`unaccepted` (mapped to standard). Classification denormalized (no hierarchy walk). `SpeciesProfile.tsv` has habitat flags.
 
 ## Multi-backend fallback
 

@@ -625,8 +625,10 @@ resolve_backend <- function(backend) {
     ncbi = ncbi_backend(),
     ott = ott_backend(),
     worms = worms_backend(),
+    fungorum = fungorum_backend(),
+    algaebase = algaebase_backend(),
     stop(sprintf(
-      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms",
+      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms, fungorum, algaebase",
       backend), call. = FALSE)
   )
 }

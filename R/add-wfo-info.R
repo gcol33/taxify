@@ -49,7 +49,9 @@ add_wfo_info <- function(x) {
     x$higherClassification <- NA_character_
     x$taxonRemarks <- NA_character_
     x$infraspecificEpithet <- NA_character_
-    return(x)
+    bb_meta <- read_backbone_meta(bb_path)
+    ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+    return(register_enrichment(x, "wfo_info", "WFO", ver, 0L))
   }
 
   ids <- unique(x$taxon_id[wfo_rows])
@@ -68,14 +70,15 @@ add_wfo_info <- function(x) {
   available <- intersect(extra_cols, names(bb_schema))
 
   if (length(available) <= 1L) {
-    # Only taxonID available, no extras
     x$scientificNameID <- NA_character_
     x$parentNameUsageID <- NA_character_
     x$namePublishedIn <- NA_character_
     x$higherClassification <- NA_character_
     x$taxonRemarks <- NA_character_
     x$infraspecificEpithet <- NA_character_
-    return(x)
+    bb_meta <- read_backbone_meta(bb_path)
+    ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+    return(register_enrichment(x, "wfo_info", "WFO", ver, 0L))
   }
 
   # Build select expression dynamically
@@ -107,5 +110,9 @@ add_wfo_info <- function(x) {
     }
   }
 
-  x
+  bb_meta <- read_backbone_meta(bb_path)
+  ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+  n_enriched <- sum(!is.na(x$scientificNameID) | !is.na(x$namePublishedIn) |
+                    !is.na(x$higherClassification))
+  register_enrichment(x, "wfo_info", "WFO", ver, n_enriched)
 }

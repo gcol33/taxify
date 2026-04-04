@@ -39,5 +39,6 @@ add_hybrid_info <- function(x) {
   x$hybrid_parent_2 <- vapply(parsed, `[[`, character(1L), "parent_2")
   x$hybrid_type <- vapply(parsed, `[[`, character(1L), "hybrid_type")
 
-  x
+  n_enriched <- sum(!is.na(x$hybrid_type))
+  register_enrichment(x, "hybrid_info", "taxify", NA_character_, n_enriched)
 }

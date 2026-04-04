@@ -38,5 +38,7 @@ add_qualifier_info <- function(x) {
 
   x$qualifier <- quals
   x$qualifier_position <- positions
-  x
+
+  n_enriched <- sum(!is.na(x$qualifier))
+  register_enrichment(x, "qualifier_info", "taxify", NA_character_, n_enriched)
 }

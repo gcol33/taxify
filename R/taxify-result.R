@@ -134,5 +134,23 @@ summary.taxify_result <- function(object, ...) {
     cat(sprintf("  taxon groups: %s\n", paste(lf_parts, collapse = "  ")))
   }
 
+  # Enrichment layers
+  enrichments <- meta$enrichments
+  if (!is.null(enrichments) && length(enrichments) > 0L) {
+    cat("\n  enrichments:\n")
+    max_name <- max(nchar(vapply(enrichments, `[[`, character(1L), "name")))
+    max_src  <- max(nchar(vapply(enrichments, function(e) {
+      if (is.na(e$version)) e$source else paste0(e$source, " ", e$version)
+    }, character(1L))))
+    for (e in enrichments) {
+      src_str <- if (is.na(e$version)) e$source else paste0(e$source, " ", e$version)
+      cat(sprintf("    %-*s  (%s)%s \u2014 %d of %d matched\n",
+                  max_name, e$name,
+                  src_str,
+                  strrep(" ", max_src - nchar(src_str)),
+                  e$n_matched, e$n_total))
+    }
+  }
+
   invisible(object)
 }

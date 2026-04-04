@@ -5,7 +5,7 @@
 \alias{taxify-package}
 \title{taxify: Offline Taxonomic Name Matching Against Local Darwin Core Snapshots}
 \description{
-Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across backends. All heavy computation runs in vectra's C11 columnar engine.
+Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across backends. All heavy computation runs in vectra's C11 columnar engine.
 }
 \seealso{
 Useful links:

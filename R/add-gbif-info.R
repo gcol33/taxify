@@ -55,7 +55,11 @@ add_gbif_info <- function(x) {
   x$origin <- NA_character_
   x$infra_specific_epithet <- NA_character_
 
-  if (length(gbif_rows) == 0L) return(x)
+  if (length(gbif_rows) == 0L) {
+    bb_meta <- read_backbone_meta(bb_path)
+    ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+    return(register_enrichment(x, "gbif_info", "GBIF", ver, 0L))
+  }
 
   ids <- unique(x$taxon_id[gbif_rows])
   id_df <- data.frame(lookup_id = ids, stringsAsFactors = FALSE)
@@ -70,7 +74,11 @@ add_gbif_info <- function(x) {
                  "infra_specific_epithet")
   available <- intersect(want_cols, names(bb_schema))
 
-  if (length(available) <= 1L) return(x)
+  if (length(available) <= 1L) {
+    bb_meta <- read_backbone_meta(bb_path)
+    ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+    return(register_enrichment(x, "gbif_info", "GBIF", ver, 0L))
+  }
 
   extra_info <- vectra::inner_join(
     vectra::tbl(tmp_ids),
@@ -79,7 +87,11 @@ add_gbif_info <- function(x) {
     by = c("lookup_id" = "id")
   ) |> vectra::collect()
 
-  if (nrow(extra_info) == 0L) return(x)
+  if (nrow(extra_info) == 0L) {
+    bb_meta <- read_backbone_meta(bb_path)
+    ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+    return(register_enrichment(x, "gbif_info", "GBIF", ver, 0L))
+  }
 
   extra_lookup <- split(extra_info, extra_info$lookup_id)
 
@@ -107,5 +119,9 @@ add_gbif_info <- function(x) {
     }
   }
 
-  x
+  bb_meta <- read_backbone_meta(bb_path)
+  ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+  n_enriched <- sum(!is.na(x$notho_type) | !is.na(x$nom_status) |
+                    !is.na(x$origin) | !is.na(x$name_published_in))
+  register_enrichment(x, "gbif_info", "GBIF", ver, n_enriched)
 }

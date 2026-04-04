@@ -28,7 +28,33 @@ utils::globalVariables(c(
   "dl_dist_norm", "levenshtein_norm", "jaro_winkler",
   # register column references
   "query_genus", "life_form", "kingdom_group", "taxon_group",
-  "kingdom", "phylum", "class", "order"
+  "kingdom", "phylum", "class", "order",
+  # enrichment column references (used in vectra NSE select/join)
+  "canonical_name", "conservation_status",
+  "country_code", "invasive_status",
+  "woodiness",
+  "tdwg_code", "native_status",
+  "light", "temperature", "moisture", "reaction", "nutrients",
+  "seed_mass_mg", "plant_height_m",
+  "diet_inv", "diet_vend", "diet_vect", "diet_vfish", "diet_vunk",
+  "diet_scav", "diet_fruit", "diet_nect", "diet_seed", "diet_plantother",
+  "foraging_water", "foraging_ground", "foraging_understory",
+  "foraging_midhigh", "foraging_canopy", "foraging_aerial",
+  "body_mass_g", "nocturnal",
+  "beak_length", "beak_depth", "wing_length", "tail_length",
+  "tarsus_length", "hand_wing_index", "habitat", "trophic_level",
+  "trophic_niche", "migration",
+  "longevity_mo", "litter_size", "gestation_d", "weaning_d",
+  "home_range_km2", "diet_breadth", "habitat_breadth",
+  "lang", "common_name",
+  # AmphiBIO enrichment column references
+  "body_size_mm", "age_maturity_d", "longevity_d", "reproductive_output",
+  "offspring_size_mm", "direct_development", "larval", "aquatic",
+  "fossorial", "arboreal", "diurnal", "nocturnal_amphibio",
+  # LEDA enrichment column references
+  "raunkiaer_life_form", "raunkiaer_variable", "dispersal_type",
+  "terminal_velocity_ms", "leda_seed_mass_mg", "canopy_height_m",
+  "leaf_mass_mg", "sla_mm2_mg", "clonal_growth", "buoyancy"
 ))
 
 # Package-level backbone cache environment (paths to .vtr files)

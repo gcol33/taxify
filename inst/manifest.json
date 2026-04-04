@@ -1,7 +1,57 @@
 {
-  "wfo":      { "latest": "2024.12", "url": "https://zenodo.org/records/PLACEHOLDER/files/wfo_2024.12.vtr" },
-  "col":      { "latest": "2024.11", "url": "https://zenodo.org/records/PLACEHOLDER/files/col_2024.11.vtr" },
-  "gbif":     { "latest": "2024.10", "url": "https://zenodo.org/records/PLACEHOLDER/files/gbif_2024.10.vtr" },
-  "itis":     { "latest": "2025.04", "url": "https://github.com/gcol33/taxify-backbones/releases/download/itis-2025.04/itis.vtr" },
-  "register": { "latest": "2024.12", "url": "https://zenodo.org/records/PLACEHOLDER/files/register_2024.12.vtr" }
+  "schema_version": 2,
+  "backends": {
+    "wfo":   { "latest": "2024.12", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/wfo_2024.12.vtr" },
+    "col":   { "latest": "2024.11", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/col_2024.11.vtr" },
+    "gbif":  { "latest": "2024.10", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/gbif_2024.10.vtr" },
+    "itis":  { "latest": "2025.04", "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/itis-2025.04/itis.vtr" },
+    "register": { "latest": "2024.12", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/register_2024.12.vtr" }
+  },
+  "enrichments": {
+    "conservation_status": {
+      "latest": "2026.04",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/conservation_status.vtr",
+      "nrow": 59583
+    },
+    "griis": {
+      "latest": "2026.04",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/griis.vtr",
+      "nrow": 98131
+    },
+    "wcvp": {
+      "latest": "2026.04",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/wcvp.vtr",
+      "nrow": 1973234
+    },
+    "eive": {
+      "latest": "1.0",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/eive.vtr",
+      "nrow": 14835
+    },
+    "elton_traits": {
+      "latest": "1.0",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/elton_traits.vtr",
+      "nrow": 15394
+    },
+    "avonet": {
+      "latest": "1.0",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/avonet.vtr",
+      "nrow": 11009
+    },
+    "pantheria": {
+      "latest": "1.0",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/pantheria.vtr",
+      "nrow": 5416
+    },
+    "amphibio": {
+      "latest": "1.0",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/amphibio.vtr",
+      "nrow": 6776
+    },
+    "common_names": {
+      "latest": "2026.04",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/common_names.vtr",
+      "nrow": 650480
+    }
+  }
 }

@@ -67,7 +67,11 @@ add_col_info <- function(x) {
   x$is_freshwater <- NA
   x$is_terrestrial <- NA
 
-  if (length(col_rows) == 0L) return(x)
+  if (length(col_rows) == 0L) {
+    bb_meta <- read_backbone_meta(bb_path)
+    ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+    return(register_enrichment(x, "col_info", "COL", ver, 0L))
+  }
 
   # Join extra columns from main backbone
   ids <- unique(x$taxon_id[col_rows])
@@ -153,5 +157,9 @@ add_col_info <- function(x) {
     }
   }
 
-  x
+  bb_meta <- read_backbone_meta(bb_path)
+  ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+  n_enriched <- sum(!is.na(x$notho) | !is.na(x$nomenclaturalCode) |
+                    !is.na(x$kingdom) | !is.na(x$is_extinct))
+  register_enrichment(x, "col_info", "COL", ver, n_enriched)
 }
