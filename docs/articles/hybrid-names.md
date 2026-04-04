@@ -3,30 +3,30 @@
 ## Hybrid names in taxonomy
 
 Botanical nomenclature uses a dedicated marker for hybrids: the
-multiplication sign (U+00D7, rendered as 0d7). This marker appears in
-three distinct positions, each signalling a different kind of hybrid.
+multiplication sign (×, U+00D7). This marker appears in three distinct
+positions, each signalling a different kind of hybrid.
 
 A **nothogenus** places the marker before the genus name, signalling an
 intergeneric hybrid (a cross between species in two different genera).
 Leyland cypress is a well-known example:
 
-> 0d7Cupressocyparis leylandii
+> ×Cupressocyparis leylandii
 
 A **nothospecies** places the marker before the specific epithet, with
 the genus the same on both sides of the cross:
 
-> Mentha 0d7piperita
+> Mentha ×piperita
 
-Peppermint (*Mentha 0d7piperita*, a cross of *M. aquatica* and *M.
+Peppermint (*Mentha ×piperita*, a cross of *M. aquatica* and *M.
 spicata*) is the classic case. The third form, a **hybrid formula**,
 names both parent species explicitly, joined by the multiplication sign:
 
-> Salix alba 0d7 Salix fragilis
+> Salix alba × Salix fragilis
 
 In real-world data, the multiplication sign is frequently replaced by a
 lowercase or uppercase “x”. Herbarium databases, spreadsheet exports,
 and OCR outputs rarely preserve the Unicode character. taxify accepts
-all three forms (`\u00d7`, `x`, `X`) and normalizes them internally. The
+all three forms (`×`, `x`, `X`) and normalizes them internally. The
 detection logic distinguishes a standalone “x” used as a hybrid marker
 from an “x” that is part of a word (e.g., the genus *Saxifraga*) by
 requiring whitespace boundaries around the letter.
@@ -59,17 +59,17 @@ which we cover below after looking at how matched hybrids behave in the
 result table.
 
 After detection, the hybrid marker is stripped from the name before
-matching. For a nothospecies like “Mentha 0d7piperita”, the cleaned form
-becomes “Mentha piperita”. For a hybrid formula like “Salix alba 0d7
-Salix fragilis”, only the first parent binomial (“Salix alba”) is
-retained as the cleaned name, since formulas are not single taxon names
-and cannot match a backbone record directly.
+matching. For a nothospecies like “Mentha ×piperita”, the cleaned form
+becomes “Mentha piperita”. For a hybrid formula like “Salix alba × Salix
+fragilis”, only the first parent binomial (“Salix alba”) is retained as
+the cleaned name, since formulas are not single taxon names and cannot
+match a backbone record directly.
 
 For nothospecies, taxify also constructs a secondary search form with
-the multiplication sign reinserted (“Mentha 0d7 piperita”) and attempts
-to match that against the backbone. Some backbones store nothospecies
-with the 0d7 character in the canonical name, so this secondary attempt
-can recover matches that the stripped form misses.
+the multiplication sign reinserted (“Mentha × piperita”) and attempts to
+match that against the backbone. Some backbones store nothospecies with
+the × character in the canonical name, so this secondary attempt can
+recover matches that the stripped form misses.
 
 ## Worked example: matching a mixed species list
 
@@ -94,17 +94,17 @@ result[, c("input_name", "accepted_name", "is_hybrid", "match_type")]
 
 The expected output looks roughly like this:
 
-| input_name                  | accepted_name          | is_hybrid | match_type |
-|:----------------------------|:-----------------------|:----------|:-----------|
-| Quercus robur               | Quercus robur          | FALSE     | exact      |
-| Mentha x piperita           | Mentha 0d7 piperita    | TRUE      | exact      |
-| x Cupressocyparis leylandii | NA                     | TRUE      | none       |
-| Salix alba x Salix fragilis | Salix alba             | TRUE      | exact      |
-| Platanus x hispanica        | Platanus 0d7 hispanica | TRUE      | exact      |
+| input_name                  | accepted_name        | is_hybrid | match_type |
+|:----------------------------|:---------------------|:----------|:-----------|
+| Quercus robur               | Quercus robur        | FALSE     | exact      |
+| Mentha x piperita           | Mentha × piperita    | TRUE      | exact      |
+| x Cupressocyparis leylandii | NA                   | TRUE      | none       |
+| Salix alba x Salix fragilis | Salix alba           | TRUE      | exact      |
+| Platanus x hispanica        | Platanus × hispanica | TRUE      | exact      |
 
 Several things are visible here. The two nothospecies (Mentha, Platanus)
 matched successfully because WFO stores these as accepted names with the
-0d7 character in the canonical name. The nothogenus 0d7Cupressocyparis
+× character in the canonical name. The nothogenus ×Cupressocyparis
 returned no match because intergeneric hybrid genera are less commonly
 included in backbone databases. The hybrid formula matched only the
 first parent (Salix alba), since the formula itself is not a single
@@ -133,9 +133,9 @@ information. It adds three columns:
 
 For nothogenus and nothospecies names, both parent columns are NA
 because the input names only the hybrid itself, not its parents. The
-parent species of Mentha 0d7piperita (Mentha aquatica and Mentha
-spicata) are not encoded in the name string. Only hybrid formulas carry
-both parent names explicitly.
+parent species of Mentha ×piperita (Mentha aquatica and Mentha spicata)
+are not encoded in the name string. Only hybrid formulas carry both
+parent names explicitly.
 
 ``` r
 
@@ -197,16 +197,15 @@ The three hybrid types have different matching profiles against backbone
 databases.
 
 **Nothospecies** are the best-supported form. WFO and COL both store
-many nothospecies as accepted names, with the 0d7 character as part of
-the canonical name. Mentha 0d7piperita, Platanus 0d7hispanica, and
-Narcissus 0d7medioluteus are examples that appear in both backbones.
-taxify’s matching logic handles the marker correctly: it first tries the
-stripped form (“Mentha piperita”) and then the form with the 0d7
-reinserted (“Mentha 0d7 piperita”). At least one of these typically
-matches.
+many nothospecies as accepted names, with the × character as part of the
+canonical name. Mentha ×piperita, Platanus ×hispanica, and Narcissus
+×medioluteus are examples that appear in both backbones. taxify’s
+matching logic handles the marker correctly: it first tries the stripped
+form (“Mentha piperita”) and then the form with the × reinserted
+(“Mentha × piperita”). At least one of these typically matches.
 
 **Nothogenera** have lower coverage. Intergeneric hybrids like
-0d7Cupressocyparis, 0d7Triticosecale, and 0d7Festulolium exist in some
+×Cupressocyparis, ×Triticosecale, and ×Festulolium exist in some
 backbones but are absent from others. WFO includes several nothogenera
 relevant to agriculture and horticulture. COL’s coverage varies by
 taxonomic group. When a nothogenus does not match, the output row will
@@ -254,8 +253,7 @@ The Unicode multiplication sign (U+00D7) is the correct character for
 hybrid notation under the International Code of Nomenclature. In
 practice, data arrive with three common representations:
 
-1.  The Unicode character itself: `\u00d7` (common in well-curated
-    databases)
+1.  The Unicode character itself: `×` (common in well-curated databases)
 
 2.  A lowercase `x` surrounded by spaces (common in spreadsheets and
     field data)
@@ -271,7 +269,7 @@ prevents false positives: “Saxifraga” does not trigger hybrid detection
 because the “x” sits within a word rather than standing alone between
 tokens.
 
-A subtlety arises with mojibake. When UTF-8 text containing the 0d7
+A subtlety arises with mojibake. When UTF-8 text containing the ×
 character is read with a Latin-1 or Windows-1252 encoding, the two-byte
 sequence can be misinterpreted as “0c3097” or “0c3014”. The name
 cleaning pipeline detects and repairs both of these common misreadings
@@ -289,23 +287,23 @@ minimal hybrid coverage.
 
 **Hybrid detection is input-side only.** taxify detects hybrids in the
 names that you supply. It does not scan the backbone for hybrid records.
-If a backbone stores “Mentha 0d7 piperita” as an accepted name, taxify
+If a backbone stores “Mentha × piperita” as an accepted name, taxify
 will match your input against it, but the backbone record’s own hybrid
 status is not exposed as a separate field. The `is_hybrid` column
 reflects your input, not the backbone.
 
 **Formulas with infraspecific ranks.** The parser expects binomials
-(genus plus epithet) on both sides of the 0d7 marker. Formulas that
-include subspecies or variety ranks (e.g., “Salix alba var. vitellina
-0d7 Salix fragilis”) will still be detected as formulas, but the parent
+(genus plus epithet) on both sides of the × marker. Formulas that
+include subspecies or variety ranks (e.g., “Salix alba var. vitellina ×
+Salix fragilis”) will still be detected as formulas, but the parent
 extraction may include the rank and infraspecific epithet as part of the
 parent name. This is generally the desired behavior, since the full
 trinomial identifies the parent more precisely than the binomial alone.
 
 **Authorship in hybrid names.** Hybrid names sometimes carry authorship
-strings (e.g., “Mentha 0d7piperita L.”). The name cleaning pipeline
-strips authorship before matching, so the presence of an author string
-does not interfere with hybrid detection or matching.
+strings (e.g., “Mentha ×piperita L.”). The name cleaning pipeline strips
+authorship before matching, so the presence of an author string does not
+interfere with hybrid detection or matching.
 
 ``` r
 

@@ -104,32 +104,31 @@
 <h2 id="hybrid-names-in-taxonomy">Hybrid names in taxonomy<a class="anchor" aria-label="anchor" href="#hybrid-names-in-taxonomy"></a>
 </h2>
 <p>Botanical nomenclature uses a dedicated marker for hybrids: the
-multiplication sign (U+00D7, rendered as 0d7). This marker appears in
-three distinct positions, each signalling a different kind of
-hybrid.</p>
+multiplication sign (×, U+00D7). This marker appears in three distinct
+positions, each signalling a different kind of hybrid.</p>
 <p>A <strong>nothogenus</strong> places the marker before the genus
 name, signalling an intergeneric hybrid (a cross between species in two
 different genera). Leyland cypress is a well-known example:</p>
 <blockquote>
-<p>0d7Cupressocyparis leylandii</p>
+<p>×Cupressocyparis leylandii</p>
 </blockquote>
 <p>A <strong>nothospecies</strong> places the marker before the specific
 epithet, with the genus the same on both sides of the cross:</p>
 <blockquote>
-<p>Mentha 0d7piperita</p>
+<p>Mentha ×piperita</p>
 </blockquote>
-<p>Peppermint (<em>Mentha 0d7piperita</em>, a cross of <em>M.
+<p>Peppermint (<em>Mentha ×piperita</em>, a cross of <em>M.
 aquatica</em> and <em>M. spicata</em>) is the classic case. The third
 form, a <strong>hybrid formula</strong>, names both parent species
 explicitly, joined by the multiplication sign:</p>
 <blockquote>
-<p>Salix alba 0d7 Salix fragilis</p>
+<p>Salix alba × Salix fragilis</p>
 </blockquote>
 <p>In real-world data, the multiplication sign is frequently replaced by
 a lowercase or uppercase “x”. Herbarium databases, spreadsheet exports,
 and OCR outputs rarely preserve the Unicode character. taxify accepts
-all three forms (<code>\u00d7</code>, <code>x</code>, <code>X</code>)
-and normalizes them internally. The detection logic distinguishes a
+all three forms (<code>×</code>, <code>x</code>, <code>X</code>) and
+normalizes them internally. The detection logic distinguishes a
 standalone “x” used as a hybrid marker from an “x” that is part of a
 word (e.g., the genus <em>Saxifraga</em>) by requiring whitespace
 boundaries around the letter.</p>
@@ -155,16 +154,16 @@ exposed directly in the main output; it becomes available through
 <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>, which we cover below after looking at
 how matched hybrids behave in the result table.</p>
 <p>After detection, the hybrid marker is stripped from the name before
-matching. For a nothospecies like “Mentha 0d7piperita”, the cleaned form
-becomes “Mentha piperita”. For a hybrid formula like “Salix alba 0d7
-Salix fragilis”, only the first parent binomial (“Salix alba”) is
-retained as the cleaned name, since formulas are not single taxon names
-and cannot match a backbone record directly.</p>
+matching. For a nothospecies like “Mentha ×piperita”, the cleaned form
+becomes “Mentha piperita”. For a hybrid formula like “Salix alba × Salix
+fragilis”, only the first parent binomial (“Salix alba”) is retained as
+the cleaned name, since formulas are not single taxon names and cannot
+match a backbone record directly.</p>
 <p>For nothospecies, taxify also constructs a secondary search form with
-the multiplication sign reinserted (“Mentha 0d7 piperita”) and attempts
-to match that against the backbone. Some backbones store nothospecies
-with the 0d7 character in the canonical name, so this secondary attempt
-can recover matches that the stripped form misses.</p>
+the multiplication sign reinserted (“Mentha × piperita”) and attempts to
+match that against the backbone. Some backbones store nothospecies with
+the × character in the canonical name, so this secondary attempt can
+recover matches that the stripped form misses.</p>
 </div>
 <div class="section level2">
 <h2 id="worked-example-matching-a-mixed-species-list">Worked example: matching a mixed species list<a class="anchor" aria-label="anchor" href="#worked-example-matching-a-mixed-species-list"></a>
@@ -206,7 +205,7 @@ nothogenus, and a hybrid formula. We pass them all to
 </tr>
 <tr class="even">
 <td align="left">Mentha x piperita</td>
-<td align="left">Mentha 0d7 piperita</td>
+<td align="left">Mentha × piperita</td>
 <td align="left">TRUE</td>
 <td align="left">exact</td>
 </tr>
@@ -224,7 +223,7 @@ nothogenus, and a hybrid formula. We pass them all to
 </tr>
 <tr class="odd">
 <td align="left">Platanus x hispanica</td>
-<td align="left">Platanus 0d7 hispanica</td>
+<td align="left">Platanus × hispanica</td>
 <td align="left">TRUE</td>
 <td align="left">exact</td>
 </tr>
@@ -232,8 +231,8 @@ nothogenus, and a hybrid formula. We pass them all to
 </table>
 <p>Several things are visible here. The two nothospecies (Mentha,
 Platanus) matched successfully because WFO stores these as accepted
-names with the 0d7 character in the canonical name. The nothogenus
-0d7Cupressocyparis returned no match because intergeneric hybrid genera
+names with the × character in the canonical name. The nothogenus
+×Cupressocyparis returned no match because intergeneric hybrid genera
 are less commonly included in backbone databases. The hybrid formula
 matched only the first parent (Salix alba), since the formula itself is
 not a single taxon name.</p>
@@ -259,9 +258,9 @@ non-hybrids</p></li>
 </ul>
 <p>For nothogenus and nothospecies names, both parent columns are NA
 because the input names only the hybrid itself, not its parents. The
-parent species of Mentha 0d7piperita (Mentha aquatica and Mentha
-spicata) are not encoded in the name string. Only hybrid formulas carry
-both parent names explicitly.</p>
+parent species of Mentha ×piperita (Mentha aquatica and Mentha spicata)
+are not encoded in the name string. Only hybrid formulas carry both
+parent names explicitly.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The three new columns for our five-name example:</p>
@@ -387,16 +386,16 @@ letter followed by a period.</p>
 <p>The three hybrid types have different matching profiles against
 backbone databases.</p>
 <p><strong>Nothospecies</strong> are the best-supported form. WFO and
-COL both store many nothospecies as accepted names, with the 0d7
-character as part of the canonical name. Mentha 0d7piperita, Platanus
-0d7hispanica, and Narcissus 0d7medioluteus are examples that appear in
-both backbones. taxify’s matching logic handles the marker correctly: it
-first tries the stripped form (“Mentha piperita”) and then the form with
-the 0d7 reinserted (“Mentha 0d7 piperita”). At least one of these
-typically matches.</p>
+COL both store many nothospecies as accepted names, with the × character
+as part of the canonical name. Mentha ×piperita, Platanus ×hispanica,
+and Narcissus ×medioluteus are examples that appear in both backbones.
+taxify’s matching logic handles the marker correctly: it first tries the
+stripped form (“Mentha piperita”) and then the form with the ×
+reinserted (“Mentha × piperita”). At least one of these typically
+matches.</p>
 <p><strong>Nothogenera</strong> have lower coverage. Intergeneric
-hybrids like 0d7Cupressocyparis, 0d7Triticosecale, and 0d7Festulolium
-exist in some backbones but are absent from others. WFO includes several
+hybrids like ×Cupressocyparis, ×Triticosecale, and ×Festulolium exist in
+some backbones but are absent from others. WFO includes several
 nothogenera relevant to agriculture and horticulture. COL’s coverage
 varies by taxonomic group. When a nothogenus does not match, the output
 row will have <code>match_type = "none"</code> and
@@ -435,7 +434,7 @@ hybrid formulas, we can extract the parent columns from
 hybrid notation under the International Code of Nomenclature. In
 practice, data arrive with three common representations:</p>
 <ol style="list-style-type: decimal">
-<li><p>The Unicode character itself: <code>\u00d7</code> (common in
+<li><p>The Unicode character itself: <code>×</code> (common in
 well-curated databases)</p></li>
 <li><p>A lowercase <code>x</code> surrounded by spaces (common in
 spreadsheets and field data)</p></li>
@@ -449,7 +448,7 @@ stream, so the downstream logic only needs to handle one representation.
 The space-boundary requirement prevents false positives: “Saxifraga”
 does not trigger hybrid detection because the “x” sits within a word
 rather than standing alone between tokens.</p>
-<p>A subtlety arises with mojibake. When UTF-8 text containing the 0d7
+<p>A subtlety arises with mojibake. When UTF-8 text containing the ×
 character is read with a Latin-1 or Windows-1252 encoding, the two-byte
 sequence can be misinterpreted as “0c3097” or “0c3014”. The name
 cleaning pipeline detects and repairs both of these common misreadings
@@ -467,20 +466,20 @@ hybrid names where the contributing checklists provide them. ITIS, NCBI,
 and OTT have minimal hybrid coverage.</p>
 <p><strong>Hybrid detection is input-side only.</strong> taxify detects
 hybrids in the names that you supply. It does not scan the backbone for
-hybrid records. If a backbone stores “Mentha 0d7 piperita” as an
-accepted name, taxify will match your input against it, but the backbone
-record’s own hybrid status is not exposed as a separate field. The
+hybrid records. If a backbone stores “Mentha × piperita” as an accepted
+name, taxify will match your input against it, but the backbone record’s
+own hybrid status is not exposed as a separate field. The
 <code>is_hybrid</code> column reflects your input, not the backbone.</p>
 <p><strong>Formulas with infraspecific ranks.</strong> The parser
-expects binomials (genus plus epithet) on both sides of the 0d7 marker.
+expects binomials (genus plus epithet) on both sides of the × marker.
 Formulas that include subspecies or variety ranks (e.g., “Salix alba
-var. vitellina 0d7 Salix fragilis”) will still be detected as formulas,
+var. vitellina × Salix fragilis”) will still be detected as formulas,
 but the parent extraction may include the rank and infraspecific epithet
 as part of the parent name. This is generally the desired behavior,
 since the full trinomial identifies the parent more precisely than the
 binomial alone.</p>
 <p><strong>Authorship in hybrid names.</strong> Hybrid names sometimes
-carry authorship strings (e.g., “Mentha 0d7piperita L.”). The name
+carry authorship strings (e.g., “Mentha ×piperita L.”). The name
 cleaning pipeline strips authorship before matching, so the presence of
 an author string does not interfere with hybrid detection or
 matching.</p>

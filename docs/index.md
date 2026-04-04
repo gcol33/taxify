@@ -6,9 +6,8 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 **Offline Taxonomic Name Matching Against Local Darwin Core Snapshots**
 
 Match taxonomic names against locally stored backbone databases, resolve
-synonyms, and enrich results with trait and status data. No API calls,
-no internet dependency, no rate limits. Nine backends, twelve enrichment
-layers, and a unified 16-column output schema.
+synonyms, and enrich results with trait and status data from published
+datasets. No API calls, no internet dependency, no rate limits.
 
 ## Quick Start
 
@@ -22,35 +21,131 @@ library(taxify)
 # Match names against WFO (downloads backbone on first use, ~120 MB)
 result <- taxify(c(
   "Quercus robur",
-  "Pinus abies",            # synonym of Picea abies
-  "Quercus robus",          # typo, fuzzy-corrected
+  "Pinus abies",            # synonym → resolved to Picea abies
+  "Quercus robus",          # typo → fuzzy-corrected to Q. robur
   "Taraxacum officinale"
 ))
 
-# Add conservation status and common names
+# Enrich with conservation status and plant traits
 result |>
   add_conservation_status() |>
-  add_common_names()
+  add_woodiness() |>
+  add_eive()
+
+# Join your own data (CSV, XLSX, SQLite, or data.frame)
+result |> add_data("my_traits.csv", species_col = "species")
 ```
 
-## Statement of Need
+## What taxify does
 
-taxize was removed from CRAN because its web API dependencies broke.
-WorldFlora works offline but only supports WFO, chokes on large batches,
-and offers no enrichment pipeline.
+taxify resolves taxonomic names offline against nine backbone databases
+covering all kingdoms of life, then optionally enriches the results with
+trait and status data from twelve published datasets. The matching
+engine is written in C (via the
+[vectra](https://github.com/gcol33/vectra) columnar engine), so large
+species lists resolve in seconds.
 
-taxify provides offline matching against 9 backbone databases with fuzzy
-matching in C, synonym resolution, hybrid name handling, and a
-pipe-based enrichment system for joining trait and status data from 12
-published datasets.
+The core workflow is: clean input names, match against a backbone,
+resolve synonyms to accepted names, and return a standardized 16-column
+data.frame. Every step runs locally against versioned backbone
+snapshots, so results are fully reproducible.
+
+### Related packages
+
+R has a rich ecosystem for taxonomic name resolution. Two packages cover
+similar ground:
+
+- [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries a
+  dozen web APIs in real time. It is the right choice when you need live
+  access to upstream databases or features that taxify does not cover
+  (e.g., `downstream()`, `comm2sci()`).
+- [**WorldFlora**](https://cran.r-project.org/package=WorldFlora)
+  matches names offline against the WFO backbone. It is well-tested and
+  straightforward for small to medium plant lists.
+
+taxify does something different: it matches offline across nine
+backbones at once, resolves synonyms, and pipes the result straight into
+trait enrichments.
+
+### Speed
+
+All matching in taxify is vectorized at the C level with genus-blocked
+joins. Before matching, input names are cleaned automatically:
+
+``` r
+# What you provide:              What taxify matches against the backbone:
+"Quercus robur L."            →  "Quercus robur"        # authorship stripped
+"Pinus cf. sylvestris"        →  "Pinus sylvestris"      # qualifier removed
+"Nothofagus × alpina"         →  "Nothofagus alpina"     # hybrid marker normalized
+"Oenothera"                   →  "Oenothera"             # ae/oe alternation handled
+"Betula pendula (Roth) Doll"  →  "Betula pendula"        # parenthesized author stripped
+```
+
+This means the fuzzy pass only runs on names that genuinely differ from
+the backbone, not on names that just carry extra authorship or
+qualifiers.
+
+Benchmark on the same WFO backbone, same 5,000 plant names (Windows, R
+4.5.2):
+
+|                           | taxify            | WorldFlora             |
+|---------------------------|-------------------|------------------------|
+| Exact match (1,000 names) | 0.1 s             | 1.3 s                  |
+| Fuzzy match (1,000 names) | 1.0 s             | 1,862 s (31 min)       |
+| Fuzzy match (5,000 names) | 1.1 s             | ~83 min (extrapolated) |
+| Backbone load             | ~3 s (first call) | 33 s (CSV into RAM)    |
+
+taxify’s throughput increases with batch size because the C engine
+amortizes setup costs across the full input vector.
+
+## Output
+
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+returns a data.frame with one row per input name and 16 columns:
+
+| Column             | Description                                    |
+|--------------------|------------------------------------------------|
+| `input_name`       | Original name as provided                      |
+| `matched_name`     | Name in the backbone that matched              |
+| `accepted_name`    | Accepted name after synonym resolution         |
+| `taxon_id`         | Backend-specific ID of the matched name        |
+| `accepted_id`      | ID of the accepted name                        |
+| `rank`             | Taxonomic rank (species, subspecies, genus, …) |
+| `family`           | Family                                         |
+| `genus`            | Genus                                          |
+| `epithet`          | Specific epithet                               |
+| `authorship`       | Authorship string                              |
+| `is_synonym`       | Was the match a synonym?                       |
+| `is_hybrid`        | Was a hybrid marker detected?                  |
+| `match_type`       | `exact`, `exact_ci`, `fuzzy`, or `none`        |
+| `fuzzy_dist`       | Normalized string distance (0–1), NA if exact  |
+| `backend`          | Which backbone was used                        |
+| `backbone_version` | Backend, version, and download date            |
+
+[`summary()`](https://rdrr.io/r/base/summary.html) prints a compact
+digest:
+
+``` r
+
+summary(result)
+#> ── taxify results ────────────────────────────────────────────────────
+#>   backend: WFO  |  4 names submitted
+#>
+#>   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2)
+#>   unmatched       0
+#>   ────────────────────────────────────────────────────────────────────
+#>   taxon groups: plant: 4
+```
 
 ## Features
 
 ### Matching
 
-- Exact match (case-sensitive and case-insensitive)
+- Exact match (case-insensitive)
 - Fuzzy match with configurable algorithm (Damerau-Levenshtein,
   Levenshtein, Jaro-Winkler) and threshold
+- Automatic name cleaning before matching (authorship, qualifiers,
+  hybrid markers, orthography)
 - Synonym resolution to accepted names
 - Best-match selection (ACCEPTED \> SYNONYM, SPECIES \> higher ranks)
 - Multi-backend fallback chains:
@@ -58,55 +153,73 @@ published datasets.
 
 ### Backends
 
-| Backend          | Scope                       | Approx. names |
-|------------------|-----------------------------|---------------|
-| WFO              | Vascular plants             | ~400k         |
-| COL              | All kingdoms                | ~4.5M         |
-| GBIF             | All kingdoms                | ~10M          |
-| ITIS             | US focus, freshwater/marine | ~900k         |
-| NCBI             | All life                    | ~2.5M         |
-| OTT              | All life (synthetic)        | ~4M           |
-| WoRMS            | Marine/aquatic              | ~600k         |
-| Species Fungorum | Fungi                       | ~500k         |
-| AlgaeBase        | Algae                       | –             |
+Nine backbone databases, downloaded once and stored locally as
+compressed `.vtr` files:
+
+| Backend | Scope | Approx. names |
+|----|----|----|
+| [WFO](https://www.worldfloraonline.org/) | Vascular plants | ~400k |
+| [COL](https://www.catalogueoflife.org/) | All kingdoms | ~4.5M |
+| [GBIF](https://www.gbif.org/) | All kingdoms | ~10M |
+| [ITIS](https://www.itis.gov/) | US focus, freshwater/marine | ~900k |
+| [NCBI Taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | ~2.5M |
+| [Open Tree of Life](https://opentreeoflife.github.io/) | All life (synthetic) | ~4M |
+| [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | ~600k |
+| [Species Fungorum](https://www.speciesfungorum.org/) | Fungi | ~329k |
+| [AlgaeBase](https://www.algaebase.org/) | Algae | ~172k |
 
 ### Enrichments
 
+Twelve enrichment layers join published trait and status data to your
+results via backbone-resolved accepted names:
+
 ``` r
 
-taxify(names) |>
-  add_conservation_status() |>  # IUCN Red List
-  add_invasive_status("AT") |>  # GRIIS by country
-  add_woodiness() |>            # Zanne et al.
-  add_common_names("en")        # GBIF vernacular names
+taxify(plant_names) |>
+  add_conservation_status() |>   # IUCN Red List
+  add_invasive_status("AT") |>   # GRIIS invasive status
+  add_woodiness() |>             # Zanne et al.
+  add_eive()                     # EIVE indicator values
 ```
 
-Twelve enrichment layers join trait and status data via
-backbone-resolved accepted names:
+| Enrichment | Source | Reference | Taxa |
+|----|----|----|----|
+| [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md) | [IUCN Red List](https://www.iucnredlist.org/) | IUCN (2024) | All |
+| [`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md) | [GRIIS](https://griis.org/) | Pagad et al. (2018) | All |
+| [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) | [WCVP](https://powo.science.kew.org/) | Govaerts et al. (2021) | Plants |
+| [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md) | [Zanne et al.](https://datadryad.org/stash/dataset/doi:10.5061/dryad.63q27) | Zanne et al. (2014) | Plants |
+| [`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md) | [EIVE 1.0](https://doi.org/10.5281/zenodo.7534792) | Dengler et al. (2023) | European plants |
+| [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md) | [Diaz et al.](https://doi.org/10.1038/s41586-022-05606-z) | Diaz et al. (2022) | Plants |
+| [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md) | [LEDA Traitbase](https://uol.de/en/landeco/research/leda) | Kleyer et al. (2008) | NW European plants |
+| [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md) | [EltonTraits 1.0](https://doi.org/10.6084/m9.figshare.c.3306933) | Wilman et al. (2014) | Birds, mammals |
+| [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md) | [AVONET](https://doi.org/10.6084/m9.figshare.16586228) | Tobias et al. (2022) | Birds |
+| [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md) | [PanTHERIA](https://esapubs.org/archive/ecol/E090/184/) | Jones et al. (2009) | Mammals |
+| [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md) | [AmphiBIO](https://doi.org/10.6084/m9.figshare.4644424) | Oliveira et al. (2017) | Amphibians |
+| [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | [GBIF](https://www.gbif.org/) | GBIF (2024) | All |
 
-| Enrichment | Source | Taxa |
-|----|----|----|
-| [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md) | IUCN Red List | All |
-| [`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md) | GRIIS | All |
-| [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) | WCVP | Plants |
-| [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md) | Zanne et al. | Plants |
-| [`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md) | EIVE 1.0 | European plants |
-| [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md) | Diaz et al. | Plants |
-| [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md) | LEDA Traitbase | NW European plants |
-| [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md) | EltonTraits 1.0 | Birds, mammals |
-| [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md) | AVONET | Birds |
-| [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md) | PanTHERIA | Mammals |
-| [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md) | AmphiBIO | Amphibians |
-| [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | GBIF | All |
+### Custom data
 
-Custom data can be joined via
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md),
-which accepts data.frames, CSV, XLSX, SQLite, and .vtr files.
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+joins any external dataset to your taxify results via backbone-resolved
+name matching. It accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and
+.vtr files.
+
+``` r
+
+# Join TRY plant trait data
+result |> add_data(
+  "TRY_traits.csv",
+  species_col = "AccSpeciesName",
+  cols = c("LeafArea", "SLA", "PlantHeight")
+)
+```
 
 ### Name Cleaning
 
+Input names are automatically cleaned before matching:
+
 - Authorship stripping (parenthesized and trailing)
-- Qualifier detection (cf., aff., s.l., s.str., agg.)
+- Qualifier detection and removal (cf., aff., s.l., s.str., agg.)
 - Hybrid marker normalization (×, x, X)
 - Latin orthographic normalization (ae/oe alternations)
 - Bracket, number, and whitespace cleanup
@@ -162,12 +275,32 @@ result <- taxify(plant_names) |>
   add_woodiness() |>
   add_eive()
 
-# Join custom data
-result |> add_data(my_traits, species_col = "species")
+# Join external trait data
+result |> add_data("TRY_traits.csv", species_col = "AccSpeciesName")
 
 # Check the result
 summary(result)
 ```
+
+## Citation and licensing
+
+taxify itself is MIT-licensed. However, the backbone databases and
+enrichment datasets have their own licenses and citation requirements.
+When you publish results, please cite:
+
+1.  **The backbone(s) you used** – each backbone has its own citation.
+    Run
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+    and check the `backbone_version` column for which version you
+    matched against.
+2.  **The enrichment datasets you used** – the enrichment table above
+    links to each source. Most are CC BY or CC BY-NC licensed and
+    require citation of the original publication.
+3.  **taxify** (optional but appreciated).
+
+The [enrichments
+vignette](https://gillescolling.com/taxify/articles/enrichments.html)
+lists full citations for each dataset.
 
 ## Documentation
 

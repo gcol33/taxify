@@ -108,14 +108,12 @@ step. Field records, herbarium labels, and literature extractions use
 different spellings, outdated synonyms, and informal qualifiers. Before
 any statistical work can begin, those raw strings need to be resolved to
 a single accepted name per taxon.</p>
-<p>The R ecosystem used to handle this through taxize, which queried
-online APIs (GBIF, ITIS, NCBI, and others) in real time. taxize was
-removed from CRAN in 2024, and even before that, the API-dependent
-design had practical limits: rate-limited requests, unstable upstream
-endpoints, and unreproducible results when a backbone updated between
-runs. WorldFlora offered a local alternative for plants, but it supports
-only the World Flora Online backbone and lacks fuzzy matching, synonym
-chaining, and any concept of enrichment.</p>
+<p>Two R packages handle this well: <a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a> queries online APIs
+in real time, and <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a>
+matches names offline against the WFO backbone. taxify builds on the
+same idea but works offline against nine backbone databases at once,
+with fuzzy matching in C, synonym resolution, and a built-in enrichment
+pipeline for joining trait and status data.</p>
 <p>taxify takes a different approach. It downloads Darwin Core backbone
 snapshots to disk once, converts them to a compressed columnar format
 (.vtr files powered by the vectra engine), and runs all matching offline

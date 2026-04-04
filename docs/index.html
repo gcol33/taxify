@@ -92,7 +92,7 @@
 </h1></div>
 <p><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
 <p><strong>Offline Taxonomic Name Matching Against Local Darwin Core Snapshots</strong></p>
-<p>Match taxonomic names against locally stored backbone databases, resolve synonyms, and enrich results with trait and status data. No API calls, no internet dependency, no rate limits. Nine backends, twelve enrichment layers, and a unified 16-column output schema.</p>
+<p>Match taxonomic names against locally stored backbone databases, resolve synonyms, and enrich results with trait and status data from published datasets. No API calls, no internet dependency, no rate limits.</p>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
@@ -105,21 +105,169 @@
 <span><span class="co"># Match names against WFO (downloads backbone on first use, ~120 MB)</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,</span>
-<span>  <span class="st">"Pinus abies"</span>,            <span class="co"># synonym of Picea abies</span></span>
-<span>  <span class="st">"Quercus robus"</span>,          <span class="co"># typo, fuzzy-corrected</span></span>
+<span>  <span class="st">"Pinus abies"</span>,            <span class="co"># synonym → resolved to Picea abies</span></span>
+<span>  <span class="st">"Quercus robus"</span>,          <span class="co"># typo → fuzzy-corrected to Q. robur</span></span>
 <span>  <span class="st">"Taraxacum officinale"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Add conservation status and common names</span></span>
+<span><span class="co"># Enrich with conservation status and plant traits</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_common_names.html">add_common_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Join your own data (CSV, XLSX, SQLite, or data.frame)</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"my_traits.csv"</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="statement-of-need">Statement of Need<a class="anchor" aria-label="anchor" href="#statement-of-need"></a>
+<h2 id="what-taxify-does">What taxify does<a class="anchor" aria-label="anchor" href="#what-taxify-does"></a>
 </h2>
-<p>taxize was removed from CRAN because its web API dependencies broke. WorldFlora works offline but only supports WFO, chokes on large batches, and offers no enrichment pipeline.</p>
-<p>taxify provides offline matching against 9 backbone databases with fuzzy matching in C, synonym resolution, hybrid name handling, and a pipe-based enrichment system for joining trait and status data from 12 published datasets.</p>
+<p>taxify resolves taxonomic names offline against nine backbone databases covering all kingdoms of life, then optionally enriches the results with trait and status data from twelve published datasets. The matching engine is written in C (via the <a href="https://github.com/gcol33/vectra" class="external-link">vectra</a> columnar engine), so large species lists resolve in seconds.</p>
+<p>The core workflow is: clean input names, match against a backbone, resolve synonyms to accepted names, and return a standardized 16-column data.frame. Every step runs locally against versioned backbone snapshots, so results are fully reproducible.</p>
+<div class="section level3">
+<h3 id="related-packages">Related packages<a class="anchor" aria-label="anchor" href="#related-packages"></a>
+</h3>
+<p>R has a rich ecosystem for taxonomic name resolution. Two packages cover similar ground:</p>
+<ul>
+<li>
+<a href="https://docs.ropensci.org/taxize/" class="external-link"><strong>taxize</strong></a> (rOpenSci) queries a dozen web APIs in real time. It is the right choice when you need live access to upstream databases or features that taxify does not cover (e.g., <code>downstream()</code>, <code>comm2sci()</code>).</li>
+<li>
+<a href="https://cran.r-project.org/package=WorldFlora" class="external-link"><strong>WorldFlora</strong></a> matches names offline against the WFO backbone. It is well-tested and straightforward for small to medium plant lists.</li>
+</ul>
+<p>taxify does something different: it matches offline across nine backbones at once, resolves synonyms, and pipes the result straight into trait enrichments.</p>
+</div>
+<div class="section level3">
+<h3 id="speed">Speed<a class="anchor" aria-label="anchor" href="#speed"></a>
+</h3>
+<p>All matching in taxify is vectorized at the C level with genus-blocked joins. Before matching, input names are cleaned automatically:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># What you provide:              What taxify matches against the backbone:</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="st">"Quercus robur L."</span>            →  <span class="st">"Quercus robur"</span>        <span class="co"># authorship stripped</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="st">"Pinus cf. sylvestris"</span>        →  <span class="st">"Pinus sylvestris"</span>      <span class="co"># qualifier removed</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="st">"Nothofagus × alpina"</span>         →  <span class="st">"Nothofagus alpina"</span>     <span class="co"># hybrid marker normalized</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="st">"Oenothera"</span>                   →  <span class="st">"Oenothera"</span>             <span class="co"># ae/oe alternation handled</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="st">"Betula pendula (Roth) Doll"</span>  →  <span class="st">"Betula pendula"</span>        <span class="co"># parenthesized author stripped</span></span></code></pre></div>
+<p>This means the fuzzy pass only runs on names that genuinely differ from the backbone, not on names that just carry extra authorship or qualifiers.</p>
+<p>Benchmark on the same WFO backbone, same 5,000 plant names (Windows, R 4.5.2):</p>
+<table class="table">
+<thead><tr>
+<th></th>
+<th>taxify</th>
+<th>WorldFlora</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Exact match (1,000 names)</td>
+<td>0.1 s</td>
+<td>1.3 s</td>
+</tr>
+<tr>
+<td>Fuzzy match (1,000 names)</td>
+<td>1.0 s</td>
+<td>1,862 s (31 min)</td>
+</tr>
+<tr>
+<td>Fuzzy match (5,000 names)</td>
+<td>1.1 s</td>
+<td>~83 min (extrapolated)</td>
+</tr>
+<tr>
+<td>Backbone load</td>
+<td>~3 s (first call)</td>
+<td>33 s (CSV into RAM)</td>
+</tr>
+</tbody>
+</table>
+<p>taxify’s throughput increases with batch size because the C engine amortizes setup costs across the full input vector.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="output">Output<a class="anchor" aria-label="anchor" href="#output"></a>
+</h2>
+<p><code><a href="reference/taxify.html">taxify()</a></code> returns a data.frame with one row per input name and 16 columns:</p>
+<table class="table">
+<thead><tr>
+<th>Column</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>input_name</code></td>
+<td>Original name as provided</td>
+</tr>
+<tr>
+<td><code>matched_name</code></td>
+<td>Name in the backbone that matched</td>
+</tr>
+<tr>
+<td><code>accepted_name</code></td>
+<td>Accepted name after synonym resolution</td>
+</tr>
+<tr>
+<td><code>taxon_id</code></td>
+<td>Backend-specific ID of the matched name</td>
+</tr>
+<tr>
+<td><code>accepted_id</code></td>
+<td>ID of the accepted name</td>
+</tr>
+<tr>
+<td><code>rank</code></td>
+<td>Taxonomic rank (species, subspecies, genus, …)</td>
+</tr>
+<tr>
+<td><code>family</code></td>
+<td>Family</td>
+</tr>
+<tr>
+<td><code>genus</code></td>
+<td>Genus</td>
+</tr>
+<tr>
+<td><code>epithet</code></td>
+<td>Specific epithet</td>
+</tr>
+<tr>
+<td><code>authorship</code></td>
+<td>Authorship string</td>
+</tr>
+<tr>
+<td><code>is_synonym</code></td>
+<td>Was the match a synonym?</td>
+</tr>
+<tr>
+<td><code>is_hybrid</code></td>
+<td>Was a hybrid marker detected?</td>
+</tr>
+<tr>
+<td><code>match_type</code></td>
+<td>
+<code>exact</code>, <code>exact_ci</code>, <code>fuzzy</code>, or <code>none</code>
+</td>
+</tr>
+<tr>
+<td><code>fuzzy_dist</code></td>
+<td>Normalized string distance (0–1), NA if exact</td>
+</tr>
+<tr>
+<td><code>backend</code></td>
+<td>Which backbone was used</td>
+</tr>
+<tr>
+<td><code>backbone_version</code></td>
+<td>Backend, version, and download date</td>
+</tr>
+</tbody>
+</table>
+<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> prints a compact digest:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ── taxify results ────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   backend: WFO  |  4 names submitted</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2)</span></span>
+<span><span class="co">#&gt;   unmatched       0</span></span>
+<span><span class="co">#&gt;   ────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   taxon groups: plant: 4</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
@@ -128,8 +276,9 @@
 <h3 id="matching">Matching<a class="anchor" aria-label="anchor" href="#matching"></a>
 </h3>
 <ul>
-<li>Exact match (case-sensitive and case-insensitive)</li>
+<li>Exact match (case-insensitive)</li>
 <li>Fuzzy match with configurable algorithm (Damerau-Levenshtein, Levenshtein, Jaro-Winkler) and threshold</li>
+<li>Automatic name cleaning before matching (authorship, qualifiers, hybrid markers, orthography)</li>
 <li>Synonym resolution to accepted names</li>
 <li>Best-match selection (ACCEPTED &gt; SYNONYM, SPECIES &gt; higher ranks)</li>
 <li>Multi-backend fallback chains: <code>taxify(names, backend = c("wfo", "col", "gbif"))</code>
@@ -139,7 +288,13 @@
 <div class="section level3">
 <h3 id="backends">Backends<a class="anchor" aria-label="anchor" href="#backends"></a>
 </h3>
+<p>Nine backbone databases, downloaded once and stored locally as compressed <code>.vtr</code> files:</p>
 <table class="table">
+<colgroup>
+<col width="29%">
+<col width="22%">
+<col width="48%">
+</colgroup>
 <thead><tr>
 <th>Backend</th>
 <th>Scope</th>
@@ -147,49 +302,49 @@
 </tr></thead>
 <tbody>
 <tr>
-<td>WFO</td>
+<td><a href="https://www.worldfloraonline.org/" class="external-link">WFO</a></td>
 <td>Vascular plants</td>
 <td>~400k</td>
 </tr>
 <tr>
-<td>COL</td>
+<td><a href="https://www.catalogueoflife.org/" class="external-link">COL</a></td>
 <td>All kingdoms</td>
 <td>~4.5M</td>
 </tr>
 <tr>
-<td>GBIF</td>
+<td><a href="https://www.gbif.org/" class="external-link">GBIF</a></td>
 <td>All kingdoms</td>
 <td>~10M</td>
 </tr>
 <tr>
-<td>ITIS</td>
+<td><a href="https://www.itis.gov/" class="external-link">ITIS</a></td>
 <td>US focus, freshwater/marine</td>
 <td>~900k</td>
 </tr>
 <tr>
-<td>NCBI</td>
+<td><a href="https://www.ncbi.nlm.nih.gov/taxonomy" class="external-link">NCBI Taxonomy</a></td>
 <td>All life</td>
 <td>~2.5M</td>
 </tr>
 <tr>
-<td>OTT</td>
+<td><a href="https://opentreeoflife.github.io/" class="external-link">Open Tree of Life</a></td>
 <td>All life (synthetic)</td>
 <td>~4M</td>
 </tr>
 <tr>
-<td>WoRMS</td>
+<td><a href="https://www.marinespecies.org/" class="external-link">WoRMS</a></td>
 <td>Marine/aquatic</td>
 <td>~600k</td>
 </tr>
 <tr>
-<td>Species Fungorum</td>
+<td><a href="https://www.speciesfungorum.org/" class="external-link">Species Fungorum</a></td>
 <td>Fungi</td>
-<td>~500k</td>
+<td>~329k</td>
 </tr>
 <tr>
-<td>AlgaeBase</td>
+<td><a href="https://www.algaebase.org/" class="external-link">AlgaeBase</a></td>
 <td>Algae</td>
-<td>–</td>
+<td>~172k</td>
 </tr>
 </tbody>
 </table>
@@ -197,90 +352,121 @@
 <div class="section level3">
 <h3 id="enrichments">Enrichments<a class="anchor" aria-label="anchor" href="#enrichments"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>  <span class="co"># IUCN Red List</span></span>
-<span>  <span class="fu"><a href="reference/add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span><span class="st">"AT"</span><span class="op">)</span> <span class="op">|&gt;</span>  <span class="co"># GRIIS by country</span></span>
-<span>  <span class="fu"><a href="reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>            <span class="co"># Zanne et al.</span></span>
-<span>  <span class="fu"><a href="reference/add_common_names.html">add_common_names</a></span><span class="op">(</span><span class="st">"en"</span><span class="op">)</span>        <span class="co"># GBIF vernacular names</span></span></code></pre></div>
-<p>Twelve enrichment layers join trait and status data via backbone-resolved accepted names:</p>
+<p>Twelve enrichment layers join published trait and status data to your results via backbone-resolved accepted names:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>   <span class="co"># IUCN Red List</span></span>
+<span>  <span class="fu"><a href="reference/add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span><span class="st">"AT"</span><span class="op">)</span> <span class="op">|&gt;</span>   <span class="co"># GRIIS invasive status</span></span>
+<span>  <span class="fu"><a href="reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>             <span class="co"># Zanne et al.</span></span>
+<span>  <span class="fu"><a href="reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span>                     <span class="co"># EIVE indicator values</span></span></code></pre></div>
 <table class="table">
+<colgroup>
+<col width="32%">
+<col width="21%">
+<col width="29%">
+<col width="16%">
+</colgroup>
 <thead><tr>
 <th>Enrichment</th>
 <th>Source</th>
+<th>Reference</th>
 <th>Taxa</th>
 </tr></thead>
 <tbody>
 <tr>
 <td><code><a href="reference/add_conservation_status.html">add_conservation_status()</a></code></td>
-<td>IUCN Red List</td>
+<td><a href="https://www.iucnredlist.org/" class="external-link">IUCN Red List</a></td>
+<td>IUCN (2024)</td>
 <td>All</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_invasive_status.html">add_invasive_status()</a></code></td>
-<td>GRIIS</td>
+<td><a href="https://griis.org/" class="external-link">GRIIS</a></td>
+<td>Pagad et al. (2018)</td>
 <td>All</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_wcvp.html">add_wcvp()</a></code></td>
-<td>WCVP</td>
+<td><a href="https://powo.science.kew.org/" class="external-link">WCVP</a></td>
+<td>Govaerts et al. (2021)</td>
 <td>Plants</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_woodiness.html">add_woodiness()</a></code></td>
-<td>Zanne et al.</td>
+<td><a href="https://datadryad.org/stash/dataset/doi:10.5061/dryad.63q27" class="external-link">Zanne et al.</a></td>
+<td>Zanne et al. (2014)</td>
 <td>Plants</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_eive.html">add_eive()</a></code></td>
-<td>EIVE 1.0</td>
+<td><a href="https://doi.org/10.5281/zenodo.7534792" class="external-link">EIVE 1.0</a></td>
+<td>Dengler et al. (2023)</td>
 <td>European plants</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_diaz_traits.html">add_diaz_traits()</a></code></td>
-<td>Diaz et al.</td>
+<td><a href="https://doi.org/10.1038/s41586-022-05606-z" class="external-link">Diaz et al.</a></td>
+<td>Diaz et al. (2022)</td>
 <td>Plants</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_leda.html">add_leda()</a></code></td>
-<td>LEDA Traitbase</td>
+<td><a href="https://uol.de/en/landeco/research/leda" class="external-link">LEDA Traitbase</a></td>
+<td>Kleyer et al. (2008)</td>
 <td>NW European plants</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_elton_traits.html">add_elton_traits()</a></code></td>
-<td>EltonTraits 1.0</td>
+<td><a href="https://doi.org/10.6084/m9.figshare.c.3306933" class="external-link">EltonTraits 1.0</a></td>
+<td>Wilman et al. (2014)</td>
 <td>Birds, mammals</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_avonet.html">add_avonet()</a></code></td>
-<td>AVONET</td>
+<td><a href="https://doi.org/10.6084/m9.figshare.16586228" class="external-link">AVONET</a></td>
+<td>Tobias et al. (2022)</td>
 <td>Birds</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_pantheria.html">add_pantheria()</a></code></td>
-<td>PanTHERIA</td>
+<td><a href="https://esapubs.org/archive/ecol/E090/184/" class="external-link">PanTHERIA</a></td>
+<td>Jones et al. (2009)</td>
 <td>Mammals</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_amphibio.html">add_amphibio()</a></code></td>
-<td>AmphiBIO</td>
+<td><a href="https://doi.org/10.6084/m9.figshare.4644424" class="external-link">AmphiBIO</a></td>
+<td>Oliveira et al. (2017)</td>
 <td>Amphibians</td>
 </tr>
 <tr>
 <td><code><a href="reference/add_common_names.html">add_common_names()</a></code></td>
-<td>GBIF</td>
+<td><a href="https://www.gbif.org/" class="external-link">GBIF</a></td>
+<td>GBIF (2024)</td>
 <td>All</td>
 </tr>
 </tbody>
 </table>
-<p>Custom data can be joined via <code><a href="reference/add_data.html">add_data()</a></code>, which accepts data.frames, CSV, XLSX, SQLite, and .vtr files.</p>
+</div>
+<div class="section level3">
+<h3 id="custom-data">Custom data<a class="anchor" aria-label="anchor" href="#custom-data"></a>
+</h3>
+<p><code><a href="reference/add_data.html">add_data()</a></code> joins any external dataset to your taxify results via backbone-resolved name matching. It accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and .vtr files.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Join TRY plant trait data</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span></span>
+<span>  <span class="st">"TRY_traits.csv"</span>,</span>
+<span>  species_col <span class="op">=</span> <span class="st">"AccSpeciesName"</span>,</span>
+<span>  cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LeafArea"</span>, <span class="st">"SLA"</span>, <span class="st">"PlantHeight"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="name-cleaning">Name Cleaning<a class="anchor" aria-label="anchor" href="#name-cleaning"></a>
 </h3>
+<p>Input names are automatically cleaned before matching:</p>
 <ul>
 <li>Authorship stripping (parenthesized and trailing)</li>
-<li>Qualifier detection (cf., aff., s.l., s.str., agg.)</li>
+<li>Qualifier detection and removal (cf., aff., s.l., s.str., agg.)</li>
 <li>Hybrid marker normalization (×, x, X)</li>
 <li>Latin orthographic normalization (ae/oe alternations)</li>
 <li>Bracket, number, and whitespace cleanup</li>
@@ -289,7 +475,7 @@
 <div class="section level3">
 <h3 id="genus-register">Genus Register<a class="anchor" aria-label="anchor" href="#genus-register"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/lookup_genus.html">lookup_genus</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     genus   kingdom       family life_form</span></span>
 <span><span class="co">#&gt; 1 Quercus Plantae   Fagaceae     plant</span></span>
@@ -304,7 +490,7 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install from GitHub (vectra is installed automatically)</span></span>
 <span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pak</span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span></span></code></pre></div>
@@ -312,7 +498,7 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Single backend (WFO for plants)</span></span>
@@ -336,11 +522,25 @@
 <span>  <span class="fu"><a href="reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Join custom data</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">my_traits</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
+<span><span class="co"># Join external trait data</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"TRY_traits.csv"</span>, species_col <span class="op">=</span> <span class="st">"AccSpeciesName"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check the result</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="citation-and-licensing">Citation and licensing<a class="anchor" aria-label="anchor" href="#citation-and-licensing"></a>
+</h2>
+<p>taxify itself is MIT-licensed. However, the backbone databases and enrichment datasets have their own licenses and citation requirements. When you publish results, please cite:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>The backbone(s) you used</strong> – each backbone has its own citation. Run <code><a href="reference/taxify.html">taxify()</a></code> and check the <code>backbone_version</code> column for which version you matched against.</li>
+<li>
+<strong>The enrichment datasets you used</strong> – the enrichment table above links to each source. Most are CC BY or CC BY-NC licensed and require citation of the original publication.</li>
+<li>
+<strong>taxify</strong> (optional but appreciated).</li>
+</ol>
+<p>The <a href="https://gillescolling.com/taxify/articles/enrichments.html">enrichments vignette</a> lists full citations for each dataset.</p>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
