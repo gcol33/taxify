@@ -55,7 +55,6 @@ closest taxify equivalent.
 | `synonyms()` | `taxify()` | `is_synonym` + `accepted_name` columns in the output |
 | `tax_name()` | `taxify()` | `family`, `genus`, `rank` columns |
 | `sci2comm()` | `add_common_names()` | Pipe enrichment; GBIF vernacular names by language |
-| `get_nativecountry()` | `add_wcvp()` | WCVP native range by TDWG region (plants) |
 
 taxize also has functions that serve a different purpose (fetching
 database IDs, enumerating child taxa, retrieving occurrence or sequence
