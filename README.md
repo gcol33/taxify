@@ -55,13 +55,13 @@ Benchmark on the same WFO backbone, same 5,000 plant names (Windows, R 4.5.2):
 
 | | taxify | WorldFlora |
 |---|---|---|
+| Exact match (100 names) | 0.5 s | 3.6 s |
 | Exact match (1,000 names) | 0.1 s | 1.3 s |
-| Exact match (5,000 names) | 0.1 s | -- |
 | Fuzzy match (100 names) | 4.0 s | 187 s |
-| Fuzzy match (1,000 names) | 1.0 s | -- |
+| Fuzzy match (1,000 names) | 1.0 s | 1,862 s (31 min) |
 | Backbone load | instant (.vtr) | 33 s (CSV) |
 
-WorldFlora fuzzy matching beyond 100 names was not benchmarked due to runtime. taxify's throughput increases with batch size because the C engine amortizes setup costs across the full input vector.
+taxify's throughput increases with batch size because the C engine amortizes setup costs across the full input vector.
 
 ## Output
 
