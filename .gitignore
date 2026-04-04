@@ -5,5 +5,17 @@
 .DS_Store
 *.Rproj
 .run.R
+.run-*.R
 inst/doc
 .claude/worktrees/
+memory/
+plan.md
+todo.md
+todos.md
+next-steps.md
+enrichments_plan.md
+tests/e2e/debug-*
+tests/e2e/bench-*
+tests/e2e/measure-*
+tests/e2e/run-*
+tests/e2e/redownload-*
