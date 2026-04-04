@@ -58,7 +58,7 @@ Benchmark on the same WFO backbone, same 5,000 plant names (Windows, R 4.5.2):
 | Exact match (1,000 names) | 0.1 s | 1.3 s |
 | Fuzzy match (1,000 names) | 1.0 s | 1,862 s (31 min) |
 | Fuzzy match (5,000 names) | 1.1 s | ~83 min (extrapolated) |
-| Backbone load | instant (.vtr) | 33 s (CSV) |
+| Backbone load | ~3 s (first call) | 33 s (CSV into RAM) |
 
 taxify's throughput increases with batch size because the C engine amortizes setup costs across the full input vector.
 
