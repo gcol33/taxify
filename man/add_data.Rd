@@ -9,7 +9,8 @@ add_data(
   data,
   species_col = NULL,
   table = NULL,
-  sheet = 1L,
+  sheet = NULL,
+  start_row = NULL,
   cols = NULL,
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
@@ -34,7 +35,13 @@ of each character column against the backbone.}
 name to read.}
 
 \item{sheet}{Integer or character. Sheet to read when \code{data} is an \code{.xlsx}
-file. Default \code{1L} (first sheet). Passed to \code{\link[vectra:tbl_xlsx]{vectra::tbl_xlsx()}}.}
+file. Default \code{NULL} (auto-detect the sheet containing species names).
+Set explicitly to skip auto-detection.}
+
+\item{start_row}{Integer. Row where column headers begin in an \code{.xlsx} file.
+Default \code{NULL} (auto-detect by scanning the first 15 rows for a header
+row that produces species name matches). Set explicitly when the layout
+is known.}
 
 \item{cols}{Character vector of column names from \code{data} to join. If \code{NULL}
 (default), all columns except \code{species_col} are joined.}

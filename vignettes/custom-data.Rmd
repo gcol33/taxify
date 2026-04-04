@@ -107,21 +107,38 @@ the openxlsx2 package, which must be installed separately.
 
 ```{r}
 # install.packages("openxlsx2")  # if not already installed
-result |> add_data("bird_morphometry.xlsx", species_col = "species_name")
+result |> add_data("bird_morphometry.xlsx")
 ```
 
-The first sheet is read by default. Use the `sheet` argument to target a
-different sheet by number or name:
+When `sheet`, `start_row`, and `species_col` are all left at their defaults,
+`add_data()` scans the workbook to find the right combination automatically.
+It tests each sheet and up to 15 candidate header rows, probing character
+columns against the backbone until it finds species names. This handles the
+common case where a colleague's spreadsheet has a title block, column
+descriptions, or notes above the actual data table.
+
+The scan reports what it found:
+
+```
+Scanning Excel layout...
+  Detected: sheet 'measurements', header row 3, species column 'latin_name' (90% match rate)
+```
+
+To skip auto-detection, specify any combination of `sheet`, `start_row`,
+and `species_col` explicitly:
 
 ```{r}
+# Specific sheet by name or number
 result |> add_data("bird_morphometry.xlsx", sheet = "measurements")
 result |> add_data("bird_morphometry.xlsx", sheet = 2)
-```
 
-As with CSV files, `species_col` is auto-detected when omitted: each
-character column is tested against the backbone, and the column with the
-highest match rate is selected. If no column reaches 50% matches, an error
-asks you to specify `species_col` explicitly.
+# Known header row (e.g., rows 1-2 are title/notes)
+result |> add_data("bird_morphometry.xlsx", start_row = 3)
+
+# All three specified -- no scanning at all
+result |> add_data("bird_morphometry.xlsx", sheet = 1, start_row = 3,
+                   species_col = "latin_name")
+```
 
 ## SQLite databases
 

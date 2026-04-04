@@ -16,7 +16,12 @@
 #' @param table Character. Required when `data` is a SQLite file --- the table
 #'   name to read.
 #' @param sheet Integer or character. Sheet to read when `data` is an `.xlsx`
-#'   file. Default `1L` (first sheet). Passed to [vectra::tbl_xlsx()].
+#'   file. Default `NULL` (auto-detect the sheet containing species names).
+#'   Set explicitly to skip auto-detection.
+#' @param start_row Integer. Row where column headers begin in an `.xlsx` file.
+#'   Default `NULL` (auto-detect by scanning the first 15 rows for a header
+#'   row that produces species name matches). Set explicitly when the layout
+#'   is known.
 #' @param cols Character vector of column names from `data` to join. If `NULL`
 #'   (default), all columns except `species_col` are joined.
 #' @param fuzzy Logical. Enable fuzzy matching for names in `data`.
@@ -70,7 +75,8 @@
 add_data <- function(x, data,
                      species_col = NULL,
                      table = NULL,
-                     sheet = 1L,
+                     sheet = NULL,
+                     start_row = NULL,
                      cols = NULL,
                      fuzzy = TRUE,
                      fuzzy_threshold = 0.2,
@@ -105,7 +111,23 @@ add_data <- function(x, data,
         stop("Reading .xlsx files requires the openxlsx2 package.\n  Install with: install.packages(\"openxlsx2\")",
              call. = FALSE)
       }
-      data <- vectra::tbl_xlsx(data, sheet = sheet) |> vectra::collect()
+      # Auto-detect sheet and start_row when not specified
+      if (is.null(sheet) || is.null(start_row)) {
+        detected <- detect_xlsx_layout(data, backend, sheet = sheet,
+                                       start_row = start_row,
+                                       species_col = species_col,
+                                       verbose = verbose)
+        if (is.null(sheet)) sheet <- detected$sheet
+        if (is.null(start_row)) start_row <- detected$start_row
+        if (is.null(species_col) && !is.null(detected$species_col)) {
+          species_col <- detected$species_col
+        }
+      }
+      if (start_row > 1L) {
+        data <- openxlsx2::read_xlsx(data, sheet = sheet, start_row = start_row)
+      } else {
+        data <- vectra::tbl_xlsx(data, sheet = sheet) |> vectra::collect()
+      }
     } else if (ext == "vtr") {
       data <- vectra::tbl(data) |> vectra::collect()
     } else {
@@ -360,4 +382,99 @@ detect_species_col <- function(data, backend, verbose = TRUE) {
                     best_col, 100 * best_rate))
   }
   best_col
+}
+
+
+#' Auto-detect sheet and header row in an Excel file
+#'
+#' Scans sheets and candidate header rows to find the combination that
+#' produces the best species-name match rate. Returns the best sheet,
+#' start_row, and species_col.
+#'
+#' @param path Character. Path to the `.xlsx` file.
+#' @param backend Character vector of backend names.
+#' @param sheet Integer/character or NULL. If set, only that sheet is tested.
+#' @param start_row Integer or NULL. If set, only that row is tested.
+#' @param species_col Character or NULL. If set, only that column is probed.
+#' @param verbose Logical.
+#' @return A list with `sheet`, `start_row`, and `species_col`.
+#' @noRd
+detect_xlsx_layout <- function(path, backend, sheet = NULL, start_row = NULL,
+                               species_col = NULL, verbose = TRUE) {
+  wb <- openxlsx2::wb_load(path)
+  sheet_names <- wb$sheet_names
+
+  sheets_to_try <- if (!is.null(sheet)) {
+    sheet
+  } else {
+    seq_along(sheet_names)
+  }
+
+  rows_to_try <- if (!is.null(start_row)) {
+    start_row
+  } else {
+    1L:15L
+  }
+
+  best <- list(sheet = 1L, start_row = 1L, species_col = NULL, rate = 0)
+
+  if (verbose) message("Scanning Excel layout...")
+
+
+  for (sh in sheets_to_try) {
+    for (sr in rows_to_try) {
+      df <- tryCatch(
+        openxlsx2::read_xlsx(path, sheet = sh, start_row = sr),
+        error = function(e) NULL
+      )
+      if (is.null(df) || nrow(df) < 2L || ncol(df) < 2L) next
+
+      # Test candidate columns
+      cols_to_try <- if (!is.null(species_col)) {
+        if (species_col %in% names(df)) species_col else character(0L)
+      } else {
+        names(df)[vapply(df, is.character, logical(1L))]
+      }
+      if (length(cols_to_try) == 0L) next
+
+      for (col in cols_to_try) {
+        probe <- utils::head(df[[col]], 10L)
+        probe <- probe[!is.na(probe) & nzchar(probe)]
+        if (length(probe) < 2L) next
+
+        result <- tryCatch(
+          taxify(probe, backend = backend, verbose = FALSE),
+          error = function(e) NULL
+        )
+        if (is.null(result)) next
+
+        rate <- sum(result$match_type != "none") / length(probe)
+        if (rate > best$rate) {
+          sh_label <- if (is.numeric(sh)) sheet_names[sh] else sh
+          best <- list(sheet = sh, start_row = sr,
+                       species_col = col, rate = rate)
+          if (rate >= 0.8) break  # good enough, stop early
+        }
+      }
+      if (best$rate >= 0.8) break
+    }
+    if (best$rate >= 0.8) break
+  }
+
+  if (best$rate < 0.1) {
+    stop(paste0(
+      "Could not find species names in any sheet/row of '", basename(path), "'.\n",
+      "  Specify sheet, start_row, and species_col explicitly."
+    ), call. = FALSE)
+  }
+
+  if (verbose) {
+    sh_label <- if (is.numeric(best$sheet)) sheet_names[best$sheet] else best$sheet
+    message(sprintf(
+      "  Detected: sheet '%s', header row %d, species column '%s' (%0.0f%% match rate)",
+      sh_label, best$start_row, best$species_col, 100 * best$rate
+    ))
+  }
+
+  best
 }
