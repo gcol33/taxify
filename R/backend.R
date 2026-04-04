@@ -627,7 +627,7 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 
   fuzzy_path <- tempfile(fileext = ".vtr")
   vectra::tbl(bb_path) |>
-    vectra::select(tidyselect::all_of(keep_cols)) |>
+    vectra::select(keep_cols) |>
     vectra::write_vtr(fuzzy_path, batch_size = 50000L)
 
   .taxify_env[[cache_key]] <- fuzzy_path

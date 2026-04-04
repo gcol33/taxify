@@ -6,6 +6,9 @@
 \usage{
 taxify_refresh_manifest()
 }
+\value{
+No return value, called for side effects.
+}
 \description{
 Forces the next \code{fetch_manifest()} call to re-fetch from the network.
 Useful after the maintainer updates the manifest between R sessions without

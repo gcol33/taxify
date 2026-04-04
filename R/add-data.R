@@ -3,7 +3,7 @@
 #' Joins an external data source (CSV file or data.frame) to a [taxify()]
 #' result. Species names in the external data are matched through the same
 #' backbone(s) used in the original `taxify()` call, and the join is performed
-#' on `accepted_id` — so synonyms in either dataset resolve to the same key.
+#' on `accepted_id` --- so synonyms in either dataset resolve to the same key.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param data One of:
@@ -13,7 +13,7 @@
 #' @param species_col Character. Name of the column in `data` that contains
 #'   species names. If `NULL` (default), auto-detected by matching `head(10)`
 #'   of each character column against the backbone.
-#' @param table Character. Required when `data` is a SQLite file — the table
+#' @param table Character. Required when `data` is a SQLite file --- the table
 #'   name to read.
 #' @param cols Character vector of column names from `data` to join. If `NULL`
 #'   (default), all columns except `species_col` are joined.
@@ -79,7 +79,7 @@ add_data <- function(x, data,
 
   meta <- attr(x, "taxify_meta")
   if (is.null(meta) || is.null(meta$backend)) {
-    stop("x has no taxify_meta — was it created by taxify()?", call. = FALSE)
+    stop("x has no taxify_meta -- was it created by taxify()?", call. = FALSE)
   }
   backend <- meta$backend
 
@@ -169,7 +169,7 @@ add_data <- function(x, data,
 
   if (nrow(data_joinable) == 0L) {
     if (verbose) {
-      message("0 names in data matched the backbone — no columns added.")
+      message("0 names in data matched the backbone -- no columns added.")
     }
     return(register_enrichment(x, data_label, data_label, NA_character_, 0L))
   }
@@ -218,7 +218,7 @@ add_data <- function(x, data,
     # Exact duplicates: warn and deduplicate
     n_dup_rows <- sum(duplicated(trait_data$`.add_data_accepted_id`))
     warning(sprintf(
-      "%d duplicate rows in data (same accepted_id, identical values) — deduplicated.",
+      "%d duplicate rows in data (same accepted_id, identical values) -- deduplicated.",
       n_dup_rows
     ), call. = FALSE)
     trait_data <- trait_data[!duplicated(trait_data$`.add_data_accepted_id`), ,

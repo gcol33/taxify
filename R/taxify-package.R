@@ -2,6 +2,8 @@
 "_PACKAGE"
 
 #' @importFrom rlang %||%
+#' @importFrom stats aggregate
+#' @importFrom utils read.csv read.delim
 NULL
 
 # Suppress R CMD check NOTEs for vectra NSE column references
@@ -17,7 +19,7 @@ utils::globalVariables(c(
   "taxon_id", "taxon_rank", "taxonomic_status", "accepted_name_usage_id",
   # GBIF-specific column references
   "id", "canonical_name", "genus_or_above", "specific_epithet",
-  "is_synonym_flag", "accepted_id", "status", "authorship",
+  "is_synonym_flag", "accepted_id", "status", "authorship", "parent_key",
   "notho_type", "nom_status", "bracket_authorship", "bracket_year",
   "name_published_in", "origin", "infra_specific_epithet",
   # Precomputed key columns (compiled backbone)

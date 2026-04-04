@@ -6,6 +6,9 @@
 \usage{
 taxify_clear_cache()
 }
+\value{
+No return value, called for side effects.
+}
 \description{
 Removes all loaded backbone handles from memory. The next call to
 \code{\link[=taxify]{taxify()}} will re-load from disk.

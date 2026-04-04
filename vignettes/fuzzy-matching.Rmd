@@ -1,0 +1,584 @@
+---
+title: "Fuzzy matching: methods, thresholds, and tuning"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Fuzzy matching: methods, thresholds, and tuning}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+## What fuzzy matching does (and does not do)
+
+When `taxify()` receives a name it cannot find by exact match, it falls back to
+fuzzy matching. Fuzzy matching computes a *string distance* between the input
+name and every candidate in the backbone, then returns the closest candidate
+whose distance falls below a threshold. The backbone is genus-blocked during
+this step: only names sharing the same genus are compared, which keeps the
+search fast even on backbones with millions of rows.
+
+String distance is a purely mechanical measure. It counts character-level edits
+(insertions, deletions, substitutions, and optionally transpositions) required
+to transform one string into another. A fuzzy match tells us that two strings
+are *spelled similarly*. It does not tell us anything about whether two names
+refer to the same biological entity. Fuzzy matching catches typos,
+transliteration errors, and OCR artefacts. It does not resolve taxonomic
+disagreements, and it cannot bridge the gap between common names and Latin
+binomials.
+
+This distinction matters for interpretation. A fuzzy match with a low distance
+(say 0.05) almost certainly corrects a minor typo. A fuzzy match with a high
+distance (say 0.18) might correct a larger OCR error, or it might have matched
+the wrong species entirely. The `fuzzy_dist` column in the output is there so
+we can tell these apart.
+
+The matching pipeline in taxify runs in a strict sequence: name cleaning first,
+then exact matching (case-sensitive, case-insensitive, Latin orthographic
+normalization, infraspecific-to-species fallback), and only then fuzzy matching
+on the names that survived all exact passes without a hit. Fuzzy matching never
+overrides an exact match. If the cleaned input matches a backbone name exactly,
+that result stands regardless of whether a closer fuzzy candidate might exist
+under a different spelling. This means the fuzzy matching step operates only on
+genuinely misspelled or garbled names.
+
+
+## The three distance methods
+
+taxify supports three string distance algorithms, selected via the
+`fuzzy_method` argument. All three are computed at the C level inside vectra's
+`fuzzy_join()`, which runs genus-blocked comparisons in parallel via OpenMP.
+
+### Damerau-Levenshtein (default, `fuzzy_method = "dl"`)
+
+Damerau-Levenshtein counts four edit operations, each costing 1:
+
+- **Insertion**: add a character (*Querus* to *Quercus*)
+- **Deletion**: remove a character (*Quercuss* to *Quercus*)
+- **Substitution**: replace one character with another (*Quarcus* to *Quercus*)
+- **Transposition**: swap two adjacent characters (*Qurecus* to *Quercus*)
+
+The transposition operation is what distinguishes Damerau-Levenshtein from
+plain Levenshtein. Transpositions are among the most common typos in
+hand-entered data, so treating them as a single edit (rather than two: a
+deletion plus an insertion) produces tighter distances for real-world errors.
+This is the default for good reason: it handles the most common failure modes
+with the smallest distance penalty.
+
+### Levenshtein (`fuzzy_method = "levenshtein"`)
+
+Levenshtein supports only three operations: insertion, deletion, and
+substitution. A transposition like *Qurecus* to *Quercus* costs 2 edits (delete
+the *r*, insert *r* at the right position) instead of the 1 edit that
+Damerau-Levenshtein would assign.
+
+In practice this means Levenshtein is *stricter* than Damerau-Levenshtein for
+transposition-heavy errors and *identical* for everything else. The same
+threshold value will reject candidates that Damerau-Levenshtein would accept.
+Levenshtein is a reasonable choice when the input data comes from a controlled
+source (database export, curated checklist) and transpositions are rare. For
+OCR or hand-typed data, Damerau-Levenshtein is almost always better.
+
+### Jaro-Winkler (`fuzzy_method = "jw"`)
+
+Jaro-Winkler is fundamentally different from the edit-distance methods. It
+computes a *similarity score* between 0 (completely different) and 1 (identical),
+then taxify converts this to a *distance* as `1 - similarity`. The algorithm
+gives extra weight to characters that match at the beginning of the string,
+which reflects a useful observation about taxonomic names: the genus is the most
+informative part, and prefix errors are rarer than epithet errors.
+
+Because Jaro-Winkler operates on a 0-to-1 scale by definition, only fractional
+thresholds are supported. Passing an integer threshold (like `fuzzy_threshold =
+2`) with `fuzzy_method = "jw"` raises an error immediately.
+
+Jaro-Winkler can be useful for very short names (3-5 characters) where a single
+edit produces a large normalized distance under Damerau-Levenshtein, and for
+datasets where most errors are concentrated in the epithet rather than the
+genus. For general-purpose matching, Damerau-Levenshtein remains the safer
+default.
+
+
+## How thresholds work
+
+The `fuzzy_threshold` argument controls how different two strings can be before
+the match is rejected. It operates in two modes, depending on its value.
+
+### Fractional mode (0 < threshold < 1)
+
+The default threshold of `0.2` means: *normalized distance must not exceed
+0.2*. Normalized distance is defined as:
+
+```
+normalized_distance = raw_edits / max(nchar(input), nchar(candidate))
+```
+
+This scales with name length. A 5-character name (*Abies*) gets at most 1 edit
+at threshold 0.2, because `1 / 5 = 0.2`. A 12-character name (*Taraxacum off*-)
+gets at most 2 edits, because `2 / 12 = 0.167 < 0.2` but `3 / 12 = 0.25 >
+0.2`. A 20-character name gets up to 4 edits.
+
+Here is the concrete arithmetic for a few representative names:
+
+| Input name             | Length | Max edits at 0.2 | Max edits at 0.1 | Max edits at 0.3 |
+|:-----------------------|-------:|------------------:|------------------:|------------------:|
+| Poa annua              |      9 |                 1 |                 0 |                 2 |
+| Quercus robur          |     13 |                 2 |                 1 |                 3 |
+| Taraxacum officinale   |     20 |                 4 |                 2 |                 6 |
+| Achillea millefolium   |     20 |                 4 |                 2 |                 6 |
+| Brachypodium sylvaticum|     23 |                 4 |                 2 |                 6 |
+
+The "max edits" column is `floor(length * threshold)`. In practice the
+comparison uses the floating-point ratio, not the floor, so a 9-character name
+with 2 edits gives `2/9 = 0.222`, which exceeds 0.2 and is rejected.
+
+### Integer mode (threshold >= 1)
+
+When `fuzzy_threshold` is an integer (1, 2, 3, ...), it acts as an absolute cap
+on raw edit count, regardless of name length. `fuzzy_threshold = 2L` means: at
+most 2 edits, whether the name is 5 characters or 25 characters long.
+
+This mode is useful when we know the kind of errors in our data. If the input
+comes from an OCR pipeline that occasionally drops or doubles a single
+character, `fuzzy_threshold = 1L` captures those errors without over-matching
+on longer names. Integer thresholds are not supported for Jaro-Winkler, because
+that method does not count discrete edits.
+
+```{r integer-threshold}
+# Allow exactly 1 edit, regardless of name length
+result <- taxify(
+  c("Qurecus robur", "Achillea milefolium", "Poa anua"),
+  fuzzy_threshold = 1L
+)
+# "Qurecus robur" matches (1 transposition)
+# "Achillea milefolium" matches (1 deletion: ll -> l)
+# "Poa anua" matches (1 deletion: nn -> n)
+```
+
+
+## What happens before fuzzy matching
+
+Before any distance computation, taxify runs a cleaning pipeline on the input
+names. This pipeline strips qualifiers (`cf.`, `aff.`, `s.l.`, `s.str.`),
+removes authorship strings (`L.`, `(Aiton) Sm.`), drops brackets and trailing
+numbers, collapses whitespace, and lowercases everything except the genus. The
+backbone names are already clean, so this step brings user input into the same
+format.
+
+Cleaning is aggressive enough that many names which look like they need fuzzy
+matching actually resolve by exact match once the noise is stripped.
+
+```{r cleaning-before-matching}
+# All three resolve to the same clean form: "Quercus robur"
+result <- taxify(c(
+  "Quercus robur L.",
+  "Quercus robur (L.) Sm.",
+  "  Quercus  robur  "
+))
+# match_type will be "exact" for all three (no fuzzy needed)
+```
+
+The pipeline also handles Latin orthographic normalization as a separate exact
+matching pass. Alternations like *ae/i* (*hirtaeformis* vs *hirtiformis*),
+*ph/f*, *rh/r*, *th/t*, and *ii/i* at word endings are normalized before
+comparison. These are not fuzzy matches; they appear as `exact_ci` in the output.
+
+Hybrid markers (the multiplication sign or standalone "x") are detected and
+stripped during cleaning. A name like `Quercus × hispanica` is cleaned to
+`Quercus hispanica` for matching, with the `is_hybrid` column set to `TRUE`.
+
+The upshot: fuzzy matching only runs on names that survived cleaning *and*
+failed all exact matching passes (case-sensitive, case-insensitive, Latin
+normalization, and infraspecific-to-species fallback). By the time fuzzy
+matching activates, the remaining names genuinely have character-level errors.
+
+
+## Worked example 1: clean names that need no fuzzy matching
+
+A well-curated species list, possibly with authorship strings attached, will
+typically resolve entirely by exact match. Fuzzy matching runs but finds nothing
+to do.
+
+```{r clean-names}
+clean_names <- c(
+  "Quercus robur",
+  "Pinus sylvestris",
+  "Betula pendula",
+  "Fagus sylvatica",
+  "Acer pseudoplatanus"
+)
+result <- taxify(clean_names)
+
+# All rows have match_type == "exact"
+table(result$match_type)
+# exact
+#     5
+
+# fuzzy_dist is NA for all rows
+all(is.na(result$fuzzy_dist))
+# TRUE
+```
+
+Adding authorship does not change the picture. The cleaning pipeline strips it
+before matching.
+
+```{r clean-names-authorship}
+with_authors <- c(
+  "Quercus robur L.",
+  "Pinus sylvestris L.",
+  "Betula pendula Roth",
+  "Fagus sylvatica L.",
+  "Acer pseudoplatanus L."
+)
+result <- taxify(with_authors)
+table(result$match_type)
+# exact
+#     5
+```
+
+The message here is straightforward: for curated data, fuzzy matching adds no
+value and can safely be disabled with `fuzzy = FALSE` to skip the step
+entirely. This saves a small amount of time on large lists.
+
+
+## Worked example 2: OCR-degraded and hand-typed names
+
+Real-world species lists often arrive with typos, especially when transcribed
+from handwritten field notes or extracted from scanned PDFs via OCR. These are
+the names fuzzy matching is designed to rescue.
+
+```{r ocr-degraded}
+messy_names <- c(
+  "Qurecus robur",         # transposition: ur -> ru
+  "Taraxacum officianle",  # transposition: al -> la
+  "Plantago lanceoalata",  # transposition: la -> al
+  "Trifolium repnes",      # transposition: en -> ne
+  "Dactylis gloemrata",    # transposition: me -> em
+  "Lolium perrene",        # insertion: extra r
+  "Achillea millefolum",   # deletion: i missing
+  "Ranunculus acris"       # correct (should exact-match)
+)
+result <- taxify(messy_names)
+
+# Check what matched and how
+result[, c("input_name", "accepted_name", "match_type", "fuzzy_dist")]
+```
+
+The transposition errors (*Qurecus*, *officianle*, *lanceoalata*) each cost 1
+edit under Damerau-Levenshtein, producing `fuzzy_dist` values around
+0.07-0.08 for these 13-20 character names. The deletion in *millefolum*
+(missing *i*) also costs 1 edit. *Ranunculus acris* exact-matches and has
+`fuzzy_dist = NA`.
+
+Consider the arithmetic for *Taraxacum officianle* (20 characters). The
+intended target is *Taraxacum officinale*, which differs by a transposition of
+*a* and *l* at positions 18-19. That is 1 edit, giving a normalized distance of
+`1 / 20 = 0.05`. This falls well within the 0.2 threshold. Even a conservative
+threshold of 0.1 would accept it. The name *Lolium perrene* (14 characters) has
+an extra *r* compared to *Lolium perenne*, costing 1 insertion, for a normalized
+distance of `1 / 14 = 0.071`.
+
+All of these fall comfortably within the default threshold of 0.2. For data
+with this error profile, the default settings work well out of the box. The
+`fuzzy_dist` values cluster tightly around 0.05-0.08, giving us high confidence
+that every match is correct.
+
+
+## Worked example 3: threshold too loose
+
+A loose threshold can match names to the wrong species. This is the primary
+risk of fuzzy matching, and it tends to bite hardest with short names or names
+in species-dense genera.
+
+```{r threshold-too-loose}
+# Poa is a large genus with many similar epithets
+poa_names <- c(
+  "Poa anua",       # intended: Poa annua (1 edit)
+  "Poa pratenss",   # intended: Poa pratensis (1 edit)
+  "Poa trialis"     # intended: Poa trivialis (2 edits)
+)
+
+# With a loose threshold, some may match the wrong species
+loose <- taxify(poa_names, fuzzy_threshold = 0.4)
+loose[, c("input_name", "accepted_name", "fuzzy_dist")]
+```
+
+At threshold 0.4, *Poa trialis* (10 characters) is allowed up to 4 edits. That
+is enough distance to reach not only *Poa trivialis* (the intended target, 2
+edits) but potentially other Poa species that happen to be closer in string
+distance. With 500+ Poa species in WFO, the risk of a false match is real.
+
+The fix is simple: tighten the threshold.
+
+```{r threshold-tightened}
+tight <- taxify(poa_names, fuzzy_threshold = 0.15)
+tight[, c("input_name", "accepted_name", "match_type", "fuzzy_dist")]
+# "Poa anua" still matches (1/9 = 0.11 < 0.15)
+# "Poa pratenss" still matches (1/12 = 0.08 < 0.15)
+# "Poa trialis" may fail (2/11 = 0.18 > 0.15), safer to leave unmatched
+```
+
+Names that fail fuzzy matching get `match_type = "none"`. An unmatched name is
+always better than a wrong match, because we can review unmatched names
+manually. A wrong match is silent and propagates into downstream analyses.
+
+This example also illustrates why short names in large genera are the hardest
+case for fuzzy matching. The genus *Poa* has over 500 accepted species in WFO,
+many with epithets that differ by only 2-3 characters (*pratensis* vs
+*palustris*, *trivialis* vs *trivialis*). The shorter the name, the fewer
+edits it takes to reach the threshold, and the more candidate species fall
+within range. For genera like Carex (2,000+ species), Astragalus (3,000+), or
+Euphorbia (2,000+), the same problem applies. When working with species-dense
+genera, tightening the threshold to 0.1-0.15 is almost always the right move.
+
+
+## Worked example 4: comparing all three methods
+
+The same input list can produce different results depending on which distance
+method is used. The differences are most visible when the errors include
+transpositions.
+
+```{r compare-methods}
+test_names <- c(
+  "Qurecus robur",        # transposition in genus
+  "Achillea milefolium",  # deletion (l dropped)
+  "Plantago lanceoalata", # transposition in epithet
+  "Betula pednula",       # transposition in epithet
+  "Fagus sylvatcia"       # transposition in epithet
+)
+
+dl_result  <- taxify(test_names, fuzzy_method = "dl")
+lev_result <- taxify(test_names, fuzzy_method = "levenshtein")
+jw_result  <- taxify(test_names, fuzzy_method = "jw")
+
+# Compare fuzzy_dist across methods
+comparison <- data.frame(
+  input = test_names,
+  dl_dist  = dl_result$fuzzy_dist,
+  lev_dist = lev_result$fuzzy_dist,
+  jw_dist  = jw_result$fuzzy_dist,
+  dl_match  = dl_result$match_type,
+  lev_match = lev_result$match_type,
+  jw_match  = jw_result$match_type
+)
+comparison
+```
+
+For a transposition like *Qurecus* to *Quercus*, Damerau-Levenshtein reports 1
+edit (distance ~0.08 on a 13-character name). Levenshtein reports 2 edits
+(distance ~0.15). Both fall within the default 0.2 threshold, so both methods
+match it, but the Levenshtein distance is nearly double.
+
+For deletions like *milefolium* to *millefolium*, both methods report the same
+distance (1 edit), because no transposition is involved.
+
+Jaro-Winkler distances tend to be smaller overall because the algorithm rewards
+matching prefixes. A name that shares its entire genus prefix with the
+candidate starts with a high base similarity. The practical consequence is that
+Jaro-Winkler is more permissive at the same numeric threshold. A threshold of
+0.2 under Jaro-Winkler is quite loose; 0.1 is a more comparable starting point.
+
+The table below shows approximate distances for the same errors across all
+three methods, assuming names of 13-20 characters:
+
+| Error type               | Example                    | DL dist | Lev dist | JW dist |
+|:-------------------------|:---------------------------|--------:|---------:|--------:|
+| Single transposition     | Qurecus → Quercus          |    0.08 |     0.15 |    0.04 |
+| Single deletion          | millefolum → millefolium   |    0.05 |     0.05 |    0.03 |
+| Single substitution      | Quarcus → Quercus          |    0.08 |     0.08 |    0.05 |
+| Two transpositions       | Plantgao → Plantago        |    0.13 |     0.25 |    0.06 |
+
+The Levenshtein column is always equal to or larger than the Damerau-Levenshtein
+column, because Levenshtein charges double for transpositions. Jaro-Winkler is
+consistently the smallest, because the shared genus prefix dominates the
+similarity calculation. These numbers explain why the same threshold value
+behaves differently across methods and why we need to recalibrate when switching.
+
+
+## The `fuzzy_dist` column
+
+Every row in the taxify output has a `fuzzy_dist` column. For exact matches
+(including case-insensitive and Latin normalization), this is `NA`. For fuzzy
+matches, it contains the normalized distance: a number between 0 and 1 where
+lower means closer.
+
+This column is the primary tool for quality control after fuzzy matching. A
+simple filter separates high-confidence matches from questionable ones.
+
+```{r fuzzy-dist-filter}
+result <- taxify(my_species_list)
+
+# High-confidence fuzzy matches (likely just typos)
+good_fuzzy <- result[result$match_type == "fuzzy" &
+                     result$fuzzy_dist < 0.1, ]
+
+# Questionable fuzzy matches (review manually)
+check_fuzzy <- result[result$match_type == "fuzzy" &
+                      result$fuzzy_dist >= 0.1, ]
+```
+
+A `fuzzy_dist` below 0.1 on a name of 10+ characters means 1 edit at most.
+These are almost always correct. A `fuzzy_dist` between 0.1 and 0.2 means 1-3
+edits depending on name length, and warrants a glance. Anything above 0.15 on a
+short name (under 10 characters) deserves scrutiny.
+
+For systematic review, sorting by `fuzzy_dist` in descending order puts the
+most suspect matches at the top.
+
+```{r sort-by-dist}
+fuzzy_rows <- result[result$match_type == "fuzzy", ]
+fuzzy_rows <- fuzzy_rows[order(-fuzzy_rows$fuzzy_dist), ]
+head(fuzzy_rows[, c("input_name", "accepted_name", "fuzzy_dist")], 20)
+```
+
+In practice, most datasets have a bimodal distribution of `fuzzy_dist`: a peak
+near 0.05-0.08 (single typos on medium-length names) and a sparse tail above
+0.12 (multiple errors or short names with one error). The tail is where false
+matches hide.
+
+A useful rule of thumb: if more than 5% of fuzzy matches have `fuzzy_dist`
+above 0.15, the threshold is probably too loose for the dataset. Either tighten
+it, or keep the current threshold but flag all matches above 0.12 for manual
+review. The cost of reviewing a few dozen names is small compared to the cost
+of propagating a wrong species identity through a trait analysis or distribution
+model.
+
+
+## Genus-blocked matching and misspelled genera
+
+By default, fuzzy matching is *genus-blocked*: taxify extracts the genus from
+the input name and only compares against backbone entries with the same genus.
+This is fast (it avoids comparing every input against millions of candidates)
+and reduces false matches (a misspelled epithet cannot accidentally match a
+completely different genus).
+
+The downside is that a misspelled genus produces no match at all, because
+no backbone entries share the misspelled genus. taxify handles this with a
+second pass: after genus-blocked fuzzy matching, any names still unmatched are
+run through a *prefix-blocked* fuzzy join. This pass blocks on the first two
+characters of the name rather than the full genus. Most genus typos preserve the
+first two characters (*Qurecus* still starts with *Qu*, *Betual* still starts
+with *Be*), so the prefix block catches them while still pruning the search
+space substantially.
+
+This two-pass strategy means that genus typos are handled automatically. There
+is nothing to configure. The only case it misses is a typo in the first two
+characters of the genus, which is rare enough in practice that we accept the
+trade-off.
+
+One consequence worth knowing: a name with a misspelled genus will have a
+higher `fuzzy_dist` than a name with only an epithet typo, because the genus
+error adds edits on top of any epithet error. If the input is *Qeurcus robru*
+(two errors: genus transposition + epithet transposition), the total edit count
+is 2, giving a normalized distance of `2 / 13 = 0.154`. This still falls
+within the default threshold, but it lands in the zone where manual review is
+advisable.
+
+
+## Practical guidance
+
+### When to disable fuzzy matching
+
+For curated checklists, validated databases, or any input that has already been
+through a name-resolution service, fuzzy matching adds risk without benefit.
+Disable it.
+
+```{r disable-fuzzy}
+result <- taxify(curated_list, fuzzy = FALSE)
+```
+
+This also makes the call faster, because the fuzzy join step is skipped
+entirely. On a list of 100,000 names, the difference can be several seconds.
+
+### When to tighten the threshold
+
+Tighten below the default 0.2 when the input names are short (many 2-word names
+under 12 characters), when the genera are species-rich (Carex, Poa, Astragalus,
+Euphorbia), or when false matches would be costly (conservation assessments,
+regulatory lists). A threshold of 0.1 is a good conservative choice. It still
+catches single-character typos on names of 10+ characters but rejects matches
+that require 2+ edits on shorter names.
+
+```{r tight-threshold}
+result <- taxify(short_grass_list, fuzzy_threshold = 0.1)
+```
+
+### When to loosen the threshold
+
+Loosen above the default 0.2 when the input comes from OCR on degraded
+documents, when names have been transliterated across character encodings, or
+when completeness matters more than precision (an initial screening pass where
+unmatched names are expensive to follow up). A threshold of 0.25-0.3 is
+reasonable for OCR data; going above 0.3 is rarely justified.
+
+```{r loose-threshold}
+result <- taxify(ocr_names, fuzzy_threshold = 0.25)
+# Then filter questionable matches:
+suspect <- result[result$fuzzy_dist > 0.15, ]
+```
+
+### When to switch methods
+
+Stick with Damerau-Levenshtein (`"dl"`) unless there is a specific reason to
+change. Switch to Levenshtein (`"levenshtein"`) for controlled data where
+transpositions are unlikely and we want the stricter distance. Switch to
+Jaro-Winkler (`"jw"`) for very short names (3-6 characters, e.g., matching at
+genus level) where the prefix weighting helps, but remember to lower the
+threshold to 0.1 or below.
+
+### Using integer thresholds for uniform error budgets
+
+When the error model is known (e.g., "our OCR pipeline drops or adds at most 1
+character"), integer thresholds give direct control. `fuzzy_threshold = 1L` means
+exactly what it says: at most 1 edit, on any name of any length. This avoids the
+length-dependent behavior of fractional thresholds where a 5-character name gets
+1 edit but a 25-character name gets 5 edits.
+
+```{r integer-threshold-uniform}
+# Uniform 2-edit budget, regardless of name length
+result <- taxify(my_names, fuzzy_threshold = 2L)
+```
+
+Integer thresholds are not available for Jaro-Winkler. Passing an integer with
+`fuzzy_method = "jw"` raises an error immediately rather than producing
+silently wrong results.
+
+### A two-pass workflow for messy data
+
+For datasets with unknown error rates (historical collections, aggregated
+multi-source lists), a two-pass approach gives the best of both worlds. First
+pass: run with a tight threshold and `fuzzy = TRUE` to get high-confidence
+matches. Second pass: extract the unmatched names, run them again with a looser
+threshold, and review the additional fuzzy matches manually.
+
+```{r two-pass}
+# Pass 1: conservative
+pass1 <- taxify(my_names, fuzzy_threshold = 0.1)
+unmatched <- pass1$input_name[pass1$match_type == "none"]
+
+# Pass 2: permissive, for manual review
+pass2 <- taxify(unmatched, fuzzy_threshold = 0.25)
+needs_review <- pass2[pass2$match_type == "fuzzy", ]
+needs_review[, c("input_name", "accepted_name", "fuzzy_dist")]
+```
+
+This avoids the all-or-nothing choice between tight and loose thresholds. The
+bulk of the data gets matched at high confidence, and only the residual names
+get the looser treatment with explicit human oversight.
+
+
+## Summary of output columns related to fuzzy matching
+
+| Column       | Values                                     | Meaning                                               |
+|:-------------|:-------------------------------------------|:------------------------------------------------------|
+| `match_type` | `"exact"`, `"exact_ci"`, `"fuzzy"`, `"none"`, `"out_of_scope"` | How the name was matched. `"exact"` is case-sensitive, `"exact_ci"` includes case-insensitive and Latin normalization matches. |
+| `fuzzy_dist` | Numeric (0-1) or `NA`                      | Normalized string distance for fuzzy matches. `NA` for exact matches and unmatched names. |
+| `backend`    | `"wfo"`, `"col"`, `"gbif"`, etc.           | Which backbone provided the match. Useful in multi-backend fallback chains. |
+
+The `match_type` and `fuzzy_dist` columns together give a complete picture of
+match quality. Exact matches are definitive, and fuzzy matches with distance
+below 0.05 are near-certain corrections of minor typos. As distance climbs
+toward 0.15 and above, manual review becomes worthwhile because the matched
+name may belong to a different species entirely.

@@ -155,6 +155,7 @@ manifest_delta_url <- function(backend_name, version = "latest") {
 #' Useful after the maintainer updates the manifest between R sessions without
 #' restarting R.
 #'
+#' @return No return value, called for side effects.
 #' @export
 taxify_refresh_manifest <- function() {
   .taxify_env$manifest <- NULL

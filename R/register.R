@@ -501,8 +501,8 @@ build_backend_coverage <- function(verbose = TRUE) {
 
 #' Build both genus register and backend coverage
 #'
-#' Convenience wrapper that calls [build_genus_register()] and
-#' [build_backend_coverage()] in sequence.
+#' Convenience wrapper that calls `build_genus_register()` and
+#' `build_backend_coverage()` in sequence.
 #'
 #' @param verbose Logical. Default `TRUE`.
 #' @return Named list with paths to `genus_register.vtr` and

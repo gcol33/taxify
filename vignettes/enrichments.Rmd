@@ -1,0 +1,1517 @@
+---
+title: "Enriching results with trait and status data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Enriching results with trait and status data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+Taxonomic name matching is rarely the end goal. Once `taxify()` has resolved
+a list of species names against a backbone, the next step is usually joining
+ecological trait data, conservation assessments, or geographic range
+information to the matched names. This step is where the real analytical
+value emerges, and it is also where most workflows hit friction: trait
+databases use different taxonomic authorities, store names with or without
+authorship strings, treat synonyms inconsistently, and distribute data in
+incompatible formats. Manually aligning names between a taxonomic backbone
+and a trait database can consume hours even for moderately sized species
+lists.
+
+taxify ships with 12 enrichment layers that attach published trait and
+status datasets to a `taxify()` result in a single pipe call. Each
+enrichment is backed by a pre-built `.vtr` file that downloads automatically
+on first use and caches locally for all subsequent sessions. The enrichment
+system handles the name alignment problem at build time, so the join at
+analysis time is a simple, fast, exact-match operation.
+
+This vignette covers the mechanics of how enrichments work, walks through
+each of the 12 layers with worked examples, and discusses practical
+strategies for combining enrichments, interpreting coverage gaps, and
+choosing the right layers for a given taxon group. We also discuss the
+`add_data()` function for joining custom datasets that go beyond the
+built-in enrichments.
+
+
+## How enrichments work
+
+Every `add_*()` function performs the same underlying operation: a left join
+between the `accepted_name` column in a `taxify()` result and the
+`canonical_name` column in an enrichment `.vtr` file. Because the join key
+is the accepted (resolved) name rather than the original input, synonyms
+that were resolved during matching contribute automatically. If the input
+contained "Pinus abies" and the backbone resolved it to "Picea abies", the
+enrichment join looks up "Picea abies" in the trait database. This means
+we never have to worry about whether our species list uses currently accepted
+names or outdated synonyms: the backbone resolution step has already
+normalized everything.
+
+This design has a deliberate consequence: enrichments only produce values
+for rows that were successfully matched by `taxify()`. Rows where
+`accepted_name` is `NA` (unmatched names) always receive `NA` in all
+enrichment columns. If a species could not be resolved against the backbone,
+it cannot be looked up in a trait database either. This is usually the
+correct behavior, but it means that improving match rates upstream (by
+cleaning names, trying a different backbone, or enabling fuzzy matching)
+directly improves enrichment coverage downstream.
+
+### The join in detail
+
+When we call an enrichment function, taxify executes the following steps:
+
+1. Ensures the enrichment `.vtr` file is present on disk (downloading it if
+   needed).
+2. Extracts the unique `accepted_name` values from the result.
+3. Writes those unique names into a temporary `.vtr` file.
+4. Performs a vectra `inner_join()` between the temporary names and the
+   enrichment `.vtr` on the name column.
+5. Uses a vectorized `match()` to fill the new trait columns back into the
+   original result. Rows without a match receive `NA`.
+
+The operation is fast because it reduces to a single hash-based lookup per
+unique accepted name, not per row. A result with 50,000 rows but 8,000
+unique accepted names only does 8,000 lookups. The vectra join exploits
+hash indexes on the `canonical_name` column in the enrichment `.vtr`,
+making even enrichments with hundreds of thousands of rows resolve in
+under a second.
+
+### Cross-backbone name resolution
+
+A subtle but important design decision underlies the enrichment `.vtr`
+files: they are built to work with any of taxify's seven backends (WFO,
+COL, GBIF, ITIS, NCBI, OTT, WoRMS). Different backbones sometimes accept
+different names for the same taxon. WFO might accept "Senecio jacobaea"
+while COL accepts "Jacobaea vulgaris" for the same species. If the
+enrichment `.vtr` only contained one of these names, it would fail to match
+results from the other backbone.
+
+The taxify-backbones build pipeline solves this by resolving every source
+species name against each of the seven backends separately (not as a
+fallback chain, which would only return the first match). The union of all
+unique `accepted_name` values is collected per source species. Each source
+row is then expanded: one enrichment row per distinct accepted name, with
+the trait data duplicated. The final `.vtr` is then deduplicated by
+`canonical_name` (plus any group column for grouped enrichments).
+
+In practice, backends agree on more than 90% of names, so this expansion
+is modest (typically 1.1--1.5x the original row count). The result is that
+`add_conservation_status()` works identically whether the upstream
+`taxify()` call used WFO, COL, or GBIF. We do not have to pick enrichments
+based on which backbone we used, and we do not have to worry about
+backbone-specific name variants falling through the cracks.
+
+### Automatic download and caching
+
+The first time an enrichment is requested in a session, taxify checks
+whether a local copy exists on disk. If not, it downloads the pre-built
+`.vtr` from GitHub Releases using the URL recorded in the package manifest
+(`inst/manifest.json`). A `meta.json` sidecar file is written alongside
+the `.vtr`, recording the version string, whether the dataset is static,
+and the download date. On subsequent calls within the same R session, the
+file path is served from an in-memory cache (a package-level environment),
+so the disk is not even touched. Across sessions, the on-disk copy is
+reused without any network request.
+
+For enrichments marked as "static" in the manifest (version-locked datasets
+like Zanne et al. 2014 or PanTHERIA), version checks are skipped entirely.
+These datasets have fixed, published versions that will never change. For
+non-static enrichments (IUCN Red List, GRIIS, WCVP, common names), taxify
+performs a lightweight version check once per session by comparing the local
+`meta.json` version against the manifest's `latest` field. If a newer
+version is available, it is downloaded automatically with a console message.
+This check adds negligible latency because the manifest itself is cached.
+
+### Fallback chain
+
+If the pre-built `.vtr` download fails (network issues, mirror outage,
+transient server errors), taxify does not stop immediately. Instead, it
+attempts to build the enrichment from the original source data. Each of
+the 12 enrichments has a build recipe in an internal registry
+(`.enrichment_build_registry`) that knows how to download the raw CSV, ZIP,
+or API response from the upstream source, parse it into a data.frame with
+a `canonical_name` column, and produce the `.vtr` file locally. This
+build-from-source path is slower (it has to download and parse raw data
+rather than a pre-built binary), but it means that enrichments remain
+available even if the GitHub Releases mirror is temporarily down.
+
+If the build-from-source also fails (e.g., the upstream source is
+unreachable), taxify falls back one more level to an "emergency fallback":
+it downloads and parses the source data in memory without writing to disk,
+performs the join in-memory using a data.frame rather than a `.vtr`, and
+issues a warning explaining the situation. This emergency result is
+ephemeral and not cached. If all three paths fail, an error is raised with
+a link to the GitHub issue tracker so the failure can be reported.
+
+### ### The enrichment data directory
+
+All enrichment `.vtr` files live under a single root directory, organized
+by enrichment name and version:
+
+```
+taxify_data_dir()/
+  enrichment/
+    conservation_status/
+      latest/
+        conservation_status.vtr
+        meta.json
+    griis/
+      latest/
+        griis.vtr
+        meta.json
+    woodiness/
+      latest/
+        woodiness.vtr
+        meta.json
+    ...
+```
+
+The `taxify_data_dir()` function returns the platform-appropriate data
+directory (typically `~/.local/share/taxify` on Linux/macOS or
+`%LOCALAPPDATA%/taxify` on Windows). This directory is also where backbone
+`.vtr` files are stored, so a single `taxify_data_dir()` call reveals
+where all taxify data lives on the system. Enrichment files are modest in
+size: most are between 1 and 20 MB. The full set of 12 enrichments totals
+roughly 100-150 MB.
+
+
+## Discovering enrichments
+
+Before applying enrichments, we may want to see what is available.
+`list_enrichments()` queries the taxify manifest and returns a data.frame
+summarizing every available enrichment layer. The returned columns are:
+`name`, `version`, `nrow` (approximate row count), `static` (whether the
+dataset is version-locked), `trait_cols` (comma-separated list of trait
+column names), and `source_url` (the upstream data source).
+
+```{r list-enrichments}
+library(taxify)
+
+list_enrichments()
+#>              name version   nrow static                              trait_cols ...
+#> 1 conservation_status  ...  166000   TRUE                   conservation_status ...
+#> 2               griis  ...   23000  FALSE                      invasive_status ...
+#> 3                wcvp  ...  340000  FALSE                        native_status ...
+#> ...
+```
+
+The `static` column is worth paying attention to. Static enrichments
+(woodiness, PanTHERIA, AmphiBIO, EltonTraits, LEDA, Diaz traits) are based
+on published, version-locked datasets that have a single definitive release.
+These never trigger version checks, so they add zero network overhead to
+a session. Non-static enrichments (conservation_status, GRIIS, WCVP,
+common_names) are periodically updated as the upstream source publishes new
+releases. For these, taxify checks once per session whether a newer version
+is available and updates transparently if so.
+
+The `nrow` column gives a rough sense of enrichment size. Conservation
+status has ~166,000 rows (one per assessed species), WCVP has ~340,000
+(one per species-region combination), and the smaller enrichments like
+LEDA have ~8,000. These numbers include the cross-backbone name expansion
+discussed earlier, so they are slightly larger than the original source
+row counts.
+
+The `trait_cols` column lists the columns that the enrichment adds to a
+result. This is useful for planning which enrichments to apply: if we need
+specific leaf area data, scanning the `trait_cols` column reveals that LEDA
+provides `sla_mm2_mg`. If we need diet composition data, the
+`trait_cols` for `elton_traits` lists all 18 diet, foraging, mass, and
+nocturnality columns. The `source_url` column points to the original data
+source (Zenodo, Figshare, Dryad, GBIF, etc.) for reference and citation.
+
+
+## Pre-downloading enrichments
+
+For workflows that run on computing clusters, in Docker containers, or in
+any environment without reliable internet access, we can pre-download
+enrichments before the analysis begins. The
+`taxify_download_enrichment()` function accepts a character vector of
+enrichment names and downloads each one to the local data directory.
+
+```{r pre-download}
+# Download a single enrichment
+taxify_download_enrichment("conservation_status")
+
+# Download several at once
+taxify_download_enrichment(c("woodiness", "eive", "leda"))
+
+# Download all twelve
+taxify_download_enrichment(c(
+  "conservation_status", "griis", "wcvp", "eive",
+  "elton_traits", "avonet", "pantheria", "amphibio",
+  "common_names", "woodiness", "diaz_traits", "leda"
+))
+```
+
+After this step, all subsequent `add_*()` calls for these enrichments will
+use the local copies without any network access. This is particularly
+useful for reproducible pipelines: pre-downloading enrichments at setup
+time guarantees that the analysis always uses the same version of each
+dataset, regardless of whether newer versions are published in the
+meantime.
+
+The download function prints a confirmation message with the version and
+file size for each enrichment. If an enrichment is already present at the
+requested version, it is not re-downloaded. The `.vtr` files live in
+`taxify_data_dir()/enrichment/{name}/latest/` alongside their `meta.json`
+sidecar.
+
+Pre-downloading is also useful for teaching and workshop settings where many
+participants share a slow network connection. One person can download the
+enrichments, copy the `taxify_data_dir()` contents to a shared drive or USB
+stick, and distribute it to all participants. Since the enrichment lookup
+path starts with the on-disk check, the copied files will be found
+immediately without any network access.
+
+
+## Simple enrichments
+
+Simple enrichments add one or more columns via a flat join on
+`accepted_name`. Nine of the twelve enrichment layers use this pattern.
+They differ only in which columns they add and which taxonomic groups they
+cover. We group them below by taxon focus, starting with plants (which
+have the most enrichment layers), then conservation status (cross-taxon),
+birds, mammals, and amphibians.
+
+### Plant enrichments
+
+Plants are the best-served taxon group in the enrichment system, with five
+dedicated layers covering growth form, ecological niches, seed and height
+traits, and a broad suite of functional traits. This reflects the state of
+published plant trait databases: decades of investment in standardized trait
+measurement protocols have produced several large, open-access datasets
+that are straightforward to integrate.
+
+#### Woodiness (Zanne et al. 2014)
+
+The woodiness enrichment classifies ~50,000 plant species as woody,
+herbaceous, or variable. The dataset comes from Zanne et al. (2014), a
+landmark study on the radiation of angiosperms into freezing environments,
+published in *Nature*. The underlying classification draws on the world's
+major herbarium and botanical databases.
+
+```{r woodiness}
+plants <- taxify(c(
+  "Quercus robur", "Betula pendula", "Arrhenatherum elatius",
+  "Festuca rubra", "Salix caprea", "Cornus sanguinea"
+))
+
+plants |> add_woodiness()
+#>               input_name       accepted_name woodiness
+#> 1          Quercus robur       Quercus robur     woody
+#> 2        Betula pendula      Betula pendula     woody
+#> 3 Arrhenatherum elatius Arrhenatherum elatius herbaceous
+#> 4         Festuca rubra        Festuca rubra herbaceous
+#> 5         Salix caprea        Salix caprea     woody
+#> 6    Cornus sanguinea     Cornus sanguinea     woody
+```
+
+The three possible values are `"woody"`, `"herbaceous"`, and `"variable"`.
+The `"variable"` category applies to species that exhibit both growth forms
+depending on environmental conditions or ecotype. Coverage is strongest for
+angiosperms (both monocots and dicots) and weaker for ferns, lycophytes, and
+bryophytes. The dataset is static (CC0 license, published 2014), so it
+never triggers version checks.
+
+Woodiness is a coarse trait, but it is one of the most widely used in
+community ecology and macroecology. It separates plant strategies along
+a fundamental axis (persistent woody stems vs. annual or perennial
+herbaceous growth), making it valuable for community-weighted mean analyses,
+functional diversity indices, and biome classification.
+
+#### EIVE ecological indicator values (Dengler et al. 2023)
+
+EIVE 1.0 provides continuous ecological indicator values for ~14,500
+European vascular plant species. It supersedes the classic ordinal Ellenberg
+indicator values, which were expert-assigned integers on a 1-9 scale, with
+statistically derived continuous scores based on species co-occurrence
+patterns across thousands of vegetation plots. Five niche axes are covered:
+light, temperature, moisture, soil reaction (pH), and nutrients.
+
+```{r eive}
+grasses <- taxify(c(
+  "Arrhenatherum elatius", "Bromus erectus", "Festuca rubra",
+  "Dactylis glomerata", "Lolium perenne", "Poa pratensis"
+))
+
+grasses |> add_eive()
+#>          input_name eive_light eive_temperature eive_moisture eive_reaction eive_nutrients
+#> 1 Arrhenatherum ...       7.2              5.8           4.3           7.1            6.5
+#> 2    Bromus erectus       7.6              5.5           3.1           7.8            3.2
+#> ...
+```
+
+Because EIVE is restricted to the European flora, species from other
+continents will receive `NA` in all five columns. The continuous values are
+on a scale comparable to the original Ellenberg system (roughly 1-9) but
+allow fractional positions. This matters for community-weighted mean (CWM)
+calculations: averaging ordinal Ellenberg values treats the intervals
+between categories as equal (the difference between 3 and 4 is the same as
+between 7 and 8), which is not guaranteed. EIVE's continuous scale makes
+CWM calculations statistically cleaner. The five output columns are
+prefixed with `eive_` to avoid collision with columns from other sources:
+`eive_light`, `eive_temperature`, `eive_moisture`, `eive_reaction`, and
+`eive_nutrients`.
+
+The EIVE dataset is licensed under CC BY 4.0 and published on Zenodo. It
+is classified as static in the taxify manifest because its version (1.0) is
+a fixed publication. The reference is Dengler et al. (2023), *Vegetation
+Classification and Survey* 4:7-29.
+
+#### Diaz traits (Diaz et al. 2022)
+
+The Diaz enrichment provides two key functional traits from the TRY
+database consortium: seed mass in milligrams and plant height in metres.
+These are species-level means compiled from thousands of individual
+measurements across multiple primary sources. Coverage spans ~46,000 plant
+species globally, making it one of the broader trait datasets available for
+plants.
+
+```{r diaz-traits}
+trees <- taxify(c(
+  "Quercus robur", "Fagus sylvatica", "Picea abies",
+  "Pinus sylvestris", "Acer pseudoplatanus"
+))
+
+trees |> add_diaz_traits()
+#>          input_name seed_mass_mg plant_height_m
+#> 1     Quercus robur      3200.0           25.0
+#> 2  Fagus sylvatica      2200.0           30.0
+#> 3      Picea abies        7.9           40.0
+#> 4 Pinus sylvestris        6.5           25.0
+#> 5 Acer pseudoplatanus   120.0           25.0
+```
+
+Seed mass and plant height sit on the two most important axes of the global
+spectrum of plant form and function described by Diaz et al. (2016, *Nature*
+529:167-171). Seed mass captures the offspring size / offspring number
+trade-off (small-seeded species produce many propagules, large-seeded
+species invest in fewer, better-provisioned offspring). Plant height
+captures the competitive strategy axis (tall species intercept more light
+but invest more in structural tissue). Combining these two traits with EIVE
+or LEDA columns produces a reasonably complete functional characterization
+for European temperate species.
+
+The output columns are `seed_mass_mg` and `plant_height_m`. Both are
+numeric (NA_real_ for missing values). The dataset is licensed under
+CC BY 3.0 and distributed via the TRY File Archive.
+
+#### LEDA Traitbase (Kleyer et al. 2008)
+
+LEDA covers ~8,000 NW European plant species with 10 trait columns spanning
+life form, dispersal, seed, leaf, and clonality dimensions. It is the most
+column-rich of the simple enrichments, providing a broad functional profile
+in a single call.
+
+```{r leda}
+meadow_spp <- taxify(c(
+  "Arrhenatherum elatius", "Trifolium pratense",
+  "Leucanthemum vulgare", "Plantago lanceolata",
+  "Achillea millefolium", "Centaurea jacea"
+))
+
+meadow_spp |> add_leda()
+#>          input_name raunkiaer_life_form dispersal_type sla_mm2_mg canopy_height_m ...
+#> 1 Arrhenatherum ...  hemicryptophyte     anemochory       25.1            0.90  ...
+#> 2 Trifolium pratense hemicryptophyte     zoochory         22.3            0.30  ...
+#> ...
+```
+
+The full column set includes:
+
+- `raunkiaer_life_form`: the primary Raunkiaer life form
+  (phanerophyte, chamaephyte, hemicryptophyte, geophyte, therophyte,
+  helophyte, hydrophyte).
+- `raunkiaer_variable`: 1 if the species is assigned to multiple life
+  forms, 0 otherwise.
+- `dispersal_type`: primary dispersal vector (anemochory, zoochory,
+  hydrochory, autochory, barochory, dysochory).
+- `terminal_velocity_ms`: seed terminal velocity in m/s (species median).
+- `seed_mass_mg`: seed mass in mg (species median).
+- `canopy_height_m`: canopy height in metres (species median).
+- `leaf_mass_mg`: leaf dry mass in mg (species median).
+- `sla_mm2_mg`: specific leaf area in mm^2/mg (species median).
+- `clonal_growth`: capable of clonal growth (1 = yes, 0 = no).
+- `buoyancy`: seed buoyancy classification.
+
+The Raunkiaer life form column classifies plants by where their
+perennating buds sit during the unfavorable season. Phanerophytes (trees,
+tall shrubs) hold buds more than 25 cm above the soil; chamaephytes (low
+shrubs, cushion plants) keep them near the surface. Hemicryptophytes, the
+dominant group in temperate grasslands, position buds right at soil level.
+Below ground, geophytes store buds as bulbs or rhizomes, while therophytes
+skip the problem entirely by surviving as seeds. LEDA provides this
+classification at species level for the NW European flora, making it one of
+the few trait databases that includes Raunkiaer assignments for several
+thousand species.
+
+One column-name collision to be aware of: LEDA's `seed_mass_mg` and the
+Diaz enrichment's `seed_mass_mg` share the same output column name. If both
+enrichments are stacked in a pipe chain, the second one to run will
+overwrite the first. The values may differ slightly because LEDA reports the
+species median from its own measurements while Diaz reports the TRY
+consortium mean. To keep both, apply one enrichment, rename the column, then
+apply the second. Alternatively, choose whichever source is more appropriate
+for the study: LEDA for NW European analyses (regional measurements), Diaz
+for global analyses (worldwide compilation).
+
+### Conservation status (IUCN Red List)
+
+The conservation status enrichment is the only enrichment that spans all
+taxonomic groups equally. Coverage includes ~166,000 species assessed by
+the IUCN Red List, with representation across plants, vertebrates,
+invertebrates, and fungi. A single column is added: `conservation_status`,
+containing the standard IUCN category code.
+
+```{r conservation-status}
+species <- taxify(c(
+  "Panthera tigris", "Ailuropoda melanoleuca",
+  "Gorilla gorilla", "Vulpes vulpes",
+  "Passer domesticus", "Quercus robur"
+))
+
+species |> add_conservation_status()
+#>            input_name conservation_status
+#> 1     Panthera tigris                  EN
+#> 2 Ailuropoda melanoleuca               VU
+#> 3      Gorilla gorilla                  CR
+#> 4        Vulpes vulpes                  LC
+#> 5   Passer domesticus                  LC
+#> 6       Quercus robur                  LC
+```
+
+The seven categories in order of increasing threat are:
+
+- **LC** (Least Concern): population stable, no significant threats.
+- **NT** (Near Threatened): close to qualifying for a threatened category.
+- **VU** (Vulnerable): facing a high risk of extinction in the wild.
+- **EN** (Endangered): facing a very high risk of extinction.
+- **CR** (Critically Endangered): facing an extremely high risk.
+- **EW** (Extinct in the Wild): survives only in captivity or cultivation.
+- **EX** (Extinct): no known living individuals.
+
+Species not yet assessed by the IUCN receive `NA`. The IUCN has assessed
+nearly all mammals, birds, amphibians, and reptiles, but only a fraction of
+invertebrates, fungi, and plants. For a plant-focused study, coverage rates
+are likely to be lower (perhaps 10-30% of the species list) than for a
+vertebrate study (where 90-100% coverage is typical). The enrichment also
+includes species assessed as DD (Data Deficient), which indicates that the
+IUCN has examined the species but lacks sufficient data to assign a threat
+category.
+
+The conservation status enrichment is non-static: the IUCN publishes
+updated assessments several times per year, and the taxify enrichment is
+rebuilt when new assessments become available. The `summary()` output will
+show the version string (e.g., "2025.1") so that the exact assessment
+vintage can be cited.
+
+### Bird enrichments
+
+Birds are served by two complementary enrichments that together provide a
+detailed functional and ecological profile. AVONET covers morphology and
+migration strategy; EltonTraits covers diet composition and foraging
+behavior. There is intentional overlap in body mass (both provide it), but
+the remaining columns are distinct.
+
+#### AVONET (Tobias et al. 2022)
+
+AVONET provides species-level morphological measurements for ~11,000 bird
+species worldwide, based on direct measurements of museum specimens and
+live birds. The enrichment adds 11 columns covering beak dimensions
+(length, depth), wing length, tail length, tarsus length, body mass,
+hand-wing index, primary habitat, trophic level, trophic niche, and
+migration strategy.
+
+```{r avonet}
+birds <- taxify(c(
+  "Parus major", "Cyanistes caeruleus", "Erithacus rubecula",
+  "Turdus merula", "Falco peregrinus", "Aquila chrysaetos"
+))
+
+birds |> add_avonet()
+#>        input_name beak_length wing_length avonet_body_mass_g migration trophic_niche ...
+#> 1     Parus major        11.2        75.1               18.5 sedentary  Invertivore  ...
+#> 2 Cyanistes caeruleus    9.8        67.2               11.0 sedentary  Invertivore  ...
+#> 3 Erithacus rubecula    11.5        72.3               17.1   partial  Invertivore  ...
+#> 4    Turdus merula      20.8       130.5               95.0   partial    Omnivore   ...
+#> 5 Falco peregrinus      15.2       312.0              750.0      full  Vertivore    ...
+#> 6 Aquila chrysaetos     37.5       607.0             4000.0   partial  Vertivore    ...
+```
+
+The morphological measurements (beak, wing, tail, tarsus) are all in
+millimetres, representing species means across measured specimens. The
+hand-wing index (`hand_wing_index`) quantifies wing pointedness and
+correlates strongly with long-distance flight ability: swifts, falcons, and
+shearwaters score high, while wrens, rails, and pheasants sit at the low end
+of the spectrum. Dispersal ecology, macroecology, and studies of range
+expansion all make heavy use of this index.
+
+The migration column has three possible values: `"sedentary"` (non-
+migratory), `"partial"` (some populations migrate), and `"full"` (obligate
+long-distance migrant). The trophic_niche column uses categories like
+`"Invertivore"`, `"Omnivore"`, `"Vertivore"`, `"Frugivore"`,
+`"Granivore"`, `"Nectarivore"`, `"Herbivore aquatic"`, and others.
+
+AVONET is licensed under CC BY 4.0 and published on Figshare. The
+reference is Tobias et al. (2022), *Ecology Letters* 25:581-597. The
+dataset is classified as static in the taxify manifest.
+
+#### EltonTraits (Wilman et al. 2014)
+
+EltonTraits 1.0 covers both birds and mammals (~15,400 species total),
+making it the only enrichment that spans two vertebrate classes. It adds
+18 columns organized into three groups: 10 diet composition percentages,
+6 foraging stratum percentages, body mass, and nocturnality.
+
+The diet columns express the percentage contribution of each food category
+to the species' diet: invertebrates (`diet_inv`), endothermic vertebrates
+(`diet_vend`), ectothermic vertebrates (`diet_vect`), fish (`diet_vfish`),
+unknown vertebrates (`diet_vunk`), scavenging (`diet_scav`), fruit
+(`diet_fruit`), nectar (`diet_nect`), seeds and nuts (`diet_seed`), and
+other plant material (`diet_plantother`). The 10 diet percentages sum to
+100 for each species.
+
+The foraging columns express where in the vertical habitat structure the
+species forages: below water surface (`foraging_water`), on ground
+(`foraging_ground`), in understory (`foraging_understory`), in mid to high
+vegetation (`foraging_midhigh`), in canopy (`foraging_canopy`), and aerial
+(`foraging_aerial`). These 6 percentages also sum to 100.
+
+```{r elton-traits}
+birds <- taxify(c(
+  "Parus major", "Dendrocopos major", "Alcedo atthis",
+  "Tyto alba", "Apus apus"
+))
+
+birds |> add_elton_traits()
+#>       input_name diet_inv diet_fruit diet_seed foraging_canopy foraging_aerial nocturnal ...
+#> 1    Parus major       60         10        20              50               0         0 ...
+#> 2 Dendrocopos major    75          5        10              80               0         0 ...
+#> 3   Alcedo atthis       0          0         0               0               0         0 ...
+#> 4       Tyto alba       10          0         0               0               0         1 ...
+#> 5       Apus apus      100          0         0               0             100         0 ...
+```
+
+The Common Swift (*Apus apus*) is a textbook example of a species at the
+extreme of the foraging and diet axes: 100% invertebrate diet, 100% aerial
+foraging, reflecting its life spent almost entirely on the wing. The Barn
+Owl (*Tyto alba*) illustrates the nocturnal flag: it is one of the few
+species in this example set with `nocturnal = 1`. The `elton_body_mass_g`
+column provides body mass in grams from literature compilation.
+
+EltonTraits is particularly valuable for functional diversity analyses
+(computing Rao's quadratic entropy or functional richness using diet and
+foraging traits as axes), food web construction (using diet percentages to
+parameterize trophic links), and macroecological studies of niche breadth.
+It is licensed under CC0 and published on Figshare. The reference is
+Wilman et al. (2014), *Ecology* 95:2027.
+
+### Mammal enrichments
+
+#### PanTHERIA (Jones et al. 2009)
+
+PanTHERIA covers ~5,400 mammal species with eight life-history and
+ecological traits: adult body mass, maximum longevity, mean litter size,
+gestation length, weaning age, home range size, diet breadth, and habitat
+breadth. It remains the most-cited source of mammalian life-history data in
+the ecological literature, despite being published in 2009.
+
+```{r pantheria}
+mammals <- taxify(c(
+  "Vulpes vulpes", "Canis lupus", "Ursus arctos",
+  "Mustela nivalis", "Lutra lutra", "Lynx lynx"
+))
+
+mammals |> add_pantheria()
+#>      input_name pantheria_body_mass_g longevity_mo litter_size home_range_km2 ...
+#> 1  Vulpes vulpes               5480.0          144         5.0           8.55 ...
+#> 2   Canis lupus              31757.0          192         5.4         242.00 ...
+#> 3  Ursus arctos             139000.0          396         2.0         488.00 ...
+#> 4 Mustela nivalis               67.0           72         5.5           0.03 ...
+#> 5   Lutra lutra               8000.0          180         2.3          15.00 ...
+#> 6     Lynx lynx              20500.0          252         2.6         168.00 ...
+```
+
+The body mass column is named `pantheria_body_mass_g` to distinguish it
+from AVONET's `avonet_body_mass_g` and EltonTraits' `elton_body_mass_g`.
+This prefixing convention prevents column-name collisions when stacking
+multiple enrichments on the same result.
+
+The Least Weasel (*Mustela nivalis*) in the example above illustrates the
+dynamic range of mammalian traits: at 67 g body mass and a home range of
+0.03 km^2, it sits at the opposite end of the spectrum from the Brown Bear
+(*Ursus arctos*) at 139,000 g and 488 km^2. These allometric scaling
+relationships (body mass predicting home range, longevity, gestation, etc.)
+are a major reason PanTHERIA is so widely cited.
+
+Because PanTHERIA was published in 2009, species described or taxonomically
+split after that date will appear as `NA`. The dataset is static (CC0
+license), so it never triggers version checks. The reference is Jones et al.
+(2009), *Ecology* 90:2648.
+
+### Amphibian enrichments
+
+#### AmphiBIO (Oliveira et al. 2017)
+
+AmphiBIO covers ~6,800 amphibian species with 13 trait columns. The
+continuous traits are body size (snout-vent length in mm), age at maturity
+(days), longevity (days), clutch/litter size, reproductive output per year,
+and offspring size (mm). The binary traits encode habitat and activity
+patterns: direct development (0/1), larval stage (0/1), aquatic habitat
+(0/1), fossorial habitat (0/1), arboreal habitat (0/1), diurnal activity
+(0/1), and nocturnal activity (0/1).
+
+```{r amphibio}
+amphibians <- taxify(c(
+  "Bufo bufo", "Rana temporaria", "Salamandra salamandra",
+  "Triturus cristatus", "Hyla arborea", "Bombina variegata"
+))
+
+amphibians |> add_amphibio()
+#>           input_name body_size_mm arboreal aquatic direct_development nocturnal_amphibio ...
+#> 1          Bufo bufo        150.0        0       0                  0                  1 ...
+#> 2    Rana temporaria        110.0        0       1                  0                  0 ...
+#> 3 Salamandra salamandra    200.0        0       0                  0                  1 ...
+#> 4  Triturus cristatus      160.0        0       1                  0                  1 ...
+#> 5       Hyla arborea         50.0        1       0                  0                  1 ...
+#> 6  Bombina variegata         50.0        0       1                  0                  0 ...
+```
+
+The nocturnality column is named `nocturnal_amphibio` rather than
+`nocturnal` to avoid colliding with EltonTraits' `nocturnal` column.
+While it is unusual to stack both AmphiBIO and EltonTraits on the same
+result (EltonTraits covers birds and mammals, not amphibians), the
+precaution prevents surprises in mixed-taxon workflows where both
+enrichments are applied to a single data.frame.
+
+The binary trait columns use integer values (0/1) rather than logical
+(`TRUE`/`FALSE`), following the original dataset's encoding. This means
+filtering syntax uses `== 1L` rather than bare column names:
+`result[result$arboreal == 1L, ]`.
+
+AmphiBIO is one of the few large-scale trait databases for amphibians, a
+taxon group that is relatively data-poor compared to birds and mammals.
+Coverage spans anurans (frogs and toads), urodeles (salamanders and newts),
+and caecilians. It is licensed under CC BY 4.0 and published on
+*Scientific Data*. The reference is Oliveira et al. (2017), *Scientific
+Data* 4:170123.
+
+
+## Group-based enrichments
+
+Three enrichments filter by a grouping variable (country code, TDWG
+botanical region code, or language code) and pivot the result to wide
+format. The mechanics are the same across all three: when a single group
+value is requested, the output column uses the base name (e.g.,
+`invasive_status`). When multiple group values are requested, each output
+column gets a suffix derived from the group value (e.g.,
+`invasive_status_AT`, `invasive_status_DE`). Passing `"all"` as the group
+value expands to every group present in the enrichment dataset.
+
+This design keeps the output tidy for the common case (one country, one
+region, one language) while still supporting comparative analyses across
+multiple groups without reshaping the data manually. Internally, the
+group-based join performs one `match()` call per group value, so requesting
+10 countries costs roughly 10 times the computation of a single country.
+This is still fast for typical use cases (sub-second for results with tens
+of thousands of rows), but requesting `"all"` on a large result may take a
+few seconds because it iterates over all group values in the enrichment
+(196 countries for GRIIS, dozens of TDWG regions for WCVP).
+
+### Invasive species status (GRIIS)
+
+The Global Register of Introduced and Invasive Species (GRIIS) classifies
+species as native, introduced, or invasive on a per-country basis. The
+dataset covers 196 countries with ~23,000 species-country combinations. The
+`country` argument takes ISO 3166-1 alpha-2 codes (e.g., `"AT"` for
+Austria, `"DE"` for Germany, `"GB"` for Great Britain).
+
+#### Single country
+
+```{r invasive-single}
+plants <- taxify(c(
+  "Robinia pseudoacacia", "Ailanthus altissima",
+  "Impatiens glandulifera", "Quercus robur",
+  "Reynoutria japonica", "Solidago canadensis"
+))
+
+plants |> add_invasive_status(country = "AT")
+#>            input_name invasive_status
+#> 1 Robinia pseudoacacia        invasive
+#> 2  Ailanthus altissima        invasive
+#> 3 Impatiens glandulifera      invasive
+#> 4        Quercus robur          native
+#> 5  Reynoutria japonica        invasive
+#> 6 Solidago canadensis        invasive
+```
+
+With a single country code, the output column is simply `invasive_status`
+without any suffix. The three possible values are `"native"`, `"introduced"`,
+and `"invasive"`. Species not recorded in the GRIIS dataset for the
+requested country receive `NA`. Note that `NA` does not mean "native"; it
+means "no record" in the GRIIS database. Many native species are simply
+not listed because GRIIS focuses on introduced and invasive taxa.
+
+#### Multiple countries
+
+When comparing invasive status across countries, pass a vector of codes.
+Each output column is suffixed with the corresponding country code.
+
+```{r invasive-multi}
+plants |> add_invasive_status(country = c("AT", "DE", "GB"))
+#>            input_name invasive_status_AT invasive_status_DE invasive_status_GB
+#> 1 Robinia pseudoacacia         invasive           invasive           invasive
+#> 2  Ailanthus altissima         invasive           invasive         introduced
+#> 3 Impatiens glandulifera       invasive           invasive           invasive
+#> 4        Quercus robur           native             native             native
+#> 5  Reynoutria japonica         invasive           invasive           invasive
+#> 6 Solidago canadensis         invasive           invasive         introduced
+```
+
+This layout makes cross-country comparisons straightforward. Filtering for
+species that differ in status between countries is a matter of subsetting
+columns. The example below finds species classified as invasive in Austria
+but not (yet) classified as invasive in Germany:
+
+```{r invasive-filter}
+result <- plants |> add_invasive_status(country = c("AT", "DE"))
+# Species invasive in Austria but not in Germany
+result[result$invasive_status_AT == "invasive" &
+       result$invasive_status_DE != "invasive", ]
+```
+
+This pattern is useful for identifying species that may be expanding their
+invasive range, or for comparing the regulatory status of non-native
+species across neighboring countries.
+
+#### All countries
+
+Passing `country = "all"` expands the result with one column per country
+in the GRIIS dataset (196 countries). This produces a wide data.frame with
+196 additional columns, so it is best reserved for full-scale screening
+exercises where the complete geographic profile of each species matters.
+
+```{r invasive-all}
+plants |> add_invasive_status(country = "all")
+# Adds invasive_status_AD, invasive_status_AE, ..., invasive_status_ZW
+```
+
+The resolution of `"all"` to the full list of country codes is done
+efficiently: if the manifest contains an `available_groups` field for the
+GRIIS enrichment (which it normally does), the codes are read from there in
+O(1) time without scanning the `.vtr` file. This makes even the `"all"`
+case fast to set up, though the subsequent join across 196 groups
+naturally takes longer than a single-country join.
+
+### Native range by botanical region (WCVP)
+
+The World Checklist of Vascular Plants (WCVP) from the Royal Botanic
+Gardens, Kew, classifies ~340,000 plant species as native, introduced, or
+extinct in TDWG Level 2 botanical regions. TDWG (Taxonomic Databases
+Working Group, now TDWG Biodiversity Information Standards) defined a
+hierarchical system of geographic regions for recording plant
+distributions. Level 2 regions are continent-scale units.
+
+The `region` argument takes TDWG Level 2 codes. Common codes include:
+
+- `EUR` (Europe)
+- `NAM` (Northern America)
+- `SAM` (Southern America)
+- `AFR` (Africa)
+- `AUS` (Australasia)
+- `ASI` (Asia-Temperate)
+- `AST` (Asia-Tropical)
+- `PAC` (Pacific)
+- `ANT` (Antarctica)
+
+```{r wcvp-single}
+trees <- taxify(c(
+  "Quercus robur", "Quercus suber", "Eucalyptus globulus",
+  "Nothofagus pumilio", "Sequoiadendron giganteum"
+))
+
+trees |> add_wcvp(region = "EUR")
+#>              input_name native_status
+#> 1          Quercus robur        native
+#> 2          Quercus suber        native
+#> 3    Eucalyptus globulus            NA
+#> 4    Nothofagus pumilio            NA
+#> 5 Sequoiadendron giganteum          NA
+```
+
+*Eucalyptus globulus* returns `NA` for Europe because it is native to
+Australia, not because it is absent from the WCVP dataset. The dataset
+records where a species is natively distributed, not where it has been
+planted or naturalized. This is an important distinction: many cultivated
+species will show `NA` in regions where they are widespread in gardens and
+plantations.
+
+Querying multiple regions reveals each species' native continental range:
+
+```{r wcvp-multi}
+trees |> add_wcvp(region = c("EUR", "AUS", "SAM"))
+#>              input_name native_status_EUR native_status_AUS native_status_SAM
+#> 1          Quercus robur           native                NA                NA
+#> 2          Quercus suber           native                NA                NA
+#> 3    Eucalyptus globulus               NA            native                NA
+#> 4    Nothofagus pumilio               NA                NA            native
+#> 5 Sequoiadendron giganteum              NA                NA                NA
+```
+
+*Sequoiadendron giganteum* (Giant Sequoia) returns `NA` for all three
+regions because it is native to western North America (`NAM`), which was
+not included in the query. This illustrates that the absence of a region
+code from the query does not mean the species lacks native range data; it
+means we did not ask about the right region.
+
+The full list of available TDWG codes can be retrieved programmatically
+from the manifest (the `available_groups` field for the `wcvp` enrichment),
+or from the TDWG geographic standard documentation. WCVP is non-static:
+Kew updates the checklist periodically, and the taxify enrichment is
+rebuilt when new versions are published.
+
+### Common (vernacular) names (GBIF)
+
+The common names enrichment draws on GBIF's vernacular name database, which
+aggregates names from many national and regional nomenclature sources. It
+is the most multilingual of the enrichments, covering dozens of languages.
+The `lang` argument takes ISO 639-1 two-letter language codes.
+
+```{r common-names-en}
+species <- taxify(c(
+  "Quercus robur", "Parus major", "Vulpes vulpes",
+  "Bufo bufo", "Picea abies"
+))
+
+species |> add_common_names()
+#>     input_name common_name
+#> 1 Quercus robur   Pedunculate Oak
+#> 2   Parus major    Great Tit
+#> 3  Vulpes vulpes    Red Fox
+#> 4     Bufo bufo    Common Toad
+#> 5   Picea abies    Norway Spruce
+```
+
+The default language is English (`lang = "en"`). Switching to another
+language is a matter of changing the `lang` argument:
+
+```{r common-names-de}
+species |> add_common_names(lang = "de")
+#>     input_name common_name
+#> 1 Quercus robur   Stieleiche
+#> 2   Parus major    Kohlmeise
+#> 3  Vulpes vulpes    Rotfuchs
+#> 4     Bufo bufo    Erdkroete
+#> 5   Picea abies    Gemeine Fichte
+```
+
+When multiple common names exist for a species in the requested language,
+the first (most commonly used) entry is returned. Coverage varies
+substantially by language: English and German have the broadest coverage
+(most European and widespread species have entries). French, Spanish,
+Portuguese, and Dutch also have good coverage. Less widely spoken languages
+or languages with limited digital biodiversity infrastructure may have
+gaps, resulting in `NA` for species that do have common names in those
+languages but that have not been digitized in GBIF's aggregation.
+
+The common names enrichment is non-static (GBIF updates its backbone
+periodically) and licensed under CC0. When a single language is requested,
+the output column is `common_name`. If multiple languages were supported in
+a single call, they would follow the group-based suffix pattern, but in
+practice the common usage pattern is one language per call.
+
+
+## Stacking enrichments
+
+The `add_*()` functions return the same data.frame class (`taxify_result`)
+they receive, preserving all attributes including the metadata used by
+`summary()`. This means they compose naturally with the pipe operator. A
+typical workflow chains `taxify()` with several enrichment calls, building
+up the desired set of columns incrementally.
+
+```{r stacking-plants}
+library(taxify)
+
+plant_result <- taxify(c(
+  "Quercus robur", "Fagus sylvatica", "Picea abies",
+  "Arrhenatherum elatius", "Festuca rubra", "Plantago lanceolata"
+)) |>
+  add_conservation_status() |>
+  add_woodiness() |>
+  add_eive() |>
+  add_diaz_traits()
+```
+
+Each enrichment appends its columns to the right of the data.frame. The
+result of this chain has the original 16 taxify columns plus
+`conservation_status`, `woodiness`, the five EIVE columns (`eive_light`,
+`eive_temperature`, `eive_moisture`, `eive_reaction`, `eive_nutrients`),
+and the two Diaz columns (`seed_mass_mg`, `plant_height_m`). That is 25
+columns total. Order within the chain does not affect the output because
+each enrichment operates independently on the `accepted_name` column. The
+only case where order matters is the column-name collision between LEDA and
+Diaz (`seed_mass_mg`), discussed earlier.
+
+Here is a similar chain for birds, combining morphological measurements
+with diet data and vernacular names:
+
+```{r stacking-birds}
+bird_result <- taxify(c(
+  "Parus major", "Cyanistes caeruleus", "Erithacus rubecula",
+  "Turdus merula", "Falco peregrinus"
+)) |>
+  add_conservation_status() |>
+  add_avonet() |>
+  add_elton_traits() |>
+  add_common_names()
+```
+
+This produces 16 (base) + 1 (conservation) + 11 (AVONET) + 18
+(EltonTraits) + 1 (common name) = 47 columns. Both AVONET and EltonTraits
+contribute body mass, but in distinct columns (`avonet_body_mass_g` and
+`elton_body_mass_g`), so there is no overwriting.
+
+And for mammals, combining life-history traits from PanTHERIA with diet
+data from EltonTraits and German common names:
+
+```{r stacking-mammals}
+mammal_result <- taxify(c(
+  "Vulpes vulpes", "Canis lupus", "Ursus arctos",
+  "Lutra lutra", "Lynx lynx"
+)) |>
+  add_conservation_status() |>
+  add_pantheria() |>
+  add_elton_traits() |>
+  add_common_names(lang = "de")
+```
+
+Both EltonTraits and PanTHERIA cover mammals, so both contribute data to
+the mammal chain. EltonTraits provides diet composition percentages and
+foraging strata; PanTHERIA provides life-history traits like longevity,
+litter size, and home range. The combination gives a multidimensional view
+of each species' ecology without any manual data assembly.
+
+Enrichment chains can be as long as needed. Performance is linear in the
+number of enrichments: each `add_*()` call performs one join, regardless of
+how many enrichments have already been applied. A chain of 10 enrichments
+on a 50,000-row result completes in seconds. The enrichment files themselves
+are loaded via vectra's memory-mapped I/O, so even enrichments with hundreds
+of thousands of rows (like WCVP at ~340,000) do not consume large amounts of
+RAM.
+
+The pipe chain pattern also plays well with reproducibility workflows. The
+entire analysis, from raw species list to fully enriched table, is captured
+in a single, readable expression. Saving this code alongside the session
+info (including taxify version and enrichment versions from `summary()`)
+gives a complete record of which data was used to produce the results.
+
+
+## Coverage patterns
+
+Not all species appear in all enrichments. Each dataset has a taxonomic
+scope (plants, birds, mammals, amphibians, or cross-taxon) and a
+geographic scope (global, European, NW European). When an enrichment has no
+data for a species, the corresponding columns contain `NA`. Understanding
+coverage patterns is essential for interpreting enriched results correctly
+and for choosing which enrichments to apply.
+
+```{r coverage-example}
+mixed <- taxify(c(
+  "Quercus robur",     # plant
+  "Parus major",       # bird
+  "Vulpes vulpes",     # mammal
+  "Bufo bufo"          # amphibian
+))
+
+mixed |> add_woodiness() |> add_avonet() |> add_pantheria() |> add_amphibio()
+#>     input_name woodiness beak_length pantheria_body_mass_g body_size_mm ...
+#> 1 Quercus robur     woody          NA                    NA           NA ...
+#> 2   Parus major        NA        11.2                    NA           NA ...
+#> 3  Vulpes vulpes       NA          NA                5480.0           NA ...
+#> 4     Bufo bufo        NA          NA                    NA        150.0 ...
+```
+
+Each species populates only the columns from enrichments that cover its
+taxon group. The `NA` values are not errors or data quality problems; they
+reflect the scope of the underlying datasets. *Quercus robur* has a
+woodiness value but no beak length, body mass, or body size. *Parus major*
+has beak length but no woodiness, PanTHERIA mass, or AmphiBIO size. This is
+expected behavior.
+
+### Approximate coverage rates by enrichment
+
+The following table summarizes the approximate species coverage of each
+enrichment, its taxonomic scope, and its geographic scope. Numbers are
+approximate because enrichments are updated periodically and because
+coverage depends somewhat on the backbone used (different backbones accept
+slightly different sets of names).
+
+| Enrichment | Taxon scope | Geographic scope | ~Species |
+|---|---|---|---|
+| conservation_status | all groups | global | 166,000 |
+| woodiness | plants | global | 50,000 |
+| eive | plants | European | 14,500 |
+| diaz_traits | plants | global | 46,000 |
+| leda | plants | NW European | 8,000 |
+| elton_traits | birds + mammals | global | 15,400 |
+| avonet | birds | global | 11,000 |
+| pantheria | mammals | global | 5,400 |
+| amphibio | amphibians | global | 6,800 |
+| griis | all groups | per country | 23,000 combos |
+| wcvp | plants | global by region | 340,000 |
+| common_names | all groups | multi-language | varies |
+
+For a European plant survey, the enrichment with the highest absolute
+coverage is WCVP (~340,000 species), followed by conservation status
+(~166,000), woodiness (~50,000), Diaz traits (~46,000), EIVE (~14,500), and
+LEDA (~8,000). However, for a specifically NW European dataset, LEDA's
+~8,000 species may actually cover a larger fraction of the species list
+than the Diaz dataset, because LEDA is geographically focused on the same
+region.
+
+### Interpreting NA columns
+
+When an entire column is `NA` for all rows in a result, the most likely
+explanation is a taxon-scope mismatch. Woodiness covers vascular plants, so
+a bird dataset will have `NA` in every row of that column. The reverse holds
+for AVONET against a plant list, or PanTHERIA against amphibians. This is
+expected behavior: the enrichment data simply does not include species from
+that taxon group.
+
+A partially populated column (some rows `NA`, others filled) means the
+enrichment covers the taxon group but the specific species is not in the
+source dataset. Common reasons for per-species `NA` include:
+
+1. **Source dataset incomplete.** No trait database covers 100% of
+   described species. PanTHERIA covers ~5,400 of the ~6,500 described
+   mammal species; roughly 1,100 mammals will have `NA` values.
+2. **Recently described species.** Species described or split after the
+   dataset's publication date will be absent. PanTHERIA (2009) misses
+   all species described since 2009.
+3. **Name alignment failure.** Rare, but possible for taxa with ongoing
+   taxonomic revisions where the backbone and the enrichment source use
+   different name variants that the cross-backbone resolution did not
+   capture. If a species consistently fails to match, filing a GitHub
+   issue helps us improve the name alignment pipeline.
+4. **Infraspecific taxa.** Most enrichments operate at the species level.
+   If the taxify result contains subspecies or varieties (e.g.,
+   "Quercus robur subsp. robur"), the enrichment may not have a
+   matching entry at that rank.
+
+It is worth noting that coverage is not the same as data quality. An
+enrichment might cover 95% of the species in a result, but the trait values
+for some of those species could be based on few measurements, extrapolated
+from congeners, or derived from captive rather than wild populations. The
+enrichment system does not expose confidence intervals or sample sizes for
+individual trait values; that level of detail lives in the original source
+databases. For analyses that require measurement-level metadata (sample
+size, measurement uncertainty, geographic origin of measurements), consult
+the original source cited on the `add_*()` help page.
+
+To check the overall enrichment rate for a result, the `summary()` output
+reports the number of matched rows per enrichment. We can also compute it
+directly:
+
+```{r coverage-check}
+result <- taxify(species_list) |> add_woodiness()
+# Fraction of matched species with woodiness data
+mean(!is.na(result$woodiness[!is.na(result$accepted_name)]))
+```
+
+
+## The enrichment register in `summary()` output
+
+Every `add_*()` call records metadata about the enrichment in an attribute
+(`taxify_meta`) on the result data.frame. This metadata includes the
+enrichment name, source label, version string, and the count of rows that
+received non-`NA` trait values. Calling `summary()` on a taxify result
+displays this information alongside the standard match statistics, providing
+a compact overview of the entire analysis pipeline.
+
+```{r summary-enrichments}
+result <- taxify(c("Quercus robur", "Fagus sylvatica", "Pinus sylvestris")) |>
+  add_conservation_status() |>
+  add_woodiness() |>
+  add_eive()
+
+summary(result)
+#> -- taxify results --------------------------------------------------------
+#>   backend: WFO v2024.12  |  3 names submitted
+#>
+#>   matched       3  (exact: 3, case-insensitive: 0, fuzzy: 0)
+#>   --------------------------------------------------------
+#>   taxon groups: plant: 3
+#>
+#>   enrichments:
+#>     conservation_status  (IUCN Red List 2025.1)     -- 3 of 3 matched
+#>     woodiness            (Zanne et al. 2014 1.0)    -- 3 of 3 matched
+#>     eive                 (EIVE 1.0 2023.1)          -- 3 of 3 matched
+```
+
+The enrichment register lists each applied enrichment with its source name,
+version, and the fraction of successfully matched names. In this example,
+all three enrichments achieved 100% coverage (3 of 3 matched), which is
+expected for well-known European tree species. On a larger dataset with a
+broader taxonomic scope, we would typically see lower fractions, especially
+for enrichments with narrow geographic or taxonomic coverage.
+
+The register is cumulative: applying more enrichments adds more lines. This
+makes `summary()` a useful diagnostic at the end of a pipe chain. If one
+enrichment shows unexpectedly low coverage (e.g., "2 of 500 matched" for
+EIVE on a dataset that we expected to be European plants), it signals a
+problem worth investigating. Common causes include the species list
+containing non-plant taxa, non-European species, or names at ranks other
+than species.
+
+The version strings in the register provide exact provenance information
+for the methods section of a paper. Rather than writing "we used the IUCN
+Red List" (which version? downloaded when?), we can report the version
+string directly from `summary()` (e.g., "IUCN Red List v2025.1 as
+distributed by taxify enrichment conservation_status v2025.04").
+
+
+## Practical guidance: which enrichments for which taxa
+
+The choice of enrichments depends on the taxonomic scope and geographic
+focus of the analysis. Below are recommended enrichment stacks for six
+common use cases, with brief notes on what each enrichment contributes.
+
+### Vascular plants (European)
+
+European plant ecology benefits from the richest set of enrichments. A
+full stack combines conservation status, growth form, ecological niche
+position, global functional traits, regional functional traits, native
+range, and vernacular names.
+
+```{r guide-euro-plants}
+result <- taxify(species_list, backend = "wfo") |>
+  add_conservation_status() |>
+  add_woodiness() |>
+  add_eive() |>
+  add_diaz_traits() |>
+  add_leda() |>
+  add_wcvp(region = "EUR") |>
+  add_common_names()
+```
+
+EIVE and LEDA both cover European plants, but their trait columns are
+complementary. EIVE provides niche position along five environmental
+gradients (where does this species grow?). LEDA provides morphological and
+dispersal traits (what does this species look like, how does it
+disperse?). The combination produces a detailed functional profile suitable
+for community-weighted mean analyses, trait-based ordinations, and
+functional diversity calculations. The Diaz traits add a global perspective
+on seed mass and plant height that complements LEDA's regional
+measurements.
+
+The `seed_mass_mg` collision between LEDA and Diaz was discussed earlier.
+In this stack, LEDA runs before Diaz, so the Diaz `seed_mass_mg` will be
+the value in the final result. If the LEDA value is preferred, reverse the
+order or omit `add_diaz_traits()`.
+
+### Vascular plants (global)
+
+Outside Europe, EIVE and LEDA coverage drops to near zero. The global plant
+stack relies on the wider-coverage datasets and omits the regional
+enrichments.
+
+```{r guide-global-plants}
+result <- taxify(species_list, backend = "wfo") |>
+  add_conservation_status() |>
+  add_woodiness() |>
+  add_diaz_traits() |>
+  add_wcvp(region = c("NAM", "SAM", "AFR")) |>
+  add_common_names()
+```
+
+Woodiness and Diaz traits both have global coverage, so they contribute
+useful data regardless of the geographic origin of the species list. WCVP
+can be queried for any TDWG region, providing native range information for
+the continents relevant to the study.
+
+### Birds
+
+Birds are covered by two complementary enrichments: AVONET for morphology
+and migration, EltonTraits for diet and foraging. Together they provide a
+detailed functional profile spanning body plan, habitat use, dietary niche,
+and movement ecology.
+
+```{r guide-birds}
+result <- taxify(species_list, backend = "col") |>
+  add_conservation_status() |>
+  add_avonet() |>
+  add_elton_traits() |>
+  add_common_names()
+```
+
+Both AVONET and EltonTraits include body mass, stored in separate columns
+(`avonet_body_mass_g` from specimen measurements and `elton_body_mass_g`
+from literature compilation). Small discrepancies between the two are
+expected and can be informative: large discrepancies for a species may
+indicate measurement error in one source or sexually dimorphic species
+where the two sources sampled different sexes.
+
+### Mammals
+
+Mammals are covered by PanTHERIA (life-history traits) and EltonTraits
+(diet and foraging behavior). The combination provides body mass from two
+independent sources (`pantheria_body_mass_g` and `elton_body_mass_g`),
+which can serve as a cross-validation of the mass data.
+
+```{r guide-mammals}
+result <- taxify(species_list, backend = "col") |>
+  add_conservation_status() |>
+  add_pantheria() |>
+  add_elton_traits() |>
+  add_common_names()
+```
+
+PanTHERIA contributes life-history variables that EltonTraits does not
+cover (longevity, litter size, gestation, weaning age, home range, diet
+breadth, habitat breadth). EltonTraits contributes the detailed diet
+composition percentages and foraging stratum data that PanTHERIA does not
+provide. There is no redundancy except body mass.
+
+### Amphibians
+
+AmphiBIO is the sole dedicated amphibian enrichment. It can be combined
+with conservation status and common names.
+
+```{r guide-amphibians}
+result <- taxify(species_list, backend = "col") |>
+  add_conservation_status() |>
+  add_amphibio() |>
+  add_common_names()
+```
+
+Amphibians are the most threatened vertebrate class, with roughly 40% of
+assessed species listed in threatened categories (VU, EN, or CR) according
+to the IUCN. Conservation status is therefore particularly informative for
+amphibian analyses. The combination of AmphiBIO habitat traits (aquatic,
+fossorial, arboreal) with IUCN status can reveal associations between
+habitat specialization and extinction risk.
+
+### Marine organisms
+
+There is currently no dedicated marine trait enrichment in taxify. The
+conservation status and common names enrichments cover marine species, and
+the WoRMS backend provides authoritative marine taxonomy. For marine-
+specific trait data (e.g., from FishBase, SeaLifeBase, or the World
+Register of Marine Species), the `add_data()` function can join custom data
+from any CSV, XLSX, SQLite, or data.frame source.
+
+```{r guide-marine}
+result <- taxify(species_list, backend = "worms") |>
+  add_conservation_status() |>
+  add_common_names() |>
+  add_data("fishbase_traits.csv")
+```
+
+This pattern generalizes to any taxon group or trait source not covered by
+the built-in enrichments. The key advantage of using `add_data()` rather
+than a manual `merge()` is that `add_data()` resolves names through the
+backbone before joining, so synonyms in the external data are handled
+correctly.
+
+### Fungi
+
+No fungal trait enrichment is currently bundled with taxify. The COL and
+GBIF backends provide fungal taxonomy, and `add_conservation_status()`
+covers the subset of fungal species that have been assessed by the IUCN
+(currently a small fraction of described fungi). Custom fungal trait data
+(e.g., from FungalTraits or the Global Soil Mycobiome consortium) can be
+joined via `add_data()`.
+
+### Mixed-taxon datasets
+
+When a dataset spans multiple kingdoms (e.g., a biodiversity survey with
+plants, birds, and mammals), there are two strategies.
+
+The first is to apply all relevant enrichments to the full result and
+accept `NA` values where taxonomic scope does not overlap:
+
+```{r guide-mixed-all}
+result <- taxify(species_list) |>
+  add_conservation_status() |>
+  add_woodiness() |>
+  add_avonet() |>
+  add_pantheria() |>
+  add_amphibio() |>
+  add_elton_traits()
+```
+
+This produces a wide data.frame where most cells in any given row are `NA`
+(a plant row has woodiness data but `NA` for beak length, body mass, etc.).
+The advantage is simplicity: one data.frame, one `summary()` call, no
+manual splitting.
+
+The second strategy is to split the result by taxon group, enrich each
+subset with the appropriate stack, and recombine:
+
+```{r guide-mixed-split}
+result <- taxify(species_list)
+
+plants  <- result[result$kingdom == "Plantae", ]
+birds   <- result[result$family %in% bird_families, ]
+mammals <- result[result$family %in% mammal_families, ]
+
+plants  <- plants |> add_woodiness() |> add_eive()
+birds   <- birds |> add_avonet() |> add_elton_traits()
+mammals <- mammals |> add_pantheria() |> add_elton_traits()
+```
+
+The second approach avoids wide data.frames with many `NA` columns and
+produces cleaner trait matrices for downstream analyses that treat columns
+as features (ordination, clustering, machine learning). The disadvantage is
+more code and the need to maintain separate data.frames for each group.
+
+The choice depends on the analysis goal. For a summary table in a paper
+(e.g., "species, conservation status, key traits"), the first approach
+works well. For functional diversity calculations or trait-based models
+that expect a complete trait matrix, the second approach typically produces
+better inputs because it avoids rows with structurally missing values
+(values that are missing by design, not by data limitation).
+
+A middle ground is to apply `add_conservation_status()` and
+`add_common_names()` to the full dataset (since both cover all taxon
+groups), then split by group for the taxon-specific enrichments. This
+gives us conservation data and vernacular names for every species in a
+single data.frame, while keeping the taxon-specific trait matrices clean.
+
+
+## Joining custom data
+
+Beyond the 12 built-in enrichments, `add_data()` joins any external
+dataset to a taxify result. It accepts a file path (CSV, CSV.GZ, XLSX,
+SQLite/DB, or VTR) or an in-memory data.frame. The function identifies the
+species name column (automatically by running the first 10 rows of each
+character column through `taxify()` and selecting the column with the
+highest match rate, or via an explicit `species_col` argument), resolves
+those names through the same backbone(s) used in the original `taxify()`
+call, and joins on `accepted_id`.
+
+```{r add-data-csv}
+result <- taxify(c("Quercus robur", "Pinus sylvestris", "Fagus sylvatica"))
+
+# From a CSV file (auto-detect species column)
+result |> add_data("my_traits.csv")
+```
+
+```{r add-data-df}
+# From a data.frame with explicit species column
+my_traits <- data.frame(
+  species = c("Quercus robur", "Pinus sylvestris", "Fagus sylvatica"),
+  bark_thickness_mm = c(25, 15, 8),
+  shade_tolerance = c(0.6, 0.3, 0.8)
+)
+result |> add_data(my_traits, species_col = "species")
+```
+
+Because `add_data()` resolves names through the backbone before joining, it
+handles synonyms correctly. If the external data uses "Pinus abies" and the
+backbone resolves it to "Picea abies", the join still works. This is the
+recommended way to integrate local field data, unpublished trait
+measurements, or datasets from sources not covered by the built-in
+enrichments.
+
+The `cols` argument can restrict which columns are joined from the external
+data. If the external data has 50 columns but we only need two, passing
+`cols = c("bark_thickness_mm", "shade_tolerance")` avoids cluttering the
+result with unwanted columns. The `fuzzy` argument (default `TRUE`) enables
+fuzzy matching for names in the external data that do not exact-match the
+backbone; `fuzzy_threshold` controls the maximum allowed string distance.
+
+Column names from the external data that collide with existing columns in
+the taxify result are automatically prefixed with `"data_"` to prevent
+overwriting. If multiple rows in the external data resolve to the same
+`accepted_id` with identical trait values, they are silently deduplicated.
+If they resolve to the same `accepted_id` with conflicting values (e.g.,
+two different height measurements for the same species), `add_data()` raises
+an error asking the user to resolve the ambiguity before joining. This
+strict handling of duplicates prevents subtle data corruption that a plain
+`merge()` would silently allow.
+
+The `add_data()` function also supports SQLite databases via the `table`
+argument, and `.vtr` files directly (useful for sharing pre-built
+enrichments between collaborators). For XLSX files, the openxlsx2 package
+is required (listed in Suggests).
+
+
+## Data provenance and citation
+
+Each enrichment draws on published, peer-reviewed datasets with their own
+licenses and citation requirements. Citing the correct source and version
+is a professional obligation when using these data in publications. The
+`summary()` output includes the source and version for each applied
+enrichment, providing a starting point for the methods section. The original
+references are listed in each `add_*()` function's help page (accessible
+via `?add_avonet`, `?add_leda`, `?add_pantheria`, etc.).
+
+For reproducibility, the version recorded in `meta.json` pins the exact
+build of each enrichment `.vtr` file that was used. Static enrichments
+(Zanne 2014, PanTHERIA 2009, EltonTraits 2014, AmphiBIO 2017, LEDA 2008,
+Diaz 2022) have fixed versions that never change. Non-static enrichments
+(IUCN, GRIIS, WCVP, common names) are updated when the upstream source
+publishes a new release, and the version in `meta.json` reflects which
+release was used. Reporting the enrichment version in a publication ensures
+that results can be reproduced even if the upstream data is later revised
+or corrected.
+
+The licenses of the source datasets range from CC0 (EltonTraits, PanTHERIA,
+woodiness, common names) to CC BY 4.0 (EIVE, AmphiBIO, AVONET, GRIIS) and
+CC BY 3.0 (Diaz traits). LEDA and WCVP have their own terms published on
+their respective websites. The taxify package itself does not redistribute
+these datasets in their original form; the `.vtr` files are built from
+publicly available sources and distributed via GitHub Releases. When using
+enrichment data in a publication, cite the original source (the reference
+on the `?add_*` help page) and optionally note the taxify enrichment
+version for reproducibility.
+
+A minimal methods paragraph citing enrichments might read:
+
+> Taxonomic names were resolved against the WFO backbone (v2024.12) using
+> taxify (v0.x.x). Conservation status was obtained from the IUCN Red List
+> (v2025.1) via `add_conservation_status()`. Woodiness classification
+> followed Zanne et al. (2014). Ecological indicator values were sourced
+> from EIVE 1.0 (Dengler et al. 2023). All enrichment versions are
+> recorded in the taxify result metadata and available via `summary()`.
+
+
+## Summary
+
+taxify's enrichment system turns taxonomic name matching into a gateway to
+ecological trait data. The 12 built-in enrichments cover conservation status,
+growth form, ecological niches, functional traits, diet, morphology,
+life-history, geographic ranges, invasive status, and vernacular names
+across plants, birds, mammals, and amphibians. All enrichments share the
+same underlying join mechanics, download automatically on first use, cache
+locally for subsequent sessions, and compose freely with the pipe operator.
+
+The cross-backbone name resolution built into the `.vtr` files means we
+do not have to worry about which backbone we used: enrichments work
+identically with WFO, COL, GBIF, ITIS, NCBI, OTT, or WoRMS results. The
+`summary()` method tracks which enrichments have been applied, their source
+versions, and their coverage rates, supporting both exploratory analysis and
+reproducible reporting.
+
+For taxa or traits not covered by the built-in layers, `add_data()`
+integrates any external dataset using the same backbone-resolved name
+matching. Between the 12 built-in enrichments and the `add_data()` escape
+hatch, most common ecological analyses can go from raw species lists to
+trait-enriched analytical tables in a single pipe chain.
+
+The key properties of the enrichment system, to recap, are: automatic
+download and caching (no manual data management), cross-backbone
+compatibility (enrichments work regardless of which backend produced the
+result), version tracking (the `summary()` method documents exactly which
+data versions were used), and compositional design (enrichments stack
+freely via the pipe operator without side effects or ordering constraints).
+These properties together aim to make the path from species names to
+trait-enriched analyses as short and reproducible as possible.

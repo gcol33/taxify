@@ -1,0 +1,826 @@
+---
+title: "Choosing and combining backends"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Choosing and combining backends}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+taxify matches taxonomic names against locally stored Darwin Core backbone
+databases. Nine backends are available, each compiled from a different
+authoritative source. The backend we choose determines which names can be
+matched, what taxonomic opinion governs synonym resolution, and which extra
+metadata columns are available downstream. This vignette walks through the
+backends, explains how to combine them in fallback chains, and offers
+practical guidance on which combination to pick for a given project.
+
+## Backend overview
+
+The table below summarizes the nine backends. "Approx. names" is the total
+number of name strings in the compiled backbone (accepted names plus
+synonyms); the actual species count is lower because each accepted species
+may have several synonym entries pointing to it.
+
+| Backend | Full name | Scope | Approx. names | Source format |
+|:--------|:----------|:------|:--------------|:--------------|
+| `wfo` | World Flora Online | Vascular plants, bryophytes | ~400k | Zenodo ZIP (classification.txt) |
+| `col` | Catalogue of Life | All kingdoms | ~4.5M | ChecklistBank DwC-A (Taxon.tsv) |
+| `gbif` | GBIF Backbone Taxonomy | All kingdoms | ~10M | GBIF simple.txt.gz (30 positional cols) |
+| `itis` | Integrated Taxonomic Information System | All kingdoms, US focus | ~900k | SQLite dump from itis.gov |
+| `ncbi` | NCBI Taxonomy | All life incl. viruses | ~2.5M | Pipe-delimited .dmp files (taxdump) |
+| `ott` | Open Tree of Life | All life (synthetic) | ~4M | Pipe-delimited taxonomy.tsv + synonyms.tsv |
+| `worms` | World Register of Marine Species | Marine and brackish | ~600k | ChecklistBank DwC-A |
+| `fungorum` | Species Fungorum Plus | Fungi | ~500k | ChecklistBank DwC-A |
+| `algaebase` | AlgaeBase | Algae and cyanobacteria | ~170k | ChecklistBank DwC-A (CC BY-NC) |
+
+A few things stand out. WFO is the standard reference for plant taxonomy and
+the default backend in taxify. It is maintained by the World Flora Online
+consortium and receives regular updates. The backbone includes all taxonomic
+ranks from kingdom down to form, with full synonym resolution and authorship.
+
+COL and GBIF both cover all kingdoms, but they differ in curation strategy.
+COL is an expert-curated checklist assembled from over 160 sector databases,
+each maintained by a taxonomic authority for its group. GBIF's backbone is
+assembled algorithmically from COL, ITIS, and dozens of other sources, which
+gives it broader raw coverage (~10M names vs COL's ~4.5M) at the cost of
+occasional inconsistencies where source databases disagree. In practice, COL
+tends to give cleaner synonym resolution; GBIF tends to match more names.
+
+ITIS was originally developed for North American fauna and remains
+particularly strong on freshwater invertebrates, insects, and US-listed
+species. Its coverage of non-American taxa is uneven. The ITIS backbone is
+distributed as a SQLite dump; building it from source requires the RSQLite
+package. Pre-built `.vtr` backbones avoid this dependency.
+
+NCBI Taxonomy is the gold standard for sequence-linked work. Every GenBank,
+RefSeq, and BOLD sequence is linked to an NCBI tax_id, making this backend
+essential for molecular ecology and metagenomics. It is also the only backend
+that covers bacteria, archaea, and viruses in meaningful depth. However, NCBI
+Taxonomy does not store authorship data, so the `authorship` column is always
+`NA` for NCBI-matched rows.
+
+OTT (Open Tree of Life) is a synthetic taxonomy that merges NCBI, GBIF,
+WoRMS, IRMNG, and several other sources into a single tree. It has the
+broadest coverage of any single source and provides cross-references to all
+of its constituent databases via the `sourceinfo` field. The trade-off is
+that synthetic taxonomies can carry conflicts and inconsistencies at the
+edges, where source databases disagree about the placement of a taxon.
+
+WoRMS is the authoritative source for marine species. It is curated by a
+network of over 300 taxonomic editors and covers marine, brackish, and some
+freshwater species. Beyond basic taxonomy, the WoRMS backbone stores habitat
+flags (marine, brackish, freshwater, terrestrial) and extinction status, some
+of which are accessible via the COL SpeciesProfile.
+
+Species Fungorum Plus is the specialist reference for fungal taxonomy, with
+~500k names curated by the Royal Botanic Gardens, Kew. It covers Ascomycota,
+Basidiomycota, and other fungal phyla, including anamorphs and teleomorphs.
+For purely mycological datasets, it gives better synonym resolution than
+generalist databases.
+
+AlgaeBase covers micro- and macroalgae, cyanobacteria, and some protists.
+It is the only backend licensed CC BY-NC (non-commercial use only). All other
+backends are open-access. taxify prints a license notice during AlgaeBase
+download to make this visible.
+
+## Downloading backbones
+
+taxify auto-downloads backbones on first use. When we call `taxify(names,
+backend = "wfo")` and no local WFO backbone exists, taxify fetches the
+pre-built `.vtr` file from Zenodo, writes it to `taxify_data_dir()`, and
+caches the path for the remainder of the R session. Subsequent calls, whether
+in the same session or future sessions, reuse the local copy without any
+network access.
+
+To download a backbone ahead of time (useful on a shared server or in a
+Docker image), use `taxify_download_vtr()`:
+
+```{r download-single}
+library(taxify)
+
+# Download one backbone
+taxify_download_vtr("wfo")
+
+# Download several at once
+taxify_download_vtr(c("wfo", "col", "worms"))
+```
+
+Pre-built `.vtr` files are hosted on Zenodo and typically range from 50 MB
+(AlgaeBase) to 400 MB (GBIF), depending on the backend. The files are
+compiled from the raw Darwin Core sources with precomputed matching keys,
+embedded synonym resolution, and genus-level indexes, so they are ready for
+querying the moment the download completes.
+
+taxify checks for backbone updates once per R session. The first `taxify()`
+call in a session fetches the manifest from GitHub, compares each requested
+backend's local version against the latest available release, and downloads
+a new version only if one exists. If the network is unavailable, taxify falls
+back to the bundled manifest and uses whatever local copy is on disk. The
+version check is logged to the console so there are no silent updates.
+
+For backends with large source files, the build-from-source path also exists.
+`taxify_download("gbif")` downloads the raw 1.5 GB `simple.txt.gz` from
+GBIF, parses all 30 positional columns, denormalizes the family hierarchy via
+self-joins, and compiles the result into `.vtr` format. This is slower than
+downloading the pre-built file but produces the same output. The
+build-from-source path is mainly useful for CI pipelines or users who want to
+customize the compilation step.
+
+We can also pin a specific backbone version:
+
+```{r download-pinned}
+taxify_download_vtr("wfo", version = "2024.01")
+```
+
+Pinned versions are stored in their own directory
+(`taxify_data_dir()/wfo/2024.01/`) and are never overwritten by future
+updates. The "latest" slot (`taxify_data_dir()/wfo/latest/`) is always
+overwritten when a newer version becomes available. Pinning is useful for
+reproducibility: a project can lock a specific backbone version and produce
+identical results regardless of when the analysis is re-run.
+
+## Single-backend matching
+
+The simplest use case: match plant names against WFO.
+
+```{r single-wfo}
+library(taxify)
+
+plants <- c(
+  "Quercus robur",
+  "Quercus petraea",
+  "Pinus sylvestris",
+  "Acer pseudoplatanus",
+  "Betula pendula",
+  "Fagus sylvatica",
+  "Picea abies"
+)
+
+result <- taxify(plants, backend = "wfo")
+result[, c("input_name", "accepted_name", "family", "match_type", "backend")]
+```
+
+Every row in the output has 16 columns regardless of which backend produced
+it: `input_name`, `matched_name`, `accepted_name`, `taxon_id`, `accepted_id`,
+`rank`, `family`, `genus`, `epithet`, `authorship`, `is_synonym`, `is_hybrid`,
+`match_type`, `fuzzy_dist`, `backend`, and `backbone_version`. The `backend`
+column records `"wfo"` for matched rows and `NA` for unmatched ones. The
+`backbone_version` column records the backend name, version, and download date
+(e.g., `"wfo:2024-12 (2026-04-01)"`) so we can cite the exact data snapshot
+used.
+
+When a name matches a synonym, taxify automatically resolves it to the
+accepted name. The `matched_name` column shows the name string that actually
+matched in the backbone (which may be a synonym), while `accepted_name` shows
+the current accepted name after resolution. The `is_synonym` column is `TRUE`
+for resolved synonyms, `FALSE` for direct matches.
+
+Fuzzy matching is on by default with a normalized Damerau-Levenshtein
+threshold of 0.2, roughly one edit per five characters. This catches common
+typos like transposed letters or missing diacritics. We can tighten the
+threshold for stricter matching:
+
+```{r single-strict}
+result <- taxify(plants, backend = "wfo", fuzzy_threshold = 0.1)
+```
+
+Or disable fuzzy matching entirely to only accept exact and case-insensitive
+matches:
+
+```{r single-no-fuzzy}
+result <- taxify(plants, backend = "wfo", fuzzy = FALSE)
+```
+
+Two alternative distance metrics are available via the `fuzzy_method`
+argument: `"levenshtein"` (standard Levenshtein, no transposition handling)
+and `"jw"` (Jaro-Winkler, better for names that differ mainly in their
+beginnings). The default `"dl"` (Damerau-Levenshtein) is a good all-rounder.
+
+## Backend-specific output differences
+
+All nine backends produce the same 16-column output schema. This is a
+deliberate design choice: downstream code does not need to know which backend
+produced a match. That said, the content of those columns varies in ways
+worth knowing about.
+
+**Authorship.** WFO's `scientificName` is already canonical (no authorship
+appended), so the `authorship` column comes from a separate
+`scientificNameAuthorship` field. COL and WoRMS store the full
+`scientificName` with authorship included; taxify strips it at build time to
+produce the canonical name used for matching, and the stripped authorship is
+stored separately. NCBI and OTT have no authorship data at all, so the
+`authorship` column is always `NA` for those backends. GBIF and ITIS provide
+authorship. Species Fungorum and AlgaeBase provide authorship from their
+DwC-A archives.
+
+**Taxon IDs.** Each backend uses a different identifier system. WFO IDs look
+like `"wfo-0000000123"`. COL IDs are opaque alphanumeric strings like
+`"4LHBG"`. GBIF uses integer keys (`"2878688"`). ITIS uses TSN integers
+(`"183671"`). NCBI uses NCBI Taxonomy IDs (`"9606"`). OTT uses OTT IDs
+(`"770315"`). WoRMS uses AphiaIDs extracted from LSIDs; during build time,
+taxify strips the `urn:lsid:marinespecies.org:taxname:` prefix and stores
+just the numeric ID. Species Fungorum and AlgaeBase use ChecklistBank
+dataset-specific IDs. All IDs are stored as character strings in the
+`taxon_id` and `accepted_id` columns for consistency, but their format is
+backend-specific and meaningful only within that backend's ecosystem. A
+`taxon_id` from WFO cannot be looked up in the COL database, and vice versa.
+
+**Classification depth.** The base output always includes `family` and
+`genus`. WFO provides these directly from its classification file. COL stores
+the full Linnaean hierarchy (kingdom through order) in the Taxon.tsv, though
+these extra columns require `add_col_info()` to access. GBIF provides family
+through a denormalized `family_key` self-join at build time. ITIS, NCBI, and
+OTT resolve family and genus via parent-hierarchy walks during backbone
+compilation; the walk traverses up to 25 levels of the taxonomic tree. WoRMS
+has denormalized classification columns directly in its DwC-A. The genus
+register (covered later in this vignette) fills in higher classification
+fields (`kingdom_group`, `taxon_group`, `life_form`) for all backends.
+
+**Synonym handling.** The backends represent synonymy in very different ways
+internally. WFO and COL use the Darwin Core field `acceptedNameUsageID` to
+point from a synonym row to its accepted name. GBIF encodes synonyms via
+`parent_key` pointing to the accepted taxon. NCBI represents synonyms as
+alternative name strings for the same `tax_id`; during build, taxify emits
+these as separate rows with synthetic IDs of the form `"123456_syn_1"`,
+`"123456_syn_2"`, etc. OTT uses a separate `synonyms.tsv` file with explicit
+synonym-to-accepted mappings. All of these representations are normalized at
+build time into the same `is_synonym` + `accepted_name` + `accepted_id`
+schema, so the output looks the same regardless of source.
+
+**Synonym chains.** Some backbones contain chained synonyms, where synonym A
+points to synonym B, which points to accepted name C. taxify resolves these
+chains at build time (up to 10 hops) so the `accepted_name` always points to
+the terminal accepted name. This happens transparently during backbone
+compilation and does not affect query-time performance.
+
+## Multi-backend fallback chains
+
+When a species list spans multiple kingdoms, a single backend may not cover
+everything. A wetland monitoring dataset might contain vascular plants,
+invertebrates, amphibians, algae, and fungi. No single backend covers all of
+these equally well. taxify's fallback chain handles this: we pass a vector of
+backend names, and names are matched against each backend in order. A name
+matched by an earlier backend is never re-matched by a later one; it is
+removed from the pool.
+
+```{r multi-basic}
+mixed <- c(
+  "Quercus robur",       # plant
+  "Panthera leo",        # animal
+  "Amanita muscaria",    # fungus
+  "Salmo trutta",        # fish
+  "Escherichia coli"     # bacterium
+)
+
+result <- taxify(mixed, backend = c("wfo", "col", "gbif"))
+result[, c("input_name", "accepted_name", "match_type", "backend")]
+```
+
+The console output during matching shows the chain in action:
+
+```
+Matching 5 names against 3 backends: wfo -> col -> gbif
+  [wfo] Matching 5 names...
+  [col] Matching 4 remaining names...
+  [gbif] Matching 1 remaining names...
+```
+
+`"Quercus robur"` matches in WFO and is removed from the pool. The remaining
+four names go to COL. If any are still unmatched after COL (perhaps an
+obscure bacterial name), they go to GBIF. The process continues until all
+names have been tried against all backends or all names have matched.
+
+The order of backends in the vector matters. It determines which taxonomic
+opinion wins for each name. If `"Quercus robur"` exists in both WFO and COL,
+putting WFO first means WFO's taxonomic opinion is used (its accepted name,
+family assignment, synonym resolution). Putting COL first would give COL's
+opinion. For names that exist in multiple backends, the first backend in the
+chain always wins.
+
+This has practical consequences. If we put GBIF first, everything would match
+there (GBIF has ~10M names, the largest of any backend) and the curated
+opinions from WFO, COL, or WoRMS would never be consulted. For a plant-heavy
+list with some non-plant taxa mixed in, `c("wfo", "col")` or `c("wfo",
+"col", "gbif")` is a sensible ordering: we get WFO's curated plant taxonomy
+for plants, and COL or GBIF picks up the rest.
+
+If all names have been matched by earlier backends, later backends are
+skipped entirely with a message:
+
+```
+  [gbif] Skipped (all names matched)
+```
+
+Fuzzy matching runs independently within each backend in the chain. A name
+that fails exact matching in WFO gets fuzzy-matched against WFO. If it still
+fails, it moves to the next backend and gets exact-matched, then
+fuzzy-matched there. This means a misspelled plant name has the best chance
+of matching in WFO (the plant-specialist backend) before falling through to
+COL or GBIF.
+
+### Worked example: plants-only with WFO vs WFO + COL
+
+WFO focuses on accepted vascular plant and bryophyte names. Its coverage is
+excellent for current taxonomy, but names that appear only in older
+literature, belong to genera not yet integrated into WFO, or are
+nomenclaturally orphaned (no clear accepted name) may be absent. COL inherits
+WFO's plant taxonomy as one of its sector databases but supplements it with
+names from other sources, including historical synonyms and cultivar names.
+
+```{r plants-wfo-only}
+plants <- c(
+  "Quercus robur",
+  "Quercus petraea",
+  "Pinus sylvestris",
+  "Acer pseudoplatanus",
+  "Coffea arabica",
+  "Welwitschia mirabilis",
+  "Lepidodendron aculeatum",   # extinct lycopsid
+  "Nothofagus cunninghamii",
+  "Dracaena draco"
+)
+
+# WFO alone
+wfo_result <- taxify(plants, backend = "wfo")
+table(wfo_result$match_type)
+```
+
+If any names come back as `"none"`, we can add COL as a fallback:
+
+```{r plants-wfo-col}
+# WFO first, COL as fallback
+both_result <- taxify(plants, backend = c("wfo", "col"))
+table(both_result$match_type)
+both_result[, c("input_name", "accepted_name", "backend")]
+```
+
+The `backend` column now shows `"wfo"` for names matched by WFO and `"col"`
+for names that only COL could resolve. This tells us exactly where each match
+came from, which matters for reproducibility. In a paper's methods section,
+we can state "plant names were resolved against WFO 2024-12, with unmatched
+names resolved against COL 2025."
+
+The two-backend chain is especially valuable for large vegetation plot
+datasets. Most names resolve in WFO with its plant-optimized taxonomy, but
+the handful of edge cases (cultivars, historical names, genera recently moved
+between families) that fall through to COL would otherwise require manual
+resolution.
+
+### Worked example: mixed-kingdom list with COL + GBIF + WoRMS
+
+An ecological monitoring dataset from a coastal estuary might contain
+vascular plants, invertebrates, fish, and marine algae. No single backend
+covers all of these well. COL has broad expert-curated coverage across
+kingdoms. GBIF fills gaps with its larger name pool. WoRMS provides an
+authoritative backstop for marine invertebrate synonymy, which can be
+slow to propagate to generalist databases.
+
+```{r mixed-kingdom}
+estuary_species <- c(
+  "Zostera marina",              # seagrass (plant)
+  "Salicornia europaea",         # glasswort (plant)
+  "Carcinus maenas",             # shore crab
+  "Mytilus edulis",              # blue mussel
+  "Platichthys flesus",          # European flounder
+  "Nereis diversicolor",         # ragworm
+  "Fucus vesiculosus",           # bladderwrack (brown alga)
+  "Littorina littorea",          # common periwinkle
+  "Arenicola marina",            # lugworm
+  "Cerastoderma edule"           # common cockle
+)
+
+result <- taxify(estuary_species, backend = c("col", "gbif", "worms"))
+result[, c("input_name", "accepted_name", "family", "backend")]
+```
+
+COL is a good first choice here because it covers all kingdoms with expert
+curation. Most of these names will resolve there. GBIF catches anything COL
+might miss, including names from national checklists that have not yet been
+incorporated into COL. WoRMS serves as a final backstop specifically for
+marine taxa, covering invertebrate synonyms that may lag in generalist
+databases. The chain is ordered from highest curation to broadest coverage.
+
+If the list were predominantly marine with only a few terrestrial taxa, we
+might lead with WoRMS instead to ensure its authoritative marine taxonomy
+takes precedence:
+
+```{r marine-first}
+result <- taxify(estuary_species, backend = c("worms", "col"))
+```
+
+### Worked example: fungi with Species Fungorum + COL fallback
+
+Mycological datasets benefit from using Species Fungorum Plus as the primary
+backend. It is curated specifically for fungi, with ~500k names including
+anamorphs, teleomorphs, and the pleomorphic naming changes introduced by the
+2011 Melbourne Code. Synonym coverage for fungal genera is better than in
+generalist databases, where fungal taxonomy is often a secondary concern.
+
+```{r fungi}
+fungi <- c(
+  "Amanita muscaria",
+  "Boletus edulis",
+  "Cantharellus cibarius",
+  "Tuber melanosporum",
+  "Saccharomyces cerevisiae",
+  "Aspergillus niger",
+  "Penicillium chrysogenum",
+  "Agaricus bisporus",
+  "Trametes versicolor",
+  "Cordyceps militaris"
+)
+
+result <- taxify(fungi, backend = c("fungorum", "col"))
+result[, c("input_name", "accepted_name", "is_synonym", "backend")]
+```
+
+Species Fungorum resolves the standard names. If any obscure, recently
+described, or historically orphaned species fall through, COL picks them up.
+For mixed datasets that include both fungi and plants, a three-backend chain
+works well:
+
+```{r fungi-plants-mixed}
+mixed <- c(
+  "Quercus robur",              # plant
+  "Amanita muscaria",           # fungus
+  "Lactarius deliciosus",       # fungus
+  "Pinus sylvestris",           # plant
+  "Russula emetica"             # fungus
+)
+
+result <- taxify(mixed, backend = c("wfo", "fungorum", "col"))
+```
+
+WFO handles plants, Species Fungorum handles fungi, and COL serves as a
+catch-all for anything that falls through both specialist backends. The genus
+register (see below) helps taxify skip backends that cannot possibly match a
+given name. When taxify encounters `"Amanita muscaria"` and the genus
+`Amanita` is not in WFO's coverage table, the name is marked out-of-scope
+for WFO immediately and passed to the next backend without wasting time on
+fuzzy matching.
+
+### Worked example: algae
+
+For algal taxonomy, AlgaeBase is the specialist source. It covers micro- and
+macroalgae, cyanobacteria, and some protists. Its curation is particularly
+strong for freshwater and marine microalgae where generalist databases often
+have thin coverage and outdated synonymy.
+
+```{r algae}
+algae <- c(
+  "Chlamydomonas reinhardtii",
+  "Chlorella vulgaris",
+  "Ulva lactuca",
+  "Fucus vesiculosus",
+  "Sargassum muticum"
+)
+
+result <- taxify(algae, backend = c("algaebase", "col"))
+result[, c("input_name", "accepted_name", "backend")]
+```
+
+AlgaeBase is licensed CC BY-NC. taxify prints a license notice during
+download so users are aware of the restriction before incorporating the data
+into a workflow. For commercial applications, COL or WoRMS can serve as
+alternatives, though with less specialized algal coverage.
+
+### Worked example: molecular ecology with NCBI
+
+When reconciling species lists from metabarcoding or eDNA studies, names are
+often linked to NCBI accessions. Using the NCBI backend ensures that taxify's
+accepted names align with the same taxonomy used in GenBank and BOLD.
+
+```{r ncbi-molecular}
+edna_hits <- c(
+  "Salmo trutta",
+  "Phoxinus phoxinus",
+  "Anguilla anguilla",
+  "Cottus gobio",
+  "Lampetra planeri",
+  "Chironomus riparius",     # midge (insect)
+  "Potamopyrgus antipodarum" # New Zealand mud snail
+)
+
+result <- taxify(edna_hits, backend = c("ncbi", "col"))
+result[, c("input_name", "accepted_name", "taxon_id", "backend")]
+```
+
+The `taxon_id` values for NCBI-matched rows are NCBI tax_ids, which can be
+used directly to link back to GenBank records or NCBI taxonomy pages. For
+names not found in NCBI (e.g., taxa without sequenced representatives), COL
+provides a fallback.
+
+## The backend column
+
+The `backend` column in taxify's output is a plain character column. For
+single-backend calls, every matched row shows the same backend name. For
+multi-backend chains, the column records which backend produced each match.
+Unmatched rows have `backend = NA`.
+
+We can use this column to count how many names each backend resolved:
+
+```{r backend-tally}
+result <- taxify(species_list, backend = c("wfo", "col", "gbif"))
+table(result$backend, useNA = "ifany")
+```
+
+Or filter to rows matched by a specific backend:
+
+```{r backend-filter}
+wfo_matches <- result[result$backend == "wfo" & !is.na(result$backend), ]
+col_matches <- result[result$backend == "col" & !is.na(result$backend), ]
+```
+
+This is useful for quality control. If we expected a purely plant-based list
+but see many names matched by COL instead of WFO, that tells us the list
+contains names outside WFO's scope (perhaps algae classified as plants in
+older literature, or animal-associated organisms like plant parasites).
+
+The `backbone_version` column gives the full provenance string for each row,
+combining the backend name, version, and download date. For a paper's methods
+section, we can extract the unique versions used:
+
+```{r backbone-versions}
+unique(result$backbone_version[!is.na(result$backbone_version)])
+# e.g., c("wfo:2024-12 (2026-04-01)", "col:2025 (2026-04-01)")
+```
+
+These provenance strings identify both the taxonomic source and the exact
+snapshot used, making results fully reproducible even if the backend releases
+a new version between when we run the analysis and when a reviewer checks it.
+
+## Backend-specific extras
+
+Three backends have dedicated enrichment functions that join additional
+backend-specific columns to a taxify result. These functions only enrich rows
+that were matched by the corresponding backend; rows from other backends get
+`NA` in the new columns.
+
+### WFO extras: `add_wfo_info()`
+
+Adds WFO-specific columns: `scientificNameID`, `parentNameUsageID`,
+`namePublishedIn`, `higherClassification`, `taxonRemarks`, and
+`infraspecificEpithet`. The `namePublishedIn` field is particularly useful
+for citing original descriptions, and `higherClassification` provides the
+full taxonomic hierarchy as a semicolon-separated string.
+
+```{r add-wfo}
+result <- taxify(plants, backend = "wfo") |>
+  add_wfo_info()
+
+result[, c("input_name", "accepted_name", "namePublishedIn")]
+```
+
+### COL extras: `add_col_info()`
+
+Adds COL classification columns (`kingdom`, `phylum`, `col_class`, `order`),
+nomenclatural metadata (`notho`, `nomenclaturalCode`, `nomenclaturalStatus`,
+`namePublishedIn`), `infraspecificEpithet`, and SpeciesProfile flags
+(`is_extinct`, `is_marine`, `is_freshwater`, `is_terrestrial`). The `class`
+column is renamed to `col_class` to avoid conflict with R's `class()`
+function.
+
+The SpeciesProfile flags come from a separate file in the COL DwC-A archive.
+They are especially useful for filtering: we can, for instance, exclude
+extinct species from a contemporary biodiversity analysis, or separate marine
+from terrestrial taxa in an estuarine dataset.
+
+```{r add-col}
+result <- taxify(species_list, backend = "col") |>
+  add_col_info()
+
+# Check which species are marine
+result[result$is_marine == TRUE & !is.na(result$is_marine),
+       c("input_name", "accepted_name", "kingdom", "is_marine")]
+```
+
+### GBIF extras: `add_gbif_info()`
+
+Adds GBIF-specific columns: `notho_type` (hybrid type), `nom_status`
+(nomenclatural status), `bracket_authorship` (basionym author),
+`bracket_year`, `gbif_year`, `name_published_in`, `origin` (how the name
+entered the GBIF backbone), and `infra_specific_epithet`. The `origin`
+field is useful for understanding provenance: values like `"SOURCE"`,
+`"DENORMED_CLASSIFICATION"`, or `"VERBATIM_ACCEPTED"` indicate how GBIF
+ingested the name.
+
+```{r add-gbif}
+result <- taxify(species_list, backend = "gbif") |>
+  add_gbif_info()
+
+result[, c("input_name", "accepted_name", "origin", "nom_status")]
+```
+
+### Combining extras in a multi-backend result
+
+In a multi-backend result, we can pipe through multiple enrichment functions.
+Each one only touches rows from its own backend; the others are left alone.
+
+```{r multi-extras}
+result <- taxify(species_list, backend = c("wfo", "col", "gbif")) |>
+  add_wfo_info() |>
+  add_col_info() |>
+  add_gbif_info()
+```
+
+This produces a wide data.frame with the union of all extra columns. For a
+given row, only the columns from its backend are populated; the rest are `NA`.
+Whether this is useful depends on the analysis. For most workflows, the base
+16 columns are sufficient, and backend-specific extras are only needed when
+we require nomenclatural details, habitat flags, or publication references
+that the standard output does not include.
+
+## The genus register
+
+taxify ships a unified genus register built from the union of genera across
+WFO, COL, and GBIF. The register contains ~100k genera, each with its family,
+higher classification (kingdom through order, where available), and a
+`life_form` label (e.g., `"vascular plant"`, `"animal"`, `"fungus"`). The
+classification is resolved by priority: COL > GBIF > WFO. If COL and WFO
+disagree about which family a genus belongs to, COL's assignment wins.
+
+The register serves two purposes in taxify's matching pipeline. First, it
+provides `life_form`, `kingdom_group`, and `taxon_group` columns in taxify
+output for every matched name, regardless of which backend matched it. These
+columns make it possible to stratify results by broad taxonomic group without
+needing to look up each family manually.
+
+Second, the register enables out-of-scope detection. Before fuzzy matching
+begins, taxify checks whether an unmatched name's genus is in the register.
+If the genus is known (it appears in the register) but not covered by any of
+the requested backends (it does not appear in the backend coverage table),
+taxify marks the name as `"out_of_scope"` immediately. This avoids wasting
+time on fuzzy matching against a backend that could never produce a match,
+and gives the user a more informative signal than a plain `"none"`.
+
+### Looking up a genus
+
+`lookup_genus()` returns the register row for a single genus. The register is
+loaded into memory on first call and cached for the session.
+
+```{r lookup-genus}
+lookup_genus("Quercus")
+#   genus   kingdom phylum class   order   family   life_form
+# 1 Quercus Plantae ...    ...     Fagales Fagaceae vascular plant
+```
+
+```{r lookup-genus-animal}
+lookup_genus("Panthera")
+#   genus    kingdom  phylum   class    order     family  life_form
+# 1 Panthera Animalia Chordata Mammalia Carnivora Felidae animal
+```
+
+### Checking backend coverage
+
+`taxify_register_coverage()` shows which backends contain a given genus and
+at what version. This is useful when diagnosing match failures: if the genus
+does not appear in the coverage table for the requested backend, the name is
+genuinely out of scope for that backend.
+
+```{r register-coverage}
+taxify_register_coverage("Quercus")
+#     genus   backend version date_added
+# 1 Quercus  col     2025    2026-04-01
+# 2 Quercus  gbif    current 2026-04-01
+# 3 Quercus  wfo     2024-12 2026-04-01
+```
+
+A genus covered by all three backends can be matched by any of them. A genus
+covered only by GBIF (perhaps a recently described bacterial genus) will not
+match against WFO or COL.
+
+### Out-of-scope detection in practice
+
+When taxify encounters an unmatched name whose genus appears in the register
+but is not covered by any of the requested backends, it sets `match_type =
+"out_of_scope"` instead of `"none"`. This distinction carries information:
+an out-of-scope result means the name likely exists in a different backend
+rather than being a misspelling or invalid name.
+
+```{r out-of-scope}
+# Trying to match a marine invertebrate against WFO (plants only)
+result <- taxify("Carcinus maenas", backend = "wfo")
+result$match_type
+# [1] "out_of_scope"
+
+result$life_form
+# [1] "animal"
+```
+
+The `life_form` column tells us the genus belongs to animals, confirming that
+WFO is the wrong backend for this name. In a pipeline, we can filter for
+`"out_of_scope"` rows and re-run them against a broader backend. Or, more
+practically, we include the right backends in the fallback chain from the
+start, and the out-of-scope mechanism saves time by skipping the fuzzy
+matching step for names that cannot possibly match.
+
+The taxify result's `print()` method includes a tally of out-of-scope names
+broken down by `taxon_group`, making it easy to see at a glance what kinds of
+organisms were outside the requested backend's scope.
+
+## Practical guidance: choosing backends
+
+The right backend depends on the taxonomic scope of the data. Here is a
+decision tree organized by the most common use cases.
+
+**Pure vascular plant lists.** Use `backend = "wfo"`. WFO is the standard
+reference, well-curated, and updated regularly. If some names fall through
+(e.g., horticultural cultivars, nomenclaturally complex genera, or names from
+older floras that use outdated synonymy), add COL: `backend = c("wfo",
+"col")`.
+
+**Pure marine/aquatic lists.** Use `backend = "worms"`. WoRMS is the
+authoritative source for marine taxonomy, curated by domain experts, and
+includes habitat and extinction flags. For estuarine or transitional lists
+that include some terrestrial taxa, add COL: `backend = c("worms", "col")`.
+
+**Pure fungal lists.** Use `backend = "fungorum"`. Species Fungorum Plus is
+the specialist reference for fungi. Add COL as fallback for obscure or
+recently described species: `backend = c("fungorum", "col")`.
+
+**Pure algal lists.** Use `backend = "algaebase"`. Add COL or WoRMS as
+fallback: `backend = c("algaebase", "col")`. Remember AlgaeBase is CC BY-NC.
+
+**Mixed-kingdom ecological datasets.** Use `backend = c("col", "gbif")`, or
+lead with a specialist backend for the dominant taxon group. For a
+plant-dominated dataset with some animals and fungi: `backend = c("wfo",
+"col")`. For a marine biodiversity survey: `backend = c("worms", "col",
+"gbif")`. For a forest inventory that includes trees, fungi, insects, and
+epiphytes: `backend = c("wfo", "fungorum", "col")`.
+
+**Molecular/sequence-linked work.** Use `backend = "ncbi"`. NCBI Taxonomy is
+the reference for GenBank, BOLD, and other sequence databases. It covers
+bacteria, archaea, and viruses that other backends lack. For mixed molecular
+and ecological work: `backend = c("ncbi", "col")`.
+
+**Phylogenetic studies.** Use `backend = "ott"`. OTT is the backbone of the
+Open Tree of Life and merges multiple source taxonomies. Its cross-references
+to NCBI, GBIF, WoRMS, and IRMNG make it a good bridge between different
+identifier systems.
+
+**Maximum coverage / catch-all.** Use `backend = c("col", "gbif")`. COL
+provides expert-curated taxonomy for ~4.5M names. GBIF's backbone adds ~10M
+names from additional sources. Together they cover virtually all described
+species with a nomenclatural record. This combination is a reasonable default
+when the taxonomic composition of the dataset is unknown.
+
+**General rule.** Specialist backends first, generalist backends second. Lead
+with the backend whose taxonomic opinion we trust most for the dominant taxon
+group, and add broader backends as fallbacks for the remainder. The `backend`
+column in the output lets us audit exactly which taxonomic opinion was applied
+to each name.
+
+### Performance considerations
+
+Backend size affects download time and, to a lesser extent, matching speed.
+WFO (~400k names) matches faster than GBIF (~10M names) for the same query.
+However, taxify uses index-accelerated genus-blocked joins at the C level
+(via vectra), so even GBIF matching is fast for typical species lists. A
+list of 5,000 names resolves against GBIF in under a second on modern
+hardware. The performance difference only becomes noticeable at scale (100k+
+names) or with heavy fuzzy matching against a large backbone.
+
+For large lists with a multi-backend chain, putting the most likely backend
+first saves time. Names matched by the first backend skip all later backends
+entirely. If 90% of a list is plants, `c("wfo", "col")` is faster than
+`c("col", "wfo")` because WFO is smaller and resolves most names on the
+first pass. The remaining 10% of names go to COL, which is larger but only
+processes the small residual.
+
+Fuzzy matching is the most expensive step. It runs a genus-blocked fuzzy join
+with multi-threaded string distance computation. For names with misspelled
+genera (where genus blocking cannot help), taxify falls back to a 2-character
+prefix block that catches most genus-level typos while keeping the search
+space manageable.
+
+### Reproducibility
+
+The `backbone_version` column encodes the exact data snapshot used. For a
+published analysis, we recommend recording these strings in the methods
+section or supplementary material. taxify pins the backbone version at
+download time and does not silently update mid-session. Version checks happen
+once per R session, and any update is logged to the console with the old and
+new version numbers.
+
+To lock a specific backbone version for a project:
+
+```{r reproducibility}
+taxify_download_vtr("wfo", version = "2024.01")
+```
+
+Pinned versions live in their own directories and are never overwritten. The
+"latest" slot continues to track new releases independently. A project that
+needs exact reproducibility can pin all backends at specific versions and
+never use the "latest" slot. A project that prefers to stay current can rely
+on the default "latest" behavior and cite the `backbone_version` strings from
+the output.
+
+The manifest, which maps backend names to their download URLs and latest
+versions, is cached per session and can be refreshed with
+`taxify_refresh_manifest()`. For offline use, taxify falls back to the
+bundled manifest shipped with the package.

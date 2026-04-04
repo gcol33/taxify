@@ -29,7 +29,7 @@ add_data(
 species names. If \code{NULL} (default), auto-detected by matching \code{head(10)}
 of each character column against the backbone.}
 
-\item{table}{Character. Required when \code{data} is a SQLite file — the table
+\item{table}{Character. Required when \code{data} is a SQLite file --- the table
 name to read.}
 
 \item{cols}{Character vector of column names from \code{data} to join. If \code{NULL}
@@ -52,7 +52,7 @@ with existing columns in \code{x} are prefixed with \code{"data_"}.
 Joins an external data source (CSV file or data.frame) to a \code{\link[=taxify]{taxify()}}
 result. Species names in the external data are matched through the same
 backbone(s) used in the original \code{taxify()} call, and the join is performed
-on \code{accepted_id} — so synonyms in either dataset resolve to the same key.
+on \code{accepted_id} --- so synonyms in either dataset resolve to the same key.
 }
 \details{
 The workflow:

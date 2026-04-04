@@ -1,0 +1,307 @@
+---
+title: "Hybrid name detection and parsing"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hybrid name detection and parsing}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Hybrid names in taxonomy
+
+Botanical nomenclature uses a dedicated marker for hybrids: the
+multiplication sign (U+00D7, rendered as \u00d7). This marker appears in
+three distinct positions, each signalling a different kind of hybrid.
+
+A **nothogenus** places the marker before the genus name, signalling an
+intergeneric hybrid (a cross between species in two different genera).
+Leyland cypress is a well-known example:
+
+> \u00d7Cupressocyparis leylandii
+
+A **nothospecies** places the marker before the specific epithet, with the
+genus the same on both sides of the cross:
+
+> Mentha \u00d7piperita
+
+Peppermint (*Mentha \u00d7piperita*, a cross of *M. aquatica* and *M.
+spicata*) is the classic case. The third form, a **hybrid formula**, names
+both parent species explicitly, joined by the multiplication sign:
+
+> Salix alba \u00d7 Salix fragilis
+
+In real-world data, the multiplication sign is frequently replaced by a
+lowercase or uppercase "x". Herbarium databases, spreadsheet exports, and
+OCR outputs rarely preserve the Unicode character. taxify accepts all three
+forms (`\u00d7`, `x`, `X`) and normalizes them internally. The detection
+logic distinguishes a standalone "x" used as a hybrid marker from an "x"
+that is part of a word (e.g., the genus *Saxifraga*) by requiring
+whitespace boundaries around the letter.
+
+```{r}
+library(taxify)
+```
+
+## How taxify detects hybrids
+
+Detection happens early in the pipeline, during name cleaning and before
+any backbone matching. When `taxify()` receives an input vector, each name
+passes through `clean_names()`, which calls the internal `detect_hybrid()`
+function. The function tokenizes the name, looks for the hybrid marker in
+specific positions, and classifies the result as nothogenus, nothospecies,
+formula, or non-hybrid.
+
+The output of `taxify()` includes an `is_hybrid` column (logical) that
+records whether a hybrid marker was found in the original input. This
+column is always present regardless of whether the name ultimately matched
+a backbone record. The finer classification into nothogenus, nothospecies,
+or formula is not exposed directly in the main output; it becomes available
+through `add_hybrid_info()`, which we cover below after looking at how
+matched hybrids behave in the result table.
+
+After detection, the hybrid marker is stripped from the name before
+matching. For a nothospecies like "Mentha \u00d7piperita", the cleaned
+form becomes "Mentha piperita". For a hybrid formula like "Salix alba
+\u00d7 Salix fragilis", only the first parent binomial ("Salix alba") is
+retained as the cleaned name, since formulas are not single taxon names
+and cannot match a backbone record directly.
+
+For nothospecies, taxify also constructs a secondary search form with the
+multiplication sign reinserted ("Mentha \u00d7 piperita") and attempts to
+match that against the backbone. Some backbones store nothospecies with the
+\u00d7 character in the canonical name, so this secondary attempt can
+recover matches that the stripped form misses.
+
+## Worked example: matching a mixed species list
+
+Consider a list that includes ordinary species, a nothospecies, a
+nothogenus, and a hybrid formula. We pass them all to `taxify()` in a
+single call.
+
+```{r}
+names <- c(
+  "Quercus robur",
+  "Mentha x piperita",
+  "x Cupressocyparis leylandii",
+  "Salix alba x Salix fragilis",
+  "Platanus x hispanica"
+)
+
+result <- taxify(names, backend = "wfo")
+result[, c("input_name", "accepted_name", "is_hybrid", "match_type")]
+```
+
+The expected output looks roughly like this:
+
+| input_name                   | accepted_name         | is_hybrid | match_type |
+|:-----------------------------|:----------------------|:----------|:-----------|
+| Quercus robur                | Quercus robur         | FALSE     | exact      |
+| Mentha x piperita            | Mentha \u00d7 piperita | TRUE      | exact      |
+| x Cupressocyparis leylandii  | NA                    | TRUE      | none       |
+| Salix alba x Salix fragilis  | Salix alba            | TRUE      | exact      |
+| Platanus x hispanica         | Platanus \u00d7 hispanica | TRUE   | exact      |
+
+Several things are visible here. The two nothospecies (Mentha, Platanus)
+matched successfully because WFO stores these as accepted names with the
+\u00d7 character in the canonical name. The nothogenus
+\u00d7Cupressocyparis returned no match because intergeneric hybrid genera
+are less commonly included in backbone databases. The hybrid formula
+matched only the first parent (Salix alba), since the formula itself is
+not a single taxon name.
+
+The `is_hybrid` column is TRUE for all four hybrid inputs, regardless of
+whether the name matched. This column records a property of the input, not
+of the match result.
+
+## Extracting hybrid details with add_hybrid_info()
+
+The `add_hybrid_info()` function takes a `taxify()` result and parses the
+`input_name` column to extract structured hybrid information. It adds
+three columns:
+
+- `hybrid_parent_1`: the first parent binomial (for formulas) or NA
+- `hybrid_parent_2`: the second parent binomial (for formulas, with
+  abbreviated genera expanded) or NA
+- `hybrid_type`: one of `"nothogenus"`, `"nothospecies"`, `"formula"`, or
+  NA for non-hybrids
+
+For nothogenus and nothospecies names, both parent columns are NA because
+the input names only the hybrid itself, not its parents. The parent species
+of Mentha \u00d7piperita (Mentha aquatica and Mentha spicata) are not
+encoded in the name string. Only hybrid formulas carry both parent names
+explicitly.
+
+```{r}
+result |> add_hybrid_info()
+```
+
+The three new columns for our five-name example:
+
+| input_name                   | hybrid_type   | hybrid_parent_1 | hybrid_parent_2   |
+|:-----------------------------|:--------------|:-----------------|:------------------|
+| Quercus robur                | NA            | NA               | NA                |
+| Mentha x piperita            | nothospecies  | NA               | NA                |
+| x Cupressocyparis leylandii  | nothogenus    | NA               | NA                |
+| Salix alba x Salix fragilis  | formula       | Salix alba       | Salix fragilis    |
+| Platanus x hispanica         | nothospecies  | NA               | NA                |
+
+## Worked example: parsing hybrid formulas
+
+Hybrid formulas appear in botanical and horticultural datasets more often
+than one might expect. Field botanists record them when the parentage of a
+specimen is known or suspected. The formulas vary in notation: some spell
+out both genera in full, others abbreviate the second genus.
+
+```{r}
+formulas <- c(
+  "Salix alba x Salix fragilis",
+  "Quercus pyrenaica x Q. petraea",
+  "Populus nigra x Populus deltoides",
+  "Rosa canina x R. gallica"
+)
+
+formula_result <- taxify(formulas, backend = "wfo")
+formula_result <- formula_result |> add_hybrid_info()
+
+formula_result[, c("input_name", "hybrid_type",
+                    "hybrid_parent_1", "hybrid_parent_2")]
+```
+
+| input_name                         | hybrid_type | hybrid_parent_1    | hybrid_parent_2     |
+|:-----------------------------------|:------------|:-------------------|:--------------------|
+| Salix alba x Salix fragilis        | formula     | Salix alba         | Salix fragilis      |
+| Quercus pyrenaica x Q. petraea     | formula     | Quercus pyrenaica  | Quercus petraea     |
+| Populus nigra x Populus deltoides   | formula     | Populus nigra      | Populus deltoides    |
+| Rosa canina x R. gallica           | formula     | Rosa canina        | Rosa gallica         |
+
+The genus abbreviation "Q." in the second example was expanded to
+"Quercus" automatically. taxify infers the full genus from the first
+parent in the formula. The same expansion happened for "R." to "Rosa" in
+the fourth row. This expansion is purely textual: the first token of the
+first parent is used as the genus for the second parent whenever the
+second parent's genus field matches the pattern of a single capital letter
+followed by a period.
+
+## What matches and what does not
+
+The three hybrid types have different matching profiles against backbone
+databases.
+
+**Nothospecies** are the best-supported form. WFO and COL both store many
+nothospecies as accepted names, with the \u00d7 character as part of the
+canonical name. Mentha \u00d7piperita, Platanus \u00d7hispanica, and
+Narcissus \u00d7medioluteus are examples that appear in both backbones.
+taxify's matching logic handles the marker correctly: it first tries the
+stripped form ("Mentha piperita") and then the form with the \u00d7
+reinserted ("Mentha \u00d7 piperita"). At least one of these typically
+matches.
+
+**Nothogenera** have lower coverage. Intergeneric hybrids like
+\u00d7Cupressocyparis, \u00d7Triticosecale, and \u00d7Festulolium exist in
+some backbones but are absent from others. WFO includes several
+nothogenera relevant to agriculture and horticulture. COL's coverage
+varies by taxonomic group. When a nothogenus does not match, the output
+row will have `match_type = "none"` and `accepted_name = NA`, but
+`is_hybrid` will still be TRUE.
+
+**Hybrid formulas** will not match a backbone record directly, because the
+formula is not a taxon name. taxify extracts the first parent binomial as
+the cleaned name for matching, so the result row reflects the match status
+of the first parent. To resolve both parents, match them separately.
+
+```{r}
+# Match both parents of a hybrid formula separately
+parents <- c("Salix alba", "Salix fragilis")
+parent_result <- taxify(parents, backend = "wfo")
+```
+
+This approach gives a full match result (accepted name, synonym status,
+authorship) for each parent individually. In a dataset with many hybrid
+formulas, we can extract the parent columns from `add_hybrid_info()` and
+feed them back through `taxify()` as a batch.
+
+```{r}
+# Batch-resolve all hybrid formula parents
+info <- result |> add_hybrid_info()
+formula_rows <- info[info$hybrid_type == "formula" & !is.na(info$hybrid_type), ]
+
+all_parents <- unique(na.omit(c(
+  formula_rows$hybrid_parent_1,
+  formula_rows$hybrid_parent_2
+)))
+
+parent_matches <- taxify(all_parents, backend = "wfo")
+```
+
+## The multiplication sign and its substitutes
+
+The Unicode multiplication sign (U+00D7) is the correct character for
+hybrid notation under the International Code of Nomenclature. In practice,
+data arrive with three common representations:
+
+1. The Unicode character itself: `\u00d7` (common in well-curated databases)
+2. A lowercase `x` surrounded by spaces (common in spreadsheets and field
+   data)
+3. An uppercase `X` surrounded by spaces (less common, but occurs in older
+   databases and OCR output)
+
+taxify normalizes all three forms internally. The `detect_hybrid()`
+function replaces every occurrence of U+00D7 with a space-padded "x" and
+then works with a uniform token stream, so the downstream logic only needs
+to handle one representation. The space-boundary requirement prevents
+false positives: "Saxifraga" does not trigger hybrid detection because the
+"x" sits within a word rather than standing alone between tokens.
+
+A subtlety arises with mojibake. When UTF-8 text containing the \u00d7
+character is read with a Latin-1 or Windows-1252 encoding, the two-byte
+sequence can be misinterpreted as "\u00c3\u0097" or "\u00c3\u2014". The
+name cleaning pipeline detects and repairs both of these common
+misreadings before hybrid detection runs, so names corrupted by encoding
+errors are still handled correctly.
+
+## Practical notes
+
+**Which backbones have the most hybrids.** WFO has the broadest coverage
+of plant nothospecies and nothogenera, reflecting its focus on the world
+flora. COL includes hybrids across all kingdoms but coverage is uneven.
+GBIF aggregates data from many sources and includes hybrid names where the
+contributing checklists provide them. ITIS, NCBI, and OTT have minimal
+hybrid coverage.
+
+**Hybrid detection is input-side only.** taxify detects hybrids in the
+names that you supply. It does not scan the backbone for hybrid records.
+If a backbone stores "Mentha \u00d7 piperita" as an accepted name, taxify
+will match your input against it, but the backbone record's own hybrid
+status is not exposed as a separate field. The `is_hybrid` column reflects
+your input, not the backbone.
+
+**Formulas with infraspecific ranks.** The parser expects binomials (genus
+plus epithet) on both sides of the \u00d7 marker. Formulas that include
+subspecies or variety ranks (e.g., "Salix alba var. vitellina \u00d7 Salix
+fragilis") will still be detected as formulas, but the parent extraction
+may include the rank and infraspecific epithet as part of the parent name.
+This is generally the desired behavior, since the full trinomial identifies
+the parent more precisely than the binomial alone.
+
+**Authorship in hybrid names.** Hybrid names sometimes carry authorship
+strings (e.g., "Mentha \u00d7piperita L."). The name cleaning pipeline
+strips authorship before matching, so the presence of an author string
+does not interfere with hybrid detection or matching.
+
+```{r}
+# Authorship is stripped; hybrid detection still works
+taxify("Mentha x piperita L.", backend = "wfo")
+```
+
+**Adding hybrid info is lightweight.** `add_hybrid_info()` operates
+entirely on the `input_name` column via string parsing. It does not
+re-query any backbone or access any files on disk. On a result with 10,000
+rows, the function completes in milliseconds.

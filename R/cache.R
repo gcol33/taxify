@@ -120,6 +120,7 @@ format_backbone_version <- function(vtr_path, backend_name, version) {
 #' Removes all loaded backbone handles from memory. The next call to
 #' [taxify()] will re-load from disk.
 #'
+#' @return No return value, called for side effects.
 #' @export
 taxify_clear_cache <- function() {
   rm(list = ls(.taxify_cache), envir = .taxify_cache)

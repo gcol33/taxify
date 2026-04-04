@@ -9,5 +9,15 @@
 ^CLAUDE\.md$
 ^plan\.md$
 ^todo\.md$
+^todos\.md$
+^next-steps\.md$
+^enrichments_plan\.md$
 ^memory$
-^\.run\.R$
+^\.claude
+^tools$
+^\.run.*\.R$
+^cran-comments\.md$
+^codecov\.yml$
+^\.lintr$
+^\.unrot$
+^revdep$
