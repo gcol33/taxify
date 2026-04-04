@@ -273,10 +273,9 @@ Several things that taxize or other packages handle are outside its
 scope.
 
 **Common-to-scientific name lookup.** taxize had `comm2sci()` to go
-from "European robin" to *Erithacus rubecula*. taxify works in the
-opposite direction: it matches scientific names and can attach common
-names via `add_common_names()`, but it cannot start from a vernacular
-name.
+from "European robin" to *Erithacus rubecula*. taxify matches scientific
+names, not vernacular input. For that direction, the GBIF API
+(`rgbif::name_suggest()`) accepts common names and returns candidates.
 
 **Downstream taxa.** taxize's `downstream()` returned all children of a
 higher taxon (e.g., all species in a genus). taxify does not enumerate
@@ -306,9 +305,8 @@ taxify is not a universal replacement for every taxize use case. A few
 situations where the other tools may be more appropriate:
 
 - **Common-to-scientific lookups** (`comm2sci()`). If the starting point
-  is vernacular names, taxify cannot help. The GBIF API
-  (`rgbif::name_suggest()`) accepts common names and returns scientific
-  name candidates.
+  is vernacular names, the GBIF API (`rgbif::name_suggest()`) accepts
+  common names and returns scientific name candidates.
 
 - **Downstream taxa enumeration.** If the goal is to list all species in
   a family or all subspecies of a species, taxify does not provide that

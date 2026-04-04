@@ -953,14 +953,66 @@ parse_wcvp <- function(dir_path) {
 }
 
 
-#' Parse GBIF backbone common names (VernacularName.tsv + Taxon.tsv)
+#' Parse common names from GBIF, NCBI, and OTT
+#'
+#' Merges vernacular names from three sources:
+#' - GBIF: VernacularName.tsv (has ISO 639-1 language codes)
+#' - NCBI: names.dmp where name_class == "common name" (no language)
+#' - OTT: synonyms.tsv where type == "common name" (no language)
+#'
+#' NCBI and OTT common names have no language tag, so lang is set to NA.
 #' @noRd
 parse_common_names <- function(dir_path) {
+  gbif_dir <- file.path(dir_path, "gbif")
+  ncbi_dir <- file.path(dir_path, "ncbi")
+  ott_dir  <- file.path(dir_path, "ott")
+
+  parts <- list()
+
+  # ---- GBIF ----
+  if (dir.exists(gbif_dir)) {
+    gbif <- parse_gbif_common_names(gbif_dir)
+    gbif$source <- "gbif"
+    parts <- c(parts, list(gbif))
+  }
+
+  # ---- NCBI ----
+  if (dir.exists(ncbi_dir)) {
+    ncbi <- parse_ncbi_common_names(ncbi_dir)
+    ncbi$source <- "ncbi"
+    parts <- c(parts, list(ncbi))
+  }
+
+  # ---- OTT ----
+  if (dir.exists(ott_dir)) {
+    ott <- parse_ott_common_names(ott_dir)
+    ott$source <- "ott"
+    parts <- c(parts, list(ott))
+  }
+
+  if (length(parts) == 0L) {
+    stop("No common name sources found in: ", dir_path, call. = FALSE)
+  }
+
+  out <- do.call(rbind, parts)
+
+  # Deduplicate: prefer rows with a language tag (GBIF) over NA (NCBI/OTT)
+  out <- out[order(!is.na(out$lang), decreasing = TRUE), ]
+  out <- out[!duplicated(paste(out$canonical_name, out$common_name)), ]
+
+  # Drop source column (build provenance goes in meta.json)
+  out$source <- NULL
+  out
+}
+
+
+#' Parse GBIF vernacular names (VernacularName.tsv + Taxon.tsv)
+#' @noRd
+parse_gbif_common_names <- function(dir_path) {
   vn_path <- file.path(dir_path, "VernacularName.tsv")
   taxon_path <- file.path(dir_path, "Taxon.tsv")
 
   if (!file.exists(vn_path) || !file.exists(taxon_path)) {
-    # Try to find them recursively
     vn_found <- list.files(dir_path, pattern = "VernacularName", recursive = TRUE,
                            full.names = TRUE)
     taxon_found <- list.files(dir_path, pattern = "^Taxon\\.tsv$", recursive = TRUE,
@@ -992,7 +1044,6 @@ parse_common_names <- function(dir_path) {
   taxon_map <- taxon_map[!is.na(taxon_map$canonical_name) &
                            nchar(taxon_map$canonical_name) > 0L, ]
 
-  # Merge on taxonID
   vn$taxon_id <- as.integer(vn$taxonID)
   taxon_map$taxon_id <- as.integer(taxon_map$taxon_id)
   merged <- merge(vn, taxon_map, by = "taxon_id", all.x = FALSE)
@@ -1006,8 +1057,103 @@ parse_common_names <- function(dir_path) {
 
   out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
   out <- out[!is.na(out$common_name) & nchar(out$common_name) > 0L, ]
-  out <- out[!is.na(out$lang) & nchar(out$lang) >= 2L & nchar(out$lang) <= 3L, ]
-  out[!duplicated(paste(out$canonical_name, out$lang)), ]
+  out[!is.na(out$lang) & nchar(out$lang) >= 2L & nchar(out$lang) <= 3L, ]
+}
+
+
+#' Parse NCBI common names from names.dmp
+#'
+#' Reads names.dmp, extracts rows where name_class == "common name",
+#' and resolves tax_id to scientific name via the "scientific name" rows.
+#' No language information available — lang is set to NA.
+#' @noRd
+parse_ncbi_common_names <- function(dir_path) {
+  names_file <- file.path(dir_path, "names.dmp")
+  if (!file.exists(names_file)) {
+    stop("Could not find names.dmp in: ", dir_path, call. = FALSE)
+  }
+
+  raw <- readLines(names_file, warn = FALSE)
+  split <- strsplit(raw, "\t\\|\t?", perl = TRUE)
+  df <- data.frame(
+    tax_id     = vapply(split, `[`, character(1L), 1L),
+    name_txt   = trimws(vapply(split, `[`, character(1L), 2L)),
+    name_class = trimws(vapply(split, `[`, character(1L), 4L)),
+    stringsAsFactors = FALSE
+  )
+
+  # Build tax_id -> scientific name lookup
+  sci <- df[df$name_class == "scientific name", ]
+  sci_lookup <- sci$name_txt
+  names(sci_lookup) <- sci$tax_id
+
+  # Extract common names
+  common <- df[df$name_class == "common name", ]
+  common <- common[!is.na(common$name_txt) & nchar(common$name_txt) > 0L, ]
+
+  # Resolve tax_id to canonical name
+  canonical <- sci_lookup[common$tax_id]
+
+  out <- data.frame(
+    canonical_name = unname(canonical),
+    lang           = NA_character_,
+    common_name    = common$name_txt,
+    stringsAsFactors = FALSE
+  )
+
+  out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+}
+
+
+#' Parse OTT common names from synonyms.tsv + taxonomy.tsv
+#'
+#' Reads synonyms.tsv, extracts rows where type contains "common name",
+#' and resolves uid to scientific name via taxonomy.tsv.
+#' No language information available — lang is set to NA.
+#' @noRd
+parse_ott_common_names <- function(dir_path) {
+  syn_file <- file.path(dir_path, "synonyms.tsv")
+  tax_file <- file.path(dir_path, "taxonomy.tsv")
+  if (!file.exists(syn_file) || !file.exists(tax_file)) {
+    stop("Could not find synonyms.tsv and taxonomy.tsv in: ", dir_path,
+         call. = FALSE)
+  }
+
+  # Read taxonomy.tsv for uid -> name lookup
+  tax_raw <- readLines(tax_file, warn = FALSE)
+  tax_raw <- tax_raw[-1L]  # skip header
+  tax_split <- strsplit(tax_raw, "\t\\|\t?", perl = TRUE)
+  tax_lookup <- trimws(vapply(tax_split, `[`, character(1L), 3L))
+  names(tax_lookup) <- vapply(tax_split, `[`, character(1L), 1L)
+
+  # Read synonyms.tsv
+  syn_raw <- readLines(syn_file, warn = FALSE)
+  syn_raw <- syn_raw[-1L]  # skip header
+  syn_split <- strsplit(syn_raw, "\t\\|\t?", perl = TRUE)
+  syns <- data.frame(
+    name = trimws(vapply(syn_split, `[`, character(1L), 1L)),
+    uid  = trimws(vapply(syn_split, `[`, character(1L), 2L)),
+    type = trimws(vapply(syn_split, function(x) {
+      if (length(x) >= 3L) x[3L] else ""
+    }, character(1L))),
+    stringsAsFactors = FALSE
+  )
+
+  # Keep only common name types
+  common <- syns[grepl("common", syns$type, ignore.case = TRUE), ]
+  common <- common[!is.na(common$name) & nchar(common$name) > 0L, ]
+
+  # Resolve uid to canonical name
+  canonical <- tax_lookup[common$uid]
+
+  out <- data.frame(
+    canonical_name = unname(canonical),
+    lang           = NA_character_,
+    common_name    = common$name,
+    stringsAsFactors = FALSE
+  )
+
+  out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
 }
 
 
@@ -1203,33 +1349,77 @@ parse_common_names <- function(dir_path) {
   ),
 
   common_names = list(
-    source_url  = "https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip",
+    source_url  = paste(
+      "https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip",
+      "https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz",
+      "https://files.opentreeoflife.org/ott/ott3.7/ott3.7.tgz",
+      sep = " ; "
+    ),
     source_doi  = NULL,
     version     = format(Sys.Date(), "%Y.%m"),
-    license     = "CC0",
-    attribution = "GBIF Secretariat. GBIF Backbone Taxonomy vernacular names.",
+    license     = "CC0 (GBIF, OTT) / public domain (NCBI)",
+    attribution = paste(
+      "GBIF Secretariat. GBIF Backbone Taxonomy vernacular names.",
+      "NCBI Taxonomy (common names from names.dmp).",
+      "Open Tree of Life Taxonomy (common names from synonyms.tsv).",
+      sep = " "
+    ),
     download_fn = function(url, dest) {
       dir.create(dest, recursive = TRUE, showWarnings = FALSE)
-      zip_path <- file.path(dest, "backbone.zip")
+      urls <- strsplit(url, " ; ", fixed = TRUE)[[1L]]
+      gbif_url <- urls[1L]
+      ncbi_url <- urls[2L]
+      ott_url  <- urls[3L]
 
-      if (!file.exists(zip_path)) {
-        h <- curl::new_handle()
-        curl::handle_setopt(h, followlocation = TRUE, maxredirs = 10L)
-        curl::handle_setheaders(h, "User-Agent" = "R/4.5 taxify")
-        curl::curl_download(url, zip_path, handle = h)
-      }
-
-      extract_dir <- file.path(dest, "extracted")
-      if (!dir.exists(extract_dir)) {
-        dir.create(extract_dir, recursive = TRUE)
+      # ---- GBIF ----
+      gbif_dir <- file.path(dest, "gbif")
+      if (!dir.exists(gbif_dir)) {
+        dir.create(gbif_dir, recursive = TRUE)
+        zip_path <- file.path(dest, "backbone.zip")
+        if (!file.exists(zip_path)) {
+          h <- curl::new_handle()
+          curl::handle_setopt(h, followlocation = TRUE, maxredirs = 10L)
+          curl::handle_setheaders(h, "User-Agent" = "R/4.5 taxify")
+          curl::curl_download(gbif_url, zip_path, handle = h)
+        }
         zip_contents <- utils::unzip(zip_path, list = TRUE)
         vn_file <- zip_contents$Name[grepl("VernacularName", zip_contents$Name)]
         taxon_file <- zip_contents$Name[grepl("^Taxon\\.tsv$", zip_contents$Name)]
         utils::unzip(zip_path, files = c(vn_file, taxon_file),
-                     exdir = extract_dir, junkpaths = TRUE)
+                     exdir = gbif_dir, junkpaths = TRUE)
       }
 
-      extract_dir
+      # ---- NCBI ----
+      ncbi_dir <- file.path(dest, "ncbi")
+      if (!dir.exists(ncbi_dir)) {
+        dir.create(ncbi_dir, recursive = TRUE)
+        tar_path <- file.path(dest, "taxdump.tar.gz")
+        if (!file.exists(tar_path)) {
+          utils::download.file(ncbi_url, tar_path, mode = "wb", quiet = TRUE)
+        }
+        utils::untar(tar_path, files = "names.dmp", exdir = ncbi_dir)
+      }
+
+      # ---- OTT ----
+      ott_dir <- file.path(dest, "ott")
+      if (!dir.exists(ott_dir)) {
+        dir.create(ott_dir, recursive = TRUE)
+        tgz_path <- file.path(dest, "ott.tgz")
+        if (!file.exists(tgz_path)) {
+          utils::download.file(ott_url, tgz_path, mode = "wb", quiet = TRUE)
+        }
+        utils::untar(tgz_path, exdir = dest)
+        # OTT extracts to e.g. ott3.7/ — move the files we need
+        ott_extracted <- list.dirs(dest, recursive = FALSE, full.names = TRUE)
+        ott_extracted <- ott_extracted[grepl("^ott", basename(ott_extracted))][1L]
+        if (!is.na(ott_extracted)) {
+          file.copy(file.path(ott_extracted, "taxonomy.tsv"), ott_dir)
+          file.copy(file.path(ott_extracted, "synonyms.tsv"), ott_dir)
+          unlink(ott_extracted, recursive = TRUE)
+        }
+      }
+
+      dest
     },
     parse_fn    = parse_common_names,
     group_col   = "lang",

@@ -42,7 +42,7 @@ The core workflow is: clean input names, match against a backbone, resolve synon
 
 R has a rich ecosystem for taxonomic name resolution. Two packages cover similar ground:
 
-- [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries a dozen web APIs in real time. It is the right choice when you need live access to upstream databases or features that taxify does not cover (e.g., `downstream()`, `comm2sci()`).
+- [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries a dozen web APIs in real time. It is the right choice when you need live access to upstream databases or features that taxify does not cover (e.g., `downstream()`, occurrence data).
 - [**WorldFlora**](https://cran.r-project.org/package=WorldFlora) matches names offline against the WFO backbone. It is well-tested and straightforward for small to medium plant lists.
 
 taxify does something different: it matches offline across nine backbones at once, resolves synonyms, and pipes the result straight into trait enrichments.

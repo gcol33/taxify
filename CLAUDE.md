@@ -90,7 +90,7 @@ Enrichment layers join external trait/status data to taxify results via `accepte
 
 - **Manifest:** `inst/manifest.json` has per-enrichment metadata: `source_url`, `source_format`, `source_version`, `species_col`, `trait_cols`, `static` (boolean).
 - **Disk layout:** `taxify_data_dir()/enrichment/{name}/latest/{name}.vtr + meta.json`
-- **Two join patterns:** `enrich_simple()` for flat joins (woodiness, conservation_status, etc.), `enrich_by_group()` for group-filtered/pivoted joins (griis by country, wcvp by tdwg_code, common_names by lang).
+- **Two join patterns:** `enrich_simple()` for flat joins (woodiness, conservation_status, etc.), `enrich_by_group()` for group-filtered/pivoted joins (griis by country, wcvp by tdwg_code, common_names by lang). Group filtering is NA-safe: NCBI/OTT common names have `lang = NA` and can be queried with `add_common_names(lang = NA)`.
 
 ### Enrichment fallback chain
 
@@ -127,7 +127,7 @@ Group-based enrichments (griis, wcvp, common_names) resolve `groups = "all"` fro
 
 ### Build registry (not S3)
 
-`R/enrichment-build.R` uses a registry pattern (`.enrichment_build_registry`): each enrichment is a list with `{source_url, download_fn, parse_fn, requires, ...}`. 12 entries share generic download helpers (`download_curl_file`, `download_and_unzip`, `download_gbif_api_pages`) + per-enrichment parse functions (~20-50 lines each).
+`R/enrichment-build.R` uses a registry pattern (`.enrichment_build_registry`): each enrichment is a list with `{source_url, download_fn, parse_fn, requires, ...}`. 12 entries share generic download helpers (`download_curl_file`, `download_and_unzip`, `download_gbif_api_pages`) + per-enrichment parse functions (~20-50 lines each). The `common_names` entry downloads three sources (GBIF backbone, NCBI taxdump, OTT taxonomy) and `parse_common_names()` merges them via three sub-parsers (`parse_gbif_common_names`, `parse_ncbi_common_names`, `parse_ott_common_names`). GBIF provides ISO 639-1 language codes; NCBI and OTT common names have `lang = NA`.
 
 `R/enrichment-vtr.R` has `build_local_enrichment_vtr()` — sorts by canonical_name, writes .vtr with indexes, extracts `available_groups` from group column, writes meta.json sidecar (including `static`, `group_col`, `available_groups`).
 
@@ -142,7 +142,7 @@ Group-based enrichments (griis, wcvp, common_names) resolve `groups = "all"` fro
 
 `inst/manifest.json` (schema v2) has `backends` and `enrichments` sections. Each enrichment entry has: `latest`, `full_url`, `nrow`, `source_url`, `source_format`, `species_col`, `trait_cols`, `static`, and optionally `available_groups` (for group-based enrichments). The package reads the manifest from GitHub raw URL, falling back to the bundled copy.
 
-Group-based enrichments (griis, wcvp, common_names) have an `available_groups` field listing all valid group values (ISO country codes, TDWG codes, language codes). This is populated by the taxify-backbones build pipeline and synced via `sync_manifest.R`.
+Group-based enrichments (griis, wcvp, common_names) have an `available_groups` field listing all valid group values (ISO country codes, TDWG codes, language codes). This is populated by the taxify-backbones build pipeline and synced via `sync_manifest.R`. Note: `available_groups` excludes `NA` values; NCBI/OTT common names with `lang = NA` are queryable but not listed in the manifest's `available_groups`.
 
 ### Discovery
 
@@ -165,7 +165,7 @@ Group-based enrichments (griis, wcvp, common_names) have an `available_groups` f
 | `R/add-avonet.R` | `add_avonet()` — AVONET bird morphology |
 | `R/add-pantheria.R` | `add_pantheria()` — PanTHERIA mammal traits |
 | `R/add-amphibio.R` | `add_amphibio()` — AmphiBIO amphibian traits |
-| `R/add-common-names.R` | `add_common_names()` — GBIF vernacular names |
+| `R/add-common-names.R` | `add_common_names()` — vernacular names (GBIF + NCBI + OTT) |
 | `R/add-woodiness.R` | `add_woodiness()` — Zanne et al. woody/herbaceous |
 | `R/add-diaz-traits.R` | `add_diaz_traits()` — Diaz et al. seed mass + plant height |
 | `R/add-leda.R` | `add_leda()` — LEDA NW European plant traits |

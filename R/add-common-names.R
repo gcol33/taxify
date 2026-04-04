@@ -1,11 +1,12 @@
 #' Add common (vernacular) names
 #'
-#' Joins GBIF vernacular names to a [taxify()] result by looking up
+#' Joins vernacular names to a [taxify()] result by looking up
 #' `accepted_name`, filtered by language.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param lang Character. ISO 639-1 language code (e.g., `"en"`, `"de"`,
-#'   `"fr"`). Default `"en"`.
+#'   `"fr"`), or `NA` to return names without a language tag (NCBI/OTT
+#'   sources). Default `"en"`.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with an additional column:
 #' \describe{
@@ -14,9 +15,17 @@
 #' }
 #'
 #' @details
-#' Source: GBIF backbone vernacular names (CC0). Multi-language via ISO
-#' 639-1 codes. When multiple common names exist for a species in the
-#' requested language, the first (most commonly used) is returned.
+#' Common names are merged from three sources:
+#' \itemize{
+#'   \item GBIF backbone vernacular names (CC0) — multi-language via ISO
+#'     639-1 codes.
+#'   \item NCBI Taxonomy common names (public domain) — no language tag
+#'     (`lang = NA`).
+#'   \item Open Tree of Life common names (CC0) — no language tag
+#'     (`lang = NA`).
+#' }
+#' When multiple common names exist for a species in the requested
+#' language, the first (most commonly used) is returned.
 #'
 #' @examples
 #' \dontrun{
@@ -35,7 +44,7 @@ add_common_names <- function(x, lang = "en", verbose = TRUE) {
     group_col       = "lang",
     groups          = lang,
     value_cols      = c(common_name = "common_name"),
-    source_label    = "GBIF vernacular names",
+    source_label    = "vernacular names",
     verbose         = verbose
   )
 }

@@ -402,7 +402,7 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
   if (!group_col %in% names(df)) return(x)
 
   # Resolve "all" groups
-  if (length(groups) == 1L && groups == "all") {
+  if (length(groups) == 1L && !anyNA(groups) && groups == "all") {
     groups <- sort(unique(df[[group_col]]))
     groups <- groups[!is.na(groups)]
   }
@@ -684,7 +684,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   }
 
   # Resolve "all" groups: manifest (O(1)) → vectra distinct() (fallback)
-  if (length(groups) == 1L && groups == "all") {
+  if (length(groups) == 1L && !anyNA(groups) && groups == "all") {
     manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
     entry <- if (!is.null(manifest)) {
       resolve_enrichment_entry(manifest, enrichment_name)
@@ -749,8 +749,13 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     return(register_enrichment(x, enrichment_name, source_label, ver, 0L))
   }
 
-  # Filter to requested groups
-  joined <- joined[joined[[group_col]] %in% groups, , drop = FALSE]
+  # Filter to requested groups (NA-safe: %in% drops NA, so handle explicitly)
+  has_na_group <- anyNA(groups)
+  joined <- joined[
+    joined[[group_col]] %in% groups |
+      (has_na_group & is.na(joined[[group_col]])),
+    , drop = FALSE
+  ]
   if (nrow(joined) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
@@ -759,7 +764,11 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 
   # Vectorized fill: one match() per group
   for (g in groups) {
-    g_data <- joined[joined[[group_col]] == g, , drop = FALSE]
+    g_data <- if (is.na(g)) {
+      joined[is.na(joined[[group_col]]), , drop = FALSE]
+    } else {
+      joined[!is.na(joined[[group_col]]) & joined[[group_col]] == g, , drop = FALSE]
+    }
     if (nrow(g_data) == 0L) next
     g_data <- g_data[!duplicated(g_data$lookup_name), , drop = FALSE]
     idx <- match(x$accepted_name, g_data$lookup_name)

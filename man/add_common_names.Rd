@@ -10,7 +10,8 @@ add_common_names(x, lang = "en", verbose = TRUE)
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
 
 \item{lang}{Character. ISO 639-1 language code (e.g., \code{"en"}, \code{"de"},
-\code{"fr"}). Default \code{"en"}.}
+\code{"fr"}), or \code{NA} to return names without a language tag (NCBI/OTT
+sources). Default \code{"en"}.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
@@ -22,13 +23,21 @@ or \code{NA} if none is available.}
 }
 }
 \description{
-Joins GBIF vernacular names to a \code{\link[=taxify]{taxify()}} result by looking up
+Joins vernacular names to a \code{\link[=taxify]{taxify()}} result by looking up
 \code{accepted_name}, filtered by language.
 }
 \details{
-Source: GBIF backbone vernacular names (CC0). Multi-language via ISO
-639-1 codes. When multiple common names exist for a species in the
-requested language, the first (most commonly used) is returned.
+Common names are merged from three sources:
+\itemize{
+\item GBIF backbone vernacular names (CC0) — multi-language via ISO
+639-1 codes.
+\item NCBI Taxonomy common names (public domain) — no language tag
+(\code{lang = NA}).
+\item Open Tree of Life common names (CC0) — no language tag
+(\code{lang = NA}).
+}
+When multiple common names exist for a species in the requested
+language, the first (most commonly used) is returned.
 }
 \examples{
 \dontrun{
