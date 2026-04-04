@@ -90,9 +90,9 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="taxify">taxify<a class="anchor" aria-label="anchor" href="#taxify"></a>
 </h1></div>
-<!-- badges: start -->
-
-<p>Offline taxonomic name matching against local Darwin Core backbone databases.</p>
+<p><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
+<p><strong>Offline Taxonomic Name Matching Against Local Darwin Core Snapshots</strong></p>
+<p>Match taxonomic names against locally stored backbone databases, resolve synonyms, and enrich results with trait and status data. No API calls, no internet dependency, no rate limits. Nine backends, twelve enrichment layers, and a unified 16-column output schema.</p>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
@@ -100,32 +100,26 @@
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pak</span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span></span>
 <span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># Match names against WFO (downloads backbone on first use, ~120 MB)</span></span>
-<span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Quercus robus"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       input_name   matched_name  accepted_name    taxon_id match_type</span></span>
-<span><span class="co">#&gt; 1  Quercus robur  Quercus robur  Quercus robur wfo-0000001      exact</span></span>
-<span><span class="co">#&gt; 2 Pinus sylvestr. Pinus sylvestr. Pinus sylvestr. wfo-0000005      exact</span></span>
-<span><span class="co">#&gt; 3  Quercus robus  Quercus robur  Quercus robur wfo-0000001      fuzzy</span></span></code></pre></div>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Quercus robur"</span>,</span>
+<span>  <span class="st">"Pinus abies"</span>,            <span class="co"># synonym of Picea abies</span></span>
+<span>  <span class="st">"Quercus robus"</span>,          <span class="co"># typo, fuzzy-corrected</span></span>
+<span>  <span class="st">"Taraxacum officinale"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Add conservation status and common names</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_common_names.html">add_common_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="statement-of-need">Statement of Need<a class="anchor" aria-label="anchor" href="#statement-of-need"></a>
 </h2>
-<p>taxize was removed from CRAN in October 2024 because its API dependencies rotted. WorldFlora works offline but only covers WFO, chokes on large batches, and requires manual hacks for hybrid names, encoding issues, and authorship extraction.</p>
-<p>taxify solves this with:</p>
-<ul>
-<li>
-<strong>Offline-first matching</strong> against local Darwin Core snapshots (no API calls)</li>
-<li>
-<strong>Multi-backend architecture</strong> (WFO now, COL and GBIF planned)</li>
-<li>
-<strong>Hybrid-native parsing</strong> that handles <code>x</code>, <code>\u00d7</code>, and formula hybrids</li>
-<li>
-<strong>Fuzzy matching in C</strong> via vectra’s Damerau-Levenshtein, Levenshtein, and Jaro-Winkler implementations</li>
-<li>
-<strong>Unified 15-column output</strong> regardless of which backend matched the name</li>
-<li>
-<strong>Pipe extensions</strong> for extra detail without bloating the core result</li>
-</ul>
+<p>taxize was removed from CRAN because its web API dependencies broke. WorldFlora works offline but only supports WFO, chokes on large batches, and offers no enrichment pipeline.</p>
+<p>taxify provides offline matching against 9 backbone databases with fuzzy matching in C, synonym resolution, hybrid name handling, and a pipe-based enrichment system for joining trait and status data from 12 published datasets.</p>
 </div>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
@@ -135,10 +129,151 @@
 </h3>
 <ul>
 <li>Exact match (case-sensitive and case-insensitive)</li>
-<li>Fuzzy match with configurable algorithm and threshold</li>
+<li>Fuzzy match with configurable algorithm (Damerau-Levenshtein, Levenshtein, Jaro-Winkler) and threshold</li>
 <li>Synonym resolution to accepted names</li>
 <li>Best-match selection (ACCEPTED &gt; SYNONYM, SPECIES &gt; higher ranks)</li>
+<li>Multi-backend fallback chains: <code>taxify(names, backend = c("wfo", "col", "gbif"))</code>
+</li>
 </ul>
+</div>
+<div class="section level3">
+<h3 id="backends">Backends<a class="anchor" aria-label="anchor" href="#backends"></a>
+</h3>
+<table class="table">
+<thead><tr>
+<th>Backend</th>
+<th>Scope</th>
+<th>Approx. names</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>WFO</td>
+<td>Vascular plants</td>
+<td>~400k</td>
+</tr>
+<tr>
+<td>COL</td>
+<td>All kingdoms</td>
+<td>~4.5M</td>
+</tr>
+<tr>
+<td>GBIF</td>
+<td>All kingdoms</td>
+<td>~10M</td>
+</tr>
+<tr>
+<td>ITIS</td>
+<td>US focus, freshwater/marine</td>
+<td>~900k</td>
+</tr>
+<tr>
+<td>NCBI</td>
+<td>All life</td>
+<td>~2.5M</td>
+</tr>
+<tr>
+<td>OTT</td>
+<td>All life (synthetic)</td>
+<td>~4M</td>
+</tr>
+<tr>
+<td>WoRMS</td>
+<td>Marine/aquatic</td>
+<td>~600k</td>
+</tr>
+<tr>
+<td>Species Fungorum</td>
+<td>Fungi</td>
+<td>~500k</td>
+</tr>
+<tr>
+<td>AlgaeBase</td>
+<td>Algae</td>
+<td>–</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="enrichments">Enrichments<a class="anchor" aria-label="anchor" href="#enrichments"></a>
+</h3>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>  <span class="co"># IUCN Red List</span></span>
+<span>  <span class="fu"><a href="reference/add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span><span class="st">"AT"</span><span class="op">)</span> <span class="op">|&gt;</span>  <span class="co"># GRIIS by country</span></span>
+<span>  <span class="fu"><a href="reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>            <span class="co"># Zanne et al.</span></span>
+<span>  <span class="fu"><a href="reference/add_common_names.html">add_common_names</a></span><span class="op">(</span><span class="st">"en"</span><span class="op">)</span>        <span class="co"># GBIF vernacular names</span></span></code></pre></div>
+<p>Twelve enrichment layers join trait and status data via backbone-resolved accepted names:</p>
+<table class="table">
+<thead><tr>
+<th>Enrichment</th>
+<th>Source</th>
+<th>Taxa</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code><a href="reference/add_conservation_status.html">add_conservation_status()</a></code></td>
+<td>IUCN Red List</td>
+<td>All</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_invasive_status.html">add_invasive_status()</a></code></td>
+<td>GRIIS</td>
+<td>All</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_wcvp.html">add_wcvp()</a></code></td>
+<td>WCVP</td>
+<td>Plants</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_woodiness.html">add_woodiness()</a></code></td>
+<td>Zanne et al.</td>
+<td>Plants</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_eive.html">add_eive()</a></code></td>
+<td>EIVE 1.0</td>
+<td>European plants</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_diaz_traits.html">add_diaz_traits()</a></code></td>
+<td>Diaz et al.</td>
+<td>Plants</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_leda.html">add_leda()</a></code></td>
+<td>LEDA Traitbase</td>
+<td>NW European plants</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_elton_traits.html">add_elton_traits()</a></code></td>
+<td>EltonTraits 1.0</td>
+<td>Birds, mammals</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_avonet.html">add_avonet()</a></code></td>
+<td>AVONET</td>
+<td>Birds</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_pantheria.html">add_pantheria()</a></code></td>
+<td>PanTHERIA</td>
+<td>Mammals</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_amphibio.html">add_amphibio()</a></code></td>
+<td>AmphiBIO</td>
+<td>Amphibians</td>
+</tr>
+<tr>
+<td><code><a href="reference/add_common_names.html">add_common_names()</a></code></td>
+<td>GBIF</td>
+<td>All</td>
+</tr>
+</tbody>
+</table>
+<p>Custom data can be joined via <code><a href="reference/add_data.html">add_data()</a></code>, which accepts data.frames, CSV, XLSX, SQLite, and .vtr files.</p>
 </div>
 <div class="section level3">
 <h3 id="name-cleaning">Name Cleaning<a class="anchor" aria-label="anchor" href="#name-cleaning"></a>
@@ -146,74 +281,95 @@
 <ul>
 <li>Authorship stripping (parenthesized and trailing)</li>
 <li>Qualifier detection (cf., aff., s.l., s.str., agg.)</li>
-<li>Hybrid marker normalization (<code>\u00d7</code>, <code>x</code>, <code>X</code>)</li>
+<li>Hybrid marker normalization (×, x, X)</li>
+<li>Latin orthographic normalization (ae/oe alternations)</li>
 <li>Bracket, number, and whitespace cleanup</li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="pipe-extensions">Pipe Extensions<a class="anchor" aria-label="anchor" href="#pipe-extensions"></a>
+<h3 id="genus-register">Genus Register<a class="anchor" aria-label="anchor" href="#genus-register"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span>      <span class="co"># hybrid parents and type</span></span>
-<span>  <span class="fu"><a href="reference/add_wfo_info.html">add_wfo_info</a></span><span class="op">(</span><span class="op">)</span>         <span class="co"># extra WFO columns</span></span>
-<span>  <span class="fu"><a href="reference/add_qualifier_info.html">add_qualifier_info</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># qualifier and position</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/lookup_genus.html">lookup_genus</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     genus   kingdom       family life_form</span></span>
+<span><span class="co">#&gt; 1 Quercus Plantae   Fagaceae     plant</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/taxify_register_coverage.html">taxify_register_coverage</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     genus backend version</span></span>
+<span><span class="co">#&gt; 1 Quercus     wfo 2024.12</span></span>
+<span><span class="co">#&gt; 2 Quercus     col 2024-12</span></span>
+<span><span class="co">#&gt; 3 Quercus    gbif 2024-08</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install from GitHub</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pak</span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># taxify depends on vectra (also from GitHub)</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pak</span><span class="op">(</span><span class="st">"gcol33/vectra"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Install from GitHub (vectra is installed automatically)</span></span>
+<span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pak</span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Basic matching (fuzzy on by default)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus robur L."</span>,           <span class="co"># strips authorship, exact match</span></span>
-<span>  <span class="st">"Pinus cf. sylvestris"</span>,       <span class="co"># strips qualifier, exact match</span></span>
-<span>  <span class="st">"Quercus robus"</span>,              <span class="co"># typo, fuzzy match</span></span>
-<span>  <span class="st">"Quercus pedunculata"</span>,        <span class="co"># synonym, resolves to Q. robur</span></span>
-<span>  <span class="st">"Quercus x hispanica"</span>,        <span class="co"># hybrid detection</span></span>
-<span>  <span class="st">"Nonexistent species"</span>         <span class="co"># no match</span></span>
-<span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Single backend (WFO for plants)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Disable fuzzy</span></span>
-<span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robus"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co"># Multi-backend fallback (tries WFO first, then COL, then GBIF)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Gadus morhua"</span>, <span class="st">"Agaricus bisporus"</span><span class="op">)</span>,</span>
+<span>  backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Change algorithm</span></span>
-<span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robus"</span>, fuzzy_method <span class="op">=</span> <span class="st">"jw"</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span></span>
+<span><span class="co"># Disable fuzzy matching for clean lists</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Enrich with hybrid info</span></span>
-<span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus pyrenaica x Q. petraea"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Tune fuzzy matching</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, fuzzy_method <span class="op">=</span> <span class="st">"jw"</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Enrich with traits</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Join custom data</span></span>
+<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">my_traits</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check the result</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <ul>
-<li>
-<code><a href="reference/taxify.html">?taxify</a></code> – main function reference</li>
-<li>
-<code><a href="reference/add_hybrid_info.html">?add_hybrid_info</a></code> – hybrid extension</li>
-<li>
-<code><a href="reference/add_wfo_info.html">?add_wfo_info</a></code> – WFO extension</li>
-<li>
-<code><a href="reference/add_qualifier_info.html">?add_qualifier_info</a></code> – qualifier extension</li>
+<li><a href="https://gcol33.github.io/taxify/articles/quickstart.html">Getting started</a></li>
+<li><a href="https://gcol33.github.io/taxify/articles/backends.html">Choosing and combining backends</a></li>
+<li><a href="https://gcol33.github.io/taxify/articles/fuzzy-matching.html">Fuzzy matching</a></li>
+<li><a href="https://gcol33.github.io/taxify/articles/enrichments.html">Enrichments</a></li>
+<li><a href="https://gcol33.github.io/taxify/articles/custom-data.html">Custom data</a></li>
+<li><a href="https://gcol33.github.io/taxify/articles/hybrid-names.html">Hybrid names</a></li>
+<li><a href="https://gcol33.github.io/taxify/articles/migration.html">Migrating from taxize and WorldFlora</a></li>
+<li><a href="https://gcol33.github.io/taxify/articles/large-scale.html">Large-scale workflows</a></li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="support">Support<a class="anchor" aria-label="anchor" href="#support"></a>
+</h2>
+<blockquote>
+<p>“Software is like sex: it’s better when it’s free.” – Linus Torvalds</p>
+</blockquote>
+<p>I’m a PhD student who builds R packages in my free time because I believe good tools should be free and open. I started these projects for my own work and figured others might find them useful too.</p>
+<p>If this package saved you some time, buying me a coffee is a nice way to say thanks. It helps with my coffee addiction.</p>
+<p><a href="https://buymeacoffee.com/gcol33" class="external-link"><img src="https://img.shields.io/badge/-Buy%20me%20a%20coffee-FFDD00?logo=buymeacoffee&amp;logoColor=black" alt="Buy Me A Coffee"></a></p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>MIT</p>
+<p>MIT (see the LICENSE.md file)</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -247,13 +403,7 @@
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/gcol33/taxify/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/gcol33/taxify/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a></li>
-</ul>
-</div>
+
 
   </aside>
 </div>
