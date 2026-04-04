@@ -106,6 +106,19 @@ ensure_enrichment(name):
 
 If `ensure_enrichment()` returns NULL, `enrich_simple()`/`enrich_by_group()` call `try_emergency_fallback()` → `enrichment_emergency_fallback()` → downloads raw source, parses in-memory, joins via `enrich_from_dataframe()`/`enrich_from_dataframe_grouped()`. Emergency fallback is ephemeral (no disk write), warns with source URL/version/license/reason.
 
+### Cross-backbone name resolution (build-time)
+
+Enrichment `.vtr` files must be joinable regardless of which backbone produced the user's `taxify()` result. The build pipeline in `taxify-backbones` resolves this:
+
+1. Source names are run through `taxify()` against **each of the 7 backends separately** (not as a fallback chain — fallback chains only return the first match)
+2. The union of all unique `accepted_name` values is collected per source species
+3. Each source row is expanded: one enrichment row per distinct accepted name (trait data duplicated)
+4. Deduplication by `canonical_name` (+ group_col for grouped enrichments)
+
+This means `enrich_simple()`'s exact join on `accepted_name == canonical_name` works correctly for any backbone. Realistic file size increase: ~1.1–1.5x (backends agree on >90% of names).
+
+Implementation: `taxify-backbones/shared/resolve_names.R` → `resolve_enrichment_names(df, group_cols)`, called by every `enrichment/*/convert.R` after cleaning, before `build_enrichment_vtr()`.
+
 ### Join strategy
 
 Both `enrich_simple()` and `enrich_by_group()` use vectorized `match()` for filling output columns (not row-level loops). The grouped variant does one `match()` per group. Emergency fallback functions use the same pattern.
