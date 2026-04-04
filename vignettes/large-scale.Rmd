@@ -44,10 +44,9 @@ column contiguously on disk with lightweight compression. taxify never parses
 text at query time. There is no `read.csv()` step, no string splitting, no
 quote escaping. The backbone is already in a query-ready binary layout.
 
-Traditional taxonomic matching tools read a CSV backbone on every session
-start (WorldFlora takes 15-30 seconds to parse WFO's classification.txt),
-or call a remote API per name (taxize, subject to rate limits and network
-latency). taxify's approach eliminates both bottlenecks. The one-time
+Reading a CSV backbone on every session start takes time (15-30 seconds for
+WFO's classification.txt), and calling a remote API per name adds network
+latency. taxify sidesteps both. The one-time
 conversion from Darwin Core CSV to `.vtr` happens at download time and never
 needs to be repeated. The resulting file is typically 30-50% smaller than
 the original CSV because the columnar layout compresses string columns more

@@ -17,41 +17,28 @@ knitr::opts_chunk$set(
 
 ## Why migrate
 
-For most of its lifespan, the R ecosystem had two main packages for
-taxonomic name resolution: taxize for multi-database API lookups, and
-WorldFlora for offline matching against the World Flora Online backbone.
-Both served the community well, but both have reached the end of their
-practical usefulness.
+The R ecosystem has two well-established packages for taxonomic name
+resolution: [taxize](https://docs.ropensci.org/taxize/) for
+multi-database API lookups, and
+[WorldFlora](https://cran.r-project.org/package=WorldFlora) for offline
+matching against the WFO backbone. Both work. If your workflow already
+uses one of them and you are happy with it, there is no urgent reason to
+switch.
 
-taxize was removed from CRAN in late 2023. The package queried a dozen
-web APIs (GNRS, ITIS, NCBI, GBIF, Tropicos, and others) in real time,
-which meant every call required internet access, was subject to rate
-limits, and could break when an upstream endpoint changed its schema or
-went offline. Results were not reproducible across sessions: the same
-query could return different answers if a backbone was updated between
-runs. The package's core design made these problems structural, not
-incidental. Even if someone maintains a fork, the API-first architecture
-remains fragile.
+That said, there are situations where taxify offers a better fit:
 
-WorldFlora is still on CRAN and still works. It reads the WFO
-`classification.txt` file (a ~400 MB tab-separated download) and
-performs string matching against it. The limitations are scope and speed:
-it supports only WFO (plants), has no fuzzy matching beyond what
-`WFO.match.fuzzyjoin()` provides via the fuzzyjoin package, and
-processes names by iterating row-by-row through the backbone table. For
-datasets of a few hundred names, the wait is tolerable. For datasets of
-ten thousand or more, it becomes a bottleneck.
-
-taxify takes a different approach. It downloads Darwin Core backbone
-snapshots to disk once, converts them to a compressed columnar format
-(`.vtr` files powered by the vectra C11 engine), and runs all matching
-offline. Nine backbones are available: WFO, COL, GBIF, ITIS, NCBI
-Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, and AlgaeBase.
-Matching is vectorized at the C level with genus-blocked fuzzy joins, so
-ten thousand names resolve in seconds rather than minutes. The output is
-a standardized 16-column data.frame regardless of which backbone was
-used. And because the backbone is a versioned file on disk, results are
-reproducible indefinitely.
+- **Multiple backbones.** taxize queries APIs one at a time; WorldFlora
+  supports WFO only. taxify matches against nine backbones offline and
+  can chain them in a single call:
+  `taxify(names, backend = c("wfo", "col", "gbif"))`.
+- **Speed at scale.** taxify's matching engine is written in C with
+  genus-blocked fuzzy joins. Ten thousand names resolve in seconds, not
+  minutes.
+- **Enrichments.** taxify pipes results directly into twelve published
+  trait and status datasets (IUCN, GRIIS, WCVP, EIVE, EltonTraits, etc.)
+  with a single `|>` chain.
+- **Reproducibility.** Backbones are versioned files on disk. The
+  `backbone_version` column records exactly which snapshot was used.
 
 This vignette maps the old APIs to their taxify equivalents, walks
 through three side-by-side examples, and is honest about what taxify
