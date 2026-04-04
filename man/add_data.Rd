@@ -9,6 +9,7 @@ add_data(
   data,
   species_col = NULL,
   table = NULL,
+  sheet = 1L,
   cols = NULL,
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
@@ -31,6 +32,9 @@ of each character column against the backbone.}
 
 \item{table}{Character. Required when \code{data} is a SQLite file --- the table
 name to read.}
+
+\item{sheet}{Integer or character. Sheet to read when \code{data} is an \code{.xlsx}
+file. Default \code{1L} (first sheet). Passed to \code{\link[vectra:tbl_xlsx]{vectra::tbl_xlsx()}}.}
 
 \item{cols}{Character vector of column names from \code{data} to join. If \code{NULL}
 (default), all columns except \code{species_col} are joined.}

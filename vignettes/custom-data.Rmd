@@ -110,10 +110,18 @@ the openxlsx2 package, which must be installed separately.
 result |> add_data("bird_morphometry.xlsx", species_col = "species_name")
 ```
 
-The function reads the first sheet by default. If the data spans multiple
-sheets, the simplest approach is to read the target sheet into a data.frame
-first using `openxlsx2::read_xlsx()` and pass that data.frame to
-`add_data()`.
+The first sheet is read by default. Use the `sheet` argument to target a
+different sheet by number or name:
+
+```{r}
+result |> add_data("bird_morphometry.xlsx", sheet = "measurements")
+result |> add_data("bird_morphometry.xlsx", sheet = 2)
+```
+
+As with CSV files, `species_col` is auto-detected when omitted: each
+character column is tested against the backbone, and the column with the
+highest match rate is selected. If no column reaches 50% matches, an error
+asks you to specify `species_col` explicitly.
 
 ## SQLite databases
 

@@ -15,6 +15,8 @@
 #'   of each character column against the backbone.
 #' @param table Character. Required when `data` is a SQLite file --- the table
 #'   name to read.
+#' @param sheet Integer or character. Sheet to read when `data` is an `.xlsx`
+#'   file. Default `1L` (first sheet). Passed to [vectra::tbl_xlsx()].
 #' @param cols Character vector of column names from `data` to join. If `NULL`
 #'   (default), all columns except `species_col` are joined.
 #' @param fuzzy Logical. Enable fuzzy matching for names in `data`.
@@ -68,6 +70,7 @@
 add_data <- function(x, data,
                      species_col = NULL,
                      table = NULL,
+                     sheet = 1L,
                      cols = NULL,
                      fuzzy = TRUE,
                      fuzzy_threshold = 0.2,
@@ -102,7 +105,7 @@ add_data <- function(x, data,
         stop("Reading .xlsx files requires the openxlsx2 package.\n  Install with: install.packages(\"openxlsx2\")",
              call. = FALSE)
       }
-      data <- vectra::tbl_xlsx(data) |> vectra::collect()
+      data <- vectra::tbl_xlsx(data, sheet = sheet) |> vectra::collect()
     } else if (ext == "vtr") {
       data <- vectra::tbl(data) |> vectra::collect()
     } else {
