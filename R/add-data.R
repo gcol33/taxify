@@ -492,10 +492,11 @@ detect_species_col <- function(data, backend, verbose = TRUE) {
     )
     if (is.null(probe_result)) next
 
-    match_rate <- sum(probe_result$match_type != "none") / length(probe_names)
+    matched <- probe_result$match_type %in% c("exact", "fuzzy")
+    match_rate <- sum(matched) / length(probe_names)
     if (verbose) {
       message(sprintf("  '%s': %d/%d matched (%0.0f%%)",
-                      col, sum(probe_result$match_type != "none"),
+                      col, sum(matched),
                       length(probe_names), 100 * match_rate))
     }
 
