@@ -4,7 +4,7 @@
 \alias{taxify_long}
 \title{Reshape grouped enrichment columns to long format}
 \usage{
-taxify_long(x, cols, group_col = "group", drop_na = FALSE)
+taxify_long(x, cols = NULL, group_col = NULL, drop_na = FALSE)
 }
 \arguments{
 \item{x}{A data.frame, typically a \code{\link[=taxify]{taxify()}} result after applying
@@ -13,10 +13,12 @@ a grouped enrichment like \code{\link[=add_invasive_status]{add_invasive_status(
 
 \item{cols}{Character vector of base column names to reshape. These are
 the column names without the group suffix (e.g., \code{"invasive_status"},
-not \code{"invasive_status_AT"}).}
+not \code{"invasive_status_AT"}). If omitted, auto-detected from the
+enrichment metadata stamped by the \verb{add_*()} functions.}
 
 \item{group_col}{Character. Name for the output group column.
-Default \code{"group"}.}
+If omitted, auto-detected from enrichment metadata (e.g.,
+\code{"country_code"} for invasive status or alien first records).}
 
 \item{drop_na}{Logical. If \code{TRUE}, drop rows where all value columns
 are \code{NA}. Default \code{FALSE}.}
@@ -33,6 +35,12 @@ Converts wide-format columns produced by grouped enrichments (e.g.,
 one row per species x group combination.
 }
 \details{
+When \code{cols} and \code{group_col} are omitted, \code{taxify_long()} reads the
+reshape metadata attached by grouped enrichment functions
+(\code{\link[=add_invasive_status]{add_invasive_status()}}, \code{\link[=add_alien_first_records]{add_alien_first_records()}}, \code{\link[=add_wcvp]{add_wcvp()}},
+\code{\link[=add_common_names]{add_common_names()}}). If multiple grouped enrichments were applied,
+all are reshaped together (they must share the same group column).
+
 Column matching uses the explicit base names in \code{cols} to avoid ambiguity.
 For example, given \code{cols = c("alien_first_record", "alien_first_record_source")}, the column \code{alien_first_record_source_AT}
 is correctly matched to base \code{alien_first_record_source} (not
@@ -45,19 +53,15 @@ returned unchanged with \code{group_col} set to \code{NA}.
 }
 \examples{
 \dontrun{
-# Reshape invasive status for multiple countries
+# Auto-detected: no cols or group_col needed
+taxify("Robinia pseudoacacia") |>
+  add_alien_first_records(country = c("AT", "DE")) |>
+  taxify_long()
+
+# Explicit: override auto-detection
 taxify("Robinia pseudoacacia") |>
   add_invasive_status(country = c("AT", "DE")) |>
   taxify_long(cols = "invasive_status", group_col = "country")
-
-# Reshape alien first records (3 columns per country)
-taxify("Robinia pseudoacacia") |>
-  add_alien_first_records(country = c("AT", "DE")) |>
-  taxify_long(
-    cols = c("alien_first_record", "alien_first_record_source",
-             "alien_first_record_reference"),
-    group_col = "country"
-  )
 }
 
 }

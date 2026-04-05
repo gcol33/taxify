@@ -182,11 +182,7 @@ Group-based enrichments (invasive status, alien first records, native range, com
 ```r
 taxify(species) |>
   add_alien_first_records(country = c("AT", "DE", "CH")) |>
-  taxify_long(
-    cols = c("alien_first_record", "alien_first_record_source",
-             "alien_first_record_reference"),
-    group_col = "country"
-  )
+  taxify_long()
 ```
 
 ### Name Cleaning

@@ -462,8 +462,15 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
   n_enriched <- sum(
     rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
   )
-  register_enrichment(x, enrichment_name, source_label, "emergency", n_enriched,
-                      license = lic)
+  x <- register_enrichment(x, enrichment_name, source_label, "emergency",
+                            n_enriched, license = lic)
+
+  # Stamp reshape metadata so taxify_long() can auto-detect
+  reshape_entry <- list(cols = names(value_cols), group_col = group_col)
+  prev <- attr(x, "taxify_reshape") %||% list()
+  attr(x, "taxify_reshape") <- c(prev, list(reshape_entry))
+
+  x
 }
 
 
@@ -812,8 +819,15 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   n_enriched <- sum(
     rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
   )
-  register_enrichment(x, enrichment_name, source_label, ver, n_enriched,
-                      license = lic)
+  x <- register_enrichment(x, enrichment_name, source_label, ver, n_enriched,
+                            license = lic)
+
+  # Stamp reshape metadata so taxify_long() can auto-detect
+  reshape_entry <- list(cols = names(value_cols), group_col = group_col)
+  prev <- attr(x, "taxify_reshape") %||% list()
+  attr(x, "taxify_reshape") <- c(prev, list(reshape_entry))
+
+  x
 }
 
 

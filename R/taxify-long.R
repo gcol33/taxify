@@ -9,9 +9,11 @@
 #'   [add_alien_first_records()], or [add_wcvp()].
 #' @param cols Character vector of base column names to reshape. These are
 #'   the column names without the group suffix (e.g., `"invasive_status"`,
-#'   not `"invasive_status_AT"`).
+#'   not `"invasive_status_AT"`). If omitted, auto-detected from the
+#'   enrichment metadata stamped by the `add_*()` functions.
 #' @param group_col Character. Name for the output group column.
-#'   Default `"group"`.
+#'   If omitted, auto-detected from enrichment metadata (e.g.,
+#'   `"country_code"` for invasive status or alien first records).
 #' @param drop_na Logical. If `TRUE`, drop rows where all value columns
 #'   are `NA`. Default `FALSE`.
 #'
@@ -21,6 +23,12 @@
 #'   group code extracted from the suffix.
 #'
 #' @details
+#' When `cols` and `group_col` are omitted, `taxify_long()` reads the
+#' reshape metadata attached by grouped enrichment functions
+#' ([add_invasive_status()], [add_alien_first_records()], [add_wcvp()],
+#' [add_common_names()]). If multiple grouped enrichments were applied,
+#' all are reshaped together (they must share the same group column).
+#'
 #' Column matching uses the explicit base names in `cols` to avoid ambiguity.
 #' For example, given `cols = c("alien_first_record",
 #' "alien_first_record_source")`, the column `alien_first_record_source_AT`
@@ -34,27 +42,51 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Reshape invasive status for multiple countries
+#' # Auto-detected: no cols or group_col needed
+#' taxify("Robinia pseudoacacia") |>
+#'   add_alien_first_records(country = c("AT", "DE")) |>
+#'   taxify_long()
+#'
+#' # Explicit: override auto-detection
 #' taxify("Robinia pseudoacacia") |>
 #'   add_invasive_status(country = c("AT", "DE")) |>
 #'   taxify_long(cols = "invasive_status", group_col = "country")
-#'
-#' # Reshape alien first records (3 columns per country)
-#' taxify("Robinia pseudoacacia") |>
-#'   add_alien_first_records(country = c("AT", "DE")) |>
-#'   taxify_long(
-#'     cols = c("alien_first_record", "alien_first_record_source",
-#'              "alien_first_record_reference"),
-#'     group_col = "country"
-#'   )
 #' }
 #'
 #' @export
-taxify_long <- function(x, cols, group_col = "group", drop_na = FALSE) {
+taxify_long <- function(x, cols = NULL, group_col = NULL, drop_na = FALSE) {
   if (!is.data.frame(x)) {
     stop(sprintf("x must be a data.frame, got %s", class(x)[1L]),
          call. = FALSE)
   }
+
+  # Auto-detect from enrichment metadata if cols/group_col not provided
+  if (is.null(cols) || is.null(group_col)) {
+    reshape_meta <- attr(x, "taxify_reshape")
+    if (is.null(reshape_meta) || length(reshape_meta) == 0L) {
+      stop(paste0(
+        "Cannot auto-detect reshape columns. Either:\n",
+        "  - Provide 'cols' and 'group_col' explicitly, or\n",
+        "  - Apply a grouped enrichment (add_invasive_status, ",
+        "add_alien_first_records, etc.) first."
+      ), call. = FALSE)
+    }
+    if (is.null(cols)) {
+      cols <- unique(unlist(lapply(reshape_meta, `[[`, "cols")))
+    }
+    if (is.null(group_col)) {
+      group_cols <- unique(vapply(reshape_meta, `[[`, character(1L), "group_col"))
+      if (length(group_cols) > 1L) {
+        stop(sprintf(
+          paste0("Multiple group columns detected: %s. ",
+                 "Specify 'group_col' explicitly."),
+          paste(group_cols, collapse = ", ")
+        ), call. = FALSE)
+      }
+      group_col <- group_cols
+    }
+  }
+
   if (length(cols) == 0L || !is.character(cols)) {
     stop("cols must be a non-empty character vector of base column names.",
          call. = FALSE)
@@ -101,21 +133,8 @@ taxify_long <- function(x, cols, group_col = "group", drop_na = FALSE) {
     ), call. = FALSE)
   }
 
-  # Extract unique suffixes — must be identical across all matched bases
-  suffix_sets <- lapply(col_assignments, function(ca) sort(ca$suffix))
-  ref_suffixes <- suffix_sets[[1L]]
-  for (i in seq_along(suffix_sets)) {
-    if (!identical(suffix_sets[[i]], ref_suffixes)) {
-      stop(sprintf(
-        paste0("Suffix mismatch: base '%s' has suffixes [%s] but '%s' has [%s].\n",
-               "All base columns must have the same set of group suffixes."),
-        names(suffix_sets)[1L], paste(ref_suffixes, collapse = ", "),
-        names(suffix_sets)[i], paste(suffix_sets[[i]], collapse = ", ")
-      ), call. = FALSE)
-    }
-  }
-
-  groups <- ref_suffixes
+  # Union of all suffixes across bases (pad NA where a base lacks a suffix)
+  groups <- sort(unique(unlist(lapply(col_assignments, function(ca) ca$suffix))))
 
   # Identify id columns (everything not being reshaped)
   reshape_cols <- unlist(lapply(col_assignments, function(ca) ca$full_col),
@@ -130,8 +149,12 @@ taxify_long <- function(x, cols, group_col = "group", drop_na = FALSE) {
     frame[[group_col]] <- g
     for (base in names(col_assignments)) {
       ca <- col_assignments[[base]]
-      src_col <- ca$full_col[ca$suffix == g]
-      frame[[base]] <- x[[src_col]]
+      idx <- which(ca$suffix == g)
+      if (length(idx) == 1L) {
+        frame[[base]] <- x[[ca$full_col[idx]]]
+      } else {
+        frame[[base]] <- NA
+      }
     }
     frames[[i]] <- frame
   }

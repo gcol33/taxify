@@ -888,24 +888,21 @@ reshapes any group-based enrichment columns back to long format:
 ```{r alien-fr-long}
 aliens |>
   add_alien_first_records(country = c("AT", "DE", "GB")) |>
-  taxify_long(
-    cols = c("alien_first_record", "alien_first_record_source",
-             "alien_first_record_reference"),
-    group_col = "country"
-  )
-#>              input_name country alien_first_record alien_first_record_source ...
-#> 1   Robinia pseudoacacia      AT               1850                   NOBANIS ...
-#> 2    Ailanthus altissima      AT               1870                   NOBANIS ...
+  taxify_long()
+#>              input_name country_code alien_first_record alien_first_record_source ...
+#> 1   Robinia pseudoacacia           AT               1850                   NOBANIS ...
+#> 2    Ailanthus altissima           AT               1870                   NOBANIS ...
 #> ...
-#> 7   Robinia pseudoacacia      DE               1630              Long (2003) ...
+#> 7   Robinia pseudoacacia           DE               1630              Long (2003) ...
 #> ...
 ```
 
-The result has one row per species per country, with the base column names
-(no suffix) and a new `country` column. This format is what most modelling
-and spatial analysis workflows expect. The `drop_na = TRUE` argument
-removes rows where all value columns are `NA` (e.g., native species with
-no alien first record in any queried country).
+When `cols` and `group_col` are omitted, `taxify_long()` auto-detects them
+from metadata stamped by the `add_*()` functions. The result has one row
+per species per country, with the base column names (no suffix) and a new
+`country_code` column. The `drop_na = TRUE` argument removes rows where
+all value columns are `NA` (e.g., native species with no alien first record
+in any queried country).
 
 `taxify_long()` works with any group-based enrichment, not just alien first
 records. It can reshape `invasive_status`, `native_status`, or
@@ -914,13 +911,23 @@ records. It can reshape `invasive_status`, `native_status`, or
 ```{r taxify-long-griis}
 aliens |>
   add_invasive_status(country = c("AT", "DE")) |>
-  taxify_long(cols = "invasive_status", group_col = "country")
+  taxify_long()
 ```
 
-The helper detects suffixed columns by matching the base names you provide,
-using longest-prefix-first matching to correctly handle column names like
-`alien_first_record_source_AT` (base = `alien_first_record_source`,
-suffix = `AT`).
+When multiple grouped enrichments share the same group column, they are
+reshaped together. If an enrichment covers different groups than another
+(e.g., GRIIS for AT/DE but first records for AT/DE/CH), the missing
+combinations are padded with `NA`:
+
+```{r taxify-long-combined}
+aliens |>
+  add_invasive_status(country = c("AT", "DE")) |>
+  add_alien_first_records(country = c("AT", "DE", "CH")) |>
+  taxify_long()
+```
+
+You can still provide `cols` and `group_col` explicitly to override
+auto-detection or to rename the group column.
 
 ### Native range by botanical region (WCVP)
 
