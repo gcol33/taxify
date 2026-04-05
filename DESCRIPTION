@@ -25,6 +25,7 @@ Suggests:
     DBI,
     knitr,
     openxlsx2,
+    rfishbase,
     rmarkdown,
     RSQLite,
     testthat (>= 3.0.0)

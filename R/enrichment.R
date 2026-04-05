@@ -341,7 +341,8 @@ taxify_download_enrichment <- function(enrichment,
 #' @return The enriched data.frame.
 #' @noRd
 enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
-                                  source_label, na_types = NULL) {
+                                  source_label, na_types = NULL,
+                                  join_col = "accepted_name") {
   # Filter col_map to columns that exist in df
   col_map <- col_map[col_map %in% names(df)]
   if (length(col_map) == 0L) return(x)
@@ -360,15 +361,18 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
   reg <- .enrichment_build_registry[[enrichment_name]]
   lic <- if (!is.null(reg)) reg$license %||% NA_character_ else NA_character_
 
-  valid_rows <- which(!is.na(x$accepted_name))
+  # Determine the df-side join key: genus-level uses "genus", else canonical_name
+  df_join_key <- if (join_col == "genus") "genus" else "canonical_name"
+
+  valid_rows <- which(!is.na(x[[join_col]]))
   if (length(valid_rows) == 0L) {
     return(register_enrichment(x, enrichment_name, source_label,
                                "emergency", 0L, license = lic))
   }
 
   # Vectorized fill via match()
-  df <- df[!duplicated(df$canonical_name), , drop = FALSE]
-  idx <- match(x$accepted_name, df$canonical_name)
+  df <- df[!duplicated(df[[df_join_key]]), , drop = FALSE]
+  idx <- match(x[[join_col]], df[[df_join_key]])
   matched <- which(!is.na(idx))
   for (out_col in names(col_map)) {
     src_col <- col_map[[out_col]]
@@ -543,13 +547,17 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 #' @param source_label Character. Human-readable source for register_enrichment.
 #' @param na_types Named list of NA sentinel values for output columns. Defaults
 #'   to NA_character_ for all columns. Use NA_real_ for numeric columns, etc.
+#' @param join_col Character. Column in `x` to join on. Default `"accepted_name"`
+#'   for species-level enrichments. Use `"genus"` for genus-level enrichments.
 #' @param verbose Logical.
 #' @return The enriched data.frame.
 #' @noRd
 enrich_simple <- function(x, enrichment_name, col_map, source_label,
-                          na_types = NULL, verbose = TRUE) {
-  if (!"accepted_name" %in% names(x)) {
-    stop("x must have an 'accepted_name' column (from taxify())", call. = FALSE)
+                          na_types = NULL, join_col = "accepted_name",
+                          verbose = TRUE) {
+  if (!join_col %in% names(x)) {
+    stop(sprintf("x must have a '%s' column (from taxify())", join_col),
+         call. = FALSE)
   }
 
   vtr_path <- ensure_enrichment(enrichment_name, verbose = verbose)
@@ -559,7 +567,8 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   if (is.null(vtr_path)) {
     df <- try_emergency_fallback(enrichment_name, verbose = verbose)
     return(enrich_from_dataframe(x, df, enrichment_name, col_map,
-                                 source_label, na_types))
+                                 source_label, na_types,
+                                 join_col = join_col))
   }
 
   # Initialize output columns
@@ -572,7 +581,7 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
     x[[out_col]] <- na_val
   }
 
-  valid_rows <- which(!is.na(x$accepted_name))
+  valid_rows <- which(!is.na(x[[join_col]]))
   if (length(valid_rows) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
@@ -595,8 +604,8 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   # Filter col_map to available columns
   col_map <- col_map[col_map %in% available_src]
 
-  # Build temp .vtr with unique accepted names
-  names_unique <- unique(x$accepted_name[valid_rows])
+  # Build temp .vtr with unique lookup values
+  names_unique <- unique(x[[join_col]][valid_rows])
   names_df <- data.frame(lookup_name = names_unique, stringsAsFactors = FALSE)
   tmp <- tempfile(fileext = ".vtr")
   on.exit(unlink(tmp), add = TRUE)
@@ -604,14 +613,18 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   vectra::write_vtr(names_df, tmp)
 
   # Determine join key in enrichment .vtr
-  join_key <- if ("canonical_name" %in% names(schema)) {
+  # For genus-level enrichments, prefer the "genus" column when join_col is
+  # "genus". Otherwise fall back to canonical_name / accepted_name.
+  join_key <- if (join_col == "genus" && "genus" %in% names(schema)) {
+    "genus"
+  } else if ("canonical_name" %in% names(schema)) {
     "canonical_name"
   } else if ("accepted_name" %in% names(schema)) {
     "accepted_name"
   } else {
     stop(sprintf(
-      "Enrichment '%s' .vtr has no 'canonical_name' or 'accepted_name' column.",
-      enrichment_name
+      "Enrichment '%s' .vtr has no joinable column (tried: %s, canonical_name, accepted_name).",
+      enrichment_name, join_col
     ), call. = FALSE)
   }
 
@@ -634,7 +647,7 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
 
   # Vectorized fill via match()
   joined <- joined[!duplicated(joined$lookup_name), , drop = FALSE]
-  idx <- match(x$accepted_name, joined$lookup_name)
+  idx <- match(x[[join_col]], joined$lookup_name)
   matched <- which(!is.na(idx))
   for (out_col in names(col_map)) {
     src_col <- col_map[[out_col]]

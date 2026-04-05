@@ -4,7 +4,8 @@
     "wfo":   { "latest": "2024.12", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/wfo_2024.12.vtr" },
     "col":   { "latest": "2024.11", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/col_2024.11.vtr" },
     "gbif":  { "latest": "2024.10", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/gbif_2024.10.vtr" },
-    "itis":  { "latest": "2025.04", "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/itis-2025.04/itis.vtr" },
+    "itis":    { "latest": "2025.04", "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/itis-2025.04/itis.vtr" },
+    "euromed": { "latest": "2020.1",  "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/euromed-2020.1/euromed.vtr" },
     "register": { "latest": "2024.12", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/register_2024.12.vtr" }
   },
   "enrichments": {
@@ -151,6 +152,72 @@
       "source_version": "2008.1",
       "species_col": "SBS_name",
       "trait_cols": ["raunkiaer_life_form", "raunkiaer_variable", "dispersal_type", "terminal_velocity_ms", "leda_seed_mass_mg", "canopy_height_m", "leaf_mass_mg", "sla_mm2_mg", "clonal_growth", "buoyancy"],
+      "static": true
+    },
+    "funguild": {
+      "latest": "2016.1",
+      "full_url": null,
+      "nrow": null,
+      "source_url": "https://mycoportal.org/funguild/services/api/db_return.php?qDB=funguild_db&qField=taxon&qText=*",
+      "source_format": "json",
+      "source_version": "2016.1",
+      "species_col": "taxon",
+      "trait_cols": ["trophic_mode", "guild", "growth_morphology", "confidence_ranking"],
+      "static": false
+    },
+    "fishbase": {
+      "latest": "2026.04",
+      "full_url": null,
+      "nrow": null,
+      "source_url": "https://fishbase.ropensci.org",
+      "source_format": "rfishbase",
+      "source_version": "2026.04",
+      "species_col": "canonical_name",
+      "trait_cols": ["body_length_cm", "body_mass_g", "trophic_level", "depth_min_m", "depth_max_m", "vulnerability", "habitat", "importance"],
+      "static": false
+    },
+    "fungal_traits": {
+      "latest": "2020.1",
+      "full_url": null,
+      "nrow": null,
+      "source_url": "https://doi.org/10.1007/s13225-020-00466-2",
+      "source_format": "xlsx",
+      "source_version": "2020.1",
+      "species_col": "GENUS",
+      "trait_cols": ["primary_lifestyle", "secondary_lifestyle", "growth_form", "fruitbody_type", "decay_substrate", "plant_pathogenic_capacity", "animal_biotrophic_capacity", "endophytic_interaction_capability", "ectomycorrhiza_exploration_type"],
+      "static": true
+    },
+    "algae_traits": {
+      "latest": "2022.06",
+      "full_url": null,
+      "nrow": null,
+      "source_url": "https://mda.vliz.be/download.php?file=VLIZ_00000308_62bf06138859e409561556",
+      "source_format": "zip",
+      "source_version": "2022.06",
+      "species_col": "scientificname",
+      "trait_cols": ["body_size_cm", "growth_form", "calcification", "life_span", "tidal_zone", "wave_exposure", "environment", "substrate"],
+      "static": true
+    },
+    "fish_traits": {
+      "latest": "1.0",
+      "full_url": null,
+      "nrow": 8342,
+      "source_url": "https://ndownloader.figshare.com/files/28672242",
+      "source_format": "csv",
+      "source_version": "1.0",
+      "species_col": "Genus.species",
+      "trait_cols": ["max_body_length", "body_elongation", "vertical_eye_position", "relative_eye_size", "oral_gape_position", "relative_maxillary_length", "body_lateral_shape", "pectoral_fin_position", "pectoral_fin_size", "caudal_peduncle_throttling"],
+      "static": true
+    },
+    "lizard_traits": {
+      "latest": "2018.1",
+      "full_url": null,
+      "nrow": null,
+      "source_url": "https://ndownloader.figshare.com/files/10243295",
+      "source_format": "xlsx",
+      "source_version": "2018.1",
+      "species_col": "species",
+      "trait_cols": ["body_mass_g", "svl_mm", "tail_length_mm", "clutch_size", "clutch_frequency", "longevity_yr", "diet", "habitat", "activity_time", "foraging_mode"],
       "static": true
     }
   }

@@ -20,28 +20,32 @@
 #' @param attribution Character or `NULL`. Human-readable attribution string.
 #' @param group_col Character or `NULL`. Optional column to index for
 #'   group-based enrichments (e.g., `"country_code"`, `"lang"`).
+#' @param name_col Character. The primary name column used for sorting,
+#'   deduplication, and indexing. Default `"canonical_name"` for species-level
+#'   enrichments. Use `"genus"` for genus-level enrichments.
 #' @return The `vtr_path` (invisibly).
 #' @noRd
 build_local_enrichment_vtr <- function(df, vtr_path, name, version,
                                        source_url, source_doi = NULL,
                                        license = "unknown",
                                        attribution = NULL,
-                                       group_col = NULL) {
+                                       group_col = NULL,
+                                       name_col = "canonical_name") {
   # -- Validate --
   if (!is.data.frame(df)) {
     stop(sprintf("df must be a data.frame, got %s", class(df)[1]))
   }
-  if (!"canonical_name" %in% names(df)) {
-    stop("df must have a 'canonical_name' column.")
+  if (!name_col %in% names(df)) {
+    stop(sprintf("df must have a '%s' column.", name_col))
   }
 
   # -- Sort and clean --
-  df <- df[!is.na(df$canonical_name), ]
-  df <- df[order(df$canonical_name), ]
+  df <- df[!is.na(df[[name_col]]), ]
+  df <- df[order(df[[name_col]]), ]
   rownames(df) <- NULL
 
   if (nrow(df) == 0L) {
-    stop("No rows remaining after dropping NA canonical_name values.")
+    stop(sprintf("No rows remaining after dropping NA %s values.", name_col))
   }
 
 
@@ -50,7 +54,7 @@ build_local_enrichment_vtr <- function(df, vtr_path, name, version,
   vectra::write_vtr(df, vtr_path, batch_size = 50000L)
 
   # -- Create hash indexes --
-  vectra::create_index(vtr_path, "canonical_name")
+  vectra::create_index(vtr_path, name_col)
   if (!is.null(group_col) && group_col %in% names(df)) {
     vectra::create_index(vtr_path, group_col)
   }

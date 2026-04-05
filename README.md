@@ -28,8 +28,8 @@ result |>
   add_woodiness() |>
   add_eive()
 
-# Join your own data (CSV, XLSX, SQLite, or data.frame)
-result |> add_data("my_traits.csv", species_col = "species")
+# Join your own data (auto-detects the species column)
+result |> add_data("my_traits.csv")
 ```
 
 ## What taxify does
@@ -136,14 +136,20 @@ Nine backbone databases, downloaded once and stored locally as compressed `.vtr`
 
 ### Enrichments
 
-Thirteen enrichment layers join published trait and status data to your results via backbone-resolved accepted names:
+Nineteen enrichment layers join published trait and status data to your results via backbone-resolved accepted names:
 
 ```r
+# Plants
 taxify(plant_names) |>
   add_conservation_status() |>   # IUCN Red List
   add_invasive_status("AT") |>   # GRIIS invasive status
   add_woodiness() |>             # Zanne et al.
   add_eive()                     # EIVE indicator values
+
+# Fish
+taxify(fish_names, backend = "col") |>
+  add_fishbase() |>              # FishBase morphology & ecology
+  add_fish_traits()              # FISHMORPH functional traits
 ```
 
 | Enrichment | Source | Reference | Taxa |
@@ -151,16 +157,22 @@ taxify(plant_names) |>
 | `add_conservation_status()` | [IUCN Red List](https://www.iucnredlist.org/) | IUCN (2024) | All |
 | `add_invasive_status()` | [GRIIS](https://griis.org/) | Pagad et al. (2018) | All |
 | `add_alien_first_records()` | [Seebens et al.](https://doi.org/10.6084/m9.figshare.c.3924424.v3) | Seebens et al. (2017) | All |
+| `add_common_names()` | [GBIF](https://www.gbif.org/) | GBIF (2024) | All |
 | `add_wcvp()` | [WCVP](https://powo.science.kew.org/) | Govaerts et al. (2021) | Plants |
 | `add_woodiness()` | [Zanne et al.](https://datadryad.org/stash/dataset/doi:10.5061/dryad.63q27) | Zanne et al. (2014) | Plants |
 | `add_eive()` | [EIVE 1.0](https://doi.org/10.5281/zenodo.7534792) | Dengler et al. (2023) | European plants |
 | `add_diaz_traits()` | [Diaz et al.](https://doi.org/10.1038/s41586-022-05606-z) | Diaz et al. (2022) | Plants |
 | `add_leda()` | [LEDA Traitbase](https://uol.de/en/landeco/research/leda) | Kleyer et al. (2008) | NW European plants |
+| `add_fungal_traits()` | [FungalTraits](https://doi.org/10.1007/s13225-020-00466-2) | Polme et al. (2020) | Fungi |
+| `add_funguild()` | [FUNGuild](https://github.com/UMNFuN/FUNGuild) | Nguyen et al. (2016) | Fungi |
+| `add_algae_traits()` | [AlgaeTraits](https://doi.org/10.14284/574) | Vranken et al. (2023) | Macroalgae |
 | `add_elton_traits()` | [EltonTraits 1.0](https://doi.org/10.6084/m9.figshare.c.3306933) | Wilman et al. (2014) | Birds, mammals |
 | `add_avonet()` | [AVONET](https://doi.org/10.6084/m9.figshare.16586228) | Tobias et al. (2022) | Birds |
 | `add_pantheria()` | [PanTHERIA](https://esapubs.org/archive/ecol/E090/184/) | Jones et al. (2009) | Mammals |
 | `add_amphibio()` | [AmphiBIO](https://doi.org/10.6084/m9.figshare.4644424) | Oliveira et al. (2017) | Amphibians |
-| `add_common_names()` | [GBIF](https://www.gbif.org/) | GBIF (2024) | All |
+| `add_fish_traits()` | [FISHMORPH](https://doi.org/10.6084/m9.figshare.14891412) | Brosse et al. (2021) | Freshwater fish |
+| `add_fishbase()` | [FishBase](https://www.fishbase.org/) | Froese & Pauly (2024) | All fish |
+| `add_lizard_traits()` | [Meiri lizards](https://doi.org/10.6084/m9.figshare.5765553) | Meiri (2018) | Lizards |
 
 ### Keeping enrichments up to date
 
@@ -181,15 +193,14 @@ Alternatively, if you have your own version of a dataset (e.g., a newer IUCN exp
 
 ### Custom data
 
-`add_data()` joins any external dataset to your taxify results via backbone-resolved name matching. It accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and .vtr files.
+`add_data()` joins any external dataset to your taxify results. It auto-detects which column contains species names, matches them through the same backbone(s) used in your original `taxify()` call (so synonyms in either dataset resolve to the same key), and left-joins the result. Accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and .vtr files.
 
 ```r
-# Join TRY plant trait data
-result |> add_data(
-  "TRY_traits.csv",
-  species_col = "AccSpeciesName",
-  cols = c("LeafArea", "SLA", "PlantHeight")
-)
+# Just point it at a file — species column and backbone are detected automatically
+result |> add_data("TRY_traits.csv")
+
+# Pick specific columns
+result |> add_data("TRY_traits.csv", cols = c("LeafArea", "SLA", "PlantHeight"))
 
 # Grouped data (species x country) — pivots to wide format
 result |> add_data(
@@ -277,8 +288,8 @@ result <- taxify(plant_names) |>
   add_woodiness() |>
   add_eive()
 
-# Join external trait data
-result |> add_data("TRY_traits.csv", species_col = "AccSpeciesName")
+# Join external trait data (species column auto-detected, matched through same backbone)
+result |> add_data("TRY_traits.csv")
 
 # Check the result
 summary(result)

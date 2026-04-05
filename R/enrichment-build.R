@@ -465,6 +465,64 @@ parse_amphibio <- function(path) {
 }
 
 
+#' Parse FISHMORPH freshwater fish morphological traits (CSV)
+#' @noRd
+parse_fish_traits <- function(path) {
+  df <- read.csv(path, stringsAsFactors = FALSE)
+
+  # Species column: "Genus species" or "Genus.species" or "Species"
+  name_col <- intersect(
+    names(df), c("Genus.species", "Genus species", "Species",
+                 "scientificNameStd")
+  )
+  if (length(name_col) == 0L) name_col <- names(df)[1L] else name_col <- name_col[1L]
+
+  find_col <- function(patterns) {
+    for (p in patterns) {
+      m <- grep(paste0("^", p, "$"), names(df), ignore.case = TRUE, value = TRUE)
+      if (length(m) > 0L) return(m[1L])
+    }
+    for (p in patterns) {
+      m <- grep(p, names(df), ignore.case = TRUE, value = TRUE)
+      if (length(m) > 0L) return(m[1L])
+    }
+    NULL
+  }
+
+  safe_num <- function(col_name) {
+    if (is.null(col_name)) return(rep(NA_real_, nrow(df)))
+    suppressWarnings(as.numeric(df[[col_name]]))
+  }
+
+  out <- data.frame(
+    canonical_name             = trimws(gsub("_", " ", df[[name_col]])),
+    max_body_length            = safe_num(find_col(c("MBl", "MBI",
+                                                     "Max_body_length"))),
+    body_elongation            = safe_num(find_col(c("BEl", "Body_elongation"))),
+    vertical_eye_position      = safe_num(find_col(c("VEp",
+                                                     "Vertical_eye_position"))),
+    relative_eye_size          = safe_num(find_col(c("REs",
+                                                     "Relative_eye_size"))),
+    oral_gape_position         = safe_num(find_col(c("OGp",
+                                                     "Oral_gape_position"))),
+    relative_maxillary_length  = safe_num(find_col(c("RMl",
+                                                     "Relative_maxillary_length"))),
+    body_lateral_shape         = safe_num(find_col(c("BLs",
+                                                     "Body_lateral_shape"))),
+    pectoral_fin_position      = safe_num(find_col(c("PFv",
+                                                     "Pectoral_fin_vertical"))),
+    pectoral_fin_size          = safe_num(find_col(c("PFs",
+                                                     "Pectoral_fin_size"))),
+    caudal_peduncle_throttling = safe_num(find_col(c("CPt",
+                                                     "Caudal_peduncle_throttling"))),
+    stringsAsFactors = FALSE
+  )
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+  out[!duplicated(out$canonical_name), ]
+}
+
+
 #' Parse LEDA trait files (multiple semicolon/tab-delimited files)
 #' @noRd
 parse_leda <- function(dir_path) {
@@ -1507,6 +1565,508 @@ parse_ott_common_names <- function(dir_path) {
 }
 
 
+# ---- FUNGuild parser ----
+
+#' Parse FUNGuild JSON database dump
+#'
+#' Reads the JSON array returned by the FUNGuild API, filters to genus and
+#' species-level entries, and returns a clean data.frame with canonical_name
+#' and trait columns.
+#'
+#' @param path Character. Path to the downloaded JSON file.
+#' @return A data.frame with columns: canonical_name, taxon_level,
+#'   trophic_mode, guild, growth_morphology, confidence_ranking.
+#' @noRd
+parse_funguild <- function(path) {
+  raw <- jsonlite::fromJSON(path, simplifyVector = TRUE)
+
+  # Keep only genus and species-level entries
+  keep <- tolower(trimws(raw$taxonLevel)) %in% c("genus", "species")
+  df <- raw[keep, ]
+
+  if (nrow(df) == 0L) {
+    stop("No genus/species-level entries found in FUNGuild JSON.", call. = FALSE)
+  }
+
+  taxon <- trimws(df$taxon)
+  taxon_level <- tolower(trimws(df$taxonLevel))
+
+  # Extract trophic mode, guild, growth morphology, confidence
+
+  trophic <- if ("trophicMode" %in% names(df)) {
+    trimws(df$trophicMode)
+  } else if ("trophic_mode" %in% names(df)) {
+    trimws(df$trophic_mode)
+  } else {
+    NA_character_
+  }
+
+  guild <- if ("guild" %in% names(df)) {
+    trimws(df$guild)
+  } else {
+    NA_character_
+  }
+
+  growth <- if ("growthMorphology" %in% names(df)) {
+    trimws(df$growthMorphology)
+  } else if ("growthForm" %in% names(df)) {
+    trimws(df$growthForm)
+  } else if ("growth_morphology" %in% names(df)) {
+    trimws(df$growth_morphology)
+  } else {
+    NA_character_
+  }
+
+  confidence <- if ("confidenceRanking" %in% names(df)) {
+    trimws(df$confidenceRanking)
+  } else if ("confidence_ranking" %in% names(df)) {
+    trimws(df$confidence_ranking)
+  } else if ("confidence" %in% names(df)) {
+    trimws(df$confidence)
+  } else {
+    NA_character_
+  }
+
+  # Replace empty strings with NA
+  trophic[!nzchar(trophic)] <- NA_character_
+  guild[!nzchar(guild)] <- NA_character_
+  growth[!nzchar(growth)] <- NA_character_
+  confidence[!nzchar(confidence)] <- NA_character_
+
+  out <- data.frame(
+    canonical_name     = taxon,
+    taxon_level        = taxon_level,
+    trophic_mode       = trophic,
+    guild              = guild,
+    growth_morphology  = growth,
+    confidence_ranking = confidence,
+    stringsAsFactors   = FALSE
+  )
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+
+  # Deduplicate: keep first occurrence per canonical_name (species-level
+
+  # entries sort before genus-level, so species wins)
+  out <- out[order(out$taxon_level != "species", out$canonical_name), ]
+  out <- out[!duplicated(out$canonical_name), ]
+
+  # Drop taxon_level (used only for dedup)
+  out$taxon_level <- NULL
+
+  out
+}
+
+
+#' Parse FishBase species and ecology tables (via rfishbase)
+#'
+#' Pulls the `species` and `ecology` tables from rfishbase, joins them,
+#' and builds a canonical_name + trait data.frame.
+#'
+#' @param path Character. Not used (rfishbase fetches data directly), but
+#'   kept for interface consistency with other parse functions.
+#' @return A data.frame with columns: canonical_name, body_length_cm,
+#'   body_mass_g, trophic_level, depth_min_m, depth_max_m, vulnerability,
+#'   habitat, importance.
+#' @noRd
+parse_fishbase <- function(path) {
+  if (!requireNamespace("rfishbase", quietly = TRUE)) {
+    stop("rfishbase is required to build the FishBase enrichment from source.\n",
+         "Install it with: install.packages(\"rfishbase\")", call. = FALSE)
+  }
+
+  sp <- rfishbase::species(server = "fishbase")
+  eco <- rfishbase::ecology(server = "fishbase")
+
+  # Build canonical name from Genus + Species columns
+  sp$canonical_name <- trimws(paste(sp$Genus, sp$Species))
+
+  # Join ecology table by SpecCode
+  eco_sub <- eco[, intersect(
+    names(eco),
+    c("SpecCode", "FeedingType", "DietTroph")
+  ), drop = FALSE]
+  # Deduplicate ecology rows per species (take first)
+  eco_sub <- eco_sub[!duplicated(eco_sub$SpecCode), ]
+  merged <- merge(sp, eco_sub, by = "SpecCode", all.x = TRUE)
+
+  safe_num <- function(col_name) {
+    if (!col_name %in% names(merged)) return(rep(NA_real_, nrow(merged)))
+    suppressWarnings(as.numeric(merged[[col_name]]))
+  }
+
+  safe_chr <- function(col_name) {
+    if (!col_name %in% names(merged)) return(rep(NA_character_, nrow(merged)))
+    x <- as.character(merged[[col_name]])
+    x[is.na(x) | nchar(trimws(x)) == 0L] <- NA_character_
+    trimws(x)
+  }
+
+  out <- data.frame(
+    canonical_name  = merged$canonical_name,
+    body_length_cm  = safe_num("Length"),
+    body_mass_g     = safe_num("Weight"),
+    trophic_level   = safe_num("DietTroph"),
+    depth_min_m     = safe_num("DepthRangeShallow"),
+    depth_max_m     = safe_num("DepthRangeDeep"),
+    vulnerability   = safe_num("Vulnerability"),
+    habitat         = safe_chr("DemersPelag"),
+    importance      = safe_chr("Importance"),
+    stringsAsFactors = FALSE
+  )
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+  out[!duplicated(out$canonical_name), ]
+}
+
+
+# ---- FungalTraits parser (genus-level) ----
+
+#' Parse FungalTraits XLSX (Table S1, genus-level traits)
+#'
+#' Reads the Polme et al. (2020) supplementary XLSX, selects the most
+#' informative trait columns, and returns a data.frame keyed on `genus`.
+#'
+#' @param path Character. Path to the downloaded XLSX file.
+#' @return A data.frame with `genus` + 9 trait columns.
+#' @noRd
+parse_fungal_traits <- function(path) {
+  if (!requireNamespace("openxlsx2", quietly = TRUE)) {
+    stop("openxlsx2 is required to read FungalTraits xlsx. ",
+         "Install with: install.packages('openxlsx2')", call. = FALSE)
+  }
+
+  df <- as.data.frame(
+    openxlsx2::read_xlsx(path, sheet = 1L),
+    stringsAsFactors = FALSE
+  )
+
+  # Locate key columns — the XLSX header names vary slightly across versions.
+  # Use case-insensitive regex to be robust.
+  find_col <- function(patterns) {
+    for (p in patterns) {
+      m <- grep(p, names(df), value = TRUE, ignore.case = TRUE)
+      if (length(m) > 0L) return(m[1L])
+    }
+    NA_character_
+  }
+
+  genus_col      <- find_col(c("^GENUS$", "^genus$"))
+  primary_col    <- find_col(c("primary_lifestyle", "Primary.lifestyle"))
+  secondary_col  <- find_col(c("secondary_lifestyle", "Secondary.lifestyle"))
+  growth_col     <- find_col(c("growth_form", "Growth.form"))
+  fruit_col      <- find_col(c("fruitbody_type", "Fruitbody.type"))
+  decay_col      <- find_col(c("decay_substrate", "Decay.substrate",
+                                "Decay.type"))
+  plant_path_col <- find_col(c("plant_pathogenic_capacity",
+                                "Plant.pathogenic.capacity",
+                                "Plant.pathogenic"))
+  animal_col     <- find_col(c("animal_biotrophic_capacity",
+                                "Animal.biotrophic.capacity",
+                                "Animal.biotrophic"))
+  endo_col       <- find_col(c("endophytic_interaction_capability",
+                                "Endophytic.interaction",
+                                "Endophyte"))
+  ecto_col       <- find_col(c("ectomycorrhiza_exploration_type",
+                                "Ectomycorrhiza.exploration.type",
+                                "Exploration.type"))
+
+  if (is.na(genus_col)) {
+    stop("Could not find a 'GENUS' column in FungalTraits XLSX.", call. = FALSE)
+  }
+
+  safe_char <- function(x) {
+    x <- as.character(x)
+    x[x %in% c("", "NA", "na", "N/A")] <- NA_character_
+    trimws(x)
+  }
+
+  out <- data.frame(genus = trimws(df[[genus_col]]), stringsAsFactors = FALSE)
+
+  if (!is.na(primary_col))    out$primary_lifestyle    <- safe_char(df[[primary_col]])
+  if (!is.na(secondary_col))  out$secondary_lifestyle  <- safe_char(df[[secondary_col]])
+  if (!is.na(growth_col))     out$growth_form          <- safe_char(df[[growth_col]])
+  if (!is.na(fruit_col))      out$fruitbody_type       <- safe_char(df[[fruit_col]])
+  if (!is.na(decay_col))      out$decay_substrate      <- safe_char(df[[decay_col]])
+  if (!is.na(plant_path_col)) out$plant_pathogenic_capacity     <- safe_char(df[[plant_path_col]])
+  if (!is.na(animal_col))     out$animal_biotrophic_capacity    <- safe_char(df[[animal_col]])
+  if (!is.na(endo_col))       out$endophytic_interaction_capability <- safe_char(df[[endo_col]])
+  if (!is.na(ecto_col))       out$ectomycorrhiza_exploration_type   <- safe_char(df[[ecto_col]])
+
+  # Drop rows with no genus
+  out <- out[!is.na(out$genus) & nchar(out$genus) > 0L, ]
+
+  # Deduplicate by genus (keep first occurrence)
+  out <- out[!duplicated(out$genus), , drop = FALSE]
+  rownames(out) <- NULL
+  out
+}
+
+
+# ---- AlgaeTraits parser ----
+
+#' Parse AlgaeTraits macroalgal traits (WoRMS ZIP export)
+#' @noRd
+parse_algae_traits <- function(path) {
+  csvs <- list.files(path, pattern = "\\.csv$", full.names = TRUE,
+                     recursive = TRUE, ignore.case = TRUE)
+  txts <- list.files(path, pattern = "\\.txt$", full.names = TRUE,
+                     recursive = TRUE, ignore.case = TRUE)
+  xlsxs <- list.files(path, pattern = "\\.xlsx$", full.names = TRUE,
+                      recursive = TRUE, ignore.case = TRUE)
+  candidates <- c(csvs, txts)
+
+  if (length(candidates) == 0L && length(xlsxs) > 0L) {
+    if (!requireNamespace("openxlsx2", quietly = TRUE)) {
+      stop("openxlsx2 is required to read AlgaeTraits XLSX files.\n",
+           "Install with: install.packages('openxlsx2')", call. = FALSE)
+    }
+    sizes <- file.size(xlsxs)
+    main_file <- xlsxs[which.max(sizes)]
+    df <- as.data.frame(
+      openxlsx2::read_xlsx(main_file),
+      stringsAsFactors = FALSE
+    )
+  } else if (length(candidates) > 0L) {
+    sizes <- file.size(candidates)
+    main_file <- candidates[which.max(sizes)]
+    first_line <- readLines(main_file, n = 1L, warn = FALSE)
+    sep <- if (grepl("\t", first_line)) "\t" else ","
+    df <- read.delim(main_file, sep = sep, stringsAsFactors = FALSE,
+                     quote = "\"", fill = TRUE, comment.char = "")
+  } else {
+    stop("No data files found in AlgaeTraits archive.\n",
+         "Contents: ", paste(list.files(path, recursive = TRUE),
+                             collapse = ", "), call. = FALSE)
+  }
+
+  names(df) <- tolower(trimws(names(df)))
+
+  # Identify species name column
+  name_col <- NULL
+  name_candidates <- c("scientificname", "scientific_name", "species",
+                        "taxon", "valid_name", "validname",
+                        "canonical_name", "scientificnameaccepted")
+  for (nc in name_candidates) {
+    if (nc %in% names(df)) { name_col <- nc; break }
+  }
+  if (is.null(name_col)) {
+    for (i in seq_len(ncol(df))) {
+      if (is.character(df[[i]])) { name_col <- names(df)[i]; break }
+    }
+  }
+  if (is.null(name_col)) {
+    stop("Cannot identify species name column. Columns: ",
+         paste(names(df), collapse = ", "), call. = FALSE)
+  }
+
+  # Check if data is in long format (trait name + value columns)
+  trait_col <- NULL
+  value_col <- NULL
+  long_trait_names <- c("measurementtype", "measurement_type", "traitname",
+                        "trait_name", "trait", "category", "attributename")
+  long_value_names <- c("measurementvalue", "measurement_value", "traitvalue",
+                        "trait_value", "value", "attributevalue")
+  for (tc in long_trait_names) {
+    if (tc %in% names(df)) { trait_col <- tc; break }
+  }
+  for (vc in long_value_names) {
+    if (vc %in% names(df)) { value_col <- vc; break }
+  }
+
+  if (!is.null(trait_col) && !is.null(value_col)) {
+    out <- pivot_algae_long(df, name_col, trait_col, value_col)
+  } else {
+    out <- extract_algae_wide(df, name_col)
+  }
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+  out[!duplicated(out$canonical_name), ]
+}
+
+
+#' Pivot long-format AlgaeTraits data to wide
+#' @noRd
+pivot_algae_long <- function(df, name_col, trait_col, value_col) {
+  species <- trimws(df[[name_col]])
+  traits  <- tolower(trimws(df[[trait_col]]))
+  values  <- trimws(as.character(df[[value_col]]))
+
+  unique_species <- unique(species[!is.na(species) & nchar(species) > 0L])
+
+  trait_map <- list(
+    body_size_cm  = c("body size", "bodysize", "thallus length",
+                      "thallus_length", "maximum length", "size"),
+    growth_form   = c("body shape", "bodyshape", "growth form",
+                      "growth_form", "morphology", "morphological type"),
+    calcification = c("calcification", "calcified"),
+    life_span     = c("life span", "lifespan", "life_span", "longevity"),
+    tidal_zone    = c("tidal zonation", "tidal_zonation", "tidal zone",
+                      "tidal_zone", "zonation"),
+    wave_exposure = c("wave exposure", "wave_exposure", "exposure"),
+    environment   = c("environment", "habitat", "salinity regime"),
+    substrate     = c("environmental position", "environmental_position",
+                      "substrate", "substratum", "attachment")
+  )
+
+  out <- data.frame(
+    canonical_name = unique_species,
+    body_size_cm   = NA_real_,
+    growth_form    = NA_character_,
+    calcification  = NA_character_,
+    life_span      = NA_character_,
+    tidal_zone     = NA_character_,
+    wave_exposure  = NA_character_,
+    environment    = NA_character_,
+    substrate      = NA_character_,
+    stringsAsFactors = FALSE
+  )
+
+  sp_idx <- stats::setNames(seq_along(unique_species), unique_species)
+
+  for (trait_out in names(trait_map)) {
+    patterns <- trait_map[[trait_out]]
+    mask <- traits %in% patterns
+    if (!any(mask)) next
+
+    sub_sp  <- species[mask]
+    sub_val <- values[mask]
+
+    for (j in seq_along(sub_sp)) {
+      s <- sub_sp[j]
+      v <- sub_val[j]
+      if (is.na(s) || is.na(v) || nchar(v) == 0L) next
+      row <- sp_idx[s]
+      if (is.na(row)) next
+
+      if (trait_out == "body_size_cm") {
+        if (is.na(out$body_size_cm[row])) {
+          num <- suppressWarnings(as.numeric(gsub("[^0-9.]", "", v)))
+          out$body_size_cm[row] <- num
+        }
+      } else {
+        if (is.na(out[[trait_out]][row])) {
+          out[[trait_out]][row] <- v
+        }
+      }
+    }
+  }
+
+  out
+}
+
+
+#' Extract trait columns from wide-format AlgaeTraits data
+#' @noRd
+extract_algae_wide <- function(df, name_col) {
+  find_col <- function(patterns) {
+    for (p in patterns) {
+      m <- grep(p, names(df), value = TRUE, ignore.case = TRUE)
+      if (length(m) > 0L) return(m[1L])
+    }
+    NA_character_
+  }
+
+  size_col  <- find_col(c("body.?size", "thallus.?length", "max.?length",
+                           "^size$"))
+  form_col  <- find_col(c("body.?shape", "growth.?form", "morpholog"))
+  calc_col  <- find_col(c("calcif"))
+  span_col  <- find_col(c("life.?span", "longevity"))
+  tide_col  <- find_col(c("tidal", "zonation"))
+  wave_col  <- find_col(c("wave", "exposure"))
+  env_col   <- find_col(c("^environment$", "^habitat$", "salinity"))
+  sub_col   <- find_col(c("environmental.?position", "substrate",
+                           "substratum", "attachment"))
+
+  safe_num <- function(col) {
+    if (is.na(col)) return(rep(NA_real_, nrow(df)))
+    suppressWarnings(as.numeric(df[[col]]))
+  }
+
+  safe_chr <- function(col) {
+    if (is.na(col)) return(rep(NA_character_, nrow(df)))
+    x <- trimws(as.character(df[[col]]))
+    x[!nzchar(x)] <- NA_character_
+    x
+  }
+
+  data.frame(
+    canonical_name = trimws(df[[name_col]]),
+    body_size_cm   = safe_num(size_col),
+    growth_form    = safe_chr(form_col),
+    calcification  = safe_chr(calc_col),
+    life_span      = safe_chr(span_col),
+    tidal_zone     = safe_chr(tide_col),
+    wave_exposure  = safe_chr(wave_col),
+    environment    = safe_chr(env_col),
+    substrate      = safe_chr(sub_col),
+    stringsAsFactors = FALSE
+  )
+}
+
+
+# ---- Meiri lizard traits parser ----
+
+#' Parse Meiri (2018) lizard traits (XLSX from Figshare)
+#' @noRd
+parse_lizard_traits <- function(path) {
+  if (!requireNamespace("openxlsx2", quietly = TRUE)) {
+    stop("Package 'openxlsx2' is required to parse lizard traits.",
+         call. = FALSE)
+  }
+
+  df <- openxlsx2::read_xlsx(path, sheet = 1L)
+
+  find_col <- function(patterns) {
+    for (p in patterns) {
+      m <- grep(p, names(df), ignore.case = TRUE, value = TRUE)
+      if (length(m) > 0L) return(m[1L])
+    }
+    NULL
+  }
+
+  name_col <- find_col(c("^species$", "^binomial$", "^scientific.?name$"))
+  if (is.null(name_col)) name_col <- names(df)[1L]
+
+  safe_num <- function(col_name) {
+    if (is.null(col_name)) return(rep(NA_real_, nrow(df)))
+    suppressWarnings(as.numeric(df[[col_name]]))
+  }
+
+  safe_chr <- function(col_name) {
+    if (is.null(col_name)) return(rep(NA_character_, nrow(df)))
+    x <- as.character(df[[col_name]])
+    x[x == "" | x == "NA"] <- NA_character_
+    trimws(x)
+  }
+
+  out <- data.frame(
+    canonical_name    = trimws(gsub("_", " ", df[[name_col]])),
+    body_mass_g       = safe_num(find_col(c("mass", "body.?mass", "weight"))),
+    svl_mm            = safe_num(find_col(c("SVL", "snout.?vent", "SVL_mm"))),
+    tail_length_mm    = safe_num(find_col(c("tail", "tail.?length"))),
+    clutch_size       = safe_num(find_col(c("clutch.?size", "litter.?size",
+                                            "litter.?clutch"))),
+    clutch_frequency  = safe_num(find_col(c("clutch.?freq", "clutches.?per",
+                                            "reproductive.?freq"))),
+    longevity_yr      = safe_num(find_col(c("longevity", "max.?age",
+                                            "maximum.?longevity"))),
+    diet              = safe_chr(find_col(c("^diet$", "diet.?type",
+                                            "trophic"))),
+    habitat           = safe_chr(find_col(c("^habitat$", "habitat.?type",
+                                            "microhabitat"))),
+    activity_time     = safe_chr(find_col(c("activity", "activity.?time",
+                                            "diel"))),
+    foraging_mode     = safe_chr(find_col(c("foraging", "foraging.?mode",
+                                            "forage"))),
+    stringsAsFactors = FALSE
+  )
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+  out[!duplicated(out$canonical_name), ]
+}
+
+
 # ---- Build registry ----
 
 #' @noRd
@@ -1791,6 +2351,94 @@ parse_ott_common_names <- function(dir_path) {
     parse_fn    = parse_common_names,
     group_col   = "lang",
     requires    = character(0)
+  ),
+
+  funguild = list(
+    source_url  = "https://mycoportal.org/funguild/services/api/db_return.php?qDB=funguild_db&qField=taxon&qText=*",
+    source_doi  = "10.1016/j.funeco.2015.06.006",
+    version     = "2016.1",
+    license     = "CC BY 4.0",
+    attribution = "Nguyen NH et al. (2016) FUNGuild: An open annotation tool for parsing fungal community datasets by ecological guild. Fungal Ecology 20:241-248.",
+    download_fn = function(url, dest) {
+      download_curl_file(url, dest, "funguild_db.json")
+    },
+    parse_fn    = parse_funguild,
+    group_col   = NULL,
+    requires    = character(0)
+  ),
+
+  fishbase = list(
+    source_url  = "https://fishbase.ropensci.org",
+    source_doi  = "10.14284/XXX",
+    version     = format(Sys.Date(), "%Y.%m"),
+    license     = "CC BY-NC 3.0",
+    attribution = "Froese R, Pauly D (eds.) (2024) FishBase. World Wide Web electronic publication, https://www.fishbase.org.",
+    download_fn = function(url, dest) {
+      # rfishbase fetches data directly; dest is used only for interface
+      # consistency. Return dest so the parse function receives a path.
+      dir.create(dest, recursive = TRUE, showWarnings = FALSE)
+      dest
+    },
+    parse_fn    = parse_fishbase,
+    group_col   = NULL,
+    requires    = "rfishbase"
+  ),
+
+  fungal_traits = list(
+    source_url  = "https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM2_ESM.xlsx",
+    source_doi  = "10.1007/s13225-020-00466-2",
+    version     = "2020.1",
+    license     = "CC BY 4.0",
+    attribution = "Polme S et al. (2020) FungalTraits: a user-friendly traits database of fungi and fungus-like stramenopiles. Fungal Diversity 105:1-16.",
+    download_fn = function(url, dest) {
+      download_curl_file(url, dest, "FungalTraits.xlsx")
+    },
+    parse_fn    = parse_fungal_traits,
+    group_col   = NULL,
+    name_col    = "genus",
+    requires    = "openxlsx2"
+  ),
+
+  algae_traits = list(
+    source_url  = "https://mda.vliz.be/download.php?file=VLIZ_00000308_62bf06138859e409561556",
+    source_doi  = "10.14284/574",
+    version     = "2022.06",
+    license     = "CC BY 4.0",
+    attribution = "Vranken S et al. (2023) AlgaeTraits: a trait database for (European) seaweeds. Earth System Science Data 15:2711-2754.",
+    download_fn = function(url, dest) {
+      download_and_unzip(url, dest, pattern = NULL)
+    },
+    parse_fn    = parse_algae_traits,
+    group_col   = NULL,
+    requires    = character(0)
+  ),
+
+  fish_traits = list(
+    source_url  = "https://ndownloader.figshare.com/files/28672242",
+    source_doi  = "10.6084/m9.figshare.14891412",
+    version     = "1.0",
+    license     = "CC BY 4.0",
+    attribution = "Brosse S et al. (2021) FISHMORPH: A global database on morphological traits of freshwater fishes. Global Ecology and Biogeography 30:2330-2336.",
+    download_fn = function(url, dest) {
+      download_curl_file(url, dest, "FISHMORPH_Database.csv")
+    },
+    parse_fn    = parse_fish_traits,
+    group_col   = NULL,
+    requires    = character(0)
+  ),
+
+  lizard_traits = list(
+    source_url  = "https://ndownloader.figshare.com/files/10243295",
+    source_doi  = "10.6084/m9.figshare.5765553",
+    version     = "2018.1",
+    license     = "CC BY 4.0",
+    attribution = "Meiri S (2018) Traits of lizards of the world: Variation around a successful evolutionary design. Global Ecology and Biogeography 27:1168-1172.",
+    download_fn = function(url, dest) {
+      download_curl_file(url, dest, "Meiri_2018_lizard_traits.xlsx")
+    },
+    parse_fn    = parse_lizard_traits,
+    group_col   = NULL,
+    requires    = "openxlsx2"
   )
 )
 
@@ -1878,7 +2526,8 @@ build_enrichment_from_source <- function(name, url = NULL, verbose = TRUE) {
     source_doi  = if (!is.null(url)) NULL else reg$source_doi,
     license     = reg$license,
     attribution = reg$attribution,
-    group_col   = reg$group_col
+    group_col   = reg$group_col,
+    name_col    = reg$name_col %||% "canonical_name"
   )
 
   if (verbose) {
