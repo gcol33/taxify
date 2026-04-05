@@ -164,7 +164,7 @@ taxify(plant_names) |>
 
 ### Keeping enrichments up to date
 
-Pre-built enrichment files are updated periodically, but you can always rebuild from source to get the latest upstream data:
+Pre-built enrichment files are updated roughly every six months, but you can always rebuild from source to get the latest upstream data:
 
 ```r
 # Rebuild a single enrichment from its original source
