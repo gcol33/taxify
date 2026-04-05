@@ -728,6 +728,12 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     }
   }
 
+  if (verbose && length(groups) > 1L &&
+      is.null(.taxify_env[[".taxify_long_tip_shown"]])) {
+    message("Tip: pipe into taxify_long() to reshape wide columns to long format.")
+    .taxify_env[[".taxify_long_tip_shown"]] <- TRUE
+  }
+
   # Build output column names and initialize with correct NA types
   out_cols <- character(0L)
   for (g in groups) {
