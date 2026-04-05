@@ -164,19 +164,20 @@ taxify(plant_names) |>
 
 ### Keeping enrichments up to date
 
-Pre-built enrichment files are updated roughly every six months, but you can always rebuild from source to get the latest upstream data:
+Pre-built enrichment files are updated roughly every six months, but you can always rebuild from source to get the latest upstream data. The build pipeline handles all processing steps (cleaning, deduplication, country mapping, etc.):
 
 ```r
-# Rebuild a single enrichment from its original source
+# Rebuild from the default upstream source
 build_enrichment_from_source("conservation_status")
 
-# Rebuild all non-static enrichments
-for (e in c("conservation_status", "griis", "wcvp", "common_names")) {
-  build_enrichment_from_source(e)
-}
+# Point at a newer release URL (same format, newer data)
+build_enrichment_from_source(
+  "alien_first_records",
+  url = "https://figshare.com/ndownloader/articles/6192923/versions/4"
+)
 ```
 
-Alternatively, if you have your own version of a dataset (e.g., a newer IUCN export, a regional checklist), use `add_data()` to join it directly:
+For datasets not in the built-in registry, use `add_data()` to join any external file directly:
 
 ### Custom data
 

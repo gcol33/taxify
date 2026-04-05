@@ -1799,15 +1799,35 @@ parse_ott_common_names <- function(dir_path) {
 
 #' Build an enrichment .vtr from original source data
 #'
-#' Downloads the original source data, parses it, and writes a local .vtr file
-#' with metadata. Used as a fallback when pre-built .vtr files are unavailable.
+#' Downloads the original source data, parses it using the enrichment's
+#' built-in pipeline (cleaning, deduplication, country mapping, etc.), and
+#' writes a local `.vtr` file. Use this to rebuild an enrichment with the
+#' latest upstream data, or point it at a custom URL for a newer release.
 #'
-#' @param name Character. Enrichment identifier (must be a key in the build
-#'   registry, e.g., `"woodiness"`, `"eive"`, `"conservation_status"`).
+#' @param name Character. Enrichment identifier (e.g., `"conservation_status"`,
+#'   `"griis"`, `"alien_first_records"`). See `list_enrichments()` for
+#'   available names.
+#' @param url Character or `NULL`. Custom source URL to download from instead
+#'   of the default. The same download and parse pipeline is used, so the file
+#'   at the URL must have the same format as the original source. Default
+#'   `NULL` (use the registry's built-in URL).
 #' @param verbose Logical. Print progress messages. Default `TRUE`.
-#' @return Path to the built .vtr file (invisibly).
-#' @noRd
-build_enrichment_from_source <- function(name, verbose = TRUE) {
+#' @return Path to the built `.vtr` file (invisibly).
+#'
+#' @examples
+#' \dontrun{
+#' # Rebuild from default source
+#' build_enrichment_from_source("conservation_status")
+#'
+#' # Rebuild from a newer release URL
+#' build_enrichment_from_source(
+#'   "alien_first_records",
+#'   url = "https://figshare.com/ndownloader/articles/6192923/versions/4"
+#' )
+#' }
+#'
+#' @export
+build_enrichment_from_source <- function(name, url = NULL, verbose = TRUE) {
   reg <- .enrichment_build_registry[[name]]
   if (is.null(reg)) {
     available <- paste(names(.enrichment_build_registry), collapse = ", ")
@@ -1827,12 +1847,13 @@ build_enrichment_from_source <- function(name, verbose = TRUE) {
     }
   }
 
+  source_url <- url %||% reg$source_url
   if (verbose) message(sprintf("Building enrichment '%s' from source...", name))
 
   # Download raw source
   dl_dir <- file.path(tempdir(), "taxify_enrichment_build", name)
   if (verbose) message("  Downloading source data...")
-  source_path <- reg$download_fn(reg$source_url, dl_dir)
+  source_path <- reg$download_fn(source_url, dl_dir)
 
   # Parse to data.frame
   if (verbose) message("  Parsing...")
@@ -1852,9 +1873,9 @@ build_enrichment_from_source <- function(name, verbose = TRUE) {
   build_local_enrichment_vtr(
     df, vtr_path,
     name        = name,
-    version     = reg$version,
-    source_url  = reg$source_url,
-    source_doi  = reg$source_doi,
+    version     = if (!is.null(url)) format(Sys.Date(), "%Y.%m") else reg$version,
+    source_url  = source_url,
+    source_doi  = if (!is.null(url)) NULL else reg$source_doi,
     license     = reg$license,
     attribution = reg$attribution,
     group_col   = reg$group_col
