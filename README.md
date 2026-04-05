@@ -177,7 +177,7 @@ build_enrichment_from_source(
 )
 ```
 
-For datasets not in the built-in registry, use `add_data()` to join any external file directly:
+Alternatively, if you have your own version of a dataset (e.g., a newer IUCN export, a regional checklist), use `add_data()` to join it directly:
 
 ### Custom data
 
