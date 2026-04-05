@@ -15,6 +15,13 @@
 #' @export
 print.taxify_result <- function(x, ...) {
   NextMethod()
+  meta <- attr(x, "taxify_meta")
+  if (!is.null(meta)) {
+    footer <- cite_footer(meta)
+    if (nzchar(footer)) {
+      cat(sprintf("Sources: %s | cite() for full citations\n", footer))
+    }
+  }
   invisible(x)
 }
 

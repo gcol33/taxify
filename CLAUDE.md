@@ -2,7 +2,7 @@
 
 ## What is taxify
 
-An R package for offline taxonomic name matching against local Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS). Replaces taxize (removed from CRAN) and WorldFlora (WFO-only, painful at scale).
+An R package for offline taxonomic name matching against local Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med). Replaces taxize (removed from CRAN) and WorldFlora (WFO-only, painful at scale).
 
 ## Architecture
 
@@ -46,14 +46,17 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 | `R/taxify.R` | Main `taxify()` + `taxify_single()` — user-facing entry point, multi-backend fallback |
 | `R/clean.R` | Name cleaning pipeline (qualifiers, authorship, brackets, whitespace) |
 | `R/hybrid.R` | Hybrid detection (`detect_hybrid`) and formula parsing (`parse_hybrid_formula`) |
-| `R/backend.R` | S3 generic definitions + `resolve_backend()` |
-| `R/backend-wfo.R` | WFO backend: download from Zenodo, classification.txt → .vtr |
-| `R/backend-col.R` | COL backend: download from ChecklistBank, Taxon.tsv → .vtr (strips namespace prefixes, builds canonicalName) |
-| `R/backend-gbif.R` | GBIF backend: download simple.txt.gz (no header, positional cols), denormalizes family_key, synonym via parent_key |
-| `R/backend-itis.R` | ITIS backend: download SQLite dump from itis.gov, hierarchy walk for family/genus, synonym_links table |
-| `R/backend-ncbi.R` | NCBI Taxonomy: taxdump.tar.gz, pipe-delimited .dmp files, hierarchy walk, synonyms as separate name rows |
-| `R/backend-ott.R` | Open Tree of Life: OTT taxonomy archive, pipe-delimited taxonomy.tsv + synonyms.tsv, hierarchy walk |
-| `R/backend-worms.R` | WoRMS: DwC-A from GBIF ChecklistBank, LSID→AphiaID extraction, denormalized classification |
+| `R/backend.R` | S3 generics, `resolve_backend()`, shared matching engine (`match_exact_compiled`, `fuzzy_match_via_join`), `compile_backbone()` + `precompute_keys()` (build-time, used by fallback) |
+| `R/backend-wfo.R` | WFO: constructor + build-from-source fallback (`taxify_download.taxify_wfo`) |
+| `R/backend-col.R` | COL: constructor + build-from-source fallback (`taxify_download.taxify_col`) |
+| `R/backend-gbif.R` | GBIF: constructor + build-from-source fallback (`taxify_download.taxify_gbif`) |
+| `R/backend-itis.R` | ITIS: constructor + build-from-source fallback (`taxify_download.taxify_itis`) |
+| `R/backend-ncbi.R` | NCBI: constructor + build-from-source fallback (`taxify_download.taxify_ncbi`) |
+| `R/backend-ott.R` | OTT: constructor + build-from-source fallback (`taxify_download.taxify_ott`) |
+| `R/backend-worms.R` | WoRMS: constructor + build-from-source fallback (`taxify_download.taxify_worms`) |
+| `R/backend-euromed.R` | Euro+Med: constructor + build-from-source fallback (`taxify_download.taxify_euromed`) |
+| `R/backend-fungorum.R` | Index Fungorum: constructor + build-from-source fallback |
+| `R/backend-algaebase.R` | AlgaeBase: constructor + build-from-source fallback |
 | `R/cache.R` | Backbone path caching + `taxify_data_dir()` + `ensure_backbone()` |
 | `R/pick.R` | Best-match selection (ACCEPTED > SYNONYM, SPECIES > higher, smallest ID) |
 | `R/add-hybrid-info.R` | Pipe extension: hybrid parents and type |
@@ -61,16 +64,27 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 | `R/add-col-info.R` | Pipe extension: COL extras (notho, nomenclaturalCode, kingdom/phylum/class/order, extinct/marine via SpeciesProfile) |
 | `R/add-gbif-info.R` | Pipe extension: GBIF extras (notho_type, nom_status, bracket_authorship, year, origin) |
 | `R/add-qualifier-info.R` | Pipe extension: qualifier extraction |
+| `R/register.R` | Genus register: `build_genus_register()`, `build_backend_coverage()`, 8 extractors, classification resolution, kingdom inference pipeline |
 | `R/taxify-package.R` | Package doc, imports, `.onLoad()`, globalVariables |
 
 ## Backends
 
-Seven backends implemented: WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS. Adding a backend requires:
-1. Constructor function (e.g., `col_backend()`)
-2. S3 methods: `taxify_download`, `taxify_load`, `match_exact`, `match_fuzzy`
-3. Register in `resolve_backend()` switch
+Ten backends implemented: WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Fungorum, AlgaeBase. Eight have pre-built `.vtr` files in taxify-backbones (all except Fungorum and AlgaeBase). Adding a backend requires:
 
-**Build pipeline separation:** The taxify package contains backend R code (S3 methods, matching logic, build-from-source fallback). Pre-built `.vtr` files are built by the separate `taxify-backbones` repo (`C:\Users\Gilles Colling\Documents\dev\taxify-backbones`), which has its own shared normalize/precompute/build pipeline and CI workflows.
+**In taxify-backbones (canonical build pipeline):**
+1. `backends/<name>/download.R` — download raw source
+2. `backends/<name>/convert.R` — parse raw → data.frame → `precompute_backbone()` → `build_vtr()`
+3. Wire into CI workflow
+
+**In taxify (runtime):**
+1. Constructor function (e.g., `col_backend()`) with `col_map` defining column names
+2. Register in `resolve_backend()` switch
+3. Optionally: `taxify_download.*` build-from-source fallback (for users without pre-built .vtr)
+4. **Integrate into the unified genus register.** Each backend needs an `extract_*_genera()` function that pulls genus-rank rows (including `kingdom` if available) from its `.vtr`, and must be wired into `build_genus_register()` and `build_backend_coverage()`. If the backend uses non-standard kingdom names (like NCBI's clade names), add mappings to `normalize_kingdom_names()`. Always: (a) add the extractor, (b) register it in the backends list inside `build_genus_register()`, (c) rebuild the register, (d) test that species in genera unique to the new backend match correctly.
+
+Runtime matching (`match_exact`, `match_fuzzy`) uses the shared engine in `backend.R` — all backends use `match_exact_compiled()` and `fuzzy_match_via_join()` via the default S3 methods. No per-backend matching code needed unless the schema diverges.
+
+**Build pipeline separation:** All backbone and enrichment `.vtr` building is done by the `taxify-backbones` repo (`C:\Users\Gilles Colling\Documents\dev\taxify-backbones`), which has the canonical download, parse, normalize, precompute, and build pipeline with CI workflows. The taxify package is **runtime-only**: S3 generics, matching logic, enrichment joins, cache management. The `taxify_download.*` methods and `enrichment-build.R` in taxify are **build-from-source fallbacks** for users without pre-built `.vtr` files — they should not be the primary development target. When adding or modifying a backend: implement the build pipeline in taxify-backbones first, then wire the runtime matching in taxify. Never duplicate build logic between the two repos.
 
 ### Backend-specific notes
 
@@ -81,10 +95,38 @@ Seven backends implemented: WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS. Adding a bac
 - **NCBI**: `taxdump.tar.gz` with pipe-delimited `.dmp` files (names.dmp, nodes.dmp). Unified schema. Synonyms are alternative name rows for the same `tax_id`, emitted as separate rows with synthetic IDs (`tax_id_syn_N`). Family/genus via hierarchy walk. No authorship data. Aggressive noise filtering (environmental samples, unclassified, metagenomes).
 - **OTT**: OTT taxonomy archive (`taxonomy.tsv` + `synonyms.tsv`, pipe-delimited). Unified schema. Synthetic taxonomy combining NCBI, GBIF, WoRMS, IRMNG. Status derived from flags column. Family/genus via hierarchy walk. Cross-references to source databases via `sourceinfo` column.
 - **WoRMS**: DwC-A from GBIF ChecklistBank (dataset 1010). Unified schema. Marine-focused. `taxonID` may be LSID (stripped to numeric AphiaID). Status uses `accepted`/`unaccepted` (mapped to standard). Classification denormalized (no hierarchy walk). `SpeciesProfile.tsv` has habitat flags.
+- **Euro+Med**: Semicolon-delimited CSV from Euro+Med PlantBase (2020 v1.2 snapshot). Unified schema. UUID-based IDs (`TaxonUsageID`). European/Mediterranean vascular plants (~49k accepted, ~83k synonyms, 222 families). Status uses `Taxon`/`Synonym`/`Misapplication`/`p.p. Synonym` (mapped to ACCEPTED/SYNONYM). Family/genus via hierarchy walk on accepted rows (`IsChildTaxonOfID`); synonyms inherit from accepted taxon via `TaxonConceptID`. Authorship extracted by subtracting `TaxonName` from `fullname` (special handling for infraspecific autonyms). License: CC-BY-SA-3.0. Frozen 2020 baseline stored as `euromed_2020.vtr` in taxify-backbones; delta refresh pipeline planned.
+
+## Genus Register
+
+`genus_register.vtr` is the union of all genera across all 8 installed backends (499k+ genera). Built by `build_genus_register()` in `R/register.R`, stored at `taxify_data_dir()/unified/latest/`. Used by exact matching for genus-level filtering.
+
+### Register columns
+
+`genus`, `kingdom`, `phylum`, `class`, `order`, `family`, `kingdom_group`, `taxon_group`, `life_form`
+
+### Build pipeline (in order)
+
+1. **Extract** genus-rank rows from each installed backend via `extract_*_genera()` (8 extractors)
+2. **Resolve conflicts** via `resolve_genus_classification()` — priority: WoRMS > COL > GBIF > Euro+Med > ITIS > NCBI > OTT > WFO. First non-NA value per classification column wins.
+3. **Normalize kingdom names** via `normalize_kingdom_names()` — maps NCBI clade names (Pseudomonadati → Bacteria, Bacillati → Bacteria, Metazoa → Animalia, Viridiplantae → Plantae, *virae → Viruses) and OTT names (Archaeplastida/Chloroplastida → Plantae) to standard kingdoms
+4. **Assign life forms** via `assign_life_form()` — family-based lookup for kingdom_group/taxon_group/life_form
+5. **GBIF hierarchy walk** via `resolve_kingdom_via_gbif()` — for remaining unknowns, walks GBIF parent_key chain to KINGDOM rank. Majority-vote for homonymous genera (e.g., Escherichia in both Bacteria and Animalia).
+6. **Kingdom ↔ kingdom_group reconciliation** — authoritative kingdom (WoRMS/COL) overrides GBIF-derived kingdom_group; kingdom backfilled from kingdom_group where still NA
+7. **Family-based inference** via `infer_kingdom_from_family()` — for genera with known family but no kingdom, inherits from majority kingdom of other genera in that family
+8. **Pattern-based inference** — viral families (*viridae, *satellitidae), viral genus names (*virus), Candidatus prefix → Bacteria
+
+Current coverage: ~98.9% kingdom populated (5.6k truly unclassifiable genera remain — mostly obscure COL entries with no family or kingdom in any backend).
+
+### Backend coverage
+
+`backend_coverage.vtr` tracks which backends cover each genus. Built by `build_backend_coverage()`, same location. Used by `taxify_register_coverage()` for diagnostics.
 
 ## Enrichments
 
-Enrichment layers join external trait/status data to taxify results via `accepted_name == canonical_name`. 12 enrichments available: conservation_status, griis, wcvp, eive, elton_traits, avonet, pantheria, amphibio, common_names, woodiness, diaz_traits, leda.
+taxify is free and open-source and will remain so. All enrichment data must be redistributable under open licenses (CC0, CC-BY, CC-BY-SA, CC-BY-NC are all fine). Datasets requiring data sharing agreements, registration-gated access with no stated license, or "all rights reserved" copyright cannot be included.
+
+Enrichment layers join external trait/status data to taxify results via `accepted_name == canonical_name`. 17 enrichments available: conservation_status, griis, wcvp, eive, elton_traits, avonet, pantheria, amphibio, common_names, woodiness, diaz_traits, leda, anage, glonaf, leptraits, animaltraits, arthropod_traits.
 
 ### Enrichment architecture
 
@@ -127,7 +169,7 @@ Group-based enrichments (griis, wcvp, common_names) resolve `groups = "all"` fro
 
 ### Build registry (not S3)
 
-`R/enrichment-build.R` uses a registry pattern (`.enrichment_build_registry`): each enrichment is a list with `{source_url, download_fn, parse_fn, requires, ...}`. 12 entries share generic download helpers (`download_curl_file`, `download_and_unzip`, `download_gbif_api_pages`) + per-enrichment parse functions (~20-50 lines each). The `common_names` entry downloads three sources (GBIF backbone, NCBI taxdump, OTT taxonomy) and `parse_common_names()` merges them via three sub-parsers (`parse_gbif_common_names`, `parse_ncbi_common_names`, `parse_ott_common_names`). GBIF provides ISO 639-1 language codes; NCBI and OTT common names have `lang = NA`.
+`R/enrichment-build.R` uses a registry pattern (`.enrichment_build_registry`): each enrichment is a list with `{source_url, download_fn, parse_fn, requires, ...}`. 24 entries share generic download helpers (`download_curl_file`, `download_and_unzip`, `download_gbif_api_pages`) + per-enrichment parse functions (~20-50 lines each). The `common_names` entry downloads three sources (GBIF backbone, NCBI taxdump, OTT taxonomy) and `parse_common_names()` merges them via three sub-parsers (`parse_gbif_common_names`, `parse_ncbi_common_names`, `parse_ott_common_names`). GBIF provides ISO 639-1 language codes; NCBI and OTT common names have `lang = NA`.
 
 `R/enrichment-vtr.R` has `build_local_enrichment_vtr()` — sorts by canonical_name, writes .vtr with indexes, extracts `available_groups` from group column, writes meta.json sidecar (including `static`, `group_col`, `available_groups`).
 
@@ -169,6 +211,11 @@ Group-based enrichments (griis, wcvp, common_names) have an `available_groups` f
 | `R/add-woodiness.R` | `add_woodiness()` — Zanne et al. woody/herbaceous |
 | `R/add-diaz-traits.R` | `add_diaz_traits()` — Diaz et al. seed mass + plant height |
 | `R/add-leda.R` | `add_leda()` — LEDA NW European plant traits |
+| `R/add-anage.R` | `add_anage()` — AnAge longevity and life-history traits |
+| `R/add-glonaf.R` | `add_glonaf()` — GloNAF naturalized alien flora by region |
+| `R/add-leptraits.R` | `add_leptraits()` — LepTraits butterfly traits (wingspan, voltinism, habitat) |
+| `R/add-animaltraits.R` | `add_animaltraits()` — AnimalTraits cross-taxon body mass and metabolic rate |
+| `R/add-arthropod-traits.R` | `add_arthropod_traits()` — NW European arthropod life-history traits |
 
 ## Multi-backend fallback
 

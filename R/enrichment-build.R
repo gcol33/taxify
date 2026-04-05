@@ -2067,6 +2067,499 @@ parse_lizard_traits <- function(path) {
 }
 
 
+#' Parse LepTraits 1.0 butterfly consensus CSV
+#' @noRd
+parse_leptraits <- function(path) {
+  df <- read.csv(path, stringsAsFactors = FALSE)
+
+  # Species column: "Species" contains full binomial
+  name_col <- intersect(names(df), c("Species", "species", "Scientific"))
+  if (length(name_col) == 0L) name_col <- names(df)[1L] else name_col <- name_col[1L]
+
+  safe_num <- function(col_name) {
+    if (is.null(col_name) || !col_name %in% names(df)) {
+      return(rep(NA_real_, nrow(df)))
+    }
+    suppressWarnings(as.numeric(df[[col_name]]))
+  }
+
+  safe_chr <- function(col_name) {
+    if (is.null(col_name) || !col_name %in% names(df)) {
+      return(rep(NA_character_, nrow(df)))
+    }
+    x <- as.character(df[[col_name]])
+    x[x == "" | x == "NA"] <- NA_character_
+    trimws(x)
+  }
+
+  # Wingspan: midpoint of WS_L and WS_U (lower/upper bounds, mm)
+  ws_l <- safe_num("WS_L")
+  ws_u <- safe_num("WS_U")
+  wingspan_mm <- ifelse(!is.na(ws_l) & !is.na(ws_u), (ws_l + ws_u) / 2,
+                 ifelse(!is.na(ws_l), ws_l,
+                 ifelse(!is.na(ws_u), ws_u, NA_real_)))
+
+  # Flight months: sum of month columns (Jan..Dec)
+  month_cols <- intersect(
+    names(df),
+    c("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+  )
+  if (length(month_cols) > 0L) {
+    month_mat <- as.matrix(df[, month_cols, drop = FALSE])
+    month_mat <- suppressWarnings(apply(month_mat, 2L, as.numeric))
+    flight_months <- as.integer(rowSums(month_mat, na.rm = TRUE))
+    flight_months[rowSums(!is.na(month_mat)) == 0L] <- NA_integer_
+  } else {
+    flight_months <- safe_num("FlightDuration")
+  }
+
+  out <- data.frame(
+    canonical_name       = trimws(df[[name_col]]),
+    wingspan_mm          = wingspan_mm,
+    voltinism            = safe_num("Voltinism"),
+    diapause_stage       = safe_chr("DiapauseStage"),
+    canopy_affinity      = safe_chr("CanopyAffinity"),
+    edge_affinity        = safe_chr("EdgeAffinity"),
+    moisture_affinity    = safe_chr("MoistureAffinity"),
+    disturbance_affinity = safe_chr("DisturbanceAffinity"),
+    n_hostplant_families = suppressWarnings(as.integer(df[["NumberOfHostplantFamilies"]])),
+    flight_months        = flight_months,
+    stringsAsFactors = FALSE
+  )
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+  # Remove entries without any trait data
+  trait_cols <- setdiff(names(out), "canonical_name")
+  has_data <- rowSums(!is.na(out[, trait_cols, drop = FALSE])) > 0L
+  out <- out[has_data, ]
+  out[!duplicated(out$canonical_name), ]
+}
+
+
+#' Parse AnimalTraits observations CSV (aggregate to species medians)
+#' @noRd
+parse_animaltraits <- function(path) {
+  df <- read.csv(path, stringsAsFactors = FALSE, fileEncoding = "UTF-8")
+
+  # Species column: "species" contains full binomial
+  name_col <- intersect(names(df), c("species", "Species", "scientificName"))
+  if (length(name_col) == 0L) name_col <- names(df)[1L] else name_col <- name_col[1L]
+
+  # Body mass column has spaces in name
+  bm_col <- intersect(names(df), c("body.mass", "body mass", "Body.mass"))
+  if (length(bm_col) == 0L) {
+    bm_col <- grep("^body[._]?mass$", names(df), ignore.case = TRUE, value = TRUE)
+  }
+  mr_col <- intersect(names(df), c("metabolic.rate", "metabolic rate",
+                                    "Metabolic.rate"))
+  if (length(mr_col) == 0L) {
+    mr_col <- grep("^metabolic[._]?rate$", names(df), ignore.case = TRUE,
+                   value = TRUE)
+  }
+
+  canonical <- trimws(df[[name_col]])
+
+  bm <- if (length(bm_col) > 0L) {
+    suppressWarnings(as.numeric(df[[bm_col[1L]]]))
+  } else {
+    rep(NA_real_, nrow(df))
+  }
+
+  mr <- if (length(mr_col) > 0L) {
+    suppressWarnings(as.numeric(df[[mr_col[1L]]]))
+  } else {
+    rep(NA_real_, nrow(df))
+  }
+
+  obs <- data.frame(
+    canonical_name = canonical,
+    body_mass_kg   = bm,
+    metabolic_rate_w = mr,
+    stringsAsFactors = FALSE
+  )
+  obs <- obs[!is.na(obs$canonical_name) & nchar(obs$canonical_name) > 0L, ]
+
+  # Aggregate to species medians
+  species <- unique(obs$canonical_name)
+  out <- data.frame(
+    canonical_name   = species,
+    body_mass_kg     = NA_real_,
+    metabolic_rate_w = NA_real_,
+    stringsAsFactors = FALSE
+  )
+
+  idx <- match(obs$canonical_name, species)
+  bm_split <- split(obs$body_mass_kg, idx)
+  mr_split <- split(obs$metabolic_rate_w, idx)
+
+  out$body_mass_kg <- vapply(bm_split, function(x) {
+    x <- x[!is.na(x) & x > 0]
+    if (length(x) == 0L) NA_real_ else stats::median(x)
+  }, numeric(1L))
+
+  out$metabolic_rate_w <- vapply(mr_split, function(x) {
+    x <- x[!is.na(x) & x > 0]
+    if (length(x) == 0L) NA_real_ else stats::median(x)
+  }, numeric(1L))
+
+  has_data <- !is.na(out$body_mass_kg) | !is.na(out$metabolic_rate_w)
+  out[has_data, ]
+}
+
+
+#' Parse NW European Arthropod DwC-A (taxon + measurement + description)
+#' @noRd
+parse_arthropod_traits <- function(dir_path) {
+  # Find files (DwC-A uses .txt extension)
+  find_file <- function(patterns) {
+    for (p in patterns) {
+      f <- list.files(dir_path, pattern = p, full.names = TRUE,
+                      recursive = TRUE, ignore.case = TRUE)
+      if (length(f) > 0L) return(f[1L])
+    }
+    NULL
+  }
+
+  taxon_file <- find_file(c("taxon\\.txt$", "taxon\\.csv$"))
+  mof_file <- find_file(c("measurementorfact", "measurement"))
+  desc_file <- find_file(c("description\\.txt$", "description\\.csv$"))
+
+  if (is.null(taxon_file)) {
+    stop("Cannot find taxon file in DwC archive.\nContents: ",
+         paste(list.files(dir_path, recursive = TRUE), collapse = ", "),
+         call. = FALSE)
+  }
+
+  # Read taxon core
+  taxon <- read.delim(taxon_file, stringsAsFactors = FALSE, quote = "")
+
+  # Species names: strip authorship from scientificName
+  name_col <- intersect(names(taxon), c("scientificName", "canonicalName",
+                                         "species"))
+  if (length(name_col) == 0L) name_col <- names(taxon)[2L] else name_col <- name_col[1L]
+  raw_names <- taxon[[name_col]]
+
+  # Strip authorship: keep only first two words (genus + species)
+  canonical <- vapply(raw_names, function(n) {
+    parts <- strsplit(trimws(n), "\\s+")[[1L]]
+    if (length(parts) >= 2L) paste(parts[1L], parts[2L]) else trimws(n)
+  }, character(1L), USE.NAMES = FALSE)
+
+  # ID column for joining
+  id_col <- intersect(names(taxon), c("id", "taxonID", "ID"))
+  if (length(id_col) == 0L) id_col <- names(taxon)[1L] else id_col <- id_col[1L]
+
+  out <- data.frame(
+    canonical_name = canonical,
+    taxon_id       = taxon[[id_col]],
+    stringsAsFactors = FALSE
+  )
+
+  # ---- Quantitative traits from measurementorfact ----
+  if (!is.null(mof_file)) {
+    mof <- read.delim(mof_file, stringsAsFactors = FALSE, quote = "")
+    mof_id <- intersect(names(mof), c("id", "taxonID", "coreid"))
+    if (length(mof_id) == 0L) mof_id <- names(mof)[1L] else mof_id <- mof_id[1L]
+
+    type_col <- intersect(names(mof), c("measurementType", "type"))
+    if (length(type_col) == 0L) type_col <- names(mof)[2L] else type_col <- type_col[1L]
+    val_col <- intersect(names(mof), c("measurementValue", "value"))
+    if (length(val_col) == 0L) val_col <- names(mof)[3L] else val_col <- val_col[1L]
+
+    # Map measurementType to output column names
+    quant_map <- c(
+      "Body_size"        = "body_size_mm",
+      "Dispersal_ability" = "dispersal",
+      "Voltinism_mean"   = "voltinism",
+      "Fecundity"        = "fecundity",
+      "Development_time" = "development_d",
+      "Lifespan"         = "lifespan_d",
+      "Thermal_mean"     = "thermal_mean"
+    )
+
+    for (mtype in names(quant_map)) {
+      out_col <- quant_map[[mtype]]
+      rows <- mof[[type_col]] == mtype
+      if (!any(rows)) {
+        out[[out_col]] <- NA_real_
+        next
+      }
+      sub <- mof[rows, c(mof_id, val_col), drop = FALSE]
+      names(sub) <- c("taxon_id", "val")
+      sub$val <- suppressWarnings(as.numeric(sub$val))
+      sub <- sub[!is.na(sub$val), ]
+      sub <- sub[!duplicated(sub$taxon_id), ]
+      idx <- match(out$taxon_id, sub$taxon_id)
+      out[[out_col]] <- sub$val[idx]
+    }
+  }
+
+  # ---- Categorical traits from description ----
+  if (!is.null(desc_file)) {
+    desc <- read.delim(desc_file, stringsAsFactors = FALSE, quote = "")
+    desc_id <- intersect(names(desc), c("id", "taxonID", "coreid"))
+    if (length(desc_id) == 0L) desc_id <- names(desc)[1L] else desc_id <- desc_id[1L]
+
+    desc_col <- intersect(names(desc), c("description", "value"))
+    if (length(desc_col) == 0L) desc_col <- names(desc)[2L] else desc_col <- desc_col[1L]
+    type_col2 <- intersect(names(desc), c("type", "measurementType"))
+    if (length(type_col2) == 0L) type_col2 <- names(desc)[3L] else type_col2 <- type_col2[1L]
+
+    cat_map <- c(
+      "Diurnality"         = "diurnality",
+      "Feeding_guild_adult" = "feeding_guild",
+      "Trophic_range_adult" = "trophic_range"
+    )
+
+    for (dtype in names(cat_map)) {
+      out_col <- cat_map[[dtype]]
+      rows <- desc[[type_col2]] == dtype
+      if (!any(rows)) {
+        out[[out_col]] <- NA_character_
+        next
+      }
+      sub <- desc[rows, c(desc_id, desc_col), drop = FALSE]
+      names(sub) <- c("taxon_id", "val")
+      sub$val <- trimws(sub$val)
+      sub$val[sub$val == "" | sub$val == "NA"] <- NA_character_
+      sub <- sub[!duplicated(sub$taxon_id), ]
+      idx <- match(out$taxon_id, sub$taxon_id)
+      out[[out_col]] <- sub$val[idx]
+    }
+  }
+
+  # Drop taxon_id helper column
+  out$taxon_id <- NULL
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+  trait_cols <- setdiff(names(out), "canonical_name")
+  has_data <- rowSums(!is.na(out[, trait_cols, drop = FALSE])) > 0L
+  out <- out[has_data, ]
+  out[!duplicated(out$canonical_name), ]
+}
+
+
+#' Parse AnAge longevity and life-history traits (TSV from ZIP)
+#' @noRd
+parse_anage <- function(path) {
+  df <- read.delim(path, stringsAsFactors = FALSE, quote = "")
+
+  # Species column: genus + species binomial
+  genus_col <- intersect(names(df), c("Genus", "genus"))
+  sp_col <- intersect(names(df), c("Species", "species"))
+
+  if (length(genus_col) > 0L && length(sp_col) > 0L) {
+    canonical <- trimws(paste(df[[genus_col[1L]]], df[[sp_col[1L]]]))
+  } else {
+    # Fallback: look for a combined name column
+    name_col <- intersect(
+      names(df),
+      c("Scientific_name", "ScientificName", "scientific_name",
+        "Common_name", "Binomial")
+    )
+    if (length(name_col) == 0L) name_col <- names(df)[1L] else name_col <- name_col[1L]
+    canonical <- trimws(df[[name_col]])
+  }
+
+  find_col <- function(patterns) {
+    for (p in patterns) {
+      m <- grep(p, names(df), ignore.case = TRUE, value = TRUE)
+      if (length(m) > 0L) return(m[1L])
+    }
+    NULL
+  }
+
+  safe_num <- function(col_name) {
+    if (is.null(col_name)) return(rep(NA_real_, nrow(df)))
+    x <- suppressWarnings(as.numeric(df[[col_name]]))
+    x[x < 0] <- NA_real_  # sentinel values
+    x
+  }
+
+  # Maximum longevity: stored in years in AnAge
+  longevity_col <- find_col(c(
+    "Maximum.longevity..yrs.", "Maximum_longevity_yrs",
+    "Maximum.longevity", "MaxLongevity", "max_longevity"
+  ))
+
+  out <- data.frame(
+    canonical_name         = canonical,
+    max_longevity_yr       = safe_num(longevity_col),
+    body_mass_g            = safe_num(find_col(c(
+      "Body.mass..g.", "Body_mass_g", "Adult.weight..g.",
+      "AdultWeight", "body_mass"
+    ))),
+    metabolic_rate_w       = safe_num(find_col(c(
+      "Metabolic.rate..W.", "Metabolic_rate_W", "MetabolicRate",
+      "metabolic_rate"
+    ))),
+    female_maturity_d      = safe_num(find_col(c(
+      "Female.maturity..days.", "Female_maturity_days",
+      "FemaleMaturity", "female_maturity"
+    ))),
+    male_maturity_d        = safe_num(find_col(c(
+      "Male.maturity..days.", "Male_maturity_days",
+      "MaleMaturity", "male_maturity"
+    ))),
+    gestation_incubation_d = safe_num(find_col(c(
+      "Gestation.Incubation..days.", "Gestation_Incubation_days",
+      "GestationIncubation", "gestation_incubation"
+    ))),
+    litter_size            = safe_num(find_col(c(
+      "Litter.Clutch.size", "Litter_Clutch_size",
+      "LitterClutchSize", "litter_clutch_size"
+    ))),
+    birth_mass_g           = safe_num(find_col(c(
+      "Birth.weight..g.", "Birth_weight_g",
+      "BirthWeight", "birth_weight"
+    ))),
+    growth_rate            = safe_num(find_col(c(
+      "Growth.rate..1.days.", "Growth_rate",
+      "GrowthRate", "growth_rate"
+    ))),
+    temperature_k          = safe_num(find_col(c(
+      "Temperature..K.", "Temperature_K",
+      "Temperature", "temperature"
+    ))),
+    stringsAsFactors = FALSE
+  )
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+  # Remove entries without any trait data
+  trait_cols <- setdiff(names(out), "canonical_name")
+  has_data <- rowSums(!is.na(out[, trait_cols, drop = FALSE])) > 0L
+  out <- out[has_data, ]
+  out[!duplicated(out$canonical_name), ]
+}
+
+
+#' Parse GloNAF taxon-region data (multiple CSVs from ZIP)
+#' @noRd
+parse_glonaf <- function(dir_path) {
+  # GloNAF 2.0 ships as multiple CSVs; we need flora + taxon + region tables
+  find_file <- function(patterns) {
+    for (p in patterns) {
+      f <- list.files(dir_path, pattern = p, full.names = TRUE,
+                      recursive = TRUE, ignore.case = TRUE)
+      if (length(f) > 0L) return(f[1L])
+    }
+    NULL
+  }
+
+  # Main occurrence table: taxon × region
+  flora_file <- find_file(c("glonaf_flora", "flora2?\\.csv"))
+  if (is.null(flora_file)) {
+    # Fallback: try TxR matrix
+    flora_file <- find_file(c("glonaf_TxR", "TxR\\.csv"))
+  }
+  if (is.null(flora_file)) {
+    stop("Cannot find GloNAF flora/TxR CSV in extracted files.\nContents: ",
+         paste(list.files(dir_path, recursive = TRUE), collapse = ", "),
+         call. = FALSE)
+  }
+
+  # Taxon table: maps IDs to species names
+  taxon_file <- find_file(c("glonaf_taxon", "taxon_wcvp"))
+  # Region table: maps region IDs to region codes/names
+  region_file <- find_file(c("glonaf_region", "region\\.csv"))
+
+  flora <- read.csv(flora_file, stringsAsFactors = FALSE)
+
+  # Resolve species names
+  if (!is.null(taxon_file)) {
+    taxon <- read.csv(taxon_file, stringsAsFactors = FALSE)
+    # Find the join key
+    flora_taxon_col <- intersect(
+      names(flora),
+      c("taxon_wcvp_id", "taxon_id", "id", "ID")
+    )
+    taxon_id_col <- intersect(
+      names(taxon),
+      c("id", "taxon_wcvp_id", "taxon_id", "ID")
+    )
+    taxon_name_col <- intersect(
+      names(taxon),
+      c("species_name", "accepted_name", "taxon_name", "name",
+        "scientificName", "canonical_name")
+    )
+
+    if (length(flora_taxon_col) > 0L && length(taxon_id_col) > 0L &&
+        length(taxon_name_col) > 0L) {
+      taxon_lookup <- taxon[, c(taxon_id_col[1L], taxon_name_col[1L])]
+      names(taxon_lookup) <- c("join_key", "canonical_name")
+      taxon_lookup <- taxon_lookup[!duplicated(taxon_lookup$join_key), ]
+      flora$join_key <- flora[[flora_taxon_col[1L]]]
+      flora <- merge(flora, taxon_lookup, by = "join_key", all.x = TRUE)
+    }
+  }
+
+  # If no taxon table or merge failed, look for name column directly
+  if (!"canonical_name" %in% names(flora)) {
+    name_col <- intersect(
+      names(flora),
+      c("species_name", "accepted_name", "taxon_name", "scientificName",
+        "canonical_name", "species")
+    )
+    if (length(name_col) == 0L) {
+      stop("Cannot resolve species names in GloNAF data.", call. = FALSE)
+    }
+    flora$canonical_name <- trimws(flora[[name_col[1L]]])
+  }
+
+  # Resolve region codes
+  if (!is.null(region_file)) {
+    region <- read.csv(region_file, stringsAsFactors = FALSE)
+    region_id_col <- intersect(
+      names(region),
+      c("region_id", "OBJIDsic", "id", "ID")
+    )
+    region_code_col <- intersect(
+      names(region),
+      c("tdwg4_code", "tdwg3_code", "tdwg2_code", "country_code",
+        "region_code", "name")
+    )
+    flora_region_col <- intersect(
+      names(flora),
+      c("region_id", "OBJIDsic", "region")
+    )
+
+    if (length(region_id_col) > 0L && length(region_code_col) > 0L &&
+        length(flora_region_col) > 0L) {
+      region_lookup <- region[, c(region_id_col[1L], region_code_col[1L])]
+      names(region_lookup) <- c("region_join", "region_id")
+      region_lookup <- region_lookup[!duplicated(region_lookup$region_join), ]
+      flora$region_join <- flora[[flora_region_col[1L]]]
+      flora <- merge(flora, region_lookup, by = "region_join", all.x = TRUE)
+    }
+  }
+
+  # If region_id still missing, use the raw region column
+  if (!"region_id" %in% names(flora)) {
+    region_col <- intersect(
+      names(flora),
+      c("region", "OBJIDsic", "region_id_raw")
+    )
+    if (length(region_col) > 0L) {
+      flora$region_id <- as.character(flora[[region_col[1L]]])
+    } else {
+      stop("Cannot resolve region identifiers in GloNAF data.", call. = FALSE)
+    }
+  }
+
+  out <- data.frame(
+    canonical_name = trimws(flora$canonical_name),
+    region_id      = as.character(flora$region_id),
+    naturalized    = 1L,
+    stringsAsFactors = FALSE
+  )
+
+  out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
+  out <- out[!is.na(out$region_id) & nchar(out$region_id) > 0L, ]
+  out[!duplicated(paste(out$canonical_name, out$region_id)), ]
+}
+
+
 # ---- Build registry ----
 
 #' @noRd
@@ -2439,6 +2932,76 @@ parse_lizard_traits <- function(path) {
     parse_fn    = parse_lizard_traits,
     group_col   = NULL,
     requires    = "openxlsx2"
+  ),
+
+  anage = list(
+    source_url  = "https://genomics.senescence.info/species/dataset.zip",
+    source_doi  = "10.1111/j.1420-9101.2009.01783.x",
+    version     = "15.0",
+    license     = "CC BY",
+    attribution = "Tacutu R et al. (2018) Human Ageing Genomic Resources: new and updated databases. Nucleic Acids Research 46:D1083-D1090.",
+    download_fn = function(url, dest) {
+      download_and_unzip(url, dest, "(?i)anage.*\\.txt$")
+    },
+    parse_fn    = parse_anage,
+    group_col   = NULL,
+    requires    = character(0)
+  ),
+
+  glonaf = list(
+    source_url  = "https://zenodo.org/records/13235357/files/GloNAF_V2.zip?download=1",
+    source_doi  = "10.1002/ecy.2542",
+    version     = "2.0",
+    license     = "CC BY 4.0",
+    attribution = "van Kleunen M et al. (2019) The Global Naturalized Alien Flora (GloNAF) database. Ecology 100:e02542.",
+    download_fn = function(url, dest) {
+      download_and_unzip(url, dest, pattern = NULL)
+    },
+    parse_fn    = parse_glonaf,
+    group_col   = "region_id",
+    requires    = character(0)
+  ),
+
+  leptraits = list(
+    source_url  = "https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv",
+    source_doi  = "10.1038/s41597-022-01473-5",
+    version     = "1.0",
+    license     = "CC0",
+    attribution = "Shirey V et al. (2022) LepTraits 1.0: A globally comprehensive dataset of butterfly traits. Scientific Data 9:398.",
+    download_fn = function(url, dest) {
+      download_curl_file(url, dest, "consensus.csv")
+    },
+    parse_fn    = parse_leptraits,
+    group_col   = NULL,
+    requires    = character(0)
+  ),
+
+  animaltraits = list(
+    source_url  = "https://zenodo.org/record/6468938/files/observations.csv?download=1",
+    source_doi  = "10.1038/s41597-022-01364-9",
+    version     = "1.0",
+    license     = "CC0",
+    attribution = "Hebert K et al. (2022) AnimalTraits -- a curated animal trait database for body mass, metabolic rate and brain size. Scientific Data 9:265.",
+    download_fn = function(url, dest) {
+      download_curl_file(url, dest, "observations.csv")
+    },
+    parse_fn    = parse_animaltraits,
+    group_col   = NULL,
+    requires    = character(0)
+  ),
+
+  arthropod_traits = list(
+    source_url  = "https://ipt.biodiversity.be/archive.do?r=arthropod-trait-dataset&v=1.1",
+    source_doi  = "10.3897/BDJ.13.e146785",
+    version     = "1.1",
+    license     = "CC BY-NC",
+    attribution = "Logghe A et al. (2025) An in-depth dataset of northwestern European arthropod life histories and ecological traits. Biodiversity Data Journal 13:e146785.",
+    download_fn = function(url, dest) {
+      download_and_unzip(url, dest, pattern = NULL)
+    },
+    parse_fn    = parse_arthropod_traits,
+    group_col   = NULL,
+    requires    = character(0)
   )
 )
 

@@ -12,12 +12,16 @@
 ^todos\.md$
 ^next-steps\.md$
 ^enrichments_plan\.md$
+^enrichments-todo\.md$
 ^memory$
 ^\.claude
 ^tools$
 ^\.run.*\.R$
+^data-raw$
 ^cran-comments\.md$
 ^codecov\.yml$
 ^\.lintr$
 ^\.unrot$
 ^revdep$
+^doc$
+^Meta$

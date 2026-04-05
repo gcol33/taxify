@@ -254,6 +254,13 @@ precompute_keys <- function(df, name_col, genus_col, epithet_col) {
     NA_character_
   )
 
+  # Compound fuzzy blocking key: genus + first 2 chars of epithet (lowered).
+  # Splits large genera (Hieracium: 31k → ~1k per sub-block) for faster
+  # fuzzy_join while preserving full quality via genus-only fallback.
+  ep_prefix <- ifelse(has_epithet,
+                       tolower(substr(df[[epithet_col]], 1L, 2L)), "")
+  df$fuzzy_block <- paste0(tolower(df[[genus_col]]), ":", ep_prefix)
+
   df
 }
 
@@ -552,13 +559,30 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
     stringsAsFactors = FALSE
   )
 
-  tmp_query <- tempfile(fileext = ".vtr")
-  on.exit(unlink(tmp_query), add = TRUE)
-  vectra::write_vtr(query_df, tmp_query)
+  # --- Pre-filter backbone via block_lookup ---
+  # Instead of fuzzy_join against the full backbone (6.4M rows, slow
+  # materialization), use the already-materialized block to extract only
+  # candidate rows for the relevant genera. This reduces the fuzzy_join
+  # right side from millions of rows to thousands.
+  cache_key <- paste0(".blk_", basename(bb_path))
+  blk <- .taxify_env[[cache_key]]
+  if (is.null(blk)) {
+    blk <- vectra::materialize(vectra::tbl(bb_path))
+    .taxify_env[[cache_key]] <- blk
+  }
 
-  # Use cached compact .vtr for fuzzy matching (select only matching columns,
-  # much smaller than the full backbone with extra WFO/COL columns)
-  fuzzy_bb <- get_fuzzy_bb(bb_path, col_map)
+  unique_genera <- unique(query_df$query_genus)
+  unique_genera <- unique_genera[!is.na(unique_genera)]
+  candidates <- vectra::block_lookup(blk, col_map$genus, unique_genera,
+                                     ci = TRUE)
+  if (nrow(candidates) == 0L) return(result)
+
+  # Write small candidate set to temp .vtr for fuzzy_join
+  tmp_candidates <- tempfile(fileext = ".vtr")
+  tmp_query <- tempfile(fileext = ".vtr")
+  on.exit(unlink(c(tmp_candidates, tmp_query)), add = TRUE)
+  vectra::write_vtr(candidates, tmp_candidates)
+  vectra::write_vtr(query_df, tmp_query)
 
   by_vec <- stats::setNames(col_map$name, "cleaned_name")
   block_vec <- stats::setNames(col_map$genus, "query_genus")
@@ -566,7 +590,7 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
   matches <- tryCatch(
     vectra::fuzzy_join(
       vectra::tbl(tmp_query),
-      vectra::tbl(fuzzy_bb),
+      vectra::tbl(tmp_candidates),
       by = by_vec,
       method = method,
       max_dist = threshold,
@@ -577,7 +601,6 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
   )
 
   if (nrow(matches) > 0L) {
-    # Standardize for pick_best_vec
     matches$taxonID <- matches[[col_map$id]]
     matches$taxonRank <- matches[[col_map$rank]]
     matches$taxonomicStatus <- matches[[col_map$status]]
@@ -617,12 +640,13 @@ get_fuzzy_bb <- function(bb_path, col_map) {
   cached <- .taxify_env[[cache_key]]
   if (!is.null(cached) && file.exists(cached)) return(cached)
 
-  # Select only columns needed for matching + accepted info
+  # Select only columns needed for matching + accepted info.
+  # fuzzy_block is precomputed at build time by precompute_keys().
   keep_cols <- unique(c(
     col_map$name, col_map$genus, col_map$id, col_map$rank,
     col_map$status, col_map$epithet, col_map$authorship,
     "accepted_name", "accepted_family", "accepted_genus",
-    "accepted_taxon_id", "is_synonym"
+    "accepted_taxon_id", "is_synonym", "fuzzy_block"
   ))
 
   fuzzy_path <- tempfile(fileext = ".vtr")
@@ -669,7 +693,9 @@ fuzzy_match_unblocked <- function(result, names_df, bb_path, method, threshold,
   if (!any(valid)) return(result)
 
   # Use 2-char prefix blocking to reduce search space while still catching
-  # misspelled genera (most genus typos preserve the first 2 characters)
+  # misspelled genera (most genus typos preserve the first 2 characters).
+  # This fallback handles few names (<5% of fuzzy candidates), so the
+  # full backbone materialization via get_fuzzy_bb is acceptable.
   query_df <- data.frame(
     row_idx = unmatched_rows[valid],
     cleaned_name = cleaned_names[valid],
@@ -679,13 +705,11 @@ fuzzy_match_unblocked <- function(result, names_df, bb_path, method, threshold,
 
   tmp_query <- tempfile(fileext = ".vtr")
   on.exit(unlink(tmp_query), add = TRUE)
-
   vectra::write_vtr(query_df, tmp_query)
 
   by_vec <- stats::setNames(col_map$name, "cleaned_name")
   block_vec <- stats::setNames("key_prefix", "query_prefix")
 
-  # Use compact backbone, compute prefix column for blocking
   fuzzy_bb <- get_fuzzy_bb(bb_path, col_map)
   prefix_expr <- substitute(
     tolower(substr(COL, 1L, 2L)),
@@ -747,8 +771,9 @@ resolve_backend <- function(backend) {
     worms = worms_backend(),
     fungorum = fungorum_backend(),
     algaebase = algaebase_backend(),
+    euromed = euromed_backend(),
     stop(sprintf(
-      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms, fungorum, algaebase",
+      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms, fungorum, algaebase, euromed",
       backend), call. = FALSE)
   )
 }

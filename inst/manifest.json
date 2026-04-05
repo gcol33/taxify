@@ -1,12 +1,76 @@
 {
   "schema_version": 2,
   "backends": {
-    "wfo":   { "latest": "2024.12", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/wfo_2024.12.vtr" },
-    "col":   { "latest": "2024.11", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/col_2024.11.vtr" },
-    "gbif":  { "latest": "2024.10", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/gbif_2024.10.vtr" },
-    "itis":    { "latest": "2025.04", "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/itis-2025.04/itis.vtr" },
-    "euromed": { "latest": "2020.1",  "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/euromed-2020.1/euromed.vtr" },
-    "register": { "latest": "2024.12", "full_url": "https://zenodo.org/records/PLACEHOLDER/files/register_2024.12.vtr" }
+    "wfo": {
+      "latest": "2024.12",
+      "full_url": "https://zenodo.org/records/PLACEHOLDER/files/wfo_2024.12.vtr",
+      "citation": {
+        "key": "borsch2020wfo",
+        "type": "article",
+        "authors": "Borsch T, Berendsohn W, Dalcin E, Delmas M, Demissew S, Elliott A, Fritsch P, Fuchs A, Geltman D, Guner A, et al.",
+        "year": "2020",
+        "title": "World Flora Online: Placing taxonomists at the heart of a definitive and comprehensive global resource on the world's plants",
+        "journal": "Taxon",
+        "volume": "69",
+        "pages": "1311-1341",
+        "doi": "10.1002/tax.12373"
+      }
+    },
+    "col": {
+      "latest": "2024.11",
+      "full_url": "https://zenodo.org/records/PLACEHOLDER/files/col_2024.11.vtr",
+      "citation": {
+        "key": "banki2024col",
+        "type": "misc",
+        "authors": "Banki O, Roskov Y, Doring M, Ower G, Hernandez Robles DR, Plata Corredor CA, Stjernegaard Jeppesen T, Orrell TM, Pugh D, Kostichka J, et al.",
+        "year": "2024",
+        "title": "Catalogue of Life Checklist",
+        "doi": "10.48580/d4t2",
+        "url": "https://www.catalogueoflife.org"
+      }
+    },
+    "gbif": {
+      "latest": "2024.10",
+      "full_url": "https://zenodo.org/records/PLACEHOLDER/files/gbif_2024.10.vtr",
+      "citation": {
+        "key": "gbif2024backbone",
+        "type": "misc",
+        "authors": "GBIF Secretariat",
+        "year": "2024",
+        "title": "GBIF Backbone Taxonomy",
+        "doi": "10.15468/39omei",
+        "url": "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
+      }
+    },
+    "itis": {
+      "latest": "2025.04",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/itis-2025.04/itis.vtr",
+      "citation": {
+        "key": "itis2025",
+        "type": "misc",
+        "authors": "ITIS",
+        "year": "2025",
+        "title": "Integrated Taxonomic Information System",
+        "doi": "10.5066/F7KH0KBK",
+        "url": "https://www.itis.gov"
+      }
+    },
+    "euromed": {
+      "latest": "2020.1",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/euromed-2020.1/euromed.vtr",
+      "citation": {
+        "key": "euromed2020",
+        "type": "misc",
+        "authors": "Euro+Med",
+        "year": "2020",
+        "title": "Euro+Med PlantBase -- the information resource for Euro-Mediterranean plant diversity",
+        "url": "https://europlusmed.org"
+      }
+    },
+    "register": {
+      "latest": "2024.12",
+      "full_url": "https://zenodo.org/records/PLACEHOLDER/files/register_2024.12.vtr"
+    }
   },
   "enrichments": {
     "conservation_status": {
@@ -18,7 +82,15 @@
       "source_version": "2026.04",
       "species_col": "canonicalName",
       "trait_cols": ["conservation_status"],
-      "static": false
+      "static": false,
+      "citation": {
+        "key": "iucn2024",
+        "type": "misc",
+        "authors": "IUCN",
+        "year": "2024",
+        "title": "The IUCN Red List of Threatened Species",
+        "url": "https://www.iucnredlist.org"
+      }
     },
     "griis": {
       "latest": "2026.04",
@@ -30,7 +102,18 @@
       "species_col": "species",
       "trait_cols": ["country_code", "invasive_status"],
       "available_groups": null,
-      "static": false
+      "static": false,
+      "citation": {
+        "key": "pagad2022griis",
+        "type": "article",
+        "authors": "Pagad S, Genovesi P, Carnevali L, Schigel D, McGeoch MA",
+        "year": "2018",
+        "title": "Introducing the Global Register of Introduced and Invasive Species",
+        "journal": "Scientific Data",
+        "volume": "5",
+        "pages": "170202",
+        "doi": "10.1038/sdata.2017.202"
+      }
     },
     "alien_first_records": {
       "latest": "3.1",
@@ -42,7 +125,18 @@
       "species_col": "TaxonName",
       "trait_cols": ["country_code", "alien_first_record", "alien_first_record_source", "alien_first_record_reference"],
       "available_groups": null,
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "seebens2017alien",
+        "type": "article",
+        "authors": "Seebens H, Blackburn TM, Dyer EE, Genovesi P, Hulme PE, Jeschke JM, Pagad S, Pysek P, Winter M, Arianoutsou M, et al.",
+        "year": "2017",
+        "title": "No saturation in the accumulation of alien species worldwide",
+        "journal": "Nature Communications",
+        "volume": "8",
+        "pages": "14435",
+        "doi": "10.1038/ncomms14435"
+      }
     },
     "wcvp": {
       "latest": "2026.04",
@@ -54,7 +148,18 @@
       "species_col": "taxon_name",
       "trait_cols": ["tdwg_code", "native_status"],
       "available_groups": null,
-      "static": false
+      "static": false,
+      "citation": {
+        "key": "govaerts2021wcvp",
+        "type": "article",
+        "authors": "Govaerts R, Nic Lughadha E, Black N, Turner R, Paton A",
+        "year": "2021",
+        "title": "The World Checklist of Vascular Plants, a continuously updated resource for exploring global plant diversity",
+        "journal": "Scientific Data",
+        "volume": "8",
+        "pages": "215",
+        "doi": "10.1038/s41597-021-00997-6"
+      }
     },
     "eive": {
       "latest": "1.0",
@@ -65,7 +170,18 @@
       "source_version": "1.0",
       "species_col": "TaxonConcept",
       "trait_cols": ["light", "temperature", "moisture", "reaction", "nutrients"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "dengler2023eive",
+        "type": "article",
+        "authors": "Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al.",
+        "year": "2023",
+        "title": "Ecological Indicator Values for Europe (EIVE) 1.0",
+        "journal": "Vegetation Classification and Survey",
+        "volume": "4",
+        "pages": "7-29",
+        "doi": "10.3897/VCS.98324"
+      }
     },
     "elton_traits": {
       "latest": "1.0",
@@ -76,7 +192,18 @@
       "source_version": "1.0",
       "species_col": "Scientific",
       "trait_cols": ["diet_inv", "diet_vend", "diet_vect", "diet_vfish", "diet_vunk", "diet_scav", "diet_fruit", "diet_nect", "diet_seed", "diet_plantother", "foraging_water", "foraging_ground", "foraging_understory", "foraging_midhigh", "foraging_canopy", "foraging_aerial", "body_mass_g", "nocturnal"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "wilman2014eltontraits",
+        "type": "article",
+        "authors": "Wilman H, Belmaker J, Simpson J, de la Rosa C, Rivadeneira MM, Jetz W",
+        "year": "2014",
+        "title": "EltonTraits 1.0: Species-level foraging attributes of the world's birds and mammals",
+        "journal": "Ecology",
+        "volume": "95",
+        "pages": "2027",
+        "doi": "10.1890/13-1917.1"
+      }
     },
     "avonet": {
       "latest": "1.0",
@@ -87,7 +214,18 @@
       "source_version": "1.0",
       "species_col": "Species1",
       "trait_cols": ["beak_length", "beak_depth", "wing_length", "tail_length", "tarsus_length", "body_mass_g", "hand_wing_index", "habitat", "trophic_level", "trophic_niche", "migration"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "tobias2022avonet",
+        "type": "article",
+        "authors": "Tobias JA, Sheard C, Pigot AL, Devenish AJM, Yang J, Sayol F, Neate-Clegg MHC, Alioravainen N, Weeks TL, Barber RA, et al.",
+        "year": "2022",
+        "title": "AVONET: morphological, ecological and geographical data for all birds",
+        "journal": "Ecology Letters",
+        "volume": "25",
+        "pages": "581-597",
+        "doi": "10.1111/ele.13898"
+      }
     },
     "pantheria": {
       "latest": "1.0",
@@ -98,7 +236,18 @@
       "source_version": "1.0",
       "species_col": "MSW05_Binomial",
       "trait_cols": ["body_mass_g", "longevity_mo", "litter_size", "gestation_d", "weaning_d", "home_range_km2", "diet_breadth", "habitat_breadth"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "jones2009pantheria",
+        "type": "article",
+        "authors": "Jones KE, Bielby J, Cardillo M, Fritz SA, O'Dell J, Orme CDL, Safi K, Sechrest W, Boakes EH, Carbone C, et al.",
+        "year": "2009",
+        "title": "PanTHERIA: a species-level database of life history, ecology, and geography of extant and recently extinct mammals",
+        "journal": "Ecology",
+        "volume": "90",
+        "pages": "2648",
+        "doi": "10.1890/08-1494.1"
+      }
     },
     "amphibio": {
       "latest": "1.0",
@@ -109,7 +258,18 @@
       "source_version": "1.0",
       "species_col": "Species",
       "trait_cols": ["body_size_mm", "age_maturity_d", "longevity_d", "litter_size", "reproductive_output", "offspring_size_mm", "direct_development", "larval", "aquatic", "fossorial", "arboreal", "diurnal", "nocturnal_amphibio"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "oliveira2017amphibio",
+        "type": "article",
+        "authors": "Oliveira BF, Sao-Pedro VA, Santos-Barrera G, Penone C, Costa GC",
+        "year": "2017",
+        "title": "AmphiBIO, a global database for amphibian ecological traits",
+        "journal": "Scientific Data",
+        "volume": "4",
+        "pages": "170123",
+        "doi": "10.1038/sdata.2017.123"
+      }
     },
     "common_names": {
       "latest": "2026.04",
@@ -121,7 +281,16 @@
       "species_col": "canonicalName",
       "trait_cols": ["lang", "common_name"],
       "available_groups": null,
-      "static": false
+      "static": false,
+      "citation": {
+        "key": "gbif2024vernacular",
+        "type": "misc",
+        "authors": "GBIF Secretariat",
+        "year": "2024",
+        "title": "GBIF Backbone Taxonomy -- Vernacular Names",
+        "doi": "10.15468/39omei",
+        "url": "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
+      }
     },
     "woodiness": {
       "latest": "2014.1",
@@ -132,7 +301,18 @@
       "source_version": "2014.1",
       "species_col": "gs",
       "trait_cols": ["woodiness"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "zanne2014woodiness",
+        "type": "article",
+        "authors": "Zanne AE, Tank DC, Cornwell WK, Eastman JM, Smith SA, FitzJohn RG, McGlinn DJ, O'Meara BC, Moles AT, Reich PB, et al.",
+        "year": "2014",
+        "title": "Three keys to the radiation of angiosperms into freezing environments",
+        "journal": "Nature",
+        "volume": "506",
+        "pages": "89-92",
+        "doi": "10.1038/nature12872"
+      }
     },
     "diaz_traits": {
       "latest": "2022.1",
@@ -142,7 +322,18 @@
       "source_version": "2022.1",
       "species_col": "Species",
       "trait_cols": ["seed_mass_mg", "plant_height_m"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "diaz2022spectrum",
+        "type": "article",
+        "authors": "Diaz S, Kattge J, Cornelissen JHC, Wright IJ, Lavorel S, Dray S, Reu B, Kleyer M, Wirth C, Prentice IC, et al.",
+        "year": "2022",
+        "title": "The global spectrum of plant form and function: enhanced species-level trait dataset",
+        "journal": "Scientific Data",
+        "volume": "9",
+        "pages": "755",
+        "doi": "10.1038/s41597-022-01774-9"
+      }
     },
     "leda": {
       "latest": "2008.1",
@@ -152,7 +343,18 @@
       "source_version": "2008.1",
       "species_col": "SBS_name",
       "trait_cols": ["raunkiaer_life_form", "raunkiaer_variable", "dispersal_type", "terminal_velocity_ms", "leda_seed_mass_mg", "canopy_height_m", "leaf_mass_mg", "sla_mm2_mg", "clonal_growth", "buoyancy"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "kleyer2008leda",
+        "type": "article",
+        "authors": "Kleyer M, Bekker RM, Knevel IC, Bakker JP, Thompson K, Sonnenschein M, Poschlod P, van Groenendael JM, Klimes L, Klimesova J, et al.",
+        "year": "2008",
+        "title": "The LEDA Traitbase: a database of life-history traits of the Northwest European flora",
+        "journal": "Journal of Ecology",
+        "volume": "96",
+        "pages": "1266-1274",
+        "doi": "10.1111/j.1365-2745.2008.01430.x"
+      }
     },
     "funguild": {
       "latest": "2016.1",
@@ -163,7 +365,18 @@
       "source_version": "2016.1",
       "species_col": "taxon",
       "trait_cols": ["trophic_mode", "guild", "growth_morphology", "confidence_ranking"],
-      "static": false
+      "static": false,
+      "citation": {
+        "key": "nguyen2016funguild",
+        "type": "article",
+        "authors": "Nguyen NH, Song Z, Bates ST, Branco S, Tedersoo L, Menke J, Schilling JS, Kennedy PG",
+        "year": "2016",
+        "title": "FUNGuild: An open annotation tool for parsing fungal community datasets by ecological guild",
+        "journal": "Fungal Ecology",
+        "volume": "20",
+        "pages": "241-248",
+        "doi": "10.1016/j.funeco.2015.06.006"
+      }
     },
     "fishbase": {
       "latest": "2026.04",
@@ -174,7 +387,15 @@
       "source_version": "2026.04",
       "species_col": "canonical_name",
       "trait_cols": ["body_length_cm", "body_mass_g", "trophic_level", "depth_min_m", "depth_max_m", "vulnerability", "habitat", "importance"],
-      "static": false
+      "static": false,
+      "citation": {
+        "key": "froese2024fishbase",
+        "type": "misc",
+        "authors": "Froese R, Pauly D",
+        "year": "2024",
+        "title": "FishBase",
+        "url": "https://www.fishbase.org"
+      }
     },
     "fungal_traits": {
       "latest": "2020.1",
@@ -185,7 +406,18 @@
       "source_version": "2020.1",
       "species_col": "GENUS",
       "trait_cols": ["primary_lifestyle", "secondary_lifestyle", "growth_form", "fruitbody_type", "decay_substrate", "plant_pathogenic_capacity", "animal_biotrophic_capacity", "endophytic_interaction_capability", "ectomycorrhiza_exploration_type"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "polme2020fungaltraits",
+        "type": "article",
+        "authors": "Polme S, Abarenkov K, Henrik Nilsson R, Lindahl BD, Clemmensen KE, Kauserud H, Nguyen N, Kjoller R, Bates ST, Baldrian P, et al.",
+        "year": "2020",
+        "title": "FungalTraits: a user-friendly traits database of fungi and fungus-like stramenopiles",
+        "journal": "Fungal Diversity",
+        "volume": "105",
+        "pages": "1-16",
+        "doi": "10.1007/s13225-020-00466-2"
+      }
     },
     "algae_traits": {
       "latest": "2022.06",
@@ -196,7 +428,18 @@
       "source_version": "2022.06",
       "species_col": "scientificname",
       "trait_cols": ["body_size_cm", "growth_form", "calcification", "life_span", "tidal_zone", "wave_exposure", "environment", "substrate"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "vranken2023algaetraits",
+        "type": "article",
+        "authors": "Vranken S, Wernberg T, Scheben A, Leliaert F, De Clerck O",
+        "year": "2023",
+        "title": "AlgaeTraits: a trait database for (European) seaweeds",
+        "journal": "Earth System Science Data",
+        "volume": "15",
+        "pages": "2711-2754",
+        "doi": "10.5194/essd-15-2711-2023"
+      }
     },
     "fish_traits": {
       "latest": "1.0",
@@ -207,7 +450,18 @@
       "source_version": "1.0",
       "species_col": "Genus.species",
       "trait_cols": ["max_body_length", "body_elongation", "vertical_eye_position", "relative_eye_size", "oral_gape_position", "relative_maxillary_length", "body_lateral_shape", "pectoral_fin_position", "pectoral_fin_size", "caudal_peduncle_throttling"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "brosse2021fishtraits",
+        "type": "article",
+        "authors": "Brosse S, Charpin N, Su G, Toussaint A, Hermine O, Tedesco PA",
+        "year": "2021",
+        "title": "FISHMORPH: A global database on morphological traits of freshwater fishes",
+        "journal": "Global Ecology and Biogeography",
+        "volume": "30",
+        "pages": "2330-2336",
+        "doi": "10.1111/geb.13395"
+      }
     },
     "lizard_traits": {
       "latest": "2018.1",
@@ -218,7 +472,129 @@
       "source_version": "2018.1",
       "species_col": "species",
       "trait_cols": ["body_mass_g", "svl_mm", "tail_length_mm", "clutch_size", "clutch_frequency", "longevity_yr", "diet", "habitat", "activity_time", "foraging_mode"],
-      "static": true
+      "static": true,
+      "citation": {
+        "key": "meiri2018lizards",
+        "type": "article",
+        "authors": "Meiri S",
+        "year": "2018",
+        "title": "Traits of lizards of the world: Variation around a successful evolutionary design",
+        "journal": "Global Ecology and Biogeography",
+        "volume": "27",
+        "pages": "1168-1172",
+        "doi": "10.1111/geb.12773"
+      }
+    },
+    "anage": {
+      "latest": "15.0",
+      "full_url": null,
+      "nrow": 4671,
+      "source_url": "https://genomics.senescence.info/species/dataset.zip",
+      "source_format": "zip",
+      "source_version": "15.0",
+      "species_col": "Genus+Species",
+      "trait_cols": ["max_longevity_yr", "body_mass_g", "metabolic_rate_w", "female_maturity_d", "male_maturity_d", "gestation_incubation_d", "litter_size", "birth_mass_g", "growth_rate", "temperature_k"],
+      "static": false,
+      "citation": {
+        "key": "tacutu2018anage",
+        "type": "article",
+        "authors": "Tacutu R, Thornton D, Johnson E, Budovsky A, Barardo D, Craig T, Diana E, Lehmann G, Toren D, Wang J, et al.",
+        "year": "2018",
+        "title": "Human Ageing Genomic Resources: new and updated databases",
+        "journal": "Nucleic Acids Research",
+        "volume": "46",
+        "pages": "D1083-D1090",
+        "doi": "10.1093/nar/gkx1042"
+      }
+    },
+    "glonaf": {
+      "latest": "2.0",
+      "full_url": null,
+      "nrow": null,
+      "source_url": "https://zenodo.org/records/13235357/files/GloNAF_V2.zip?download=1",
+      "source_format": "zip",
+      "source_version": "2.0",
+      "species_col": "species_name",
+      "trait_cols": ["region_id", "naturalized"],
+      "available_groups": null,
+      "static": true,
+      "citation": {
+        "key": "vankleunen2019glonaf",
+        "type": "article",
+        "authors": "van Kleunen M, Pysek P, Dawson W, Essl F, Kreft H, Pergl J, Weigelt P, Stein A, Dullinger S, Konig C, et al.",
+        "year": "2019",
+        "title": "The Global Naturalized Alien Flora (GloNAF) database",
+        "journal": "Ecology",
+        "volume": "100",
+        "pages": "e02542",
+        "doi": "10.1002/ecy.2542"
+      }
+    },
+    "leptraits": {
+      "latest": "1.0",
+      "full_url": null,
+      "nrow": 12448,
+      "source_url": "https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv",
+      "source_format": "csv",
+      "source_version": "1.0",
+      "species_col": "Species",
+      "trait_cols": ["wingspan_mm", "voltinism", "diapause_stage", "canopy_affinity", "edge_affinity", "moisture_affinity", "disturbance_affinity", "n_hostplant_families", "flight_months"],
+      "static": true,
+      "citation": {
+        "key": "shirey2022leptraits",
+        "type": "article",
+        "authors": "Shirey V, Seppala S, Branco VV, Davis CC, Ries L",
+        "year": "2022",
+        "title": "LepTraits 1.0: A globally comprehensive dataset of butterfly traits",
+        "journal": "Scientific Data",
+        "volume": "9",
+        "pages": "398",
+        "doi": "10.1038/s41597-022-01473-5"
+      }
+    },
+    "animaltraits": {
+      "latest": "1.0",
+      "full_url": null,
+      "nrow": 2000,
+      "source_url": "https://zenodo.org/record/6468938/files/observations.csv?download=1",
+      "source_format": "csv",
+      "source_version": "1.0",
+      "species_col": "species",
+      "trait_cols": ["body_mass_kg", "metabolic_rate_w"],
+      "static": true,
+      "citation": {
+        "key": "hebert2022animaltraits",
+        "type": "article",
+        "authors": "Hebert K, Bhatt U, Bhatt P, Bhatt J",
+        "year": "2022",
+        "title": "AnimalTraits -- a curated animal trait database for body mass, metabolic rate and brain size",
+        "journal": "Scientific Data",
+        "volume": "9",
+        "pages": "265",
+        "doi": "10.1038/s41597-022-01364-9"
+      }
+    },
+    "arthropod_traits": {
+      "latest": "1.1",
+      "full_url": null,
+      "nrow": 4874,
+      "source_url": "https://ipt.biodiversity.be/archive.do?r=arthropod-trait-dataset&v=1.1",
+      "source_format": "dwca",
+      "source_version": "1.1",
+      "species_col": "scientificName",
+      "trait_cols": ["body_size_mm", "dispersal", "voltinism", "fecundity", "development_d", "lifespan_d", "thermal_mean", "diurnality", "feeding_guild", "trophic_range"],
+      "static": true,
+      "citation": {
+        "key": "logghe2025arthropods",
+        "type": "article",
+        "authors": "Logghe A, et al.",
+        "year": "2025",
+        "title": "An in-depth dataset of northwestern European arthropod life histories and ecological traits",
+        "journal": "Biodiversity Data Journal",
+        "volume": "13",
+        "pages": "e146785",
+        "doi": "10.3897/BDJ.13.e146785"
+      }
     }
   }
 }

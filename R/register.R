@@ -123,6 +123,144 @@ extract_gbif_genera <- function(bb_path) {
 }
 
 
+#' Extract unique genera from a Euro+Med backbone
+#'
+#' Euro+Med uses the unified backbone schema (canonical_name, taxon_rank, genus).
+#' Plants-only, so kingdom is always "Plantae".
+#'
+#' @param bb_path Character. Path to Euro+Med .vtr file.
+#' @return data.frame with columns: genus, kingdom, phylum, class, order, family.
+#' @noRd
+extract_euromed_genera <- function(bb_path) {
+  df <- vectra::tbl(bb_path) |>
+    vectra::filter(taxon_rank == "GENUS") |>
+    vectra::select(canonical_name, family, genus) |>
+    vectra::collect()
+
+  if (nrow(df) == 0L) return(empty_genus_df())
+
+  data.frame(
+    genus   = df$canonical_name,
+    kingdom = "Plantae",
+    phylum  = NA_character_,
+    class   = NA_character_,
+    order   = NA_character_,
+    family  = df$family,
+    stringsAsFactors = FALSE
+  )
+}
+
+
+#' Extract genus rows from ITIS backbone
+#'
+#' ITIS uses unified schema. No kingdom column.
+#'
+#' @param bb_path Character. Path to ITIS .vtr file.
+#' @return data.frame with columns: genus, kingdom, phylum, class, order, family.
+#' @noRd
+extract_itis_genera <- function(bb_path) {
+  df <- vectra::tbl(bb_path) |>
+    vectra::filter(taxon_rank == "GENUS") |>
+    vectra::select(canonical_name, family, genus) |>
+    vectra::collect()
+
+  if (nrow(df) == 0L) return(empty_genus_df())
+
+  data.frame(
+    genus   = df$canonical_name,
+    kingdom = NA_character_,
+    phylum  = NA_character_,
+    class   = NA_character_,
+    order   = NA_character_,
+    family  = df$family,
+    stringsAsFactors = FALSE
+  )
+}
+
+
+#' Extract genus rows from NCBI backbone
+#'
+#' NCBI uses unified schema. Has kingdom column but values are NCBI-specific
+#' (e.g. "Pseudomonadati") — not standard kingdom names, so treated as NA.
+#'
+#' @param bb_path Character. Path to NCBI .vtr file.
+#' @return data.frame with columns: genus, kingdom, phylum, class, order, family.
+#' @noRd
+extract_ncbi_genera <- function(bb_path) {
+  df <- vectra::tbl(bb_path) |>
+    vectra::filter(taxon_rank == "GENUS") |>
+    vectra::select(canonical_name, family, genus, kingdom) |>
+    vectra::collect()
+
+  if (nrow(df) == 0L) return(empty_genus_df())
+
+  data.frame(
+    genus   = df$canonical_name,
+    kingdom = df$kingdom,
+    phylum  = NA_character_,
+    class   = NA_character_,
+    order   = NA_character_,
+    family  = df$family,
+    stringsAsFactors = FALSE
+  )
+}
+
+
+#' Extract genus rows from OTT backbone
+#'
+#' OTT uses unified schema. Kingdom column exists, populated for ~2% of genera.
+#'
+#' @param bb_path Character. Path to OTT .vtr file.
+#' @return data.frame with columns: genus, kingdom, phylum, class, order, family.
+#' @noRd
+extract_ott_genera <- function(bb_path) {
+  df <- vectra::tbl(bb_path) |>
+    vectra::filter(taxon_rank == "GENUS") |>
+    vectra::select(canonical_name, family, genus, kingdom) |>
+    vectra::collect()
+
+  if (nrow(df) == 0L) return(empty_genus_df())
+
+  data.frame(
+    genus   = df$canonical_name,
+    kingdom = df$kingdom,
+    phylum  = NA_character_,
+    class   = NA_character_,
+    order   = NA_character_,
+    family  = df$family,
+    stringsAsFactors = FALSE
+  )
+}
+
+
+#' Extract genus rows from WoRMS backbone
+#'
+#' WoRMS has fully denormalized classification: kingdom, phylum, class, order.
+#' Most valuable source for higher-taxonomy resolution.
+#'
+#' @param bb_path Character. Path to WoRMS .vtr file.
+#' @return data.frame with columns: genus, kingdom, phylum, class, order, family.
+#' @noRd
+extract_worms_genera <- function(bb_path) {
+  df <- vectra::tbl(bb_path) |>
+    vectra::filter(taxon_rank == "GENUS") |>
+    vectra::select(canonical_name, family, genus, kingdom, phylum, class, order) |>
+    vectra::collect()
+
+  if (nrow(df) == 0L) return(empty_genus_df())
+
+  data.frame(
+    genus   = df$canonical_name,
+    kingdom = df$kingdom,
+    phylum  = df$phylum,
+    class   = df$class,
+    order   = df$order,
+    family  = df$family,
+    stringsAsFactors = FALSE
+  )
+}
+
+
 #' Empty genus data.frame (zero rows, correct schema)
 #' @noRd
 empty_genus_df <- function() {
@@ -138,13 +276,106 @@ empty_genus_df <- function() {
 }
 
 
+# ---- Kingdom name normalization ----
+
+#' Normalize non-standard kingdom names to standard taxonomy
+#'
+#' NCBI uses clade-based names (Pseudomonadati, Bacillati, etc.) and viral
+#' realm names (*virae). OTT uses names like Archaeplastida, Chloroplastida.
+#' Maps these to standard kingdom names: Plantae, Animalia, Fungi, Bacteria,
+#' Archaea, Chromista, Protozoa, Viruses.
+#'
+#' @param kingdom Character vector of kingdom names.
+#' @return Character vector with normalized kingdom names.
+#' @noRd
+normalize_kingdom_names <- function(kingdom) {
+  # NCBI clade → standard kingdom
+  ncbi_map <- c(
+    # Bacteria (various phyla-level clades)
+    Pseudomonadati   = "Bacteria",
+    Bacillati        = "Bacteria",
+    Fusobacteriati   = "Bacteria",
+    Nanobdellati     = "Bacteria",
+    Thermotogati     = "Bacteria",
+    # Archaea
+    Methanobacteriati  = "Archaea",
+    Promethearchaeati  = "Archaea",
+    Thermoproteati     = "Archaea",
+    # Eukaryotes
+    Metazoa         = "Animalia",
+    Viridiplantae   = "Plantae"
+  )
+
+  # OTT → standard kingdom
+  ott_map <- c(
+    Archaeplastida  = "Plantae",
+    Chloroplastida  = "Plantae",
+    Fungi           = "Fungi",
+    Metazoa         = "Animalia"
+  )
+
+  # NCBI viral realms (all end in "virae")
+  is_virus <- !is.na(kingdom) & grepl("virae$", kingdom, ignore.case = TRUE)
+
+  # Apply maps
+  m_ncbi <- match(kingdom, names(ncbi_map))
+  hit_ncbi <- !is.na(m_ncbi)
+  kingdom[hit_ncbi] <- ncbi_map[m_ncbi[hit_ncbi]]
+
+  m_ott <- match(kingdom, names(ott_map))
+  hit_ott <- !is.na(m_ott)
+  kingdom[hit_ott] <- ott_map[m_ott[hit_ott]]
+
+  kingdom[is_virus] <- "Viruses"
+
+  kingdom
+}
+
+
+#' Infer kingdom from family membership
+#'
+#' For genera with a known family but no kingdom, look up the most common
+#' kingdom among other genera in the same family that do have a kingdom.
+#'
+#' @param resolved data.frame with genus, kingdom, family columns.
+#' @return Updated data.frame with kingdom filled where possible.
+#' @noRd
+infer_kingdom_from_family <- function(resolved) {
+  has_kingdom <- !is.na(resolved$kingdom) & nzchar(resolved$kingdom)
+  has_family  <- !is.na(resolved$family) & nzchar(resolved$family)
+  needs_fill  <- !has_kingdom & has_family
+
+  if (!any(needs_fill) || !any(has_kingdom & has_family)) return(resolved)
+
+  # Build family → kingdom lookup from genera that have both
+  ref <- resolved[has_kingdom & has_family, , drop = FALSE]
+  # For each family, take the most common kingdom (majority vote)
+  fam_split <- split(ref$kingdom, ref$family)
+  family_kingdom <- vapply(fam_split, function(k) {
+    tab <- table(k)
+    names(which.max(tab))
+  }, character(1L))
+
+  # Apply to genera that need it
+  m <- match(resolved$family[needs_fill], names(family_kingdom))
+  hit <- !is.na(m)
+  if (any(hit)) {
+    fill_idx <- which(needs_fill)[hit]
+    resolved$kingdom[fill_idx] <- family_kingdom[m[hit]]
+  }
+
+  resolved
+}
+
+
 # ---- Classification conflict resolution ----
 
 #' Resolve classification conflicts across backends
 #'
-#' Merges genera from multiple backends, preferring COL > GBIF > WFO for
-#' each classification column. When the same genus appears in multiple
-#' backends, the first non-NA value in priority order is used.
+#' Merges genera from multiple backends, preferring WoRMS > COL > GBIF > WFO
+#' for each classification column (WoRMS has full kingdom/phylum/class/order).
+#' When the same genus appears in multiple backends, the first non-NA value
+#' in priority order is used.
 #'
 #' @param genera_list Named list of data.frames, each with columns
 #'   genus, kingdom, phylum, class, order, family.
@@ -152,7 +383,7 @@ empty_genus_df <- function() {
 #' @return data.frame with deduplicated genera and resolved classification.
 #' @noRd
 resolve_genus_classification <- function(genera_list) {
-  priority <- c("col", "gbif", "wfo")
+  priority <- c("worms", "col", "gbif", "euromed", "itis", "ncbi", "ott", "wfo")
 
   # Combine all genera, tagging each with its source backend
   all_rows <- lapply(priority, function(be) {
@@ -166,36 +397,42 @@ resolve_genus_classification <- function(genera_list) {
 
   combined <- do.call(rbind, all_rows)
 
-  # For each unique genus, pick the best row using priority order
-  # Priority is encoded in source_backend already (list is in priority order)
-  genera_unique <- unique(combined$genus)
-  genera_unique <- genera_unique[!is.na(genera_unique) & nzchar(genera_unique)]
+  # Drop rows with NA or empty genus
+  valid <- !is.na(combined$genus) & nzchar(combined$genus)
+  combined <- combined[valid, , drop = FALSE]
 
-  # Vectorized approach: split by genus, resolve column by column
-  # For each classification column, first non-NA value in priority order wins
-  resolve_col <- function(genus_subset, col) {
-    val <- genus_subset[[col]]
-    first_non_na <- val[!is.na(val) & nzchar(val)]
-    if (length(first_non_na) == 0L) NA_character_ else first_non_na[1L]
-  }
-
-  # Order combined so priority order (col < gbif < wfo) is preserved
+  # Order by genus then priority so first non-NA per genus wins via match()
   combined$priority_rank <- match(combined$source_backend, priority)
   combined <- combined[order(combined$genus, combined$priority_rank), ]
 
-  result_rows <- lapply(split(combined, combined$genus), function(sub) {
-    data.frame(
-      genus   = sub$genus[1L],
-      kingdom = resolve_col(sub, "kingdom"),
-      phylum  = resolve_col(sub, "phylum"),
-      class   = resolve_col(sub, "class"),
-      order   = resolve_col(sub, "order"),
-      family  = resolve_col(sub, "family"),
-      stringsAsFactors = FALSE
-    )
-  })
+  # Vectorized: for each classification column, pick first non-NA per genus.
+  # Uses match() on deduplicated genus to find the first valid row per column.
+  class_cols <- c("kingdom", "phylum", "class", "order", "family")
+  genera_all <- combined$genus
 
-  do.call(rbind, result_rows)
+  # Start with first row per genus (highest-priority backend)
+  first_idx <- which(!duplicated(genera_all))
+  result <- data.frame(
+    genus = genera_all[first_idx],
+    stringsAsFactors = FALSE
+  )
+
+  # For each classification column, fill from first non-NA row per genus
+
+  for (col in class_cols) {
+    vals <- combined[[col]]
+    # Rows where this column has a usable value
+    has_val <- !is.na(vals) & nzchar(vals)
+    # Subset to rows with values, deduplicate by genus → first hit per genus
+    sub_genus <- genera_all[has_val]
+    sub_vals  <- vals[has_val]
+    first_hit <- which(!duplicated(sub_genus))
+    # Map back to result via match
+    m <- match(result$genus, sub_genus[first_hit])
+    result[[col]] <- sub_vals[first_hit][m]
+  }
+
+  result
 }
 
 
@@ -274,15 +511,16 @@ resolve_kingdom_via_gbif <- function(resolved, gbif_path) {
 
   if (nrow(genus_rows) == 0L) return(resolved)
 
-  # working table: genus_name | current_id | kingdom_name (NA until resolved)
+  # Walk ALL genus entries (including duplicates across kingdoms).
+  # After the walk, pick the most common kingdom per genus name to avoid
+  # misclassification from homonymous genera (e.g., Escherichia in both
+  # Bacteria and Animalia).
   work <- data.frame(
     genus_name   = genus_rows$canonical_name,
     current_id   = genus_rows$id,
     kingdom_name = NA_character_,
     stringsAsFactors = FALSE
   )
-  # deduplicate: one row per genus (take first GBIF hit)
-  work <- work[!duplicated(work$genus_name), , drop = FALSE]
 
   # pre-build lookup vectors once
   id_to_parent    <- stats::setNames(gbif_df$parent_key,    gbif_df$id)
@@ -313,6 +551,29 @@ resolve_kingdom_via_gbif <- function(resolved, gbif_path) {
     if (any(dead)) work$kingdom_name[which(still_pending)[dead]] <- "unknown_stop"
     work$current_id[still_pending] <- parents
   }
+
+  # For genus names with multiple GBIF entries (homonyms across kingdoms),
+  # pick the most common resolved kingdom per genus name.
+  work$kg <- kingdom_group_map[work$kingdom_name]
+  work$kg[is.na(work$kg)] <- "unknown"
+  # Aggregate: for each genus, pick kingdom with most GBIF entries
+  genus_split <- split(work, work$genus_name)
+  best <- vapply(genus_split, function(sub) {
+    tab <- table(sub$kg)
+    tab <- tab[names(tab) != "unknown"]
+    if (length(tab) == 0L) return("unknown")
+    names(which.max(tab))
+  }, character(1L))
+  work <- data.frame(
+    genus_name   = names(best),
+    kingdom_name = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  # Map best kingdom_group back to kingdom_name for taxon_map lookup
+  best_kg <- unname(best)
+  kg_to_kingdom <- stats::setNames(names(kingdom_group_map), kingdom_group_map)
+  work$kingdom_name <- kg_to_kingdom[best_kg]
+  work$kingdom_name[is.na(work$kingdom_name)] <- "unknown_stop"
 
   # map kingdom names to kingdom_group / taxon_group
   kg_vec <- kingdom_group_map[work$kingdom_name]
@@ -352,9 +613,14 @@ build_genus_register <- function(verbose = TRUE) {
   dir.create(register_dir(), recursive = TRUE, showWarnings = FALSE)
 
   backends <- list(
-    wfo  = list(be = wfo_backend(),  extract_fn = extract_wfo_genera),
-    col  = list(be = col_backend(),  extract_fn = extract_col_genera),
-    gbif = list(be = gbif_backend(), extract_fn = extract_gbif_genera)
+    wfo     = list(be = wfo_backend(),     extract_fn = extract_wfo_genera),
+    col     = list(be = col_backend(),     extract_fn = extract_col_genera),
+    gbif    = list(be = gbif_backend(),    extract_fn = extract_gbif_genera),
+    itis    = list(be = itis_backend(),    extract_fn = extract_itis_genera),
+    ncbi    = list(be = ncbi_backend(),    extract_fn = extract_ncbi_genera),
+    ott     = list(be = ott_backend(),     extract_fn = extract_ott_genera),
+    worms   = list(be = worms_backend(),   extract_fn = extract_worms_genera),
+    euromed = list(be = euromed_backend(), extract_fn = extract_euromed_genera)
   )
 
   genera_list <- list()
@@ -385,6 +651,9 @@ build_genus_register <- function(verbose = TRUE) {
   if (verbose) message("Resolving classification conflicts (COL > GBIF > WFO)...")
   resolved <- resolve_genus_classification(genera_list)
 
+  # Normalize non-standard kingdom names from NCBI and OTT
+  resolved$kingdom <- normalize_kingdom_names(resolved$kingdom)
+
   if (verbose) message("Assigning life forms...")
   lf <- assign_life_form(resolved$family, resolved$kingdom)
   resolved$kingdom_group <- lf$kingdom_group
@@ -403,6 +672,82 @@ build_genus_register <- function(verbose = TRUE) {
       "  %d resolved; %d still unknown.",
       n_unknown_before - n_unknown_after, n_unknown_after
     ))
+  }
+
+  # Reconcile kingdom ↔ kingdom_group:
+  # 1. Where kingdom is set (from WoRMS/COL), override kingdom_group/taxon_group
+  # 2. Where kingdom is NA, backfill from kingdom_group
+  kingdom_to_group <- c(
+    Plantae = "plantae", Animalia = "animalia", Fungi = "fungi",
+    Chromista = "chromista", Protozoa = "protozoa", Bacteria = "bacteria",
+    Archaea = "archaea", Viruses = "viruses"
+  )
+  kingdom_to_taxon <- c(
+    Plantae = "unknown", Animalia = "animal", Fungi = "fungus",
+    Chromista = "unknown", Protozoa = "unknown", Bacteria = "unknown",
+    Archaea = "unknown", Viruses = "unknown"
+  )
+  has_kingdom <- !is.na(resolved$kingdom) & resolved$kingdom %in% names(kingdom_to_group)
+  # Override kingdom_group from authoritative kingdom (WoRMS/COL win over GBIF walk)
+  resolved$kingdom_group[has_kingdom] <- kingdom_to_group[resolved$kingdom[has_kingdom]]
+  # Only override taxon_group if it was wrongly set (not from life_form assignment)
+  wrong_taxon <- has_kingdom & resolved$taxon_group != kingdom_to_taxon[resolved$kingdom]
+  # But don't override specific taxon_groups (angiosperm, fern, etc.) with generic "unknown"
+  wrong_taxon <- wrong_taxon &
+    !(resolved$taxon_group %in% c("angiosperm", "gymnosperm", "fern", "lycophyte",
+                                   "moss", "liverwort", "hornwort", "green_alga",
+                                   "red_alga", "brown_alga", "diatom", "lichen",
+                                   "oomycete", "slime_mould", "fungus"))
+  resolved$taxon_group[wrong_taxon] <- kingdom_to_taxon[resolved$kingdom[wrong_taxon]]
+
+  # Backfill kingdom from kingdom_group where still NA
+  kingdom_from_group <- c(
+    plantae = "Plantae", animalia = "Animalia", fungi = "Fungi",
+    chromista = "Chromista", protozoa = "Protozoa", bacteria = "Bacteria",
+    archaea = "Archaea", viruses = "Viruses"
+  )
+  needs_kingdom <- is.na(resolved$kingdom) & resolved$kingdom_group %in% names(kingdom_from_group)
+  resolved$kingdom[needs_kingdom] <- kingdom_from_group[resolved$kingdom_group[needs_kingdom]]
+
+  # Family-based kingdom inference: for genera with known family but no kingdom,
+  # inherit kingdom from other genera in the same family (runs last, after GBIF
+  # walk and kingdom backfill have maximized the number of known kingdoms)
+  n_no_kingdom <- sum(is.na(resolved$kingdom))
+  if (n_no_kingdom > 0L) {
+    resolved <- infer_kingdom_from_family(resolved)
+    n_filled_fam <- n_no_kingdom - sum(is.na(resolved$kingdom))
+    if (verbose && n_filled_fam > 0L) {
+      message(sprintf("  Family-based kingdom inference filled %d genera.", n_filled_fam))
+    }
+  }
+
+  # Pattern-based kingdom inference for remaining unknowns:
+  # - Viral families (*viridae, *satellitidae, *viricetes) → Viruses
+  # - Candidatus prefix → Bacteria (provisional prokaryote names)
+  still_na <- is.na(resolved$kingdom)
+  has_fam <- still_na & !is.na(resolved$family) & nzchar(resolved$family)
+  viral_fam <- has_fam & grepl("viridae$|satellitidae$|viricetes$", resolved$family)
+  resolved$kingdom[viral_fam] <- "Viruses"
+
+  # Genus names containing "virus" (common ICTV naming) → Viruses
+  viral_name <- still_na & !viral_fam & !is.na(resolved$genus) &
+    grepl("virus$|virus ", resolved$genus, ignore.case = TRUE)
+  resolved$kingdom[viral_name] <- "Viruses"
+
+  candidatus <- still_na & !is.na(resolved$genus) &
+    grepl("^Candidatus ", resolved$genus)
+  resolved$kingdom[candidatus] <- "Bacteria"
+
+  n_pattern <- sum(viral_fam | viral_name | candidatus)
+  if (verbose && n_pattern > 0L) {
+    message(sprintf("  Pattern-based kingdom inference filled %d genera.", n_pattern))
+  }
+
+  # Sync kingdom_group/taxon_group for all newly filled genera
+  newly_filled <- !is.na(resolved$kingdom) & resolved$kingdom_group == "unknown"
+  if (any(newly_filled)) {
+    kg_mapped <- kingdom_to_group[resolved$kingdom[newly_filled]]
+    resolved$kingdom_group[newly_filled] <- ifelse(is.na(kg_mapped), "unknown", kg_mapped)
   }
 
   # Reorder columns
@@ -442,9 +787,14 @@ build_backend_coverage <- function(verbose = TRUE) {
   dir.create(register_dir(), recursive = TRUE, showWarnings = FALSE)
 
   backends <- list(
-    wfo  = list(be = wfo_backend(),  extract_fn = extract_wfo_genera),
-    col  = list(be = col_backend(),  extract_fn = extract_col_genera),
-    gbif = list(be = gbif_backend(), extract_fn = extract_gbif_genera)
+    wfo     = list(be = wfo_backend(),     extract_fn = extract_wfo_genera),
+    col     = list(be = col_backend(),     extract_fn = extract_col_genera),
+    gbif    = list(be = gbif_backend(),    extract_fn = extract_gbif_genera),
+    itis    = list(be = itis_backend(),    extract_fn = extract_itis_genera),
+    ncbi    = list(be = ncbi_backend(),    extract_fn = extract_ncbi_genera),
+    ott     = list(be = ott_backend(),     extract_fn = extract_ott_genera),
+    worms   = list(be = worms_backend(),   extract_fn = extract_worms_genera),
+    euromed = list(be = euromed_backend(), extract_fn = extract_euromed_genera)
   )
 
   coverage_rows <- list()

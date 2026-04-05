@@ -158,6 +158,21 @@ taxify_download.taxify_gbif <- function(backend, dest = NULL,
   # Map all synonym-type statuses to "SYNONYM" for embed_accepted.
   df$status <- gbif_status_to_standard(df$status)
 
+  # Filter out unmatchable rows:
+  # - NA/empty canonical_name (1.3M rows, no name to match against)
+  # - UNRANKED (1.3M rows, mostly "?" genus placeholders)
+  # - Higher taxonomy (KINGDOM/PHYLUM/CLASS/ORDER, ~4k rows, never user-queried)
+  n_before <- nrow(df)
+  df <- df[!is.na(df$canonical_name) & nzchar(df$canonical_name), ]
+  df <- df[df$rank != "UNRANKED", ]
+  df <- df[!df$rank %in% c("KINGDOM", "PHYLUM", "CLASS", "ORDER"), ]
+  if (verbose) {
+    message(sprintf("Filtered %s unmatchable rows (%s -> %s)",
+                    format(n_before - nrow(df), big.mark = ","),
+                    format(n_before, big.mark = ","),
+                    format(nrow(df), big.mark = ",")))
+  }
+
   # Compile and write
   compile_backbone(df, vtr_path, backend, url, verbose = verbose)
 

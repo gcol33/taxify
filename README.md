@@ -34,7 +34,7 @@ result |> add_data("my_traits.csv")
 
 ## What taxify does
 
-taxify resolves taxonomic names offline against nine backbone databases covering all kingdoms of life, then optionally enriches the results with trait and status data from twelve published datasets. The matching engine is written in C (via the [vectra](https://github.com/gcol33/vectra) columnar engine), so large species lists resolve in seconds.
+taxify resolves taxonomic names offline against nine backbone databases covering all kingdoms of life, then optionally enriches the results with trait and status data from over twenty published datasets. The matching engine is written in C (via the [vectra](https://github.com/gcol33/vectra) columnar engine), so large species lists resolve in seconds.
 
 The core workflow is: clean input names, match against a backbone, resolve synonyms to accepted names, and return a standardized 16-column data.frame. Every step runs locally against versioned backbone snapshots, so results are fully reproducible.
 
@@ -136,7 +136,7 @@ Nine backbone databases, downloaded once and stored locally as compressed `.vtr`
 
 ### Enrichments
 
-Nineteen enrichment layers join published trait and status data to your results via backbone-resolved accepted names:
+Twenty-two enrichment layers join published trait and status data to your results via backbone-resolved accepted names:
 
 ```r
 # Plants
@@ -173,6 +173,11 @@ taxify(fish_names, backend = "col") |>
 | `add_fish_traits()` | [FISHMORPH](https://doi.org/10.6084/m9.figshare.14891412) | Brosse et al. (2021) | Freshwater fish |
 | `add_fishbase()` | [FishBase](https://www.fishbase.org/) | Froese & Pauly (2024) | All fish |
 | `add_lizard_traits()` | [Meiri lizards](https://doi.org/10.6084/m9.figshare.5765553) | Meiri (2018) | Lizards |
+| `add_anage()` | [AnAge](https://genomics.senescence.info/) | Tacutu et al. (2018) | Vertebrates |
+| `add_glonaf()` | [GloNAF](https://glonaf.org/) | van Kleunen et al. (2019) | Plants (by region) |
+| `add_leptraits()` | [LepTraits 1.0](https://doi.org/10.6084/m9.figshare.c.5899187) | Shirey et al. (2022) | Butterflies |
+| `add_animaltraits()` | [AnimalTraits](https://animaltraits.org/) | Hebert et al. (2022) | Cross-taxon |
+| `add_arthropod_traits()` | [NW Euro Arthropods](https://doi.org/10.3897/BDJ.13.e146785) | Logghe et al. (2025) | Arthropods (NW European) |
 
 ### Keeping enrichments up to date
 

@@ -4,8 +4,9 @@
 .httr-oauth
 .DS_Store
 *.Rproj
-.run.R
-.run-*.R
+.run*.R
+data-raw/
+docs/euro-med-plan.md
 inst/doc
 .claude/worktrees/
 memory/
@@ -19,3 +20,5 @@ tests/e2e/bench-*
 tests/e2e/measure-*
 tests/e2e/run-*
 tests/e2e/redownload-*
+/doc/
+/Meta/

@@ -143,10 +143,7 @@ taxify_data_dir <- function() {
 #' Ensure a backbone path is cached (from cache, disk, or download)
 #'
 #' Resolves the path for `version = "latest"` using the versioned directory
-#' layout (`<data_dir>/<backend>/latest/<backend>.vtr`). Falls back to the
-#' legacy flat layout (`<data_dir>/<backend>.vtr`) for backwards compatibility
-#' with backbones converted from source before the versioned layout was
-#' introduced.
+#' layout (`<data_dir>/<backend>/latest/<backend>.vtr`).
 #'
 #' @param backend A taxify_backend object.
 #' @param version Character. `"latest"` or a specific version string.
@@ -167,14 +164,7 @@ ensure_backbone <- function(backend, version = "latest", verbose = TRUE) {
     return(versioned_path)
   }
 
-  # 3. Legacy flat layout: <data_dir>/<backend>.vtr
-  legacy_path <- file.path(taxify_data_dir(), paste0(be_name, ".vtr"))
-  if (file.exists(legacy_path) && is_compiled_backbone(legacy_path)) {
-    set_backbone_path(be_name, legacy_path)
-    return(legacy_path)
-  }
-
-  # 4. Auto-download (pre-built .vtr from Zenodo via manifest)
+  # 3. Auto-download (pre-built .vtr from Zenodo via manifest)
   path <- tryCatch(
     download_backbone(be_name, version = version, verbose = verbose),
     error = function(e) {
