@@ -24,6 +24,13 @@
 #'   is known.
 #' @param cols Character vector of column names from `data` to join. If `NULL`
 #'   (default), all columns except `species_col` are joined.
+#' @param group_col Character or `NULL`. Column in `data` that defines groups
+#'   (e.g., country codes, regions). When set, the output is pivoted to wide
+#'   format with one column per group (e.g., `trait_AT`, `trait_DE`), just
+#'   like the built-in grouped enrichments. Use [taxify_long()] to reshape
+#'   back to long format. Default `NULL` (flat join, one row per species).
+#' @param groups Character vector or `"all"`. Which groups to include when
+#'   `group_col` is set. Default `"all"`.
 #' @param fuzzy Logical. Enable fuzzy matching for names in `data`.
 #'   Default `TRUE`.
 #' @param fuzzy_threshold Numeric. Maximum allowed distance for fuzzy matches.
@@ -41,9 +48,15 @@
 #' 3. Match species names through the same backbone(s) as the original
 #'    `taxify()` call, obtaining `accepted_id` for each row.
 #' 4. Check for conflicting duplicates: if multiple rows in `data` resolve
-#'    to the same `accepted_id` with different values, an error is raised.
+#'    to the same `accepted_id` with different values, an error is raised
+#'    (unless `group_col` is set).
 #'    Exact duplicates produce a warning and are deduplicated.
 #' 5. Left-join on `accepted_id`.
+#'
+#' ## Grouped data
+#' When your data has multiple rows per species (e.g., one row per species
+#' per country), set `group_col` to produce wide output with suffixed
+#' columns. This is the same format as the built-in grouped enrichments.
 #'
 #' ## Auto-detection
 #' When `species_col` is not specified, `add_data()` takes the first 10 rows
@@ -59,16 +72,17 @@
 #' # From a CSV file (auto-detect species column)
 #' result |> add_data("my_traits.csv")
 #'
-#' # From a SQLite database
-#' result |> add_data("traits.sqlite", table = "plant_traits")
+#' # Grouped data (species x country) — pivots to wide format
+#' result |> add_data(
+#'   "first_records.csv",
+#'   group_col = "country_code",
+#'   groups = c("AT", "DE")
+#' )
 #'
 #' # From a data.frame with explicit species column
 #' traits <- data.frame(species = c("Quercus robur", "Pinus sylvestris"),
 #'                       height = c(30, 25))
 #' result |> add_data(traits, species_col = "species")
-#'
-#' # Select specific columns
-#' result |> add_data(traits, species_col = "species", cols = "height")
 #' }
 #'
 #' @export
@@ -78,6 +92,8 @@ add_data <- function(x, data,
                      sheet = NULL,
                      start_row = NULL,
                      cols = NULL,
+                     group_col = NULL,
+                     groups = "all",
                      fuzzy = TRUE,
                      fuzzy_threshold = 0.2,
                      verbose = TRUE) {
@@ -189,6 +205,7 @@ add_data <- function(x, data,
                          verbose = verbose)
 
   data$`.add_data_accepted_id` <- data_matched$accepted_id
+  data$`.add_data_accepted_name` <- data_matched$accepted_name
 
   # ---- Drop rows that didn't match ----
   n_data_unmatched <- sum(is.na(data$`.add_data_accepted_id`))
@@ -199,6 +216,100 @@ add_data <- function(x, data,
       message("0 names in data matched the backbone -- no columns added.")
     }
     return(register_enrichment(x, data_label, data_label, NA_character_, 0L))
+  }
+
+  # ---- Grouped join (species x group → wide output) ----
+  if (!is.null(group_col)) {
+    if (!group_col %in% names(data_joinable)) {
+      stop(sprintf("group_col '%s' not found in data. Available: %s",
+                   group_col, paste(names(data_joinable), collapse = ", ")),
+           call. = FALSE)
+    }
+
+    # Build a canonical_name-keyed data.frame for enrich_by_group machinery
+    grouped_df <- data.frame(
+      canonical_name = data_joinable$`.add_data_accepted_name`,
+      data_joinable[, c(group_col, cols), drop = FALSE],
+      stringsAsFactors = FALSE
+    )
+
+    # Resolve groups
+    if (length(groups) == 1L && groups == "all") {
+      groups <- sort(unique(grouped_df[[group_col]]))
+      groups <- groups[!is.na(groups)]
+    }
+
+    # Build value_cols mapping (identity: output name = source name)
+    value_cols <- stats::setNames(cols, cols)
+
+    # Handle column name collisions
+    existing_cols <- names(x)
+    for (base_col in cols) {
+      if (base_col %in% existing_cols) {
+        new_name <- paste0("data_", base_col)
+        value_cols[base_col] <- base_col
+        names(value_cols)[names(value_cols) == base_col] <- new_name
+        if (verbose) {
+          message(sprintf("Prefixing colliding column '%s' with 'data_'",
+                          base_col))
+        }
+      }
+    }
+
+    if (verbose && length(groups) > 1L &&
+        is.null(.taxify_env[[".taxify_long_tip_shown"]])) {
+      message("Tip: pipe into taxify_long() to reshape wide columns to long format.")
+      .taxify_env[[".taxify_long_tip_shown"]] <- TRUE
+    }
+
+    # Initialize output columns with NA
+    out_cols <- character(0L)
+    for (g in groups) {
+      for (base_col in names(value_cols)) {
+        out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+        out_cols <- c(out_cols, out_col)
+        x[[out_col]] <- NA
+      }
+    }
+
+    # Vectorized fill: one match() per group
+    for (g in groups) {
+      g_data <- grouped_df[
+        !is.na(grouped_df[[group_col]]) & grouped_df[[group_col]] == g,
+        , drop = FALSE
+      ]
+      if (nrow(g_data) == 0L) next
+      g_data <- g_data[!duplicated(g_data$canonical_name), , drop = FALSE]
+      idx <- match(x$accepted_name, g_data$canonical_name)
+      matched <- which(!is.na(idx))
+      if (length(matched) == 0L) next
+      for (base_col in names(value_cols)) {
+        src_col <- value_cols[[base_col]]
+        out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+        x[[out_col]][matched] <- g_data[[src_col]][idx[matched]]
+      }
+    }
+
+    n_enriched <- sum(rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L)
+
+    if (verbose) {
+      n_x_valid <- sum(!is.na(x$accepted_id))
+      message(sprintf(
+        "add_data: %d of %d species matched (%0.1f%%). %d groups. %d names in data unmatched.",
+        n_enriched, n_x_valid, 100 * n_enriched / max(n_x_valid, 1L),
+        length(groups), n_data_unmatched
+      ))
+    }
+
+    x <- register_enrichment(x, data_label, data_label, NA_character_,
+                              n_enriched)
+
+    # Stamp reshape metadata for taxify_long() auto-detection
+    reshape_entry <- list(cols = names(value_cols), group_col = group_col)
+    prev <- attr(x, "taxify_reshape") %||% list()
+    attr(x, "taxify_reshape") <- c(prev, list(reshape_entry))
+
+    return(x)
   }
 
   # ---- Check for conflicting duplicates ----
@@ -225,6 +336,30 @@ add_data <- function(x, data,
     }
 
     if (length(conflicting) > 0L) {
+      # Check if there's a plausible grouping column: character/factor,
+      # few unique values relative to row count (< 30% cardinality),
+      # and short values (median <= 5 chars, like country/region codes)
+      non_trait_cols <- setdiff(names(data_joinable),
+                                c(species_col, cols, ".add_data_accepted_id",
+                                  ".add_data_accepted_name"))
+      group_hint <- ""
+      for (candidate in non_trait_cols) {
+        vals <- data_joinable[[candidate]]
+        if (!is.character(vals) && !is.factor(vals)) next
+        vals <- vals[!is.na(vals)]
+        if (length(vals) == 0L) next
+        cardinality <- length(unique(vals)) / length(vals)
+        median_len <- stats::median(nchar(as.character(vals)))
+        if (cardinality < 0.3 && median_len <= 5) {
+          group_hint <- sprintf(
+            paste0("\n  This looks like grouped data (multiple rows per species). ",
+                   "Try:\n    add_data(..., group_col = \"%s\")"),
+            candidate
+          )
+          break
+        }
+      }
+
       # Build informative error
       examples <- utils::head(conflicting, 3L)
       example_names <- vapply(examples, function(aid) {
@@ -234,11 +369,10 @@ add_data <- function(x, data,
       stop(sprintf(
         paste0("%d species in data resolved to the same accepted_id but ",
                "have different trait values.\n",
-               "  Examples: %s\n",
-               "  Clean the data so each species has one set of values, ",
-               "or subset with the `cols` argument."),
+               "  Examples: %s%s"),
         length(conflicting),
-        paste(sprintf("'%s' (%s)", example_names, examples), collapse = ", ")
+        paste(sprintf("'%s' (%s)", example_names, examples), collapse = ", "),
+        group_hint
       ), call. = FALSE)
     }
 

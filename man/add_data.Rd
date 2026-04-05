@@ -12,6 +12,8 @@ add_data(
   sheet = NULL,
   start_row = NULL,
   cols = NULL,
+  group_col = NULL,
+  groups = "all",
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
   verbose = TRUE
@@ -46,6 +48,15 @@ is known.}
 \item{cols}{Character vector of column names from \code{data} to join. If \code{NULL}
 (default), all columns except \code{species_col} are joined.}
 
+\item{group_col}{Character or \code{NULL}. Column in \code{data} that defines groups
+(e.g., country codes, regions). When set, the output is pivoted to wide
+format with one column per group (e.g., \code{trait_AT}, \code{trait_DE}), just
+like the built-in grouped enrichments. Use \code{\link[=taxify_long]{taxify_long()}} to reshape
+back to long format. Default \code{NULL} (flat join, one row per species).}
+
+\item{groups}{Character vector or \code{"all"}. Which groups to include when
+\code{group_col} is set. Default \code{"all"}.}
+
 \item{fuzzy}{Logical. Enable fuzzy matching for names in \code{data}.
 Default \code{TRUE}.}
 
@@ -73,10 +84,18 @@ The workflow:
 \item Match species names through the same backbone(s) as the original
 \code{taxify()} call, obtaining \code{accepted_id} for each row.
 \item Check for conflicting duplicates: if multiple rows in \code{data} resolve
-to the same \code{accepted_id} with different values, an error is raised.
+to the same \code{accepted_id} with different values, an error is raised
+(unless \code{group_col} is set).
 Exact duplicates produce a warning and are deduplicated.
 \item Left-join on \code{accepted_id}.
 }
+\subsection{Grouped data}{
+
+When your data has multiple rows per species (e.g., one row per species
+per country), set \code{group_col} to produce wide output with suffixed
+columns. This is the same format as the built-in grouped enrichments.
+}
+
 \subsection{Auto-detection}{
 
 When \code{species_col} is not specified, \code{add_data()} takes the first 10 rows
@@ -93,16 +112,17 @@ result <- taxify(c("Quercus robur", "Pinus sylvestris"))
 # From a CSV file (auto-detect species column)
 result |> add_data("my_traits.csv")
 
-# From a SQLite database
-result |> add_data("traits.sqlite", table = "plant_traits")
+# Grouped data (species x country) — pivots to wide format
+result |> add_data(
+  "first_records.csv",
+  group_col = "country_code",
+  groups = c("AT", "DE")
+)
 
 # From a data.frame with explicit species column
 traits <- data.frame(species = c("Quercus robur", "Pinus sylvestris"),
                       height = c(30, 25))
 result |> add_data(traits, species_col = "species")
-
-# Select specific columns
-result |> add_data(traits, species_col = "species", cols = "height")
 }
 
 }

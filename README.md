@@ -190,6 +190,13 @@ result |> add_data(
   species_col = "AccSpeciesName",
   cols = c("LeafArea", "SLA", "PlantHeight")
 )
+
+# Grouped data (species x country) — pivots to wide format
+result |> add_data(
+  "my_first_records.csv",
+  group_col = "country_code",
+  groups = c("AT", "DE")
+)
 ```
 
 ### Reshaping to long format
