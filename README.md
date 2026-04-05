@@ -162,6 +162,22 @@ taxify(plant_names) |>
 | `add_amphibio()` | [AmphiBIO](https://doi.org/10.6084/m9.figshare.4644424) | Oliveira et al. (2017) | Amphibians |
 | `add_common_names()` | [GBIF](https://www.gbif.org/) | GBIF (2024) | All |
 
+### Keeping enrichments up to date
+
+Pre-built enrichment files are updated periodically, but you can always rebuild from source to get the latest upstream data:
+
+```r
+# Rebuild a single enrichment from its original source
+build_enrichment_from_source("conservation_status")
+
+# Rebuild all non-static enrichments
+for (e in c("conservation_status", "griis", "wcvp", "common_names")) {
+  build_enrichment_from_source(e)
+}
+```
+
+Alternatively, if you have your own version of a dataset (e.g., a newer IUCN export, a regional checklist), use `add_data()` to join it directly:
+
 ### Custom data
 
 `add_data()` joins any external dataset to your taxify results via backbone-resolved name matching. It accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and .vtr files.
