@@ -176,18 +176,14 @@ for (e in c("conservation_status", "griis", "wcvp", "common_names")) {
 }
 ```
 
-If you have your own version of a dataset (e.g., a newer IUCN export, a regional checklist), use `add_data()` to join it directly --- it auto-detects the species column and file format:
+Alternatively, if you have your own version of a dataset (e.g., a newer IUCN export, a regional checklist), use `add_data()` to join it directly:
 
 ### Custom data
 
 `add_data()` joins any external dataset to your taxify results via backbone-resolved name matching. It accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and .vtr files.
 
 ```r
-# Join any file --- species column and format auto-detected
-result |> add_data("my_traits.csv")
-result |> add_data("iucn_2025.xlsx")
-
-# Or specify columns explicitly
+# Join TRY plant trait data
 result |> add_data(
   "TRY_traits.csv",
   species_col = "AccSpeciesName",
