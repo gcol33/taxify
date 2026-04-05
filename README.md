@@ -136,7 +136,7 @@ Nine backbone databases, downloaded once and stored locally as compressed `.vtr`
 
 ### Enrichments
 
-Twelve enrichment layers join published trait and status data to your results via backbone-resolved accepted names:
+Thirteen enrichment layers join published trait and status data to your results via backbone-resolved accepted names:
 
 ```r
 taxify(plant_names) |>
@@ -150,6 +150,7 @@ taxify(plant_names) |>
 |------------|--------|-----------|------|
 | `add_conservation_status()` | [IUCN Red List](https://www.iucnredlist.org/) | IUCN (2024) | All |
 | `add_invasive_status()` | [GRIIS](https://griis.org/) | Pagad et al. (2018) | All |
+| `add_alien_first_records()` | [Seebens et al.](https://doi.org/10.6084/m9.figshare.c.3924424.v3) | Seebens et al. (2017) | All |
 | `add_wcvp()` | [WCVP](https://powo.science.kew.org/) | Govaerts et al. (2021) | Plants |
 | `add_woodiness()` | [Zanne et al.](https://datadryad.org/stash/dataset/doi:10.5061/dryad.63q27) | Zanne et al. (2014) | Plants |
 | `add_eive()` | [EIVE 1.0](https://doi.org/10.5281/zenodo.7534792) | Dengler et al. (2023) | European plants |
@@ -172,6 +173,20 @@ result |> add_data(
   species_col = "AccSpeciesName",
   cols = c("LeafArea", "SLA", "PlantHeight")
 )
+```
+
+### Reshaping to long format
+
+Group-based enrichments (invasive status, alien first records, native range, common names) produce wide output with one column per country/region. `taxify_long()` reshapes these to long format for modelling, mapping, or invasion timelines:
+
+```r
+taxify(species) |>
+  add_alien_first_records(country = c("AT", "DE", "CH")) |>
+  taxify_long(
+    cols = c("alien_first_record", "alien_first_record_source",
+             "alien_first_record_reference"),
+    group_col = "country"
+  )
 ```
 
 ### Name Cleaning

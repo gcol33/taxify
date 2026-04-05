@@ -31,6 +31,18 @@
       "available_groups": null,
       "static": false
     },
+    "alien_first_records": {
+      "latest": "3.1",
+      "full_url": null,
+      "nrow": null,
+      "source_url": "https://doi.org/10.6084/m9.figshare.c.3924424.v3",
+      "source_format": "xlsx",
+      "source_version": "3.1",
+      "species_col": "TaxonName",
+      "trait_cols": ["country_code", "alien_first_record", "alien_first_record_source", "alien_first_record_reference"],
+      "available_groups": null,
+      "static": true
+    },
     "wcvp": {
       "latest": "2026.04",
       "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/wcvp.vtr",

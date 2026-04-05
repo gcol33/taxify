@@ -720,7 +720,7 @@ Data* 4:170123.
 
 ## Group-based enrichments
 
-Three enrichments filter by a grouping variable (country code, TDWG
+Four enrichments filter by a grouping variable (country code, TDWG
 botanical region code, or language code) and pivot the result to wide
 format. The mechanics are the same across all three: when a single group
 value is requested, the output column uses the base name (e.g.,
@@ -823,6 +823,104 @@ GRIIS enrichment (which it normally does), the codes are read from there in
 O(1) time without scanning the `.vtr` file. This makes even the `"all"`
 case fast to set up, though the subsequent join across 196 groups
 naturally takes longer than a single-country join.
+
+### Alien species first records (Seebens et al.)
+
+The Global Alien Species First Record Database (Seebens et al. 2017)
+records the year each alien species was first documented in a given country
+or territory. Unlike GRIIS (which records current status), this enrichment
+provides a historical timeline of alien species arrivals. The dataset
+covers all taxa (plants, animals, fungi) with ~77,000 species-country
+combinations across 241 countries. The `country` argument takes ISO 3166-1
+alpha-2 codes, same as `add_invasive_status()`.
+
+#### Single country
+
+```{r alien-fr-single}
+aliens <- taxify(c(
+  "Robinia pseudoacacia", "Ailanthus altissima",
+  "Impatiens glandulifera", "Quercus robur",
+  "Ambrosia artemisiifolia", "Solidago canadensis"
+))
+
+aliens |> add_alien_first_records(country = "AT")
+#>              input_name alien_first_record alien_first_record_source alien_first_record_reference
+#> 1   Robinia pseudoacacia               1850                   NOBANIS                      NOBANIS
+#> 2    Ailanthus altissima               1870                   NOBANIS                      NOBANIS
+#> 3 Impatiens glandulifera               1900                   NOBANIS                      NOBANIS
+#> 4          Quercus robur                 NA                      <NA>                         <NA>
+#> 5 Ambrosia artemisiifolia              1863                   NOBANIS                      NOBANIS
+#> 6  Solidago canadensis                 1850                   NOBANIS                      NOBANIS
+```
+
+Each row gets three columns: `alien_first_record` (the year as an integer),
+`alien_first_record_source` (the database that contributed this record,
+e.g., "NOBANIS", "GAVIA", "FishBase"), and `alien_first_record_reference`
+(the original citation). Native species like *Quercus robur* receive `NA`
+because they are not in the alien first records database.
+
+The source and reference columns provide row-level provenance. This
+matters because a second first-records source (GBIF occurrence-based
+records) will be added in a future version, and the `source` column will
+distinguish which database contributed each record.
+
+#### Multiple countries
+
+```{r alien-fr-multi}
+aliens |> add_alien_first_records(country = c("AT", "DE", "GB"))
+#>              input_name alien_first_record_AT alien_first_record_DE alien_first_record_GB ...
+#> 1   Robinia pseudoacacia                  1850                  1630                  1640 ...
+#> 2    Ailanthus altissima                  1870                  1780                  1751 ...
+#> 3 Impatiens glandulifera                  1900                  1839                  1855 ...
+```
+
+With multiple countries, each of the three value columns gets a country
+suffix: `alien_first_record_AT`, `alien_first_record_source_AT`,
+`alien_first_record_reference_AT`, etc. This makes cross-country
+comparisons of invasion history straightforward.
+
+#### Reshaping to long format
+
+When working with multiple countries, the wide format can be unwieldy for
+modelling, mapping, or timeline analyses. The `taxify_long()` helper
+reshapes any group-based enrichment columns back to long format:
+
+```{r alien-fr-long}
+aliens |>
+  add_alien_first_records(country = c("AT", "DE", "GB")) |>
+  taxify_long(
+    cols = c("alien_first_record", "alien_first_record_source",
+             "alien_first_record_reference"),
+    group_col = "country"
+  )
+#>              input_name country alien_first_record alien_first_record_source ...
+#> 1   Robinia pseudoacacia      AT               1850                   NOBANIS ...
+#> 2    Ailanthus altissima      AT               1870                   NOBANIS ...
+#> ...
+#> 7   Robinia pseudoacacia      DE               1630              Long (2003) ...
+#> ...
+```
+
+The result has one row per species per country, with the base column names
+(no suffix) and a new `country` column. This format is what most modelling
+and spatial analysis workflows expect. The `drop_na = TRUE` argument
+removes rows where all value columns are `NA` (e.g., native species with
+no alien first record in any queried country).
+
+`taxify_long()` works with any group-based enrichment, not just alien first
+records. It can reshape `invasive_status`, `native_status`, or
+`common_name` columns just as easily:
+
+```{r taxify-long-griis}
+aliens |>
+  add_invasive_status(country = c("AT", "DE")) |>
+  taxify_long(cols = "invasive_status", group_col = "country")
+```
+
+The helper detects suffixed columns by matching the base names you provide,
+using longest-prefix-first matching to correctly handle column names like
+`alien_first_record_source_AT` (base = `alien_first_record_source`,
+suffix = `AT`).
 
 ### Native range by botanical region (WCVP)
 
@@ -1410,7 +1508,7 @@ single data.frame, while keeping the taxon-specific trait matrices clean.
 
 ## Joining custom data
 
-Beyond the 12 built-in enrichments, `add_data()` joins any external
+Beyond the 13 built-in enrichments, `add_data()` joins any external
 dataset to a taxify result. It accepts a file path (CSV, CSV.GZ, XLSX,
 SQLite/DB, or VTR) or an in-memory data.frame. The function identifies the
 species name column (automatically by running the first 10 rows of each
@@ -1479,7 +1577,7 @@ via `?add_avonet`, `?add_leda`, `?add_pantheria`, etc.).
 For reproducibility, the version recorded in `meta.json` pins the exact
 build of each enrichment `.vtr` file that was used. Static enrichments
 (Zanne 2014, PanTHERIA 2009, EltonTraits 2014, AmphiBIO 2017, LEDA 2008,
-Diaz 2022) have fixed versions that never change. Non-static enrichments
+Diaz 2022, Seebens 2017) have fixed versions that never change. Non-static enrichments
 (IUCN, GRIIS, WCVP, common names) are updated when the upstream source
 publishes a new release, and the version in `meta.json` reflects which
 release was used. Reporting the enrichment version in a publication ensures

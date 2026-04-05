@@ -49,6 +49,8 @@ utils::globalVariables(c(
   "longevity_mo", "litter_size", "gestation_d", "weaning_d",
   "home_range_km2", "diet_breadth", "habitat_breadth",
   "lang", "common_name",
+  # Alien first records enrichment column references
+  "alien_first_record", "alien_first_record_source", "alien_first_record_reference",
   # AmphiBIO enrichment column references
   "body_size_mm", "age_maturity_d", "longevity_d", "reproductive_output",
   "offspring_size_mm", "direct_development", "larval", "aquatic",
