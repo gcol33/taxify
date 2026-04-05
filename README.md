@@ -185,6 +185,16 @@ taxify(species) |>
   taxify_long()
 ```
 
+Multiple enrichments with different country sets are combined automatically, with `NA` padding where a group is missing:
+
+```r
+taxify(species) |>
+  add_invasive_status(country = c("AT", "DE")) |>
+  add_alien_first_records(country = c("AT", "DE", "CH")) |>
+  taxify_long()
+# invasive_status is NA for CH rows
+```
+
 ### Name Cleaning
 
 Input names are automatically cleaned before matching:
