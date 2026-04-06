@@ -27,7 +27,7 @@ Two R packages handle this well:
 [taxize](https://docs.ropensci.org/taxize/) queries online APIs in real
 time, and [WorldFlora](https://cran.r-project.org/package=WorldFlora)
 matches names offline against the WFO backbone. taxify builds on the same
-idea but works offline against nine backbone databases at once, with fuzzy
+idea but works offline against ten backbone databases at once, with fuzzy
 matching in C, synonym resolution, and a built-in enrichment pipeline for
 joining trait and status data.
 

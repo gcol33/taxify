@@ -34,7 +34,7 @@ result |> add_data("my_traits.csv")
 
 ## What taxify does
 
-taxify resolves taxonomic names offline against nine backbone databases covering all kingdoms of life, then optionally enriches the results with trait and status data from over twenty published datasets. The matching engine is written in C (via the [vectra](https://github.com/gcol33/vectra) columnar engine), so large species lists resolve in seconds.
+taxify resolves taxonomic names offline against ten backbone databases covering all kingdoms of life, then optionally enriches the results with trait and status data from over twenty published datasets. The matching engine is written in C (via the [vectra](https://github.com/gcol33/vectra) columnar engine), so large species lists resolve in seconds.
 
 The core workflow is: clean input names, match against a backbone, resolve synonyms to accepted names, and return a standardized 16-column data.frame. Every step runs locally against versioned backbone snapshots, so results are fully reproducible.
 
@@ -43,7 +43,7 @@ The core workflow is: clean input names, match against a backbone, resolve synon
 - [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries web APIs in real time. It was removed from CRAN for two years and is back, but depends on third-party API endpoints that break without warning. Good when you need live access to upstream databases; less good for reproducible, large-scale matching.
 - [**WorldFlora**](https://cran.r-project.org/package=WorldFlora) matches names offline against the WFO backbone. Straightforward for small plant lists, but WFO-only and slow at scale (see benchmarks below).
 
-taxify matches offline across seven backbones at once, resolves synonyms, and pipes the result straight into trait enrichments — all at C-level speed.
+taxify matches offline across ten backbones at once, resolves synonyms, and pipes the result straight into trait enrichments — all at C-level speed.
 
 ### Speed
 
@@ -120,7 +120,7 @@ summary(result)
 
 ### Backends
 
-Nine backbone databases, downloaded once and stored locally as compressed `.vtr` files:
+Ten backbone databases, downloaded once and stored locally as compressed `.vtr` files:
 
 | Backend | Scope | Approx. names |
 |---------|-------|---------------|
@@ -131,6 +131,7 @@ Nine backbone databases, downloaded once and stored locally as compressed `.vtr`
 | [NCBI Taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | ~2.5M |
 | [Open Tree of Life](https://opentreeoflife.github.io/) | All life (synthetic) | ~4M |
 | [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | ~600k |
+| [Euro+Med](https://europlusmed.org/) | European/Mediterranean plants | ~132k |
 | [Species Fungorum](https://www.speciesfungorum.org/) | Fungi | ~329k |
 | [AlgaeBase](https://www.algaebase.org/) | Algae | ~172k |
 
