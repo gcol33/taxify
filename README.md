@@ -40,10 +40,24 @@ The core workflow is: clean input names, match against a backbone, resolve synon
 
 ### Related packages
 
-- [**taxize**](https://docs.ropensci.org/taxize/) (rOpenSci) queries web APIs in real time. It was removed from CRAN for two years and is back, but depends on third-party API endpoints that break without warning. Good when you need live access to upstream databases; less good for reproducible, large-scale matching.
-- [**WorldFlora**](https://cran.r-project.org/package=WorldFlora) matches names offline against the WFO backbone. Straightforward for small plant lists, but WFO-only and slow at scale (see benchmarks below).
+The R ecosystem has a rich set of taxonomic tools, each with its own focus. The summary below describes what each one does so you can pick the right tool for your workflow.
 
-taxify matches offline across ten backbones at once, resolves synonyms, and pipes the result straight into trait enrichments — all at C-level speed.
+| Package | Source data | Coverage | Access |
+|---|---|---|---|
+| [taxize](https://docs.ropensci.org/taxize/) | ~20 web services (NCBI, ITIS, GBIF, EOL, IUCN, WoRMS, Tropicos, ...) | All kingdoms | Live API |
+| [WorldFlora](https://cran.r-project.org/package=WorldFlora) | World Flora Online classification (`WFO.match`) | Land plants (vascular + bryophytes) | Local file |
+| [lcvplants](https://cran.r-project.org/package=lcvplants) | Leipzig Catalogue of Vascular Plants | Vascular plants | Bundled in package |
+| [rWCVP](https://matildabrown.github.io/rWCVP/) | World Checklist of Vascular Plants (Kew) | Vascular plants | Local snapshot |
+| [taxadb](https://docs.ropensci.org/taxadb/) | GBIF, ITIS, COL, NCBI, OTT, WFO snapshots | All kingdoms | Local DuckDB / MonetDB |
+| [Taxonstand](https://cran.r-project.org/package=Taxonstand) | The Plant List (legacy, retired by Kew in 2013) | Vascular plants | Bundled in package |
+| [U.Taxonstand](https://github.com/ecoinfor/U.Taxonstand) | User-supplied or bundled checklists | Configurable | Local |
+| [bdc](https://brunobrr.github.io/bdc/) | taxadb + GNR for the taxonomic step inside a wider data-cleaning workflow | All kingdoms | Local + API |
+| [TNRS](https://cran.r-project.org/package=TNRS) | TNRS web service (BIEN / iDigBio) | Plants | Live API |
+| [rgbif](https://docs.ropensci.org/rgbif/) | GBIF backbone | All kingdoms | Live API |
+| [worrms](https://docs.ropensci.org/worrms/) | WoRMS | Marine taxa | Live API |
+| [ritis](https://docs.ropensci.org/ritis/) | ITIS | Mostly North American taxa | Live API |
+
+taxify ships ten backbones (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase) as pre-built local snapshots, runs exact, case-insensitive, and genus-blocked fuzzy matching against any of them in C, resolves synonyms to accepted names in the same call, and arbitrates across backbones via a single fallback chain. The result pipes directly into the trait and status enrichments listed below. The closest functional analogue is [taxadb](https://docs.ropensci.org/taxadb/), which also stores backbone snapshots locally; the migration vignette walks through the differences in matching strategy, output schema, and enrichment integration.
 
 ### Speed
 
@@ -319,7 +333,7 @@ The [enrichments vignette](https://gillescolling.com/taxify/articles/enrichments
 - [Enrichments](https://gillescolling.com/taxify/articles/enrichments.html)
 - [Custom data](https://gillescolling.com/taxify/articles/custom-data.html)
 - [Hybrid names](https://gillescolling.com/taxify/articles/hybrid-names.html)
-- [Migrating from taxize and WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
+- [Migrating from taxize, WorldFlora, and related tools](https://gillescolling.com/taxify/articles/migration.html)
 - [Large-scale workflows](https://gillescolling.com/taxify/articles/large-scale.html)
 
 ## Support
