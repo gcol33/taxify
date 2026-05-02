@@ -16,14 +16,18 @@
 #' @param filename Character. Output filename.
 #' @return Path to the downloaded file.
 #' @noRd
-download_curl_file <- function(url, dest_dir, filename) {
+download_curl_file <- function(url, dest_dir, filename, referer = NULL,
+                               user_agent = NULL) {
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
   dest <- file.path(dest_dir, filename)
   if (file.exists(dest) && file.size(dest) > 100L) return(dest)
 
   h <- curl::new_handle()
   curl::handle_setopt(h, followlocation = TRUE, maxredirs = 10L)
-  curl::handle_setheaders(h, "User-Agent" = "R/4.5 taxify")
+  ua <- user_agent %||% "Mozilla/5.0 (compatible; taxify/0.5)"
+  headers <- list("User-Agent" = ua)
+  if (!is.null(referer)) headers[["Referer"]] <- referer
+  do.call(curl::handle_setheaders, c(list(h), headers))
   curl::curl_download(url, dest, handle = h)
 
   if (!file.exists(dest) || file.size(dest) < 100L) {
@@ -120,7 +124,15 @@ download_gbif_api_pages <- function(base_url, params, limit = 1000L,
   if (length(all_rows) == 0L) {
     return(data.frame(stringsAsFactors = FALSE))
   }
-  do.call(rbind, all_rows)
+  flat <- lapply(all_rows, function(df) {
+    for (col in names(df)) {
+      if (is.data.frame(df[[col]]) || is.list(df[[col]])) df[[col]] <- NULL
+    }
+    row.names(df) <- NULL
+    df
+  })
+  as.data.frame(data.table::rbindlist(flat, fill = TRUE),
+                stringsAsFactors = FALSE)
 }
 
 
@@ -468,7 +480,8 @@ parse_amphibio <- function(path) {
 #' Parse FISHMORPH freshwater fish morphological traits (CSV)
 #' @noRd
 parse_fish_traits <- function(path) {
-  df <- read.csv(path, stringsAsFactors = FALSE)
+  df <- read.csv2(path, stringsAsFactors = FALSE,
+                  fileEncoding = "latin1", dec = ".")
 
   # Species column: "Genus species" or "Genus.species" or "Species"
   name_col <- intersect(
@@ -539,16 +552,43 @@ parse_leda <- function(dir_path) {
   )
 
   read_leda_trait <- function(path) {
+    # LEDA text dumps prefix the data table with an SQL query preamble.
+    # Some files (e.g. SLA.txt) pad the preamble with semicolons to match
+    # the data column count, so a semicolon-count heuristic is unreliable.
+    # Universal LEDA tables are keyed on "SBS name" or "SBS number", so
+    # use that prefix to locate the header row.
+    find_header_skip <- function(p, max_scan = 50L) {
+      con <- file(p, encoding = "latin1")
+      on.exit(close(con))
+      lines <- readLines(con, n = max_scan, warn = FALSE)
+      hits <- which(grepl("^SBS (name|number)\\s*;", lines,
+                          ignore.case = TRUE))
+      if (length(hits) == 0L) {
+        # fallback: first line with 3+ semicolons that is NOT padded SQL.
+        hits <- which(vapply(lines, function(l) {
+          sc <- sum(charToRaw(l) == charToRaw(";"))
+          sc >= 3L && !grepl("(SELECT |FROM |WHERE |\\(|^The following)", l)
+        }, logical(1L)))
+      }
+      if (length(hits) == 0L) return(0L)
+      hits[1L] - 1L
+    }
+
     tryCatch({
+      skip_n <- find_header_skip(path)
       df <- read.csv(path, sep = ";", stringsAsFactors = FALSE,
-                     fileEncoding = "latin1")
+                     fileEncoding = "latin1", skip = skip_n,
+                     check.names = FALSE)
       if (ncol(df) <= 1L) {
-        df <- read.delim(path, stringsAsFactors = FALSE, fileEncoding = "latin1")
+        df <- read.delim(path, stringsAsFactors = FALSE,
+                         fileEncoding = "latin1", skip = skip_n,
+                         check.names = FALSE)
       }
       df
     }, error = function(e) {
       tryCatch(
-        read.delim(path, stringsAsFactors = FALSE),
+        read.delim(path, stringsAsFactors = FALSE, skip = 0L,
+                   check.names = FALSE),
         error = function(e2) NULL
       )
     })
@@ -1252,8 +1292,7 @@ parse_conservation_status <- function(dummy_path) {
     message(sprintf("    %s species", format(nrow(rows), big.mark = ",")))
   }
 
-  out <- do.call(rbind, all_data)
-  rownames(out) <- NULL
+  out <- do.call(function(...) rbind(..., make.row.names = FALSE), all_data)
 
   out <- out[!is.na(out$canonical_name) & nchar(out$canonical_name) > 0L, ]
 
@@ -1578,10 +1617,34 @@ parse_ott_common_names <- function(dir_path) {
 #'   trophic_mode, guild, growth_morphology, confidence_ranking.
 #' @noRd
 parse_funguild <- function(path) {
-  raw <- jsonlite::fromJSON(path, simplifyVector = TRUE)
+  txt <- readLines(path, warn = FALSE)
+  txt <- paste(txt, collapse = "\n")
+  # stbates.org wraps the JSON array in <html>...<body>...JSON...</body></html>.
+  # Extract the JSON array between the first '[' and the matching trailing ']'.
+  start <- regexpr("\\[", txt)
+  end   <- max(gregexpr("\\]", txt)[[1L]])
+  if (start <= 0L || end <= start) {
+    stop("Cannot locate JSON array in FUNGuild response.", call. = FALSE)
+  }
+  json_str <- substr(txt, start, end)
+  raw <- jsonlite::fromJSON(json_str, simplifyVector = TRUE)
 
-  # Keep only genus and species-level entries
-  keep <- tolower(trimws(raw$taxonLevel)) %in% c("genus", "species")
+  # FUNGuild uses Index Fungorum numeric taxonomic levels:
+  # 12=family, 13=genus, 20=species, 25=variety, 26=form, 27=subspecies.
+  level_col <- intersect(names(raw), c("taxonomicLevel", "taxonLevel"))
+  if (length(level_col) == 0L) {
+    stop("FUNGuild response missing taxonomicLevel/taxonLevel column.",
+         call. = FALSE)
+  }
+  level_raw <- trimws(as.character(raw[[level_col[1L]]]))
+  level_norm <- ifelse(grepl("^[0-9]+$", level_raw),
+    c("13" = "genus", "20" = "species", "25" = "species",
+      "26" = "species", "27" = "species")[level_raw],
+    tolower(level_raw)
+  )
+  raw$taxonLevel <- level_norm
+
+  keep <- level_norm %in% c("genus", "species")
   df <- raw[keep, ]
 
   if (nrow(df) == 0L) {
@@ -2010,12 +2073,31 @@ extract_algae_wide <- function(df, name_col) {
 #' Parse Meiri (2018) lizard traits (XLSX from Figshare)
 #' @noRd
 parse_lizard_traits <- function(path) {
-  if (!requireNamespace("openxlsx2", quietly = TRUE)) {
-    stop("Package 'openxlsx2' is required to parse lizard traits.",
-         call. = FALSE)
+  ext <- tolower(tools::file_ext(path))
+  if (ext == "csv") {
+    df <- read.csv(path, stringsAsFactors = FALSE, check.names = FALSE)
+  } else if (ext %in% c("tsv", "txt")) {
+    df <- read.delim(path, stringsAsFactors = FALSE, check.names = FALSE)
+  } else {
+    if (!requireNamespace("openxlsx2", quietly = TRUE)) {
+      stop("Package 'openxlsx2' is required to parse lizard traits XLSX.",
+           call. = FALSE)
+    }
+    # ReptTraits 2024 puts traits on a sheet named "Data"; older Meiri 2018
+    # XLSX has data on sheet 1. Pick the sheet named (case-insensitive)
+    # "Data" if present, otherwise the widest sheet.
+    sheets <- openxlsx2::wb_get_sheet_names(openxlsx2::wb_load(path))
+    pick <- sheets[tolower(sheets) %in% c("data", "data sheet", "trait data")]
+    if (length(pick) == 0L) {
+      ncols <- vapply(sheets, function(s) {
+        h <- tryCatch(openxlsx2::read_xlsx(path, sheet = s, rows = 1:1),
+                      error = function(e) NULL)
+        if (is.null(h)) 0L else ncol(h)
+      }, integer(1L))
+      pick <- sheets[which.max(ncols)]
+    }
+    df <- openxlsx2::read_xlsx(path, sheet = pick[1L])
   }
-
-  df <- openxlsx2::read_xlsx(path, sheet = 1L)
 
   find_col <- function(patterns) {
     for (p in patterns) {
@@ -2437,7 +2519,7 @@ parse_anage <- function(path) {
 #' Parse GloNAF taxon-region data (multiple CSVs from ZIP)
 #' @noRd
 parse_glonaf <- function(dir_path) {
-  # GloNAF 2.0 ships as multiple CSVs; we need flora + taxon + region tables
+  # GloNAF 2.0 (2024) ships as XLSX on Zenodo; older versions used CSV.
   find_file <- function(patterns) {
     for (p in patterns) {
       f <- list.files(dir_path, pattern = p, full.names = TRUE,
@@ -2447,28 +2529,67 @@ parse_glonaf <- function(dir_path) {
     NULL
   }
 
-  # Main occurrence table: taxon × region
-  flora_file <- find_file(c("glonaf_flora", "flora2?\\.csv"))
+  read_table <- function(path) {
+    if (is.null(path)) return(NULL)
+    ext <- tolower(tools::file_ext(path))
+    if (ext == "csv") {
+      read.csv(path, stringsAsFactors = FALSE, check.names = FALSE)
+    } else if (ext %in% c("xlsx", "xls")) {
+      if (!requireNamespace("openxlsx2", quietly = TRUE)) {
+        stop("openxlsx2 is required to read GloNAF XLSX files. ",
+             "Install with: install.packages('openxlsx2')", call. = FALSE)
+      }
+      as.data.frame(openxlsx2::read_xlsx(path), stringsAsFactors = FALSE)
+    } else {
+      read.delim(path, stringsAsFactors = FALSE, check.names = FALSE)
+    }
+  }
+
+  # Main occurrence table: taxon x region
+  flora_file <- find_file(c(
+    "glonaf_flora.*\\.xlsx", "glonaf_flora.*\\.csv",
+    "flora2?\\.xlsx",        "flora2?\\.csv"
+  ))
   if (is.null(flora_file)) {
-    # Fallback: try TxR matrix
-    flora_file <- find_file(c("glonaf_TxR", "TxR\\.csv"))
+    flora_file <- find_file(c("glonaf_TxR.*\\.xlsx", "glonaf_TxR.*\\.csv",
+                              "TxR\\.csv"))
   }
   if (is.null(flora_file)) {
-    stop("Cannot find GloNAF flora/TxR CSV in extracted files.\nContents: ",
+    stop("Cannot find GloNAF flora/TxR table.\nContents: ",
          paste(list.files(dir_path, recursive = TRUE), collapse = ", "),
          call. = FALSE)
   }
 
   # Taxon table: maps IDs to species names
-  taxon_file <- find_file(c("glonaf_taxon", "taxon_wcvp"))
+  taxon_file <- find_file(c(
+    "glonaf_taxon.*\\.xlsx", "glonaf_taxon.*\\.csv",
+    "taxon_wcvp.*\\.xlsx",   "taxon_wcvp.*\\.csv"
+  ))
+  # exclude data dictionaries from main tables
+  if (!is.null(taxon_file) && grepl("datadictionary", taxon_file,
+                                     ignore.case = TRUE)) {
+    taxon_file <- find_file(c(
+      "^glonaf_taxon[^_]*\\.xlsx$", "^glonaf_taxon[^_]*\\.csv$",
+      "^glonaf_taxon_wcvp\\.xlsx$",  "^glonaf_taxon_wcvp\\.csv$"
+    ))
+  }
   # Region table: maps region IDs to region codes/names
-  region_file <- find_file(c("glonaf_region", "region\\.csv"))
+  region_file <- find_file(c(
+    "glonaf_region.*\\.xlsx", "glonaf_region.*\\.csv",
+    "region\\.csv"
+  ))
+  if (!is.null(region_file) && grepl("datadictionary", region_file,
+                                      ignore.case = TRUE)) {
+    region_file <- find_file(c(
+      "^glonaf_region[^_]*\\.xlsx$", "^glonaf_region[^_]*\\.csv$"
+    ))
+  }
 
-  flora <- read.csv(flora_file, stringsAsFactors = FALSE)
+  flora <- read_table(flora_file)
 
   # Resolve species names
   if (!is.null(taxon_file)) {
-    taxon <- read.csv(taxon_file, stringsAsFactors = FALSE)
+    taxon <- read_table(taxon_file)
     # Find the join key
     flora_taxon_col <- intersect(
       names(flora),
@@ -2480,7 +2601,8 @@ parse_glonaf <- function(dir_path) {
     )
     taxon_name_col <- intersect(
       names(taxon),
-      c("species_name", "accepted_name", "taxon_name", "name",
+      c("taxa_accepted", "taxon_corrected", "species_name",
+        "accepted_name", "taxon_name", "name",
         "scientificName", "canonical_name")
     )
 
@@ -2509,15 +2631,15 @@ parse_glonaf <- function(dir_path) {
 
   # Resolve region codes
   if (!is.null(region_file)) {
-    region <- read.csv(region_file, stringsAsFactors = FALSE)
+    region <- read_table(region_file)
     region_id_col <- intersect(
       names(region),
       c("region_id", "OBJIDsic", "id", "ID")
     )
     region_code_col <- intersect(
       names(region),
-      c("tdwg4_code", "tdwg3_code", "tdwg2_code", "country_code",
-        "region_code", "name")
+      c("code", "tdwg4_code", "tdwg3_code", "tdwg2_code",
+        "iso_equivalent", "country_code", "region_code", "name")
     )
     flora_region_col <- intersect(
       names(flora),
@@ -2527,18 +2649,19 @@ parse_glonaf <- function(dir_path) {
     if (length(region_id_col) > 0L && length(region_code_col) > 0L &&
         length(flora_region_col) > 0L) {
       region_lookup <- region[, c(region_id_col[1L], region_code_col[1L])]
-      names(region_lookup) <- c("region_join", "region_id")
+      names(region_lookup) <- c("region_join", "region_code_resolved")
       region_lookup <- region_lookup[!duplicated(region_lookup$region_join), ]
       flora$region_join <- flora[[flora_region_col[1L]]]
       flora <- merge(flora, region_lookup, by = "region_join", all.x = TRUE)
+      flora$region_id <- as.character(flora$region_code_resolved)
     }
   }
 
   # If region_id still missing, use the raw region column
-  if (!"region_id" %in% names(flora)) {
+  if (!"region_id" %in% names(flora) || all(is.na(flora$region_id))) {
     region_col <- intersect(
       names(flora),
-      c("region", "OBJIDsic", "region_id_raw")
+      c("region_id", "region", "OBJIDsic", "region_id_raw")
     )
     if (length(region_col) > 0L) {
       flora$region_id <- as.character(flora[[region_col[1L]]])
@@ -2566,13 +2689,13 @@ parse_glonaf <- function(dir_path) {
 .enrichment_build_registry <- list(
 
   woodiness = list(
-    source_url  = "https://datadryad.org/api/v2/datasets/doi%3A10.5061%2Fdryad.63q27/download",
+    source_url  = "https://raw.githubusercontent.com/ejedwards/reanalysis_zanne2014/master/dryad/GlobalWoodinessDatabase.csv",
     source_doi  = "10.5061/dryad.63q27",
     version     = "2014.1",
     license     = "CC0",
-    attribution = "Zanne AE et al. (2014) Three keys to the radiation of angiosperms into freezing environments. Nature 506:89-92.",
+    attribution = "Zanne AE et al. (2014) Three keys to the radiation of angiosperms into freezing environments. Nature 506:89-92. (Dryad CSV mirrored unaltered in github.com/ejedwards/reanalysis_zanne2014.)",
     download_fn = function(url, dest) {
-      download_and_unzip(url, dest, "(?i)(woodiness|GlobalWood).*\\.csv$")
+      download_curl_file(url, dest, "GlobalWoodinessDatabase.csv")
     },
     parse_fn    = parse_woodiness,
     group_col   = NULL,
@@ -2664,23 +2787,34 @@ parse_glonaf <- function(dir_path) {
   ),
 
   leda = list(
-    source_url  = "https://uol.de/fileadmin/user_upload/biologie/ag/landeco/download/LEDA/",
+    source_url  = "https://uol.de/f/5/inst/biologie/ag/landeco/download/LEDA/Data_files/",
     source_doi  = "10.1111/j.1365-2745.2008.01430.x",
     version     = "2008.1",
     license     = "Free for academic use",
     attribution = "Kleyer M et al. (2008) The LEDA Traitbase: a database of life-history traits of the Northwest European flora. J Ecol 96:1266-1274.",
     download_fn = function(url, dest) {
       dir.create(dest, recursive = TRUE, showWarnings = FALSE)
-      leda_base <- "https://uol.de/fileadmin/user_upload/biologie/ag/landeco/download/LEDA/"
-      trait_files <- c("life_form.txt", "dispersal_type.txt", "TV.txt",
-                       "seed_mass.txt", "canopy_height.txt", "leaf_mass.txt",
-                       "SLA.txt", "clonal_growth.txt", "buoyancy.txt")
-      for (f in trait_files) {
+      leda_base <- "https://uol.de/f/5/inst/biologie/ag/landeco/download/LEDA/Data_files/"
+      # LEDA filenames map: parser-expected name -> upstream filename(s).
+      # Some traits were re-released with year suffix in 2016.
+      trait_files <- c(
+        "life_form.txt"         = "plant_growth_form.txt",
+        "dispersal_type.txt"    = "dispersal_type.txt",
+        "TV.txt"                = "TV_2016.txt",
+        "seed_mass.txt"         = "seed_mass.txt",
+        "canopy_height.txt"     = "canopy_height.txt",
+        "leaf_mass.txt"         = "leaf_mass.txt",
+        "SLA.txt"               = "SLA_und_geo_neu2.txt",
+        "clonal_growth.txt"     = "CGO.txt",
+        "buoyancy.txt"          = "buoyancy_2016.txt"
+      )
+      for (out_name in names(trait_files)) {
+        upstream <- trait_files[[out_name]]
         tryCatch(
-          download_curl_file(paste0(leda_base, f), dest, f),
+          download_curl_file(paste0(leda_base, upstream), dest, out_name),
           error = function(e) {
-            message(sprintf("  Warning: failed to download LEDA %s: %s",
-                            f, conditionMessage(e)))
+            message(sprintf("  Warning: failed to download LEDA %s (%s): %s",
+                            out_name, upstream, conditionMessage(e)))
           }
         )
       }
@@ -2820,23 +2954,30 @@ parse_glonaf <- function(dir_path) {
         utils::untar(tar_path, files = "names.dmp", exdir = ncbi_dir)
       }
 
-      # ---- OTT ----
+      # ---- OTT (optional; files.opentreeoflife.org is not always reachable) ----
       ott_dir <- file.path(dest, "ott")
       if (!dir.exists(ott_dir)) {
-        dir.create(ott_dir, recursive = TRUE)
-        tgz_path <- file.path(dest, "ott.tgz")
-        if (!file.exists(tgz_path)) {
-          utils::download.file(ott_url, tgz_path, mode = "wb", quiet = TRUE)
-        }
-        utils::untar(tgz_path, exdir = dest)
-        # OTT extracts to e.g. ott3.7/ — move the files we need
-        ott_extracted <- list.dirs(dest, recursive = FALSE, full.names = TRUE)
-        ott_extracted <- ott_extracted[grepl("^ott", basename(ott_extracted))][1L]
-        if (!is.na(ott_extracted)) {
-          file.copy(file.path(ott_extracted, "taxonomy.tsv"), ott_dir)
-          file.copy(file.path(ott_extracted, "synonyms.tsv"), ott_dir)
-          unlink(ott_extracted, recursive = TRUE)
-        }
+        tryCatch({
+          dir.create(ott_dir, recursive = TRUE)
+          tgz_path <- file.path(dest, "ott.tgz")
+          if (!file.exists(tgz_path)) {
+            utils::download.file(ott_url, tgz_path, mode = "wb", quiet = TRUE)
+          }
+          utils::untar(tgz_path, exdir = dest)
+          ott_extracted <- list.dirs(dest, recursive = FALSE, full.names = TRUE)
+          ott_extracted <- ott_extracted[grepl("^ott", basename(ott_extracted))][1L]
+          if (!is.na(ott_extracted)) {
+            file.copy(file.path(ott_extracted, "taxonomy.tsv"), ott_dir)
+            file.copy(file.path(ott_extracted, "synonyms.tsv"), ott_dir)
+            unlink(ott_extracted, recursive = TRUE)
+          }
+        }, error = function(e) {
+          message(sprintf(
+            "  Warning: OTT common names skipped (%s). ",
+            conditionMessage(e)
+          ))
+          unlink(ott_dir, recursive = TRUE)
+        })
       }
 
       dest
@@ -2847,13 +2988,13 @@ parse_glonaf <- function(dir_path) {
   ),
 
   funguild = list(
-    source_url  = "https://mycoportal.org/funguild/services/api/db_return.php?qDB=funguild_db&qField=taxon&qText=*",
+    source_url  = "http://www.stbates.org/funguild_db_2.php",
     source_doi  = "10.1016/j.funeco.2015.06.006",
-    version     = "2016.1",
+    version     = "2024.1",
     license     = "CC BY 4.0",
     attribution = "Nguyen NH et al. (2016) FUNGuild: An open annotation tool for parsing fungal community datasets by ecological guild. Fungal Ecology 20:241-248.",
     download_fn = function(url, dest) {
-      download_curl_file(url, dest, "funguild_db.json")
+      download_curl_file(url, dest, "funguild_db.html")
     },
     parse_fn    = parse_funguild,
     group_col   = NULL,
@@ -2878,13 +3019,16 @@ parse_glonaf <- function(dir_path) {
   ),
 
   fungal_traits = list(
-    source_url  = "https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM2_ESM.xlsx",
+    source_url  = "https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM4_ESM.xlsx",
     source_doi  = "10.1007/s13225-020-00466-2",
     version     = "2020.1",
     license     = "CC BY 4.0",
     attribution = "Polme S et al. (2020) FungalTraits: a user-friendly traits database of fungi and fungus-like stramenopiles. Fungal Diversity 105:1-16.",
     download_fn = function(url, dest) {
-      download_curl_file(url, dest, "FungalTraits.xlsx")
+      download_curl_file(
+        url, dest, "FungalTraits.xlsx",
+        referer = "https://link.springer.com/article/10.1007/s13225-020-00466-2"
+      )
     },
     parse_fn    = parse_fungal_traits,
     group_col   = NULL,
@@ -2921,13 +3065,13 @@ parse_glonaf <- function(dir_path) {
   ),
 
   lizard_traits = list(
-    source_url  = "https://ndownloader.figshare.com/files/10243295",
-    source_doi  = "10.6084/m9.figshare.5765553",
-    version     = "2018.1",
+    source_url  = "https://ndownloader.figshare.com/files/45408133",
+    source_doi  = "10.6084/m9.figshare.24572683",
+    version     = "1.2",
     license     = "CC BY 4.0",
-    attribution = "Meiri S (2018) Traits of lizards of the world: Variation around a successful evolutionary design. Global Ecology and Biogeography 27:1168-1172.",
+    attribution = "Etard A et al. (2024) ReptTraits: a comprehensive dataset of ecological traits in reptiles. Scientific Data 11:243.",
     download_fn = function(url, dest) {
-      download_curl_file(url, dest, "Meiri_2018_lizard_traits.xlsx")
+      download_curl_file(url, dest, "ReptTraits_v1-2.xlsx")
     },
     parse_fn    = parse_lizard_traits,
     group_col   = NULL,
@@ -2949,17 +3093,30 @@ parse_glonaf <- function(dir_path) {
   ),
 
   glonaf = list(
-    source_url  = "https://zenodo.org/records/13235357/files/GloNAF_V2.zip?download=1",
+    source_url  = "https://zenodo.org/api/records/13235357",
     source_doi  = "10.1002/ecy.2542",
-    version     = "2.0",
+    version     = "2024.1",
     license     = "CC BY 4.0",
     attribution = "van Kleunen M et al. (2019) The Global Naturalized Alien Flora (GloNAF) database. Ecology 100:e02542.",
     download_fn = function(url, dest) {
-      download_and_unzip(url, dest, pattern = NULL)
+      dir.create(dest, recursive = TRUE, showWarnings = FALSE)
+      base <- "https://zenodo.org/records/13235357/files/"
+      files <- c("glonaf_flora2.xlsx", "glonaf_taxon_wcvp.xlsx",
+                 "glonaf_region.xlsx")
+      for (f in files) {
+        tryCatch(
+          download_curl_file(paste0(base, f, "?download=1"), dest, f),
+          error = function(e) {
+            message(sprintf("  Warning: failed to download GloNAF %s: %s",
+                            f, conditionMessage(e)))
+          }
+        )
+      }
+      dest
     },
     parse_fn    = parse_glonaf,
     group_col   = "region_id",
-    requires    = character(0)
+    requires    = "openxlsx2"
   ),
 
   leptraits = list(

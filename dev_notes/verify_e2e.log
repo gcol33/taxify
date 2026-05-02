@@ -1,0 +1,137 @@
+vectra: 0.5.1
+
+=== wfo ===
+                input_name    accepted_name   match_type backend
+1            Quercus robur    Quercus robur        exact     wfo
+2          Fagus sylvatica  Fagus sylvatica        exact     wfo
+3          Bellis perennis  Bellis perennis        exact     wfo
+4             Homo sapiens             <NA> out_of_scope     wfo
+5         Escherichia coli             <NA> out_of_scope     wfo
+6 Saccharomyces cerevisiae             <NA> out_of_scope     wfo
+7           Mytilus edulis             <NA> out_of_scope     wfo
+8         Pinus sylvestris Pinus sylvestris        exact     wfo
+9         NotARealName xyz             <NA>         none    <NA>
+  -- 5.02 s for 9 names
+
+=== col ===
+                input_name            accepted_name match_type backend
+1            Quercus robur            Quercus robur      exact     col
+2          Fagus sylvatica          Fagus sylvatica      exact     col
+3          Bellis perennis          Bellis perennis      exact     col
+4             Homo sapiens             Homo sapiens      exact     col
+5         Escherichia coli         Escherichia coli      exact     col
+6 Saccharomyces cerevisiae Saccharomyces cerevisiae      exact     col
+7           Mytilus edulis           Mytilus edulis      exact     col
+8         Pinus sylvestris         Pinus sylvestris      exact     col
+9         NotARealName xyz                     <NA>       none    <NA>
+  -- 16.81 s for 9 names
+
+=== gbif ===
+                input_name            accepted_name match_type backend
+1            Quercus robur            Quercus robur      exact    gbif
+2          Fagus sylvatica          Fagus sylvatica      exact    gbif
+3          Bellis perennis          Bellis perennis      exact    gbif
+4             Homo sapiens             Homo sapiens      exact    gbif
+5         Escherichia coli         Escherichia coli      exact    gbif
+6 Saccharomyces cerevisiae Saccharomyces cerevisiae      exact    gbif
+7           Mytilus edulis           Mytilus edulis      exact    gbif
+8         Pinus sylvestris         Pinus sylvestris      exact    gbif
+9         NotARealName xyz                     <NA>       none    <NA>
+  -- 20.48 s for 9 names
+
+=== itis ===
+                input_name            accepted_name match_type backend
+1            Quercus robur            Quercus robur      exact    itis
+2          Fagus sylvatica          Fagus sylvatica      exact    itis
+3          Bellis perennis          Bellis perennis      exact    itis
+4             Homo sapiens             Homo sapiens      exact    itis
+5         Escherichia coli         Escherichia coli      exact    itis
+6 Saccharomyces cerevisiae Saccharomyces cerevisiae      exact    itis
+7           Mytilus edulis           Mytilus edulis      exact    itis
+8         Pinus sylvestris         Pinus sylvestris      exact    itis
+9         NotARealName xyz                     <NA>       none    <NA>
+  -- 1.30 s for 9 names
+
+=== ncbi ===
+                input_name            accepted_name match_type backend
+1            Quercus robur            Quercus robur      exact    ncbi
+2          Fagus sylvatica          Fagus sylvatica      exact    ncbi
+3          Bellis perennis          Bellis perennis      exact    ncbi
+4             Homo sapiens             Homo sapiens      exact    ncbi
+5         Escherichia coli         Escherichia coli      exact    ncbi
+6 Saccharomyces cerevisiae Saccharomyces cerevisiae      exact    ncbi
+7           Mytilus edulis           Mytilus edulis      exact    ncbi
+8         Pinus sylvestris         Pinus sylvestris      exact    ncbi
+9         NotARealName xyz                     <NA>       none    <NA>
+  -- 4.10 s for 9 names
+
+=== worms ===
+                input_name            accepted_name   match_type backend
+1            Quercus robur                     <NA> out_of_scope   worms
+2          Fagus sylvatica                     <NA> out_of_scope   worms
+3          Bellis perennis          Bellis perennis        exact   worms
+4             Homo sapiens             Homo sapiens        exact   worms
+5         Escherichia coli         Escherichia coli        exact   worms
+6 Saccharomyces cerevisiae Saccharomyces cerevisiae        exact   worms
+7           Mytilus edulis           Mytilus edulis        exact   worms
+8         Pinus sylvestris                     <NA> out_of_scope   worms
+9         NotARealName xyz                     <NA>         none    <NA>
+  -- 2.19 s for 9 names
+
+=== euromed ===
+                input_name    accepted_name   match_type backend
+1            Quercus robur    Quercus robur        exact euromed
+2          Fagus sylvatica  Fagus sylvatica        exact euromed
+3          Bellis perennis  Bellis perennis        exact euromed
+4             Homo sapiens             <NA> out_of_scope euromed
+5         Escherichia coli             <NA> out_of_scope euromed
+6 Saccharomyces cerevisiae             <NA> out_of_scope euromed
+7           Mytilus edulis             <NA> out_of_scope euromed
+8         Pinus sylvestris Pinus sylvestris        exact euromed
+9         NotARealName xyz             <NA>         none    <NA>
+  -- 0.44 s for 9 names
+Warning messages:
+1: Could not fetch taxify manifest from GitHub (no network?). Using bundled manifest. Backbone versions may be outdated. 
+2: Could not update wfo backbone: Failed to download wfo backbone from:
+  https://zenodo.org/records/PLACEHOLDER/files/wfo_2024.12.vtr
+Error: HTTP response code said error [zenodo.org]:
+The requested URL returned error: 404
+Using existing local version. 
+3: Could not update col backbone: Failed to download col backbone from:
+  https://zenodo.org/records/PLACEHOLDER/files/col_2024.11.vtr
+Error: HTTP response code said error [zenodo.org]:
+The requested URL returned error: 404
+Using existing local version. 
+4: Could not update gbif backbone: Failed to download gbif backbone from:
+  https://zenodo.org/records/PLACEHOLDER/files/gbif_2024.10.vtr
+Error: HTTP response code said error [zenodo.org]:
+The requested URL returned error: 404
+Using existing local version. 
+
+
+=== multi-backend fallback ===
+                input_name    accepted_name   match_type backend
+1            Quercus robur    Quercus robur        exact     wfo
+2          Fagus sylvatica  Fagus sylvatica        exact     wfo
+3          Bellis perennis  Bellis perennis        exact     wfo
+4             Homo sapiens             <NA> out_of_scope     wfo
+5         Escherichia coli             <NA> out_of_scope     wfo
+6 Saccharomyces cerevisiae             <NA> out_of_scope     wfo
+7           Mytilus edulis             <NA> out_of_scope     wfo
+8         Pinus sylvestris Pinus sylvestris        exact     wfo
+9         NotARealName xyz             <NA>         none    <NA>
+
+
+=== enrichment join: conservation_status ===
+Enrichment 'conservation_status' has a newer version. Updating...
+ℹ Downloading enrichment 'conservation_status' v2026.04...
+Warning message:
+Could not update enrichment 'conservation_status': Failed to download enrichment 'conservation_status' from:
+  https://github.com/gcol33/taxify-backbones/releases/download/enrichment-2026.04/conservation_status.vtr
+Error: HTTP response code said error [github.com]:
+The requested URL returned error: 404
+Using existing local version. 
+       input_name   accepted_name conservation_status
+1 Panthera tigris Panthera tigris                <NA>
+2   Quercus robur   Quercus robur                <NA>
+3    Pongo abelii    Pongo abelii                  CR

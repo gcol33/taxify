@@ -75,9 +75,13 @@ extract_col_genera <- function(bb_path) {
 
   if (nrow(df) == 0L) return(empty_genus_df())
 
+  # Genus name column: prefer canonicalName (canonical taxify-backbones build),
+  # fall back to scientificName (runtime build emits raw DwC schema).
+  name_col <- if ("canonicalName" %in% names(df)) "canonicalName" else "scientificName"
+
   result <- data.frame(
-    genus  = df$canonicalName,
-    family = df$family,
+    genus  = df[[name_col]],
+    family = if ("family" %in% names(df)) df$family else NA_character_,
     stringsAsFactors = FALSE
   )
   for (col in c("kingdom", "phylum", "class", "order")) {
@@ -187,20 +191,20 @@ extract_itis_genera <- function(bb_path) {
 #' @return data.frame with columns: genus, kingdom, phylum, class, order, family.
 #' @noRd
 extract_ncbi_genera <- function(bb_path) {
+  # Collect genus rows; runtime build may omit kingdom/phylum/class/order.
   df <- vectra::tbl(bb_path) |>
     vectra::filter(taxon_rank == "GENUS") |>
-    vectra::select(canonical_name, family, genus, kingdom) |>
     vectra::collect()
 
   if (nrow(df) == 0L) return(empty_genus_df())
 
   data.frame(
     genus   = df$canonical_name,
-    kingdom = df$kingdom,
+    kingdom = if ("kingdom" %in% names(df)) df$kingdom else NA_character_,
     phylum  = NA_character_,
     class   = NA_character_,
     order   = NA_character_,
-    family  = df$family,
+    family  = if ("family" %in% names(df)) df$family else NA_character_,
     stringsAsFactors = FALSE
   )
 }
@@ -216,18 +220,17 @@ extract_ncbi_genera <- function(bb_path) {
 extract_ott_genera <- function(bb_path) {
   df <- vectra::tbl(bb_path) |>
     vectra::filter(taxon_rank == "GENUS") |>
-    vectra::select(canonical_name, family, genus, kingdom) |>
     vectra::collect()
 
   if (nrow(df) == 0L) return(empty_genus_df())
 
   data.frame(
     genus   = df$canonical_name,
-    kingdom = df$kingdom,
+    kingdom = if ("kingdom" %in% names(df)) df$kingdom else NA_character_,
     phylum  = NA_character_,
     class   = NA_character_,
     order   = NA_character_,
-    family  = df$family,
+    family  = if ("family" %in% names(df)) df$family else NA_character_,
     stringsAsFactors = FALSE
   )
 }
@@ -244,18 +247,18 @@ extract_ott_genera <- function(bb_path) {
 extract_worms_genera <- function(bb_path) {
   df <- vectra::tbl(bb_path) |>
     vectra::filter(taxon_rank == "GENUS") |>
-    vectra::select(canonical_name, family, genus, kingdom, phylum, class, order) |>
     vectra::collect()
 
   if (nrow(df) == 0L) return(empty_genus_df())
 
+  pick <- function(col) if (col %in% names(df)) df[[col]] else NA_character_
   data.frame(
     genus   = df$canonical_name,
-    kingdom = df$kingdom,
-    phylum  = df$phylum,
-    class   = df$class,
-    order   = df$order,
-    family  = df$family,
+    kingdom = pick("kingdom"),
+    phylum  = pick("phylum"),
+    class   = pick("class"),
+    order   = pick("order"),
+    family  = pick("family"),
     stringsAsFactors = FALSE
   )
 }
