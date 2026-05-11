@@ -2906,7 +2906,7 @@ parse_glonaf <- function(dir_path) {
     source_url  = paste(
       "https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip",
       "https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz",
-      "https://files.opentreeoflife.org/ott/ott3.7/ott3.7.tgz",
+      "https://files.opentreeoflife.org/ott/ott3.7.3/ott3.7.3.tgz",
       sep = " ; "
     ),
     source_doi  = NULL,

@@ -10,8 +10,8 @@
 # to source databases via sourceinfo column.
 
 # OTT source URL and version
-.ott_url <- "https://files.opentreeoflife.org/ott/ott3.7/ott3.7.tgz"
-.ott_version <- "3.7"
+.ott_url <- "https://files.opentreeoflife.org/ott/ott3.7.3/ott3.7.3.tgz"
+.ott_version <- "3.7.3"
 
 # Column map for shared matching engine
 .ott_col_map <- list(
@@ -66,7 +66,7 @@ taxify_download.taxify_ott <- function(backend, dest = NULL,
   if (verbose) message("Extracting...")
   utils::untar(tar_path, exdir = dest)
 
-  # Find extracted directory (e.g., ott3.7/)
+  # Find extracted directory (e.g., ott3.7.3/)
   ott_dirs <- list.dirs(dest, recursive = FALSE, full.names = TRUE)
   ott_dir <- ott_dirs[grepl("^ott", basename(ott_dirs))][1L]
   if (is.na(ott_dir)) {
