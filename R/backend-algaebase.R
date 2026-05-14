@@ -2,7 +2,9 @@
 #
 # Offline matching against AlgaeBase algal taxonomy snapshots. Pre-built .vtr
 # backbones are downloaded from GitHub Releases via the manifest.
-# Build-from-source downloads the DwC-A from GBIF ChecklistBank (dataset 304756).
+# Build-from-source paginates the ChecklistBank /nameusage/search endpoint
+# (dataset 304756) sliced by (status, rank) to stay within the 100,000-offset
+# cap. The /archive endpoint is disabled for this dataset (CC BY-NC).
 #
 # AlgaeBase: curated algal taxonomy (~172k names). Authoritative for
 # micro/macroalgae, cyanobacteria, and some protists.
@@ -10,9 +12,16 @@
 # NOTE: AlgaeBase is licensed CC BY-NC. This means the backbone data may
 # only be used for non-commercial purposes. Academic and research use is fine.
 
-# ChecklistBank dataset 304756
-.algaebase_url <- "https://api.checklistbank.org/dataset/304756/export?format=DWCA"
+# ChecklistBank dataset 304756. The /nameusage/search endpoint embeds a full
+# `classification[]` trail per record, so family/genus extraction is direct
+# (no parent-id walk). The hard 100k offset cap means we slice by rank within
+# the only oversized status (accepted, 122k); other statuses fit unsliced.
+.algaebase_search_url <-
+  "https://api.checklistbank.org/dataset/304756/nameusage/search"
+.algaebase_url <- .algaebase_search_url   # for compile_backbone() provenance
 .algaebase_version <- "2025.04"
+.algaebase_page_size <- 1000L
+.algaebase_offset_cap <- 100000L
 
 # Column map for shared matching engine
 .algaebase_col_map <- list(
@@ -58,167 +67,250 @@ taxify_download.taxify_algaebase <- function(backend, dest = NULL,
   dir.create(dest, recursive = TRUE, showWarnings = FALSE)
 
   vtr_path <- file.path(dest, "algaebase.vtr")
-  zip_path <- file.path(dest, "algaebase_dwca.zip")
 
-  # License warning
   if (verbose) {
     message("NOTE: AlgaeBase is licensed CC BY-NC (non-commercial use only).")
-    message("Downloading AlgaeBase DwC-A from ChecklistBank...")
-    message(sprintf("  URL: %s", .algaebase_url))
+    message("Fetching AlgaeBase from ChecklistBank /nameusage/search ...")
+    message(sprintf("  Endpoint: %s", .algaebase_search_url))
   }
-  utils::download.file(.algaebase_url, zip_path, mode = "wb", quiet = !verbose)
 
-  # Extract Taxon.tsv
-  if (verbose) message("Extracting Taxon.tsv...")
-  txt_files <- utils::unzip(zip_path, list = TRUE)$Name
-  taxon_target <- txt_files[grepl("Taxon\\.tsv$|taxon\\.txt$|^dataset-.*\\.tsv$",
-                                  txt_files, ignore.case = TRUE)]
-  if (length(taxon_target) == 0L) {
-    stop("Taxon file not found in AlgaeBase DwC-A archive", call. = FALSE)
+  records <- algaebase_fetch_all(verbose = verbose)
+  if (verbose) {
+    message(sprintf("  %s records fetched", format(length(records),
+                                                    big.mark = ",")))
+    message("Flattening JSON records to data.frame...")
   }
-  utils::unzip(zip_path, files = taxon_target[1L], exdir = dest,
-               junkpaths = TRUE)
-  tsv_path <- file.path(dest, basename(taxon_target[1L]))
+  df <- algaebase_records_to_df(records)
 
-  # Read
-  if (verbose) message("Reading taxon data...")
-  df <- utils::read.delim(
-    tsv_path,
-    fileEncoding = "UTF-8",
-    stringsAsFactors = FALSE,
-    quote = "",
-    na.strings = "",
-    check.names = FALSE
-  )
-
-  # Strip namespace prefixes (dwc:taxonID -> taxonID)
-  names(df) <- sub("^[a-z]+:", "", names(df))
-
-  # Convert to unified schema (includes hierarchy walk for family/genus)
-  if (verbose) message("Normalizing to unified schema (hierarchy walk)...")
+  if (verbose) message("Normalizing to unified schema...")
   df <- algaebase_normalize(df, verbose = verbose)
 
-  # Compile and write
-  compile_backbone(df, vtr_path, backend, .algaebase_url, verbose = verbose)
-
-  # Clean up
-  unlink(zip_path)
-  unlink(tsv_path)
+  compile_backbone(df, vtr_path, backend, .algaebase_search_url,
+                   verbose = verbose)
 }
 
 
-#' Normalize AlgaeBase DwC-A data.frame to unified schema
+#' Fetch all AlgaeBase records via /nameusage/search, sliced to fit the cap
 #'
-#' AlgaeBase has only 7 columns with no denormalized classification.
-#' Family and genus are resolved via hierarchy walk on parentNameUsageID.
-#' scientificName is already canonical (no embedded authorship).
+#' Strategy:
+#'   * `synonym`, `bare name`, `provisionally accepted` statuses each fit
+#'     under the 100k offset cap and are paginated as a single status slice.
+#'   * `accepted` (~122k) exceeds the cap, so it is sub-sliced by rank.
+#'   * Each (status[, rank]) slice paginates with limit=1000 until exhausted.
 #'
-#' @param df Data.frame read from AlgaeBase Taxon.tsv.
-#' @param verbose Logical. Print progress messages.
-#' @return A normalized data.frame with unified schema columns.
+#' @noRd
+algaebase_fetch_all <- function(verbose = TRUE) {
+  records <- list()
+
+  # Statuses small enough to paginate without a rank slice
+  for (st in c("synonym", "bare name", "provisionally accepted")) {
+    rs <- algaebase_paginate(
+      filters = list(status = st),
+      label   = sprintf("status=%s", st),
+      verbose = verbose
+    )
+    records <- c(records, rs)
+  }
+
+  # `accepted` (~122k) is over the 100k offset cap, so slice by rank
+  ranks <- algaebase_facet_ranks(status = "accepted", verbose = verbose)
+  for (rk in ranks) {
+    rs <- algaebase_paginate(
+      filters = list(status = "accepted", rank = rk),
+      label   = sprintf("status=accepted&rank=%s", rk),
+      verbose = verbose
+    )
+    records <- c(records, rs)
+  }
+
+  records
+}
+
+
+#' Discover the rank values present in a status slice via the search facet API
+#'
+#' `facetLimit=50` overrides the default of 10 — without it, the facet
+#' silently truncates and tiny ranks like `unranked`, `subgenus`, `strain`
+#' get dropped (~18 records lost across the whole dataset).
+#'
+#' @noRd
+algaebase_facet_ranks <- function(status, verbose = TRUE) {
+  url <- sprintf("%s?%s&limit=0&facet=rank&facetLimit=50&facetMinCount=1",
+                 .algaebase_search_url,
+                 algaebase_qs(list(status = status)))
+  res <- jsonlite::fromJSON(url, simplifyVector = FALSE)
+  facet <- res$facets$rank %||% list()
+  ranks <- vapply(facet, function(f) f$value %||% NA_character_,
+                  character(1L))
+  ranks <- ranks[!is.na(ranks) & nzchar(ranks)]
+  if (verbose) {
+    message(sprintf("  status=%s spans %d ranks", status, length(ranks)))
+  }
+  ranks
+}
+
+
+#' Paginate one (status[, rank]) slice until exhausted
+#'
+#' Aborts with an informative error if a slice's `total` would force an
+#' offset above the 100,000 ChecklistBank cap.
+#' @noRd
+algaebase_paginate <- function(filters, label, verbose = TRUE) {
+  page_size <- .algaebase_page_size
+  base_qs <- algaebase_qs(filters)
+
+  fetch_offset <- function(offset) {
+    url <- sprintf("%s?%s&limit=%d&offset=%d",
+                   .algaebase_search_url, base_qs, page_size, offset)
+    jsonlite::fromJSON(url, simplifyVector = FALSE)
+  }
+
+  first <- fetch_offset(0L)
+  total <- first$total %||% 0L
+  if (total == 0L) return(list())
+
+  n_pages <- as.integer(ceiling(total / page_size))
+  max_offset <- (n_pages - 1L) * page_size
+  if (max_offset > .algaebase_offset_cap) {
+    stop(sprintf(
+      "Slice [%s] needs offset=%d which exceeds ChecklistBank's %d cap; refine filters",
+      label, max_offset, .algaebase_offset_cap), call. = FALSE)
+  }
+
+  if (verbose) {
+    message(sprintf("  [%s] %s records, %d page(s)",
+                    label, format(total, big.mark = ","), n_pages))
+  }
+
+  pages <- vector("list", n_pages)
+  pages[[1]] <- first$result
+  for (i in seq_len(n_pages - 1L)) {
+    pages[[i + 1L]] <- fetch_offset(i * page_size)$result
+  }
+  unlist(pages, recursive = FALSE)
+}
+
+
+# Build a URL-encoded query string from a named list of filters.
+algaebase_qs <- function(filters) {
+  paste(
+    vapply(names(filters), function(k) {
+      sprintf("%s=%s", k,
+              utils::URLencode(as.character(filters[[k]]), reserved = TRUE))
+    }, character(1L)),
+    collapse = "&"
+  )
+}
+
+
+# Pull a (possibly nested) field from each record; NA if path missing/empty.
+.algaebase_pluck <- function(records, ...) {
+  path <- c(...)
+  vapply(records, function(r) {
+    val <- r
+    for (key in path) {
+      if (is.null(val)) return(NA_character_)
+      val <- val[[key]]
+    }
+    if (is.null(val) || length(val) == 0L) NA_character_ else as.character(val)
+  }, character(1L))
+}
+
+
+# Pull family/genus directly from each record's classification[] trail.
+.algaebase_pluck_classification_rank <- function(records, target_rank) {
+  vapply(records, function(r) {
+    cls <- r$classification
+    if (is.null(cls) || length(cls) == 0L) return(NA_character_)
+    for (entry in cls) {
+      if (identical(entry$rank, target_rank)) {
+        return(entry$name %||% NA_character_)
+      }
+    }
+    NA_character_
+  }, character(1L))
+}
+
+
+#' Flatten /nameusage/search records into a wide data.frame
+#'
+#' Each record has top-level `id`, a nested `usage` with `name.{...}`,
+#' `status`, `parentId`, optional `accepted.id`, plus `classification[]`.
+#'
+#' @noRd
+algaebase_records_to_df <- function(records) {
+  data.frame(
+    taxon_id              = .algaebase_pluck(records, "usage", "id"),
+    canonical_name        = .algaebase_pluck(records, "usage", "name",
+                                             "scientificName"),
+    taxon_rank_raw        = .algaebase_pluck(records, "usage", "name", "rank"),
+    raw_status            = .algaebase_pluck(records, "usage", "status"),
+    accepted_id           = .algaebase_pluck(records, "usage", "accepted",
+                                             "id"),
+    name_genus            = .algaebase_pluck(records, "usage", "name",
+                                             "genus"),
+    cls_genus             = .algaebase_pluck_classification_rank(records,
+                                                                  "genus"),
+    cls_family            = .algaebase_pluck_classification_rank(records,
+                                                                  "family"),
+    specific_epithet      = .algaebase_pluck(records, "usage", "name",
+                                             "specificEpithet"),
+    authorship            = .algaebase_pluck(records, "usage", "name",
+                                             "authorship"),
+    infraspecific_epithet = .algaebase_pluck(records, "usage", "name",
+                                             "infraspecificEpithet"),
+    stringsAsFactors      = FALSE
+  )
+}
+
+
+#' Normalize the flattened search frame to the unified taxify schema
+#'
+#' Family/genus come straight from the embedded classification trail; for
+#' rows that ARE family or genus rank, the canonical name fills its own
+#' classification field.
+#'
 #' @noRd
 algaebase_normalize <- function(df, verbose = TRUE) {
-  # Map status
-  raw_status <- tolower(df$taxonomicStatus)
-  status <- ifelse(raw_status %in% c("accepted", "provisionally accepted"),
-                   "ACCEPTED", "SYNONYM")
+  rank_lower <- tolower(df$taxon_rank_raw)
+  status_lower <- tolower(df$raw_status)
 
-  # scientificName is already canonical
-  canonical <- trimws(df$scientificName)
+  status <- ifelse(
+    status_lower %in% c("accepted", "provisionally accepted"),
+    "ACCEPTED", "SYNONYM"
+  )
+  is_synonym <- status == "SYNONYM"
 
-  # Authorship
-  auth <- if ("scientificNameAuthorship" %in% names(df)) {
-    df$scientificNameAuthorship
-  } else {
-    NA_character_
-  }
+  # accepted_name_usage_id is meaningful only for synonyms
+  acc_id <- ifelse(is_synonym, df$accepted_id, NA_character_)
 
-  # Rank
-  rank <- if ("taxonRank" %in% names(df)) toupper(df$taxonRank) else
-    NA_character_
+  family <- df$cls_family
+  family[rank_lower == "family"] <- df$canonical_name[rank_lower == "family"]
 
-  # ---- Hierarchy walk for family/genus ----
-  # AlgaeBase has no denormalized classification columns; resolve from
-  # parentNameUsageID tree
-  if (verbose) message("  Walking hierarchy for family/genus...")
-  rank_lower <- tolower(df$taxonRank)
-  id <- as.character(df$taxonID)
-  parent_id <- as.character(df$parentNameUsageID)
+  # Prefer the parsed name's `genus` field; fall back to classification trail.
+  genus <- ifelse(is.na(df$name_genus) | !nzchar(df$name_genus),
+                  df$cls_genus, df$name_genus)
+  genus[rank_lower == "genus"] <- df$canonical_name[rank_lower == "genus"]
 
-  parent_row <- match(parent_id, id)
-
-  family <- ifelse(rank_lower == "family", canonical, NA_character_)
-  genus <- ifelse(rank_lower == "genus", canonical, NA_character_)
-
-  current_parent <- parent_row
-  for (depth in seq_len(25L)) {
-    needs_family <- is.na(family) & !is.na(current_parent)
-    needs_genus <- is.na(genus) & !is.na(current_parent)
-
-    if (!any(needs_family) && !any(needs_genus)) break
-
-    if (any(needs_family)) {
-      is_family <- rank_lower[current_parent[needs_family]] == "family"
-      match_idx <- which(needs_family)[is_family]
-      if (length(match_idx) > 0L) {
-        family[match_idx] <- canonical[current_parent[match_idx]]
-      }
-    }
-
-    if (any(needs_genus)) {
-      is_genus <- rank_lower[current_parent[needs_genus]] == "genus"
-      match_idx <- which(needs_genus)[is_genus]
-      if (length(match_idx) > 0L) {
-        genus[match_idx] <- canonical[current_parent[match_idx]]
-      }
-    }
-
-    next_parent <- rep(NA_integer_, nrow(df))
-    has_p <- !is.na(current_parent)
-    next_parent[has_p] <- match(parent_id[current_parent[has_p]], id)
-    current_parent <- next_parent
-  }
-
-  # Fallback: parse genus from first word of canonical name for species-rank
-  no_genus <- is.na(genus) & rank_lower %in% c("species", "subspecies",
-                                                 "variety", "varietas",
-                                                 "forma", "form")
-  if (any(no_genus)) {
-    genus[no_genus] <- sub(" .*", "", canonical[no_genus])
-  }
-
-  # Epithet
-  words <- strsplit(canonical, " ", fixed = TRUE)
-  epithet <- vapply(words, function(w) {
-    if (length(w) >= 2L) w[2L] else NA_character_
-  }, character(1L))
   species_ranks <- c("species", "subspecies", "variety", "varietas",
-                     "forma", "form", "infraspecies")
-  epithet[!rank_lower %in% species_ranks] <- NA_character_
-
-  # Infraspecific epithet
-  infra <- vapply(words, function(w) {
-    if (length(w) >= 3L) w[length(w)] else NA_character_
-  }, character(1L))
-  infra_ranks <- c("subspecies", "variety", "varietas", "forma", "form")
-  infra[!rank_lower %in% infra_ranks] <- NA_character_
-
-  # Accepted name usage ID
-  acc_id <- as.character(df$acceptedNameUsageID)
+                     "form", "forma", "infraspecies",
+                     "infraspecific name", "infrasubspecific name")
+  no_genus <- is.na(genus) & rank_lower %in% species_ranks
+  if (any(no_genus)) {
+    genus[no_genus] <- sub(" .*", "", df$canonical_name[no_genus])
+  }
 
   data.frame(
-    taxon_id                = id,
-    canonical_name          = canonical,
-    taxon_rank              = rank,
+    taxon_id                = df$taxon_id,
+    canonical_name          = trimws(df$canonical_name),
+    taxon_rank              = toupper(df$taxon_rank_raw),
     taxonomic_status        = status,
     accepted_name_usage_id  = acc_id,
     family                  = trimws(family),
     genus                   = trimws(genus),
-    specific_epithet        = trimws(epithet),
-    authorship              = trimws(auth),
-    infraspecific_epithet   = trimws(infra),
+    specific_epithet        = trimws(df$specific_epithet),
+    authorship              = trimws(df$authorship),
+    infraspecific_epithet   = trimws(df$infraspecific_epithet),
     stringsAsFactors        = FALSE
   )
 }
-
-

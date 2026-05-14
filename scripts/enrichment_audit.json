@@ -1,0 +1,242 @@
+{
+  "conservation_status": {
+    "name": "conservation_status",
+    "local_version": "2026.05",
+    "upstream_version": "2023.11",
+    "status": "OUTDATED",
+    "source_format": "gbif_api",
+    "static": false,
+    "note": "gbif api",
+    "built": null
+  },
+  "griis": {
+    "name": "griis",
+    "local_version": "1.0",
+    "upstream_version": "V1_0",
+    "status": "OUTDATED",
+    "source_format": "csv",
+    "static": false,
+    "note": "zenodo",
+    "built": null
+  },
+  "alien_first_records": {
+    "name": "alien_first_records",
+    "local_version": null,
+    "upstream_version": "3.1",
+    "status": "STATIC",
+    "source_format": "xlsx",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "wcvp": {
+    "name": "wcvp",
+    "local_version": "2024.1",
+    "upstream_version": "2026.01",
+    "status": "OUTDATED",
+    "source_format": "zip",
+    "static": false,
+    "note": "http last-modified",
+    "built": null
+  },
+  "eive": {
+    "name": "eive",
+    "local_version": "1.0",
+    "upstream_version": "1.0",
+    "status": "STATIC",
+    "source_format": "xlsx",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "elton_traits": {
+    "name": "elton_traits",
+    "local_version": "1.0",
+    "upstream_version": "1.0",
+    "status": "STATIC",
+    "source_format": "tsv",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "avonet": {
+    "name": "avonet",
+    "local_version": "1.0",
+    "upstream_version": "1.0",
+    "status": "STATIC",
+    "source_format": "xlsx",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "pantheria": {
+    "name": "pantheria",
+    "local_version": "1.0",
+    "upstream_version": "1.0",
+    "status": "STATIC",
+    "source_format": "tsv",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "amphibio": {
+    "name": "amphibio",
+    "local_version": "1.0",
+    "upstream_version": "1.0",
+    "status": "STATIC",
+    "source_format": "zip",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "common_names": {
+    "name": "common_names",
+    "local_version": "2026.05",
+    "upstream_version": "2023.08",
+    "status": "OUTDATED",
+    "source_format": "zip",
+    "static": false,
+    "note": "http last-modified",
+    "built": null
+  },
+  "woodiness": {
+    "name": "woodiness",
+    "local_version": "2014.1",
+    "upstream_version": "2014.1",
+    "status": "STATIC",
+    "source_format": "dryad_zip",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "diaz_traits": {
+    "name": "diaz_traits",
+    "local_version": null,
+    "upstream_version": "2022.1",
+    "status": "STATIC",
+    "source_format": "xlsx",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "leda": {
+    "name": "leda",
+    "local_version": "2008.1",
+    "upstream_version": "2008.1",
+    "status": "STATIC",
+    "source_format": "multi_tsv",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "funguild": {
+    "name": "funguild",
+    "local_version": "2024.1",
+    "upstream_version": null,
+    "status": "UNKNOWN",
+    "source_format": "json",
+    "static": false,
+    "note": "no probe for url=https://mycoportal.org/funguild/services/api/db_return.php?qDB=funguild_db&qField=taxon&qText=* (fmt=json)",
+    "built": null
+  },
+  "fishbase": {
+    "name": "fishbase",
+    "local_version": "2026.05",
+    "upstream_version": null,
+    "status": "UNKNOWN",
+    "source_format": "rfishbase",
+    "static": false,
+    "note": "no probe for url=https://fishbase.ropensci.org (fmt=rfishbase)",
+    "built": null
+  },
+  "fungal_traits": {
+    "name": "fungal_traits",
+    "local_version": "2020.1",
+    "upstream_version": "2020.1",
+    "status": "STATIC",
+    "source_format": "xlsx",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "algae_traits": {
+    "name": "algae_traits",
+    "local_version": "2022.06",
+    "upstream_version": "2022.06",
+    "status": "STATIC",
+    "source_format": "zip",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "fish_traits": {
+    "name": "fish_traits",
+    "local_version": "1.0",
+    "upstream_version": "1.0",
+    "status": "STATIC",
+    "source_format": "csv",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "lizard_traits": {
+    "name": "lizard_traits",
+    "local_version": "1.2",
+    "upstream_version": "2018.1",
+    "status": "STATIC",
+    "source_format": "xlsx",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "anage": {
+    "name": "anage",
+    "local_version": "15.0",
+    "upstream_version": null,
+    "status": "UNKNOWN",
+    "source_format": "zip",
+    "static": false,
+    "note": "no probe for url=https://genomics.senescence.info/species/dataset.zip (fmt=zip)",
+    "built": null
+  },
+  "glonaf": {
+    "name": "glonaf",
+    "local_version": "2024.1",
+    "upstream_version": "2.0",
+    "status": "STATIC",
+    "source_format": "zip",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "leptraits": {
+    "name": "leptraits",
+    "local_version": "1.0",
+    "upstream_version": "1.0",
+    "status": "STATIC",
+    "source_format": "csv",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "animaltraits": {
+    "name": "animaltraits",
+    "local_version": "1.0",
+    "upstream_version": "1.0",
+    "status": "STATIC",
+    "source_format": "csv",
+    "static": true,
+    "note": "static",
+    "built": null
+  },
+  "arthropod_traits": {
+    "name": "arthropod_traits",
+    "local_version": "1.1",
+    "upstream_version": "1.1",
+    "status": "STATIC",
+    "source_format": "dwca",
+    "static": true,
+    "note": "static",
+    "built": null
+  }
+}
