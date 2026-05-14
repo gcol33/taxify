@@ -1,18 +1,14 @@
 # ---- ITIS (Integrated Taxonomic Information System) backend ----
 #
-# Offline matching against ITIS SQLite snapshots. Pre-built .vtr backbones
-# are downloaded from GitHub Releases via the manifest. Build-from-source
-# requires RSQLite (in Suggests).
-#
-# ITIS strengths: North American fauna (insects, fish, mammals), all kingdoms.
-# Complements WFO (plants-focused) and COL (broader but slower to update).
+# Runtime matching against pre-built ITIS `.vtr` snapshots. Build-from-source
+# delegates to `taxifydb::build_itis()` (sibling package), which handles the
+# SQLite parse + hierarchy walk.
 
-# ITIS source URL and version
-.itis_url <- "https://www.itis.gov/downloads/itisSqlite.zip"
+# ITIS version pin (referenced by the constructor; updated with package releases)
 .itis_version <- "2025.04"
 
 # Column map for shared matching engine
-# These map to the unified backbone schema produced by taxify-backbones
+# These map to the unified backbone schema produced by taxifydb
 .itis_col_map <- list(
   name       = "canonical_name",
   name_ci    = "key_ci",
@@ -52,183 +48,9 @@ itis_backend <- function() {
 #' @export
 taxify_download.taxify_itis <- function(backend, dest = NULL,
                                         verbose = TRUE, ...) {
-  if (!requireNamespace("RSQLite", quietly = TRUE)) {
-    stop(
-      "RSQLite is required to build ITIS from source.\n",
-      "Install with: install.packages('RSQLite')\n",
-      "Or use taxify_download_vtr('itis') to download a pre-built backbone.",
-      call. = FALSE
-    )
-  }
-
-  dest <- dest %||% versioned_dir("itis", "latest")
-  dir.create(dest, recursive = TRUE, showWarnings = FALSE)
-
-  vtr_path <- file.path(dest, "itis.vtr")
-  zip_path <- file.path(dest, "itisSqlite.zip")
-
-  # Download (use curl for reliable large file download)
-  if (verbose) message("Downloading ITIS SQLite dump (~212 MB)...")
-  curl::curl_download(.itis_url, zip_path, quiet = !verbose)
-
-  if (verbose) message("Extracting...")
-  utils::unzip(zip_path, exdir = dest)
-
-  # Find .sqlite file
-  sqlite_files <- list.files(dest, pattern = "\\.sqlite$",
-                             recursive = TRUE, full.names = TRUE)
-  if (length(sqlite_files) == 0L) {
-    stop("No .sqlite file found in ITIS download.", call. = FALSE)
-  }
-  sqlite_path <- sqlite_files[1L]
-
-  # Convert SQLite to normalized data.frame
-  if (verbose) message("Converting ITIS database...")
-  df <- itis_sqlite_to_df(sqlite_path, verbose = verbose)
-
-  # Compile and write
-  compile_backbone(df, vtr_path, backend, .itis_url, verbose = verbose)
-
-  # Clean up
-  unlink(zip_path)
-  unlink(sqlite_path)
+  require_taxifydb("Building the ITIS backbone from source")
+  output_dir <- dest %||% versioned_dir("itis", "latest")
+  taxifydb::build_itis(output_dir = output_dir,
+                       version = backend$version,
+                       verbose = verbose)
 }
-
-
-#' Convert ITIS SQLite database to a normalized data.frame
-#'
-#' Reads the key tables, resolves the parent-child hierarchy for family/genus,
-#' maps synonym relationships, and produces the unified backbone schema.
-#'
-#' @param sqlite_path Character. Path to the ITIS .sqlite file.
-#' @param verbose Logical.
-#' @return A normalized data.frame (not yet precomputed — no key_ci etc.).
-#' @noRd
-itis_sqlite_to_df <- function(sqlite_path, verbose = TRUE) {
-  con <- DBI::dbConnect(RSQLite::SQLite(), sqlite_path)
-  on.exit(DBI::dbDisconnect(con), add = TRUE)
-
-  # ---- Read tables ----
-  if (verbose) message("  Reading taxonomic_units...")
-  taxa <- DBI::dbGetQuery(con, "
-    SELECT tsn, complete_name, rank_id, name_usage, parent_tsn,
-           unit_name1, unit_name2, unit_name3, unit_name4,
-           taxon_author_id, kingdom_id
-    FROM taxonomic_units
-  ")
-  if (verbose) message(sprintf("    %s rows",
-                               format(nrow(taxa), big.mark = ",")))
-
-  # Rank names
-  if (verbose) message("  Joining rank names...")
-  ranks <- DBI::dbGetQuery(con, "
-    SELECT rank_id, rank_name, kingdom_id FROM taxon_unit_types
-  ")
-  ranks$key <- paste(ranks$rank_id, ranks$kingdom_id, sep = "_")
-  taxa$key <- paste(taxa$rank_id, taxa$kingdom_id, sep = "_")
-  taxa$rank_name <- ranks$rank_name[match(taxa$key, ranks$key)]
-  taxa$key <- NULL
-
-  # Authors
-  if (verbose) message("  Joining authors...")
-  authors <- DBI::dbGetQuery(con, "
-    SELECT taxon_author_id, taxon_author FROM taxon_authors_lkp
-  ")
-  taxa$authorship <- authors$taxon_author[match(taxa$taxon_author_id,
-                                                 authors$taxon_author_id)]
-
-  # Synonyms
-  if (verbose) message("  Resolving synonyms...")
-  syn_links <- DBI::dbGetQuery(con, "
-    SELECT tsn, tsn_accepted FROM synonym_links
-  ")
-  taxa$accepted_tsn <- syn_links$tsn_accepted[match(taxa$tsn, syn_links$tsn)]
-
-  # Map name_usage to standard status
-  taxa$taxonomic_status <- ifelse(
-    tolower(taxa$name_usage) %in% c("valid", "accepted"),
-    "ACCEPTED", "SYNONYM"
-  )
-  taxa$accepted_name_usage_id <- ifelse(
-    !is.na(taxa$accepted_tsn),
-    as.character(taxa$accepted_tsn),
-    ifelse(taxa$taxonomic_status == "SYNONYM",
-           as.character(taxa$parent_tsn),
-           NA_character_)
-  )
-
-  # ---- Hierarchy walk for family/genus ----
-  if (verbose) message("  Walking hierarchy for family/genus...")
-  taxa$id <- as.character(taxa$tsn)
-  taxa$parent_id <- as.character(taxa$parent_tsn)
-
-  # Build parent lookup
-  parent_row <- match(taxa$parent_id, taxa$id)
-  rank_lower <- tolower(taxa$rank_name)
-
-  # Initialize
-  taxa$family <- ifelse(rank_lower == "family", taxa$complete_name,
-                         NA_character_)
-  taxa$genus <- ifelse(rank_lower == "genus", taxa$complete_name,
-                        NA_character_)
-
-  # Walk up (max 25 hops covers kingdom->species)
-  current_parent <- parent_row
-  for (depth in seq_len(25L)) {
-    needs_family <- is.na(taxa$family) & !is.na(current_parent)
-    needs_genus <- is.na(taxa$genus) & !is.na(current_parent)
-
-    if (!any(needs_family) && !any(needs_genus)) break
-
-    if (any(needs_family)) {
-      is_family <- rank_lower[current_parent[needs_family]] == "family"
-      match_idx <- which(needs_family)[is_family]
-      if (length(match_idx) > 0L) {
-        taxa$family[match_idx] <- taxa$complete_name[current_parent[match_idx]]
-      }
-    }
-
-    if (any(needs_genus)) {
-      is_genus <- rank_lower[current_parent[needs_genus]] == "genus"
-      match_idx <- which(needs_genus)[is_genus]
-      if (length(match_idx) > 0L) {
-        taxa$genus[match_idx] <- taxa$complete_name[current_parent[match_idx]]
-      }
-    }
-
-    # Move up
-    next_parent <- rep(NA_integer_, nrow(taxa))
-    has_p <- !is.na(current_parent)
-    next_parent[has_p] <- match(taxa$parent_id[current_parent[has_p]], taxa$id)
-    current_parent <- next_parent
-  }
-
-  # ---- Parse epithet components ----
-  taxa$specific_epithet <- ifelse(
-    !is.na(taxa$unit_name2) & nzchar(trimws(taxa$unit_name2)),
-    trimws(taxa$unit_name2), NA_character_
-  )
-  taxa$infraspecific_epithet <- ifelse(
-    !is.na(taxa$unit_name3) & nzchar(trimws(taxa$unit_name3)),
-    trimws(taxa$unit_name3),
-    ifelse(!is.na(taxa$unit_name4) & nzchar(trimws(taxa$unit_name4)),
-           trimws(taxa$unit_name4), NA_character_)
-  )
-
-  # ---- Build output ----
-  data.frame(
-    taxon_id                = taxa$id,
-    canonical_name          = trimws(taxa$complete_name),
-    taxon_rank              = toupper(trimws(taxa$rank_name)),
-    taxonomic_status        = taxa$taxonomic_status,
-    accepted_name_usage_id  = taxa$accepted_name_usage_id,
-    family                  = trimws(taxa$family),
-    genus                   = trimws(taxa$genus),
-    specific_epithet        = taxa$specific_epithet,
-    authorship              = trimws(taxa$authorship),
-    infraspecific_epithet   = taxa$infraspecific_epithet,
-    stringsAsFactors        = FALSE
-  )
-}
-
-

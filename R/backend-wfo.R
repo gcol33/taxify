@@ -1,39 +1,10 @@
 # ---- WFO (World Flora Online) backend ----
 #
-# Offline matching against WFO Darwin Core snapshots from Zenodo.
-# Downloads classification.txt, compiles to .vtr with precomputed keys
-# and embedded accepted info, queries via vectra.
+# Runtime matching against pre-built WFO `.vtr` snapshots. Build-from-source
+# delegates to `taxifydb::build_wfo()` (sibling package).
 
-# Latest WFO backbone URL and version (updated with package releases)
-.wfo_url <- "https://zenodo.org/records/14538251/files/_DwC_backbone_R.zip"
+# WFO version pin (referenced by the constructor; updated with package releases)
 .wfo_version <- "2024-12"
-
-# Columns needed for matching (core + authorship + infraspecific)
-.wfo_match_cols <- c(
-  "taxonID",
-  "scientificName",
-  "taxonRank",
-  "taxonomicStatus",
-  "acceptedNameUsageID",
-  "family",
-  "genus",
-  "specificEpithet",
-  "scientificNameAuthorship",
-  "infraspecificEpithet"
-)
-
-# Extra columns for add_wfo_info() — additional columns in classification file
-.wfo_extra_cols <- c(
-  "scientificNameID",
-  "parentNameUsageID",
-  "namePublishedIn",
-  "nomenclaturalStatus",
-  "taxonRemarks",
-  "subfamily",
-  "tribe",
-  "subtribe",
-  "subgenus"
-)
 
 # Column map for shared matching engine
 .wfo_col_map <- list(
@@ -76,70 +47,9 @@ wfo_backend <- function() {
 #' @export
 taxify_download.taxify_wfo <- function(backend, dest = NULL,
                                        verbose = TRUE, ...) {
-  dest <- dest %||% versioned_dir("wfo", "latest")
-  dir.create(dest, recursive = TRUE, showWarnings = FALSE)
-
-  vtr_path <- file.path(dest, "wfo.vtr")
-  url <- .wfo_url
-  zip_path <- file.path(dest, "wfo_download.zip")
-
-  # Download
-  if (verbose) {
-    message(sprintf("Downloading WFO backbone (%s) from Zenodo (~120 MB)...",
-                    backend$version))
-    message(sprintf("  URL: %s", url))
-  }
-  utils::download.file(url, zip_path, mode = "wb", quiet = !verbose)
-
-  # Extract classification file
-  if (verbose) message("Extracting classification file...")
-  txt_files <- utils::unzip(zip_path, list = TRUE)$Name
-  txt_target <- txt_files[grepl("classification\\.(txt|csv)$", txt_files)]
-  if (length(txt_target) == 0L) {
-    stop("classification.txt/.csv not found in downloaded archive", call. = FALSE)
-  }
-  utils::unzip(zip_path, files = txt_target[1L], exdir = dest, junkpaths = TRUE)
-  txt_path <- file.path(dest, basename(txt_target[1L]))
-
-  # Read TSV
-  if (verbose) message("Reading classification file...")
-  df <- utils::read.delim(
-    txt_path,
-    fileEncoding = "latin1",
-    stringsAsFactors = FALSE,
-    na.strings = ""
-  )
-
-  # Select needed columns
-  keep <- intersect(c(.wfo_match_cols, .wfo_extra_cols), names(df))
-  df <- df[, keep, drop = FALSE]
-
-  # Normalize status and rank to uppercase
-  if ("taxonomicStatus" %in% names(df))
-    df$taxonomicStatus <- toupper(df$taxonomicStatus)
-  if ("taxonRank" %in% names(df))
-    df$taxonRank <- toupper(df$taxonRank)
-
-  # Fix mojibake: UTF-8 × misread as Latin-1
-  text_cols <- intersect(
-    c("scientificName", "family", "genus", "specificEpithet",
-      "scientificNameAuthorship"),
-    names(df)
-  )
-  for (col in text_cols) {
-    df[[col]] <- trimws(df[[col]])
-    df[[col]] <- gsub("\u00c3\u0097", "\u00d7", df[[col]], fixed = TRUE)
-  }
-
-  # WFO-specific: extra normalized name column
-  df$normalizedName <- normalize_epithets(df$scientificName)
-
-  # Compile and write
-  compile_backbone(df, vtr_path, backend, url, verbose = verbose)
-
-  # Clean up
-  unlink(zip_path)
-  unlink(txt_path)
+  require_taxifydb("Building the WFO backbone from source")
+  output_dir <- dest %||% versioned_dir("wfo", "latest")
+  taxifydb::build_wfo(output_dir = output_dir,
+                      version = backend$version,
+                      verbose = verbose)
 }
-
-

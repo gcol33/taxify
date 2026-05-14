@@ -21,13 +21,10 @@ Imports:
     rlang,
     vectra
 Suggests:
-    data.table,
-    DBI,
     knitr,
     openxlsx2,
-    rfishbase,
     rmarkdown,
-    RSQLite,
+    taxifydb,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3

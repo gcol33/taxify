@@ -140,28 +140,35 @@ ensure_enrichment <- function(name, verbose = TRUE) {
     return(path)
   }
 
-  # 5. Build from source
-  if (name %in% names(.enrichment_build_registry)) {
-    if (verbose) {
-      message(sprintf(
-        "Pre-built .vtr not available for enrichment '%s'. Building from source...",
-        name
-      ))
-    }
-    path <- tryCatch(
-      build_enrichment_from_source(name, verbose = verbose),
-      error = function(e) {
-        if (verbose) {
-          message(sprintf(
-            "Build-from-source failed for '%s': %s", name, conditionMessage(e)
-          ))
-        }
-        NULL
+  # 5. Build from source via taxifydb (if installed)
+  if (requireNamespace("taxifydb", quietly = TRUE)) {
+    available <- tryCatch(taxifydb::list_enrichments(),
+                          error = function(e) character(0L))
+    if (name %in% available) {
+      if (verbose) {
+        message(sprintf(
+          "Pre-built .vtr not available for enrichment '%s'. Building from source via taxifydb...",
+          name
+        ))
       }
-    )
-    if (!is.null(path) && file.exists(path)) {
-      set_backbone_path(cache_key, path)
-      return(path)
+      path <- tryCatch(
+        taxifydb::build_enrichment(name,
+                                   output_dir = enrichment_dir(name),
+                                   verbose = verbose),
+        error = function(e) {
+          if (verbose) {
+            message(sprintf(
+              "Build-from-source failed for '%s': %s",
+              name, conditionMessage(e)
+            ))
+          }
+          NULL
+        }
+      )
+      if (!is.null(path) && file.exists(path)) {
+        set_backbone_path(cache_key, path)
+        return(path)
+      }
     }
   }
 
@@ -357,9 +364,8 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
     x[[out_col]] <- na_val
   }
 
-  # Look up license from build registry for emergency fallback
-  reg <- .enrichment_build_registry[[enrichment_name]]
-  lic <- if (!is.null(reg)) reg$license %||% NA_character_ else NA_character_
+  # License lookup is delegated to taxifydb; emergency fallback leaves it unset.
+  lic <- NA_character_
 
   # Determine the df-side join key: genus-level uses "genus", else canonical_name
   df_join_key <- if (join_col == "genus") "genus" else "canonical_name"
@@ -410,9 +416,8 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
                                           na_types = NULL) {
   if (!group_col %in% names(df)) return(x)
 
-  # Look up license from build registry for emergency fallback
-  reg <- .enrichment_build_registry[[enrichment_name]]
-  lic <- if (!is.null(reg)) reg$license %||% NA_character_ else NA_character_
+  # License lookup is delegated to taxifydb; emergency fallback leaves it unset.
+  lic <- NA_character_
 
   # Resolve "all" groups
   if (length(groups) == 1L && !anyNA(groups) && groups == "all") {
@@ -489,11 +494,25 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
 #' @return A data.frame with canonical_name + trait columns.
 #' @noRd
 try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) {
-  if (!name %in% names(.enrichment_build_registry)) {
+  if (!requireNamespace("taxifydb", quietly = TRUE)) {
     stop(sprintf(
       paste0("Enrichment '%s' is not available:\n",
              "  %s\n",
-             "  No build-from-source recipe available for this enrichment.\n",
+             "  Build-from-source requires the 'taxifydb' package.\n",
+             "  Install with: remotes::install_github(\"gcol33/taxify-backbones\")\n",
+             "  Report issues: https://github.com/gcol33/taxify/issues"),
+      name,
+      if (!is.null(download_error)) download_error else "download failed"
+    ), call. = FALSE)
+  }
+
+  available <- tryCatch(taxifydb::list_enrichments(),
+                        error = function(e) character(0L))
+  if (!name %in% available) {
+    stop(sprintf(
+      paste0("Enrichment '%s' is not available:\n",
+             "  %s\n",
+             "  No build-from-source recipe available in taxifydb.\n",
              "  Report issues: https://github.com/gcol33/taxify/issues"),
       name,
       if (!is.null(download_error)) download_error else "download failed"
@@ -501,7 +520,7 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
   }
 
   df <- tryCatch(
-    enrichment_emergency_fallback(name, verbose = verbose),
+    taxifydb::enrichment_emergency_fallback(name, verbose = verbose),
     error = function(e) {
       stop(sprintf(
         paste0("Enrichment '%s' is not available.\n",
@@ -515,17 +534,15 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
     }
   )
 
-  reg <- .enrichment_build_registry[[name]]
   if (verbose) {
     warning(sprintf(
       paste0("[enrichment/%s] Using emergency in-memory fallback.\n",
-             "  Source: %s (v%s)\n",
-             "  Rows: %s | License: %s\n",
+             "  Rows: %s\n",
              "  Reason: %s\n",
              "  This is temporary and will not be cached to disk.\n",
              "  Report issues: https://github.com/gcol33/taxify/issues"),
-      name, reg$source_url, reg$version,
-      format(nrow(df), big.mark = ","), reg$license,
+      name,
+      format(nrow(df), big.mark = ","),
       if (!is.null(download_error)) download_error else "pre-built .vtr unavailable"
     ), call. = FALSE, immediate. = TRUE)
   }

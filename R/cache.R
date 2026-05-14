@@ -49,33 +49,7 @@ backbone_node <- function(backend_name) {
 
 
 # ---- Backbone metadata (sidecar .meta files) ----
-
-#' Write backbone metadata sidecar file
-#'
-#' Writes a `.meta` file alongside the `.vtr` recording download provenance:
-#' backend name, version, download timestamp, source URL, and row count.
-#'
-#' @param vtr_path Character. Path to the `.vtr` file.
-#' @param backend_name Character. Backend identifier (e.g., `"wfo"`).
-#' @param version Character. Backbone version string.
-#' @param url Character. Source URL the backbone was downloaded from.
-#' @param nrow Integer. Number of rows in the converted backbone.
-#' @return The path to the `.meta` file (invisibly).
-#' @noRd
-write_backbone_meta <- function(vtr_path, backend_name, version, url, nrow) {
-  meta_path <- paste0(tools::file_path_sans_ext(vtr_path), ".meta")
-  lines <- c(
-    paste0("backend=", backend_name),
-    paste0("version=", version),
-    paste0("download_date=", format(Sys.time(), "%Y-%m-%d")),
-    paste0("download_timestamp=", format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z")),
-    paste0("url=", url),
-    paste0("nrow=", nrow)
-  )
-  writeLines(lines, meta_path)
-  invisible(meta_path)
-}
-
+# .meta files are written by taxifydb at build time; taxify only reads them.
 
 #' Read backbone metadata from sidecar file
 #'
