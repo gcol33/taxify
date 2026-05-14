@@ -13,8 +13,9 @@ User input → clean_names() → match_exact() → match_fuzzy() → resolve_syn
 
 - **Query engine:** vectra (C11 columnar engine, `.vtr` format)
 - **Backend interface:** S3 generics on `taxify_backend` class
-- **Backbone storage:** Darwin Core CSV → `.vtr` (one-time conversion)
+- **Backbone storage:** pre-built `.vtr` files downloaded from GitHub Releases via the manifest; built by the sibling package `taxifydb` (lives in `gcol33/taxify-backbones`)
 - **Cache:** Package-level env stores `.vtr` paths (not nodes — vectra nodes are single-use)
+- **Build vs runtime split:** taxify is the lean runtime. All download/parse/normalize/index logic lives in `taxifydb` (Suggests). When a user needs build-from-source, the relevant taxify function delegates to `taxifydb::build_<name>()` via `require_taxifydb()`. Without taxifydb installed, taxify still works fully against pre-built `.vtr` downloads.
 
 ## Key design: vectra nodes are single-use
 
@@ -46,17 +47,18 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 | `R/taxify.R` | Main `taxify()` + `taxify_single()` — user-facing entry point, multi-backend fallback |
 | `R/clean.R` | Name cleaning pipeline (qualifiers, authorship, brackets, whitespace) |
 | `R/hybrid.R` | Hybrid detection (`detect_hybrid`) and formula parsing (`parse_hybrid_formula`) |
-| `R/backend.R` | S3 generics, `resolve_backend()`, shared matching engine (`match_exact_compiled`, `fuzzy_match_via_join`), `compile_backbone()` + `precompute_keys()` (build-time, used by fallback) |
-| `R/backend-wfo.R` | WFO: constructor + build-from-source fallback (`taxify_download.taxify_wfo`) |
-| `R/backend-col.R` | COL: constructor + build-from-source fallback (`taxify_download.taxify_col`) |
-| `R/backend-gbif.R` | GBIF: constructor + build-from-source fallback (`taxify_download.taxify_gbif`) |
-| `R/backend-itis.R` | ITIS: constructor + build-from-source fallback (`taxify_download.taxify_itis`) |
-| `R/backend-ncbi.R` | NCBI: constructor + build-from-source fallback (`taxify_download.taxify_ncbi`) |
-| `R/backend-ott.R` | OTT: constructor + build-from-source fallback (`taxify_download.taxify_ott`) |
-| `R/backend-worms.R` | WoRMS: constructor + build-from-source fallback (`taxify_download.taxify_worms`) |
-| `R/backend-euromed.R` | Euro+Med: constructor + build-from-source fallback (`taxify_download.taxify_euromed`) |
-| `R/backend-fungorum.R` | Index Fungorum: constructor + build-from-source fallback |
-| `R/backend-algaebase.R` | AlgaeBase: constructor + build-from-source fallback |
+| `R/backend.R` | S3 generics, `resolve_backend()`, shared matching engine (`match_exact_compiled`, `fuzzy_match_via_join`), runtime-side `precompute_keys()` + `embed_accepted()` (used by test fixtures) |
+| `R/backend-wfo.R` | WFO: constructor + col_map + thin `taxify_download.taxify_wfo` shim delegating to `taxifydb::build_wfo()` |
+| `R/backend-col.R` | COL: constructor + col_map + `taxify_download` shim |
+| `R/backend-gbif.R` | GBIF: constructor + col_map + `taxify_download` shim |
+| `R/backend-itis.R` | ITIS: constructor + col_map + `taxify_download` shim |
+| `R/backend-ncbi.R` | NCBI: constructor + col_map + `taxify_download` shim |
+| `R/backend-ott.R` | OTT: constructor + col_map + `taxify_download` shim |
+| `R/backend-worms.R` | WoRMS: constructor + col_map + `taxify_download` shim |
+| `R/backend-euromed.R` | Euro+Med: constructor + col_map + `taxify_download` shim |
+| `R/backend-fungorum.R` | Index Fungorum: constructor + col_map + `taxify_download` shim |
+| `R/backend-algaebase.R` | AlgaeBase: constructor + col_map + `taxify_download` shim |
+| `R/taxifydb-bridge.R` | Internal `require_taxifydb()` helper that errors with install instruction when taxifydb is missing |
 | `R/cache.R` | Backbone path caching + `taxify_data_dir()` + `ensure_backbone()` |
 | `R/pick.R` | Best-match selection (ACCEPTED > SYNONYM, SPECIES > higher, smallest ID) |
 | `R/add-hybrid-info.R` | Pipe extension: hybrid parents and type |
@@ -71,20 +73,20 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 
 Ten backends implemented: WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Fungorum, AlgaeBase. Eight have pre-built `.vtr` files in taxify-backbones (all except Fungorum and AlgaeBase). Adding a backend requires:
 
-**In taxify-backbones (canonical build pipeline):**
-1. `backends/<name>/download.R` — download raw source
-2. `backends/<name>/convert.R` — parse raw → data.frame → `precompute_backbone()` → `build_vtr()`
-3. Wire into CI workflow
+**In taxifydb (canonical build pipeline, lives in `gcol33/taxify-backbones`):**
+1. `R/backend-<name>.R` — `download_<name>()` + `read_<name>()` + `build_<name>()` returning a `.vtr` path. Uses the shared `normalize_backbone()`, `precompute_backbone()`, `build_vtr()` helpers.
+2. Register in `R/build_backend.R` `.backend_builders` list
+3. Wire into the relevant CI workflow (`build-light.yml` or `build-heavy.yml`)
 
 **In taxify (runtime):**
 1. Constructor function (e.g., `col_backend()`) with `col_map` defining column names
 2. Register in `resolve_backend()` switch
-3. Optionally: `taxify_download.*` build-from-source fallback (for users without pre-built .vtr)
+3. `taxify_download.taxify_<name>` shim that delegates to `taxifydb::build_<name>()` via `require_taxifydb()`
 4. **Integrate into the unified genus register.** Each backend needs an `extract_*_genera()` function that pulls genus-rank rows (including `kingdom` if available) from its `.vtr`, and must be wired into `build_genus_register()` and `build_backend_coverage()`. If the backend uses non-standard kingdom names (like NCBI's clade names), add mappings to `normalize_kingdom_names()`. Always: (a) add the extractor, (b) register it in the backends list inside `build_genus_register()`, (c) rebuild the register, (d) test that species in genera unique to the new backend match correctly.
 
 Runtime matching (`match_exact`, `match_fuzzy`) uses the shared engine in `backend.R` — all backends use `match_exact_compiled()` and `fuzzy_match_via_join()` via the default S3 methods. No per-backend matching code needed unless the schema diverges.
 
-**Build pipeline separation:** All backbone and enrichment `.vtr` building is done by the `taxify-backbones` repo (`C:\Users\Gilles Colling\Documents\dev\taxify-backbones`), which has the canonical download, parse, normalize, precompute, and build pipeline with CI workflows. The taxify package is **runtime-only**: S3 generics, matching logic, enrichment joins, cache management. The `taxify_download.*` methods and `enrichment-build.R` in taxify are **build-from-source fallbacks** for users without pre-built `.vtr` files — they should not be the primary development target. When adding or modifying a backend: implement the build pipeline in taxify-backbones first, then wire the runtime matching in taxify. Never duplicate build logic between the two repos.
+**Build pipeline separation:** All backbone and enrichment `.vtr` building lives in `taxifydb` (the R package inside `taxify-backbones`). The taxify package is **runtime-only**: S3 generics, matching logic, enrichment joins, cache management. When build-from-source is needed (no pre-built `.vtr` available), taxify's shims delegate to `taxifydb::build_<name>()` / `taxifydb::build_enrichment(name)`. Without taxifydb installed, taxify still works fully — it just can't build from source. There is no duplicated build logic.
 
 ### Backend-specific notes
 
@@ -126,7 +128,7 @@ Current coverage: ~98.9% kingdom populated (5.6k truly unclassifiable genera rem
 
 taxify is free and open-source and will remain so. All enrichment data must be redistributable under open licenses (CC0, CC-BY, CC-BY-SA, CC-BY-NC are all fine). Datasets requiring data sharing agreements, registration-gated access with no stated license, or "all rights reserved" copyright cannot be included.
 
-Enrichment layers join external trait/status data to taxify results via `accepted_name == canonical_name`. 17 enrichments available: conservation_status, griis, wcvp, eive, elton_traits, avonet, pantheria, amphibio, common_names, woodiness, diaz_traits, leda, anage, glonaf, leptraits, animaltraits, arthropod_traits.
+Enrichment layers join external trait/status data to taxify results via `accepted_name == canonical_name`. 24 enrichments are registered in `taxifydb::.enrichment_build_registry` (run `taxifydb::list_enrichments()`). The taxify runtime side is just `add_<name>()` wrappers around `enrich_simple()` / `enrich_by_group()` — they read pre-built `.vtr` files. Build logic lives in `taxifydb`.
 
 ### Enrichment architecture
 
@@ -142,15 +144,15 @@ ensure_enrichment(name):
   2. session cache                               # .taxify_env
   3. disk                                        # enrichment_vtr_path()
   4. download pre-built .vtr                     # download_enrichment()
-  5. build_enrichment_from_source(name)          # registry-based, writes .vtr + meta.json
+  5. taxifydb::build_enrichment(name)            # if taxifydb is installed and name is in list_enrichments()
   6. return NULL → caller tries emergency fallback
 ```
 
-If `ensure_enrichment()` returns NULL, `enrich_simple()`/`enrich_by_group()` call `try_emergency_fallback()` → `enrichment_emergency_fallback()` → downloads raw source, parses in-memory, joins via `enrich_from_dataframe()`/`enrich_from_dataframe_grouped()`. Emergency fallback is ephemeral (no disk write), warns with source URL/version/license/reason.
+If `ensure_enrichment()` returns NULL, `enrich_simple()` / `enrich_by_group()` call `try_emergency_fallback()` → `taxifydb::enrichment_emergency_fallback(name)` (when taxifydb is installed) → downloads raw source, parses in-memory, joins via `enrich_from_dataframe()` / `enrich_from_dataframe_grouped()`. Emergency fallback is ephemeral (no disk write). Without taxifydb, paths 5 and emergency fallback both error with an install instruction.
 
 ### Cross-backbone name resolution (build-time)
 
-Enrichment `.vtr` files must be joinable regardless of which backbone produced the user's `taxify()` result. The build pipeline in `taxify-backbones` resolves this:
+Enrichment `.vtr` files must be joinable regardless of which backbone produced the user's `taxify()` result. taxifydb's build pipeline resolves this:
 
 1. Source names are run through `taxify()` against **each of the 7 backends separately** (not as a fallback chain — fallback chains only return the first match)
 2. The union of all unique `accepted_name` values is collected per source species
@@ -159,7 +161,7 @@ Enrichment `.vtr` files must be joinable regardless of which backbone produced t
 
 This means `enrich_simple()`'s exact join on `accepted_name == canonical_name` works correctly for any backbone. Realistic file size increase: ~1.1–1.5x (backends agree on >90% of names).
 
-Implementation: `taxify-backbones/shared/resolve_names.R` → `resolve_enrichment_names(df, group_cols)`, called by every `enrichment/*/convert.R` after cleaning, before `build_enrichment_vtr()`.
+Implementation: `taxifydb::resolve_enrichment_names(df, group_cols)`, called by every `parse_<name>()` after cleaning, before `taxifydb::build_enrichment_vtr()`. Hash-join fast path against per-backbone `name_lookup.vtr` files in the user's taxify data dir; falls back to per-name `taxify::taxify()` if lookup files are missing.
 
 ### Join strategy
 
@@ -167,11 +169,11 @@ Both `enrich_simple()` and `enrich_by_group()` use vectorized `match()` for fill
 
 Group-based enrichments (griis, wcvp, common_names) resolve `groups = "all"` from `available_groups` in the manifest (O(1)), falling back to `vectra::distinct()` scan if the manifest field is absent.
 
-### Build registry (not S3)
+### Build registry (lives in taxifydb)
 
-`R/enrichment-build.R` uses a registry pattern (`.enrichment_build_registry`): each enrichment is a list with `{source_url, download_fn, parse_fn, requires, ...}`. 24 entries share generic download helpers (`download_curl_file`, `download_and_unzip`, `download_gbif_api_pages`) + per-enrichment parse functions (~20-50 lines each). The `common_names` entry downloads three sources (GBIF backbone, NCBI taxdump, OTT taxonomy) and `parse_common_names()` merges them via three sub-parsers (`parse_gbif_common_names`, `parse_ncbi_common_names`, `parse_ott_common_names`). GBIF provides ISO 639-1 language codes; NCBI and OTT common names have `lang = NA`.
+`taxifydb::.enrichment_build_registry` uses a registry pattern: each enrichment is a list with `{source_url, download_fn, parse_fn, requires, ...}`. 24 entries share generic download helpers (`download_curl_file`, `download_and_unzip`, `download_gbif_api_pages`) + per-enrichment parse functions (~20-50 lines each). The `common_names` entry downloads three sources (GBIF backbone, NCBI taxdump, OTT taxonomy) and `parse_common_names()` merges them via three sub-parsers (`parse_gbif_common_names`, `parse_ncbi_common_names`, `parse_ott_common_names`). GBIF provides ISO 639-1 language codes; NCBI and OTT common names have `lang = NA`.
 
-`R/enrichment-vtr.R` has `build_local_enrichment_vtr()` — sorts by canonical_name, writes .vtr with indexes, extracts `available_groups` from group column, writes meta.json sidecar (including `static`, `group_col`, `available_groups`).
+`taxifydb::build_enrichment_vtr()` is the writer — sorts by canonical_name, writes .vtr with indexes, extracts `available_groups` from group column, writes meta.json sidecar (including `static`, `group_col`, `available_groups`).
 
 ### Version checking
 
@@ -194,9 +196,7 @@ Group-based enrichments (griis, wcvp, common_names) have an `available_groups` f
 
 | File | Purpose |
 |---|---|
-| `R/enrichment.R` | Infrastructure: path helpers, version checking, ensure/download, `enrich_simple()`, `enrich_by_group()`, emergency fallback wiring |
-| `R/enrichment-build.R` | Build registry, download helpers, 12 parse functions, `build_enrichment_from_source()`, `enrichment_emergency_fallback()` |
-| `R/enrichment-vtr.R` | `build_local_enrichment_vtr()` — .vtr writer + meta.json sidecar |
+| `R/enrichment.R` | Infrastructure: path helpers, version checking, ensure/download, `enrich_simple()`, `enrich_by_group()`, emergency fallback wiring (delegates build paths to taxifydb) |
 | `R/enrichment-meta.R` | `register_enrichment()`, summary display for enrichment metadata |
 | `R/add-data.R` | `add_data()` — user-facing function to join custom external data (CSV/XLSX/SQLite/VTR/data.frame) via backbone matching |
 | `R/add-conservation-status.R` | `add_conservation_status()` — IUCN status enrichment |
