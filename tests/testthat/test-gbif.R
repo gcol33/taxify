@@ -166,18 +166,3 @@ test_that("GBIF handles NA inputs without crashing", {
   expect_true(is.na(result$matched_name[2L]))
   expect_true(is.na(result$matched_name[3L]))
 })
-
-
-# -- Status mapping --
-
-test_that("gbif_status_to_standard maps correctly", {
-  expect_equal(gbif_status_to_standard("ACCEPTED"), "ACCEPTED")
-  expect_equal(gbif_status_to_standard("DOUBTFUL"), "ACCEPTED")
-  expect_equal(gbif_status_to_standard("PROVISIONALLY_ACCEPTED"), "ACCEPTED")
-  expect_equal(gbif_status_to_standard("SYNONYM"), "SYNONYM")
-  expect_equal(gbif_status_to_standard("HOMOTYPIC_SYNONYM"), "SYNONYM")
-  expect_equal(gbif_status_to_standard("HETEROTYPIC_SYNONYM"), "SYNONYM")
-  expect_equal(gbif_status_to_standard("PROPARTE_SYNONYM"), "SYNONYM")
-  expect_equal(gbif_status_to_standard("MISAPPLIED"), "SYNONYM")
-  expect_equal(gbif_status_to_standard("AMBIGUOUS_SYNONYM"), "SYNONYM")
-})

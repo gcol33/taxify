@@ -146,6 +146,7 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
 
 #' Embed accepted taxon info at build time (synonym self-join)
 #'
+#' Used by the `taxifydb` build pipeline and by taxify's own test fixtures.
 #' For every synonym row, resolves the accepted taxon and embeds its name,
 #' family, and genus directly. Handles synonym chains by iterating until
 #' stable (max 10 hops).
@@ -160,7 +161,8 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
 #' @param synonym_pattern Regex pattern to detect synonyms in status column.
 #' @return The data.frame with added columns: accepted_name, accepted_family,
 #'   accepted_genus, accepted_taxon_id, is_synonym.
-#' @noRd
+#' @keywords internal
+#' @export
 embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
                            genus_col, status_col,
                            synonym_pattern = "SYNONYM") {
@@ -231,15 +233,17 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
 
 #' Precompute matching keys at build time
 #'
-#' Adds key_ci, key_normalized, and key_species columns to the backbone
-#' data.frame for direct lookup at query time.
+#' Used by the `taxifydb` build pipeline and by taxify's own test fixtures.
+#' Adds `key_ci`, `key_normalized`, `key_species`, and `fuzzy_block` columns
+#' to the backbone data.frame for direct lookup at query time.
 #'
 #' @param df The backbone data.frame.
 #' @param name_col Name of the canonical name column.
 #' @param genus_col Name of the genus column.
 #' @param epithet_col Name of the specific epithet column.
 #' @return The data.frame with added key columns.
-#' @noRd
+#' @keywords internal
+#' @export
 precompute_keys <- function(df, name_col, genus_col, epithet_col) {
   df$key_ci <- tolower(df[[name_col]])
   df$key_normalized <- normalize_epithets(df[[name_col]])

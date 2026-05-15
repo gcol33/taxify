@@ -1,10 +1,11 @@
 # Creates a small GBIF-like backbone for testing.
-# GBIF differences from WFO/COL:
+# Mirrors what the runtime sees: a pre-built `.vtr` from taxifydb. Status values
+# are already mapped to ACCEPTED/SYNONYM (taxifydb collapses GBIF-native values
+# like HOMOTYPIC_SYNONYM at build time). GBIF differences from WFO/COL:
 # - id (character, originally integer) as taxon key
 # - canonical_name (without authorship) for matching
 # - genus_or_above instead of genus
 # - is_synonym_flag (logical) + accepted_id (parent_key for synonyms)
-# - status uses GBIF-specific values (ACCEPTED, SYNONYM, HOMOTYPIC_SYNONYM, etc.)
 # - family already denormalized (resolved from family_key during conversion)
 
 mock_gbif_backbone_df <- function() {
@@ -57,7 +58,7 @@ mock_gbif_backbone_df <- function() {
     ),
     status = c(
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "SYNONYM",
-      "ACCEPTED", "HOMOTYPIC_SYNONYM", "ACCEPTED", "ACCEPTED",
+      "ACCEPTED", "SYNONYM", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "SYNONYM"
     ),
@@ -164,14 +165,13 @@ mock_gbif_backbone_df <- function() {
 
 #' Create a mock GBIF backbone as a vectra .vtr file
 #'
-#' Uses the same precomputation pipeline as taxify_download.taxify_gbif.
+#' Mirrors what taxify sees in production: a pre-built `.vtr` (status already
+#' mapped to ACCEPTED/SYNONYM) put through the runtime-side key precomputation
+#' and accepted-info embedding.
 #'
 #' @return Path to the temporary .vtr file.
 mock_gbif_backbone_vtr <- function() {
   df <- mock_gbif_backbone_df()
-
-  # Normalize status to standard ACCEPTED/SYNONYM (same as GBIF download)
-  df$status <- gbif_status_to_standard(df$status)
 
   # Precompute keys (GBIF uses canonical_name + genus_or_above)
   df <- precompute_keys(df, "canonical_name", "genus_or_above",

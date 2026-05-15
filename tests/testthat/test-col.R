@@ -140,27 +140,3 @@ test_that("COL handles NA inputs without crashing", {
   expect_true(is.na(result$matched_name[2L]))
   expect_true(is.na(result$matched_name[3L]))
 })
-
-
-# -- col_strip_authorship --
-
-test_that("col_strip_authorship removes authorship correctly", {
-  sci <- c("Quercus robur L.", "Pinus sylvestris L.", "Festulolium")
-  auth <- c("L.", "L.", NA)
-  result <- col_strip_authorship(sci, auth)
-  expect_equal(result, c("Quercus robur", "Pinus sylvestris", "Festulolium"))
-})
-
-test_that("col_strip_authorship handles complex authorship", {
-  sci <- "Quercus petraea (Matt.) Liebl."
-  auth <- "(Matt.) Liebl."
-  result <- col_strip_authorship(sci, auth)
-  expect_equal(result, "Quercus petraea")
-})
-
-test_that("col_strip_authorship handles NA values", {
-  sci <- c("Quercus robur L.", NA, "Pinus sylvestris L.")
-  auth <- c("L.", NA, "L.")
-  result <- col_strip_authorship(sci, auth)
-  expect_equal(result, c("Quercus robur", NA, "Pinus sylvestris"))
-})

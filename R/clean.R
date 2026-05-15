@@ -1,7 +1,7 @@
 # ---- Name cleaning pipeline ----
 #
 # Runs on the user's input vector (small), not the backbone (large).
-# The backbone is already clean — this prepares user names for matching.
+# The backbone is already clean \u2014 this prepares user names for matching.
 
 # Qualifier patterns: cf., aff., s.l., s.str., sp., spp., subsp., var., f.,
 # auct., sensu, non, nec, vel, agg.
@@ -51,7 +51,7 @@ clean_one <- function(name) {
 
   s <- trimws(name)
 
-  # Normalize common mojibake: UTF-8 × (U+00D7) misread as Latin-1/CP1252
+  # Normalize common mojibake: UTF-8 \u00d7 (U+00D7) misread as Latin-1/CP1252
   s <- gsub("\u00c3\u0097", "\u00d7", s, fixed = TRUE)
   s <- gsub("\u00c3\u2014", "\u00d7", s, fixed = TRUE)
 
@@ -94,7 +94,7 @@ clean_one <- function(name) {
     genus_only <- TRUE
   }
 
-  # For nothospecies hybrids, build "Genus × epithet" form for backbone matching
+  # For nothospecies hybrids, build "Genus \u00d7 epithet" form for backbone matching
   hybrid_name <- NA_character_
   if (is_hybrid && !is.na(hybrid$hybrid_type) &&
       hybrid$hybrid_type == "nothospecies") {
@@ -131,7 +131,7 @@ clean_names <- function(x) {
   # Strip leading "Cf." / "CF." prefix
   s <- sub("^[Cc][Ff]\\.?\\s+", "", s)
 
-  # Detect hybrids — must be per-element due to tokenization logic
+  # Detect hybrids \u2014 must be per-element due to tokenization logic
   is_hybrid <- logical(n)
   hybrid_type <- rep(NA_character_, n)
   has_marker <- grepl(.hybrid_sign, s, fixed = TRUE) |
@@ -236,26 +236,99 @@ strip_qualifier <- function(name) {
 }
 
 
+# Accent / ligature character classes. Lowercase only \u2014 callers lowercase
+# upstream. German umlauts (\u00e4/\u00f6/\u00fc) are handled separately via
+# digraph transliteration (ae/oe/ue), so they're omitted from the bare-letter
+# classes. Sources stored as \uXXXX escapes to keep the source ASCII.
+# a-class (excl. \u00e4): a-grave, a-acute, a-circumflex, a-tilde, a-ring, a-macron
+.accent_a <- "[\u00e0\u00e1\u00e2\u00e3\u00e5\u0101]"
+# e-class: e-grave, e-acute, e-circumflex, e-diaeresis, e-macron
+.accent_e <- "[\u00e8\u00e9\u00ea\u00eb\u0113]"
+# i-class: i-grave, i-acute, i-circumflex, i-diaeresis, i-macron
+.accent_i <- "[\u00ec\u00ed\u00ee\u00ef\u012b]"
+# o-class (excl. \u00f6): o-grave/acute/circ/tilde, o-slash, o-macron
+.accent_o <- "[\u00f2\u00f3\u00f4\u00f5\u00f8\u014d]"
+# u-class (excl. \u00fc): u-grave, u-acute, u-circumflex, u-macron
+.accent_u <- "[\u00f9\u00fa\u00fb\u016b]"
+# y-class: y-acute, y-diaeresis
+.accent_y <- "[\u00fd\u00ff]"
+# d-class: eth (\u00f0), d-stroke (\u0111)
+.accent_d <- "[\u00f0\u0111]"
+
+#' Strip Latin-1 diacritics and common ligatures
+#'
+#' Maps accented letters to a canonical form for normalization keys. Most
+#' diacritics collapse to the bare letter (e-acute -> e, n-tilde -> n).
+#' German umlauts transliterate to digraphs (a-diaeresis -> ae, o-diaeresis
+#' -> oe, u-diaeresis -> ue) so the umlauted and the digraph-spelled
+#' variants of German-author species names (`b\u00f6hmi`/`boehmi`) fold to
+#' the same key. Ligatures and special letters that don't decompose to a
+#' single base letter expand similarly (ae-ligature -> ae, oe-ligature ->
+#' oe, sharp-s -> ss, thorn -> th, l-stroke -> l).
+#'
+#' Operates on lowercased input \u2014 callers are responsible for
+#' lowercasing upstream.
+#'
+#' @param x Character vector.
+#' @return Character vector with accents/ligatures stripped.
+#' @noRd
+.strip_accents <- function(x) {
+  # German umlauts first \u2014 digraph transliteration matches both the
+  # umlauted and the de-umlauted spellings of German-author species names.
+  x <- gsub("\u00e4", "ae", x, fixed = TRUE)  # a-diaeresis
+  x <- gsub("\u00f6", "oe", x, fixed = TRUE)  # o-diaeresis
+  x <- gsub("\u00fc", "ue", x, fixed = TRUE)  # u-diaeresis
+
+  # Ligatures and special letters expanding to digraphs
+  x <- gsub("\u00e6", "ae", x, fixed = TRUE)  # ae-ligature
+  x <- gsub("\u0153", "oe", x, fixed = TRUE)  # oe-ligature
+  x <- gsub("\u00df", "ss", x, fixed = TRUE)  # sharp-s
+  x <- gsub("\u00fe", "th", x, fixed = TRUE)  # thorn
+
+  # Bare-letter diacritics
+  x <- gsub(.accent_a, "a", x, perl = TRUE)
+  x <- gsub("\u00e7", "c", x, fixed = TRUE)   # c-cedilla
+  x <- gsub(.accent_e, "e", x, perl = TRUE)
+  x <- gsub(.accent_i, "i", x, perl = TRUE)
+  x <- gsub("\u00f1", "n", x, fixed = TRUE)   # n-tilde
+  x <- gsub(.accent_o, "o", x, perl = TRUE)
+  x <- gsub(.accent_u, "u", x, perl = TRUE)
+  x <- gsub(.accent_y, "y", x, perl = TRUE)
+  x <- gsub(.accent_d, "d", x, perl = TRUE)
+  x <- gsub("\u0142", "l", x, fixed = TRUE)   # l-stroke
+  x
+}
+
+
 #' Vectorized Latin orthographic normalization
 #'
 #' Reduces common Latin spelling alternations to a canonical form so that
 #' e.g. `hirtaeformis` and `hirtiformis` produce the same normalized key.
-#' Applied to the epithet portion only (everything after the genus).
+#' Applied identically to both query names and backbone names so the keys
+#' line up on either side of the join.
 #'
-#' Handled alternations:
-#' - `ae` -> `i`, `oe` -> `i`, `ii` -> `i` at word end
-#' - `y` -> `i`, `ph` -> `f`, `rh` -> `r`, `th` -> `t`
+#' Pipeline:
+#' 1. Lowercase.
+#' 2. Strip Latin-1 diacritics and ligatures (e-acute to e, ae-ligature to
+#'    ae, sharp-s to ss, etc.) \u2014 applied to genus and epithet.
+#' 3. Orthographic alternation on the epithet only: `ae`/`oe` -> `i`,
+#'    trailing `ii` -> `i`, `y` -> `i`, `ph` -> `f`, `rh` -> `r`, `th` -> `t`.
+#'
+#' Step 2 runs before step 3, so ae-ligature -> `ae` -> `i` and oe-ligature
+#' -> `oe` -> `i` fold into the same key as the de-ligatured forms.
 #'
 #' @param names Character vector of cleaned taxonomic names (genus + epithet).
 #' @return Character vector of normalized forms.
-#' @noRd
+#' @keywords internal
+#' @export
 normalize_epithets <- function(names) {
   genus <- sub(" .*", "", names)
   rest  <- sub("^\\S+\\s*", "", names)
   has_rest <- nzchar(rest) & !is.na(rest)
 
-  # Normalize epithet portion only — batch digraph replacements
-  rest <- tolower(rest)
+  genus <- .strip_accents(tolower(genus))
+  rest  <- .strip_accents(tolower(rest))
+
   rest <- gsub("ae|oe", "i", rest)
   rest <- gsub("ii\\b", "i", rest, perl = TRUE)
   rest <- chartr("y", "i", rest)
@@ -263,7 +336,7 @@ normalize_epithets <- function(names) {
   rest <- gsub("rh", "r", rest, fixed = TRUE)
   rest <- gsub("th", "t", rest, fixed = TRUE)
 
-  result <- ifelse(has_rest, paste(tolower(genus), rest), tolower(names))
+  result <- ifelse(has_rest, paste(genus, rest), genus)
   result[is.na(names)] <- NA_character_
   result
 }

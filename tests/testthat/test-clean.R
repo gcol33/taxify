@@ -86,3 +86,59 @@ test_that("clean_one handles complex authorship chains", {
   res <- clean_one("Festuca rubra L. ex Huds.")
   expect_equal(res$cleaned, "Festuca rubra")
 })
+
+
+# -- normalize_epithets: accent + ligature + orthographic alternation --
+
+test_that("normalize_epithets folds ligatures and digraph variants", {
+  # ae-ligature and ae-digraph collapse to the same key
+  expect_identical(
+    normalize_epithets("Quercus \u00e6gypticus"),
+    normalize_epithets("Quercus aegypticus")
+  )
+  # oe-ligature and oe-digraph collapse to the same key
+  expect_identical(
+    normalize_epithets("Genus p\u0153cilia"),
+    normalize_epithets("Genus poecilia")
+  )
+})
+
+test_that("normalize_epithets folds German umlauts to digraphs", {
+  # Umlauted and de-umlauted German spellings of author names match
+  expect_identical(
+    normalize_epithets("Carex b\u00f6hmii"),
+    normalize_epithets("Carex boehmii")
+  )
+  expect_identical(
+    normalize_epithets("Hieracium m\u00fcllerianum"),
+    normalize_epithets("Hieracium muellerianum")
+  )
+})
+
+test_that("normalize_epithets strips other Latin-1 diacritics", {
+  expect_identical(
+    normalize_epithets("Genus l\u00e9ve\u00edllei"),
+    normalize_epithets("Genus leveillei")
+  )
+  expect_identical(
+    normalize_epithets("Genus n\u00fa\u00f1ezii"),
+    normalize_epithets("Genus nunezii")
+  )
+})
+
+test_that("normalize_epithets still applies orthographic alternation", {
+  # ae -> i collapses hirtaeformis and hirtiformis
+  expect_identical(
+    normalize_epithets("Quercus hirtaeformis"),
+    normalize_epithets("Quercus hirtiformis")
+  )
+  # y -> i, ph -> f, th -> t
+  expect_equal(normalize_epithets("Genus phyllothalamus"),
+               "genus fillotalamus")
+})
+
+test_that("normalize_epithets handles NA, empty, and single-word input", {
+  expect_true(is.na(normalize_epithets(NA_character_)))
+  expect_equal(normalize_epithets(""), "")
+  expect_equal(normalize_epithets("Festulolium"), "festulolium")
+})
