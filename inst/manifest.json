@@ -2,8 +2,8 @@
   "schema_version": 2,
   "backends": {
     "wfo": {
-      "latest": "2024.12",
-      "full_url": "https://zenodo.org/records/PLACEHOLDER/files/wfo_2024.12.vtr",
+      "latest": "2024-12-r1",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/wfo-2024-12-r1/wfo.vtr",
       "citation": {
         "key": "borsch2020wfo",
         "type": "article",
@@ -14,11 +14,15 @@
         "volume": "69",
         "pages": "1311-1341",
         "doi": "10.1002/tax.12373"
-      }
+      },
+      "full_size": 785460165,
+      "full_sha256": "98bdcec43e165d647c481b8a053128ba653be9f4f97a7a383b4e1e78f40b72a4",
+      "nrow": 1638552,
+      "source_url": "https://zenodo.org/records/14538251/files/_DwC_backbone_R.zip"
     },
     "col": {
-      "latest": "2024.11",
-      "full_url": "https://zenodo.org/records/PLACEHOLDER/files/col_2024.11.vtr",
+      "latest": "2025-r1",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/col-2025-r1/col.vtr",
       "citation": {
         "key": "banki2024col",
         "type": "misc",
@@ -27,11 +31,23 @@
         "title": "Catalogue of Life Checklist",
         "doi": "10.48580/d4t2",
         "url": "https://www.catalogueoflife.org"
-      }
+      },
+      "full_size": 1905932197,
+      "full_sha256": "3faeb4657e9cec7ca8bfbe37e5dbbb9a658498dba5ea15afd9f9045fe3cfc0fd",
+      "nrow": 5302873,
+      "source_url": "https://download.checklistbank.org/col/annual/2025_dwca.zip",
+      "extras": [
+        {
+          "name": "col_species_profile.vtr",
+          "url": "https://github.com/gcol33/taxify-backbones/releases/download/col-2025-r1/col_species_profile.vtr",
+          "size": 23971740,
+          "sha256": "824573b5ff844791f0f1ba116cfef798fde93207b58ff6e450850d7ae4c730c5"
+        }
+      ]
     },
     "gbif": {
-      "latest": "2024.10",
-      "full_url": "https://zenodo.org/records/PLACEHOLDER/files/gbif_2024.10.vtr",
+      "latest": "2026.05",
+      "full_url": "https://github.com/gcol33/taxify-backbones/releases/download/gbif-2026.05/gbif.vtr",
       "citation": {
         "key": "gbif2024backbone",
         "type": "misc",
@@ -40,7 +56,11 @@
         "title": "GBIF Backbone Taxonomy",
         "doi": "10.15468/39omei",
         "url": "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
-      }
+      },
+      "full_size": 1826343308,
+      "full_sha256": "cd8674a4aaea9276160b082ed65b720eac59d6ddf7bcb5c0c402525bbe60f1a5",
+      "nrow": 6404001,
+      "source_url": "https://hosted-datasets.gbif.org/datasets/backbone/current/simple.txt.gz"
     },
     "itis": {
       "latest": "2025.04",
@@ -81,7 +101,9 @@
       "source_format": "gbif_api",
       "source_version": "2026.04",
       "species_col": "canonicalName",
-      "trait_cols": ["conservation_status"],
+      "trait_cols": [
+        "conservation_status"
+      ],
       "static": false,
       "citation": {
         "key": "iucn2024",
@@ -100,8 +122,11 @@
       "source_format": "csv",
       "source_version": "2026.04",
       "species_col": "species",
-      "trait_cols": ["country_code", "invasive_status"],
-      "available_groups": null,
+      "trait_cols": [
+        "country_code",
+        "invasive_status"
+      ],
+      "available_groups": {},
       "static": false,
       "citation": {
         "key": "pagad2022griis",
@@ -117,14 +142,19 @@
     },
     "alien_first_records": {
       "latest": "3.1",
-      "full_url": null,
-      "nrow": null,
+      "full_url": {},
+      "nrow": {},
       "source_url": "https://doi.org/10.6084/m9.figshare.c.3924424.v3",
       "source_format": "xlsx",
       "source_version": "3.1",
       "species_col": "TaxonName",
-      "trait_cols": ["country_code", "alien_first_record", "alien_first_record_source", "alien_first_record_reference"],
-      "available_groups": null,
+      "trait_cols": [
+        "country_code",
+        "alien_first_record",
+        "alien_first_record_source",
+        "alien_first_record_reference"
+      ],
+      "available_groups": {},
       "static": true,
       "citation": {
         "key": "seebens2017alien",
@@ -146,8 +176,11 @@
       "source_format": "zip",
       "source_version": "2026.04",
       "species_col": "taxon_name",
-      "trait_cols": ["tdwg_code", "native_status"],
-      "available_groups": null,
+      "trait_cols": [
+        "tdwg_code",
+        "native_status"
+      ],
+      "available_groups": {},
       "static": false,
       "citation": {
         "key": "govaerts2021wcvp",
@@ -169,7 +202,13 @@
       "source_format": "xlsx",
       "source_version": "1.0",
       "species_col": "TaxonConcept",
-      "trait_cols": ["light", "temperature", "moisture", "reaction", "nutrients"],
+      "trait_cols": [
+        "light",
+        "temperature",
+        "moisture",
+        "reaction",
+        "nutrients"
+      ],
       "static": true,
       "citation": {
         "key": "dengler2023eive",
@@ -191,7 +230,26 @@
       "source_format": "tsv",
       "source_version": "1.0",
       "species_col": "Scientific",
-      "trait_cols": ["diet_inv", "diet_vend", "diet_vect", "diet_vfish", "diet_vunk", "diet_scav", "diet_fruit", "diet_nect", "diet_seed", "diet_plantother", "foraging_water", "foraging_ground", "foraging_understory", "foraging_midhigh", "foraging_canopy", "foraging_aerial", "body_mass_g", "nocturnal"],
+      "trait_cols": [
+        "diet_inv",
+        "diet_vend",
+        "diet_vect",
+        "diet_vfish",
+        "diet_vunk",
+        "diet_scav",
+        "diet_fruit",
+        "diet_nect",
+        "diet_seed",
+        "diet_plantother",
+        "foraging_water",
+        "foraging_ground",
+        "foraging_understory",
+        "foraging_midhigh",
+        "foraging_canopy",
+        "foraging_aerial",
+        "body_mass_g",
+        "nocturnal"
+      ],
       "static": true,
       "citation": {
         "key": "wilman2014eltontraits",
@@ -213,7 +271,19 @@
       "source_format": "xlsx",
       "source_version": "1.0",
       "species_col": "Species1",
-      "trait_cols": ["beak_length", "beak_depth", "wing_length", "tail_length", "tarsus_length", "body_mass_g", "hand_wing_index", "habitat", "trophic_level", "trophic_niche", "migration"],
+      "trait_cols": [
+        "beak_length",
+        "beak_depth",
+        "wing_length",
+        "tail_length",
+        "tarsus_length",
+        "body_mass_g",
+        "hand_wing_index",
+        "habitat",
+        "trophic_level",
+        "trophic_niche",
+        "migration"
+      ],
       "static": true,
       "citation": {
         "key": "tobias2022avonet",
@@ -235,7 +305,16 @@
       "source_format": "tsv",
       "source_version": "1.0",
       "species_col": "MSW05_Binomial",
-      "trait_cols": ["body_mass_g", "longevity_mo", "litter_size", "gestation_d", "weaning_d", "home_range_km2", "diet_breadth", "habitat_breadth"],
+      "trait_cols": [
+        "body_mass_g",
+        "longevity_mo",
+        "litter_size",
+        "gestation_d",
+        "weaning_d",
+        "home_range_km2",
+        "diet_breadth",
+        "habitat_breadth"
+      ],
       "static": true,
       "citation": {
         "key": "jones2009pantheria",
@@ -257,7 +336,21 @@
       "source_format": "zip",
       "source_version": "1.0",
       "species_col": "Species",
-      "trait_cols": ["body_size_mm", "age_maturity_d", "longevity_d", "litter_size", "reproductive_output", "offspring_size_mm", "direct_development", "larval", "aquatic", "fossorial", "arboreal", "diurnal", "nocturnal_amphibio"],
+      "trait_cols": [
+        "body_size_mm",
+        "age_maturity_d",
+        "longevity_d",
+        "litter_size",
+        "reproductive_output",
+        "offspring_size_mm",
+        "direct_development",
+        "larval",
+        "aquatic",
+        "fossorial",
+        "arboreal",
+        "diurnal",
+        "nocturnal_amphibio"
+      ],
       "static": true,
       "citation": {
         "key": "oliveira2017amphibio",
@@ -279,8 +372,11 @@
       "source_format": "zip",
       "source_version": "2026.04",
       "species_col": "canonicalName",
-      "trait_cols": ["lang", "common_name"],
-      "available_groups": null,
+      "trait_cols": [
+        "lang",
+        "common_name"
+      ],
+      "available_groups": {},
       "static": false,
       "citation": {
         "key": "gbif2024vernacular",
@@ -300,7 +396,9 @@
       "source_format": "dryad_zip",
       "source_version": "2014.1",
       "species_col": "gs",
-      "trait_cols": ["woodiness"],
+      "trait_cols": [
+        "woodiness"
+      ],
       "static": true,
       "citation": {
         "key": "zanne2014woodiness",
@@ -321,7 +419,10 @@
       "source_format": "xlsx",
       "source_version": "2022.1",
       "species_col": "Species",
-      "trait_cols": ["seed_mass_mg", "plant_height_m"],
+      "trait_cols": [
+        "seed_mass_mg",
+        "plant_height_m"
+      ],
       "static": true,
       "citation": {
         "key": "diaz2022spectrum",
@@ -342,7 +443,18 @@
       "source_format": "multi_tsv",
       "source_version": "2008.1",
       "species_col": "SBS_name",
-      "trait_cols": ["raunkiaer_life_form", "raunkiaer_variable", "dispersal_type", "terminal_velocity_ms", "leda_seed_mass_mg", "canopy_height_m", "leaf_mass_mg", "sla_mm2_mg", "clonal_growth", "buoyancy"],
+      "trait_cols": [
+        "raunkiaer_life_form",
+        "raunkiaer_variable",
+        "dispersal_type",
+        "terminal_velocity_ms",
+        "leda_seed_mass_mg",
+        "canopy_height_m",
+        "leaf_mass_mg",
+        "sla_mm2_mg",
+        "clonal_growth",
+        "buoyancy"
+      ],
       "static": true,
       "citation": {
         "key": "kleyer2008leda",
@@ -358,13 +470,18 @@
     },
     "funguild": {
       "latest": "2016.1",
-      "full_url": null,
-      "nrow": null,
+      "full_url": {},
+      "nrow": {},
       "source_url": "https://mycoportal.org/funguild/services/api/db_return.php?qDB=funguild_db&qField=taxon&qText=*",
       "source_format": "json",
       "source_version": "2016.1",
       "species_col": "taxon",
-      "trait_cols": ["trophic_mode", "guild", "growth_morphology", "confidence_ranking"],
+      "trait_cols": [
+        "trophic_mode",
+        "guild",
+        "growth_morphology",
+        "confidence_ranking"
+      ],
       "static": false,
       "citation": {
         "key": "nguyen2016funguild",
@@ -380,13 +497,22 @@
     },
     "fishbase": {
       "latest": "2026.04",
-      "full_url": null,
-      "nrow": null,
+      "full_url": {},
+      "nrow": {},
       "source_url": "https://fishbase.ropensci.org",
       "source_format": "rfishbase",
       "source_version": "2026.04",
       "species_col": "canonical_name",
-      "trait_cols": ["body_length_cm", "body_mass_g", "trophic_level", "depth_min_m", "depth_max_m", "vulnerability", "habitat", "importance"],
+      "trait_cols": [
+        "body_length_cm",
+        "body_mass_g",
+        "trophic_level",
+        "depth_min_m",
+        "depth_max_m",
+        "vulnerability",
+        "habitat",
+        "importance"
+      ],
       "static": false,
       "citation": {
         "key": "froese2024fishbase",
@@ -399,13 +525,23 @@
     },
     "fungal_traits": {
       "latest": "2020.1",
-      "full_url": null,
-      "nrow": null,
+      "full_url": {},
+      "nrow": {},
       "source_url": "https://doi.org/10.1007/s13225-020-00466-2",
       "source_format": "xlsx",
       "source_version": "2020.1",
       "species_col": "GENUS",
-      "trait_cols": ["primary_lifestyle", "secondary_lifestyle", "growth_form", "fruitbody_type", "decay_substrate", "plant_pathogenic_capacity", "animal_biotrophic_capacity", "endophytic_interaction_capability", "ectomycorrhiza_exploration_type"],
+      "trait_cols": [
+        "primary_lifestyle",
+        "secondary_lifestyle",
+        "growth_form",
+        "fruitbody_type",
+        "decay_substrate",
+        "plant_pathogenic_capacity",
+        "animal_biotrophic_capacity",
+        "endophytic_interaction_capability",
+        "ectomycorrhiza_exploration_type"
+      ],
       "static": true,
       "citation": {
         "key": "polme2020fungaltraits",
@@ -421,13 +557,22 @@
     },
     "algae_traits": {
       "latest": "2022.06",
-      "full_url": null,
-      "nrow": null,
+      "full_url": {},
+      "nrow": {},
       "source_url": "https://mda.vliz.be/download.php?file=VLIZ_00000308_62bf06138859e409561556",
       "source_format": "zip",
       "source_version": "2022.06",
       "species_col": "scientificname",
-      "trait_cols": ["body_size_cm", "growth_form", "calcification", "life_span", "tidal_zone", "wave_exposure", "environment", "substrate"],
+      "trait_cols": [
+        "body_size_cm",
+        "growth_form",
+        "calcification",
+        "life_span",
+        "tidal_zone",
+        "wave_exposure",
+        "environment",
+        "substrate"
+      ],
       "static": true,
       "citation": {
         "key": "vranken2023algaetraits",
@@ -443,13 +588,24 @@
     },
     "fish_traits": {
       "latest": "1.0",
-      "full_url": null,
+      "full_url": {},
       "nrow": 8342,
       "source_url": "https://ndownloader.figshare.com/files/28672242",
       "source_format": "csv",
       "source_version": "1.0",
       "species_col": "Genus.species",
-      "trait_cols": ["max_body_length", "body_elongation", "vertical_eye_position", "relative_eye_size", "oral_gape_position", "relative_maxillary_length", "body_lateral_shape", "pectoral_fin_position", "pectoral_fin_size", "caudal_peduncle_throttling"],
+      "trait_cols": [
+        "max_body_length",
+        "body_elongation",
+        "vertical_eye_position",
+        "relative_eye_size",
+        "oral_gape_position",
+        "relative_maxillary_length",
+        "body_lateral_shape",
+        "pectoral_fin_position",
+        "pectoral_fin_size",
+        "caudal_peduncle_throttling"
+      ],
       "static": true,
       "citation": {
         "key": "brosse2021fishtraits",
@@ -465,13 +621,24 @@
     },
     "lizard_traits": {
       "latest": "2018.1",
-      "full_url": null,
-      "nrow": null,
+      "full_url": {},
+      "nrow": {},
       "source_url": "https://ndownloader.figshare.com/files/10243295",
       "source_format": "xlsx",
       "source_version": "2018.1",
       "species_col": "species",
-      "trait_cols": ["body_mass_g", "svl_mm", "tail_length_mm", "clutch_size", "clutch_frequency", "longevity_yr", "diet", "habitat", "activity_time", "foraging_mode"],
+      "trait_cols": [
+        "body_mass_g",
+        "svl_mm",
+        "tail_length_mm",
+        "clutch_size",
+        "clutch_frequency",
+        "longevity_yr",
+        "diet",
+        "habitat",
+        "activity_time",
+        "foraging_mode"
+      ],
       "static": true,
       "citation": {
         "key": "meiri2018lizards",
@@ -487,13 +654,24 @@
     },
     "anage": {
       "latest": "15.0",
-      "full_url": null,
+      "full_url": {},
       "nrow": 4671,
       "source_url": "https://genomics.senescence.info/species/dataset.zip",
       "source_format": "zip",
       "source_version": "15.0",
       "species_col": "Genus+Species",
-      "trait_cols": ["max_longevity_yr", "body_mass_g", "metabolic_rate_w", "female_maturity_d", "male_maturity_d", "gestation_incubation_d", "litter_size", "birth_mass_g", "growth_rate", "temperature_k"],
+      "trait_cols": [
+        "max_longevity_yr",
+        "body_mass_g",
+        "metabolic_rate_w",
+        "female_maturity_d",
+        "male_maturity_d",
+        "gestation_incubation_d",
+        "litter_size",
+        "birth_mass_g",
+        "growth_rate",
+        "temperature_k"
+      ],
       "static": false,
       "citation": {
         "key": "tacutu2018anage",
@@ -509,14 +687,17 @@
     },
     "glonaf": {
       "latest": "2.0",
-      "full_url": null,
-      "nrow": null,
+      "full_url": {},
+      "nrow": {},
       "source_url": "https://zenodo.org/records/13235357/files/GloNAF_V2.zip?download=1",
       "source_format": "zip",
       "source_version": "2.0",
       "species_col": "species_name",
-      "trait_cols": ["region_id", "naturalized"],
-      "available_groups": null,
+      "trait_cols": [
+        "region_id",
+        "naturalized"
+      ],
+      "available_groups": {},
       "static": true,
       "citation": {
         "key": "vankleunen2019glonaf",
@@ -532,13 +713,23 @@
     },
     "leptraits": {
       "latest": "1.0",
-      "full_url": null,
+      "full_url": {},
       "nrow": 12448,
       "source_url": "https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv",
       "source_format": "csv",
       "source_version": "1.0",
       "species_col": "Species",
-      "trait_cols": ["wingspan_mm", "voltinism", "diapause_stage", "canopy_affinity", "edge_affinity", "moisture_affinity", "disturbance_affinity", "n_hostplant_families", "flight_months"],
+      "trait_cols": [
+        "wingspan_mm",
+        "voltinism",
+        "diapause_stage",
+        "canopy_affinity",
+        "edge_affinity",
+        "moisture_affinity",
+        "disturbance_affinity",
+        "n_hostplant_families",
+        "flight_months"
+      ],
       "static": true,
       "citation": {
         "key": "shirey2022leptraits",
@@ -554,13 +745,16 @@
     },
     "animaltraits": {
       "latest": "1.0",
-      "full_url": null,
+      "full_url": {},
       "nrow": 2000,
       "source_url": "https://zenodo.org/record/6468938/files/observations.csv?download=1",
       "source_format": "csv",
       "source_version": "1.0",
       "species_col": "species",
-      "trait_cols": ["body_mass_kg", "metabolic_rate_w"],
+      "trait_cols": [
+        "body_mass_kg",
+        "metabolic_rate_w"
+      ],
       "static": true,
       "citation": {
         "key": "hebert2022animaltraits",
@@ -576,13 +770,24 @@
     },
     "arthropod_traits": {
       "latest": "1.1",
-      "full_url": null,
+      "full_url": {},
       "nrow": 4874,
       "source_url": "https://ipt.biodiversity.be/archive.do?r=arthropod-trait-dataset&v=1.1",
       "source_format": "dwca",
       "source_version": "1.1",
       "species_col": "scientificName",
-      "trait_cols": ["body_size_mm", "dispersal", "voltinism", "fecundity", "development_d", "lifespan_d", "thermal_mean", "diurnality", "feeding_guild", "trophic_range"],
+      "trait_cols": [
+        "body_size_mm",
+        "dispersal",
+        "voltinism",
+        "fecundity",
+        "development_d",
+        "lifespan_d",
+        "thermal_mean",
+        "diurnality",
+        "feeding_guild",
+        "trophic_range"
+      ],
       "static": true,
       "citation": {
         "key": "logghe2025arthropods",

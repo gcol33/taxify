@@ -212,6 +212,47 @@ download_backbone <- function(backend_name,
 
   # Atomic rename
   file.rename(tmp_path, vtr_path)
+
+  # Download sidecar extras (e.g., col_species_profile.vtr) into the same
+  # versioned directory. Each manifest entry under `extras` is
+  # {name, url, size, sha256}. Failures here are non-fatal \u2014 the main
+  # backbone is already in place; extras are optional enrichments.
+  extras <- entry$extras
+  if (!is.null(extras) && length(extras) > 0L) {
+    for (ex in extras) {
+      ex_name <- ex$name %||% basename(ex$url %||% "")
+      ex_url  <- ex$url
+      if (is.null(ex_name) || !nzchar(ex_name) || is.null(ex_url)) next
+      ex_path <- file.path(dest_dir, ex_name)
+      ex_tmp  <- tempfile(tmpdir = dest_dir, fileext = ".extra.tmp")
+      tryCatch(
+        {
+          if (verbose) message(sprintf("  Downloading sidecar: %s", ex_name))
+          if (startsWith(ex_url, "file://")) {
+            local_src <- sub("^file:///", "/", ex_url)
+            if (.Platform$OS.type == "windows" &&
+                grepl("^/[A-Za-z]:/", local_src)) {
+              local_src <- sub("^/", "", local_src)
+            }
+            if (!file.exists(local_src)) {
+              stop(sprintf("Local sidecar not found: %s", local_src))
+            }
+            file.copy(local_src, ex_tmp, overwrite = TRUE)
+          } else {
+            curl::curl_download(ex_url, ex_tmp, quiet = !verbose)
+          }
+          file.rename(ex_tmp, ex_path)
+        },
+        error = function(e) {
+          if (file.exists(ex_tmp)) unlink(ex_tmp)
+          warning(sprintf("Failed to download sidecar '%s': %s",
+                          ex_name, conditionMessage(e)),
+                  call. = FALSE)
+        }
+      )
+    }
+  }
+
   write_version_meta(dest_dir, backend_name, actual_version,
                      pinned = (version != "latest"))
 
