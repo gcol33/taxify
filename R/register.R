@@ -41,14 +41,14 @@ coverage_vtr_path <- function() {
 #' @noRd
 extract_wfo_genera <- function(bb_path) {
   df <- vectra::tbl(bb_path) |>
-    vectra::filter(taxonRank == "GENUS") |>
-    vectra::select(scientificName, family, genus) |>
+    vectra::filter(taxon_rank == "GENUS") |>
+    vectra::select(canonical_name, family, genus) |>
     vectra::collect()
 
   if (nrow(df) == 0L) return(empty_genus_df())
 
   data.frame(
-    genus   = df$scientificName,
+    genus   = df$canonical_name,
     kingdom = NA_character_,
     phylum  = NA_character_,
     class   = NA_character_,
@@ -70,17 +70,13 @@ extract_col_genera <- function(bb_path) {
   # Collect genus rows — vectra select() uses bare names; collect all columns
   # then subset in R to handle the optionally-present higher-classification cols.
   df <- vectra::tbl(bb_path) |>
-    vectra::filter(taxonRank == "GENUS") |>
+    vectra::filter(taxon_rank == "GENUS") |>
     vectra::collect()
 
   if (nrow(df) == 0L) return(empty_genus_df())
 
-  # Genus name column: prefer canonicalName (canonical taxify-backbones build),
-  # fall back to scientificName (runtime build emits raw DwC schema).
-  name_col <- if ("canonicalName" %in% names(df)) "canonicalName" else "scientificName"
-
   result <- data.frame(
-    genus  = df[[name_col]],
+    genus  = df$canonical_name,
     family = if ("family" %in% names(df)) df$family else NA_character_,
     stringsAsFactors = FALSE
   )
@@ -95,7 +91,7 @@ extract_col_genera <- function(bb_path) {
 #' Extract genus rows from GBIF backbone
 #'
 #' GBIF backbone stores kingdom/phylum/class/order as separate taxonomy keys
-#' that are not present in the converted .vtr. We do have `genus_or_above` and
+#' that are not present in the converted .vtr. We do have `genus` and
 #' `family`. Higher classification columns are absent; they need to be provided
 #' via the GBIF hierarchy.
 #'
@@ -109,8 +105,8 @@ extract_col_genera <- function(bb_path) {
 #' @noRd
 extract_gbif_genera <- function(bb_path) {
   df <- vectra::tbl(bb_path) |>
-    vectra::filter(rank == "GENUS") |>
-    vectra::select(canonical_name, family, genus_or_above) |>
+    vectra::filter(taxon_rank == "GENUS") |>
+    vectra::select(canonical_name, family, genus) |>
     vectra::collect()
 
   if (nrow(df) == 0L) return(empty_genus_df())
@@ -466,11 +462,11 @@ resolve_kingdom_via_gbif <- function(resolved, gbif_path) {
   if (length(unknown_genera) == 0L) return(resolved)
 
   # Load the GBIF backbone columns needed for traversal
-  # id, parent_key, rank, canonical_name — subset to minimize memory
+  # taxon_id, parent_key, taxon_rank, canonical_name — subset to minimize memory
   if (is.null(.taxify_env$gbif_hierarchy_cache)) {
     gbif_df <- tryCatch({
       vectra::tbl(gbif_path) |>
-        vectra::select(id, parent_key, rank, canonical_name) |>
+        vectra::select(taxon_id, parent_key, taxon_rank, canonical_name) |>
         vectra::collect()
     }, error = function(e) NULL)
     if (is.null(gbif_df) || nrow(gbif_df) == 0L) return(resolved)
@@ -480,9 +476,9 @@ resolve_kingdom_via_gbif <- function(resolved, gbif_path) {
   }
 
   # Build hash maps for fast traversal
-  id_to_parent   <- stats::setNames(gbif_df$parent_key,    gbif_df$id)
-  id_to_rank     <- stats::setNames(gbif_df$rank,          gbif_df$id)
-  id_to_canonical <- stats::setNames(gbif_df$canonical_name, gbif_df$id)
+  id_to_parent    <- stats::setNames(gbif_df$parent_key,    gbif_df$taxon_id)
+  id_to_rank      <- stats::setNames(gbif_df$taxon_rank,    gbif_df$taxon_id)
+  id_to_canonical <- stats::setNames(gbif_df$canonical_name, gbif_df$taxon_id)
 
   # Kingdom name → kingdom_group mapping
   kingdom_group_map <- c(
@@ -507,8 +503,8 @@ resolve_kingdom_via_gbif <- function(resolved, gbif_path) {
   )
 
   # Vectorized parent_key traversal — repeated joins instead of a per-genus loop.
-  # Start: match each unknown genus name to its GBIF id.
-  genus_rows <- gbif_df[!is.na(gbif_df$rank) & gbif_df$rank == "GENUS" &
+  # Start: match each unknown genus name to its GBIF taxon_id.
+  genus_rows <- gbif_df[!is.na(gbif_df$taxon_rank) & gbif_df$taxon_rank == "GENUS" &
                           gbif_df$canonical_name %in% unknown_genera, ,
                         drop = FALSE]
 
@@ -520,15 +516,15 @@ resolve_kingdom_via_gbif <- function(resolved, gbif_path) {
   # Bacteria and Animalia).
   work <- data.frame(
     genus_name   = genus_rows$canonical_name,
-    current_id   = genus_rows$id,
+    current_id   = genus_rows$taxon_id,
     kingdom_name = NA_character_,
     stringsAsFactors = FALSE
   )
 
   # pre-build lookup vectors once
-  id_to_parent    <- stats::setNames(gbif_df$parent_key,    gbif_df$id)
-  id_to_rank      <- stats::setNames(gbif_df$rank,          gbif_df$id)
-  id_to_canonical <- stats::setNames(gbif_df$canonical_name, gbif_df$id)
+  id_to_parent    <- stats::setNames(gbif_df$parent_key,    gbif_df$taxon_id)
+  id_to_rank      <- stats::setNames(gbif_df$taxon_rank,    gbif_df$taxon_id)
+  id_to_canonical <- stats::setNames(gbif_df$canonical_name, gbif_df$taxon_id)
 
   # iteratively hop to parent until all rows hit KINGDOM or exhaust depth
   for (step in seq_len(20L)) {

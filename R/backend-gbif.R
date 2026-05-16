@@ -6,19 +6,23 @@
 # GBIF version pin (referenced by the constructor; updated with package releases)
 .gbif_version <- "current"
 
-# Column map for shared matching engine
+# Column map for shared matching engine. Main matching columns come from the
+# unified snake_case schema produced by taxifydb::normalize_backbone(); GBIF-
+# specific extras (notho_type, nom_status, bracket_authorship, ...) are
+# preserved verbatim by .gbif_extra_cols in the build and consumed by
+# add_gbif_info().
 .gbif_col_map <- list(
   name       = "canonical_name",
   name_ci    = "key_ci",
   name_norm  = "key_normalized",
   name_sp    = "key_species",
-  genus      = "genus_or_above",
-  id         = "id",
-  rank       = "rank",
-  status     = "status",
-  acc_id     = "accepted_id",
+  genus      = "genus",
+  id         = "taxon_id",
+  rank       = "taxon_rank",
+  status     = "taxonomic_status",
+  acc_id     = "accepted_name_usage_id",
   family     = "family",
-  genus_out  = "genus_or_above",
+  genus_out  = "genus",
   epithet    = "specific_epithet",
   authorship = "authorship",
   acc_name   = "accepted_name",

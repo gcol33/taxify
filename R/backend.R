@@ -416,18 +416,20 @@ fill_compiled_matches <- function(result, matches, match_type, col_map) {
   idx <- idx[new_match]
   best <- best[new_match, , drop = FALSE]
 
-  result$matched_name[idx]  <- best[[col_map$name]]
-  result$taxon_id[idx]      <- best[[col_map$id]]
-  result$rank[idx]          <- tolower(best[[col_map$rank]])
-  result$family[idx]        <- best$accepted_family
-  result$genus[idx]         <- best$accepted_genus
-  result$epithet[idx]       <- best[[col_map$epithet]]
-  result$authorship[idx]    <- best[[col_map$authorship]]
-  result$accepted_name[idx] <- best$accepted_name
-  result$accepted_id[idx]   <- best$accepted_taxon_id
-  result$is_synonym[idx]    <- best$is_synonym
-  result$match_type[idx]    <- match_type
-  result$fuzzy_dist[idx]    <- NA_real_
+  result$matched_name[idx]      <- best[[col_map$name]]
+  result$taxon_id[idx]          <- best[[col_map$id]]
+  result$rank[idx]              <- tolower(best[[col_map$rank]])
+  result$family[idx]            <- best$accepted_family
+  result$genus[idx]             <- best$accepted_genus
+  result$epithet[idx]           <- best[[col_map$epithet]]
+  result$authorship[idx]        <- best[[col_map$authorship]]
+  result$accepted_name[idx]     <- best$accepted_name
+  result$accepted_id[idx]       <- best$accepted_taxon_id
+  result$is_synonym[idx]        <- best$is_synonym
+  result$match_type[idx]        <- match_type
+  result$fuzzy_dist[idx]        <- NA_real_
+  result$is_ambiguous[idx]      <- best$is_ambiguous %||% FALSE
+  result$ambiguous_targets[idx] <- best$ambiguous_targets %||% NA_character_
 
   result
 }
@@ -528,19 +530,22 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
     matches$taxonomicStatus <- matches[[col_map$status]]
 
     best <- pick_best_vec(matches)
+    best <- dedup_fuzzy_targets(best, id_col = col_map$id)
     idx <- best$row_idx
-    result$matched_name[idx]  <- best[[col_map$name]]
-    result$taxon_id[idx]      <- best[[col_map$id]]
-    result$rank[idx]          <- tolower(best[[col_map$rank]])
-    result$accepted_name[idx] <- best$accepted_name
-    result$accepted_id[idx]   <- best$accepted_taxon_id
-    result$family[idx]        <- best$accepted_family
-    result$genus[idx]         <- best$accepted_genus
-    result$epithet[idx]       <- best[[col_map$epithet]]
-    result$authorship[idx]    <- best[[col_map$authorship]]
-    result$is_synonym[idx]    <- best$is_synonym
-    result$match_type[idx]    <- "fuzzy"
-    result$fuzzy_dist[idx]    <- best$fuzzy_dist
+    result$matched_name[idx]      <- best[[col_map$name]]
+    result$taxon_id[idx]          <- best[[col_map$id]]
+    result$rank[idx]              <- tolower(best[[col_map$rank]])
+    result$accepted_name[idx]     <- best$accepted_name
+    result$accepted_id[idx]       <- best$accepted_taxon_id
+    result$family[idx]            <- best$accepted_family
+    result$genus[idx]             <- best$accepted_genus
+    result$epithet[idx]           <- best[[col_map$epithet]]
+    result$authorship[idx]        <- best[[col_map$authorship]]
+    result$is_synonym[idx]        <- best$is_synonym
+    result$match_type[idx]        <- "fuzzy"
+    result$fuzzy_dist[idx]        <- best$fuzzy_dist
+    result$is_ambiguous[idx]      <- best$is_ambiguous %||% FALSE
+    result$ambiguous_targets[idx] <- best$ambiguous_targets %||% NA_character_
   }
 
   result
@@ -657,19 +662,22 @@ fuzzy_match_unblocked <- function(result, names_df, bb_path, method, threshold,
     matches$taxonomicStatus <- matches[[col_map$status]]
 
     best <- pick_best_vec(matches)
+    best <- dedup_fuzzy_targets(best, id_col = col_map$id)
     idx <- best$row_idx
-    result$matched_name[idx]  <- best[[col_map$name]]
-    result$taxon_id[idx]      <- best[[col_map$id]]
-    result$rank[idx]          <- tolower(best[[col_map$rank]])
-    result$accepted_name[idx] <- best$accepted_name
-    result$accepted_id[idx]   <- best$accepted_taxon_id
-    result$family[idx]        <- best$accepted_family
-    result$genus[idx]         <- best$accepted_genus
-    result$epithet[idx]       <- best[[col_map$epithet]]
-    result$authorship[idx]    <- best[[col_map$authorship]]
-    result$is_synonym[idx]    <- best$is_synonym
-    result$match_type[idx]    <- "fuzzy"
-    result$fuzzy_dist[idx]    <- best$fuzzy_dist
+    result$matched_name[idx]      <- best[[col_map$name]]
+    result$taxon_id[idx]          <- best[[col_map$id]]
+    result$rank[idx]              <- tolower(best[[col_map$rank]])
+    result$accepted_name[idx]     <- best$accepted_name
+    result$accepted_id[idx]       <- best$accepted_taxon_id
+    result$family[idx]            <- best$accepted_family
+    result$genus[idx]             <- best$accepted_genus
+    result$epithet[idx]           <- best[[col_map$epithet]]
+    result$authorship[idx]        <- best[[col_map$authorship]]
+    result$is_synonym[idx]        <- best$is_synonym
+    result$match_type[idx]        <- "fuzzy"
+    result$fuzzy_dist[idx]        <- best$fuzzy_dist
+    result$is_ambiguous[idx]      <- best$is_ambiguous %||% FALSE
+    result$ambiguous_targets[idx] <- best$ambiguous_targets %||% NA_character_
   }
 
   result
@@ -712,23 +720,25 @@ resolve_backend <- function(backend) {
 #' @noRd
 empty_match_result <- function(n) {
   data.frame(
-    input_name     = character(n),
-    matched_name   = NA_character_,
-    accepted_name  = NA_character_,
-    taxon_id       = NA_character_,
-    accepted_id    = NA_character_,
-    rank           = NA_character_,
-    family         = NA_character_,
-    genus          = NA_character_,
-    epithet        = NA_character_,
-    authorship     = NA_character_,
-    is_synonym     = NA,
-    is_hybrid      = NA,
-    match_type     = NA_character_,
-    fuzzy_dist     = NA_real_,
-    backend        = NA_character_,
-    backbone_version = NA_character_,
-    stringsAsFactors = FALSE
+    input_name        = character(n),
+    matched_name      = NA_character_,
+    accepted_name     = NA_character_,
+    taxon_id          = NA_character_,
+    accepted_id       = NA_character_,
+    rank              = NA_character_,
+    family            = NA_character_,
+    genus             = NA_character_,
+    epithet           = NA_character_,
+    authorship        = NA_character_,
+    is_synonym        = NA,
+    is_hybrid         = NA,
+    match_type        = NA_character_,
+    fuzzy_dist        = NA_real_,
+    is_ambiguous      = NA,
+    ambiguous_targets = NA_character_,
+    backend           = NA_character_,
+    backbone_version  = NA_character_,
+    stringsAsFactors  = FALSE
   )
 }
 

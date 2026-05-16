@@ -6,21 +6,26 @@
 # COL version pin (referenced by the constructor; updated with package releases)
 .col_version <- "2025"
 
-# Column map for shared matching engine
+# Column map for shared matching engine. Main matching columns come from the
+# unified snake_case schema produced by taxifydb::normalize_backbone(); COL-
+# specific extras (notho, nomenclaturalCode, kingdom, phylum, ...) are
+# preserved verbatim by .col_extra_cols in the build and consumed by
+# add_col_info(). The original COL `scientificName` (with authorship) is
+# preserved as an extra alongside the authorship-free `canonical_name`.
 .col_col_map <- list(
-  name       = "canonicalName",
+  name       = "canonical_name",
   name_ci    = "key_ci",
   name_norm  = "key_normalized",
   name_sp    = "key_species",
-  genus      = "genericName",
-  id         = "taxonID",
-  rank       = "taxonRank",
-  status     = "taxonomicStatus",
-  acc_id     = "acceptedNameUsageID",
+  genus      = "genus",
+  id         = "taxon_id",
+  rank       = "taxon_rank",
+  status     = "taxonomic_status",
+  acc_id     = "accepted_name_usage_id",
   family     = "family",
-  genus_out  = "genericName",
-  epithet    = "specificEpithet",
-  authorship = "scientificNameAuthorship",
+  genus_out  = "genus",
+  epithet    = "specific_epithet",
+  authorship = "authorship",
   acc_name   = "accepted_name",
   acc_family = "accepted_family",
   acc_genus  = "accepted_genus",

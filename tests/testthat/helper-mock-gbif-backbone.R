@@ -10,7 +10,7 @@
 
 mock_gbif_backbone_df <- function() {
   data.frame(
-    id = c(
+    taxon_id = c(
       "2878688", "2878691", "2878689", "2878700",
       "5285637", "5285640", "2704173", "2704174",
       "3040970", "3040972", "3005623", "2878695",
@@ -50,23 +50,17 @@ mock_gbif_backbone_df <- function() {
       "Abies alba Mill.",
       "Abies pectinata (Lam.) Kunze"
     ),
-    rank = c(
+    taxon_rank = c(
       "SPECIES", "SPECIES", "SUBSPECIES", "SPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SUBSPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SPECIES",
       "GENUS", "SPECIES", "SPECIES"
     ),
-    status = c(
+    taxonomic_status = c(
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "SYNONYM",
       "ACCEPTED", "SYNONYM", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "SYNONYM"
-    ),
-    is_synonym_flag = c(
-      FALSE, FALSE, FALSE, TRUE,
-      FALSE, TRUE, FALSE, FALSE,
-      FALSE, FALSE, FALSE, FALSE,
-      FALSE, FALSE, TRUE
     ),
     parent_key = c(
       "2877951", "2877951", "2878688", "2878688",
@@ -74,7 +68,7 @@ mock_gbif_backbone_df <- function() {
       "3040969", "3040969", "3005622", "2877951",
       "7768190", "2685483", "2685484"
     ),
-    accepted_id = c(
+    accepted_name_usage_id = c(
       NA, NA, NA, "2878688",
       NA, "5285637", NA, NA,
       NA, NA, NA, NA,
@@ -86,7 +80,7 @@ mock_gbif_backbone_df <- function() {
       "Salicaceae", "Salicaceae", "Rosaceae", "Fagaceae",
       "Poaceae", "Pinaceae", "Pinaceae"
     ),
-    genus_or_above = c(
+    genus = c(
       "Quercus", "Quercus", "Quercus", "Quercus",
       "Pinus", "Pinus", "Festuca", "Festuca",
       "Salix", "Salix", "Rosa", "Quercus",
@@ -104,7 +98,7 @@ mock_gbif_backbone_df <- function() {
       "L.", "L.", "L.", "Lam.",
       "Asch. & Graebn.", "Mill.", "(Lam.) Kunze"
     ),
-    infra_specific_epithet = c(
+    infraspecific_epithet = c(
       NA, NA, "robur", NA,
       NA, NA, NA, "rubra",
       NA, NA, NA, NA,
@@ -173,22 +167,21 @@ mock_gbif_backbone_df <- function() {
 mock_gbif_backbone_vtr <- function() {
   df <- mock_gbif_backbone_df()
 
-  # Precompute keys (GBIF uses canonical_name + genus_or_above)
-  df <- precompute_keys(df, "canonical_name", "genus_or_above",
-                        "specific_epithet")
+  # Precompute keys against the unified-schema names
+  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
 
   # Embed accepted taxon info
   df <- embed_accepted(df,
-    id_col     = "id",
-    acc_id_col = "accepted_id",
+    id_col     = "taxon_id",
+    acc_id_col = "accepted_name_usage_id",
     name_col   = "canonical_name",
     family_col = "family",
-    genus_col  = "genus_or_above",
-    status_col = "status"
+    genus_col  = "genus",
+    status_col = "taxonomic_status"
   )
 
   # Sort by genus for zone-map pruning
-  df <- df[order(df$genus_or_above, na.last = TRUE), ]
+  df <- df[order(df$genus, na.last = TRUE), ]
   rownames(df) <- NULL
 
   tmp <- tempfile(fileext = ".vtr")

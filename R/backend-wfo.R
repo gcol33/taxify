@@ -6,21 +6,24 @@
 # WFO version pin (referenced by the constructor; updated with package releases)
 .wfo_version <- "2024-12"
 
-# Column map for shared matching engine
+# Column map for shared matching engine. Main matching columns come from the
+# unified snake_case schema produced by taxifydb::normalize_backbone(); WFO-
+# specific extras (scientificNameID, parentNameUsageID, ...) are preserved
+# verbatim by .wfo_extra_cols in the build and consumed by add_wfo_info().
 .wfo_col_map <- list(
-  name       = "scientificName",
+  name       = "canonical_name",
   name_ci    = "key_ci",
   name_norm  = "key_normalized",
   name_sp    = "key_species",
   genus      = "genus",
-  id         = "taxonID",
-  rank       = "taxonRank",
-  status     = "taxonomicStatus",
-  acc_id     = "acceptedNameUsageID",
+  id         = "taxon_id",
+  rank       = "taxon_rank",
+  status     = "taxonomic_status",
+  acc_id     = "accepted_name_usage_id",
   family     = "family",
   genus_out  = "genus",
-  epithet    = "specificEpithet",
-  authorship = "scientificNameAuthorship",
+  epithet    = "specific_epithet",
+  authorship = "authorship",
   acc_name   = "accepted_name",
   acc_family = "accepted_family",
   acc_genus  = "accepted_genus",

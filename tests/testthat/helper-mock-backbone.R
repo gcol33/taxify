@@ -1,92 +1,136 @@
 # Creates a small WFO-like backbone for testing.
 # Called by tests that need a mock backbone.
 
-mock_backbone_df <- function() {
-  data.frame(
-    taxonID = c(
+mock_backbone_df <- function(with_nom_status = FALSE) {
+  # Two homonym synonyms wired up at the end of the fixture so the homonym
+  # test (Pinus abies in WFO) is exercised in miniature:
+  #   wfo-0000018: Pinus abies (Thunb.)  Valid       -> wfo-0000019 Picea polita
+  #   wfo-0000019: Picea polita (Accepted)
+  #   wfo-0000020: Pinus abies (L.)      Valid       -> wfo-0000005 Pinus sylvestris  ← reuses Pinus sylvestris as a stand-in target
+  #   wfo-0000021: Pinus abies (Lour.)   Illegitimate -> wfo-0000022 Cunninghamia lanceolata
+  #   wfo-0000022: Cunninghamia lanceolata (Accepted)
+  df <- data.frame(
+    taxon_id = c(
       "wfo-0000001", "wfo-0000002", "wfo-0000003", "wfo-0000004",
       "wfo-0000005", "wfo-0000006", "wfo-0000007", "wfo-0000008",
       "wfo-0000009", "wfo-0000010", "wfo-0000011", "wfo-0000012",
       "wfo-0000013", "wfo-0000014", "wfo-0000015",
-      "wfo-0000016", "wfo-0000017"
+      "wfo-0000016", "wfo-0000017",
+      "wfo-0000018", "wfo-0000019", "wfo-0000020", "wfo-0000021",
+      "wfo-0000022"
     ),
-    scientificName = c(
-      "Quercus robur",          # accepted species
-      "Quercus petraea",        # accepted species
-      "Quercus robur subsp. robur", # accepted subspecies
-      "Quercus pedunculata",    # synonym -> wfo-0000001
-      "Pinus sylvestris",       # accepted species
-      "Pinus silvestris",       # synonym (old spelling) -> wfo-0000005
-      "Festuca rubra",          # accepted species
-      "Festuca rubra subsp. rubra", # accepted subspecies
-      "Salix alba",             # accepted species
-      "Salix fragilis",         # accepted species
-      "Rosa canina",            # accepted species
-      "Quercus hispanica",      # accepted nothospecies
-      "Festulolium",            # accepted nothogenus
-      "Abies alba",             # accepted species
-      "Abies pectinata",        # synonym -> wfo-0000014
-      "Quercus",                # accepted genus
-      "Pinus"                   # accepted genus
+    canonical_name = c(
+      "Quercus robur",
+      "Quercus petraea",
+      "Quercus robur subsp. robur",
+      "Quercus pedunculata",
+      "Pinus sylvestris",
+      "Pinus silvestris",
+      "Festuca rubra",
+      "Festuca rubra subsp. rubra",
+      "Salix alba",
+      "Salix fragilis",
+      "Rosa canina",
+      "Quercus hispanica",
+      "Festulolium",
+      "Abies alba",
+      "Abies pectinata",
+      "Quercus",
+      "Pinus",
+      # Homonym block:
+      "Pinus abies",       # 18 - Thunb. -> Picea polita
+      "Picea polita",      # 19 - Accepted
+      "Pinus abies",       # 20 - L. -> Pinus sylvestris (stand-in target)
+      "Pinus abies",       # 21 - Lour. (illegitimate) -> Cunninghamia
+      "Cunninghamia lanceolata" # 22 - Accepted
     ),
-    taxonRank = c(
+    taxon_rank = c(
       "SPECIES", "SPECIES", "SUBSPECIES", "SPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SUBSPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SPECIES",
       "GENUS", "SPECIES", "SPECIES",
-      "GENUS", "GENUS"
+      "GENUS", "GENUS",
+      "SPECIES", "SPECIES", "SPECIES", "SPECIES",
+      "SPECIES"
     ),
-    taxonomicStatus = c(
+    taxonomic_status = c(
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "SYNONYM",
       "ACCEPTED", "SYNONYM", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "SYNONYM",
-      "ACCEPTED", "ACCEPTED"
+      "ACCEPTED", "ACCEPTED",
+      "SYNONYM", "ACCEPTED", "SYNONYM", "SYNONYM",
+      "ACCEPTED"
     ),
-    acceptedNameUsageID = c(
+    accepted_name_usage_id = c(
       NA, NA, NA, "wfo-0000001",
       NA, "wfo-0000005", NA, NA,
       NA, NA, NA, NA,
       NA, NA, "wfo-0000014",
-      NA, NA
+      NA, NA,
+      "wfo-0000019", NA, "wfo-0000005", "wfo-0000022",
+      NA
     ),
     family = c(
       "Fagaceae", "Fagaceae", "Fagaceae", "Fagaceae",
       "Pinaceae", "Pinaceae", "Poaceae", "Poaceae",
       "Salicaceae", "Salicaceae", "Rosaceae", "Fagaceae",
       "Poaceae", "Pinaceae", "Pinaceae",
-      "Fagaceae", "Pinaceae"
+      "Fagaceae", "Pinaceae",
+      "Pinaceae", "Pinaceae", "Pinaceae", "Pinaceae",
+      "Cupressaceae"
     ),
     genus = c(
       "Quercus", "Quercus", "Quercus", "Quercus",
       "Pinus", "Pinus", "Festuca", "Festuca",
       "Salix", "Salix", "Rosa", "Quercus",
       "Festulolium", "Abies", "Abies",
-      "Quercus", "Pinus"
+      "Quercus", "Pinus",
+      "Pinus", "Picea", "Pinus", "Pinus",
+      "Cunninghamia"
     ),
-    specificEpithet = c(
+    specific_epithet = c(
       "robur", "petraea", "robur", "pedunculata",
       "sylvestris", "silvestris", "rubra", "rubra",
       "alba", "fragilis", "canina", "hispanica",
       NA, "alba", "pectinata",
-      NA, NA
+      NA, NA,
+      "abies", "polita", "abies", "abies",
+      "lanceolata"
     ),
-    scientificNameAuthorship = c(
+    authorship = c(
       "L.", "(Matt.) Liebl.", "L.", "(Mattusch.) Bonnier & Layens",
       "L.", NA, "L.", "L.",
       "L.", "L.", "L.", "Lam.",
       NA, "Mill.", "(Lam.) Kunze",
-      "L.", "L."
+      "L.", "L.",
+      "Thunb.", "(Siebold & Zucc.) Carriere", "L.", "Lour.",
+      "Lamb."
     ),
-    infraspecificEpithet = c(
+    infraspecific_epithet = c(
       NA, NA, "robur", NA,
       NA, NA, NA, "rubra",
       NA, NA, NA, NA,
       NA, NA, NA,
-      NA, NA
+      NA, NA,
+      NA, NA, NA, NA,
+      NA
     ),
     stringsAsFactors = FALSE
   )
+  if (with_nom_status) {
+    # WFO uses literal "Valid" / "Illegitimate". Mark our homonym block
+    # accordingly; everything else gets blank.
+    df$nomenclaturalStatus <- c(
+      rep("", 17L),
+      "Valid",        # 18 - Pinus abies (Thunb.)
+      "",             # 19 - Picea polita
+      "Valid",        # 20 - Pinus abies (L.)
+      "Illegitimate", # 21 - Pinus abies (Lour.)
+      ""              # 22 - Cunninghamia
+    )
+  }
+  df
 }
 
 
@@ -95,21 +139,24 @@ mock_backbone_df <- function() {
 #' Uses the same precomputation pipeline as the real download functions:
 #' `precompute_keys()` + `embed_accepted()` + sort by genus + index.
 #'
+#' @param with_nom_status Logical. When `TRUE`, include the WFO
+#'   `nomenclaturalStatus` column on the synthetic backbone so homonym
+#'   disambiguation tests can exercise the Valid-filter path.
 #' @return Path to the temporary .vtr file.
-mock_backbone_vtr <- function() {
-  df <- mock_backbone_df()
+mock_backbone_vtr <- function(with_nom_status = FALSE) {
+  df <- mock_backbone_df(with_nom_status = with_nom_status)
 
-  # Precompute keys (same as taxify_download.taxify_wfo)
-  df <- precompute_keys(df, "scientificName", "genus", "specificEpithet")
+  # Precompute keys against the unified-schema names
+  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
 
   # Embed accepted taxon info (synonym self-join)
   df <- embed_accepted(df,
-    id_col     = "taxonID",
-    acc_id_col = "acceptedNameUsageID",
-    name_col   = "scientificName",
+    id_col     = "taxon_id",
+    acc_id_col = "accepted_name_usage_id",
+    name_col   = "canonical_name",
     family_col = "family",
     genus_col  = "genus",
-    status_col = "taxonomicStatus"
+    status_col = "taxonomic_status"
   )
 
   # Sort by genus for zone-map pruning
@@ -124,8 +171,9 @@ mock_backbone_vtr <- function() {
 
 #' Create a mock backbone as a vectra node (lazy)
 #'
+#' @param with_nom_status Logical. See [mock_backbone_vtr()].
 #' @return A vectra node.
-mock_backbone_node <- function() {
-  path <- mock_backbone_vtr()
+mock_backbone_node <- function(with_nom_status = FALSE) {
+  path <- mock_backbone_vtr(with_nom_status = with_nom_status)
   vectra::tbl(path)
 }

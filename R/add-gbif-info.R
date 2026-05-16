@@ -67,12 +67,23 @@ add_gbif_info <- function(x) {
   on.exit(unlink(tmp_ids), add = TRUE)
   vectra::write_vtr(id_df, tmp_ids)
 
-  # Check which extra columns are available
+  # Output column (user-facing) -> source column in the .vtr. taxon_id is
+  # the unified-schema join key; infra_specific_epithet (the user-facing
+  # name, with separator) comes from infraspecific_epithet (the unified
+  # main-schema name, without separator).
+  col_map <- c(
+    notho_type             = "notho_type",
+    nom_status             = "nom_status",
+    bracket_authorship     = "bracket_authorship",
+    bracket_year           = "bracket_year",
+    gbif_year              = "year",
+    name_published_in      = "name_published_in",
+    origin                 = "origin",
+    infra_specific_epithet = "infraspecific_epithet"
+  )
+
   bb_schema <- vectra::tbl(bb_path) |> utils::head(1L) |> vectra::collect()
-  want_cols <- c("id", "notho_type", "nom_status", "bracket_authorship",
-                 "bracket_year", "year", "name_published_in", "origin",
-                 "infra_specific_epithet")
-  available <- intersect(want_cols, names(bb_schema))
+  available <- intersect(c("taxon_id", unname(col_map)), names(bb_schema))
 
   if (length(available) <= 1L) {
     bb_meta <- read_backbone_meta(bb_path)
@@ -84,7 +95,7 @@ add_gbif_info <- function(x) {
     vectra::tbl(tmp_ids),
     vectra::tbl(bb_path) |>
       vectra::select(!!!lapply(available, as.name)),
-    by = c("lookup_id" = "id")
+    by = c("lookup_id" = "taxon_id")
   ) |> vectra::collect()
 
   if (nrow(extra_info) == 0L) {
@@ -94,18 +105,6 @@ add_gbif_info <- function(x) {
   }
 
   extra_lookup <- split(extra_info, extra_info$lookup_id)
-
-  # Map output column -> source column
-  col_map <- c(
-    notho_type = "notho_type",
-    nom_status = "nom_status",
-    bracket_authorship = "bracket_authorship",
-    bracket_year = "bracket_year",
-    gbif_year = "year",
-    name_published_in = "name_published_in",
-    origin = "origin",
-    infra_specific_epithet = "infra_specific_epithet"
-  )
 
   for (i in gbif_rows) {
     info <- extra_lookup[[x$taxon_id[i]]]

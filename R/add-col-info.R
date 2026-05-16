@@ -80,34 +80,33 @@ add_col_info <- function(x) {
   on.exit(unlink(tmp_ids), add = TRUE)
   vectra::write_vtr(id_df, tmp_ids)
 
-  # Check which extra columns are available
+  # Output column (user-facing) -> source column in the .vtr. taxon_id is
+  # the unified-schema join key; infraspecific_epithet is the unified main-
+  # schema name renamed to infraspecificEpithet for stable output.
+  col_map <- c(
+    notho                = "notho",
+    nomenclaturalCode    = "nomenclaturalCode",
+    nomenclaturalStatus  = "nomenclaturalStatus",
+    namePublishedIn      = "namePublishedIn",
+    kingdom              = "kingdom",
+    phylum               = "phylum",
+    col_class            = "class",
+    order                = "order",
+    infraspecificEpithet = "infraspecific_epithet"
+  )
+
   bb_schema <- vectra::tbl(bb_path) |> utils::head(1L) |> vectra::collect()
-  want_cols <- c("taxonID", "notho", "nomenclaturalCode", "nomenclaturalStatus",
-                 "namePublishedIn", "kingdom", "phylum", "class", "order",
-                 "infraspecificEpithet")
-  available <- intersect(want_cols, names(bb_schema))
+  available <- intersect(c("taxon_id", unname(col_map)), names(bb_schema))
 
   if (length(available) > 1L) {
     extra_info <- vectra::inner_join(
       vectra::tbl(tmp_ids),
       vectra::tbl(bb_path) |>
         vectra::select(!!!lapply(available, as.name)),
-      by = c("lookup_id" = "taxonID")
+      by = c("lookup_id" = "taxon_id")
     ) |> vectra::collect()
 
     extra_lookup <- split(extra_info, extra_info$lookup_id)
-
-    col_map <- c(
-      notho = "notho",
-      nomenclaturalCode = "nomenclaturalCode",
-      nomenclaturalStatus = "nomenclaturalStatus",
-      namePublishedIn = "namePublishedIn",
-      kingdom = "kingdom",
-      phylum = "phylum",
-      col_class = "class",
-      order = "order",
-      infraspecificEpithet = "infraspecificEpithet"
-    )
 
     for (i in col_rows) {
       info <- extra_lookup[[x$taxon_id[i]]]

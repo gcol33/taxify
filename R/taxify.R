@@ -44,6 +44,13 @@
 #'   \item{match_type}{One of `"exact"`, `"exact_ci"`, `"fuzzy"`, or
 #'     `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
+#'   \item{is_ambiguous}{Logical. `TRUE` when the matched scientificName had
+#'     multiple synonym rows pointing to different accepted taxa at the same
+#'     priority tier (homonym ambiguity). Disambiguated via
+#'     `nomenclaturalStatus = "Valid"` when that column is in the backbone;
+#'     for irreducible ambiguity, the scalar columns hold one candidate.}
+#'   \item{ambiguous_targets}{Character. `|`-joined list of conflicting
+#'     accepted taxon IDs when `is_ambiguous = TRUE`; `NA` otherwise.}
 #'   \item{backend}{Which backend was used (e.g., `"wfo"`, `"col"`,
 #'     `"gbif"`).}
 #'   \item{backbone_version}{Backend name, version, and download date
@@ -176,20 +183,23 @@ taxify <- function(x,
         bb_ver <- format_backbone_version(bb_path, be$name, be$version)
         for (j in matched_in_sub) {
           i <- unmatched_idx[j]
-          result$matched_name[i]    <- sub_result$matched_name[j]
-          result$accepted_name[i]   <- sub_result$accepted_name[j]
-          result$taxon_id[i]        <- sub_result$taxon_id[j]
-          result$accepted_id[i]     <- sub_result$accepted_id[j]
-          result$rank[i]            <- sub_result$rank[j]
-          result$family[i]          <- sub_result$family[j]
-          result$genus[i]           <- sub_result$genus[j]
-          result$epithet[i]         <- sub_result$epithet[j]
-          result$authorship[i]      <- sub_result$authorship[j]
-          result$is_synonym[i]      <- sub_result$is_synonym[j]
-          result$match_type[i]      <- sub_result$match_type[j]
-          result$fuzzy_dist[i]      <- sub_result$fuzzy_dist[j]
-          result$backend[i]         <- be$name
-          result$backbone_version[i] <- bb_ver
+          result$matched_name[i]      <- sub_result$matched_name[j]
+          result$accepted_name[i]     <- sub_result$accepted_name[j]
+          result$taxon_id[i]          <- sub_result$taxon_id[j]
+          result$accepted_id[i]       <- sub_result$accepted_id[j]
+          result$rank[i]              <- sub_result$rank[j]
+          result$family[i]            <- sub_result$family[j]
+          result$genus[i]             <- sub_result$genus[j]
+          result$epithet[i]           <- sub_result$epithet[j]
+          result$authorship[i]        <- sub_result$authorship[j]
+          result$is_synonym[i]        <- sub_result$is_synonym[j]
+          result$match_type[i]        <- sub_result$match_type[j]
+          result$fuzzy_dist[i]        <- sub_result$fuzzy_dist[j]
+          result$is_ambiguous[i]      <- sub_result$is_ambiguous[j] %||% NA
+          result$ambiguous_targets[i] <- sub_result$ambiguous_targets[j] %||%
+                                          NA_character_
+          result$backend[i]           <- be$name
+          result$backbone_version[i]  <- bb_ver
         }
       }
     }

@@ -60,51 +60,48 @@ add_wfo_info <- function(x) {
   on.exit(unlink(tmp_ids), add = TRUE)
   vectra::write_vtr(id_df, tmp_ids)
 
-  # Join against the full backbone for extra columns
-  extra_cols <- c("taxonID", "scientificNameID", "parentNameUsageID",
-                  "namePublishedIn", "higherClassification", "taxonRemarks",
-                  "infraspecificEpithet")
+  # Map output column (user-facing, camelCase) -> source column in the .vtr.
+  # taxon_id is the unified-schema join key; infraspecific_epithet is the
+  # unified main-schema name renamed to infraspecificEpithet for stable
+  # output.
+  src_map <- c(
+    scientificNameID     = "scientificNameID",
+    parentNameUsageID    = "parentNameUsageID",
+    namePublishedIn      = "namePublishedIn",
+    higherClassification = "higherClassification",
+    taxonRemarks         = "taxonRemarks",
+    infraspecificEpithet = "infraspecific_epithet"
+  )
 
-  # Get available columns from backbone
   bb_schema <- vectra::tbl(bb_path) |> utils::head(1L) |> vectra::collect()
-  available <- intersect(extra_cols, names(bb_schema))
+  available_src <- intersect(c("taxon_id", unname(src_map)), names(bb_schema))
 
-  if (length(available) <= 1L) {
-    x$scientificNameID <- NA_character_
-    x$parentNameUsageID <- NA_character_
-    x$namePublishedIn <- NA_character_
-    x$higherClassification <- NA_character_
-    x$taxonRemarks <- NA_character_
-    x$infraspecificEpithet <- NA_character_
+  for (out_col in names(src_map)) {
+    x[[out_col]] <- NA_character_
+  }
+
+  if (length(available_src) <= 1L) {
     bb_meta <- read_backbone_meta(bb_path)
     ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
     return(register_enrichment(x, "wfo_info", "WFO", ver, 0L))
   }
 
-  # Build select expression dynamically
   extra_info <- vectra::inner_join(
     vectra::tbl(tmp_ids),
     vectra::tbl(bb_path) |>
-      vectra::select(!!!lapply(available, as.name)),
-    by = c("lookup_id" = "taxonID")
+      vectra::select(!!!lapply(available_src, as.name)),
+    by = c("lookup_id" = "taxon_id")
   ) |> vectra::collect()
 
-  # Build lookup
   extra_lookup <- split(extra_info, extra_info$lookup_id)
 
-  # Initialize new columns
-  new_cols <- setdiff(extra_cols, "taxonID")
-  for (col in new_cols) {
-    x[[col]] <- NA_character_
-  }
-
-  # Fill in
   for (i in wfo_rows) {
     info <- extra_lookup[[x$taxon_id[i]]]
     if (!is.null(info) && nrow(info) > 0L) {
-      for (col in new_cols) {
-        if (col %in% names(info)) {
-          x[[col]][i] <- info[[col]][1L]
+      for (out_col in names(src_map)) {
+        src_col <- src_map[[out_col]]
+        if (src_col %in% names(info)) {
+          x[[out_col]][i] <- info[[src_col]][1L]
         }
       }
     }

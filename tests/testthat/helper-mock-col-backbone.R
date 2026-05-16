@@ -8,13 +8,13 @@
 
 mock_col_backbone_df <- function() {
   data.frame(
-    taxonID = c(
+    taxon_id = c(
       "5T6MX", "5T6MY", "5T6MZ", "5T6N1",
       "5T6N2", "5T6N3", "5T6N4", "5T6N5",
       "5T6N6", "5T6N7", "5T6N8", "5T6N9",
       "5T6NA", "5T6NB", "5T6NC"
     ),
-    canonicalName = c(
+    canonical_name = c(
       "Quercus robur",
       "Quercus petraea",
       "Quercus robur subsp. robur",
@@ -48,19 +48,19 @@ mock_col_backbone_df <- function() {
       "Abies alba Mill.",
       "Abies pectinata (Lam.) Kunze"
     ),
-    taxonRank = c(
+    taxon_rank = c(
       "SPECIES", "SPECIES", "SUBSPECIES", "SPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SUBSPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SPECIES",
       "GENUS", "SPECIES", "SPECIES"
     ),
-    taxonomicStatus = c(
+    taxonomic_status = c(
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "SYNONYM",
       "ACCEPTED", "SYNONYM", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "SYNONYM"
     ),
-    acceptedNameUsageID = c(
+    accepted_name_usage_id = c(
       NA, NA, NA, "5T6MX",
       NA, "5T6N2", NA, NA,
       NA, NA, NA, NA,
@@ -72,25 +72,25 @@ mock_col_backbone_df <- function() {
       "Salicaceae", "Salicaceae", "Rosaceae", "Fagaceae",
       "Poaceae", "Pinaceae", "Pinaceae"
     ),
-    genericName = c(
+    genus = c(
       "Quercus", "Quercus", "Quercus", "Quercus",
       "Pinus", "Pinus", "Festuca", "Festuca",
       "Salix", "Salix", "Rosa", "Quercus",
       "Festulolium", "Abies", "Abies"
     ),
-    specificEpithet = c(
+    specific_epithet = c(
       "robur", "petraea", "robur", "pedunculata",
       "sylvestris", "silvestris", "rubra", "rubra",
       "alba", "fragilis", "canina", "hispanica",
       NA, "alba", "pectinata"
     ),
-    scientificNameAuthorship = c(
+    authorship = c(
       "L.", "(Matt.) Liebl.", "L.", "(Mattusch.) Bonnier & Layens",
       "L.", NA, "L.", "L.",
       "L.", "L.", "L.", "Lam.",
       NA, "Mill.", "(Lam.) Kunze"
     ),
-    infraspecificEpithet = c(
+    infraspecific_epithet = c(
       NA, NA, "robur", NA,
       NA, NA, NA, "rubra",
       NA, NA, NA, NA,
@@ -127,21 +127,21 @@ mock_col_backbone_df <- function() {
 mock_col_backbone_vtr <- function() {
   df <- mock_col_backbone_df()
 
-  # Precompute keys (COL uses canonicalName + genericName)
-  df <- precompute_keys(df, "canonicalName", "genericName", "specificEpithet")
+  # Precompute keys against the unified-schema names
+  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
 
   # Embed accepted taxon info
   df <- embed_accepted(df,
-    id_col     = "taxonID",
-    acc_id_col = "acceptedNameUsageID",
-    name_col   = "canonicalName",
+    id_col     = "taxon_id",
+    acc_id_col = "accepted_name_usage_id",
+    name_col   = "canonical_name",
     family_col = "family",
-    genus_col  = "genericName",
-    status_col = "taxonomicStatus"
+    genus_col  = "genus",
+    status_col = "taxonomic_status"
   )
 
   # Sort by genus for zone-map pruning
-  df <- df[order(df$genericName, na.last = TRUE), ]
+  df <- df[order(df$genus, na.last = TRUE), ]
   rownames(df) <- NULL
 
   tmp <- tempfile(fileext = ".vtr")
