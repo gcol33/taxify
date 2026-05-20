@@ -10,7 +10,7 @@ require_taxifydb <- function(operation = "this operation") {
   if (!requireNamespace("taxifydb", quietly = TRUE)) {
     stop(
       sprintf(
-        "%s requires the 'taxifydb' package.\n  Install with: remotes::install_github(\"gcol33/taxify-backbones\")",
+        "%s requires the 'taxifydb' package.\n  Install with: remotes::install_github(\"gcol33/taxifydb\")",
         operation
       ),
       call. = FALSE

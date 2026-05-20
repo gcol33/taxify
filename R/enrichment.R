@@ -1,7 +1,7 @@
 # ---- Enrichment layer infrastructure ----
 #
 # Enrichment layers join external trait/status data to taxify results via
-# accepted_name. The .vtr files are built by CI in taxify-backbones and
+# accepted_name. The .vtr files are built by CI in taxifydb and
 # distributed via GitHub Releases (same manifest system as matching backbones).
 #
 # Disk layout:
@@ -499,7 +499,7 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
       paste0("Enrichment '%s' is not available:\n",
              "  %s\n",
              "  Build-from-source requires the 'taxifydb' package.\n",
-             "  Install with: remotes::install_github(\"gcol33/taxify-backbones\")\n",
+             "  Install with: remotes::install_github(\"gcol33/taxifydb\")\n",
              "  Report issues: https://github.com/gcol33/taxify/issues"),
       name,
       if (!is.null(download_error)) download_error else "download failed"

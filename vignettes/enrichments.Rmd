@@ -95,7 +95,7 @@ while COL accepts "Jacobaea vulgaris" for the same species. If the
 enrichment `.vtr` only contained one of these names, it would fail to match
 results from the other backbone.
 
-The taxify-backbones build pipeline solves this by resolving every source
+The taxifydb build pipeline solves this by resolving every source
 species name against each of the seven backends separately (not as a
 fallback chain, which would only return the first match). The union of all
 unique `accepted_name` values is collected per source species. Each source

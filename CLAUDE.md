@@ -13,7 +13,7 @@ User input → clean_names() → match_exact() → match_fuzzy() → resolve_syn
 
 - **Query engine:** vectra (C11 columnar engine, `.vtr` format)
 - **Backend interface:** S3 generics on `taxify_backend` class
-- **Backbone storage:** pre-built `.vtr` files downloaded from GitHub Releases via the manifest; built by the sibling package `taxifydb` (lives in `gcol33/taxify-backbones`)
+- **Backbone storage:** pre-built `.vtr` files downloaded from GitHub Releases via the manifest; built by the sibling package `taxifydb` (lives in `gcol33/taxifydb`)
 - **Cache:** Package-level env stores `.vtr` paths (not nodes — vectra nodes are single-use)
 - **Build vs runtime split:** taxify is the lean runtime. All download/parse/normalize/index logic lives in `taxifydb` (Suggests). When a user needs build-from-source, the relevant taxify function delegates to `taxifydb::build_<name>()` via `require_taxifydb()`. Without taxifydb installed, taxify still works fully against pre-built `.vtr` downloads.
 
@@ -71,9 +71,9 @@ Note: On Windows, use a `.run.R` temp file instead of `-e` for complex commands 
 
 ## Backends
 
-Ten backends implemented: WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Fungorum, AlgaeBase. Eight have pre-built `.vtr` files in taxify-backbones (all except Fungorum and AlgaeBase). Adding a backend requires:
+Ten backends implemented and published: WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Fungorum, AlgaeBase. All ten have pre-built `.vtr` files in `gcol33/taxifydb` GitHub Releases (one tag per backbone, e.g. `gbif-2026.05`, `algaebase-2026.05`). All 24 enrichments are bundled in a single release tag `enrichment-<YYYY.MM>`. Adding a backend requires:
 
-**In taxifydb (canonical build pipeline, lives in `gcol33/taxify-backbones`):**
+**In taxifydb (canonical build pipeline, lives in `gcol33/taxifydb`):**
 1. `R/backend-<name>.R` — `download_<name>()` + `read_<name>()` + `build_<name>()` returning a `.vtr` path. Uses the shared `normalize_backbone()`, `precompute_backbone()`, `build_vtr()` helpers.
 2. Register in `R/build_backend.R` `.backend_builders` list
 3. Wire into the relevant CI workflow (`build-light.yml` or `build-heavy.yml`)
@@ -86,7 +86,7 @@ Ten backends implemented: WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Fung
 
 Runtime matching (`match_exact`, `match_fuzzy`) uses the shared engine in `backend.R` — all backends use `match_exact_compiled()` and `fuzzy_match_via_join()` via the default S3 methods. No per-backend matching code needed unless the schema diverges.
 
-**Build pipeline separation:** All backbone and enrichment `.vtr` building lives in `taxifydb` (the R package inside `taxify-backbones`). The taxify package is **runtime-only**: S3 generics, matching logic, enrichment joins, cache management. When build-from-source is needed (no pre-built `.vtr` available), taxify's shims delegate to `taxifydb::build_<name>()` / `taxifydb::build_enrichment(name)`. Without taxifydb installed, taxify still works fully — it just can't build from source. There is no duplicated build logic.
+**Build pipeline separation:** All backbone and enrichment `.vtr` building lives in `taxifydb` (the R package inside `taxifydb`). The taxify package is **runtime-only**: S3 generics, matching logic, enrichment joins, cache management. When build-from-source is needed (no pre-built `.vtr` available), taxify's shims delegate to `taxifydb::build_<name>()` / `taxifydb::build_enrichment(name)`. Without taxifydb installed, taxify still works fully — it just can't build from source. There is no duplicated build logic.
 
 ### Backend-specific notes
 
@@ -97,7 +97,7 @@ Runtime matching (`match_exact`, `match_fuzzy`) uses the shared engine in `backe
 - **NCBI**: `taxdump.tar.gz` with pipe-delimited `.dmp` files (names.dmp, nodes.dmp). Unified schema. Synonyms are alternative name rows for the same `tax_id`, emitted as separate rows with synthetic IDs (`tax_id_syn_N`). Family/genus via hierarchy walk. No authorship data. Aggressive noise filtering (environmental samples, unclassified, metagenomes).
 - **OTT**: OTT taxonomy archive (`taxonomy.tsv` + `synonyms.tsv`, pipe-delimited). Unified schema. Synthetic taxonomy combining NCBI, GBIF, WoRMS, IRMNG. Status derived from flags column. Family/genus via hierarchy walk. Cross-references to source databases via `sourceinfo` column.
 - **WoRMS**: DwC-A from GBIF ChecklistBank (dataset 1010). Unified schema. Marine-focused. `taxonID` may be LSID (stripped to numeric AphiaID). Status uses `accepted`/`unaccepted` (mapped to standard). Classification denormalized (no hierarchy walk). `SpeciesProfile.tsv` has habitat flags.
-- **Euro+Med**: Semicolon-delimited CSV from Euro+Med PlantBase (2020 v1.2 snapshot). Unified schema. UUID-based IDs (`TaxonUsageID`). European/Mediterranean vascular plants (~49k accepted, ~83k synonyms, 222 families). Status uses `Taxon`/`Synonym`/`Misapplication`/`p.p. Synonym` (mapped to ACCEPTED/SYNONYM). Family/genus via hierarchy walk on accepted rows (`IsChildTaxonOfID`); synonyms inherit from accepted taxon via `TaxonConceptID`. Authorship extracted by subtracting `TaxonName` from `fullname` (special handling for infraspecific autonyms). License: CC-BY-SA-3.0. Frozen 2020 baseline stored as `euromed_2020.vtr` in taxify-backbones; delta refresh pipeline planned.
+- **Euro+Med**: Semicolon-delimited CSV from Euro+Med PlantBase (2020 v1.2 snapshot). Unified schema. UUID-based IDs (`TaxonUsageID`). European/Mediterranean vascular plants (~49k accepted, ~83k synonyms, 222 families). Status uses `Taxon`/`Synonym`/`Misapplication`/`p.p. Synonym` (mapped to ACCEPTED/SYNONYM). Family/genus via hierarchy walk on accepted rows (`IsChildTaxonOfID`); synonyms inherit from accepted taxon via `TaxonConceptID`. Authorship extracted by subtracting `TaxonName` from `fullname` (special handling for infraspecific autonyms). License: CC-BY-SA-3.0. Frozen 2020 baseline stored as `euromed_2020.vtr` in taxifydb; delta refresh pipeline planned.
 
 ## Genus Register
 
@@ -180,13 +180,13 @@ Group-based enrichments (griis, wcvp, common_names) resolve `groups = "all"` fro
 - `check_enrichment_version(name)` — reads local meta.json first; if `static == TRUE`, returns FALSE immediately (no manifest fetch). Otherwise compares meta version vs manifest latest.
 - Version check is inlined in `ensure_enrichment()`, runs once per session (flag: `.enrichment_version_checked.*`)
 - `download_enrichment()` writes `static` flag from manifest entry into meta.json, so subsequent sessions skip the manifest fetch for version-locked datasets.
-- CI: `taxify-backbones/.github/workflows/check-enrichment-versions.yml` — weekly cron checks upstream sources (Zenodo/Figshare/Dryad/GBIF APIs), opens/updates a GitHub issue labeled `enrichment-outdated`
+- CI: `taxifydb/.github/workflows/check-enrichment-versions.yml` — weekly cron checks upstream sources (Zenodo/Figshare/Dryad/GBIF APIs), opens/updates a GitHub issue labeled `enrichment-outdated`
 
 ### Manifest
 
 `inst/manifest.json` (schema v2) has `backends` and `enrichments` sections. Each enrichment entry has: `latest`, `full_url`, `nrow`, `source_url`, `source_format`, `species_col`, `trait_cols`, `static`, and optionally `available_groups` (for group-based enrichments). The package reads the manifest from GitHub raw URL, falling back to the bundled copy.
 
-Group-based enrichments (griis, wcvp, common_names) have an `available_groups` field listing all valid group values (ISO country codes, TDWG codes, language codes). This is populated by the taxify-backbones build pipeline and synced via `sync_manifest.R`. Note: `available_groups` excludes `NA` values; NCBI/OTT common names with `lang = NA` are queryable but not listed in the manifest's `available_groups`.
+Group-based enrichments (griis, wcvp, common_names) have an `available_groups` field listing all valid group values (ISO country codes, TDWG codes, language codes). This is populated by the taxifydb build pipeline and synced via `sync_manifest.R`. Note: `available_groups` excludes `NA` values; NCBI/OTT common names with `lang = NA` are queryable but not listed in the manifest's `available_groups`.
 
 ### Discovery
 

@@ -1,4 +1,4 @@
-# Copy a freshly built enrichment .vtr + meta.json from taxify-backbones
+# Copy a freshly built enrichment .vtr + meta.json from taxifydb
 # output dir into the local taxify enrichment cache, where ensure_enrichment()
 # picks it up at runtime.
 #
@@ -10,7 +10,7 @@ if (!length(args)) {
        call. = FALSE)
 }
 
-src_root <- "C:/Users/Gilles Colling/Documents/dev/taxify-backbones/output/enrichment"
+src_root <- "C:/Users/Gilles Colling/Documents/dev/taxifydb/output/enrichment"
 dst_root <- file.path(Sys.getenv("APPDATA"), "R", "data", "R", "taxify",
                       "enrichment")
 
