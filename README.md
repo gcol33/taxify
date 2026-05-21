@@ -9,7 +9,7 @@ Match taxonomic names against locally stored backbone databases, resolve synonym
 ## Quick Start
 
 ```r
-# install.packages("pak")
+install.packages("pak")
 pak::pak("gcol33/taxify")
 
 library(taxify)
@@ -278,7 +278,7 @@ taxify_register_coverage("Quercus")
 
 ```r
 # Install from GitHub (vectra is installed automatically)
-# install.packages("pak")
+install.packages("pak")
 pak::pak("gcol33/taxify")
 ```
 

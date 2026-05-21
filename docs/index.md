@@ -13,7 +13,7 @@ datasets. No API calls, no internet dependency, no rate limits.
 
 ``` r
 
-# install.packages("pak")
+install.packages("pak")
 pak::pak("gcol33/taxify")
 
 library(taxify)
@@ -243,7 +243,7 @@ taxify_register_coverage("Quercus")
 ``` r
 
 # Install from GitHub (vectra is installed automatically)
-# install.packages("pak")
+install.packages("pak")
 pak::pak("gcol33/taxify")
 ```
 
