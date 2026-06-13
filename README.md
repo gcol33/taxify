@@ -1,7 +1,5 @@
 # taxify
 
-> Small exact engines for scientific computing in R.
-
 *the species names never quite match*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
