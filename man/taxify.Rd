@@ -57,6 +57,13 @@ if not a synonym).}
 \item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, or
 \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
+\item{is_ambiguous}{Logical. \code{TRUE} when the matched scientificName had
+multiple synonym rows pointing to different accepted taxa at the same
+priority tier (homonym ambiguity). Disambiguated via
+\code{nomenclaturalStatus = "Valid"} when that column is in the backbone;
+for irreducible ambiguity, the scalar columns hold one candidate.}
+\item{ambiguous_targets}{Character. \code{|}-joined list of conflicting
+accepted taxon IDs when \code{is_ambiguous = TRUE}; \code{NA} otherwise.}
 \item{backend}{Which backend was used (e.g., \code{"wfo"}, \code{"col"},
 \code{"gbif"}).}
 \item{backbone_version}{Backend name, version, and download date

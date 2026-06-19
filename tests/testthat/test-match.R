@@ -195,6 +195,94 @@ test_that("pick_best_vec keeps ambiguity flag when 2+ Valid rows disagree", {
   expect_equal(best$ambiguous_targets, "wfo-0000005|wfo-0000019")
 })
 
+# ---- Epithet-preservation tiebreak (basionym disambiguation, issue #2) ----
+
+test_that("pick_best_vec prefers the epithet-preserving accepted target", {
+  # Three Valid 'Pinus abies' homonym synonyms pointing to three different
+  # accepted taxa. Only one keeps the specific epithet ('abies' -> Picea
+  # abies): that homotypic basionym wins and the group is no longer ambiguous.
+  matches <- data.frame(
+    row_idx             = c(1L, 1L, 1L),
+    taxonID             = c("wfo-0000482549", "wfo-0000482550",
+                            "wfo-0000482551"),
+    taxonomicStatus     = c("SYNONYM", "SYNONYM", "SYNONYM"),
+    taxonRank           = c("SPECIES", "SPECIES", "SPECIES"),
+    nomenclaturalStatus = c("Valid", "Valid", "Valid"),
+    matched_name_std    = c("Pinus abies", "Pinus abies", "Pinus abies"),
+    accepted_name       = c("Picea polita", "Abies alba", "Picea abies"),
+    accepted_taxon_id   = c("wfo-0000482612", "wfo-0000510976",
+                            "wfo-0000482030"),
+    stringsAsFactors    = FALSE
+  )
+  best <- pick_best_vec(matches)
+  expect_equal(best$accepted_name, "Picea abies")
+  expect_equal(best$accepted_taxon_id, "wfo-0000482030")
+  expect_false(best$is_ambiguous)
+  expect_true(is.na(best$ambiguous_targets))
+})
+
+test_that("pick_best_vec stays ambiguous when no candidate preserves epithet", {
+  # 'Picea excelsa' -> {Picea abies, Abies alba}: neither keeps 'excelsa',
+  # so the pick is genuinely ambiguous (epithet rule does not apply).
+  matches <- data.frame(
+    row_idx             = c(1L, 1L),
+    taxonID             = c("wfo-a", "wfo-b"),
+    taxonomicStatus     = c("SYNONYM", "SYNONYM"),
+    taxonRank           = c("SPECIES", "SPECIES"),
+    nomenclaturalStatus = c("Valid", "Valid"),
+    matched_name_std    = c("Picea excelsa", "Picea excelsa"),
+    accepted_name       = c("Picea abies", "Abies alba"),
+    accepted_taxon_id   = c("wfo-0000482030", "wfo-0000510976"),
+    stringsAsFactors    = FALSE
+  )
+  best <- pick_best_vec(matches)
+  expect_true(best$is_ambiguous)
+  expect_equal(best$ambiguous_targets, "wfo-0000482030|wfo-0000510976")
+})
+
+test_that("pick_best_vec stays ambiguous when 2+ candidates preserve epithet", {
+  # Two different accepted taxa both keep the epithet -> still ambiguous.
+  matches <- data.frame(
+    row_idx             = c(1L, 1L),
+    taxonID             = c("wfo-1", "wfo-2"),
+    taxonomicStatus     = c("SYNONYM", "SYNONYM"),
+    taxonRank           = c("SPECIES", "SPECIES"),
+    nomenclaturalStatus = c("Valid", "Valid"),
+    matched_name_std    = c("Aus bus", "Aus bus"),
+    accepted_name       = c("Xus bus", "Yus bus"),
+    accepted_taxon_id   = c("wfo-1", "wfo-2"),
+    stringsAsFactors    = FALSE
+  )
+  best <- pick_best_vec(matches)
+  expect_true(best$is_ambiguous)
+  expect_equal(best$ambiguous_targets, "wfo-1|wfo-2")
+})
+
+test_that("pick_best applies the epithet-preserving tiebreak", {
+  candidates <- data.frame(
+    taxonID           = c("wfo-0000482549", "wfo-0000482551"),
+    taxonomicStatus   = c("SYNONYM", "SYNONYM"),
+    taxonRank         = c("SPECIES", "SPECIES"),
+    matched_name_std  = c("Pinus abies", "Pinus abies"),
+    accepted_name     = c("Picea polita", "Picea abies"),
+    accepted_taxon_id = c("wfo-0000482612", "wfo-0000482030"),
+    stringsAsFactors  = FALSE
+  )
+  best <- pick_best(candidates)
+  expect_equal(best$accepted_taxon_id, "wfo-0000482030")
+  expect_false(best$is_ambiguous)
+})
+
+test_that("epithet_key extracts and normalizes the specific epithet", {
+  expect_equal(epithet_key("Pinus abies"), "abies")
+  expect_equal(epithet_key("Picea abies"), "abies")
+  expect_equal(epithet_key("Quercus robur subsp. robur"), "robur")
+  expect_true(is.na(epithet_key("Pinus")))
+  expect_true(is.na(epithet_key(NA_character_)))
+  # Orthographic folding matches the matcher: 'ae' -> 'i'.
+  expect_equal(epithet_key("Genus caeruleus"), epithet_key("Genus ciruleus"))
+})
+
 test_that("case-tolerant ACCEPTED detection (Accepted vs ACCEPTED)", {
   # Real WFO data uses 'Accepted' / 'Synonym' (mixed case), the mock fixture
   # uses 'ACCEPTED' / 'SYNONYM'. Both must work.

@@ -389,6 +389,31 @@ match_exact_compiled <- function(result, names_df, bb_path, col_map) {
 }
 
 
+#' Standardize backbone columns for pick_best_vec
+#'
+#' Maps backend-specific column names (via `col_map`) onto the generic column
+#' names `pick_best_vec()` / `score_candidates()` expect: `taxonID`,
+#' `taxonRank`, `taxonomicStatus`, and `matched_name_std` (the matched
+#' backbone name, used for the epithet-preservation tiebreak).
+#'
+#' @param matches Collected query output.
+#' @param col_map Named list mapping logical roles to column names.
+#' @return `matches` with the standardized columns added.
+#' @noRd
+standardize_pick_cols <- function(matches, col_map) {
+  matches$taxonID         <- matches[[col_map$id]]
+  matches$taxonRank       <- matches[[col_map$rank]]
+  matches$taxonomicStatus <- matches[[col_map$status]]
+  matches$matched_name_std <-
+    if (!is.null(col_map$name) && col_map$name %in% names(matches)) {
+      matches[[col_map$name]]
+    } else {
+      NA_character_
+    }
+  matches
+}
+
+
 #' Fill match results from compiled backbone (vectorized)
 #'
 #' Reads accepted info directly from precomputed backbone columns.
@@ -402,10 +427,7 @@ match_exact_compiled <- function(result, names_df, bb_path, col_map) {
 #'   of col_map$name.
 #' @noRd
 fill_compiled_matches <- function(result, matches, match_type, col_map) {
-  # Standardize for pick_best_vec
-  matches$taxonID <- matches[[col_map$id]]
-  matches$taxonRank <- matches[[col_map$rank]]
-  matches$taxonomicStatus <- matches[[col_map$status]]
+  matches <- standardize_pick_cols(matches, col_map)
 
   best <- pick_best_vec(matches)
   idx <- best$row_idx
@@ -525,9 +547,7 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
   )
 
   if (nrow(matches) > 0L) {
-    matches$taxonID <- matches[[col_map$id]]
-    matches$taxonRank <- matches[[col_map$rank]]
-    matches$taxonomicStatus <- matches[[col_map$status]]
+    matches <- standardize_pick_cols(matches, col_map)
 
     best <- pick_best_vec(matches)
     best <- dedup_fuzzy_targets(best, id_col = col_map$id)
@@ -578,7 +598,7 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 
   fuzzy_path <- tempfile(fileext = ".vtr")
   vectra::tbl(bb_path) |>
-    vectra::select(keep_cols) |>
+    vectra::select(!!!lapply(keep_cols, as.name)) |>
     vectra::write_vtr(fuzzy_path, batch_size = 50000L)
 
   .taxify_env[[cache_key]] <- fuzzy_path
@@ -657,9 +677,7 @@ fuzzy_match_unblocked <- function(result, names_df, bb_path, method, threshold,
   )
 
   if (nrow(matches) > 0L) {
-    matches$taxonID <- matches[[col_map$id]]
-    matches$taxonRank <- matches[[col_map$rank]]
-    matches$taxonomicStatus <- matches[[col_map$status]]
+    matches <- standardize_pick_cols(matches, col_map)
 
     best <- pick_best_vec(matches)
     best <- dedup_fuzzy_targets(best, id_col = col_map$id)

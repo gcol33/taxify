@@ -11,5 +11,5 @@ Character string. Path to the data directory.
 }
 \description{
 Returns the platform-appropriate directory where taxify stores downloaded
-backbone \code{.vtr} files. Uses \code{\link[tools:userdir]{tools::R_user_dir()}} (available since R 4.0).
+backbone \code{.vtr} files. Uses \code{\link[tools:R_user_dir]{tools::R_user_dir()}} (available since R 4.0).
 }

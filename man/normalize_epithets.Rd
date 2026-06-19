@@ -15,13 +15,20 @@ Character vector of normalized forms.
 \description{
 Reduces common Latin spelling alternations to a canonical form so that
 e.g. \code{hirtaeformis} and \code{hirtiformis} produce the same normalized key.
-Applied to the epithet portion only (everything after the genus).
+Applied identically to both query names and backbone names so the keys
+line up on either side of the join.
 }
 \details{
-Handled alternations:
-\itemize{
-\item \code{ae} -> \code{i}, \code{oe} -> \code{i}, \code{ii} -> \code{i} at word end
-\item \code{y} -> \code{i}, \code{ph} -> \code{f}, \code{rh} -> \code{r}, \code{th} -> \code{t}
+Pipeline:
+\enumerate{
+\item Lowercase.
+\item Strip Latin-1 diacritics and ligatures (e-acute to e, ae-ligature to
+ae, sharp-s to ss, etc.), applied to genus and epithet.
+\item Orthographic alternation on the epithet only: \code{ae}/\code{oe} -> \code{i},
+trailing \code{ii} -> \code{i}, \code{y} -> \code{i}, \code{ph} -> \code{f}, \code{rh} -> \code{r}, \code{th} -> \code{t}.
 }
+
+Step 2 runs before step 3, so ae-ligature -> \code{ae} -> \code{i} and oe-ligature
+-> \code{oe} -> \code{i} fold into the same key as the de-ligatured forms.
 }
 \keyword{internal}

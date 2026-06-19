@@ -25,3 +25,6 @@
 ^revdep$
 ^doc$
 ^Meta$
+^dev_notes$
+^scripts$
+^\.code-review-graph$

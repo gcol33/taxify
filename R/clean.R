@@ -261,19 +261,19 @@ strip_qualifier <- function(name) {
 #' diacritics collapse to the bare letter (e-acute -> e, n-tilde -> n).
 #' German umlauts transliterate to digraphs (a-diaeresis -> ae, o-diaeresis
 #' -> oe, u-diaeresis -> ue) so the umlauted and the digraph-spelled
-#' variants of German-author species names (`b\u00f6hmi`/`boehmi`) fold to
-#' the same key. Ligatures and special letters that don't decompose to a
-#' single base letter expand similarly (ae-ligature -> ae, oe-ligature ->
-#' oe, sharp-s -> ss, thorn -> th, l-stroke -> l).
+#' variants of German-author species names (e.g. `boehmi`) fold to the same
+#' key. Ligatures and special letters that don't decompose to a single base
+#' letter expand similarly (ae-ligature -> ae, oe-ligature -> oe, sharp-s ->
+#' ss, thorn -> th, l-stroke -> l).
 #'
-#' Operates on lowercased input \u2014 callers are responsible for
-#' lowercasing upstream.
+#' Operates on lowercased input; callers are responsible for lowercasing
+#' upstream.
 #'
 #' @param x Character vector.
 #' @return Character vector with accents/ligatures stripped.
 #' @noRd
 .strip_accents <- function(x) {
-  # German umlauts first \u2014 digraph transliteration matches both the
+  # German umlauts first; digraph transliteration matches both the
   # umlauted and the de-umlauted spellings of German-author species names.
   x <- gsub("\u00e4", "ae", x, fixed = TRUE)  # a-diaeresis
   x <- gsub("\u00f6", "oe", x, fixed = TRUE)  # o-diaeresis
@@ -310,7 +310,7 @@ strip_qualifier <- function(name) {
 #' Pipeline:
 #' 1. Lowercase.
 #' 2. Strip Latin-1 diacritics and ligatures (e-acute to e, ae-ligature to
-#'    ae, sharp-s to ss, etc.) \u2014 applied to genus and epithet.
+#'    ae, sharp-s to ss, etc.), applied to genus and epithet.
 #' 3. Orthographic alternation on the epithet only: `ae`/`oe` -> `i`,
 #'    trailing `ii` -> `i`, `y` -> `i`, `ph` -> `f`, `rh` -> `r`, `th` -> `t`.
 #'
