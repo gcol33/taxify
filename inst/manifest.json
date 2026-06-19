@@ -170,9 +170,9 @@
       "source_doi": {}
     },
     "griis": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/griis.vtr",
-      "nrow": 134796,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/griis.vtr",
+      "nrow": 110378,
       "source_url": "https://zenodo.org/records/6348164/files/GRIIS%20-%20Country%20Compendium%20V1_0.csv?download=1",
       "source_format": "csv",
       "source_version": "2026.04",
@@ -394,9 +394,9 @@
       "source_doi": "10.15468/6jcu0q"
     },
     "alien_first_records": {
-      "latest": "3.1",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/alien_first_records.vtr",
-      "nrow": 95777,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/alien_first_records.vtr",
+      "nrow": 79944,
       "source_url": "https://zenodo.org/records/10039630/files/GlobalAlienSpeciesFirstRecordDatabase_v3.1_freedata.xlsx",
       "source_format": "xlsx",
       "source_version": "3.1",
@@ -667,9 +667,9 @@
       "source_doi": "10.5281/zenodo.10039630"
     },
     "wcvp": {
-      "latest": "2026.04",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/wcvp.vtr",
-      "nrow": 2361998,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/wcvp.vtr",
+      "nrow": 2096648,
       "source_url": "https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip",
       "source_format": "zip",
       "source_version": "2026.04",
@@ -749,7 +749,6 @@
         "CLN",
         "CLS",
         "CMN",
-        "cnt",
         "CNT",
         "CNY",
         "COL",
@@ -794,14 +793,12 @@
         "GAL",
         "GAM",
         "GEO",
-        "ger",
         "GER",
         "GGI",
         "GHA",
         "GIL",
         "GNB",
         "GNL",
-        "grb",
         "GRB",
         "GRC",
         "GST",
@@ -902,7 +899,6 @@
         "NCS",
         "NDA",
         "NEB",
-        "nep",
         "NEP",
         "NET",
         "NEV",
@@ -953,7 +949,6 @@
         "QLD",
         "QUE",
         "REU",
-        "rho",
         "RHO",
         "ROD",
         "ROM",
@@ -1035,7 +1030,6 @@
         "WAK",
         "WAL",
         "WAS",
-        "wau",
         "WAU",
         "WDC",
         "WHM",
@@ -1070,9 +1064,9 @@
       "source_doi": "10.1038/s41597-021-00997-6"
     },
     "eive": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/eive.vtr",
-      "nrow": 19004,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/eive.vtr",
+      "nrow": 16737,
       "source_url": "https://zenodo.org/records/7534792/files/EIVE_Paper_1.0_SM_08.xlsx?download=1",
       "source_format": "xlsx",
       "source_version": "1.0",
@@ -1100,9 +1094,9 @@
       "source_doi": "10.3897/VCS.98324"
     },
     "elton_traits": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/elton_traits.vtr",
-      "nrow": 17565,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/elton_traits.vtr",
+      "nrow": 17556,
       "source_url": "https://ndownloader.figshare.com/files/5631081",
       "source_format": "tsv",
       "source_version": "1.0",
@@ -1143,9 +1137,9 @@
       "source_doi": "10.6084/m9.figshare.c.3306933.v1"
     },
     "avonet": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/avonet.vtr",
-      "nrow": 12457,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/avonet.vtr",
+      "nrow": 12443,
       "source_url": "https://ndownloader.figshare.com/files/34480856",
       "source_format": "xlsx",
       "source_version": "1.0",
@@ -1179,9 +1173,9 @@
       "source_doi": "10.6084/m9.figshare.16586228.v5"
     },
     "pantheria": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/pantheria.vtr",
-      "nrow": 5969,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/pantheria.vtr",
+      "nrow": 5957,
       "source_url": "https://esapubs.org/archive/ecol/E090/184/PanTHERIA_1-0_WR05_Aug2008.txt",
       "source_format": "tsv",
       "source_version": "1.0",
@@ -1212,9 +1206,9 @@
       "source_doi": "10.1890/08-1494.1"
     },
     "amphibio": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/amphibio.vtr",
-      "nrow": 7802,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/amphibio.vtr",
+      "nrow": 7799,
       "source_url": "https://ndownloader.figshare.com/files/8828578",
       "source_format": "zip",
       "source_version": "1.0",
@@ -1250,9 +1244,9 @@
       "source_doi": "10.6084/m9.figshare.4644424.v5"
     },
     "common_names": {
-      "latest": "2026.04",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/common_names.vtr",
-      "nrow": 733834,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/common_names.vtr",
+      "nrow": 704517,
       "source_url": "https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip",
       "source_format": "zip",
       "source_version": "2026.04",
@@ -1432,9 +1426,9 @@
       "source_doi": {}
     },
     "woodiness": {
-      "latest": "2014.1",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/woodiness.vtr",
-      "nrow": 57350,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/woodiness.vtr",
+      "nrow": 53737,
       "source_url": "https://raw.githubusercontent.com/ejedwards/reanalysis_zanne2014/master/dryad/GlobalWoodinessDatabase.csv",
       "source_format": "dryad_zip",
       "source_version": "2014.1",
@@ -1458,8 +1452,8 @@
       "source_doi": "10.5061/dryad.63q27"
     },
     "diaz_traits": {
-      "latest": "2022.1",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/diaz_traits.vtr",
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/diaz_traits.vtr",
       "source_url": "https://raw.githubusercontent.com/kydahl/biodiv-hotspots/main/data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx",
       "source_format": "xlsx",
       "source_version": "2022.1",
@@ -1480,13 +1474,13 @@
         "pages": "755",
         "doi": "10.1038/s41597-022-01774-9"
       },
-      "nrow": 48228,
+      "nrow": 43926,
       "license": "CC BY 4.0",
       "source_doi": "10.1038/s41597-022-01774-9"
     },
     "leda": {
-      "latest": "2008.1",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/leda.vtr",
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/leda.vtr",
       "source_url": "https://uol.de/f/5/inst/biologie/ag/landeco/download/LEDA/Data_files/",
       "source_format": "multi_tsv",
       "source_version": "2008.1",
@@ -1515,14 +1509,14 @@
         "pages": "1266-1274",
         "doi": "10.1111/j.1365-2745.2008.01430.x"
       },
-      "nrow": 13207,
+      "nrow": 10869,
       "license": "Free for academic use",
       "source_doi": "10.1111/j.1365-2745.2008.01430.x"
     },
     "funguild": {
-      "latest": "2026.05",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/funguild.vtr",
-      "nrow": 16577,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/funguild.vtr",
+      "nrow": 16094,
       "source_url": "http://www.stbates.org/funguild_db_2.php",
       "source_format": "json",
       "source_version": "2016.1",
@@ -1549,9 +1543,9 @@
       "source_doi": "10.1016/j.funeco.2015.06.006"
     },
     "fishbase": {
-      "latest": "2026.05",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/fishbase.vtr",
-      "nrow": 37816,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/fishbase.vtr",
+      "nrow": 5316,
       "source_url": "https://fishbase.ropensci.org",
       "source_format": "rfishbase",
       "source_version": "2026.04",
@@ -1578,9 +1572,9 @@
       "license": "CC BY-NC 3.0"
     },
     "fungal_traits": {
-      "latest": "2020.1",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/fungal_traits.vtr",
-      "nrow": 11487,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/fungal_traits.vtr",
+      "nrow": 11061,
       "source_url": "https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM4_ESM.xlsx",
       "source_format": "xlsx",
       "source_version": "2020.1",
@@ -1612,9 +1606,9 @@
       "source_doi": "10.1007/s13225-020-00466-2"
     },
     "algae_traits": {
-      "latest": "2022.06",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/algae_traits.vtr",
-      "nrow": 3061,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/algae_traits.vtr",
+      "nrow": 2949,
       "source_url": "https://mda.vliz.be/download.php?file=VLIZ_00000308_62bf06138859e409561556",
       "source_format": "zip",
       "source_version": "2022.06",
@@ -1645,9 +1639,9 @@
       "source_doi": "10.14284/574"
     },
     "fish_traits": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/fish_traits.vtr",
-      "nrow": 9053,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/fish_traits.vtr",
+      "nrow": 9043,
       "source_url": "https://ndownloader.figshare.com/files/28672242",
       "source_format": "csv",
       "source_version": "1.0",
@@ -1680,9 +1674,9 @@
       "source_doi": "10.6084/m9.figshare.14891412"
     },
     "lizard_traits": {
-      "latest": "1.2",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/lizard_traits.vtr",
-      "nrow": 12202,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/lizard_traits.vtr",
+      "nrow": 12196,
       "source_url": "https://ndownloader.figshare.com/files/45408133",
       "source_format": "xlsx",
       "source_version": "2018.1",
@@ -1715,9 +1709,9 @@
       "source_doi": "10.6084/m9.figshare.24572683"
     },
     "anage": {
-      "latest": "15.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/anage.vtr",
-      "nrow": 4896,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/anage.vtr",
+      "nrow": 4864,
       "source_url": "https://genomics.senescence.info/species/dataset.zip",
       "source_format": "zip",
       "source_version": "15.0",
@@ -1750,9 +1744,9 @@
       "source_doi": "10.1111/j.1420-9101.2009.01783.x"
     },
     "glonaf": {
-      "latest": "2024.1",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/glonaf.vtr",
-      "nrow": 10266,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/glonaf.vtr",
+      "nrow": 10071,
       "source_url": "https://zenodo.org/api/records/13235357",
       "source_format": "zip",
       "source_version": "2.0",
@@ -1863,9 +1857,9 @@
       "source_doi": "10.1002/ecy.2542"
     },
     "leptraits": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/leptraits.vtr",
-      "nrow": 13519,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/leptraits.vtr",
+      "nrow": 13484,
       "source_url": "https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv",
       "source_format": "csv",
       "source_version": "1.0",
@@ -1897,9 +1891,9 @@
       "source_doi": "10.1038/s41597-022-01473-5"
     },
     "animaltraits": {
-      "latest": "1.0",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/animaltraits.vtr",
-      "nrow": 2029,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/animaltraits.vtr",
+      "nrow": 2009,
       "source_url": "https://zenodo.org/record/6468938/files/observations.csv?download=1",
       "source_format": "csv",
       "source_version": "1.0",
@@ -1924,9 +1918,9 @@
       "source_doi": "10.1038/s41597-022-01364-9"
     },
     "arthropod_traits": {
-      "latest": "1.1",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/arthropod_traits.vtr",
-      "nrow": 5551,
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/arthropod_traits.vtr",
+      "nrow": 5339,
       "source_url": "https://ipt.biodiversity.be/archive.do?r=arthropod-trait-dataset&v=1.1",
       "source_format": "dwca",
       "source_version": "1.1",
