@@ -25,7 +25,7 @@ utils::globalVariables(c(
   # Precomputed key columns (compiled backbone)
   "key_ci", "key_normalized", "key_species",
   "accepted_name", "accepted_family", "accepted_genus",
-  "accepted_taxon_id", "is_synonym",
+  "accepted_taxon_id", "accepted_authorship", "is_synonym",
   # vectra string distance functions (used in NSE mutate expressions)
   "dl_dist_norm", "levenshtein_norm", "jaro_winkler",
   # register column references

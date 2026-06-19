@@ -17,9 +17,9 @@ test_that("taxify returns correct schema", {
   expect_equal(nrow(result), 1L)
   expected_cols <- c("input_name", "matched_name", "accepted_name",
                      "taxon_id", "accepted_id", "rank", "family",
-                     "genus", "epithet", "authorship", "is_synonym",
-                     "is_hybrid", "match_type", "fuzzy_dist", "backend",
-                     "backbone_version", "life_form")
+                     "genus", "epithet", "authorship", "accepted_authorship",
+                     "is_synonym", "is_hybrid", "match_type", "fuzzy_dist",
+                     "backend", "backbone_version", "life_form")
   expect_true(all(expected_cols %in% names(result)),
               info = paste("Missing cols:", paste(setdiff(expected_cols, names(result)),
                                                   collapse = ", ")))
@@ -41,6 +41,23 @@ test_that("taxify resolves synonyms", {
   expect_equal(result$matched_name, "Quercus pedunculata")
   expect_equal(result$accepted_name, "Quercus robur")
   expect_true(result$is_synonym)
+})
+
+test_that("taxify reports the accepted name's authorship", {
+  setup_mock_backend()
+  result <- taxify(c("Quercus robur", "Quercus pedunculata"), verbose = FALSE)
+
+  # Direct accepted match: matched author and accepted author agree.
+  expect_equal(result$authorship[1L], "L.")
+  expect_equal(result$accepted_authorship[1L], "L.")
+
+  # Synonym: `authorship` keeps the synonym's own author, while
+  # `accepted_authorship` carries the resolved accepted name's author, so
+  # `accepted_name` + `accepted_authorship` cite the accepted taxon correctly.
+  expect_true(result$is_synonym[2L])
+  expect_equal(result$accepted_name[2L], "Quercus robur")
+  expect_equal(result$authorship[2L], "(Mattusch.) Bonnier & Layens")
+  expect_equal(result$accepted_authorship[2L], "L.")
 })
 
 test_that("taxify handles fuzzy matching", {

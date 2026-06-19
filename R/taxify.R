@@ -26,7 +26,7 @@
 #'   default), `"levenshtein"`, or `"jw"` (Jaro-Winkler).
 #' @param verbose Logical. Print progress messages. Default `TRUE`.
 #'
-#' @return A data.frame with one row per input name and 16 columns:
+#' @return A data.frame with one row per input name and the following columns:
 #' \describe{
 #'   \item{input_name}{The original name as provided.}
 #'   \item{matched_name}{Full name in the backbone that matched.}
@@ -39,6 +39,10 @@
 #'   \item{genus}{Genus name.}
 #'   \item{epithet}{Specific epithet.}
 #'   \item{authorship}{Authorship of the matched name.}
+#'   \item{accepted_authorship}{Authorship of the accepted name. For a synonym
+#'     this is the author of the resolved accepted name, not the synonym's own
+#'     author, so `accepted_name` and `accepted_authorship` together form the
+#'     accepted name's full citation.}
 #'   \item{is_synonym}{Logical. Was the match a synonym?}
 #'   \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
 #'   \item{match_type}{One of `"exact"`, `"exact_ci"`, `"fuzzy"`, or
@@ -192,6 +196,8 @@ taxify <- function(x,
           result$genus[i]             <- sub_result$genus[j]
           result$epithet[i]           <- sub_result$epithet[j]
           result$authorship[i]        <- sub_result$authorship[j]
+          result$accepted_authorship[i] <- sub_result$accepted_authorship[j] %||%
+                                          NA_character_
           result$is_synonym[i]        <- sub_result$is_synonym[j]
           result$match_type[i]        <- sub_result$match_type[j]
           result$fuzzy_dist[i]        <- sub_result$fuzzy_dist[j]

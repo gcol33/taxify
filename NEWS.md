@@ -1,3 +1,29 @@
+# taxify 0.2.6
+
+## New features
+
+* New `accepted_authorship` output column: the authorship of the resolved
+  accepted name. For a synonym match, `authorship` holds the synonym's own
+  author while `accepted_authorship` holds the accepted name's author, so
+  `accepted_name` and `accepted_authorship` together form the accepted taxon's
+  full citation. Backbones that carry authorship populate it; sources without
+  authorship (NCBI, OTT) return `NA`.
+
+## Bug fixes
+
+* `taxify()` no longer errors with "replacement has length zero" for backbones
+  whose `.meta` sidecar records the build date as `build_date` (the current
+  taxifydb build format) rather than `download_date`. Backbone metadata now
+  reads both layouts and version formatting tolerates a missing date. This
+  previously broke matching against the WoRMS and Open Tree of Life backbones.
+
+## Internal
+
+* Declared the companion build package taxifydb in `Additional_repositories`
+  (https://gcol33.r-universe.dev), so its location is discoverable as required
+  for a Suggests dependency outside the mainstream repositories.
+
+
 # taxify 0.2.5
 
 ## Bug fixes

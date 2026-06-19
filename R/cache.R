@@ -53,6 +53,11 @@ backbone_node <- function(backend_name) {
 
 #' Read backbone metadata from sidecar file
 #'
+#' Newer taxifydb builds label the sidecar with `build_date` /
+#' `build_timestamp` / `source_url`; older ones used `download_date` /
+#' `download_timestamp` / `url`. Both are normalized here so downstream
+#' readers always find `download_date`, `download_timestamp`, and `url`.
+#'
 #' @param vtr_path Character. Path to the `.vtr` file.
 #' @return A named list with fields `backend`, `version`, `download_date`,
 #'   `download_timestamp`, `url`, `nrow`. Returns `NULL` if no `.meta` file
@@ -65,7 +70,12 @@ read_backbone_meta <- function(vtr_path) {
   pairs <- strsplit(lines, "=", fixed = TRUE)
   keys <- vapply(pairs, `[`, character(1L), 1L)
   vals <- vapply(pairs, function(p) paste(p[-1L], collapse = "="), character(1L))
-  stats::setNames(as.list(vals), keys)
+  meta <- stats::setNames(as.list(vals), keys)
+
+  meta$download_date      <- meta$download_date      %||% meta$build_date
+  meta$download_timestamp <- meta$download_timestamp %||% meta$build_timestamp
+  meta$url                <- meta$url                %||% meta$source_url
+  meta
 }
 
 
@@ -81,10 +91,13 @@ read_backbone_meta <- function(vtr_path) {
 #' @noRd
 format_backbone_version <- function(vtr_path, backend_name, version) {
   meta <- read_backbone_meta(vtr_path)
-  if (!is.null(meta)) {
-    sprintf("%s:%s (%s)", meta$backend, meta$version, meta$download_date)
+  be  <- (meta$backend %||% backend_name)
+  ver <- (meta$version %||% version)
+  dt  <- meta$download_date
+  if (length(dt) == 1L && !is.na(dt) && nzchar(dt)) {
+    sprintf("%s:%s (%s)", be, ver, dt)
   } else {
-    paste0(backend_name, ":", version)
+    paste0(be, ":", ver)
   }
 }
 

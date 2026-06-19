@@ -148,8 +148,8 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
 #'
 #' Used by the `taxifydb` build pipeline and by taxify's own test fixtures.
 #' For every synonym row, resolves the accepted taxon and embeds its name,
-#' family, and genus directly. Handles synonym chains by iterating until
-#' stable (max 10 hops).
+#' family, genus, and (when `authorship_col` is supplied) authorship directly.
+#' Handles synonym chains by iterating until stable (max 10 hops).
 #'
 #' @param df The full backbone data.frame.
 #' @param id_col Name of the taxon ID column.
@@ -159,13 +159,19 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
 #' @param genus_col Name of the genus column.
 #' @param status_col Name of the taxonomic status column.
 #' @param synonym_pattern Regex pattern to detect synonyms in status column.
+#' @param authorship_col Optional name of the authorship column. When supplied,
+#'   the resolved accepted name's authorship is embedded as
+#'   `accepted_authorship` (so a synonym row carries the accepted taxon's
+#'   author, not its own). When `NULL`, `accepted_authorship` is filled with
+#'   `NA`.
 #' @return The data.frame with added columns: accepted_name, accepted_family,
-#'   accepted_genus, accepted_taxon_id, is_synonym.
+#'   accepted_genus, accepted_taxon_id, accepted_authorship, is_synonym.
 #' @keywords internal
 #' @export
 embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
                            genus_col, status_col,
-                           synonym_pattern = "SYNONYM") {
+                           synonym_pattern = "SYNONYM",
+                           authorship_col = NULL) {
   n <- nrow(df)
 
   # Detect synonyms
@@ -174,11 +180,14 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
 
   # Default: accepted = self
 
-  df$accepted_name     <- df[[name_col]]
-  df$accepted_family   <- df[[family_col]]
-  df$accepted_genus    <- df[[genus_col]]
-  df$accepted_taxon_id <- df[[id_col]]
-  df$is_synonym        <- FALSE
+  have_auth <- !is.null(authorship_col) && authorship_col %in% names(df)
+
+  df$accepted_name       <- df[[name_col]]
+  df$accepted_family     <- df[[family_col]]
+  df$accepted_genus      <- df[[genus_col]]
+  df$accepted_taxon_id   <- df[[id_col]]
+  df$accepted_authorship <- if (have_auth) df[[authorship_col]] else NA_character_
+  df$is_synonym          <- FALSE
 
   # Build ID → row index lookup
   id_to_row <- match(df[[acc_id_col]], df[[id_col]])
@@ -191,6 +200,8 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
     df$accepted_family[resolved]   <- df[[family_col]][target_rows]
     df$accepted_genus[resolved]    <- df[[genus_col]][target_rows]
     df$accepted_taxon_id[resolved] <- df[[id_col]][target_rows]
+    if (have_auth)
+      df$accepted_authorship[resolved] <- df[[authorship_col]][target_rows]
     df$is_synonym[resolved]        <- TRUE
   }
 
@@ -225,6 +236,8 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
     df$accepted_family[chain_idx]   <- df[[family_col]][next_row]
     df$accepted_genus[chain_idx]    <- df[[genus_col]][next_row]
     df$accepted_taxon_id[chain_idx] <- df[[id_col]][next_row]
+    if (have_auth)
+      df$accepted_authorship[chain_idx] <- df[[authorship_col]][next_row]
   }
 
   df
@@ -445,6 +458,7 @@ fill_compiled_matches <- function(result, matches, match_type, col_map) {
   result$genus[idx]             <- best$accepted_genus
   result$epithet[idx]           <- best[[col_map$epithet]]
   result$authorship[idx]        <- best[[col_map$authorship]]
+  result$accepted_authorship[idx] <- best$accepted_authorship %||% NA_character_
   result$accepted_name[idx]     <- best$accepted_name
   result$accepted_id[idx]       <- best$accepted_taxon_id
   result$is_synonym[idx]        <- best$is_synonym
@@ -561,6 +575,7 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
     result$genus[idx]             <- best$accepted_genus
     result$epithet[idx]           <- best[[col_map$epithet]]
     result$authorship[idx]        <- best[[col_map$authorship]]
+    result$accepted_authorship[idx] <- best$accepted_authorship %||% NA_character_
     result$is_synonym[idx]        <- best$is_synonym
     result$match_type[idx]        <- "fuzzy"
     result$fuzzy_dist[idx]        <- best$fuzzy_dist
@@ -593,8 +608,13 @@ get_fuzzy_bb <- function(bb_path, col_map) {
     col_map$name, col_map$genus, col_map$id, col_map$rank,
     col_map$status, col_map$epithet, col_map$authorship,
     "accepted_name", "accepted_family", "accepted_genus",
-    "accepted_taxon_id", "is_synonym", "fuzzy_block"
+    "accepted_taxon_id", "accepted_authorship", "is_synonym", "fuzzy_block"
   ))
+
+  # Drop any columns a pre-accepted_authorship backbone .vtr does not carry,
+  # so selection stays valid against older downloads.
+  available <- names(vectra::collect(utils::head(vectra::tbl(bb_path), 1L)))
+  keep_cols <- intersect(keep_cols, available)
 
   fuzzy_path <- tempfile(fileext = ".vtr")
   vectra::tbl(bb_path) |>
@@ -691,6 +711,7 @@ fuzzy_match_unblocked <- function(result, names_df, bb_path, method, threshold,
     result$genus[idx]             <- best$accepted_genus
     result$epithet[idx]           <- best[[col_map$epithet]]
     result$authorship[idx]        <- best[[col_map$authorship]]
+    result$accepted_authorship[idx] <- best$accepted_authorship %||% NA_character_
     result$is_synonym[idx]        <- best$is_synonym
     result$match_type[idx]        <- "fuzzy"
     result$fuzzy_dist[idx]        <- best$fuzzy_dist
@@ -748,6 +769,7 @@ empty_match_result <- function(n) {
     genus             = NA_character_,
     epithet           = NA_character_,
     authorship        = NA_character_,
+    accepted_authorship = NA_character_,
     is_synonym        = NA,
     is_hybrid         = NA,
     match_type        = NA_character_,

@@ -1,6 +1,6 @@
 Package: taxify
 Title: Offline Taxonomic Name Matching Against Local Darwin Core Snapshots
-Version: 0.2.5
+Version: 0.2.6
 Authors@R:
     person("Gilles", "Colling", , "gilles.colling051@gmail.com",
            role = c("aut", "cre", "cph"),
@@ -14,6 +14,7 @@ Description: Match taxonomic names against locally stored Darwin Core backbone
 License: MIT + file LICENSE
 URL: https://github.com/gcol33/taxify
 BugReports: https://github.com/gcol33/taxify/issues
+Additional_repositories: https://gcol33.r-universe.dev
 Depends:
     R (>= 4.1.0)
 Imports:

@@ -151,12 +151,13 @@ mock_backbone_vtr <- function(with_nom_status = FALSE) {
 
   # Embed accepted taxon info (synonym self-join)
   df <- embed_accepted(df,
-    id_col     = "taxon_id",
-    acc_id_col = "accepted_name_usage_id",
-    name_col   = "canonical_name",
-    family_col = "family",
-    genus_col  = "genus",
-    status_col = "taxonomic_status"
+    id_col         = "taxon_id",
+    acc_id_col     = "accepted_name_usage_id",
+    name_col       = "canonical_name",
+    family_col     = "family",
+    genus_col      = "genus",
+    status_col     = "taxonomic_status",
+    authorship_col = "authorship"
   )
 
   # Sort by genus for zone-map pruning

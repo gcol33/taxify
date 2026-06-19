@@ -12,7 +12,8 @@ embed_accepted(
   family_col,
   genus_col,
   status_col,
-  synonym_pattern = "SYNONYM"
+  synonym_pattern = "SYNONYM",
+  authorship_col = NULL
 )
 }
 \arguments{
@@ -31,15 +32,21 @@ embed_accepted(
 \item{status_col}{Name of the taxonomic status column.}
 
 \item{synonym_pattern}{Regex pattern to detect synonyms in status column.}
+
+\item{authorship_col}{Optional name of the authorship column. When supplied,
+the resolved accepted name's authorship is embedded as
+\code{accepted_authorship} (so a synonym row carries the accepted taxon's
+author, not its own). When \code{NULL}, \code{accepted_authorship} is filled with
+\code{NA}.}
 }
 \value{
 The data.frame with added columns: accepted_name, accepted_family,
-accepted_genus, accepted_taxon_id, is_synonym.
+accepted_genus, accepted_taxon_id, accepted_authorship, is_synonym.
 }
 \description{
 Used by the \code{taxifydb} build pipeline and by taxify's own test fixtures.
 For every synonym row, resolves the accepted taxon and embeds its name,
-family, and genus directly. Handles synonym chains by iterating until
-stable (max 10 hops).
+family, genus, and (when \code{authorship_col} is supplied) authorship directly.
+Handles synonym chains by iterating until stable (max 10 hops).
 }
 \keyword{internal}

@@ -39,7 +39,7 @@ default), \code{"levenshtein"}, or \code{"jw"} (Jaro-Winkler).}
 \item{verbose}{Logical. Print progress messages. Default \code{TRUE}.}
 }
 \value{
-A data.frame with one row per input name and 16 columns:
+A data.frame with one row per input name and the following columns:
 \describe{
 \item{input_name}{The original name as provided.}
 \item{matched_name}{Full name in the backbone that matched.}
@@ -52,6 +52,10 @@ if not a synonym).}
 \item{genus}{Genus name.}
 \item{epithet}{Specific epithet.}
 \item{authorship}{Authorship of the matched name.}
+\item{accepted_authorship}{Authorship of the accepted name. For a synonym
+this is the author of the resolved accepted name, not the synonym's own
+author, so \code{accepted_name} and \code{accepted_authorship} together form the
+accepted name's full citation.}
 \item{is_synonym}{Logical. Was the match a synonym?}
 \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
 \item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, or
