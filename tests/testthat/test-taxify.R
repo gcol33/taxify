@@ -174,8 +174,16 @@ test_that("summary.taxify_result() shows out_of_scope line when present", {
   )
   on.exit(.taxify_env$register <- NULL, add = TRUE)
 
-  result <- taxify(c("Quercus robur", "Boletus edulis"),
-                   fuzzy = FALSE, verbose = FALSE)
+  # WFO covers Quercus but not Boletus, so Boletus is out_of_scope. Mock the
+  # coverage file so the test does not depend on a real coverage .vtr.
+  cov_path <- mock_coverage_vtr(genus = "Quercus", backend = "wfo")
+  clear_coverage_cache()
+  on.exit(clear_coverage_cache(), add = TRUE)
+
+  result <- with_mocked_bindings(
+    coverage_vtr_path = function() cov_path,
+    taxify(c("Quercus robur", "Boletus edulis"), fuzzy = FALSE, verbose = FALSE)
+  )
 
   meta <- attr(result, "taxify_meta")
   expect_equal(meta$match_tally$out_of_scope, 1L)

@@ -241,11 +241,21 @@ test_that("taxify() sets match_type = 'out_of_scope' and life_form for genus-in-
     stringsAsFactors = FALSE
   )
 
-  result <- taxify(
-    c("Quercus robur", "Boletus edulis", "Xxxx yyyyy"),
-    backend = "wfo",
-    fuzzy = FALSE,
-    verbose = FALSE
+  # Coverage: WFO covers the plant genera but not Boletus, so Boletus is
+  # out_of_scope. Mock the coverage file so the test does not depend on a real
+  # coverage .vtr being present in the user data dir.
+  cov_path <- mock_coverage_vtr(genus = c("Quercus", "Pinus"), backend = "wfo")
+  clear_coverage_cache()
+  on.exit(clear_coverage_cache(), add = TRUE)
+
+  result <- with_mocked_bindings(
+    coverage_vtr_path = function() cov_path,
+    taxify(
+      c("Quercus robur", "Boletus edulis", "Xxxx yyyyy"),
+      backend = "wfo",
+      fuzzy = FALSE,
+      verbose = FALSE
+    )
   )
 
   # Quercus robur is in WFO — matched
