@@ -147,26 +147,26 @@
   },
   "enrichments": {
     "conservation_status": {
-      "latest": "2026.04",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.05/conservation_status.vtr",
-      "nrow": 64857,
-      "source_url": "https://api.gbif.org/v1/species/search",
-      "source_format": "gbif_api",
-      "source_version": "2026.04",
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/conservation_status.vtr",
+      "nrow": 185874,
+      "source_url": "https://hosted-datasets.gbif.org/datasets/iucn/iucn-latest.zip",
+      "source_format": "dwca",
+      "source_version": "2025.11",
       "species_col": "canonicalName",
       "trait_cols": [
         "conservation_status"
       ],
       "static": false,
       "citation": {
-        "key": "iucn2024",
+        "key": "iucn2025",
         "type": "misc",
         "authors": "IUCN",
-        "year": "2024",
+        "year": "2025",
         "title": "The IUCN Red List of Threatened Species",
         "url": "https://www.iucnredlist.org"
       },
-      "license": "Factual data (not copyrightable)",
+      "license": "CC BY 4.0",
       "source_doi": {}
     },
     "griis": {
