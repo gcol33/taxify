@@ -27,7 +27,7 @@ to overlap with a taxify workflow.
 |---|---|---|---|---|
 | [taxize](https://docs.ropensci.org/taxize/) | ~20 web services (NCBI, ITIS, GBIF, EOL, IUCN, WoRMS, Tropicos, ...) | All kingdoms | Live API | `taxify(backend = c(...))` with the relevant local backbone(s) |
 | [WorldFlora](https://cran.r-project.org/package=WorldFlora) | World Flora Online classification (`WFO.match`) | Land plants (vascular + bryophytes) | Local file | `taxify(backend = "wfo")` |
-| [lcvplants](https://cran.r-project.org/package=lcvplants) | Leipzig Catalogue of Vascular Plants | Vascular plants | Bundled in package | `taxify(backend = "lcvp")` |
+| [lcvplants](https://github.com/idiv-biodiversity/lcvplants) | Leipzig Catalogue of Vascular Plants | Vascular plants | Bundled in package | `taxify(backend = "lcvp")` |
 | [rWCVP](https://matildabrown.github.io/rWCVP/) | World Checklist of Vascular Plants (Kew) | Vascular plants | Local snapshot | `taxify(backend = "wcvp")` |
 | [taxadb](https://docs.ropensci.org/taxadb/) | GBIF, ITIS, COL, NCBI, OTT, WFO snapshots | All kingdoms | Local DuckDB / MonetDB | `taxify(backend = c(...))` |
 | [Taxonstand](https://cran.r-project.org/package=Taxonstand) | The Plant List (retired by Kew in 2013, superseded by WCVP and WFO) | Vascular plants | Bundled in package | `taxify(backend = c("wcvp", "wfo"))` |
@@ -108,7 +108,7 @@ copy, and a once-per-session version check keeps it current.
 
 ## Function mapping: lcvplants to taxify
 
-[lcvplants](https://cran.r-project.org/package=lcvplants) wraps the
+[lcvplants](https://github.com/idiv-biodiversity/lcvplants) wraps the
 Leipzig Catalogue of Vascular Plants and ships the LCVP table as bundled
 data. The package centres on `LCVP()` and `lcvp_search()`.
 

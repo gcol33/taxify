@@ -329,6 +329,38 @@ test_that("out_of_scope enrichment does not affect matched names", {
 })
 
 
+test_that("taxify() returns a data.frame when the register exists but coverage does not", {
+  # Regression: prefilter_out_of_scope() must not collapse `result` to NULL when
+  # the coverage .vtr is absent (a clean install, before any download). Returning
+  # NULL there turned `result` into a list via `$<-` and crashed as_taxify_result()
+  # with "incorrect number of dimensions" on every machine without a cached
+  # coverage file.
+  bb_path <- mock_backbone_vtr()
+  set_backbone_path("wfo", bb_path)
+  on.exit({
+    set_backbone_path("wfo", NULL)
+    .taxify_env$register <- NULL
+  }, add = TRUE)
+
+  .taxify_env$register <- data.frame(
+    genus = c("Quercus", "Pinus"), kingdom = c("Plantae", "Plantae"),
+    family = c("Fagaceae", "Pinaceae"), kingdom_group = c("plantae", "plantae"),
+    taxon_group = c("angiosperm", "gymnosperm"),
+    life_form = c("angiosperm", "gymnosperm"), stringsAsFactors = FALSE
+  )
+
+  result <- with_mocked_bindings(
+    coverage_vtr_path = function() file.path(tempdir(), "no_such_coverage.vtr"),
+    taxify(c("Quercus robur", "Pinus sylvestris"), backend = "wfo",
+           fuzzy = FALSE, verbose = FALSE)
+  )
+
+  expect_s3_class(result, "data.frame")
+  expect_equal(nrow(result), 2L)
+  expect_true(all(result$match_type %in% c("exact", "exact_ci", "fuzzy")))
+})
+
+
 # ---- resolve_genus_classification() ----
 
 test_that("resolve_genus_classification() prefers COL > GBIF > WFO", {

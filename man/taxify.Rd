@@ -27,7 +27,7 @@ match. Default \code{TRUE}.}
 Two modes depending on the value:
 \itemize{
 \item \strong{Fractional} (\verb{0 < fuzzy_threshold < 1}): normalized distance
-(edits / max name length). Default \code{0.2} ≈ 1 edit per 5 characters.
+(edits / max name length). Default \code{0.2} is about 1 edit per 5 characters.
 \item \strong{Integer} (\code{fuzzy_threshold >= 1}): maximum raw edit count, e.g.
 \code{fuzzy_threshold = 2L} allows at most 2 insertions/deletions/substitutions
 regardless of name length. Not supported for \code{fuzzy_method = "jw"}.

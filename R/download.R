@@ -88,7 +88,7 @@ versioned_vtr_path <- function(backend_name, version = "latest") {
 #' Download a backbone .vtr from Zenodo
 #'
 #' Downloads the `.vtr` into `<data_dir>/<backend>/<version>/` atomically
-#' (temp file → rename). Writes `meta.json` on success. If the target file
+#' (temp file -> rename). Writes `meta.json` on success. If the target file
 #' already exists and `version` is not `"latest"` (i.e., a pinned version),
 #' returns the existing path without re-downloading.
 #'

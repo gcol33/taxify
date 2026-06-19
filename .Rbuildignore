@@ -17,6 +17,7 @@
 ^\.claude
 ^tools$
 ^\.run.*\.R$
+^output_.*\.R$
 ^data-raw$
 ^cran-comments\.md$
 ^codecov\.yml$

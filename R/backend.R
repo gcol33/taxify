@@ -576,7 +576,7 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
 #'
 #' Selects only the columns needed for matching (no extra WFO/COL columns),
 #' writes to a temp .vtr once per session. Sorted by genus for zone-map
-#' pruning. Much smaller than the full backbone → faster fuzzy_join I/O.
+#' pruning. Much smaller than the full backbone -> faster fuzzy_join I/O.
 #'
 #' @param bb_path Path to the full backbone .vtr.
 #' @param col_map Named list mapping logical roles to column names.

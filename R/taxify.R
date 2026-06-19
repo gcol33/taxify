@@ -18,7 +18,7 @@
 #' @param fuzzy_threshold Numeric. Maximum allowed distance for fuzzy matches.
 #'   Two modes depending on the value:
 #'   - **Fractional** (`0 < fuzzy_threshold < 1`): normalized distance
-#'     (edits / max name length). Default `0.2` ≈ 1 edit per 5 characters.
+#'     (edits / max name length). Default `0.2` is about 1 edit per 5 characters.
 #'   - **Integer** (`fuzzy_threshold >= 1`): maximum raw edit count, e.g.
 #'     `fuzzy_threshold = 2L` allows at most 2 insertions/deletions/substitutions
 #'     regardless of name length. Not supported for `fuzzy_method = "jw"`.
@@ -285,8 +285,7 @@ prefilter_out_of_scope <- function(result, names_df, backend) {
   reg <- tryCatch({
     if (is.null(.taxify_env$register)) {
       path <- register_vtr_path()
-      if (!file.exists(path)) return(result)
-      taxify_load_register(verbose = FALSE)
+      if (file.exists(path)) taxify_load_register(verbose = FALSE)
     }
     .taxify_env$register
   }, error = function(e) NULL)
@@ -295,20 +294,23 @@ prefilter_out_of_scope <- function(result, names_df, backend) {
 
   covered_genera <- tryCatch({
     cov_path <- coverage_vtr_path()
-    if (!file.exists(cov_path)) return(NULL)
-    be_names <- if (is.character(backend)) backend else backend$name
-    covered <- character(0)
-    for (be in be_names) {
-      cache_key <- paste0("coverage_", be)
-      if (is.null(.taxify_env[[cache_key]])) {
-        cov <- vectra::tbl(cov_path) |>
-          vectra::filter(backend == be) |>
-          vectra::collect()
-        .taxify_env[[cache_key]] <- cov$genus
+    if (file.exists(cov_path)) {
+      be_names <- if (is.character(backend)) backend else backend$name
+      covered <- character(0)
+      for (be in be_names) {
+        cache_key <- paste0("coverage_", be)
+        if (is.null(.taxify_env[[cache_key]])) {
+          cov <- vectra::tbl(cov_path) |>
+            vectra::filter(backend == be) |>
+            vectra::collect()
+          .taxify_env[[cache_key]] <- cov$genus
+        }
+        covered <- union(covered, .taxify_env[[cache_key]])
       }
-      covered <- union(covered, .taxify_env[[cache_key]])
+      covered
+    } else {
+      NULL
     }
-    covered
   }, error = function(e) NULL)
 
   if (is.null(covered_genera)) return(result)
@@ -350,8 +352,7 @@ enrich_with_register <- function(result, names_df, backend) {
   reg <- tryCatch({
     if (is.null(.taxify_env$register)) {
       path <- register_vtr_path()
-      if (!file.exists(path)) return(result)
-      taxify_load_register(verbose = FALSE)
+      if (file.exists(path)) taxify_load_register(verbose = FALSE)
     }
     .taxify_env$register
   }, error = function(e) NULL)
