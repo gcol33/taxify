@@ -43,7 +43,7 @@ col_backend <- function() {
     version = .col_version,
     genus_col = "genericName",
     col_map = .col_col_map,
-    unblocked_fallback = TRUE,
+    prefix_fallback = TRUE,
     class = "taxify_col"
   )
 }

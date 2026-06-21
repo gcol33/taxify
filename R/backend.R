@@ -131,9 +131,9 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
   result <- fuzzy_match_via_join(result, names_df, bb_path, method, threshold,
                                  col_map)
 
-  if (isTRUE(backend$unblocked_fallback)) {
-    result <- fuzzy_match_unblocked(result, names_df, bb_path, method, threshold,
-                                    col_map)
+  if (isTRUE(backend$prefix_fallback)) {
+    result <- fuzzy_match_prefix_blocked(result, names_df, bb_path, method,
+                                         threshold, col_map)
   }
 
   result
@@ -626,11 +626,14 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 }
 
 
-#' Unblocked fuzzy fallback for misspelled genera
+#' Prefix-blocked fuzzy fallback for misspelled genera
 #'
-#' After genus-blocked fuzzy matching, names with misspelled genera remain
-#' unmatched. This runs a single fuzzy_join WITHOUT genus blocking for all
-#' remaining names, replacing the per-name loop.
+#' After genus-blocked fuzzy matching, names with a misspelled genus remain
+#' unmatched, because the genus block never pulled their candidates. This pass
+#' re-blocks on the first 2 characters of the name instead of the genus, so a
+#' genus typo that preserves those 2 characters can still match. Typos in the
+#' first 2 characters are not caught. The query side is the full backbone (via
+#' `get_fuzzy_bb`), kept tractable by the prefix block.
 #'
 #' @param result The match result data.frame.
 #' @param names_df Data.frame from `clean_names()`.
@@ -640,8 +643,8 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 #' @param col_map Named list mapping logical roles to backbone column names.
 #' @return The updated result data.frame.
 #' @noRd
-fuzzy_match_unblocked <- function(result, names_df, bb_path, method, threshold,
-                                  col_map) {
+fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
+                                       threshold, col_map) {
   unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
   if (length(unmatched_rows) == 0L) return(result)
 
@@ -717,6 +720,104 @@ fuzzy_match_unblocked <- function(result, names_df, bb_path, method, threshold,
     result$fuzzy_dist[idx]        <- best$fuzzy_dist
     result$is_ambiguous[idx]      <- best$is_ambiguous %||% FALSE
     result$ambiguous_targets[idx] <- best$ambiguous_targets %||% NA_character_
+  }
+
+  result
+}
+
+
+#' Resolve abbreviated-genus names via genus initial plus epithet
+#'
+#' Handles inputs such as `"Q. robur"`, where the genus is given as a single
+#' initial. These never match the exact or genus-blocked fuzzy passes, because
+#' no genus is literally named `"Q."`. This stage restricts the backbone to
+#' rows whose genus starts with the initial and whose specific epithet matches,
+#' then resolves only when that yields a single accepted taxon. When two or
+#' more genera with the initial share the epithet the abbreviation is genuinely
+#' ambiguous: the row is left unmatched (`match_type` stays `NA`, becoming
+#' `"none"`) with `is_ambiguous = TRUE` and the conflicting accepted IDs in
+#' `ambiguous_targets`, rather than guessing a genus.
+#'
+#' Disambiguation prefers a genus the author spelled out in full elsewhere in
+#' the same input (the convention of abbreviating after first mention): when a
+#' candidate genus also appears unabbreviated in the batch, only those
+#' candidates are kept.
+#'
+#' @param backend A taxify_backend object (supplies `col_map`).
+#' @param result The match result data.frame (from match_exact).
+#' @param names_df Data.frame from `clean_names()`, carrying `genus_abbrev`.
+#' @param backbone Path to the compiled backbone .vtr file.
+#' @return The updated result data.frame.
+#' @noRd
+match_abbrev_genus <- function(backend, result, names_df, backbone) {
+  col_map <- backend$col_map
+  if (is.null(names_df$genus_abbrev)) return(result)
+
+  rows <- which(is.na(result$match_type) & !is.na(result$input_name) &
+                names_df$genus_abbrev %in% TRUE)
+  if (length(rows) == 0L) return(result)
+
+  cleaned <- names_df$cleaned[rows]
+  initial <- tolower(substr(cleaned, 1L, 1L))
+  epithet <- tolower(sub("^\\S+\\s+(\\S+).*$", "\\1", cleaned))
+
+  # Genera the author spelled out in full elsewhere in this batch (multi-letter
+  # first tokens, no abbreviating period) — used to disambiguate by intent.
+  first_tok <- sub(" .*", "", names_df$cleaned)
+  spelled <- tolower(first_tok[!is.na(first_tok) & nchar(first_tok) > 1L &
+                               !grepl(".", first_tok, fixed = TRUE)])
+
+  # Materialized backbone (shared session cache with the exact/fuzzy passes).
+  cache_key <- paste0(".blk_", basename(backbone))
+  blk <- .taxify_env[[cache_key]]
+  if (is.null(blk)) {
+    blk <- vectra::materialize(vectra::tbl(backbone))
+    .taxify_env[[cache_key]] <- blk
+  }
+
+  # Pull candidate rows by epithet via the same block-lookup the exact pass
+  # uses, then constrain each query to its genus initial in R.
+  cand_all <- vectra::block_lookup(blk, col_map$epithet, unique(epithet),
+                                   ci = TRUE)
+  if (nrow(cand_all) == 0L) return(result)
+
+  cand_initial <- tolower(substr(cand_all[[col_map$genus]], 1L, 1L))
+  cand_epithet <- tolower(cand_all[[col_map$epithet]])
+  cand_genus   <- tolower(cand_all[[col_map$genus]])
+
+  cand_list <- vector("list", length(rows))
+  for (k in seq_along(rows)) {
+    hit <- !is.na(cand_epithet) & cand_initial == initial[k] &
+           cand_epithet == epithet[k]
+    if (!any(hit)) next
+    cand <- cand_all[hit, , drop = FALSE]
+
+    if (length(spelled)) {
+      in_list <- cand_genus[hit] %in% spelled
+      if (any(in_list)) cand <- cand[in_list, , drop = FALSE]
+    }
+
+    cand$row_idx <- rows[k]
+    cand_list[[k]] <- cand
+  }
+  matches <- do.call(rbind, cand_list)
+  if (is.null(matches) || nrow(matches) == 0L) return(result)
+
+  # Score per query: resolve the unambiguous ones, flag the rest without guessing.
+  best <- pick_best_vec(standardize_pick_cols(matches, col_map))
+  ambiguous <- best$is_ambiguous %in% TRUE
+
+  ok_idx <- best$row_idx[!ambiguous]
+  if (length(ok_idx)) {
+    keep <- matches$row_idx %in% ok_idx
+    result <- fill_compiled_matches(result, matches[keep, , drop = FALSE],
+                                    "abbrev", col_map)
+  }
+
+  if (any(ambiguous)) {
+    amb <- best[ambiguous, , drop = FALSE]
+    result$is_ambiguous[amb$row_idx]      <- TRUE
+    result$ambiguous_targets[amb$row_idx] <- amb$ambiguous_targets
   }
 
   result

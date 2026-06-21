@@ -46,7 +46,7 @@ clean_one <- function(name) {
   if (is.na(name) || !nzchar(trimws(name))) {
     return(list(cleaned = NA_character_, is_hybrid = FALSE,
                 qualifier = NA_character_, genus_only = FALSE,
-                hybrid_name = NA_character_))
+                hybrid_name = NA_character_, genus_abbrev = FALSE))
   }
 
   s <- trimws(name)
@@ -104,8 +104,15 @@ clean_one <- function(name) {
     }
   }
 
+  # Flag an abbreviated genus (e.g. "Q. robur"): first token is a single letter
+  # (optionally with a trailing period) and an epithet follows. Hybrids excluded.
+  first_tok <- sub(" .*", "", s)
+  genus_abbrev <- !is_hybrid && grepl(" ", s, fixed = TRUE) &&
+    grepl("^[A-Za-z]\\.?$", first_tok)
+
   list(cleaned = s, is_hybrid = is_hybrid, qualifier = qualifier,
-       genus_only = genus_only, hybrid_name = hybrid_name)
+       genus_only = genus_only, hybrid_name = hybrid_name,
+       genus_abbrev = genus_abbrev)
 }
 
 
@@ -184,6 +191,12 @@ clean_names <- function(x) {
     qualifier %in% c("sp", "spp", "species", "sect", "aggr") &
     word_count == 1L
 
+  # Flag abbreviated genus (e.g. "Q. robur"): single-letter first token (with an
+  # optional trailing period) and an epithet following. Hybrids excluded.
+  abbrev_first <- sub(" .*", "", s)
+  genus_abbrev <- !is_hybrid & word_count >= 2L &
+    grepl("^[A-Za-z]\\.?$", abbrev_first)
+
   # Build hybrid_name for nothospecies
   hybrid_name <- rep(NA_character_, n)
   notho_mask <- is_hybrid & !is.na(hybrid_type) &
@@ -201,14 +214,16 @@ clean_names <- function(x) {
   qualifier[na_mask] <- NA_character_
   genus_only[na_mask] <- FALSE
   hybrid_name[na_mask] <- NA_character_
+  genus_abbrev[na_mask] <- FALSE
 
   data.frame(
-    original    = x,
-    cleaned     = s,
-    is_hybrid   = is_hybrid,
-    qualifier   = qualifier,
-    genus_only  = genus_only,
-    hybrid_name = hybrid_name,
+    original     = x,
+    cleaned      = s,
+    is_hybrid    = is_hybrid,
+    qualifier    = qualifier,
+    genus_only   = genus_only,
+    hybrid_name  = hybrid_name,
+    genus_abbrev = genus_abbrev,
     stringsAsFactors = FALSE
   )
 }

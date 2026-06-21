@@ -58,8 +58,9 @@ author, so \code{accepted_name} and \code{accepted_authorship} together form the
 accepted name's full citation.}
 \item{is_synonym}{Logical. Was the match a synonym?}
 \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
-\item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, or
-\code{"none"}.}
+\item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, \code{"abbrev"}
+(an abbreviated genus such as \code{"Q. robur"} resolved via genus initial
+plus epithet), or \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
 \item{is_ambiguous}{Logical. \code{TRUE} when the matched scientificName had
 multiple synonym rows pointing to different accepted taxa at the same

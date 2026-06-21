@@ -41,7 +41,7 @@ wfo_backend <- function() {
     version = .wfo_version,
     genus_col = "genus",
     col_map = .wfo_col_map,
-    unblocked_fallback = TRUE,
+    prefix_fallback = TRUE,
     class = "taxify_wfo"
   )
 }

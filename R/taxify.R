@@ -45,8 +45,9 @@
 #'     accepted name's full citation.}
 #'   \item{is_synonym}{Logical. Was the match a synonym?}
 #'   \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
-#'   \item{match_type}{One of `"exact"`, `"exact_ci"`, `"fuzzy"`, or
-#'     `"none"`.}
+#'   \item{match_type}{One of `"exact"`, `"exact_ci"`, `"fuzzy"`, `"abbrev"`
+#'     (an abbreviated genus such as `"Q. robur"` resolved via genus initial
+#'     plus epithet), or `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
 #'   \item{is_ambiguous}{Logical. `TRUE` when the matched scientificName had
 #'     multiple synonym rows pointing to different accepted taxa at the same
@@ -127,18 +128,9 @@ taxify <- function(x,
       if (verbose) message(sprintf("  [%s] Matching %d names...",
                                     be_name, nrow(names_df)))
 
-      result <- match_exact(be, names_df, bb_path)
-      result <- prefilter_out_of_scope(result, names_df, be_name)
-
-      n_unmatched <- sum(is.na(result$match_type) & !is.na(names_df$cleaned))
-      if (fuzzy && n_unmatched > 0L) {
-        if (verbose) message(sprintf("  [%s] Fuzzy matching %d unmatched...",
-                                      be_name, n_unmatched))
-        result <- match_fuzzy(be, result, bb_path,
-                              method = fuzzy_method,
-                              threshold = fuzzy_threshold,
-                              names_df = names_df)
-      }
+      result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
+                                 fuzzy_method, verbose = verbose,
+                                 label = be_name)
 
       matched <- !is.na(result$match_type)
       result$backend <- ifelse(matched, be$name, NA_character_)
@@ -164,22 +156,13 @@ taxify <- function(x,
         qualifier = names_df$qualifier[unmatched_idx],
         genus_only = names_df$genus_only[unmatched_idx],
         hybrid_name = names_df$hybrid_name[unmatched_idx],
+        genus_abbrev = names_df$genus_abbrev[unmatched_idx],
         stringsAsFactors = FALSE
       )
 
-      sub_result <- match_exact(be, sub_names_df, bb_path)
-      sub_result <- prefilter_out_of_scope(sub_result, sub_names_df, be_name)
-
-      n_still_unmatched <- sum(is.na(sub_result$match_type) &
-                               !is.na(sub_names_df$cleaned))
-      if (fuzzy && n_still_unmatched > 0L) {
-        if (verbose) message(sprintf("  [%s] Fuzzy matching %d unmatched...",
-                                      be_name, n_still_unmatched))
-        sub_result <- match_fuzzy(be, sub_result, bb_path,
-                                  method = fuzzy_method,
-                                  threshold = fuzzy_threshold,
-                                  names_df = sub_names_df)
-      }
+      sub_result <- run_match_stages(be, sub_names_df, bb_path, fuzzy,
+                                     fuzzy_threshold, fuzzy_method,
+                                     verbose = verbose, label = be_name)
 
       # Merge sub_result back into main result
       matched_in_sub <- which(!is.na(sub_result$match_type))
@@ -243,18 +226,8 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   if (verbose) message(sprintf("Matching %d names...", length(x)))
   names_df <- clean_names(x)
 
-  result <- match_exact(be, names_df, bb_path)
-  result <- prefilter_out_of_scope(result, names_df, be$name)
-
-  n_unmatched <- sum(is.na(result$match_type) & !is.na(names_df$cleaned))
-  if (fuzzy && n_unmatched > 0L) {
-    if (verbose) message(sprintf("  Fuzzy matching %d unmatched names...",
-                                  n_unmatched))
-    result <- match_fuzzy(be, result, bb_path,
-                          method = fuzzy_method,
-                          threshold = fuzzy_threshold,
-                          names_df = names_df)
-  }
+  result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
+                             fuzzy_method, verbose = verbose)
 
   matched <- !is.na(result$match_type)
   result$backend <- ifelse(matched, be$name, NA_character_)
@@ -272,6 +245,46 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   result <- enrich_with_register(result, names_df, be$name)
   rownames(result) <- NULL
   as_taxify_result(result, backend = be$name)
+}
+
+
+#' Run the core matching stages against one backend
+#'
+#' The shared sequence used by both the single-backend and multi-backend paths:
+#' exact matching, the out-of-scope prefilter, abbreviated-genus resolution,
+#' then (optionally) fuzzy matching of whatever remains.
+#'
+#' @param be A taxify_backend object.
+#' @param names_df Data.frame from `clean_names()`.
+#' @param bb_path Path to the compiled backbone .vtr file.
+#' @param fuzzy Logical. Enable the fuzzy pass.
+#' @param fuzzy_threshold Numeric. Fuzzy distance threshold.
+#' @param fuzzy_method Character. Fuzzy distance method.
+#' @param verbose Logical.
+#' @param label Optional backend label for verbose messages (NULL = no prefix).
+#' @return The match result data.frame.
+#' @noRd
+run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
+                             fuzzy_method, verbose = FALSE, label = NULL) {
+  pre <- if (is.null(label)) "  " else sprintf("  [%s] ", label)
+  n_unresolved <- function(res) {
+    sum(is.na(res$match_type) & !is.na(names_df$cleaned))
+  }
+
+  result <- match_exact(be, names_df, bb_path)
+  result <- prefilter_out_of_scope(result, names_df, be$name)
+
+  if (n_unresolved(result) > 0L) {
+    result <- match_abbrev_genus(be, result, names_df, bb_path)
+  }
+
+  n_un <- n_unresolved(result)
+  if (fuzzy && n_un > 0L) {
+    if (verbose) message(sprintf("%sFuzzy matching %d unmatched...", pre, n_un))
+    result <- match_fuzzy(be, result, bb_path, method = fuzzy_method,
+                          threshold = fuzzy_threshold, names_df = names_df)
+  }
+  result
 }
 
 

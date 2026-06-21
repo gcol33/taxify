@@ -1,3 +1,18 @@
+# taxify 0.2.7
+
+## New features
+
+* Abbreviated-genus names such as `"Q. robur"` now resolve. A matching pass
+  restricts the backbone to rows whose genus starts with the given initial and
+  whose specific epithet matches, resolving only when that is unique. When two
+  or more genera sharing the initial also share the epithet the abbreviation is
+  ambiguous: the row is left unmatched with `is_ambiguous = TRUE` and the
+  conflicting accepted IDs in `ambiguous_targets`, rather than guessing a genus.
+  A genus spelled out in full elsewhere in the same input takes precedence
+  (the convention of abbreviating after first mention). Resolved rows carry
+  `match_type = "abbrev"`.
+
+
 # taxify 0.2.6
 
 ## New features

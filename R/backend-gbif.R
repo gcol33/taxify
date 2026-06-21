@@ -42,7 +42,7 @@ gbif_backend <- function() {
     version = .gbif_version,
     genus_col = "genus_or_above",
     col_map = .gbif_col_map,
-    unblocked_fallback = TRUE,
+    prefix_fallback = TRUE,
     class = "taxify_gbif"
   )
 }
