@@ -45,10 +45,6 @@ together with:
   taxifydb is used strictly conditionally (guarded by requireNamespace()) and
   taxify is fully functional without it.
 
-* A "(possibly) invalid URL" for https://www.itis.gov/ in README.md, reported
-  with status 404. The URL is correct and currently returns 200; the ITIS
-  government site intermittently returns 404 to automated link checkers.
-
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
 ## Reverse dependencies

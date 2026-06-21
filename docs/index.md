@@ -160,7 +160,7 @@ compressed `.vtr` files:
 | [WFO](https://www.worldfloraonline.org/) | Vascular plants | ~400k |
 | [COL](https://www.catalogueoflife.org/) | All kingdoms | ~4.5M |
 | [GBIF](https://www.gbif.org/) | All kingdoms | ~10M |
-| [ITIS](https://www.itis.gov/) | US focus, freshwater/marine | ~900k |
+| [ITIS](https://www.itis.gov) | US focus, freshwater/marine | ~900k |
 | [NCBI Taxonomy](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | ~2.5M |
 | [Open Tree of Life](https://opentreeoflife.github.io/) | All life (synthetic) | ~4M |
 | [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | ~600k |
