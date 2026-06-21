@@ -1,3 +1,13 @@
+# taxify 0.2.8
+
+## Internal
+
+* Added an end-to-end regression test (`tests/e2e/test-e2e-enrichment.R`) for
+  the enrichment join fixed in 0.2.5 (#1). It checks that
+  `add_conservation_status()`, `add_common_names()`, and `add_woodiness()`
+  attach each value to the row's own accepted taxon, stay invariant to batch
+  composition and order, and land documented values on the correct species.
+
 # taxify 0.2.7
 
 ## New features
