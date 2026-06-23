@@ -1,18 +1,20 @@
 # On-demand enrichments backed by the TR8 package.
 #
-# taxify does not ship a pre-built .vtr for these three, for two different
-# reasons:
-#   * BiolFlor (permission-gated, no open license) and Pignatti (from a
-#     copyrighted publication) cannot be redistributed at all.
-#   * Ecoflora's licence (CC BY-NC-SA 4.0) WOULD permit a redistributed .vtr,
-#     but ecoflora.org.uk offers no bulk download -- data is only reachable one
-#     species at a time -- so per-species fetch is the natural access mode and
-#     a wholesale site scrape is avoided.
-# Each source is therefore accessed on the user's own machine through TR8
-# (Bocci 2015): BiolFlor and Ecoflora by live per-species query, Pignatti by
-# reading the copy bundled in TR8 (which TR8 redistributes under its GPL with
-# attribution; taxify ships none of it). The result is joined into a taxify()
-# result. taxify itself redistributes nothing.
+# taxify does not ship a pre-built .vtr for these three, each for its own
+# reason:
+#   * Pignatti is from a copyrighted publication and cannot be redistributed;
+#     its values are read from the copy bundled in TR8 (which TR8 redistributes
+#     under its GPL with attribution; taxify ships none of it).
+#   * BiolFlor may be used without restrictions provided it is acknowledged and
+#     cited (BioFresh metadata statement), so it is redistributable in
+#     principle -- but no bulk copy is currently obtainable while the UFZ
+#     BiolFlor site is offline, so for now it is fetched live per species.
+#   * Ecoflora's licence (CC BY-NC-SA 4.0) would permit a redistributed .vtr,
+#     but ecoflora.org.uk offers no bulk download, so it too is fetched live
+#     per species.
+# Each is accessed on the user's own machine through TR8 (Bocci 2015) and
+# joined into a taxify() result. If a live source is unreachable the call
+# errors rather than attaching silent NA. taxify itself redistributes nothing.
 
 
 #' Join a TR8-backed trait source on demand (no redistribution)
@@ -76,14 +78,14 @@ enrich_via_tr8 <- function(x, db, col_map, source_label, license,
                     allow_persistent = FALSE, gui_config = FALSE)
     TR8::extract_traits(obj)
   }, error = function(e) {
-    warning(sprintf(
-      "Could not fetch %s via TR8 (%s). Returning input with NA columns.",
-      db, conditionMessage(e)), call. = FALSE)
-    NULL
+    stop(sprintf(
+      "add_%s(): could not reach the %s data source (%s). It is fetched live via TR8; the server may be offline. Try again later.",
+      tolower(db), db, conditionMessage(e)), call. = FALSE)
   })
   if (is.null(traits) || nrow(traits) == 0L) {
-    return(register_enrichment(x, tolower(db), source_label, NA_character_,
-                               0L, license))
+    stop(sprintf(
+      "add_%s(): the %s data source returned nothing. It is fetched live via TR8; the server may be offline. Try again later.",
+      tolower(db), db), call. = FALSE)
   }
 
   idx <- match(x$accepted_name, rownames(traits))
@@ -104,6 +106,15 @@ enrich_via_tr8 <- function(x, db, col_map, source_label, license,
   }
 
   n_enriched <- sum(rowSums(!is.na(x[, names(col_map), drop = FALSE])) > 0L)
+  if (n_enriched == 0L) {
+    # A reachable source returns data for at least some real species; zero hits
+    # across every queried species means the live source returned only empty
+    # rows -- almost always the server being down (TR8 swallows the failed
+    # fetch and hands back NA). Fail loudly rather than attach silent NA.
+    stop(sprintf(
+      "add_%s(): no values returned for any of the %d queried species. The %s source is fetched live via TR8 and appears to be offline (or none of these names are present there).",
+      tolower(db), length(sp), db), call. = FALSE)
+  }
   register_enrichment(x, tolower(db), source_label, NA_character_, n_enriched,
                       license)
 }
@@ -187,11 +198,13 @@ add_ecoflora <- function(x, verbose = TRUE) {
 #' }
 #'
 #' @details
-#' BiolFlor is permission-gated with no open redistribution license, so taxify
-#' does not redistribute it. This function fetches data live from the UFZ
-#' BiolFlor server through TR8 on your machine; it needs internet access and
-#' the suggested package TR8 (`install.packages("TR8")`). The BiolFlor service
-#' is occasionally offline, in which case the columns are returned as NA.
+#' BIOLFLOR is publicly available and, per the BioFresh metadata statement, may
+#' be used without restrictions provided it is acknowledged and cited. taxify
+#' does not bundle it only because no redistributable bulk copy is obtainable
+#' while the UFZ BiolFlor site is offline; this function therefore fetches it
+#' live through the suggested TR8 package (`install.packages("TR8")`), which
+#' needs internet access. If the BiolFlor server is unreachable the call errors
+#' (it does not attach silent NA).
 #'
 #' @references
 #' Klotz S, Kuehn I, Durka W (2002) BIOLFLOR. Schriftenreihe fuer
@@ -217,7 +230,7 @@ add_biolflor <- function(x, verbose = TRUE) {
       apomixis_de           = "apomixis"
     ),
     source_label = "BiolFlor (Klotz, Kuehn & Durka 2002)",
-    license  = "permission-gated (not redistributed)",
+    license  = "free use with acknowledgement + citation (BioFresh metadata statement)",
     verbose  = verbose
   )
 }

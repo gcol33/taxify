@@ -30,11 +30,13 @@ bundled enrichments, notably Grime CSR strategy type, breeding system, and
 apomixis.
 }
 \details{
-BiolFlor is permission-gated with no open redistribution license, so taxify
-does not redistribute it. This function fetches data live from the UFZ
-BiolFlor server through TR8 on your machine; it needs internet access and
-the suggested package TR8 (\code{install.packages("TR8")}). The BiolFlor service
-is occasionally offline, in which case the columns are returned as NA.
+BIOLFLOR is publicly available and, per the BioFresh metadata statement, may
+be used without restrictions provided it is acknowledged and cited. taxify
+does not bundle it only because no redistributable bulk copy is obtainable
+while the UFZ BiolFlor site is offline; this function therefore fetches it
+live through the suggested TR8 package (\code{install.packages("TR8")}), which
+needs internet access. If the BiolFlor server is unreachable the call errors
+(it does not attach silent NA).
 }
 \examples{
 \dontrun{

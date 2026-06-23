@@ -10,12 +10,14 @@
   which would allow redistribution, but ecoflora.org.uk has no bulk download,
   so it is fetched live per species); `add_biolflor()` adds Grime CSR strategy
   type, breeding system, pollen vector, life form, life span, and apomixis
-  (permission-gated, no open license, scraped live; the UFZ server is
-  occasionally offline, returning NA); `add_pignatti()` adds Italian
-  Ellenberg-type indicator values, life form, and chorotype (copyrighted; read
-  from the copy bundled in TR8, which TR8 redistributes, not taxify; works
-  offline). Columns are region-suffixed (`_uk`/`_de`/`_it`) so they never
-  collide with `add_baseflor()`. TR8 is a Suggests dependency.
+  (usable with acknowledgement + citation per the BioFresh metadata statement,
+  but no bulk copy is obtainable while the UFZ site is offline, so fetched
+  live); `add_pignatti()` adds Italian Ellenberg-type indicator values, life
+  form, and chorotype (copyrighted; read from the copy bundled in TR8, which
+  TR8 redistributes, not taxify; works offline). Columns are region-suffixed
+  (`_uk`/`_de`/`_it`) so they never collide with `add_baseflor()`. TR8 is a
+  Suggests dependency. If a live source (Ecoflora, BiolFlor) is unreachable the
+  call errors rather than attaching silent NA.
 
 # taxify 0.2.9
 
