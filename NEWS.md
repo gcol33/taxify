@@ -1,3 +1,17 @@
+# taxify 0.2.9
+
+## New features
+
+* `add_baseflor()` joins plant traits from Baseflor (Programme Catminat,
+  Julve 1998 ff.; ODbL 1.0 / CC BY-SA 2.0) to a `taxify()` result. It covers
+  ~7,000 vascular plant taxa of France and neighbouring regions and adds
+  flowering phenology (`flower_begin_month`, `flower_end_month`), pollination
+  vector, dispersal mode, breeding system, flower colour, fruit type, woody
+  growth form, and the continentality and salinity indicator-value axes absent
+  from EIVE. The enrichment is registered in the manifest (`list_enrichments()`)
+  with a pre-built `.vtr`; light/temperature/moisture/reaction/nutrient axes
+  are left to `add_eive()` and Raunkiaer life form to `add_leda()`.
+
 # taxify 0.2.8
 
 ## Internal

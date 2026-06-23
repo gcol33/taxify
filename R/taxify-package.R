@@ -58,7 +58,11 @@ utils::globalVariables(c(
   # LEDA enrichment column references
   "raunkiaer_life_form", "raunkiaer_variable", "dispersal_type",
   "terminal_velocity_ms", "leda_seed_mass_mg", "canopy_height_m",
-  "leaf_mass_mg", "sla_mm2_mg", "clonal_growth", "buoyancy"
+  "leaf_mass_mg", "sla_mm2_mg", "clonal_growth", "buoyancy",
+  # Baseflor (Catminat / Julve) enrichment column references
+  "flower_begin_month", "flower_end_month", "pollination_vector",
+  "dispersal_mode", "breeding_system", "flower_colour", "fruit_type",
+  "woody_growth_form", "continentality", "salinity"
 ))
 
 # Package-level backbone cache environment (paths to .vtr files)

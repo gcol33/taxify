@@ -1951,6 +1951,38 @@
       },
       "license": "CC BY-NC",
       "source_doi": "10.3897/BDJ.13.e146785"
+    },
+    "baseflor": {
+      "latest": "2023.10",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/baseflor.vtr",
+      "nrow": 8469,
+      "source_url": "http://web.archive.org/web/20231002005253id_/https://philippe.julve.pagesperso-orange.fr/baseflor.xlsx",
+      "source_format": "xlsx",
+      "source_version": "2023.10",
+      "species_col": "nomH",
+      "trait_cols": [
+        "flower_begin_month",
+        "flower_end_month",
+        "pollination_vector",
+        "dispersal_mode",
+        "breeding_system",
+        "flower_colour",
+        "fruit_type",
+        "woody_growth_form",
+        "continentality",
+        "salinity"
+      ],
+      "static": true,
+      "citation": {
+        "key": "julve1998baseflor",
+        "type": "misc",
+        "authors": "Julve P",
+        "year": "1998",
+        "title": "baseflor. Index botanique, ecologique et chorologique de la Flore de France. Programme Catminat",
+        "doi": null
+      },
+      "license": "ODbL 1.0 / CC BY-SA 2.0",
+      "source_doi": null
     }
   }
 }
