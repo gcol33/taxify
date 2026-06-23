@@ -62,7 +62,14 @@ utils::globalVariables(c(
   # Baseflor (Catminat / Julve) enrichment column references
   "flower_begin_month", "flower_end_month", "pollination_vector",
   "dispersal_mode", "breeding_system", "flower_colour", "fruit_type",
-  "woody_growth_form", "continentality", "salinity"
+  "woody_growth_form", "continentality", "salinity",
+  # TR8-backed scrape-on-demand enrichment column references
+  "flower_begin_month_uk", "flower_end_month_uk", "pollination_vector_uk",
+  "life_form_uk", "leaf_longevity_uk",
+  "strategy_type_de", "breeding_system_de", "pollination_vector_de",
+  "life_form_de", "life_span_de", "apomixis_de",
+  "light_it", "temperature_it", "continentality_it", "moisture_it",
+  "reaction_it", "nutrients_it", "salinity_it", "life_form_it", "chorotype_it"
 ))
 
 # Package-level backbone cache environment (paths to .vtr files)
