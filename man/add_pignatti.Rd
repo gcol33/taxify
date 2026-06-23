@@ -30,9 +30,10 @@ the species in a \code{\link[=taxify]{taxify()}} result, using the TR8 package, 
 }
 \details{
 These values originate in a copyrighted publication, so taxify does not
-redistribute them. This function reads the copy bundled with the suggested
-package TR8 (\code{install.packages("TR8")}); no internet access is required.
-For European-calibration indicator values see \code{\link[=add_eive]{add_eive()}}.
+redistribute them. This function reads the copy bundled in the suggested
+package TR8 (which redistributes it under TR8's GPL, with attribution);
+taxify ships none of it and no internet access is required. For
+European-calibration indicator values see \code{\link[=add_eive]{add_eive()}}.
 }
 \examples{
 \dontrun{

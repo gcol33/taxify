@@ -3,15 +3,18 @@
 ## New features
 
 * `add_ecoflora()`, `add_biolflor()`, and `add_pignatti()` join plant traits
-  that cannot be redistributed under an open license, so taxify fetches them on
-  demand through the suggested TR8 package on your own machine and redistributes
-  nothing. `add_ecoflora()` adds British flowering months, pollen vector, life
-  form, and leaf longevity (CC BY-NC-SA, scraped live); `add_biolflor()` adds
-  Grime CSR strategy type, breeding system, pollen vector, life form, life span,
-  and apomixis (permission-gated, scraped live; the UFZ server is occasionally
-  offline, returning NA); `add_pignatti()` adds Italian Ellenberg-type indicator
-  values, life form, and chorotype (copyrighted, read from TR8's bundled copy,
-  works offline). Columns are region-suffixed (`_uk`/`_de`/`_it`) so they never
+  that taxify does not ship as a pre-built dataset, accessing them on demand
+  through the suggested TR8 package on your own machine; taxify redistributes
+  nothing. The reasons differ by source: `add_ecoflora()` adds British
+  flowering months, pollen vector, life form, and leaf longevity (CC BY-NC-SA,
+  which would allow redistribution, but ecoflora.org.uk has no bulk download,
+  so it is fetched live per species); `add_biolflor()` adds Grime CSR strategy
+  type, breeding system, pollen vector, life form, life span, and apomixis
+  (permission-gated, no open license, scraped live; the UFZ server is
+  occasionally offline, returning NA); `add_pignatti()` adds Italian
+  Ellenberg-type indicator values, life form, and chorotype (copyrighted; read
+  from the copy bundled in TR8, which TR8 redistributes, not taxify; works
+  offline). Columns are region-suffixed (`_uk`/`_de`/`_it`) so they never
   collide with `add_baseflor()`. TR8 is a Suggests dependency.
 
 # taxify 0.2.9

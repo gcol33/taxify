@@ -28,10 +28,12 @@ joins them by \code{accepted_name}. Complements \code{\link[=add_baseflor]{add_b
 with British flowering phenology and life form.
 }
 \details{
-Ecoflora is licensed CC BY-NC-SA 4.0 and offers no bulk download, so taxify
-does not redistribute it. This function fetches data live from
-ecoflora.org.uk through TR8 on your machine; it needs internet access and
-the suggested package TR8 (\code{install.packages("TR8")}).
+Ecoflora's licence (CC BY-NC-SA 4.0) would permit a redistributed dataset,
+but ecoflora.org.uk offers no bulk download: data is only reachable one
+species at a time. This function therefore fetches it live, per species,
+from ecoflora.org.uk through TR8 on your machine; it needs internet access
+and the suggested package TR8 (\code{install.packages("TR8")}). taxify
+redistributes nothing.
 }
 \examples{
 \dontrun{

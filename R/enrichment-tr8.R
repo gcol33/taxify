@@ -1,11 +1,18 @@
-# Scrape-on-demand enrichments backed by the TR8 package.
+# On-demand enrichments backed by the TR8 package.
 #
-# Some trait sources cannot be redistributed under an open license (BiolFlor is
-# permission-gated; Ecoflora is CC BY-NC-SA with no bulk download; Pignatti is
-# from a copyrighted publication). taxify therefore never ships a pre-built
-# .vtr for them. Instead these wrappers fetch the data on the user's own
-# machine through TR8 (Bocci 2015), exactly as TR8 is designed to do, and join
-# it into a taxify() result. Nothing is redistributed by taxify.
+# taxify does not ship a pre-built .vtr for these three, for two different
+# reasons:
+#   * BiolFlor (permission-gated, no open license) and Pignatti (from a
+#     copyrighted publication) cannot be redistributed at all.
+#   * Ecoflora's licence (CC BY-NC-SA 4.0) WOULD permit a redistributed .vtr,
+#     but ecoflora.org.uk offers no bulk download -- data is only reachable one
+#     species at a time -- so per-species fetch is the natural access mode and
+#     a wholesale site scrape is avoided.
+# Each source is therefore accessed on the user's own machine through TR8
+# (Bocci 2015): BiolFlor and Ecoflora by live per-species query, Pignatti by
+# reading the copy bundled in TR8 (which TR8 redistributes under its GPL with
+# attribution; taxify ships none of it). The result is joined into a taxify()
+# result. taxify itself redistributes nothing.
 
 
 #' Join a TR8-backed trait source on demand (no redistribution)
@@ -121,10 +128,12 @@ enrich_via_tr8 <- function(x, db, col_map, source_label, license,
 #' }
 #'
 #' @details
-#' Ecoflora is licensed CC BY-NC-SA 4.0 and offers no bulk download, so taxify
-#' does not redistribute it. This function fetches data live from
-#' ecoflora.org.uk through TR8 on your machine; it needs internet access and
-#' the suggested package TR8 (`install.packages("TR8")`).
+#' Ecoflora's licence (CC BY-NC-SA 4.0) would permit a redistributed dataset,
+#' but ecoflora.org.uk offers no bulk download: data is only reachable one
+#' species at a time. This function therefore fetches it live, per species,
+#' from ecoflora.org.uk through TR8 on your machine; it needs internet access
+#' and the suggested package TR8 (`install.packages("TR8")`). taxify
+#' redistributes nothing.
 #'
 #' @references
 #' Fitter AH, Peat HJ (1994) The Ecological Flora Database. Journal of Ecology
@@ -235,9 +244,10 @@ add_biolflor <- function(x, verbose = TRUE) {
 #'
 #' @details
 #' These values originate in a copyrighted publication, so taxify does not
-#' redistribute them. This function reads the copy bundled with the suggested
-#' package TR8 (`install.packages("TR8")`); no internet access is required.
-#' For European-calibration indicator values see [add_eive()].
+#' redistribute them. This function reads the copy bundled in the suggested
+#' package TR8 (which redistributes it under TR8's GPL, with attribution);
+#' taxify ships none of it and no internet access is required. For
+#' European-calibration indicator values see [add_eive()].
 #'
 #' @references
 #' Pignatti S, Menegoni P, Pietrosanti S (2005) Bioindicazione attraverso le
