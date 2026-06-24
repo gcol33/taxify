@@ -55,7 +55,9 @@ clean_one <- function(name) {
   s <- gsub("\u00c3\u0097", "\u00d7", s, fixed = TRUE)
   s <- gsub("\u00c3\u2014", "\u00d7", s, fixed = TRUE)
 
-  # Strip leading "Cf." / "CF." prefix (case-insensitive for this position)
+  # Strip leading "Cf." / "CF." prefix (case-insensitive for this position),
+  # recording it so the qualifier survives the strip
+  leading_cf <- grepl("^[Cc][Ff]\\.?\\s+", s)
   s <- sub("^[Cc][Ff]\\.?\\s+", "", s)
 
   # Detect hybrid markers (before stripping anything else)
@@ -65,6 +67,7 @@ clean_one <- function(name) {
 
   # Detect and strip qualifiers
   qualifier <- extract_qualifier(s)
+  if (is.na(qualifier) && leading_cf) qualifier <- "cf."
   s <- strip_qualifier(s)
 
   # Strip parenthesized authorship
@@ -135,7 +138,8 @@ clean_names <- function(x) {
   s <- gsub("\u00c3\u0097", "\u00d7", s, fixed = TRUE)
   s <- gsub("\u00c3\u2014", "\u00d7", s, fixed = TRUE)
 
-  # Strip leading "Cf." / "CF." prefix
+  # Strip leading "Cf." / "CF." prefix, recording it so the qualifier survives
+  leading_cf <- grepl("^[Cc][Ff]\\.?\\s+", s)
   s <- sub("^[Cc][Ff]\\.?\\s+", "", s)
 
   # Detect hybrids \u2014 must be per-element due to tokenization logic
@@ -161,6 +165,8 @@ clean_names <- function(x) {
     m_sub <- regexpr(.qualifier_pattern, s[has_qual], perl = TRUE)
     qualifier[has_qual] <- regmatches(s[has_qual], m_sub)
   }
+  # A stripped leading "Cf." prefix is recorded where no inline qualifier exists
+  qualifier[leading_cf & is.na(qualifier)] <- "cf."
 
   # Strip qualifiers
   s <- gsub(.qualifier_pattern, " ", s, perl = TRUE)
@@ -229,15 +235,39 @@ clean_names <- function(x) {
 }
 
 
+#' Find the first qualifier in a name and its character position
+#'
+#' Handles two forms: an inline qualifier ("Pinus cf. sylvestris", caught by
+#' `.qualifier_pattern`) and a leading genus-level "Cf." prefix
+#' ("Cf. Pinus sylvestris"). The leading prefix is matched case-insensitively
+#' and normalized to "cf.", mirroring the prefix strip in `clean_one()` /
+#' `clean_names()` so the qualifier is recorded wherever the prefix is removed.
+#'
+#' @param name Character string (length 1).
+#' @return A list with `qualifier` (character or NA) and `position` (integer
+#'   character index, or NA).
+#' @noRd
+qualifier_match <- function(name) {
+  if (length(name) != 1L || is.na(name)) {
+    return(list(qualifier = NA_character_, position = NA_integer_))
+  }
+  # Leading genus-level "Cf." prefix, normalized to "cf."
+  if (grepl("^[Cc][Ff]\\.?(?=\\s)", name, perl = TRUE)) {
+    return(list(qualifier = "cf.", position = 1L))
+  }
+  m <- regexpr(.qualifier_pattern, name, perl = TRUE)
+  if (m == -1L) return(list(qualifier = NA_character_, position = NA_integer_))
+  list(qualifier = regmatches(name, m), position = as.integer(m))
+}
+
+
 #' Extract the first qualifier from a name
 #'
 #' @param name Character string.
 #' @return The qualifier string (e.g., "cf.") or NA_character_.
 #' @noRd
 extract_qualifier <- function(name) {
-  m <- regexpr(.qualifier_pattern, name, perl = TRUE)
-  if (m == -1L) return(NA_character_)
-  regmatches(name, m)
+  qualifier_match(name)$qualifier
 }
 
 

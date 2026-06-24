@@ -72,6 +72,15 @@ test_that("add_qualifier_info extracts qualifier", {
   expect_true(!is.na(result$qualifier_position))
 })
 
+test_that("add_qualifier_info records a leading Cf. prefix at position 1", {
+  setup_mock_backend()
+  result <- taxify("Cf. Pinus sylvestris", verbose = FALSE) |>
+    add_qualifier_info()
+
+  expect_equal(result$qualifier, "cf.")
+  expect_equal(result$qualifier_position, 1L)
+})
+
 test_that("add_qualifier_info returns NA for names without qualifiers", {
   setup_mock_backend()
   result <- taxify("Quercus robur", verbose = FALSE) |>

@@ -38,6 +38,23 @@ test_that("clean_one strips agg. qualifier", {
   expect_equal(res$qualifier, "agg.")
 })
 
+test_that("clean_one records a stripped leading Cf. prefix as a qualifier", {
+  res <- clean_one("Cf. Pinus sylvestris")
+  expect_equal(res$cleaned, "Pinus sylvestris")
+  expect_equal(res$qualifier, "cf.")
+
+  # lowercase and no-period leading forms too
+  expect_equal(clean_one("cf. Pinus sylvestris")$qualifier, "cf.")
+  expect_equal(clean_one("Cf Pinus sylvestris")$qualifier, "cf.")
+})
+
+test_that("clean_names records a stripped leading Cf. prefix as a qualifier", {
+  df <- clean_names(c("Cf. Pinus sylvestris", "Quercus robur"))
+  expect_equal(df$qualifier[1L], "cf.")
+  expect_equal(df$cleaned[1L], "Pinus sylvestris")
+  expect_true(is.na(df$qualifier[2L]))
+})
+
 test_that("clean_one lowercases epithet but keeps genus", {
   res <- clean_one("QUERCUS ROBUR")
   expect_equal(res$cleaned, "QUERCUS robur")

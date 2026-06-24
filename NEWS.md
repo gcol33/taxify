@@ -1,3 +1,14 @@
+# taxify 0.2.13
+
+## Bug fixes
+
+* A leading genus-level `Cf.` prefix (e.g. `"Cf. Pinus sylvestris"`) is now
+  recorded as the `cf.` qualifier by `clean_names()`, `clean_one()`, and
+  `add_qualifier_info()`. Previously the prefix was stripped before matching
+  but the qualifier was lost, so only inline `cf.` (e.g. `"Pinus cf.
+  sylvestris"`) was reported. `add_qualifier_info()` now also matches the
+  prefix case-insensitively and reports `qualifier_position = 1`.
+
 # taxify 0.2.12
 
 ## New features

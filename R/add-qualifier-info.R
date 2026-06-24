@@ -28,19 +28,12 @@ add_qualifier_info <- function(x) {
          call. = FALSE)
   }
 
-  quals <- vapply(x$input_name, function(nm) {
-    if (is.na(nm)) return(NA_character_)
-    extract_qualifier(nm)
-  }, character(1L), USE.NAMES = FALSE)
+  matches <- lapply(x$input_name, qualifier_match)
 
-  positions <- vapply(x$input_name, function(nm) {
-    if (is.na(nm)) return(NA_integer_)
-    m <- regexpr(.qualifier_pattern, nm, perl = TRUE)
-    if (m == -1L) NA_integer_ else as.integer(m)
-  }, integer(1L), USE.NAMES = FALSE)
-
-  x$qualifier <- quals
-  x$qualifier_position <- positions
+  x$qualifier <- vapply(matches, `[[`, character(1L), "qualifier",
+                        USE.NAMES = FALSE)
+  x$qualifier_position <- vapply(matches, `[[`, integer(1L), "position",
+                                 USE.NAMES = FALSE)
 
   n_enriched <- sum(!is.na(x$qualifier))
   register_enrichment(x, "qualifier_info", "taxify", NA_character_, n_enriched)
