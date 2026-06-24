@@ -111,7 +111,7 @@ summary(result)
 
 ## Trait and status enrichment
 
-Twenty-two enrichment layers join published trait and status data to your results through
+Twenty-seven enrichment layers join published trait and status data to your results through
 the backbone-resolved accepted name, so synonyms in either dataset land on the same key:
 
 ```r
@@ -130,7 +130,8 @@ taxify(fish_names, backend = "col") |>
 
 Sources span all kingdoms: IUCN, GRIIS, GBIF common names, WCVP, EIVE, Diaz et al., LEDA,
 FungalTraits, FUNGuild, AlgaeTraits, EltonTraits, AVONET, PanTHERIA, AmphiBIO, FISHMORPH,
-FishBase, AnAge, GloNAF, LepTraits, AnimalTraits, and more. The
+FishBase, AnAge, GloNAF, LepTraits, AnimalTraits, and regional plant-trait sets for France
+(Baseflor), Britain (Ecoflora), and Germany (FloraWeb), and more. The
 [enrichments vignette](https://gillescolling.com/taxify/articles/enrichments.html) lists
 the full set with references and licenses.
 

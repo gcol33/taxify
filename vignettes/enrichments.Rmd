@@ -246,14 +246,15 @@ taxify_download_enrichment("conservation_status")
 # Download several at once
 taxify_download_enrichment(c("woodiness", "eive", "leda"))
 
-# Download all eighteen
+# Download all of them
 taxify_download_enrichment(c(
   "conservation_status", "griis", "wcvp", "eive",
   "elton_traits", "avonet", "pantheria", "amphibio",
   "common_names", "woodiness", "diaz_traits", "leda",
   "fungal_traits", "funguild", "algae_traits",
   "fish_traits", "fishbase", "lizard_traits", "anage", "glonaf",
-  "leptraits", "animaltraits", "arthropod_traits"
+  "leptraits", "animaltraits", "arthropod_traits", "alien_first_records",
+  "baseflor", "ecoflora", "floraweb"
 ))
 ```
 
@@ -290,9 +291,10 @@ fish, reptiles, butterflies, and arthropods.
 
 ### Plant enrichments
 
-Plants are the best-served taxon group in the enrichment system, with five
+Plants are the best-served taxon group in the enrichment system, with
 dedicated layers covering growth form, ecological niches, seed and height
-traits, and a broad suite of functional traits. This reflects the state of
+traits, a broad suite of functional traits, and regional trait compilations
+for the British, French, and German floras. This reflects the state of
 published plant trait databases: decades of investment in standardized trait
 measurement protocols have produced several large, open-access datasets
 that are straightforward to integrate.
@@ -475,6 +477,42 @@ consortium mean. To keep both, apply one enrichment, rename the column, then
 apply the second. Alternatively, choose whichever source is more appropriate
 for the study: LEDA for NW European analyses (regional measurements), Diaz
 for global analyses (worldwide compilation).
+
+#### Regional plant-trait compilations (Baseflor, Ecoflora, FloraWeb)
+
+Three regional databases add trait detail for the European floras they cover.
+Each carries a region suffix on every column (`_uk` for Britain, `_de` for
+Germany, and Baseflor's unsuffixed French set), so they can be chained without
+clobbering one another or the pan-European layers above.
+
+- **Baseflor** (Julve, Programme Catminat), via `add_baseflor()`: about 8,500
+  taxa of the French and neighbouring flora, with flowering months, pollination
+  vector, dispersal mode, breeding system, flower colour, fruit type, woody
+  growth form, and the continentality and salinity axes absent from EIVE.
+- **Ecoflora** (Fitter & Peat 1994), via `add_ecoflora()`: the British Isles
+  flora, with canopy height, leaf traits, life form, flowering phenology,
+  pollination, seed weight, and British-calibrated Ellenberg values (18 `_uk`
+  columns).
+- **FloraWeb** (BfN; the BiolFlor data of Klotz, Kuehn & Durka 2002), via
+  `add_floraweb()`: the German flora, with morphology, reproductive biology,
+  the nine Ellenberg indicator values, ploidy and chromosome number, Grime CSR
+  strategy type, and chorological distribution (59 `_de` columns).
+
+```{r regional-plants, eval=FALSE}
+taxify(c("Bellis perennis", "Achillea millefolium", "Calluna vulgaris")) |>
+  add_ecoflora() |>
+  add_floraweb()
+```
+
+Because every column is region-suffixed, one chain can attach British, French,
+and German trait sets side by side for the same species. FloraWeb and Ecoflora
+are bundled as pre-built datasets and work offline; their German and British
+trait values are reported as published, and the access date is the dataset
+version (neither portal offers a versioned bulk export). Italian Ellenberg-type
+indicator values are also available through `add_pignatti()`, which reads the
+copy bundled in the TR8 package on demand; those values come from a copyrighted
+publication and are not redistributed by taxify. `add_biolflor()` is retained
+as a deprecated alias for `add_floraweb()`.
 
 ### Conservation status (IUCN Red List)
 

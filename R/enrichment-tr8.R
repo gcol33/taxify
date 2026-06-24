@@ -1,26 +1,21 @@
-# On-demand enrichments backed by the TR8 package.
+# On-demand enrichment backed by the TR8 package.
 #
-# taxify does not ship a pre-built .vtr for these three, each for its own
-# reason:
-#   * Pignatti is from a copyrighted publication and cannot be redistributed;
-#     its values are read from the copy bundled in TR8 (which TR8 redistributes
-#     under its GPL with attribution; taxify ships none of it).
-#   * BiolFlor may be used without restrictions provided it is acknowledged and
-#     cited (BioFresh metadata statement), so it is redistributable in
-#     principle -- but no bulk copy is currently obtainable while the UFZ
-#     BiolFlor site is offline, so for now it is fetched live per species.
-#   * Ecoflora's licence (CC BY-NC-SA 4.0) would permit a redistributed .vtr,
-#     but ecoflora.org.uk offers no bulk download, so it too is fetched live
-#     per species.
-# Each is accessed on the user's own machine through TR8 (Bocci 2015) and
-# joined into a taxify() result. If a live source is unreachable the call
-# errors rather than attaching silent NA. taxify itself redistributes nothing.
+# taxify does not ship a pre-built .vtr for Pignatti: its values are from a
+# copyrighted publication and cannot be redistributed. They are read from the
+# copy bundled in TR8 (which TR8 redistributes under its GPL with attribution;
+# taxify ships none of it) and joined into a taxify() result on the user's own
+# machine. If the source is unreachable the call errors rather than attaching
+# silent NA. taxify itself redistributes nothing.
+#
+# (Ecoflora and BiolFlor were previously fetched live here too. Both are now
+# bundled .vtr enrichments -- see add_ecoflora() and add_floraweb() -- built by
+# taxifydb from frozen scrape snapshots, so they work offline.)
 
 
 #' Join a TR8-backed trait source on demand (no redistribution)
 #'
 #' @param x A taxify() result.
-#' @param db Character. TR8 database name ("Ecoflora", "BiolFlor", "Pignatti").
+#' @param db Character. TR8 database name (currently "Pignatti").
 #' @param col_map Named character vector: output column -> TR8 short_code.
 #' @param source_label,license Character. Provenance recorded on the result.
 #' @param na_types Named list of NA prototypes per output column (controls
@@ -117,122 +112,6 @@ enrich_via_tr8 <- function(x, db, col_map, source_label, license,
   }
   register_enrichment(x, tolower(db), source_label, NA_character_, n_enriched,
                       license)
-}
-
-
-#' Add British plant traits from Ecoflora (on demand, via TR8)
-#'
-#' Fetches traits from the Ecological Flora of the British Isles (Fitter & Peat
-#' 1994) for the species in a [taxify()] result, using the TR8 package, and
-#' joins them by `accepted_name`. Complements [add_baseflor()] (French flora)
-#' with British flowering phenology and life form.
-#'
-#' @param x A data.frame returned by [taxify()].
-#' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with additional columns:
-#' \describe{
-#'   \item{flower_begin_month_uk}{Earliest flowering month (1-12).}
-#'   \item{flower_end_month_uk}{Latest flowering month (1-12).}
-#'   \item{pollination_vector_uk}{Pollen vector (e.g. insect, wind, self).}
-#'   \item{life_form_uk}{Raunkiaer life form.}
-#'   \item{leaf_longevity_uk}{Leaf longevity (e.g. evergreen, deciduous).}
-#' }
-#'
-#' @details
-#' Ecoflora's licence (CC BY-NC-SA 4.0) would permit a redistributed dataset,
-#' but ecoflora.org.uk offers no bulk download: data is only reachable one
-#' species at a time. This function therefore fetches it live, per species,
-#' from ecoflora.org.uk through TR8 on your machine; it needs internet access
-#' and the suggested package TR8 (`install.packages("TR8")`). taxify
-#' redistributes nothing.
-#'
-#' @references
-#' Fitter AH, Peat HJ (1994) The Ecological Flora Database. Journal of Ecology
-#' 82:415-425. Bocci G (2015) TR8: an R package for easily retrieving plant
-#' species traits. Methods in Ecology and Evolution 6:347-350.
-#'
-#' @examples
-#' \dontrun{
-#' taxify("Bellis perennis") |>
-#'   add_ecoflora()
-#' }
-#'
-#' @export
-add_ecoflora <- function(x, verbose = TRUE) {
-  enrich_via_tr8(
-    x, db = "Ecoflora",
-    col_map = c(
-      flower_begin_month_uk = "flw_early",
-      flower_end_month_uk   = "flw_late",
-      pollination_vector_uk = "poll_vect",
-      life_form_uk          = "li_form",
-      leaf_longevity_uk     = "le_long"
-    ),
-    source_label = "Ecoflora (Ecological Flora of the British Isles)",
-    license  = "CC BY-NC-SA 4.0",
-    na_types = list(flower_begin_month_uk = NA_integer_,
-                    flower_end_month_uk   = NA_integer_),
-    verbose  = verbose
-  )
-}
-
-
-#' Add German plant traits from BiolFlor (on demand, via TR8)
-#'
-#' Fetches biological-ecological traits from BiolFlor (Klotz, Kuehn & Durka
-#' 2002) for the species in a [taxify()] result, using the TR8 package, and
-#' joins them by `accepted_name`. BiolFlor supplies traits not found in the
-#' bundled enrichments, notably Grime CSR strategy type, breeding system, and
-#' apomixis.
-#'
-#' @param x A data.frame returned by [taxify()].
-#' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with additional columns:
-#' \describe{
-#'   \item{strategy_type_de}{Grime CSR strategy type.}
-#'   \item{breeding_system_de}{Breeding system.}
-#'   \item{pollination_vector_de}{Pollen vector.}
-#'   \item{life_form_de}{Life form.}
-#'   \item{life_span_de}{Life span.}
-#'   \item{apomixis_de}{Type of apomixis.}
-#' }
-#'
-#' @details
-#' BIOLFLOR is publicly available and, per the BioFresh metadata statement, may
-#' be used without restrictions provided it is acknowledged and cited. taxify
-#' does not bundle it only because no redistributable bulk copy is obtainable
-#' while the UFZ BiolFlor site is offline; this function therefore fetches it
-#' live through the suggested TR8 package (`install.packages("TR8")`), which
-#' needs internet access. If the BiolFlor server is unreachable the call errors
-#' (it does not attach silent NA).
-#'
-#' @references
-#' Klotz S, Kuehn I, Durka W (2002) BIOLFLOR. Schriftenreihe fuer
-#' Vegetationskunde 38. Bocci G (2015) TR8: an R package for easily retrieving
-#' plant species traits. Methods in Ecology and Evolution 6:347-350.
-#'
-#' @examples
-#' \dontrun{
-#' taxify("Bellis perennis") |>
-#'   add_biolflor()
-#' }
-#'
-#' @export
-add_biolflor <- function(x, verbose = TRUE) {
-  enrich_via_tr8(
-    x, db = "BiolFlor",
-    col_map = c(
-      strategy_type_de      = "strategy",
-      breeding_system_de    = "Breeding_sys",
-      pollination_vector_de = "poll_vect_B",
-      life_form_de          = "li_form_B",
-      life_span_de          = "li_span",
-      apomixis_de           = "apomixis"
-    ),
-    source_label = "BiolFlor (Klotz, Kuehn & Durka 2002)",
-    license  = "free use with acknowledgement + citation (BioFresh metadata statement)",
-    verbose  = verbose
-  )
 }
 
 

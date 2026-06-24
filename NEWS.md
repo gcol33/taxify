@@ -1,3 +1,31 @@
+# taxify 0.2.11
+
+## New features
+
+* `add_floraweb()` joins German-flora plant traits from FloraWeb (the live BfN
+  portal carrying the BiolFlor data of Klotz, Kuehn & Durka 2002, plus
+  Rothmaler morphology and Ellenberg indicator values). It bundles the full
+  per-species trait profile -- morphology, reproductive biology, the nine
+  Ellenberg indicator values, ploidy and chromosome number, and chorological
+  distribution (59 `_de` columns) -- as a pre-built dataset, so it works
+  offline.
+
+## Changes
+
+* `add_ecoflora()` now joins a bundled, pre-built Ecoflora dataset (18 `_uk`
+  columns: canopy height, leaf traits, life form, flowering phenology,
+  pollination, seed weight, and British-calibrated Ellenberg values) instead
+  of fetching live through TR8. It works offline and returns the full trait
+  set rather than the previous five columns.
+
+* `add_biolflor()` is deprecated in favour of `add_floraweb()`, which carries
+  the same BiolFlor data (now bundled from FloraWeb) plus the full FloraWeb
+  profile. It forwards to `add_floraweb()` with a deprecation message.
+
+* `add_pignatti()` remains an on-demand TR8 source: its values are from a
+  copyrighted publication and cannot be redistributed.
+
+
 # taxify 0.2.10
 
 ## New features
