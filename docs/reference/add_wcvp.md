@@ -49,11 +49,14 @@ Source: WCVP (Kew, CC BY). Coverage: ~340k plant species. Plants only.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus robur") |>
   add_wcvp(region = "EUR")
 
 taxify("Quercus robur") |>
   add_wcvp(region = c("EUR", "NAM"))
-} # }
+
+options(old)
 ```

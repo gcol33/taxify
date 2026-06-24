@@ -92,8 +92,11 @@ Data 4:170123.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-taxify("Bufo bufo") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Bufo bufo", backend = "gbif") |>
   add_amphibio()
-} # }
+
+options(old)
 ```

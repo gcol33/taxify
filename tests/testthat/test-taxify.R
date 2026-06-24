@@ -149,6 +149,7 @@ test_that("taxify_meta tallies are correct", {
   expect_equal(meta$match_tally$exact, 2L)
   expect_equal(meta$match_tally$unmatched, 1L)
   expect_equal(meta$match_tally$fuzzy, 0L)
+  expect_equal(meta$match_tally$abbrev, 0L)
   expect_equal(meta$match_tally$out_of_scope, 0L)
 })
 
@@ -207,4 +208,22 @@ test_that("summary.taxify_result() shows out_of_scope line when present", {
 
   out <- capture.output(summary(result))
   expect_true(any(grepl("out of scope", out, ignore.case = TRUE)))
+})
+
+test_that("summary.taxify_result() counts abbreviated-genus matches", {
+  setup_mock_backend()
+  # "Q. robur" resolves via genus initial plus epithet (match_type "abbrev").
+  # The unabbreviated "Quercus robur" in the batch disambiguates the initial.
+  result <- taxify(c("Quercus robur", "Q. robur"), fuzzy = FALSE, verbose = FALSE)
+  expect_true("abbrev" %in% result$match_type)
+
+  meta <- attr(result, "taxify_meta")
+  expect_equal(meta$match_tally$abbrev, 1L)
+
+  # The abbrev match is counted in the matched total and shown in the breakdown
+  # (regression: abbrev was previously omitted from both).
+  out <- capture.output(summary(result))
+  matched_line <- grep("matched", out, value = TRUE)[1]
+  expect_match(matched_line, "abbrev: 1")
+  expect_match(matched_line, "matched\\s+2")
 })

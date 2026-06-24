@@ -34,8 +34,11 @@ The same data.frame with additional columns:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Pinus cf. sylvestris") |>
   add_qualifier_info()
-} # }
+
+options(old)
 ```

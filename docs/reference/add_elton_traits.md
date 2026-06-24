@@ -111,8 +111,11 @@ attributes of the world's birds and mammals. Ecology 95:2027.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-taxify("Parus major") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Parus major", backend = "gbif") |>
   add_elton_traits()
-} # }
+
+options(old)
 ```

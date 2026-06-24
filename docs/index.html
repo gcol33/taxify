@@ -7,13 +7,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Offline Taxonomic Name Matching Against Local Darwin Core Snapshots • taxify</title>
 <script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
 <meta property="og:title" content="Offline Taxonomic Name Matching Against Local Darwin Core Snapshots">
-<meta name="description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across backends. All heavy computation runs in the vectra C11 columnar engine.">
-<meta property="og:description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across backends. All heavy computation runs in the vectra C11 columnar engine.">
+<meta name="description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the vectra C11 columnar engine.">
+<meta property="og:description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the vectra C11 columnar engine.">
 </head>
 <body>
 <p>
@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -242,7 +242,7 @@
 <div class="section level2">
 <h2 id="trait-and-status-enrichment">Trait and status enrichment<a class="anchor" aria-label="anchor" href="#trait-and-status-enrichment"></a>
 </h2>
-<p>Twenty-two enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
+<p>Twenty-seven enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plants</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -255,7 +255,7 @@
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">fish_names</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/add_fishbase.html">add_fishbase</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>              <span class="co"># FishBase morphology &amp; ecology</span></span>
 <span>  <span class="fu"><a href="reference/add_fish_traits.html">add_fish_traits</a></span><span class="op">(</span><span class="op">)</span>              <span class="co"># FISHMORPH functional traits</span></span></code></pre></div>
-<p>Sources span all kingdoms: IUCN, GRIIS, GBIF common names, WCVP, EIVE, Diaz et al., LEDA, FungalTraits, FUNGuild, AlgaeTraits, EltonTraits, AVONET, PanTHERIA, AmphiBIO, FISHMORPH, FishBase, AnAge, GloNAF, LepTraits, AnimalTraits, and more. The <a href="https://gillescolling.com/taxify/articles/enrichments.html">enrichments vignette</a> lists the full set with references and licenses.</p>
+<p>Sources span all kingdoms: IUCN, GRIIS, GBIF common names, WCVP, EIVE, Diaz et al., LEDA, FungalTraits, FUNGuild, AlgaeTraits, EltonTraits, AVONET, PanTHERIA, AmphiBIO, FISHMORPH, FishBase, AnAge, GloNAF, LepTraits, AnimalTraits, and regional plant-trait sets for France (Baseflor), Britain (Ecoflora), and Germany (FloraWeb), and more. The <a href="https://gillescolling.com/taxify/articles/enrichments.html">enrichments vignette</a> lists the full set with references and licenses.</p>
 <p>To join your own table, <code><a href="reference/add_data.html">add_data()</a></code> auto-detects the species column, matches it through the same backbone(s) used in the original call, and left-joins. It accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and <code>.vtr</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"TRY_traits.csv"</span><span class="op">)</span></span>

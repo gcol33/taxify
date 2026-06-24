@@ -12,7 +12,7 @@ and distribute data in incompatible formats. Manually aligning names
 between a taxonomic backbone and a trait database can consume hours even
 for moderately sized species lists.
 
-taxify ships with 12 enrichment layers that attach published trait and
+taxify ships with 22 enrichment layers that attach published trait and
 status datasets to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result in a single pipe call. Each enrichment is backed by a pre-built
@@ -22,7 +22,7 @@ alignment problem at build time, so the join at analysis time is a
 simple, fast, exact-match operation.
 
 This vignette covers the mechanics of how enrichments work, walks
-through each of the 12 layers with worked examples, and discusses
+through each of the 18 layers with worked examples, and discusses
 practical strategies for combining enrichments, interpreting coverage
 gaps, and choosing the right layers for a given taxon group. We also
 discuss the
@@ -90,12 +90,12 @@ while COL accepts “Jacobaea vulgaris” for the same species. If the
 enrichment `.vtr` only contained one of these names, it would fail to
 match results from the other backbone.
 
-The taxify-backbones build pipeline solves this by resolving every
-source species name against each of the seven backends separately (not
-as a fallback chain, which would only return the first match). The union
-of all unique `accepted_name` values is collected per source species.
-Each source row is then expanded: one enrichment row per distinct
-accepted name, with the trait data duplicated. The final `.vtr` is then
+The taxifydb build pipeline solves this by resolving every source
+species name against each of the seven backends separately (not as a
+fallback chain, which would only return the first match). The union of
+all unique `accepted_name` values is collected per source species. Each
+source row is then expanded: one enrichment row per distinct accepted
+name, with the trait data duplicated. The final `.vtr` is then
 deduplicated by `canonical_name` (plus any group column for grouped
 enrichments).
 
@@ -136,7 +136,7 @@ negligible latency because the manifest itself is cached.
 If the pre-built `.vtr` download fails (network issues, mirror outage,
 transient server errors), taxify does not stop immediately. Instead, it
 attempts to build the enrichment from the original source data. Each of
-the 12 enrichments has a build recipe in an internal registry
+the 18 enrichments has a build recipe in an internal registry
 (`.enrichment_build_registry`) that knows how to download the raw CSV,
 ZIP, or API response from the upstream source, parse it into a
 data.frame with a `canonical_name` column, and produce the `.vtr` file
@@ -183,8 +183,8 @@ Windows). This directory is also where backbone `.vtr` files are stored,
 so a single
 [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
 call reveals where all taxify data lives on the system. Enrichment files
-are modest in size: most are between 1 and 20 MB. The full set of 12
-enrichments totals roughly 100-150 MB.
+are modest in size: most are between 1 and 20 MB. The full set of 18
+enrichments totals roughly 150-200 MB.
 
 ## Discovering enrichments
 
@@ -209,14 +209,15 @@ list_enrichments()
 ```
 
 The `static` column is worth paying attention to. Static enrichments
-(woodiness, PanTHERIA, AmphiBIO, EltonTraits, LEDA, Diaz traits) are
-based on published, version-locked datasets that have a single
-definitive release. These never trigger version checks, so they add zero
-network overhead to a session. Non-static enrichments
-(conservation_status, GRIIS, WCVP, common_names) are periodically
-updated as the upstream source publishes new releases. For these, taxify
-checks once per session whether a newer version is available and updates
-transparently if so.
+(woodiness, PanTHERIA, AmphiBIO, EltonTraits, LEDA, Diaz traits,
+FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, Meiri lizard traits,
+LepTraits, AnimalTraits, NW European Arthropods) are based on published,
+version-locked datasets that have a single definitive release. These
+never trigger version checks, so they add zero network overhead to a
+session. Non-static enrichments (conservation_status, GRIIS, WCVP,
+common_names) are periodically updated as the upstream source publishes
+new releases. For these, taxify checks once per session whether a newer
+version is available and updates transparently if so.
 
 The `nrow` column gives a rough sense of enrichment size. Conservation
 status has ~166,000 rows (one per assessed species), WCVP has ~340,000
@@ -251,11 +252,15 @@ taxify_download_enrichment("conservation_status")
 # Download several at once
 taxify_download_enrichment(c("woodiness", "eive", "leda"))
 
-# Download all twelve
+# Download all of them
 taxify_download_enrichment(c(
   "conservation_status", "griis", "wcvp", "eive",
   "elton_traits", "avonet", "pantheria", "amphibio",
-  "common_names", "woodiness", "diaz_traits", "leda"
+  "common_names", "woodiness", "diaz_traits", "leda",
+  "fungal_traits", "funguild", "algae_traits",
+  "fish_traits", "fishbase", "lizard_traits", "anage", "glonaf",
+  "leptraits", "animaltraits", "arthropod_traits", "alien_first_records",
+  "baseflor", "ecoflora", "floraweb"
 ))
 ```
 
@@ -284,18 +289,20 @@ access.
 ## Simple enrichments
 
 Simple enrichments add one or more columns via a flat join on
-`accepted_name`. Nine of the twelve enrichment layers use this pattern.
-They differ only in which columns they add and which taxonomic groups
-they cover. We group them below by taxon focus, starting with plants
-(which have the most enrichment layers), then conservation status
-(cross-taxon), birds, mammals, and amphibians.
+`accepted_name`. Eighteen of the twenty-two enrichment layers use this
+pattern. They differ only in which columns they add and which taxonomic
+groups they cover. We group them below by taxon focus, starting with
+plants (which have the most enrichment layers), then conservation status
+(cross-taxon), birds, mammals, amphibians, vertebrates, fungi, algae,
+fish, reptiles, butterflies, and arthropods.
 
 ### Plant enrichments
 
 Plants are the best-served taxon group in the enrichment system, with
-five dedicated layers covering growth form, ecological niches, seed and
-height traits, and a broad suite of functional traits. This reflects the
-state of published plant trait databases: decades of investment in
+dedicated layers covering growth form, ecological niches, seed and
+height traits, a broad suite of functional traits, and regional trait
+compilations for the British, French, and German floras. This reflects
+the state of published plant trait databases: decades of investment in
 standardized trait measurement protocols have produced several large,
 open-access datasets that are straightforward to integrate.
 
@@ -487,6 +494,49 @@ consortium mean. To keep both, apply one enrichment, rename the column,
 then apply the second. Alternatively, choose whichever source is more
 appropriate for the study: LEDA for NW European analyses (regional
 measurements), Diaz for global analyses (worldwide compilation).
+
+#### Regional plant-trait compilations (Baseflor, Ecoflora, FloraWeb)
+
+Three regional databases add trait detail for the European floras they
+cover. Each carries a region suffix on every column (`_uk` for Britain,
+`_de` for Germany, and Baseflor’s unsuffixed French set), so they can be
+chained without clobbering one another or the pan-European layers above.
+
+- **Baseflor** (Julve, Programme Catminat), via
+  [`add_baseflor()`](https://gillescolling.com/taxify/reference/add_baseflor.md):
+  about 8,500 taxa of the French and neighbouring flora, with flowering
+  months, pollination vector, dispersal mode, breeding system, flower
+  colour, fruit type, woody growth form, and the continentality and
+  salinity axes absent from EIVE.
+- **Ecoflora** (Fitter & Peat 1994), via
+  [`add_ecoflora()`](https://gillescolling.com/taxify/reference/add_ecoflora.md):
+  the British Isles flora, with canopy height, leaf traits, life form,
+  flowering phenology, pollination, seed weight, and British-calibrated
+  Ellenberg values (18 `_uk` columns).
+- **FloraWeb** (BfN; the BiolFlor data of Klotz, Kuehn & Durka 2002),
+  via
+  [`add_floraweb()`](https://gillescolling.com/taxify/reference/add_floraweb.md):
+  the German flora, with morphology, reproductive biology, the nine
+  Ellenberg indicator values, ploidy and chromosome number, Grime CSR
+  strategy type, and chorological distribution (59 `_de` columns).
+
+``` r
+
+taxify(c("Bellis perennis", "Achillea millefolium", "Calluna vulgaris")) |>
+  add_ecoflora() |>
+  add_floraweb()
+```
+
+Because every column is region-suffixed, one chain can attach British,
+French, and German trait sets side by side for the same species.
+FloraWeb and Ecoflora are bundled as pre-built datasets and work
+offline; their German and British trait values are reported as
+published, and the access date is the dataset version (neither portal
+offers a versioned bulk export). Italian Ellenberg-type indicator values
+are also available through
+[`add_pignatti()`](https://gillescolling.com/taxify/reference/add_pignatti.md),
+which reads the copy bundled in the TR8 package on demand; those values
+come from a copyrighted publication and are not redistributed by taxify.
 
 ### Conservation status (IUCN Red List)
 
@@ -746,16 +796,606 @@ newts), and caecilians. It is licensed under CC BY 4.0 and published on
 *Scientific Data*. The reference is Oliveira et al. (2017), *Scientific
 Data* 4:170123.
 
+### Fungal enrichments
+
+Fungi have historically been underrepresented in trait databases
+compared to plants and animals, but two complementary datasets now
+provide detailed ecological and functional information. FungalTraits
+classifies genera by lifestyle, growth form, and interaction
+capabilities, while FUNGuild provides a guild-based trophic
+classification. Together they offer a reasonably complete functional
+profile for macrofungi and many microfungi.
+
+#### FungalTraits (Polme et al. 2020)
+
+FungalTraits is a genus-level database covering ~10,200 fungal genera
+with nine trait columns. Unlike the species-level enrichments discussed
+above, FungalTraits joins on genus rather than `accepted_name`. This
+reflects the reality of fungal trait data: most functional traits
+(lifestyle, growth form, decay strategy) are conserved at the genus
+level, and the enormous diversity of described fungal species (~150,000)
+makes species-level trait compilation impractical for many attributes.
+The genus-level join means that all species within a genus receive the
+same trait values, which is ecologically reasonable for the traits
+covered.
+
+``` r
+
+fungi <- taxify(c(
+  "Amanita muscaria", "Boletus edulis", "Trametes versicolor",
+  "Agaricus bisporus", "Cantharellus cibarius"
+))
+
+fungi |> add_fungal_traits()
+#>          input_name primary_lifestyle  growth_form fruitbody_type decay_substrate ...
+#> 1  Amanita muscaria   ectomycorrhizal     agaricoid      agaricoid            <NA> ...
+#> 2    Boletus edulis   ectomycorrhizal       boletoid       boletoid            <NA> ...
+#> 3 Trametes versicolor      saprotroph  polyporoid      polyporoid           wood  ...
+#> 4 Agaricus bisporus       saprotroph     agaricoid      agaricoid          litter ...
+#> 5 Cantharellus cibarius ectomycorrhizal cantharelloid cantharelloid          <NA> ...
+```
+
+The nine trait columns capture complementary facets of fungal ecology:
+
+- `primary_lifestyle`: the dominant trophic strategy (ectomycorrhizal,
+  saprotroph, plant pathogen, animal parasite, lichen, endophyte, etc.).
+
+- `secondary_lifestyle`: an additional lifestyle where applicable (many
+  genera have a single lifestyle, so this is frequently `NA`).
+
+- `growth_form`: the vegetative morphology (agaricoid, boletoid,
+  polyporoid, corticioid, clavarioid, gasteroid, etc.).
+
+- `fruitbody_type`: the reproductive structure type.
+
+- `decay_substrate`: the primary substrate for saprotrophic genera
+  (wood, litter, dung, soil).
+
+- `plant_pathogenic_capacity`: a coarse classification of pathogenic
+  potential for plant-associated genera.
+
+- `animal_biotrophic_capacity`: analogous classification for animal
+  associations.
+
+- `endophytic_interaction_capability`: whether the genus includes
+  endophytic species.
+
+- `ectomycorrhiza_exploration_type`: for ectomycorrhizal genera, the
+  exploration type of the mycelium (contact, short-distance, medium-
+  distance, long-distance). This is ecologically important because
+  exploration type governs nutrient acquisition strategy and competitive
+  dynamics among ectomycorrhizal fungi.
+
+The `primary_lifestyle` column is the single most informative trait for
+broad ecological analyses. It separates ectomycorrhizal fungi
+(mutualists that form nutrient-exchange networks with plant roots) from
+saprotrophs (decomposers that drive nutrient cycling) and pathogens
+(agents of disease and mortality). These three groups have fundamentally
+different roles in ecosystem functioning, and knowing which lifestyle a
+genus belongs to determines how it should be interpreted in community
+analyses, food web models, and carbon cycling studies.
+
+FungalTraits is licensed under CC BY 4.0 and published in *Fungal
+Diversity*. The reference is Polme et al. (2020), *Fungal Diversity*
+105:1-16. The dataset is classified as static in the taxify manifest.
+
+#### FUNGuild (Nguyen et al. 2016)
+
+FUNGuild provides trophic and guild classifications for ~13,000 fungal
+taxa at both genus and species levels. Where FungalTraits describes what
+a genus does ecologically (lifestyle, growth form, substrate
+preference), FUNGuild classifies taxa into guild categories that
+describe their functional role in the ecosystem. The two datasets are
+complementary: a genus like *Trametes* might be classified as
+“saprotroph” with “polyporoid” growth form in FungalTraits, and as “Wood
+Saprotroph” guild with “Saprotroph” trophic mode in FUNGuild. The
+FUNGuild classification is coarser but more directly interpretable for
+guild-based community analyses.
+
+``` r
+
+fungi <- taxify(c(
+  "Amanita muscaria", "Boletus edulis", "Trametes versicolor",
+  "Agaricus bisporus", "Cantharellus cibarius"
+))
+
+fungi |> add_funguild()
+#>          input_name     trophic_mode                   guild funguild_growth_form confidence_ranking
+#> 1  Amanita muscaria       Symbiotroph       Ectomycorrhizal            Agaricoid            Highly Probable
+#> 2    Boletus edulis       Symbiotroph       Ectomycorrhizal             Boletoid            Highly Probable
+#> 3 Trametes versicolor      Saprotroph        Wood Saprotroph           Polyporoid            Highly Probable
+#> 4 Agaricus bisporus       Saprotroph      Litter Saprotroph            Agaricoid            Highly Probable
+#> 5 Cantharellus cibarius   Symbiotroph       Ectomycorrhizal        Cantharelloid            Highly Probable
+```
+
+The four output columns provide a hierarchical classification:
+
+- `trophic_mode`: the broadest category (Saprotroph, Symbiotroph,
+  Pathotroph, or combinations like Saprotroph-Symbiotroph for genera
+  with multiple trophic strategies).
+- `guild`: a finer classification within each trophic mode (Wood
+  Saprotroph, Litter Saprotroph, Ectomycorrhizal, Arbuscular
+  Mycorrhizal, Plant Pathogen, Animal Pathogen, Lichenized, etc.).
+- `funguild_growth_form`: the morphological category, named with the
+  `funguild_` prefix to avoid collision with FungalTraits’ `growth_form`
+  column.
+- `confidence_ranking`: how confident the guild assignment is (Highly
+  Probable, Probable, or Possible). This column deserves attention:
+  assignments at the “Possible” level are based on limited evidence and
+  should be treated with caution in quantitative analyses. Filtering to
+  “Highly Probable” and “Probable” assignments reduces coverage but
+  improves reliability.
+
+FUNGuild is particularly valuable for soil mycobiome studies, where
+operational taxonomic units (OTUs) from metabarcoding are classified
+into ecological guilds. The trophic mode and guild columns map directly
+onto the functional group categories used in fungal community ecology:
+the ratio of saprotrophs to symbiotrophs, or the proportion of
+pathotrophs in a community, are common response variables in studies of
+land use change, nutrient cycling, and plant-soil feedbacks.
+
+FUNGuild is published in *Fungal Ecology*. The reference is Nguyen et
+al. (2016), *Fungal Ecology* 20:241-248. The dataset is classified as
+static in the taxify manifest.
+
+### Algae enrichments
+
+#### AlgaeTraits (Vranken et al. 2023)
+
+AlgaeTraits provides morphological and ecological traits for ~1,745
+European macroalgae species (seaweeds). Macroalgae are the dominant
+primary producers in coastal rocky ecosystems, yet they are
+conspicuously absent from the major plant trait databases (TRY, LEDA,
+EIVE) that focus exclusively on vascular plants. AlgaeTraits fills this
+gap for the European coastline, covering green algae (Chlorophyta),
+brown algae (Phaeophyceae), and red algae (Rhodophyta) with eight trait
+columns spanning morphology, habitat, and environmental tolerances.
+
+``` r
+
+seaweeds <- taxify(c(
+  "Fucus vesiculosus", "Ulva lactuca", "Laminaria digitata",
+  "Chondrus crispus", "Sargassum muticum"
+))
+
+seaweeds |> add_algae_traits()
+#>          input_name algae_body_size_cm algae_growth_form algae_calcification algae_tidal_zone ...
+#> 1 Fucus vesiculosus               60.0          foliose               none         intertidal ...
+#> 2      Ulva lactuca               30.0          foliose               none         intertidal ...
+#> 3 Laminaria digitata             200.0          foliose               none         subtidal   ...
+#> 4    Chondrus crispus              15.0          foliose               none         intertidal ...
+#> 5  Sargassum muticum             300.0          foliose               none         subtidal   ...
+```
+
+All eight columns are prefixed with `algae_` to clearly distinguish them
+from terrestrial plant traits:
+
+- `algae_body_size_cm`: maximum thallus length in centimetres.
+
+- `algae_growth_form`: the morphological category (filamentous, foliose,
+  corticated, leathery, calcareous, crustose, etc.).
+
+- `algae_calcification`: whether the species produces calcium carbonate
+  structures (none, articulated, crustose). Calcifying algae like
+  coralline species play a critical role in reef construction and are
+  particularly sensitive to ocean acidification.
+
+- `algae_life_span`: the typical life span category (annual, perennial,
+  pseudoperennial).
+
+- `algae_tidal_zone`: the primary tidal zone (supralittoral, intertidal,
+  subtidal).
+
+- `algae_wave_exposure`: the preferred wave exposure regime (sheltered,
+  moderately exposed, exposed).
+
+- `algae_environment`: the salinity regime (marine, brackish,
+  freshwater).
+
+- `algae_substrate`: the preferred substrate type (rock, sand,
+  epiphytic, free-living).
+
+The body size column spans three orders of magnitude, from
+millimetre-scale filamentous algae to kelps exceeding 3 metres. This
+variation underpins the structural complexity of rocky shore
+communities: large canopy-forming species like *Laminaria digitata*
+create habitat for hundreds of associated species, while small
+turf-forming species dominate in disturbed or nutrient-enriched
+conditions. The growth form and tidal zone columns together define the
+ecological niche of each species along the shore gradient, making
+AlgaeTraits directly useful for intertidal community analyses, climate
+change impact assessments, and marine protected area planning.
+
+The geographic scope is European, so species from other coastlines will
+receive `NA` in all columns. The dataset is licensed under CC BY 4.0 and
+published in *Scientific Data*. The reference is Vranken et al. (2023),
+*Scientific Data* 10:826. The dataset is classified as static in the
+taxify manifest.
+
+### Fish enrichments
+
+Fish ecology has produced two large, complementary trait databases.
+FISHMORPH focuses on morphological measurements of freshwater species,
+while FishBase provides broader ecological and life-history data for
+both freshwater and marine fish. Together they provide detailed
+functional profiles for ichthyological studies.
+
+#### FISHMORPH (Brosse et al. 2021)
+
+FISHMORPH provides morphological trait data for ~8,300 freshwater fish
+species worldwide, based on standardized measurements from photographs
+and museum specimens. The 10 morphological traits capture the key axes
+of fish body shape variation that determine swimming performance,
+feeding mode, and habitat use.
+
+``` r
+
+freshwater_fish <- taxify(c(
+  "Salmo trutta", "Esox lucius", "Cyprinus carpio",
+  "Perca fluviatilis", "Silurus glanis"
+))
+
+freshwater_fish |> add_fish_traits()
+#>        input_name fish_body_elongation fish_eye_size fish_oral_gape_position fish_body_lateral_shape ...
+#> 1    Salmo trutta                 0.22          0.08                    0.42                    0.18 ...
+#> 2    Esox lucius                  0.18          0.06                    0.50                    0.15 ...
+#> 3  Cyprinus carpio                0.35          0.05                    0.38                    0.25 ...
+#> 4 Perca fluviatilis               0.30          0.07                    0.40                    0.22 ...
+#> 5   Silurus glanis                0.15          0.03                    0.48                    0.12 ...
+```
+
+All columns are prefixed with `fish_` and express dimensionless
+morphological ratios normalized by body length. The 10 traits are:
+
+- `fish_body_elongation`: body depth relative to standard length. High
+  values indicate deep-bodied species (cyprinids), low values indicate
+  elongated species (eels, pike).
+
+- `fish_eye_size`: eye diameter relative to head length. Large-eyed
+  species tend to be visual predators in clear water.
+
+- `fish_oral_gape_position`: the vertical position of the mouth, from
+  ventral (benthic feeders) to dorsal (surface feeders).
+
+- `fish_body_lateral_shape`: the lateral compression of the body.
+
+- `fish_pectoral_fin_size`: pectoral fin area, associated with
+  manoeuvrability and braking ability.
+
+- `fish_pectoral_fin_position`: the vertical insertion of the pectoral
+  fin on the body.
+
+- `fish_caudal_peduncle_throttling`: the narrowing of the caudal
+  peduncle, associated with sustained swimming efficiency.
+
+- `fish_caudal_fin_shape`: the aspect ratio of the caudal fin. High
+  values (forked tails) indicate cruising swimmers; low values (rounded
+  tails) indicate ambush predators or benthic species.
+
+- `fish_fin_surface_ratio`: total fin area relative to body area.
+
+- `fish_max_body_length_cm`: the maximum recorded standard length in
+  centimetres.
+
+These morphological ratios are ecomorphological indicators: they predict
+how a species interacts with its physical environment. Body elongation
+and caudal fin shape together separate benthic, slow-moving species from
+pelagic, fast-cruising species. Oral gape position separates surface
+feeders from bottom feeders. Eye size and pectoral fin size relate to
+sensory ecology and manoeuvrability, respectively. The combination of
+these traits places each species in morphological space, making
+FISHMORPH directly useful for functional diversity calculations (Rao’s
+Q, functional richness, functional divergence) in freshwater fish
+community ecology.
+
+The dataset covers freshwater fish only; marine species receive `NA`. It
+is licensed under CC BY 4.0 and published in *Global Ecology and
+Biogeography*. The reference is Brosse et al. (2021), *Global Ecology
+and Biogeography* 30:2330-2345. The dataset is classified as static in
+the taxify manifest.
+
+#### FishBase (Froese & Pauly 2024)
+
+FishBase is the most comprehensive fish database in the world, covering
+~35,000 species across both freshwater and marine environments. The
+taxify enrichment extracts eight key ecological and life-history traits
+from the FishBase dataset, providing a broad functional profile that
+complements FISHMORPH’s morphological focus.
+
+``` r
+
+fish <- taxify(c(
+  "Gadus morhua", "Thunnus thynnus", "Hippocampus hippocampus",
+  "Squalus acanthias", "Salmo trutta"
+))
+
+fish |> add_fishbase()
+#>              input_name fb_body_length_cm fb_body_mass_g fb_trophic_level fb_depth_min_m fb_depth_max_m ...
+#> 1          Gadus morhua            132.0        55500.0              4.4            0.0          600.0 ...
+#> 2      Thunnus thynnus            458.0       684000.0              4.2            0.0         1000.0 ...
+#> 3 Hippocampus hippocampus          15.0             NA              3.1            1.0           60.0 ...
+#> 4    Squalus acanthias            160.0         11000.0              4.3           16.0          900.0 ...
+#> 5         Salmo trutta            140.0        50000.0              3.4            0.0          332.0 ...
+```
+
+The eight columns are all prefixed with `fb_`:
+
+- `fb_body_length_cm`: maximum total length in centimetres.
+
+- `fb_body_mass_g`: maximum recorded body mass in grams.
+
+- `fb_trophic_level`: the trophic level (continuous, typically 2.0-5.0).
+  Herbivorous fish sit near 2.0, planktivores around 3.0, piscivores
+  around 4.0-4.5, and apex predators above 4.5.
+
+- `fb_depth_min_m` and `fb_depth_max_m`: the minimum and maximum depth
+  range in metres. Together these define the vertical habitat envelope.
+
+- `fb_vulnerability`: the intrinsic vulnerability index (0-100), a
+  composite score based on maximum size, age, fecundity, and other
+  life-history parameters. High values indicate species that are
+  inherently more susceptible to overexploitation.
+
+- `fb_habitat`: the primary habitat category (pelagic, demersal,
+  bathydemersal, bathypelagic, reef-associated, etc.).
+
+- `fb_importance`: the economic importance category (commercial,
+  subsistence, minor commercial, gamefish, etc.).
+
+The trophic level and vulnerability columns are particularly valuable
+for fisheries ecology and marine conservation. Trophic level quantifies
+the position of each species in the food web, and the well-documented
+pattern of “fishing down the food web” (declining mean trophic level of
+catches over time) is diagnosed using exactly this variable.
+Vulnerability provides a quick assessment of which species in a
+community are most at risk from fishing pressure, complementing the IUCN
+conservation status with a mechanistic, trait-based risk metric.
+
+Note that FishBase is licensed under CC BY-NC 3.0 (non-commercial use).
+This is more restrictive than the CC BY 4.0 license used by most other
+enrichments. Users intending to use FishBase data in commercial
+applications should consult the FishBase terms of use. The reference is
+Froese, R. and D. Pauly (2024), FishBase, www.fishbase.org. The dataset
+is classified as non-static in the taxify manifest because FishBase is
+updated periodically.
+
+### Reptile enrichments
+
+#### Meiri lizard traits (Meiri 2018)
+
+The Meiri lizard trait database covers ~6,600 lizard species (Squamata,
+excluding snakes and amphisbaenians) with 10 life-history,
+morphological, and ecological traits. Lizards are the most species-rich
+group of non-avian reptiles, and this dataset provides the most
+comprehensive species-level trait compilation available for the group.
+
+``` r
+
+lizards <- taxify(c(
+  "Pogona vitticeps", "Lacerta agilis", "Iguana iguana",
+  "Varanus komodoensis", "Gekko gecko"
+))
+
+lizards |> add_lizard_traits()
+#>            input_name lizard_body_mass_g lizard_svl_mm lizard_tail_length_mm lizard_clutch_size ...
+#> 1    Pogona vitticeps             350.0         230.0                 250.0               18.0 ...
+#> 2      Lacerta agilis              10.0          70.0                 100.0                8.0 ...
+#> 3       Iguana iguana            4000.0         450.0                 700.0               35.0 ...
+#> 4 Varanus komodoensis           70000.0        1500.0                1400.0               18.0 ...
+#> 5         Gekko gecko              60.0         140.0                 130.0                2.0 ...
+```
+
+All columns are prefixed with `lizard_`:
+
+- `lizard_body_mass_g`: adult body mass in grams.
+
+- `lizard_svl_mm`: snout-vent length in millimetres, the standard body
+  size measurement for reptiles (excluding the tail, which is frequently
+  lost and regenerated).
+
+- `lizard_tail_length_mm`: tail length in millimetres.
+
+- `lizard_clutch_size`: the mean number of eggs per clutch (or neonates
+  per litter for viviparous species).
+
+- `lizard_clutch_frequency`: the number of clutches produced per year.
+
+- `lizard_longevity_yr`: maximum recorded longevity in years.
+
+- `lizard_diet`: the primary diet category (insectivore, herbivore,
+  omnivore, carnivore).
+
+- `lizard_habitat`: the primary habitat type (terrestrial, arboreal,
+  fossorial, saxicolous, semi-aquatic).
+
+- `lizard_activity_time`: the primary activity period (diurnal,
+  nocturnal, crepuscular, cathemeral).
+
+- `lizard_foraging_mode`: the foraging strategy (sit-and-wait, active
+  foraging, mixed). This trait is tightly linked to metabolic rate and
+  energy budgets: active foragers have higher metabolic rates and larger
+  home ranges, while sit-and-wait predators invest less energy in
+  locomotion but rely on crypsis and ambush efficiency.
+
+The body mass range spans four orders of magnitude, from sub-gram geckos
+to the 70 kg Komodo Dragon (*Varanus komodoensis*). This allometric
+range drives strong scaling relationships: metabolic rate, home range
+size, and prey size all scale predictably with body mass in lizards. The
+SVL measurement is preferred over total length because tail autotomy
+(voluntary tail shedding) makes total length unreliable; SVL provides a
+stable, comparable measure of body size across species and individuals.
+
+The combination of clutch size, clutch frequency, and longevity captures
+the fast-slow life-history continuum. Small geckos with clutches of 1-2
+eggs but multiple clutches per year represent a different strategy from
+large iguanas with single large clutches per season. This life-history
+variation is directly relevant to population viability analysis and
+conservation planning for reptile species.
+
+The dataset covers lizards globally. Snakes and turtles are not
+included; they receive `NA` in all columns. It is licensed under CC BY
+4.0 and published in *Global Ecology and Biogeography*. The reference is
+Meiri (2018), *Global Ecology and Biogeography* 27:1168-1172. The
+dataset is classified as static in the taxify manifest.
+
+### Vertebrate enrichments (cross-class)
+
+#### AnAge longevity and life-history (Tacutu et al. 2018)
+
+AnAge is a curated database of aging and longevity records for ~4,700
+vertebrate species spanning mammals, birds, reptiles, amphibians, and
+fish. It provides maximum longevity, body mass, metabolic rate, maturity
+age, gestation/incubation time, litter/clutch size, birth mass, growth
+rate, and body temperature. The unique value of AnAge over
+taxon-specific databases like PanTHERIA is its cross-class coverage:
+longevity and metabolic data can be compared directly across vertebrate
+classes.
+
+``` r
+
+vertebrates <- taxify(c(
+  "Vulpes vulpes", "Aquila chrysaetos", "Crocodylus niloticus",
+  "Bufo bufo", "Salmo salar"
+), backend = c("col", "gbif"))
+
+vertebrates |> add_anage()
+#>              input_name max_longevity_yr anage_body_mass_g metabolic_rate_w ...
+#> 1         Vulpes vulpes             15.2            5480.0            10.41 ...
+#> 2   Aquila chrysaetos              46.0            4210.0             8.94 ...
+#> 3 Crocodylus niloticus             44.0          242500.0               NA ...
+#> 4            Bufo bufo             36.0              48.0               NA ...
+#> 5         Salmo salar              13.0            3400.0               NA ...
+```
+
+All columns use the `anage_` prefix for body mass and litter size to
+distinguish them from PanTHERIA equivalents. The `max_longevity_yr`
+column is the maximum recorded lifespan in years — the most widely used
+parameter for cross-species aging comparisons.
+
+The dataset is compiled from the Human Ageing Genomic Resources (HAGR)
+and is freely available under CC BY. The reference is Tacutu et
+al. (2018), *Nucleic Acids Research* 46:D1083-D1090.
+
+#### AnimalTraits body mass and metabolic rate (Hebert et al. 2022)
+
+AnimalTraits is a curated database of body mass and metabolic rate
+measurements covering ~2,000 species across arthropods (~1,700 species),
+vertebrates, molluscs, and annelids. Unlike taxon-specific databases, it
+provides a unified framework for cross-taxon allometric comparisons —
+particularly valuable for arthropods, which are underrepresented in
+other trait databases.
+
+``` r
+
+arthropods <- taxify(c(
+  "Drosophila melanogaster", "Apis mellifera",
+  "Tenebrio molitor", "Gryllus campestris"
+), backend = c("col", "gbif"))
+
+arthropods |> add_animaltraits()
+#>                input_name animaltraits_body_mass_kg animaltraits_metabolic_rate_w
+#> 1 Drosophila melanogaster              0.000001030                    0.000000218
+#> 2         Apis mellifera              0.000100000                    0.000012600
+#> 3       Tenebrio molitor              0.000140000                    0.000004850
+#> 4    Gryllus campestris              0.000800000                           NA
+```
+
+The data is stored as individual-level observations in the source CSV;
+taxify’s parse function aggregates these to species-level medians. Body
+mass is in kilograms and metabolic rate in watts (both in SI units, as
+published). The `animaltraits_` prefix avoids collision with body mass
+columns from other enrichments.
+
+The dataset is licensed under CC0 (public domain) and published on
+Zenodo. The reference is Hebert et al. (2022), *Scientific Data* 9:265.
+
+### Butterfly enrichments
+
+#### LepTraits butterfly traits (Shirey et al. 2022)
+
+LepTraits 1.0 is the most comprehensive open butterfly trait database,
+covering ~12,400 species of Papilionoidea globally. It provides
+wingspan, voltinism, diapause stage, four habitat affinity dimensions,
+host plant data, and adult flight phenology.
+
+``` r
+
+butterflies <- taxify(c(
+  "Vanessa cardui", "Pieris rapae", "Papilio machaon",
+  "Lycaena phlaeas", "Colias crocea"
+), backend = c("col", "gbif"))
+
+butterflies |> add_leptraits()
+#>        input_name wingspan_mm voltinism diapause_stage canopy_affinity ...
+#> 1   Vanessa cardui        62.5       3.0             NA    Open canopy ...
+#> 2     Pieris rapae        47.5       4.0           pupa    Open canopy ...
+#> 3  Papilio machaon        75.0       2.0           pupa    Open canopy ...
+#> 4  Lycaena phlaeas        30.0       3.0          larva    Open canopy ...
+#> 5    Colias crocea        48.5       3.0          adult    Open canopy ...
+```
+
+The wingspan is computed as the midpoint of the lower and upper bounds
+reported in the dataset. Voltinism indicates the number of generations
+per year. The four habitat affinities (canopy, edge, moisture,
+disturbance) are categorical variables describing the species’ preferred
+environmental context. The `flight_months` column counts the number of
+months with recorded adult flight activity.
+
+The dataset is licensed under CC0 and published on Figshare. The
+reference is Shirey et al. (2022), *Scientific Data* 9:398.
+
+### Arthropod enrichments
+
+#### NW European Arthropod life-history traits (Logghe et al. 2025)
+
+This dataset provides 28 life-history and ecological traits for ~4,900
+arthropod species from Northwestern Europe, covering 10 orders including
+Coleoptera, Hemiptera, Orthoptera, Araneae, Diptera, Hymenoptera, and
+Lepidoptera. It is the most comprehensive open arthropod trait
+compilation for this region.
+
+``` r
+
+insects <- taxify(c(
+  "Abax parallelepipedus", "Pterostichus melanarius",
+  "Chorthippus parallelus", "Araneus diadematus"
+), backend = c("col", "gbif"))
+
+insects |> add_arthropod_traits()
+#>               input_name arthropod_body_size_mm arthropod_dispersal arthropod_voltinism arthropod_feeding_guild ...
+#> 1 Abax parallelepipedus                   18.5                0.01                 1.0               carnivore ...
+#> 2 Pterostichus melanarius                 15.0                0.32                 1.0               carnivore ...
+#> 3 Chorthippus parallelus                  17.0                0.10                 1.0               herbivore ...
+#> 4   Araneus diadematus                    13.0                0.45                 1.0               carnivore ...
+```
+
+All columns are prefixed with `arthropod_`. The quantitative traits
+include body size (mm), dispersal ability (0-1 ratio within order), mean
+voltinism, fecundity, development time (days), lifespan (days), and
+thermal niche mean (°C). The categorical traits include diurnality,
+feeding guild, and trophic range.
+
+Because this dataset is geographically scoped to NW Europe (Belgium,
+Luxembourg, Netherlands, northern France, UK, western Germany), species
+from other regions will have `NA` values. The dataset is particularly
+strong for Coleoptera, Hemiptera, and Orthoptera, with near-complete
+coverage of the regional fauna in those orders.
+
+The dataset is licensed under CC BY-NC and published in *Biodiversity
+Data Journal*. The reference is Logghe et al. (2025), *Biodiversity Data
+Journal* 13:e146785.
+
 ## Group-based enrichments
 
-Three enrichments filter by a grouping variable (country code, TDWG
-botanical region code, or language code) and pivot the result to wide
-format. The mechanics are the same across all three: when a single group
-value is requested, the output column uses the base name (e.g.,
-`invasive_status`). When multiple group values are requested, each
-output column gets a suffix derived from the group value (e.g.,
-`invasive_status_AT`, `invasive_status_DE`). Passing `"all"` as the
-group value expands to every group present in the enrichment dataset.
+Five enrichments filter by a grouping variable (country code, TDWG
+botanical region code, GloNAF region code, or language code) and pivot
+the result to wide format. The mechanics are the same across all of
+them: when a single group value is requested, the output column uses the
+base name (e.g., `invasive_status`). When multiple group values are
+requested, each output column gets a suffix derived from the group value
+(e.g., `invasive_status_AT`, `invasive_status_DE`). Passing `"all"` as
+the group value expands to every group present in the enrichment
+dataset.
 
 This design keeps the output tidy for the common case (one country, one
 region, one language) while still supporting comparative analyses across
@@ -861,6 +1501,121 @@ there in O(1) time without scanning the `.vtr` file. This makes even the
 `"all"` case fast to set up, though the subsequent join across 196
 groups naturally takes longer than a single-country join.
 
+### Alien species first records (Seebens et al.)
+
+The Global Alien Species First Record Database (Seebens et al. 2017)
+records the year each alien species was first documented in a given
+country or territory. Unlike GRIIS (which records current status), this
+enrichment provides a historical timeline of alien species arrivals. The
+dataset covers all taxa (plants, animals, fungi) with ~77,000
+species-country combinations across 241 countries. The `country`
+argument takes ISO 3166-1 alpha-2 codes, same as
+[`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md).
+
+#### Single country
+
+``` r
+
+aliens <- taxify(c(
+  "Robinia pseudoacacia", "Ailanthus altissima",
+  "Impatiens glandulifera", "Quercus robur",
+  "Ambrosia artemisiifolia", "Solidago canadensis"
+))
+
+aliens |> add_alien_first_records(country = "AT")
+#>              input_name alien_first_record alien_first_record_source alien_first_record_reference
+#> 1   Robinia pseudoacacia               1850                   NOBANIS                      NOBANIS
+#> 2    Ailanthus altissima               1870                   NOBANIS                      NOBANIS
+#> 3 Impatiens glandulifera               1900                   NOBANIS                      NOBANIS
+#> 4          Quercus robur                 NA                      <NA>                         <NA>
+#> 5 Ambrosia artemisiifolia              1863                   NOBANIS                      NOBANIS
+#> 6  Solidago canadensis                 1850                   NOBANIS                      NOBANIS
+```
+
+Each row gets three columns: `alien_first_record` (the year as an
+integer), `alien_first_record_source` (the database that contributed
+this record, e.g., “NOBANIS”, “GAVIA”, “FishBase”), and
+`alien_first_record_reference` (the original citation). Native species
+like *Quercus robur* receive `NA` because they are not in the alien
+first records database.
+
+The source and reference columns provide row-level provenance. This
+matters because a second first-records source (GBIF occurrence-based
+records) will be added in a future version, and the `source` column will
+distinguish which database contributed each record.
+
+#### Multiple countries
+
+``` r
+
+aliens |> add_alien_first_records(country = c("AT", "DE", "GB"))
+#>              input_name alien_first_record_AT alien_first_record_DE alien_first_record_GB ...
+#> 1   Robinia pseudoacacia                  1850                  1630                  1640 ...
+#> 2    Ailanthus altissima                  1870                  1780                  1751 ...
+#> 3 Impatiens glandulifera                  1900                  1839                  1855 ...
+```
+
+With multiple countries, each of the three value columns gets a country
+suffix: `alien_first_record_AT`, `alien_first_record_source_AT`,
+`alien_first_record_reference_AT`, etc. This makes cross-country
+comparisons of invasion history straightforward.
+
+#### Reshaping to long format
+
+When working with multiple countries, the wide format can be unwieldy
+for modelling, mapping, or timeline analyses. The
+[`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
+helper reshapes any group-based enrichment columns back to long format:
+
+``` r
+
+aliens |>
+  add_alien_first_records(country = c("AT", "DE", "GB")) |>
+  taxify_long()
+#>              input_name country_code alien_first_record alien_first_record_source ...
+#> 1   Robinia pseudoacacia           AT               1850                   NOBANIS ...
+#> 2    Ailanthus altissima           AT               1870                   NOBANIS ...
+#> ...
+#> 7   Robinia pseudoacacia           DE               1630              Long (2003) ...
+#> ...
+```
+
+When `cols` and `group_col` are omitted,
+[`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
+auto-detects them from metadata stamped by the `add_*()` functions. The
+result has one row per species per country, with the base column names
+(no suffix) and a new `country_code` column. The `drop_na = TRUE`
+argument removes rows where all value columns are `NA` (e.g., native
+species with no alien first record in any queried country).
+
+[`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
+works with any group-based enrichment, not just alien first records. It
+can reshape `invasive_status`, `native_status`, or `common_name` columns
+just as easily:
+
+``` r
+
+aliens |>
+  add_invasive_status(country = c("AT", "DE")) |>
+  taxify_long()
+```
+
+When multiple grouped enrichments share the same group column, they are
+reshaped together. If an enrichment covers different groups than another
+(e.g., GRIIS for AT/DE but first records for AT/DE/CH), the missing
+combinations are padded with `NA`:
+
+``` r
+
+aliens |>
+  add_invasive_status(country = c("AT", "DE")) |>
+  add_alien_first_records(country = c("AT", "DE", "CH")) |>
+  taxify_long()
+```
+
+You can still provide `cols` and `group_col` explicitly to override
+auto-detection or to rename the group column.
+
 ### Native range by botanical region (WCVP)
 
 The World Checklist of Vascular Plants (WCVP) from the Royal Botanic
@@ -938,6 +1693,46 @@ from the manifest (the `available_groups` field for the `wcvp`
 enrichment), or from the TDWG geographic standard documentation. WCVP is
 non-static: Kew updates the checklist periodically, and the taxify
 enrichment is rebuilt when new versions are published.
+
+### Naturalized alien flora by region (GloNAF)
+
+The Global Naturalized Alien Flora (GloNAF) records which plant species
+are naturalized in ~1,300 regions worldwide. Unlike GRIIS (which
+classifies species as native/introduced/invasive per country), GloNAF
+provides a binary naturalization flag per region with finer geographic
+resolution, using TDWG-compatible codes extended with dot notation for
+sub-national units (e.g., `"USA.CA"` for California).
+
+``` r
+
+plants <- taxify(c(
+  "Robinia pseudoacacia", "Ailanthus altissima",
+  "Impatiens glandulifera", "Quercus robur"
+))
+
+plants |> add_glonaf(region = "EUR")
+#>              input_name naturalized
+#> 1   Robinia pseudoacacia           1
+#> 2    Ailanthus altissima           1
+#> 3 Impatiens glandulifera           1
+#> 4          Quercus robur          NA
+```
+
+The output column `naturalized` is `1` if the species is recorded as
+naturalized in the queried region, and `NA` otherwise. Multiple regions
+produce suffixed columns (`naturalized_EUR`, `naturalized_NAM`). The
+`region = "all"` option expands to all ~1,300 regions.
+
+GloNAF complements GRIIS: GRIIS provides the invasion status dimension
+(native/introduced/invasive), while GloNAF provides the geographic
+coverage dimension (where has this species established self-sustaining
+populations?). Combining both gives a fuller picture of alien plant
+distributions.
+
+The dataset is licensed under CC BY 4.0. The reference is van Kleunen et
+al. (2019), *Ecology* 100:e02542 (v1.0) and Davis et al. (2025),
+*Ecology* e70245 (v2.0). GloNAF is classified as static in the taxify
+manifest.
 
 ### Common (vernacular) names (GBIF)
 
@@ -1071,6 +1866,51 @@ foraging strata; PanTHERIA provides life-history traits like longevity,
 litter size, and home range. The combination gives a multidimensional
 view of each species’ ecology without any manual data assembly.
 
+The same pattern works for fungi, combining lifestyle traits from
+FungalTraits with guild classifications from FUNGuild:
+
+``` r
+
+fungal_result <- taxify(c(
+  "Amanita muscaria", "Boletus edulis", "Trametes versicolor"
+)) |>
+  add_conservation_status() |>
+  add_fungal_traits() |>
+  add_funguild()
+```
+
+FungalTraits provides the detailed ecological traits (lifestyle, growth
+form, substrate, mycorrhizal exploration type), while FUNGuild adds the
+trophic mode and guild classification. The two enrichments have
+complementary column sets, so there is no overwriting except for growth
+form, which is distinguished by the `funguild_growth_form` prefix in
+FUNGuild. The `confidence_ranking` column from FUNGuild is a useful
+quality filter: restricting to “Highly Probable” assignments before
+downstream analysis reduces noise.
+
+Fish analyses can similarly combine morphological and ecological
+enrichments:
+
+``` r
+
+fish_result <- taxify(c(
+  "Salmo trutta", "Esox lucius", "Gadus morhua"
+)) |>
+  add_conservation_status() |>
+  add_fish_traits() |>
+  add_fishbase()
+```
+
+FISHMORPH provides the morphological ratios (body elongation, fin shape,
+eye size) that define the ecomorphological profile of each species,
+while FishBase adds the ecological and life-history context (trophic
+level, depth range, vulnerability). Note that *Gadus morhua* (Atlantic
+Cod) will have `NA` values in all FISHMORPH columns because FISHMORPH
+covers freshwater species only, but it will be fully populated by
+FishBase. This kind of partial coverage across complementary enrichments
+is expected and easy to diagnose from the
+[`summary()`](https://rdrr.io/r/base/summary.html) output.
+
 Enrichment chains can be as long as needed. Performance is linear in the
 number of enrichments: each `add_*()` call performs one join, regardless
 of how many enrichments have already been applied. A chain of 10
@@ -1089,7 +1929,8 @@ record of which data was used to produce the results.
 ## Coverage patterns
 
 Not all species appear in all enrichments. Each dataset has a taxonomic
-scope (plants, birds, mammals, amphibians, or cross-taxon) and a
+scope (plants, birds, mammals, amphibians, vertebrates, butterflies,
+arthropods, fungi, algae, fish, lizards, or cross-taxon) and a
 geographic scope (global, European, NW European). When an enrichment has
 no data for a species, the corresponding columns contain `NA`.
 Understanding coverage patterns is essential for interpreting enriched
@@ -1101,23 +1942,35 @@ mixed <- taxify(c(
   "Quercus robur",     # plant
   "Parus major",       # bird
   "Vulpes vulpes",     # mammal
-  "Bufo bufo"          # amphibian
+  "Bufo bufo",         # amphibian
+  "Amanita muscaria",  # fungus
+  "Salmo trutta"       # fish
 ))
 
-mixed |> add_woodiness() |> add_avonet() |> add_pantheria() |> add_amphibio()
-#>     input_name woodiness beak_length pantheria_body_mass_g body_size_mm ...
-#> 1 Quercus robur     woody          NA                    NA           NA ...
-#> 2   Parus major        NA        11.2                    NA           NA ...
-#> 3  Vulpes vulpes       NA          NA                5480.0           NA ...
-#> 4     Bufo bufo        NA          NA                    NA        150.0 ...
+mixed |>
+  add_woodiness() |>
+  add_avonet() |>
+  add_pantheria() |>
+  add_amphibio() |>
+  add_fungal_traits() |>
+  add_fishbase()
+#>        input_name woodiness beak_length pantheria_body_mass_g body_size_mm primary_lifestyle fb_trophic_level ...
+#> 1   Quercus robur     woody          NA                    NA           NA              <NA>               NA ...
+#> 2     Parus major        NA        11.2                    NA           NA              <NA>               NA ...
+#> 3   Vulpes vulpes        NA          NA                5480.0           NA              <NA>               NA ...
+#> 4       Bufo bufo        NA          NA                    NA        150.0              <NA>               NA ...
+#> 5 Amanita muscaria       NA          NA                    NA           NA   ectomycorrhizal               NA ...
+#> 6    Salmo trutta        NA          NA                    NA           NA              <NA>              3.4 ...
 ```
 
 Each species populates only the columns from enrichments that cover its
 taxon group. The `NA` values are not errors or data quality problems;
 they reflect the scope of the underlying datasets. *Quercus robur* has a
-woodiness value but no beak length, body mass, or body size. *Parus
-major* has beak length but no woodiness, PanTHERIA mass, or AmphiBIO
-size. This is expected behavior.
+woodiness value but no beak length, body mass, body size, fungal traits,
+or fish data. *Amanita muscaria* has a primary lifestyle but no plant,
+bird, mammal, amphibian, or fish traits. *Salmo trutta* has FishBase
+data but nothing from the other taxon-specific enrichments. This is
+expected behavior.
 
 ### Approximate coverage rates by enrichment
 
@@ -1127,20 +1980,31 @@ approximate because enrichments are updated periodically and because
 coverage depends somewhat on the backbone used (different backbones
 accept slightly different sets of names).
 
-| Enrichment          | Taxon scope     | Geographic scope | ~Species      |
-|---------------------|-----------------|------------------|---------------|
-| conservation_status | all groups      | global           | 166,000       |
-| woodiness           | plants          | global           | 50,000        |
-| eive                | plants          | European         | 14,500        |
-| diaz_traits         | plants          | global           | 46,000        |
-| leda                | plants          | NW European      | 8,000         |
-| elton_traits        | birds + mammals | global           | 15,400        |
-| avonet              | birds           | global           | 11,000        |
-| pantheria           | mammals         | global           | 5,400         |
-| amphibio            | amphibians      | global           | 6,800         |
-| griis               | all groups      | per country      | 23,000 combos |
-| wcvp                | plants          | global by region | 340,000       |
-| common_names        | all groups      | multi-language   | varies        |
+| Enrichment | Taxon scope | Geographic scope | ~Species |
+|----|----|----|----|
+| conservation_status | all groups | global | 166,000 |
+| woodiness | plants | global | 50,000 |
+| eive | plants | European | 14,500 |
+| diaz_traits | plants | global | 46,000 |
+| leda | plants | NW European | 8,000 |
+| elton_traits | birds + mammals | global | 15,400 |
+| avonet | birds | global | 11,000 |
+| pantheria | mammals | global | 5,400 |
+| amphibio | amphibians | global | 6,800 |
+| fungal_traits | fungi | global | 10,200 genera |
+| funguild | fungi | global | 13,000 |
+| algae_traits | macroalgae | European | 1,745 |
+| fish_traits | freshwater fish | global | 8,300 |
+| fishbase | all fish | global | 35,000 |
+| lizard_traits | lizards | global | 6,600 |
+| anage | vertebrates | global | 4,700 |
+| animaltraits | cross-taxon (arthropods+) | global | 2,000 |
+| leptraits | butterflies | global | 12,400 |
+| arthropod_traits | arthropods | NW European | 4,900 |
+| griis | all groups | per country | 23,000 combos |
+| glonaf | plants | global by region | 16,000 × 1,300 |
+| wcvp | plants | global by region | 340,000 |
+| common_names | all groups | multi-language | varies |
 
 For a European plant survey, the enrichment with the highest absolute
 coverage is WCVP (~340,000 species), followed by conservation status
@@ -1260,7 +2124,7 @@ v2025.04”).
 ## Practical guidance: which enrichments for which taxa
 
 The choice of enrichments depends on the taxonomic scope and geographic
-focus of the analysis. Below are recommended enrichment stacks for six
+focus of the analysis. Below are recommended enrichment stacks for
 common use cases, with brief notes on what each enrichment contributes.
 
 ### Vascular plants (European)
@@ -1385,44 +2249,134 @@ informative for amphibian analyses. The combination of AmphiBIO habitat
 traits (aquatic, fossorial, arboreal) with IUCN status can reveal
 associations between habitat specialization and extinction risk.
 
-### Marine organisms
+### Fish
 
-There is currently no dedicated marine trait enrichment in taxify. The
-conservation status and common names enrichments cover marine species,
-and the WoRMS backend provides authoritative marine taxonomy. For
-marine- specific trait data (e.g., from FishBase, SeaLifeBase, or the
-World Register of Marine Species), the
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-function can join custom data from any CSV, XLSX, SQLite, or data.frame
-source.
+Fish are covered by two complementary enrichments: FISHMORPH for
+morphological traits of freshwater species, and FishBase for ecological
+and life-history traits across all fish (freshwater + marine). The WoRMS
+backend provides authoritative taxonomy for marine fish; COL and GBIF
+cover both freshwater and marine species.
 
 ``` r
 
 result <- taxify(species_list, backend = "worms") |>
   add_conservation_status() |>
-  add_common_names() |>
-  add_data("fishbase_traits.csv")
+  add_fish_traits() |>
+  add_fishbase() |>
+  add_common_names()
 ```
 
-This pattern generalizes to any taxon group or trait source not covered
-by the built-in enrichments. The key advantage of using
+For freshwater fish community studies, both enrichments contribute data.
+FISHMORPH provides the ecomorphological ratios used in functional
+diversity calculations, while FishBase adds trophic level, depth range,
+and vulnerability. For marine fish studies, only FishBase will
+contribute data (FISHMORPH covers freshwater species only). The
+`fb_vulnerability` column from FishBase is particularly useful alongside
+IUCN conservation status for prioritizing species in fisheries
+management and marine spatial planning.
+
+### Reptiles (lizards)
+
+Lizards are covered by the Meiri lizard traits enrichment, which
+provides life-history and ecological traits for ~6,600 species. Combined
+with conservation status, it gives a functional profile suitable for
+reptile community analyses and conservation assessments.
+
+``` r
+
+result <- taxify(species_list, backend = "col") |>
+  add_conservation_status() |>
+  add_lizard_traits() |>
+  add_common_names()
+```
+
+Snakes and turtles are not covered by the lizard enrichment. For those
+groups, the
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-rather than a manual [`merge()`](https://rdrr.io/r/base/merge.html) is
-that
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-resolves names through the backbone before joining, so synonyms in the
-external data are handled correctly.
+function can join custom trait datasets. For cross-class longevity and
+metabolic comparisons,
+[`add_anage()`](https://gillescolling.com/taxify/reference/add_anage.md)
+covers reptiles alongside mammals, birds, amphibians, and fish.
+
+### Butterflies
+
+LepTraits is the dedicated butterfly enrichment, providing wingspan,
+voltinism, habitat affinities, and host plant data for ~12,400 species
+globally. For European butterfly ecology, it can be combined with the NW
+European Arthropod traits for additional life-history variables.
+
+``` r
+
+result <- taxify(species_list, backend = "col") |>
+  add_conservation_status() |>
+  add_leptraits() |>
+  add_common_names()
+```
+
+### Arthropods (NW European)
+
+For arthropod community studies in NW Europe, the arthropod traits
+enrichment provides the most comprehensive trait coverage. It can be
+combined with AnimalTraits for cross-taxon body mass comparisons and
+with LepTraits for additional butterfly-specific traits.
+
+``` r
+
+result <- taxify(species_list, backend = c("col", "gbif")) |>
+  add_conservation_status() |>
+  add_arthropod_traits() |>
+  add_animaltraits() |>
+  add_common_names()
+```
+
+For arthropod studies outside NW Europe, AnimalTraits provides body mass
+for ~1,700 arthropod species globally, though with fewer trait
+dimensions than the Logghe et al. dataset.
 
 ### Fungi
 
-No fungal trait enrichment is currently bundled with taxify. The COL and
-GBIF backends provide fungal taxonomy, and
-[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
-covers the subset of fungal species that have been assessed by the IUCN
-(currently a small fraction of described fungi). Custom fungal trait
-data (e.g., from FungalTraits or the Global Soil Mycobiome consortium)
-can be joined via
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md).
+Fungi are covered by two enrichments: FungalTraits for genus-level
+ecological traits and FUNGuild for trophic guild classifications. The
+COL and GBIF backends provide fungal taxonomy.
+
+``` r
+
+result <- taxify(species_list, backend = "col") |>
+  add_conservation_status() |>
+  add_fungal_traits() |>
+  add_funguild() |>
+  add_common_names()
+```
+
+FungalTraits provides the lifestyle, growth form, and interaction
+capability traits that describe what each genus does ecologically.
+FUNGuild adds the trophic mode and guild classification used in fungal
+community ecology. The `confidence_ranking` column from FUNGuild allows
+filtering to high-confidence assignments, which is important for
+quantitative analyses where guild misclassification would introduce
+systematic bias.
+
+### Macroalgae (European)
+
+European macroalgae are covered by AlgaeTraits, which provides
+morphological and ecological traits for ~1,745 species. The WoRMS
+backend is recommended for marine algae taxonomy.
+
+``` r
+
+result <- taxify(species_list, backend = "worms") |>
+  add_conservation_status() |>
+  add_algae_traits() |>
+  add_common_names()
+```
+
+AlgaeTraits is geographically scoped to European coastlines. For
+non-European macroalgae studies, the
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+function can join custom datasets. The key advantage of AlgaeTraits over
+general plant trait databases is that it provides marine-specific traits
+(tidal zone, wave exposure, calcification) that are not captured by
+terrestrial plant databases like LEDA or EIVE.
 
 ### Mixed-taxon datasets
 
@@ -1489,7 +2443,7 @@ while keeping the taxon-specific trait matrices clean.
 
 ## Joining custom data
 
-Beyond the 12 built-in enrichments,
+Beyond the built-in enrichments,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 joins any external dataset to a taxify result. It accepts a file path
 (CSV, CSV.GZ, XLSX, SQLite/DB, or VTR) or an in-memory data.frame. The
@@ -1574,22 +2528,27 @@ etc.).
 For reproducibility, the version recorded in `meta.json` pins the exact
 build of each enrichment `.vtr` file that was used. Static enrichments
 (Zanne 2014, PanTHERIA 2009, EltonTraits 2014, AmphiBIO 2017, LEDA 2008,
-Diaz 2022) have fixed versions that never change. Non-static enrichments
-(IUCN, GRIIS, WCVP, common names) are updated when the upstream source
-publishes a new release, and the version in `meta.json` reflects which
-release was used. Reporting the enrichment version in a publication
-ensures that results can be reproduced even if the upstream data is
-later revised or corrected.
+Diaz 2022, Seebens 2017, FungalTraits 2020, FUNGuild 2016, AlgaeTraits
+2023, FISHMORPH 2021, Meiri 2018, LepTraits 2022, AnimalTraits 2022, NW
+European Arthropods 2025, GloNAF 2019) have fixed versions that never
+change. Non-static enrichments (IUCN, GRIIS, WCVP, common names) are
+updated when the upstream source publishes a new release, and the
+version in `meta.json` reflects which release was used. Reporting the
+enrichment version in a publication ensures that results can be
+reproduced even if the upstream data is later revised or corrected.
 
 The licenses of the source datasets range from CC0 (EltonTraits,
-PanTHERIA, woodiness, common names) to CC BY 4.0 (EIVE, AmphiBIO,
-AVONET, GRIIS) and CC BY 3.0 (Diaz traits). LEDA and WCVP have their own
-terms published on their respective websites. The taxify package itself
-does not redistribute these datasets in their original form; the `.vtr`
-files are built from publicly available sources and distributed via
-GitHub Releases. When using enrichment data in a publication, cite the
-original source (the reference on the `?add_*` help page) and optionally
-note the taxify enrichment version for reproducibility.
+PanTHERIA, woodiness, common names, LepTraits, AnimalTraits) to CC BY
+4.0 (EIVE, AmphiBIO, AVONET, GRIIS, GloNAF, FungalTraits, AlgaeTraits,
+FISHMORPH, Meiri lizard traits), CC BY (AnAge), CC BY-NC (NW European
+Arthropods), CC BY 3.0 (Diaz traits), and CC BY-NC 3.0 (FishBase). LEDA
+and WCVP have their own terms published on their respective websites.
+The taxify package itself does not redistribute these datasets in their
+original form; the `.vtr` files are built from publicly available
+sources and distributed via GitHub Releases. When using enrichment data
+in a publication, cite the original source (the reference on the
+`?add_*` help page) and optionally note the taxify enrichment version
+for reproducibility.
 
 A minimal methods paragraph citing enrichments might read:
 
@@ -1605,10 +2564,11 @@ A minimal methods paragraph citing enrichments might read:
 ## Summary
 
 taxify’s enrichment system turns taxonomic name matching into a gateway
-to ecological trait data. The 12 built-in enrichments cover conservation
+to ecological trait data. The 22 built-in enrichments cover conservation
 status, growth form, ecological niches, functional traits, diet,
 morphology, life-history, geographic ranges, invasive status, and
-vernacular names across plants, birds, mammals, and amphibians. All
+vernacular names across plants, birds, mammals, amphibians, vertebrates,
+butterflies, arthropods, fungi, algae, fish, and reptiles. All
 enrichments share the same underlying join mechanics, download
 automatically on first use, cache locally for subsequent sessions, and
 compose freely with the pipe operator.
@@ -1623,7 +2583,7 @@ rates, supporting both exploratory analysis and reproducible reporting.
 For taxa or traits not covered by the built-in layers,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 integrates any external dataset using the same backbone-resolved name
-matching. Between the 12 built-in enrichments and the
+matching. Between the built-in enrichments and the
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 escape hatch, most common ecological analyses can go from raw species
 lists to trait-enriched analytical tables in a single pipe chain.

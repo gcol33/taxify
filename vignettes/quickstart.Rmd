@@ -15,1312 +15,487 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Why taxify
+```{r va-engine, echo = FALSE, results = "asis", eval = TRUE}
+cat('
+<style>
+pre, pre.sourceCode, div.sourceCode { overflow-x: auto; max-width: 100%; }
+canvas { display:block; margin: 6px auto; }
+</style>
+<script>
+window.VA = {
+  ease:function(t){return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;},
+  easeOut:function(t){return 1-Math.pow(1-t,3);},
+  lerp:function(a,b,t){return a+(b-a)*t;},
+  clamp:function(v,a,b){return Math.max(a,Math.min(b,v));},
+  C:{bg:"#0b0d17",grid:"#19203a",green:"#33ff8a",red:"#ff3b6b",cyan:"#3ad7ff",amber:"#ffc24b",purple:"#b388ff",ink:"#d7def7",mut:"#7f8bb5",off:"#1d2540"},
+  F:function(sz,bold){return (bold?"bold ":"")+Math.round(sz*1.25)+"px monospace";},
+  bg:function(c,w,h){c.fillStyle=this.C.bg;c.fillRect(0,0,w,h);c.strokeStyle=this.C.grid;c.lineWidth=1;for(var gx=26;gx<w;gx+=26){c.beginPath();c.moveTo(gx+0.5,0);c.lineTo(gx+0.5,h);c.stroke();}for(var gy=26;gy<h;gy+=26){c.beginPath();c.moveTo(0,gy+0.5);c.lineTo(w,gy+0.5);c.stroke();}},
+  scan:function(c,w,h){c.save();c.globalAlpha=0.07;c.fillStyle="#000";for(var y=0;y<h;y+=3)c.fillRect(0,y,w,1);c.restore();},
+  glow:function(c,col,b){c.shadowColor=col;c.shadowBlur=b;},
+  noglow:function(c){c.shadowBlur=0;c.shadowColor="transparent";},
+  setup:function(id){var cv=document.getElementById(id);if(!cv)return null;var ctx=cv.getContext("2d");var w=cv.width,h=cv.height,d=window.devicePixelRatio||1;cv.width=w*d;cv.height=h*d;cv.style.width=w+"px";cv.style.height="auto";ctx.scale(d,d);return {ctx:ctx,w:w,h:h};},
+  run:function(drawAt,period,btnId,key,cvId){var fz=(window.__FREEZE&&(key in window.__FREEZE))?window.__FREEZE[key]:null;if(fz!=null){drawAt(((fz%period)+period)%period);return;}var start=performance.now();function loop(now){var e=(now-start)/1000;if(e<0)e=0;drawAt(e%period);requestAnimationFrame(loop);}requestAnimationFrame(loop);function restart(){start=performance.now();}if(btnId){var b=document.getElementById(btnId);if(b)b.onclick=restart;}if(cvId){var cv=document.getElementById(cvId);if(cv){cv.style.cursor="pointer";cv.title="click to replay";cv.onclick=restart;}}}
+};
+</script>
+')
+```
 
-Biodiversity data analysis almost always starts with a name-matching step.
-Field records, herbarium labels, and literature extractions use different
-spellings, outdated synonyms, and informal qualifiers. Before any
-statistical work can begin, those raw strings need to be resolved to a
-single accepted name per taxon.
+## What taxify solves
 
-Two R packages handle this well:
-[taxize](https://docs.ropensci.org/taxize/) queries online APIs in real
-time, and [WorldFlora](https://cran.r-project.org/package=WorldFlora)
-matches names offline against the WFO backbone. taxify builds on the same
-idea but works offline against ten backbone databases at once, with fuzzy
-matching in C, synonym resolution, and a built-in enrichment pipeline for
-joining trait and status data.
+Almost every biodiversity dataset starts as a column of names. Before any
+analysis, those strings have to resolve to one accepted name per taxon, and they
+rarely line up on their own: authorship, field qualifiers, capitalization,
+historical synonyms, hybrids, and plain typos all keep two records of the same
+species apart. A bare `merge()` on raw strings silently drops every row that
+disagrees, so the matching has to come first.
 
-taxify takes a different approach. It downloads Darwin Core backbone
-snapshots to disk once, converts them to a compressed columnar format (.vtr
-files powered by the vectra engine), and runs all matching offline against
-those local copies. Nine backbones are available: WFO (plants), COL
-(all-kingdom catalogue), GBIF (all kingdoms, largest), ITIS (North American
-focus), NCBI Taxonomy (molecular/genomic), Open Tree of Life (synthetic
-tree), WoRMS (marine taxa), Species Fungorum (fungi), and AlgaeBase
-(algae). A single function call matches names, resolves synonyms, and
-returns a uniform 16-column data.frame regardless of which backbone was used.
-
-The choice of backbone matters. WFO is maintained by the World Flora Online
-consortium and represents the most authoritative source for vascular plants,
-bryophytes, and ferns. COL (the Catalogue of Life) covers all kingdoms but
-with less taxonomic depth per group; it is a good second choice when a
-dataset mixes plants with fungi or animals. GBIF has the widest raw coverage
-because it aggregates multiple source taxonomies, but its synonym handling is
-coarser. For marine taxa, WoRMS is the standard. For molecular work, NCBI
-Taxonomy aligns with GenBank accession metadata. The remaining backbones
-serve more specialized needs: ITIS for North American regulatory contexts,
-OTT for phylogenetic placement, Species Fungorum for fungal nomenclature,
-and AlgaeBase for algal taxonomy.
-
-This vignette walks through the core workflow: installing a backbone,
-matching names, reading the output, and layering on enrichment data. The
-code chunks are not evaluated here because the backbone files are too large
-for CRAN build infrastructure, but every example uses real species names and
-realistic outputs.
+`taxify()` takes a character vector and returns one standardized table: each name
+cleaned, matched against a backbone you keep on disk, synonyms resolved to the
+accepted name. Matching runs in C through the [vectra](https://github.com/gcol33/vectra)
+engine, so there are no web services and no rate limits, and the same input gives
+the same output on any machine. Nine Darwin Core backbones are available (WFO,
+COL, GBIF, ITIS, NCBI, OTT, WoRMS, Species Fungorum, AlgaeBase), all queried
+offline.
 
 ```{r}
 library(taxify)
 ```
 
-## Installing a backbone
+The first `taxify()` call downloads a backbone once (WFO is about 150 MB) and
+caches it under `taxify_data_dir()`. After that, nothing touches the network.
 
-The first call to `taxify()` auto-downloads the WFO backbone if no local
-copy exists. For a more deliberate setup, or to pre-install several
-backbones before an analysis session, use `taxify_download_vtr()`.
+## One call
 
-```{r}
-# Download the WFO backbone (~150 MB)
-taxify_download_vtr("wfo")
-```
-
-```
-#> i WFO backbone not found locally. Downloading v2024-12...
-#> v WFO backbone ready (v2024-12, 148 MB).
-```
-
-The file lands in a platform-appropriate data directory. On Linux that is
-typically `~/.local/share/R/taxify/wfo/latest/wfo.vtr`; on macOS,
-`~/Library/Application Support/R/taxify/wfo/latest/wfo.vtr`; on Windows,
-`%LOCALAPPDATA%/R/data/R/taxify/wfo/latest/wfo.vtr`.
+Hand `taxify()` a vector of names. The list below is deliberately small and
+deliberately messy: every entry takes a different route to its accepted name.
 
 ```{r}
-taxify_data_dir()
-```
-
-```
-#> [1] "/home/user/.local/share/R/taxify"
-```
-
-Multiple backbones can be installed in one call. Each backbone is
-independent and occupies its own subdirectory.
-
-```{r}
-taxify_download_vtr(c("wfo", "col", "gbif"))
-```
-
-taxify checks backbone versions once per R session. If a newer release
-appears on Zenodo, the next `taxify()` call downloads the update
-automatically. Pinned versions (useful for reproducibility) are also
-supported: `taxify_download_vtr("wfo", version = "2024.06")` downloads
-into a separate directory that is never overwritten. This distinction
-matters for long-running projects. The "latest" directory always tracks the
-most recent release, while a pinned directory preserves an exact snapshot.
-If a collaborator needs to reproduce your results six months later, the
-pinned version guarantees that the same backbone rows are used even if WFO
-has published a new release in the interim.
-
-
-## Basic matching
-
-The core function is `taxify()`. It accepts a character vector of taxonomic
-names and returns a data.frame with one row per input name.
-
-```{r}
-result <- taxify(c(
-  "Quercus robur",
-  "Pinus sylvestris",
-  "Betula pendula",
-  "Fagus sylvatica",
-  "Acer pseudoplatanus"
-))
-```
-
-```
-#> Matching 5 names...
-```
-
-The result is a standard data.frame. Every column is character or logical,
-so it plays well with dplyr, data.table, or base R subsetting without type
-coercion surprises.
-
-```{r}
-result[, c("input_name", "accepted_name", "family", "match_type")]
-```
-
-```
-#>              input_name       accepted_name    family match_type
-#> 1        Quercus robur       Quercus robur   Fagaceae      exact
-#> 2     Pinus sylvestris    Pinus sylvestris   Pinaceae      exact
-#> 3       Betula pendula      Betula pendula Betulaceae      exact
-#> 4      Fagus sylvatica     Fagus sylvatica   Fagaceae      exact
-#> 5 Acer pseudoplatanus Acer pseudoplatanus Sapindaceae      exact
-```
-
-All five names matched exactly. The `family` column comes from the backbone,
-not from a separate taxonomy lookup, so it is always consistent with the
-accepted name.
-
-
-## Understanding the output
-
-Every `taxify()` call returns the same 16 columns, regardless of which
-backbone produced the match. This uniformity means downstream code never
-needs to branch on backend type.
-
-| Column | Type | Description |
-|:---|:---|:---|
-| `input_name` | character | The original string as submitted |
-| `matched_name` | character | The backbone entry that matched |
-| `accepted_name` | character | The currently accepted name (equals `matched_name` when the match is not a synonym) |
-| `taxon_id` | character | Backend-specific ID of the matched name |
-| `accepted_id` | character | ID of the accepted name |
-| `rank` | character | Taxonomic rank: species, subspecies, genus, family, etc. |
-| `family` | character | Family of the accepted name |
-| `genus` | character | Genus of the accepted name |
-| `epithet` | character | Specific epithet |
-| `authorship` | character | Taxonomic authority string |
-| `is_synonym` | logical | TRUE if the matched name is a synonym |
-| `is_hybrid` | logical | TRUE if a hybrid marker was detected in the input |
-| `match_type` | character | One of `exact`, `exact_ci`, `fuzzy`, `out_of_scope`, or `none` |
-| `fuzzy_dist` | numeric | Normalized edit distance (0–1), NA for exact matches |
-| `backend` | character | Which backbone was used (e.g., `wfo`, `col`, `gbif`) |
-| `backbone_version` | character | Backend name, version, and download date for reproducibility |
-
-To see what a single row looks like in practice, consider the synonym
-"Pinus abies" matched against WFO.
-
-```{r}
-row <- taxify("Pinus abies")
-t(row)
-```
-
-```
-#>                  [,1]
-#> input_name       "Pinus abies"
-#> matched_name     "Pinus abies"
-#> accepted_name    "Picea abies"
-#> taxon_id         "wfo-0000483065"
-#> accepted_id      "wfo-0000471692"
-#> rank             "species"
-#> family           "Pinaceae"
-#> genus            "Picea"
-#> epithet          "abies"
-#> authorship       "L."
-#> is_synonym       "TRUE"
-#> is_hybrid        "FALSE"
-#> match_type       "exact"
-#> fuzzy_dist       NA
-#> backend          "wfo"
-#> backbone_version "wfo:2024-12 (2026-04-01)"
-```
-
-Several things stand out. The `taxon_id` is the WFO identifier of the
-row that actually matched ("Pinus abies"), while `accepted_id` points to
-the currently accepted taxon ("Picea abies"). These two IDs differ
-whenever a synonym is involved. The `genus` and `family` columns always
-reflect the accepted name, not the matched synonym, so downstream joins
-on genus or family work correctly even for synonym inputs. The
-`backbone_version` string encodes both the WFO release version and the
-date the backbone was downloaded. This is useful for methods sections:
-"We matched names against WFO v2024-12, downloaded 2026-04-01."
-
-When a name is not a synonym, `taxon_id` and `accepted_id` are identical,
-`matched_name` and `accepted_name` are identical, and `is_synonym` is
-FALSE. The `fuzzy_dist` column holds NA for all exact and case-insensitive
-matches; it only gets a numeric value for fuzzy matches. This makes it
-straightforward to filter for uncertain matches with
-`result[!is.na(result$fuzzy_dist), ]`.
-
-The `rank` column deserves a brief note. Most matched names will have rank
-"species", but taxify also matches genus-level names (rank "genus"),
-infraspecific names (rank "subspecies", "variety", "form"), and
-higher-rank names (rank "family", "order", etc.) when they appear in the
-backbone. If you submit "Quercus" without an epithet, taxify matches the
-genus-level entry and returns rank "genus". If you submit "Pinus sylvestris
-var. hamata" and the variety exists in the backbone, you get rank "variety";
-if it does not exist, taxify falls back to the species-level match and
-returns rank "species".
-
-The `authorship` column contains the taxonomic authority as recorded in the
-backbone. For WFO this is typically the standard abbreviation ("L.", "Sm.",
-"(Aiton) Sm."), while COL and GBIF may include the full unabbreviated author
-name. Note that this is the authorship of the *matched* name, not
-necessarily of the accepted name. When a synonym is matched, the authorship
-reflects the synonym's authority. This can be useful for disambiguating
-homonyms (different species that share the same binomial but differ in
-authorship).
-
-
-## Name cleaning
-
-taxify cleans input names before matching, so messy real-world data works
-without manual preprocessing. The cleaning pipeline runs entirely on the
-user's input vector (which is small); the backbone is already clean. The
-following transformations happen in order:
-
-1. **Qualifier stripping.** Prefixes and infixes like `cf.`, `aff.`,
-   `s.l.`, `s.str.`, `sp.`, `spp.`, `subsp.`, `var.`, `f.`, `auct.`,
-   `sensu`, `agg.` are removed. The qualifier is recorded separately and
-   can be retrieved later with `add_qualifier_info()`.
-
-2. **Authorship removal.** Parenthesized authorship strings like "(L.)" or
-   "(Aiton) Sm." are stripped first, then trailing authorship patterns like
-   "L." or "ex DC." are removed. The backbone's own `authorship` column
-   still carries the authority for the matched name.
-
-3. **Whitespace and case normalization.** Multiple spaces collapse to one.
-   Everything except the genus initial is lowercased. "ACER PSEUDOPLATANUS"
-   becomes "Acer pseudoplatanus".
-
-4. **Hybrid marker detection.** The multiplication sign, the letter "x"
-   between genus and epithet, or "x" between two binomials are recognized
-   as hybrid markers. The `is_hybrid` flag is set, and the marker is
-   stripped for matching purposes.
-
-5. **Latin orthographic normalization.** Common epithet spelling
-   alternations are reduced to a canonical form. Pairs like
-   "hirtaeformis"/"hirtiformis", "caeruleum"/"ceruleum", and
-   "phyllum"/"fillum" all normalize to the same key. This catches
-   mismatches that are really just alternative transliterations, not typos.
-
-Here are those transformations in action.
-
-```{r}
-messy_result <- taxify(c(
-  "Quercus robur L.",              # trailing authorship
-  "cf. Betula pendula",            # qualifier prefix
-  "Pinus sylvestris var. hamata",  # infraspecific qualifier
-  "  Fagus   sylvatica  ",         # extra whitespace
-  "ACER PSEUDOPLATANUS"            # all caps
-))
-
-messy_result[, c("input_name", "accepted_name", "match_type")]
-```
-
-```
-#>                        input_name       accepted_name match_type
-#> 1              Quercus robur L.        Quercus robur      exact
-#> 2            cf. Betula pendula       Betula pendula      exact
-#> 3 Pinus sylvestris var. hamata    Pinus sylvestris      exact
-#> 4           Fagus   sylvatica      Fagus sylvatica      exact
-#> 5         ACER PSEUDOPLATANUS  Acer pseudoplatanus   exact_ci
-```
-
-The authorship "L." after "Quercus robur" was removed before matching.
-The "cf." prefix on "Betula pendula" was stripped (the qualifier itself
-is recorded internally and can be retrieved with `add_qualifier_info()`).
-"Pinus sylvestris var. hamata" did not match at the variety rank, so taxify
-fell back to matching "Pinus sylvestris" at species rank and reported it as
-an exact match. The all-caps version of Acer pseudoplatanus matched after
-case folding, so it received match type `exact_ci`.
-
-Latin orthographic normalization is grouped under `exact_ci` as well, since
-no edit distance algorithm is involved. The normalizer handles six common
-alternation patterns in Latin epithets: `ae`/`i` (as in caeruleum/ceruleum),
-`oe`/`i`, terminal `ii`/`i`, `y`/`i`, `ph`/`f` (phyllum/fillum), `rh`/`r`,
-and `th`/`t`. These transformations are applied only to the epithet, never to
-the genus, and only during the normalization matching pass. They catch a
-class of discrepancies that would otherwise require fuzzy matching and consume
-edit-distance budget that might be needed for genuine typos.
-
-The cleaning pipeline is conservative by design. It strips known qualifiers
-and authorship patterns but preserves the core binomial. It does not attempt
-to correct obvious misspellings (that is the fuzzy matcher's job), and it
-does not guess at abbreviated genus names. The goal is to remove noise while
-leaving the signal intact for the matching engine to handle.
-
-
-## Synonym resolution
-
-Synonyms are resolved transparently. When a submitted name matches a synonym
-in the backbone, `matched_name` shows what was found and `accepted_name`
-shows what it resolves to. The `is_synonym` flag marks these rows.
-
-```{r}
-syn_result <- taxify(c(
-  "Picea abies",
-  "Pinus abies",       # basionym / synonym of Picea abies
-  "Quercus robur",
-  "Quercus pedunculata" # synonym of Quercus robur
-))
-
-syn_result[, c("input_name", "matched_name", "accepted_name", "is_synonym")]
-```
-
-```
-#>            input_name       matched_name  accepted_name is_synonym
-#> 1         Picea abies        Picea abies    Picea abies      FALSE
-#> 2         Pinus abies        Pinus abies    Picea abies       TRUE
-#> 3       Quercus robur      Quercus robur  Quercus robur      FALSE
-#> 4 Quercus pedunculata Quercus pedunculata Quercus robur       TRUE
-```
-
-Both "Pinus abies" and "Picea abies" resolve to the same `accepted_name`,
-and both share the same `accepted_id`. This is the key that enrichment
-joins and `add_data()` use, so trait data attached via accepted ID propagates
-correctly regardless of which synonym the user submitted.
-
-Some species accumulate many synonyms over their taxonomic history. The
-common Norway spruce has been described under at least four different genera:
-*Pinus abies* L. (the Linnaean basionym), *Abies picea* Mill., *Picea
-excelsa* (Lam.) Link, and the accepted *Picea abies* (L.) H.Karst. All
-four names are present in the WFO backbone as synonyms pointing to the same
-accepted taxon ID. Submitting any of them to taxify returns the same
-`accepted_name` and `accepted_id`.
-
-```{r}
-spruce <- taxify(c(
-  "Picea abies",       # accepted name
-  "Pinus abies",       # Linnaean basionym
-  "Abies picea",       # Miller's combination
-  "Picea excelsa"      # Link's combination
-))
-
-spruce[, c("input_name", "accepted_name", "accepted_id", "is_synonym")]
-```
-
-```
-#>       input_name accepted_name     accepted_id is_synonym
-#> 1    Picea abies   Picea abies wfo-0000471692      FALSE
-#> 2    Pinus abies   Picea abies wfo-0000471692       TRUE
-#> 3    Abies picea   Picea abies wfo-0000471692       TRUE
-#> 4  Picea excelsa   Picea abies wfo-0000471692       TRUE
-```
-
-The identical `accepted_id` across all four rows means any downstream
-operation that groups or joins on accepted ID treats them as the same
-species. This is the entire point of synonym resolution: it collapses the
-many-to-one relationship between historical names and the current consensus.
-
-Taxonomic synonyms come in two flavours. A *homotypic synonym* (also called
-a nomenclatural synonym) is based on the same type specimen as the accepted
-name; the species was simply moved to a different genus. "Pinus abies" is a
-homotypic synonym of "Picea abies" because both are based on the same
-Linnaean type. A *heterotypic synonym* (also called a taxonomic synonym) is
-based on a different type specimen but was later judged to represent the
-same species. taxify does not distinguish between the two in the output: the
-`is_synonym` column is TRUE for both. Some backbones (GBIF, COL) do record
-whether a synonym is homotypic or heterotypic, and that information is
-available via `add_gbif_info()` or `add_col_info()`, but for most workflows
-the simple TRUE/FALSE flag is sufficient.
-
-Synonym resolution handles chains. If synonym A points to synonym B, which
-points to accepted name C, taxify follows the chain (up to 10 hops) and
-returns C. This matters for backbones like COL and GBIF where synonym chains
-of length two or three are common.
-
-
-## Match types
-
-taxify classifies every match into one of five categories. Each category
-reflects a different level of confidence in the result.
-
-**exact**: The cleaned input matches a backbone entry character for
-character. This is the fastest path and the most reliable. In practice,
-the majority of well-formatted species names fall into this category.
-
-```{r}
-taxify("Quercus robur")[, c("input_name", "match_type", "fuzzy_dist")]
-```
-
-```
-#>     input_name match_type fuzzy_dist
-#> 1 Quercus robur      exact         NA
-```
-
-**exact_ci**: The input matches after case folding or after Latin
-orthographic normalization. No edit distance is involved. This category
-catches two distinct classes of mismatch: pure capitalization differences,
-and Latin spelling alternations.
-
-```{r}
-taxify("quercus robur")[, c("input_name", "match_type", "fuzzy_dist")]
-```
-
-```
-#>     input_name match_type fuzzy_dist
-#> 1 quercus robur   exact_ci         NA
-```
-
-The name "quercus robur" (all lowercase) does not match "Quercus robur"
-character-for-character, but it does match after case folding. The match
-type is `exact_ci` and `fuzzy_dist` remains NA because no edit distance
-algorithm was needed.
-
-**fuzzy**: The input does not match exactly but falls within the allowed
-edit distance of a backbone entry. The default threshold is 0.2 (normalized
-Damerau-Levenshtein), which allows roughly one edit per five characters.
-Fuzzy matching is genus-blocked: "Quercus robor" will only be compared
-against other *Quercus* entries, not the entire backbone.
-
-```{r}
-taxify("Quercus robor")[, c("input_name", "accepted_name",
-                            "match_type", "fuzzy_dist")]
-```
-
-```
-#>     input_name accepted_name match_type fuzzy_dist
-#> 1 Quercus robor Quercus robur      fuzzy 0.07142857
-```
-
-The typo "robor" (missing the "u") was corrected to "Quercus robur" with a
-normalized edit distance of about 0.07. The `fuzzy_dist` column always
-holds the normalized distance, so values are comparable across names of
-different lengths.
-
-**out_of_scope**: The genus is recognized in the genus register but is
-not covered by the requested backbone. Submitting "Panthera leo" to the
-WFO backbone (plants only) produces this classification, because taxify
-knows *Panthera* is a real genus that belongs to a different backbone.
-
-```{r}
-taxify("Panthera leo")[, c("input_name", "match_type", "life_form")]
-```
-
-```
-#>    input_name   match_type life_form
-#> 1 Panthera leo out_of_scope    animal
-```
-
-The `life_form` column (populated from the genus register) shows "animal",
-which explains why the name is out of scope for a plant-only backbone. The
-summary method uses this information to suggest alternative backends.
-
-**none**: No match was found and the genus is either unknown or also
-covered by the requested backend. This means the name is genuinely absent
-from the backbone, not merely scoped to a different one.
-
-```{r}
-taxify("Fakegenus fakus")[, c("input_name", "match_type")]
-```
-
-```
-#>       input_name match_type
-#> 1 Fakegenus fakus       none
-```
-
-"Fakegenus fakus" is not recognized by any backbone, so it receives `none`.
-There is no genus register entry for "Fakegenus", no alternative backend to
-suggest. In real-world datasets, `none` typically indicates a garbled name, a
-common name that was not converted to Latin, or an organism described in a
-publication that predates the backbone's coverage.
-
-The five categories together give a complete picture of match quality.
-A quick diagnostic pass over the output might look like this:
-
-```{r}
-types_result <- taxify(c(
-  "Quercus robur",      # exact
-  "quercus robur",      # exact_ci (case folding)
-  "Quercus robor",      # fuzzy (one-char typo)
-  "Panthera leo",       # out_of_scope (animal in WFO)
-  "Fakegenus fakus"     # none
-))
-
-table(types_result$match_type)
-```
-
-```
-#>       exact    exact_ci       fuzzy        none out_of_scope
-#>           1           1           1           1            1
-```
-
-Fuzzy matching is controlled by three arguments. `fuzzy = FALSE` disables it
-entirely. `fuzzy_threshold` sets the maximum normalized distance (default
-0.2) or, when >= 1, a raw edit count (e.g., `fuzzy_threshold = 2L` allows at
-most 2 edits regardless of name length). `fuzzy_method` selects the
-algorithm: `"dl"` (Damerau-Levenshtein, default), `"levenshtein"`, or `"jw"`
-(Jaro-Winkler).
-
-```{r}
-# Strict: only allow 1 edit total, regardless of name length
-taxify("Quercus robor", fuzzy_threshold = 1L)
-
-# Jaro-Winkler instead of Damerau-Levenshtein
-taxify("Quercus robor", fuzzy_method = "jw")
-
-# No fuzzy matching at all
-taxify("Quercus robor", fuzzy = FALSE)
-```
-
-
-## The summary method
-
-Calling `summary()` on a taxify result prints a compact digest of match
-quality. This is the fastest way to assess whether a run went well or
-whether something needs attention upstream.
-
-```{r}
-mixed <- taxify(c(
-  "Quercus robur", "Pinus sylvestris", "Betula pendula",
-  "Picea abies", "Pinus abies",
-  "Quercus robor",       # typo
-  "Panthera leo",         # animal in WFO
-  "Felis catus",          # animal in WFO
-  "Fakus invalidus"       # genuinely absent
-))
-
-summary(mixed)
-```
-
-```
-#> -- taxify results ------------------------------------------------------------
-#>   backend: WFO v2024-12  |  9 names submitted
-#>
-#>   matched         6  (exact: 4, case-insensitive: 0, fuzzy: 1)
-#>   out of scope    2  (animal: 2 -- not in WFO, try backend = "col", "gbif")
-#>   unmatched       1  (taxon_group: unknown: 1)
-#>   ------------------------------------------------------------
-#>   taxon groups: vascular plant: 6  animal: 2  unknown: 1
-```
-
-The first line identifies the backend and version, and the total number of
-names submitted. The "matched" line breaks down by match type so we can
-immediately see that four names matched exactly, zero needed case folding,
-and one required fuzzy correction. The "out of scope" line reports two
-animal names that have no business being in a plant backbone, and helpfully
-suggests `"col"` or `"gbif"` as alternatives. The "unmatched" line
-tallies genuinely absent names, broken down by taxon group from the genus
-register. The taxon-groups summary at the bottom shows the life-form
-composition of the full input. If a dataset that should be all plants shows
-50 animals, something went wrong upstream.
-
-When enrichments have been applied, the summary includes them as well. Each
-enrichment layer gets its own line showing the source, version, and how
-many species received data.
-
-```{r}
-enriched <- mixed |>
-  add_conservation_status() |>
-  add_woodiness()
-
-summary(enriched)
-```
-
-```
-#> -- taxify results ------------------------------------------------------------
-#>   backend: WFO v2024-12  |  9 names submitted
-#>
-#>   matched         6  (exact: 4, case-insensitive: 0, fuzzy: 1)
-#>   out of scope    2  (animal: 2 -- not in WFO, try backend = "col", "gbif")
-#>   unmatched       1  (taxon_group: unknown: 1)
-#>   ------------------------------------------------------------
-#>   taxon groups: vascular plant: 6  animal: 2  unknown: 1
-#>
-#>   enrichments:
-#>     conservation_status  (IUCN Red List 2024.12) -- 4 of 9 matched
-#>     woodiness            (Zanne et al. 2014 2024.12) -- 5 of 9 matched
-```
-
-The enrichment lines show that 4 of the 9 input names received an IUCN
-conservation status, and 5 received woodiness data. The difference is
-expected: the two animal names and the unmatched name have no records in
-either enrichment, and not every plant species has been assessed by IUCN.
-
-
-## Multi-backend fallback
-
-A single backbone rarely covers everything in a mixed-kingdom dataset.
-Passing multiple backend names creates a fallback chain: names matched by
-an earlier backend are not re-matched by later ones.
-
-```{r}
-multi <- taxify(
-  c("Quercus robur", "Panthera leo", "Amanita muscaria",
-    "Escherichia coli", "Salmo trutta"),
-  backend = c("wfo", "col", "gbif")
-)
-```
-
-```
-#> Matching 5 names against 3 backends: wfo -> col -> gbif
-#>   [wfo] Matching 5 names...
-#>   [col] Matching 3 remaining names...
-#>   [gbif] Matching 1 remaining names...
-```
-
-The progress messages tell the story. WFO receives all 5 names. It matches
-"Quercus robur" (a plant) and fails on the other four. COL then receives
-the 3 remaining names and matches "Panthera leo" (a mammal), "Amanita
-muscaria" (a fungus), and "Salmo trutta" (a fish). That leaves only
-"Escherichia coli" (a bacterium) for GBIF.
-
-```{r}
-multi[, c("input_name", "accepted_name", "backend")]
-```
-
-```
-#>         input_name      accepted_name backend
-#> 1    Quercus robur      Quercus robur     wfo
-#> 2     Panthera leo       Panthera leo     col
-#> 3 Amanita muscaria  Amanita muscaria     col
-#> 4 Escherichia coli  Escherichia coli    gbif
-#> 5     Salmo trutta      Salmo trutta     col
-```
-
-The `backend` column records which backbone resolved each name. This column
-is essential for reproducibility: it tells a reviewer (or your future self)
-that Quercus robur was resolved using WFO while Panthera leo used COL.
-
-The fallback order matters. WFO is the most authoritative source for plants,
-so putting it first ensures plant names get WFO-quality synonym resolution.
-COL covers all kingdoms but with less taxonomic depth per group. GBIF has the
-widest coverage but coarser synonym handling. A sensible default for
-mixed-kingdom work is `backend = c("wfo", "col", "gbif")`.
-
-A subtle point: once a name matches in an earlier backend, it is removed
-from the pool sent to subsequent backends. This means the COL and GBIF
-backends never see "Quercus robur" at all, which both speeds up matching
-and avoids conflicting results for names that exist in multiple backbones.
-If Quercus robur had been sent to all three backbones, it would match in
-each, potentially returning different taxon IDs and slightly different
-synonym chains. The fallback design avoids this ambiguity by construction.
-
-One practical consequence: the `accepted_id` values in a multi-backend
-result are not globally unique across backends. A WFO ID like
-"wfo-0000306015" and a COL ID like "9TQBG" are both valid identifiers
-but belong to different namespaces. Downstream joins that combine results
-from different taxify runs should join on `accepted_name` (which is a
-real taxonomic name) rather than `accepted_id` (which is backend-specific).
-
-The summary for a multi-backend run aggregates across all backends but
-preserves the per-backend breakdown in the out-of-scope tally. It also
-shows the backend names in the header line, making it clear that multiple
-sources contributed to the result.
-
-
-## Enrichments
-
-taxify ships with 12 enrichment layers that join external trait and status
-data to a `taxify()` result. Each enrichment is a separate .vtr file
-downloaded on first use and cached locally. The join key is `accepted_name`,
-so synonyms in the original input resolve correctly.
-
-```{r}
-list_enrichments()
-```
-
-```
-#>                name   version   nrow static                                  trait_cols                                  source_url
-#> 1  conservation_status 2024.12 166342   TRUE                         conservation_status    https://doi.org/10.15468/39omei
-#> 2             griis    2024.12  25918   TRUE                          invasive_status  https://doi.org/10.15468/6jbdk3
-#> 3              wcvp    2024.12 356224   TRUE                            native_status      https://doi.org/10.34885/gah...
-#> 4              eive    2024.12   6937   TRUE   light, temperature, moisture, reaction  https://doi.org/10.1111/jvs.13031
-#> 5       elton_traits   2024.12   9994   TRUE         diet_inv, diet_vend, ..., body...      https://doi.org/10.1890/13-1917.1
-#> 6            avonet    2024.12  11009   TRUE        beak_length, wing_length, migrat...    https://doi.org/10.1111/ele.13898
-#> 7          pantheria   2024.12   5416   TRUE   longevity_mo, litter_size, gestation...   https://doi.org/10.1890/08-1494.1
-#> 8          amphibio    2024.12   6776   TRUE  body_size_mm, age_maturity_d, reproduc...   https://doi.org/10.1038/sdata.2017.123
-#> 9      common_names    2024.12 982445  FALSE                             common_name     https://doi.org/10.15468/39omei
-#> 10        woodiness    2024.12  47898   TRUE                               woodiness        https://doi.org/10.1038/nature12872
-#> 11      diaz_traits   2024.12   7381   TRUE              seed_mass_mg, plant_height_m  https://doi.org/10.1038/s41586-015-...
-#> 12             leda    2024.12   3625   TRUE   raunkiaer_life_form, dispersal_type, ...  https://doi.org/10.1111/j.1365-...
-```
-
-Each `add_*()` function appends one or more columns to the result. The
-functions download their .vtr on first use, so no separate installation step
-is needed. The `static` column in the listing above indicates whether the
-dataset is version-locked (TRUE means it will never change; FALSE means
-taxify checks for updates once per session).
-
-The enrichment join key is `accepted_name`, not `input_name`. This is a
-deliberate choice. If two rows in the taxify result were submitted as
-"Pinus abies" (a synonym) and "Picea abies" (the accepted name), both
-resolve to the same `accepted_name` and therefore receive the same trait
-values from the enrichment layer. The enrichment .vtr files are built with
-cross-backbone name resolution, meaning a species name is resolved against
-all seven backbones during the enrichment build pipeline, and the union of
-all resulting accepted names is stored. This ensures that `add_woodiness()`
-works correctly regardless of whether the user matched against WFO, COL, or
-GBIF.
-
-Some enrichments are kingdom-specific. Woodiness, EIVE, WCVP, Diaz traits,
-and LEDA cover plants only. EltonTraits covers birds and mammals. AVONET is
-bird-only. PanTHERIA is mammal-only. AmphiBIO is amphibian-only.
-Conservation status and common names are cross-kingdom. When an enrichment
-does not cover a particular taxon group, those rows simply receive NA. The
-summary method reports how many rows received data, so the coverage gap is
-immediately visible.
-
-
-### Conservation status
-
-`add_conservation_status()` joins IUCN Red List categories. Coverage is
-global across all taxonomic groups, approximately 166,000 species.
-
-```{r}
-conservation <- taxify(c(
-  "Panthera tigris",
-  "Quercus robur",
-  "Ailuropoda melanoleuca",
-  "Pinus sylvestris",
-  "Spheniscus demersus"
-), backend = c("wfo", "col")) |>
-  add_conservation_status()
-
-conservation[, c("input_name", "accepted_name", "conservation_status")]
-```
-
-```
-#>              input_name          accepted_name conservation_status
-#> 1       Panthera tigris        Panthera tigris                  EN
-#> 2         Quercus robur          Quercus robur                  LC
-#> 3 Ailuropoda melanoleuca Ailuropoda melanoleuca                 VU
-#> 4      Pinus sylvestris       Pinus sylvestris                  LC
-#> 5    Spheniscus demersus    Spheniscus demersus                 EN
-```
-
-The IUCN abbreviations are standard: LC (Least Concern), NT (Near
-Threatened), VU (Vulnerable), EN (Endangered), CR (Critically Endangered),
-EW (Extinct in the Wild), EX (Extinct). Species not yet assessed by the
-IUCN receive NA. The Sumatran tiger and African penguin both show EN;
-Quercus robur and Pinus sylvestris are LC.
-
-
-### Common names
-
-`add_common_names()` joins GBIF vernacular names filtered by ISO 639-1
-language code. The default is English.
-
-```{r}
-common <- taxify(c(
-  "Quercus robur",
-  "Pinus sylvestris",
-  "Betula pendula"
-)) |>
-  add_common_names()
-
-common[, c("input_name", "common_name")]
-```
-
-```
-#>        input_name   common_name
-#> 1   Quercus robur   Pedunculate Oak
-#> 2 Pinus sylvestris  Scots Pine
-#> 3   Betula pendula  Silver Birch
-```
-
-Other languages work the same way. German names for the same species:
-
-```{r}
-common_de <- taxify(c(
-  "Quercus robur",
-  "Pinus sylvestris",
-  "Betula pendula"
-)) |>
-  add_common_names(lang = "de")
-
-common_de[, c("input_name", "common_name")]
-```
-
-```
-#>        input_name common_name
-#> 1   Quercus robur  Stieleiche
-#> 2 Pinus sylvestris Waldkiefer
-#> 3   Betula pendula  Hängebirke
-```
-
-When multiple vernacular names exist for a species in the requested language,
-the most commonly used one is returned.
-
-
-### Woodiness
-
-`add_woodiness()` joins the Zanne et al. (2014) woodiness classification.
-Coverage is about 48,000 plant species, each labelled as "woody",
-"herbaceous", or "variable" (species that can be either depending on growth
-conditions).
-
-```{r}
-woody <- taxify(c(
-  "Quercus robur",
-  "Trifolium repens",
-  "Salix caprea",
-  "Plantago lanceolata"
-)) |>
-  add_woodiness()
-
-woody[, c("input_name", "accepted_name", "woodiness")]
-```
-
-```
-#>           input_name       accepted_name woodiness
-#> 1      Quercus robur       Quercus robur     woody
-#> 2  Trifolium repens    Trifolium repens herbaceous
-#> 3      Salix caprea        Salix caprea     woody
-#> 4 Plantago lanceolata Plantago lanceolata herbaceous
-```
-
-Enrichments stack naturally in a pipe. The columns added by each `add_*()`
-function are independent, so the order of application does not matter.
-
-```{r}
-stacked <- taxify(c(
-  "Quercus robur",
-  "Betula pendula",
-  "Pinus sylvestris"
-)) |>
-  add_conservation_status() |>
-  add_woodiness() |>
-  add_common_names()
-
-stacked[, c("accepted_name", "conservation_status",
-            "woodiness", "common_name")]
-```
-
-```
-#>      accepted_name conservation_status woodiness    common_name
-#> 1    Quercus robur                  LC     woody Pedunculate Oak
-#> 2   Betula pendula                  LC     woody    Silver Birch
-#> 3 Pinus sylvestris                  LC     woody     Scots Pine
-```
-
-
-## Custom data
-
-`add_data()` joins any external dataset to a taxify result through backbone
-matching. The external data's species names are run through the same
-backbone(s) that produced the original result, and the join is performed on
-`accepted_id`. This means synonyms in either the user's data or the external
-dataset resolve to the same key.
-
-### From a data.frame
-
-```{r}
-traits <- data.frame(
-  species = c("Quercus robur", "Quercus pedunculata",
-              "Pinus sylvestris", "Betula pendula"),
-  max_height_m = c(40, 40, 35, 25),
-  shade_tolerance = c("moderate", "moderate", "intolerant", "intolerant"),
-  stringsAsFactors = FALSE
+field_names <- c(
+  "Quercus robur L.",        # authorship to strip
+  "Quercus robus",           # typo
+  "cf. Betula pendula",      # field qualifier
+  "FAGUS SYLVATICA",         # caps
+  "Quercus pedunculata",     # historical synonym of Q. robur
+  "Q. petraea",              # abbreviated genus
+  "Pinus abies",             # synonym of Picea abies (a different genus)
+  "Festuca rubrra",          # typo
+  "Fallopia japonica",       # synonym of Reynoutria japonica (invasive)
+  "Taraxacum officinale"
 )
 
-result <- taxify(c("Quercus robur", "Pinus sylvestris", "Betula pendula"))
-
-enriched <- result |>
-  add_data(traits, species_col = "species")
+res <- taxify(field_names)
+res[, c("input_name", "accepted_name", "family",
+        "is_synonym", "match_type", "fuzzy_dist")]
 ```
 
 ```
-#> Matching 4 names from 'species' through WFO backbone...
-#> Matching 4 names...
+#>             input_name        accepted_name       family is_synonym match_type fuzzy_dist
+#> 1     Quercus robur L.        Quercus robur     Fagaceae      FALSE      exact         NA
+#> 2        Quercus robus        Quercus robur     Fagaceae      FALSE      fuzzy      0.077
+#> 3   cf. Betula pendula       Betula pendula   Betulaceae      FALSE      exact         NA
+#> 4      FAGUS SYLVATICA      Fagus sylvatica     Fagaceae      FALSE   exact_ci         NA
+#> 5  Quercus pedunculata        Quercus robur     Fagaceae       TRUE      exact         NA
+#> 6           Q. petraea      Quercus petraea     Fagaceae      FALSE     abbrev         NA
+#> 7          Pinus abies          Picea abies     Pinaceae       TRUE      exact         NA
+#> 8       Festuca rubrra        Festuca rubra      Poaceae      FALSE      fuzzy      0.071
+#> 9    Fallopia japonica  Reynoutria japonica Polygonaceae       TRUE      exact         NA
+#> 10 Taraxacum officinale Taraxacum officinale  Asteraceae      FALSE      exact         NA
+```
+
+Ten names, ten rows, every match readable. Each row also carries genus,
+authorship, taxon and accepted IDs, a hybrid flag, the backend, and the exact
+backbone version (the full table is wider, the same shape for any input).
+
+Each name reaches its accepted name a different way. The animation below walks one
+name at a time through the pipeline: the clean step strips authorship, a
+qualifier, or case; the match step is exact, case-folded, fuzzy, or abbreviated;
+the resolve step follows a synonym to the current name.
+
+```{r pipe-anim, echo = FALSE, results = "asis", eval = TRUE}
+body <- "
+var s=VA.setup('pp-cv'); if(!s)return; var x=s.ctx,W=s.w,H=s.h,C=VA.C;
+var N=NM.length;
+var labs=['input','clean','match','resolve','accepted'];
+var SX=[64,232,420,602,786];
+var yTrack=176;
+var PER_NAME=4.2,PERIOD=N*PER_NAME;
+function chip(cx,cy,txt,col,w){x.font=VA.F(12);var tw=x.measureText(txt).width;var hw=(w||Math.max(70,tw+16))/2;hw=Math.min(hw,(W-12)/2);cx=VA.clamp(cx,hw+6,W-hw-6);x.save();VA.glow(x,col,9);x.fillStyle=C.bg;x.strokeStyle=col;x.lineWidth=2;x.beginPath();x.rect(cx-hw,cy-15,hw*2,30);x.fill();x.stroke();VA.noglow(x);x.fillStyle=C.ink;x.textAlign='center';x.textBaseline='middle';x.fillText(txt,cx,cy);x.restore();x.textBaseline='alphabetic';}
+function station(i,active,col,sub){var cx=SX[i];x.strokeStyle=active?col:C.off;x.lineWidth=active?2:1;if(active)VA.glow(x,col,8);x.beginPath();x.arc(cx,yTrack,11,0,6.2832);x.stroke();VA.noglow(x);if(active){x.fillStyle=col;x.beginPath();x.arc(cx,yTrack,4,0,6.2832);x.fill();}x.fillStyle=active?C.ink:C.mut;x.font=VA.F(12,active);x.textAlign='center';x.fillText(labs[i],cx,yTrack+34);if(sub){x.fillStyle=col;x.font=VA.F(11);x.fillText(sub,cx,yTrack+50);}}
+function draw(tc){VA.bg(x,W,H);
+  VA.glow(x,C.cyan,7);x.fillStyle=C.cyan;x.textAlign='left';x.font=VA.F(15,true);x.fillText('ONE NAME THROUGH THE PIPELINE',16,28);VA.noglow(x);
+  var gi=Math.min(N-1,Math.floor(tc/PER_NAME));var lt=(tc-gi*PER_NAME)/PER_NAME;
+  var isSyn=SYN[gi]===1;var isNone=MT[gi]==='none';
+  x.strokeStyle=C.grid;x.lineWidth=2;x.beginPath();x.moveTo(SX[0],yTrack);x.lineTo(SX[4],yTrack);x.stroke();
+  var seg=VA.clamp(lt/0.5,0,1)*4;var here=Math.floor(seg+0.0001);
+  for(var i=0;i<5;i++){
+    var reached=i<=here;
+    var col=C.cyan;var sub=null;
+    if(i===1){col=C.amber;sub=reached?CLN[gi]:null;}
+    if(i===2){col=isNone?C.red:C.green;sub=reached?MAT[gi]:null;}
+    if(i===3){col=C.purple;sub=reached?(isSyn?'synonym':'already accepted'):null;if(!isSyn)col=C.off;}
+    if(i===4){col=isNone?C.red:C.green;}
+    station(i,reached,col,sub);
+  }
+  var a=Math.min(3,Math.floor(seg)),f=VA.clamp(seg-a,0,1);
+  var px=VA.lerp(SX[a],SX[a+1],VA.easeOut(f));
+  if(lt<0.5) chip(px,yTrack-46,NM[gi],isNone?C.red:C.cyan);
+  x.fillStyle=C.mut;x.font=VA.F(12);x.textAlign='center';x.fillText('input',SX[0],yTrack-86);
+  x.fillStyle=isNone?C.red:C.green;x.font=VA.F(12,true);x.fillText(isNone?'unmatched':'accepted name',SX[4],yTrack-86);
+  if(lt>=0.5){var aa=VA.clamp((lt-0.5)/0.2,0,1);x.globalAlpha=aa;chip(SX[4],yTrack-46,ACC[gi],isNone?C.red:C.green);x.globalAlpha=1;}
+  var dotw=12;for(var k=0;k<N;k++){var dx=W/2-(N-1)*dotw/2+k*dotw;x.fillStyle=k===gi?C.cyan:C.off;x.beginPath();x.arc(dx,H-20,k===gi?4:3,0,6.2832);x.fill();}
+  VA.scan(x,W,H);
+}
+VA.run(draw,PERIOD,null,'pp','pp-cv');
+"
+cat(paste0(
+  "<canvas id='pp-cv' width='860' height='360' style='max-width:100%'></canvas>\n",
+  "<script>\n(function(){\n",
+  "var NM=[\"Quercus robur L.\",\"Quercus robus\",\"cf. Betula pendula\",\"FAGUS SYLVATICA\",\"Quercus pedunculata\",\"Q. petraea\",\"Pinus abies\",\"Festuca rubrra\",\"Fallopia japonica\",\"Taraxacum officinale\"];\n",
+  "var ACC=[\"Quercus robur\",\"Quercus robur\",\"Betula pendula\",\"Fagus sylvatica\",\"Quercus robur\",\"Quercus petraea\",\"Picea abies\",\"Festuca rubra\",\"Reynoutria japonica\",\"Taraxacum officinale\"];\n",
+  "var MT=[\"exact\",\"fuzzy\",\"exact\",\"exact_ci\",\"exact\",\"abbrev\",\"exact\",\"fuzzy\",\"exact\",\"exact\"];\n",
+  "var CLN=[\"strip author\",\"normalize\",\"drop qualifier\",\"case-fold\",\"normalize\",\"expand genus\",\"normalize\",\"normalize\",\"normalize\",\"normalize\"];\n",
+  "var MAT=[\"exact match\",\"fuzzy, dist 0.077\",\"exact match\",\"case-folded match\",\"exact match\",\"abbreviated genus\",\"exact match\",\"fuzzy, dist 0.071\",\"exact match\",\"exact match\"];\n",
+  "var SYN=[0,0,0,0,1,0,1,0,1,0];\n",
+  body, "\n})();\n</script>\n"))
+```
+
+`Quercus robur L.` loses its authorship before matching. `cf. Betula pendula`
+loses the qualifier. `FAGUS SYLVATICA` matches after case folding (`exact_ci`).
+`Q. petraea` resolves on the genus initial plus epithet (`abbrev`). The three
+synonyms (`Quercus pedunculata`, `Pinus abies`, `Fallopia japonica`) resolve to
+their accepted names, the last being the current name for a well-known invader.
+The two typos go to the fuzzy pass, which is the next thing worth seeing.
+
+## Why a typo barely costs anything
+
+The fuzzy pass never scores a name against the whole backbone. It blocks on genus
+first, so `Quercus robus` is compared only against the other *Quercus* names. A
+one-letter slip is found in a handful of comparisons rather than across every name
+on disk.
+
+```{r block-anim, echo = FALSE, results = "asis", eval = TRUE}
+body <- "
+var s=VA.setup('bl-cv'); if(!s)return; var x=s.ctx,W=s.w,H=s.h,C=VA.C;
+var GX=16,GY=64,COLS=44,ROWS=22,TW=13,TH=15,GW=COLS*TW,GH=ROWS*TH;
+var bc0=8,bc1=15,br0=7,br1=13;
+var winC=12,winR=10;
+var GGX=GX+GW+44,GGW=64,GGY=64,GGH=GH;
+var T1=4.8,H1=2.0,T2=5.9,H2=3.4,CYCLE=T1+H1+T2+H2;
+function inBlock(c,r){return c>=bc0&&c<=bc1&&r>=br0&&r<=br1;}
+function tile(c,r,col,a){x.globalAlpha=a;x.fillStyle=col;x.fillRect(GX+c*TW,GY+r*TH,TW-1.4,TH-1.4);x.globalAlpha=1;}
+function frame(){VA.glow(x,C.cyan,6);x.strokeStyle=C.cyan;x.strokeRect(GX,GY,GW,GH);VA.noglow(x);}
+function blockOutline(){VA.glow(x,C.green,10);x.strokeStyle=C.green;x.lineWidth=2;x.strokeRect(GX+bc0*TW-1,GY+br0*TH-1,(bc1-bc0+1)*TW,(br1-br0+1)*TH);x.lineWidth=1;VA.noglow(x);}
+function gauge(frac,col,ghost,pct){x.strokeStyle=C.mut;x.strokeRect(GGX,GGY,GGW,GGH);var h=Math.max(frac>0?2:0,frac*GGH);VA.glow(x,col,8);x.fillStyle=col;x.fillRect(GGX+1,GGY+GGH-h,GGW-2,h);VA.noglow(x);if(ghost){x.strokeStyle=C.red;x.setLineDash([5,4]);x.lineWidth=1.5;x.beginPath();x.moveTo(GGX-4,GGY+2);x.lineTo(GGX+GGW+4,GGY+2);x.stroke();x.setLineDash([]);x.lineWidth=1;x.fillStyle=C.red;x.font=VA.F(11);x.textAlign='left';x.fillText('whole backbone',GGX-6,GGY-10);}x.fillStyle=C.ink;x.font=VA.F(14,true);x.textAlign='center';x.fillText(pct,GGX+GGW/2,GGY+GGH+20);x.fillStyle=C.mut;x.font=VA.F(11);x.fillText('names scored',GGX+GGW/2,GGY+GGH+36);}
+function header(t,col){x.textAlign='left';VA.glow(x,C.cyan,7);x.fillStyle=C.cyan;x.font=VA.F(15,true);x.fillText('FUZZY MATCH :: Quercus robus',16,26);VA.noglow(x);x.fillStyle=col;x.font=VA.F(13);x.fillText(t,16,46);}
+function draw(tc){VA.bg(x,W,H);
+  var c,r;
+  if(tc<T1){var f=VA.ease(tc/T1);var lim=Math.floor(f*ROWS);
+    for(r=0;r<ROWS;r++)for(c=0;c<COLS;c++){var on=r<lim;tile(c,r,on?C.red:C.off,on?0.85:0.5);}
+    frame();gauge(f,C.red,false,Math.round(f*100)+'%');
+    header('without blocking: every name on disk is a candidate',C.red);
+  } else if(tc<T1+H1){
+    for(r=0;r<ROWS;r++)for(c=0;c<COLS;c++)tile(c,r,C.red,0.85);
+    frame();gauge(1,C.red,false,'100%');
+    header('without blocking: every name on disk is a candidate',C.red);
+  } else if(tc<T1+H1+T2){
+    var ff=(tc-T1-H1)/T2;
+    for(r=0;r<ROWS;r++)for(c=0;c<COLS;c++){var ib=inBlock(c,r);tile(c,r,ib?C.green:C.off,ib?0.85:0.34);}
+    blockOutline();frame();
+    var scanned=Math.floor(ff*(bc1-bc0+1));
+    VA.glow(x,C.amber,7);x.strokeStyle=C.amber;x.lineWidth=2;var sc=Math.min(bc1,bc0+scanned);x.beginPath();x.moveTo(GX+sc*TW,GY+br0*TH);x.lineTo(GX+sc*TW,GY+(br1+1)*TH);x.stroke();x.lineWidth=1;VA.noglow(x);
+    if(ff>0.7){VA.glow(x,'#fff',10);x.fillStyle='#fff';x.fillRect(GX+winC*TW,GY+winR*TH,TW-1.4,TH-1.4);VA.noglow(x);}
+    gauge(0.06,C.green,true,'one genus');
+    header('genus-blocked: scored only against other Quercus',C.green);
+  } else {
+    for(r=0;r<ROWS;r++)for(c=0;c<COLS;c++){var ib2=inBlock(c,r);tile(c,r,ib2?C.green:C.off,ib2?0.55:0.3);}
+    blockOutline();frame();
+    VA.glow(x,'#fff',12);x.fillStyle='#fff';x.fillRect(GX+winC*TW,GY+winR*TH,TW-1.4,TH-1.4);VA.noglow(x);
+    x.fillStyle=C.green;x.font=VA.F(13,true);x.textAlign='left';x.fillText('-> '+QACC+'   (1 edit, dist '+QD+')',GX,GY+GH+24);
+    gauge(0.06,C.green,true,'one genus');
+    header('match found inside the block',C.green);
+  }
+  VA.scan(x,W,H);
+}
+VA.run(draw,CYCLE,null,'bl','bl-cv');
+"
+cat(paste0(
+  "<canvas id='bl-cv' width='860' height='460' style='max-width:100%'></canvas>\n",
+  "<script>\n(function(){\n",
+  "var QACC=\"Quercus robur\",QD=0.077;\n",
+  body, "\n})();\n</script>\n"))
+```
+
+The default threshold allows about one edit per five characters, so common typos
+resolve while genuinely different names do not. Fuzzy matching is controlled by
+`fuzzy`, `fuzzy_threshold`, and `fuzzy_method`; the
+[fuzzy-matching vignette](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
+covers the sub-blocking for very large genera and the genus-typo fallback in full.
+
+## Check the batch at a glance
+
+`summary()` prints a digest, the fastest way to see whether a run went cleanly.
+
+```{r}
+summary(res)
+```
+
+```
+#> ── taxify results ──────────────────────────────────────────────────────────
+#>   backend: WFO v2024-12  |  10 names submitted
+#>
+#>   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)
+#>   ────────────────────────────────────────────────────────────
+#>   taxon groups: angiosperm: 8  gymnosperm: 1  unknown: 1
+```
+
+The digest reports the backend and version, the match-route breakdown (all ten
+resolved here, including the abbreviated `Q. petraea`), and the taxon-group mix.
+When a name is out of scope (an animal in a plant-only backbone) or genuinely
+absent, the digest tallies it and suggests an alternative backend. The match types and the multi-backend fallback
+(`backend = c("wfo", "col", "gbif")`) are covered in the
+[backends vignette](https://gillescolling.com/taxify/articles/backends.html).
+
+## Offline, and how much faster
+
+Every match runs against the local snapshot, so a run reproduces exactly and the
+`backbone_version` column records the WFO release and download date for a methods
+section. On the same task many in this field reach for, WorldFlora's `WFO.match`,
+both run against a local copy and return the same matches; the difference is where
+the matching happens. taxify scores names in C against the compiled backbone,
+WorldFlora in R. On 1,000 plant names with fuzzy matching on (Windows, R 4.5.2):
+
+```{r benchmark-anim, echo = FALSE, results = "asis", eval = TRUE}
+body <- "
+var s=VA.setup('sp-cv'); if(!s)return; var x=s.ctx,W=s.w,H=s.h,C=VA.C;
+var BX=150,BW=W-150-150,b1=96,b2=190,bh=46;
+var PERIOD=17,HOLD=4;
+function fmt(sec){if(sec<60)return sec.toFixed(1)+' s';var m=sec/60;return sec.toFixed(0)+' s ('+m.toFixed(0)+' min)';}
+function bar(y,frac,col,name,done,lab){
+  x.fillStyle=C.off;x.fillRect(BX,y,BW,bh);
+  var w=Math.max(frac>0?3:0,frac*BW);
+  if(done)VA.glow(x,col,10);x.fillStyle=col;x.fillRect(BX,y,w,bh);VA.noglow(x);
+  x.strokeStyle=C.grid;x.strokeRect(BX,y,BW,bh);
+  x.fillStyle=C.ink;x.font=VA.F(14,true);x.textAlign='right';x.fillText(name,BX-12,y+bh/2+5);
+  x.fillStyle=done?col:C.mut;x.font=VA.F(13,true);x.textAlign='left';x.fillText(lab,BX+w+12,y+bh/2+5);
+}
+function draw(tc){VA.bg(x,W,H);
+  VA.glow(x,C.cyan,7);x.fillStyle=C.cyan;x.textAlign='left';x.font=VA.F(15,true);x.fillText('FUZZY MATCH :: 1,000 NAMES',16,28);VA.noglow(x);
+  var run=Math.min(tc,PERIOD-HOLD);var prog=run/(PERIOD-HOLD);
+  var simSec=prog*WFO;
+  var taxDone=simSec>=TAX;
+  var taxFrac=taxDone?1:simSec/TAX;
+  var wfoFrac=Math.min(1,simSec/WFO);
+  bar(b1,taxFrac,C.green,'taxify',taxDone,taxDone?fmt(TAX):'');
+  bar(b2,wfoFrac,C.red,'WorldFlora',wfoFrac>=1,wfoFrac>=1?fmt(WFO):fmt(simSec));
+  x.fillStyle=C.mut;x.font=VA.F(12);x.textAlign='left';x.fillText('elapsed (simulated): '+fmt(simSec),BX,b2+bh+22);
+  if(taxDone&&tc>PERIOD-HOLD-0.01){var aa=VA.clamp((tc-(PERIOD-HOLD))/1.0,0,1);x.globalAlpha=aa;VA.glow(x,C.green,8);x.fillStyle=C.green;x.font=VA.F(20,true);x.textAlign='center';x.fillText(Math.round(WFO/TAX)+'x faster',W/2,H-40);VA.noglow(x);x.globalAlpha=1;}
+  x.fillStyle=C.mut;x.font=VA.F(11);x.textAlign='center';x.fillText('package benchmark, Windows, R 4.5.2 -- both against a local copy',W/2,H-14);
+  VA.scan(x,W,H);
+}
+VA.run(draw,PERIOD,null,'sp','sp-cv');
+"
+cat(paste0(
+  "<canvas id='sp-cv' width='760' height='330' style='max-width:100%'></canvas>\n",
+  "<script>\n(function(){\n",
+  "var TAX=1.0,WFO=1862.0;\n",
+  body, "\n})();\n</script>\n"))
+```
+
+Exact matching is close (0.1 s against 1.3 s); the gap opens on fuzzy matching,
+where the genus blocking keeps taxify near a second while the in-R scan grows with
+the list. The full benchmark and large-batch strategy are in the
+[large-scale vignette](https://gillescolling.com/taxify/articles/large-scale.html).
+
+## Add your own attributes
+
+Once names resolve to an accepted name, any table keyed on species joins cleanly.
+`add_data()` takes a data.frame, CSV, XLSX, or SQLite file, runs its species
+column through the same backbone, and joins on the accepted name, so a synonym on
+either side still lines up.
+
+```{r}
+my_traits <- data.frame(
+  species      = c("Quercus pedunculata",   # synonym of Q. robur
+                   "Pinus sylvestris",
+                   "Betula pendula"),
+  seed_mass_mg = c(3200, 7.5, 0.2)
+)
+
+taxify(c("Quercus robur", "Pinus sylvestris", "Betula pendula")) |>
+  add_data(my_traits, species_col = "species")
+```
+
+```
 #> add_data: 3 of 3 species matched (100.0%). 0 names in data unmatched.
+#>         input_name    accepted_name seed_mass_mg
+#> 1    Quercus robur    Quercus robur       3200.0
+#> 2 Pinus sylvestris Pinus sylvestris          7.5
+#> 3   Betula pendula   Betula pendula          0.2
 ```
+
+The trait table used *Quercus pedunculata* and the result used *Quercus robur*; a
+plain `merge()` would have missed that row. `add_data()` joins on the accepted
+name, so it lines up. Formats, auto-detection, and strict duplicate handling are
+in the [custom-data vignette](https://gillescolling.com/taxify/articles/custom-data.html).
+
+## The enrichment layers
+
+taxify also ships published trait and status layers that attach on the accepted
+name. There are over two dozen, across the tree of life and for the conservation
+and invasion records this kind of work needs. Each `add_*()` matches its own
+source against the backbone and attaches on the accepted name, so any of them
+stacks into a pipeline the same way. Run `list_enrichments()` for the current set,
+versions, and coverage.
+
+```{r enrich-anim, echo = FALSE, results = "asis", eval = TRUE}
+con_data <- "var G=[
+{n:'Plants',s:'Plants',c:'#6bcb77',L:[['add_woodiness()','woody / herbaceous'],['add_eive()','EIVE indicator values'],['add_diaz_traits()','seed mass & height'],['add_leda()','LEDA life-history'],['add_wcvp()','native range'],['add_glonaf()','naturalized alien flora'],['add_baseflor()','ecological traits'],['add_ecoflora()','British flora'],['add_floraweb()','German flora'],['add_pignatti()','Italian indicator values']]},
+{n:'Birds & mammals',s:'Birds/mammals',c:'#3ad7ff',L:[['add_avonet()','bird morphology'],['add_elton_traits()','diet & body mass'],['add_pantheria()','mammal life-history']]},
+{n:'Amphibians & reptiles',s:'Amph & reptiles',c:'#b388ff',L:[['add_amphibio()','amphibian traits'],['add_lizard_traits()','lizard traits']]},
+{n:'Fish',s:'Fish',c:'#4d96ff',L:[['add_fish_traits()','morphology'],['add_fishbase()','ecology']]},
+{n:'Arthropods',s:'Arthropods',c:'#ff8fd0',L:[['add_arthropod_traits()','arthropod traits'],['add_leptraits()','butterfly traits']]},
+{n:'Fungi',s:'Fungi',c:'#ffd93d',L:[['add_fungal_traits()','fungal traits'],['add_funguild()','trophic guild']]},
+{n:'Algae',s:'Algae',c:'#33ffd0',L:[['add_algae_traits()','algal traits']]},
+{n:'Cross-taxon animals',s:'Cross-taxon',c:'#ffc24b',L:[['add_animaltraits()','body mass & metabolism'],['add_anage()','longevity & ageing']]},
+{n:'Status, alien & names',s:'Status & alien',c:'#ff3b6b',L:[['add_conservation_status()','IUCN Red List'],['add_invasive_status()','GRIIS invasive'],['add_alien_first_records()','first-record years'],['add_common_names()','vernacular names']]}
+];
+"
+body <- "
+var s=VA.setup('en-cv'); if(!s)return; var x=s.ctx,W=s.w,H=s.h,C=VA.C;
+var NG=G.length;
+var cx=280,cy=298,R=192;
+var px0=556,pw=W-556-12;
+var nLayers=0;for(var gi=0;gi<NG;gi++)nLayers+=G[gi].L.length;
+var FOC=3.1,PERIOD=NG*FOC;
+function ang(i){return -Math.PI/2 + i*2*Math.PI/NG;}
+function node(i){return {x:cx+R*Math.cos(ang(i)),y:cy+R*Math.sin(ang(i))};}
+function hub(){var w=152,h=34;x.save();VA.glow(x,C.cyan,14);x.fillStyle=C.bg;x.strokeStyle=C.cyan;x.lineWidth=2;x.beginPath();x.rect(cx-w/2,cy-h/2,w,h);x.fill();x.stroke();VA.noglow(x);x.fillStyle=C.cyan;x.font=VA.F(13,true);x.textAlign='center';x.textBaseline='middle';x.fillText('accepted_name',cx,cy);x.restore();x.textBaseline='alphabetic';}
+function spoke(i,foc){var n=node(i);x.strokeStyle=foc?G[i].c:C.off;x.lineWidth=foc?2:1;if(foc)VA.glow(x,G[i].c,6);x.beginPath();x.moveTo(cx,cy);x.lineTo(n.x,n.y);x.stroke();VA.noglow(x);}
+function gnode(i,foc,pulse){var n=node(i);var rad=foc?13+2*pulse:8;if(foc)VA.glow(x,G[i].c,12);x.fillStyle=foc?G[i].c:C.off;x.beginPath();x.arc(n.x,n.y,rad,0,6.2832);x.fill();VA.noglow(x);x.fillStyle=foc?C.ink:C.mut;x.font=VA.F(11,foc);x.textAlign='center';var below=n.y>=cy;var ly=n.y+(below?rad+15:-rad-8);x.fillText(G[i].s,n.x,ly);x.fillStyle=foc?G[i].c:C.mut;x.font=VA.F(10);x.fillText('('+G[i].L.length+')',n.x,ly+(below?13:-13));}
+function travel(i,t){var n=node(i);var u=t-Math.floor(t);var tx=VA.lerp(n.x,cx,VA.easeOut(u)),ty=VA.lerp(n.y,cy,VA.easeOut(u));VA.glow(x,G[i].c,8);x.fillStyle=G[i].c;x.beginPath();x.arc(tx,ty,3.6,0,6.2832);x.fill();VA.noglow(x);}
+function panel(i,lt){var g=G[i];x.textAlign='left';VA.glow(x,g.c,8);x.fillStyle=g.c;x.font=VA.F(15,true);x.fillText(g.n,px0,92);VA.noglow(x);x.strokeStyle=g.c;x.lineWidth=2;x.beginPath();x.moveTo(px0,102);x.lineTo(px0+pw,102);x.stroke();x.lineWidth=1;for(var k=0;k<g.L.length;k++){var ry=132+k*42;var a=VA.clamp((lt-0.05-k*0.06)/0.3,0,1);if(a<=0)continue;x.globalAlpha=a;x.fillStyle=C.ink;x.font=VA.F(13,true);x.fillText(g.L[k][0],px0,ry);x.fillStyle=C.mut;x.font=VA.F(11);x.fillText(g.L[k][1],px0,ry+16);x.globalAlpha=1;}}
+function draw(tc){VA.bg(x,W,H);
+  VA.glow(x,C.cyan,7);x.fillStyle=C.cyan;x.textAlign='left';x.font=VA.F(15,true);x.fillText('ONE NAME, EVERY LAYER',16,28);VA.noglow(x);
+  x.fillStyle=C.mut;x.font=VA.F(12);x.textAlign='left';x.fillText(nLayers+' layers across '+NG+' groups, all keyed on the accepted name',16,48);
+  var foc=Math.min(NG-1,Math.floor(tc/FOC));var lt=(tc-foc*FOC)/FOC;
+  for(var i=0;i<NG;i++)spoke(i,i===foc);
+  var pulse=Math.sin(lt*Math.PI);
+  for(i=0;i<NG;i++)gnode(i,i===foc,pulse);
+  travel(foc,tc/FOC*1.7);
+  hub();
+  panel(foc,lt);
+  VA.scan(x,W,H);
+}
+VA.run(draw,PERIOD,null,'en','en-cv');
+"
+cat(paste0(
+  "<canvas id='en-cv' width='880' height='540' style='max-width:100%'></canvas>\n",
+  "<script>\n(function(){\n", con_data, body, "\n})();\n</script>\n"))
+```
+
+For invasion work the GloNAF, GRIIS, and alien-first-record layers attach
+naturalized status, invasive status, and first-record years on the same accepted
+name, so a resolved species list carries its invasion history without a second
+join. The full menu and per-layer detail are in the
+[enrichments vignette](https://gillescolling.com/taxify/articles/enrichments.html).
+
+## Stack layers, then test an idea
+
+Field lists run to hundreds of names. Here is a realistic one, about a hundred
+European species, matched in one call. Pick any layers and stack them: woodiness,
+the EIVE ecological indicator values, and plant height from the Diaz global trait
+dataset all attach on the accepted name.
 
 ```{r}
-enriched[, c("input_name", "accepted_name", "max_height_m", "shade_tolerance")]
-```
-
-```
-#>        input_name     accepted_name max_height_m shade_tolerance
-#> 1   Quercus robur     Quercus robur           40        moderate
-#> 2 Pinus sylvestris  Pinus sylvestris           35      intolerant
-#> 3   Betula pendula    Betula pendula           25      intolerant
-```
-
-The traits data.frame contained both "Quercus robur" and "Quercus
-pedunculata" (a synonym). Because both resolve to the same accepted ID, the
-join works correctly without deduplication on the user's side. If the two
-rows had different trait values for the same accepted species, `add_data()`
-would raise an error rather than picking one arbitrarily.
-
-### From a CSV file
-
-```{r}
-enriched <- result |>
-  add_data("my_field_traits.csv")
-```
-
-When `species_col` is not specified, `add_data()` auto-detects it by probing
-the first 10 rows of each character column against the backbone. The column
-with the highest match rate wins. If no column reaches 50% match rate, an
-error asks the user to specify `species_col` explicitly. The auto-detection
-runs a small `taxify()` call internally, so it adds a brief delay on first
-use, but it saves time in exploratory workflows where the column name varies
-across datasets ("species", "taxon", "scientific_name", "Taxon.name", and
-so on).
-
-The join itself is performed on `accepted_id`, not on the raw species name.
-This is the key difference from a naive `merge()`. If the user's CSV
-contains "Quercus pedunculata" (a synonym) and the taxify result contains
-"Quercus robur" (the accepted name), a raw string merge would miss the
-connection. The `add_data()` join resolves both names through the backbone,
-discovers that they share the same accepted ID, and links them correctly.
-Duplicate handling is strict: if two rows in the external data resolve to
-the same accepted ID with different trait values, `add_data()` raises an
-error rather than picking one row arbitrarily.
-
-### Supported file formats
-
-`add_data()` reads `.csv`, `.csv.gz`, `.xlsx` (requires the openxlsx2
-package), `.sqlite`/`.db` (requires DBI and RSQLite), and `.vtr` files
-natively. For SQLite files, specify the table name with the `table`
-argument. Any other format can be read into a data.frame first and passed
-directly.
-
-```{r}
-# SQLite
-result |> add_data("ecology_db.sqlite", table = "plant_traits")
-
-# XLSX
-result |> add_data("supplementary_table_S1.xlsx", species_col = "Taxon")
-
-# Subset columns
-result |> add_data(traits, species_col = "species", cols = "max_height_m")
-```
-
-
-## Hybrid names
-
-taxify detects hybrid markers in input names (the multiplication sign,
-the letter x between genus and epithet, or between two binomials) and sets
-`is_hybrid = TRUE` in the output. `add_hybrid_info()` goes further, parsing
-hybrid formulas to extract parent names and classify the hybrid type.
-
-```{r}
-hybrids <- taxify(c(
-  "Quercus x rosacea",                  # nothospecies
-  "Quercus pyrenaica x Q. petraea",     # hybrid formula
-  "x Cuprocyparis leylandii",           # nothogenus
-  "Betula pendula"                       # not a hybrid
-)) |>
-  add_hybrid_info()
-
-hybrids[, c("input_name", "is_hybrid", "hybrid_type",
-            "hybrid_parent_1", "hybrid_parent_2")]
-```
-
-```
-#>                          input_name is_hybrid hybrid_type hybrid_parent_1 hybrid_parent_2
-#> 1              Quercus x rosacea      TRUE nothospecies            <NA>            <NA>
-#> 2 Quercus pyrenaica x Q. petraea      TRUE      formula Quercus pyrenaica Quercus petraea
-#> 3    x Cuprocyparis leylandii        TRUE   nothogenus            <NA>            <NA>
-#> 4                  Betula pendula     FALSE         <NA>            <NA>            <NA>
-```
-
-Three hybrid types are recognized. "nothospecies" is a named hybrid species
-(the multiplication sign appears between genus and epithet). "formula" is a
-hybrid cross written as "A x B", where the parser expands abbreviated genera
-(the "Q." in "Q. petraea" is expanded to "Quercus" based on the first
-parent). "nothogenus" is a hybrid genus (the multiplication sign precedes
-the genus name).
-
-For formulas, the extracted parent names are full binomials that can be
-submitted to `taxify()` themselves for further resolution. A common
-workflow for hybrid-heavy datasets (e.g., ornamental horticulture records)
-is to run `taxify()` on the full list, then pipe through
-`add_hybrid_info()`, and finally re-run `taxify()` on the extracted parent
-names to obtain their full taxonomic resolution. The hybrid detection runs
-on the raw input before any cleaning, so it correctly handles both the
-Unicode multiplication sign and the ASCII "x" notation.
-
-
-## Genus register
-
-taxify maintains a unified genus register built from all installed
-backbones. It maps each genus to its family, higher classification, and a
-broad life-form category. `lookup_genus()` queries this register.
-
-```{r}
-lookup_genus("Quercus")
-```
-
-```
-#>     genus kingdom phylum class     order   family kingdom_group  taxon_group      life_form
-#> 1 Quercus Plantae   <NA> Magnoliopsida Fagales Fagaceae       plantae vascular plant vascular plant
-```
-
-```{r}
-lookup_genus("Panthera")
-```
-
-```
-#>      genus  kingdom   phylum    class    order   family kingdom_group taxon_group life_form
-#> 1 Panthera Animalia Chordata Mammalia Carnivora Felidae      animalia      animal    animal
-```
-
-The register is what powers the `out_of_scope` classification and the
-taxon-group breakdown in `summary()`. It is built once from the union of
-WFO, COL, and GBIF genera, with classification conflicts resolved by
-priority (COL > GBIF > WFO for higher taxonomy, since COL and GBIF carry
-kingdom through order while WFO only has family).
-
-`taxify_register_coverage()` shows which backbones contain a given genus,
-which helps decide which backend to use for a particular taxonomic group.
-
-```{r}
-taxify_register_coverage("Quercus")
-```
-
-```
-#>     genus backend  version  date_added
-#> 1 Quercus     wfo 2024-12  2026-04-01
-#> 2 Quercus     col 2024.4   2026-04-01
-#> 3 Quercus    gbif 2024-08  2026-04-01
-```
-
-```{r}
-taxify_register_coverage("Panthera")
-```
-
-```
-#>      genus backend  version  date_added
-#> 1 Panthera     col 2024.4   2026-04-01
-#> 2 Panthera    gbif 2024-08  2026-04-01
-```
-
-Quercus appears in all three major backbones. Panthera is absent from WFO
-(plants only) but present in COL and GBIF. This information is used
-automatically during matching, but it is also useful when planning which
-backends to install for a particular project. If your dataset is entirely
-marine invertebrates, you might check a few representative genera with
-`taxify_register_coverage()` and discover that WoRMS is the only backend
-that covers them, saving the time of downloading WFO and COL.
-
-The register currently contains approximately 100,000 genera drawn from the
-union of WFO, COL, and GBIF. It ships as a pre-built `.vtr` file and is
-updated with each taxify release. The register is
-small enough to fit comfortably in memory and is cached for the duration of
-the R session, so `lookup_genus()` calls are effectively instant.
-
-
-## Cache management
-
-Backbone .vtr files, enrichment .vtr files, and the genus register all live
-under `taxify_data_dir()`. During an R session, taxify caches file paths in
-memory so that repeated `taxify()` calls do not re-scan the file system.
-
-`taxify_clear_cache()` drops these in-memory handles. The next `taxify()`
-call will re-load from disk. This is rarely needed, but it can help after
-manually moving or deleting .vtr files.
-
-```{r}
-taxify_clear_cache()
-```
-
-To force a fresh manifest fetch (e.g., after the maintainer publishes a new
-backbone version mid-session), use `taxify_refresh_manifest()`.
-
-```{r}
-taxify_refresh_manifest()
-```
-
-The on-disk files themselves are never deleted by taxify. To reclaim disk
-space, delete the contents of `taxify_data_dir()` manually.
-
-```{r}
-# See where everything lives
-taxify_data_dir()
-
-# To remove all taxify data (backbones, enrichments, register):
-# unlink(taxify_data_dir(), recursive = TRUE)
-```
-
-The total disk footprint depends on how many backbones and enrichments are
-installed. WFO alone is about 150 MB; all seven backbones plus all 12
-enrichments total roughly 2.5 GB.
-
-
-## The full pipeline
-
-We will close with an end-to-end worked example. The input is a realistic
-list of 22 species names from a hypothetical European biodiversity survey.
-It includes six clean accepted plant names, three historical synonyms (Pinus
-abies, Quercus pedunculata, Picea excelsa), two typos (Quercus robor, Fagus
-sylvatyca), four messy field annotations (qualifier, trailing authorship,
-infraspecific rank, excess whitespace), one hybrid, four animal names that
-do not belong in a plant backbone, and two entirely fictitious names. We
-will match against WFO and COL, inspect the summary, and layer on three
-enrichments.
-
-```{r}
-survey_names <- c(
-  "Quercus robur", "Fagus sylvatica", "Betula pendula",
-  "Pinus sylvestris", "Alnus glutinosa", "Fraxinus excelsior",
-  "Pinus abies", "Quercus pedunculata", "Picea excelsa",
-  "Quercus robor", "Fagus sylvatyca",
-  "cf. Sorbus aucuparia", "Acer pseudoplatanus L.",
-  "Pinus sylvestris var. hamata", "  Tilia   cordata  ",
-  "Quercus x rosacea",
-  "Panthera leo", "Salmo trutta", "Cervus elaphus", "Parus major",
-  "Notareal plantus", "Randomus specius"
+field <- c(
+  "Quercus petraea", "Pinus sylvestris", "Picea abies", "Betula pendula",
+  "Acer pseudoplatanus", "Acer platanoides", "Acer campestre", "Corylus avellana",
+  "Fraxinus excelsior", "Carpinus betulus", "Sorbus aucuparia", "Tilia cordata",
+  "Ulmus glabra", "Alnus glutinosa", "Salix caprea", "Populus tremula",
+  "Prunus avium", "Prunus spinosa", "Crataegus monogyna", "Sambucus nigra",
+  "Cornus sanguinea", "Viburnum opulus", "Euonymus europaeus", "Ligustrum vulgare",
+  "Frangula alnus", "Juniperus communis", "Taxus baccata", "Larix decidua",
+  "Abies alba", "Rosa canina", "Rubus idaeus", "Hedera helix",
+  "Clematis vitalba", "Berberis vulgaris", "Betula pubescens", "Prunus padus",
+  "Rhamnus cathartica", "Lonicera xylosteum", "Trifolium repens", "Trifolium pratense",
+  "Festuca ovina", "Dactylis glomerata", "Plantago lanceolata", "Plantago major",
+  "Plantago media", "Achillea millefolium", "Ranunculus acris", "Ranunculus repens",
+  "Urtica dioica", "Poa pratensis", "Poa annua", "Galium mollugo",
+  "Galium aparine", "Bellis perennis", "Cardamine pratensis", "Cirsium arvense",
+  "Cirsium vulgare", "Daucus carota", "Heracleum sphondylium", "Anthriscus sylvestris",
+  "Lotus corniculatus", "Medicago lupulina", "Vicia cracca", "Lathyrus pratensis",
+  "Stellaria media", "Silene dioica", "Silene vulgaris", "Geranium pratense",
+  "Geranium robertianum", "Glechoma hederacea", "Lamium album", "Prunella vulgaris",
+  "Ajuga reptans", "Veronica chamaedrys", "Rumex acetosa", "Rumex obtusifolius",
+  "Chenopodium album", "Capsella bursa-pastoris", "Senecio vulgaris", "Leucanthemum vulgare",
+  "Centaurea jacea", "Knautia arvensis", "Campanula rotundifolia", "Primula veris",
+  "Anemone nemorosa", "Filipendula ulmaria", "Lythrum salicaria", "Robinia pseudoacacia",
+  "Solidago canadensis", "Solidago gigantea", "Impatiens glandulifera",
+  "Heracleum mantegazzianum", "Prunus serotina", "Quercus rubra",
+  "Quercus robur L.", "FAGUS SYLVATICA", "Quercus robus",
+  "cf. Taraxacum officinale", "Quercus pedunculata", "Festuca rubrra"
 )
-```
 
-There are 22 names in total. We match against WFO first (best for plants),
-with COL as a fallback for the animal names.
-
-```{r}
-result <- taxify(survey_names, backend = c("wfo", "col"))
-```
-
-```
-#> Matching 22 names against 2 backends: wfo -> col
-#>   [wfo] Matching 22 names...
-#>   [wfo] Fuzzy matching 6 unmatched...
-#>   [col] Matching 4 remaining names...
-```
-
-WFO handled the plant names (exact, fuzzy, synonym, and all). The 4 animal
-names did not match in WFO and were forwarded to COL, which resolved all
-four. Let us look at the summary first.
-
-```{r}
-summary(result)
-```
-
-```
-#> -- taxify results ------------------------------------------------------------
-#>   backend: WFO + COL  |  22 names submitted
-#>
-#>   matched        18  (exact: 13, case-insensitive: 0, fuzzy: 2)
-#>   out of scope    0
-#>   unmatched       2  (taxon_group: unknown: 2)
-#>   ------------------------------------------------------------
-#>   taxon groups: vascular plant: 16  animal: 4  unknown: 2
-```
-
-Eighteen of 22 names matched. The two unknowns are "Notareal plantus" and
-"Randomus specius", which do not exist in any backbone. The animal names are
-not out of scope this time because COL covers them.
-
-Now we layer on three enrichments: conservation status, woodiness, and
-common names.
-
-```{r}
-result <- result |>
-  add_conservation_status() |>
+dat <- taxify(field) |>
   add_woodiness() |>
-  add_common_names()
+  add_eive() |>
+  add_diaz_traits()
+
+head(dat[, c("accepted_name", "woodiness", "eive_light",
+             "eive_reaction", "eive_nutrients", "plant_height_m")], 6)
 ```
 
-The summary now reflects the enrichment coverage.
+```
+#>         accepted_name woodiness eive_light eive_reaction eive_nutrients plant_height_m
+#> 1     Quercus petraea     woody       5.83          4.79           3.55          31.44
+#> 2    Pinus sylvestris     woody       7.10          5.13           2.69          19.03
+#> 3         Picea abies     woody       4.36          4.24           4.31          40.69
+#> 4      Betula pendula     woody       6.84          4.38           3.64          12.02
+#> 5 Acer pseudoplatanus     woody       3.80          5.92           6.89          24.46
+#> 6    Acer platanoides     woody       3.87          6.34           5.66          21.93
+```
+
+A few species lack an EIVE or a height value, so those cells are `NA`; R's
+statistics functions drop incomplete rows on their own. From here it is ordinary
+analysis. Do species on more base-rich soils also sit higher on the nutrient axis?
 
 ```{r}
-summary(result)
+cor.test(dat$eive_reaction, dat$eive_nutrients)
 ```
 
 ```
-#> -- taxify results ------------------------------------------------------------
-#>   backend: WFO + COL  |  22 names submitted
+#>  Pearson's product-moment correlation
 #>
-#>   matched        18  (exact: 13, case-insensitive: 0, fuzzy: 2)
-#>   out of scope    0
-#>   unmatched       2  (taxon_group: unknown: 2)
-#>   ------------------------------------------------------------
-#>   taxon groups: vascular plant: 16  animal: 4  unknown: 2
-#>
-#>   enrichments:
-#>     conservation_status  (IUCN Red List 2024.12)      -- 12 of 22 matched
-#>     woodiness            (Zanne et al. 2014 2024.12)  -- 14 of 22 matched
-#>     common_names         (GBIF vernacular names 2024.12) -- 16 of 22 matched
+#> data:  dat$eive_reaction and dat$eive_nutrients
+#> t = 3.2378, df = 96, p-value = 0.001654
+#> alternative hypothesis: true correlation is not equal to 0
+#> 95 percent confidence interval:
+#>  0.1230070 0.4821711
+#> sample estimates:
+#>       cor
+#> 0.3137695
 ```
 
-Conservation status matched 12 of 22 names, woodiness matched 14, and
-common names matched 16. These numbers make sense. Conservation status has
-gaps because not every species has been assessed by IUCN; the common
-European trees are assessed (mostly LC), but some of the less prominent
-species may not be. Woodiness covers about 48,000 species from the Zanne
-et al. dataset, so most temperate trees are included. Common names have the
-widest coverage because the GBIF vernacular names dataset is very large,
-though it still misses some species in less commonly documented languages.
+Across about a hundred species the correlation is positive and significant, though
+modest (r = 0.31, p = 0.002): base-rich soils tend to carry higher nutrient
+values. The same three lines work for any attribute the package can attach.
 
-We can now pull out the columns we care about for downstream analysis. The
-result is a plain data.frame, so standard R subsetting, dplyr verbs, or
-data.table operations all work without special handling.
+## Where to go next
 
-```{r}
-analysis <- result[, c("input_name", "accepted_name", "family",
-                        "match_type", "is_synonym", "backend",
-                        "conservation_status", "woodiness",
-                        "common_name")]
+This vignette is the fast path. Each step has a dedicated vignette with the full
+detail:
+
+- [Backends and multi-backend fallback](https://gillescolling.com/taxify/articles/backends.html)
+
+- [Fuzzy matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
+
+- [Enrichments](https://gillescolling.com/taxify/articles/enrichments.html)
+
+- [Custom data](https://gillescolling.com/taxify/articles/custom-data.html)
+
+- [Hybrid names](https://gillescolling.com/taxify/articles/hybrid-names.html)
+
+- [Large-scale matching](https://gillescolling.com/taxify/articles/large-scale.html)
+
+- [Migrating from taxize and WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
 ```
-
-A few diagnostic queries round out the workflow. These are patterns that
-come up in nearly every biodiversity data cleaning session.
-
-```{r}
-# Which names were synonyms?
-result[result$is_synonym == TRUE,
-       c("input_name", "accepted_name", "accepted_id")]
-```
-
-```
-#>            input_name  accepted_name       accepted_id
-#> 7         Pinus abies    Picea abies  wfo-0000471692
-#> 8  Quercus pedunculata Quercus robur  wfo-0000306015
-#> 9     Picea excelsa      Picea abies  wfo-0000471692
-```
-
-Three synonyms were submitted. "Pinus abies" and "Picea excelsa" both
-resolve to the same accepted species, Picea abies, with the same accepted
-ID. "Quercus pedunculata" resolves to Quercus robur. Because these synonyms
-share accepted IDs with other rows in the result, the enrichment columns
-carry the same trait values as their accepted-name counterparts. This is
-a common pattern in biodiversity databases: the same physical species appears
-under different names in different records, and the synonym resolution step
-collapses those variants so that trait lookups and species counts are
-correct. Without this step, a species count would overcount Picea abies
-(listing it three times under three different names) and a trait join would
-miss the synonym rows entirely.
-
-```{r}
-# Which names needed fuzzy correction?
-result[result$match_type == "fuzzy",
-       c("input_name", "accepted_name", "fuzzy_dist")]
-```
-
-```
-#>        input_name  accepted_name fuzzy_dist
-#> 10  Quercus robor  Quercus robur 0.07142857
-#> 11 Fagus sylvatyca Fagus sylvatica 0.06666667
-```
-
-Both typos were corrected with very low edit distances. The "y" in
-"sylvatyca" was caught by Damerau-Levenshtein, and the missing "u" in
-"robor" was caught the same way.
-
-```{r}
-# Threatened species in the survey
-result[!is.na(result$conservation_status) &
-       result$conservation_status %in% c("VU", "EN", "CR"),
-       c("accepted_name", "conservation_status", "common_name")]
-```
-
-```
-#>     accepted_name conservation_status common_name
-#> 17  Panthera leo                  VU        Lion
-```
-
-Only one species in this survey carries a threatened IUCN status. The rest
-are either Least Concern or not yet assessed. For a European forest plot
-this is unsurprising. A tropical or marine dataset would likely show more
-threatened species. The conservation status enrichment is cross-kingdom, so
-it works for the animal names as well (Panthera leo is VU globally).
-
-```{r}
-# Woody vs. herbaceous breakdown
-table(result$woodiness, useNA = "ifany")
-```
-
-```
-#> herbaceous      woody       <NA>
-#>          0         14          8
-```
-
-All matched plants in this survey are woody, which makes sense for a
-European forest plot. The 8 NAs correspond to the 4 animal names (woodiness
-is a plant-only enrichment), the 2 unknown names, and 2 plants that happen
-to fall outside the Zanne et al. dataset coverage.
-
-The entire pipeline ran offline after the initial backbone download. There
-are no API rate limits, no network dependency during analysis, and the
-`backbone_version` column in the output ensures full reproducibility.
-
-A few closing notes on performance. taxify uses vectra's columnar engine
-for all backbone queries. Exact matching is index-accelerated (hash indexes
-on the name and genus columns), so even against the GBIF backbone (over 7
-million rows) a batch of 10,000 names typically completes in a few seconds.
-Fuzzy matching is slower because it involves string distance computation,
-but it is genus-blocked: each input name is only compared against backbone
-entries in the same genus, which reduces the search space by several orders
-of magnitude. For very large batches (100,000+ names), the main bottleneck
-is fuzzy matching of names with misspelled genera, where the genus blocking
-cannot help. In that case, consider running a first pass with
-`fuzzy = FALSE` to pick off the easy matches, then re-running only the
-unmatched names with fuzzy enabled.
-
-The enrichment joins are also fast. Each `add_*()` call performs a single
-vectra inner join on `accepted_name`, which is O(n) in the size of the
-taxify result. Stacking multiple enrichments in a pipe adds columns
-incrementally without re-reading the backbone.

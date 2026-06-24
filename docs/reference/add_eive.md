@@ -61,8 +61,11 @@ Indicator Values for Europe. Vegetation Classification and Survey
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Arrhenatherum elatius") |>
   add_eive()
-} # }
+
+options(old)
 ```

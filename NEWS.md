@@ -1,3 +1,22 @@
+# taxify 0.2.15
+
+## Bug fixes
+
+* `summary()` now counts abbreviated-genus matches (`match_type == "abbrev"`,
+  e.g. `"Q. robur"`). Previously these were resolved correctly in the result but
+  omitted from the `matched` total and its breakdown, so the digest under-reported
+  the number of matched names. The `matched` line now reads
+  `(exact, case-insensitive, fuzzy, abbrev)`, and `match_tally` carries an
+  `abbrev` count.
+
+## Documentation
+
+* Rewrote the "Getting started" vignette as a demo-first walkthrough: the
+  one-call example, four canvas animations (matching pipeline, genus blocking,
+  the WorldFlora speed benchmark, and the enrichment hub), and a worked
+  trait-stacking analysis. Each section links to the dedicated vignette for
+  depth.
+
 # taxify 0.2.14
 
 ## New features

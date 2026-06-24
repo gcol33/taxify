@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Choosing and combining backends • taxify</title>
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Choosing and combining backends">
@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
     <li><a class="dropdown-item" href="../articles/quickstart.html">Getting started with taxify</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
@@ -101,7 +101,7 @@
     
     
 <p>taxify matches taxonomic names against locally stored Darwin Core
-backbone databases. Nine backends are available, each compiled from a
+backbone databases. Ten backends are available, each compiled from a
 different authoritative source. The backend we choose determines which
 names can be matched, what taxonomic opinion governs synonym resolution,
 and which extra metadata columns are available downstream. This vignette
@@ -111,7 +111,7 @@ given project.</p>
 <div class="section level2">
 <h2 id="backend-overview">Backend overview<a class="anchor" aria-label="anchor" href="#backend-overview"></a>
 </h2>
-<p>The table below summarizes the nine backends. “Approx. names” is the
+<p>The table below summarizes the ten backends. “Approx. names” is the
 total number of name strings in the compiled backbone (accepted names
 plus synonyms); the actual species count is lower because each accepted
 species may have several synonym entries pointing to it.</p>
@@ -181,13 +181,20 @@ species may have several synonym entries pointing to it.</p>
 <td align="left">ChecklistBank DwC-A</td>
 </tr>
 <tr class="even">
+<td align="left"><code>euromed</code></td>
+<td align="left">Euro+Med PlantBase</td>
+<td align="left">European/Mediterranean plants</td>
+<td align="left">~132k</td>
+<td align="left">Semicolon-delimited CSV</td>
+</tr>
+<tr class="odd">
 <td align="left"><code>fungorum</code></td>
 <td align="left">Species Fungorum Plus</td>
 <td align="left">Fungi</td>
 <td align="left">~500k</td>
 <td align="left">ChecklistBank DwC-A</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>algaebase</code></td>
 <td align="left">AlgaeBase</td>
 <td align="left">Algae and cyanobacteria</td>
@@ -235,6 +242,15 @@ and some freshwater species. Beyond basic taxonomy, the WoRMS backbone
 stores habitat flags (marine, brackish, freshwater, terrestrial) and
 extinction status, some of which are accessible via the COL
 SpeciesProfile.</p>
+<p>Euro+Med PlantBase is the taxonomic reference for the flora of
+Europe, the Mediterranean, and the Caucasus. It covers all native and
+introduced vascular plants in its geographic scope (~49k accepted names,
+~83k synonyms). The backbone is built from the 2020 bulk download,
+updated via a PESI API delta refresh (April 2026) that resolved 1,014
+reclassifications and synonym changes cross-referenced against WFO and
+POWO. Euro+Med is particularly useful for European vegetation surveys
+and datasets aligned with the European Vegetation Archive (EVA). Its
+data is licensed CC BY-SA 3.0.</p>
 <p>Species Fungorum Plus is the specialist reference for fungal
 taxonomy, with ~500k names curated by the Royal Botanic Gardens, Kew. It
 covers Ascomycota, Basidiomycota, and other fungal phyla, including
@@ -354,7 +370,7 @@ all-rounder.</p>
 <div class="section level2">
 <h2 id="backend-specific-output-differences">Backend-specific output differences<a class="anchor" aria-label="anchor" href="#backend-specific-output-differences"></a>
 </h2>
-<p>All nine backends produce the same 16-column output schema. This is a
+<p>All ten backends produce the same 16-column output schema. This is a
 deliberate design choice: downstream code does not need to know which
 backend produced a match. That said, the content of those columns varies
 in ways worth knowing about.</p>
@@ -367,6 +383,7 @@ it at build time to produce the canonical name used for matching, and
 the stripped authorship is stored separately. NCBI and OTT have no
 authorship data at all, so the <code>authorship</code> column is always
 <code>NA</code> for those backends. GBIF and ITIS provide authorship.
+Euro+Med provides authorship from its <code>AuthorString</code> field.
 Species Fungorum and AlgaeBase provide authorship from their DwC-A
 archives.</p>
 <p><strong>Taxon IDs.</strong> Each backend uses a different identifier
@@ -377,7 +394,8 @@ keys (<code>"2878688"</code>). ITIS uses TSN integers
 (<code>"9606"</code>). OTT uses OTT IDs (<code>"770315"</code>). WoRMS
 uses AphiaIDs extracted from LSIDs; during build time, taxify strips the
 <code>urn:lsid:marinespecies.org:taxname:</code> prefix and stores just
-the numeric ID. Species Fungorum and AlgaeBase use ChecklistBank
+the numeric ID. Euro+Med uses <code>TaxonUsageID</code> integers from
+the PlantBase export. Species Fungorum and AlgaeBase use ChecklistBank
 dataset-specific IDs. All IDs are stored as character strings in the
 <code>taxon_id</code> and <code>accepted_id</code> columns for
 consistency, but their format is backend-specific and meaningful only
@@ -392,8 +410,9 @@ family through a denormalized <code>family_key</code> self-join at build
 time. ITIS, NCBI, and OTT resolve family and genus via parent-hierarchy
 walks during backbone compilation; the walk traverses up to 25 levels of
 the taxonomic tree. WoRMS has denormalized classification columns
-directly in its DwC-A. The genus register (covered later in this
-vignette) fills in higher classification fields
+directly in its DwC-A. Euro+Med resolves family and genus via a
+hierarchy walk on <code>IsChildTaxonOfID</code>. The genus register
+(covered later in this vignette) fills in higher classification fields
 (<code>kingdom_group</code>, <code>taxon_group</code>,
 <code>life_form</code>) for all backends.</p>
 <p><strong>Synonym handling.</strong> The backends represent synonymy in
@@ -774,13 +793,14 @@ output does not include.</p>
 <h2 id="the-genus-register">The genus register<a class="anchor" aria-label="anchor" href="#the-genus-register"></a>
 </h2>
 <p>taxify ships a unified genus register built from the union of genera
-across WFO, COL, and GBIF. The register contains ~100k genera, each with
-its family, higher classification (kingdom through order, where
-available), and a <code>life_form</code> label (e.g.,
-<code>"vascular plant"</code>, <code>"animal"</code>,
-<code>"fungus"</code>). The classification is resolved by priority: COL
-&gt; GBIF &gt; WFO. If COL and WFO disagree about which family a genus
-belongs to, COL’s assignment wins.</p>
+across all eight pre-built backends (WFO, COL, GBIF, ITIS, NCBI, OTT,
+WoRMS, and Euro+Med). The register contains ~100k genera, each with its
+family, higher classification (kingdom through order, where available),
+and a <code>life_form</code> label (e.g., <code>"vascular plant"</code>,
+<code>"animal"</code>, <code>"fungus"</code>). The classification is
+resolved by priority: WoRMS &gt; COL &gt; GBIF &gt; Euro+Med &gt; ITIS
+&gt; NCBI &gt; OTT &gt; WFO. If COL and WFO disagree about which family
+a genus belongs to, COL’s assignment wins.</p>
 <p>The register serves two purposes in taxify’s matching pipeline.
 First, it provides <code>life_form</code>, <code>kingdom_group</code>,
 and <code>taxon_group</code> columns in taxify output for every matched
@@ -870,6 +890,13 @@ well-curated, and updated regularly. If some names fall through (e.g.,
 horticultural cultivars, nomenclaturally complex genera, or names from
 older floras that use outdated synonymy), add COL:
 <code>backend = c("wfo", "col")</code>.</p>
+<p><strong>European vegetation data.</strong> Use
+<code>backend = c("euromed", "wfo")</code>. Euro+Med PlantBase is the
+taxonomic reference used by EVA and covers all native and introduced
+vascular plants of Europe, the Mediterranean, and the Caucasus. Leading
+with Euro+Med ensures European synonym resolution follows Euro+Med’s
+taxonomic opinion, with WFO as fallback for non-European taxa or names
+outside Euro+Med’s scope. Note that Euro+Med data is CC BY-SA 3.0.</p>
 <p><strong>Pure marine/aquatic lists.</strong> Use
 <code>backend = "worms"</code>. WoRMS is the authoritative source for
 marine taxonomy, curated by domain experts, and includes habitat and

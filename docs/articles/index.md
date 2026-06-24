@@ -4,8 +4,8 @@
 
 - [Getting started with
   taxify](https://gillescolling.com/taxify/articles/quickstart.md):
-- [Migrating from taxize and
-  WorldFlora](https://gillescolling.com/taxify/articles/migration.md):
+- [Migrating from taxize, WorldFlora, and related
+  tools](https://gillescolling.com/taxify/articles/migration.md):
 
 ### Core features
 

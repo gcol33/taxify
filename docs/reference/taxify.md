@@ -41,7 +41,8 @@ taxify(
   depending on the value:
 
   - **Fractional** (`0 < fuzzy_threshold < 1`): normalized distance
-    (edits / max name length). Default `0.2` ≈ 1 edit per 5 characters.
+    (edits / max name length). Default `0.2` is about 1 edit per 5
+    characters.
 
   - **Integer** (`fuzzy_threshold >= 1`): maximum raw edit count, e.g.
     `fuzzy_threshold = 2L` allows at most 2
@@ -59,7 +60,7 @@ taxify(
 
 ## Value
 
-A data.frame with one row per input name and 16 columns:
+A data.frame with one row per input name and the following columns:
 
 - input_name:
 
@@ -101,6 +102,13 @@ A data.frame with one row per input name and 16 columns:
 
   Authorship of the matched name.
 
+- accepted_authorship:
+
+  Authorship of the accepted name. For a synonym this is the author of
+  the resolved accepted name, not the synonym's own author, so
+  `accepted_name` and `accepted_authorship` together form the accepted
+  name's full citation.
+
 - is_synonym:
 
   Logical. Was the match a synonym?
@@ -111,11 +119,26 @@ A data.frame with one row per input name and 16 columns:
 
 - match_type:
 
-  One of `"exact"`, `"exact_ci"`, `"fuzzy"`, or `"none"`.
+  One of `"exact"`, `"exact_ci"`, `"fuzzy"`, `"abbrev"` (an abbreviated
+  genus such as `"Q. robur"` resolved via genus initial plus epithet),
+  or `"none"`.
 
 - fuzzy_dist:
 
   Normalized string distance (0–1), `NA` if exact.
+
+- is_ambiguous:
+
+  Logical. `TRUE` when the matched scientificName had multiple synonym
+  rows pointing to different accepted taxa at the same priority tier
+  (homonym ambiguity). Disambiguated via `nomenclaturalStatus = "Valid"`
+  when that column is in the backbone; for irreducible ambiguity, the
+  scalar columns hold one candidate.
+
+- ambiguous_targets:
+
+  Character. `|`-joined list of conflicting accepted taxon IDs when
+  `is_ambiguous = TRUE`; `NA` otherwise.
 
 - backend:
 
@@ -135,8 +158,10 @@ by later ones (fallback chain).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Match a few names (downloads WFO backbone on first use)
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+# Match a few names
 taxify(c("Quercus robur", "Pinus sylvestris"))
 
 # Disable fuzzy matching
@@ -145,5 +170,6 @@ taxify("Quercus robus", fuzzy = FALSE)
 # Fallback chain: try WFO first, then COL for unmatched
 taxify(c("Quercus robur", "Panthera leo"),
        backend = c("wfo", "col"))
-} # }
+
+options(old)
 ```

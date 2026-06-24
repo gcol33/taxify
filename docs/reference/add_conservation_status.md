@@ -43,8 +43,11 @@ taxonomic groups (~166k species).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-taxify("Panthera tigris") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Panthera tigris", backend = "gbif") |>
   add_conservation_status()
-} # }
+
+options(old)
 ```

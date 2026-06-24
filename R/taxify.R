@@ -487,6 +487,7 @@ as_taxify_result <- function(result, backend) {
     exact            = sum(mt == "exact",       na.rm = TRUE),
     case_insensitive = sum(mt == "exact_ci",    na.rm = TRUE),
     fuzzy            = sum(mt == "fuzzy",        na.rm = TRUE),
+    abbrev           = sum(mt == "abbrev",      na.rm = TRUE),
     out_of_scope     = sum(mt == "out_of_scope", na.rm = TRUE),
     unmatched        = sum(mt == "none",         na.rm = TRUE)
   )

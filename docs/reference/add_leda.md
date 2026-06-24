@@ -88,8 +88,11 @@ traits of the Northwest European flora. Journal of Ecology 96:1266-1274.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Arrhenatherum elatius") |>
   add_leda()
-} # }
+
+options(old)
 ```

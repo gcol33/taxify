@@ -49,8 +49,11 @@ The same data.frame with additional columns:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus robur") |>
   add_wfo_info()
-} # }
+
+options(old)
 ```

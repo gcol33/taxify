@@ -35,10 +35,13 @@ Invisibly returns `path`.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 result <- taxify(c("Quercus robur", "Pinus sylvestris"))
-result |> add_conservation_status() |> export_data("my_results.vtr")
-result |> export_data("my_results.csv")
-result |> export_data("my_results.tsv")
-} # }
+result |> export_data(tempfile(fileext = ".vtr"))
+result |> export_data(tempfile(fileext = ".csv"))
+result |> export_data(tempfile(fileext = ".tsv"))
+
+options(old)
 ```

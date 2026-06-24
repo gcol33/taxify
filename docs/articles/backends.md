@@ -1,7 +1,7 @@
 # Choosing and combining backends
 
 taxify matches taxonomic names against locally stored Darwin Core
-backbone databases. Nine backends are available, each compiled from a
+backbone databases. Ten backends are available, each compiled from a
 different authoritative source. The backend we choose determines which
 names can be matched, what taxonomic opinion governs synonym resolution,
 and which extra metadata columns are available downstream. This vignette
@@ -11,7 +11,7 @@ given project.
 
 ## Backend overview
 
-The table below summarizes the nine backends. “Approx. names” is the
+The table below summarizes the ten backends. “Approx. names” is the
 total number of name strings in the compiled backbone (accepted names
 plus synonyms); the actual species count is lower because each accepted
 species may have several synonym entries pointing to it.
@@ -25,6 +25,7 @@ species may have several synonym entries pointing to it.
 | `ncbi` | NCBI Taxonomy | All life incl. viruses | ~2.5M | Pipe-delimited .dmp files (taxdump) |
 | `ott` | Open Tree of Life | All life (synthetic) | ~4M | Pipe-delimited taxonomy.tsv + synonyms.tsv |
 | `worms` | World Register of Marine Species | Marine and brackish | ~600k | ChecklistBank DwC-A |
+| `euromed` | Euro+Med PlantBase | European/Mediterranean plants | ~132k | Semicolon-delimited CSV |
 | `fungorum` | Species Fungorum Plus | Fungi | ~500k | ChecklistBank DwC-A |
 | `algaebase` | AlgaeBase | Algae and cyanobacteria | ~170k | ChecklistBank DwC-A (CC BY-NC) |
 
@@ -70,6 +71,16 @@ some freshwater species. Beyond basic taxonomy, the WoRMS backbone
 stores habitat flags (marine, brackish, freshwater, terrestrial) and
 extinction status, some of which are accessible via the COL
 SpeciesProfile.
+
+Euro+Med PlantBase is the taxonomic reference for the flora of Europe,
+the Mediterranean, and the Caucasus. It covers all native and introduced
+vascular plants in its geographic scope (~49k accepted names, ~83k
+synonyms). The backbone is built from the 2020 bulk download, updated
+via a PESI API delta refresh (April 2026) that resolved 1,014
+reclassifications and synonym changes cross-referenced against WFO and
+POWO. Euro+Med is particularly useful for European vegetation surveys
+and datasets aligned with the European Vegetation Archive (EVA). Its
+data is licensed CC BY-SA 3.0.
 
 Species Fungorum Plus is the specialist reference for fungal taxonomy,
 with ~500k names curated by the Royal Botanic Gardens, Kew. It covers
@@ -210,7 +221,7 @@ all-rounder.
 
 ## Backend-specific output differences
 
-All nine backends produce the same 16-column output schema. This is a
+All ten backends produce the same 16-column output schema. This is a
 deliberate design choice: downstream code does not need to know which
 backend produced a match. That said, the content of those columns varies
 in ways worth knowing about.
@@ -222,8 +233,9 @@ authorship appended), so the `authorship` column comes from a separate
 time to produce the canonical name used for matching, and the stripped
 authorship is stored separately. NCBI and OTT have no authorship data at
 all, so the `authorship` column is always `NA` for those backends. GBIF
-and ITIS provide authorship. Species Fungorum and AlgaeBase provide
-authorship from their DwC-A archives.
+and ITIS provide authorship. Euro+Med provides authorship from its
+`AuthorString` field. Species Fungorum and AlgaeBase provide authorship
+from their DwC-A archives.
 
 **Taxon IDs.** Each backend uses a different identifier system. WFO IDs
 look like `"wfo-0000000123"`. COL IDs are opaque alphanumeric strings
@@ -231,8 +243,9 @@ like `"4LHBG"`. GBIF uses integer keys (`"2878688"`). ITIS uses TSN
 integers (`"183671"`). NCBI uses NCBI Taxonomy IDs (`"9606"`). OTT uses
 OTT IDs (`"770315"`). WoRMS uses AphiaIDs extracted from LSIDs; during
 build time, taxify strips the `urn:lsid:marinespecies.org:taxname:`
-prefix and stores just the numeric ID. Species Fungorum and AlgaeBase
-use ChecklistBank dataset-specific IDs. All IDs are stored as character
+prefix and stores just the numeric ID. Euro+Med uses `TaxonUsageID`
+integers from the PlantBase export. Species Fungorum and AlgaeBase use
+ChecklistBank dataset-specific IDs. All IDs are stored as character
 strings in the `taxon_id` and `accepted_id` columns for consistency, but
 their format is backend-specific and meaningful only within that
 backend’s ecosystem. A `taxon_id` from WFO cannot be looked up in the
@@ -247,7 +260,8 @@ to access. GBIF provides family through a denormalized `family_key`
 self-join at build time. ITIS, NCBI, and OTT resolve family and genus
 via parent-hierarchy walks during backbone compilation; the walk
 traverses up to 25 levels of the taxonomic tree. WoRMS has denormalized
-classification columns directly in its DwC-A. The genus register
+classification columns directly in its DwC-A. Euro+Med resolves family
+and genus via a hierarchy walk on `IsChildTaxonOfID`. The genus register
 (covered later in this vignette) fills in higher classification fields
 (`kingdom_group`, `taxon_group`, `life_form`) for all backends.
 
@@ -672,12 +686,13 @@ include.
 ## The genus register
 
 taxify ships a unified genus register built from the union of genera
-across WFO, COL, and GBIF. The register contains ~100k genera, each with
-its family, higher classification (kingdom through order, where
-available), and a `life_form` label (e.g., `"vascular plant"`,
-`"animal"`, `"fungus"`). The classification is resolved by priority: COL
-\> GBIF \> WFO. If COL and WFO disagree about which family a genus
-belongs to, COL’s assignment wins.
+across all eight pre-built backends (WFO, COL, GBIF, ITIS, NCBI, OTT,
+WoRMS, and Euro+Med). The register contains ~100k genera, each with its
+family, higher classification (kingdom through order, where available),
+and a `life_form` label (e.g., `"vascular plant"`, `"animal"`,
+`"fungus"`). The classification is resolved by priority: WoRMS \> COL \>
+GBIF \> Euro+Med \> ITIS \> NCBI \> OTT \> WFO. If COL and WFO disagree
+about which family a genus belongs to, COL’s assignment wins.
 
 The register serves two purposes in taxify’s matching pipeline. First,
 it provides `life_form`, `kingdom_group`, and `taxon_group` columns in
@@ -777,6 +792,14 @@ standard reference, well-curated, and updated regularly. If some names
 fall through (e.g., horticultural cultivars, nomenclaturally complex
 genera, or names from older floras that use outdated synonymy), add COL:
 `backend = c("wfo", "col")`.
+
+**European vegetation data.** Use `backend = c("euromed", "wfo")`.
+Euro+Med PlantBase is the taxonomic reference used by EVA and covers all
+native and introduced vascular plants of Europe, the Mediterranean, and
+the Caucasus. Leading with Euro+Med ensures European synonym resolution
+follows Euro+Med’s taxonomic opinion, with WFO as fallback for
+non-European taxa or names outside Euro+Med’s scope. Note that Euro+Med
+data is CC BY-SA 3.0.
 
 **Pure marine/aquatic lists.** Use `backend = "worms"`. WoRMS is the
 authoritative source for marine taxonomy, curated by domain experts, and

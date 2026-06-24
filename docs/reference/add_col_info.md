@@ -81,8 +81,11 @@ The same data.frame with additional columns:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus robur", backend = "col") |>
   add_col_info()
-} # }
+
+options(old)
 ```

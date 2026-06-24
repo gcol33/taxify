@@ -19,6 +19,8 @@ add_data(
   sheet = NULL,
   start_row = NULL,
   cols = NULL,
+  group_col = NULL,
+  groups = "all",
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
   verbose = TRUE
@@ -70,6 +72,21 @@ add_data(
   Character vector of column names from `data` to join. If `NULL`
   (default), all columns except `species_col` are joined.
 
+- group_col:
+
+  Character or `NULL`. Column in `data` that defines groups (e.g.,
+  country codes, regions). When set, the output is pivoted to wide
+  format with one column per group (e.g., `trait_AT`, `trait_DE`), just
+  like the built-in grouped enrichments. Use
+  [`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
+  to reshape back to long format. Default `NULL` (flat join, one row per
+  species).
+
+- groups:
+
+  Character vector or `"all"`. Which groups to include when `group_col`
+  is set. Default `"all"`.
+
 - fuzzy:
 
   Logical. Enable fuzzy matching for names in `data`. Default `TRUE`.
@@ -101,10 +118,17 @@ The workflow:
     call, obtaining `accepted_id` for each row.
 
 4.  Check for conflicting duplicates: if multiple rows in `data` resolve
-    to the same `accepted_id` with different values, an error is raised.
-    Exact duplicates produce a warning and are deduplicated.
+    to the same `accepted_id` with different values, an error is raised
+    (unless `group_col` is set). Exact duplicates produce a warning and
+    are deduplicated.
 
 5.  Left-join on `accepted_id`.
+
+### Grouped data
+
+When your data has multiple rows per species (e.g., one row per species
+per country), set `group_col` to produce wide output with suffixed
+columns. This is the same format as the built-in grouped enrichments.
 
 ### Auto-detection
 
@@ -118,21 +142,13 @@ least 50% matches, an error is raised asking the user to specify
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 result <- taxify(c("Quercus robur", "Pinus sylvestris"))
-
-# From a CSV file (auto-detect species column)
-result |> add_data("my_traits.csv")
-
-# From a SQLite database
-result |> add_data("traits.sqlite", table = "plant_traits")
-
-# From a data.frame with explicit species column
 traits <- data.frame(species = c("Quercus robur", "Pinus sylvestris"),
-                      height = c(30, 25))
+                     height = c(30, 25))
 result |> add_data(traits, species_col = "species")
 
-# Select specific columns
-result |> add_data(traits, species_col = "species", cols = "height")
-} # }
+options(old)
 ```

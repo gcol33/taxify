@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Migrating from taxize and WorldFlora • taxify</title>
+<title>Migrating from taxize, WorldFlora, and related tools • taxify</title>
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Migrating from taxize and WorldFlora">
+<meta property="og:title" content="Migrating from taxize, WorldFlora, and related tools">
 </head>
 <body>
 <p>
@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.15</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,7 @@
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
     <li><a class="dropdown-item" href="../articles/quickstart.html">Getting started with taxify</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
@@ -91,7 +91,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Migrating from taxize and WorldFlora</h1>
+      <h1>Migrating from taxize, WorldFlora, and related tools</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/vignettes/migration.Rmd" class="external-link"><code>vignettes/migration.Rmd</code></a></small>
@@ -101,14 +101,114 @@
     
     
 <div class="section level2">
-<h2 id="why-migrate">Why migrate<a class="anchor" aria-label="anchor" href="#why-migrate"></a>
+<h2 id="the-taxonomic-resolution-landscape-in-r">The taxonomic-resolution landscape in R<a class="anchor" aria-label="anchor" href="#the-taxonomic-resolution-landscape-in-r"></a>
 </h2>
-<p>The R ecosystem has two well-established packages for taxonomic name
-resolution: <a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a> for
-multi-database API lookups, and <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a> for
-offline matching against the WFO backbone. Both work. If your workflow
-already uses one of them and you are happy with it, there is no urgent
-reason to switch.</p>
+<p>The R ecosystem has a rich set of taxonomic name-resolution tools.
+Each takes a different design choice along three axes: where the data
+lives (local files or remote APIs), how many backbones are bundled, and
+what the package returns. The table below summarizes the options most
+likely to overlap with a taxify workflow.</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th>Package</th>
+<th>Source data</th>
+<th>Coverage</th>
+<th>Access</th>
+<th>Closest taxify analogue</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a></td>
+<td>~20 web services (NCBI, ITIS, GBIF, EOL, IUCN, WoRMS, Tropicos,
+…)</td>
+<td>All kingdoms</td>
+<td>Live API</td>
+<td>
+<code>taxify(backend = c(...))</code> with the relevant local
+backbone(s)</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a></td>
+<td>World Flora Online classification (<code>WFO.match</code>)</td>
+<td>Land plants (vascular + bryophytes)</td>
+<td>Local file</td>
+<td><code>taxify(backend = "wfo")</code></td>
+</tr>
+<tr class="odd">
+<td><a href="https://github.com/idiv-biodiversity/lcvplants" class="external-link">lcvplants</a></td>
+<td>Leipzig Catalogue of Vascular Plants</td>
+<td>Vascular plants</td>
+<td>Bundled in package</td>
+<td><code>taxify(backend = "lcvp")</code></td>
+</tr>
+<tr class="even">
+<td><a href="https://matildabrown.github.io/rWCVP/" class="external-link">rWCVP</a></td>
+<td>World Checklist of Vascular Plants (Kew)</td>
+<td>Vascular plants</td>
+<td>Local snapshot</td>
+<td><code>taxify(backend = "wcvp")</code></td>
+</tr>
+<tr class="odd">
+<td><a href="https://docs.ropensci.org/taxadb/" class="external-link">taxadb</a></td>
+<td>GBIF, ITIS, COL, NCBI, OTT, WFO snapshots</td>
+<td>All kingdoms</td>
+<td>Local DuckDB / MonetDB</td>
+<td><code>taxify(backend = c(...))</code></td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/package=Taxonstand" class="external-link">Taxonstand</a></td>
+<td>The Plant List (retired by Kew in 2013, superseded by WCVP and
+WFO)</td>
+<td>Vascular plants</td>
+<td>Bundled in package</td>
+<td><code>taxify(backend = c("wcvp", "wfo"))</code></td>
+</tr>
+<tr class="odd">
+<td><a href="https://github.com/ecoinfor/U.Taxonstand" class="external-link">U.Taxonstand</a></td>
+<td>User-supplied or bundled checklists</td>
+<td>Configurable</td>
+<td>Local</td>
+<td>
+<code>taxify(backend = ...)</code> plus <code><a href="../reference/add_data.html">add_data()</a></code>
+</td>
+</tr>
+<tr class="even">
+<td><a href="https://brunobrr.github.io/bdc/" class="external-link">bdc</a></td>
+<td>taxadb + GNR for the taxonomic step inside a larger
+biodiversity-cleaning workflow</td>
+<td>All kingdoms</td>
+<td>Local + API</td>
+<td>
+<code><a href="../reference/taxify.html">taxify()</a></code> for the matching step</td>
+</tr>
+<tr class="odd">
+<td><a href="https://cran.r-project.org/package=TNRS" class="external-link">TNRS</a></td>
+<td>TNRS web service (BIEN / iDigBio)</td>
+<td>Plants</td>
+<td>Live API</td>
+<td>
+<code>taxify(backend = "wfo")</code> or similar</td>
+</tr>
+<tr class="even">
+<td>
+<a href="https://docs.ropensci.org/rgbif/" class="external-link">rgbif</a>, <a href="https://docs.ropensci.org/worrms/" class="external-link">worrms</a>, <a href="https://docs.ropensci.org/ritis/" class="external-link">ritis</a>
+</td>
+<td>GBIF / WoRMS / ITIS web APIs</td>
+<td>One backbone each</td>
+<td>Live API</td>
+<td><code>taxify(backend = "gbif" / "worms" / "itis")</code></td>
+</tr>
+</tbody>
+</table>
+<p>If your workflow already uses one of these and you are happy with it,
+there is no urgent reason to switch.</p>
 <p>That said, there are situations where taxify offers a better fit:</p>
 <ul>
 <li>
@@ -250,13 +350,237 @@ reuse the local copy, and a once-per-session version check keeps it
 current.</p>
 </div>
 <div class="section level2">
+<h2 id="function-mapping-lcvplants-to-taxify">Function mapping: lcvplants to taxify<a class="anchor" aria-label="anchor" href="#function-mapping-lcvplants-to-taxify"></a>
+</h2>
+<p><a href="https://github.com/idiv-biodiversity/lcvplants" class="external-link">lcvplants</a>
+wraps the Leipzig Catalogue of Vascular Plants and ships the LCVP table
+as bundled data. The package centres on <code>LCVP()</code> and
+<code>lcvp_search()</code>.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>lcvplants function</th>
+<th>taxify equivalent</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>LCVP(splist)</code></td>
+<td><code>taxify(splist, backend = "lcvp")</code></td>
+<td>Returns the standardized 16-column data.frame</td>
+</tr>
+<tr class="even">
+<td><code>lcvp_search()</code></td>
+<td><code><a href="../reference/taxify.html">taxify()</a></code></td>
+<td>Search by name; same output schema</td>
+</tr>
+<tr class="odd">
+<td><code>lcvp_fuzzy_search()</code></td>
+<td><code>taxify(fuzzy = TRUE)</code></td>
+<td>Genus-blocked Damerau-Levenshtein; on by default</td>
+</tr>
+<tr class="even">
+<td>
+<code>tab_lcvp</code> (data object)</td>
+<td><code>taxify_data_dir() / lcvp / latest / lcvp.vtr</code></td>
+<td>The LCVP snapshot is shipped as a <code>.vtr</code> file rather than
+an in-package data object</td>
+</tr>
+</tbody>
+</table>
+<p>The LCVP and WCVP backbones can be combined in a single fallback
+chain to arbitrate between the Leipzig and Kew vascular-plant
+authorities:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span>, backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wcvp"</span>, <span class="st">"lcvp"</span>, <span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backend"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="function-mapping-rwcvp-to-taxify">Function mapping: rWCVP to taxify<a class="anchor" aria-label="anchor" href="#function-mapping-rwcvp-to-taxify"></a>
+</h2>
+<p><a href="https://matildabrown.github.io/rWCVP/" class="external-link">rWCVP</a> is the Kew
+package for the World Checklist of Vascular Plants. Its name-resolution
+side centres on <code>wcvp_match_names()</code> and
+<code>wcvp_check_gbif()</code>; it also has a strong distribution-query
+side that taxify does not replace.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>rWCVP function</th>
+<th>taxify equivalent</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>wcvp_match_names()</code></td>
+<td><code>taxify(backend = "wcvp")</code></td>
+<td>Exact + fuzzy in one call</td>
+</tr>
+<tr class="even">
+<td><code>wcvp_check_gbif()</code></td>
+<td><code>taxify(backend = c("wcvp", "gbif"))</code></td>
+<td>Cascade WCVP first, GBIF as fallback</td>
+</tr>
+<tr class="odd">
+<td><code>wcvp_distribution()</code></td>
+<td><code><a href="../reference/add_wcvp.html">add_wcvp()</a></code></td>
+<td>Native range by TDWG region (the <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code>
+enrichment)</td>
+</tr>
+<tr class="even">
+<td><code>wcvp_synonyms()</code></td>
+<td><code><a href="../reference/taxify.html">taxify()</a></code></td>
+<td>
+<code>is_synonym</code> and <code>accepted_name</code> columns in
+the output</td>
+</tr>
+<tr class="odd">
+<td><code>get_wcvp()</code></td>
+<td>automatic</td>
+<td>The backbone downloads on first
+<code>taxify(backend = "wcvp")</code> call</td>
+</tr>
+</tbody>
+</table>
+<p>rWCVP’s distribution-query functions (<code>wcvp_occ_mat()</code>,
+<code>generate_checklist()</code>) operate on TDWG geography and are
+outside taxify’s scope. For native-range data joined to a name-resolved
+result, <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code> covers the most common case; for full
+geographic queries, rWCVP remains the right tool.</p>
+</div>
+<div class="section level2">
+<h2 id="function-mapping-taxadb-to-taxify">Function mapping: taxadb to taxify<a class="anchor" aria-label="anchor" href="#function-mapping-taxadb-to-taxify"></a>
+</h2>
+<p><a href="https://docs.ropensci.org/taxadb/" class="external-link">taxadb</a> is the closest
+functional analogue to taxify. Both store backbone snapshots locally and
+avoid network calls at query time. The two packages differ in matching
+strategy and integration: taxadb returns a long-format table for
+exact-key joins, while taxify returns a flat one-row-per-input result
+with fuzzy matching, synonym resolution, and trait enrichment built
+in.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>taxadb function</th>
+<th>taxify equivalent</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>td_create("itis")</code></td>
+<td>automatic</td>
+<td>First <code>taxify(backend = "itis")</code> call downloads the
+<code>.vtr</code> snapshot</td>
+</tr>
+<tr class="even">
+<td><code>filter_name(names, "itis")</code></td>
+<td><code>taxify(names, backend = "itis")</code></td>
+<td>Exact match against the local snapshot</td>
+</tr>
+<tr class="odd">
+<td><code>filter_id(ids, "itis")</code></td>
+<td>not exposed</td>
+<td>Use <code><a href="https://gillescolling.com/vectra/reference/tbl.html" class="external-link">vectra::tbl()</a></code> directly on the <code>.vtr</code> if
+needed</td>
+</tr>
+<tr class="even">
+<td><code>synonyms(names, "itis")</code></td>
+<td><code><a href="../reference/taxify.html">taxify()</a></code></td>
+<td>
+<code>is_synonym</code>, <code>accepted_name</code>,
+<code>accepted_id</code> in the output</td>
+</tr>
+<tr class="odd">
+<td><code>clean_names()</code></td>
+<td>automatic</td>
+<td>
+<code><a href="../reference/taxify.html">taxify()</a></code> runs the cleaning pipeline (authorship,
+qualifiers, hybrid markers, orthography) before matching</td>
+</tr>
+<tr class="even">
+<td>(no fuzzy match)</td>
+<td><code>taxify(fuzzy = TRUE)</code></td>
+<td>Genus-blocked Damerau-Levenshtein, on by default</td>
+</tr>
+</tbody>
+</table>
+<p>The two largest practical differences:</p>
+<ul>
+<li>
+<strong>Matching scope.</strong> taxadb is built around exact
+lookups against pre-cleaned input. taxify cleans the input automatically
+and runs fuzzy matching on names that do not match exactly, which
+catches typos, orthographic variants, and authorship strings without a
+separate preprocessing step.</li>
+<li>
+<strong>Output shape.</strong> taxadb returns multiple rows per
+input when a name has multiple matches (you pick the row you want with
+<code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">dplyr::filter</a></code>). taxify returns one row per input with a
+best-match selection rule (ACCEPTED over SYNONYM, species rank over
+higher ranks, lowest ID as tiebreaker), and reports the match type and
+fuzzy distance as columns.</li>
+</ul>
+<p>For workflows that already use taxadb’s column-oriented querying for
+custom analyses, taxadb’s approach is a clean fit. For workflows that
+need a single resolved name per input plus enrichment joins, taxify’s
+flat output is closer to the goal.</p>
+</div>
+<div class="section level2">
+<h2 id="function-mapping-taxonstand-to-taxify">Function mapping: Taxonstand to taxify<a class="anchor" aria-label="anchor" href="#function-mapping-taxonstand-to-taxify"></a>
+</h2>
+<p><a href="https://cran.r-project.org/package=Taxonstand" class="external-link">Taxonstand</a> was
+built around The Plant List, which Kew retired in 2013 in favour of WCVP
+and WFO. The package still works, but the underlying taxonomy has not
+been updated since the retirement.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Taxonstand function</th>
+<th>taxify equivalent</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>TPL(splist)</code></td>
+<td><code>taxify(splist, backend = c("wcvp", "wfo"))</code></td>
+<td>Replace TPL with its successors</td>
+</tr>
+<tr class="even">
+<td><code>TPLck()</code></td>
+<td><code><a href="../reference/taxify.html">taxify()</a></code></td>
+<td>Single-name check; same output schema</td>
+</tr>
+</tbody>
+</table>
+<p>The simplest migration is to replace <code>backend = "tpl"</code>
+with <code>backend = c("wcvp", "wfo")</code> (or
+<code>backend = c("lcvp", "wcvp", "wfo")</code> for triple-arbitration
+across the three large vascular-plant authorities).</p>
+</div>
+<div class="section level2">
 <h2 id="example-1-basic-name-resolution">Example 1: Basic name resolution<a class="anchor" aria-label="anchor" href="#example-1-basic-name-resolution"></a>
 </h2>
 <p>With taxize, name resolution typically meant several separate calls:
 <code>gnr_resolve()</code> for matching, <code>get_gbifid()</code> for
 IDs, <code>classification()</code> for hierarchy,
 <code>synonyms()</code> for synonym status.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxize ---</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a></span><span class="op">)</span></span>
 <span></span>
@@ -268,7 +592,7 @@ IDs, <code>classification()</code> for hierarchy,
 <span><span class="va">class_list</span> <span class="op">&lt;-</span> <span class="fu">classification</span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span><span class="va">syn_list</span>   <span class="op">&lt;-</span> <span class="fu">synonyms</span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span></code></pre></div>
 <p>With taxify, all of that is one call:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
 <span></span>
@@ -291,7 +615,7 @@ name.</p>
 <p>With WorldFlora, the typical workflow is: load the backbone, run
 exact matching, apply fuzzy matching separately, then pick the best
 match.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- WorldFlora ---</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">WorldFlora</span><span class="op">)</span></span>
 <span></span>
@@ -304,7 +628,7 @@ match.</p>
 <span><span class="va">best</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one</a></span><span class="op">(</span><span class="va">fuzzy</span><span class="op">)</span></span></code></pre></div>
 <p>With taxify, exact matching, fuzzy matching, and synonym resolution
 happen in a single call:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
 <span></span>
@@ -333,7 +657,7 @@ taxify handles both: the fuzzy matcher corrects the spelling to
 </h2>
 <p>taxify can chain multiple backbones in a single call. Unmatched names
 cascade to the next backbone automatically.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Mixed kingdom input: plants, animals, fungi</span></span>
@@ -520,32 +844,50 @@ reproducibility, a direct API client (rgbif, worrms, ritis) may be the
 better fit.</p>
 </div>
 <div class="section level2">
-<h2 id="when-not-to-switch">When not to switch<a class="anchor" aria-label="anchor" href="#when-not-to-switch"></a>
+<h2 id="when-the-other-packages-are-the-better-choice">When the other packages are the better choice<a class="anchor" aria-label="anchor" href="#when-the-other-packages-are-the-better-choice"></a>
 </h2>
-<p>taxify is not a universal replacement for every taxize use case. A
-few situations where the other tools may be more appropriate:</p>
+<p>taxify is one tool among several. A few situations where the related
+packages remain the right answer:</p>
 <ul>
-<li><p><strong>Common-to-scientific lookups</strong>
-(<code>comm2sci()</code>). If the starting point is vernacular names,
-the GBIF API (<code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code>) accepts common names
-and returns scientific name candidates.</p></li>
+<li><p><strong>Distribution and range queries.</strong> rWCVP exposes
+WCVP’s TDWG-region geography directly through
+<code>wcvp_distribution()</code>, <code>wcvp_occ_mat()</code>, and
+<code>generate_checklist()</code>. taxify covers name-resolution and the
+most common native-range join through <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code>, but full
+geographic queries belong in rWCVP.</p></li>
+<li><p><strong>Live API access to upstream databases.</strong> taxize,
+rgbif, worrms, ritis, and TNRS query their backends in real time. If you
+need a name added to a backbone yesterday, or you want the latest
+annotation for a single taxon, these packages return that immediately.
+taxify works against the snapshot on disk and only sees changes when the
+backbone is updated.</p></li>
+<li><p><strong>Common-to-scientific lookups.</strong> taxize had
+<code>comm2sci()</code> to go from “European robin” to <em>Erithacus
+rubecula</em>. taxify matches scientific names, not vernacular input.
+For that direction, <code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code> accepts common
+names and returns candidates.</p></li>
 <li><p><strong>Downstream taxa enumeration.</strong> If the goal is to
 list all species in a family or all subspecies of a species, taxify does
 not provide that query. Use
 <code>rgbif::name_usage(key, data = "children")</code> or
 <code>rotl::tol_subtree()</code>.</p></li>
+<li><p><strong>Wider biodiversity-data cleaning.</strong> <a href="https://brunobrr.github.io/bdc/" class="external-link">bdc</a> wraps the entire
+data-cleaning workflow (coordinate cleaning, dataset merging, taxonomic
+harmonization, occurrence flagging). taxify can replace its taxonomic
+step alone if you prefer offline backbones over taxadb + GNR, but the
+rest of bdc’s pipeline is outside taxify’s scope.</p></li>
 <li><p><strong>Interactive, per-name resolution with manual
 disambiguation.</strong> taxize had interactive modes where the user
 could pick among multiple candidates. taxify picks the best match
 automatically (accepted name over synonym, species rank over higher
 ranks, lowest ID as tiebreaker). If manual control over ambiguous
 matches is needed, direct API calls may be preferable.</p></li>
-<li><p><strong>Data freshness over reproducibility.</strong> taxify’s
-strength is reproducible, versioned, offline matching. If the priority
-is to always use the very latest backbone update (published hours ago),
-querying the API directly via rgbif, worrms, or ritis avoids the delay
-between upstream publication and taxify’s next backbone
-release.</p></li>
+<li><p><strong>Column-oriented querying of a backbone.</strong> taxadb
+stores backbones in DuckDB / MonetDB and exposes them through dplyr
+verbs, which is a natural fit if your analysis is itself a SQL-style
+transformation of the backbone. taxify exposes the underlying
+<code>.vtr</code> files through vectra for this kind of work, but
+taxadb’s dplyr surface is more ergonomic for custom queries.</p></li>
 </ul>
 </div>
 <div class="section level2">
@@ -555,7 +897,7 @@ release.</p></li>
 invasive species, functional traits, morphological measurements, and
 vernacular names. These are joined to the taxify result by piping
 through <code>add_*()</code> functions.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See all available enrichments and their metadata</span></span>
 <span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Each enrichment downloads automatically on first use and is cached
@@ -571,16 +913,18 @@ locally, following the same pattern as backbones. The full list:
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
-<p>Migrating from taxize or WorldFlora to taxify means replacing
-multiple function calls with <code><a href="../reference/taxify.html">taxify()</a></code> plus optional
-<code>add_*()</code> pipes. The output is a flat data.frame, not nested
-lists. Matching runs offline against versioned backbone files, so
-results do not change between sessions unless the user explicitly
-updates the backbone.</p>
-<p>For things taxify does not handle (downstream taxa, occurrence data,
-phylogenetic trees, sequence retrieval), the specialized packages (rotl,
-rgbif, spocc, rentrez) remain the right tools. taxify handles the
-name-matching step that comes before all of those.</p>
+<p>Migrating from taxize, WorldFlora, lcvplants, rWCVP, taxadb, or
+Taxonstand to taxify means replacing the package’s resolution call with
+<code>taxify(backend = ...)</code> and optional <code>add_*()</code>
+enrichment pipes. The output is a flat 16-column data.frame, not nested
+lists or long-format join tables, and matching runs offline against
+versioned backbone files so results do not change between sessions
+unless the user explicitly updates the backbone.</p>
+<p>For things taxify does not handle (distribution queries, downstream
+taxa, occurrence data, phylogenetic trees, sequence retrieval, live API
+freshness), the specialized packages (rWCVP, rgbif, rotl, spocc,
+rentrez, worrms, ritis) remain the right tools. taxify covers the
+name-matching step that comes before most of those.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

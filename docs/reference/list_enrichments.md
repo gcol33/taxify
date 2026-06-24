@@ -24,7 +24,7 @@ A data.frame with columns: `name`, `version`, `nrow`, `static`,
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 list_enrichments()
-} # }
+# }
 ```

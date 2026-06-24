@@ -805,6 +805,7 @@ The nine trait columns capture complementary facets of fungal ecology:
 - `growth_form`: the vegetative morphology (agaricoid, boletoid,
   polyporoid, corticioid, clavarioid, gasteroid, etc.).
 - `fruitbody_type`: the reproductive structure type.
+
 - `decay_substrate`: the primary substrate for saprotrophic genera (wood,
   litter, dung, soil).
 - `plant_pathogenic_capacity`: a coarse classification of pathogenic
@@ -921,6 +922,7 @@ All eight columns are prefixed with `algae_` to clearly distinguish them
 from terrestrial plant traits:
 
 - `algae_body_size_cm`: maximum thallus length in centimetres.
+
 - `algae_growth_form`: the morphological category (filamentous, foliose,
   corticated, leathery, calcareous, crustose, etc.).
 - `algae_calcification`: whether the species produces calcium carbonate
@@ -934,6 +936,7 @@ from terrestrial plant traits:
 - `algae_wave_exposure`: the preferred wave exposure regime (sheltered,
   moderately exposed, exposed).
 - `algae_environment`: the salinity regime (marine, brackish, freshwater).
+
 - `algae_substrate`: the preferred substrate type (rock, sand, epiphytic,
   free-living).
 
@@ -996,6 +999,7 @@ morphological ratios normalized by body length. The 10 traits are:
 - `fish_oral_gape_position`: the vertical position of the mouth, from
   ventral (benthic feeders) to dorsal (surface feeders).
 - `fish_body_lateral_shape`: the lateral compression of the body.
+
 - `fish_pectoral_fin_size`: pectoral fin area, associated with
   manoeuvrability and braking ability.
 - `fish_pectoral_fin_position`: the vertical insertion of the pectoral
@@ -1006,6 +1010,7 @@ morphological ratios normalized by body length. The 10 traits are:
   values (forked tails) indicate cruising swimmers; low values (rounded
   tails) indicate ambush predators or benthic species.
 - `fish_fin_surface_ratio`: total fin area relative to body area.
+
 - `fish_max_body_length_cm`: the maximum recorded standard length in
   centimetres.
 
@@ -1051,7 +1056,9 @@ fish |> add_fishbase()
 The eight columns are all prefixed with `fb_`:
 
 - `fb_body_length_cm`: maximum total length in centimetres.
+
 - `fb_body_mass_g`: maximum recorded body mass in grams.
+
 - `fb_trophic_level`: the trophic level (continuous, typically 2.0-5.0).
   Herbivorous fish sit near 2.0, planktivores around 3.0, piscivores
   around 4.0-4.5, and apex predators above 4.5.
@@ -1111,14 +1118,18 @@ lizards |> add_lizard_traits()
 All columns are prefixed with `lizard_`:
 
 - `lizard_body_mass_g`: adult body mass in grams.
+
 - `lizard_svl_mm`: snout-vent length in millimetres, the standard body
   size measurement for reptiles (excluding the tail, which is frequently
   lost and regenerated).
 - `lizard_tail_length_mm`: tail length in millimetres.
+
 - `lizard_clutch_size`: the mean number of eggs per clutch (or neonates
   per litter for viviparous species).
 - `lizard_clutch_frequency`: the number of clutches produced per year.
+
 - `lizard_longevity_yr`: maximum recorded longevity in years.
+
 - `lizard_diet`: the primary diet category (insectivore, herbivore,
   omnivore, carnivore).
 - `lizard_habitat`: the primary habitat type (terrestrial, arboreal,
