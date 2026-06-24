@@ -30,10 +30,13 @@
 #' publication, \url{https://www.fishbase.org}.
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Gadus morhua") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Gadus morhua", backend = "gbif") |>
 #'   add_fishbase()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_fishbase <- function(x, verbose = TRUE) {

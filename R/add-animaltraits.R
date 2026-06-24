@@ -21,10 +21,13 @@
 #' for body mass, metabolic rate and brain size. Scientific Data 9:265.
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Drosophila melanogaster") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Drosophila melanogaster", backend = "gbif") |>
 #'   add_animaltraits()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_animaltraits <- function(x, verbose = TRUE) {

@@ -1,0 +1,15 @@
+{
+  "name": "fishbase",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY-NC 3.0",
+  "citation": {
+    "key": "froese2024fishbase",
+    "type": "misc",
+    "authors": "Froese R, Pauly D",
+    "year": "2024",
+    "title": "FishBase",
+    "url": "https://www.fishbase.org"
+  }
+}

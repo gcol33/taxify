@@ -19,7 +19,7 @@ including version, row count, whether the dataset is static, and which
 trait columns are provided.
 }
 \examples{
-\dontrun{
+\donttest{
 list_enrichments()
 }
 

@@ -72,12 +72,18 @@ local_manifest <- function() {
 #'   local backbone exists yet).
 #' @noRd
 check_version <- function(backend_name) {
+  meta <- read_version_meta(backend_name, "latest")
+
+  # Frozen/bundled backbones (e.g. the example database) never phone home.
+  if (!is.null(meta) && isTRUE(meta$static %in% c(TRUE, "TRUE", "true"))) {
+    return(FALSE)
+  }
+
   manifest <- fetch_manifest()
   entry <- resolve_manifest_entry(manifest, backend_name)
   if (is.null(entry)) return(FALSE)  # Unknown backend — skip
 
   latest <- entry$latest
-  meta <- read_version_meta(backend_name, "latest")
 
   if (is.null(meta)) return(TRUE)   # No local copy at all
 

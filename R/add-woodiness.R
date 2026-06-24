@@ -20,10 +20,13 @@
 #' freezing environments. Nature 506:89-92.
 #'
 #' @examples
-#' \dontrun{
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Quercus robur") |>
 #'   add_woodiness()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_woodiness <- function(x, verbose = TRUE) {

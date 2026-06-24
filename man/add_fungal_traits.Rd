@@ -43,10 +43,13 @@ Source: FungalTraits (Polme et al. 2020, Fungal Diversity, CC BY 4.0).
 Coverage: ~10k fungal genera. Genus-level only (not species-level).
 }
 \examples{
-\dontrun{
-taxify("Amanita muscaria") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Amanita muscaria", backend = "gbif") |>
   add_fungal_traits()
-}
+
+options(old)
 
 }
 \references{

@@ -29,9 +29,12 @@ looking up \code{taxon_id} in the GBIF backbone. Only enriches rows where
 \code{backend == "gbif"}.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus robur", backend = "gbif") |>
   add_gbif_info()
-}
+
+options(old)
 
 }

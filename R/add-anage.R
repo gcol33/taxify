@@ -29,10 +29,13 @@
 #' Evolutionary Biology 22:1770-1774.
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Vulpes vulpes") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Vulpes vulpes", backend = "gbif") |>
 #'   add_anage()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_anage <- function(x, verbose = TRUE) {

@@ -39,10 +39,13 @@ a direct match, it falls back to genus-level guild assignments from
 FUNGuild's genus-rank entries.
 }
 \examples{
-\dontrun{
-taxify("Amanita muscaria") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Amanita muscaria", backend = "gbif") |>
   add_funguild()
-}
+
+options(old)
 
 }
 \references{

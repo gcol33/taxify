@@ -25,9 +25,12 @@ Parses the \code{input_name} column from a \code{\link[=taxify]{taxify()}} resul
 hybrid parent names and classify the hybrid type.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus pyrenaica x Q. petraea") |>
   add_hybrid_info()
-}
+
+options(old)
 
 }

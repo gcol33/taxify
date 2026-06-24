@@ -36,12 +36,15 @@ Source: GRIIS (Zenodo combined CSV, CC BY 4.0, 196 countries).
 Coverage: ~23k name x country combinations.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Robinia pseudoacacia") |>
   add_invasive_status(country = "AT")
 
 taxify("Robinia pseudoacacia") |>
   add_invasive_status(country = c("AT", "DE"))
-}
+
+options(old)
 
 }

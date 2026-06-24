@@ -38,10 +38,13 @@ Source: AlgaeTraits (Vranken et al. 2023, VLIZ Marine Data Archive,
 CC BY 4.0). Coverage: ~1,745 European macroalgae species.
 }
 \examples{
-\dontrun{
-taxify("Fucus vesiculosus") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Fucus vesiculosus", backend = "gbif") |>
   add_algae_traits()
-}
+
+options(old)
 
 }
 \references{

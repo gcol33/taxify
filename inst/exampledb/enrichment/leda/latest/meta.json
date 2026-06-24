@@ -1,0 +1,18 @@
+{
+  "name": "leda",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "Free for academic use",
+  "citation": {
+    "key": "kleyer2008leda",
+    "type": "article",
+    "authors": "Kleyer M, Bekker RM, Knevel IC, Bakker JP, Thompson K, Sonnenschein M, Poschlod P, van Groenendael JM, Klimes L, Klimesova J, et al.",
+    "year": "2008",
+    "title": "The LEDA Traitbase: a database of life-history traits of the Northwest European flora",
+    "journal": "Journal of Ecology",
+    "volume": "96",
+    "pages": "1266-1274",
+    "doi": "10.1111/j.1365-2745.2008.01430.x"
+  }
+}

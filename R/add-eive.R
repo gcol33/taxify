@@ -26,10 +26,13 @@
 #' doi:10.3897/VCS.98324
 #'
 #' @examples
-#' \dontrun{
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Arrhenatherum elatius") |>
 #'   add_eive()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_eive <- function(x, verbose = TRUE) {

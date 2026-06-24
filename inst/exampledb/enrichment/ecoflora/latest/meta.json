@@ -1,0 +1,15 @@
+{
+  "name": "ecoflora",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY-NC-SA 4.0",
+  "citation": {
+    "key": "fitter1994ecoflora",
+    "type": "article",
+    "authors": "Fitter AH, Peat HJ",
+    "year": "1994",
+    "title": "The Ecological Flora Database",
+    "doi": null
+  }
+}

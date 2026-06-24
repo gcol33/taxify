@@ -29,13 +29,16 @@
 #' Coverage: ~77k species x country combinations across all taxa.
 #'
 #' @examples
-#' \dontrun{
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Robinia pseudoacacia") |>
 #'   add_alien_first_records(country = "AT")
 #'
 #' taxify(c("Robinia pseudoacacia", "Ailanthus altissima")) |>
 #'   add_alien_first_records(country = c("AT", "DE"))
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_alien_first_records <- function(x, country, verbose = TRUE) {

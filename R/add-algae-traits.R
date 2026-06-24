@@ -32,10 +32,13 @@
 #' doi:10.5194/essd-15-2711-2023
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Fucus vesiculosus") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Fucus vesiculosus", backend = "gbif") |>
 #'   add_algae_traits()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_algae_traits <- function(x, verbose = TRUE) {

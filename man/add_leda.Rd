@@ -48,10 +48,13 @@ hemicryptophyte = buds at soil surface, geophyte (cryptophyte) = buds below
 soil, therophyte = annual that survives as seed.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Arrhenatherum elatius") |>
   add_leda()
-}
+
+options(old)
 
 }
 \references{

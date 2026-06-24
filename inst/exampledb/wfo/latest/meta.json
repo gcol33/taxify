@@ -1,0 +1,6 @@
+{
+  "backend": "wfo",
+  "version": "example",
+  "nrow": 9,
+  "static": true
+}

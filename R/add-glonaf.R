@@ -32,13 +32,16 @@
 #' (GloNAF 2.0) database. Ecology, e70245.
 #'
 #' @examples
-#' \dontrun{
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Robinia pseudoacacia") |>
 #'   add_glonaf(region = "EUR")
 #'
 #' taxify("Robinia pseudoacacia") |>
 #'   add_glonaf(region = c("EUR", "NAM"))
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_glonaf <- function(x, region, verbose = TRUE) {

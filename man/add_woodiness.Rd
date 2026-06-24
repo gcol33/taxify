@@ -27,10 +27,13 @@ Source: Zanne et al. 2014, Nature (Dryad, CC0). Coverage: ~50k plant
 species. Plants only.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus robur") |>
   add_woodiness()
-}
+
+options(old)
 
 }
 \references{

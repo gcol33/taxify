@@ -35,10 +35,13 @@ Source: AnAge (de Magalhaes & Costa 2009, CC BY). Coverage: ~4.7k
 vertebrate species (mammals, birds, reptiles, amphibians, fish).
 }
 \examples{
-\dontrun{
-taxify("Vulpes vulpes") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Vulpes vulpes", backend = "gbif") |>
   add_anage()
-}
+
+options(old)
 
 }
 \references{

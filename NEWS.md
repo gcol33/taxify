@@ -1,3 +1,21 @@
+# taxify 0.2.12
+
+## New features
+
+* `taxify_data_dir()` can now be redirected with the `taxify.data_dir` option
+  or the `TAXIFY_DATA_DIR` environment variable, so the cache location is
+  configurable (shared caches, scratch directories, the bundled example data).
+* `taxify_example_data()` returns the path to a small bundled example database
+  (a handful of species per backbone plus matching enrichment tables). Setting
+  `options(taxify.data_dir = taxify_example_data())` lets matching and
+  enrichment run fully offline.
+
+## Documentation
+
+* Examples now run against the bundled example database instead of being
+  wrapped in `\dontrun{}`. Only `add_pignatti()` (fetched live via TR8) and
+  `list_enrichments()` (reads the online manifest) remain in `\donttest{}`.
+
 # taxify 0.2.11
 
 ## New features

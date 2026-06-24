@@ -117,13 +117,51 @@ taxify_clear_cache <- function() {
 
 #' Get the taxify data directory
 #'
-#' Returns the platform-appropriate directory where taxify stores downloaded
-#' backbone `.vtr` files. Uses [tools::R_user_dir()] (available since R 4.0).
+#' Returns the directory where taxify stores downloaded backbone and
+#' enrichment `.vtr` files. By default this is the platform-appropriate
+#' per-user cache returned by [tools::R_user_dir()] (available since R 4.0).
+#'
+#' The location can be overridden, in order of precedence, by the
+#' `taxify.data_dir` option (`getOption("taxify.data_dir")`) or the
+#' `TAXIFY_DATA_DIR` environment variable. This is useful to point taxify at
+#' a shared cache, or at the small bundled example database returned by
+#' [taxify_example_data()].
 #'
 #' @return Character string. Path to the data directory.
 #' @export
 taxify_data_dir <- function() {
+  opt <- getOption("taxify.data_dir")
+  if (!is.null(opt) && nzchar(opt)) return(opt)
+  env <- Sys.getenv("TAXIFY_DATA_DIR", unset = "")
+  if (nzchar(env)) return(env)
   tools::R_user_dir("taxify", "data")
+}
+
+
+#' Path to the bundled example database
+#'
+#' taxify ships a tiny example database (a handful of species per backbone
+#' plus matching enrichment tables) so that examples and quick experiments
+#' run offline, without downloading the full multi-million-row backbones.
+#'
+#' Point taxify at it for the current session by setting the
+#' `taxify.data_dir` option:
+#'
+#' ```r
+#' old <- options(taxify.data_dir = taxify_example_data())
+#' taxify("Quercus robur") |> add_woodiness()
+#' options(old)  # restore the real data directory
+#' ```
+#'
+#' The example database is read-only and covers only the species used in the
+#' package examples; use the full downloaded backbones for real work.
+#'
+#' @return Character string. Path to the bundled example database directory,
+#'   or `""` if it is not installed.
+#' @seealso [taxify_data_dir()]
+#' @export
+taxify_example_data <- function() {
+  system.file("exampledb", package = "taxify")
 }
 
 

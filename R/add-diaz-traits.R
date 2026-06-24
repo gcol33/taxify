@@ -20,10 +20,13 @@
 #' enhanced species-level trait data. TRY File Archive.
 #'
 #' @examples
-#' \dontrun{
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Quercus robur") |>
 #'   add_diaz_traits()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_diaz_traits <- function(x, verbose = TRUE) {

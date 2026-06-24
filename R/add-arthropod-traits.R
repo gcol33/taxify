@@ -30,10 +30,13 @@
 #' Journal 13:e146785.
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Abax parallelepipedus") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Abax parallelepipedus", backend = "gbif") |>
 #'   add_arthropod_traits()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_arthropod_traits <- function(x, verbose = TRUE) {

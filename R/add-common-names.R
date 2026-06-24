@@ -28,13 +28,16 @@
 #' language, the first (most commonly used) is returned.
 #'
 #' @examples
-#' \dontrun{
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Quercus robur") |>
 #'   add_common_names()
 #'
 #' taxify("Quercus robur") |>
 #'   add_common_names(lang = "de")
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_common_names <- function(x, lang = "en", verbose = TRUE) {

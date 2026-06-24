@@ -10,6 +10,14 @@ taxify_data_dir()
 Character string. Path to the data directory.
 }
 \description{
-Returns the platform-appropriate directory where taxify stores downloaded
-backbone \code{.vtr} files. Uses \code{\link[tools:R_user_dir]{tools::R_user_dir()}} (available since R 4.0).
+Returns the directory where taxify stores downloaded backbone and
+enrichment \code{.vtr} files. By default this is the platform-appropriate
+per-user cache returned by \code{\link[tools:R_user_dir]{tools::R_user_dir()}} (available since R 4.0).
+}
+\details{
+The location can be overridden, in order of precedence, by the
+\code{taxify.data_dir} option (\code{getOption("taxify.data_dir")}) or the
+\code{TAXIFY_DATA_DIR} environment variable. This is useful to point taxify at
+a shared cache, or at the small bundled example database returned by
+\code{\link[=taxify_example_data]{taxify_example_data()}}.
 }

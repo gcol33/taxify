@@ -1,0 +1,20 @@
+{
+  "name": "griis",
+  "version": "example",
+  "nrow": 2,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "pagad2022griis",
+    "type": "article",
+    "authors": "Pagad S, Genovesi P, Carnevali L, Schigel D, McGeoch MA",
+    "year": "2018",
+    "title": "Introducing the Global Register of Introduced and Invasive Species",
+    "journal": "Scientific Data",
+    "volume": "5",
+    "pages": "170202",
+    "doi": "10.1038/sdata.2017.202"
+  },
+  "group_col": "country_code",
+  "available_groups": ["AT", "DE"]
+}

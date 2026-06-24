@@ -1,0 +1,5 @@
+backend=col
+version=example
+build_date=2026-06-24
+nrow=2
+source_url=bundled example database

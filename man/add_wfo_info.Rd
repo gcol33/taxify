@@ -26,9 +26,12 @@ Joins extra World Flora Online columns to a \code{\link[=taxify]{taxify()}} resu
 looking up \code{taxon_id} in the WFO backbone.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus robur") |>
   add_wfo_info()
-}
+
+options(old)
 
 }

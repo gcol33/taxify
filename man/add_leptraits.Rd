@@ -34,10 +34,13 @@ Source: LepTraits 1.0 (Shirey et al. 2022, CC0). Coverage: ~12.4k
 butterfly species globally (Papilionoidea).
 }
 \examples{
-\dontrun{
-taxify("Vanessa cardui") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Vanessa cardui", backend = "gbif") |>
   add_leptraits()
-}
+
+options(old)
 
 }
 \references{

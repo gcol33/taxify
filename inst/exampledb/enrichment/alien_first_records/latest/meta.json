@@ -1,0 +1,20 @@
+{
+  "name": "alien_first_records",
+  "version": "example",
+  "nrow": 4,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "seebens2017alien",
+    "type": "article",
+    "authors": "Seebens H, Blackburn TM, Dyer EE, Genovesi P, Hulme PE, Jeschke JM, Pagad S, Pysek P, Winter M, Arianoutsou M, et al.",
+    "year": "2017",
+    "title": "No saturation in the accumulation of alien species worldwide",
+    "journal": "Nature Communications",
+    "volume": "8",
+    "pages": "14435",
+    "doi": "10.1038/ncomms14435"
+  },
+  "group_col": "country_code",
+  "available_groups": ["AT", "DE"]
+}

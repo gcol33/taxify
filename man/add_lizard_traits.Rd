@@ -35,10 +35,13 @@ Source: Meiri (2018, Global Ecology and Biogeography, CC BY 4.0).
 Coverage: ~6,600 lizard species. Lizards only.
 }
 \examples{
-\dontrun{
-taxify("Pogona vitticeps") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Pogona vitticeps", backend = "gbif") |>
   add_lizard_traits()
-}
+
+options(old)
 
 }
 \references{

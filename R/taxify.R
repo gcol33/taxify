@@ -63,8 +63,10 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' # Match a few names (downloads WFO backbone on first use)
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' # Match a few names
 #' taxify(c("Quercus robur", "Pinus sylvestris"))
 #'
 #' # Disable fuzzy matching
@@ -73,7 +75,8 @@
 #' # Fallback chain: try WFO first, then COL for unmatched
 #' taxify(c("Quercus robur", "Panthera leo"),
 #'        backend = c("wfo", "col"))
-#' }
+#'
+#' options(old)
 #'
 #' @export
 taxify <- function(x,

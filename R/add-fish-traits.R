@@ -39,10 +39,13 @@
 #' Biogeography 30:2330-2336. \doi{10.1111/geb.13395}
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Salmo trutta") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Salmo trutta", backend = "gbif") |>
 #'   add_fish_traits()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_fish_traits <- function(x, verbose = TRUE) {

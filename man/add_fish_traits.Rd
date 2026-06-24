@@ -43,10 +43,13 @@ Source: FISHMORPH (Brosse et al. 2021, Figshare, CC BY 4.0).
 Coverage: ~8.3k freshwater fish species.
 }
 \examples{
-\dontrun{
-taxify("Salmo trutta") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Salmo trutta", backend = "gbif") |>
   add_fish_traits()
-}
+
+options(old)
 
 }
 \references{

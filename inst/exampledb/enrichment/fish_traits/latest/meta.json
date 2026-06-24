@@ -1,0 +1,18 @@
+{
+  "name": "fish_traits",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "brosse2021fishtraits",
+    "type": "article",
+    "authors": "Brosse S, Charpin N, Su G, Toussaint A, Hermine O, Tedesco PA",
+    "year": "2021",
+    "title": "FISHMORPH: A global database on morphological traits of freshwater fishes",
+    "journal": "Global Ecology and Biogeography",
+    "volume": "30",
+    "pages": "2330-2336",
+    "doi": "10.1111/geb.13395"
+  }
+}

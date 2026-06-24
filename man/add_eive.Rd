@@ -32,10 +32,13 @@ Source: EIVE 1.0 (Dengler et al. 2023, Zenodo, CC BY 4.0).
 Coverage: ~14.5k European vascular plant species.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Arrhenatherum elatius") |>
   add_eive()
-}
+
+options(old)
 
 }
 \references{

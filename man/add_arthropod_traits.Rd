@@ -36,10 +36,13 @@ species from NW Europe across 10 orders (Coleoptera, Hemiptera,
 Orthoptera, Araneae, Diptera, Hymenoptera, Lepidoptera, etc.).
 }
 \examples{
-\dontrun{
-taxify("Abax parallelepipedus") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Abax parallelepipedus", backend = "gbif") |>
   add_arthropod_traits()
-}
+
+options(old)
 
 }
 \references{

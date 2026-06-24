@@ -37,10 +37,13 @@
 #' doi:10.1007/s13225-020-00466-2
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Amanita muscaria") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Amanita muscaria", backend = "gbif") |>
 #'   add_fungal_traits()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_fungal_traits <- function(x, verbose = TRUE) {

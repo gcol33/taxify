@@ -13,10 +13,13 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Pinus cf. sylvestris") |>
 #'   add_qualifier_info()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_qualifier_info <- function(x) {

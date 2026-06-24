@@ -1,0 +1,6 @@
+{
+  "backend": "gbif",
+  "version": "example",
+  "nrow": 14,
+  "static": true
+}

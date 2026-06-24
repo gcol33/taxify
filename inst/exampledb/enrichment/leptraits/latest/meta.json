@@ -1,0 +1,18 @@
+{
+  "name": "leptraits",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC0",
+  "citation": {
+    "key": "shirey2022leptraits",
+    "type": "article",
+    "authors": "Shirey V, Seppala S, Branco VV, Davis CC, Ries L",
+    "year": "2022",
+    "title": "LepTraits 1.0: A globally comprehensive dataset of butterfly traits",
+    "journal": "Scientific Data",
+    "volume": "9",
+    "pages": "398",
+    "doi": "10.1038/s41597-022-01473-5"
+  }
+}

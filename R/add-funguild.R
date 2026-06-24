@@ -32,10 +32,13 @@
 #' fungal community datasets by ecological guild. Fungal Ecology 20:241-248.
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Amanita muscaria") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Amanita muscaria", backend = "gbif") |>
 #'   add_funguild()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_funguild <- function(x, verbose = TRUE) {

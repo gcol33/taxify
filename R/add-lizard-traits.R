@@ -29,10 +29,13 @@
 #' 27:1168-1172.
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Pogona vitticeps") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Pogona vitticeps", backend = "gbif") |>
 #'   add_lizard_traits()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_lizard_traits <- function(x, verbose = TRUE) {

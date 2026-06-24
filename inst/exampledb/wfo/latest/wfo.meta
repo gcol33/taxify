@@ -1,0 +1,5 @@
+backend=wfo
+version=example
+build_date=2026-06-24
+nrow=9
+source_url=bundled example database

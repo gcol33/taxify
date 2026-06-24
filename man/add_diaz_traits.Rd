@@ -27,10 +27,13 @@ Source: Diaz et al. 2022, TRY File Archive (CC BY 3.0).
 Coverage: ~46k plant species. Plants only.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus robur") |>
   add_diaz_traits()
-}
+
+options(old)
 
 }
 \references{

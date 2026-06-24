@@ -1,0 +1,18 @@
+{
+  "name": "eive",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "dengler2023eive",
+    "type": "article",
+    "authors": "Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al.",
+    "year": "2023",
+    "title": "Ecological Indicator Values for Europe (EIVE) 1.0",
+    "journal": "Vegetation Classification and Survey",
+    "volume": "4",
+    "pages": "7-29",
+    "doi": "10.3897/VCS.98324"
+  }
+}

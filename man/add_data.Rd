@@ -106,23 +106,14 @@ explicitly.
 }
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 result <- taxify(c("Quercus robur", "Pinus sylvestris"))
-
-# From a CSV file (auto-detect species column)
-result |> add_data("my_traits.csv")
-
-# Grouped data (species x country) — pivots to wide format
-result |> add_data(
-  "first_records.csv",
-  group_col = "country_code",
-  groups = c("AT", "DE")
-)
-
-# From a data.frame with explicit species column
 traits <- data.frame(species = c("Quercus robur", "Pinus sylvestris"),
-                      height = c(30, 25))
+                     height = c(30, 25))
 result |> add_data(traits, species_col = "species")
-}
+
+options(old)
 
 }

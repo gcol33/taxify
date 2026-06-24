@@ -878,7 +878,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 #'   `trait_cols` (comma-separated), and `source_url`.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' list_enrichments()
 #' }
 #'

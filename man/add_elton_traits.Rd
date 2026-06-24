@@ -43,10 +43,13 @@ Source: EltonTraits 1.0 (Wilman et al. 2014, Figshare, CC0).
 Coverage: ~15.4k species. Birds and mammals only.
 }
 \examples{
-\dontrun{
-taxify("Parus major") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Parus major", backend = "gbif") |>
   add_elton_traits()
-}
+
+options(old)
 
 }
 \references{

@@ -23,9 +23,12 @@ Parses the \code{input_name} column from a \code{\link[=taxify]{taxify()}} resul
 taxonomic qualifiers (cf., aff., s.l., etc.) and their positions.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Pinus cf. sylvestris") |>
   add_qualifier_info()
-}
+
+options(old)
 
 }

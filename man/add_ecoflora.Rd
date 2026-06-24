@@ -50,10 +50,13 @@ For French-flora traits see \code{\link[=add_baseflor]{add_baseflor()}}; for Ger
 \code{\link[=add_floraweb]{add_floraweb()}}; for European-calibration indicator values see \code{\link[=add_eive]{add_eive()}}.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Bellis perennis") |>
   add_ecoflora()
-}
+
+options(old)
 
 }
 \references{

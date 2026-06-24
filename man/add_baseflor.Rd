@@ -55,10 +55,13 @@ Raunkiaer life form and seed, leaf, and clonality traits of the Northwest
 European flora, see \code{\link[=add_leda]{add_leda()}}.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Bellis perennis") |>
   add_baseflor()
-}
+
+options(old)
 
 }
 \references{

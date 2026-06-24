@@ -1,0 +1,6 @@
+{
+  "backend": "col",
+  "version": "example",
+  "nrow": 2,
+  "static": true
+}

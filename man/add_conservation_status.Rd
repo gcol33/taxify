@@ -31,9 +31,12 @@ including GBIF and the IUCN Red List API. Coverage is global across all
 taxonomic groups (~166k species).
 }
 \examples{
-\dontrun{
-taxify("Panthera tigris") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Panthera tigris", backend = "gbif") |>
   add_conservation_status()
-}
+
+options(old)
 
 }

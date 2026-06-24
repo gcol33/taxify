@@ -1,0 +1,18 @@
+{
+  "name": "fungal_traits",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "polme2020fungaltraits",
+    "type": "article",
+    "authors": "Polme S, Abarenkov K, Henrik Nilsson R, Lindahl BD, Clemmensen KE, Kauserud H, Nguyen N, Kjoller R, Bates ST, Baldrian P, et al.",
+    "year": "2020",
+    "title": "FungalTraits: a user-friendly traits database of fungi and fungus-like stramenopiles",
+    "journal": "Fungal Diversity",
+    "volume": "105",
+    "pages": "1-16",
+    "doi": "10.1007/s13225-020-00466-2"
+  }
+}

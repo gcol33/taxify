@@ -52,7 +52,9 @@ data is already in single-group format. In this case, the data.frame is
 returned unchanged with \code{group_col} set to \code{NA}.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 # Auto-detected: no cols or group_col needed
 taxify("Robinia pseudoacacia") |>
   add_alien_first_records(country = c("AT", "DE")) |>
@@ -62,6 +64,7 @@ taxify("Robinia pseudoacacia") |>
 taxify("Robinia pseudoacacia") |>
   add_invasive_status(country = c("AT", "DE")) |>
   taxify_long(cols = "invasive_status", group_col = "country")
-}
+
+options(old)
 
 }

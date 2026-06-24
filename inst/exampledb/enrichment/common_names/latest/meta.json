@@ -1,0 +1,18 @@
+{
+  "name": "common_names",
+  "version": "example",
+  "nrow": 2,
+  "static": true,
+  "license": "CC0",
+  "citation": {
+    "key": "gbif2024vernacular",
+    "type": "misc",
+    "authors": "GBIF Secretariat",
+    "year": "2024",
+    "title": "GBIF Backbone Taxonomy -- Vernacular Names",
+    "doi": "10.15468/39omei",
+    "url": "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
+  },
+  "group_col": "lang",
+  "available_groups": ["en", "de"]
+}

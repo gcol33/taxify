@@ -23,11 +23,14 @@ formats. The default \code{.vtr} format preserves column types and is fast to
 re-read with \code{\link[=add_data]{add_data()}}.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 result <- taxify(c("Quercus robur", "Pinus sylvestris"))
-result |> add_conservation_status() |> export_data("my_results.vtr")
-result |> export_data("my_results.csv")
-result |> export_data("my_results.tsv")
-}
+result |> export_data(tempfile(fileext = ".vtr"))
+result |> export_data(tempfile(fileext = ".csv"))
+result |> export_data(tempfile(fileext = ".tsv"))
+
+options(old)
 
 }

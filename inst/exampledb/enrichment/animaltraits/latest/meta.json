@@ -1,0 +1,18 @@
+{
+  "name": "animaltraits",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC0",
+  "citation": {
+    "key": "hebert2022animaltraits",
+    "type": "article",
+    "authors": "Hebert K, Bhatt U, Bhatt P, Bhatt J",
+    "year": "2022",
+    "title": "AnimalTraits -- a curated animal trait database for body mass, metabolic rate and brain size",
+    "journal": "Scientific Data",
+    "volume": "9",
+    "pages": "265",
+    "doi": "10.1038/s41597-022-01364-9"
+  }
+}

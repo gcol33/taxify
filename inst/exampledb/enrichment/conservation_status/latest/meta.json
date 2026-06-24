@@ -1,0 +1,15 @@
+{
+  "name": "conservation_status",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "iucn2025",
+    "type": "misc",
+    "authors": "IUCN",
+    "year": "2025",
+    "title": "The IUCN Red List of Threatened Species",
+    "url": "https://www.iucnredlist.org"
+  }
+}

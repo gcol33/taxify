@@ -1,0 +1,20 @@
+{
+  "name": "wcvp",
+  "version": "example",
+  "nrow": 2,
+  "static": true,
+  "license": "CC BY",
+  "citation": {
+    "key": "govaerts2021wcvp",
+    "type": "article",
+    "authors": "Govaerts R, Nic Lughadha E, Black N, Turner R, Paton A",
+    "year": "2021",
+    "title": "The World Checklist of Vascular Plants, a continuously updated resource for exploring global plant diversity",
+    "journal": "Scientific Data",
+    "volume": "8",
+    "pages": "215",
+    "doi": "10.1038/s41597-021-00997-6"
+  },
+  "group_col": "tdwg_code",
+  "available_groups": ["EUR", "NAM"]
+}

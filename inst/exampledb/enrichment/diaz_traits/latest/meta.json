@@ -1,0 +1,18 @@
+{
+  "name": "diaz_traits",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "diaz2022spectrum",
+    "type": "article",
+    "authors": "Diaz S, Kattge J, Cornelissen JHC, Wright IJ, Lavorel S, Dray S, Reu B, Kleyer M, Wirth C, Prentice IC, et al.",
+    "year": "2022",
+    "title": "The global spectrum of plant form and function: enhanced species-level trait dataset",
+    "journal": "Scientific Data",
+    "volume": "9",
+    "pages": "755",
+    "doi": "10.1038/s41597-022-01774-9"
+  }
+}

@@ -28,10 +28,13 @@ across arthropods, vertebrates, molluscs, and annelids. Individual-level
 observations aggregated to species medians.
 }
 \examples{
-\dontrun{
-taxify("Drosophila melanogaster") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Drosophila melanogaster", backend = "gbif") |>
   add_animaltraits()
-}
+
+options(old)
 
 }
 \references{

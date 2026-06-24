@@ -1,0 +1,20 @@
+{
+  "name": "glonaf",
+  "version": "example",
+  "nrow": 2,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "vankleunen2019glonaf",
+    "type": "article",
+    "authors": "van Kleunen M, Pysek P, Dawson W, Essl F, Kreft H, Pergl J, Weigelt P, Stein A, Dullinger S, Konig C, et al.",
+    "year": "2019",
+    "title": "The Global Naturalized Alien Flora (GloNAF) database",
+    "journal": "Ecology",
+    "volume": "100",
+    "pages": "e02542",
+    "doi": "10.1002/ecy.2542"
+  },
+  "group_col": "region_id",
+  "available_groups": ["EUR", "NAM"]
+}

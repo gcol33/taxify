@@ -40,10 +40,13 @@ Source: AmphiBIO (Oliveira et al. 2017, CC BY 4.0).
 Coverage: ~6,800 amphibian species. Amphibians only.
 }
 \examples{
-\dontrun{
-taxify("Bufo bufo") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Bufo bufo", backend = "gbif") |>
   add_amphibio()
-}
+
+options(old)
 
 }
 \references{

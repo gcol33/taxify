@@ -1,0 +1,15 @@
+{
+  "name": "baseflor",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "ODbL 1.0 / CC BY-SA 2.0",
+  "citation": {
+    "key": "julve1998baseflor",
+    "type": "misc",
+    "authors": "Julve P",
+    "year": "1998",
+    "title": "baseflor. Index botanique, ecologique et chorologique de la Flore de France. Programme Catminat",
+    "doi": null
+  }
+}

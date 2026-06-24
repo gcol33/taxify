@@ -27,10 +27,13 @@
 #' Ecology 90:2648.
 #'
 #' @examples
-#' \dontrun{
-#' taxify("Vulpes vulpes") |>
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' taxify("Vulpes vulpes", backend = "gbif") |>
 #'   add_pantheria()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_pantheria <- function(x, verbose = TRUE) {

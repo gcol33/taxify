@@ -37,13 +37,16 @@ CC BY 4.0). Coverage: ~16k alien plant taxa across ~1,300 regions.
 Plants only.
 }
 \examples{
-\dontrun{
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Robinia pseudoacacia") |>
   add_glonaf(region = "EUR")
 
 taxify("Robinia pseudoacacia") |>
   add_glonaf(region = c("EUR", "NAM"))
-}
+
+options(old)
 
 }
 \references{

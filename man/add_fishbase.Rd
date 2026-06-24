@@ -37,10 +37,13 @@ The build-from-source fallback requires the \pkg{rfishbase} package
 (available on CRAN). Pre-built \code{.vtr} files do not require rfishbase.
 }
 \examples{
-\dontrun{
-taxify("Gadus morhua") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Gadus morhua", backend = "gbif") |>
   add_fishbase()
-}
+
+options(old)
 
 }
 \references{

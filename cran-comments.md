@@ -1,21 +1,31 @@
 ## Submission
 
-Resubmission of taxify (version 0.2.6).
+Resubmission of taxify (version 0.2.12), addressing the review feedback on the
+earlier 0.2.6 submission.
 
-The previous submission (0.2.5) was rejected because the companion package
-taxifydb, listed in Suggests, is not in a mainstream repository and the
-DESCRIPTION did not declare where to obtain it. This version adds an
-`Additional_repositories` field pointing to the r-universe repository that
-hosts taxifydb (https://gcol33.r-universe.dev), as the CRAN policy requires.
+Reviewer comment (Konstanze Lauseker): `\dontrun{}` should be reserved for
+examples that genuinely cannot be executed; please unwrap runnable examples or
+use `\donttest{}`.
 
-taxify matches taxonomic names against Darwin Core backbone databases. The
-backbone and enrichment data are downloaded on demand from GitHub Releases to
-the per-user cache directory returned by `tools::R_user_dir("taxify", "data")`,
-and only when the user explicitly calls a matching or enrichment function.
-Nothing is written outside the session temp directory or the user cache, and
-no download happens at load, check, or example time:
+Addressed: taxify now ships a small bundled example database
+(`taxify_example_data()`), and the examples set
+`options(taxify.data_dir = taxify_example_data())` so matching and enrichment
+run fully offline against it. No example is wrapped in `\dontrun{}` any more.
+The only `\donttest{}` examples left are `add_pignatti()` (fetched live via the
+suggested TR8 package) and `list_enrichments()` (reads the online manifest,
+falling back to the bundled copy). The version was advanced from 0.2.6 to
+0.2.12 because the package gained features in the meantime (regional plant
+trait sets, the configurable data directory, and the bundled example database).
 
-* All examples that touch data are wrapped in `\dontrun{}`.
+taxify matches taxonomic names against locally stored Darwin Core backbone
+databases. The full backbone and enrichment data are downloaded on demand from
+GitHub Releases to the per-user cache directory returned by
+`tools::R_user_dir("taxify", "data")`, only when the user explicitly calls a
+matching or enrichment function. Nothing is written outside the session temp
+directory or the user cache, and no download happens at load, check, or example
+time:
+
+* Examples run offline against the bundled example database; none download data.
 * Tests use small bundled fixtures (no network), via a local test manifest.
 * Vignettes do not download data (all chunks are `eval = FALSE`).
 
@@ -24,8 +34,9 @@ enrichment data from source. It is used strictly conditionally (every call
 site guards it with a `requireNamespace()` check that errors with an install
 instruction if it is absent), and taxify is fully functional without it by
 downloading pre-built data files. It is available from the r-universe
-repository declared in `Additional_repositories`, and the sources are on
-GitHub (https://github.com/gcol33/taxifydb).
+repository declared in `Additional_repositories`
+(https://gcol33.r-universe.dev), and the sources are on GitHub
+(https://github.com/gcol33/taxifydb).
 
 ## Test environments
 
@@ -36,8 +47,7 @@ GitHub (https://github.com/gcol33/taxifydb).
 
 0 errors | 0 warnings | 1 note
 
-Checked on win-builder R-devel (status: 1 NOTE). The NOTE is "New submission",
-together with:
+The NOTE is "New submission", together with:
 
 * "Suggests or Enhances not in mainstream repositories: taxifydb". The check
   confirms availability via the Additional_repositories specification

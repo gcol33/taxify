@@ -37,10 +37,13 @@ Source: AVONET (Tobias et al. 2022, Figshare, CC BY 4.0).
 Coverage: ~11k bird species. Birds only.
 }
 \examples{
-\dontrun{
-taxify("Parus major") |>
+# Runs offline against the bundled example database.
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Parus major", backend = "gbif") |>
   add_avonet()
-}
+
+options(old)
 
 }
 \references{

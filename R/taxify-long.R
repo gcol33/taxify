@@ -41,7 +41,9 @@
 #' returned unchanged with `group_col` set to `NA`.
 #'
 #' @examples
-#' \dontrun{
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' # Auto-detected: no cols or group_col needed
 #' taxify("Robinia pseudoacacia") |>
 #'   add_alien_first_records(country = c("AT", "DE")) |>
@@ -51,7 +53,8 @@
 #' taxify("Robinia pseudoacacia") |>
 #'   add_invasive_status(country = c("AT", "DE")) |>
 #'   taxify_long(cols = "invasive_status", group_col = "country")
-#' }
+#'
+#' options(old)
 #'
 #' @export
 taxify_long <- function(x, cols = NULL, group_col = NULL, drop_na = FALSE) {
