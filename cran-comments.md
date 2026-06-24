@@ -55,6 +55,12 @@ The NOTE is "New submission", together with:
   taxifydb is used strictly conditionally (guarded by requireNamespace()) and
   taxify is fully functional without it.
 
+* "Found the following (possibly) invalid URLs: https://www.itis.gov (404)".
+  This is the official ITIS (Integrated Taxonomic Information System) homepage
+  and is valid; the US government server intermittently returns 404 to the
+  automated HEAD request used by the URL checker, but the page resolves with
+  status 200 in a browser and via curl. The URL is correct as written.
+
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
 ## Reverse dependencies
