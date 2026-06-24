@@ -18,10 +18,6 @@
   of fetching live through TR8. It works offline and returns the full trait
   set rather than the previous five columns.
 
-* `add_biolflor()` is deprecated in favour of `add_floraweb()`, which carries
-  the same BiolFlor data (now bundled from FloraWeb) plus the full FloraWeb
-  profile. It forwards to `add_floraweb()` with a deprecation message.
-
 * `add_pignatti()` remains an on-demand TR8 source: its values are from a
   copyrighted publication and cannot be redistributed.
 

@@ -511,8 +511,7 @@ trait values are reported as published, and the access date is the dataset
 version (neither portal offers a versioned bulk export). Italian Ellenberg-type
 indicator values are also available through `add_pignatti()`, which reads the
 copy bundled in the TR8 package on demand; those values come from a copyrighted
-publication and are not redistributed by taxify. `add_biolflor()` is retained
-as a deprecated alias for `add_floraweb()`.
+publication and are not redistributed by taxify.
 
 ### Conservation status (IUCN Red List)
 

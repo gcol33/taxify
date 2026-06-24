@@ -105,23 +105,3 @@ add_floraweb <- function(x, verbose = TRUE) {
     verbose         = verbose
   )
 }
-
-
-#' Add German plant traits from BiolFlor (deprecated alias for add_floraweb)
-#'
-#' `add_biolflor()` is deprecated. Use [add_floraweb()], which joins the same
-#' BiolFlor trait data (now bundled from FloraWeb, the live BfN portal that
-#' carries it) plus the full FloraWeb trait profile, and works offline. This
-#' alias forwards to [add_floraweb()].
-#'
-#' @param x A data.frame returned by [taxify()].
-#' @param verbose Logical. Default `TRUE`.
-#' @return The result of [add_floraweb()].
-#'
-#' @seealso [add_floraweb()]
-#' @keywords internal
-#' @export
-add_biolflor <- function(x, verbose = TRUE) {
-  .Deprecated("add_floraweb", package = "taxify")
-  add_floraweb(x, verbose = verbose)
-}

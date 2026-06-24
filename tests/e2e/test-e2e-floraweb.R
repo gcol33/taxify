@@ -1,6 +1,6 @@
 # End-to-end test: add_floraweb() attaches German-flora plant traits (BiolFlor
 # via FloraWeb) to the correct accepted taxon and is invariant to batch
-# composition. Also checks that add_biolflor() is a deprecated alias.
+# composition.
 #
 # Run with:
 #   Rscript tests/e2e/test-e2e-floraweb.R
@@ -84,20 +84,6 @@ stopifnot(grepl("2n = 18", bp$chrom))                # chromosome field split cl
 # resolve_enrichment_names richest-record dedup fix)
 stopifnot(!is.na(am$ploidy))
 cat("  PASS: traits on the correct taxon; rich-record dedup holds\n\n")
-
-cat("--- Step 5: add_biolflor() is a deprecated alias for add_floraweb() ---\n")
-x <- taxify("Bellis perennis", backend = "wfo", verbose = FALSE)
-warned <- FALSE
-b <- withCallingHandlers(
-  add_biolflor(x, verbose = FALSE),
-  warning = function(w) {
-    if (grepl("deprecat", conditionMessage(w), ignore.case = TRUE)) warned <<- TRUE
-    invokeRestart("muffleWarning")
-  }
-)
-stopifnot(warned)
-stopifnot(all(c("life_form_de", "ploidy_de") %in% names(b)))
-cat("  PASS: add_biolflor() warns and forwards to add_floraweb()\n\n")
 
 cat("=== add_floraweb() join test COMPLETE ===\n")
 cat("  All assertions passed\n")
