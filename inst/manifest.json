@@ -2104,6 +2104,34 @@
       },
       "license": "free use with acknowledgement + citation (BioFresh metadata statement)",
       "source_doi": null
+    },
+    "fungalroot": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/fungalroot.vtr",
+      "nrow": 4018,
+      "source_url": "https://orphans.gbif.org/EE/744edc21-8dd2-474e-8a0b-b8c3d56a3c2d.232.zip",
+      "source_format": "dwca_zip",
+      "source_version": "2020.1",
+      "species_col": "genus",
+      "trait_cols": [
+        "mycorrhizal_type",
+        "mycorrhizal_status",
+        "mycorrhizal_records"
+      ],
+      "static": true,
+      "citation": {
+        "key": "soudzilovskaia2020fungalroot",
+        "type": "article",
+        "authors": "Soudzilovskaia NA, Vaessen S, Barcelo M, He J, Rahimlou S, Abarenkov K, Brundrett MC, Gomes SIF, Merckx V, Tedersoo L",
+        "year": "2020",
+        "title": "FungalRoot: global online database of plant mycorrhizal associations",
+        "journal": "New Phytologist",
+        "volume": "227",
+        "pages": "955-966",
+        "doi": "10.1111/nph.16569"
+      },
+      "license": "CC BY-NC 4.0",
+      "source_doi": "10.15468/a7ujmj"
     }
   }
 }

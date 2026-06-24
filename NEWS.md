@@ -1,3 +1,15 @@
+# taxify 0.2.14
+
+## New features
+
+* `add_fungalroot()` joins genus-level mycorrhizal type from the FungalRoot
+  database (Soudzilovskaia et al. 2020, GBIF doi:10.15468/a7ujmj, CC BY-NC 4.0)
+  to a `taxify()` result. Because mycorrhizal type is conserved at the genus
+  level, the join is on `genus`, so any species in a covered genus is annotated
+  with `mycorrhizal_type` (`AM`, `EcM`, `ErM`, `OM`, `NM`, the dual types,
+  `Other`, or `uncertain`), `mycorrhizal_status`, and the supporting record
+  count. Plant genera only.
+
 # taxify 0.2.13
 
 ## Bug fixes
