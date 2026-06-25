@@ -1,3 +1,21 @@
+# taxify (development version)
+
+## New features
+
+* Two new backbone backends: `"fishbase"` (FishBase, ~36k accepted fish
+  species) and `"sealifebase"` (SeaLifeBase, ~100k accepted non-fish aquatic
+  species). Both resolve synonyms to their accepted names and carry kingdom /
+  phylum / class / order classification. Use them like any other backbone, e.g.
+  `taxify("Gadus morhua", backend = "fishbase")`.
+* `add_sealifebase()` joins SeaLifeBase morphological and ecological traits
+  (body length, mass, trophic level, depth range, vulnerability, habitat,
+  commercial importance) to a `taxify()` result. It is the non-fish companion
+  to `add_fishbase()`.
+* `add_groot()` joins species-level root traits from the Global Root Traits
+  (GRooT) database: root diameter, specific root length, tissue density, N and
+  C concentration, root mass fraction, lateral spread, mycorrhizal colonization
+  and rooting depth (per-species means for 6,154 vascular plant species).
+
 # taxify 0.3.0
 
 ## Breaking changes

@@ -143,6 +143,22 @@
       "full_size": 36264066,
       "full_sha256": "de17ce3538d0b225cebdb2a874cb4f67e334b86304bd68f881d12ccb096a6261",
       "nrow": 172351
+    },
+    "fishbase": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/fishbase-2026.06/fishbase.vtr",
+      "nrow": 102703,
+      "source_url": "https://fishbase.ropensci.org",
+      "full_size": 19036291,
+      "full_sha256": "099f478fbbc346441237807109d3925a9010b74e98753ed18b5b3d9b0967b0ed"
+    },
+    "sealifebase": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/sealifebase-2026.06/sealifebase.vtr",
+      "nrow": 134031,
+      "source_url": "https://sealifebase.ropensci.org",
+      "full_size": 28922945,
+      "full_sha256": "db74b3e49aa84fb10149dbda301bffb72ffee53751de6bda6a9774a96766d7c4"
     }
   },
   "enrichments": {
@@ -1545,7 +1561,7 @@
     "fishbase": {
       "latest": "2026.06",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/fishbase.vtr",
-      "nrow": 5316,
+      "nrow": 37360,
       "source_url": "https://fishbase.ropensci.org",
       "source_format": "rfishbase",
       "source_version": "2026.04",
@@ -1979,10 +1995,10 @@
         "authors": "Julve P",
         "year": "1998",
         "title": "baseflor. Index botanique, ecologique et chorologique de la Flore de France. Programme Catminat",
-        "doi": null
+        "doi": {}
       },
       "license": "ODbL 1.0 / CC BY-SA 2.0",
-      "source_doi": null
+      "source_doi": {}
     },
     "ecoflora": {
       "latest": "2026.06",
@@ -2019,10 +2035,10 @@
         "authors": "Fitter AH, Peat HJ",
         "year": "1994",
         "title": "The Ecological Flora Database",
-        "doi": null
+        "doi": {}
       },
       "license": "CC BY-NC-SA 4.0",
-      "source_doi": null
+      "source_doi": {}
     },
     "floraweb": {
       "latest": "2026.06",
@@ -2100,10 +2116,10 @@
         "authors": "Klotz S, Kuehn I, Durka W",
         "year": "2002",
         "title": "BIOLFLOR - Eine Datenbank zu biologisch-oekologischen Merkmalen der Gefaesspflanzen in Deutschland. Schriftenreihe fuer Vegetationskunde 38",
-        "doi": null
+        "doi": {}
       },
       "license": "free use with acknowledgement + citation (BioFresh metadata statement)",
-      "source_doi": null
+      "source_doi": {}
     },
     "fungalroot": {
       "latest": "2026.06",
@@ -2132,6 +2148,66 @@
       },
       "license": "CC BY-NC 4.0",
       "source_doi": "10.15468/a7ujmj"
+    },
+    "sealifebase": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/sealifebase.vtr",
+      "nrow": 110985,
+      "source_url": "https://sealifebase.ropensci.org",
+      "source_format": "rfishbase",
+      "source_version": "2026.06",
+      "species_col": "canonical_name",
+      "trait_cols": [
+        "body_length_cm",
+        "body_mass_g",
+        "trophic_level",
+        "depth_min_m",
+        "depth_max_m",
+        "vulnerability",
+        "habitat",
+        "importance"
+      ],
+      "static": false,
+      "citation": {
+        "key": "palomares2024sealifebase",
+        "type": "misc",
+        "authors": "Palomares MLD, Pauly D",
+        "year": "2024",
+        "title": "SeaLifeBase",
+        "url": "https://www.sealifebase.org"
+      },
+      "license": "CC BY-NC 3.0"
+    },
+    "groot": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/groot.vtr",
+      "nrow": 7009,
+      "source_url": "https://github.com/GRooT-Database/GRooT-Data",
+      "source_format": "csv",
+      "source_version": "2021.1",
+      "species_col": "canonical_name",
+      "trait_cols": [
+        "root_diameter",
+        "specific_root_length",
+        "root_tissue_density",
+        "root_n_concentration",
+        "root_c_concentration",
+        "root_mass_fraction",
+        "lateral_spread",
+        "root_mycorrhizal_colonization",
+        "rooting_depth"
+      ],
+      "static": false,
+      "citation": {
+        "key": "guerreroramirez2021groot",
+        "type": "article",
+        "authors": "Guerrero-Ramirez NR et al.",
+        "year": "2021",
+        "title": "Global root traits (GRooT) database",
+        "journal": "Global Ecology and Biogeography",
+        "doi": "10.1111/geb.13179"
+      },
+      "license": "Free use with data-paper citation (no formal license stated)"
     }
   }
 }

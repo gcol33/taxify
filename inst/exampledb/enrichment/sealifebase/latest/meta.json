@@ -1,0 +1,15 @@
+{
+  "name": "sealifebase",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY-NC 3.0",
+  "citation": {
+    "key": "palomares2024sealifebase",
+    "type": "misc",
+    "authors": "Palomares MLD, Pauly D",
+    "year": "2024",
+    "title": "SeaLifeBase",
+    "url": "https://www.sealifebase.org"
+  }
+}

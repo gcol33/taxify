@@ -275,6 +275,44 @@ empty_genus_df <- function() {
 }
 
 
+#' Derive genus rows from a species-only backbone
+#'
+#' FishBase and SeaLifeBase backbones carry only species rows (no genus-rank
+#' records), so genera are derived as the distinct genus + classification of
+#' the accepted species. Classification is constant within a genus in these
+#' backbones, so the first occurrence is representative.
+#' @noRd
+.extract_species_derived_genera <- function(bb_path) {
+  df <- vectra::tbl(bb_path) |>
+    vectra::filter(taxon_rank == "SPECIES" &
+                     taxonomic_status == "ACCEPTED") |>
+    vectra::collect()
+
+  if (nrow(df) == 0L) return(empty_genus_df())
+
+  pick <- function(col) if (col %in% names(df)) df[[col]] else NA_character_
+  out <- data.frame(
+    genus   = df$genus,
+    kingdom = pick("kingdom"),
+    phylum  = pick("phylum"),
+    class   = pick("class"),
+    order   = pick("order"),
+    family  = df$family,
+    stringsAsFactors = FALSE
+  )
+  out <- out[!is.na(out$genus) & nzchar(out$genus), , drop = FALSE]
+  out[!duplicated(out$genus), , drop = FALSE]
+}
+
+extract_fishbase_genera <- function(bb_path) {
+  .extract_species_derived_genera(bb_path)
+}
+
+extract_sealifebase_genera <- function(bb_path) {
+  .extract_species_derived_genera(bb_path)
+}
+
+
 # ---- Kingdom name normalization ----
 
 #' Normalize non-standard kingdom names to standard taxonomy
@@ -619,7 +657,11 @@ build_genus_register <- function(verbose = TRUE) {
     ncbi    = list(be = ncbi_backend(),    extract_fn = extract_ncbi_genera),
     ott     = list(be = ott_backend(),     extract_fn = extract_ott_genera),
     worms   = list(be = worms_backend(),   extract_fn = extract_worms_genera),
-    euromed = list(be = euromed_backend(), extract_fn = extract_euromed_genera)
+    euromed = list(be = euromed_backend(), extract_fn = extract_euromed_genera),
+    fishbase    = list(be = fishbase_backend(),
+                       extract_fn = extract_fishbase_genera),
+    sealifebase = list(be = sealifebase_backend(),
+                       extract_fn = extract_sealifebase_genera)
   )
 
   genera_list <- list()
@@ -793,7 +835,11 @@ build_backend_coverage <- function(verbose = TRUE) {
     ncbi    = list(be = ncbi_backend(),    extract_fn = extract_ncbi_genera),
     ott     = list(be = ott_backend(),     extract_fn = extract_ott_genera),
     worms   = list(be = worms_backend(),   extract_fn = extract_worms_genera),
-    euromed = list(be = euromed_backend(), extract_fn = extract_euromed_genera)
+    euromed = list(be = euromed_backend(), extract_fn = extract_euromed_genera),
+    fishbase    = list(be = fishbase_backend(),
+                       extract_fn = extract_fishbase_genera),
+    sealifebase = list(be = sealifebase_backend(),
+                       extract_fn = extract_sealifebase_genera)
   )
 
   coverage_rows <- list()

@@ -1,5 +1,5 @@
-backend=gbif
+backend=fishbase
 version=example
 build_date=2026-06-24
-nrow=15
+nrow=2
 source_url=bundled example database

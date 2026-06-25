@@ -1,6 +1,6 @@
 {
-  "backend": "gbif",
+  "backend": "sealifebase",
   "version": "example",
-  "nrow": 15,
+  "nrow": 2,
   "static": true
 }
