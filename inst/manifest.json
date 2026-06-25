@@ -1246,7 +1246,7 @@
     "common_names": {
       "latest": "2026.06",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/common_names.vtr",
-      "nrow": 704517,
+      "nrow": 704519,
       "source_url": "https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip",
       "source_format": "zip",
       "source_version": "2026.04",
@@ -2108,7 +2108,7 @@
     "fungalroot": {
       "latest": "2026.06",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/fungalroot.vtr",
-      "nrow": 4018,
+      "nrow": 4188,
       "source_url": "https://orphans.gbif.org/EE/744edc21-8dd2-474e-8a0b-b8c3d56a3c2d.232.zip",
       "source_format": "dwca_zip",
       "source_version": "2020.1",
