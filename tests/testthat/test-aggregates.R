@@ -60,6 +60,56 @@ test_that("agg_select_idx prefers same-level, flags downward inheritance", {
   expect_true(is.na(sel2$idx))
 })
 
+test_that("normalize_aggregate_name covers all marker spellings", {
+  spellings <- c(
+    "Achillea millefolium aggr.",
+    "Achillea millefolium agg.",
+    "Achillea millefolium agg",
+    "Cheilosia vernalis-agg",
+    "Ranunculus auricomus s.l.",
+    "Ranunculus auricomus s. l.",
+    "Taraxacum officinale sensu lato",
+    "Galium mollugo coll. sp.",
+    "Pilosella setifolia coll."
+  )
+  out <- normalize_aggregate_name(spellings)
+  expect_equal(out, c(
+    "Achillea millefolium aggr.",
+    "Achillea millefolium aggr.",
+    "Achillea millefolium aggr.",
+    "Cheilosia vernalis aggr.",
+    "Ranunculus auricomus aggr.",
+    "Ranunculus auricomus aggr.",
+    "Taraxacum officinale aggr.",
+    "Galium mollugo aggr.",
+    "Pilosella setifolia aggr."
+  ))
+  # plain names untouched
+  expect_equal(normalize_aggregate_name("Quercus robur"), "Quercus robur")
+})
+
+test_that("is_aggregate_name detects every marker spelling", {
+  expect_equal(
+    is_aggregate_name(c("Achillea millefolium aggr.", "Arion agg",
+                        "Ranunculus auricomus s.l.", "Quercus robur", NA)),
+    c(TRUE, TRUE, TRUE, FALSE, FALSE)
+  )
+})
+
+test_that("normalize_aggregate_name appends marker for aggregate-rank rows", {
+  name <- c("Taraxacum officinale", "Quercus robur", "Rubus fruticosus")
+  rank <- c("SPECIES AGGREGATE", "SPECIES", "AGGR.")
+  out <- normalize_aggregate_name(name, rank)
+  expect_equal(out, c("Taraxacum officinale aggr.", "Quercus robur",
+                      "Rubus fruticosus aggr."))
+
+  # a rank-aggregate row that already carries a marker is not doubled
+  expect_equal(
+    normalize_aggregate_name("Achillea millefolium aggr.", "SPECIES AGGREGATE"),
+    "Achillea millefolium aggr."
+  )
+})
+
 test_that("aggregates argument is validated", {
   expect_error(taxify("Quercus robur", aggregates = "nonsense", verbose = FALSE))
 })

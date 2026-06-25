@@ -29,6 +29,12 @@
   A single species' trait is never propagated up to the aggregate. Set
   `options(taxify.trait_provenance = TRUE)` to add a `<enrichment>_inherited`
   flag marking the inherited values.
+* Exported `normalize_aggregate_name()` and `is_aggregate_name()` (build-time
+  helpers) so the taxifydb build pipeline folds every backbone and enrichment
+  aggregate marker (`agg`, `aggr.`, `-agg`, `s.l.`, `sensu lato`, `coll.`, and
+  aggregate ranks such as `SPECIES AGGREGATE`) to one canonical `aggr.` form.
+  The runtime and build sides therefore recognize aggregates uniformly across
+  all backbones.
 
 # taxify 0.2.15
 

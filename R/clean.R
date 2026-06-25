@@ -75,7 +75,8 @@ canon_qualifier <- function(raw) {
 # Trailing aggregate / sensu-lato marker on a *canonical name* (e.g. an
 # accepted_name or an enrichment key). Used to line up aggregate join keys
 # regardless of how each source spells the marker.
-.agg_name_suffix <- "[ -](aggr?\\.?|s\\.\\s*l\\.?|sensu\\s+lato|coll\\.\\s*sp\\.?)$"
+.agg_name_suffix <-
+  "[ -](aggr?\\.?|s\\.\\s*l\\.?|sensu\\s+lato|coll\\.?(\\s*sp(ecies)?\\.?)?)$"
 
 #' Strip a trailing aggregate marker from a canonical name
 #'
@@ -101,6 +102,63 @@ canon_agg_marker <- function(x) {
   hit[is.na(hit)] <- FALSE
   x[hit] <- paste0(strip_agg_marker(x[hit]), " aggr.")
   x
+}
+
+# Taxon ranks (uppercased) that denote a species aggregate but may carry the
+# binomial without any marker in the name (e.g. COL's "SPECIES AGGREGATE").
+.aggregate_rank_pattern <-
+  "^(SPECIES AGGREGATE|AGGR\\.?|COLL\\.?\\s*SP(ECIES)?\\.?)$"
+
+#' Test whether a canonical name carries an aggregate marker
+#'
+#' `TRUE` for names ending in any aggregate marker spelling (`agg.`, `aggr.`,
+#' `-agg`, `s.l.`, `sensu lato`, `coll. sp.`). Exported for the taxifydb build
+#' pipeline so it can keep aggregate source rows out of cross-backbone name
+#' expansion (which would otherwise leak an aggregate trait onto the binomial
+#' species key).
+#'
+#' @param x Character vector of canonical names.
+#' @return Logical vector; `FALSE` for `NA`.
+#' @keywords internal
+#' @export
+is_aggregate_name <- function(x) {
+  !is.na(x) & strip_agg_marker(x) != x
+}
+
+
+#' Normalize aggregate markers on canonical names (build-time)
+#'
+#' Folds every aggregate marker a backbone or enrichment source may use to one
+#' canonical form, `"<binomial> aggr."`, so taxify's matching engine and
+#' enrichment join recognize aggregates uniformly regardless of source spelling.
+#' Two cases are handled:
+#' \itemize{
+#'   \item a name already carrying a marker (`agg.`, `aggr.`, `-agg`, `s.l.`,
+#'     `sensu lato`, `coll. sp.`) is rewritten to `"<binomial> aggr."`;
+#'   \item a name at an aggregate \emph{rank} (`taxon_rank` such as
+#'     `"SPECIES AGGREGATE"`, `"AGGR."`, `"COLL. SP."`) that carries no marker
+#'     gets `" aggr."` appended.
+#' }
+#' Exported for the taxifydb build pipeline so the build and runtime sides share
+#' one definition.
+#'
+#' @param name Character vector of canonical names.
+#' @param rank Optional character vector of taxon ranks, the same length as
+#'   `name`. When supplied, aggregate-rank rows without a marker are suffixed.
+#' @return `name` with aggregate markers normalized to `" aggr."`.
+#' @keywords internal
+#' @export
+normalize_aggregate_name <- function(name, rank = NULL) {
+  out <- canon_agg_marker(name)
+  if (!is.null(rank)) {
+    rk <- toupper(trimws(rank))
+    is_agg_rank <- !is.na(rk) & grepl(.aggregate_rank_pattern, rk)
+    has_marker  <- grepl(.agg_name_suffix, out, perl = TRUE, ignore.case = TRUE)
+    has_marker[is.na(has_marker)] <- FALSE
+    need <- is_agg_rank & !has_marker & !is.na(out) & nzchar(out)
+    out[need] <- paste0(out[need], " aggr.")
+  }
+  out
 }
 
 #' Clean a single taxonomic name for matching
