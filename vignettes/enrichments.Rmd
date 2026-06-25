@@ -513,6 +513,51 @@ indicator values are also available through `add_pignatti()`, which reads the
 copy bundled in the TR8 package on demand; those values come from a copyrighted
 publication and are not redistributed by taxify.
 
+#### Mycorrhizal type (FungalRoot, Soudzilovskaia et al. 2020)
+
+Most vascular plants form a symbiosis with root fungi, and the *type* of that
+symbiosis is one of the most informative functional traits a plant carries: it
+governs how the plant acquires nutrients and which soil fungi it depends on.
+`add_fungalroot()` attaches the mycorrhizal type from FungalRoot, a global
+compilation of more than 36,000 plant-by-site observations published on GBIF.
+
+Unlike the enrichments above, FungalRoot joins on `genus`, not `accepted_name`.
+Mycorrhizal type is conserved at the genus level (the resolution FungalRoot
+itself recommends for inference), so the value is a per-genus majority consensus
+and every species in a covered genus inherits it, whether or not that exact
+binomial was observed.
+
+```{r fungalroot}
+taxify(c("Quercus robur", "Pinus sylvestris", "Trifolium pratense",
+         "Vaccinium myrtillus", "Brassica oleracea")) |>
+  add_fungalroot()
+#>          input_name     genus mycorrhizal_type mycorrhizal_status mycorrhizal_records
+#> 1       Quercus robur   Quercus              EcM        mycorrhizal                 163
+#> 2    Pinus sylvestris     Pinus              EcM        mycorrhizal                 500
+#> 3  Trifolium pratense Trifolium               AM        mycorrhizal                 193
+#> 4 Vaccinium myrtillus Vaccinium              ErM        mycorrhizal                 227
+#> 5   Brassica oleracea  Brassica               NM    non-mycorrhizal                  59
+```
+
+Three columns are added:
+
+- `mycorrhizal_type`: the genus-level consensus type. `AM` (arbuscular, by far
+  the most common, formed by most herbs and many trees), `EcM` (ecto, typical of
+  oaks, pines, birches, and other temperate forest trees), `ErM` (ericoid,
+  confined to the Ericaceae), `OM` (orchid), `NM` (non-mycorrhizal, e.g. the
+  Brassicaceae and many Cyperaceae), the dual types `EcM-AM` / `ErM-EcM` /
+  `ErM-AM`, plus `Other` and `uncertain`.
+- `mycorrhizal_status`: a coarse roll-up of the type, one of `"mycorrhizal"`,
+  `"non-mycorrhizal"`, or `"uncertain"`.
+- `mycorrhizal_records`: how many FungalRoot observations support the genus-level
+  consensus, so a one-record genus can be told apart from a well-sampled one.
+
+Because the join is on genus, a plant whose genus is not in FungalRoot returns
+`NA`, and a genus circumscribed differently across backbones may not line up.
+Coverage is plant genera only (about 4,000 genera). The dataset is distributed
+under CC BY-NC 4.0; the per-genus consensus is computed by taxify from the
+per-observation labels, not FungalRoot's own published genus assignment.
+
 ### Conservation status (IUCN Red List)
 
 The conservation status enrichment is the only enrichment that spans all
@@ -2020,6 +2065,7 @@ range, and vernacular names.
 result <- taxify(species_list, backend = "wfo") |>
   add_conservation_status() |>
   add_woodiness() |>
+  add_fungalroot() |>
   add_eive() |>
   add_diaz_traits() |>
   add_leda() |>
@@ -2052,15 +2098,16 @@ enrichments.
 result <- taxify(species_list, backend = "wfo") |>
   add_conservation_status() |>
   add_woodiness() |>
+  add_fungalroot() |>
   add_diaz_traits() |>
   add_wcvp(region = c("NAM", "SAM", "AFR")) |>
   add_common_names()
 ```
 
-Woodiness and Diaz traits both have global coverage, so they contribute
-useful data regardless of the geographic origin of the species list. WCVP
-can be queried for any TDWG region, providing native range information for
-the continents relevant to the study.
+Woodiness, Diaz traits, and FungalRoot mycorrhizal type all have global
+coverage, so they contribute useful data regardless of the geographic origin
+of the species list. WCVP can be queried for any TDWG region, providing native
+range information for the continents relevant to the study.
 
 ### Birds
 

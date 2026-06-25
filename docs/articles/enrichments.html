@@ -607,6 +607,60 @@ are also available through <code><a href="../reference/add_pignatti.html">add_pi
 copy bundled in the TR8 package on demand; those values come from a
 copyrighted publication and are not redistributed by taxify.</p>
 </div>
+<div class="section level4">
+<h4 id="mycorrhizal-type-fungalroot-soudzilovskaia-et-al--2020">Mycorrhizal type (FungalRoot, Soudzilovskaia et al. 2020)<a class="anchor" aria-label="anchor" href="#mycorrhizal-type-fungalroot-soudzilovskaia-et-al--2020"></a>
+</h4>
+<p>Most vascular plants form a symbiosis with root fungi, and the
+<em>type</em> of that symbiosis is one of the most informative
+functional traits a plant carries: it governs how the plant acquires
+nutrients and which soil fungi it depends on.
+<code><a href="../reference/add_fungalroot.html">add_fungalroot()</a></code> attaches the mycorrhizal type from
+FungalRoot, a global compilation of more than 36,000 plant-by-site
+observations published on GBIF.</p>
+<p>Unlike the enrichments above, FungalRoot joins on <code>genus</code>,
+not <code>accepted_name</code>. Mycorrhizal type is conserved at the
+genus level (the resolution FungalRoot itself recommends for inference),
+so the value is a per-genus majority consensus and every species in a
+covered genus inherits it, whether or not that exact binomial was
+observed.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Trifolium pratense"</span>,</span>
+<span>         <span class="st">"Vaccinium myrtillus"</span>, <span class="st">"Brassica oleracea"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_fungalroot.html">add_fungalroot</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          input_name     genus mycorrhizal_type mycorrhizal_status mycorrhizal_records</span></span>
+<span><span class="co">#&gt; 1       Quercus robur   Quercus              EcM        mycorrhizal                 163</span></span>
+<span><span class="co">#&gt; 2    Pinus sylvestris     Pinus              EcM        mycorrhizal                 500</span></span>
+<span><span class="co">#&gt; 3  Trifolium pratense Trifolium               AM        mycorrhizal                 193</span></span>
+<span><span class="co">#&gt; 4 Vaccinium myrtillus Vaccinium              ErM        mycorrhizal                 227</span></span>
+<span><span class="co">#&gt; 5   Brassica oleracea  Brassica               NM    non-mycorrhizal                  59</span></span></code></pre></div>
+<p>Three columns are added:</p>
+<ul>
+<li>
+<code>mycorrhizal_type</code>: the genus-level consensus type.
+<code>AM</code> (arbuscular, by far the most common, formed by most
+herbs and many trees), <code>EcM</code> (ecto, typical of oaks, pines,
+birches, and other temperate forest trees), <code>ErM</code> (ericoid,
+confined to the Ericaceae), <code>OM</code> (orchid), <code>NM</code>
+(non-mycorrhizal, e.g. the Brassicaceae and many Cyperaceae), the dual
+types <code>EcM-AM</code> / <code>ErM-EcM</code> / <code>ErM-AM</code>,
+plus <code>Other</code> and <code>uncertain</code>.</li>
+<li>
+<code>mycorrhizal_status</code>: a coarse roll-up of the type, one
+of <code>"mycorrhizal"</code>, <code>"non-mycorrhizal"</code>, or
+<code>"uncertain"</code>.</li>
+<li>
+<code>mycorrhizal_records</code>: how many FungalRoot observations
+support the genus-level consensus, so a one-record genus can be told
+apart from a well-sampled one.</li>
+</ul>
+<p>Because the join is on genus, a plant whose genus is not in
+FungalRoot returns <code>NA</code>, and a genus circumscribed
+differently across backbones may not line up. Coverage is plant genera
+only (about 4,000 genera). The dataset is distributed under CC BY-NC
+4.0; the per-genus consensus is computed by taxify from the
+per-observation labels, not FungalRoot’s own published genus
+assignment.</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="conservation-status-iucn-red-list">Conservation status (IUCN Red List)<a class="anchor" aria-label="anchor" href="#conservation-status-iucn-red-list"></a>
@@ -617,7 +671,7 @@ assessed by the IUCN Red List, with representation across plants,
 vertebrates, invertebrates, and fungi. A single column is added:
 <code>conservation_status</code>, containing the standard IUCN category
 code.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">species</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Panthera tigris"</span>, <span class="st">"Ailuropoda melanoleuca"</span>,</span>
 <span>  <span class="st">"Gorilla gorilla"</span>, <span class="st">"Vulpes vulpes"</span>,</span>
@@ -680,7 +734,7 @@ and live birds. The enrichment adds 11 columns covering beak dimensions
 (length, depth), wing length, tail length, tarsus length, body mass,
 hand-wing index, primary habitat, trophic level, trophic niche, and
 migration strategy.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">birds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Parus major"</span>, <span class="st">"Cyanistes caeruleus"</span>, <span class="st">"Erithacus rubecula"</span>,</span>
 <span>  <span class="st">"Turdus merula"</span>, <span class="st">"Falco peregrinus"</span>, <span class="st">"Aquila chrysaetos"</span></span>
@@ -738,7 +792,7 @@ on ground (<code>foraging_ground</code>), in understory
 (<code>foraging_midhigh</code>), in canopy
 (<code>foraging_canopy</code>), and aerial
 (<code>foraging_aerial</code>). These 6 percentages also sum to 100.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">birds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Parus major"</span>, <span class="st">"Dendrocopos major"</span>, <span class="st">"Alcedo atthis"</span>,</span>
 <span>  <span class="st">"Tyto alba"</span>, <span class="st">"Apus apus"</span></span>
@@ -778,7 +832,7 @@ gestation length, weaning age, home range size, diet breadth, and
 habitat breadth. It remains the most-cited source of mammalian
 life-history data in the ecological literature, despite being published
 in 2009.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mammals</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Vulpes vulpes"</span>, <span class="st">"Canis lupus"</span>, <span class="st">"Ursus arctos"</span>,</span>
 <span>  <span class="st">"Mustela nivalis"</span>, <span class="st">"Lutra lutra"</span>, <span class="st">"Lynx lynx"</span></span>
@@ -823,7 +877,7 @@ output per year, and offspring size (mm). The binary traits encode
 habitat and activity patterns: direct development (0/1), larval stage
 (0/1), aquatic habitat (0/1), fossorial habitat (0/1), arboreal habitat
 (0/1), diurnal activity (0/1), and nocturnal activity (0/1).</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">amphibians</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Bufo bufo"</span>, <span class="st">"Rana temporaria"</span>, <span class="st">"Salamandra salamandra"</span>,</span>
 <span>  <span class="st">"Triturus cristatus"</span>, <span class="st">"Hyla arborea"</span>, <span class="st">"Bombina variegata"</span></span>
@@ -880,7 +934,7 @@ described fungal species (~150,000) makes species-level trait
 compilation impractical for many attributes. The genus-level join means
 that all species within a genus receive the same trait values, which is
 ecologically reasonable for the traits covered.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fungi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Amanita muscaria"</span>, <span class="st">"Boletus edulis"</span>, <span class="st">"Trametes versicolor"</span>,</span>
 <span>  <span class="st">"Agaricus bisporus"</span>, <span class="st">"Cantharellus cibarius"</span></span>
@@ -947,7 +1001,7 @@ are complementary: a genus like <em>Trametes</em> might be classified as
 Saprotroph” guild with “Saprotroph” trophic mode in FUNGuild. The
 FUNGuild classification is coarser but more directly interpretable for
 guild-based community analyses.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fungi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Amanita muscaria"</span>, <span class="st">"Boletus edulis"</span>, <span class="st">"Trametes versicolor"</span>,</span>
 <span>  <span class="st">"Agaricus bisporus"</span>, <span class="st">"Cantharellus cibarius"</span></span>
@@ -1008,7 +1062,7 @@ EIVE) that focus exclusively on vascular plants. AlgaeTraits fills this
 gap for the European coastline, covering green algae (Chlorophyta),
 brown algae (Phaeophyceae), and red algae (Rhodophyta) with eight trait
 columns spanning morphology, habitat, and environmental tolerances.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seaweeds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Fucus vesiculosus"</span>, <span class="st">"Ulva lactuca"</span>, <span class="st">"Laminaria digitata"</span>,</span>
 <span>  <span class="st">"Chondrus crispus"</span>, <span class="st">"Sargassum muticum"</span></span>
@@ -1077,7 +1131,7 @@ fish species worldwide, based on standardized measurements from
 photographs and museum specimens. The 10 morphological traits capture
 the key axes of fish body shape variation that determine swimming
 performance, feeding mode, and habitat use.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">freshwater_fish</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Salmo trutta"</span>, <span class="st">"Esox lucius"</span>, <span class="st">"Cyprinus carpio"</span>,</span>
 <span>  <span class="st">"Perca fluviatilis"</span>, <span class="st">"Silurus glanis"</span></span>
@@ -1144,7 +1198,7 @@ covering ~35,000 species across both freshwater and marine environments.
 The taxify enrichment extracts eight key ecological and life-history
 traits from the FishBase dataset, providing a broad functional profile
 that complements FISHMORPH’s morphological focus.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fish</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Gadus morhua"</span>, <span class="st">"Thunnus thynnus"</span>, <span class="st">"Hippocampus hippocampus"</span>,</span>
 <span>  <span class="st">"Squalus acanthias"</span>, <span class="st">"Salmo trutta"</span></span>
@@ -1207,7 +1261,7 @@ morphological, and ecological traits. Lizards are the most species-rich
 group of non-avian reptiles, and this dataset provides the most
 comprehensive species-level trait compilation available for the
 group.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lizards</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Pogona vitticeps"</span>, <span class="st">"Lacerta agilis"</span>, <span class="st">"Iguana iguana"</span>,</span>
 <span>  <span class="st">"Varanus komodoensis"</span>, <span class="st">"Gekko gecko"</span></span>
@@ -1283,7 +1337,7 @@ rate, and body temperature. The unique value of AnAge over
 taxon-specific databases like PanTHERIA is its cross-class coverage:
 longevity and metabolic data can be compared directly across vertebrate
 classes.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vertebrates</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Vulpes vulpes"</span>, <span class="st">"Aquila chrysaetos"</span>, <span class="st">"Crocodylus niloticus"</span>,</span>
 <span>  <span class="st">"Bufo bufo"</span>, <span class="st">"Salmo salar"</span></span>
@@ -1314,7 +1368,7 @@ vertebrates, molluscs, and annelids. Unlike taxon-specific databases, it
 provides a unified framework for cross-taxon allometric comparisons —
 particularly valuable for arthropods, which are underrepresented in
 other trait databases.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">arthropods</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Drosophila melanogaster"</span>, <span class="st">"Apis mellifera"</span>,</span>
 <span>  <span class="st">"Tenebrio molitor"</span>, <span class="st">"Gryllus campestris"</span></span>
@@ -1346,7 +1400,7 @@ Zenodo. The reference is Hebert et al. (2022), <em>Scientific Data</em>
 database, covering ~12,400 species of Papilionoidea globally. It
 provides wingspan, voltinism, diapause stage, four habitat affinity
 dimensions, host plant data, and adult flight phenology.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">butterflies</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Vanessa cardui"</span>, <span class="st">"Pieris rapae"</span>, <span class="st">"Papilio machaon"</span>,</span>
 <span>  <span class="st">"Lycaena phlaeas"</span>, <span class="st">"Colias crocea"</span></span>
@@ -1380,7 +1434,7 @@ reference is Shirey et al. (2022), <em>Scientific Data</em> 9:398.</p>
 including Coleoptera, Hemiptera, Orthoptera, Araneae, Diptera,
 Hymenoptera, and Lepidoptera. It is the most comprehensive open
 arthropod trait compilation for this region.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">insects</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Abax parallelepipedus"</span>, <span class="st">"Pterostichus melanarius"</span>,</span>
 <span>  <span class="st">"Chorthippus parallelus"</span>, <span class="st">"Araneus diadematus"</span></span>
@@ -1443,7 +1497,7 @@ Germany, <code>"GB"</code> for Great Britain).</p>
 <div class="section level4">
 <h4 id="single-country">Single country<a class="anchor" aria-label="anchor" href="#single-country"></a>
 </h4>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Robinia pseudoacacia"</span>, <span class="st">"Ailanthus altissima"</span>,</span>
 <span>  <span class="st">"Impatiens glandulifera"</span>, <span class="st">"Quercus robur"</span>,</span>
@@ -1473,7 +1527,7 @@ and invasive taxa.</p>
 <p>When comparing invasive status across countries, pass a vector of
 codes. Each output column is suffixed with the corresponding country
 code.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plants</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span>, <span class="st">"GB"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            input_name invasive_status_AT invasive_status_DE invasive_status_GB</span></span>
 <span><span class="co">#&gt; 1 Robinia pseudoacacia         invasive           invasive           invasive</span></span>
@@ -1487,7 +1541,7 @@ Filtering for species that differ in status between countries is a
 matter of subsetting columns. The example below finds species classified
 as invasive in Austria but not (yet) classified as invasive in
 Germany:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">plants</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Species invasive in Austria but not in Germany</span></span>
 <span><span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">invasive_status_AT</span> <span class="op">==</span> <span class="st">"invasive"</span> <span class="op">&amp;</span></span>
@@ -1504,7 +1558,7 @@ column per country in the GRIIS dataset (196 countries). This produces a
 wide data.frame with 196 additional columns, so it is best reserved for
 full-scale screening exercises where the complete geographic profile of
 each species matters.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plants</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
 <span><span class="co"># Adds invasive_status_AD, invasive_status_AE, ..., invasive_status_ZW</span></span></code></pre></div>
 <p>The resolution of <code>"all"</code> to the full list of country
@@ -1530,7 +1584,7 @@ species-country combinations across 241 countries. The
 <div class="section level4">
 <h4 id="single-country-1">Single country<a class="anchor" aria-label="anchor" href="#single-country-1"></a>
 </h4>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aliens</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Robinia pseudoacacia"</span>, <span class="st">"Ailanthus altissima"</span>,</span>
 <span>  <span class="st">"Impatiens glandulifera"</span>, <span class="st">"Quercus robur"</span>,</span>
@@ -1560,7 +1614,7 @@ column will distinguish which database contributed each record.</p>
 <div class="section level4">
 <h4 id="multiple-countries-1">Multiple countries<a class="anchor" aria-label="anchor" href="#multiple-countries-1"></a>
 </h4>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aliens</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_alien_first_records.html">add_alien_first_records</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span>, <span class="st">"GB"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              input_name alien_first_record_AT alien_first_record_DE alien_first_record_GB ...</span></span>
 <span><span class="co">#&gt; 1   Robinia pseudoacacia                  1850                  1630                  1640 ...</span></span>
@@ -1579,7 +1633,7 @@ cross-country comparisons of invasion history straightforward.</p>
 for modelling, mapping, or timeline analyses. The
 <code><a href="../reference/taxify_long.html">taxify_long()</a></code> helper reshapes any group-based enrichment
 columns back to long format:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aliens</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_alien_first_records.html">add_alien_first_records</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span>, <span class="st">"GB"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/taxify_long.html">taxify_long</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -1600,7 +1654,7 @@ native species with no alien first record in any queried country).</p>
 just alien first records. It can reshape <code>invasive_status</code>,
 <code>native_status</code>, or <code>common_name</code> columns just as
 easily:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aliens</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/taxify_long.html">taxify_long</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -1608,7 +1662,7 @@ easily:</p>
 are reshaped together. If an enrichment covers different groups than
 another (e.g., GRIIS for AT/DE but first records for AT/DE/CH), the
 missing combinations are padded with <code>NA</code>:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aliens</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_alien_first_records.html">add_alien_first_records</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span>, <span class="st">"CH"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1639,7 +1693,7 @@ codes include:</p>
 <li><p><code>PAC</code> (Pacific)</p></li>
 <li><p><code>ANT</code> (Antarctica)</p></li>
 </ul>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trees</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>, <span class="st">"Quercus suber"</span>, <span class="st">"Eucalyptus globulus"</span>,</span>
 <span>  <span class="st">"Nothofagus pumilio"</span>, <span class="st">"Sequoiadendron giganteum"</span></span>
@@ -1660,7 +1714,7 @@ important distinction: many cultivated species will show <code>NA</code>
 in regions where they are widespread in gardens and plantations.</p>
 <p>Querying multiple regions reveals each species’ native continental
 range:</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trees</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_wcvp.html">add_wcvp</a></span><span class="op">(</span>region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"EUR"</span>, <span class="st">"AUS"</span>, <span class="st">"SAM"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              input_name native_status_EUR native_status_AUS native_status_SAM</span></span>
 <span><span class="co">#&gt; 1          Quercus robur           native                NA                NA</span></span>
@@ -1690,7 +1744,7 @@ classifies species as native/introduced/invasive per country), GloNAF
 provides a binary naturalization flag per region with finer geographic
 resolution, using TDWG-compatible codes extended with dot notation for
 sub-national units (e.g., <code>"USA.CA"</code> for California).</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Robinia pseudoacacia"</span>, <span class="st">"Ailanthus altissima"</span>,</span>
 <span>  <span class="st">"Impatiens glandulifera"</span>, <span class="st">"Quercus robur"</span></span>
@@ -1725,7 +1779,7 @@ which aggregates names from many national and regional nomenclature
 sources. It is the most multilingual of the enrichments, covering dozens
 of languages. The <code>lang</code> argument takes ISO 639-1 two-letter
 language codes.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">species</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>, <span class="st">"Parus major"</span>, <span class="st">"Vulpes vulpes"</span>,</span>
 <span>  <span class="st">"Bufo bufo"</span>, <span class="st">"Picea abies"</span></span>
@@ -1741,7 +1795,7 @@ language codes.</p>
 <p>The default language is English (<code>lang = "en"</code>). Switching
 to another language is a matter of changing the <code>lang</code>
 argument:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">species</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_common_names.html">add_common_names</a></span><span class="op">(</span>lang <span class="op">=</span> <span class="st">"de"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     input_name common_name</span></span>
 <span><span class="co">#&gt; 1 Quercus robur   Stieleiche</span></span>
@@ -1775,7 +1829,7 @@ including the metadata used by <code><a href="https://rdrr.io/r/base/summary.htm
 compose naturally with the pipe operator. A typical workflow chains
 <code><a href="../reference/taxify.html">taxify()</a></code> with several enrichment calls, building up the
 desired set of columns incrementally.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plant_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -1800,7 +1854,7 @@ between LEDA and Diaz (<code>seed_mass_mg</code>), discussed
 earlier.</p>
 <p>Here is a similar chain for birds, combining morphological
 measurements with diet data and vernacular names:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bird_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Parus major"</span>, <span class="st">"Cyanistes caeruleus"</span>, <span class="st">"Erithacus rubecula"</span>,</span>
 <span>  <span class="st">"Turdus merula"</span>, <span class="st">"Falco peregrinus"</span></span>
@@ -1816,7 +1870,7 @@ EltonTraits contribute body mass, but in distinct columns
 there is no overwriting.</p>
 <p>And for mammals, combining life-history traits from PanTHERIA with
 diet data from EltonTraits and German common names:</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mammal_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Vulpes vulpes"</span>, <span class="st">"Canis lupus"</span>, <span class="st">"Ursus arctos"</span>,</span>
 <span>  <span class="st">"Lutra lutra"</span>, <span class="st">"Lynx lynx"</span></span>
@@ -1833,7 +1887,7 @@ multidimensional view of each species’ ecology without any manual data
 assembly.</p>
 <p>The same pattern works for fungi, combining lifestyle traits from
 FungalTraits with guild classifications from FUNGuild:</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fungal_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Amanita muscaria"</span>, <span class="st">"Boletus edulis"</span>, <span class="st">"Trametes versicolor"</span></span>
 <span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1850,7 +1904,7 @@ FUNGuild is a useful quality filter: restricting to “Highly Probable”
 assignments before downstream analysis reduces noise.</p>
 <p>Fish analyses can similarly combine morphological and ecological
 enrichments:</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fish_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Salmo trutta"</span>, <span class="st">"Esox lucius"</span>, <span class="st">"Gadus morhua"</span></span>
 <span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1891,7 +1945,7 @@ enrichment has no data for a species, the corresponding columns contain
 <code>NA</code>. Understanding coverage patterns is essential for
 interpreting enriched results correctly and for choosing which
 enrichments to apply.</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,     <span class="co"># plant</span></span>
 <span>  <span class="st">"Parus major"</span>,       <span class="co"># bird</span></span>
@@ -2136,7 +2190,7 @@ the <code>add_*()</code> help page.</p>
 <p>To check the overall enrichment rate for a result, the
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> output reports the number of matched rows per
 enrichment. We can also compute it directly:</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Fraction of matched species with woodiness data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">woodiness</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">accepted_name</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -2152,7 +2206,7 @@ string, and the count of rows that received non-<code>NA</code> trait
 values. Calling <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> on a taxify result displays this
 information alongside the standard match statistics, providing a compact
 overview of the entire analysis pipeline.</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Pinus sylvestris"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2205,10 +2259,11 @@ contributes.</p>
 A full stack combines conservation status, growth form, ecological niche
 position, global functional traits, regional functional traits, native
 range, and vernacular names.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_fungalroot.html">add_fungalroot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_diaz_traits.html">add_diaz_traits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_leda.html">add_leda</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2235,17 +2290,19 @@ LEDA value is preferred, reverse the order or omit
 <p>Outside Europe, EIVE and LEDA coverage drops to near zero. The global
 plant stack relies on the wider-coverage datasets and omits the regional
 enrichments.</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_fungalroot.html">add_fungalroot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_diaz_traits.html">add_diaz_traits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_wcvp.html">add_wcvp</a></span><span class="op">(</span>region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NAM"</span>, <span class="st">"SAM"</span>, <span class="st">"AFR"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_common_names.html">add_common_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Woodiness and Diaz traits both have global coverage, so they
-contribute useful data regardless of the geographic origin of the
-species list. WCVP can be queried for any TDWG region, providing native
-range information for the continents relevant to the study.</p>
+<p>Woodiness, Diaz traits, and FungalRoot mycorrhizal type all have
+global coverage, so they contribute useful data regardless of the
+geographic origin of the species list. WCVP can be queried for any TDWG
+region, providing native range information for the continents relevant
+to the study.</p>
 </div>
 <div class="section level3">
 <h3 id="birds">Birds<a class="anchor" aria-label="anchor" href="#birds"></a>
@@ -2254,7 +2311,7 @@ range information for the continents relevant to the study.</p>
 morphology and migration, EltonTraits for diet and foraging. Together
 they provide a detailed functional profile spanning body plan, habitat
 use, dietary niche, and movement ecology.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_avonet.html">add_avonet</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2276,7 +2333,7 @@ EltonTraits (diet and foraging behavior). The combination provides body
 mass from two independent sources (<code>pantheria_body_mass_g</code>
 and <code>elton_body_mass_g</code>), which can serve as a
 cross-validation of the mass data.</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_pantheria.html">add_pantheria</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2293,7 +2350,7 @@ does not provide. There is no redundancy except body mass.</p>
 </h3>
 <p>AmphiBIO is the sole dedicated amphibian enrichment. It can be
 combined with conservation status and common names.</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_amphibio.html">add_amphibio</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2313,7 +2370,7 @@ morphological traits of freshwater species, and FishBase for ecological
 and life-history traits across all fish (freshwater + marine). The WoRMS
 backend provides authoritative taxonomy for marine fish; COL and GBIF
 cover both freshwater and marine species.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"worms"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_fish_traits.html">add_fish_traits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2335,7 +2392,7 @@ fisheries management and marine spatial planning.</p>
 provides life-history and ecological traits for ~6,600 species. Combined
 with conservation status, it gives a functional profile suitable for
 reptile community analyses and conservation assessments.</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_lizard_traits.html">add_lizard_traits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2353,7 +2410,7 @@ amphibians, and fish.</p>
 voltinism, habitat affinities, and host plant data for ~12,400 species
 globally. For European butterfly ecology, it can be combined with the NW
 European Arthropod traits for additional life-history variables.</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_leptraits.html">add_leptraits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2366,7 +2423,7 @@ European Arthropod traits for additional life-history variables.</p>
 enrichment provides the most comprehensive trait coverage. It can be
 combined with AnimalTraits for cross-taxon body mass comparisons and
 with LepTraits for additional butterfly-specific traits.</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_arthropod_traits.html">add_arthropod_traits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2382,7 +2439,7 @@ dimensions than the Logghe et al. dataset.</p>
 <p>Fungi are covered by two enrichments: FungalTraits for genus-level
 ecological traits and FUNGuild for trophic guild classifications. The
 COL and GBIF backends provide fungal taxonomy.</p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_fungal_traits.html">add_fungal_traits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2402,7 +2459,7 @@ introduce systematic bias.</p>
 <p>European macroalgae are covered by AlgaeTraits, which provides
 morphological and ecological traits for ~1,745 species. The WoRMS
 backend is recommended for marine algae taxonomy.</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"worms"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_algae_traits.html">add_algae_traits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2422,7 +2479,7 @@ with plants, birds, and mammals), there are two strategies.</p>
 <p>The first is to apply all relevant enrichments to the full result and
 accept <code>NA</code> values where taxonomic scope does not
 overlap:</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2436,7 +2493,7 @@ beak length, body mass, etc.). The advantage is simplicity: one
 data.frame, one <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> call, no manual splitting.</p>
 <p>The second strategy is to split the result by taxon group, enrich
 each subset with the appropriate stack, and recombine:</p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plants</span>  <span class="op">&lt;-</span> <span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">kingdom</span> <span class="op">==</span> <span class="st">"Plantae"</span>, <span class="op">]</span></span>
@@ -2478,12 +2535,12 @@ and selecting the column with the highest match rate, or via an explicit
 <code>species_col</code> argument), resolves those names through the
 same backbone(s) used in the original <code><a href="../reference/taxify.html">taxify()</a></code> call, and
 joins on <code>accepted_id</code>.</p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># From a CSV file (auto-detect species column)</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"my_traits.csv"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># From a data.frame with explicit species column</span></span>
 <span><span class="va">my_traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span>,</span>

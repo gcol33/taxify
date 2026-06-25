@@ -16,6 +16,9 @@
   the WorldFlora speed benchmark, and the enrichment hub), and a worked
   trait-stacking analysis. Each section links to the dedicated vignette for
   depth.
+* The enrichments vignette now documents `add_fungalroot()` (genus-level
+  mycorrhizal type), including the genus-keyed join and the type vocabulary,
+  and stacks it into the European and global vascular-plant guidance.
 
 # taxify 0.2.14
 
