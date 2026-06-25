@@ -1,4 +1,4 @@
-# Tests for pipe extensions: add_hybrid_info, add_wfo_info, add_qualifier_info
+# Tests for pipe extensions: add_hybrid_info, add_wfo_info; native qualifier cols
 
 setup_mock_backend <- function() {
   bb_path <- mock_backbone_vtr()
@@ -59,32 +59,29 @@ test_that("add_wfo_info preserves original columns", {
   expect_true(all(names(result) %in% names(enriched)))
 })
 
-# -- add_qualifier_info --
+# -- native qualifier columns (from taxify() directly) --
 
-test_that("add_qualifier_info extracts qualifier", {
+test_that("taxify() carries qualifier + qualifier_position natively", {
   setup_mock_backend()
-  result <- taxify("Pinus cf. sylvestris", verbose = FALSE) |>
-    add_qualifier_info()
+  result <- taxify("Pinus cf. sylvestris", verbose = FALSE)
 
   expect_true("qualifier" %in% names(result))
   expect_true("qualifier_position" %in% names(result))
   expect_equal(result$qualifier, "cf.")
-  expect_true(!is.na(result$qualifier_position))
+  expect_equal(result$qualifier_position, "species")
 })
 
-test_that("add_qualifier_info records a leading Cf. prefix at position 1", {
+test_that("a leading Cf. prefix is recorded at genus position", {
   setup_mock_backend()
-  result <- taxify("Cf. Pinus sylvestris", verbose = FALSE) |>
-    add_qualifier_info()
+  result <- taxify("Cf. Pinus sylvestris", verbose = FALSE)
 
   expect_equal(result$qualifier, "cf.")
-  expect_equal(result$qualifier_position, 1L)
+  expect_equal(result$qualifier_position, "genus")
 })
 
-test_that("add_qualifier_info returns NA for names without qualifiers", {
+test_that("names without qualifiers carry NA qualifier columns", {
   setup_mock_backend()
-  result <- taxify("Quercus robur", verbose = FALSE) |>
-    add_qualifier_info()
+  result <- taxify("Quercus robur", verbose = FALSE)
 
   expect_true(is.na(result$qualifier))
   expect_true(is.na(result$qualifier_position))
@@ -92,12 +89,11 @@ test_that("add_qualifier_info returns NA for names without qualifiers", {
 
 # -- chaining --
 
-test_that("pipe chain works: taxify |> add_hybrid_info |> add_qualifier_info", {
+test_that("pipe chain works: taxify |> add_hybrid_info keeps qualifier cols", {
   setup_mock_backend()
   result <- taxify(c("Quercus \u00d7 hispanica", "Pinus cf. sylvestris"),
                    verbose = FALSE) |>
-    add_hybrid_info() |>
-    add_qualifier_info()
+    add_hybrid_info()
 
   expect_equal(nrow(result), 2L)
   expect_equal(result$hybrid_type[1L], "nothospecies")

@@ -29,6 +29,80 @@
   "$"
 )
 
+# ---- Qualifier canonicalization (single source of truth) ----
+#
+# Every spelling of a qualifier maps to one canonical display token, used in
+# the `qualifier` output column. The same table drives `qualifier_position`
+# (genus vs species) and the internal aggregate concept flag that steers
+# preserve-mode matching and the enrichment join. Keep all qualifier knowledge
+# here so callers never re-derive the marker zoo.
+
+# Compressed key (tolower, dots/spaces removed) -> canonical token.
+.qualifier_canon_map <- c(
+  cf      = "cf.",   aff   = "aff.",
+  agg     = "agg.",  aggr  = "agg.",
+  sl      = "s.l.",  sstr  = "s.str.",
+  sp      = "sp.",   spp   = "sp.",   species = "sp.",
+  sect    = "sect.", subsp = "subsp.", var = "var.", f = "f.",
+  auct    = "auct.", sensu = "sensu", non = "non", nec = "nec", vel = "vel"
+)
+
+# Canonical tokens denoting an aggregate / sensu-lato concept.
+.aggregate_tokens <- c("agg.", "s.l.")
+
+# Multi-word and spaced concept markers, stripped before single-token parsing
+# (the single-token pass would otherwise mangle "sensu lato" into "sensu").
+# Order: s.str. before s.l. so "s. str." is never partly eaten by the s.l. rule.
+.concept_multiword <- list(
+  list(pat = "\\s*\\b(sensu\\s+stricto|s\\.\\s*str\\.?)(?=\\s|$)", canon = "s.str."),
+  list(pat = "\\s*\\b(sensu\\s+lato|s\\.\\s*l\\.?|coll\\.\\s*sp\\.?)(?=\\s|$)",
+       canon = "s.l.")
+)
+
+#' Canonicalize a raw qualifier token to its display form
+#'
+#' @param raw Character. A matched qualifier token (e.g. `"aggr."`, `"Cf"`).
+#' @return The canonical token (e.g. `"agg."`, `"cf."`), or `raw` unchanged
+#'   when it is not in the map.
+#' @noRd
+canon_qualifier <- function(raw) {
+  if (is.na(raw)) return(NA_character_)
+  key <- gsub("[. ]", "", tolower(raw))
+  out <- unname(.qualifier_canon_map[key])
+  if (is.na(out)) raw else out
+}
+
+# Trailing aggregate / sensu-lato marker on a *canonical name* (e.g. an
+# accepted_name or an enrichment key). Used to line up aggregate join keys
+# regardless of how each source spells the marker.
+.agg_name_suffix <- "[ -](aggr?\\.?|s\\.\\s*l\\.?|sensu\\s+lato|coll\\.\\s*sp\\.?)$"
+
+#' Strip a trailing aggregate marker from a canonical name
+#'
+#' @param x Character vector of canonical names.
+#' @return `x` with any trailing aggregate marker removed (bare binomial).
+#'   `NA` in, `NA` out.
+#' @noRd
+strip_agg_marker <- function(x) {
+  sub(.agg_name_suffix, "", x, perl = TRUE, ignore.case = TRUE)
+}
+
+#' Canonicalize a trailing aggregate marker to `" aggr."`
+#'
+#' Folds the spelling variants (`agg`, `agg.`, `-agg`, `s.l.`, `sensu lato`,
+#' `coll. sp.`) a name may carry to one form, so aggregate join keys line up
+#' across backbones and enrichment sources. Names without a marker pass through.
+#'
+#' @param x Character vector of canonical names.
+#' @return `x` with any aggregate marker normalized to `" aggr."`.
+#' @noRd
+canon_agg_marker <- function(x) {
+  hit <- grepl(.agg_name_suffix, x, perl = TRUE, ignore.case = TRUE)
+  hit[is.na(hit)] <- FALSE
+  x[hit] <- paste0(strip_agg_marker(x[hit]), " aggr.")
+  x
+}
+
 #' Clean a single taxonomic name for matching
 #'
 #' Strips qualifiers, authorship, brackets, numbers, and normalizes whitespace.
@@ -45,7 +119,8 @@
 clean_one <- function(name) {
   if (is.na(name) || !nzchar(trimws(name))) {
     return(list(cleaned = NA_character_, is_hybrid = FALSE,
-                qualifier = NA_character_, genus_only = FALSE,
+                qualifier = NA_character_, qualifier_position = NA_character_,
+                is_aggregate = FALSE, genus_only = FALSE,
                 hybrid_name = NA_character_, genus_abbrev = FALSE))
   }
 
@@ -55,20 +130,45 @@ clean_one <- function(name) {
   s <- gsub("\u00c3\u0097", "\u00d7", s, fixed = TRUE)
   s <- gsub("\u00c3\u2014", "\u00d7", s, fixed = TRUE)
 
-  # Strip leading "Cf." / "CF." prefix (case-insensitive for this position),
-  # recording it so the qualifier survives the strip
-  leading_cf <- grepl("^[Cc][Ff]\\.?\\s+", s)
-  s <- sub("^[Cc][Ff]\\.?\\s+", "", s)
+  qualifier <- NA_character_
+  qpos      <- NA_character_
+
+  # Leading determination prefix (cf./aff.) -> genus-level qualifier.
+  # \\b after the token guards real genera like "Affinis".
+  lead_m <- regexpr("^(cf|aff)\\b\\.?\\s+", s, perl = TRUE, ignore.case = TRUE)
+  if (lead_m != -1L) {
+    lead_tok  <- sub("\\s+$", "", regmatches(s, lead_m))
+    qualifier <- canon_qualifier(lead_tok)
+    qpos      <- "genus"
+    s <- sub("^(cf|aff)\\b\\.?\\s+", "", s, perl = TRUE, ignore.case = TRUE)
+  }
 
   # Detect hybrid markers (before stripping anything else)
   hybrid <- detect_hybrid(s)
   is_hybrid <- hybrid$is_hybrid
   s <- hybrid$stripped
 
-  # Detect and strip qualifiers
-  qualifier <- extract_qualifier(s)
-  if (is.na(qualifier) && leading_cf) qualifier <- "cf."
+  # Multi-word / spaced concept markers (s.l., s.str., sensu lato/stricto)
+  if (is.na(qualifier)) {
+    for (mw in .concept_multiword) {
+      if (regexpr(mw$pat, s, perl = TRUE, ignore.case = TRUE) != -1L) {
+        qualifier <- mw$canon
+        qpos      <- "species"
+        s <- sub(mw$pat, "", s, perl = TRUE, ignore.case = TRUE)
+        break
+      }
+    }
+  }
+
+  # Single-token qualifiers (cf., aff., var., agg., sp., ...)
+  raw_q <- extract_qualifier(s)
+  if (is.na(qualifier) && !is.na(raw_q)) {
+    qualifier <- canon_qualifier(raw_q)
+    qpos      <- "species"
+  }
   s <- strip_qualifier(s)
+
+  is_aggregate <- !is.na(qualifier) && qualifier %in% .aggregate_tokens
 
   # Strip parenthesized authorship
   s <- gsub(.author_parens_pattern, " ", s, perl = TRUE)
@@ -89,10 +189,10 @@ clean_one <- function(name) {
     s <- paste(c(parts[1L], tolower(parts[-1L])), collapse = " ")
   }
 
-  # If qualifier was sp/spp/species and only the genus remains, flag it
+  # If qualifier reduced the name to a bare genus, flag it
   genus_only <- FALSE
   if (!is.na(qualifier) &&
-      qualifier %in% c("sp", "spp", "species", "sect", "aggr") &&
+      qualifier %in% c("sp.", "sect.", "agg.") &&
       length(strsplit(s, " ", fixed = TRUE)[[1L]]) == 1L) {
     genus_only <- TRUE
   }
@@ -114,6 +214,7 @@ clean_one <- function(name) {
     grepl("^[A-Za-z]\\.?$", first_tok)
 
   list(cleaned = s, is_hybrid = is_hybrid, qualifier = qualifier,
+       qualifier_position = qpos, is_aggregate = is_aggregate,
        genus_only = genus_only, hybrid_name = hybrid_name,
        genus_abbrev = genus_abbrev)
 }
@@ -127,7 +228,9 @@ clean_one <- function(name) {
 #'
 #' @param x Character vector of taxonomic names.
 #' @return A data.frame with columns: `original`, `cleaned`, `is_hybrid`,
-#'   `qualifier`, `genus_only`, `hybrid_name`.
+#'   `qualifier` (canonical token), `qualifier_position` (`"genus"`/`"species"`),
+#'   `is_aggregate` (internal concept flag), `genus_only`, `hybrid_name`,
+#'   `genus_abbrev`.
 #' @noRd
 clean_names <- function(x) {
   n <- length(x)
@@ -138,9 +241,21 @@ clean_names <- function(x) {
   s <- gsub("\u00c3\u0097", "\u00d7", s, fixed = TRUE)
   s <- gsub("\u00c3\u2014", "\u00d7", s, fixed = TRUE)
 
-  # Strip leading "Cf." / "CF." prefix, recording it so the qualifier survives
-  leading_cf <- grepl("^[Cc][Ff]\\.?\\s+", s)
-  s <- sub("^[Cc][Ff]\\.?\\s+", "", s)
+  # Strip a leading determination prefix (cf./aff.) -> genus-level qualifier,
+  # recording the canonical token so it survives the strip. \\b guards real
+  # genera like "Affinis".
+  qualifier <- rep(NA_character_, n)
+  qpos      <- rep(NA_character_, n)
+  lead_pat  <- "^(cf|aff)\\b\\.?\\s+"
+  lead_hit  <- grepl(lead_pat, s, perl = TRUE, ignore.case = TRUE)
+  if (any(lead_hit)) {
+    lm <- regexpr(lead_pat, s[lead_hit], perl = TRUE, ignore.case = TRUE)
+    lead_tok <- sub("\\s+$", "", regmatches(s[lead_hit], lm))
+    qualifier[lead_hit] <- vapply(lead_tok, canon_qualifier, character(1L),
+                                  USE.NAMES = FALSE)
+    qpos[lead_hit] <- "genus"
+    s <- sub(lead_pat, "", s, perl = TRUE, ignore.case = TRUE)
+  }
 
   # Detect hybrids \u2014 must be per-element due to tokenization logic
   is_hybrid <- logical(n)
@@ -157,16 +272,29 @@ clean_names <- function(x) {
     }
   }
 
-  # Extract qualifiers: grepl locates matches, then regexpr only on those strings
-  # (saves one full-vector regex pass vs the original 3-pass approach)
-  qualifier <- rep(NA_character_, n)
-  has_qual  <- grepl(.qualifier_pattern, s, perl = TRUE)
-  if (any(has_qual)) {
-    m_sub <- regexpr(.qualifier_pattern, s[has_qual], perl = TRUE)
-    qualifier[has_qual] <- regmatches(s[has_qual], m_sub)
+  # Multi-word / spaced concept markers (s.l., s.str., sensu lato/stricto),
+  # stripped first so the single-token pass never sees "sensu"/"lato" alone.
+  for (mw in .concept_multiword) {
+    mw_hit <- is.na(qualifier) & grepl(mw$pat, s, perl = TRUE, ignore.case = TRUE)
+    if (any(mw_hit)) {
+      qualifier[mw_hit] <- mw$canon
+      qpos[mw_hit]      <- "species"
+      s[mw_hit] <- sub(mw$pat, "", s[mw_hit], perl = TRUE, ignore.case = TRUE)
+    }
   }
-  # A stripped leading "Cf." prefix is recorded where no inline qualifier exists
-  qualifier[leading_cf & is.na(qualifier)] <- "cf."
+
+  # Single-token qualifiers: grepl locates matches, regexpr only on those strings.
+  # Canonicalized to one display token per marker.
+  has_qual <- is.na(qualifier) & grepl(.qualifier_pattern, s, perl = TRUE)
+  if (any(has_qual)) {
+    m_sub   <- regexpr(.qualifier_pattern, s[has_qual], perl = TRUE)
+    raw_tok <- regmatches(s[has_qual], m_sub)
+    qualifier[has_qual] <- vapply(raw_tok, canon_qualifier, character(1L),
+                                  USE.NAMES = FALSE)
+    qpos[has_qual] <- "species"
+  }
+
+  is_aggregate <- !is.na(qualifier) & qualifier %in% .aggregate_tokens
 
   # Strip qualifiers
   s <- gsub(.qualifier_pattern, " ", s, perl = TRUE)
@@ -194,7 +322,7 @@ clean_names <- function(x) {
   word_count <- nchar(gsub("[^ ]", "", s)) + 1L
   word_count[na_mask] <- 0L
   genus_only <- !is.na(qualifier) &
-    qualifier %in% c("sp", "spp", "species", "sect", "aggr") &
+    qualifier %in% c("sp.", "sect.", "agg.") &
     word_count == 1L
 
   # Flag abbreviated genus (e.g. "Q. robur"): single-letter first token (with an
@@ -218,19 +346,23 @@ clean_names <- function(x) {
   s[na_mask] <- NA_character_
   is_hybrid[na_mask] <- FALSE
   qualifier[na_mask] <- NA_character_
+  qpos[na_mask] <- NA_character_
+  is_aggregate[na_mask] <- FALSE
   genus_only[na_mask] <- FALSE
   hybrid_name[na_mask] <- NA_character_
   genus_abbrev[na_mask] <- FALSE
 
   data.frame(
-    original     = x,
-    cleaned      = s,
-    is_hybrid    = is_hybrid,
-    qualifier    = qualifier,
-    genus_only   = genus_only,
-    hybrid_name  = hybrid_name,
-    genus_abbrev = genus_abbrev,
-    stringsAsFactors = FALSE
+    original           = x,
+    cleaned            = s,
+    is_hybrid          = is_hybrid,
+    qualifier          = qualifier,
+    qualifier_position = qpos,
+    is_aggregate       = is_aggregate,
+    genus_only         = genus_only,
+    hybrid_name        = hybrid_name,
+    genus_abbrev       = genus_abbrev,
+    stringsAsFactors   = FALSE
   )
 }
 

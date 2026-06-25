@@ -55,6 +55,38 @@ test_that("clean_names records a stripped leading Cf. prefix as a qualifier", {
   expect_true(is.na(df$qualifier[2L]))
 })
 
+test_that("qualifier is canonicalized across spellings", {
+  expect_equal(clean_one("Rubus fruticosus aggr.")$qualifier, "agg.")
+  expect_equal(clean_one("Rubus fruticosus agg")$qualifier, "agg.")
+  expect_equal(clean_one("Taraxacum officinale sensu lato")$qualifier, "s.l.")
+  expect_equal(clean_one("Taraxacum officinale s. l.")$qualifier, "s.l.")
+  expect_equal(clean_one("Ranunculus auricomus sensu stricto")$qualifier, "s.str.")
+  expect_equal(clean_one("Taraxacum officinale sensu lato")$cleaned,
+               "Taraxacum officinale")
+})
+
+test_that("qualifier_position distinguishes genus vs species placement", {
+  expect_equal(clean_one("Cf. Pinus sylvestris")$qualifier_position, "genus")
+  expect_equal(clean_one("Pinus cf. sylvestris")$qualifier_position, "species")
+  expect_equal(clean_one("Rubus fruticosus agg.")$qualifier_position, "species")
+  expect_true(is.na(clean_one("Quercus robur")$qualifier_position))
+
+  df <- clean_names(c("Cf. Pinus sylvestris", "Pinus cf. sylvestris",
+                      "Quercus robur"))
+  expect_equal(df$qualifier_position, c("genus", "species", NA))
+})
+
+test_that("is_aggregate flags aggregate and sensu-lato concepts only", {
+  expect_true(clean_one("Rubus fruticosus agg.")$is_aggregate)
+  expect_true(clean_one("Taraxacum officinale s.l.")$is_aggregate)
+  expect_false(clean_one("Pinus cf. sylvestris")$is_aggregate)
+  expect_false(clean_one("Ranunculus auricomus s.str.")$is_aggregate)
+  expect_false(clean_one("Quercus robur")$is_aggregate)
+
+  df <- clean_names(c("Rubus fruticosus agg.", "Pinus cf. sylvestris"))
+  expect_equal(df$is_aggregate, c(TRUE, FALSE))
+})
+
 test_that("clean_one lowercases epithet but keeps genus", {
   res <- clean_one("QUERCUS ROBUR")
   expect_equal(res$cleaned, "QUERCUS robur")
@@ -87,7 +119,8 @@ test_that("clean_names returns correct data.frame", {
   expect_s3_class(df, "data.frame")
   expect_equal(nrow(df), 3L)
   expect_named(df, c("original", "cleaned", "is_hybrid", "qualifier",
-                     "genus_only", "hybrid_name", "genus_abbrev"))
+                     "qualifier_position", "is_aggregate", "genus_only",
+                     "hybrid_name", "genus_abbrev"))
   expect_equal(df$original, nms)
   expect_equal(df$cleaned[1L], "Quercus robur")
   expect_equal(df$qualifier[2L], "cf.")

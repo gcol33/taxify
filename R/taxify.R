@@ -24,6 +24,13 @@
 #'     regardless of name length. Not supported for `fuzzy_method = "jw"`.
 #' @param fuzzy_method Character. One of `"dl"` (Damerau-Levenshtein,
 #'   default), `"levenshtein"`, or `"jw"` (Jaro-Winkler).
+#' @param aggregates Character. How to treat species aggregates (names with an
+#'   `agg.` / `s.l.` qualifier). `"preserve"` (default) keeps the aggregate as
+#'   its own concept: it matches the backbone's aggregate taxon
+#'   (`"<binomial> aggr."`) where one exists, otherwise falls back to the
+#'   binomial. `"collapse"` strips the marker and matches the binomial species,
+#'   the way any non-aggregate name is matched. Either way the qualifier is
+#'   recorded in the `qualifier` column.
 #' @param verbose Logical. Print progress messages. Default `TRUE`.
 #'
 #' @return A data.frame with one row per input name and the following columns:
@@ -45,6 +52,14 @@
 #'     accepted name's full citation.}
 #'   \item{is_synonym}{Logical. Was the match a synonym?}
 #'   \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
+#'   \item{qualifier}{Canonical taxonomic qualifier found in the input name
+#'     (`"cf."`, `"aff."`, `"agg."`, `"s.l."`, `"s.str."`, `"sp."`, ...), or
+#'     `NA`. Spelling variants are folded to one token (`"aggr."`, `"agg"` and
+#'     `"sensu lato"` all map to `"agg."`/`"s.l."`).}
+#'   \item{qualifier_position}{`"genus"` when the qualifier leads the name and
+#'     qualifies the whole name (e.g. `"Cf. Pinus sylvestris"`), `"species"`
+#'     when it qualifies the species (inline `cf.` or trailing `agg.`), `NA`
+#'     when there is no qualifier.}
 #'   \item{match_type}{One of `"exact"`, `"exact_ci"`, `"fuzzy"`, `"abbrev"`
 #'     (an abbreviated genus such as `"Q. robur"` resolved via genus initial
 #'     plus epithet), or `"none"`.}
@@ -84,9 +99,11 @@ taxify <- function(x,
                    fuzzy = TRUE,
                    fuzzy_threshold = 0.2,
                    fuzzy_method = c("dl", "levenshtein", "jw"),
+                   aggregates = c("preserve", "collapse"),
                    verbose = TRUE) {
 
   fuzzy_method <- match.arg(fuzzy_method)
+  aggregates   <- match.arg(aggregates)
 
   if (!is.character(x)) {
     stop("x must be a character vector", call. = FALSE)
@@ -99,7 +116,7 @@ taxify <- function(x,
   if (inherits(backend, "taxify_backend")) {
     ensure_backends_current(backend$name, verbose = verbose)
     return(taxify_single(x, backend, fuzzy, fuzzy_threshold, fuzzy_method,
-                         verbose))
+                         aggregates, verbose))
   }
 
   if (!is.character(backend) || length(backend) == 0L) {
@@ -111,7 +128,8 @@ taxify <- function(x,
 
   if (length(backend) == 1L) {
     be <- resolve_backend(backend)
-    return(taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method, verbose))
+    return(taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
+                         aggregates, verbose))
   }
 
   # Multi-backend fallback chain
@@ -119,7 +137,7 @@ taxify <- function(x,
                                 length(x), length(backend),
                                 paste(backend, collapse = " -> ")))
 
-  names_df <- clean_names(x)
+  names_df <- attach_agg_key(clean_names(x), aggregates)
   result <- NULL
 
   for (be_name in backend) {
@@ -157,6 +175,9 @@ taxify <- function(x,
         cleaned = names_df$cleaned[unmatched_idx],
         is_hybrid = names_df$is_hybrid[unmatched_idx],
         qualifier = names_df$qualifier[unmatched_idx],
+        qualifier_position = names_df$qualifier_position[unmatched_idx],
+        is_aggregate = names_df$is_aggregate[unmatched_idx],
+        agg_key = names_df$agg_key[unmatched_idx],
         genus_only = names_df$genus_only[unmatched_idx],
         hybrid_name = names_df$hybrid_name[unmatched_idx],
         genus_abbrev = names_df$genus_abbrev[unmatched_idx],
@@ -206,6 +227,10 @@ taxify <- function(x,
   if (!"taxon_group"   %in% names(result)) result$taxon_group   <- NA_character_
   if (!"life_form"     %in% names(result)) result$life_form     <- NA_character_
 
+  # Carry input-side qualifier info (rows are 1:1 with names_df)
+  result$qualifier          <- names_df$qualifier
+  result$qualifier_position <- names_df$qualifier_position
+
   result <- enrich_with_register(result, names_df, backend)
   rownames(result) <- NULL
   as_taxify_result(result, backend = backend)
@@ -223,11 +248,11 @@ taxify <- function(x,
 #' @return A data.frame with the 16-column output schema.
 #' @noRd
 taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
-                          verbose) {
+                          aggregates = "preserve", verbose) {
   bb_path <- ensure_backbone(be, verbose = verbose)
 
   if (verbose) message(sprintf("Matching %d names...", length(x)))
-  names_df <- clean_names(x)
+  names_df <- attach_agg_key(clean_names(x), aggregates)
 
   result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
                              fuzzy_method, verbose = verbose)
@@ -245,9 +270,37 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   if (!"taxon_group"   %in% names(result)) result$taxon_group   <- NA_character_
   if (!"life_form"     %in% names(result)) result$life_form     <- NA_character_
 
+  # Carry input-side qualifier info (rows are 1:1 with names_df)
+  result$qualifier          <- names_df$qualifier
+  result$qualifier_position <- names_df$qualifier_position
+
   result <- enrich_with_register(result, names_df, be$name)
   rownames(result) <- NULL
   as_taxify_result(result, backend = be$name)
+}
+
+
+#' Attach the aggregate-taxon lookup key to a cleaned-names frame
+#'
+#' In preserve mode, aggregate-concept rows get `agg_key = "<binomial> aggr."`,
+#' the form that the aggregate-bearing backbones (Euro+Med, WoRMS) use for their
+#' dedicated aggregate taxa. `match_exact_compiled()` tries this key before the
+#' binomial. In collapse mode every `agg_key` is `NA`, so the aggregate pass is a
+#' no-op and aggregates match as plain binomials.
+#'
+#' @param names_df Data.frame from `clean_names()`.
+#' @param aggregates `"preserve"` or `"collapse"`.
+#' @return `names_df` with an `agg_key` column.
+#' @noRd
+attach_agg_key <- function(names_df, aggregates = "preserve") {
+  names_df$agg_key <- NA_character_
+  if (identical(aggregates, "preserve")) {
+    rows <- which(names_df$is_aggregate & !is.na(names_df$cleaned))
+    if (length(rows)) {
+      names_df$agg_key[rows] <- paste0(names_df$cleaned[rows], " aggr.")
+    }
+  }
+  names_df
 }
 
 

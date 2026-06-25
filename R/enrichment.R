@@ -332,6 +332,51 @@ taxify_download_enrichment <- function(enrichment,
 # ---- Shared enrichment join helpers ----
 
 
+#' Build aggregate-aware candidate join keys for a species-level enrichment
+#'
+#' Encodes the trait-inheritance rule: traits flow down the hierarchy
+#' (aggregate -> species), never up. An aggregate-concept query takes only the
+#' aggregate key (`"<binomial> aggr."`); a species query takes its own name
+#' first, then the aggregate key as a fallback (case 3, inherit down). Aggregate
+#' markers are canonicalized so the keys line up with enrichment sources
+#' regardless of spelling.
+#'
+#' @param acc Character vector of accepted names (the join column).
+#' @param qualifier Character vector of canonical qualifiers from `taxify()`
+#'   (`NA` when absent — every row is then treated as a species query).
+#' @return A list with `primary` and `inherit` character vectors (same length
+#'   as `acc`); `inherit` is `NA` for aggregate queries.
+#' @noRd
+agg_join_keys <- function(acc, qualifier) {
+  if (is.null(qualifier)) qualifier <- rep(NA_character_, length(acc))
+  is_agg   <- !is.na(qualifier) & qualifier %in% .aggregate_tokens
+  binom    <- strip_agg_marker(acc)
+  agg_form <- ifelse(!is.na(binom), paste0(binom, " aggr."), NA_character_)
+  list(
+    primary = ifelse(is_agg, agg_form, canon_agg_marker(acc)),
+    inherit = ifelse(is_agg, NA_character_, agg_form)
+  )
+}
+
+
+#' Resolve aggregate-aware join keys against an enrichment key vector
+#'
+#' Picks the primary-key hit when present, else the downward-inheritance hit.
+#'
+#' @param keys List from `agg_join_keys()`.
+#' @param enr_key Character vector of canonicalized enrichment lookup keys.
+#' @return A list with `idx` (row index into `enr_key` per query row, `NA` for
+#'   no match) and `inherited` (logical; `TRUE` where the value came from the
+#'   aggregate fallback rather than an exact same-level hit).
+#' @noRd
+agg_select_idx <- function(keys, enr_key) {
+  idx_p <- match(keys$primary, enr_key)
+  idx_i <- match(keys$inherit, enr_key)
+  inherited <- is.na(idx_p) & !is.na(idx_i)
+  list(idx = ifelse(!is.na(idx_p), idx_p, idx_i), inherited = inherited)
+}
+
+
 #' In-memory enrichment join from a data.frame (emergency fallback)
 #'
 #' Joins an in-memory data.frame (from `enrichment_emergency_fallback()`) to
@@ -376,9 +421,23 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
                                "emergency", 0L, license = lic))
   }
 
-  # Vectorized fill via match()
-  df <- df[!duplicated(df[[df_join_key]]), , drop = FALSE]
-  idx <- match(x[[join_col]], df[[df_join_key]])
+  # Resolve a per-row index into df (aggregate-aware for species-level joins)
+  if (join_col == "accepted_name") {
+    keys    <- agg_join_keys(x[[join_col]], x[["qualifier"]])
+    enr_key <- canon_agg_marker(df[[df_join_key]])
+    keep    <- !duplicated(enr_key)
+    df      <- df[keep, , drop = FALSE]
+    enr_key <- enr_key[keep]
+    sel <- agg_select_idx(keys, enr_key)
+    idx <- sel$idx
+    if (isTRUE(getOption("taxify.trait_provenance", FALSE))) {
+      x[[paste0(enrichment_name, "_inherited")]] <- sel$inherited
+    }
+  } else {
+    df  <- df[!duplicated(df[[df_join_key]]), , drop = FALSE]
+    idx <- match(x[[join_col]], df[[df_join_key]])
+  }
+
   matched <- which(!is.na(idx))
   for (out_col in names(col_map)) {
     src_col <- col_map[[out_col]]
@@ -621,14 +680,6 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   # Filter col_map to available columns
   col_map <- col_map[col_map %in% available_src]
 
-  # Build temp .vtr with unique lookup values
-  names_unique <- unique(x[[join_col]][valid_rows])
-  names_df <- data.frame(lookup_name = names_unique, stringsAsFactors = FALSE)
-  tmp <- tempfile(fileext = ".vtr")
-  on.exit(unlink(tmp), add = TRUE)
-
-  vectra::write_vtr(names_df, tmp)
-
   # Determine join key in enrichment .vtr
   # For genus-level enrichments, prefer the "genus" column when join_col is
   # "genus". Otherwise fall back to canonical_name / accepted_name.
@@ -644,6 +695,25 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
       enrichment_name, join_col
     ), call. = FALSE)
   }
+
+  # Species-level joins are aggregate-aware: an aggregate query reaches the
+  # aggregate trait row, and a species query inherits an aggregate-level trait
+  # when no species-level one exists (downward inheritance only). Genus-level
+  # joins keep plain exact matching.
+  agg_aware <- join_col == "accepted_name"
+  if (agg_aware) {
+    keys <- agg_join_keys(x[[join_col]], x[["qualifier"]])
+    lookup_pool <- unique(c(keys$primary[valid_rows], keys$inherit[valid_rows]))
+    lookup_pool <- lookup_pool[!is.na(lookup_pool)]
+  } else {
+    lookup_pool <- unique(x[[join_col]][valid_rows])
+  }
+
+  # Build temp .vtr with the lookup keys
+  names_df <- data.frame(lookup_name = lookup_pool, stringsAsFactors = FALSE)
+  tmp <- tempfile(fileext = ".vtr")
+  on.exit(unlink(tmp), add = TRUE)
+  vectra::write_vtr(names_df, tmp)
 
   # Select only needed columns from enrichment .vtr
   select_cols <- unique(c(join_key, unname(col_map)))
@@ -662,9 +732,22 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
                                license = lic))
   }
 
-  # Vectorized fill via match()
-  joined <- joined[!duplicated(joined$lookup_name), , drop = FALSE]
-  idx <- match(x[[join_col]], joined$lookup_name)
+  # Resolve a per-row index into `joined`
+  if (agg_aware) {
+    enr_key <- canon_agg_marker(joined$lookup_name)
+    keep    <- !duplicated(enr_key)
+    joined  <- joined[keep, , drop = FALSE]
+    enr_key <- enr_key[keep]
+    sel <- agg_select_idx(keys, enr_key)
+    idx <- sel$idx
+    if (isTRUE(getOption("taxify.trait_provenance", FALSE))) {
+      x[[paste0(enrichment_name, "_inherited")]] <- sel$inherited
+    }
+  } else {
+    joined <- joined[!duplicated(joined$lookup_name), , drop = FALSE]
+    idx <- match(x[[join_col]], joined$lookup_name)
+  }
+
   matched <- which(!is.na(idx))
   for (out_col in names(col_map)) {
     src_col <- col_map[[out_col]]

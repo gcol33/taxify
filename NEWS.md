@@ -1,3 +1,35 @@
+# taxify 0.3.0
+
+## Breaking changes
+
+* `add_qualifier_info()` has been removed. `taxify()` now reports the qualifier
+  natively (see New features), so a separate parsing pass is no longer needed.
+  Replace `taxify(x) |> add_qualifier_info()` with `taxify(x)`. Note the integer
+  `qualifier_position` (a character index) is replaced by a two-value
+  `"genus"` / `"species"` placement.
+
+## New features
+
+* Species aggregates are now handled as a distinct concept. `taxify()` gains an
+  `aggregates` argument, default `"preserve"`: an aggregate name (`"... agg."`,
+  `"... s.l."`) matches the backbone's aggregate taxon where one exists (for
+  example in Euro+Med and WoRMS), otherwise it falls back to the binomial
+  species. `aggregates = "collapse"` keeps the previous behaviour of stripping
+  the marker and matching the binomial.
+* `taxify()` output carries two new columns. `qualifier` is the canonical
+  taxonomic qualifier with spelling variants folded to one token (`"aggr."`,
+  `"agg"` and `"sensu lato"` map to `"agg."` / `"s.l."`). `qualifier_position`
+  is `"genus"` for a leading prefix (`"Cf. Pinus sylvestris"`) and `"species"`
+  for an inline or trailing qualifier (`"Pinus cf. sylvestris"`,
+  `"Rubus fruticosus agg."`).
+* Trait enrichment is aggregate-aware. Traits inherit down the taxonomic
+  hierarchy: a species query receives an aggregate-level trait when no
+  species-level value exists (for example EIVE indicator values keyed only at
+  `"... aggr."`), and an aggregate query reaches the aggregate-level trait.
+  A single species' trait is never propagated up to the aggregate. Set
+  `options(taxify.trait_provenance = TRUE)` to add a `<enrichment>_inherited`
+  flag marking the inherited values.
+
 # taxify 0.2.15
 
 ## Bug fixes

@@ -325,8 +325,22 @@ match_exact_compiled <- function(result, names_df, bb_path, col_map) {
     fill_compiled_matches(result, hits, match_type, col_map)
   }
 
+  # --- Pass A: Aggregate taxon (preserve mode) ---
+  # For aggregate-concept inputs, match the dedicated aggregate taxon
+  # ("<binomial> aggr.") before falling back to the binomial species. agg_key is
+  # populated only in preserve mode; NA (or absent) otherwise, so this pass is a
+  # no-op under aggregates = "collapse".
+  agg_key <- names_df$agg_key
+  if (!is.null(agg_key)) {
+    agg_mask <- has_name & !is.na(agg_key) & is.na(result$match_type)
+    if (any(agg_mask)) {
+      result <- lookup_and_fill(result, agg_key[agg_mask], which(agg_mask),
+                                name_col, "exact")
+    }
+  }
+
   # --- Pass 0: Genus-only ---
-  genus_mask <- has_name & genus_only
+  genus_mask <- has_name & genus_only & is.na(result$match_type)
   if (any(genus_mask)) {
     result <- lookup_and_fill(result, cleaned[genus_mask], which(genus_mask),
                               name_col, "exact")

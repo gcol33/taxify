@@ -10,6 +10,7 @@ taxify(
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
   fuzzy_method = c("dl", "levenshtein", "jw"),
+  aggregates = c("preserve", "collapse"),
   verbose = TRUE
 )
 }
@@ -36,6 +37,14 @@ regardless of name length. Not supported for \code{fuzzy_method = "jw"}.
 \item{fuzzy_method}{Character. One of \code{"dl"} (Damerau-Levenshtein,
 default), \code{"levenshtein"}, or \code{"jw"} (Jaro-Winkler).}
 
+\item{aggregates}{Character. How to treat species aggregates (names with an
+\code{agg.} / \code{s.l.} qualifier). \code{"preserve"} (default) keeps the aggregate as
+its own concept: it matches the backbone's aggregate taxon
+(\code{"<binomial> aggr."}) where one exists, otherwise falls back to the
+binomial. \code{"collapse"} strips the marker and matches the binomial species,
+the way any non-aggregate name is matched. Either way the qualifier is
+recorded in the \code{qualifier} column.}
+
 \item{verbose}{Logical. Print progress messages. Default \code{TRUE}.}
 }
 \value{
@@ -58,6 +67,14 @@ author, so \code{accepted_name} and \code{accepted_authorship} together form the
 accepted name's full citation.}
 \item{is_synonym}{Logical. Was the match a synonym?}
 \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
+\item{qualifier}{Canonical taxonomic qualifier found in the input name
+(\code{"cf."}, \code{"aff."}, \code{"agg."}, \code{"s.l."}, \code{"s.str."}, \code{"sp."}, ...), or
+\code{NA}. Spelling variants are folded to one token (\code{"aggr."}, \code{"agg"} and
+\code{"sensu lato"} all map to \code{"agg."}/\code{"s.l."}).}
+\item{qualifier_position}{\code{"genus"} when the qualifier leads the name and
+qualifies the whole name (e.g. \code{"Cf. Pinus sylvestris"}), \code{"species"}
+when it qualifies the species (inline \code{cf.} or trailing \code{agg.}), \code{NA}
+when there is no qualifier.}
 \item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, \code{"abbrev"}
 (an abbreviated genus such as \code{"Q. robur"} resolved via genus initial
 plus epithet), or \code{"none"}.}
