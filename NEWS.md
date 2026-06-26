@@ -2,6 +2,54 @@
 
 ## New features
 
+* New `inspect()` flags probable typos and other anomalies in a name list and
+  returns only the anomalous rows, each labelled with what stands out and, where
+  known, the name to use instead. `inspect()` does not match names against
+  backbones itself -- that is `taxify()`'s job. On a character vector it runs the
+  checks that need no matching: `unknown` (the genus is not in the genus register,
+  the union of all 12 backbones' genera, so no backbone recognises it -- a real
+  "probably not a name"), `near_duplicate` (a near-twin of a more frequent name in
+  the same list, computed from the list alone, so it catches typos in names no
+  backbone contains), and `outlier_group` (a name whose kingdom group is a tiny
+  minority of an otherwise coherent list -- the lone animal or fungus among
+  plants). To also surface the match-based anomalies, opt in with
+  `backbones = TRUE` (matches against every installed backbone, listed in the
+  report header) or match yourself first and inspect the result --
+  `taxify(x) |> inspect()` -- which adds `typo` (fuzzy-corrected
+  spelling), `synonym` (outdated name), `ambiguous` (homonym), `case`, and the
+  geographic checks `geographic` (a species with no WCVP record in a declared
+  `region`/`coords`) and `out_of_range` (no region declared, yet the species'
+  range falls outside the list's main TDWG continents; skipped for globally
+  spread lists). Rows are ordered most-notable first and carry a `suggestion`;
+  each gets a `tier` describing what it needs, not how bad it is: `unresolved`
+  (no usable name), `review` (a name is there but its identity is uncertain), or
+  `note` (correct, optional cleanup) -- an anomaly may be intended.
+  `inspect()` is read-only: it never alters the input or applies a correction.
+  Narrow with `min_tier`. The list-context labels cannot apply to a single name,
+  so `inspect()` on one name warns.
+* `taxify()` gains a `region` argument for geographically constrained fuzzy
+  matching. Pass TDWG botanical regions to restrict **fuzzy** candidates to
+  species with WCVP records in those regions; exact matches are always kept.
+  `region` accepts Level 3 codes (`region = "BGM"`) or region names at any
+  level, matched case- and accent-insensitively against a bundled WGSRPD
+  crosswalk: a botanical country (`"Belgium"`), a Level 2 region
+  (`"Middle Europe"`), or a Level 1 continent (`"Europe"`, expanded to all its
+  codes). The new `coords` argument takes a `c(lon, lat)` pair or a
+  matrix/data.frame of coordinates and maps them to regions by point-in-polygon
+  against the WGSRPD Level 3 boundaries (downloaded and cached on first use);
+  `region` and `coords` are unioned. `coords` also accepts an `sf`/`sfc` object
+  or a `terra` `SpatVector` of points (reprojected automatically). The point-in-
+  polygon test uses `terra` or `sf` when installed and falls back to a native
+  implementation otherwise; the engine can be forced with
+  `options(taxify.pip_engine = "terra" | "sf" | "native")`. The filter only narrows genuinely
+  ambiguous fuzzy candidates -- a candidate is dropped only when the same input
+  name has another candidate that is in-region or has no WCVP range data -- so
+  non-plant matches are never affected and a name whose only candidate is
+  out-of-region is still returned. The companion `range` argument selects which
+  WCVP statuses count as in-region: `"present"` (default, any record),
+  `"native"`, or `"introduced"`.
+* New `taxify_regions()` lists the WGSRPD Level 3 botanical regions (codes and
+  names) used by `region` and by `add_wcvp()`, with an optional search term.
 * Two new backbone backends: `"fishbase"` (FishBase, ~36k accepted fish
   species) and `"sealifebase"` (SeaLifeBase, ~100k accepted non-fish aquatic
   species). Both resolve synonyms to their accepted names and carry kingdom /

@@ -9,12 +9,13 @@ add_wcvp(x, region, verbose = TRUE)
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
 
-\item{region}{Character. TDWG Level 2 region code(s), or \code{"all"}.
+\item{region}{Character. TDWG Level 3 region code(s), or \code{"all"}. See
+\code{\link[=taxify_regions]{taxify_regions()}} for the full list of codes.
 \itemize{
-\item Single code (e.g., \code{"EUR"}): adds \code{native_status} column
-(no suffix).
-\item Multiple codes (e.g., \code{c("EUR", "NAM")}): adds
-\code{native_status_EUR}, \code{native_status_NAM}.
+\item Single code (e.g., \code{"BGM"} for Belgium): adds \code{native_status}
+column (no suffix).
+\item Multiple codes (e.g., \code{c("BGM", "GER")}): adds
+\code{native_status_BGM}, \code{native_status_GER}.
 \item \code{"all"}: adds one column per region in the dataset.
 }}
 

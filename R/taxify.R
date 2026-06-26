@@ -31,6 +31,37 @@
 #'   binomial. `"collapse"` strips the marker and matches the binomial species,
 #'   the way any non-aggregate name is matched. Either way the qualifier is
 #'   recorded in the `qualifier` column.
+#' @param region TDWG botanical region(s) to constrain fuzzy matching to, or
+#'   `NULL` (default) for no geographic constraint. Accepts Level 3 codes
+#'   (`"BGM"`, `c("BGM", "GER")`) or region names at any level, matched case-
+#'   and accent-insensitively against the bundled WGSRPD crosswalk: a Level 3
+#'   name (`"Belgium"`), a Level 2 region (`"Middle Europe"`), or a Level 1
+#'   continent (`"Europe"`, which expands to all its codes). See
+#'   [taxify_regions()] for the full list. When set, **fuzzy** candidates are
+#'   restricted to species with WCVP records in the region(s); exact matches are
+#'   always kept. The filter only narrows genuinely ambiguous fuzzy candidates:
+#'   a candidate is dropped only when the same input name has another candidate
+#'   that is in-region or has no WCVP range data, so non-plant matches (no WCVP
+#'   coverage) are never affected and a name whose only candidate is
+#'   out-of-region is still returned. WCVP is vascular plants only, so this
+#'   disambiguates plant names.
+#' @param coords Coordinates to constrain fuzzy matching to, mapped to TDWG
+#'   regions by point-in-polygon and unioned with `region`. A single
+#'   `c(lon, lat)` pair, a matrix/data.frame of longitude/latitude columns
+#'   (named `lon`/`lat` or `x`/`y`, else the first two columns as lon, lat), or
+#'   a point-geometry spatial object (an \pkg{sf}/`sfc` object or a \pkg{terra}
+#'   `SpatVector`, reprojected to longitude/latitude automatically). `NULL`
+#'   (default) for none. The WGSRPD boundary file is downloaded once and cached;
+#'   coordinate lookup needs that download (or a prior cache). The point-in-
+#'   polygon test uses \pkg{terra} or \pkg{sf} when installed, otherwise a
+#'   native fallback; force the engine with
+#'   `options(taxify.pip_engine = "terra" | "sf" | "native")`.
+#' @param range Character. Which WCVP statuses count as in-region when `region`
+#'   or `coords` is set. `"present"` (default) accepts any record (native,
+#'   introduced, or extinct) -- the right choice for name disambiguation.
+#'   `"native"` accepts only native records, `"introduced"` only introduced
+#'   (alien) records; both fold an ecological filter into matching and are for
+#'   callers who want that. Ignored when no region is set.
 #' @param verbose Logical. Print progress messages. Default `TRUE`.
 #'
 #' @return A data.frame with one row per input name and the following columns:
@@ -87,6 +118,16 @@
 #' # Disable fuzzy matching
 #' taxify("Quercus robus", fuzzy = FALSE)
 #'
+#' # Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,
+#' # or a region name resolved via the bundled WGSRPD crosswalk
+#' taxify("Quercus robus", region = "EUR")
+#' taxify("Quercus robus", region = "Belgium")
+#'
+#' # Constrain by coordinates (downloads WGSRPD boundaries on first use)
+#' \dontrun{
+#' taxify("Quercus robus", coords = c(4.35, 50.85))
+#' }
+#'
 #' # Fallback chain: try WFO first, then COL for unmatched
 #' taxify(c("Quercus robur", "Panthera leo"),
 #'        backend = c("wfo", "col"))
@@ -100,10 +141,15 @@ taxify <- function(x,
                    fuzzy_threshold = 0.2,
                    fuzzy_method = c("dl", "levenshtein", "jw"),
                    aggregates = c("preserve", "collapse"),
+                   region = NULL,
+                   coords = NULL,
+                   range = c("present", "native", "introduced"),
                    verbose = TRUE) {
 
   fuzzy_method <- match.arg(fuzzy_method)
   aggregates   <- match.arg(aggregates)
+  range        <- match.arg(range)
+  region       <- resolve_region(region, coords, verbose = verbose)
 
   if (!is.character(x)) {
     stop("x must be a character vector", call. = FALSE)
@@ -116,7 +162,8 @@ taxify <- function(x,
   if (inherits(backend, "taxify_backend")) {
     ensure_backends_current(backend$name, verbose = verbose)
     return(taxify_single(x, backend, fuzzy, fuzzy_threshold, fuzzy_method,
-                         aggregates, verbose))
+                         aggregates, region = region, range_mode = range,
+                         verbose = verbose))
   }
 
   if (!is.character(backend) || length(backend) == 0L) {
@@ -129,7 +176,8 @@ taxify <- function(x,
   if (length(backend) == 1L) {
     be <- resolve_backend(backend)
     return(taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
-                         aggregates, verbose))
+                         aggregates, region = region, range_mode = range,
+                         verbose = verbose))
   }
 
   # Multi-backend fallback chain
@@ -150,7 +198,8 @@ taxify <- function(x,
                                     be_name, nrow(names_df)))
 
       result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
-                                 fuzzy_method, verbose = verbose,
+                                 fuzzy_method, region = region,
+                                 range_mode = range, verbose = verbose,
                                  label = be_name)
 
       matched <- !is.na(result$match_type)
@@ -186,6 +235,7 @@ taxify <- function(x,
 
       sub_result <- run_match_stages(be, sub_names_df, bb_path, fuzzy,
                                      fuzzy_threshold, fuzzy_method,
+                                     region = region, range_mode = range,
                                      verbose = verbose, label = be_name)
 
       # Merge sub_result back into main result
@@ -248,14 +298,16 @@ taxify <- function(x,
 #' @return A data.frame with the 16-column output schema.
 #' @noRd
 taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
-                          aggregates = "preserve", verbose) {
+                          aggregates = "preserve", region = NULL,
+                          range_mode = "present", verbose) {
   bb_path <- ensure_backbone(be, verbose = verbose)
 
   if (verbose) message(sprintf("Matching %d names...", length(x)))
   names_df <- attach_agg_key(clean_names(x), aggregates)
 
   result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
-                             fuzzy_method, verbose = verbose)
+                             fuzzy_method, region = region,
+                             range_mode = range_mode, verbose = verbose)
 
   matched <- !is.na(result$match_type)
   result$backend <- ifelse(matched, be$name, NA_character_)
@@ -321,7 +373,9 @@ attach_agg_key <- function(names_df, aggregates = "preserve") {
 #' @return The match result data.frame.
 #' @noRd
 run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
-                             fuzzy_method, verbose = FALSE, label = NULL) {
+                             fuzzy_method, region = NULL,
+                             range_mode = "present", verbose = FALSE,
+                             label = NULL) {
   pre <- if (is.null(label)) "  " else sprintf("  [%s] ", label)
   n_unresolved <- function(res) {
     sum(is.na(res$match_type) & !is.na(names_df$cleaned))
@@ -338,7 +392,8 @@ run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
   if (fuzzy && n_un > 0L) {
     if (verbose) message(sprintf("%sFuzzy matching %d unmatched...", pre, n_un))
     result <- match_fuzzy(be, result, bb_path, method = fuzzy_method,
-                          threshold = fuzzy_threshold, names_df = names_df)
+                          threshold = fuzzy_threshold, names_df = names_df,
+                          region = region, range_mode = range_mode)
   }
   result
 }

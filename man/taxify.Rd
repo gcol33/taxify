@@ -11,6 +11,9 @@ taxify(
   fuzzy_threshold = 0.2,
   fuzzy_method = c("dl", "levenshtein", "jw"),
   aggregates = c("preserve", "collapse"),
+  region = NULL,
+  coords = NULL,
+  range = c("present", "native", "introduced"),
   verbose = TRUE
 )
 }
@@ -44,6 +47,40 @@ its own concept: it matches the backbone's aggregate taxon
 binomial. \code{"collapse"} strips the marker and matches the binomial species,
 the way any non-aggregate name is matched. Either way the qualifier is
 recorded in the \code{qualifier} column.}
+
+\item{region}{TDWG botanical region(s) to constrain fuzzy matching to, or
+\code{NULL} (default) for no geographic constraint. Accepts Level 3 codes
+(\code{"BGM"}, \code{c("BGM", "GER")}) or region names at any level, matched case-
+and accent-insensitively against the bundled WGSRPD crosswalk: a Level 3
+name (\code{"Belgium"}), a Level 2 region (\code{"Middle Europe"}), or a Level 1
+continent (\code{"Europe"}, which expands to all its codes). See
+\code{\link[=taxify_regions]{taxify_regions()}} for the full list. When set, \strong{fuzzy} candidates are
+restricted to species with WCVP records in the region(s); exact matches are
+always kept. The filter only narrows genuinely ambiguous fuzzy candidates:
+a candidate is dropped only when the same input name has another candidate
+that is in-region or has no WCVP range data, so non-plant matches (no WCVP
+coverage) are never affected and a name whose only candidate is
+out-of-region is still returned. WCVP is vascular plants only, so this
+disambiguates plant names.}
+
+\item{coords}{Coordinates to constrain fuzzy matching to, mapped to TDWG
+regions by point-in-polygon and unioned with \code{region}. A single
+\code{c(lon, lat)} pair, a matrix/data.frame of longitude/latitude columns
+(named \code{lon}/\code{lat} or \code{x}/\code{y}, else the first two columns as lon, lat), or
+a point-geometry spatial object (an \pkg{sf}/\code{sfc} object or a \pkg{terra}
+\code{SpatVector}, reprojected to longitude/latitude automatically). \code{NULL}
+(default) for none. The WGSRPD boundary file is downloaded once and cached;
+coordinate lookup needs that download (or a prior cache). The point-in-
+polygon test uses \pkg{terra} or \pkg{sf} when installed, otherwise a
+native fallback; force the engine with
+\code{options(taxify.pip_engine = "terra" | "sf" | "native")}.}
+
+\item{range}{Character. Which WCVP statuses count as in-region when \code{region}
+or \code{coords} is set. \code{"present"} (default) accepts any record (native,
+introduced, or extinct) -- the right choice for name disambiguation.
+\code{"native"} accepts only native records, \code{"introduced"} only introduced
+(alien) records; both fold an ecological filter into matching and are for
+callers who want that. Ignored when no region is set.}
 
 \item{verbose}{Logical. Print progress messages. Default \code{TRUE}.}
 }
@@ -112,6 +149,16 @@ taxify(c("Quercus robur", "Pinus sylvestris"))
 
 # Disable fuzzy matching
 taxify("Quercus robus", fuzzy = FALSE)
+
+# Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,
+# or a region name resolved via the bundled WGSRPD crosswalk
+taxify("Quercus robus", region = "EUR")
+taxify("Quercus robus", region = "Belgium")
+
+# Constrain by coordinates (downloads WGSRPD boundaries on first use)
+\dontrun{
+taxify("Quercus robus", coords = c(4.35, 50.85))
+}
 
 # Fallback chain: try WFO first, then COL for unmatched
 taxify(c("Quercus robur", "Panthera leo"),

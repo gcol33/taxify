@@ -28,7 +28,9 @@ Suggests:
     openxlsx2,
     rmarkdown,
     RSQLite,
+    sf,
     taxifydb,
+    terra,
     testthat (>= 3.0.0),
     TR8
 VignetteBuilder: knitr

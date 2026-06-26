@@ -4,12 +4,13 @@
 #' data to a [taxify()] result, filtered by TDWG botanical region.
 #'
 #' @param x A data.frame returned by [taxify()].
-#' @param region Character. TDWG Level 2 region code(s), or `"all"`.
+#' @param region Character. TDWG Level 3 region code(s), or `"all"`. See
+#'   [taxify_regions()] for the full list of codes.
 #'   \itemize{
-#'     \item Single code (e.g., `"EUR"`): adds `native_status` column
-#'       (no suffix).
-#'     \item Multiple codes (e.g., `c("EUR", "NAM")`): adds
-#'       `native_status_EUR`, `native_status_NAM`.
+#'     \item Single code (e.g., `"BGM"` for Belgium): adds `native_status`
+#'       column (no suffix).
+#'     \item Multiple codes (e.g., `c("BGM", "GER")`): adds
+#'       `native_status_BGM`, `native_status_GER`.
 #'     \item `"all"`: adds one column per region in the dataset.
 #'   }
 #' @param verbose Logical. Default `TRUE`.
@@ -38,7 +39,7 @@
 #' @export
 add_wcvp <- function(x, region, verbose = TRUE) {
   if (missing(region)) {
-    stop("'region' is required. Use a TDWG Level 2 code (e.g., \"EUR\") or \"all\".",
+    stop("'region' is required. Use a TDWG Level 3 code (e.g., \"BGM\") or \"all\".",
          call. = FALSE)
   }
   enrich_by_group(

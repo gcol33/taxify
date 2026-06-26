@@ -165,6 +165,25 @@ taxify_example_data <- function() {
 }
 
 
+#' Names of backbones whose compiled .vtr is present locally
+#'
+#' A no-download check: returns the backend names whose `.vtr` exists in the
+#' current data directory, in canonical order. Used by [inspect()] when
+#' `backbones = TRUE` to match against every installed backbone.
+#'
+#' @return Character vector of installed backend names (possibly empty).
+#' @noRd
+installed_backbones <- function() {
+  known <- c("wfo", "col", "gbif", "itis", "ncbi", "ott", "worms",
+             "fungorum", "algaebase", "euromed", "fishbase", "sealifebase")
+  ok <- vapply(known, function(nm) {
+    p <- versioned_vtr_path(nm, "latest")
+    file.exists(p) && is_compiled_backbone(p)
+  }, logical(1L))
+  known[ok]
+}
+
+
 #' Ensure a backbone path is cached (from cache, disk, or download)
 #'
 #' Resolves the path for `version = "latest"` using the versioned directory

@@ -81,7 +81,8 @@ match_exact <- function(backend, names_df, backbone, ...) {
 #' @noRd
 match_fuzzy <- function(backend, unmatched_df, backbone,
                         method = "dl", threshold = 0.2,
-                        names_df = NULL, ...) {
+                        names_df = NULL, region = NULL,
+                        range_mode = "present", ...) {
   UseMethod("match_fuzzy")
 }
 
@@ -119,7 +120,8 @@ match_exact.taxify_backend <- function(backend, names_df, backbone, ...) {
 #' @exportS3Method
 match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
                                        method = "dl", threshold = 0.2,
-                                       names_df = NULL, ...) {
+                                       names_df = NULL, region = NULL,
+                                       range_mode = "present", ...) {
   bb_path <- backbone
   result  <- unmatched_df
   col_map <- backend$col_map
@@ -129,11 +131,13 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
   }
 
   result <- fuzzy_match_via_join(result, names_df, bb_path, method, threshold,
-                                 col_map)
+                                 col_map, region = region,
+                                 range_mode = range_mode)
 
   if (isTRUE(backend$prefix_fallback)) {
     result <- fuzzy_match_prefix_blocked(result, names_df, bb_path, method,
-                                         threshold, col_map)
+                                         threshold, col_map, region = region,
+                                         range_mode = range_mode)
   }
 
   result
@@ -504,7 +508,8 @@ fill_compiled_matches <- function(result, matches, match_type, col_map) {
 #' @return The updated result data.frame.
 #' @noRd
 fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
-                                 col_map) {
+                                 col_map, region = NULL,
+                                 range_mode = "present") {
   unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
   if (length(unmatched_rows) == 0L) return(result)
 
@@ -576,7 +581,10 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
 
   if (nrow(matches) > 0L) {
     matches <- standardize_pick_cols(matches, col_map)
+    matches <- filter_fuzzy_by_region(matches, region, range_mode)
+  }
 
+  if (nrow(matches) > 0L) {
     best <- pick_best_vec(matches)
     best <- dedup_fuzzy_targets(best, id_col = col_map$id)
     idx <- best$row_idx
@@ -658,7 +666,8 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 #' @return The updated result data.frame.
 #' @noRd
 fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
-                                       threshold, col_map) {
+                                       threshold, col_map, region = NULL,
+                                       range_mode = "present") {
   unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
   if (length(unmatched_rows) == 0L) return(result)
 
@@ -715,7 +724,10 @@ fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
 
   if (nrow(matches) > 0L) {
     matches <- standardize_pick_cols(matches, col_map)
+    matches <- filter_fuzzy_by_region(matches, region, range_mode)
+  }
 
+  if (nrow(matches) > 0L) {
     best <- pick_best_vec(matches)
     best <- dedup_fuzzy_targets(best, id_col = col_map$id)
     idx <- best$row_idx
