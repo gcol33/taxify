@@ -1,4 +1,4 @@
-# taxify (development version)
+# taxify 0.3.1
 
 ## New features
 
