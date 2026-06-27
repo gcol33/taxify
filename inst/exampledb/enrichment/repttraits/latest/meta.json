@@ -1,0 +1,18 @@
+{
+  "name": "repttraits",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "oskyrko2024repttraits",
+    "type": "article",
+    "authors": "Oskyrko O, Mi C, Meiri S, Du W",
+    "year": "2024",
+    "title": "ReptTraits: a comprehensive dataset of ecological traits in reptiles",
+    "journal": "Scientific Data",
+    "volume": "11",
+    "pages": "243",
+    "doi": "10.1038/s41597-024-03079-5"
+  }
+}

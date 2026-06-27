@@ -159,6 +159,21 @@
       "source_url": "https://sealifebase.ropensci.org",
       "full_size": 28922945,
       "full_sha256": "db74b3e49aa84fb10149dbda301bffb72ffee53751de6bda6a9774a96766d7c4"
+    },
+    "reptiledb": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/reptiledb-2026.06/reptiledb.vtr",
+      "nrow": 50043,
+      "source_url": "http://reptile-database.reptarium.cz/interfaces/export/taxa.csv",
+      "citation": {
+        "key": "uetz2026reptiledb",
+        "type": "misc",
+        "authors": "Uetz P, Freed P, Aguilar R, Reyes F, Kudera J, Hosek J",
+        "year": "2026",
+        "title": "The Reptile Database",
+        "url": "http://www.reptile-database.org"
+      },
+      "license": "CC BY 4.0"
     }
   },
   "enrichments": {
@@ -1689,37 +1704,43 @@
       "license": "CC BY 4.0",
       "source_doi": "10.6084/m9.figshare.14891412"
     },
-    "lizard_traits": {
+    "repttraits": {
       "latest": "2026.06",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/lizard_traits.vtr",
-      "nrow": 12196,
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/repttraits.vtr",
+      "nrow": 12060,
       "source_url": "https://ndownloader.figshare.com/files/45408133",
       "source_format": "xlsx",
-      "source_version": "2018.1",
-      "species_col": "species",
+      "source_version": "1.2",
+      "species_col": "Species",
       "trait_cols": [
+        "biogeographic_realm",
+        "microhabitat",
+        "habitat_type",
+        "elevation_min_m",
+        "elevation_max_m",
+        "mean_annual_temp_c",
+        "insular_endemic",
         "body_mass_g",
         "svl_mm",
-        "tail_length_mm",
-        "clutch_size",
-        "clutch_frequency",
+        "total_length_mm",
         "longevity_yr",
         "diet",
-        "habitat",
-        "activity_time",
+        "reproductive_mode",
+        "clutch_size",
+        "active_time",
         "foraging_mode"
       ],
       "static": true,
       "citation": {
-        "key": "meiri2018lizards",
+        "key": "oskyrko2024repttraits",
         "type": "article",
-        "authors": "Meiri S",
-        "year": "2018",
-        "title": "Traits of lizards of the world: Variation around a successful evolutionary design",
-        "journal": "Global Ecology and Biogeography",
-        "volume": "27",
-        "pages": "1168-1172",
-        "doi": "10.1111/geb.12773"
+        "authors": "Oskyrko O, Mi C, Meiri S, Du W",
+        "year": "2024",
+        "title": "ReptTraits: a comprehensive dataset of ecological traits in reptiles",
+        "journal": "Scientific Data",
+        "volume": "11",
+        "pages": "243",
+        "doi": "10.1038/s41597-024-03079-5"
       },
       "license": "CC BY 4.0",
       "source_doi": "10.6084/m9.figshare.24572683"

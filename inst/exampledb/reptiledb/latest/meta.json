@@ -1,0 +1,6 @@
+{
+  "backend": "reptiledb",
+  "version": "example",
+  "nrow": 7,
+  "static": true
+}

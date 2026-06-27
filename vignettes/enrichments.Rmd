@@ -206,7 +206,7 @@ list_enrichments()
 
 The `static` column is worth paying attention to. Static enrichments
 (woodiness, PanTHERIA, AmphiBIO, EltonTraits, LEDA, Diaz traits,
-FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, Meiri lizard traits,
+FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, ReptTraits,
 LepTraits, AnimalTraits, NW European Arthropods) are based on published,
 version-locked datasets that have a single definitive release.
 These never trigger version checks, so they add zero network overhead to
@@ -252,7 +252,7 @@ taxify_download_enrichment(c(
   "elton_traits", "avonet", "pantheria", "amphibio",
   "common_names", "woodiness", "diaz_traits", "leda",
   "fungal_traits", "funguild", "algae_traits",
-  "fish_traits", "fishbase", "lizard_traits", "anage", "glonaf",
+  "fish_traits", "fishbase", "repttraits", "anage", "glonaf",
   "leptraits", "animaltraits", "arthropod_traits", "alien_first_records",
   "baseflor", "ecoflora", "floraweb"
 ))
@@ -1137,76 +1137,65 @@ updated periodically.
 
 ### Reptile enrichments
 
-#### Meiri lizard traits (Meiri 2018)
+#### ReptTraits (Oskyrko et al. 2024)
 
-The Meiri lizard trait database covers ~6,600 lizard species (Squamata,
-excluding snakes and amphisbaenians) with 10 life-history, morphological,
-and ecological traits. Lizards are the most species-rich group of
-non-avian reptiles, and this dataset provides the most comprehensive
-species-level trait compilation available for the group.
+ReptTraits covers 12,060 reptile species across all reptile groups: snakes,
+lizards, amphisbaenians, turtles, crocodiles, and the tuatara. It is built
+on the Reptile Database taxonomy, so it joins cleanly against the
+`reptiledb` backbone. Alongside body-size and life-history traits it carries
+a per-species distribution signal: biogeographic realm, elevation range, and
+mean climate.
 
-```{r lizard-traits}
-lizards <- taxify(c(
-  "Pogona vitticeps", "Lacerta agilis", "Iguana iguana",
-  "Varanus komodoensis", "Gekko gecko"
-))
+```{r repttraits}
+reptiles <- taxify(c(
+  "Pogona vitticeps", "Python regius", "Chelonia mydas",
+  "Naja naja", "Crocodylus niloticus"
+), backend = "reptiledb")
 
-lizards |> add_lizard_traits()
-#>            input_name lizard_body_mass_g lizard_svl_mm lizard_tail_length_mm lizard_clutch_size ...
-#> 1    Pogona vitticeps             350.0         230.0                 250.0               18.0 ...
-#> 2      Lacerta agilis              10.0          70.0                 100.0                8.0 ...
-#> 3       Iguana iguana            4000.0         450.0                 700.0               35.0 ...
-#> 4 Varanus komodoensis           70000.0        1500.0                1400.0               18.0 ...
-#> 5         Gekko gecko              60.0         140.0                 130.0                2.0 ...
+reptiles |> add_repttraits()
+#>             input_name biogeographic_realm habitat_type elevation_max_m body_mass_g  svl_mm reproductive_mode ...
+#> 1     Pogona vitticeps     Australo-Pacific      Desert/...             612       575.4   250         oviparous ...
+#> 2        Python regius          Afrotropic         Forest            1200      1610.6  1125         oviparous ...
+#> 3       Chelonia mydas              Marine       Wetlands              NA    230000.0  1500         oviparous ...
+#> 4            Naja naja            Oriental         Forest            1009      1683.5  1570         oviparous ...
+#> 5 Crocodylus niloticus          Afrotropic       Wetlands              NA    750000.0    NA         oviparous ...
 ```
 
-All columns are prefixed with `lizard_`:
+The distribution and environment columns are the per-species range signal:
 
-- `lizard_body_mass_g`: adult body mass in grams.
+- `biogeographic_realm`: the main biogeographic realm (Neotropic, Oriental,
+  Australo-Pacific, Afrotropic, Palearctic, Nearctic, Saharo-Sindian,
+  Madagascan, or Marine).
+- `microhabitat`: microhabitat use (terrestrial, saxicolous, arboreal,
+  fossorial, aquatic, and combinations).
+- `habitat_type`: broad habitat type(s) (forest, desert, grassland,
+  shrubland, savanna, wetlands).
+- `elevation_min_m`, `elevation_max_m`: recorded elevation range in metres.
+- `mean_annual_temp_c`: mean annual temperature across the range, degrees
+  Celsius.
+- `insular_endemic`: whether the species is insular/endemic.
 
-- `lizard_svl_mm`: snout-vent length in millimetres, the standard body
-  size measurement for reptiles (excluding the tail, which is frequently
-  lost and regenerated).
-- `lizard_tail_length_mm`: tail length in millimetres.
+This realm-level range is coarse. It is a useful filter for "where does this
+species broadly occur", but it is not a fine-grained (TDWG-level) range like
+the plant ranges that drive the `region` constraint in `taxify()`.
 
-- `lizard_clutch_size`: the mean number of eggs per clutch (or neonates
-  per litter for viviparous species).
-- `lizard_clutch_frequency`: the number of clutches produced per year.
+The morphology and life-history columns follow:
 
-- `lizard_longevity_yr`: maximum recorded longevity in years.
+- `body_mass_g`: maximum body mass in grams.
+- `svl_mm`: maximum snout-vent length (straight carapace length for
+  turtles) in millimetres.
+- `total_length_mm`: maximum total length in millimetres.
+- `longevity_yr`: maximum recorded longevity in years.
+- `diet`: diet category (carnivorous, herbivorous, omnivorous).
+- `reproductive_mode`: oviparous, viviparous, or ovoviviparous.
+- `clutch_size`: mean clutch or litter size.
+- `active_time`: activity period (diurnal, nocturnal, cathemeral).
+- `foraging_mode`: foraging strategy (active, ambush, mixed).
 
-- `lizard_diet`: the primary diet category (insectivore, herbivore,
-  omnivore, carnivore).
-- `lizard_habitat`: the primary habitat type (terrestrial, arboreal,
-  fossorial, saxicolous, semi-aquatic).
-- `lizard_activity_time`: the primary activity period (diurnal, nocturnal,
-  crepuscular, cathemeral).
-- `lizard_foraging_mode`: the foraging strategy (sit-and-wait, active
-  foraging, mixed). This trait is tightly linked to metabolic rate and
-  energy budgets: active foragers have higher metabolic rates and larger
-  home ranges, while sit-and-wait predators invest less energy in
-  locomotion but rely on crypsis and ambush efficiency.
-
-The body mass range spans four orders of magnitude, from sub-gram geckos
-to the 70 kg Komodo Dragon (*Varanus komodoensis*). This allometric range
-drives strong scaling relationships: metabolic rate, home range size, and
-prey size all scale predictably with body mass in lizards. The SVL
-measurement is preferred over total length because tail autotomy (voluntary
-tail shedding) makes total length unreliable; SVL provides a stable,
-comparable measure of body size across species and individuals.
-
-The combination of clutch size, clutch frequency, and longevity captures
-the fast-slow life-history continuum. Small geckos with clutches of 1-2
-eggs but multiple clutches per year represent a different strategy from
-large iguanas with single large clutches per season. This life-history
-variation is directly relevant to population viability analysis and
-conservation planning for reptile species.
-
-The dataset covers lizards globally. Snakes and turtles are not included;
-they receive `NA` in all columns. It is licensed under CC BY 4.0 and
-published in *Global Ecology and Biogeography*. The reference is Meiri
-(2018), *Global Ecology and Biogeography* 27:1168-1172. The dataset is
-classified as static in the taxify manifest.
+Species absent from ReptTraits receive `NA` in all columns. It is licensed
+under CC BY 4.0 and published in *Scientific Data*. The reference is Oskyrko,
+Mi, Meiri & Du (2024), *Scientific Data* 11:243. The dataset is classified
+as static in the taxify manifest.
 
 
 ### Vertebrate enrichments (cross-class)
@@ -1863,7 +1852,7 @@ gives a complete record of which data was used to produce the results.
 
 Not all species appear in all enrichments. Each dataset has a taxonomic
 scope (plants, birds, mammals, amphibians, vertebrates, butterflies,
-arthropods, fungi, algae, fish, lizards, or cross-taxon) and a geographic
+arthropods, fungi, algae, fish, reptiles, or cross-taxon) and a geographic
 scope (global, European, NW European). When
 an enrichment has no
 data for a species, the corresponding columns contain `NA`. Understanding
@@ -1929,7 +1918,7 @@ slightly different sets of names).
 | algae_traits | macroalgae | European | 1,745 |
 | fish_traits | freshwater fish | global | 8,300 |
 | fishbase | all fish | global | 35,000 |
-| lizard_traits | lizards | global | 6,600 |
+| repttraits | reptiles | global | 12,060 |
 | anage | vertebrates | global | 4,700 |
 | animaltraits | cross-taxon (arthropods+) | global | 2,000 |
 | leptraits | butterflies | global | 12,400 |
@@ -2195,23 +2184,22 @@ vulnerability. For marine fish studies, only FishBase will contribute data
 from FishBase is particularly useful alongside IUCN conservation status for
 prioritizing species in fisheries management and marine spatial planning.
 
-### Reptiles (lizards)
+### Reptiles
 
-Lizards are covered by the Meiri lizard traits enrichment, which provides
-life-history and ecological traits for ~6,600 species. Combined with
-conservation status, it gives a functional profile suitable for reptile
+Reptiles are covered by the `reptiledb` backbone (the Reptile Database) and
+the ReptTraits enrichment, which provides life-history, morphological, and
+distribution traits for 12,060 species across all reptile groups. Combined
+with conservation status, it gives a functional profile suitable for reptile
 community analyses and conservation assessments.
 
-```{r guide-lizards}
-result <- taxify(species_list, backend = "col") |>
+```{r guide-reptiles}
+result <- taxify(species_list, backend = "reptiledb") |>
   add_conservation_status() |>
-  add_lizard_traits() |>
+  add_repttraits() |>
   add_common_names()
 ```
 
-Snakes and turtles are not covered by the lizard enrichment. For those
-groups, the `add_data()` function can join custom trait datasets. For
-cross-class longevity and metabolic comparisons, `add_anage()` covers
+For cross-class longevity and metabolic comparisons, `add_anage()` covers
 reptiles alongside mammals, birds, amphibians, and fish.
 
 ### Butterflies
@@ -2430,7 +2418,7 @@ or corrected.
 The licenses of the source datasets range from CC0 (EltonTraits, PanTHERIA,
 woodiness, common names, LepTraits, AnimalTraits) to CC BY 4.0 (EIVE,
 AmphiBIO, AVONET, GRIIS, GloNAF, FungalTraits, AlgaeTraits, FISHMORPH,
-Meiri lizard traits), CC BY (AnAge), CC BY-NC (NW European Arthropods),
+ReptTraits), CC BY (AnAge), CC BY-NC (NW European Arthropods),
 CC BY 3.0 (Diaz traits), and CC BY-NC 3.0 (FishBase). LEDA and WCVP have
 their own terms published on their respective websites. The taxify package itself does not redistribute
 these datasets in their original form; the `.vtr` files are built from

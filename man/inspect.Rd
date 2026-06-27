@@ -55,7 +55,7 @@ the name to use instead.
 Checks that need no matching (run on a character vector or a result):
 \describe{
 \item{\code{unknown}}{The genus is not in the genus register -- the union of all
-12 backbones' genera -- so no backbone recognises it. The strong "probably
+13 backbones' genera -- so no backbone recognises it. The strong "probably
 not a real name" signal.}
 \item{\code{near_duplicate}}{A near-twin of a more frequent name in the same list
 (small edit distance), so probably a misspelling of it. Computed from the

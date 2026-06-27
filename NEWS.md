@@ -2,12 +2,25 @@
 
 ## New features
 
+* New `reptiledb` backend: the Reptile Database (Uetz et al.), the global
+  taxonomic reference for reptiles (snakes, lizards, amphisbaenians, turtles,
+  crocodiles and the tuatara). It carries ~12.6k accepted species plus ~34k
+  synonyms with full genus/family classification, filling the one vertebrate
+  class the other backbones cover only partially. Use it like any backbone:
+  `taxify(x, backend = "reptiledb")`. License: CC-BY 4.0.
+* New `add_repttraits()` joins species-level reptile traits from ReptTraits
+  (Oskyrko et al. 2024) by accepted name. Beyond body-size and life-history
+  traits, it carries a per-species distribution signal -- biogeographic realm,
+  elevation range and mean climate -- across all reptiles. This replaces the
+  earlier `add_lizard_traits()`, which drew on the same ReptTraits source but
+  was mislabelled (it covered all reptiles, not lizards) and exposed only the
+  morphology columns. License: CC-BY 4.0.
 * New `inspect()` flags probable typos and other anomalies in a name list and
   returns only the anomalous rows, each labelled with what stands out and, where
   known, the name to use instead. `inspect()` does not match names against
   backbones itself -- that is `taxify()`'s job. On a character vector it runs the
   checks that need no matching: `unknown` (the genus is not in the genus register,
-  the union of all 12 backbones' genera, so no backbone recognises it -- a real
+  the union of all 13 backbones' genera, so no backbone recognises it -- a real
   "probably not a name"), `near_duplicate` (a near-twin of a more frequent name in
   the same list, computed from the list alone, so it catches typos in names no
   backbone contains), and `outlier_group` (a name whose kingdom group is a tiny

@@ -312,6 +312,17 @@ extract_sealifebase_genera <- function(bb_path) {
   .extract_species_derived_genera(bb_path)
 }
 
+#' Extract genus rows from the Reptile Database backbone
+#'
+#' Reptile Database is species-only (no genus-rank records); genera are derived
+#' from accepted species. The backbone stamps a fixed higher classification
+#' (Animalia / Chordata / Reptilia) plus order and family, so reptile genera
+#' carry full classification.
+#' @noRd
+extract_reptiledb_genera <- function(bb_path) {
+  .extract_species_derived_genera(bb_path)
+}
+
 
 # ---- Kingdom name normalization ----
 
@@ -420,7 +431,8 @@ infer_kingdom_from_family <- function(resolved) {
 #' @return data.frame with deduplicated genera and resolved classification.
 #' @noRd
 resolve_genus_classification <- function(genera_list) {
-  priority <- c("worms", "col", "gbif", "euromed", "itis", "ncbi", "ott", "wfo")
+  priority <- c("worms", "col", "reptiledb", "gbif", "euromed", "itis",
+                "ncbi", "ott", "wfo", "fishbase", "sealifebase")
 
   # Combine all genera, tagging each with its source backend
   all_rows <- lapply(priority, function(be) {
@@ -661,7 +673,9 @@ build_genus_register <- function(verbose = TRUE) {
     fishbase    = list(be = fishbase_backend(),
                        extract_fn = extract_fishbase_genera),
     sealifebase = list(be = sealifebase_backend(),
-                       extract_fn = extract_sealifebase_genera)
+                       extract_fn = extract_sealifebase_genera),
+    reptiledb   = list(be = reptiledb_backend(),
+                       extract_fn = extract_reptiledb_genera)
   )
 
   genera_list <- list()
@@ -839,7 +853,9 @@ build_backend_coverage <- function(verbose = TRUE) {
     fishbase    = list(be = fishbase_backend(),
                        extract_fn = extract_fishbase_genera),
     sealifebase = list(be = sealifebase_backend(),
-                       extract_fn = extract_sealifebase_genera)
+                       extract_fn = extract_sealifebase_genera),
+    reptiledb   = list(be = reptiledb_backend(),
+                       extract_fn = extract_reptiledb_genera)
   )
 
   coverage_rows <- list()

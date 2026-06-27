@@ -1,0 +1,5 @@
+backend=reptiledb
+version=example
+build_date=2026-06-24
+nrow=7
+source_url=bundled example database

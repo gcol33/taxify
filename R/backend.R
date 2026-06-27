@@ -870,8 +870,9 @@ resolve_backend <- function(backend) {
     euromed = euromed_backend(),
     fishbase = fishbase_backend(),
     sealifebase = sealifebase_backend(),
+    reptiledb = reptiledb_backend(),
     stop(sprintf(
-      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms, fungorum, algaebase, euromed, fishbase, sealifebase",
+      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms, fungorum, algaebase, euromed, fishbase, sealifebase, reptiledb",
       backend), call. = FALSE)
   )
 }

@@ -64,6 +64,9 @@ taxify(
 | [Euro+Med](https://europlusmed.org/) | European/Mediterranean plants | ~132k |
 | [Species Fungorum](https://www.speciesfungorum.org/) | Fungi | ~329k |
 | [AlgaeBase](https://www.algaebase.org/) | Algae | ~172k |
+| [FishBase](https://www.fishbase.org/) | Fishes | ~100k |
+| [SeaLifeBase](https://www.sealifebase.org/) | Non-fish marine/aquatic | ~134k |
+| [Reptile Database](http://www.reptile-database.org/) | Reptiles | ~50k |
 
 ## Names are cleaned before matching
 
