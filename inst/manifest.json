@@ -1709,7 +1709,7 @@
     "repttraits": {
       "latest": "2026.06",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/repttraits.vtr",
-      "nrow": 12060,
+      "nrow": 12177,
       "source_url": "https://ndownloader.figshare.com/files/45408133",
       "source_format": "xlsx",
       "source_version": "1.2",
