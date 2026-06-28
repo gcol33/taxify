@@ -3381,6 +3381,42 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.6084/m9.figshare.21939647"
+    },
+    "arctic_traits": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/arctic_traits.vtr",
+      "nrow": 455,
+      "source_url": "https://phaidra.univie.ac.at/api/object/o:861474/octets",
+      "source_format": "csv",
+      "source_version": "2019.1",
+      "trait_cols": [
+        "feeding_habit",
+        "skeleton",
+        "reproduction",
+        "larval_development",
+        "size",
+        "living_habit",
+        "body_form",
+        "mobility",
+        "bioturbation",
+        "depth_range",
+        "trophic_level",
+        "fragility",
+        "sociability",
+        "longevity"
+      ],
+      "static": true,
+      "citation": {
+        "key": "arctic_traits2019",
+        "type": "misc",
+        "authors": "Degen R, University Of Vienna, Faulwetter S, Patras UO",
+        "year": "2018",
+        "title": "The Arctic Traits Database",
+        "doi": "10.25365/phaidra.49",
+        "journal": ":none"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.25365/phaidra.49"
     }
   }
 }
