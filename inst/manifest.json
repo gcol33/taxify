@@ -3320,6 +3320,36 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.6084/m9.figshare.c.3843841"
+    },
+    "disperse": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/disperse.vtr",
+      "nrow": 462,
+      "source_url": "https://api.figshare.com/v2/articles/12417251",
+      "source_format": "csv",
+      "source_version": "2020.1",
+      "trait_cols": [
+        "disperse_body_size_cm",
+        "disperse_life_cycle",
+        "disperse_repro_cycles",
+        "disperse_dispersal",
+        "disperse_adult_lifespan",
+        "disperse_female_wing_mm",
+        "disperse_wing_type",
+        "disperse_fecundity"
+      ],
+      "static": true,
+      "citation": {
+        "key": "disperse2020",
+        "type": "misc",
+        "authors": "Sarremejane R, Cid N, Stubbington R, Datry T, Alp M, Cañedo-Argüelles M, Cordero-Rivera A, Csabai Z, Gutiérrez-Cánovas C, Heino J, Forcellini M, Millán A, et al.",
+        "year": "2020",
+        "title": "DISPERSE – A trait database to assess the dispersal potential of aquatic macroinvertebrates",
+        "doi": "10.6084/m9.figshare.c.5000633",
+        "journal": "figshare"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.6084/m9.figshare.c.5000633"
     }
   }
 }
