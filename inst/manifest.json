@@ -3265,6 +3265,29 @@
       },
       "license": "CC0",
       "source_doi": "10.5061/dryad.d2547d85x"
+    },
+    "tetradensity": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/tetradensity.vtr",
+      "nrow": 1915,
+      "source_url": "https://api.figshare.com/v2/articles/5371633",
+      "source_format": "csv",
+      "source_version": "1.0",
+      "trait_cols": [
+        "density_ind_km2"
+      ],
+      "static": true,
+      "citation": {
+        "key": "tetradensity1.0",
+        "type": "misc",
+        "authors": "Santini L, Isaac NJB, Ficetola GF",
+        "year": "2019",
+        "title": "TetraDENSITY: Population Density dataset",
+        "doi": "10.6084/m9.figshare.5371633",
+        "journal": "figshare"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.6084/m9.figshare.5371633"
     }
   }
 }
