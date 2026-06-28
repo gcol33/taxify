@@ -3288,6 +3288,38 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.6084/m9.figshare.5371633"
+    },
+    "brot": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/brot.vtr",
+      "nrow": 2881,
+      "source_url": "https://api.figshare.com/v2/articles/5280868",
+      "source_format": "csv",
+      "source_version": "2.0",
+      "trait_cols": [
+        "seed_mass_mg",
+        "sla_mm2_mg",
+        "height_m",
+        "leaf_area_mm2",
+        "resp_fire",
+        "growth_form",
+        "disp_mode",
+        "fruit_type",
+        "soil_seed_bank",
+        "seedling_emergence"
+      ],
+      "static": true,
+      "citation": {
+        "key": "brot2.0",
+        "type": "misc",
+        "authors": "G. Pausas J, Tavşanoğlu",
+        "year": "2018",
+        "title": "BROT 2.0: A functional trait database for Mediterranean Basin plants",
+        "doi": "10.6084/m9.figshare.c.3843841",
+        "journal": "figshare"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.6084/m9.figshare.c.3843841"
     }
   }
 }
