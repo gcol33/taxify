@@ -3417,6 +3417,35 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.25365/phaidra.49"
+    },
+    "blanchard": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/blanchard.vtr",
+      "nrow": 333,
+      "source_url": "10.5061/dryad.st6sc",
+      "source_format": "csv",
+      "source_version": "2017.1",
+      "trait_cols": [
+        "subfamily",
+        "spines",
+        "sting",
+        "diet",
+        "nesting",
+        "foraging",
+        "colony_size_workers"
+      ],
+      "static": true,
+      "citation": {
+        "key": "blanchard2017",
+        "type": "misc",
+        "authors": "Blanchard BD, Moreau CS",
+        "year": "2016",
+        "title": "Data from: Defensive traits exhibit an evolutionary trade-off and drive diversification in ants",
+        "doi": "10.5061/dryad.st6sc",
+        "journal": "Dryad"
+      },
+      "license": "CC0",
+      "source_doi": "10.5061/dryad.st6sc"
     }
   }
 }
