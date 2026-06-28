@@ -2730,6 +2730,83 @@
       },
       "license": "CC BY",
       "source_doi": "10.1111/2041-210X.12861"
+    },
+    "sharkipedia": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/sharkipedia.vtr",
+      "nrow": 177,
+      "source_url": "https://zenodo.org/records/6656525/files/Sharkipedia-Traits-v1.0-22-01-25.csv?download=1",
+      "source_format": "csv",
+      "source_version": "1.0",
+      "trait_cols": [
+        "lmax_cm",
+        "vbgf_linf_cm",
+        "vbgf_k",
+        "vbgf_t0",
+        "length_first_maturity_cm",
+        "length_birth_cm",
+        "amax_observed_yr",
+        "age_first_maturity_yr",
+        "uterine_fecundity",
+        "gestation_length",
+        "natural_mortality"
+      ],
+      "static": true,
+      "citation": {
+        "key": "sharkipedia1.0",
+        "type": "article",
+        "authors": "Mull CG, Pacoureau N, Pardo SA, Ruiz LS, García-Rodríguez E, Finucci B, Haack M, Harry A, Judah AB, VanderWright W, Yin JS, Kindsvater HK, et al.",
+        "year": "2022",
+        "title": "Sharkipedia: a curated open access database of shark and ray life history traits and abundance time-series",
+        "journal": "Scientific Data",
+        "volume": "9",
+        "doi": "10.1038/s41597-022-01655-1"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.1038/s41597-022-01655-1"
+    },
+    "bird_nest": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/bird_nest.vtr",
+      "nrow": 10378,
+      "source_url": "https://zenodo.org/records/10128906/files/NestTrait_v2.csv?download=1",
+      "source_format": "csv",
+      "source_version": "2.0",
+      "trait_cols": [
+        "brood_parasite",
+        "mound_builder",
+        "nestsite_ground",
+        "nestsite_tree",
+        "nestsite_nontree",
+        "nestsite_cliff_bank",
+        "nestsite_underground",
+        "nestsite_waterbody",
+        "nestsite_termite_ant",
+        "neststr_scrape",
+        "neststr_platform",
+        "neststr_cup",
+        "neststr_dome",
+        "neststr_dome_tunnel",
+        "neststr_primary_cavity",
+        "neststr_second_cavity",
+        "nestatt_basal",
+        "nestatt_forked",
+        "nestatt_lateral",
+        "nestatt_pensile"
+      ],
+      "static": true,
+      "citation": {
+        "key": "bird_nest2.0",
+        "type": "article",
+        "authors": "Chia SY, Fang YT, Su YT, Tsai PY, Hsieh C, Tsao SH, Juang JY, Hung CM, Tuanmu MN",
+        "year": "2023",
+        "title": "A global database of bird nest traits",
+        "journal": "Scientific Data",
+        "volume": "10",
+        "doi": "10.1038/s41597-023-02837-1"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.1038/s41597-023-02837-1"
     }
   }
 }
