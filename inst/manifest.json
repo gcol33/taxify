@@ -3114,6 +3114,33 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.1371/journal.pbio.3000702"
+    },
+    "odonata": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/odonata.vtr",
+      "nrow": 1460,
+      "source_url": "10.5061/dryad.15pm5qc",
+      "source_format": "csv",
+      "source_version": "2020.1",
+      "trait_cols": [
+        "territoriality",
+        "flight_mode",
+        "mate_guarding",
+        "habitat_openness",
+        "has_wing_pigment"
+      ],
+      "static": true,
+      "citation": {
+        "key": "odonata2020",
+        "type": "misc",
+        "authors": "Waller JT, Willink B, Tschol M, Svensson EI",
+        "year": "2020",
+        "title": "Data from: The Odonate Phenotypic Database, a new open data resource for comparative studies of an old insect order",
+        "doi": "10.5061/dryad.15pm5qc",
+        "journal": "Dryad"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.5061/dryad.15pm5qc"
     }
   }
 }
