@@ -3141,6 +3141,41 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.5061/dryad.15pm5qc"
+    },
+    "beukhof": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/beukhof.vtr",
+      "nrow": 1793,
+      "source_url": "https://doi.pangaea.de/10.1594/PANGAEA.900866?format=textfile",
+      "source_format": "csv",
+      "source_version": "2019.1",
+      "trait_cols": [
+        "trophic_level",
+        "aspect_ratio",
+        "offspring_size",
+        "age_maturity",
+        "fecundity",
+        "length_infinity_cm",
+        "growth_coefficient",
+        "length_max_cm",
+        "habitat",
+        "feeding_mode",
+        "body_shape",
+        "fin_shape",
+        "spawning_type"
+      ],
+      "static": true,
+      "citation": {
+        "key": "beukhof2019",
+        "type": "misc",
+        "authors": "Beukhof E, Dencker TS, Palomares MLD, Maureaud A",
+        "year": "2019",
+        "title": "A trait collection of marine fish species from North Atlantic and Northeast Pacific continental shelf seas",
+        "doi": "10.1594/PANGAEA.900866",
+        "journal": "PANGAEA"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.1594/PANGAEA.900866"
     }
   }
 }
