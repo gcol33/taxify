@@ -3209,6 +3209,38 @@
       },
       "license": "CC BY-SA 4.0",
       "source_doi": "10.5281/zenodo.8102913"
+    },
+    "eupolltrait": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/eupolltrait.vtr",
+      "nrow": 3275,
+      "source_url": "https://zenodo.org/api/records/18032357",
+      "source_format": "csv",
+      "source_version": "2025.1",
+      "trait_cols": [
+        "itd_mm",
+        "tongue_length_mm",
+        "species_temperature_index",
+        "species_continentality_index",
+        "area_of_occupancy",
+        "extent_of_occurrence",
+        "sociality",
+        "nest",
+        "larval_nutrition",
+        "body_length_category"
+      ],
+      "static": true,
+      "citation": {
+        "key": "eupolltrait2025",
+        "type": "misc",
+        "authors": "Miličić M, Sentil A, Ačanski J, Bartholomée O, Benrezkallah J, Bogusch P, Brau T, Breuer L, Carion F, de Manincor N, De Tandt B, Devorsine R, et al.",
+        "year": "2025",
+        "title": "Dataset for EuPollTrait - Trait Data for 3,000 European Wild Bee and Hoverfly Species",
+        "doi": "10.5281/zenodo.18032357",
+        "journal": "Zenodo"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.5281/zenodo.18032357"
     }
   }
 }
