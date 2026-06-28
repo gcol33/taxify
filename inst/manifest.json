@@ -2992,6 +2992,40 @@
       },
       "license": "Open (ESA Ecology data policy)",
       "source_doi": "10.5281/zenodo.4455016"
+    },
+    "saproxylic": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/saproxylic.vtr",
+      "nrow": 1266,
+      "source_url": "10.5061/dryad.2fqz612p3",
+      "source_format": "csv",
+      "source_version": "2021.1",
+      "trait_cols": [
+        "body_length_mm",
+        "body_width_mm",
+        "body_height_mm",
+        "mass_mg",
+        "colour_lightness",
+        "head_length_mm",
+        "pronotum_length_mm",
+        "elytra_length_mm",
+        "wing_length_mm",
+        "wing_aspect",
+        "antenna_length_mm",
+        "eye_length_mm"
+      ],
+      "static": true,
+      "citation": {
+        "key": "saproxylic2021",
+        "type": "misc",
+        "authors": "Hagge J, Müller J, Birkemoe T, Buse J, Christensen RHB, Gossner MM, Gruppe A, Heibl C, Jarzabek-Müller A, Seibold S, Siitonen J, Soutinho JG, et al.",
+        "year": "2021",
+        "title": "Morphological trait database of saproxylic beetles",
+        "doi": "10.5061/dryad.2fqz612p3",
+        "journal": "Dryad"
+      },
+      "license": "CC0",
+      "source_doi": "10.5061/dryad.2fqz612p3"
     }
   }
 }
