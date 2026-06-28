@@ -2690,6 +2690,46 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.5063/F1CV4G34"
+    },
+    "bien": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/bien.vtr",
+      "nrow": 116275,
+      "source_url": "https://bien.nceas.ucsb.edu",
+      "source_format": "bien",
+      "source_version": "2026.06",
+      "trait_cols": [
+        "plant_height_m",
+        "max_plant_height_m",
+        "dbh_cm",
+        "sla_mm2_mg",
+        "leaf_area_mm2",
+        "leaf_dry_mass_mg",
+        "leaf_n_per_dry_mass",
+        "leaf_p_per_dry_mass",
+        "leaf_thickness_mm",
+        "seed_mass_mg",
+        "wood_density_g_cm3",
+        "leaf_lifespan",
+        "growth_form",
+        "woodiness",
+        "dispersal_syndrome",
+        "flower_color"
+      ],
+      "static": true,
+      "citation": {
+        "key": "bien2026",
+        "type": "article",
+        "authors": "Maitner BS, Boyle B, Casler N, Condit R, Donoghue J, Durán SM, Guaderrama D, Hinchliff CE, Jørgensen PM, Kraft NJB, McGill B, Merow C, et al.",
+        "year": "2017",
+        "title": "The <scp>bien r<\/scp> package: A tool to access the Botanical Information and Ecology Network (BIEN) database",
+        "journal": "Methods in Ecology and Evolution",
+        "volume": "9",
+        "pages": "373-379",
+        "doi": "10.1111/2041-210X.12861"
+      },
+      "license": "CC BY",
+      "source_doi": "10.1111/2041-210X.12861"
     }
   }
 }
