@@ -2956,6 +2956,42 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.1038/s41597-022-01704-9"
+    },
+    "quimbayo": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/quimbayo.vtr",
+      "nrow": 2293,
+      "source_url": "https://zenodo.org/api/records/4455016",
+      "source_format": "csv",
+      "source_version": "1.0",
+      "trait_cols": [
+        "body_size_max_cm",
+        "aspect_ratio",
+        "trophic_level",
+        "depth_min_m",
+        "depth_max_m",
+        "temp_occurrence_mean_c",
+        "home_range",
+        "diel_activity",
+        "water_level",
+        "body_shape",
+        "mouth_position",
+        "diet",
+        "spawning",
+        "size_group"
+      ],
+      "static": true,
+      "citation": {
+        "key": "quimbayo1.0",
+        "type": "misc",
+        "authors": "Quimbayo JP, Silva FCD, Thiago Costa Mendes, Ferrari DS, Danielski SL, Bender MG, Parravicini V, Kulbicki M, Floeter SR",
+        "year": "2021",
+        "title": "Life-history traits, geographical range and conservation aspects of reef fishes from the Atlantic and Eastern Pacific",
+        "doi": "10.5281/zenodo.4455016",
+        "journal": "Zenodo"
+      },
+      "license": "Open (ESA Ecology data policy)",
+      "source_doi": "10.5281/zenodo.4455016"
     }
   }
 }
