@@ -2899,6 +2899,36 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.6084/m9.figshare.21159229"
+    },
+    "bee_ostwald": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/bee_ostwald.vtr",
+      "nrow": 2008,
+      "source_url": "https://zenodo.org/records/13366989/files/Sup%20Table%204%20Morphological%20Dataset%20Revised.csv?download=1",
+      "source_format": "csv",
+      "source_version": "2024.1",
+      "trait_cols": [
+        "itd_mm",
+        "forewing_length_mm",
+        "tongue_length_mm",
+        "tongue_width_mm",
+        "body_length_mm",
+        "thorax_length_mm",
+        "hair_length_mm",
+        "hair_coverage_pct"
+      ],
+      "static": true,
+      "citation": {
+        "key": "bee_ostwald2024",
+        "type": "misc",
+        "authors": "Madeleine Ostwald",
+        "year": "2024",
+        "title": "mostwald/Functional-trait-review: v.1.3.0",
+        "doi": "10.5281/zenodo.13366989",
+        "journal": "Zenodo"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.5281/zenodo.13366989"
     }
   }
 }
