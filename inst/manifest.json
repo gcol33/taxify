@@ -3176,6 +3176,39 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.1594/PANGAEA.900866"
+    },
+    "zooplankton": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/zooplankton.vtr",
+      "nrow": 4129,
+      "source_url": "https://zenodo.org/api/records/8102913",
+      "source_format": "csv",
+      "source_version": "1.3.0",
+      "trait_cols": [
+        "body_length_max_mm",
+        "carbon_weight_mg",
+        "nitrogen_pdw_pct",
+        "vertical_distribution",
+        "reproduction_mode",
+        "trophic_group",
+        "feeding_mode",
+        "myelination",
+        "habitat_association",
+        "diel_vertical_migration",
+        "bioluminescence"
+      ],
+      "static": true,
+      "citation": {
+        "key": "zooplankton1.3.0",
+        "type": "misc",
+        "authors": "Pata P",
+        "year": "2023",
+        "title": "Pelagic-Ecosystems/Zooplankton_trait_database: Trait database release for Pata &amp; Hunt Limnology and Oceanography manuscript",
+        "doi": "10.5281/zenodo.8102913",
+        "journal": "Zenodo"
+      },
+      "license": "CC BY-SA 4.0",
+      "source_doi": "10.5281/zenodo.8102913"
     }
   }
 }
