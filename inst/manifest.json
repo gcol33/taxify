@@ -3350,6 +3350,37 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.6084/m9.figshare.c.5000633"
+    },
+    "nztd": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/nztd.vtr",
+      "nrow": 314,
+      "source_url": "https://api.figshare.com/v2/articles/21939647",
+      "source_format": "csv",
+      "source_version": "2023.1",
+      "trait_cols": [
+        "bioturbation",
+        "body_size",
+        "degree_of_attachment",
+        "feeding_mode",
+        "living_habit",
+        "mobility",
+        "morphology",
+        "movement_method",
+        "rigidity"
+      ],
+      "static": true,
+      "citation": {
+        "key": "nztd2023",
+        "type": "misc",
+        "authors": "Lam-Gordillo O",
+        "year": "2023",
+        "title": "NZTD - Functional trait databse",
+        "doi": "10.6084/m9.figshare.21939647",
+        "journal": "figshare"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.6084/m9.figshare.21939647"
     }
   }
 }
