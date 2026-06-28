@@ -3026,6 +3026,69 @@
       },
       "license": "CC0",
       "source_doi": "10.5061/dryad.2fqz612p3"
+    },
+    "pelagic": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/pelagic.vtr",
+      "nrow": 590,
+      "source_url": "https://borealisdata.ca/api/datasets/:persistentId?persistentId=doi:10.5683/SP3/0YFJED",
+      "source_format": "csv",
+      "source_version": "2024.1",
+      "trait_cols": [
+        "depth_min_m",
+        "depth_max_m",
+        "temp_min_c",
+        "temp_max_c",
+        "temp_mean_c",
+        "length_min_tl_cm",
+        "length_max_tl_cm",
+        "trophic_level",
+        "vert_habitat",
+        "horz_habitat",
+        "body_shape",
+        "phys_defense",
+        "gregarious"
+      ],
+      "static": true,
+      "citation": {
+        "key": "pelagic2024",
+        "type": "misc",
+        "authors": "Gleiber MR, Hardy NA, Roote Z, Krug-Macleod A, Morganson CJ, Tandy Z, George I, Matuch C, Brookson CB, Daly EA, Portner EJ, Choy CA, et al.",
+        "year": "2022",
+        "title": "Pelagic Species Trait Database",
+        "doi": "10.5683/SP3/0YFJED",
+        "journal": "Borealis"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.5683/SP3/0YFJED"
+    },
+    "frugivoria": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/frugivoria.vtr",
+      "nrow": 1932,
+      "source_url": "https://pasta.lternet.edu/package/data/eml/edi/1220/5/",
+      "source_format": "csv",
+      "source_version": "1.220.5",
+      "trait_cols": [
+        "taxon_group",
+        "diet_category",
+        "diet_breadth",
+        "body_mass_g",
+        "body_size_mm",
+        "longevity",
+        "generation_time"
+      ],
+      "static": true,
+      "citation": {
+        "key": "frugivoria1.220.5",
+        "type": "misc",
+        "authors": "Gerstner BE et al. (2023) Frugivoria: a trait database for birds and mammals exhibiting frugivory across contiguous Neotropical moist forests. EDI (edi.1220.5), CC BY 4.0. Mammal + bird 'simple' tables combined on a shared trait core.",
+        "year": "1.220.5",
+        "title": "frugivoria",
+        "doi": "10.6073/pasta/frugivoria"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.6073/pasta/frugivoria"
     }
   }
 }
