@@ -3241,6 +3241,30 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.5281/zenodo.18032357"
+    },
+    "homerange": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/homerange.vtr",
+      "nrow": 1051,
+      "source_url": "10.5061/dryad.d2547d85x",
+      "source_format": "csv",
+      "source_version": "2023.1",
+      "trait_cols": [
+        "home_range_km2",
+        "body_mass_kg"
+      ],
+      "static": true,
+      "citation": {
+        "key": "homerange2023",
+        "type": "misc",
+        "authors": "Broekman M, Hoeks S, Freriks R, Langendoen M, Runge K, Savenco E, ter Harmsel R, Huijbregts M, Tucker M",
+        "year": "2023",
+        "title": "HomeRange: A global database of mammalian home ranges",
+        "doi": "10.5061/dryad.d2547d85x",
+        "journal": "Dryad"
+      },
+      "license": "CC0",
+      "source_doi": "10.5061/dryad.d2547d85x"
     }
   }
 }
