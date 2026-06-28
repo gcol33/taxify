@@ -3089,6 +3089,31 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.6073/pasta/frugivoria"
+    },
+    "parravicini": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/parravicini.vtr",
+      "nrow": 6910,
+      "source_url": "https://raw.githubusercontent.com/valerianoparravicini/Trophic_Fish_2020/master/data/converted_experts_classification.csv",
+      "source_format": "csv",
+      "source_version": "2020.1",
+      "trait_cols": [
+        "trophic_guild"
+      ],
+      "static": true,
+      "citation": {
+        "key": "parravicini2020",
+        "type": "article",
+        "authors": "Parravicini V, Casey JM, Schiettekatte NMD, Brandl SJ, Pozas-Schacre C, Carlot J, Edgar GJ, Graham NAJ, Harmelin-Vivien M, Kulbicki M, Strona G, Stuart-Smith RD",
+        "year": "2020",
+        "title": "Delineating reef fish trophic guilds with global gut content data synthesis and phylogeny",
+        "journal": "PLOS Biology",
+        "volume": "18",
+        "pages": "e3000702",
+        "doi": "10.1371/journal.pbio.3000702"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.1371/journal.pbio.3000702"
     }
   }
 }
