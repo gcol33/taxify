@@ -2929,6 +2929,33 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.5281/zenodo.13366989"
+    },
+    "pottier": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/pottier.vtr",
+      "nrow": 667,
+      "source_url": "https://zenodo.org/api/records/6565454",
+      "source_format": "csv",
+      "source_version": "1.0",
+      "trait_cols": [
+        "heat_tolerance_c",
+        "acclimation_temp_c",
+        "svl_mm",
+        "body_mass_g"
+      ],
+      "static": true,
+      "citation": {
+        "key": "pottier1.0",
+        "type": "article",
+        "authors": "Pottier P, Lin HY, Oh RRY, Pollo P, Rivera-Villanueva AN, Valdebenito JO, Yang Y, Amano T, Burke S, Drobniak SM, Nakagawa S",
+        "year": "2022",
+        "title": "A comprehensive database of amphibian heat tolerance",
+        "journal": "Scientific Data",
+        "volume": "9",
+        "doi": "10.1038/s41597-022-01704-9"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.1038/s41597-022-01704-9"
     }
   }
 }
