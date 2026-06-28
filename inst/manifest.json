@@ -2807,6 +2807,69 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.1038/s41597-023-02837-1"
+    },
+    "octocoral": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/octocoral.vtr",
+      "nrow": 3629,
+      "source_url": "https://zenodo.org/records/14228404/files/OctocoralTraits_v2_2.zip?download=1",
+      "source_format": "csv",
+      "source_version": "2.2",
+      "trait_cols": [
+        "colony_height",
+        "colony_width",
+        "tentacles_per_polyp",
+        "growth_form",
+        "type_of_growth",
+        "type_of_skeleton",
+        "polyp_retractability",
+        "polyp_dimorphism",
+        "zooxanthellate",
+        "axis_presence",
+        "feeding_mechanism",
+        "coloniality",
+        "skeletal_rigidity",
+        "calcareous_sclerites_presence"
+      ],
+      "static": true,
+      "citation": {
+        "key": "octocoral2.2",
+        "type": "misc",
+        "authors": "Gómez-Gras D, Linares C, Viladrich N, Zentner Y, Grinyó J, Gori A, McFadden CS, Fabricius KE, Madin JS",
+        "year": "2024",
+        "title": "OctocoralTraits: a global database of trait information for octocoral species",
+        "doi": "10.5281/zenodo.14228404",
+        "journal": "Zenodo"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.5281/zenodo.14228404"
+    },
+    "rimet_phyto": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/rimet_phyto.vtr",
+      "nrow": 1413,
+      "source_url": "https://zenodo.org/records/1164834/files/Appendix-1-Phytoplankton%20metrics%20database-revised.xlsx?download=1",
+      "source_format": "csv",
+      "source_version": "2018.1",
+      "trait_cols": [
+        "cell_length_um",
+        "cell_width_um",
+        "cell_thickness_um",
+        "cell_surface_area_um2",
+        "cell_biovolume_um3"
+      ],
+      "static": true,
+      "citation": {
+        "key": "rimet_phyto2018",
+        "type": "misc",
+        "authors": "Frédéric R, Druart Jean-Claude",
+        "year": "2018",
+        "title": "A Trait Database For Phytoplankton Of Temperate Lakes: Numerical File",
+        "doi": "10.5281/zenodo.1164834",
+        "journal": "Zenodo"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.5281/zenodo.1164834"
     }
   }
 }
