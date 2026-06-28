@@ -3446,6 +3446,41 @@
       },
       "license": "CC0",
       "source_doi": "10.5061/dryad.st6sc"
+    },
+    "sheld": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/sheld.vtr",
+      "nrow": 313,
+      "source_url": "https://api.figshare.com/v2/articles/24115998",
+      "source_format": "csv",
+      "source_version": "2023.1",
+      "trait_cols": [
+        "mean_length_mm",
+        "max_length_mm",
+        "mature_age",
+        "max_age",
+        "growth_rate",
+        "fecundity",
+        "n_host_species",
+        "n_host_family",
+        "brood",
+        "marsupial_gills",
+        "hermaphrodite",
+        "shell_sculpture"
+      ],
+      "static": true,
+      "citation": {
+        "key": "sheld2023",
+        "type": "article",
+        "authors": "Hopper GW, Bucholz JR, DuBose TP, Fogelman KJ, Keogh SM, Kubala ME, Lodato MB, Nichols DH, Sánchez González I, Pfeiffer JM, Stoeckel JA, Lozier JD, et al.",
+        "year": "2023",
+        "title": "A trait dataset for freshwater mussels of the United States of America",
+        "journal": "Scientific Data",
+        "volume": "10",
+        "doi": "10.1038/s41597-023-02635-9"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.1038/s41597-023-02635-9"
     }
   }
 }
