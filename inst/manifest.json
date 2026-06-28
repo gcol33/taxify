@@ -2870,6 +2870,35 @@
       },
       "license": "CC BY 4.0",
       "source_doi": "10.5281/zenodo.1164834"
+    },
+    "huang_amph": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/huang_amph.vtr",
+      "nrow": 4776,
+      "source_url": "https://api.figshare.com/v2/articles/21159229",
+      "source_format": "csv",
+      "source_version": "2022.1",
+      "trait_cols": [
+        "svl_mm",
+        "head_length_mm",
+        "head_width_mm",
+        "eye_diameter_mm",
+        "forelimb_length_mm",
+        "hindlimb_length_mm",
+        "taxon_order"
+      ],
+      "static": true,
+      "citation": {
+        "key": "huang_amph2022",
+        "type": "misc",
+        "authors": "anonymous",
+        "year": "2022",
+        "title": "Amphibian database",
+        "doi": "10.6084/m9.figshare.21159229",
+        "journal": "figshare"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.6084/m9.figshare.21159229"
     }
   }
 }
