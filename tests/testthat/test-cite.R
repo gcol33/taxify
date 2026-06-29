@@ -147,3 +147,37 @@ test_that("format_bibtex_entry produces valid misc entry", {
   expect_true(grepl("^@misc\\{wfo2024,", bib))
   expect_true(grepl("url = \\{http", bib))
 })
+
+
+# ---- clean_citation() / empty-field robustness ----
+
+# A manifest doi/url with no value arrives from jsonlite as a JSON null or {},
+# both read as a zero-length list. These slip past `%||%` and used to break
+# is.na()/nzchar() in the formatters.
+empty_field <- setNames(list(), character(0))  # the {} shape
+
+test_that("clean_citation drops empty {} / null fields", {
+  cit <- list(key = "x", type = "misc", authors = "A", year = "1998",
+              title = "T", doi = empty_field, url = NULL)
+  cleaned <- clean_citation(cit)
+  expect_false("doi" %in% names(cleaned))
+  expect_false("url" %in% names(cleaned))
+  expect_identical(cleaned$title, "T")
+})
+
+test_that("clean_citation keeps real scalar fields", {
+  cit <- list(key = "k", type = "article", authors = "A", year = "2023",
+              title = "T", doi = "10.3897/VCS.98324")
+  cleaned <- clean_citation(cit)
+  expect_identical(cleaned$doi, "10.3897/VCS.98324")
+})
+
+test_that("formatters do not error on a {} doi field", {
+  cit <- list(key = "julve1998", type = "misc", authors = "Julve P",
+              year = "1998", title = "baseflor", doi = empty_field)
+  cleaned <- clean_citation(cit)
+  expect_no_error(txt <- format_citation_text(cleaned))
+  expect_false(grepl("doi:", txt))
+  expect_no_error(bib <- format_bibtex_entry(cleaned))
+  expect_false(grepl("doi =", bib))
+})

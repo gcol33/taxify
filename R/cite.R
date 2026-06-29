@@ -137,7 +137,32 @@ extract_manifest_citation <- function(manifest, section, name) {
   if (is.null(manifest)) return(NULL)
   entry <- manifest[[section]][[name]]
   if (is.null(entry) || is.null(entry$citation)) return(NULL)
-  entry$citation
+  clean_citation(entry$citation)
+}
+
+
+#' Drop empty citation fields to clean length-1 character values
+#'
+#' A manifest citation field with no value arrives from `jsonlite` as a JSON
+#' `null` or `{}`, both read as a zero-length list rather than `NULL`. Those
+#' slip past `%||%` and then break `is.na()`/`nzchar()` downstream. Each field
+#' is collapsed to a length-1 character scalar, or dropped when it holds no
+#' usable value, so the `%||%` fallbacks see a clean absence.
+#'
+#' @param cit A raw citation list from the manifest.
+#' @return A citation list with only non-empty scalar fields, or `NULL`.
+#' @noRd
+clean_citation <- function(cit) {
+  if (!is.list(cit) || length(cit) == 0L) return(NULL)
+  cleaned <- lapply(cit, function(v) {
+    if (is.null(v) || length(v) != 1L || !is.atomic(v)) return(NULL)
+    v <- as.character(v)
+    if (is.na(v) || !nzchar(v)) return(NULL)
+    v
+  })
+  cleaned <- cleaned[!vapply(cleaned, is.null, logical(1L))]
+  if (length(cleaned) == 0L) return(NULL)
+  cleaned
 }
 
 
