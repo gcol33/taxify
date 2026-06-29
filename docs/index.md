@@ -47,11 +47,11 @@ vignette](https://gillescolling.com/taxify/articles/migration.html)
 walks through the differences in matching strategy, output schema, and
 enrichment.
 
-## Ten backbones, one call
+## Thirteen backbones, one call
 
-`taxify` ships ten backbones as compressed `.vtr` files, downloaded once
-and matched locally. Pass several and they form a fallback chain: a name
-unmatched by the first backbone cascades to the next.
+`taxify` ships thirteen backbones as compressed `.vtr` files, downloaded
+once and matched locally. Pass several and they form a fallback chain: a
+name unmatched by the first backbone cascades to the next.
 
 ``` r
 
@@ -74,6 +74,9 @@ taxify(
 | [Euro+Med](https://europlusmed.org/) | European/Mediterranean plants | ~132k |
 | [Species Fungorum](https://www.speciesfungorum.org/) | Fungi | ~329k |
 | [AlgaeBase](https://www.algaebase.org/) | Algae | ~172k |
+| [FishBase](https://www.fishbase.org/) | Fishes | ~100k |
+| [SeaLifeBase](https://www.sealifebase.org/) | Non-fish marine/aquatic | ~134k |
+| [Reptile Database](http://www.reptile-database.org/) | Reptiles | ~50k |
 
 ## Names are cleaned before matching
 
@@ -128,9 +131,9 @@ summary(result)
 
 ## Trait and status enrichment
 
-Twenty-seven enrichment layers join published trait and status data to
-your results through the backbone-resolved accepted name, so synonyms in
-either dataset land on the same key:
+More than sixty enrichment layers join published trait and status data
+to your results through the backbone-resolved accepted name, so synonyms
+in either dataset land on the same key:
 
 ``` r
 
@@ -168,6 +171,33 @@ result |> add_data("TRY_traits.csv")
 result |> add_data("TRY_traits.csv", cols = c("LeafArea", "SLA", "PlantHeight"))
 ```
 
+## Check a list before you trust it
+
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+returns only the names that look wrong, each labelled with what stands
+out and the name to use instead. It catches typos, retired synonyms,
+made-up genera, near-duplicate spellings, and the lone animal in a list
+of plants, and ranks them by whether they need a decision, a second
+look, or just optional cleanup.
+
+``` r
+
+inspect(field_names)                  # offline register and list checks
+inspect(field_names, backbones = TRUE) # also typos, synonyms, ambiguity
+```
+
+For regional field lists, `region` steers a fuzzy correction toward
+species that actually occur where you work, so a misspelling resolves to
+the plant that grows there even when a one-letter neighbour from another
+continent sits just as close in spelling. Pass a region name, a TDWG
+code, or coordinates.
+
+``` r
+
+taxify(field_names, region = "Belgium")
+taxify(field_names, coords = c(4.35, 50.85))
+```
+
 ## Installation
 
 ``` r
@@ -184,9 +214,13 @@ pak::pak("gcol33/taxify")          # vectra is installed automatically
   backends](https://gillescolling.com/taxify/articles/backends.html)
 - [Fuzzy
   matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
+- [Constraining matches to a
+  region](https://gillescolling.com/taxify/articles/regions.html)
 - [Enrichments](https://gillescolling.com/taxify/articles/enrichments.html)
 - [Custom
   data](https://gillescolling.com/taxify/articles/custom-data.html)
+- [Inspecting a name
+  list](https://gillescolling.com/taxify/articles/inspecting-names.html)
 - [Hybrid
   names](https://gillescolling.com/taxify/articles/hybrid-names.html)
 - [Migrating from taxize, WorldFlora, and related

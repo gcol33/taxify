@@ -12,8 +12,8 @@ and distribute data in incompatible formats. Manually aligning names
 between a taxonomic backbone and a trait database can consume hours even
 for moderately sized species lists.
 
-taxify ships with 22 enrichment layers that attach published trait and
-status datasets to a
+taxify ships with more than sixty enrichment layers that attach
+published trait and status datasets to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result in a single pipe call. Each enrichment is backed by a pre-built
 `.vtr` file that downloads automatically on first use and caches locally
@@ -22,10 +22,12 @@ alignment problem at build time, so the join at analysis time is a
 simple, fast, exact-match operation.
 
 This vignette covers the mechanics of how enrichments work, walks
-through each of the 18 layers with worked examples, and discusses
-practical strategies for combining enrichments, interpreting coverage
-gaps, and choosing the right layers for a given taxon group. We also
-discuss the
+through a representative set of layers with worked examples, and
+discusses practical strategies for combining enrichments, interpreting
+coverage gaps, and choosing the right layers for a given taxon group.
+[`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
+prints the full current set with versions and coverage. We also discuss
+the
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 function for joining custom datasets that go beyond the built-in
 enrichments.
@@ -210,8 +212,8 @@ list_enrichments()
 
 The `static` column is worth paying attention to. Static enrichments
 (woodiness, PanTHERIA, AmphiBIO, EltonTraits, LEDA, Diaz traits,
-FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, Meiri lizard traits,
-LepTraits, AnimalTraits, NW European Arthropods) are based on published,
+FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, ReptTraits, LepTraits,
+AnimalTraits, NW European Arthropods) are based on published,
 version-locked datasets that have a single definitive release. These
 never trigger version checks, so they add zero network overhead to a
 session. Non-static enrichments (conservation_status, GRIIS, WCVP,
@@ -258,7 +260,7 @@ taxify_download_enrichment(c(
   "elton_traits", "avonet", "pantheria", "amphibio",
   "common_names", "woodiness", "diaz_traits", "leda",
   "fungal_traits", "funguild", "algae_traits",
-  "fish_traits", "fishbase", "lizard_traits", "anage", "glonaf",
+  "fish_traits", "fishbase", "repttraits", "anage", "glonaf",
   "leptraits", "animaltraits", "arthropod_traits", "alien_first_records",
   "baseflor", "ecoflora", "floraweb"
 ))
@@ -537,6 +539,57 @@ are also available through
 [`add_pignatti()`](https://gillescolling.com/taxify/reference/add_pignatti.md),
 which reads the copy bundled in the TR8 package on demand; those values
 come from a copyrighted publication and are not redistributed by taxify.
+
+#### Mycorrhizal type (FungalRoot, Soudzilovskaia et al. 2020)
+
+Most vascular plants form a symbiosis with root fungi, and the *type* of
+that symbiosis is one of the most informative functional traits a plant
+carries: it governs how the plant acquires nutrients and which soil
+fungi it depends on.
+[`add_fungalroot()`](https://gillescolling.com/taxify/reference/add_fungalroot.md)
+attaches the mycorrhizal type from FungalRoot, a global compilation of
+more than 36,000 plant-by-site observations published on GBIF.
+
+Unlike the enrichments above, FungalRoot joins on `genus`, not
+`accepted_name`. Mycorrhizal type is conserved at the genus level (the
+resolution FungalRoot itself recommends for inference), so the value is
+a per-genus majority consensus and every species in a covered genus
+inherits it, whether or not that exact binomial was observed.
+
+``` r
+
+taxify(c("Quercus robur", "Pinus sylvestris", "Trifolium pratense",
+         "Vaccinium myrtillus", "Brassica oleracea")) |>
+  add_fungalroot()
+#>          input_name     genus mycorrhizal_type mycorrhizal_status mycorrhizal_records
+#> 1       Quercus robur   Quercus              EcM        mycorrhizal                 163
+#> 2    Pinus sylvestris     Pinus              EcM        mycorrhizal                 500
+#> 3  Trifolium pratense Trifolium               AM        mycorrhizal                 193
+#> 4 Vaccinium myrtillus Vaccinium              ErM        mycorrhizal                 227
+#> 5   Brassica oleracea  Brassica               NM    non-mycorrhizal                  59
+```
+
+Three columns are added:
+
+- `mycorrhizal_type`: the genus-level consensus type. `AM` (arbuscular,
+  by far the most common, formed by most herbs and many trees), `EcM`
+  (ecto, typical of oaks, pines, birches, and other temperate forest
+  trees), `ErM` (ericoid, confined to the Ericaceae), `OM` (orchid),
+  `NM` (non-mycorrhizal, e.g. the Brassicaceae and many Cyperaceae), the
+  dual types `EcM-AM` / `ErM-EcM` / `ErM-AM`, plus `Other` and
+  `uncertain`.
+- `mycorrhizal_status`: a coarse roll-up of the type, one of
+  `"mycorrhizal"`, `"non-mycorrhizal"`, or `"uncertain"`.
+- `mycorrhizal_records`: how many FungalRoot observations support the
+  genus-level consensus, so a one-record genus can be told apart from a
+  well-sampled one.
+
+Because the join is on genus, a plant whose genus is not in FungalRoot
+returns `NA`, and a genus circumscribed differently across backbones may
+not line up. Coverage is plant genera only (about 4,000 genera). The
+dataset is distributed under CC BY-NC 4.0; the per-genus consensus is
+computed by taxify from the per-observation labels, not FungalRoot’s own
+published genus assignment.
 
 ### Conservation status (IUCN Red List)
 
@@ -1161,82 +1214,82 @@ updated periodically.
 
 ### Reptile enrichments
 
-#### Meiri lizard traits (Meiri 2018)
+#### ReptTraits (Oskyrko et al. 2024)
 
-The Meiri lizard trait database covers ~6,600 lizard species (Squamata,
-excluding snakes and amphisbaenians) with 10 life-history,
-morphological, and ecological traits. Lizards are the most species-rich
-group of non-avian reptiles, and this dataset provides the most
-comprehensive species-level trait compilation available for the group.
+ReptTraits covers 12,060 reptile species across all reptile groups:
+snakes, lizards, amphisbaenians, turtles, crocodiles, and the tuatara.
+It is built on the Reptile Database taxonomy, so it joins cleanly
+against the `reptiledb` backbone. Alongside body-size and life-history
+traits it carries a per-species distribution signal: biogeographic
+realm, elevation range, and mean climate.
 
 ``` r
 
-lizards <- taxify(c(
-  "Pogona vitticeps", "Lacerta agilis", "Iguana iguana",
-  "Varanus komodoensis", "Gekko gecko"
-))
+reptiles <- taxify(c(
+  "Pogona vitticeps", "Python regius", "Chelonia mydas",
+  "Naja naja", "Crocodylus niloticus"
+), backend = "reptiledb")
 
-lizards |> add_lizard_traits()
-#>            input_name lizard_body_mass_g lizard_svl_mm lizard_tail_length_mm lizard_clutch_size ...
-#> 1    Pogona vitticeps             350.0         230.0                 250.0               18.0 ...
-#> 2      Lacerta agilis              10.0          70.0                 100.0                8.0 ...
-#> 3       Iguana iguana            4000.0         450.0                 700.0               35.0 ...
-#> 4 Varanus komodoensis           70000.0        1500.0                1400.0               18.0 ...
-#> 5         Gekko gecko              60.0         140.0                 130.0                2.0 ...
+reptiles |> add_repttraits()
+#>             input_name biogeographic_realm habitat_type elevation_max_m body_mass_g  svl_mm reproductive_mode ...
+#> 1     Pogona vitticeps     Australo-Pacific      Desert/...             612       575.4   250         oviparous ...
+#> 2        Python regius          Afrotropic         Forest            1200      1610.6  1125         oviparous ...
+#> 3       Chelonia mydas              Marine       Wetlands              NA    230000.0  1500         oviparous ...
+#> 4            Naja naja            Oriental         Forest            1009      1683.5  1570         oviparous ...
+#> 5 Crocodylus niloticus          Afrotropic       Wetlands              NA    750000.0    NA         oviparous ...
 ```
 
-All columns are prefixed with `lizard_`:
+The distribution and environment columns are the per-species range
+signal:
 
-- `lizard_body_mass_g`: adult body mass in grams.
+- `biogeographic_realm`: the main biogeographic realm (Neotropic,
+  Oriental, Australo-Pacific, Afrotropic, Palearctic, Nearctic,
+  Saharo-Sindian, Madagascan, or Marine).
 
-- `lizard_svl_mm`: snout-vent length in millimetres, the standard body
-  size measurement for reptiles (excluding the tail, which is frequently
-  lost and regenerated).
+- `microhabitat`: microhabitat use (terrestrial, saxicolous, arboreal,
+  fossorial, aquatic, and combinations).
 
-- `lizard_tail_length_mm`: tail length in millimetres.
+- `habitat_type`: broad habitat type(s) (forest, desert, grassland,
+  shrubland, savanna, wetlands).
 
-- `lizard_clutch_size`: the mean number of eggs per clutch (or neonates
-  per litter for viviparous species).
+- `elevation_min_m`, `elevation_max_m`: recorded elevation range in
+  metres.
 
-- `lizard_clutch_frequency`: the number of clutches produced per year.
+- `mean_annual_temp_c`: mean annual temperature across the range,
+  degrees Celsius.
 
-- `lizard_longevity_yr`: maximum recorded longevity in years.
+- `insular_endemic`: whether the species is insular/endemic.
 
-- `lizard_diet`: the primary diet category (insectivore, herbivore,
-  omnivore, carnivore).
+This realm-level range is coarse. It is a useful filter for “where does
+this species broadly occur”, but it is not a fine-grained (TDWG-level)
+range like the plant ranges that drive the `region` constraint in
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
-- `lizard_habitat`: the primary habitat type (terrestrial, arboreal,
-  fossorial, saxicolous, semi-aquatic).
+The morphology and life-history columns follow:
 
-- `lizard_activity_time`: the primary activity period (diurnal,
-  nocturnal, crepuscular, cathemeral).
+- `body_mass_g`: maximum body mass in grams.
 
-- `lizard_foraging_mode`: the foraging strategy (sit-and-wait, active
-  foraging, mixed). This trait is tightly linked to metabolic rate and
-  energy budgets: active foragers have higher metabolic rates and larger
-  home ranges, while sit-and-wait predators invest less energy in
-  locomotion but rely on crypsis and ambush efficiency.
+- `svl_mm`: maximum snout-vent length (straight carapace length for
+  turtles) in millimetres.
 
-The body mass range spans four orders of magnitude, from sub-gram geckos
-to the 70 kg Komodo Dragon (*Varanus komodoensis*). This allometric
-range drives strong scaling relationships: metabolic rate, home range
-size, and prey size all scale predictably with body mass in lizards. The
-SVL measurement is preferred over total length because tail autotomy
-(voluntary tail shedding) makes total length unreliable; SVL provides a
-stable, comparable measure of body size across species and individuals.
+- `total_length_mm`: maximum total length in millimetres.
 
-The combination of clutch size, clutch frequency, and longevity captures
-the fast-slow life-history continuum. Small geckos with clutches of 1-2
-eggs but multiple clutches per year represent a different strategy from
-large iguanas with single large clutches per season. This life-history
-variation is directly relevant to population viability analysis and
-conservation planning for reptile species.
+- `longevity_yr`: maximum recorded longevity in years.
 
-The dataset covers lizards globally. Snakes and turtles are not
-included; they receive `NA` in all columns. It is licensed under CC BY
-4.0 and published in *Global Ecology and Biogeography*. The reference is
-Meiri (2018), *Global Ecology and Biogeography* 27:1168-1172. The
-dataset is classified as static in the taxify manifest.
+- `diet`: diet category (carnivorous, herbivorous, omnivorous).
+
+- `reproductive_mode`: oviparous, viviparous, or ovoviviparous.
+
+- `clutch_size`: mean clutch or litter size.
+
+- `active_time`: activity period (diurnal, nocturnal, cathemeral).
+
+- `foraging_mode`: foraging strategy (active, ambush, mixed).
+
+Species absent from ReptTraits receive `NA` in all columns. It is
+licensed under CC BY 4.0 and published in *Scientific Data*. The
+reference is Oskyrko, Mi, Meiri & Du (2024), *Scientific Data* 11:243.
+The dataset is classified as static in the taxify manifest.
 
 ### Vertebrate enrichments (cross-class)
 
@@ -1930,7 +1983,7 @@ record of which data was used to produce the results.
 
 Not all species appear in all enrichments. Each dataset has a taxonomic
 scope (plants, birds, mammals, amphibians, vertebrates, butterflies,
-arthropods, fungi, algae, fish, lizards, or cross-taxon) and a
+arthropods, fungi, algae, fish, reptiles, or cross-taxon) and a
 geographic scope (global, European, NW European). When an enrichment has
 no data for a species, the corresponding columns contain `NA`.
 Understanding coverage patterns is essential for interpreting enriched
@@ -1996,7 +2049,7 @@ accept slightly different sets of names).
 | algae_traits | macroalgae | European | 1,745 |
 | fish_traits | freshwater fish | global | 8,300 |
 | fishbase | all fish | global | 35,000 |
-| lizard_traits | lizards | global | 6,600 |
+| repttraits | reptiles | global | 12,060 |
 | anage | vertebrates | global | 4,700 |
 | animaltraits | cross-taxon (arthropods+) | global | 2,000 |
 | leptraits | butterflies | global | 12,400 |
@@ -2139,6 +2192,7 @@ range, and vernacular names.
 result <- taxify(species_list, backend = "wfo") |>
   add_conservation_status() |>
   add_woodiness() |>
+  add_fungalroot() |>
   add_eive() |>
   add_diaz_traits() |>
   add_leda() |>
@@ -2173,15 +2227,17 @@ enrichments.
 result <- taxify(species_list, backend = "wfo") |>
   add_conservation_status() |>
   add_woodiness() |>
+  add_fungalroot() |>
   add_diaz_traits() |>
   add_wcvp(region = c("NAM", "SAM", "AFR")) |>
   add_common_names()
 ```
 
-Woodiness and Diaz traits both have global coverage, so they contribute
-useful data regardless of the geographic origin of the species list.
-WCVP can be queried for any TDWG region, providing native range
-information for the continents relevant to the study.
+Woodiness, Diaz traits, and FungalRoot mycorrhizal type all have global
+coverage, so they contribute useful data regardless of the geographic
+origin of the species list. WCVP can be queried for any TDWG region,
+providing native range information for the continents relevant to the
+study.
 
 ### Birds
 
@@ -2275,26 +2331,24 @@ contribute data (FISHMORPH covers freshwater species only). The
 IUCN conservation status for prioritizing species in fisheries
 management and marine spatial planning.
 
-### Reptiles (lizards)
+### Reptiles
 
-Lizards are covered by the Meiri lizard traits enrichment, which
-provides life-history and ecological traits for ~6,600 species. Combined
-with conservation status, it gives a functional profile suitable for
-reptile community analyses and conservation assessments.
+Reptiles are covered by the `reptiledb` backbone (the Reptile Database)
+and the ReptTraits enrichment, which provides life-history,
+morphological, and distribution traits for 12,060 species across all
+reptile groups. Combined with conservation status, it gives a functional
+profile suitable for reptile community analyses and conservation
+assessments.
 
 ``` r
 
-result <- taxify(species_list, backend = "col") |>
+result <- taxify(species_list, backend = "reptiledb") |>
   add_conservation_status() |>
-  add_lizard_traits() |>
+  add_repttraits() |>
   add_common_names()
 ```
 
-Snakes and turtles are not covered by the lizard enrichment. For those
-groups, the
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-function can join custom trait datasets. For cross-class longevity and
-metabolic comparisons,
+For cross-class longevity and metabolic comparisons,
 [`add_anage()`](https://gillescolling.com/taxify/reference/add_anage.md)
 covers reptiles alongside mammals, birds, amphibians, and fish.
 
@@ -2540,7 +2594,7 @@ reproduced even if the upstream data is later revised or corrected.
 The licenses of the source datasets range from CC0 (EltonTraits,
 PanTHERIA, woodiness, common names, LepTraits, AnimalTraits) to CC BY
 4.0 (EIVE, AmphiBIO, AVONET, GRIIS, GloNAF, FungalTraits, AlgaeTraits,
-FISHMORPH, Meiri lizard traits), CC BY (AnAge), CC BY-NC (NW European
+FISHMORPH, ReptTraits), CC BY (AnAge), CC BY-NC (NW European
 Arthropods), CC BY 3.0 (Diaz traits), and CC BY-NC 3.0 (FishBase). LEDA
 and WCVP have their own terms published on their respective websites.
 The taxify package itself does not redistribute these datasets in their

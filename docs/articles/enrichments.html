@@ -12,9 +12,22 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Enriching results with trait and status data">
+<script>
+(function () {
+  var D = String.fromCharCode(36);
+  window.MathJax = {
+    tex: {
+      inlineMath: [[D, D], ["\\(", "\\)"]],
+      displayMath: [[D + D, D + D], ["\\[", "\\]"]]
+    },
+    chtml: { linebreaks: { automatic: true, width: "90% container" } },
+    svg: { linebreaks: { automatic: true, width: "90% container" } },
+    options: { renderActions: { addMenu: [] } }
+  };
+})();
+</script>
 </head>
 <body>
-
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -22,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,10 +56,12 @@
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
+    <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
+    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
     <li><a class="dropdown-item" href="../articles/hybrid-names.html">Hybrid name detection and parsing</a></li>
     <li><a class="dropdown-item" href="../articles/large-scale.html">Working with large species lists</a></li>
   </ul>
@@ -98,19 +113,21 @@ treat synonyms inconsistently, and distribute data in incompatible
 formats. Manually aligning names between a taxonomic backbone and a
 trait database can consume hours even for moderately sized species
 lists.</p>
-<p>taxify ships with 22 enrichment layers that attach published trait
-and status datasets to a <code><a href="../reference/taxify.html">taxify()</a></code> result in a single pipe
-call. Each enrichment is backed by a pre-built <code>.vtr</code> file
-that downloads automatically on first use and caches locally for all
-subsequent sessions. The enrichment system handles the name alignment
-problem at build time, so the join at analysis time is a simple, fast,
-exact-match operation.</p>
+<p>taxify ships with more than sixty enrichment layers that attach
+published trait and status datasets to a <code><a href="../reference/taxify.html">taxify()</a></code> result in
+a single pipe call. Each enrichment is backed by a pre-built
+<code>.vtr</code> file that downloads automatically on first use and
+caches locally for all subsequent sessions. The enrichment system
+handles the name alignment problem at build time, so the join at
+analysis time is a simple, fast, exact-match operation.</p>
 <p>This vignette covers the mechanics of how enrichments work, walks
-through each of the 18 layers with worked examples, and discusses
-practical strategies for combining enrichments, interpreting coverage
-gaps, and choosing the right layers for a given taxon group. We also
-discuss the <code><a href="../reference/add_data.html">add_data()</a></code> function for joining custom datasets
-that go beyond the built-in enrichments.</p>
+through a representative set of layers with worked examples, and
+discusses practical strategies for combining enrichments, interpreting
+coverage gaps, and choosing the right layers for a given taxon group.
+<code><a href="../reference/list_enrichments.html">list_enrichments()</a></code> prints the full current set with
+versions and coverage. We also discuss the <code><a href="../reference/add_data.html">add_data()</a></code>
+function for joining custom datasets that go beyond the built-in
+enrichments.</p>
 <div class="section level2">
 <h2 id="how-enrichments-work">How enrichments work<a class="anchor" aria-label="anchor" href="#how-enrichments-work"></a>
 </h2>
@@ -284,15 +301,14 @@ source).</p>
 <span><span class="co">#&gt; ...</span></span></code></pre></div>
 <p>The <code>static</code> column is worth paying attention to. Static
 enrichments (woodiness, PanTHERIA, AmphiBIO, EltonTraits, LEDA, Diaz
-traits, FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, Meiri lizard
-traits, LepTraits, AnimalTraits, NW European Arthropods) are based on
-published, version-locked datasets that have a single definitive
-release. These never trigger version checks, so they add zero network
-overhead to a session. Non-static enrichments (conservation_status,
-GRIIS, WCVP, common_names) are periodically updated as the upstream
-source publishes new releases. For these, taxify checks once per session
-whether a newer version is available and updates transparently if
-so.</p>
+traits, FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, ReptTraits,
+LepTraits, AnimalTraits, NW European Arthropods) are based on published,
+version-locked datasets that have a single definitive release. These
+never trigger version checks, so they add zero network overhead to a
+session. Non-static enrichments (conservation_status, GRIIS, WCVP,
+common_names) are periodically updated as the upstream source publishes
+new releases. For these, taxify checks once per session whether a newer
+version is available and updates transparently if so.</p>
 <p>The <code>nrow</code> column gives a rough sense of enrichment size.
 Conservation status has ~166,000 rows (one per assessed species), WCVP
 has ~340,000 (one per species-region combination), and the smaller
@@ -331,7 +347,7 @@ directory.</p>
 <span>  <span class="st">"elton_traits"</span>, <span class="st">"avonet"</span>, <span class="st">"pantheria"</span>, <span class="st">"amphibio"</span>,</span>
 <span>  <span class="st">"common_names"</span>, <span class="st">"woodiness"</span>, <span class="st">"diaz_traits"</span>, <span class="st">"leda"</span>,</span>
 <span>  <span class="st">"fungal_traits"</span>, <span class="st">"funguild"</span>, <span class="st">"algae_traits"</span>,</span>
-<span>  <span class="st">"fish_traits"</span>, <span class="st">"fishbase"</span>, <span class="st">"lizard_traits"</span>, <span class="st">"anage"</span>, <span class="st">"glonaf"</span>,</span>
+<span>  <span class="st">"fish_traits"</span>, <span class="st">"fishbase"</span>, <span class="st">"repttraits"</span>, <span class="st">"anage"</span>, <span class="st">"glonaf"</span>,</span>
 <span>  <span class="st">"leptraits"</span>, <span class="st">"animaltraits"</span>, <span class="st">"arthropod_traits"</span>, <span class="st">"alien_first_records"</span>,</span>
 <span>  <span class="st">"baseflor"</span>, <span class="st">"ecoflora"</span>, <span class="st">"floraweb"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -1240,73 +1256,71 @@ updated periodically.</p>
 <h3 id="reptile-enrichments">Reptile enrichments<a class="anchor" aria-label="anchor" href="#reptile-enrichments"></a>
 </h3>
 <div class="section level4">
-<h4 id="meiri-lizard-traits-meiri-2018">Meiri lizard traits (Meiri 2018)<a class="anchor" aria-label="anchor" href="#meiri-lizard-traits-meiri-2018"></a>
+<h4 id="repttraits-oskyrko-et-al--2024">ReptTraits (Oskyrko et al. 2024)<a class="anchor" aria-label="anchor" href="#repttraits-oskyrko-et-al--2024"></a>
 </h4>
-<p>The Meiri lizard trait database covers ~6,600 lizard species
-(Squamata, excluding snakes and amphisbaenians) with 10 life-history,
-morphological, and ecological traits. Lizards are the most species-rich
-group of non-avian reptiles, and this dataset provides the most
-comprehensive species-level trait compilation available for the
-group.</p>
+<p>ReptTraits covers 12,060 reptile species across all reptile groups:
+snakes, lizards, amphisbaenians, turtles, crocodiles, and the tuatara.
+It is built on the Reptile Database taxonomy, so it joins cleanly
+against the <code>reptiledb</code> backbone. Alongside body-size and
+life-history traits it carries a per-species distribution signal:
+biogeographic realm, elevation range, and mean climate.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lizards</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Pogona vitticeps"</span>, <span class="st">"Lacerta agilis"</span>, <span class="st">"Iguana iguana"</span>,</span>
-<span>  <span class="st">"Varanus komodoensis"</span>, <span class="st">"Gekko gecko"</span></span>
-<span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">reptiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Pogona vitticeps"</span>, <span class="st">"Python regius"</span>, <span class="st">"Chelonia mydas"</span>,</span>
+<span>  <span class="st">"Naja naja"</span>, <span class="st">"Crocodylus niloticus"</span></span>
+<span><span class="op">)</span>, backend <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">lizards</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_lizard_traits.html">add_lizard_traits</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            input_name lizard_body_mass_g lizard_svl_mm lizard_tail_length_mm lizard_clutch_size ...</span></span>
-<span><span class="co">#&gt; 1    Pogona vitticeps             350.0         230.0                 250.0               18.0 ...</span></span>
-<span><span class="co">#&gt; 2      Lacerta agilis              10.0          70.0                 100.0                8.0 ...</span></span>
-<span><span class="co">#&gt; 3       Iguana iguana            4000.0         450.0                 700.0               35.0 ...</span></span>
-<span><span class="co">#&gt; 4 Varanus komodoensis           70000.0        1500.0                1400.0               18.0 ...</span></span>
-<span><span class="co">#&gt; 5         Gekko gecko              60.0         140.0                 130.0                2.0 ...</span></span></code></pre></div>
-<p>All columns are prefixed with <code>lizard_</code>:</p>
+<span><span class="va">reptiles</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_repttraits.html">add_repttraits</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             input_name biogeographic_realm habitat_type elevation_max_m body_mass_g  svl_mm reproductive_mode ...</span></span>
+<span><span class="co">#&gt; 1     Pogona vitticeps     Australo-Pacific      Desert/...             612       575.4   250         oviparous ...</span></span>
+<span><span class="co">#&gt; 2        Python regius          Afrotropic         Forest            1200      1610.6  1125         oviparous ...</span></span>
+<span><span class="co">#&gt; 3       Chelonia mydas              Marine       Wetlands              NA    230000.0  1500         oviparous ...</span></span>
+<span><span class="co">#&gt; 4            Naja naja            Oriental         Forest            1009      1683.5  1570         oviparous ...</span></span>
+<span><span class="co">#&gt; 5 Crocodylus niloticus          Afrotropic       Wetlands              NA    750000.0    NA         oviparous ...</span></span></code></pre></div>
+<p>The distribution and environment columns are the per-species range
+signal:</p>
 <ul>
-<li><p><code>lizard_body_mass_g</code>: adult body mass in
-grams.</p></li>
-<li><p><code>lizard_svl_mm</code>: snout-vent length in millimetres, the
-standard body size measurement for reptiles (excluding the tail, which
-is frequently lost and regenerated).</p></li>
-<li><p><code>lizard_tail_length_mm</code>: tail length in
-millimetres.</p></li>
-<li><p><code>lizard_clutch_size</code>: the mean number of eggs per
-clutch (or neonates per litter for viviparous species).</p></li>
-<li><p><code>lizard_clutch_frequency</code>: the number of clutches
-produced per year.</p></li>
-<li><p><code>lizard_longevity_yr</code>: maximum recorded longevity in
-years.</p></li>
-<li><p><code>lizard_diet</code>: the primary diet category (insectivore,
-herbivore, omnivore, carnivore).</p></li>
-<li><p><code>lizard_habitat</code>: the primary habitat type
-(terrestrial, arboreal, fossorial, saxicolous, semi-aquatic).</p></li>
-<li><p><code>lizard_activity_time</code>: the primary activity period
-(diurnal, nocturnal, crepuscular, cathemeral).</p></li>
-<li><p><code>lizard_foraging_mode</code>: the foraging strategy
-(sit-and-wait, active foraging, mixed). This trait is tightly linked to
-metabolic rate and energy budgets: active foragers have higher metabolic
-rates and larger home ranges, while sit-and-wait predators invest less
-energy in locomotion but rely on crypsis and ambush efficiency.</p></li>
+<li><p><code>biogeographic_realm</code>: the main biogeographic realm
+(Neotropic, Oriental, Australo-Pacific, Afrotropic, Palearctic,
+Nearctic, Saharo-Sindian, Madagascan, or Marine).</p></li>
+<li><p><code>microhabitat</code>: microhabitat use (terrestrial,
+saxicolous, arboreal, fossorial, aquatic, and combinations).</p></li>
+<li><p><code>habitat_type</code>: broad habitat type(s) (forest, desert,
+grassland, shrubland, savanna, wetlands).</p></li>
+<li><p><code>elevation_min_m</code>, <code>elevation_max_m</code>:
+recorded elevation range in metres.</p></li>
+<li><p><code>mean_annual_temp_c</code>: mean annual temperature across
+the range, degrees Celsius.</p></li>
+<li><p><code>insular_endemic</code>: whether the species is
+insular/endemic.</p></li>
 </ul>
-<p>The body mass range spans four orders of magnitude, from sub-gram
-geckos to the 70 kg Komodo Dragon (<em>Varanus komodoensis</em>). This
-allometric range drives strong scaling relationships: metabolic rate,
-home range size, and prey size all scale predictably with body mass in
-lizards. The SVL measurement is preferred over total length because tail
-autotomy (voluntary tail shedding) makes total length unreliable; SVL
-provides a stable, comparable measure of body size across species and
-individuals.</p>
-<p>The combination of clutch size, clutch frequency, and longevity
-captures the fast-slow life-history continuum. Small geckos with
-clutches of 1-2 eggs but multiple clutches per year represent a
-different strategy from large iguanas with single large clutches per
-season. This life-history variation is directly relevant to population
-viability analysis and conservation planning for reptile species.</p>
-<p>The dataset covers lizards globally. Snakes and turtles are not
-included; they receive <code>NA</code> in all columns. It is licensed
-under CC BY 4.0 and published in <em>Global Ecology and
-Biogeography</em>. The reference is Meiri (2018), <em>Global Ecology and
-Biogeography</em> 27:1168-1172. The dataset is classified as static in
+<p>This realm-level range is coarse. It is a useful filter for “where
+does this species broadly occur”, but it is not a fine-grained
+(TDWG-level) range like the plant ranges that drive the
+<code>region</code> constraint in <code><a href="../reference/taxify.html">taxify()</a></code>.</p>
+<p>The morphology and life-history columns follow:</p>
+<ul>
+<li><p><code>body_mass_g</code>: maximum body mass in grams.</p></li>
+<li><p><code>svl_mm</code>: maximum snout-vent length (straight carapace
+length for turtles) in millimetres.</p></li>
+<li><p><code>total_length_mm</code>: maximum total length in
+millimetres.</p></li>
+<li><p><code>longevity_yr</code>: maximum recorded longevity in
+years.</p></li>
+<li><p><code>diet</code>: diet category (carnivorous, herbivorous,
+omnivorous).</p></li>
+<li><p><code>reproductive_mode</code>: oviparous, viviparous, or
+ovoviviparous.</p></li>
+<li><p><code>clutch_size</code>: mean clutch or litter size.</p></li>
+<li><p><code>active_time</code>: activity period (diurnal, nocturnal,
+cathemeral).</p></li>
+<li><p><code>foraging_mode</code>: foraging strategy (active, ambush,
+mixed).</p></li>
+</ul>
+<p>Species absent from ReptTraits receive <code>NA</code> in all
+columns. It is licensed under CC BY 4.0 and published in <em>Scientific
+Data</em>. The reference is Oskyrko, Mi, Meiri &amp; Du (2024),
+<em>Scientific Data</em> 11:243. The dataset is classified as static in
 the taxify manifest.</p>
 </div>
 </div>
@@ -1926,7 +1940,7 @@ data was used to produce the results.</p>
 </h2>
 <p>Not all species appear in all enrichments. Each dataset has a
 taxonomic scope (plants, birds, mammals, amphibians, vertebrates,
-butterflies, arthropods, fungi, algae, fish, lizards, or cross-taxon)
+butterflies, arthropods, fungi, algae, fish, reptiles, or cross-taxon)
 and a geographic scope (global, European, NW European). When an
 enrichment has no data for a species, the corresponding columns contain
 <code>NA</code>. Understanding coverage patterns is essential for
@@ -2065,10 +2079,10 @@ accept slightly different sets of names).</p>
 <td>35,000</td>
 </tr>
 <tr class="odd">
-<td>lizard_traits</td>
-<td>lizards</td>
+<td>repttraits</td>
+<td>reptiles</td>
 <td>global</td>
-<td>6,600</td>
+<td>12,060</td>
 </tr>
 <tr class="even">
 <td>anage</td>
@@ -2373,20 +2387,20 @@ useful alongside IUCN conservation status for prioritizing species in
 fisheries management and marine spatial planning.</p>
 </div>
 <div class="section level3">
-<h3 id="reptiles-lizards">Reptiles (lizards)<a class="anchor" aria-label="anchor" href="#reptiles-lizards"></a>
+<h3 id="reptiles">Reptiles<a class="anchor" aria-label="anchor" href="#reptiles"></a>
 </h3>
-<p>Lizards are covered by the Meiri lizard traits enrichment, which
-provides life-history and ecological traits for ~6,600 species. Combined
-with conservation status, it gives a functional profile suitable for
-reptile community analyses and conservation assessments.</p>
+<p>Reptiles are covered by the <code>reptiledb</code> backbone (the
+Reptile Database) and the ReptTraits enrichment, which provides
+life-history, morphological, and distribution traits for 12,060 species
+across all reptile groups. Combined with conservation status, it gives a
+functional profile suitable for reptile community analyses and
+conservation assessments.</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_lizard_traits.html">add_lizard_traits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_repttraits.html">add_repttraits</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_common_names.html">add_common_names</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Snakes and turtles are not covered by the lizard enrichment. For
-those groups, the <code><a href="../reference/add_data.html">add_data()</a></code> function can join custom trait
-datasets. For cross-class longevity and metabolic comparisons,
+<p>For cross-class longevity and metabolic comparisons,
 <code><a href="../reference/add_anage.html">add_anage()</a></code> covers reptiles alongside mammals, birds,
 amphibians, and fish.</p>
 </div>
@@ -2593,7 +2607,7 @@ later revised or corrected.</p>
 <p>The licenses of the source datasets range from CC0 (EltonTraits,
 PanTHERIA, woodiness, common names, LepTraits, AnimalTraits) to CC BY
 4.0 (EIVE, AmphiBIO, AVONET, GRIIS, GloNAF, FungalTraits, AlgaeTraits,
-FISHMORPH, Meiri lizard traits), CC BY (AnAge), CC BY-NC (NW European
+FISHMORPH, ReptTraits), CC BY (AnAge), CC BY-NC (NW European
 Arthropods), CC BY 3.0 (Diaz traits), and CC BY-NC 3.0 (FishBase). LEDA
 and WCVP have their own terms published on their respective websites.
 The taxify package itself does not redistribute these datasets in their
@@ -2669,6 +2683,5 @@ as possible.</p>
 
 
 
-  
-</body>
+  </body>
 </html>

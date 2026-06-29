@@ -5,7 +5,20 @@ containing the matched name, accepted name, taxonomic hierarchy, and
 match quality information."><meta property="og:description" content="Matches a vector of taxonomic names against locally stored Darwin Core
 backbone databases. Returns a data.frame with one row per input name
 containing the matched name, accepted name, taxonomic hierarchy, and
-match quality information."></head><body>
+match quality information."><script>
+(function () {
+  var D = String.fromCharCode(36);
+  window.MathJax = {
+    tex: {
+      inlineMath: [[D, D], ["\\(", "\\)"]],
+      displayMath: [[D + D, D + D], ["\\[", "\\]"]]
+    },
+    chtml: { linebreaks: { automatic: true, width: "90% container" } },
+    svg: { linebreaks: { automatic: true, width: "90% container" } },
+    options: { renderActions: { addMenu: [] } }
+  };
+})();
+</script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -13,7 +26,7 @@ match quality information."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,10 +45,12 @@ match quality information."></head><body>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
+    <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
+    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
     <li><a class="dropdown-item" href="../articles/hybrid-names.html">Hybrid name detection and parsing</a></li>
     <li><a class="dropdown-item" href="../articles/large-scale.html">Working with large species lists</a></li>
   </ul></li>
@@ -76,6 +91,10 @@ match quality information.</p>
 <span>  fuzzy <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  fuzzy_threshold <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  fuzzy_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dl"</span>, <span class="st">"levenshtein"</span>, <span class="st">"jw"</span><span class="op">)</span>,</span>
+<span>  aggregates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"preserve"</span>, <span class="st">"collapse"</span><span class="op">)</span>,</span>
+<span>  region <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  coords <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"present"</span>, <span class="st">"native"</span>, <span class="st">"introduced"</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -112,6 +131,56 @@ regardless of name length. Not supported for <code>fuzzy_method = "jw"</code>.</
 <dt id="arg-fuzzy-method">fuzzy_method<a class="anchor" aria-label="anchor" href="#arg-fuzzy-method"></a></dt>
 <dd><p>Character. One of <code>"dl"</code> (Damerau-Levenshtein,
 default), <code>"levenshtein"</code>, or <code>"jw"</code> (Jaro-Winkler).</p></dd>
+
+
+<dt id="arg-aggregates">aggregates<a class="anchor" aria-label="anchor" href="#arg-aggregates"></a></dt>
+<dd><p>Character. How to treat species aggregates (names with an
+<code>agg.</code> / <code>s.l.</code> qualifier). <code>"preserve"</code> (default) keeps the aggregate as
+its own concept: it matches the backbone's aggregate taxon
+(<code>"&lt;binomial&gt; aggr."</code>) where one exists, otherwise falls back to the
+binomial. <code>"collapse"</code> strips the marker and matches the binomial species,
+the way any non-aggregate name is matched. Either way the qualifier is
+recorded in the <code>qualifier</code> column.</p></dd>
+
+
+<dt id="arg-region">region<a class="anchor" aria-label="anchor" href="#arg-region"></a></dt>
+<dd><p>TDWG botanical region(s) to constrain fuzzy matching to, or
+<code>NULL</code> (default) for no geographic constraint. Accepts Level 3 codes
+(<code>"BGM"</code>, <code>c("BGM", "GER")</code>) or region names at any level, matched case-
+and accent-insensitively against the bundled WGSRPD crosswalk: a Level 3
+name (<code>"Belgium"</code>), a Level 2 region (<code>"Middle Europe"</code>), or a Level 1
+continent (<code>"Europe"</code>, which expands to all its codes). See
+<code><a href="taxify_regions.html">taxify_regions()</a></code> for the full list. When set, <strong>fuzzy</strong> candidates are
+restricted to species with WCVP records in the region(s); exact matches are
+always kept. The filter only narrows genuinely ambiguous fuzzy candidates:
+a candidate is dropped only when the same input name has another candidate
+that is in-region or has no WCVP range data, so non-plant matches (no WCVP
+coverage) are never affected and a name whose only candidate is
+out-of-region is still returned. WCVP is vascular plants only, so this
+disambiguates plant names.</p></dd>
+
+
+<dt id="arg-coords">coords<a class="anchor" aria-label="anchor" href="#arg-coords"></a></dt>
+<dd><p>Coordinates to constrain fuzzy matching to, mapped to TDWG
+regions by point-in-polygon and unioned with <code>region</code>. A single
+<code>c(lon, lat)</code> pair, a matrix/data.frame of longitude/latitude columns
+(named <code>lon</code>/<code>lat</code> or <code>x</code>/<code>y</code>, else the first two columns as lon, lat), or
+a point-geometry spatial object (an <span class="pkg">sf</span>/<code>sfc</code> object or a <span class="pkg">terra</span>
+<code>SpatVector</code>, reprojected to longitude/latitude automatically). <code>NULL</code>
+(default) for none. The WGSRPD boundary file is downloaded once and cached;
+coordinate lookup needs that download (or a prior cache). The point-in-
+polygon test uses <span class="pkg">terra</span> or <span class="pkg">sf</span> when installed, otherwise a
+native fallback; force the engine with
+<code>options(taxify.pip_engine = "terra" | "sf" | "native")</code>.</p></dd>
+
+
+<dt id="arg-range">range<a class="anchor" aria-label="anchor" href="#arg-range"></a></dt>
+<dd><p>Character. Which WCVP statuses count as in-region when <code>region</code>
+or <code>coords</code> is set. <code>"present"</code> (default) accepts any record (native,
+introduced, or extinct) – the right choice for name disambiguation.
+<code>"native"</code> accepts only native records, <code>"introduced"</code> only introduced
+(alien) records; both fold an ecological filter into matching and are for
+callers who want that. Ignored when no region is set.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -163,6 +232,18 @@ accepted name's full citation.</p></dd>
 <dt>is_hybrid</dt>
 <dd><p>Logical. Was a hybrid marker detected in the input?</p></dd>
 
+<dt>qualifier</dt>
+<dd><p>Canonical taxonomic qualifier found in the input name
+(<code>"cf."</code>, <code>"aff."</code>, <code>"agg."</code>, <code>"s.l."</code>, <code>"s.str."</code>, <code>"sp."</code>, ...), or
+<code>NA</code>. Spelling variants are folded to one token (<code>"aggr."</code>, <code>"agg"</code> and
+<code>"sensu lato"</code> all map to <code>"agg."</code>/<code>"s.l."</code>).</p></dd>
+
+<dt>qualifier_position</dt>
+<dd><p><code>"genus"</code> when the qualifier leads the name and
+qualifies the whole name (e.g. <code>"Cf. Pinus sylvestris"</code>), <code>"species"</code>
+when it qualifies the species (inline <code>cf.</code> or trailing <code>agg.</code>), <code>NA</code>
+when there is no qualifier.</p></dd>
+
 <dt>match_type</dt>
 <dd><p>One of <code>"exact"</code>, <code>"exact_ci"</code>, <code>"fuzzy"</code>, <code>"abbrev"</code>
 (an abbreviated genus such as <code>"Q. robur"</code> resolved via genus initial
@@ -210,6 +291,16 @@ by later ones (fallback chain).</p>
 <span><span class="co"># Disable fuzzy matching</span></span>
 <span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,</span></span>
+<span><span class="co"># or a region name resolved via the bundled WGSRPD crosswalk</span></span>
+<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"EUR"</span><span class="op">)</span></span>
+<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"Belgium"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Constrain by coordinates (downloads WGSRPD boundaries on first use)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
+<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.35</span>, <span class="fl">50.85</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="co"># }</span></span>
+<span></span>
 <span><span class="co"># Fallback chain: try WFO first, then COL for unmatched</span></span>
 <span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Panthera leo"</span><span class="op">)</span>,</span>
 <span>       backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
@@ -235,6 +326,5 @@ by later ones (fallback chain).</p>
 
 
 
-  
-</body></html>
+  </body></html>
 

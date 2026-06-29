@@ -13,6 +13,8 @@
   backends](https://gillescolling.com/taxify/articles/backends.md):
 - [Fuzzy matching: methods, thresholds, and
   tuning](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
+- [Constraining matches to a geographic
+  region](https://gillescolling.com/taxify/articles/regions.md):
 - [Enriching results with trait and status
   data](https://gillescolling.com/taxify/articles/enrichments.md):
 - [Joining custom data with
@@ -20,6 +22,8 @@
 
 ### Special topics
 
+- [Inspecting a name list with
+  inspect()](https://gillescolling.com/taxify/articles/inspecting-names.md):
 - [Hybrid name detection and
   parsing](https://gillescolling.com/taxify/articles/hybrid-names.md):
 - [Working with large species

@@ -12,9 +12,22 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Choosing and combining backends">
+<script>
+(function () {
+  var D = String.fromCharCode(36);
+  window.MathJax = {
+    tex: {
+      inlineMath: [[D, D], ["\\(", "\\)"]],
+      displayMath: [[D + D, D + D], ["\\[", "\\]"]]
+    },
+    chtml: { linebreaks: { automatic: true, width: "90% container" } },
+    svg: { linebreaks: { automatic: true, width: "90% container" } },
+    options: { renderActions: { addMenu: [] } }
+  };
+})();
+</script>
 </head>
 <body>
-
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -22,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,10 +56,12 @@
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
+    <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
+    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
     <li><a class="dropdown-item" href="../articles/hybrid-names.html">Hybrid name detection and parsing</a></li>
     <li><a class="dropdown-item" href="../articles/large-scale.html">Working with large species lists</a></li>
   </ul>
@@ -88,8 +103,8 @@
     
     
 <p>taxify matches taxonomic names against locally stored Darwin Core
-backbone databases. Ten backends are available, each compiled from a
-different authoritative source. The backend we choose determines which
+backbone databases. Thirteen backends are available, each compiled from
+a different authoritative source. The backend we choose determines which
 names can be matched, what taxonomic opinion governs synonym resolution,
 and which extra metadata columns are available downstream. This vignette
 walks through the backends, explains how to combine them in fallback
@@ -98,10 +113,10 @@ given project.</p>
 <div class="section level2">
 <h2 id="backend-overview">Backend overview<a class="anchor" aria-label="anchor" href="#backend-overview"></a>
 </h2>
-<p>The table below summarizes the ten backends. “Approx. names” is the
-total number of name strings in the compiled backbone (accepted names
-plus synonyms); the actual species count is lower because each accepted
-species may have several synonym entries pointing to it.</p>
+<p>The table below summarizes the thirteen backends. “Approx. names” is
+the total number of name strings in the compiled backbone (accepted
+names plus synonyms); the actual species count is lower because each
+accepted species may have several synonym entries pointing to it.</p>
 <table class="table">
 <colgroup>
 <col width="15%">
@@ -188,6 +203,27 @@ species may have several synonym entries pointing to it.</p>
 <td align="left">~170k</td>
 <td align="left">ChecklistBank DwC-A (CC BY-NC)</td>
 </tr>
+<tr class="odd">
+<td align="left"><code>fishbase</code></td>
+<td align="left">FishBase</td>
+<td align="left">Fishes</td>
+<td align="left">~100k</td>
+<td align="left">rfishbase (load_taxa + synonyms)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>sealifebase</code></td>
+<td align="left">SeaLifeBase</td>
+<td align="left">Non-fish marine and aquatic</td>
+<td align="left">~134k</td>
+<td align="left">rfishbase (load_taxa + synonyms)</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>reptiledb</code></td>
+<td align="left">Reptile Database</td>
+<td align="left">Reptiles</td>
+<td align="left">~50k</td>
+<td align="left">reptarium taxa.csv + synonym/checklist XLSX</td>
+</tr>
 </tbody>
 </table>
 <p>A few things stand out. WFO is the standard reference for plant
@@ -247,6 +283,21 @@ better synonym resolution than generalist databases.</p>
 protists. It is the only backend licensed CC BY-NC (non-commercial use
 only). All other backends are open-access. taxify prints a license
 notice during AlgaeBase download to make this visible.</p>
+<p>FishBase and SeaLifeBase are the standard references for aquatic
+animals. FishBase covers fishes; SeaLifeBase covers the non-fish marine
+and aquatic groups (molluscs, crustaceans, marine mammals, and the
+rest). Both are compiled from the rfishbase package rather than a file
+download, taking accepted species from <code>load_taxa()</code> and
+synonym links from <code>synonyms()</code>. They carry species-rank rows
+only, so their genera enter the genus register derived from those
+species. The data is CC BY-NC 3.0.</p>
+<p>The Reptile Database is the taxonomic reference for reptiles, with
+~50k names covering snakes, lizards, turtles, crocodilians, and the
+tuatara. It is built from the reptarium bulk exports: the current
+accepted-species list, the periodic synonym snapshot, and the
+family-to-order checklist. The source carries no kingdom or class field,
+so the backbone stamps Animalia / Chordata / Reptilia on every row. The
+data is CC BY 4.0.</p>
 </div>
 <div class="section level2">
 <h2 id="downloading-backbones">Downloading backbones<a class="anchor" aria-label="anchor" href="#downloading-backbones"></a>
@@ -357,10 +408,10 @@ all-rounder.</p>
 <div class="section level2">
 <h2 id="backend-specific-output-differences">Backend-specific output differences<a class="anchor" aria-label="anchor" href="#backend-specific-output-differences"></a>
 </h2>
-<p>All ten backends produce the same 16-column output schema. This is a
-deliberate design choice: downstream code does not need to know which
-backend produced a match. That said, the content of those columns varies
-in ways worth knowing about.</p>
+<p>All thirteen backends produce the same 16-column output schema. This
+is a deliberate design choice: downstream code does not need to know
+which backend produced a match. That said, the content of those columns
+varies in ways worth knowing about.</p>
 <p><strong>Authorship.</strong> WFO’s <code>scientificName</code> is
 already canonical (no authorship appended), so the
 <code>authorship</code> column comes from a separate
@@ -996,6 +1047,5 @@ back to the bundled manifest shipped with the package.</p>
 
 
 
-  
-</body>
+  </body>
 </html>

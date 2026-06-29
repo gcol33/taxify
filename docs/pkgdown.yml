@@ -7,10 +7,12 @@ articles:
   enrichments: enrichments.html
   fuzzy-matching: fuzzy-matching.html
   hybrid-names: hybrid-names.html
+  inspecting-names: inspecting-names.html
   large-scale: large-scale.html
   migration: migration.html
   quickstart: quickstart.html
-last_built: 2026-06-24T23:20Z
+  regions: regions.html
+last_built: 2026-06-29T19:04Z
 urls:
   reference: https://gillescolling.com/taxify/reference
   article: https://gillescolling.com/taxify/articles

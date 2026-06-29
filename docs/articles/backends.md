@@ -1,8 +1,8 @@
 # Choosing and combining backends
 
 taxify matches taxonomic names against locally stored Darwin Core
-backbone databases. Ten backends are available, each compiled from a
-different authoritative source. The backend we choose determines which
+backbone databases. Thirteen backends are available, each compiled from
+a different authoritative source. The backend we choose determines which
 names can be matched, what taxonomic opinion governs synonym resolution,
 and which extra metadata columns are available downstream. This vignette
 walks through the backends, explains how to combine them in fallback
@@ -11,7 +11,7 @@ given project.
 
 ## Backend overview
 
-The table below summarizes the ten backends. “Approx. names” is the
+The table below summarizes the thirteen backends. “Approx. names” is the
 total number of name strings in the compiled backbone (accepted names
 plus synonyms); the actual species count is lower because each accepted
 species may have several synonym entries pointing to it.
@@ -28,6 +28,9 @@ species may have several synonym entries pointing to it.
 | `euromed` | Euro+Med PlantBase | European/Mediterranean plants | ~132k | Semicolon-delimited CSV |
 | `fungorum` | Species Fungorum Plus | Fungi | ~500k | ChecklistBank DwC-A |
 | `algaebase` | AlgaeBase | Algae and cyanobacteria | ~170k | ChecklistBank DwC-A (CC BY-NC) |
+| `fishbase` | FishBase | Fishes | ~100k | rfishbase (load_taxa + synonyms) |
+| `sealifebase` | SeaLifeBase | Non-fish marine and aquatic | ~134k | rfishbase (load_taxa + synonyms) |
+| `reptiledb` | Reptile Database | Reptiles | ~50k | reptarium taxa.csv + synonym/checklist XLSX |
 
 A few things stand out. WFO is the standard reference for plant taxonomy
 and the default backend in taxify. It is maintained by the World Flora
@@ -92,6 +95,23 @@ AlgaeBase covers micro- and macroalgae, cyanobacteria, and some
 protists. It is the only backend licensed CC BY-NC (non-commercial use
 only). All other backends are open-access. taxify prints a license
 notice during AlgaeBase download to make this visible.
+
+FishBase and SeaLifeBase are the standard references for aquatic
+animals. FishBase covers fishes; SeaLifeBase covers the non-fish marine
+and aquatic groups (molluscs, crustaceans, marine mammals, and the
+rest). Both are compiled from the rfishbase package rather than a file
+download, taking accepted species from `load_taxa()` and synonym links
+from `synonyms()`. They carry species-rank rows only, so their genera
+enter the genus register derived from those species. The data is CC
+BY-NC 3.0.
+
+The Reptile Database is the taxonomic reference for reptiles, with ~50k
+names covering snakes, lizards, turtles, crocodilians, and the tuatara.
+It is built from the reptarium bulk exports: the current
+accepted-species list, the periodic synonym snapshot, and the
+family-to-order checklist. The source carries no kingdom or class field,
+so the backbone stamps Animalia / Chordata / Reptilia on every row. The
+data is CC BY 4.0.
 
 ## Downloading backbones
 
@@ -221,8 +241,8 @@ all-rounder.
 
 ## Backend-specific output differences
 
-All ten backends produce the same 16-column output schema. This is a
-deliberate design choice: downstream code does not need to know which
+All thirteen backends produce the same 16-column output schema. This is
+a deliberate design choice: downstream code does not need to know which
 backend produced a match. That said, the content of those columns varies
 in ways worth knowing about.
 

@@ -19,13 +19,15 @@ add_wcvp(x, region, verbose = TRUE)
 
 - region:
 
-  Character. TDWG Level 2 region code(s), or `"all"`.
+  Character. TDWG Level 3 region code(s), or `"all"`. See
+  [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
+  for the full list of codes.
 
-  - Single code (e.g., `"EUR"`): adds `native_status` column (no
-    suffix).
+  - Single code (e.g., `"BGM"` for Belgium): adds `native_status` column
+    (no suffix).
 
-  - Multiple codes (e.g., `c("EUR", "NAM")`): adds `native_status_EUR`,
-    `native_status_NAM`.
+  - Multiple codes (e.g., `c("BGM", "GER")`): adds `native_status_BGM`,
+    `native_status_GER`.
 
   - `"all"`: adds one column per region in the dataset.
 

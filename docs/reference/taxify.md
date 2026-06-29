@@ -14,6 +14,10 @@ taxify(
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
   fuzzy_method = c("dl", "levenshtein", "jw"),
+  aggregates = c("preserve", "collapse"),
+  region = NULL,
+  coords = NULL,
+  range = c("present", "native", "introduced"),
   verbose = TRUE
 )
 ```
@@ -53,6 +57,57 @@ taxify(
 
   Character. One of `"dl"` (Damerau-Levenshtein, default),
   `"levenshtein"`, or `"jw"` (Jaro-Winkler).
+
+- aggregates:
+
+  Character. How to treat species aggregates (names with an `agg.` /
+  `s.l.` qualifier). `"preserve"` (default) keeps the aggregate as its
+  own concept: it matches the backbone's aggregate taxon
+  (`"<binomial> aggr."`) where one exists, otherwise falls back to the
+  binomial. `"collapse"` strips the marker and matches the binomial
+  species, the way any non-aggregate name is matched. Either way the
+  qualifier is recorded in the `qualifier` column.
+
+- region:
+
+  TDWG botanical region(s) to constrain fuzzy matching to, or `NULL`
+  (default) for no geographic constraint. Accepts Level 3 codes
+  (`"BGM"`, `c("BGM", "GER")`) or region names at any level, matched
+  case- and accent-insensitively against the bundled WGSRPD crosswalk: a
+  Level 3 name (`"Belgium"`), a Level 2 region (`"Middle Europe"`), or a
+  Level 1 continent (`"Europe"`, which expands to all its codes). See
+  [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
+  for the full list. When set, **fuzzy** candidates are restricted to
+  species with WCVP records in the region(s); exact matches are always
+  kept. The filter only narrows genuinely ambiguous fuzzy candidates: a
+  candidate is dropped only when the same input name has another
+  candidate that is in-region or has no WCVP range data, so non-plant
+  matches (no WCVP coverage) are never affected and a name whose only
+  candidate is out-of-region is still returned. WCVP is vascular plants
+  only, so this disambiguates plant names.
+
+- coords:
+
+  Coordinates to constrain fuzzy matching to, mapped to TDWG regions by
+  point-in-polygon and unioned with `region`. A single `c(lon, lat)`
+  pair, a matrix/data.frame of longitude/latitude columns (named
+  `lon`/`lat` or `x`/`y`, else the first two columns as lon, lat), or a
+  point-geometry spatial object (an sf/`sfc` object or a terra
+  `SpatVector`, reprojected to longitude/latitude automatically). `NULL`
+  (default) for none. The WGSRPD boundary file is downloaded once and
+  cached; coordinate lookup needs that download (or a prior cache). The
+  point-in- polygon test uses terra or sf when installed, otherwise a
+  native fallback; force the engine with
+  `options(taxify.pip_engine = "terra" | "sf" | "native")`.
+
+- range:
+
+  Character. Which WCVP statuses count as in-region when `region` or
+  `coords` is set. `"present"` (default) accepts any record (native,
+  introduced, or extinct) – the right choice for name disambiguation.
+  `"native"` accepts only native records, `"introduced"` only introduced
+  (alien) records; both fold an ecological filter into matching and are
+  for callers who want that. Ignored when no region is set.
 
 - verbose:
 
@@ -117,6 +172,20 @@ A data.frame with one row per input name and the following columns:
 
   Logical. Was a hybrid marker detected in the input?
 
+- qualifier:
+
+  Canonical taxonomic qualifier found in the input name (`"cf."`,
+  `"aff."`, `"agg."`, `"s.l."`, `"s.str."`, `"sp."`, ...), or `NA`.
+  Spelling variants are folded to one token (`"aggr."`, `"agg"` and
+  `"sensu lato"` all map to `"agg."`/`"s.l."`).
+
+- qualifier_position:
+
+  `"genus"` when the qualifier leads the name and qualifies the whole
+  name (e.g. `"Cf. Pinus sylvestris"`), `"species"` when it qualifies
+  the species (inline `cf.` or trailing `agg.`), `NA` when there is no
+  qualifier.
+
 - match_type:
 
   One of `"exact"`, `"exact_ci"`, `"fuzzy"`, `"abbrev"` (an abbreviated
@@ -166,6 +235,16 @@ taxify(c("Quercus robur", "Pinus sylvestris"))
 
 # Disable fuzzy matching
 taxify("Quercus robus", fuzzy = FALSE)
+
+# Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,
+# or a region name resolved via the bundled WGSRPD crosswalk
+taxify("Quercus robus", region = "EUR")
+taxify("Quercus robus", region = "Belgium")
+
+# Constrain by coordinates (downloads WGSRPD boundaries on first use)
+if (FALSE) { # \dontrun{
+taxify("Quercus robus", coords = c(4.35, 50.85))
+} # }
 
 # Fallback chain: try WFO first, then COL for unmatched
 taxify(c("Quercus robur", "Panthera leo"),

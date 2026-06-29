@@ -12,9 +12,22 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Migrating from taxize, WorldFlora, and related tools">
+<script>
+(function () {
+  var D = String.fromCharCode(36);
+  window.MathJax = {
+    tex: {
+      inlineMath: [[D, D], ["\\(", "\\)"]],
+      displayMath: [[D + D, D + D], ["\\[", "\\]"]]
+    },
+    chtml: { linebreaks: { automatic: true, width: "90% container" } },
+    svg: { linebreaks: { automatic: true, width: "90% container" } },
+    options: { renderActions: { addMenu: [] } }
+  };
+})();
+</script>
 </head>
 <body>
-
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -22,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,10 +56,12 @@
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
+    <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
+    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
     <li><a class="dropdown-item" href="../articles/hybrid-names.html">Hybrid name detection and parsing</a></li>
     <li><a class="dropdown-item" href="../articles/large-scale.html">Working with large species lists</a></li>
   </ul>
@@ -207,8 +222,8 @@ backbones offline and can chain them in a single call:
 with genus-blocked fuzzy joins. Ten thousand names resolve in
 seconds.</li>
 <li>
-<strong>Enrichments.</strong> Results pipe directly into twelve
-published trait and status datasets (IUCN, GRIIS, WCVP, EIVE,
+<strong>Enrichments.</strong> Results pipe directly into more than
+sixty published trait and status datasets (IUCN, GRIIS, WCVP, EIVE,
 EltonTraits, etc.) with a single <code>|&gt;</code> chain.</li>
 <li>
 <strong>Reproducibility.</strong> Backbones are versioned files on
@@ -300,24 +315,32 @@ calls.</p>
 <tr class="odd">
 <td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code></td>
 <td><code>taxify(backend = "wfo")</code></td>
-<td>Exact + fuzzy in one call</td>
+<td>Both do exact + fuzzy in one call. <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code> returns
+several candidate rows per input name</td>
 </tr>
 <tr class="even">
 <td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one()</a></code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
-<td>Best-match selection is automatic</td>
+<td>The selection step. <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one()</a></code> collapses
+<code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code>’s candidate rows to one best match per input;
+<code><a href="../reference/taxify.html">taxify()</a></code> returns one best-match row directly, so the two
+steps are one call</td>
 </tr>
 <tr class="odd">
 <td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html" class="external-link">WFO.match.fuzzyjoin()</a></code></td>
-<td><code>taxify(fuzzy = TRUE)</code></td>
-<td>Enabled by default; genus-blocked Damerau-Levenshtein</td>
+<td><code>taxify(backend = "wfo")</code></td>
+<td>Same matching as <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code>, faster
+<code>fuzzyjoin</code>-based engine; taxify is fast by default, so there
+is no separate call</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.synonyms()</a></code></td>
-<td><code><a href="../reference/taxify.html">taxify()</a></code></td>
-<td>
-<code>is_synonym</code>, <code>accepted_name</code>,
-<code>accepted_id</code> in output</td>
+<td><code>WFO.synonyms(accepted)</code></td>
+<td>–</td>
+<td>Reverse direction: <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.synonyms()</a></code> expands an accepted
+name to its synonyms (one-to-many). taxify resolves the other way,
+synonym to accepted (<code>is_synonym</code>,
+<code>accepted_name</code>, <code>accepted_id</code>), so there is no
+direct equivalent</td>
 </tr>
 </tbody>
 </table>
@@ -599,9 +622,10 @@ name.</p>
 <div class="section level2">
 <h2 id="example-2-wfo-matching-with-fuzzy-synonyms">Example 2: WFO matching with fuzzy + synonyms<a class="anchor" aria-label="anchor" href="#example-2-wfo-matching-with-fuzzy-synonyms"></a>
 </h2>
-<p>With WorldFlora, the typical workflow is: load the backbone, run
-exact matching, apply fuzzy matching separately, then pick the best
-match.</p>
+<p>With WorldFlora, the typical workflow is: load the backbone, run the
+match (exact and fuzzy together, here with the faster
+<code>fuzzyjoin</code> engine), then collapse the candidate rows to one
+best match per input.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- WorldFlora ---</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">WorldFlora</span><span class="op">)</span></span>
@@ -610,9 +634,8 @@ match.</p>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>,</span>
 <span>           <span class="st">"Pinus silvestris"</span>, <span class="st">"Rosa canina"</span><span class="op">)</span></span>
-<span><span class="va">exact</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match</a></span><span class="op">(</span><span class="va">names</span>, WFO.data <span class="op">=</span> <span class="va">wfo_data</span><span class="op">)</span></span>
-<span><span class="va">fuzzy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html" class="external-link">WFO.match.fuzzyjoin</a></span><span class="op">(</span><span class="va">names</span>, WFO.data <span class="op">=</span> <span class="va">wfo_data</span><span class="op">)</span></span>
-<span><span class="va">best</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one</a></span><span class="op">(</span><span class="va">fuzzy</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html" class="external-link">WFO.match.fuzzyjoin</a></span><span class="op">(</span><span class="va">names</span>, WFO.data <span class="op">=</span> <span class="va">wfo_data</span><span class="op">)</span></span>
+<span><span class="va">best</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span></code></pre></div>
 <p>With taxify, exact matching, fuzzy matching, and synonym resolution
 happen in a single call:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -934,6 +957,5 @@ name-matching step that comes before most of those.</p>
 
 
 
-  
-</body>
+  </body>
 </html>

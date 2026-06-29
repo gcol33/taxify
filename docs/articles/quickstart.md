@@ -16,9 +16,9 @@ cleaned, matched against a backbone you keep on disk, synonyms resolved
 to the accepted name. Matching runs in C through the
 [vectra](https://github.com/gcol33/vectra) engine, so there are no web
 services and no rate limits, and the same input gives the same output on
-any machine. Nine Darwin Core backbones are available (WFO, COL, GBIF,
-ITIS, NCBI, OTT, WoRMS, Species Fungorum, AlgaeBase), all queried
-offline.
+any machine. Thirteen Darwin Core backbones are available (WFO, COL,
+GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
+FishBase, SeaLifeBase, Reptile Database), all queried offline.
 
 ``` r
 
@@ -184,8 +184,8 @@ vignette](https://gillescolling.com/taxify/articles/custom-data.html).
 ## The enrichment layers
 
 taxify also ships published trait and status layers that attach on the
-accepted name. There are over two dozen, across the tree of life and for
-the conservation and invasion records this kind of work needs. Each
+accepted name. There are more than sixty, across the tree of life and
+for the conservation and invasion records this kind of work needs. Each
 `add_*()` matches its own source against the backbone and attaches on
 the accepted name, so any of them stacks into a pipeline the same way.
 Run

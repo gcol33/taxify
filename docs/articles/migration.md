@@ -31,9 +31,9 @@ That said, there are situations where taxify offers a better fit:
   `taxify(names, backend = c("wfo", "col", "gbif"))`.
 - **Speed at scale.** The matching engine is written in C with
   genus-blocked fuzzy joins. Ten thousand names resolve in seconds.
-- **Enrichments.** Results pipe directly into twelve published trait and
-  status datasets (IUCN, GRIIS, WCVP, EIVE, EltonTraits, etc.) with a
-  single `|>` chain.
+- **Enrichments.** Results pipe directly into more than sixty published
+  trait and status datasets (IUCN, GRIIS, WCVP, EIVE, EltonTraits, etc.)
+  with a single `|>` chain.
 - **Reproducibility.** Backbones are versioned files on disk. The
   `backbone_version` column records exactly which snapshot was used.
 
@@ -71,10 +71,10 @@ columns, not separate API calls.
 
 | WorldFlora function | taxify equivalent | Notes |
 |----|----|----|
-| [`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | `taxify(backend = "wfo")` | Exact + fuzzy in one call |
-| [`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | Best-match selection is automatic |
-| [`WFO.match.fuzzyjoin()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html) | `taxify(fuzzy = TRUE)` | Enabled by default; genus-blocked Damerau-Levenshtein |
-| [`WFO.synonyms()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `is_synonym`, `accepted_name`, `accepted_id` in output |
+| [`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | `taxify(backend = "wfo")` | Both do exact + fuzzy in one call. [`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) returns several candidate rows per input name |
+| [`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | The selection step. [`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) collapses [`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html)’s candidate rows to one best match per input; [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) returns one best-match row directly, so the two steps are one call |
+| [`WFO.match.fuzzyjoin()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html) | `taxify(backend = "wfo")` | Same matching as [`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html), faster `fuzzyjoin`-based engine; taxify is fast by default, so there is no separate call |
+| `WFO.synonyms(accepted)` | – | Reverse direction: [`WFO.synonyms()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) expands an accepted name to its synonyms (one-to-many). taxify resolves the other way, synonym to accepted (`is_synonym`, `accepted_name`, `accepted_id`), so there is no direct equivalent |
 
 WorldFlora returns a wide data.frame with WFO-specific column names
 (`scientificName`, `taxonID`, `taxonomicStatus`, `acceptedNameUsageID`,
@@ -232,8 +232,9 @@ The output is a data.frame with 16 columns and one row per input name.
 
 ## Example 2: WFO matching with fuzzy + synonyms
 
-With WorldFlora, the typical workflow is: load the backbone, run exact
-matching, apply fuzzy matching separately, then pick the best match.
+With WorldFlora, the typical workflow is: load the backbone, run the
+match (exact and fuzzy together, here with the faster `fuzzyjoin`
+engine), then collapse the candidate rows to one best match per input.
 
 ``` r
 
@@ -244,9 +245,8 @@ wfo_data <- read.delim("classification.txt")
 
 names <- c("Quercus robur", "Quercus pedonculata",
            "Pinus silvestris", "Rosa canina")
-exact <- WFO.match(names, WFO.data = wfo_data)
-fuzzy <- WFO.match.fuzzyjoin(names, WFO.data = wfo_data)
-best  <- WFO.one(fuzzy)
+matched <- WFO.match.fuzzyjoin(names, WFO.data = wfo_data)
+best    <- WFO.one(matched)
 ```
 
 With taxify, exact matching, fuzzy matching, and synonym resolution

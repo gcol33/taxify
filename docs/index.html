@@ -14,9 +14,22 @@
 <meta property="og:title" content="Offline Taxonomic Name Matching Against Local Darwin Core Snapshots">
 <meta name="description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the vectra C11 columnar engine.">
 <meta property="og:description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the vectra C11 columnar engine.">
+<script>
+(function () {
+  var D = String.fromCharCode(36);
+  window.MathJax = {
+    tex: {
+      inlineMath: [[D, D], ["\\(", "\\)"]],
+      displayMath: [[D + D, D + D], ["\\[", "\\]"]]
+    },
+    chtml: { linebreaks: { automatic: true, width: "90% container" } },
+    svg: { linebreaks: { automatic: true, width: "90% container" } },
+    options: { renderActions: { addMenu: [] } }
+  };
+})();
+</script>
 </head>
 <body>
-
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -24,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.15</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,10 +58,12 @@
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="articles/backends.html">Choosing and combining backends</a></li>
     <li><a class="dropdown-item" href="articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
+    <li><a class="dropdown-item" href="articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="articles/custom-data.html">Joining custom data with add_data()</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
+    <li><a class="dropdown-item" href="articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
     <li><a class="dropdown-item" href="articles/hybrid-names.html">Hybrid name detection and parsing</a></li>
     <li><a class="dropdown-item" href="articles/large-scale.html">Working with large species lists</a></li>
   </ul>
@@ -98,9 +113,9 @@
 <p>The closest local analogue is <a href="https://docs.ropensci.org/taxadb/" class="external-link">taxadb</a>, which also stores backbone snapshots on disk; the <a href="https://gillescolling.com/taxify/articles/migration.html">migration vignette</a> walks through the differences in matching strategy, output schema, and enrichment.</p>
 </div>
 <div class="section level2">
-<h2 id="ten-backbones-one-call">Ten backbones, one call<a class="anchor" aria-label="anchor" href="#ten-backbones-one-call"></a>
+<h2 id="thirteen-backbones-one-call">Thirteen backbones, one call<a class="anchor" aria-label="anchor" href="#thirteen-backbones-one-call"></a>
 </h2>
-<p><code>taxify</code> ships ten backbones as compressed <code>.vtr</code> files, downloaded once and matched locally. Pass several and they form a fallback chain: a name unmatched by the first backbone cascades to the next.</p>
+<p><code>taxify</code> ships thirteen backbones as compressed <code>.vtr</code> files, downloaded once and matched locally. Pass several and they form a fallback chain: a name unmatched by the first backbone cascades to the next.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># WFO first (plants), then GBIF for whatever WFO doesn't cover</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span></span>
@@ -169,6 +184,21 @@
 <td>Algae</td>
 <td>~172k</td>
 </tr>
+<tr>
+<td><a href="https://www.fishbase.org/" class="external-link">FishBase</a></td>
+<td>Fishes</td>
+<td>~100k</td>
+</tr>
+<tr>
+<td><a href="https://www.sealifebase.org/" class="external-link">SeaLifeBase</a></td>
+<td>Non-fish marine/aquatic</td>
+<td>~134k</td>
+</tr>
+<tr>
+<td><a href="http://www.reptile-database.org/" class="external-link">Reptile Database</a></td>
+<td>Reptiles</td>
+<td>~50k</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -229,7 +259,7 @@
 <div class="section level2">
 <h2 id="trait-and-status-enrichment">Trait and status enrichment<a class="anchor" aria-label="anchor" href="#trait-and-status-enrichment"></a>
 </h2>
-<p>Twenty-seven enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
+<p>More than sixty enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plants</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -249,9 +279,21 @@
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"TRY_traits.csv"</span>, cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LeafArea"</span>, <span class="st">"SLA"</span>, <span class="st">"PlantHeight"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="check-a-list-before-you-trust-it">Check a list before you trust it<a class="anchor" aria-label="anchor" href="#check-a-list-before-you-trust-it"></a>
+</h2>
+<p><code><a href="reference/inspect.html">inspect()</a></code> returns only the names that look wrong, each labelled with what stands out and the name to use instead. It catches typos, retired synonyms, made-up genera, near-duplicate spellings, and the lone animal in a list of plants, and ranks them by whether they need a decision, a second look, or just optional cleanup.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">field_names</span><span class="op">)</span>                  <span class="co"># offline register and list checks</span></span>
+<span><span class="fu"><a href="reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">field_names</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># also typos, synonyms, ambiguity</span></span></code></pre></div>
+<p>For regional field lists, <code>region</code> steers a fuzzy correction toward species that actually occur where you work, so a misspelling resolves to the plant that grows there even when a one-letter neighbour from another continent sits just as close in spelling. Pass a region name, a TDWG code, or coordinates.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, region <span class="op">=</span> <span class="st">"Belgium"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.35</span>, <span class="fl">50.85</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
 </div>
@@ -262,8 +304,10 @@
 <li><a href="https://gillescolling.com/taxify/articles/quickstart.html">Getting started</a></li>
 <li><a href="https://gillescolling.com/taxify/articles/backends.html">Choosing and combining backends</a></li>
 <li><a href="https://gillescolling.com/taxify/articles/fuzzy-matching.html">Fuzzy matching</a></li>
+<li><a href="https://gillescolling.com/taxify/articles/regions.html">Constraining matches to a region</a></li>
 <li><a href="https://gillescolling.com/taxify/articles/enrichments.html">Enrichments</a></li>
 <li><a href="https://gillescolling.com/taxify/articles/custom-data.html">Custom data</a></li>
+<li><a href="https://gillescolling.com/taxify/articles/inspecting-names.html">Inspecting a name list</a></li>
 <li><a href="https://gillescolling.com/taxify/articles/hybrid-names.html">Hybrid names</a></li>
 <li><a href="https://gillescolling.com/taxify/articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
 <li><a href="https://gillescolling.com/taxify/articles/large-scale.html">Large-scale workflows</a></li>
@@ -337,6 +381,5 @@
 
 
 
-  
-</body>
+  </body>
 </html>
