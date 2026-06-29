@@ -44,10 +44,12 @@ articles:
   contents:
   - backends
   - fuzzy-matching
+  - regions
   - enrichments
   - custom-data
 - title: Special topics
   navbar: Special topics
   contents:
+  - inspecting-names
   - hybrid-names
   - large-scale

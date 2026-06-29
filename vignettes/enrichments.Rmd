@@ -26,17 +26,18 @@ incompatible formats. Manually aligning names between a taxonomic backbone
 and a trait database can consume hours even for moderately sized species
 lists.
 
-taxify ships with 22 enrichment layers that attach published trait and
-status datasets to a `taxify()` result in a single pipe call. Each
+taxify ships with more than sixty enrichment layers that attach published
+trait and status datasets to a `taxify()` result in a single pipe call. Each
 enrichment is backed by a pre-built `.vtr` file that downloads automatically
 on first use and caches locally for all subsequent sessions. The enrichment
 system handles the name alignment problem at build time, so the join at
 analysis time is a simple, fast, exact-match operation.
 
-This vignette covers the mechanics of how enrichments work, walks through
-each of the 18 layers with worked examples, and discusses practical
+This vignette covers the mechanics of how enrichments work, walks through a
+representative set of layers with worked examples, and discusses practical
 strategies for combining enrichments, interpreting coverage gaps, and
-choosing the right layers for a given taxon group. We also discuss the
+choosing the right layers for a given taxon group. `list_enrichments()` prints
+the full current set with versions and coverage. We also discuss the
 `add_data()` function for joining custom datasets that go beyond the
 built-in enrichments.
 
