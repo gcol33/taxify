@@ -205,6 +205,8 @@
 
 ## taxify 0.2.12
 
+CRAN release: 2026-06-30
+
 ### New features
 
 - [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)

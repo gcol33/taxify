@@ -2,6 +2,7 @@
 
 *the species names never quite match*
 
+[![CRAN status](https://www.r-pkg.org/badges/version/taxify)](https://CRAN.R-project.org/package=taxify)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Offline taxonomic name matching against local Darwin Core backbones, with matching done in C.**
@@ -171,6 +172,12 @@ taxify(field_names, coords = c(4.35, 50.85))
 ```
 
 ## Installation
+
+```r
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
 
 ```r
 install.packages("pak")

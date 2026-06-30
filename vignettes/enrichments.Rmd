@@ -1172,6 +1172,7 @@ The distribution and environment columns are the per-species range signal:
 - `habitat_type`: broad habitat type(s) (forest, desert, grassland,
   shrubland, savanna, wetlands).
 - `elevation_min_m`, `elevation_max_m`: recorded elevation range in metres.
+
 - `mean_annual_temp_c`: mean annual temperature across the range, degrees
   Celsius.
 - `insular_endemic`: whether the species is insular/endemic.
@@ -1183,14 +1184,21 @@ the plant ranges that drive the `region` constraint in `taxify()`.
 The morphology and life-history columns follow:
 
 - `body_mass_g`: maximum body mass in grams.
+
 - `svl_mm`: maximum snout-vent length (straight carapace length for
   turtles) in millimetres.
 - `total_length_mm`: maximum total length in millimetres.
+
 - `longevity_yr`: maximum recorded longevity in years.
+
 - `diet`: diet category (carnivorous, herbivorous, omnivorous).
+
 - `reproductive_mode`: oviparous, viviparous, or ovoviviparous.
+
 - `clutch_size`: mean clutch or litter size.
+
 - `active_time`: activity period (diurnal, nocturnal, cathemeral).
+
 - `foraging_mode`: foraging strategy (active, ambush, mixed).
 
 Species absent from ReptTraits receive `NA` in all columns. It is licensed

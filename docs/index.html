@@ -93,7 +93,7 @@
 <div class="page-header"><h1 id="taxify">taxify<a class="anchor" aria-label="anchor" href="#taxify"></a>
 </h1></div>
 <p><em>the species names never quite match</em></p>
-<p><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
+<p><a href="https://CRAN.R-project.org/package=taxify" class="external-link"><img src="https://www.r-pkg.org/badges/version/taxify" alt="CRAN status"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
 <p><strong>Offline taxonomic name matching against local Darwin Core backbones, with matching done in C.</strong></p>
 <p>Hand it a column of messy species names. <code>taxify</code> cleans them, matches them against a backbone you already have on disk, resolves synonyms to accepted names, and returns one standardized data.frame. Every step runs locally against a versioned snapshot, so there are no API calls, no rate limits, and the same input gives the same output on any machine. The matching engine is written in C through the <a href="https://github.com/gcol33/vectra" class="external-link">vectra</a> columnar engine.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -294,6 +294,9 @@
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
 </div>
