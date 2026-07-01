@@ -562,16 +562,27 @@ per-observation labels, not FungalRoot's own published genus assignment.
 #### Global traits (GIFT, on demand)
 
 GIFT, the Global Inventory of Floras and Traits (Weigelt et al. 2020), aggregates
-published plant trait records worldwide into one value per species, and
-`add_gift()` attaches a curated set of the best-populated ones: woodiness, growth
-form, life cycle, Raunkiaer life form, climbing, epiphytic, parasitic and aquatic
-habit, maximum plant height, photosynthetic pathway, mean seed mass, dispersal
-syndrome, flowering start and end month, deciduousness, and mean specific leaf
-area (16 `gift_` columns).
+published plant trait records worldwide into one value per species. `add_gift()`
+attaches the traits you ask for, named `gift_<trait>`. Called with no `traits`
+argument it uses a convenient default set of well-populated ones: woodiness,
+growth form, life cycle, Raunkiaer life form, climbing, epiphytic, parasitic and
+aquatic habit, maximum plant height, photosynthetic pathway, mean seed mass,
+dispersal syndrome, flowering start and end month, deciduousness, and mean
+specific leaf area.
 
 ```{r gift, eval=FALSE}
 taxify(c("Abies alba", "Quercus robur")) |>
   add_gift()
+```
+
+GIFT holds about 109 traits in all. Browse the full catalogue with
+`gift_traits()` and request any of them by ID or name, or pass `traits = "all"`:
+
+```{r gift-select, eval=FALSE}
+gift_traits()                                   # the full catalogue
+
+taxify(c("Abies alba", "Quercus robur")) |>
+  add_gift(traits = c("plant_height_max", "sla_mean", "1.1.1"))
 ```
 
 GIFT trait values are aggregated from many source references, each under its own
