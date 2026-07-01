@@ -13,7 +13,8 @@ add_gift(x, traits = NULL, agreement = 0.66, verbose = TRUE)
 convenient set of well-populated, broadly useful traits; the string
 \code{"all"} for every trait in the catalogue; or a character vector of GIFT
 trait IDs (e.g. \code{"1.6.2"}) and/or column names (e.g. \code{"plant_height_max"},
-with or without the \code{gift_} prefix). See \code{\link[=gift_traits]{gift_traits()}}.}
+with or without the \code{gift_} prefix). See \code{\link[=gift_traits]{gift_traits()}}. When left \code{NULL},
+a one-time message notes the default set and how to request all traits.}
 
 \item{agreement}{Numeric in \verb{[0, 1]}. Minimum agreement among source records
 for a categorical trait value to be reported. Passed to

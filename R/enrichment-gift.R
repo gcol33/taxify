@@ -202,7 +202,8 @@ gift_traits <- function() {
 #'   convenient set of well-populated, broadly useful traits; the string
 #'   `"all"` for every trait in the catalogue; or a character vector of GIFT
 #'   trait IDs (e.g. `"1.6.2"`) and/or column names (e.g. `"plant_height_max"`,
-#'   with or without the `gift_` prefix). See [gift_traits()].
+#'   with or without the `gift_` prefix). See [gift_traits()]. When left `NULL`,
+#'   a one-time message notes the default set and how to request all traits.
 #' @param agreement Numeric in `[0, 1]`. Minimum agreement among source records
 #'   for a categorical trait value to be reported. Passed to
 #'   `GIFT::GIFT_traits()`. Default `0.66`.
@@ -266,6 +267,15 @@ add_gift <- function(x, traits = NULL, agreement = 0.66, verbose = TRUE) {
   catalog <- .gift_catalog(verbose)
   sel     <- .gift_resolve_traits(traits, catalog)
   is_num  <- sel$type == "numeric"
+
+  if (is.null(traits) && verbose &&
+      is.null(.taxify_env[[".gift_default_notice_shown"]])) {
+    message(sprintf(paste0(
+      "add_gift(): attaching a default set of %d well-populated GIFT traits. ",
+      "Pass traits = \"all\" for all %d traits, or see gift_traits() to choose."),
+      nrow(sel), nrow(catalog)))
+    .taxify_env[[".gift_default_notice_shown"]] <- TRUE
+  }
 
   for (i in seq_len(nrow(sel))) {
     x[[sel$column[i]]] <- if (is_num[i]) NA_real_ else NA_character_
