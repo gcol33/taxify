@@ -60,7 +60,7 @@ The same data.frame with additional columns:
 
 ## Details
 
-Source: FishBase via rfishbase (Froese & Pauly, CC BY-NC 3.0). Coverage:
+Source: FishBase via rfishbase (Froese & Pauly, CC BY-NC 4.0). Coverage:
 ~35k fish species. Fishes only.
 
 The build-from-source fallback requires the rfishbase package (available

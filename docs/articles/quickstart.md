@@ -238,7 +238,7 @@ field <- c(
 )
 
 dat <- taxify(field) |>
-  add_woodiness() |>
+  add_zanne() |>
   add_eive() |>
   add_diaz_traits()
 

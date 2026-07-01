@@ -1,14 +1,17 @@
-# Add conservation status
+# Add IUCN Red List conservation status
 
 Joins IUCN Red List conservation status to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result by looking up `accepted_name` in the conservation status
-enrichment.
+result by looking up `accepted_name`. This is the source-named door for
+the IUCN Red List; for conservation status reconciled across sources,
+use
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+once more than one source is registered for it.
 
 ## Usage
 
 ``` r
-add_conservation_status(x, verbose = TRUE)
+add_iucn(x, verbose = TRUE)
 ```
 
 ## Arguments
@@ -47,7 +50,7 @@ taxonomic groups (~166k species).
 old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Panthera tigris", backend = "gbif") |>
-  add_conservation_status()
+  add_iucn()
 
 options(old)
 ```

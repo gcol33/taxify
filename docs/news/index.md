@@ -1,5 +1,62 @@
 # Changelog
 
+## taxify (development version)
+
+### New features
+
+- New
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  attaches a single trait across every source that carries it,
+  reconciling their vocabularies and units. Where each `add_*()` door
+  joins one dataset, `add_trait("seed_mass")` gathers the sources: it
+  pulls seed mass from Diaz et al. and GIFT and returns both in one unit
+  (mg), woodiness from Zanne and GIFT in one vocabulary, and likewise
+  plant height and SLA. Provenance stays explicit – the default
+  `mode = "wide"` gives one harmonized column per source
+  (`seed_mass_diaz`, `seed_mass_gift`), so agreement and conflict are
+  visible; opt into `mode = "coalesce"` for one best-available value
+  plus its source.
+  [`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md)
+  lists the available traits and
+  [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
+  shows a trait’s sources, units, and harmonization rules.
+
+### Renamed (source-named doors)
+
+- Enrichment doors are named after their source; the trait name is
+  reserved for
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md).
+  `add_woodiness()`, `add_conservation_status()`,
+  `add_invasive_status()`, and `add_fish_traits()` are renamed to
+  [`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md)
+  (Zanne et al. 2014),
+  [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
+  (IUCN Red List),
+  [`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md)
+  (GRIIS), and
+  [`add_fishmorph()`](https://gillescolling.com/taxify/reference/add_fishmorph.md)
+  (FISHMORPH; also avoids confusion with
+  [`add_fishbase()`](https://gillescolling.com/taxify/reference/add_fishbase.md)).
+  The old names are removed, not deprecated – they never appeared in a
+  release.
+
+- New
+  [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
+  joins plant traits from GIFT, the Global Inventory of Floras and
+  Traits (Weigelt et al. 2020), by accepted name. GIFT’s API exposes
+  only the subset of its data it may redistribute (CC BY 4.0; restricted
+  references excluded); taxifydb fetches that subset once at build time
+  and it ships as a pre-built `.vtr`, so
+  [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
+  joins it offline like every other enrichment – no runtime API calls.
+  Choose which traits to attach via `cols=` (any `gift_` column names,
+  or `"all"`); the default is a convenient set of well-populated ones
+  (woodiness, growth form, life cycle and form, habit flags, height,
+  photosynthetic pathway, seed mass, dispersal, flowering months,
+  deciduousness, SLA).
+  [`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md)
+  browses the available columns.
+
 ## taxify 0.3.1
 
 ### New features
@@ -311,14 +368,11 @@ CRAN release: 2026-06-30
 - Added an end-to-end regression test
   (`tests/e2e/test-e2e-enrichment.R`) for the enrichment join fixed in
   0.2.5 ([\#1](https://github.com/gcol33/taxify/issues/1)). It checks
-  that
-  [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md),
+  that `add_conservation_status()`,
   [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
-  and
-  [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md)
-  attach each value to the row’s own accepted taxon, stay invariant to
-  batch composition and order, and land documented values on the correct
-  species.
+  and `add_woodiness()` attach each value to the row’s own accepted
+  taxon, stay invariant to batch composition and order, and land
+  documented values on the correct species.
 
 ## taxify 0.2.7
 

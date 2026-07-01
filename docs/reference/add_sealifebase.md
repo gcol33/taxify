@@ -62,7 +62,7 @@ The same data.frame with additional columns:
 
 ## Details
 
-Source: SeaLifeBase via rfishbase (Palomares & Pauly, CC BY-NC 3.0).
+Source: SeaLifeBase via rfishbase (Palomares & Pauly, CC BY-NC 4.0).
 Non-fish aquatic life only.
 
 The build-from-source fallback requires the rfishbase package (available

@@ -1,13 +1,17 @@
-# Add woodiness classification
+# Add woodiness (Zanne et al. 2014)
 
-Joins woodiness data from Zanne et al. (2014) to a
+Joins the woody / herbaceous classification of Zanne et al. (2014) to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result by looking up `accepted_name`.
+result by looking up `accepted_name`. This is the source-named door for
+the Zanne Global Woodiness Database; for woodiness reconciled across
+every source that carries it (Zanne, GIFT), use
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+with `"woodiness"`.
 
 ## Usage
 
 ``` r
-add_woodiness(x, verbose = TRUE)
+add_zanne(x, verbose = TRUE)
 ```
 
 ## Arguments
@@ -40,6 +44,11 @@ species. Plants only.
 Zanne AE et al. (2014) Three keys to the radiation of angiosperms into
 freezing environments. Nature 506:89-92.
 
+## See also
+
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+for woodiness harmonized across sources.
+
 ## Examples
 
 ``` r
@@ -47,7 +56,7 @@ freezing environments. Nature 506:89-92.
 old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Quercus robur") |>
-  add_woodiness()
+  add_zanne()
 
 options(old)
 ```

@@ -24,7 +24,7 @@ one row per species x group combination."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,7 @@ one row per species x group combination.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A data.frame, typically a <code><a href="taxify.html">taxify()</a></code> result after applying
-a grouped enrichment like <code><a href="add_invasive_status.html">add_invasive_status()</a></code>,
+a grouped enrichment like <code><a href="add_griis.html">add_griis()</a></code>,
 <code><a href="add_alien_first_records.html">add_alien_first_records()</a></code>, or <code><a href="add_wcvp.html">add_wcvp()</a></code>.</p></dd>
 
 
@@ -124,7 +124,7 @@ group code extracted from the suffix.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>When <code>cols</code> and <code>group_col</code> are omitted, <code>taxify_long()</code> reads the
 reshape metadata attached by grouped enrichment functions
-(<code><a href="add_invasive_status.html">add_invasive_status()</a></code>, <code><a href="add_alien_first_records.html">add_alien_first_records()</a></code>, <code><a href="add_wcvp.html">add_wcvp()</a></code>,
+(<code><a href="add_griis.html">add_griis()</a></code>, <code><a href="add_alien_first_records.html">add_alien_first_records()</a></code>, <code><a href="add_wcvp.html">add_wcvp()</a></code>,
 <code><a href="add_common_names.html">add_common_names()</a></code>). If multiple grouped enrichments were applied,
 all are reshaped together (they must share the same group column).</p>
 <p>Column matching uses the explicit base names in <code>cols</code> to avoid ambiguity.
@@ -149,7 +149,7 @@ returned unchanged with <code>group_col</code> set to <code>NA</code>.</p>
 <span></span>
 <span><span class="co"># Explicit: override auto-detection</span></span>
 <span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Robinia pseudoacacia"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="add_invasive_status.html">add_invasive_status</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="add_griis.html">add_griis</a></span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">taxify_long</span><span class="op">(</span>cols <span class="op">=</span> <span class="st">"invasive_status"</span>, group_col <span class="op">=</span> <span class="st">"country"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>

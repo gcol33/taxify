@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -693,8 +693,8 @@ cascade to the next backbone automatically.</p>
 <span></span>
 <span><span class="co"># Enrich with traits:</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/add_iucn.html">add_iucn</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Or join custom data:</span></span>
 <span><span class="va">my_traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -912,13 +912,12 @@ through <code>add_*()</code> functions.</p>
 <span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Each enrichment downloads automatically on first use and is cached
 locally, following the same pattern as backbones. The full list:
-<code><a href="../reference/add_conservation_status.html">add_conservation_status()</a></code>,
-<code><a href="../reference/add_invasive_status.html">add_invasive_status()</a></code>, <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code>,
-<code><a href="../reference/add_eive.html">add_eive()</a></code>, <code><a href="../reference/add_elton_traits.html">add_elton_traits()</a></code>,
-<code><a href="../reference/add_avonet.html">add_avonet()</a></code>, <code><a href="../reference/add_pantheria.html">add_pantheria()</a></code>,
-<code><a href="../reference/add_amphibio.html">add_amphibio()</a></code>, <code><a href="../reference/add_common_names.html">add_common_names()</a></code>,
-<code><a href="../reference/add_woodiness.html">add_woodiness()</a></code>, <code><a href="../reference/add_diaz_traits.html">add_diaz_traits()</a></code>, and
-<code><a href="../reference/add_leda.html">add_leda()</a></code>.</p>
+<code><a href="../reference/add_iucn.html">add_iucn()</a></code>, <code><a href="../reference/add_griis.html">add_griis()</a></code>,
+<code><a href="../reference/add_wcvp.html">add_wcvp()</a></code>, <code><a href="../reference/add_eive.html">add_eive()</a></code>,
+<code><a href="../reference/add_elton_traits.html">add_elton_traits()</a></code>, <code><a href="../reference/add_avonet.html">add_avonet()</a></code>,
+<code><a href="../reference/add_pantheria.html">add_pantheria()</a></code>, <code><a href="../reference/add_amphibio.html">add_amphibio()</a></code>,
+<code><a href="../reference/add_common_names.html">add_common_names()</a></code>, <code><a href="../reference/add_zanne.html">add_zanne()</a></code>,
+<code><a href="../reference/add_diaz_traits.html">add_diaz_traits()</a></code>, and <code><a href="../reference/add_leda.html">add_leda()</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>

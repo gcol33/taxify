@@ -48,8 +48,6 @@
   : Add mammal traits (COMBINE)
 - [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
   : Add common (vernacular) names
-- [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
-  : Add conservation status
 - [`add_coral_traits()`](https://gillescolling.com/taxify/reference/add_coral_traits.md)
   : Add scleractinian coral traits (Coral Trait Database)
 - [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
@@ -68,7 +66,7 @@
   : Add European pollinator traits (EuPollTrait)
 - [`add_fishbase()`](https://gillescolling.com/taxify/reference/add_fishbase.md)
   : Add fish traits (FishBase)
-- [`add_fish_traits()`](https://gillescolling.com/taxify/reference/add_fish_traits.md)
+- [`add_fishmorph()`](https://gillescolling.com/taxify/reference/add_fishmorph.md)
   : Add freshwater fish morphological traits (FISHMORPH)
 - [`add_floraweb()`](https://gillescolling.com/taxify/reference/add_floraweb.md)
   : Add German plant traits from FloraWeb
@@ -82,10 +80,14 @@
   : Add fungal functional guild data (FUNGuild)
 - [`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
   : Add GBIF-specific columns
+- [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
+  : Add plant traits from GIFT
 - [`add_globtherm()`](https://gillescolling.com/taxify/reference/add_globtherm.md)
   : Add thermal tolerance limits (GlobTherm)
 - [`add_glonaf()`](https://gillescolling.com/taxify/reference/add_glonaf.md)
   : Add naturalized alien flora status (GloNAF)
+- [`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md)
+  : Add invasive species status (GRIIS)
 - [`add_groot()`](https://gillescolling.com/taxify/reference/add_groot.md)
   : Add root traits (GRooT)
 - [`add_gwdd()`](https://gillescolling.com/taxify/reference/add_gwdd.md)
@@ -96,8 +98,8 @@
   : Add amphibian morphometrics (Huang)
 - [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
   : Add hybrid parent and type information
-- [`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md)
-  : Add invasive species status
+- [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
+  : Add IUCN Red List conservation status
 - [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md)
   : Add plant traits from LEDA Traitbase
 - [`add_leptraits()`](https://gillescolling.com/taxify/reference/add_leptraits.md)
@@ -140,6 +142,8 @@
   : Add spider traits (World Spider Trait Database)
 - [`add_tetradensity()`](https://gillescolling.com/taxify/reference/add_tetradensity.md)
   : Add population density (TetraDENSITY)
+- [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  : Add a trait from every source that carries it
 - [`add_tree_of_sex()`](https://gillescolling.com/taxify/reference/add_tree_of_sex.md)
   : Add sex-determination traits (Tree of Sex)
 - [`add_useful_plants()`](https://gillescolling.com/taxify/reference/add_useful_plants.md)
@@ -148,18 +152,22 @@
   : Add WCVP native range status
 - [`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md)
   : Add WFO-specific columns
-- [`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md)
-  : Add woodiness classification
+- [`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md)
+  : Add woodiness (Zanne et al. 2014)
 - [`add_zooplankton()`](https://gillescolling.com/taxify/reference/add_zooplankton.md)
   : Add marine zooplankton traits
 - [`cite()`](https://gillescolling.com/taxify/reference/cite.md) : Cite
   data sources used in a taxify result
 - [`export_data()`](https://gillescolling.com/taxify/reference/export_data.md)
   : Export a taxify result to file
+- [`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md)
+  : Browse the bundled GIFT trait columns
 - [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) :
   Inspect a name list for probable typos and other anomalies
 - [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
   : List available enrichments
+- [`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md)
+  : List the traits available to add_trait()
 - [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
   : Look up a genus in the register
 - [`print(`*`<taxify_inspection>`*`)`](https://gillescolling.com/taxify/reference/print.taxify_inspection.md)
@@ -192,3 +200,5 @@
   : List TDWG botanical regions
 - [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
   : Show backend coverage for a genus
+- [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
+  : Describe a trait's sources and units

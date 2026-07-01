@@ -366,7 +366,7 @@ roughly 10-20 MB. For 50,000 unmatched names against GBIF, it can reach
 fuzzy pass.
 
 Enrichment `.vtr` files are loaded on demand. Calling
-[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
+[`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
 loads the conservation_status enrichment (~60,000 rows, a few MB).
 Calling
 [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md)
@@ -663,8 +663,8 @@ taxify_download_enrichment(c(
 
 # Now the analysis can run fully offline
 result <- taxify(species_list, backend = c("wfo", "col"))
-result <- add_conservation_status(result)
-result <- add_woodiness(result)
+result <- add_iucn(result)
+result <- add_zanne(result)
 ```
 
 In a CI/CD or cluster environment, the download step can run in a setup
@@ -749,8 +749,8 @@ enriching after.
 for (i in seq_along(chunks)) {
   res <- taxify(chunks[[i]], backend = "wfo",
                 fuzzy = TRUE, verbose = FALSE)
-  res <- add_conservation_status(res, verbose = FALSE)
-  res <- add_woodiness(res, verbose = FALSE)
+  res <- add_iucn(res, verbose = FALSE)
+  res <- add_zanne(res, verbose = FALSE)
   saveRDS(res, sprintf("results/chunk_%04d.rds", i))
 }
 ```

@@ -104,7 +104,7 @@ enrichments).
 In practice, backends agree on more than 90% of names, so this expansion
 is modest (typically 1.1–1.5x the original row count). The result is
 that
-[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
+[`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
 works identically whether the upstream
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 used WFO, COL, or GBIF. We do not have to pick enrichments based on
@@ -237,6 +237,89 @@ nocturnality columns. The `source_url` column points to the original
 data source (Zenodo, Figshare, Dryad, GBIF, etc.) for reference and
 citation.
 
+## One trait across sources: `add_trait()`
+
+The `add_*()` doors each join a single dataset. When a trait is carried
+by more than one source,
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+gathers them: name the trait and it pulls every source that provides it,
+reconciling their vocabularies and units into shared columns.
+[`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md)
+shows what is available.
+
+``` r
+
+list_traits()
+#>          trait              label        kind   unit n_sources    sources
+#> 1    woodiness          Woodiness categorical   <NA>         2 zanne, gift
+#> 2 plant_height       Plant height     numeric      m         2  diaz, gift
+#> 3    seed_mass          Seed mass     numeric     mg         2  diaz, gift
+#> 4          sla Specific leaf area     numeric mm2/mg         2  leda, gift
+```
+
+By default (`mode = "wide"`) each source becomes its own column,
+`<trait>_<source>`, so agreement and disagreement between sources stay
+visible. Woodiness comes from both Zanne et al. and GIFT, harmonized to
+one vocabulary (`woody` / `non-woody` / `variable`):
+
+``` r
+
+taxify("Abies alba") |>
+  add_trait("woodiness")
+#> # accepted_name  ... woodiness_zanne woodiness_gift
+#> # Abies alba     ...           woody          woody
+```
+
+Numeric traits are returned in one canonical unit regardless of how each
+source stores them. GIFT records seed mass in grams and Diaz et al. in
+milligrams; `add_trait("seed_mass")` returns both in milligrams:
+
+``` r
+
+taxify("Abies alba") |>
+  add_trait("seed_mass")
+#> # accepted_name  ... seed_mass_diaz seed_mass_gift
+#> # Abies alba     ...         62.007        73.9425
+```
+
+For one value per row, `mode = "coalesce"` takes the highest-priority
+source that has a value and records which source it came from, plus how
+many sources had any value:
+
+``` r
+
+taxify("Abies alba") |>
+  add_trait("seed_mass", mode = "coalesce")
+#> # accepted_name  ... seed_mass seed_mass_source seed_mass_n
+#> # Abies alba     ...    62.007             diaz           2
+```
+
+[`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
+lists a trait’s sources, units, and the harmonization applied to each:
+
+``` r
+
+trait_info("seed_mass")
+#> Seed mass (numeric, mg)  |  default priority: diaz > gift
+#>   source  enrichment       column                   note
+#> 1   diaz diaz_traits seed_mass_mg            Milligrams.
+#> 2   gift        gift gift_seed_mass_mean GIFT grams converted to mg (x1000).
+```
+
+Sources are never silently merged: `"wide"` keeps every source visible,
+and `"coalesce"` always records provenance in `<trait>_source`. Restrict
+to particular sources with `sources =`, and set the coalesce order with
+`priority =`.
+
+Enrichment doors are named after their source
+([`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md),
+[`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md),
+[`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md),
+[`add_fishmorph()`](https://gillescolling.com/taxify/reference/add_fishmorph.md),
+[`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md));
+trait names belong to
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md).
+
 ## Pre-downloading enrichments
 
 For workflows that run on computing clusters, in Docker containers, or
@@ -323,7 +406,7 @@ plants <- taxify(c(
   "Festuca rubra", "Salix caprea", "Cornus sanguinea"
 ))
 
-plants |> add_woodiness()
+plants |> add_zanne()
 #>               input_name       accepted_name woodiness
 #> 1          Quercus robur       Quercus robur     woody
 #> 2        Betula pendula      Betula pendula     woody
@@ -591,6 +674,58 @@ dataset is distributed under CC BY-NC 4.0; the per-genus consensus is
 computed by taxify from the per-observation labels, not FungalRoot’s own
 published genus assignment.
 
+#### Global traits (GIFT, on demand)
+
+GIFT, the Global Inventory of Floras and Traits (Weigelt et al. 2020),
+aggregates published plant trait records worldwide into one value per
+species.
+[`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
+attaches the traits you ask for, named `gift_<trait>`. Called with no
+`cols` argument it uses a convenient default set of well-populated ones:
+woodiness, growth form, life cycle, Raunkiaer life form, climbing,
+epiphytic, parasitic and aquatic habit, maximum plant height,
+photosynthetic pathway, mean seed mass, dispersal syndrome, flowering
+start and end month, deciduousness, and mean specific leaf area.
+
+``` r
+
+taxify(c("Abies alba", "Quercus robur")) |>
+  add_gift()
+```
+
+Browse the available columns with
+[`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md)
+and request any of them by name, or pass `cols = "all"`:
+
+``` r
+
+gift_traits()                                   # available trait columns
+
+taxify(c("Abies alba", "Quercus robur")) |>
+  add_gift(cols = c("plant_height_max", "sla_mean", "woodiness_1"))
+```
+
+GIFT’s API exposes only the subset of its data it is licensed to
+redistribute (CC BY 4.0; references whose underlying source is
+restricted are excluded). taxifydb fetches that subset once at build
+time and it ships as a pre-built `.vtr`, so
+[`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
+joins it offline, with no runtime API calls. Cite GIFT and, where
+applicable, the underlying references
+([`GIFT::GIFT_references()`](https://biogeomacro.github.io/GIFT/reference/GIFT_references.html)).
+
+GIFT trait values are aggregated from many source references, each under
+its own licence, and are served from a live API rather than an
+openly-licensed bulk dump, so taxify does not redistribute them.
+[`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
+fetches them on demand through the suggested GIFT package: the full
+trait table is downloaded once per session and cached, and the values
+are joined to your result by accepted name. The first call needs
+internet access, and you are responsible for citing GIFT and the
+underlying references
+([`GIFT::GIFT_references()`](https://biogeomacro.github.io/GIFT/reference/GIFT_references.html))
+when you use the values.
+
 ### Conservation status (IUCN Red List)
 
 The conservation status enrichment is the only enrichment that spans all
@@ -607,7 +742,7 @@ species <- taxify(c(
   "Passer domesticus", "Quercus robur"
 ))
 
-species |> add_conservation_status()
+species |> add_iucn()
 #>            input_name conservation_status
 #> 1     Panthera tigris                  EN
 #> 2 Ailuropoda melanoleuca               VU
@@ -1088,7 +1223,7 @@ freshwater_fish <- taxify(c(
   "Perca fluviatilis", "Silurus glanis"
 ))
 
-freshwater_fish |> add_fish_traits()
+freshwater_fish |> add_fishmorph()
 #>        input_name fish_body_elongation fish_eye_size fish_oral_gape_position fish_body_lateral_shape ...
 #> 1    Salmo trutta                 0.22          0.08                    0.42                    0.18 ...
 #> 2    Esox lucius                  0.18          0.06                    0.50                    0.15 ...
@@ -1481,7 +1616,7 @@ plants <- taxify(c(
   "Reynoutria japonica", "Solidago canadensis"
 ))
 
-plants |> add_invasive_status(country = "AT")
+plants |> add_griis(country = "AT")
 #>            input_name invasive_status
 #> 1 Robinia pseudoacacia        invasive
 #> 2  Ailanthus altissima        invasive
@@ -1506,7 +1641,7 @@ Each output column is suffixed with the corresponding country code.
 
 ``` r
 
-plants |> add_invasive_status(country = c("AT", "DE", "GB"))
+plants |> add_griis(country = c("AT", "DE", "GB"))
 #>            input_name invasive_status_AT invasive_status_DE invasive_status_GB
 #> 1 Robinia pseudoacacia         invasive           invasive           invasive
 #> 2  Ailanthus altissima         invasive           invasive         introduced
@@ -1523,7 +1658,7 @@ invasive in Austria but not (yet) classified as invasive in Germany:
 
 ``` r
 
-result <- plants |> add_invasive_status(country = c("AT", "DE"))
+result <- plants |> add_griis(country = c("AT", "DE"))
 # Species invasive in Austria but not in Germany
 result[result$invasive_status_AT == "invasive" &
        result$invasive_status_DE != "invasive", ]
@@ -1543,7 +1678,7 @@ species matters.
 
 ``` r
 
-plants |> add_invasive_status(country = "all")
+plants |> add_griis(country = "all")
 # Adds invasive_status_AD, invasive_status_AE, ..., invasive_status_ZW
 ```
 
@@ -1563,7 +1698,7 @@ enrichment provides a historical timeline of alien species arrivals. The
 dataset covers all taxa (plants, animals, fungi) with ~77,000
 species-country combinations across 241 countries. The `country`
 argument takes ISO 3166-1 alpha-2 codes, same as
-[`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md).
+[`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md).
 
 #### Single country
 
@@ -1649,7 +1784,7 @@ just as easily:
 ``` r
 
 aliens |>
-  add_invasive_status(country = c("AT", "DE")) |>
+  add_griis(country = c("AT", "DE")) |>
   taxify_long()
 ```
 
@@ -1661,7 +1796,7 @@ combinations are padded with `NA`:
 ``` r
 
 aliens |>
-  add_invasive_status(country = c("AT", "DE")) |>
+  add_griis(country = c("AT", "DE")) |>
   add_alien_first_records(country = c("AT", "DE", "CH")) |>
   taxify_long()
 ```
@@ -1861,8 +1996,8 @@ plant_result <- taxify(c(
   "Quercus robur", "Fagus sylvatica", "Picea abies",
   "Arrhenatherum elatius", "Festuca rubra", "Plantago lanceolata"
 )) |>
-  add_conservation_status() |>
-  add_woodiness() |>
+  add_iucn() |>
+  add_zanne() |>
   add_eive() |>
   add_diaz_traits()
 ```
@@ -1886,7 +2021,7 @@ bird_result <- taxify(c(
   "Parus major", "Cyanistes caeruleus", "Erithacus rubecula",
   "Turdus merula", "Falco peregrinus"
 )) |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_avonet() |>
   add_elton_traits() |>
   add_common_names()
@@ -1907,7 +2042,7 @@ mammal_result <- taxify(c(
   "Vulpes vulpes", "Canis lupus", "Ursus arctos",
   "Lutra lutra", "Lynx lynx"
 )) |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_pantheria() |>
   add_elton_traits() |>
   add_common_names(lang = "de")
@@ -1927,7 +2062,7 @@ FungalTraits with guild classifications from FUNGuild:
 fungal_result <- taxify(c(
   "Amanita muscaria", "Boletus edulis", "Trametes versicolor"
 )) |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_fungal_traits() |>
   add_funguild()
 ```
@@ -1949,8 +2084,8 @@ enrichments:
 fish_result <- taxify(c(
   "Salmo trutta", "Esox lucius", "Gadus morhua"
 )) |>
-  add_conservation_status() |>
-  add_fish_traits() |>
+  add_iucn() |>
+  add_fishmorph() |>
   add_fishbase()
 ```
 
@@ -2001,7 +2136,7 @@ mixed <- taxify(c(
 ))
 
 mixed |>
-  add_woodiness() |>
+  add_zanne() |>
   add_avonet() |>
   add_pantheria() |>
   add_amphibio() |>
@@ -2113,7 +2248,7 @@ number of matched rows per enrichment. We can also compute it directly:
 
 ``` r
 
-result <- taxify(species_list) |> add_woodiness()
+result <- taxify(species_list) |> add_zanne()
 # Fraction of matched species with woodiness data
 mean(!is.na(result$woodiness[!is.na(result$accepted_name)]))
 ```
@@ -2131,8 +2266,8 @@ providing a compact overview of the entire analysis pipeline.
 ``` r
 
 result <- taxify(c("Quercus robur", "Fagus sylvatica", "Pinus sylvestris")) |>
-  add_conservation_status() |>
-  add_woodiness() |>
+  add_iucn() |>
+  add_zanne() |>
   add_eive()
 
 summary(result)
@@ -2190,8 +2325,8 @@ range, and vernacular names.
 ``` r
 
 result <- taxify(species_list, backend = "wfo") |>
-  add_conservation_status() |>
-  add_woodiness() |>
+  add_iucn() |>
+  add_zanne() |>
   add_fungalroot() |>
   add_eive() |>
   add_diaz_traits() |>
@@ -2225,8 +2360,8 @@ enrichments.
 ``` r
 
 result <- taxify(species_list, backend = "wfo") |>
-  add_conservation_status() |>
-  add_woodiness() |>
+  add_iucn() |>
+  add_zanne() |>
   add_fungalroot() |>
   add_diaz_traits() |>
   add_wcvp(region = c("NAM", "SAM", "AFR")) |>
@@ -2249,7 +2384,7 @@ use, dietary niche, and movement ecology.
 ``` r
 
 result <- taxify(species_list, backend = "col") |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_avonet() |>
   add_elton_traits() |>
   add_common_names()
@@ -2273,7 +2408,7 @@ data.
 ``` r
 
 result <- taxify(species_list, backend = "col") |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_pantheria() |>
   add_elton_traits() |>
   add_common_names()
@@ -2293,7 +2428,7 @@ with conservation status and common names.
 ``` r
 
 result <- taxify(species_list, backend = "col") |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_amphibio() |>
   add_common_names()
 ```
@@ -2316,8 +2451,8 @@ cover both freshwater and marine species.
 ``` r
 
 result <- taxify(species_list, backend = "worms") |>
-  add_conservation_status() |>
-  add_fish_traits() |>
+  add_iucn() |>
+  add_fishmorph() |>
   add_fishbase() |>
   add_common_names()
 ```
@@ -2343,7 +2478,7 @@ assessments.
 ``` r
 
 result <- taxify(species_list, backend = "reptiledb") |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_repttraits() |>
   add_common_names()
 ```
@@ -2362,7 +2497,7 @@ European Arthropod traits for additional life-history variables.
 ``` r
 
 result <- taxify(species_list, backend = "col") |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_leptraits() |>
   add_common_names()
 ```
@@ -2377,7 +2512,7 @@ with LepTraits for additional butterfly-specific traits.
 ``` r
 
 result <- taxify(species_list, backend = c("col", "gbif")) |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_arthropod_traits() |>
   add_animaltraits() |>
   add_common_names()
@@ -2396,7 +2531,7 @@ COL and GBIF backends provide fungal taxonomy.
 ``` r
 
 result <- taxify(species_list, backend = "col") |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_fungal_traits() |>
   add_funguild() |>
   add_common_names()
@@ -2419,7 +2554,7 @@ backend is recommended for marine algae taxonomy.
 ``` r
 
 result <- taxify(species_list, backend = "worms") |>
-  add_conservation_status() |>
+  add_iucn() |>
   add_algae_traits() |>
   add_common_names()
 ```
@@ -2443,8 +2578,8 @@ accept `NA` values where taxonomic scope does not overlap:
 ``` r
 
 result <- taxify(species_list) |>
-  add_conservation_status() |>
-  add_woodiness() |>
+  add_iucn() |>
+  add_zanne() |>
   add_avonet() |>
   add_pantheria() |>
   add_amphibio() |>
@@ -2468,7 +2603,7 @@ plants  <- result[result$kingdom == "Plantae", ]
 birds   <- result[result$family %in% bird_families, ]
 mammals <- result[result$family %in% mammal_families, ]
 
-plants  <- plants |> add_woodiness() |> add_eive()
+plants  <- plants |> add_zanne() |> add_eive()
 birds   <- birds |> add_avonet() |> add_elton_traits()
 mammals <- mammals |> add_pantheria() |> add_elton_traits()
 ```
@@ -2487,7 +2622,7 @@ produces better inputs because it avoids rows with structurally missing
 values (values that are missing by design, not by data limitation).
 
 A middle ground is to apply
-[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md)
+[`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
 and
 [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
 to the full dataset (since both cover all taxon groups), then split by
@@ -2609,7 +2744,7 @@ A minimal methods paragraph citing enrichments might read:
 > Taxonomic names were resolved against the WFO backbone (v2024.12)
 > using taxify (v0.x.x). Conservation status was obtained from the IUCN
 > Red List (v2025.1) via
-> [`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md).
+> [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md).
 > Woodiness classification followed Zanne et al. (2014). Ecological
 > indicator values were sourced from EIVE 1.0 (Dengler et al. 2023). All
 > enrichment versions are recorded in the taxify result metadata and

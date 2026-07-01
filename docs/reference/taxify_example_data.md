@@ -21,7 +21,7 @@ Point taxify at it for the current session by setting the
 `taxify.data_dir` option:
 
     old <- options(taxify.data_dir = taxify_example_data())
-    taxify("Quercus robur") |> add_woodiness()
+    taxify("Quercus robur") |> add_zanne()
     options(old)  # restore the real data directory
 
 The example database is read-only and covers only the species used in

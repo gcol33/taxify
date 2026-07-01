@@ -24,7 +24,7 @@ run offline, without downloading the full multi-million-row backbones."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,7 @@ or <code>""</code> if it is not installed.</p>
     <p>Point taxify at it for the current session by setting the
 <code>taxify.data_dir</code> option:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="../reference/taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span>  <span class="co"># restore the real data directory</span></span></code></pre><p></p></div>
 <p>The example database is read-only and covers only the species used in the
 package examples; use the full downloaded backbones for real work.</p>

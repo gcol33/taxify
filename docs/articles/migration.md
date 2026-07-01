@@ -311,8 +311,8 @@ result[, c("input_name", "backend", "family")]
 
 # Enrich with traits:
 result |>
-  add_conservation_status() |>
-  add_woodiness()
+  add_iucn() |>
+  add_zanne()
 
 # Or join custom data:
 my_traits <- data.frame(
@@ -465,8 +465,8 @@ list_enrichments()
 
 Each enrichment downloads automatically on first use and is cached
 locally, following the same pattern as backbones. The full list:
-[`add_conservation_status()`](https://gillescolling.com/taxify/reference/add_conservation_status.md),
-[`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md),
+[`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md),
+[`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md),
 [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md),
 [`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md),
 [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md),
@@ -474,7 +474,7 @@ locally, following the same pattern as backbones. The full list:
 [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md),
 [`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md),
 [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
-[`add_woodiness()`](https://gillescolling.com/taxify/reference/add_woodiness.md),
+[`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md),
 [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md),
 and
 [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md).

@@ -17,7 +17,7 @@ taxify_long(x, cols = NULL, group_col = NULL, drop_na = FALSE)
   A data.frame, typically a
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   result after applying a grouped enrichment like
-  [`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md),
+  [`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md),
   [`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md),
   or
   [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md).
@@ -51,7 +51,7 @@ extracted from the suffix.
 
 When `cols` and `group_col` are omitted, `taxify_long()` reads the
 reshape metadata attached by grouped enrichment functions
-([`add_invasive_status()`](https://gillescolling.com/taxify/reference/add_invasive_status.md),
+([`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md),
 [`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md),
 [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md),
 [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)).
@@ -82,7 +82,7 @@ taxify("Robinia pseudoacacia") |>
 
 # Explicit: override auto-detection
 taxify("Robinia pseudoacacia") |>
-  add_invasive_status(country = c("AT", "DE")) |>
+  add_griis(country = c("AT", "DE")) |>
   taxify_long(cols = "invasive_status", group_col = "country")
 
 options(old)

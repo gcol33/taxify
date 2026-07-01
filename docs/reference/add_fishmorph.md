@@ -2,12 +2,14 @@
 
 Joins FISHMORPH morphological trait data to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result by looking up `accepted_name`.
+result by looking up `accepted_name`. This is the source-named door for
+FISHMORPH; for the fish reference database FishBase see
+[`add_fishbase()`](https://gillescolling.com/taxify/reference/add_fishbase.md).
 
 ## Usage
 
 ``` r
-add_fish_traits(x, verbose = TRUE)
+add_fishmorph(x, verbose = TRUE)
 ```
 
 ## Arguments
@@ -85,7 +87,7 @@ of freshwater fishes. Global Ecology and Biogeography 30:2330-2336.
 old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Salmo trutta", backend = "gbif") |>
-  add_fish_traits()
+  add_fishmorph()
 
 options(old)
 ```

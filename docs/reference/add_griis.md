@@ -1,13 +1,16 @@
-# Add invasive species status
+# Add invasive species status (GRIIS)
 
-Joins GRIIS (Global Register of Introduced and Invasive Species) data to
-a [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result, filtered by country.
+Joins GRIIS (Global Register of Introduced and Invasive Species) status
+to a [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result, filtered by country. This is the source-named door for GRIIS;
+GloNAF
+([`add_glonaf()`](https://gillescolling.com/taxify/reference/add_glonaf.md))
+carries related naturalized-alien status.
 
 ## Usage
 
 ``` r
-add_invasive_status(x, country, verbose = TRUE)
+add_griis(x, country, verbose = TRUE)
 ```
 
 ## Arguments
@@ -54,10 +57,10 @@ Source: GRIIS (Zenodo combined CSV, CC BY 4.0, 196 countries). Coverage:
 old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Robinia pseudoacacia") |>
-  add_invasive_status(country = "AT")
+  add_griis(country = "AT")
 
 taxify("Robinia pseudoacacia") |>
-  add_invasive_status(country = c("AT", "DE"))
+  add_griis(country = c("AT", "DE"))
 
 options(old)
 ```

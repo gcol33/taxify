@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,6 +69,18 @@
       <small>Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="taxify-development-version">taxify (development version)<a class="anchor" aria-label="anchor" href="#taxify-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>New <code><a href="../reference/add_trait.html">add_trait()</a></code> attaches a single trait across every source that carries it, reconciling their vocabularies and units. Where each <code>add_*()</code> door joins one dataset, <code>add_trait("seed_mass")</code> gathers the sources: it pulls seed mass from Diaz et al. and GIFT and returns both in one unit (mg), woodiness from Zanne and GIFT in one vocabulary, and likewise plant height and SLA. Provenance stays explicit – the default <code>mode = "wide"</code> gives one harmonized column per source (<code>seed_mass_diaz</code>, <code>seed_mass_gift</code>), so agreement and conflict are visible; opt into <code>mode = "coalesce"</code> for one best-available value plus its source. <code><a href="../reference/list_traits.html">list_traits()</a></code> lists the available traits and <code><a href="../reference/trait_info.html">trait_info()</a></code> shows a trait’s sources, units, and harmonization rules.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="renamed-source-named-doors-development-version">Renamed (source-named doors)<a class="anchor" aria-label="anchor" href="#renamed-source-named-doors-development-version"></a></h3>
+<ul><li><p>Enrichment doors are named after their source; the trait name is reserved for <code><a href="../reference/add_trait.html">add_trait()</a></code>. <code>add_woodiness()</code>, <code>add_conservation_status()</code>, <code>add_invasive_status()</code>, and <code>add_fish_traits()</code> are renamed to <code><a href="../reference/add_zanne.html">add_zanne()</a></code> (Zanne et al. 2014), <code><a href="../reference/add_iucn.html">add_iucn()</a></code> (IUCN Red List), <code><a href="../reference/add_griis.html">add_griis()</a></code> (GRIIS), and <code><a href="../reference/add_fishmorph.html">add_fishmorph()</a></code> (FISHMORPH; also avoids confusion with <code><a href="../reference/add_fishbase.html">add_fishbase()</a></code>). The old names are removed, not deprecated – they never appeared in a release.</p></li>
+<li><p>New <code><a href="../reference/add_gift.html">add_gift()</a></code> joins plant traits from GIFT, the Global Inventory of Floras and Traits (Weigelt et al. 2020), by accepted name. GIFT’s API exposes only the subset of its data it may redistribute (CC BY 4.0; restricted references excluded); taxifydb fetches that subset once at build time and it ships as a pre-built <code>.vtr</code>, so <code><a href="../reference/add_gift.html">add_gift()</a></code> joins it offline like every other enrichment – no runtime API calls. Choose which traits to attach via <code>cols=</code> (any <code>gift_</code> column names, or <code>"all"</code>); the default is a convenient set of well-populated ones (woodiness, growth form, life cycle and form, habit flags, height, photosynthetic pathway, seed mass, dispersal, flowering months, deciduousness, SLA). <code><a href="../reference/gift_traits.html">gift_traits()</a></code> browses the available columns.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.1" id="taxify-031">taxify 0.3.1<a class="anchor" aria-label="anchor" href="#taxify-031"></a></h2>
 <div class="section level3">
@@ -177,7 +189,7 @@
 <h2 class="pkg-version" data-toc-text="0.2.8" id="taxify-028">taxify 0.2.8<a class="anchor" aria-label="anchor" href="#taxify-028"></a></h2>
 <div class="section level3">
 <h3 id="internal-0-2-8">Internal<a class="anchor" aria-label="anchor" href="#internal-0-2-8"></a></h3>
-<ul><li>Added an end-to-end regression test (<code>tests/e2e/test-e2e-enrichment.R</code>) for the enrichment join fixed in 0.2.5 (<a href="https://github.com/gcol33/taxify/issues/1" class="external-link">#1</a>). It checks that <code><a href="../reference/add_conservation_status.html">add_conservation_status()</a></code>, <code><a href="../reference/add_common_names.html">add_common_names()</a></code>, and <code><a href="../reference/add_woodiness.html">add_woodiness()</a></code> attach each value to the row’s own accepted taxon, stay invariant to batch composition and order, and land documented values on the correct species.</li>
+<ul><li>Added an end-to-end regression test (<code>tests/e2e/test-e2e-enrichment.R</code>) for the enrichment join fixed in 0.2.5 (<a href="https://github.com/gcol33/taxify/issues/1" class="external-link">#1</a>). It checks that <code>add_conservation_status()</code>, <code><a href="../reference/add_common_names.html">add_common_names()</a></code>, and <code>add_woodiness()</code> attach each value to the row’s own accepted taxon, stay invariant to batch composition and order, and land documented values on the correct species.</li>
 </ul></div>
 </div>
     <div class="section level2">

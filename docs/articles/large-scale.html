@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -484,18 +484,17 @@ working set is roughly 10-20 MB. For 50,000 unmatched names against
 GBIF, it can reach 100-200 MB. The temporary files and working buffers
 are freed after each fuzzy pass.</p>
 <p>Enrichment <code>.vtr</code> files are loaded on demand. Calling
-<code><a href="../reference/add_conservation_status.html">add_conservation_status()</a></code> loads the conservation_status
-enrichment (~60,000 rows, a few MB). Calling
-<code><a href="../reference/add_elton_traits.html">add_elton_traits()</a></code> loads EltonTraits (~15,000 rows).
-Enrichment joins use a different mechanism than backbone matching: they
-build a temporary <code>.vtr</code> of unique accepted names, run an
-<code>inner_join()</code> against the enrichment <code>.vtr</code>, and
-fill the result via <code><a href="https://rdrr.io/r/base/match.html" class="external-link">match()</a></code>. The enrichment
-<code>.vtr</code> itself is not fully materialized into memory; only the
-joined subset is collected. The memory cost per enrichment join is
-proportional to the number of unique accepted names in the result, which
-is typically much smaller than the input list (synonyms collapse to
-shared accepted names).</p>
+<code><a href="../reference/add_iucn.html">add_iucn()</a></code> loads the conservation_status enrichment
+(~60,000 rows, a few MB). Calling <code><a href="../reference/add_elton_traits.html">add_elton_traits()</a></code> loads
+EltonTraits (~15,000 rows). Enrichment joins use a different mechanism
+than backbone matching: they build a temporary <code>.vtr</code> of
+unique accepted names, run an <code>inner_join()</code> against the
+enrichment <code>.vtr</code>, and fill the result via
+<code><a href="https://rdrr.io/r/base/match.html" class="external-link">match()</a></code>. The enrichment <code>.vtr</code> itself is not
+fully materialized into memory; only the joined subset is collected. The
+memory cost per enrichment join is proportional to the number of unique
+accepted names in the result, which is typically much smaller than the
+input list (synonyms collapse to shared accepted names).</p>
 <p>For a typical session matching 50,000 plant names against WFO with
 two enrichments, expect about 150 MB of total memory usage from taxify’s
 caches. Matching the same names against GBIF with five enrichments
@@ -730,8 +729,8 @@ exists and the version is current, they return immediately.</p>
 <span></span>
 <span><span class="co"># Now the analysis can run fully offline</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_iucn.html">add_iucn</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 <p>In a CI/CD or cluster environment, the download step can run in a
 setup script or container build phase. The matching step then operates
 entirely from local disk, with no network dependency and no risk of
@@ -807,8 +806,8 @@ memory and enriching after.</p>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, backend <span class="op">=</span> <span class="st">"wfo"</span>,</span>
 <span>                fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_conservation_status.html">add_conservation_status</a></span><span class="op">(</span><span class="va">res</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_woodiness.html">add_woodiness</a></span><span class="op">(</span><span class="va">res</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_iucn.html">add_iucn</a></span><span class="op">(</span><span class="va">res</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="va">res</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">res</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"results/chunk_%04d.rds"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><strong>Backend selection cheat sheet:</strong></p>
