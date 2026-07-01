@@ -1,6 +1,6 @@
 Package: taxify
 Title: Offline Taxonomic Name Matching Against Local Darwin Core Snapshots
-Version: 0.3.1
+Version: 0.3.1.9000
 Authors@R:
     person("Gilles", "Colling", , "gilles.colling051@gmail.com",
            role = c("aut", "cre", "cph"),
@@ -24,6 +24,7 @@ Imports:
     vectra
 Suggests:
     DBI,
+    GIFT,
     knitr,
     openxlsx2,
     rmarkdown,

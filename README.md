@@ -133,7 +133,7 @@ taxify(fish_names, backend = "col") |>
 ```
 
 Sources span all kingdoms: IUCN, GRIIS, GBIF common names, WCVP, EIVE, Diaz et al., LEDA,
-FungalTraits, FUNGuild, AlgaeTraits, EltonTraits, AVONET, PanTHERIA, AmphiBIO, FISHMORPH,
+GIFT, FungalTraits, FUNGuild, AlgaeTraits, EltonTraits, AVONET, PanTHERIA, AmphiBIO, FISHMORPH,
 FishBase, AnAge, GloNAF, LepTraits, AnimalTraits, and regional plant-trait sets for France
 (Baseflor), Britain (Ecoflora), and Germany (FloraWeb), and more. The
 [enrichments vignette](https://gillescolling.com/taxify/articles/enrichments.html) lists

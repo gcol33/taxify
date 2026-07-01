@@ -559,6 +559,30 @@ Coverage is plant genera only (about 4,000 genera). The dataset is distributed
 under CC BY-NC 4.0; the per-genus consensus is computed by taxify from the
 per-observation labels, not FungalRoot's own published genus assignment.
 
+#### Global traits (GIFT, on demand)
+
+GIFT, the Global Inventory of Floras and Traits (Weigelt et al. 2020), aggregates
+published plant trait records worldwide into one value per species, and
+`add_gift()` attaches a curated set of the best-populated ones: woodiness, growth
+form, life cycle, Raunkiaer life form, climbing, epiphytic, parasitic and aquatic
+habit, maximum plant height, photosynthetic pathway, mean seed mass, dispersal
+syndrome, flowering start and end month, deciduousness, and mean specific leaf
+area (16 `gift_` columns).
+
+```{r gift, eval=FALSE}
+taxify(c("Abies alba", "Quercus robur")) |>
+  add_gift()
+```
+
+GIFT trait values are aggregated from many source references, each under its own
+licence, and are served from a live API rather than an openly-licensed bulk
+dump, so taxify does not redistribute them. `add_gift()` fetches them on demand
+through the suggested GIFT package: the full trait table is downloaded once per
+session and cached, and the values are joined to your result by accepted name.
+The first call needs internet access, and you are responsible for citing GIFT
+and the underlying references (`GIFT::GIFT_references()`) when you use the
+values.
+
 ### Conservation status (IUCN Red List)
 
 The conservation status enrichment is the only enrichment that spans all
