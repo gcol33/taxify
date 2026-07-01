@@ -3482,7 +3482,7 @@
     "gift": {
       "latest": "2026.07",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/gift.vtr",
-      "nrow": 0,
+      "nrow": 279943,
       "source_url": "https://gift.uni-goettingen.de",
       "source_format": "gift",
       "source_version": "3.2",
