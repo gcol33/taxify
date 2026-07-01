@@ -1602,7 +1602,7 @@
         "title": "FishBase",
         "url": "https://www.fishbase.org"
       },
-      "license": "CC BY-NC 3.0"
+      "license": "CC BY-NC 4.0"
     },
     "fungal_traits": {
       "latest": "2026.06",
@@ -2196,7 +2196,7 @@
         "title": "SeaLifeBase",
         "url": "https://www.sealifebase.org"
       },
-      "license": "CC BY-NC 3.0"
+      "license": "CC BY-NC 4.0"
     },
     "groot": {
       "latest": "2026.06",

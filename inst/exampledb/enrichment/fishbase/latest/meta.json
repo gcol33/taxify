@@ -3,7 +3,7 @@
   "version": "example",
   "nrow": 1,
   "static": true,
-  "license": "CC BY-NC 3.0",
+  "license": "CC BY-NC 4.0",
   "citation": {
     "key": "froese2024fishbase",
     "type": "misc",
