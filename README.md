@@ -121,15 +121,19 @@ the backbone-resolved accepted name, so synonyms in either dataset land on the s
 ```r
 # plants
 taxify(plant_names) |>
-  add_conservation_status() |>   # IUCN Red List
-  add_invasive_status("AT") |>   # GRIIS
-  add_woodiness() |>             # Zanne et al.
+  add_iucn() |>                  # IUCN Red List
+  add_griis("AT") |>             # GRIIS
+  add_zanne() |>                 # Zanne et al. woodiness
   add_eive()                     # EIVE indicator values
 
 # fish
 taxify(fish_names, backend = "col") |>
   add_fishbase() |>              # FishBase morphology & ecology
-  add_fish_traits()              # FISHMORPH functional traits
+  add_fishmorph()                # FISHMORPH functional traits
+
+# one trait, gathered across every source that has it
+taxify(plant_names) |>
+  add_trait("seed_mass")         # Diaz + GIFT, harmonized to mg
 ```
 
 Sources span all kingdoms: IUCN, GRIIS, GBIF common names, WCVP, EIVE, Diaz et al., LEDA,

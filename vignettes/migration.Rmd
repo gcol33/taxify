@@ -1,4 +1,4 @@
----
+﻿---
 title: "Migrating from taxize, WorldFlora, and related tools"
 output: rmarkdown::html_vignette
 vignette: >
@@ -322,8 +322,8 @@ result[, c("input_name", "backend", "family")]
 
 # Enrich with traits:
 result |>
-  add_conservation_status() |>
-  add_woodiness()
+  add_iucn() |>
+  add_zanne()
 
 # Or join custom data:
 my_traits <- data.frame(
@@ -474,9 +474,9 @@ list_enrichments()
 
 Each enrichment downloads automatically on first use and is cached
 locally, following the same pattern as backbones. The full list:
-`add_conservation_status()`, `add_invasive_status()`, `add_wcvp()`,
+`add_iucn()`, `add_griis()`, `add_wcvp()`,
 `add_eive()`, `add_elton_traits()`, `add_avonet()`, `add_pantheria()`,
-`add_amphibio()`, `add_common_names()`, `add_woodiness()`,
+`add_amphibio()`, `add_common_names()`, `add_zanne()`,
 `add_diaz_traits()`, and `add_leda()`.
 
 

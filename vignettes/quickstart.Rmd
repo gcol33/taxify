@@ -1,4 +1,4 @@
----
+﻿---
 title: "Getting started with taxify"
 output: rmarkdown::html_vignette
 vignette: >
@@ -349,15 +349,15 @@ versions, and coverage.
 
 ```{r enrich-anim, echo = FALSE, results = "asis", eval = TRUE}
 con_data <- "var G=[
-{n:'Plants',s:'Plants',c:'#6bcb77',L:[['add_woodiness()','woody / herbaceous'],['add_eive()','EIVE indicator values'],['add_diaz_traits()','seed mass & height'],['add_leda()','LEDA life-history'],['add_wcvp()','native range'],['add_glonaf()','naturalized alien flora'],['add_baseflor()','ecological traits'],['add_ecoflora()','British flora'],['add_floraweb()','German flora'],['add_pignatti()','Italian indicator values'],['add_fungalroot()','mycorrhizal type']]},
+{n:'Plants',s:'Plants',c:'#6bcb77',L:[['add_zanne()','woody / herbaceous'],['add_eive()','EIVE indicator values'],['add_diaz_traits()','seed mass & height'],['add_leda()','LEDA life-history'],['add_wcvp()','native range'],['add_glonaf()','naturalized alien flora'],['add_baseflor()','ecological traits'],['add_ecoflora()','British flora'],['add_floraweb()','German flora'],['add_pignatti()','Italian indicator values'],['add_fungalroot()','mycorrhizal type']]},
 {n:'Birds & mammals',s:'Birds/mammals',c:'#3ad7ff',L:[['add_avonet()','bird morphology'],['add_elton_traits()','diet & body mass'],['add_pantheria()','mammal life-history']]},
 {n:'Amphibians & reptiles',s:'Amph & reptiles',c:'#b388ff',L:[['add_amphibio()','amphibian traits'],['add_repttraits()','reptile traits & range']]},
-{n:'Fish',s:'Fish',c:'#4d96ff',L:[['add_fish_traits()','morphology'],['add_fishbase()','ecology']]},
+{n:'Fish',s:'Fish',c:'#4d96ff',L:[['add_fishmorph()','morphology'],['add_fishbase()','ecology']]},
 {n:'Arthropods',s:'Arthropods',c:'#ff8fd0',L:[['add_arthropod_traits()','arthropod traits'],['add_leptraits()','butterfly traits']]},
 {n:'Fungi',s:'Fungi',c:'#ffd93d',L:[['add_fungal_traits()','fungal traits'],['add_funguild()','trophic guild']]},
 {n:'Algae',s:'Algae',c:'#33ffd0',L:[['add_algae_traits()','algal traits']]},
 {n:'Cross-taxon animals',s:'Cross-taxon',c:'#ffc24b',L:[['add_animaltraits()','body mass & metabolism'],['add_anage()','longevity & ageing']]},
-{n:'Status, alien & names',s:'Status & alien',c:'#ff3b6b',L:[['add_conservation_status()','IUCN Red List'],['add_invasive_status()','GRIIS invasive'],['add_alien_first_records()','first-record years'],['add_common_names()','vernacular names']]}
+{n:'Status, alien & names',s:'Status & alien',c:'#ff3b6b',L:[['add_iucn()','IUCN Red List'],['add_griis()','GRIIS invasive'],['add_alien_first_records()','first-record years'],['add_common_names()','vernacular names']]}
 ];
 "
 body <- "
@@ -437,7 +437,7 @@ field <- c(
 )
 
 dat <- taxify(field) |>
-  add_woodiness() |>
+  add_zanne() |>
   add_eive() |>
   add_diaz_traits()
 

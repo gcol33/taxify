@@ -1,4 +1,4 @@
----
+﻿---
 title: "Working with large species lists"
 output: rmarkdown::html_vignette
 vignette: >
@@ -357,7 +357,7 @@ unmatched names against GBIF, it can reach 100-200 MB. The temporary files
 and working buffers are freed after each fuzzy pass.
 
 Enrichment `.vtr` files are loaded on demand. Calling
-`add_conservation_status()` loads the conservation_status enrichment
+`add_iucn()` loads the conservation_status enrichment
 (~60,000 rows, a few MB). Calling `add_elton_traits()` loads EltonTraits
 (~15,000 rows). Enrichment joins use a different mechanism than backbone
 matching: they build a temporary `.vtr` of unique accepted names, run an
@@ -629,8 +629,8 @@ taxify_download_enrichment(c(
 
 # Now the analysis can run fully offline
 result <- taxify(species_list, backend = c("wfo", "col"))
-result <- add_conservation_status(result)
-result <- add_woodiness(result)
+result <- add_iucn(result)
+result <- add_zanne(result)
 ```
 
 In a CI/CD or cluster environment, the download step can run in a setup
@@ -711,8 +711,8 @@ accumulating the full result in memory and enriching after.
 for (i in seq_along(chunks)) {
   res <- taxify(chunks[[i]], backend = "wfo",
                 fuzzy = TRUE, verbose = FALSE)
-  res <- add_conservation_status(res, verbose = FALSE)
-  res <- add_woodiness(res, verbose = FALSE)
+  res <- add_iucn(res, verbose = FALSE)
+  res <- add_zanne(res, verbose = FALSE)
   saveRDS(res, sprintf("results/chunk_%04d.rds", i))
 }
 ```

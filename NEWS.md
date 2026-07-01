@@ -2,6 +2,26 @@
 
 ## New features
 
+* New `add_trait()` attaches a single trait across every source that carries it,
+  reconciling their vocabularies and units. Where each `add_*()` door joins one
+  dataset, `add_trait("seed_mass")` gathers the sources: it pulls seed mass from
+  Diaz et al. and GIFT and returns both in one unit (mg), woodiness from Zanne
+  and GIFT in one vocabulary, and likewise plant height and SLA. Provenance stays
+  explicit -- the default `mode = "wide"` gives one harmonized column per source
+  (`seed_mass_diaz`, `seed_mass_gift`), so agreement and conflict are visible;
+  opt into `mode = "coalesce"` for one best-available value plus its source.
+  `list_traits()` lists the available traits and `trait_info()` shows a trait's
+  sources, units, and harmonization rules.
+
+## Renamed (source-named doors)
+
+* Enrichment doors are named after their source; the trait name is reserved for
+  `add_trait()`. `add_woodiness()`, `add_conservation_status()`,
+  `add_invasive_status()`, and `add_fish_traits()` are renamed to `add_zanne()`
+  (Zanne et al. 2014), `add_iucn()` (IUCN Red List), `add_griis()` (GRIIS), and
+  `add_fishmorph()` (FISHMORPH; also avoids confusion with `add_fishbase()`).
+  The old names are removed, not deprecated -- they never appeared in a release.
+
 * New `add_gift()` joins plant traits from GIFT, the Global Inventory of Floras
   and Traits (Weigelt et al. 2020), by accepted name. GIFT's API exposes only
   the subset of its data it may redistribute (CC BY 4.0; restricted references

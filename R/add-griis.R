@@ -1,7 +1,8 @@
-#' Add invasive species status
+#' Add invasive species status (GRIIS)
 #'
-#' Joins GRIIS (Global Register of Introduced and Invasive Species) data
-#' to a [taxify()] result, filtered by country.
+#' Joins GRIIS (Global Register of Introduced and Invasive Species) status to a
+#' [taxify()] result, filtered by country. This is the source-named door for
+#' GRIIS; GloNAF ([add_glonaf()]) carries related naturalized-alien status.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param country Character. ISO 3166-1 alpha-2 country code(s), or `"all"`.
@@ -28,15 +29,15 @@
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
 #' taxify("Robinia pseudoacacia") |>
-#'   add_invasive_status(country = "AT")
+#'   add_griis(country = "AT")
 #'
 #' taxify("Robinia pseudoacacia") |>
-#'   add_invasive_status(country = c("AT", "DE"))
+#'   add_griis(country = c("AT", "DE"))
 #'
 #' options(old)
 #'
 #' @export
-add_invasive_status <- function(x, country, verbose = TRUE) {
+add_griis <- function(x, country, verbose = TRUE) {
   if (missing(country)) {
     stop("'country' is required. Use an ISO 3166-1 alpha-2 code (e.g., \"AT\") or \"all\".",
          call. = FALSE)

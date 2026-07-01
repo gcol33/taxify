@@ -1,11 +1,11 @@
-# End-to-end test: enrichment joins attach to each row's own accepted taxon
+﻿# End-to-end test: enrichment joins attach to each row's own accepted taxon
 #
 # Run with:
 #   Rscript tests/e2e/test-e2e-enrichment.R
 #
-# Regression guard for #1: add_conservation_status() and add_common_names()
+# Regression guard for #1: add_iucn() and add_common_names()
 # attached values from a neighbouring within-genus taxon (e.g. Quercus robur
-# got the common name of Q. pyrenaica), while add_woodiness() on the same rows
+# got the common name of Q. pyrenaica), while add_zanne() on the same rows
 # was correct. A correct per-accepted_id join is invariant to batch composition
 # and order, and lands the documented value on the right species. This checks
 # both properties.
@@ -35,9 +35,9 @@ congeners <- c(
 
 enrich <- function(x) {
   taxify(x, backend = "wfo", verbose = FALSE) |>
-    add_conservation_status() |>
+    add_iucn() |>
     add_common_names(lang = "en") |>
-    add_woodiness()
+    add_zanne()
 }
 as_df <- function(r) data.frame(
   accepted_name = r$accepted_name,

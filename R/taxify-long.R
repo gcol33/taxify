@@ -1,11 +1,11 @@
-#' Reshape grouped enrichment columns to long format
+﻿#' Reshape grouped enrichment columns to long format
 #'
 #' Converts wide-format columns produced by grouped enrichments (e.g.,
 #' `invasive_status_AT`, `invasive_status_DE`) back to long format with
 #' one row per species x group combination.
 #'
 #' @param x A data.frame, typically a [taxify()] result after applying
-#'   a grouped enrichment like [add_invasive_status()],
+#'   a grouped enrichment like [add_griis()],
 #'   [add_alien_first_records()], or [add_wcvp()].
 #' @param cols Character vector of base column names to reshape. These are
 #'   the column names without the group suffix (e.g., `"invasive_status"`,
@@ -25,7 +25,7 @@
 #' @details
 #' When `cols` and `group_col` are omitted, `taxify_long()` reads the
 #' reshape metadata attached by grouped enrichment functions
-#' ([add_invasive_status()], [add_alien_first_records()], [add_wcvp()],
+#' ([add_griis()], [add_alien_first_records()], [add_wcvp()],
 #' [add_common_names()]). If multiple grouped enrichments were applied,
 #' all are reshaped together (they must share the same group column).
 #'
@@ -51,7 +51,7 @@
 #'
 #' # Explicit: override auto-detection
 #' taxify("Robinia pseudoacacia") |>
-#'   add_invasive_status(country = c("AT", "DE")) |>
+#'   add_griis(country = c("AT", "DE")) |>
 #'   taxify_long(cols = "invasive_status", group_col = "country")
 #'
 #' options(old)
@@ -70,7 +70,7 @@ taxify_long <- function(x, cols = NULL, group_col = NULL, drop_na = FALSE) {
       stop(paste0(
         "Cannot auto-detect reshape columns. Either:\n",
         "  - Provide 'cols' and 'group_col' explicitly, or\n",
-        "  - Apply a grouped enrichment (add_invasive_status, ",
+        "  - Apply a grouped enrichment (add_griis, ",
         "add_alien_first_records, etc.) first."
       ), call. = FALSE)
     }

@@ -1,7 +1,7 @@
 {
   "name": "leda",
   "version": "example",
-  "nrow": 1,
+  "nrow": 2,
   "static": true,
   "license": "Free for academic use",
   "citation": {

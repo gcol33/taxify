@@ -20,7 +20,7 @@ Point taxify at it for the current session by setting the
 \code{taxify.data_dir} option:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{old <- options(taxify.data_dir = taxify_example_data())
-taxify("Quercus robur") |> add_woodiness()
+taxify("Quercus robur") |> add_zanne()
 options(old)  # restore the real data directory
 }\if{html}{\out{</div>}}
 

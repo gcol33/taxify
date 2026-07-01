@@ -149,7 +149,7 @@ taxify_data_dir <- function() {
 #'
 #' ```r
 #' old <- options(taxify.data_dir = taxify_example_data())
-#' taxify("Quercus robur") |> add_woodiness()
+#' taxify("Quercus robur") |> add_zanne()
 #' options(old)  # restore the real data directory
 #' ```
 #'

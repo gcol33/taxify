@@ -1,7 +1,8 @@
 #' Add freshwater fish morphological traits (FISHMORPH)
 #'
 #' Joins FISHMORPH morphological trait data to a [taxify()] result by
-#' looking up `accepted_name`.
+#' looking up `accepted_name`. This is the source-named door for FISHMORPH;
+#' for the fish reference database FishBase see [add_fishbase()].
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param verbose Logical. Default `TRUE`.
@@ -43,12 +44,12 @@
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
 #' taxify("Salmo trutta", backend = "gbif") |>
-#'   add_fish_traits()
+#'   add_fishmorph()
 #'
 #' options(old)
 #'
 #' @export
-add_fish_traits <- function(x, verbose = TRUE) {
+add_fishmorph <- function(x, verbose = TRUE) {
   col_map <- c(
     fish_max_body_length          = "max_body_length",
     fish_body_elongation          = "body_elongation",

@@ -1,7 +1,10 @@
-#' Add woodiness classification
+#' Add woodiness (Zanne et al. 2014)
 #'
-#' Joins woodiness data from Zanne et al. (2014) to a [taxify()] result
-#' by looking up `accepted_name`.
+#' Joins the woody / herbaceous classification of Zanne et al. (2014) to a
+#' [taxify()] result by looking up `accepted_name`. This is the source-named
+#' door for the Zanne Global Woodiness Database; for woodiness reconciled across
+#' every source that carries it (Zanne, GIFT), use [add_trait()] with
+#' `"woodiness"`.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param verbose Logical. Default `TRUE`.
@@ -19,17 +22,19 @@
 #' Zanne AE et al. (2014) Three keys to the radiation of angiosperms into
 #' freezing environments. Nature 506:89-92.
 #'
+#' @seealso [add_trait()] for woodiness harmonized across sources.
+#'
 #' @examples
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
 #' taxify("Quercus robur") |>
-#'   add_woodiness()
+#'   add_zanne()
 #'
 #' options(old)
 #'
 #' @export
-add_woodiness <- function(x, verbose = TRUE) {
+add_zanne <- function(x, verbose = TRUE) {
   enrich_simple(
     x,
     enrichment_name = "woodiness",

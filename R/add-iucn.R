@@ -1,7 +1,9 @@
-#' Add conservation status
+#' Add IUCN Red List conservation status
 #'
-#' Joins IUCN Red List conservation status to a [taxify()] result by
-#' looking up `accepted_name` in the conservation status enrichment.
+#' Joins IUCN Red List conservation status to a [taxify()] result by looking up
+#' `accepted_name`. This is the source-named door for the IUCN Red List; for
+#' conservation status reconciled across sources, use [add_trait()] once more
+#' than one source is registered for it.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param verbose Logical. Show download progress if enrichment data needs
@@ -24,12 +26,12 @@
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
 #' taxify("Panthera tigris", backend = "gbif") |>
-#'   add_conservation_status()
+#'   add_iucn()
 #'
 #' options(old)
 #'
 #' @export
-add_conservation_status <- function(x, verbose = TRUE) {
+add_iucn <- function(x, verbose = TRUE) {
   enrich_simple(
     x,
     enrichment_name = "conservation_status",

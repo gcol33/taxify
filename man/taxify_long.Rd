@@ -8,7 +8,7 @@ taxify_long(x, cols = NULL, group_col = NULL, drop_na = FALSE)
 }
 \arguments{
 \item{x}{A data.frame, typically a \code{\link[=taxify]{taxify()}} result after applying
-a grouped enrichment like \code{\link[=add_invasive_status]{add_invasive_status()}},
+a grouped enrichment like \code{\link[=add_griis]{add_griis()}},
 \code{\link[=add_alien_first_records]{add_alien_first_records()}}, or \code{\link[=add_wcvp]{add_wcvp()}}.}
 
 \item{cols}{Character vector of base column names to reshape. These are
@@ -37,7 +37,7 @@ one row per species x group combination.
 \details{
 When \code{cols} and \code{group_col} are omitted, \code{taxify_long()} reads the
 reshape metadata attached by grouped enrichment functions
-(\code{\link[=add_invasive_status]{add_invasive_status()}}, \code{\link[=add_alien_first_records]{add_alien_first_records()}}, \code{\link[=add_wcvp]{add_wcvp()}},
+(\code{\link[=add_griis]{add_griis()}}, \code{\link[=add_alien_first_records]{add_alien_first_records()}}, \code{\link[=add_wcvp]{add_wcvp()}},
 \code{\link[=add_common_names]{add_common_names()}}). If multiple grouped enrichments were applied,
 all are reshaped together (they must share the same group column).
 
@@ -62,7 +62,7 @@ taxify("Robinia pseudoacacia") |>
 
 # Explicit: override auto-detection
 taxify("Robinia pseudoacacia") |>
-  add_invasive_status(country = c("AT", "DE")) |>
+  add_griis(country = c("AT", "DE")) |>
   taxify_long(cols = "invasive_status", group_col = "country")
 
 options(old)

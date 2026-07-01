@@ -1,7 +1,7 @@
 {
   "name": "diaz_traits",
   "version": "example",
-  "nrow": 1,
+  "nrow": 2,
   "static": true,
   "license": "CC BY 4.0",
   "citation": {
