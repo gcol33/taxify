@@ -3,16 +3,15 @@
 ## New features
 
 * New `add_gift()` joins plant traits from GIFT, the Global Inventory of Floras
-  and Traits (Weigelt et al. 2020), by accepted name. You choose which of GIFT's
-  traits to attach via `traits=` (any trait IDs or names, or `"all"`); the
-  default is a convenient set of well-populated ones (woodiness, growth form,
-  life cycle and form, habit flags, height, photosynthetic pathway, seed mass,
-  dispersal, flowering months, deciduousness, SLA). `gift_traits()` browses the
-  full catalogue of ~109 traits. GIFT trait values are aggregated from many
-  per-reference-licensed sources and served from a live API, so taxify does not
-  redistribute them: `add_gift()` fetches them on demand via the suggested GIFT
-  package (downloaded once per session and cached) and joins them locally. The
-  first call needs internet access.
+  and Traits (Weigelt et al. 2020), by accepted name. GIFT's API exposes only
+  the subset of its data it may redistribute (CC BY 4.0; restricted references
+  excluded); taxifydb fetches that subset once at build time and it ships as a
+  pre-built `.vtr`, so `add_gift()` joins it offline like every other
+  enrichment -- no runtime API calls. Choose which traits to attach via `cols=`
+  (any `gift_` column names, or `"all"`); the default is a convenient set of
+  well-populated ones (woodiness, growth form, life cycle and form, habit flags,
+  height, photosynthetic pathway, seed mass, dispersal, flowering months,
+  deciduousness, SLA). `gift_traits()` browses the available columns.
 
 # taxify 0.3.1
 

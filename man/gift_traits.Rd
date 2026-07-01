@@ -2,32 +2,28 @@
 % Please edit documentation in R/enrichment-gift.R
 \name{gift_traits}
 \alias{gift_traits}
-\title{Browse the GIFT trait catalogue}
+\title{Browse the bundled GIFT trait columns}
 \usage{
 gift_traits()
 }
 \value{
-A data.frame, one row per trait, ordered by coverage, with columns:
+A data.frame with one row per trait column:
 \describe{
-\item{trait_id}{GIFT trait ID (pass to \code{\link[=add_gift]{add_gift()}} via \code{traits}).}
-\item{column}{The output column name \code{\link[=add_gift]{add_gift()}} would create.}
-\item{category}{GIFT trait category.}
-\item{type}{Value type (\code{numeric}, \code{categorical}, or \code{text}).}
-\item{units}{Units or the categorical value set.}
-\item{n_species}{Number of species GIFT has this trait for.}
+\item{column}{The \verb{gift_<trait>} column name.}
+\item{type}{\code{"numeric"} or \code{"character"}.}
 }
 }
 \description{
-Returns the full catalogue of species-level traits available from GIFT, the
-Global Inventory of Floras and Traits (Weigelt et al. 2020), so you can pick
-which to request in \code{\link[=add_gift]{add_gift()}}. The catalogue is fetched live via the
-suggested GIFT package (once per session) and needs internet access on the
-first call.
+Returns the species-level trait columns available from the bundled GIFT
+enrichment, so you can pick which to attach in \code{\link[=add_gift]{add_gift()}}. Read offline
+from the local \code{.vtr} (downloaded or built once); the first call may trigger
+that one-time download.
 }
 \examples{
 \donttest{
-# Fetches the catalogue live via the GIFT package.
-head(gift_traits(), 20)
+old <- options(taxify.data_dir = taxify_example_data())
+gift_traits()
+options(old)
 }
 }
 \seealso{

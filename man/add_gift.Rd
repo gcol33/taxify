@@ -2,66 +2,55 @@
 % Please edit documentation in R/enrichment-gift.R
 \name{add_gift}
 \alias{add_gift}
-\title{Add plant traits from GIFT (on demand, via the GIFT package)}
+\title{Add plant traits from GIFT}
 \usage{
-add_gift(x, traits = NULL, agreement = 0.66, verbose = TRUE)
+add_gift(x, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
 
-\item{traits}{Which GIFT traits to attach. One of: \code{NULL} (the default) for a
-convenient set of well-populated, broadly useful traits; the string
-\code{"all"} for every trait in the catalogue; or a character vector of GIFT
-trait IDs (e.g. \code{"1.6.2"}) and/or column names (e.g. \code{"plant_height_max"},
-with or without the \code{gift_} prefix). See \code{\link[=gift_traits]{gift_traits()}}. When left \code{NULL},
-a one-time message notes the default set and how to request all traits.}
-
-\item{agreement}{Numeric in \verb{[0, 1]}. Minimum agreement among source records
-for a categorical trait value to be reported. Passed to
-\code{GIFT::GIFT_traits()}. Default \code{0.66}.}
+\item{cols}{Which GIFT trait columns to attach. One of: \code{NULL} (the default)
+for a convenient set of well-populated traits; the string \code{"all"} for every
+bundled trait; or a character vector of \code{gift_} column names (e.g.
+\code{"plant_height_max"}, with or without the \code{gift_} prefix). See
+\code{\link[=gift_traits]{gift_traits()}}. When left \code{NULL}, a one-time message notes the default set
+and how to request all traits.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
 The same data.frame with one added column per requested trait, named
-\verb{gift_<trait>}. Numeric traits (heights, masses, areas) are returned as
-doubles, categorical and text traits as character. Rows with no value in
-GIFT get \code{NA}. With the default \code{traits}, the added columns are
-\code{gift_woodiness_1}, \code{gift_growth_form_1}, \code{gift_lifecycle_1},
-\code{gift_life_form_1}, \code{gift_climber_1}, \code{gift_epiphyte_1}, \code{gift_parasite_1},
-\code{gift_aquatic_1}, \code{gift_plant_height_max}, \code{gift_photosynthetic_pathway},
-\code{gift_seed_mass_mean}, \code{gift_dispersal_syndrome_1}, \code{gift_flowering_start},
-\code{gift_flowering_end}, \code{gift_deciduousness_1}, and \code{gift_sla_mean}.
+\verb{gift_<trait>}. Numeric traits (heights, masses, areas) are doubles, the
+rest character. Rows with no value in GIFT get \code{NA}. With the default
+\code{cols}, the added columns are \code{gift_woodiness_1}, \code{gift_growth_form_1},
+\code{gift_lifecycle_1}, \code{gift_life_form_1}, \code{gift_climber_1}, \code{gift_epiphyte_1},
+\code{gift_parasite_1}, \code{gift_aquatic_1}, \code{gift_plant_height_max},
+\code{gift_photosynthetic_pathway}, \code{gift_seed_mass_mean},
+\code{gift_dispersal_syndrome_1}, \code{gift_flowering_start}, \code{gift_flowering_end},
+\code{gift_deciduousness_1}, and \code{gift_sla_mean}.
 }
 \description{
-Fetches species-level trait values from GIFT, the Global Inventory of Floras
-and Traits (Weigelt et al. 2020), for the species in a \code{\link[=taxify]{taxify()}} result and
-joins them by \code{accepted_name}. GIFT aggregates published trait records to one
-value per species (mean for numeric traits, most frequent entry for
-categorical ones). You choose which of GIFT's traits to attach; browse the
-full catalogue with \code{\link[=gift_traits]{gift_traits()}}.
+Joins species-level plant traits from GIFT, the Global Inventory of Floras
+and Traits (Weigelt et al. 2020), to a \code{\link[=taxify]{taxify()}} result by \code{accepted_name}.
+GIFT aggregates published trait records to one value per species (mean for
+numeric traits, most frequent entry for categorical ones). You choose which
+traits to attach with \code{cols}; browse the available columns with
+\code{\link[=gift_traits]{gift_traits()}}.
 }
 \details{
-GIFT trait values are aggregated from many source references, each with its
-own licence, and are served from a live API, so taxify does not redistribute
-them. This function fetches them on demand via the suggested package GIFT;
-the requested trait table is downloaded once per session (per trait set) and
-cached. You are responsible for citing GIFT and the underlying references
-(see \code{GIFT::GIFT_references()}) when you use the values. The first call
-requires internet access.
+The GIFT trait table is bundled as a pre-built \code{.vtr} and joined offline, so
+no internet access is needed once it is present (the first use downloads it,
+or builds it from source if \code{taxifydb} is installed). GIFT's API exposes only
+the redistributable subset of its data (CC BY 4.0; references whose
+underlying source is restricted are excluded), and that subset is what is
+bundled here. Cite GIFT and, where applicable, the underlying references
+(\code{GIFT::GIFT_references()}) when you use the values.
 }
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())
 
-\donttest{
-# add_gift() fetches trait data on demand via the GIFT package.
 taxify("Abies alba") |>
   add_gift()
-
-# Pick specific traits by ID or name:
-taxify("Abies alba") |>
-  add_gift(traits = c("plant_height_max", "seed_mass_mean"))
-}
 
 options(old)
 
@@ -75,5 +64,5 @@ Inventory of Floras and Traits. Methods in Ecology and Evolution
 14:2738-2748. \doi{10.1111/2041-210X.14213}
 }
 \seealso{
-\code{\link[=gift_traits]{gift_traits()}} to browse the catalogue.
+\code{\link[=gift_traits]{gift_traits()}} to browse the available columns.
 }

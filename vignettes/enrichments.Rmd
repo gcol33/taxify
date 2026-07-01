@@ -563,7 +563,7 @@ per-observation labels, not FungalRoot's own published genus assignment.
 
 GIFT, the Global Inventory of Floras and Traits (Weigelt et al. 2020), aggregates
 published plant trait records worldwide into one value per species. `add_gift()`
-attaches the traits you ask for, named `gift_<trait>`. Called with no `traits`
+attaches the traits you ask for, named `gift_<trait>`. Called with no `cols`
 argument it uses a convenient default set of well-populated ones: woodiness,
 growth form, life cycle, Raunkiaer life form, climbing, epiphytic, parasitic and
 aquatic habit, maximum plant height, photosynthetic pathway, mean seed mass,
@@ -575,15 +575,21 @@ taxify(c("Abies alba", "Quercus robur")) |>
   add_gift()
 ```
 
-GIFT holds about 109 traits in all. Browse the full catalogue with
-`gift_traits()` and request any of them by ID or name, or pass `traits = "all"`:
+Browse the available columns with `gift_traits()` and request any of them by
+name, or pass `cols = "all"`:
 
 ```{r gift-select, eval=FALSE}
-gift_traits()                                   # the full catalogue
+gift_traits()                                   # available trait columns
 
 taxify(c("Abies alba", "Quercus robur")) |>
-  add_gift(traits = c("plant_height_max", "sla_mean", "1.1.1"))
+  add_gift(cols = c("plant_height_max", "sla_mean", "woodiness_1"))
 ```
+
+GIFT's API exposes only the subset of its data it is licensed to redistribute
+(CC BY 4.0; references whose underlying source is restricted are excluded).
+taxifydb fetches that subset once at build time and it ships as a pre-built
+`.vtr`, so `add_gift()` joins it offline, with no runtime API calls. Cite GIFT
+and, where applicable, the underlying references (`GIFT::GIFT_references()`).
 
 GIFT trait values are aggregated from many source references, each under its own
 licence, and are served from a live API rather than an openly-licensed bulk
