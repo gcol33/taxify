@@ -30,7 +30,7 @@ Joins FishBase morphological and ecological traits to a \code{\link[=taxify]{tax
 by looking up \code{accepted_name}.
 }
 \details{
-Source: FishBase via rfishbase (Froese & Pauly, CC BY-NC 3.0).
+Source: FishBase via rfishbase (Froese & Pauly, CC BY-NC 4.0).
 Coverage: ~35k fish species. Fishes only.
 
 The build-from-source fallback requires the \pkg{rfishbase} package

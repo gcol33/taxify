@@ -31,7 +31,7 @@ FishBase: molluscs, crustaceans, echinoderms, marine mammals, reptiles and
 other aquatic organisms. For fishes, use \code{\link[=add_fishbase]{add_fishbase()}}.
 }
 \details{
-Source: SeaLifeBase via rfishbase (Palomares & Pauly, CC BY-NC 3.0).
+Source: SeaLifeBase via rfishbase (Palomares & Pauly, CC BY-NC 4.0).
 Non-fish aquatic life only.
 
 The build-from-source fallback requires the \pkg{rfishbase} package
