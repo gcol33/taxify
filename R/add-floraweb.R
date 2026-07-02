@@ -42,6 +42,10 @@
 #' (e.g. [add_ecoflora()] for Britain, [add_baseflor()] for France).
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which FloraWeb columns to attach. `NULL` (the default) attaches
+#'   all of them; a character vector of `_de` column names attaches just those
+#'   (see [enrichment_cols()], or the columns listed below). Pass `"all"` for
+#'   the full set explicitly.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with German trait columns (all suffixed `_de`),
 #'   grouped as:
@@ -99,12 +103,13 @@
 #' options(old)
 #'
 #' @export
-add_floraweb <- function(x, verbose = TRUE) {
+add_floraweb <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x,
     enrichment_name = "floraweb",
     col_map         = stats::setNames(.floraweb_cols, .floraweb_cols),
     source_label    = "FloraWeb (BfN; BiolFlor data, Klotz, Kuehn & Durka 2002)",
+    cols            = cols,
     verbose         = verbose
   )
 }

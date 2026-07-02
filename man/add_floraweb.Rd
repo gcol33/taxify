@@ -4,10 +4,15 @@
 \alias{add_floraweb}
 \title{Add German plant traits from FloraWeb}
 \usage{
-add_floraweb(x, verbose = TRUE)
+add_floraweb(x, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
+
+\item{cols}{Which FloraWeb columns to attach. \code{NULL} (the default) attaches
+all of them; a character vector of \verb{_de} column names attaches just those
+(see \code{\link[=enrichment_cols]{enrichment_cols()}}, or the columns listed below). Pass \code{"all"} for
+the full set explicitly.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

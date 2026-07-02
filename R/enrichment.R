@@ -628,12 +628,106 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 #' @param verbose Logical.
 #' @return The enriched data.frame.
 #' @noRd
+# Read the attachable trait columns of an enrichment .vtr: every column bar the
+# join keys, with its type ("numeric"/"character"). Optionally restrict to a
+# name prefix. Returns data.frame(column, type), or NULL if the enrichment is
+# unavailable (no download and no taxifydb to build it). Shared by add_gift(),
+# the enrichment_cols() browse, and any door offering a cols= selector.
+.enrichment_available_cols <- function(enrichment_name, prefix = NULL,
+                                       verbose = TRUE) {
+  vtr_path <- ensure_enrichment(enrichment_name, verbose = verbose)
+  if (is.null(vtr_path)) return(NULL)
+  head1 <- vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
+  cols  <- setdiff(names(head1), c("canonical_name", "accepted_name", "genus"))
+  if (!is.null(prefix)) cols <- grep(paste0("^", prefix), cols, value = TRUE)
+  if (length(cols) == 0L) return(NULL)
+  types <- vapply(cols, function(cc)
+    if (is.numeric(head1[[cc]])) "numeric" else "character", character(1))
+  data.frame(column = cols, type = unname(types), stringsAsFactors = FALSE)
+}
+
+
+# Resolve a user `cols` selection to a subset of `col_map` (names = the output
+# columns a door attaches). NULL -> default_cols, or every column when no
+# default; "all" -> every column; a character vector -> those columns, tolerant
+# of a missing `prefix` (so gift's "plant_height_max" resolves to
+# "gift_plant_height_max"). Errors with a browse pointer on unknown names.
+.apply_col_selection <- function(col_map, cols, default_cols, prefix,
+                                 enrichment_name) {
+  out <- names(col_map)
+  if (is.null(cols)) {
+    sel <- if (is.null(default_cols)) out else intersect(default_cols, out)
+    return(col_map[sel])
+  }
+  if (length(cols) == 1L && identical(tolower(cols), "all")) return(col_map)
+  want <- as.character(cols)
+  cand <- if (is.null(prefix)) want else
+    ifelse(grepl(paste0("^", prefix), want), want, paste0(prefix, want))
+  idx  <- match(tolower(cand), tolower(out))
+  if (anyNA(idx)) {
+    stop(sprintf(paste0(
+      "add_%s(): unknown column(s): %s. Pass column names, \"all\", or NULL ",
+      "for the default set. See enrichment_cols(\"%s\")."),
+      enrichment_name, paste(want[is.na(idx)], collapse = ", "),
+      enrichment_name), call. = FALSE)
+  }
+  col_map[out[idx]]
+}
+
+
+#' Browse the trait columns an enrichment door can attach
+#'
+#' Lists the columns available from an enrichment's pre-built `.vtr`, so you can
+#' choose which to attach through the doors that accept a `cols` argument (such
+#' as [add_gift()] and [add_floraweb()]). Read offline from the local `.vtr`;
+#' the first call may trigger the one-time download.
+#'
+#' @param source Character. An enrichment name (see [list_enrichments()]).
+#' @return A data.frame with one row per column: `column` (the name) and `type`
+#'   (`"numeric"` or `"character"`).
+#' @seealso [add_gift()], [add_floraweb()], [list_enrichments()]
+#' @examples
+#' \donttest{
+#' old <- options(taxify.data_dir = taxify_example_data())
+#' enrichment_cols("gift")
+#' options(old)
+#' }
+#' @export
+enrichment_cols <- function(source) {
+  ac <- .enrichment_available_cols(source, verbose = FALSE)
+  if (is.null(ac)) {
+    stop(sprintf(paste0(
+      "enrichment_cols(): enrichment '%s' is not available. It downloads on ",
+      "first use; install 'taxifydb' to build it, or check your connection."),
+      source), call. = FALSE)
+  }
+  ac
+}
+
+
 enrich_simple <- function(x, enrichment_name, col_map, source_label,
                           na_types = NULL, join_col = "accepted_name",
+                          cols = NULL, default_cols = NULL, col_prefix = NULL,
                           verbose = TRUE) {
   if (!join_col %in% names(x)) {
     stop(sprintf("x must have a '%s' column (from taxify())", join_col),
          call. = FALSE)
+  }
+
+  # User column selection (only engaged when a door forwards cols/default_cols).
+  if (!is.null(cols) || !is.null(default_cols)) {
+    full_n  <- length(col_map)
+    col_map <- .apply_col_selection(col_map, cols, default_cols, col_prefix,
+                                    enrichment_name)
+    if (is.null(cols) && !is.null(default_cols) && verbose &&
+        length(col_map) < full_n &&
+        is.null(.taxify_env[[paste0(".cols_notice.", enrichment_name)]])) {
+      message(sprintf(paste0(
+        "add_%s(): attaching %d of %d columns. Pass cols = \"all\" for all, ",
+        "or see enrichment_cols(\"%s\")."),
+        enrichment_name, length(col_map), full_n, enrichment_name))
+      .taxify_env[[paste0(".cols_notice.", enrichment_name)]] <- TRUE
+    }
   }
 
   vtr_path <- ensure_enrichment(enrichment_name, verbose = verbose)

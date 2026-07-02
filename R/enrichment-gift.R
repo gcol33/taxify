@@ -22,45 +22,6 @@
 )
 
 
-# Resolve the gift .vtr and read its trait columns + types, offline. Returns a
-# data.frame(column, type) over the gift_ columns, or NULL if the enrichment is
-# unavailable (no pre-built download and no taxifydb to build it).
-.gift_available_cols <- function(verbose = TRUE) {
-  vtr_path <- ensure_enrichment("gift", verbose = verbose)
-  if (is.null(vtr_path)) return(NULL)
-  head1 <- vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
-  gcols <- grep("^gift_", names(head1), value = TRUE)
-  if (length(gcols) == 0L) return(NULL)
-  types <- vapply(gcols, function(cc) {
-    if (is.numeric(head1[[cc]])) "numeric" else "character"
-  }, character(1))
-  data.frame(column = gcols, type = unname(types), stringsAsFactors = FALSE)
-}
-
-
-# Resolve the user's `cols` argument to a vector of available column names.
-.gift_resolve_cols <- function(cols, available) {
-  if (is.null(cols)) {
-    return(intersect(.gift_default_cols, available))
-  }
-  if (length(cols) == 1L && identical(tolower(cols), "all")) {
-    return(available)
-  }
-  want <- as.character(cols)
-  norm <- tolower(ifelse(grepl("^gift_", want), want, paste0("gift_", want)))
-  idx  <- match(norm, tolower(available))
-  if (anyNA(idx)) {
-    bad <- want[is.na(idx)]
-    stop(sprintf(paste0(
-      "add_gift(): unknown trait column(s): %s. Pass gift_ column names ",
-      "(e.g. \"plant_height_max\"), \"all\", or NULL for the default set. ",
-      "See gift_traits() for what is available."),
-      paste(bad, collapse = ", ")), call. = FALSE)
-  }
-  available[idx]
-}
-
-
 #' Browse the bundled GIFT trait columns
 #'
 #' Returns the species-level trait columns available from the bundled GIFT
@@ -73,7 +34,8 @@
 #'   \item{column}{The `gift_<trait>` column name.}
 #'   \item{type}{`"numeric"` or `"character"`.}
 #' }
-#' @seealso [add_gift()]
+#' @seealso [add_gift()], [enrichment_cols()] for the same listing on any
+#'   enrichment.
 #' @examples
 #' \donttest{
 #' old <- options(taxify.data_dir = taxify_example_data())
@@ -82,14 +44,7 @@
 #' }
 #' @export
 gift_traits <- function() {
-  cols <- .gift_available_cols(verbose = FALSE)
-  if (is.null(cols)) {
-    stop(paste0(
-      "gift_traits(): the GIFT enrichment is not available. It downloads on ",
-      "first use; install 'taxifydb' to build it from source, or check your ",
-      "internet connection."), call. = FALSE)
-  }
-  cols
+  enrichment_cols("gift")
 }
 
 
@@ -153,32 +108,21 @@ add_gift <- function(x, cols = NULL, verbose = TRUE) {
          call. = FALSE)
   }
 
-  available <- .gift_available_cols(verbose = verbose)
+  available <- .enrichment_available_cols("gift", prefix = "gift_",
+                                          verbose = verbose)
   if (is.null(available)) {
     stop(paste0(
       "add_gift(): the GIFT enrichment is not available. It downloads on ",
       "first use; install 'taxifydb' to build it from source, or check your ",
       "internet connection."), call. = FALSE)
   }
-  avail_cols <- available$column
-  is_num     <- stats::setNames(available$type == "numeric", avail_cols)
 
-  sel <- .gift_resolve_cols(cols, avail_cols)
-
-  if (is.null(cols) && verbose &&
-      is.null(.taxify_env[[".gift_default_notice_shown"]])) {
-    message(sprintf(paste0(
-      "add_gift(): attaching a default set of %d well-populated GIFT traits. ",
-      "Pass cols = \"all\" for all %d bundled traits, or see gift_traits() ",
-      "to choose."), length(sel), length(avail_cols)))
-    .taxify_env[[".gift_default_notice_shown"]] <- TRUE
-  }
-
-  col_map  <- stats::setNames(sel, sel)
+  # Full col_map over every bundled gift_ column (identity: .vtr name = output).
+  # The engine applies the cols selection, defaulting to .gift_default_cols.
+  col_map  <- stats::setNames(available$column, available$column)
   na_types <- stats::setNames(
-    lapply(sel, function(cc) if (isTRUE(is_num[[cc]])) NA_real_ else NA_character_),
-    sel
-  )
+    lapply(available$type, function(t) if (t == "numeric") NA_real_ else NA_character_),
+    available$column)
 
   enrich_simple(
     x,
@@ -186,6 +130,9 @@ add_gift <- function(x, cols = NULL, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "GIFT (Weigelt et al. 2020)",
     na_types        = na_types,
+    cols            = cols,
+    default_cols    = .gift_default_cols,
+    col_prefix      = "gift_",
     verbose         = verbose
   )
 }
