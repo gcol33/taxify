@@ -65,21 +65,46 @@ test_that("numeric sources are converted to the canonical unit", {
   expect_equal(sl$sla_gift, 5.87, tolerance = 1e-3)            # 58.7 * 0.1
 })
 
-test_that("coalesce mode yields value + source + n, honouring priority", {
+test_that("coalesce defaults to median for numeric traits", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   skip_if_not(trait_ready(), "example enrichments not available")
 
+  # Default numeric combine is median across all sources that carry the row.
+  w <- add_trait(mk("Abies alba"), "seed_mass", mode = "wide", verbose = FALSE)
+  wide_vals <- unlist(w[1, grepl("^seed_mass_", names(w))], use.names = FALSE)
+  wide_vals <- wide_vals[!is.na(wide_vals)]
+
   d <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce", verbose = FALSE)
   expect_true(all(c("seed_mass", "seed_mass_source", "seed_mass_n") %in% names(d)))
-  expect_gte(d$seed_mass_n, 2L)                   # at least Diaz and GIFT have a value
+  expect_gte(d$seed_mass_n, 2L)
+  expect_equal(d$seed_mass_n, length(wide_vals))
+  expect_equal(d$seed_mass, stats::median(wide_vals), tolerance = 1e-6)
+  expect_match(d$seed_mass_source, "diaz")
+  expect_match(d$seed_mass_source, "gift")
+})
+
+test_that("combine = 'first' honours priority order", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  skip_if_not(trait_ready(), "example enrichments not available")
+
+  d <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce",
+                 combine = "first", verbose = FALSE)
   expect_equal(d$seed_mass_source, "diaz")        # default priority diaz > gift
   expect_equal(d$seed_mass, 62.007, tolerance = 1e-3)
 
   g <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce",
-                 priority = "gift", verbose = FALSE)
+                 combine = "first", priority = "gift", verbose = FALSE)
   expect_equal(g$seed_mass_source, "gift")
   expect_equal(g$seed_mass, 73.9425, tolerance = 1e-3)
+})
+
+test_that("combine rejects reducers that do not fit the trait kind", {
+  expect_error(add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce",
+                         combine = "vote"), "not valid for a numeric")
+  expect_error(add_trait(mk("Abies alba"), "woodiness", mode = "coalesce",
+                         combine = "median"), "not valid for a categorical")
 })
 
 test_that("sources= restricts which sources are joined", {

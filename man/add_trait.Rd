@@ -9,6 +9,7 @@ add_trait(
   trait,
   sources = "all",
   mode = c("wide", "coalesce"),
+  combine = NULL,
   priority = NULL,
   verbose = TRUE
 )
@@ -24,12 +25,22 @@ for every source registered for the trait, or a character vector of source
 names (see \code{\link[=trait_info]{trait_info()}}).}
 
 \item{mode}{One of \code{"wide"} (default) or \code{"coalesce"}. \code{"wide"} attaches one
-harmonized column per source. \code{"coalesce"} attaches one value per row,
-taken from the highest-priority source that has one.}
+harmonized column per source. \code{"coalesce"} reduces the sources to one value
+per row (see \code{combine}).}
 
-\item{priority}{Character vector of source names giving the coalesce order
-(highest priority first). Only used when \code{mode = "coalesce"}; defaults to
-the registered order for the trait (see \code{\link[=trait_info]{trait_info()}}).}
+\item{combine}{How \code{mode = "coalesce"} reduces the per-source values for a
+row. \code{NULL} (default) picks \code{"median"} for numeric traits and \code{"first"} for
+categorical traits. Numeric options: \code{"median"}, \code{"mean"}, \code{"first"}
+(highest-priority source that has a value), \code{"min"}, \code{"max"}. Categorical
+options: \code{"first"} or \code{"vote"} (majority across sources, ties broken by
+priority). Median is the numeric default because trait values are skewed and
+sources differ in definition, so a single outlier or mislabeled source
+should not decide the value.}
+
+\item{priority}{Character vector of source names giving the priority order
+(highest priority first), used by \code{combine = "first"} and for tie-breaking
+\code{combine = "vote"}. Only used when \code{mode = "coalesce"}; defaults to the
+registered order for the trait (see \code{\link[=trait_info]{trait_info()}}).}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
@@ -39,10 +50,11 @@ The same data.frame with added columns.
 \item{\code{mode = "wide"}}{One column per source, \verb{<trait>_<source>}, each
 harmonized to the trait's shared vocabulary (categorical) or unit
 (numeric).}
-\item{\code{mode = "coalesce"}}{Three columns: \verb{<trait>} (the coalesced
-value), \verb{<trait>_source} (which source it came from), and \verb{<trait>_n}
-(how many sources had any value for that row). To inspect conflicts
-between sources, use \code{mode = "wide"}.}
+\item{\code{mode = "coalesce"}}{Three columns: \verb{<trait>} (the reduced value),
+\verb{<trait>_source} (the source it came from with \code{combine = "first"}, or
+the comma-separated contributing sources with an aggregating
+\code{combine}), and \verb{<trait>_n} (how many sources had any value for that
+row). To inspect conflicts between sources, use \code{mode = "wide"}.}
 }
 Numeric traits are returned in the trait's canonical unit (see
 \code{\link[=trait_info]{trait_info()}}); rows absent from a source get \code{NA}.

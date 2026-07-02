@@ -18,21 +18,31 @@
 #'   for every source registered for the trait, or a character vector of source
 #'   names (see [trait_info()]).
 #' @param mode One of `"wide"` (default) or `"coalesce"`. `"wide"` attaches one
-#'   harmonized column per source. `"coalesce"` attaches one value per row,
-#'   taken from the highest-priority source that has one.
-#' @param priority Character vector of source names giving the coalesce order
-#'   (highest priority first). Only used when `mode = "coalesce"`; defaults to
-#'   the registered order for the trait (see [trait_info()]).
+#'   harmonized column per source. `"coalesce"` reduces the sources to one value
+#'   per row (see `combine`).
+#' @param combine How `mode = "coalesce"` reduces the per-source values for a
+#'   row. `NULL` (default) picks `"median"` for numeric traits and `"first"` for
+#'   categorical traits. Numeric options: `"median"`, `"mean"`, `"first"`
+#'   (highest-priority source that has a value), `"min"`, `"max"`. Categorical
+#'   options: `"first"` or `"vote"` (majority across sources, ties broken by
+#'   priority). Median is the numeric default because trait values are skewed and
+#'   sources differ in definition, so a single outlier or mislabeled source
+#'   should not decide the value.
+#' @param priority Character vector of source names giving the priority order
+#'   (highest priority first), used by `combine = "first"` and for tie-breaking
+#'   `combine = "vote"`. Only used when `mode = "coalesce"`; defaults to the
+#'   registered order for the trait (see [trait_info()]).
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with added columns.
 #'   \describe{
 #'     \item{`mode = "wide"`}{One column per source, `<trait>_<source>`, each
 #'       harmonized to the trait's shared vocabulary (categorical) or unit
 #'       (numeric).}
-#'     \item{`mode = "coalesce"`}{Three columns: `<trait>` (the coalesced
-#'       value), `<trait>_source` (which source it came from), and `<trait>_n`
-#'       (how many sources had any value for that row). To inspect conflicts
-#'       between sources, use `mode = "wide"`.}
+#'     \item{`mode = "coalesce"`}{Three columns: `<trait>` (the reduced value),
+#'       `<trait>_source` (the source it came from with `combine = "first"`, or
+#'       the comma-separated contributing sources with an aggregating
+#'       `combine`), and `<trait>_n` (how many sources had any value for that
+#'       row). To inspect conflicts between sources, use `mode = "wide"`.}
 #'   }
 #'   Numeric traits are returned in the trait's canonical unit (see
 #'   [trait_info()]); rows absent from a source get `NA`.
@@ -69,7 +79,7 @@
 #' @export
 add_trait <- function(x, trait, sources = "all",
                       mode = c("wide", "coalesce"),
-                      priority = NULL, verbose = TRUE) {
+                      combine = NULL, priority = NULL, verbose = TRUE) {
   if (!is.data.frame(x) || !"accepted_name" %in% names(x)) {
     stop("Input must be a taxify() result with an 'accepted_name' column.",
          call. = FALSE)
@@ -78,6 +88,7 @@ add_trait <- function(x, trait, sources = "all",
   reg   <- .trait_registry()
   trait <- .resolve_trait_name(trait, names(reg))
   spec  <- reg[[trait]]
+  combine <- .resolve_combine(combine, spec$kind)
 
   all_src <- names(spec$sources)
   use_src <- .resolve_trait_sources(sources, all_src, trait)
@@ -107,20 +118,10 @@ add_trait <- function(x, trait, sources = "all",
   if (mode == "wide") {
     for (s in ord) x[[paste0(trait, "_", s)]] <- per_src[[s]]
   } else {
-    n    <- nrow(x)
-    val  <- rep(na_scalar, n)
-    src  <- rep(NA_character_, n)
-    nsrc <- integer(n)
-    for (s in ord) {
-      v    <- per_src[[s]]
-      nsrc <- nsrc + as.integer(!is.na(v))
-      take <- is.na(val) & !is.na(v)
-      val[take] <- v[take]
-      src[take] <- s
-    }
-    x[[trait]]                    <- val
-    x[[paste0(trait, "_source")]] <- src
-    x[[paste0(trait, "_n")]]      <- nsrc
+    co <- .coalesce_sources(per_src[ord], ord, spec$kind, combine)
+    x[[trait]]                    <- co$value
+    x[[paste0(trait, "_source")]] <- co$source
+    x[[paste0(trait, "_n")]]      <- co$n
   }
 
   attr(x, "taxify_traits") <- c(

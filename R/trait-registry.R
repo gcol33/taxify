@@ -22,6 +22,16 @@
 # trophic_level (empty). Pelagic trophic_level carries -9999 sentinels, mapped
 # to NA. EIVE (0-10 continuous) is not yet a source for the ellenberg_* traits:
 # it needs a grounded rescale to the classic 1-9 scale before it can be joined.
+#   - GIFT leaf thickness is cm (median x10 = 0.22 mm matches BIEN's 0.21 mm);
+#     Amniote SVL is cm (its x10 max 30490 mm matches COMBINE body length).
+#   - Amniote female_maturity_d and gestation_d carry negative sentinels, dropped
+#     to NA before conversion. Amphibian clutch sizes reach the thousands and
+#     AnAge's egg-layers the millions -- genuine, not a unit error.
+# Not added (unit could not be calibrated): GIFT leaf length/width (length x10
+# plausible but width did not match AusTraits); dropped rather than guessed.
+# Not added (only one non-empty source): chromosome number and ploidy (FloraWeb
+# column empty), leaf dry mass (LEDA column empty). Activity time deferred:
+# COMBINE codes it 1/2/3 with no in-data key to verify the mapping.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -104,6 +114,58 @@
   num  <- function(v) suppressWarnings(as.numeric(v))
   numk <- function(v) suppressWarnings(as.numeric(v)) * 1000        # kg -> g
   num_pos <- function(v) { x <- suppressWarnings(as.numeric(v)); x[x < 0] <- NA; x }
+  cm2mm   <- function(v) suppressWarnings(as.numeric(v)) * 10       # cm -> mm
+  cm2mm_p <- function(v) num_pos(v) * 10                            # cm -> mm, negatives dropped
+  d2y     <- function(v) num_pos(v) / 365.25                        # days -> years, negatives dropped
+
+  # Categorical crosswalks for the added traits (grounded on the sources'
+  # distinct values). Flower colour takes the first colour word of a possibly
+  # compound value; life history collapses multi-class records to "variable".
+  col_lookup <- c(
+    white = "white", cream = "cream", creamy = "cream", ivory = "cream",
+    yellow = "yellow", gold = "yellow", golden = "yellow",
+    orange = "orange", red = "red", scarlet = "red", crimson = "red",
+    pink = "pink", rose = "pink", magenta = "pink",
+    purple = "purple", violet = "purple", lilac = "purple",
+    mauve = "purple", muave = "purple", blue = "blue",
+    green = "green", greenish = "green", brown = "brown",
+    browish = "brown", bronze = "brown", black = "black",
+    grey = "grey", gray = "grey")
+  fc_map <- function(v) {
+    s  <- tolower(trimws(as.character(v)))
+    ft <- sub("^[^a-z]*([a-z]+).*$", "\\1", s)
+    ft[!grepl("[a-z]", s)] <- NA_character_
+    .xw_cat(ft, col_lookup)
+  }
+  fr_lookup <- c(
+    achene = "achene", capsule = "capsule", pyxid = "capsule",
+    pyxidium = "capsule", caryopsis = "caryopsis", legume = "legume",
+    pod = "legume", lomentum = "legume", silique = "silique",
+    siliqua = "silique", drupe = "drupe", berry = "berry",
+    follicle = "follicle", cone = "cone", samara = "samara",
+    nut = "nut", schizocarp = "schizocarp", utricle = "utricle",
+    pome = "pome")
+  diet_lookup <- c(
+    invertivore = "invertivore", omnivore = "omnivore",
+    omnivorous = "omnivore", frugivore = "frugivore",
+    `aquatic predator` = "carnivore", vertivore = "carnivore",
+    carnivorous = "carnivore", granivore = "granivore",
+    nectarivore = "nectarivore", `herbivore terrestrial` = "herbivore",
+    `herbivore aquatic` = "herbivore", herbivorous = "herbivore",
+    scavenger = "scavenger")
+  lh_map <- function(v) {
+    s   <- tolower(trimws(as.character(v)))
+    s2  <- gsub("short_lived_perennial", "perennial", s, fixed = TRUE)
+    s2  <- gsub("ephemeral", "annual", s2, fixed = TRUE)
+    ha  <- grepl("annual", s2); hb <- grepl("biennial", s2); hp <- grepl("perennial", s2)
+    ncl <- ha + hb + hp
+    out <- rep(NA_character_, length(s))
+    out[ncl == 1 & ha] <- "annual"
+    out[ncl == 1 & hb] <- "biennial"
+    out[ncl == 1 & hp] <- "perennial"
+    out[ncl > 1 | grepl("variable", s)] <- "variable"
+    out
+  }
 
   # A numeric source that is used verbatim (already in the canonical unit).
   nsrc <- function(enr, col, cite, note, map = num) {
@@ -173,6 +235,13 @@
         bien      = nsrc("bien", "leaf_p_per_dry_mass", "BIEN (Maitner et al. 2018)", "mg/g.")
       )
     ),
+    leaf_thickness = list(
+      label = "Leaf thickness", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        bien = nsrc("bien", "leaf_thickness_mm", "BIEN (Maitner et al. 2018)", "mm."),
+        gift = nsrc("gift", "gift_leaf_thickness_mean", "GIFT (Weigelt et al. 2020)", "GIFT cm converted to mm (x10; calibrated against BIEN leaf thickness median).", map = cm2mm)
+      )
+    ),
 
     ## ---- animal body size / life history (numeric) ------------------------
     body_mass = list(
@@ -215,6 +284,60 @@
         pelagic       = nsrc("pelagic", "trophic_level", "Pelagic fish traits", "Trophic level; -9999 sentinels mapped to NA.", map = num_pos),
         arctic_traits = nsrc("arctic_traits", "trophic_level", "Arctic Traits", "Trophic level."),
         sealifebase   = nsrc("sealifebase", "trophic_level", "SeaLifeBase (Palomares & Pauly)", "Trophic level (DietTroph, else FoodTroph).")
+      )
+    ),
+
+    clutch_litter_size = list(
+      label = "Clutch or litter size", kind = "numeric", unit = "offspring per clutch/litter", vocab = NULL,
+      sources = list(
+        amniote    = nsrc("amniote", "litter_clutch_size", "Amniote LHD (Myhrvold et al. 2015)", "Eggs/offspring per clutch or litter.", map = num_pos),
+        combine    = nsrc("combine", "litter_size_n", "COMBINE (Soria et al. 2021)", "Offspring per litter."),
+        pantheria  = nsrc("pantheria", "litter_size", "PanTHERIA (Jones et al. 2009)", "Offspring per litter."),
+        anage      = nsrc("anage", "litter_size", "AnAge (Tacutu et al. 2018)", "Offspring per clutch/litter; egg-layers reach the hundreds to millions."),
+        repttraits = nsrc("repttraits", "clutch_size", "ReptTraits (Oskyrko et al. 2024)", "Eggs per clutch."),
+        amphibio   = nsrc("amphibio", "litter_size", "AmphiBIO (Oliveira et al. 2017)", "Eggs per clutch (amphibian clutches reach the thousands).")
+      )
+    ),
+    age_at_maturity = list(
+      label = "Age at female maturity", kind = "numeric", unit = "yr", vocab = NULL,
+      sources = list(
+        anage    = nsrc("anage", "female_maturity_d", "AnAge (Tacutu et al. 2018)", "Days converted to years (/365.25).", map = d2y),
+        amniote  = nsrc("amniote", "female_maturity_d", "Amniote LHD (Myhrvold et al. 2015)", "Days converted to years (/365.25); negative sentinels dropped.", map = d2y),
+        amphibio = nsrc("amphibio", "age_maturity_y", "AmphiBIO (Oliveira et al. 2017)", "Years.")
+      )
+    ),
+    gestation_incubation = list(
+      label = "Gestation or incubation length", kind = "numeric", unit = "days", vocab = NULL,
+      sources = list(
+        anage     = nsrc("anage", "gestation_incubation_d", "AnAge (Tacutu et al. 2018)", "Gestation or incubation, days."),
+        combine   = nsrc("combine", "gestation_length_d", "COMBINE (Soria et al. 2021)", "Gestation, days."),
+        pantheria = nsrc("pantheria", "gestation_d", "PanTHERIA (Jones et al. 2009)", "Gestation, days."),
+        amniote   = nsrc("amniote", "gestation_d", "Amniote LHD (Myhrvold et al. 2015)", "Gestation, days; negative sentinels dropped.", map = num_pos)
+      )
+    ),
+    body_length = list(
+      label = "Body length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        combine     = nsrc("combine", "adult_body_length_mm", "COMBINE (Soria et al. 2021)", "Adult body length, mm."),
+        amniote     = nsrc("amniote", "adult_svl_cm", "Amniote LHD (Myhrvold et al. 2015)", "Snout-vent length, cm converted to mm (x10; calibrated against COMBINE body length).", map = cm2mm_p),
+        repttraits  = nsrc("repttraits", "svl_mm", "ReptTraits (Oskyrko et al. 2024)", "Snout-vent length, mm."),
+        amphibio    = nsrc("amphibio", "body_size_mm", "AmphiBIO (Oliveira et al. 2017)", "Snout-vent length, mm."),
+        fishbase    = nsrc("fishbase", "body_length_cm", "FishBase (Froese & Pauly)", "Standard/total length, cm converted to mm (x10).", map = cm2mm),
+        sealifebase = nsrc("sealifebase", "body_length_cm", "SeaLifeBase (Palomares & Pauly)", "Body length, cm converted to mm (x10).", map = cm2mm)
+      )
+    ),
+    metabolic_rate = list(
+      label = "Metabolic rate", kind = "numeric", unit = "W", vocab = NULL,
+      sources = list(
+        anage        = nsrc("anage", "metabolic_rate_w", "AnAge (Tacutu et al. 2018)", "Watts."),
+        animaltraits = nsrc("animaltraits", "metabolic_rate_w", "AnimalTraits (Herberstein et al. 2022)", "Watts.")
+      )
+    ),
+    reproductive_frequency = list(
+      label = "Litters or clutches per year", kind = "numeric", unit = "per year", vocab = NULL,
+      sources = list(
+        amniote = nsrc("amniote", "clutches_per_y", "Amniote LHD (Myhrvold et al. 2015)", "Clutches or litters per year.", map = num_pos),
+        combine = nsrc("combine", "litters_per_year_n", "COMBINE (Soria et al. 2021)", "Litters per year.")
       )
     ),
 
@@ -402,6 +525,61 @@
                         citation = "Ecoflora (Fitter & Peat 1994)", note = "Primary pollination vector; 'none' -> NA.",
                         map = function(v) .xw_grep(v, poll_patterns))
       )
+    ),
+    life_history = list(
+      label = "Life history", kind = "categorical", unit = NA_character_,
+      vocab = c("annual", "biennial", "perennial", "variable"),
+      sources = list(
+        gift      = list(enrichment = "gift", col = "gift_lifecycle_1",
+                         citation = "GIFT (Weigelt et al. 2020)", note = "annual / biennial / perennial / variable.",
+                         map = lh_map),
+        austraits = list(enrichment = "austraits", col = "life_history",
+                         citation = "AusTraits (Falster et al. 2021)", note = "Multi-class records (e.g. 'annual perennial') collapse to 'variable'; short-lived perennial -> perennial; ephemeral -> annual.",
+                         map = lh_map)
+      )
+    ),
+    flower_colour = list(
+      label = "Flower colour", kind = "categorical", unit = NA_character_,
+      vocab = c("white", "cream", "yellow", "orange", "red", "pink",
+                "purple", "blue", "green", "brown", "black", "grey"),
+      sources = list(
+        gift     = list(enrichment = "gift", col = "gift_flower_colour",
+                        citation = "GIFT (Weigelt et al. 2020)", note = "Primary flower colour.",
+                        map = fc_map),
+        baseflor = list(enrichment = "baseflor", col = "flower_colour",
+                        citation = "Baseflor (Julve, Catminat)", note = "First colour of a possibly compound value.",
+                        map = fc_map),
+        bien     = list(enrichment = "bien", col = "flower_color",
+                        citation = "BIEN (Maitner et al. 2018)", note = "First colour word of a possibly compound value.",
+                        map = fc_map)
+      )
+    ),
+    fruit_type = list(
+      label = "Fruit type", kind = "categorical", unit = NA_character_,
+      vocab = c("achene", "capsule", "caryopsis", "legume", "silique",
+                "drupe", "berry", "follicle", "cone", "samara", "nut",
+                "schizocarp", "utricle", "pome"),
+      sources = list(
+        gift     = list(enrichment = "gift", col = "gift_fruit_type_1",
+                        citation = "GIFT (Weigelt et al. 2020)", note = "Morphological fruit type; pod -> legume, siliqua -> silique, 'other' -> NA.",
+                        map = function(v) .xw_cat(v, fr_lookup)),
+        baseflor = list(enrichment = "baseflor", col = "fruit_type",
+                        citation = "Baseflor (Julve, Catminat)", note = "Morphological fruit type; pyxid -> capsule.",
+                        map = function(v) .xw_cat(v, fr_lookup))
+      )
+    ),
+    diet_guild = list(
+      label = "Diet guild", kind = "categorical", unit = NA_character_,
+      vocab = c("carnivore", "herbivore", "omnivore", "invertivore",
+                "frugivore", "granivore", "nectarivore", "scavenger"),
+      sources = list(
+        avonet     = list(enrichment = "avonet", col = "trophic_niche",
+                          citation = "AVONET (Tobias et al. 2022)", note = "Trophic niche; vertivore and aquatic predator -> carnivore, herbivore terrestrial/aquatic -> herbivore.",
+                          map = function(v) .xw_cat(v, diet_lookup)),
+        repttraits = list(enrichment = "repttraits", col = "diet",
+                          citation = "ReptTraits (Oskyrko et al. 2024)", note = "Carnivorous / herbivorous / omnivorous.",
+                          map = function(v) .xw_cat(v, diet_lookup))
+      )
     )
   )
 }
@@ -472,4 +650,80 @@
   )
   if (is.null(res)) return(NULL)
   res[[tmp]]
+}
+
+
+# Resolve the coalesce reducer, defaulting by trait kind (numeric -> median,
+# categorical -> first) and validating against the reducers each kind allows.
+.resolve_combine <- function(combine, kind) {
+  ok <- if (kind == "numeric") {
+    c("median", "mean", "first", "min", "max")
+  } else {
+    c("first", "vote")
+  }
+  if (is.null(combine)) return(if (kind == "numeric") "median" else "first")
+  combine <- as.character(combine)[1L]
+  if (!combine %in% ok) {
+    stop(sprintf(
+      "add_trait(): combine = '%s' is not valid for a %s trait. Use one of: %s.",
+      combine, kind, paste(ok, collapse = ", ")), call. = FALSE)
+  }
+  combine
+}
+
+
+# Reduce a list of per-source harmonized vectors (in priority order) to one
+# value, source label, and count per row. `first` walks priority order; the
+# numeric aggregators reduce the non-NA values; `vote` takes the categorical
+# majority with priority-order tie-breaking. When an aggregator is used the
+# source label is the comma-separated set of contributing sources.
+.coalesce_sources <- function(per_src, ord, kind, combine) {
+  n         <- length(per_src[[1L]])
+  na_scalar <- if (kind == "numeric") NA_real_ else NA_character_
+  present   <- vapply(per_src, function(v) !is.na(v), logical(n))
+  if (is.null(dim(present))) present <- matrix(present, nrow = n)
+  nsrc      <- as.integer(rowSums(present))
+
+  if (combine == "first") {
+    val <- rep(na_scalar, n)
+    src <- rep(NA_character_, n)
+    for (j in seq_along(ord)) {
+      take <- is.na(val) & present[, j]
+      val[take] <- per_src[[j]][take]
+      src[take] <- ord[j]
+    }
+    return(list(value = val, source = src, n = nsrc))
+  }
+
+  contrib <- ifelse(nsrc > 0L,
+                    apply(present, 1L, function(p) paste(ord[p], collapse = ",")),
+                    NA_character_)
+
+  if (kind == "numeric") {
+    M   <- do.call(cbind, per_src)
+    red <- switch(combine,
+                  median = function(r) stats::median(r),
+                  mean   = function(r) mean(r),
+                  min    = function(r) min(r),
+                  max    = function(r) max(r))
+    val <- vapply(seq_len(n), function(i) {
+      r <- M[i, ]; r <- r[!is.na(r)]
+      if (!length(r)) NA_real_ else red(r)
+    }, numeric(1L))
+    return(list(value = val, source = contrib, n = nsrc))
+  }
+
+  # categorical "vote": most frequent value, ties broken by priority order.
+  M   <- do.call(cbind, per_src)
+  val <- vapply(seq_len(n), function(i) {
+    r <- M[i, ]
+    keep <- !is.na(r)
+    if (!any(keep)) return(NA_character_)
+    r <- r[keep]
+    tb <- table(r)
+    top <- names(tb)[tb == max(tb)]
+    if (length(top) == 1L) return(top)
+    r[r %in% top][1L]            # priority order preserved in r
+  }, character(1L))
+  list(value = val, source = contrib, n = nsrc)
 }
