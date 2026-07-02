@@ -46,6 +46,12 @@
 #     NE / EP / -9999 fall through to NA. body_shape (fish) and sexual_system
 #     use ordered-regex vocabularies. SVL columns (huang_amph, pottier) join the
 #     existing body_length trait.
+#   - leaf_type (broadleaf/needle/scale), deciduousness (evergreen/deciduous),
+#     marine and freshwater (0/1 -> yes/no realm flags), wing_length (mm).
+# Skipped after inspection (crosswalk would be a guess): salinity (baseflor is a
+# 0-9 plant indicator, coral/octocoral are seawater ppt ~32-35); lifespan
+# (austraits ranges vs BROT short/long text vs GIFT numeric); growth_rate and
+# activity_time (no shared unit / no in-data key).
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -207,6 +213,22 @@
     "gonochor"              = "gonochoric",
     "dioec"                 = "dioecious",
     "parthenogen"           = "parthenogenetic")
+
+  leaftype_patterns <- c(
+    "broadlea|broad lea" = "broadleaf",
+    "needle"             = "needle",
+    "scale"              = "scale",
+    "leafless|photosynthetic stem" = "leafless")
+
+  decid_patterns <- c(
+    "evergreen"          = "evergreen",
+    "semi.?decid"        = "semi-deciduous",
+    "decid"              = "deciduous",
+    "variable|facultative" = "variable")
+
+  # 0/1 habitat-realm flags to yes/no.
+  binary_yn <- c("1" = "yes", "0" = "no", "true" = "yes", "false" = "no",
+                 "yes" = "yes", "no" = "no", "y" = "yes", "n" = "no")
 
   # A numeric source that is used verbatim (already in the canonical unit).
   nsrc <- function(enr, col, cite, note, map = num) {
@@ -828,6 +850,67 @@
         octocoral    = list(enrichment = "octocoral", col = "sexual_system",
                         citation = "Gomez-Gras et al. 2024", note = "Octocoral sexual system.",
                         map = function(v) .xw_grep(v, sexsys_patterns))
+      )
+    ),
+    leaf_type = list(
+      label = "Leaf type", kind = "categorical", unit = NA_character_,
+      vocab = c("broadleaf", "needle", "scale", "leafless"),
+      sources = list(
+        austraits   = list(enrichment = "austraits", col = "leaf_type",
+                           citation = "AusTraits (Falster et al. 2021)", note = "broadleaf / needle / scale / leafless.",
+                           map = function(v) .xw_grep(v, leaftype_patterns)),
+        diaz_traits = list(enrichment = "diaz_traits", col = "leaf_type",
+                           citation = "Diaz et al. 2022", note = "broadleaved / needleleaved / scale / photosynthetic stem (-> leafless).",
+                           map = function(v) .xw_grep(v, leaftype_patterns))
+      )
+    ),
+    deciduousness = list(
+      label = "Leaf deciduousness", kind = "categorical", unit = NA_character_,
+      vocab = c("evergreen", "deciduous", "semi-deciduous", "variable"),
+      sources = list(
+        gift      = list(enrichment = "gift", col = "gift_deciduousness_1",
+                         citation = "GIFT (Weigelt et al. 2020)", note = "evergreen / deciduous / variable.",
+                         map = function(v) .xw_grep(v, decid_patterns)),
+        austraits = list(enrichment = "austraits", col = "leaf_phenology",
+                         citation = "AusTraits (Falster et al. 2021)", note = "Leaf phenology; drought/semi-deciduous variants folded in.",
+                         map = function(v) .xw_grep(v, decid_patterns))
+      )
+    ),
+    marine = list(
+      label = "Marine habitat", kind = "categorical", unit = NA_character_,
+      vocab = c("yes", "no"),
+      sources = list(
+        sealifebase = list(enrichment = "sealifebase", col = "marine",
+                           citation = "SeaLifeBase (Palomares & Pauly)", note = "Marine flag.",
+                           map = function(v) .xw_cat(v, binary_yn)),
+        combine     = list(enrichment = "combine", col = "marine",
+                           citation = "COMBINE (Soria et al. 2021)", note = "Marine flag.",
+                           map = function(v) .xw_cat(v, binary_yn)),
+        phylacine   = list(enrichment = "phylacine", col = "marine",
+                           citation = "PHYLACINE (Faurby et al. 2018)", note = "Marine flag.",
+                           map = function(v) .xw_cat(v, binary_yn))
+      )
+    ),
+    freshwater = list(
+      label = "Freshwater habitat", kind = "categorical", unit = NA_character_,
+      vocab = c("yes", "no"),
+      sources = list(
+        sealifebase = list(enrichment = "sealifebase", col = "freshwater",
+                           citation = "SeaLifeBase (Palomares & Pauly)", note = "Freshwater flag.",
+                           map = function(v) .xw_cat(v, binary_yn)),
+        combine     = list(enrichment = "combine", col = "freshwater",
+                           citation = "COMBINE (Soria et al. 2021)", note = "Freshwater flag.",
+                           map = function(v) .xw_cat(v, binary_yn)),
+        phylacine   = list(enrichment = "phylacine", col = "freshwater",
+                           citation = "PHYLACINE (Faurby et al. 2018)", note = "Freshwater flag.",
+                           map = function(v) .xw_cat(v, binary_yn))
+      )
+    ),
+    wing_length = list(
+      label = "Wing length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        avonet     = nsrc("avonet", "wing_length", "AVONET (Tobias et al. 2022)", "Bird wing length, mm."),
+        saproxylic = nsrc("saproxylic", "wing_length_mm", "Saproxylic beetle traits", "Beetle wing length, mm.")
       )
     )
   )
