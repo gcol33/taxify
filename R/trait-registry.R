@@ -32,6 +32,20 @@
 # Not added (only one non-empty source): chromosome number and ploidy (FloraWeb
 # column empty), leaf dry mass (LEDA column empty). Activity time deferred:
 # COMBINE codes it 1/2/3 with no in-data key to verify the mapping.
+#
+# Second wave (grounded on the widened .vtr medians):
+#   - depth / elevation are metres everywhere (Pelagic -9999 -> NA); home range
+#     and range size are km^2; habitat breadth is a count.
+#   - LDMC is mg/g in LEDA/GIFT/BROT; Diaz ldmc_g_g is g/g (x1000 -> 195 matches
+#     LEDA 194). Stem specific density added to wood_density: GIFT gift_ssd and
+#     LEDA ssd are mg/cm^3 (/1000 -> 0.63/0.70, matches GWDD 0.57 g/cm^3).
+#   - generation_length: BET years, COMBINE days (/365.25 -> 6.0 matches BET
+#     6.7); weaning is days in Amniote/AnAge/PanTHERIA; seed length mm; bee ITD
+#     mm; FishBase vulnerability 0-100.
+#   - conservation_status harmonizes IUCN codes (LC..EX) across six sources;
+#     NE / EP / -9999 fall through to NA. body_shape (fish) and sexual_system
+#     use ordered-regex vocabularies. SVL columns (huang_amph, pottier) join the
+#     existing body_length trait.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -117,6 +131,7 @@
   cm2mm   <- function(v) suppressWarnings(as.numeric(v)) * 10       # cm -> mm
   cm2mm_p <- function(v) num_pos(v) * 10                            # cm -> mm, negatives dropped
   d2y     <- function(v) num_pos(v) / 365.25                        # days -> years, negatives dropped
+  mgcm2g  <- function(v) num(v) / 1000       # mg/cm^3 -> g/cm^3 (stem specific density)
 
   # Categorical crosswalks for the added traits (grounded on the sources'
   # distinct values). Flower colour takes the first colour word of a possibly
@@ -167,6 +182,32 @@
     out
   }
 
+  # IUCN Red List categories: short codes and full names to the standard set;
+  # NE / EP / -9999 / blank fall through to NA.
+  iucn_lookup <- c(
+    lc = "LC", nt = "NT", vu = "VU", en = "EN", cr = "CR",
+    ew = "EW", ex = "EX", dd = "DD",
+    "least concern" = "LC", "near threatened" = "NT", "vulnerable" = "VU",
+    "endangered" = "EN", "critically endangered" = "CR",
+    "extinct in the wild" = "EW", "extinct" = "EX", "data deficient" = "DD",
+    "conservation dependent" = "NT")
+
+  # Fish body shape (ordered regex; -9999 and unmatched -> NA).
+  bodyshape_patterns <- c(
+    "fusiform|torpedo"          = "fusiform",
+    "elongat|eel"               = "elongated",
+    "compress|laterally|short"  = "compressed",
+    "depress|flat|dorso"        = "depressed",
+    "globiform|globe|spher|box" = "globiform")
+
+  # Sexual system across plants and animals (separate vs combined sexes).
+  sexsys_patterns <- c(
+    "hermaphrodit"          = "hermaphrodite",
+    "monoec"                = "monoecious",
+    "gonochor"              = "gonochoric",
+    "dioec"                 = "dioecious",
+    "parthenogen"           = "parthenogenetic")
+
   # A numeric source that is used verbatim (already in the canonical unit).
   nsrc <- function(enr, col, cite, note, map = num) {
     list(enrichment = enr, col = col, citation = cite, note = note, map = map)
@@ -210,7 +251,9 @@
       sources = list(
         gwdd      = nsrc("gwdd", "wood_density_g_cm3", "Global Wood Density Database (Chave et al. 2009)", "g/cm^3."),
         austraits = nsrc("austraits", "wood_density_g_cm3", "AusTraits (Falster et al. 2021)", "g/cm^3."),
-        bien      = nsrc("bien", "wood_density_g_cm3", "BIEN (Maitner et al. 2018)", "g/cm^3.")
+        bien      = nsrc("bien", "wood_density_g_cm3", "BIEN (Maitner et al. 2018)", "g/cm^3."),
+        gift      = nsrc("gift", "gift_ssd_mean", "GIFT (Weigelt et al. 2020)", "Stem specific density, mg/cm^3 converted to g/cm^3 (/1000; 630 -> 0.63).", map = mgcm2g),
+        leda      = nsrc("leda", "ssd_g_cm3", "LEDA (Kleyer et al. 2008)", "Stem specific density, mg/cm^3 converted to g/cm^3 (/1000).", map = mgcm2g)
       )
     ),
     leaf_area = list(
@@ -323,7 +366,9 @@
         repttraits  = nsrc("repttraits", "svl_mm", "ReptTraits (Oskyrko et al. 2024)", "Snout-vent length, mm."),
         amphibio    = nsrc("amphibio", "body_size_mm", "AmphiBIO (Oliveira et al. 2017)", "Snout-vent length, mm."),
         fishbase    = nsrc("fishbase", "body_length_cm", "FishBase (Froese & Pauly)", "Standard/total length, cm converted to mm (x10).", map = cm2mm),
-        sealifebase = nsrc("sealifebase", "body_length_cm", "SeaLifeBase (Palomares & Pauly)", "Body length, cm converted to mm (x10).", map = cm2mm)
+        sealifebase = nsrc("sealifebase", "body_length_cm", "SeaLifeBase (Palomares & Pauly)", "Body length, cm converted to mm (x10).", map = cm2mm),
+        huang_amph  = nsrc("huang_amph", "svl_mm", "Huang et al. amphibian morphology", "Snout-vent length, mm."),
+        pottier     = nsrc("pottier", "svl_mm", "Pottier et al. 2022", "Snout-vent length, mm.")
       )
     ),
     metabolic_rate = list(
@@ -615,6 +660,174 @@
         repttraits = list(enrichment = "repttraits", col = "diet",
                           citation = "ReptTraits (Oskyrko et al. 2024)", note = "Carnivorous / herbivorous / omnivorous.",
                           map = function(v) .xw_cat(v, diet_lookup))
+      )
+    ),
+
+    ## ---- additional numeric traits (units grounded on the .vtr values) -----
+    depth_min = list(
+      label = "Minimum depth", kind = "numeric", unit = "m", vocab = NULL,
+      sources = list(
+        fishbase    = nsrc("fishbase", "depth_min_m", "FishBase (Froese & Pauly)", "Metres."),
+        sealifebase = nsrc("sealifebase", "depth_min_m", "SeaLifeBase (Palomares & Pauly)", "Metres."),
+        quimbayo    = nsrc("quimbayo", "depth_min_m", "Quimbayo et al. 2021", "Metres."),
+        pelagic     = nsrc("pelagic", "depth_min_m", "Gleiber et al. 2022", "Metres; -9999 sentinels mapped to NA.", map = num_pos)
+      )
+    ),
+    depth_max = list(
+      label = "Maximum depth", kind = "numeric", unit = "m", vocab = NULL,
+      sources = list(
+        fishbase    = nsrc("fishbase", "depth_max_m", "FishBase (Froese & Pauly)", "Metres."),
+        sealifebase = nsrc("sealifebase", "depth_max_m", "SeaLifeBase (Palomares & Pauly)", "Metres."),
+        quimbayo    = nsrc("quimbayo", "depth_max_m", "Quimbayo et al. 2021", "Metres."),
+        pelagic     = nsrc("pelagic", "depth_max_m", "Gleiber et al. 2022", "Metres; -9999 sentinels mapped to NA.", map = num_pos)
+      )
+    ),
+    elevation_min = list(
+      label = "Minimum elevation", kind = "numeric", unit = "m", vocab = NULL,
+      sources = list(
+        birdbase   = nsrc("birdbase", "elevation_min_m", "Sekercioglu et al. 2025 (BIRDBASE)", "Metres."),
+        repttraits = nsrc("repttraits", "elevation_min_m", "ReptTraits (Oskyrko et al. 2024)", "Metres."),
+        globtherm  = nsrc("globtherm", "elevation_min", "GlobTherm (Bennett et al. 2018)", "Metres."),
+        fungalroot = nsrc("fungalroot", "elevation_min", "FungalRoot (Soudzilovskaia et al. 2020)", "Metres.")
+      )
+    ),
+    elevation_max = list(
+      label = "Maximum elevation", kind = "numeric", unit = "m", vocab = NULL,
+      sources = list(
+        birdbase   = nsrc("birdbase", "elevation_max_m", "Sekercioglu et al. 2025 (BIRDBASE)", "Metres."),
+        repttraits = nsrc("repttraits", "elevation_max_m", "ReptTraits (Oskyrko et al. 2024)", "Metres."),
+        globtherm  = nsrc("globtherm", "elevation_max", "GlobTherm (Bennett et al. 2018)", "Metres."),
+        fungalroot = nsrc("fungalroot", "elevation_max", "FungalRoot (Soudzilovskaia et al. 2020)", "Metres.")
+      )
+    ),
+    home_range = list(
+      label = "Home range", kind = "numeric", unit = "km2", vocab = NULL,
+      sources = list(
+        combine   = nsrc("combine", "home_range_km2", "COMBINE (Soria et al. 2021)", "Square kilometres."),
+        homerange = nsrc("homerange", "home_range_km2", "HomeRange (Broekman et al. 2023)", "Square kilometres."),
+        pantheria = nsrc("pantheria", "home_range_km2", "PanTHERIA (Jones et al. 2009)", "Square kilometres.")
+      )
+    ),
+    range_size = list(
+      label = "Geographic range size", kind = "numeric", unit = "km2", vocab = NULL,
+      sources = list(
+        avonet       = nsrc("avonet", "range_size", "AVONET (Tobias et al. 2022)", "Square kilometres."),
+        chelonians   = nsrc("chelonians", "range_size_km2", "TurtleTraits (Wang et al. 2025)", "Square kilometres."),
+        coral_traits = nsrc("coral_traits", "range_size", "Coral Trait DB (Madin et al. 2016)", "Square kilometres.")
+      )
+    ),
+    habitat_breadth = list(
+      label = "Habitat breadth", kind = "numeric", unit = "count", vocab = NULL,
+      sources = list(
+        birdbase   = nsrc("birdbase", "habitat_breadth", "Sekercioglu et al. 2025 (BIRDBASE)", "Number of habitats used."),
+        combine    = nsrc("combine", "habitat_breadth_n", "COMBINE (Soria et al. 2021)", "Number of habitats used."),
+        frugivoria = nsrc("frugivoria", "habitat_breadth", "Frugivoria (Gerstner et al.)", "Number of habitats used."),
+        pantheria  = nsrc("pantheria", "habitat_breadth", "PanTHERIA (Jones et al. 2009)", "Number of habitats used.")
+      )
+    ),
+    generation_length = list(
+      label = "Generation length", kind = "numeric", unit = "yr", vocab = NULL,
+      sources = list(
+        bet        = nsrc("bet", "generation_length_y", "BET (Van Zuijlen et al. 2023)", "Years."),
+        frugivoria = nsrc("frugivoria", "generation_time", "Frugivoria (Gerstner et al.)", "Years."),
+        combine    = nsrc("combine", "generation_length_d", "COMBINE (Soria et al. 2021)", "Days converted to years (/365.25; 2190 -> 6.0, matches BET 6.7).", map = d2y)
+      )
+    ),
+    weaning_age = list(
+      label = "Weaning age", kind = "numeric", unit = "days", vocab = NULL,
+      sources = list(
+        amniote   = nsrc("amniote", "weaning_d", "Amniote LHD (Myhrvold et al. 2015)", "Days."),
+        anage     = nsrc("anage", "weaning_days", "AnAge (Tacutu et al. 2018)", "Days."),
+        pantheria = nsrc("pantheria", "weaning_d", "PanTHERIA (Jones et al. 2009)", "Days.")
+      )
+    ),
+    ldmc = list(
+      label = "Leaf dry matter content", kind = "numeric", unit = "mg/g", vocab = NULL,
+      sources = list(
+        leda        = nsrc("leda", "ldmc_mg_g", "LEDA Traitbase (Kleyer et al. 2008)", "mg/g."),
+        gift        = nsrc("gift", "gift_ldmc_mean", "GIFT (Weigelt et al. 2020)", "mg/g."),
+        brot        = nsrc("brot", "ldmc", "BROT 2.0 (Tavsanoglu & Pausas 2018)", "mg/g."),
+        diaz_traits = nsrc("diaz_traits", "ldmc_g_g", "Diaz et al. 2022", "g/g converted to mg/g (x1000; 0.195 -> 195, matches LEDA 194).", map = numk)
+      )
+    ),
+    seed_length = list(
+      label = "Seed length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "seed_length", "AusTraits (Falster et al. 2021)", "mm."),
+        leda      = nsrc("leda", "seed_length_mm", "LEDA Traitbase (Kleyer et al. 2008)", "mm."),
+        gift      = nsrc("gift", "gift_seed_length_mean", "GIFT (Weigelt et al. 2020)", "mm."),
+        bien      = nsrc("bien", "seed_length", "BIEN (Maitner et al. 2018)", "mm.")
+      )
+    ),
+    vulnerability = list(
+      label = "Vulnerability to fishing", kind = "numeric", unit = "0-100 index", vocab = NULL,
+      sources = list(
+        fishbase    = nsrc("fishbase", "vulnerability", "FishBase (Froese & Pauly)", "FishBase vulnerability index, 0-100."),
+        sealifebase = nsrc("sealifebase", "vulnerability", "SeaLifeBase (Palomares & Pauly)", "Vulnerability index, 0-100."),
+        quimbayo    = nsrc("quimbayo", "vulnerability", "Quimbayo et al. 2021", "Vulnerability index, 0-100.")
+      )
+    ),
+    itd = list(
+      label = "Inter-tegular distance (bee body size)", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        bee_ostwald = nsrc("bee_ostwald", "itd_mm", "Ostwald 2024", "Inter-tegular distance, mm."),
+        eupolltrait = nsrc("eupolltrait", "itd_mm", "EuPollTrait (Milicic et al. 2025)", "Inter-tegular distance, mm.")
+      )
+    ),
+
+    ## ---- additional categorical traits ------------------------------------
+    conservation_status = list(
+      label = "IUCN Red List status", kind = "categorical", unit = NA_character_,
+      vocab = c("LC", "NT", "VU", "EN", "CR", "EW", "EX", "DD"),
+      sources = list(
+        conservation_status = list(enrichment = "conservation_status", col = "conservation_status",
+                          citation = "IUCN Red List", note = "IUCN category.",
+                          map = function(v) .xw_cat(v, iucn_lookup)),
+        birdbase  = list(enrichment = "birdbase", col = "iucn_status",
+                          citation = "Sekercioglu et al. 2025 (BIRDBASE)", note = "IUCN category.",
+                          map = function(v) .xw_cat(v, iucn_lookup)),
+        phylacine = list(enrichment = "phylacine", col = "iucn_status",
+                          citation = "PHYLACINE (Faurby et al. 2018)", note = "IUCN category; EP / -9999 -> NA.",
+                          map = function(v) .xw_cat(v, iucn_lookup)),
+        quimbayo  = list(enrichment = "quimbayo", col = "iucn_status",
+                          citation = "Quimbayo et al. 2021", note = "IUCN category.",
+                          map = function(v) .xw_cat(v, iucn_lookup)),
+        pelagic   = list(enrichment = "pelagic", col = "iucn_status",
+                          citation = "Gleiber et al. 2022", note = "IUCN category; NE / -9999 -> NA.",
+                          map = function(v) .xw_cat(v, iucn_lookup)),
+        pottier   = list(enrichment = "pottier", col = "iucn_status",
+                          citation = "Pottier et al. 2022", note = "IUCN category.",
+                          map = function(v) .xw_cat(v, iucn_lookup))
+      )
+    ),
+    body_shape = list(
+      label = "Body shape (fish)", kind = "categorical", unit = NA_character_,
+      vocab = c("fusiform", "elongated", "compressed", "depressed", "globiform"),
+      sources = list(
+        beukhof  = list(enrichment = "beukhof", col = "body_shape",
+                        citation = "Beukhof et al. 2019", note = "Fish body shape.",
+                        map = function(v) .xw_grep(v, bodyshape_patterns)),
+        quimbayo = list(enrichment = "quimbayo", col = "body_shape",
+                        citation = "Quimbayo et al. 2021", note = "Fish body shape.",
+                        map = function(v) .xw_grep(v, bodyshape_patterns)),
+        pelagic  = list(enrichment = "pelagic", col = "body_shape",
+                        citation = "Gleiber et al. 2022", note = "Fish body shape; -9999 -> NA.",
+                        map = function(v) .xw_grep(v, bodyshape_patterns))
+      )
+    ),
+    sexual_system = list(
+      label = "Sexual system", kind = "categorical", unit = NA_character_,
+      vocab = c("hermaphrodite", "gonochoric", "dioecious", "monoecious", "parthenogenetic"),
+      sources = list(
+        tree_of_sex  = list(enrichment = "tree_of_sex", col = "sexual_system",
+                        citation = "Tree of Sex Consortium 2014", note = "Plant and animal sexual systems.",
+                        map = function(v) .xw_grep(v, sexsys_patterns)),
+        coral_traits = list(enrichment = "coral_traits", col = "sexual_system",
+                        citation = "Coral Trait DB (Madin et al. 2016)", note = "Coral sexual system.",
+                        map = function(v) .xw_grep(v, sexsys_patterns)),
+        octocoral    = list(enrichment = "octocoral", col = "sexual_system",
+                        citation = "Gomez-Gras et al. 2024", note = "Octocoral sexual system.",
+                        map = function(v) .xw_grep(v, sexsys_patterns))
       )
     )
   )
