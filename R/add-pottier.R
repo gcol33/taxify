@@ -6,6 +6,7 @@
 #' is an approximate species-level upper thermal limit.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with numeric columns
 #'   `pottier_heat_tolerance_c`, `pottier_acclimation_temp_c`,
@@ -25,9 +26,9 @@
 #' }
 #'
 #' @export
-add_pottier <- function(x, verbose = TRUE) {
-  cols <- c("heat_tolerance_c", "acclimation_temp_c", "svl_mm", "body_mass_g")
-  col_map <- stats::setNames(cols, paste0("pottier_", cols))
+add_pottier <- function(x, cols = NULL, verbose = TRUE) {
+  base_cols <- c("heat_tolerance_c", "acclimation_temp_c", "svl_mm", "body_mass_g")
+  col_map <- stats::setNames(base_cols, paste0("pottier_", base_cols))
   na_types <- stats::setNames(
     rep(list(NA_real_), length(col_map)), names(col_map)
   )
@@ -37,6 +38,7 @@ add_pottier <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Pottier amphibian heat tolerance",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

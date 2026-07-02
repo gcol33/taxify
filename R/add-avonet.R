@@ -39,7 +39,7 @@
 #' options(old)
 #'
 #' @export
-add_avonet <- function(x, verbose = TRUE) {
+add_avonet <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     beak_length       = "beak_length",
     beak_depth        = "beak_depth",
@@ -68,6 +68,7 @@ add_avonet <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "AVONET",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

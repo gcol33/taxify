@@ -5,6 +5,7 @@
 #' records (numeric by median, categorical by mode).
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -43,7 +44,7 @@
 #' }
 #'
 #' @export
-add_bien <- function(x, verbose = TRUE) {
+add_bien <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     bien_plant_height_m      = "plant_height_m",
     bien_max_plant_height_m  = "max_plant_height_m",
@@ -73,6 +74,7 @@ add_bien <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "BIEN",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

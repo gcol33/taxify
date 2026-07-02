@@ -4,6 +4,7 @@
 #' (2022) to a [taxify()] result by looking up `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -29,7 +30,7 @@
 #' options(old)
 #'
 #' @export
-add_diaz_traits <- function(x, verbose = TRUE) {
+add_diaz_traits <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x,
     enrichment_name = "diaz_traits",
@@ -42,6 +43,7 @@ add_diaz_traits <- function(x, verbose = TRUE) {
       seed_mass_mg   = NA_real_,
       plant_height_m = NA_real_
     ),
+    cols            = cols,
     verbose         = verbose
   )
 }

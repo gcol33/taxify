@@ -4,6 +4,7 @@
 #' `accepted_name` (species-level summaries).
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `zooplankton_` columns: numeric
 #'   `body_length_max_mm`, `carbon_weight_mg`, `nitrogen_pdw_pct`; categorical
@@ -25,7 +26,7 @@
 #' }
 #'
 #' @export
-add_zooplankton <- function(x, verbose = TRUE) {
+add_zooplankton <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("body_length_max_mm", "carbon_weight_mg", "nitrogen_pdw_pct")
   cat_cols <- c("vertical_distribution", "reproduction_mode", "trophic_group",
                 "feeding_mode", "myelination", "habitat_association",
@@ -43,6 +44,7 @@ add_zooplankton <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Global Zooplankton Trait Database",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

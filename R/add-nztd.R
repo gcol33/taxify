@@ -5,6 +5,7 @@
 #' dominant modality.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with categorical `nztd_` columns: `bioturbation`,
 #'   `body_size`, `degree_of_attachment`, `feeding_mode`, `living_habit`,
@@ -23,11 +24,11 @@
 #' }
 #'
 #' @export
-add_nztd <- function(x, verbose = TRUE) {
-  cols <- c("bioturbation", "body_size", "degree_of_attachment", "feeding_mode",
+add_nztd <- function(x, cols = NULL, verbose = TRUE) {
+  base_cols <- c("bioturbation", "body_size", "degree_of_attachment", "feeding_mode",
             "living_habit", "mobility", "morphology", "movement_method",
             "rigidity")
-  col_map <- stats::setNames(cols, paste0("nztd_", cols))
+  col_map <- stats::setNames(base_cols, paste0("nztd_", base_cols))
   na_types <- stats::setNames(
     rep(list(NA_character_), length(col_map)), names(col_map)
   )
@@ -37,6 +38,7 @@ add_nztd <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "NZTD",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

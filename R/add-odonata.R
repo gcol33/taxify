@@ -4,6 +4,7 @@
 #' `accepted_name` (modal value per species).
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with categorical `odonata_territoriality`,
 #'   `odonata_flight_mode`, `odonata_mate_guarding`, `odonata_habitat_openness`,
@@ -22,10 +23,10 @@
 #' }
 #'
 #' @export
-add_odonata <- function(x, verbose = TRUE) {
-  cols <- c("territoriality", "flight_mode", "mate_guarding",
+add_odonata <- function(x, cols = NULL, verbose = TRUE) {
+  base_cols <- c("territoriality", "flight_mode", "mate_guarding",
             "habitat_openness", "has_wing_pigment")
-  col_map <- stats::setNames(cols, paste0("odonata_", cols))
+  col_map <- stats::setNames(base_cols, paste0("odonata_", base_cols))
   na_types <- stats::setNames(
     rep(list(NA_character_), length(col_map)), names(col_map)
   )
@@ -35,6 +36,7 @@ add_odonata <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Odonate Phenotypic Database",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

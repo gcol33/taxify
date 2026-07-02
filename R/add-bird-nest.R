@@ -5,6 +5,7 @@
 #' species may carry several flags within a group.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with 20 additional 0/1 indicator columns prefixed
 #'   `bird_nest_`: `brood_parasite`, `mound_builder`, seven `nestsite_*`, seven
@@ -23,15 +24,15 @@
 #' }
 #'
 #' @export
-add_bird_nest <- function(x, verbose = TRUE) {
-  cols <- c("brood_parasite", "mound_builder", "nestsite_ground",
+add_bird_nest <- function(x, cols = NULL, verbose = TRUE) {
+  base_cols <- c("brood_parasite", "mound_builder", "nestsite_ground",
             "nestsite_tree", "nestsite_nontree", "nestsite_cliff_bank",
             "nestsite_underground", "nestsite_waterbody", "nestsite_termite_ant",
             "neststr_scrape", "neststr_platform", "neststr_cup", "neststr_dome",
             "neststr_dome_tunnel", "neststr_primary_cavity",
             "neststr_second_cavity", "nestatt_basal", "nestatt_forked",
             "nestatt_lateral", "nestatt_pensile")
-  col_map <- stats::setNames(cols, paste0("bird_nest_", cols))
+  col_map <- stats::setNames(base_cols, paste0("bird_nest_", base_cols))
   na_types <- stats::setNames(
     rep(list(NA_real_), length(col_map)), names(col_map)
   )
@@ -41,6 +42,7 @@ add_bird_nest <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Bird Nest Traits",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

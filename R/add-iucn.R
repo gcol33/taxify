@@ -6,6 +6,7 @@
 #' than one source is registered for it.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Show download progress if enrichment data needs
 #'   to be fetched. Default `TRUE`.
 #' @return The same data.frame with an additional column:
@@ -31,12 +32,13 @@
 #' options(old)
 #'
 #' @export
-add_iucn <- function(x, verbose = TRUE) {
+add_iucn <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x,
     enrichment_name = "conservation_status",
     col_map         = c(conservation_status = "conservation_status"),
     source_label    = "IUCN Red List",
+    cols            = cols,
     verbose         = verbose
   )
 }

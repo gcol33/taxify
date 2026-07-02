@@ -5,6 +5,7 @@
 #' morphological, ecological, and life-history traits for European seaweeds.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -41,7 +42,7 @@
 #' options(old)
 #'
 #' @export
-add_algae_traits <- function(x, verbose = TRUE) {
+add_algae_traits <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     algae_body_size_cm  = "body_size_cm",
     algae_growth_form   = "growth_form",
@@ -68,6 +69,7 @@ add_algae_traits <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "AlgaeTraits",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

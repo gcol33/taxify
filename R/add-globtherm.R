@@ -4,6 +4,7 @@
 #' result by looking up `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -33,7 +34,7 @@
 #' }
 #'
 #' @export
-add_globtherm <- function(x, verbose = TRUE) {
+add_globtherm <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     globtherm_thermal_max_c      = "thermal_max_c",
     globtherm_thermal_max_metric = "thermal_max_metric",
@@ -53,6 +54,7 @@ add_globtherm <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "GlobTherm",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

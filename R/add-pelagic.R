@@ -4,6 +4,7 @@
 #' `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `pelagic_` columns: numeric `depth_min_m`,
 #'   `depth_max_m`, `temp_min_c`, `temp_max_c`, `temp_mean_c`,
@@ -24,7 +25,7 @@
 #' }
 #'
 #' @export
-add_pelagic <- function(x, verbose = TRUE) {
+add_pelagic <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("depth_min_m", "depth_max_m", "temp_min_c", "temp_max_c",
                 "temp_mean_c", "length_min_tl_cm", "length_max_tl_cm",
                 "trophic_level")
@@ -43,6 +44,7 @@ add_pelagic <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Pelagic Species Trait Database",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

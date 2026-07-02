@@ -5,6 +5,7 @@
 #' mass / green volume), dimensionless and numerically equal to g/cm3.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -30,7 +31,7 @@
 #' }
 #'
 #' @export
-add_gwdd <- function(x, verbose = TRUE) {
+add_gwdd <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     gwdd_wood_density_g_cm3        = "wood_density_g_cm3",
     gwdd_wood_density_trunk_g_cm3  = "wood_density_trunk_g_cm3",
@@ -46,6 +47,7 @@ add_gwdd <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Global Wood Density Database v2",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

@@ -708,10 +708,35 @@ enrichment_cols <- function(source) {
 enrich_simple <- function(x, enrichment_name, col_map, source_label,
                           na_types = NULL, join_col = "accepted_name",
                           cols = NULL, default_cols = NULL, col_prefix = NULL,
-                          verbose = TRUE) {
+                          expose_all = TRUE, verbose = TRUE) {
   if (!join_col %in% names(x)) {
     stop(sprintf("x must have a '%s' column (from taxify())", join_col),
          call. = FALSE)
+  }
+
+  # Expose every other column the .vtr carries (the sources were widened at
+  # build time so no trait is dropped), while keeping the door's curated
+  # col_map as the default output. One place makes all doors cols=-aware: the
+  # default attaches the curated set, cols = "all" attaches everything, cols =
+  # <names> picks any. Doors that manage selection themselves (default_cols
+  # given, e.g. add_gift) opt out.
+  if (isTRUE(expose_all) && is.null(default_cols)) {
+    av <- tryCatch(.enrichment_available_cols(enrichment_name, verbose = FALSE),
+                   error = function(e) NULL)
+    if (!is.null(av)) {
+      extra <- setdiff(av$column, unname(col_map))
+      if (length(extra) > 0L) {
+        default_cols <- names(col_map)               # curated output = default
+        ex_out <- make.unique(c(names(col_map), extra))[-seq_along(col_map)]
+        col_map <- c(col_map, stats::setNames(extra, ex_out))
+        if (is.null(na_types)) na_types <- list()
+        et <- av$type[match(extra, av$column)]
+        for (k in seq_along(ex_out)) {
+          na_types[[ex_out[k]]] <-
+            if (identical(et[k], "numeric")) NA_real_ else NA_character_
+        }
+      }
+    }
   }
 
   # User column selection (only engaged when a door forwards cols/default_cols).
@@ -881,7 +906,8 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
 #' @noRd
 enrich_by_group <- function(x, enrichment_name, group_col, groups,
                             value_cols, source_label,
-                            na_types = NULL, verbose = TRUE) {
+                            na_types = NULL, cols = NULL, expose_all = TRUE,
+                            verbose = TRUE) {
   if (!"accepted_name" %in% names(x)) {
     stop("x must have an 'accepted_name' column (from taxify())", call. = FALSE)
   }
@@ -913,6 +939,38 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     stop(sprintf(
       "Enrichment '%s' .vtr has no '%s' column.", enrichment_name, group_col
     ), call. = FALSE)
+  }
+
+  # Expose every other per-(species, group) column the widened .vtr carries,
+  # defaulting output to the door's curated value_cols. cols selects among them
+  # ("all" or a vector); the extras keep their .vtr names.
+  if (isTRUE(expose_all)) {
+    reserved <- c(join_key, group_col, "canonical_name", "accepted_name",
+                  "genus", unname(value_cols))
+    extra <- setdiff(names(schema), reserved)
+    extra <- extra[!is.na(extra) & nzchar(extra)]
+    if (length(extra) > 0L) {
+      default_vc <- names(value_cols)
+      ex_out <- make.unique(c(names(value_cols), extra))[-seq_along(value_cols)]
+      value_cols <- c(value_cols, stats::setNames(extra, ex_out))
+      if (is.null(na_types)) na_types <- list()
+      for (k in seq_along(ex_out)) {
+        na_types[[ex_out[k]]] <-
+          if (is.numeric(schema[[extra[k]]])) NA_real_ else NA_character_
+      }
+      sel <- if (is.null(cols)) default_vc
+             else if (length(cols) == 1L && identical(tolower(cols), "all"))
+               names(value_cols)
+             else {
+               idx <- match(tolower(cols), tolower(names(value_cols)))
+               if (anyNA(idx)) stop(sprintf(
+                 "add_%s(): unknown column(s): %s. Use \"all\", names, or NULL.",
+                 enrichment_name, paste(cols[is.na(idx)], collapse = ", ")),
+                 call. = FALSE)
+               names(value_cols)[idx]
+             }
+      value_cols <- value_cols[sel]
+    }
   }
 
   # Resolve "all" groups: manifest (O(1)) → vectra distinct() (fallback)

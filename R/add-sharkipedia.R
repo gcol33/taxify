@@ -5,6 +5,7 @@
 #' (numeric traits by median) at build time.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -35,7 +36,7 @@
 #' }
 #'
 #' @export
-add_sharkipedia <- function(x, verbose = TRUE) {
+add_sharkipedia <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     sharkipedia_lmax_cm                   = "lmax_cm",
     sharkipedia_vbgf_linf_cm              = "vbgf_linf_cm",
@@ -58,6 +59,7 @@ add_sharkipedia <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Sharkipedia",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

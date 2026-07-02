@@ -4,7 +4,7 @@
 \alias{add_wcvp}
 \title{Add WCVP native range status}
 \usage{
-add_wcvp(x, region, verbose = TRUE)
+add_wcvp(x, region, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}

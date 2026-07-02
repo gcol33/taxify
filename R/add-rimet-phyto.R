@@ -4,6 +4,7 @@
 #' [taxify()] result by `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with numeric columns
 #'   `rimet_phyto_cell_length_um`, `rimet_phyto_cell_width_um`,
@@ -24,10 +25,10 @@
 #' }
 #'
 #' @export
-add_rimet_phyto <- function(x, verbose = TRUE) {
-  cols <- c("cell_length_um", "cell_width_um", "cell_thickness_um",
+add_rimet_phyto <- function(x, cols = NULL, verbose = TRUE) {
+  base_cols <- c("cell_length_um", "cell_width_um", "cell_thickness_um",
             "cell_surface_area_um2", "cell_biovolume_um3")
-  col_map <- stats::setNames(cols, paste0("rimet_phyto_", cols))
+  col_map <- stats::setNames(base_cols, paste0("rimet_phyto_", base_cols))
   na_types <- stats::setNames(
     rep(list(NA_real_), length(col_map)), names(col_map)
   )
@@ -37,6 +38,7 @@ add_rimet_phyto <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Rimet phytoplankton",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

@@ -40,7 +40,7 @@
 #' options(old)
 #'
 #' @export
-add_common_names <- function(x, lang = "en", verbose = TRUE) {
+add_common_names <- function(x, lang = "en", cols = NULL, verbose = TRUE) {
   enrich_by_group(
     x,
     enrichment_name = "common_names",
@@ -48,6 +48,7 @@ add_common_names <- function(x, lang = "en", verbose = TRUE) {
     groups          = lang,
     value_cols      = c(common_name = "common_name"),
     source_label    = "vernacular names",
+    cols            = cols,
     verbose         = verbose
   )
 }

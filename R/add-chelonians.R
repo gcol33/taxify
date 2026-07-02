@@ -4,6 +4,7 @@
 #' looking up `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -41,7 +42,7 @@
 #' }
 #'
 #' @export
-add_chelonians <- function(x, verbose = TRUE) {
+add_chelonians <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     chelonian_carapace_length_mm = "carapace_length_mm",
     chelonian_max_mass_g         = "max_mass_g",
@@ -70,6 +71,7 @@ add_chelonians <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "CheloniansTraits",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

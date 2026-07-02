@@ -4,7 +4,7 @@
 \alias{add_common_names}
 \title{Add common (vernacular) names}
 \usage{
-add_common_names(x, lang = "en", verbose = TRUE)
+add_common_names(x, lang = "en", cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}

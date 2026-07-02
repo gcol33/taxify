@@ -4,6 +4,7 @@
 #' behaviour traits to a [taxify()] result by `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `quimbayo_` columns: numeric
 #'   `body_size_max_cm`, `aspect_ratio`, `trophic_level`, `depth_min_m`,
@@ -25,7 +26,7 @@
 #' }
 #'
 #' @export
-add_quimbayo <- function(x, verbose = TRUE) {
+add_quimbayo <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("body_size_max_cm", "aspect_ratio", "trophic_level",
                 "depth_min_m", "depth_max_m", "temp_occurrence_mean_c")
   cat_cols <- c("home_range", "diel_activity", "water_level", "body_shape",
@@ -43,6 +44,7 @@ add_quimbayo <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Quimbayo reef fish",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

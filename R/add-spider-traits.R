@@ -6,6 +6,7 @@
 #' access-restricted source records are excluded.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -39,7 +40,7 @@
 #' }
 #'
 #' @export
-add_spider_traits <- function(x, verbose = TRUE) {
+add_spider_traits <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     spider_body_length_mm     = "body_length_mm",
     spider_prosoma_length_mm  = "prosoma_length_mm",
@@ -65,6 +66,7 @@ add_spider_traits <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "World Spider Trait Database",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

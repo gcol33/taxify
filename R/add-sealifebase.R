@@ -6,6 +6,7 @@
 #' other aquatic organisms. For fishes, use [add_fishbase()].
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -40,7 +41,7 @@
 #' options(old)
 #'
 #' @export
-add_sealifebase <- function(x, verbose = TRUE) {
+add_sealifebase <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     sb_body_length_cm = "body_length_cm",
     sb_body_mass_g    = "body_mass_g",
@@ -65,6 +66,7 @@ add_sealifebase <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "SeaLifeBase",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

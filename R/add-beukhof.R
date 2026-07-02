@@ -4,6 +4,7 @@
 #' traits to a [taxify()] result by `accepted_name` (species-level summaries).
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `beukhof_` columns: numeric `trophic_level`,
 #'   `aspect_ratio`, `offspring_size`, `age_maturity`, `fecundity`,
@@ -25,7 +26,7 @@
 #' }
 #'
 #' @export
-add_beukhof <- function(x, verbose = TRUE) {
+add_beukhof <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("trophic_level", "aspect_ratio", "offspring_size",
                 "age_maturity", "fecundity", "length_infinity_cm",
                 "growth_coefficient", "length_max_cm")
@@ -44,6 +45,7 @@ add_beukhof <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Beukhof marine fish",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

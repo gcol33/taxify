@@ -4,6 +4,7 @@
 #' `accepted_name`. Long-format measurements are reduced to species medians.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with numeric columns `bee_ostwald_itd_mm`
 #'   (intertegular distance), `bee_ostwald_forewing_length_mm`,
@@ -24,11 +25,11 @@
 #' }
 #'
 #' @export
-add_bee_ostwald <- function(x, verbose = TRUE) {
-  cols <- c("itd_mm", "forewing_length_mm", "tongue_length_mm",
+add_bee_ostwald <- function(x, cols = NULL, verbose = TRUE) {
+  base_cols <- c("itd_mm", "forewing_length_mm", "tongue_length_mm",
             "tongue_width_mm", "body_length_mm", "thorax_length_mm",
             "hair_length_mm", "hair_coverage_pct")
-  col_map <- stats::setNames(cols, paste0("bee_ostwald_", cols))
+  col_map <- stats::setNames(base_cols, paste0("bee_ostwald_", base_cols))
   na_types <- stats::setNames(
     rep(list(NA_real_), length(col_map)), names(col_map)
   )
@@ -38,6 +39,7 @@ add_bee_ostwald <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Bee morphology (Ostwald)",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

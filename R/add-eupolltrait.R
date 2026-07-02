@@ -4,6 +4,7 @@
 #' traits to a [taxify()] result by `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `eupolltrait_` columns: numeric `itd_mm`,
 #'   `tongue_length_mm`, `species_temperature_index`,
@@ -23,7 +24,7 @@
 #' }
 #'
 #' @export
-add_eupolltrait <- function(x, verbose = TRUE) {
+add_eupolltrait <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("itd_mm", "tongue_length_mm", "species_temperature_index",
                 "species_continentality_index", "area_of_occupancy",
                 "extent_of_occurrence")
@@ -41,6 +42,7 @@ add_eupolltrait <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "EuPollTrait",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

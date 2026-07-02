@@ -4,6 +4,7 @@
 #' `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with numeric `homerange_home_range_km2` and
 #'   `homerange_body_mass_kg`.
@@ -22,7 +23,7 @@
 #' }
 #'
 #' @export
-add_homerange <- function(x, verbose = TRUE) {
+add_homerange <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(homerange_home_range_km2 = "home_range_km2",
                homerange_body_mass_kg   = "body_mass_kg")
   na_types <- stats::setNames(rep(list(NA_real_), 2), names(col_map))
@@ -32,6 +33,7 @@ add_homerange <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "HomeRange",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

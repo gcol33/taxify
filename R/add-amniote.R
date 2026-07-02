@@ -4,6 +4,7 @@
 #' [taxify()] result by looking up `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -40,7 +41,7 @@
 #' }
 #'
 #' @export
-add_amniote <- function(x, verbose = TRUE) {
+add_amniote <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     amniote_class               = "taxon_class",
     amniote_adult_body_mass_g   = "adult_body_mass_g",
@@ -68,6 +69,7 @@ add_amniote <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Amniote Life History Database",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

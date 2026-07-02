@@ -4,7 +4,7 @@
 \alias{add_griis}
 \title{Add invasive species status (GRIIS)}
 \usage{
-add_griis(x, country, verbose = TRUE)
+add_griis(x, country, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}

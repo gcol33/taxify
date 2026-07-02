@@ -6,6 +6,7 @@
 #' best-populated key traits.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns (per-species means):
 #' \describe{
@@ -41,20 +42,21 @@
 #' options(old)
 #'
 #' @export
-add_groot <- function(x, verbose = TRUE) {
-  cols <- c(
+add_groot <- function(x, cols = NULL, verbose = TRUE) {
+  base_cols <- c(
     "root_diameter", "specific_root_length", "root_tissue_density",
     "root_n_concentration", "root_c_concentration", "root_mass_fraction",
     "lateral_spread", "root_mycorrhizal_colonization", "rooting_depth"
   )
-  col_map  <- stats::setNames(cols, cols)
-  na_types <- stats::setNames(rep(list(NA_real_), length(cols)), cols)
+  col_map  <- stats::setNames(base_cols, base_cols)
+  na_types <- stats::setNames(rep(list(NA_real_), length(base_cols)), base_cols)
   enrich_simple(
     x,
     enrichment_name = "groot",
     col_map         = col_map,
     source_label    = "GRooT",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

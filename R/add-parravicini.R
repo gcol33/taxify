@@ -4,6 +4,7 @@
 #' by `accepted_name`. The guild is the modal expert classification.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with categorical `parravicini_trophic_guild`.
 #'
@@ -22,7 +23,7 @@
 #' }
 #'
 #' @export
-add_parravicini <- function(x, verbose = TRUE) {
+add_parravicini <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(parravicini_trophic_guild = "trophic_guild")
   na_types <- list(parravicini_trophic_guild = NA_character_)
   enrich_simple(
@@ -31,6 +32,7 @@ add_parravicini <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Parravicini reef-fish trophic guilds",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

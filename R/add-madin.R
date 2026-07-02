@@ -4,6 +4,7 @@
 #' [taxify()] result by looking up `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -35,7 +36,7 @@
 #' }
 #'
 #' @export
-add_madin <- function(x, verbose = TRUE) {
+add_madin <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     madin_gram_stain       = "gram_stain",
     madin_metabolism       = "metabolism",
@@ -61,6 +62,7 @@ add_madin <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Madin bacteria/archaea traits",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

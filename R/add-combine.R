@@ -6,6 +6,7 @@
 #' phylogenetically imputed) values are used.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -43,7 +44,7 @@
 #' }
 #'
 #' @export
-add_combine <- function(x, verbose = TRUE) {
+add_combine <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     combine_adult_mass_g         = "adult_mass_g",
     combine_adult_body_length_mm = "adult_body_length_mm",
@@ -72,6 +73,7 @@ add_combine <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "COMBINE",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

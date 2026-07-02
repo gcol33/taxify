@@ -11,6 +11,7 @@
 #' crocodiles and the tuatara), not lizards only.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -57,16 +58,16 @@
 #' options(old)
 #'
 #' @export
-add_repttraits <- function(x, verbose = TRUE) {
+add_repttraits <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("elevation_min_m", "elevation_max_m", "mean_annual_temp_c",
                 "body_mass_g", "svl_mm", "total_length_mm", "longevity_yr",
                 "clutch_size")
   chr_cols <- c("biogeographic_realm", "microhabitat", "habitat_type",
                 "insular_endemic", "diet", "reproductive_mode", "active_time",
                 "foraging_mode")
-  cols <- c(chr_cols, num_cols)
+  base_cols <- c(chr_cols, num_cols)
 
-  col_map  <- stats::setNames(cols, cols)
+  col_map  <- stats::setNames(base_cols, base_cols)
   na_types <- c(
     stats::setNames(rep(list(NA_character_), length(chr_cols)), chr_cols),
     stats::setNames(rep(list(NA_real_), length(num_cols)), num_cols)
@@ -78,6 +79,7 @@ add_repttraits <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "ReptTraits (Oskyrko et al. 2024)",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

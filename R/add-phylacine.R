@@ -6,6 +6,7 @@
 #' [add_combine()], not as a replacement.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -38,7 +39,7 @@
 #' }
 #'
 #' @export
-add_phylacine <- function(x, verbose = TRUE) {
+add_phylacine <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     phylacine_mass_g                 = "mass_g",
     phylacine_diet_plant_pct         = "diet_plant_pct",
@@ -62,6 +63,7 @@ add_phylacine <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "PHYLACINE",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

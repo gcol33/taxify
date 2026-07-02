@@ -4,10 +4,12 @@
 \alias{add_tree_of_sex}
 \title{Add sex-determination traits (Tree of Sex)}
 \usage{
-add_tree_of_sex(x, verbose = TRUE)
+add_tree_of_sex(x, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
+
+\item{cols}{Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

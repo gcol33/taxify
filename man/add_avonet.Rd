@@ -4,7 +4,7 @@
 \alias{add_avonet}
 \title{Add bird morphology and migration (AVONET)}
 \usage{
-add_avonet(x, verbose = TRUE)
+add_avonet(x, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}

@@ -37,7 +37,7 @@
 #' options(old)
 #'
 #' @export
-add_griis <- function(x, country, verbose = TRUE) {
+add_griis <- function(x, country, cols = NULL, verbose = TRUE) {
   if (missing(country)) {
     stop("'country' is required. Use an ISO 3166-1 alpha-2 code (e.g., \"AT\") or \"all\".",
          call. = FALSE)
@@ -49,6 +49,7 @@ add_griis <- function(x, country, verbose = TRUE) {
     groups          = country,
     value_cols      = c(invasive_status = "invasive_status"),
     source_label    = "GRIIS",
+    cols            = cols,
     verbose         = verbose
   )
 }

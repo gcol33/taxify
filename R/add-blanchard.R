@@ -4,6 +4,7 @@
 #' by `genus`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `blanchard_` columns: categorical
 #'   `subfamily`, `spines`, `sting`, `diet`, `nesting`, `foraging`; numeric
@@ -23,7 +24,7 @@
 #' }
 #'
 #' @export
-add_blanchard <- function(x, verbose = TRUE) {
+add_blanchard <- function(x, cols = NULL, verbose = TRUE) {
   cat_cols <- c("subfamily", "spines", "sting", "diet", "nesting", "foraging")
   num_cols <- c("colony_size_workers")
   all_cols <- c(cat_cols, num_cols)
@@ -40,6 +41,7 @@ add_blanchard <- function(x, verbose = TRUE) {
     source_label    = "Blanchard ant traits",
     na_types        = na_types,
     join_col        = "genus",
+    cols            = cols,
     verbose         = verbose
   )
 }

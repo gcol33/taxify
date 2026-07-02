@@ -7,6 +7,7 @@
 #' `"woodiness"`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with an additional column:
 #' \describe{
@@ -34,12 +35,13 @@
 #' options(old)
 #'
 #' @export
-add_zanne <- function(x, verbose = TRUE) {
+add_zanne <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x,
     enrichment_name = "woodiness",
     col_map         = c(woodiness = "woodiness"),
     source_label    = "Zanne et al. 2014",
+    cols            = cols,
     verbose         = verbose
   )
 }

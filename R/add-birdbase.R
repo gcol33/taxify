@@ -5,6 +5,7 @@
 #' [add_avonet()] morphology are not carried.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -43,7 +44,7 @@
 #' }
 #'
 #' @export
-add_birdbase <- function(x, verbose = TRUE) {
+add_birdbase <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     birdbase_iucn_status        = "iucn_status",
     birdbase_realm              = "realm",
@@ -76,6 +77,7 @@ add_birdbase <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "BIRDBASE",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

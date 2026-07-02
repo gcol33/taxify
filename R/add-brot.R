@@ -4,6 +4,7 @@
 #' traits to a [taxify()] result by `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `brot_` columns: numeric `seed_mass_mg`,
 #'   `sla_mm2_mg`, `height_m`, `leaf_area_mm2`; categorical `resp_fire`,
@@ -24,7 +25,7 @@
 #' }
 #'
 #' @export
-add_brot <- function(x, verbose = TRUE) {
+add_brot <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("seed_mass_mg", "sla_mm2_mg", "height_m", "leaf_area_mm2")
   cat_cols <- c("resp_fire", "growth_form", "disp_mode", "fruit_type",
                 "soil_seed_bank", "seedling_emergence")
@@ -41,6 +42,7 @@ add_brot <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "BROT 2.0",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

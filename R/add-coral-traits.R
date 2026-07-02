@@ -5,6 +5,7 @@
 #' Database (numeric traits by median, categorical traits by mode).
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -39,7 +40,7 @@
 #' }
 #'
 #' @export
-add_coral_traits <- function(x, verbose = TRUE) {
+add_coral_traits <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     coral_symbiotic_state         = "symbiotic_state",
     coral_growth_form             = "growth_form",
@@ -68,6 +69,7 @@ add_coral_traits <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Coral Trait Database",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

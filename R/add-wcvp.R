@@ -37,7 +37,7 @@
 #' options(old)
 #'
 #' @export
-add_wcvp <- function(x, region, verbose = TRUE) {
+add_wcvp <- function(x, region, cols = NULL, verbose = TRUE) {
   if (missing(region)) {
     stop("'region' is required. Use a TDWG Level 3 code (e.g., \"BGM\") or \"all\".",
          call. = FALSE)
@@ -49,6 +49,7 @@ add_wcvp <- function(x, region, verbose = TRUE) {
     groups          = region,
     value_cols      = c(native_status = "native_status"),
     source_label    = "WCVP (Kew)",
+    cols            = cols,
     verbose         = verbose
   )
 }

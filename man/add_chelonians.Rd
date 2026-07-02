@@ -4,10 +4,12 @@
 \alias{add_chelonians}
 \title{Add turtle traits (CheloniansTraits)}
 \usage{
-add_chelonians(x, verbose = TRUE)
+add_chelonians(x, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
+
+\item{cols}{Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

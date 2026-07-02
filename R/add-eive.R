@@ -6,6 +6,7 @@
 #' the original ordinal Ellenberg values.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -35,7 +36,7 @@
 #' options(old)
 #'
 #' @export
-add_eive <- function(x, verbose = TRUE) {
+add_eive <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x,
     enrichment_name = "eive",
@@ -54,6 +55,7 @@ add_eive <- function(x, verbose = TRUE) {
       eive_reaction    = NA_real_,
       eive_nutrients   = NA_real_
     ),
+    cols            = cols,
     verbose         = verbose
   )
 }

@@ -4,6 +4,7 @@
 #' by `accepted_name`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `sheld_` columns: numeric `mean_length_mm`,
 #'   `max_length_mm`, `mature_age`, `max_age`, `growth_rate`, `fecundity`,
@@ -23,7 +24,7 @@
 #' }
 #'
 #' @export
-add_sheld <- function(x, verbose = TRUE) {
+add_sheld <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("mean_length_mm", "max_length_mm", "mature_age", "max_age",
                 "growth_rate", "fecundity", "n_host_species", "n_host_family")
   cat_cols <- c("brood", "marsupial_gills", "hermaphrodite", "shell_sculpture")
@@ -40,6 +41,7 @@ add_sheld <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "SHELD freshwater mussels",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

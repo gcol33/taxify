@@ -5,6 +5,7 @@
 #' Gymnophiona are carried; per-specimen values are reduced to species medians.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with numeric `huang_amph_svl_mm`,
 #'   `huang_amph_head_length_mm`, `huang_amph_head_width_mm`,
@@ -24,7 +25,7 @@
 #' }
 #'
 #' @export
-add_huang_amph <- function(x, verbose = TRUE) {
+add_huang_amph <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("svl_mm", "head_length_mm", "head_width_mm", "eye_diameter_mm",
                 "forelimb_length_mm", "hindlimb_length_mm")
   cat_cols <- c("taxon_order")
@@ -41,6 +42,7 @@ add_huang_amph <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Huang amphibian morphology",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

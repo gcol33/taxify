@@ -10,6 +10,7 @@
 #' (e.g. [add_baseflor()] for France, [add_floraweb()] for Germany).
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional `_uk` columns:
 #' \describe{
@@ -52,8 +53,8 @@
 #' options(old)
 #'
 #' @export
-add_ecoflora <- function(x, verbose = TRUE) {
-  cols <- c(
+add_ecoflora <- function(x, cols = NULL, verbose = TRUE) {
+  base_cols <- c(
     "height_max_mm_uk", "height_min_mm_uk", "leaf_area_uk", "leaf_longevity_uk",
     "root_system_uk", "photosynthetic_pathway_uk", "life_form_uk",
     "reproduction_uk", "flower_begin_month_uk", "flower_end_month_uk",
@@ -71,9 +72,10 @@ add_ecoflora <- function(x, verbose = TRUE) {
   enrich_simple(
     x,
     enrichment_name = "ecoflora",
-    col_map         = stats::setNames(cols, cols),
+    col_map         = stats::setNames(base_cols, base_cols),
     source_label    = "Ecoflora (Ecological Flora of the British Isles)",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

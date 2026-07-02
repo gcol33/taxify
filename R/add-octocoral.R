@@ -5,6 +5,7 @@
 #' records reduced to one value per species.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `octocoral_` columns: numeric
 #'   `colony_height`, `colony_width`, `tentacles_per_polyp`; categorical
@@ -24,7 +25,7 @@
 #' }
 #'
 #' @export
-add_octocoral <- function(x, verbose = TRUE) {
+add_octocoral <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("colony_height", "colony_width", "tentacles_per_polyp")
   cat_cols <- c("growth_form", "type_of_growth", "type_of_skeleton",
                 "polyp_retractability", "polyp_dimorphism", "zooxanthellate",
@@ -43,6 +44,7 @@ add_octocoral <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Octocoral Trait Database",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

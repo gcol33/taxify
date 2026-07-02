@@ -5,6 +5,7 @@
 #' database (numeric traits by median, categorical traits by mode).
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -42,7 +43,7 @@
 #' }
 #'
 #' @export
-add_austraits <- function(x, verbose = TRUE) {
+add_austraits <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     austraits_plant_growth_form      = "plant_growth_form",
     austraits_life_history           = "life_history",
@@ -74,6 +75,7 @@ add_austraits <- function(x, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "AusTraits",
     na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }
