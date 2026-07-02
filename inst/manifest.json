@@ -1239,8 +1239,8 @@
       "source_doi": "10.1890/08-1494.1"
     },
     "amphibio": {
-      "latest": "2026.06",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/amphibio.vtr",
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/amphibio.vtr",
       "nrow": 7799,
       "source_url": "https://ndownloader.figshare.com/files/8828578",
       "source_format": "zip",
@@ -1248,8 +1248,8 @@
       "species_col": "Species",
       "trait_cols": [
         "body_size_mm",
-        "age_maturity_d",
-        "longevity_d",
+        "age_maturity_y",
+        "longevity_yr",
         "litter_size",
         "reproductive_output",
         "offspring_size_mm",
@@ -2170,9 +2170,9 @@
       "source_doi": "10.15468/a7ujmj"
     },
     "sealifebase": {
-      "latest": "2026.06",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.06/sealifebase.vtr",
-      "nrow": 110985,
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/sealifebase.vtr",
+      "nrow": 111710,
       "source_url": "https://sealifebase.ropensci.org",
       "source_format": "rfishbase",
       "source_version": "2026.06",

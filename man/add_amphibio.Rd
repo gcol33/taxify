@@ -15,8 +15,8 @@ add_amphibio(x, verbose = TRUE)
 The same data.frame with additional columns:
 \describe{
 \item{body_size_mm}{Maximum body size in mm (snout-vent length).}
-\item{age_maturity_d}{Age at maturity in days.}
-\item{longevity_d}{Maximum longevity in days.}
+\item{age_maturity_y}{Age at maturity in years.}
+\item{longevity_yr}{Maximum longevity in years.}
 \item{litter_size}{Clutch/litter size.}
 \item{reproductive_output}{Reproductive output per year.}
 \item{offspring_size_mm}{Offspring size in mm.}

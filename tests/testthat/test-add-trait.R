@@ -30,7 +30,7 @@ test_that("list_traits() advertises the registered traits", {
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
-  expect_setequal(ti$source, c("diaz", "gift"))
+  expect_setequal(ti$source, c("diaz", "gift", "austraits", "bien", "brot", "ecoflora"))
   expect_true(any(grepl("x1000", ti$note)))          # GIFT g -> mg conversion noted
   expect_error(suppressMessages(trait_info("nope")), "unknown trait")
 })
@@ -72,7 +72,7 @@ test_that("coalesce mode yields value + source + n, honouring priority", {
 
   d <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce", verbose = FALSE)
   expect_true(all(c("seed_mass", "seed_mass_source", "seed_mass_n") %in% names(d)))
-  expect_equal(d$seed_mass_n, 2L)                 # both Diaz and GIFT have a value
+  expect_gte(d$seed_mass_n, 2L)                   # at least Diaz and GIFT have a value
   expect_equal(d$seed_mass_source, "diaz")        # default priority diaz > gift
   expect_equal(d$seed_mass, 62.007, tolerance = 1e-3)
 

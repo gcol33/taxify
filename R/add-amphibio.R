@@ -8,8 +8,8 @@
 #' @return The same data.frame with additional columns:
 #' \describe{
 #'   \item{body_size_mm}{Maximum body size in mm (snout-vent length).}
-#'   \item{age_maturity_d}{Age at maturity in days.}
-#'   \item{longevity_d}{Maximum longevity in days.}
+#'   \item{age_maturity_y}{Age at maturity in years.}
+#'   \item{longevity_yr}{Maximum longevity in years.}
 #'   \item{litter_size}{Clutch/litter size.}
 #'   \item{reproductive_output}{Reproductive output per year.}
 #'   \item{offspring_size_mm}{Offspring size in mm.}
@@ -46,8 +46,8 @@
 add_amphibio <- function(x, verbose = TRUE) {
   col_map <- c(
     body_size_mm        = "body_size_mm",
-    age_maturity_d      = "age_maturity_d",
-    longevity_d         = "longevity_d",
+    age_maturity_y      = "age_maturity_y",
+    longevity_yr        = "longevity_yr",
     litter_size         = "litter_size",
     reproductive_output = "reproductive_output",
     offspring_size_mm   = "offspring_size_mm",
@@ -61,8 +61,8 @@ add_amphibio <- function(x, verbose = TRUE) {
   )
   na_types <- list(
     body_size_mm        = NA_real_,
-    age_maturity_d      = NA_real_,
-    longevity_d         = NA_real_,
+    age_maturity_y      = NA_real_,
+    longevity_yr        = NA_real_,
     litter_size         = NA_real_,
     reproductive_output = NA_real_,
     offspring_size_mm   = NA_real_,
