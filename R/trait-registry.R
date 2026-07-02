@@ -407,6 +407,42 @@
       )
     ),
 
+    ## ---- EIVE continuous indicator values (numeric, 0-10 scale) -----------
+    ## A separate family from ellenberg_* on purpose: EIVE is a statistical
+    ## consensus of ~30 regional systems (Ellenberg and Hill among them), so it
+    ## is single-source here and never coalesced with the ordinal values it is
+    ## partly derived from. Same gradients, different framework and scale.
+    eive_light = list(
+      label = "EIVE light (L)", kind = "numeric", unit = "0-10 (EIVE)", vocab = NULL,
+      sources = list(
+        eive = nsrc("eive", "light", "EIVE 1.0 (Dengler et al. 2023)", "Continuous light indicator, 0-10.")
+      )
+    ),
+    eive_temperature = list(
+      label = "EIVE temperature (T)", kind = "numeric", unit = "0-10 (EIVE)", vocab = NULL,
+      sources = list(
+        eive = nsrc("eive", "temperature", "EIVE 1.0 (Dengler et al. 2023)", "Continuous temperature indicator, 0-10.")
+      )
+    ),
+    eive_moisture = list(
+      label = "EIVE moisture (M)", kind = "numeric", unit = "0-10 (EIVE)", vocab = NULL,
+      sources = list(
+        eive = nsrc("eive", "moisture", "EIVE 1.0 (Dengler et al. 2023)", "Continuous moisture indicator, 0-10.")
+      )
+    ),
+    eive_reaction = list(
+      label = "EIVE reaction (R)", kind = "numeric", unit = "0-10 (EIVE)", vocab = NULL,
+      sources = list(
+        eive = nsrc("eive", "reaction", "EIVE 1.0 (Dengler et al. 2023)", "Continuous soil reaction (pH) indicator, 0-10.")
+      )
+    ),
+    eive_nutrients = list(
+      label = "EIVE nutrients (N)", kind = "numeric", unit = "0-10 (EIVE)", vocab = NULL,
+      sources = list(
+        eive = nsrc("eive", "nutrients", "EIVE 1.0 (Dengler et al. 2023)", "Continuous nutrient indicator, 0-10.")
+      )
+    ),
+
     ## ---- categorical traits -----------------------------------------------
     woodiness = list(
       label = "Woodiness", kind = "categorical", unit = NA_character_,

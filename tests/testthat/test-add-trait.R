@@ -134,6 +134,17 @@ test_that("absent species get NA across sources", {
   expect_true(is.na(r$seed_mass_gift))
 })
 
+test_that("EIVE dimensions are their own add_trait() traits, apart from ellenberg", {
+  reg_traits <- list_traits()$trait
+  expect_true(all(c("eive_light", "eive_temperature", "eive_moisture",
+                    "eive_reaction", "eive_nutrients") %in% reg_traits))
+  # EIVE is single-source and never a source on the classic ellenberg_* traits.
+  el <- suppressMessages(trait_info("ellenberg_light"))
+  expect_false("eive" %in% el$enrichment)
+  ei <- suppressMessages(trait_info("eive_light"))
+  expect_equal(ei$enrichment, "eive")
+})
+
 test_that("add_zanne() is the source-named woodiness door", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
