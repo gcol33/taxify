@@ -18,6 +18,24 @@ test_that("add_trait() errors on input without accepted_name", {
   expect_error(add_trait(data.frame(x = 1), "woodiness"), "accepted_name")
 })
 
+test_that("add_trait() records its sources (with match counts) for cite()", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  skip_if_not(trait_ready(), "trait enrichments not available")
+
+  r   <- add_trait(mk("Abies alba"), "woodiness", verbose = FALSE)
+  enr <- attr(r, "taxify_meta")$enrichments
+  expect_true(length(enr) >= 1L)
+  nm       <- vapply(enr, function(e) e$name, character(1L))
+  nmatched <- vapply(enr, function(e) as.integer(e$n_matched), integer(1L))
+  # Zanne (the "woodiness" enrichment) carries Abies alba -> recorded, matched.
+  expect_true("woodiness" %in% nm)
+  expect_true(any(nmatched > 0L))
+  # A source with no value for the species is recorded with n_matched 0 so that
+  # cite() drops it (Abies alba is absent from AusTraits in the example db).
+  expect_true(any(nmatched == 0L))
+})
+
 test_that("list_traits() advertises the registered traits", {
   lt <- list_traits()
   expect_true(all(c("trait", "kind", "unit", "n_sources", "sources") %in% names(lt)))

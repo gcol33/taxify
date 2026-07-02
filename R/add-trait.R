@@ -128,6 +128,20 @@ add_trait <- function(x, trait, sources = "all",
     attr(x, "taxify_traits") %||% list(),
     stats::setNames(list(ord), trait)
   )
+
+  # Record each source so cite() can credit it. A source is registered with the
+  # number of rows it actually supplied a value for; sources that contributed
+  # nothing get n_matched = 0 and are dropped by cite().
+  for (s in ord) {
+    sp <- spec$sources[[s]]
+    x <- register_enrichment(
+      x,
+      name      = sp$enrichment,
+      source    = sp$citation %||% sp$enrichment,
+      version   = NA_character_,
+      n_matched = sum(!is.na(per_src[[s]]))
+    )
+  }
   x
 }
 

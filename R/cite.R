@@ -101,10 +101,15 @@ collect_citations <- function(meta) {
     }
   }
 
-  # 3. Enrichments
+  # 3. Enrichments -- only those that actually contributed a value to the
+  # result. A source queried but matching no rows (n_matched == 0), e.g. a bird
+  # trait layer on a plant, or an add_trait() source with no data for these
+  # species, is dropped rather than cited.
   enrichments <- meta$enrichments
   if (!is.null(enrichments) && length(enrichments) > 0L) {
     for (e in enrichments) {
+      n_matched <- e$n_matched %||% NA_integer_
+      if (is.na(n_matched) || n_matched <= 0L) next
       cit <- extract_manifest_citation(manifest, "enrichments", e$name)
       if (!is.null(cit)) {
         citations <- c(citations, list(cit))
@@ -122,7 +127,10 @@ collect_citations <- function(meta) {
     }
   }
 
-  citations
+  # Dedup: the same source can be registered more than once (a door plus an
+  # add_trait() call, or repeated calls). Keep the first citation per key.
+  keys <- vapply(citations, function(c) c$key %||% "", character(1L))
+  citations[!duplicated(keys) | !nzchar(keys)]
 }
 
 
@@ -257,14 +265,20 @@ cite_footer <- function(meta) {
     }
   }
 
-  # Enrichments
+  # Enrichments -- only those that contributed a value (drop 0-match sources),
+  # deduplicated by label.
   enrichments <- meta$enrichments
   if (!is.null(enrichments) && length(enrichments) > 0L) {
+    seen <- character(0L)
     for (e in enrichments) {
+      n_matched <- e$n_matched %||% NA_integer_
+      if (is.na(n_matched) || n_matched <= 0L) next
       label <- e$source %||% e$name
-      if (!is.na(e$version) && nzchar(e$version)) {
+      if (!is.null(e$version) && !is.na(e$version) && nzchar(e$version)) {
         label <- paste(label, e$version)
       }
+      if (label %in% seen) next
+      seen  <- c(seen, label)
       parts <- c(parts, label)
     }
   }

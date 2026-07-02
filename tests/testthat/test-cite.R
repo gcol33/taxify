@@ -52,6 +52,28 @@ test_that("cite() prints enrichment citations", {
   expect_true(any(grepl("EIVE|eive", out)))
 })
 
+test_that("cite() drops sources that matched no rows (n_matched == 0)", {
+  # A source queried but joining nothing (e.g. a bird trait on a plant, or an
+  # add_trait() source with no data) should not be cited.
+  joined  <- mock_enrichment(name = "eive", source = "EIVE")
+  unjoined <- mock_enrichment(name = "avonet", source = "AVONET")
+  unjoined$n_matched <- 0L
+  result <- mock_taxify_result(enrichments = list(joined, unjoined))
+  out <- capture.output(cite(result))
+  expect_true(any(grepl("EIVE|eive", out)))
+  expect_false(any(grepl("AVONET|avonet", out)))
+})
+
+test_that("cite() deduplicates a source registered more than once", {
+  # e.g. add_zanne() plus add_trait('woodiness') both register the same source.
+  e1 <- mock_enrichment(name = "eive", source = "EIVE")
+  e2 <- mock_enrichment(name = "eive", source = "EIVE")
+  result <- mock_taxify_result(enrichments = list(e1, e2))
+  out <- capture.output(cite(result))
+  n_eive <- sum(grepl("EIVE|eive", out))
+  expect_equal(n_eive, 1L)
+})
+
 test_that("cite() returns x invisibly", {
   result <- mock_taxify_result()
   ret <- withVisible(capture.output(val <- cite(result)))
