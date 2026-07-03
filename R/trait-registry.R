@@ -87,6 +87,16 @@
 #     species), so it is its own trait, not a source for the maturity trait.
 # Still skipped -- the crosswalk would genuinely be a guess (confirmed on the
 # .vtr values, not just asserted):
+#   - specific_root_area: GRooT's own column is internally mixed-unit -- its
+#     overall median is ~350 but the 17 species it shares with AusTraits sit at
+#     0.1-0.5 (a ~1000x within-source gap), so even single-source GRooT SRA is
+#     untrustworthy. AusTraits root_specific_root_area alone is clean but has no
+#     second source to anchor its unit; left out of the registry.
+#   - root_n_concentration stays GRooT-only (fine-root, mg/g): AusTraits
+#     root_n_per_dry_mass is documented mg/g too, but its median runs 2x lower on
+#     only 2 shared species. The offset is confounded between coarse-root dilution
+#     (AusTraits does not state fine-root-only) and genuinely low-N Australian
+#     sclerophyll flora; at n=2 the two cannot be separated, so it is not coalesced.
 #   - salinity: four incompatible quantities -- baseflor 0-9 soil indicator,
 #     coral/octocoral seawater ppt ~32-35 (n=2-3), pottier 0-4 tolerance index,
 #     madin halophily categories. (baseflor's 0-9 could instead feed
