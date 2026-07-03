@@ -30,8 +30,7 @@
 # Not added (unit could not be calibrated): GIFT leaf length/width (length x10
 # plausible but width did not match AusTraits); dropped rather than guessed.
 # Not added (only one non-empty source): chromosome number and ploidy (FloraWeb
-# column empty), leaf dry mass (LEDA column empty). Activity time deferred:
-# COMBINE codes it 1/2/3 with no in-data key to verify the mapping.
+# column empty), leaf dry mass (LEDA column empty).
 #
 # Second wave (grounded on the widened .vtr medians):
 #   - depth / elevation are metres everywhere (Pelagic -9999 -> NA); home range
@@ -48,10 +47,27 @@
 #     existing body_length trait.
 #   - leaf_type (broadleaf/needle/scale), deciduousness (evergreen/deciduous),
 #     marine and freshwater (0/1 -> yes/no realm flags), wing_length (mm).
-# Skipped after inspection (crosswalk would be a guess): salinity (baseflor is a
-# 0-9 plant indicator, coral/octocoral are seawater ppt ~32-35); lifespan
-# (austraits ranges vs BROT short/long text vs GIFT numeric); growth_rate and
-# activity_time (no shared unit / no in-data key).
+#
+# Third wave (recovered after grounding the four earlier "skipped" candidates):
+#   - activity_time: the COMBINE/PanTHERIA 1/2/3 code was calibrated against
+#     EltonTraits period flags on 5026 shared species (code 1 -> 100% nocturnal,
+#     3 -> 100% diurnal, 2 -> crepuscular/mixed -> cathemeral), so the "no
+#     in-data key" objection no longer holds; repttraits / chelonians / quimbayo
+#     also carry the categories as clean text.
+#   - leaf_lifespan: austraits / brot / bien agree 1:1 on shared species (same
+#     unit, months); a clean leaf-economics trait missed the first time.
+#   - plant_lifespan: bien maximum_whole_plant_longevity (years, n=776) agrees
+#     with gift (ratio 1.1) and with austraits text-range midpoints (ratio 0.83);
+#     the first pass cited only the awkward text sources and skipped the numeric.
+# Still skipped -- the crosswalk would genuinely be a guess (confirmed on the
+# .vtr values, not just asserted):
+#   - salinity: four incompatible quantities -- baseflor 0-9 soil indicator,
+#     coral/octocoral seawater ppt ~32-35 (n=2-3), pottier 0-4 tolerance index,
+#     madin halophily categories. (baseflor's 0-9 could instead feed
+#     ellenberg_salt, which is on the same scale.)
+#   - growth_rate: von Bertalanffy K (beukhof, sharkipedia), coral linear
+#     extension mm/yr, zooplankton per-day, and AnAge's Gompertz constant are
+#     physically different rates, not one unit.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -230,6 +246,33 @@
   binary_yn <- c("1" = "yes", "0" = "no", "true" = "yes", "false" = "no",
                  "yes" = "yes", "no" = "no", "y" = "yes", "n" = "no")
 
+  # Diel activity. Text vocabularies (repttraits, chelonians, quimbayo) map
+  # directly; the ordered patterns take the primary period of a compound value
+  # ("diurnal but nests at night" -> diurnal) and fold mixed/both records into
+  # cathemeral. The 1/2/3 PanTHERIA code (COMBINE, PanTHERIA) is grounded
+  # against EltonTraits period flags on 5026 shared species: code 1 is 100%
+  # nocturnal, code 3 is 100% diurnal, code 2 is crepuscular / mixed -> mapped
+  # to cathemeral (the coarse mixed class the code cannot resolve further).
+  act_patterns <- c(
+    "cathemeral|diurnal and nocturnal|day and night|both" = "cathemeral",
+    "crepuscular"                                         = "crepuscular",
+    "diurnal|day"                                         = "diurnal",
+    "nocturnal|night"                                     = "nocturnal")
+  act_code <- c("1" = "nocturnal", "2" = "cathemeral", "3" = "diurnal")
+
+  # Leaf lifespan is in months in all three sources: on shared species the
+  # austraits / brot / bien medians agree 1:1 (ratio ~1.0), so they are used
+  # verbatim. austraits whole-plant lifespan is a text range in years
+  # ("10--50"); its midpoint agrees with bien numeric years (ratio 0.83).
+  range_mid <- function(v) {
+    s <- gsub("--", "-", trimws(as.character(v)))
+    parts <- strsplit(s, "-", fixed = TRUE)
+    vapply(parts, function(z) {
+      z <- suppressWarnings(as.numeric(z)); z <- z[!is.na(z)]
+      if (!length(z)) NA_real_ else mean(z)
+    }, numeric(1))
+  }
+
   # A numeric source that is used verbatim (already in the canonical unit).
   nsrc <- function(enr, col, cite, note, map = num) {
     list(enrichment = enr, col = col, citation = cite, note = note, map = map)
@@ -305,6 +348,22 @@
       sources = list(
         bien = nsrc("bien", "leaf_thickness_mm", "BIEN (Maitner et al. 2018)", "mm."),
         gift = nsrc("gift", "gift_leaf_thickness_mean", "GIFT (Weigelt et al. 2020)", "GIFT cm converted to mm (x10; calibrated against BIEN leaf thickness median).", map = cm2mm)
+      )
+    ),
+    leaf_lifespan = list(
+      label = "Leaf lifespan", kind = "numeric", unit = "months", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "leaf_lifespan", "AusTraits (Falster et al. 2021)", "Months."),
+        brot      = nsrc("brot", "leaflifespan", "BROT 2.0 (Tavsanoglu & Pausas 2018)", "Months (agrees 1:1 with bien on shared species)."),
+        bien      = nsrc("bien", "leaf_lifespan", "BIEN (Maitner et al. 2018)", "Months.")
+      )
+    ),
+    plant_lifespan = list(
+      label = "Whole-plant lifespan", kind = "numeric", unit = "yr", vocab = NULL,
+      sources = list(
+        bien      = nsrc("bien", "maximum_whole_plant_longevity", "BIEN (Maitner et al. 2018)", "Maximum whole-plant longevity, years."),
+        gift      = nsrc("gift", "gift_lifespan_1", "GIFT (Weigelt et al. 2020)", "Years (agrees with bien, ratio 1.1 on shared species)."),
+        austraits = nsrc("austraits", "lifespan", "AusTraits (Falster et al. 2021)", "Text year-range (e.g. '10--50') taken at its midpoint; agrees with bien years (ratio 0.83).", map = range_mid)
       )
     ),
 
@@ -682,6 +741,27 @@
         repttraits = list(enrichment = "repttraits", col = "diet",
                           citation = "ReptTraits (Oskyrko et al. 2024)", note = "Carnivorous / herbivorous / omnivorous.",
                           map = function(v) .xw_cat(v, diet_lookup))
+      )
+    ),
+    activity_time = list(
+      label = "Diel activity time", kind = "categorical", unit = NA_character_,
+      vocab = c("diurnal", "nocturnal", "crepuscular", "cathemeral"),
+      sources = list(
+        repttraits = list(enrichment = "repttraits", col = "active_time",
+                          citation = "ReptTraits (Oskyrko et al. 2024)", note = "Diurnal / Nocturnal / Cathemeral / Crepuscular.",
+                          map = function(v) .xw_grep(v, act_patterns)),
+        chelonians = list(enrichment = "chelonians", col = "activity_time",
+                          citation = "TurtleTraits (Chelonians)", note = "Primary period of a possibly compound text value.",
+                          map = function(v) .xw_grep(v, act_patterns)),
+        quimbayo   = list(enrichment = "quimbayo", col = "diel_activity",
+                          citation = "Quimbayo et al. 2021", note = "day / night / both -> diurnal / nocturnal / cathemeral.",
+                          map = function(v) .xw_grep(v, act_patterns)),
+        combine    = list(enrichment = "combine", col = "activity_cycle",
+                          citation = "COMBINE (Soria et al. 2021)", note = "PanTHERIA 1/2/3 code, grounded on EltonTraits flags: 1 nocturnal, 2 cathemeral, 3 diurnal.",
+                          map = function(v) .xw_cat(v, act_code)),
+        pantheria  = list(enrichment = "pantheria", col = "x1_1_activitycycle",
+                          citation = "PanTHERIA (Jones et al. 2009)", note = "PanTHERIA 1/2/3 activity-cycle code: 1 nocturnal, 2 cathemeral, 3 diurnal.",
+                          map = function(v) .xw_cat(v, act_code))
       )
     ),
 
