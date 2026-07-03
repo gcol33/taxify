@@ -59,6 +59,15 @@
 #   - plant_lifespan: bien maximum_whole_plant_longevity (years, n=776) agrees
 #     with gift (ratio 1.1) and with austraits text-range midpoints (ratio 0.83);
 #     the first pass cited only the awkward text sources and skipped the numeric.
+#
+# Fourth wave (all grounded on the .vtr values / shared-species calibration):
+#   - neonate_mass: amniote / combine / pantheria / anage, all grams, ratio 1.00
+#     across every shared-species pair. egg_mass: amniote grams (single source).
+#   - von_bertalanffy_k: beukhof growth_coefficient and sharkipedia vbgf_k, both
+#     the VBGF K per year (overlap ratio 0.88) -- the one harmonizable slice of
+#     the otherwise-incompatible "growth_rate".
+#   - thermal_max / thermal_min: GlobTherm upper/lower tolerance, degrees C.
+#   - beak_length (mm) and hand_wing_index (unitless dispersal proxy): AVONET.
 # Still skipped -- the crosswalk would genuinely be a guess (confirmed on the
 # .vtr values, not just asserted):
 #   - salinity: four incompatible quantities -- baseflor 0-9 soil indicator,
@@ -464,6 +473,21 @@
       sources = list(
         amniote = nsrc("amniote", "clutches_per_y", "Amniote LHD (Myhrvold et al. 2015)", "Clutches or litters per year.", map = num_pos),
         combine = nsrc("combine", "litters_per_year_n", "COMBINE (Soria et al. 2021)", "Litters per year.")
+      )
+    ),
+    neonate_mass = list(
+      label = "Neonate body mass", kind = "numeric", unit = "g", vocab = NULL,
+      sources = list(
+        amniote   = nsrc("amniote", "birth_hatching_wt_g", "Amniote LHD (Myhrvold et al. 2015)", "Birth or hatching weight, grams."),
+        combine   = nsrc("combine", "neonate_mass_g", "COMBINE (Soria et al. 2021)", "Neonate mass, grams (agrees 1:1 with amniote on shared species)."),
+        pantheria = nsrc("pantheria", "x5_3_neonatebodymass_g", "PanTHERIA (Jones et al. 2009)", "Neonate body mass, grams."),
+        anage     = nsrc("anage", "birth_mass_g", "AnAge (Tacutu et al. 2018)", "Birth mass, grams.")
+      )
+    ),
+    egg_mass = list(
+      label = "Egg mass", kind = "numeric", unit = "g", vocab = NULL,
+      sources = list(
+        amniote = nsrc("amniote", "egg_mass_g", "Amniote LHD (Myhrvold et al. 2015)", "Egg mass, grams.")
       )
     ),
 
@@ -991,6 +1015,37 @@
       sources = list(
         avonet     = nsrc("avonet", "wing_length", "AVONET (Tobias et al. 2022)", "Bird wing length, mm."),
         saproxylic = nsrc("saproxylic", "wing_length_mm", "Saproxylic beetle traits", "Beetle wing length, mm.")
+      )
+    ),
+    beak_length = list(
+      label = "Beak length (culmen)", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        avonet = nsrc("avonet", "beak_length", "AVONET (Tobias et al. 2022)", "Culmen length, mm.")
+      )
+    ),
+    hand_wing_index = list(
+      label = "Hand-wing index", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        avonet = nsrc("avonet", "hand_wing_index", "AVONET (Tobias et al. 2022)", "Hand-wing index, a dispersal-ability proxy (unitless).")
+      )
+    ),
+    von_bertalanffy_k = list(
+      label = "Von Bertalanffy growth coefficient (K)", kind = "numeric", unit = "per yr", vocab = NULL,
+      sources = list(
+        beukhof     = nsrc("beukhof", "growth_coefficient", "Beukhof et al. 2019", "VBGF growth coefficient K, per year."),
+        sharkipedia = nsrc("sharkipedia", "vbgf_k", "Sharkipedia (sharkipedia.org)", "VBGF growth coefficient K, per year.")
+      )
+    ),
+    thermal_max = list(
+      label = "Upper thermal limit", kind = "numeric", unit = "deg C", vocab = NULL,
+      sources = list(
+        globtherm = nsrc("globtherm", "thermal_max_c", "GlobTherm (Bennett et al. 2018)", "Upper thermal tolerance (CTmax / UTNZ / lethal temperature), degrees C.")
+      )
+    ),
+    thermal_min = list(
+      label = "Lower thermal limit", kind = "numeric", unit = "deg C", vocab = NULL,
+      sources = list(
+        globtherm = nsrc("globtherm", "thermal_min_c", "GlobTherm (Bennett et al. 2018)", "Lower thermal tolerance, degrees C.")
       )
     )
   )
