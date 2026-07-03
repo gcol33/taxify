@@ -68,6 +68,23 @@
 #     the otherwise-incompatible "growth_rate".
 #   - thermal_max / thermal_min: GlobTherm upper/lower tolerance, degrees C.
 #   - beak_length (mm) and hand_wing_index (unitless dispersal proxy): AVONET.
+#
+# Fifth wave (AVONET morphology, GRooT root traits, first-reproduction age):
+#   - AVONET bird morphology (beak_width, beak_depth, tarsus_length, tail_length,
+#     secondary1, kipps_distance): all measured in mm, single-source, complete
+#     across 12443 species; same treatment as the existing beak_length/wing_length.
+#   - GRooT root traits: specific_root_length (m/g) and root_mass_fraction (g/g)
+#     coalesce GRooT with AusTraits cleanly (shared-species ratios 1.12 and 0.97).
+#     root_dry_matter_content coalesces too once AusTraits mg/g is divided by 1000
+#     (199 -> 0.199 g/g matches GRooT 0.227). root_diameter (mm), root_tissue_density
+#     (g/cm^3), root_n_concentration (mg/g), rooting_depth (m) and
+#     root_mycorrhizal_colonization (%) stay GRooT-only: AusTraits root_diameter
+#     mixes coarse roots (shared ratio 0.30, max 25 mm), AusTraits root_n overlaps
+#     on only 2 species, and BROT rootdepth diverges 2x from GRooT on shared species
+#     (a different depth definition, not a unit factor).
+#   - age_at_first_reproduction: COMBINE days -> years; distinct from age_at_maturity
+#     (first reproduction runs ~1.2x later than female sexual maturity on shared
+#     species), so it is its own trait, not a source for the maturity trait.
 # Still skipped -- the crosswalk would genuinely be a guess (confirmed on the
 # .vtr values, not just asserted):
 #   - salinity: four incompatible quantities -- baseflor 0-9 soil indicator,
@@ -1046,6 +1063,105 @@
       label = "Lower thermal limit", kind = "numeric", unit = "deg C", vocab = NULL,
       sources = list(
         globtherm = nsrc("globtherm", "thermal_min_c", "GlobTherm (Bennett et al. 2018)", "Lower thermal tolerance, degrees C.")
+      )
+    ),
+
+    ## ---- AVONET bird morphology (numeric, mm; single-source) --------------
+    beak_width = list(
+      label = "Beak width", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        avonet = nsrc("avonet", "beak_width", "AVONET (Tobias et al. 2022)", "Beak width at anterior nostrils, mm.")
+      )
+    ),
+    beak_depth = list(
+      label = "Beak depth", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        avonet = nsrc("avonet", "beak_depth", "AVONET (Tobias et al. 2022)", "Beak depth at anterior nostrils, mm.")
+      )
+    ),
+    tarsus_length = list(
+      label = "Tarsus length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        avonet = nsrc("avonet", "tarsus_length", "AVONET (Tobias et al. 2022)", "Tarsus length, mm.")
+      )
+    ),
+    tail_length = list(
+      label = "Tail length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        avonet = nsrc("avonet", "tail_length", "AVONET (Tobias et al. 2022)", "Tail length, mm.")
+      )
+    ),
+    secondary1 = list(
+      label = "First-secondary length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        avonet = nsrc("avonet", "secondary1", "AVONET (Tobias et al. 2022)", "Length of the first secondary feather, mm.")
+      )
+    ),
+    kipps_distance = list(
+      label = "Kipp's distance", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        avonet = nsrc("avonet", "kipps_distance", "AVONET (Tobias et al. 2022)", "Kipp's distance (wing-tip to first secondary), mm.")
+      )
+    ),
+
+    ## ---- GRooT root traits (numeric; units calibrated on shared species) ---
+    root_diameter = list(
+      label = "Root diameter", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        groot = nsrc("groot", "root_diameter", "GRooT (Guerrero-Ramirez et al. 2021)", "Fine-root diameter, mm.")
+      )
+    ),
+    specific_root_length = list(
+      label = "Specific root length", kind = "numeric", unit = "m/g", vocab = NULL,
+      sources = list(
+        groot     = nsrc("groot", "specific_root_length", "GRooT (Guerrero-Ramirez et al. 2021)", "Specific root length, m/g."),
+        austraits = nsrc("austraits", "root_specific_root_length", "AusTraits (Falster et al. 2021)", "Specific root length, m/g (agrees with GRooT, ratio 1.12 on shared species).")
+      )
+    ),
+    root_tissue_density = list(
+      label = "Root tissue density", kind = "numeric", unit = "g/cm3", vocab = NULL,
+      sources = list(
+        groot = nsrc("groot", "root_tissue_density", "GRooT (Guerrero-Ramirez et al. 2021)", "Root tissue density, g/cm^3.")
+      )
+    ),
+    root_mass_fraction = list(
+      label = "Root mass fraction", kind = "numeric", unit = "g/g", vocab = NULL,
+      sources = list(
+        groot     = nsrc("groot", "root_mass_fraction", "GRooT (Guerrero-Ramirez et al. 2021)", "Root mass fraction, g/g."),
+        austraits = nsrc("austraits", "root_mass_fraction", "AusTraits (Falster et al. 2021)", "Root mass fraction, g/g (agrees with GRooT, ratio 0.97 on shared species).")
+      )
+    ),
+    root_dry_matter_content = list(
+      label = "Root dry matter content", kind = "numeric", unit = "g/g", vocab = NULL,
+      sources = list(
+        groot     = nsrc("groot", "root_dry_matter_content", "GRooT (Guerrero-Ramirez et al. 2021)", "Root dry matter content, g/g."),
+        austraits = nsrc("austraits", "root_dry_matter_content", "AusTraits (Falster et al. 2021)", "mg/g converted to g/g (/1000; 199 -> 0.199 matches GRooT 0.227).", map = function(v) suppressWarnings(as.numeric(v)) / 1000)
+      )
+    ),
+    root_n_concentration = list(
+      label = "Root nitrogen concentration", kind = "numeric", unit = "mg/g", vocab = NULL,
+      sources = list(
+        groot = nsrc("groot", "root_n_concentration", "GRooT (Guerrero-Ramirez et al. 2021)", "Root nitrogen concentration, mg/g.")
+      )
+    ),
+    rooting_depth = list(
+      label = "Rooting depth", kind = "numeric", unit = "m", vocab = NULL,
+      sources = list(
+        groot = nsrc("groot", "rooting_depth", "GRooT (Guerrero-Ramirez et al. 2021)", "Maximum rooting depth, metres.")
+      )
+    ),
+    root_mycorrhizal_colonization = list(
+      label = "Root mycorrhizal colonization", kind = "numeric", unit = "percent", vocab = NULL,
+      sources = list(
+        groot = nsrc("groot", "root_mycorrhizal_colonization", "GRooT (Guerrero-Ramirez et al. 2021)", "Percent of root length colonized by mycorrhizal fungi, 0-100.")
+      )
+    ),
+
+    ## ---- age at first reproduction (numeric, years) -----------------------
+    age_at_first_reproduction = list(
+      label = "Age at first reproduction", kind = "numeric", unit = "yr", vocab = NULL,
+      sources = list(
+        combine = nsrc("combine", "age_first_reproduction_d", "COMBINE (Soria et al. 2021)", "Days converted to years (/365.25); distinct from age at maturity.", map = d2y)
       )
     )
   )

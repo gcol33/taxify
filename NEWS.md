@@ -12,9 +12,10 @@
   opt into `mode = "coalesce"` for one best-available value plus its source.
   `list_traits()` lists the available traits and `trait_info()` shows a trait's
   sources, units, and harmonization rules. The registry ships dozens of traits
-  spanning plant functional traits, animal body size and life history, diel
-  activity, phenology, indicator values, and conservation status, each with a
-  crosswalk grounded on the source values rather than assumed.
+  spanning plant functional and root traits, animal body size, life history, and
+  morphology, diel activity, thermal limits, phenology, indicator values, and
+  conservation status, each with a crosswalk grounded on the source values
+  rather than assumed.
 
 ## Renamed (source-named doors)
 
