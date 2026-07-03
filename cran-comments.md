@@ -1,21 +1,13 @@
 ## Submission
 
-Resubmission of taxify (version 0.2.12), addressing the review feedback on the
-earlier 0.2.6 submission.
+This is a feature update (version 0.3.2) of taxify, currently on CRAN at 0.2.12.
 
-Reviewer comment (Konstanze Lauseker): `\dontrun{}` should be reserved for
-examples that genuinely cannot be executed; please unwrap runnable examples or
-use `\donttest{}`.
-
-Addressed: taxify now ships a small bundled example database
-(`taxify_example_data()`), and the examples set
-`options(taxify.data_dir = taxify_example_data())` so matching and enrichment
-run fully offline against it. No example is wrapped in `\dontrun{}` any more.
-The only `\donttest{}` examples left are `add_pignatti()` (fetched live via the
-suggested TR8 package) and `list_enrichments()` (reads the online manifest,
-falling back to the bundled copy). The version was advanced from 0.2.6 to
-0.2.12 because the package gained features in the meantime (regional plant
-trait sets, the configurable data directory, and the bundled example database).
+Since 0.2.12 the package gained a cross-source trait interface: `add_trait()`
+attaches one trait across every enrichment that carries it, harmonizing their
+vocabularies and units against the source values. `list_traits()` and
+`trait_info()` describe the registry. Several backbones and enrichment datasets
+were added, and the per-source `add_*()` doors were renamed to their source
+names (the trait name is reserved for `add_trait()`). See NEWS.md for details.
 
 taxify matches taxonomic names against locally stored Darwin Core backbone
 databases. The full backbone and enrichment data are downloaded on demand from
@@ -47,7 +39,7 @@ repository declared in `Additional_repositories`
 
 0 errors | 0 warnings | 1 note
 
-The NOTE is "New submission", together with:
+The NOTE is:
 
 * "Suggests or Enhances not in mainstream repositories: taxifydb". The check
   confirms availability via the Additional_repositories specification
@@ -55,14 +47,13 @@ The NOTE is "New submission", together with:
   taxifydb is used strictly conditionally (guarded by requireNamespace()) and
   taxify is fully functional without it.
 
-* "Found the following (possibly) invalid URLs: https://www.itis.gov (404)".
-  This is the official ITIS (Integrated Taxonomic Information System) homepage
-  and is valid; the US government server intermittently returns 404 to the
-  automated HEAD request used by the URL checker, but the page resolves with
-  status 200 in a browser and via curl. The URL is correct as written.
+If the URL checker flags https://www.itis.gov, that is the official ITIS
+(Integrated Taxonomic Information System) homepage and is valid; the US
+government server intermittently returns 404 to the automated HEAD request,
+but the page resolves with status 200 in a browser and via curl.
 
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
 ## Reverse dependencies
 
-None (first submission).
+None.

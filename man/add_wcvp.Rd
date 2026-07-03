@@ -19,6 +19,10 @@ column (no suffix).
 \item \code{"all"}: adds one column per region in the dataset.
 }}
 
+\item{cols}{Which columns to attach. \code{NULL} (the default) attaches the
+curated set; a character vector of column names attaches just those, and
+\code{"all"} attaches every column the source carries (see \code{\link[=enrichment_cols]{enrichment_cols()}}).}
+
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{

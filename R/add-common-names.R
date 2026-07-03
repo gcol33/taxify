@@ -7,6 +7,9 @@
 #' @param lang Character. ISO 639-1 language code (e.g., `"en"`, `"de"`,
 #'   `"fr"`), or `NA` to return names without a language tag (NCBI/OTT
 #'   sources). Default `"en"`.
+#' @param cols Which columns to attach. `NULL` (the default) attaches the
+#'   curated set; a character vector of column names attaches just those, and
+#'   `"all"` attaches every column the source carries (see [enrichment_cols()]).
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with an additional column:
 #' \describe{

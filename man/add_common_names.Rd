@@ -13,6 +13,10 @@ add_common_names(x, lang = "en", cols = NULL, verbose = TRUE)
 \code{"fr"}), or \code{NA} to return names without a language tag (NCBI/OTT
 sources). Default \code{"en"}.}
 
+\item{cols}{Which columns to attach. \code{NULL} (the default) attaches the
+curated set; a character vector of column names attaches just those, and
+\code{"all"} attaches every column the source carries (see \code{\link[=enrichment_cols]{enrichment_cols()}}).}
+
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{

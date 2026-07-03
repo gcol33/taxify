@@ -1,4 +1,4 @@
-# taxify (development version)
+# taxify 0.3.2
 
 ## New features
 
@@ -11,7 +11,10 @@
   (`seed_mass_diaz`, `seed_mass_gift`), so agreement and conflict are visible;
   opt into `mode = "coalesce"` for one best-available value plus its source.
   `list_traits()` lists the available traits and `trait_info()` shows a trait's
-  sources, units, and harmonization rules.
+  sources, units, and harmonization rules. The registry ships dozens of traits
+  spanning plant functional traits, animal body size and life history, diel
+  activity, phenology, indicator values, and conservation status, each with a
+  crosswalk grounded on the source values rather than assumed.
 
 ## Renamed (source-named doors)
 
