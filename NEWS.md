@@ -27,6 +27,17 @@
   insect taxa (bee, beetle, fly, ...) resolve to `insect`; AusTraits' coarse
   `biotic`/`abiotic` and animal (bird, bat) records have no single vector in this
   vocabulary and stay `NA` rather than being guessed.
+* Six new `add_trait()` traits, each numeric source shared-species calibrated
+  (ratio ~1.00) against a co-registered source before it was added: `male_maturity`
+  (yr; AnAge, Amniote, COMBINE -- the male analogue of `age_at_maturity`),
+  `incubation_period` (days; Amniote, TurtleTraits egg incubation, kept separate
+  from the combined `gestation_incubation`), `diet_breadth` (count of dietary
+  categories; COMBINE, PanTHERIA, Birdbase), `tongue_length` (mm; Ostwald,
+  EuPollTrait bee proboscis), `aspect_ratio` (caudal-fin aspect ratio; Beukhof,
+  Quimbayo), and `foraging_mode` (active/ambush/mixed; ReptTraits, TurtleTraits).
+* `add_trait("diet_guild")` gains TurtleTraits and Blanchard ant diets, mapped to
+  the guild vocabulary by ordered regex (compound "omnivorous to carnivorous"
+  resolves to its primary guild; ant "predator" to carnivore).
 
 # taxify 0.3.2
 

@@ -60,7 +60,7 @@ test_that("specific_root_area is registered GRooT-only in cm2/g", {
 test_that("diet_guild carries EltonTraits alongside AVONET and ReptTraits", {
   ti <- suppressMessages(trait_info("diet_guild"))
   expect_true("elton_traits" %in% ti$source)
-  expect_setequal(ti$source, c("avonet", "elton_traits", "repttraits"))
+  expect_true(all(c("avonet", "elton_traits", "repttraits") %in% ti$source))
   expect_equal(ti$column[ti$source == "elton_traits"], "diet_guild")
 })
 
@@ -131,6 +131,70 @@ test_that("pollination_vector widens with floraweb and austraits, not gift/bien"
   m <- reg$pollination_vector$sources$austraits$map
   expect_equal(m(c("bee", "beetle", "fly", "wind", "abiotic", "bird")),
                c("insect", "insect", "insect", "wind", NA, NA))
+})
+
+test_that("male_maturity is the male analogue of age_at_maturity (days -> yr)", {
+  lt <- list_traits()
+  expect_true("male_maturity" %in% lt$trait)
+  expect_equal(lt$kind[lt$trait == "male_maturity"], "numeric")
+  expect_equal(lt$unit[lt$trait == "male_maturity"], "yr")
+  ti <- suppressMessages(trait_info("male_maturity"))
+  expect_setequal(ti$source, c("anage", "amniote", "combine"))
+  expect_equal(ti$column[ti$source == "anage"], "male_maturity_d")
+  expect_true(all(grepl("365.25", ti$note)))       # days -> years on every source
+})
+
+test_that("incubation_period is a days trait distinct from gestation_incubation", {
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "incubation_period"], "days")
+  ti <- suppressMessages(trait_info("incubation_period"))
+  expect_setequal(ti$source, c("amniote", "chelonians"))
+  expect_equal(ti$column[ti$source == "amniote"], "incubation_d")
+  # the combined gestation-or-incubation trait stays separate
+  gi <- suppressMessages(trait_info("gestation_incubation"))
+  expect_equal(gi$column[gi$source == "amniote"], "gestation_d")
+})
+
+test_that("diet_breadth coalesces mammal and bird category counts", {
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "diet_breadth"], "count")
+  ti <- suppressMessages(trait_info("diet_breadth"))
+  expect_setequal(ti$source, c("combine", "pantheria", "birdbase"))
+  # birdbase covers birds (disjoint taxa) -> grounded on the count distribution
+  expect_true(any(grepl("disjoint", ti$note)))
+})
+
+test_that("tongue_length and aspect_ratio are registered numeric traits", {
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "tongue_length"], "mm")
+  tt <- suppressMessages(trait_info("tongue_length"))
+  expect_setequal(tt$source, c("bee_ostwald", "eupolltrait"))
+  expect_equal(lt$unit[lt$trait == "aspect_ratio"], "index")
+  ar <- suppressMessages(trait_info("aspect_ratio"))
+  expect_setequal(ar$source, c("beukhof", "quimbayo"))
+})
+
+test_that("foraging_mode maps ACT/AMB/Mixed without double-counting lizard_traits", {
+  lt <- list_traits()
+  expect_equal(lt$kind[lt$trait == "foraging_mode"], "categorical")
+  ti <- suppressMessages(trait_info("foraging_mode"))
+  expect_setequal(ti$source, c("repttraits", "chelonians"))
+  expect_false("lizard_traits" %in% ti$source)     # same Oskyrko source as repttraits
+  reg <- taxify:::.trait_registry()
+  m <- reg$foraging_mode$sources$repttraits$map
+  expect_equal(m(c("ACT", "AMB", "Mixed", "")),
+               c("active", "ambush", "mixed", NA))
+})
+
+test_that("diet_guild widens with chelonians and blanchard via ordered-regex diet", {
+  ti <- suppressMessages(trait_info("diet_guild"))
+  expect_true(all(c("chelonians", "blanchard") %in% ti$source))
+  reg <- taxify:::.trait_registry()
+  m <- reg$diet_guild$sources$chelonians$map
+  # compound labels take the primary guild by pattern order; ant predator -> carnivore
+  expect_equal(m(c("Omnivorous", "Carnivorous", "Herbivorous",
+                   "Omnivorous to Carnivorous", "predator")),
+               c("omnivore", "carnivore", "herbivore", "omnivore", "carnivore"))
 })
 
 test_that("trait_info() returns one row per source with harmonization notes", {

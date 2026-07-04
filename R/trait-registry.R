@@ -152,6 +152,30 @@
 #     vector. GIFT and BIEN are NOT sources here: they carry only biotic/abiotic,
 #     a coarser granularity, and "biotic" is not "insect" (a hummingbird-
 #     pollinated plant is biotic), so folding them in would assert a false vector.
+# Eighth wave (six new traits + one widening; every numeric source was
+# shared-species calibrated against a co-registered source, ratio in parens):
+#   - male_maturity (NEW, yr): anage / amniote / combine male_maturity_d, all
+#     days -> years, ratio 1.00 pairwise (shared 708-1471). The male analogue of
+#     age_at_maturity, kept a separate trait for the same reason first-reproduction
+#     is (different quantity, not a source for the female-maturity trait).
+#   - incubation_period (NEW, days): amniote + chelonians egg incubation_d,
+#     ratio 1.05 on 122 shared species. Distinct from gestation_incubation: 134
+#     amniote species carry both an incubation_d (external egg phase) and a
+#     gestation_d (retained phase), so egg incubation is its own trait.
+#   - diet_breadth (NEW, count): combine + pantheria (ratio 1.00 on 2162 shared)
+#     plus birdbase. birdbase covers birds, disjoint from the mammal sources, so
+#     it cannot be shared-species calibrated; it is grounded on the matching
+#     0-7 integer-count distribution (same "number of dietary categories" trait).
+#   - tongue_length (NEW, mm): bee_ostwald + eupolltrait bee proboscis, ratio
+#     1.00 on 162 shared species (parallels the existing itd bee-size trait).
+#   - aspect_ratio (NEW, unitless): beukhof + quimbayo caudal-fin aspect ratio,
+#     ratio 1.00 on 406 shared species.
+#   - foraging_mode (NEW, active/ambush/mixed): repttraits + chelonians ACT/AMB
+#     codes. lizard_traits carries the same field but is the same Oskyrko source
+#     as repttraits, so it is not added (as with clutch_litter_size).
+#   - diet_guild widened with chelonians and blanchard text diet columns, mapped
+#     to the guild vocabulary by ordered regex (compound "omnivorous to
+#     carnivorous" -> omnivore by primary token; ant "predator" -> carnivore).
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
@@ -289,6 +313,18 @@
     nectarivore = "nectarivore", `herbivore terrestrial` = "herbivore",
     `herbivore aquatic` = "herbivore", herbivorous = "herbivore",
     scavenger = "scavenger")
+  # Ordered-regex diet mapper for text sources with compound labels: the primary
+  # guild is taken by pattern order, so "omnivorous to carnivorous" -> omnivore
+  # (omnivore is tested before carnivore) while bare "carnivorous" -> carnivore.
+  diet_patterns <- c(
+    "omnivor"                     = "omnivore",
+    "carnivor|predator|piscivor"  = "carnivore",
+    "herbivor"                    = "herbivore",
+    "insectivor|invertivor"       = "invertivore",
+    "frugivor"                    = "frugivore",
+    "granivor"                    = "granivore",
+    "nectarivor"                  = "nectarivore",
+    "scaveng"                     = "scavenger")
   lh_map <- function(v) {
     s   <- tolower(trimws(as.character(v)))
     s2  <- gsub("short_lived_perennial", "perennial", s, fixed = TRUE)
@@ -358,6 +394,12 @@
     "diurnal|day"                                         = "diurnal",
     "nocturnal|night"                                     = "nocturnal")
   act_code <- c("1" = "nocturnal", "2" = "cathemeral", "3" = "diurnal")
+
+  # Foraging mode: active (widely foraging) vs ambush (sit-and-wait) vs mixed.
+  forage_patterns <- c(
+    "act|active|wide|cruise" = "active",
+    "amb|ambush|sit"         = "ambush",
+    "mixed|both|inter"       = "mixed")
 
   # Leaf lifespan is in months in all three sources: on shared species the
   # austraits / brot / bien medians agree 1:1 (ratio ~1.0), so they are used
@@ -538,6 +580,14 @@
         beukhof    = nsrc("beukhof", "age_maturity", "Beukhof et al. 2019", "Age at maturity, years (ratio 1.00 vs anage on 198 shared species; a handful of deep-sea species exceed 50 yr).")
       )
     ),
+    male_maturity = list(
+      label = "Age at male maturity", kind = "numeric", unit = "yr", vocab = NULL,
+      sources = list(
+        anage   = nsrc("anage", "male_maturity_d", "AnAge (Tacutu et al. 2018)", "Days converted to years (/365.25).", map = d2y),
+        amniote = nsrc("amniote", "male_maturity_d", "Amniote LHD (Myhrvold et al. 2015)", "Days converted to years (/365.25); negative sentinels dropped.", map = d2y),
+        combine = nsrc("combine", "male_maturity_d", "COMBINE (Soria et al. 2021)", "Days converted to years (/365.25; ratio 1.00 vs anage on 708 shared species). Male analogue of age_at_maturity.", map = d2y)
+      )
+    ),
     gestation_incubation = list(
       label = "Gestation or incubation length", kind = "numeric", unit = "days", vocab = NULL,
       sources = list(
@@ -545,6 +595,13 @@
         combine   = nsrc("combine", "gestation_length_d", "COMBINE (Soria et al. 2021)", "Gestation, days."),
         pantheria = nsrc("pantheria", "gestation_d", "PanTHERIA (Jones et al. 2009)", "Gestation, days."),
         amniote   = nsrc("amniote", "gestation_d", "Amniote LHD (Myhrvold et al. 2015)", "Gestation, days; negative sentinels dropped.", map = num_pos)
+      )
+    ),
+    incubation_period = list(
+      label = "Egg incubation period", kind = "numeric", unit = "days", vocab = NULL,
+      sources = list(
+        amniote    = nsrc("amniote", "incubation_d", "Amniote LHD (Myhrvold et al. 2015)", "External egg incubation, days; negative sentinels dropped. Distinct from gestation_d (134 amniote species carry both).", map = num_pos),
+        chelonians = nsrc("chelonians", "incubation_d", "TurtleTraits (Chelonians)", "Egg incubation, days (ratio 1.05 vs amniote on 122 shared species).")
       )
     ),
     body_length = list(
@@ -900,7 +957,13 @@
                           map = function(v) v),
         repttraits   = list(enrichment = "repttraits", col = "diet",
                           citation = "ReptTraits (Oskyrko et al. 2024)", note = "Carnivorous / herbivorous / omnivorous.",
-                          map = function(v) .xw_cat(v, diet_lookup))
+                          map = function(v) .xw_cat(v, diet_lookup)),
+        chelonians   = list(enrichment = "chelonians", col = "diet",
+                          citation = "TurtleTraits (Chelonians)", note = "Turtle diet; compound labels ('omnivorous to carnivorous') take the primary guild by pattern order.",
+                          map = function(v) .xw_grep(v, diet_patterns)),
+        blanchard    = list(enrichment = "blanchard", col = "diet",
+                          citation = "Blanchard et al. (ant traits)", note = "Ant diet; predator -> carnivore.",
+                          map = function(v) .xw_grep(v, diet_patterns))
       )
     ),
     activity_time = list(
@@ -922,6 +985,18 @@
         pantheria  = list(enrichment = "pantheria", col = "x1_1_activitycycle",
                           citation = "PanTHERIA (Jones et al. 2009)", note = "PanTHERIA 1/2/3 activity-cycle code: 1 nocturnal, 2 cathemeral, 3 diurnal.",
                           map = function(v) .xw_cat(v, act_code))
+      )
+    ),
+    foraging_mode = list(
+      label = "Foraging mode", kind = "categorical", unit = NA_character_,
+      vocab = c("active", "ambush", "mixed"),
+      sources = list(
+        repttraits = list(enrichment = "repttraits", col = "foraging_mode",
+                          citation = "ReptTraits (Oskyrko et al. 2024)", note = "ACT -> active, AMB -> ambush (sit-and-wait), Mixed -> mixed.",
+                          map = function(v) .xw_grep(v, forage_patterns)),
+        chelonians = list(enrichment = "chelonians", col = "foraging_mode",
+                          citation = "TurtleTraits (Chelonians)", note = "ACT -> active, AMB -> ambush.",
+                          map = function(v) .xw_grep(v, forage_patterns))
       )
     ),
 
@@ -1034,6 +1109,28 @@
       sources = list(
         bee_ostwald = nsrc("bee_ostwald", "itd_mm", "Ostwald 2024", "Inter-tegular distance, mm."),
         eupolltrait = nsrc("eupolltrait", "itd_mm", "EuPollTrait (Milicic et al. 2025)", "Inter-tegular distance, mm.")
+      )
+    ),
+    tongue_length = list(
+      label = "Tongue length (bee)", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        bee_ostwald = nsrc("bee_ostwald", "tongue_length_mm", "Ostwald 2024", "Bee tongue (proboscis) length, mm."),
+        eupolltrait = nsrc("eupolltrait", "tongue_length_mm", "EuPollTrait (Milicic et al. 2025)", "Tongue length, mm (ratio 1.00 vs Ostwald on 162 shared species).")
+      )
+    ),
+    diet_breadth = list(
+      label = "Diet breadth", kind = "numeric", unit = "count", vocab = NULL,
+      sources = list(
+        combine    = nsrc("combine", "diet_breadth_n", "COMBINE (Soria et al. 2021)", "Number of dietary categories used (ratio 1.00 vs PanTHERIA on 2162 shared species)."),
+        pantheria  = nsrc("pantheria", "diet_breadth", "PanTHERIA (Jones et al. 2009)", "Number of dietary categories used."),
+        birdbase   = nsrc("birdbase", "diet_breadth", "Sekercioglu et al. 2025 (BIRDBASE)", "Number of dietary categories used; birds, disjoint from the mammal sources, same 0-7 integer-count scale.")
+      )
+    ),
+    aspect_ratio = list(
+      label = "Caudal fin aspect ratio", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        beukhof  = nsrc("beukhof", "aspect_ratio", "Beukhof et al. 2019", "Caudal-fin aspect ratio (height^2 / area), unitless."),
+        quimbayo = nsrc("quimbayo", "aspect_ratio", "Quimbayo et al. 2021", "Caudal-fin aspect ratio, unitless (ratio 1.00 vs Beukhof on 406 shared species).")
       )
     ),
 
