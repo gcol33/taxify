@@ -253,6 +253,29 @@
 #   CTmax is 40-50 deg C). globtherm/arthropod ran 2.6x apart on the 18 shared
 #   species; the mismatch is definitional, so the arthropod thermal columns stay
 #   out of the tolerance trait.
+# Thirteenth wave (single-source morphology in underserved taxa, grounded on
+# distribution sanity -- median/range physically plausible in the claimed unit --
+# since each has no second source to calibrate against; unit taken verbatim from
+# the column name as with body_length / head_length):
+#   - forelimb_length / hindlimb_length (NEW, mm): huang_amph amphibian limbs
+#     (med 8.3 / 50 mm). forelimb carries a few near-zero negative records, dropped
+#     with num_pos.
+#   - elytra_length / antenna_length / pronotum_length (NEW, mm): saproxylic beetle
+#     morphology (med 2.7 / 1.3 / 1.1 mm, n~1250), the same source and treatment as
+#     the shipped head_length / head_width.
+#   - cell_length / cell_width / cell_biovolume (NEW, um / um3): rimet_phyto
+#     phytoplankton cell geometry (med 16 um / 7 um / 360 um3, n=1413), a new
+#     microalgae size dimension; no negatives or sentinels.
+#   - colony_diameter (NEW, cm) and corallite_width (NEW, mm): Coral Trait Database
+#     (med 100 cm / 3.1 mm), extending the thin coral coverage.
+#   SKIPPED this wave: eye_diameter (huang_amph) -- median 3.7 mm is plausible but
+#   max is 747 mm, an uncatchable magnitude error with no second source to
+#   cross-check. bee_ostwald morphology -- forewing_length has n=2, and thorax /
+#   hair length are thin (n~90) with itd_mm already covering bee body size. A
+#   cross-order forewing_length -- leptraits stores it in cm, odonata in mm, bee
+#   n=2, disjoint taxa, so no clean shared unit. octocoral colony_height /
+#   colony_width -- the column names carry no unit suffix and measure a different
+#   dimension than coral colony_diameter, so combining would be a definitional guess.
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
@@ -1430,6 +1453,66 @@
       sources = list(
         huang_amph = nsrc("huang_amph", "head_width_mm", "Huang et al. amphibian morphology", "Head width, mm."),
         saproxylic = nsrc("saproxylic", "head_width", "Saproxylic beetle traits", "Head width, mm (disjoint taxa from huang_amph; unit mm verbatim).")
+      )
+    ),
+    forelimb_length = list(
+      label = "Forelimb length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        huang_amph = nsrc("huang_amph", "forelimb_length_mm", "Huang et al. amphibian morphology", "Amphibian forelimb length, mm; a few near-zero negative records dropped.", map = num_pos)
+      )
+    ),
+    hindlimb_length = list(
+      label = "Hindlimb length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        huang_amph = nsrc("huang_amph", "hindlimb_length_mm", "Huang et al. amphibian morphology", "Amphibian hindlimb length, mm.", map = num_pos)
+      )
+    ),
+    elytra_length = list(
+      label = "Elytra length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        saproxylic = nsrc("saproxylic", "elytra_length_mm", "Saproxylic beetle traits", "Beetle elytra length, mm.")
+      )
+    ),
+    antenna_length = list(
+      label = "Antenna length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        saproxylic = nsrc("saproxylic", "antenna_length_mm", "Saproxylic beetle traits", "Beetle antenna length, mm.")
+      )
+    ),
+    pronotum_length = list(
+      label = "Pronotum length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        saproxylic = nsrc("saproxylic", "pronotum_length_mm", "Saproxylic beetle traits", "Beetle pronotum length, mm.")
+      )
+    ),
+    cell_length = list(
+      label = "Cell length (microalgae)", kind = "numeric", unit = "um", vocab = NULL,
+      sources = list(
+        rimet_phyto = nsrc("rimet_phyto", "cell_length_um", "Rimet et al. phytoplankton morphology", "Micrometres.")
+      )
+    ),
+    cell_width = list(
+      label = "Cell width (microalgae)", kind = "numeric", unit = "um", vocab = NULL,
+      sources = list(
+        rimet_phyto = nsrc("rimet_phyto", "cell_width_um", "Rimet et al. phytoplankton morphology", "Micrometres.")
+      )
+    ),
+    cell_biovolume = list(
+      label = "Cell biovolume (microalgae)", kind = "numeric", unit = "um3", vocab = NULL,
+      sources = list(
+        rimet_phyto = nsrc("rimet_phyto", "cell_biovolume_um3", "Rimet et al. phytoplankton morphology", "Cubic micrometres.")
+      )
+    ),
+    colony_diameter = list(
+      label = "Colony maximum diameter (coral)", kind = "numeric", unit = "cm", vocab = NULL,
+      sources = list(
+        coral_traits = nsrc("coral_traits", "colony_max_diameter_cm", "Coral Trait Database (Madin et al. 2016)", "Maximum colony diameter, cm.")
+      )
+    ),
+    corallite_width = list(
+      label = "Corallite width (coral)", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        coral_traits = nsrc("coral_traits", "corallite_width_max_mm", "Coral Trait Database (Madin et al. 2016)", "Maximum corallite width, mm.")
       )
     ),
     voltinism = list(
