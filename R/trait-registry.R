@@ -229,6 +229,30 @@
 #     (fishbase; Water/WaterAssumed -> none), motility (madin prokaryote; flagella/
 #     gliding/axial -> motile), lecty (eupolltrait bee pollen host breadth,
 #     polylectic/oligolectic).
+# Twelfth wave (multi-source life-history + fish growth, all shared-species
+# calibrated against the .vtr values before wiring):
+#   - interbirth_interval (NEW, yr): pantheria + combine (days /365.25) + amniote
+#     (years) + anage (days /365.25). Per-species ratios 1.00 across pantheria/
+#     combine (n=750) and combine/amniote (n=1301); median ~1.0 yr. Distinct from
+#     reproductive_frequency (interval, not rate).
+#   - teat_number (NEW, count): pantheria + combine, ratio 1.00 on 682 shared
+#     species (both integer teat counts, median 4).
+#   - population_density (NEW, individuals/km2): pantheria + combine (ratio 1.00,
+#     n=1026) + tetradensity. TetraDensity's per-locality records run ~1.3x below
+#     the species-level compilations -- same unit (n/km2), a biological/dataset
+#     offset not a unit error, so it joins and the median reducer absorbs it.
+#   - von_bertalanffy_linf (NEW, cm): beukhof length_infinity_cm + sharkipedia
+#     vbgf_linf_cm, both the VBGF asymptotic length in cm (ratio 1.13 on the 19
+#     shared species; overlap is thin because sharks skew large). Parallels the
+#     shipped von_bertalanffy_k.
+#   REJECTED this wave (the column name matched an existing trait but the values
+#   proved a different quantity -- a grounding catch): arthropod_traits
+#   thermal_maximum / thermal_minimum are NOT sources for thermal_max / thermal_min.
+#   arthropod thermal_maximum has median 14.5 and max 28.7 deg C -- a climatic
+#   niche edge (range/occurrence temperature), not an organismal CTmax (insect
+#   CTmax is 40-50 deg C). globtherm/arthropod ran 2.6x apart on the 18 shared
+#   species; the mismatch is definitional, so the arthropod thermal columns stay
+#   out of the tolerance trait.
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
@@ -777,6 +801,30 @@
         pantheria  = nsrc("pantheria", "x16_1_littersperyear", "PanTHERIA (Jones et al. 2009)", "Litters per year (ratio 1.00 vs combine on shared species)."),
         repttraits = nsrc("repttraits", "number_of_litters_or_clutches_produced_per_year", "ReptTraits (Oskyrko et al. 2024)", "Clutches per year (ratio 1.00 vs amniote on shared species)."),
         chelonians = nsrc("chelonians", "clutches_per_year", "TurtleTraits (Chelonians)", "Clutches per year; turtle counts run ~0.6x amniote on the thin shared overlap, same unit, coalesced by median.")
+      )
+    ),
+    interbirth_interval = list(
+      label = "Interbirth or inter-litter interval", kind = "numeric", unit = "yr", vocab = NULL,
+      sources = list(
+        pantheria = nsrc("pantheria", "x14_1_interbirthinterval_d", "PanTHERIA (Jones et al. 2009)", "Days converted to years (/365.25).", map = d2y),
+        combine   = nsrc("combine", "interbirth_interval_d", "COMBINE (Soria et al. 2021)", "Days converted to years (/365.25; ratio 1.00 vs pantheria on 750 shared species).", map = d2y),
+        amniote   = nsrc("amniote", "inter_litter_or_interbirth_interval_y", "Amniote LHD (Myhrvold et al. 2015)", "Years (ratio 1.00 vs combine on 1301 shared species); negative sentinels dropped.", map = num_pos),
+        anage     = nsrc("anage", "inter_litter_interbirth_interval", "AnAge (Tacutu et al. 2018)", "Days converted to years (/365.25; median 1.0 yr matches the day-scale sources).", map = d2y)
+      )
+    ),
+    teat_number = list(
+      label = "Teat or nipple number", kind = "numeric", unit = "count", vocab = NULL,
+      sources = list(
+        pantheria = nsrc("pantheria", "x24_1_teatnumber", "PanTHERIA (Jones et al. 2009)", "Teat count.", map = num_pos),
+        combine   = nsrc("combine", "teat_number_n", "COMBINE (Soria et al. 2021)", "Teat count (ratio 1.00 vs pantheria on 682 shared species).", map = num_pos)
+      )
+    ),
+    population_density = list(
+      label = "Population density", kind = "numeric", unit = "individuals/km2", vocab = NULL,
+      sources = list(
+        pantheria    = nsrc("pantheria", "x21_1_populationdensity_n_km2", "PanTHERIA (Jones et al. 2009)", "Individuals per square kilometre.", map = num_pos),
+        combine      = nsrc("combine", "density_n_km2", "COMBINE (Soria et al. 2021)", "Individuals per square kilometre (ratio 1.00 vs pantheria on 1026 shared species).", map = num_pos),
+        tetradensity = nsrc("tetradensity", "density_ind_km2", "TetraDensity (Santini et al. 2018)", "Individuals per square kilometre; per-locality records run ~1.3x below the species-level compilations (same unit, biological/dataset offset), coalesced by median.", map = num_pos)
       )
     ),
     neonate_mass = list(
@@ -1634,6 +1682,13 @@
       sources = list(
         beukhof     = nsrc("beukhof", "growth_coefficient", "Beukhof et al. 2019", "VBGF growth coefficient K, per year."),
         sharkipedia = nsrc("sharkipedia", "vbgf_k", "Sharkipedia (sharkipedia.org)", "VBGF growth coefficient K, per year.")
+      )
+    ),
+    von_bertalanffy_linf = list(
+      label = "Von Bertalanffy asymptotic length (Linf)", kind = "numeric", unit = "cm", vocab = NULL,
+      sources = list(
+        beukhof     = nsrc("beukhof", "length_infinity_cm", "Beukhof et al. 2019", "VBGF asymptotic length Linf, cm."),
+        sharkipedia = nsrc("sharkipedia", "vbgf_linf_cm", "Sharkipedia (sharkipedia.org)", "VBGF asymptotic length Linf, cm (ratio 1.13 vs beukhof on 19 shared species; both cm, thin overlap because sharks skew large).")
       )
     ),
     thermal_max = list(
