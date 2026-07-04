@@ -176,6 +176,27 @@
 #   - diet_guild widened with chelonians and blanchard text diet columns, mapped
 #     to the guild vocabulary by ordered regex (compound "omnivorous to
 #     carnivorous" -> omnivore by primary token; ant "predator" -> carnivore).
+# Ninth wave (six new traits + a depth widening; categorical sources share an
+# identical or cleanly-mappable vocabulary rather than a numeric unit, so they
+# are grounded on the vocabulary + distribution, disjoint taxa notwithstanding):
+#   - reproductive_mode (NEW): repttraits (oviparous/ovoviviparous/viviparous,
+#     9670 records) + sharkipedia, whose shark strategies (matrotrophy,
+#     placentotrophy, aplacental/histotrophic/lecithotrophic viviparity) collapse
+#     to viviparous. ovoviviparous is tested before viviparous/oviparous because
+#     its label contains both substrings.
+#   - coloniality (NEW: colonial/solitary/both), wave_exposure (protected/exposed/
+#     intermediate) and water_clarity (clear/turbid/both): coral_traits + octocoral
+#     share these coral-habitat vocabularies verbatim ('broad'/'both' -> intermediate).
+#   - head_length / head_width (NEW, mm): huang_amph + saproxylic, unit mm verbatim.
+#     Disjoint taxa (amphibians vs beetles) so no shared-species calibration, but
+#     head length in mm is a coherent morphometric per species, as body_length is.
+#   - depth_min / depth_max widened with coral_traits (depth_upper_m / depth_lower_m)
+#     and octocoral (depth_upper / depth_lower): shallowest and deepest occurrence
+#     depths in metres, same unit as the existing fish depth sources.
+#   - Skipped this wave: fecundity (per-event vs per-year vs lifetime egg count
+#     unpinnable across arthropod/fish/mussel sources, disjoint taxa so no
+#     calibration) and offspring_size (egg-diameter vs hatchling-length ambiguous
+#     between amphibio and beukhof, and neonate_mass/egg_mass already cover it).
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
@@ -400,6 +421,21 @@
     "act|active|wide|cruise" = "active",
     "amb|ambush|sit"         = "ambush",
     "mixed|both|inter"       = "mixed")
+
+  # Parity mode: ovoviviparous must be tested before viviparous and oviparous
+  # (its label contains both substrings). Shark reproductive strategies
+  # (matrotrophy, placentotrophy, aplacental/histotrophic/lecithotrophic
+  # viviparity) all collapse to viviparous.
+  parity_patterns <- c(
+    "ovovivip|ovo.?vivip" = "ovoviviparous",
+    "vivip|matrotroph|placentotroph|histotroph|lecithotroph|trophonemata|aplacental" = "viviparous",
+    "ovip"                = "oviparous")
+
+  # Coral habitat preferences (coral_traits + octocoral share these vocabularies).
+  coloniality_lookup <- c(colonial = "colonial", solitary = "solitary", both = "both")
+  wave_lookup    <- c(protected = "protected", exposed = "exposed",
+                      broad = "intermediate", both = "intermediate")
+  clarity_lookup <- c(clear = "clear", turbid = "turbid", both = "both")
 
   # Leaf lifespan is in months in all three sources: on shared species the
   # austraits / brot / bien medians agree 1:1 (ratio ~1.0), so they are used
@@ -1007,7 +1043,9 @@
         fishbase    = nsrc("fishbase", "depth_min_m", "FishBase (Froese & Pauly)", "Metres."),
         sealifebase = nsrc("sealifebase", "depth_min_m", "SeaLifeBase (Palomares & Pauly)", "Metres."),
         quimbayo    = nsrc("quimbayo", "depth_min_m", "Quimbayo et al. 2021", "Metres."),
-        pelagic     = nsrc("pelagic", "depth_min_m", "Gleiber et al. 2022", "Metres; -9999 sentinels mapped to NA.", map = num_pos)
+        pelagic     = nsrc("pelagic", "depth_min_m", "Gleiber et al. 2022", "Metres; -9999 sentinels mapped to NA.", map = num_pos),
+        coral_traits = nsrc("coral_traits", "depth_upper_m", "Coral Trait DB (Madin et al. 2016)", "Shallowest occurrence depth (upper limit), metres."),
+        octocoral    = nsrc("octocoral", "depth_upper", "Gomez-Gras et al. 2024", "Shallowest occurrence depth (upper limit), metres.")
       )
     ),
     depth_max = list(
@@ -1016,7 +1054,9 @@
         fishbase    = nsrc("fishbase", "depth_max_m", "FishBase (Froese & Pauly)", "Metres."),
         sealifebase = nsrc("sealifebase", "depth_max_m", "SeaLifeBase (Palomares & Pauly)", "Metres."),
         quimbayo    = nsrc("quimbayo", "depth_max_m", "Quimbayo et al. 2021", "Metres."),
-        pelagic     = nsrc("pelagic", "depth_max_m", "Gleiber et al. 2022", "Metres; -9999 sentinels mapped to NA.", map = num_pos)
+        pelagic     = nsrc("pelagic", "depth_max_m", "Gleiber et al. 2022", "Metres; -9999 sentinels mapped to NA.", map = num_pos),
+        coral_traits = nsrc("coral_traits", "depth_lower_m", "Coral Trait DB (Madin et al. 2016)", "Deepest occurrence depth (lower limit), metres."),
+        octocoral    = nsrc("octocoral", "depth_lower", "Gomez-Gras et al. 2024", "Deepest occurrence depth (lower limit), metres.")
       )
     ),
     elevation_min = list(
@@ -1133,6 +1173,20 @@
         quimbayo = nsrc("quimbayo", "aspect_ratio", "Quimbayo et al. 2021", "Caudal-fin aspect ratio, unitless (ratio 1.00 vs Beukhof on 406 shared species).")
       )
     ),
+    head_length = list(
+      label = "Head length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        huang_amph = nsrc("huang_amph", "head_length_mm", "Huang et al. amphibian morphology", "Head length, mm."),
+        saproxylic = nsrc("saproxylic", "head_length_mm", "Saproxylic beetle traits", "Head length, mm (disjoint taxa from huang_amph; unit mm verbatim, as with body_length).")
+      )
+    ),
+    head_width = list(
+      label = "Head width", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        huang_amph = nsrc("huang_amph", "head_width_mm", "Huang et al. amphibian morphology", "Head width, mm."),
+        saproxylic = nsrc("saproxylic", "head_width", "Saproxylic beetle traits", "Head width, mm (disjoint taxa from huang_amph; unit mm verbatim).")
+      )
+    ),
 
     ## ---- additional categorical traits ------------------------------------
     conservation_status = list(
@@ -1189,6 +1243,18 @@
                         map = function(v) .xw_grep(v, sexsys_patterns))
       )
     ),
+    reproductive_mode = list(
+      label = "Reproductive (parity) mode", kind = "categorical", unit = NA_character_,
+      vocab = c("oviparous", "ovoviviparous", "viviparous"),
+      sources = list(
+        repttraits  = list(enrichment = "repttraits", col = "reproductive_mode",
+                        citation = "ReptTraits (Oskyrko et al. 2024)", note = "oviparous / ovoviviparous / viviparous.",
+                        map = function(v) .xw_grep(v, parity_patterns)),
+        sharkipedia = list(enrichment = "sharkipedia", col = "reproductive_mode",
+                        citation = "Sharkipedia (sharkipedia.org)", note = "Shark strategies (matrotrophy, placentotrophy, aplacental/histotrophic/lecithotrophic viviparity) collapse to viviparous; oviparous kept.",
+                        map = function(v) .xw_grep(v, parity_patterns))
+      )
+    ),
     leaf_type = list(
       label = "Leaf type", kind = "categorical", unit = NA_character_,
       vocab = c("broadleaf", "needle", "scale", "leafless"),
@@ -1241,6 +1307,42 @@
         phylacine   = list(enrichment = "phylacine", col = "freshwater",
                            citation = "PHYLACINE (Faurby et al. 2018)", note = "Freshwater flag.",
                            map = function(v) .xw_cat(v, binary_yn))
+      )
+    ),
+    coloniality = list(
+      label = "Coloniality", kind = "categorical", unit = NA_character_,
+      vocab = c("colonial", "solitary", "both"),
+      sources = list(
+        coral_traits = list(enrichment = "coral_traits", col = "coloniality",
+                           citation = "Coral Trait DB (Madin et al. 2016)", note = "colonial / solitary / both.",
+                           map = function(v) .xw_cat(v, coloniality_lookup)),
+        octocoral    = list(enrichment = "octocoral", col = "coloniality",
+                           citation = "Gomez-Gras et al. 2024", note = "colonial / solitary.",
+                           map = function(v) .xw_cat(v, coloniality_lookup))
+      )
+    ),
+    wave_exposure = list(
+      label = "Wave exposure preference", kind = "categorical", unit = NA_character_,
+      vocab = c("protected", "exposed", "intermediate"),
+      sources = list(
+        coral_traits = list(enrichment = "coral_traits", col = "wave_exposure_preference",
+                           citation = "Coral Trait DB (Madin et al. 2016)", note = "protected / exposed; 'broad' -> intermediate.",
+                           map = function(v) .xw_cat(v, wave_lookup)),
+        octocoral    = list(enrichment = "octocoral", col = "wave_exposure_preference",
+                           citation = "Gomez-Gras et al. 2024", note = "protected / exposed; 'both' -> intermediate.",
+                           map = function(v) .xw_cat(v, wave_lookup))
+      )
+    ),
+    water_clarity = list(
+      label = "Water clarity preference", kind = "categorical", unit = NA_character_,
+      vocab = c("clear", "turbid", "both"),
+      sources = list(
+        coral_traits = list(enrichment = "coral_traits", col = "water_clarity_preference",
+                           citation = "Coral Trait DB (Madin et al. 2016)", note = "clear / turbid / both.",
+                           map = function(v) .xw_cat(v, clarity_lookup)),
+        octocoral    = list(enrichment = "octocoral", col = "water_clarity_preference",
+                           citation = "Gomez-Gras et al. 2024", note = "clear / turbid / both.",
+                           map = function(v) .xw_cat(v, clarity_lookup))
       )
     ),
     wing_length = list(

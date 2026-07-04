@@ -38,6 +38,13 @@
 * `add_trait("diet_guild")` gains TurtleTraits and Blanchard ant diets, mapped to
   the guild vocabulary by ordered regex (compound "omnivorous to carnivorous"
   resolves to its primary guild; ant "predator" to carnivore).
+* Six more `add_trait()` traits: `reproductive_mode` (oviparous/ovoviviparous/
+  viviparous; ReptTraits plus Sharkipedia, whose shark strategies collapse to
+  viviparous); the coral-habitat traits `coloniality`, `wave_exposure`, and
+  `water_clarity` (Coral Trait DB and octocoral, sharing one vocabulary); and
+  `head_length`/`head_width` (mm; amphibian and beetle morphometrics). The depth
+  traits `depth_min`/`depth_max` gain coral occurrence-depth limits (Coral Trait
+  DB, octocoral) in the same metres unit as the fish sources.
 
 # taxify 0.3.2
 

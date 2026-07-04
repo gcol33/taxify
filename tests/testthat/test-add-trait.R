@@ -197,6 +197,49 @@ test_that("diet_guild widens with chelonians and blanchard via ordered-regex die
                c("omnivore", "carnivore", "herbivore", "omnivore", "carnivore"))
 })
 
+test_that("reproductive_mode collapses shark strategies to a parity scheme", {
+  lt <- list_traits()
+  expect_equal(lt$kind[lt$trait == "reproductive_mode"], "categorical")
+  ti <- suppressMessages(trait_info("reproductive_mode"))
+  expect_setequal(ti$source, c("repttraits", "sharkipedia"))
+  reg <- taxify:::.trait_registry()
+  m <- reg$reproductive_mode$sources$sharkipedia$map
+  expect_equal(m(c("Oviparous", "Matrotrophy", "Aplacental Viviparity",
+                   "ovoviviparous", "Placentotrophy")),
+               c("oviparous", "viviparous", "viviparous",
+                 "ovoviviparous", "viviparous"))
+})
+
+test_that("coral habitat traits share a clean vocabulary", {
+  lt <- list_traits()
+  for (tr in c("coloniality", "wave_exposure", "water_clarity")) {
+    ti <- suppressMessages(trait_info(tr))
+    expect_setequal(ti$source, c("coral_traits", "octocoral"))
+  }
+  reg <- taxify:::.trait_registry()
+  wm <- reg$wave_exposure$sources$coral_traits$map
+  expect_equal(wm(c("protected", "exposed", "broad", "both")),
+               c("protected", "exposed", "intermediate", "intermediate"))
+})
+
+test_that("head_length and head_width are mm morphometrics", {
+  lt <- list_traits()
+  for (tr in c("head_length", "head_width")) {
+    expect_equal(lt$unit[lt$trait == tr], "mm")
+    ti <- suppressMessages(trait_info(tr))
+    expect_setequal(ti$source, c("huang_amph", "saproxylic"))
+  }
+})
+
+test_that("depth_min/depth_max gain coral occurrence-depth sources", {
+  dmin <- suppressMessages(trait_info("depth_min"))
+  dmax <- suppressMessages(trait_info("depth_max"))
+  expect_true(all(c("coral_traits", "octocoral") %in% dmin$source))
+  expect_true(all(c("coral_traits", "octocoral") %in% dmax$source))
+  expect_equal(dmin$column[dmin$source == "coral_traits"], "depth_upper_m")
+  expect_equal(dmax$column[dmax$source == "coral_traits"], "depth_lower_m")
+})
+
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
