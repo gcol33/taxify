@@ -276,6 +276,24 @@
 #   n=2, disjoint taxa, so no clean shared unit. octocoral colony_height /
 #   colony_width -- the column names carry no unit suffix and measure a different
 #   dimension than coral colony_diameter, so combining would be a definitional guess.
+# Fourteenth wave (single-source behavioural categoricals, grounded on vocabulary
+# clarity -- each column's values are a small, clean, self-explaining token set,
+# so no numeric calibration applies; taken verbatim, unmatched -> NA):
+#   - nesting_strategy (NEW): eupolltrait bee excavator / renter / mason (n=1822).
+#   - territoriality (NEW): odonata territorial / non-territorial (n=314).
+#   - mate_guarding (NEW): odonata contact (tandem) / noncontact (sentinel) / none
+#     (n=399).
+#   - flight_mode (NEW): odonata percher (sit-and-wait) / flier (patrolling), n=1067.
+#   SKIPPED this wave: nest_type -- birdbase Nest_Type is uncoded abbreviations
+#   (CP, CV, SP, PL, SC, DM, PN, BU, HC, ...; 170 distinct comma-combinations) with
+#   no legend in the source or taxifydb, so decoding them would be a column-header
+#   guess; bird_nest carries clean neststr_* flags but as one-hot binaries needing a
+#   build-time collapse (and it already has its own add_bird_nest() door). Not
+#   registered: economic_use / useful_plants -- a single-source 0/1 use matrix
+#   (animal_food, human_food, medicines, ...) already fully surfaced by the
+#   add_useful_plants() door; the cross-source trait verb has nothing to harmonize
+#   on one source, so the door is its correct home. odonata habitat_openness left
+#   out as an odonate-jargon habitat descriptor, not a distinct behavioural axis.
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
@@ -1252,6 +1270,42 @@
                            citation = "EuPollTrait (Milicic et al. 2025)", note = "Pollen host breadth: polylectic (many hosts) / oligolectic (few) / monolectic (one).",
                            map = function(v) .xw_cat(v, c(polylectic = "polylectic",
                               oligolectic = "oligolectic", monolectic = "monolectic")))
+      )
+    ),
+    nesting_strategy = list(
+      label = "Nesting strategy (bee)", kind = "categorical", unit = NA_character_,
+      vocab = c("excavator", "renter", "mason"),
+      sources = list(
+        eupolltrait = list(enrichment = "eupolltrait", col = "nesting_behavior",
+                           citation = "EuPollTrait (Milicic et al. 2025)", note = "excavator (digs its own nest) / renter (occupies existing cavities) / mason (builds with collected material).",
+                           map = function(v) .xw_cat(v, c(excavator = "excavator", renter = "renter", mason = "mason")))
+      )
+    ),
+    territoriality = list(
+      label = "Territoriality (odonate)", kind = "categorical", unit = NA_character_,
+      vocab = c("territorial", "non-territorial"),
+      sources = list(
+        odonata = list(enrichment = "odonata", col = "territoriality",
+                       citation = "Odonate Phenotypic Database (Waller et al.)", note = "territorial / non-territorial mating behaviour.",
+                       map = function(v) .xw_cat(v, c(territorial = "territorial", `non-territorial` = "non-territorial")))
+      )
+    ),
+    mate_guarding = list(
+      label = "Mate guarding (odonate)", kind = "categorical", unit = NA_character_,
+      vocab = c("contact", "noncontact", "none"),
+      sources = list(
+        odonata = list(enrichment = "odonata", col = "mate_guarding",
+                       citation = "Odonate Phenotypic Database (Waller et al.)", note = "contact (tandem) / noncontact (sentinel) / none.",
+                       map = function(v) .xw_cat(v, c(contact = "contact", noncontact = "noncontact", none = "none")))
+      )
+    ),
+    flight_mode = list(
+      label = "Flight mode (odonate)", kind = "categorical", unit = NA_character_,
+      vocab = c("percher", "flier"),
+      sources = list(
+        odonata = list(enrichment = "odonata", col = "flight_mode",
+                       citation = "Odonate Phenotypic Database (Waller et al.)", note = "percher (sit-and-wait) / flier (continuous patrolling).",
+                       map = function(v) .xw_cat(v, c(percher = "percher", flier = "flier")))
       )
     ),
     gram_stain = list(
