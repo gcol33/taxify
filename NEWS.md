@@ -52,6 +52,13 @@
   (generations per year; Arthropod Traits + EuPollTrait), `migration` (AVONET),
   `flightless` (BIRDBASE), `venomous` (ReptTraits), and `sociality` (EuPollTrait
   bees). `thermal_max` gains Pottier amphibian CTmax on the same degrees-C scale.
+* Nine more `add_trait()` traits: `wingspan` (mm; LepTraits butterflies, whose
+  source column is labelled mm but is actually cm, corrected on the known
+  wingspans of monarch, cabbage white, and swallowtail); `leaf_length` and
+  `leaf_width` (mm; AusTraits); `fungal_trophic_mode` (FUNGuild and FungalTraits);
+  `feeding_mode` and `mouth_position` (fish; Beukhof, Quimbayo); `air_breathing`
+  (FishBase); `motility` (prokaryote; Madin); and `lecty` (bee pollen host
+  breadth; EuPollTrait).
 
 # taxify 0.3.2
 

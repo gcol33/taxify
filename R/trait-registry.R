@@ -214,6 +214,21 @@
 #     its parts), optimal_growth_temperature (deg C) and genome_size (bp).
 #   - thermal_max widened with pottier heat_tolerance_c (amphibian CTmax/LT50),
 #     same degrees-C upper-thermal-limit concept as GlobTherm on disjoint taxa.
+# Eleventh wave (a focused pass on the remaining borderline high-fill columns):
+#   - wingspan (NEW, mm): leptraits wingspan_mm is MISLABELLED -- its values are
+#     cm, not mm (monarch stored 9.4 vs true ~94 mm wingspan; cabbage white 4.5
+#     vs ~45; swallowtail 7.7 vs ~77; all exactly 1/10), so it is multiplied by
+#     10. A grounding catch: the column header is wrong, the known-species
+#     cross-check fixes the unit.
+#   - leaf_length / leaf_width (NEW, mm): austraits, single-source, verbatim.
+#   - fungal_trophic_mode (NEW): funguild trophic_mode (pathotroph/saprotroph/
+#     symbiotroph, hyphenated multi-mode -> mixed) + fungal_traits primary_lifestyle
+#     mapped to the same three modes (*_saprotroph -> saprotroph, pathogen/parasite
+#     -> pathotroph, mycorrhizal/lichen/endophyte -> symbiotroph).
+#   - feeding_mode (beukhof fish), mouth_position (quimbayo fish), air_breathing
+#     (fishbase; Water/WaterAssumed -> none), motility (madin prokaryote; flagella/
+#     gliding/axial -> motile), lecty (eupolltrait bee pollen host breadth,
+#     polylectic/oligolectic).
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
@@ -489,6 +504,28 @@
     "brood_parasite|inquiline|clepto" = "cleptoparasite",
     "solitary"                        = "solitary")
 
+  # Fungal trophic mode. funguild's compound hyphenated values (a fungus with
+  # several modes) become "mixed"; fungal_traits' primary_lifestyle vocabulary
+  # (wood_saprotroph, plant_pathogen, ectomycorrhizal, ...) maps to the same
+  # three modes by ordered regex.
+  fungtroph_funguild <- function(v) {
+    s <- tolower(trimws(as.character(v)))
+    out <- .xw_cat(s, c(pathotroph = "pathotroph", saprotroph = "saprotroph",
+                        symbiotroph = "symbiotroph"))
+    out[grepl("-", s)] <- "mixed"
+    out
+  }
+  fungtroph_patterns <- c(
+    "pathogen|parasit"                              = "pathotroph",
+    "saprotroph|saprobe|decay|rot"                  = "saprotroph",
+    "mycorrhiz|lichen|symbio|endophyt|epiphyt"      = "symbiotroph")
+
+  # Fish air breathing (fishbase); "Water"/"WaterAssumed" -> none.
+  airbreath_patterns <- c(
+    "facultat" = "facultative",
+    "obligat"  = "obligate",
+    "water|assumed" = "none")
+
   # Leaf lifespan is in months in all three sources: on shared species the
   # austraits / brot / bien medians agree 1:1 (ratio ~1.0), so they are used
   # verbatim. austraits whole-plant lifespan is a text range in years
@@ -560,6 +597,18 @@
         austraits = nsrc("austraits", "leaf_area_mm2", "AusTraits (Falster et al. 2021)", "mm^2."),
         bien      = nsrc("bien", "leaf_area_mm2", "BIEN (Maitner et al. 2018)", "mm^2."),
         brot      = nsrc("brot", "leaf_area_mm2", "BROT 2.0 (Tavsanoglu & Pausas 2018)", "mm^2.")
+      )
+    ),
+    leaf_length = list(
+      label = "Leaf length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "leaf_length_mm", "AusTraits (Falster et al. 2021)", "Leaf length, mm.")
+      )
+    ),
+    leaf_width = list(
+      label = "Leaf width", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "leaf_width_mm", "AusTraits (Falster et al. 2021)", "Leaf width, mm.")
       )
     ),
     leaf_n = list(
@@ -1124,6 +1173,16 @@
                            map = function(v) .xw_grep(v, sociality_patterns))
       )
     ),
+    lecty = list(
+      label = "Pollen host breadth (bee lecty)", kind = "categorical", unit = NA_character_,
+      vocab = c("polylectic", "oligolectic", "monolectic"),
+      sources = list(
+        eupolltrait = list(enrichment = "eupolltrait", col = "larval_diet_breadth",
+                           citation = "EuPollTrait (Milicic et al. 2025)", note = "Pollen host breadth: polylectic (many hosts) / oligolectic (few) / monolectic (one).",
+                           map = function(v) .xw_cat(v, c(polylectic = "polylectic",
+                              oligolectic = "oligolectic", monolectic = "monolectic")))
+      )
+    ),
     gram_stain = list(
       label = "Gram stain (prokaryote)", kind = "categorical", unit = NA_character_,
       vocab = c("positive", "negative"),
@@ -1149,6 +1208,28 @@
         madin = list(enrichment = "madin", col = "cell_shape",
                      citation = "Madin et al. 2020 (prokaryote traits)", note = "bacillus (rod) / coccus / coccobacillus / spiral / vibrio / filament.",
                      map = function(v) .xw_grep(v, cellshape_patterns))
+      )
+    ),
+    motility = list(
+      label = "Motility (prokaryote)", kind = "categorical", unit = NA_character_,
+      vocab = c("motile", "non-motile"),
+      sources = list(
+        madin = list(enrichment = "madin", col = "motility",
+                     citation = "Madin et al. 2020 (prokaryote traits)", note = "flagella / gliding / axial filament -> motile; 'no' -> non-motile.",
+                     map = function(v) .xw_cat(v, c(no = "non-motile", yes = "motile",
+                        flagella = "motile", gliding = "motile", `axial filament` = "motile")))
+      )
+    ),
+    fungal_trophic_mode = list(
+      label = "Fungal trophic mode", kind = "categorical", unit = NA_character_,
+      vocab = c("pathotroph", "saprotroph", "symbiotroph", "mixed"),
+      sources = list(
+        funguild      = list(enrichment = "funguild", col = "trophic_mode",
+                          citation = "FUNGuild (Nguyen et al. 2016)", note = "pathotroph / saprotroph / symbiotroph; hyphenated multi-mode entries -> mixed.",
+                          map = fungtroph_funguild),
+        fungal_traits = list(enrichment = "fungal_traits", col = "primary_lifestyle",
+                          citation = "FungalTraits (Polme et al. 2020)", note = "Primary lifestyle mapped to trophic mode: *_saprotroph -> saprotroph, pathogen/parasite -> pathotroph, mycorrhizal/lichen/endophyte -> symbiotroph.",
+                          map = function(v) .xw_grep(v, fungtroph_patterns))
       )
     ),
 
@@ -1375,6 +1456,37 @@
                         map = function(v) .xw_grep(v, fin_patterns))
       )
     ),
+    feeding_mode = list(
+      label = "Feeding mode (fish)", kind = "categorical", unit = NA_character_,
+      vocab = c("generalist", "benthivorous", "planktivorous", "piscivorous", "herbivorous"),
+      sources = list(
+        beukhof = list(enrichment = "beukhof", col = "feeding_mode",
+                       citation = "Beukhof et al. 2019", note = "Fish feeding mode.",
+                       map = function(v) .xw_cat(v, c(generalist = "generalist",
+                          benthivorous = "benthivorous", planktivorous = "planktivorous",
+                          piscivorous = "piscivorous", herbivorous = "herbivorous")))
+      )
+    ),
+    mouth_position = list(
+      label = "Mouth position (fish)", kind = "categorical", unit = NA_character_,
+      vocab = c("terminal", "subterminal", "superior", "inferior", "tubular", "elongated"),
+      sources = list(
+        quimbayo = list(enrichment = "quimbayo", col = "mouth_position",
+                        citation = "Quimbayo et al. 2021", note = "Fish mouth position.",
+                        map = function(v) .xw_cat(v, c(terminal = "terminal",
+                           subterminal = "subterminal", superior = "superior",
+                           inferior = "inferior", tubular = "tubular", elongated = "elongated")))
+      )
+    ),
+    air_breathing = list(
+      label = "Air breathing (fish)", kind = "categorical", unit = NA_character_,
+      vocab = c("none", "facultative", "obligate"),
+      sources = list(
+        fishbase = list(enrichment = "fishbase", col = "airbreathing",
+                        citation = "FishBase (Froese & Pauly)", note = "Water/WaterAssumed -> none; facultative and obligate (incl. genus-inferred) kept.",
+                        map = function(v) .xw_grep(v, airbreath_patterns))
+      )
+    ),
     sexual_system = list(
       label = "Sexual system", kind = "categorical", unit = NA_character_,
       vocab = c("hermaphrodite", "gonochoric", "dioecious", "monoecious", "parthenogenetic"),
@@ -1497,6 +1609,12 @@
       sources = list(
         avonet     = nsrc("avonet", "wing_length", "AVONET (Tobias et al. 2022)", "Bird wing length, mm."),
         saproxylic = nsrc("saproxylic", "wing_length_mm", "Saproxylic beetle traits", "Beetle wing length, mm.")
+      )
+    ),
+    wingspan = list(
+      label = "Wingspan (butterfly)", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        leptraits = nsrc("leptraits", "wingspan_mm", "LepTraits (Shirey et al. 2022)", "Butterfly wingspan. The source column is labelled _mm but its values are cm (monarch 9.4, cabbage white 4.5, verified against known wingspans), so multiplied by 10 to mm.", map = cm2mm)
       )
     ),
     beak_length = list(

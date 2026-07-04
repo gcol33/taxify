@@ -284,6 +284,43 @@ test_that("thermal_max gains the pottier amphibian source", {
   expect_equal(ti$column[ti$source == "pottier"], "heat_tolerance_c")
 })
 
+test_that("wingspan corrects the mislabelled leptraits cm column to mm", {
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "wingspan"], "mm")
+  ti <- suppressMessages(trait_info("wingspan"))
+  expect_equal(ti$source, "leptraits")
+  expect_match(ti$note, "values are cm")           # documents the x10 fix
+  reg <- taxify:::.trait_registry()
+  m <- reg$wingspan$sources$leptraits$map
+  expect_equal(m(c("9.4", "4.5")), c(94, 45))       # cm -> mm
+})
+
+test_that("fungal_trophic_mode coalesces FUNGuild and FungalTraits", {
+  ti <- suppressMessages(trait_info("fungal_trophic_mode"))
+  expect_setequal(ti$source, c("funguild", "fungal_traits"))
+  reg <- taxify:::.trait_registry()
+  fg <- reg$fungal_trophic_mode$sources$funguild$map
+  expect_equal(fg(c("Pathotroph", "Saprotroph", "Symbiotroph", "Pathotroph-Saprotroph")),
+               c("pathotroph", "saprotroph", "symbiotroph", "mixed"))
+  ft <- reg$fungal_trophic_mode$sources$fungal_traits$map
+  expect_equal(ft(c("wood_saprotroph", "plant_pathogen", "ectomycorrhizal")),
+               c("saprotroph", "pathotroph", "symbiotroph"))
+})
+
+test_that("leaf dimensions, fish, prokaryote and bee traits are registered", {
+  lt <- list_traits()
+  for (tr in c("leaf_length", "leaf_width")) expect_equal(lt$unit[lt$trait == tr], "mm")
+  expect_equal(suppressMessages(trait_info("feeding_mode"))$source, "beukhof")
+  expect_equal(suppressMessages(trait_info("mouth_position"))$source, "quimbayo")
+  expect_equal(suppressMessages(trait_info("air_breathing"))$source, "fishbase")
+  expect_equal(suppressMessages(trait_info("motility"))$source, "madin")
+  expect_equal(suppressMessages(trait_info("lecty"))$source, "eupolltrait")
+  reg <- taxify:::.trait_registry()
+  ab <- reg$air_breathing$sources$fishbase$map
+  expect_equal(ab(c("WaterAssumed", "Facultative", "Obligate", "FacultativeObligate")),
+               c("none", "facultative", "obligate", "facultative"))
+})
+
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
