@@ -10,6 +10,23 @@
 * `add_trait("ellenberg_salt")` gains Baseflor as a third source: its salinity
   column is on the same 0-9 Ellenberg scale as FloraWeb and Ecoflora (Pearson
   r = 0.88 on shared species), so it joins them without rescaling.
+* New `add_trait()` traits `egg_length` and `egg_width` (mm) gather reptile,
+  bird, and turtle egg dimensions from the Amniote database, ReptTraits, and
+  TurtleTraits, which agree to within measurement noise on shared species.
+* New `add_trait("brain_mass")` (g) coalesces COMBINE with AnimalTraits (kg
+  converted to grams), calibrated 1:1 on shared species.
+* Wider taxonomic coverage for several life-history traits, each source
+  shared-species calibrated before it was added: `reproductive_frequency` now
+  spans mammals through reptiles and turtles (AnAge, PanTHERIA, ReptTraits,
+  TurtleTraits added); `clutch_litter_size` gains turtles (TurtleTraits) and
+  birds (Birdbase); `age_at_maturity` gains turtles and fish (TurtleTraits,
+  Beukhof); and `longevity` gains fish (Beukhof, whose ~390 yr maximum is the
+  Greenland shark).
+* `add_trait("pollination_vector")` gains FloraWeb and AusTraits, which agree
+  82-91% with the existing Baseflor and Ecoflora sources on shared species. Named
+  insect taxa (bee, beetle, fly, ...) resolve to `insect`; AusTraits' coarse
+  `biotic`/`abiotic` and animal (bird, bat) records have no single vector in this
+  vocabulary and stay `NA` rather than being guessed.
 
 # taxify 0.3.2
 

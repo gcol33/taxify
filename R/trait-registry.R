@@ -120,8 +120,45 @@
 #     on 2369 shared species), so it joins floraweb + ecoflora directly. This is
 #     the clean piece salvaged from the incompatible standalone salinity trait
 #     below.
+# Seventh wave (vertebrate life-history + egg morphology; every source below
+# was shared-species calibrated against an already-registered reference, ratio
+# in parentheses, so the widenings carry no new unit conversion):
+#   - egg_length / egg_width (NEW, mm): amniote + repttraits + chelonians agree
+#     1.00 pairwise (shared 6-87 species), so reptile/bird/turtle egg dimensions
+#     join as one trait alongside the existing egg_mass.
+#   - brain_mass (NEW, g): COMBINE grams + AnimalTraits kg (x1000); the x1000
+#     lands ratio 1.00 vs COMBINE on 522 shared species.
+#   - reproductive_frequency widened 2 -> 6: anage / pantheria / repttraits all
+#     ratio 1.00 vs the existing amniote/combine; chelonians (turtles) runs 0.6x
+#     on a thin overlap but is the same per-year count unit, so median coalesce
+#     absorbs it rather than dropping a source.
+#   - clutch_litter_size gains chelonians (ratio 1.00) and birdbase (mean of the
+#     reported clutch min/max, ratio 1.00 on 6781 shared species; the mean is a
+#     build-time column in taxifydb's parse_birdbase). lizard_traits was NOT
+#     added: it is the same Oskyrko source as repttraits, already registered, so
+#     it would double-count.
+#   - age_at_maturity gains chelonians (ratio 1.00) and beukhof fish (ratio 1.00
+#     on 198 shared species; the calibration confirms the unit is years and
+#     resolves the earlier "156 yr looks wrong" flag -- the tail is five deep-sea
+#     per-species outliers, not a unit error). longevity gains beukhof age_max
+#     (ratio 1.00; the ~390 yr maximum is the Greenland shark, genuine).
+#   - pollination_vector widened with floraweb (German BiolFlor compound vectors
+#     at their primary token, 100% mapped, 82-91% agreement with the registered
+#     baseflor/ecoflora on shared species -- on par with their 89% mutual
+#     agreement) and austraits (named insect taxa -> insect). poll_patterns
+#     gained the insect-taxon tokens (bee/beetle/fly/moth/...) so austraits'
+#     specific insects resolve; its coarse "biotic"/"abiotic" and animal
+#     (bird/bat/vertebrate) records stay NA rather than being guessed into a
+#     vector. GIFT and BIEN are NOT sources here: they carry only biotic/abiotic,
+#     a coarser granularity, and "biotic" is not "insect" (a hummingbird-
+#     pollinated plant is biotic), so folding them in would assert a false vector.
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
+#   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
+#     "n"/"2"/"2, n" (ambiguous), austraits is almost entirely "2", and
+#     tree_of_sex is a *predicted* (modeled) ploidy with junk multi-digit codes
+#     (23, 234, 12.5). No groundable common scale, so ploidy stays unregistered
+#     (FloraWeb's chromosome/ploidy columns are empty, as noted above).
 #   - salinity (as a marine/tolerance trait): coral/octocoral seawater ppt ~32-35
 #     (n=2-3), pottier 0-4 tolerance index, and madin halophily categories are not
 #     one quantity. Baseflor's 0-9 soil indicator is handled above by feeding
@@ -203,7 +240,7 @@
     "unspecialized|undefined"              = "unspecialized")
 
   poll_patterns <- c(
-    "insekt|insect"                          = "insect",
+    "insekt|insect|bee|beetle|fly|flies|butterfly|moth|wasp|thrip|hymenopt|lepidopt|dipter|coleopt|hoverfly|midge" = "insect",
     "wind"                                   = "wind",
     "wasser|water"                           = "water",
     "selbst|selfed|self|kleistogam|geitonogam" = "self",
@@ -462,7 +499,8 @@
         pantheria  = nsrc("pantheria", "longevity_mo", "PanTHERIA (Jones et al. 2009)", "Months converted to years (/12).", map = function(v) suppressWarnings(as.numeric(v)) / 12),
         repttraits = nsrc("repttraits", "longevity_yr", "ReptTraits (Oskyrko et al. 2024)", "Years."),
         chelonians = nsrc("chelonians", "max_lifespan_y", "TurtleTraits (Chelonians)", "Years."),
-        amphibio   = nsrc("amphibio", "longevity_yr", "AmphiBIO (Oliveira et al. 2017)", "Maximum longevity, years.")
+        amphibio   = nsrc("amphibio", "longevity_yr", "AmphiBIO (Oliveira et al. 2017)", "Maximum longevity, years."),
+        beukhof    = nsrc("beukhof", "age_max", "Beukhof et al. 2019", "Maximum observed age, years (ratio 1.00 vs anage on shared species; the ~390 yr maximum is the Greenland shark, not a unit error).")
       )
     ),
     trophic_level = list(
@@ -485,15 +523,19 @@
         pantheria  = nsrc("pantheria", "litter_size", "PanTHERIA (Jones et al. 2009)", "Offspring per litter."),
         anage      = nsrc("anage", "litter_size", "AnAge (Tacutu et al. 2018)", "Offspring per clutch/litter; egg-layers reach the hundreds to millions."),
         repttraits = nsrc("repttraits", "clutch_size", "ReptTraits (Oskyrko et al. 2024)", "Eggs per clutch."),
-        amphibio   = nsrc("amphibio", "litter_size", "AmphiBIO (Oliveira et al. 2017)", "Eggs per clutch (amphibian clutches reach the thousands).")
+        amphibio   = nsrc("amphibio", "litter_size", "AmphiBIO (Oliveira et al. 2017)", "Eggs per clutch (amphibian clutches reach the thousands)."),
+        chelonians = nsrc("chelonians", "clutch_size_mean", "TurtleTraits (Chelonians)", "Mean eggs per clutch (ratio 1.00 vs amniote on shared species)."),
+        birdbase   = nsrc("birdbase", "clutch_mean", "Birdbase", "Mean of the reported clutch min/max (ratio 1.00 vs amniote on 6781 shared species).")
       )
     ),
     age_at_maturity = list(
       label = "Age at female maturity", kind = "numeric", unit = "yr", vocab = NULL,
       sources = list(
-        anage    = nsrc("anage", "female_maturity_d", "AnAge (Tacutu et al. 2018)", "Days converted to years (/365.25).", map = d2y),
-        amniote  = nsrc("amniote", "female_maturity_d", "Amniote LHD (Myhrvold et al. 2015)", "Days converted to years (/365.25); negative sentinels dropped.", map = d2y),
-        amphibio = nsrc("amphibio", "age_maturity_y", "AmphiBIO (Oliveira et al. 2017)", "Years.")
+        anage      = nsrc("anage", "female_maturity_d", "AnAge (Tacutu et al. 2018)", "Days converted to years (/365.25).", map = d2y),
+        amniote    = nsrc("amniote", "female_maturity_d", "Amniote LHD (Myhrvold et al. 2015)", "Days converted to years (/365.25); negative sentinels dropped.", map = d2y),
+        amphibio   = nsrc("amphibio", "age_maturity_y", "AmphiBIO (Oliveira et al. 2017)", "Years."),
+        chelonians = nsrc("chelonians", "age_maturity_y", "TurtleTraits (Chelonians)", "Years (ratio 1.00 vs anage on shared species)."),
+        beukhof    = nsrc("beukhof", "age_maturity", "Beukhof et al. 2019", "Age at maturity, years (ratio 1.00 vs anage on 198 shared species; a handful of deep-sea species exceed 50 yr).")
       )
     ),
     gestation_incubation = list(
@@ -525,11 +567,22 @@
         animaltraits = nsrc("animaltraits", "metabolic_rate_w", "AnimalTraits (Herberstein et al. 2022)", "Watts.")
       )
     ),
+    brain_mass = list(
+      label = "Brain mass", kind = "numeric", unit = "g", vocab = NULL,
+      sources = list(
+        combine      = nsrc("combine", "adult_brain_mass_g", "COMBINE (Soria et al. 2021)", "Adult brain mass, grams."),
+        animaltraits = nsrc("animaltraits", "brain_size", "AnimalTraits (Herberstein et al. 2022)", "kg converted to grams (x1000; ratio 1.00 vs COMBINE on 522 shared species).", map = numk)
+      )
+    ),
     reproductive_frequency = list(
       label = "Litters or clutches per year", kind = "numeric", unit = "per year", vocab = NULL,
       sources = list(
-        amniote = nsrc("amniote", "clutches_per_y", "Amniote LHD (Myhrvold et al. 2015)", "Clutches or litters per year.", map = num_pos),
-        combine = nsrc("combine", "litters_per_year_n", "COMBINE (Soria et al. 2021)", "Litters per year.")
+        amniote    = nsrc("amniote", "clutches_per_y", "Amniote LHD (Myhrvold et al. 2015)", "Clutches or litters per year.", map = num_pos),
+        combine    = nsrc("combine", "litters_per_year_n", "COMBINE (Soria et al. 2021)", "Litters per year."),
+        anage      = nsrc("anage", "litters_clutches_per_year", "AnAge (Tacutu et al. 2018)", "Litters or clutches per year (ratio 1.00 vs combine on shared species)."),
+        pantheria  = nsrc("pantheria", "x16_1_littersperyear", "PanTHERIA (Jones et al. 2009)", "Litters per year (ratio 1.00 vs combine on shared species)."),
+        repttraits = nsrc("repttraits", "number_of_litters_or_clutches_produced_per_year", "ReptTraits (Oskyrko et al. 2024)", "Clutches per year (ratio 1.00 vs amniote on shared species)."),
+        chelonians = nsrc("chelonians", "clutches_per_year", "TurtleTraits (Chelonians)", "Clutches per year; turtle counts run ~0.6x amniote on the thin shared overlap, same unit, coalesced by median.")
       )
     ),
     neonate_mass = list(
@@ -545,6 +598,22 @@
       label = "Egg mass", kind = "numeric", unit = "g", vocab = NULL,
       sources = list(
         amniote = nsrc("amniote", "egg_mass_g", "Amniote LHD (Myhrvold et al. 2015)", "Egg mass, grams.")
+      )
+    ),
+    egg_length = list(
+      label = "Egg length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        amniote    = nsrc("amniote", "egg_length_mm", "Amniote LHD (Myhrvold et al. 2015)", "Egg length, mm."),
+        repttraits = nsrc("repttraits", "egg_length_mm", "ReptTraits (Oskyrko et al. 2024)", "Egg length, mm (ratio 1.00 vs amniote on shared species)."),
+        chelonians = nsrc("chelonians", "egg_size_length_mm", "TurtleTraits (Chelonians)", "Egg length, mm (ratio 1.00 vs amniote and repttraits on shared species).")
+      )
+    ),
+    egg_width = list(
+      label = "Egg width", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        amniote    = nsrc("amniote", "egg_width_mm", "Amniote LHD (Myhrvold et al. 2015)", "Egg width, mm."),
+        repttraits = nsrc("repttraits", "egg_width_mm", "ReptTraits (Oskyrko et al. 2024)", "Egg width, mm (ratio 1.00 vs amniote on shared species)."),
+        chelonians = nsrc("chelonians", "egg_size_width_mm", "TurtleTraits (Chelonians)", "Egg width, mm (ratio 1.00 vs amniote on shared species).")
       )
     ),
 
@@ -767,7 +836,13 @@
                         map = function(v) .xw_grep(v, poll_patterns)),
         ecoflora = list(enrichment = "ecoflora", col = "pollination_vector_uk",
                         citation = "Ecoflora (Fitter & Peat 1994)", note = "Primary pollination vector; 'none' -> NA.",
-                        map = function(v) .xw_grep(v, poll_patterns))
+                        map = function(v) .xw_grep(v, poll_patterns)),
+        floraweb = list(enrichment = "floraweb", col = "pollination_vector_de",
+                        citation = "FloraWeb / BiolFlor (Klotz et al. 2002)", note = "German compound vector taken at its primary token (agrees 82-91% with baseflor/ecoflora on shared species).",
+                        map = function(v) .xw_grep(v, poll_patterns)),
+        austraits = list(enrichment = "austraits", col = "pollination_syndrome",
+                         citation = "AusTraits (Falster et al. 2021)", note = "Named insect taxa (bee, beetle, fly, moth, ...) map to insect; the coarse 'biotic'/'abiotic' and animal (bird, bat, vertebrate) records have no single vector in this vocabulary and stay NA.",
+                         map = function(v) .xw_grep(v, poll_patterns))
       )
     ),
     life_history = list(

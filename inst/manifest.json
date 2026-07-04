@@ -4549,6 +4549,7 @@
         "specialization_esi",
         "clutch_min",
         "clutch_max",
+        "clutch_mean",
         "nest_type",
         "flightlessness",
         "ioc_15_1",

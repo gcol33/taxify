@@ -72,6 +72,67 @@ test_that("ellenberg_salt carries Baseflor on the same 0-9 scale", {
   expect_equal(ti$column[ti$source == "baseflor"], "salinity")
 })
 
+test_that("egg_length and egg_width are registered in mm across three sources", {
+  lt <- list_traits()
+  for (tr in c("egg_length", "egg_width")) {
+    expect_true(tr %in% lt$trait)
+    expect_equal(lt$kind[lt$trait == tr], "numeric")
+    expect_equal(lt$unit[lt$trait == tr], "mm")
+    ti <- suppressMessages(trait_info(tr))
+    expect_setequal(ti$source, c("amniote", "repttraits", "chelonians"))
+  }
+  # column names differ between the reptile sources and the turtle source
+  til <- suppressMessages(trait_info("egg_length"))
+  expect_equal(til$column[til$source == "chelonians"], "egg_size_length_mm")
+})
+
+test_that("brain_mass coalesces COMBINE grams with AnimalTraits kg (x1000)", {
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "brain_mass"], "g")
+  ti <- suppressMessages(trait_info("brain_mass"))
+  expect_setequal(ti$source, c("combine", "animaltraits"))
+  expect_equal(ti$column[ti$source == "animaltraits"], "brain_size")
+  expect_true(any(grepl("x1000", ti$note)))       # kg -> g conversion noted
+})
+
+test_that("reptile/fish life-history sources widen the maturity traits", {
+  # age_at_maturity gains turtles (chelonians) and fish (beukhof)
+  am <- suppressMessages(trait_info("age_at_maturity"))
+  expect_true(all(c("chelonians", "beukhof") %in% am$source))
+  # longevity gains beukhof fish ages
+  lg <- suppressMessages(trait_info("longevity"))
+  expect_true("beukhof" %in% lg$source)
+  # reproductive_frequency widened from 2 to 6 sources, same per-year unit
+  rf <- suppressMessages(trait_info("reproductive_frequency"))
+  expect_setequal(rf$source,
+                  c("amniote", "combine", "anage", "pantheria",
+                    "repttraits", "chelonians"))
+  expect_equal(list_traits()$unit[list_traits()$trait == "reproductive_frequency"],
+               "per year")
+})
+
+test_that("clutch_litter_size gains turtles and birds without double-counting", {
+  ti <- suppressMessages(trait_info("clutch_litter_size"))
+  expect_true(all(c("chelonians", "birdbase") %in% ti$source))
+  # lizard_traits is the same underlying source as repttraits (already present),
+  # so it must NOT be added as a duplicate
+  expect_false("lizard_traits" %in% ti$source)
+  expect_equal(ti$column[ti$source == "birdbase"], "clutch_mean")
+})
+
+test_that("pollination_vector widens with floraweb and austraits, not gift/bien", {
+  ti <- suppressMessages(trait_info("pollination_vector"))
+  expect_true(all(c("floraweb", "austraits") %in% ti$source))
+  # GIFT/BIEN carry only coarse biotic/abiotic and must be excluded
+  expect_false(any(c("gift", "bien") %in% ti$source))
+  expect_setequal(ti$source, c("baseflor", "ecoflora", "floraweb", "austraits"))
+  # the shared regex vocabulary now recognises named insect taxa
+  reg <- taxify:::.trait_registry()
+  m <- reg$pollination_vector$sources$austraits$map
+  expect_equal(m(c("bee", "beetle", "fly", "wind", "abiotic", "bird")),
+               c("insect", "insect", "insect", "wind", NA, NA))
+})
+
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
