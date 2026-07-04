@@ -2,13 +2,16 @@
 #'
 #' Joins species-level root traits from the Global Root Traits (GRooT) database
 #' to a [taxify()] result by looking up `accepted_name`. GRooT aggregates root
-#' trait records to per-species means; this layer carries the nine
-#' best-populated key traits.
+#' trait records to per-species means. The `.vtr` carries the full GRooT trait
+#' set (38 root traits); the default attaches the nine best-populated key traits,
+#' and `cols = "all"` attaches every one. Run `enrichment_cols("groot")` to list
+#' them.
 #'
 #' @param x A data.frame returned by [taxify()].
-#' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
+#' @param cols Which columns to attach: \code{NULL} (default) the nine key traits below, \code{"all"} every GRooT trait, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with additional columns (per-species means):
+#' @return The same data.frame with additional columns (per-species means). The
+#'   default set:
 #' \describe{
 #'   \item{root_diameter}{Mean root diameter.}
 #'   \item{specific_root_length}{Specific root length.}
@@ -21,7 +24,12 @@
 #'     intensity.}
 #'   \item{rooting_depth}{Maximum rooting depth.}
 #' }
-#' Units follow the GRooT data paper; see the reference below.
+#' `cols = "all"` additionally attaches root chemistry (P/K/Ca/Mg/Mn
+#' concentrations, C:N and N:P ratios), architecture (branching density and
+#' ratio, stele diameter and fraction, cortex thickness, vessel diameter and
+#' number), turnover (root lifespan, production, turnover rate, litter mass-loss
+#' rate), and specific root area, respiration, and dry-matter content, among
+#' others. Units follow the GRooT data paper; see the reference below.
 #'
 #' @details
 #' Source: GRooT database (Guerrero-Ramirez et al. 2021). Vascular plants.
