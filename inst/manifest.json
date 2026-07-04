@@ -1222,6 +1222,7 @@
         "foraging_aerial",
         "body_mass_g",
         "nocturnal",
+        "diet_guild",
         "specid",
         "passnonpass",
         "iocorder",

@@ -26,6 +26,11 @@
 #'   \item{foraging_aerial}{Percentage of foraging: aerial.}
 #'   \item{elton_body_mass_g}{Body mass in grams.}
 #'   \item{nocturnal}{Nocturnal activity (0 = diurnal, 1 = nocturnal).}
+#'   \item{diet_guild}{Dominant diet guild derived from the ten diet-fraction
+#'     columns (fractions summed within guild, the guild reaching 50 percent
+#'     wins, otherwise omnivore): carnivore, herbivore, omnivore, invertivore,
+#'     frugivore, granivore, nectarivore, scavenger. Also reachable across
+#'     sources via \code{add_trait(x, "diet_guild")}.}
 #' }
 #'
 #' @details
@@ -65,12 +70,14 @@ add_elton_traits <- function(x, cols = NULL, verbose = TRUE) {
     foraging_canopy    = "foraging_canopy",
     foraging_aerial    = "foraging_aerial",
     elton_body_mass_g  = "body_mass_g",
-    nocturnal          = "nocturnal"
+    nocturnal          = "nocturnal",
+    diet_guild         = "diet_guild"
   )
   na_types <- stats::setNames(
     rep(list(NA_real_), length(col_map)),
     names(col_map)
   )
+  na_types$diet_guild <- NA_character_
   enrich_simple(
     x,
     enrichment_name = "elton_traits",

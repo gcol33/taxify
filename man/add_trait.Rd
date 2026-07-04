@@ -8,7 +8,7 @@ add_trait(
   x,
   trait,
   sources = "all",
-  mode = c("wide", "coalesce"),
+  mode = c("coalesce", "wide"),
   combine = NULL,
   priority = NULL,
   verbose = TRUE
@@ -24,37 +24,47 @@ available traits and \code{\link[=trait_info]{trait_info()}} for a trait's sourc
 for every source registered for the trait, or a character vector of source
 names (see \code{\link[=trait_info]{trait_info()}}).}
 
-\item{mode}{One of \code{"wide"} (default) or \code{"coalesce"}. \code{"wide"} attaches one
-harmonized column per source. \code{"coalesce"} reduces the sources to one value
-per row (see \code{combine}).}
+\item{mode}{One of \code{"coalesce"} (default) or \code{"wide"}. \code{"coalesce"} reduces
+the sources to one value per row (see \code{combine}). \code{"wide"} attaches one
+harmonized column per source.}
 
 \item{combine}{How \code{mode = "coalesce"} reduces the per-source values for a
-row. \code{NULL} (default) picks \code{"median"} for numeric traits and \code{"first"} for
-categorical traits. Numeric options: \code{"median"}, \code{"mean"}, \code{"first"}
-(highest-priority source that has a value), \code{"min"}, \code{"max"}. Categorical
-options: \code{"first"} or \code{"vote"} (majority across sources, ties broken by
-priority). Median is the numeric default because trait values are skewed and
-sources differ in definition, so a single outlier or mislabeled source
-should not decide the value.}
+row. \code{NULL} (default) is method-aware: when the trait's sources agree in
+method it uses \code{"median"} for numeric traits and \code{"first"} for categorical
+traits; when sources measure the trait differently (a source carries a
+caution, e.g. maximum vs fine-root diameter) it uses \code{"complete"} instead of
+blending them. Numeric options: \code{"median"}, \code{"mean"}, \code{"first"}
+(highest-priority source that has a value), \code{"min"}, \code{"max"}, \code{"complete"}
+(the single most populated source, reported verbatim). Categorical options:
+\code{"first"}, \code{"vote"} (majority across sources, ties broken by priority), or
+\code{"complete"}. Median is the numeric default for concordant sources because
+trait values are skewed, so a single outlier should not decide the value;
+\code{"complete"} is the default for discordant sources because a median across
+methods matches no method. Passing \code{combine} explicitly overrides this and
+is applied to all sources.}
 
 \item{priority}{Character vector of source names giving the priority order
-(highest priority first), used by \code{combine = "first"} and for tie-breaking
-\code{combine = "vote"}. Only used when \code{mode = "coalesce"}; defaults to the
-registered order for the trait (see \code{\link[=trait_info]{trait_info()}}).}
+(highest priority first), used by \code{combine = "first"}, for tie-breaking
+\code{combine = "vote"}, and to break ties in \code{combine = "complete"}. Only used
+when \code{mode = "coalesce"}; defaults to the registered order for the trait
+(see \code{\link[=trait_info]{trait_info()}}).}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
 The same data.frame with added columns.
 \describe{
+\item{\code{mode = "coalesce"}}{\verb{<trait>} (the reduced value); \verb{<trait>_unit}
+(the canonical unit, numeric traits only); \verb{<trait>_sources} (the source
+it came from, or the comma-separated contributing sources with an
+aggregating \code{combine}); \verb{<trait>_n} (how many sources backed the value);
+and, only when a source measured the trait differently,
+\verb{<trait>_caution} explaining the method difference. To inspect every
+source, use \code{mode = "wide"}.}
 \item{\code{mode = "wide"}}{One column per source, \verb{<trait>_<source>}, each
 harmonized to the trait's shared vocabulary (categorical) or unit
-(numeric).}
-\item{\code{mode = "coalesce"}}{Three columns: \verb{<trait>} (the reduced value),
-\verb{<trait>_source} (the source it came from with \code{combine = "first"}, or
-the comma-separated contributing sources with an aggregating
-\code{combine}), and \verb{<trait>_n} (how many sources had any value for that
-row). To inspect conflicts between sources, use \code{mode = "wide"}.}
+(numeric); \verb{<trait>_unit}; and \verb{<trait>_caution} on rows where a
+cautioned source supplied a value.}
 }
 Numeric traits are returned in the trait's canonical unit (see
 \code{\link[=trait_info]{trait_info()}}); rows absent from a source get \code{NA}.
@@ -67,16 +77,26 @@ reconciling their differing vocabularies and units. Where the per-source
 verb: you name the trait, it gathers the sources.
 }
 \details{
-Each source keeps its provenance. In the default \code{"wide"} mode every source
-becomes its own column (\verb{<trait>_<source>}), so agreement and conflict stay
-visible; sources are never silently collapsed. The opt-in \code{"coalesce"} mode
-adds a single best-available value together with the source that supplied it.
+Each source keeps its provenance. The default \code{"coalesce"} mode reduces the
+sources to one value per row plus the columns that document it -- its unit,
+the sources that contributed, how many, and a caution when the sources
+measure the trait by different methods. The opt-in \code{"wide"} mode instead
+gives every source its own column (\verb{<trait>_<source>}), so per-source
+agreement and conflict stay fully visible.
 
 Harmonization is per source: a categorical source is mapped to the trait's
 shared vocabulary, and a numeric source is converted to the trait's canonical
 unit. For example, GIFT seed mass (grams) and Diaz et al. seed mass
 (milligrams) both arrive as milligrams. The mappings and units for a trait
 are listed by \code{\link[=trait_info]{trait_info()}}.
+
+Some sources report the same trait in the right unit but under a different
+definition (for example AusTraits root diameter is a maximum including coarse
+roots, while GRooT is fine-root only). Such a source carries a caution in the
+registry. In \code{mode = "coalesce"} with the default \code{combine}, a trait whose
+sources disagree in method is not blended: the most complete source is
+reported and \verb{<trait>_caution} records the difference. \code{\link[=trait_info]{trait_info()}} lists
+each source's harmonization note and caution.
 
 A source enrichment that is not installed and cannot be downloaded or built
 is skipped with a warning, and the trait is assembled from the sources that
@@ -86,13 +106,13 @@ are available.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-# One column per source, harmonized:
+# One coalesced value plus its provenance (unit, sources, count):
 taxify("Abies alba") |>
-  add_trait("woodiness")
+  add_trait("seed_mass")
 
-# Numeric trait, coalesced to one value plus its provenance:
+# One column per source, to inspect agreement and conflict:
 taxify("Abies alba") |>
-  add_trait("seed_mass", mode = "coalesce")
+  add_trait("woodiness", mode = "wide")
 
 options(old)
 

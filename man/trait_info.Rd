@@ -11,8 +11,10 @@ trait_info(trait)
 }
 \value{
 A data.frame (invisibly-friendly) with columns \code{source},
-\code{enrichment}, \code{column}, \code{citation}, \code{note}. The header line (label, kind,
-unit, default priority, vocabulary) is printed as a message.
+\code{enrichment}, \code{column}, \code{citation}, \code{note} (unit or vocabulary
+harmonization), and \code{caution} (a method or definition difference from the
+reference source, or \code{NA}). The header line (label, kind, unit, default
+priority, vocabulary) is printed as a message.
 }
 \description{
 Prints the kind, canonical unit, and (for categorical traits) the shared

@@ -76,34 +76,60 @@
 #   - GRooT root traits: specific_root_length (m/g) and root_mass_fraction (g/g)
 #     coalesce GRooT with AusTraits cleanly (shared-species ratios 1.12 and 0.97).
 #     root_dry_matter_content coalesces too once AusTraits mg/g is divided by 1000
-#     (199 -> 0.199 g/g matches GRooT 0.227). root_diameter (mm), root_tissue_density
-#     (g/cm^3), root_n_concentration (mg/g), rooting_depth (m) and
-#     root_mycorrhizal_colonization (%) stay GRooT-only: AusTraits root_diameter
-#     mixes coarse roots (shared ratio 0.30, max 25 mm), AusTraits root_n overlaps
-#     on only 2 species, and BROT rootdepth diverges 2x from GRooT on shared species
-#     (a different depth definition, not a unit factor).
+#     (199 -> 0.199 g/g matches GRooT 0.227). root_tissue_density (g/cm^3),
+#     root_mycorrhizal_colonization (%) and specific_root_area (cm^2/g) stay
+#     GRooT-only (no clean second source; see the SRA note below).
 #   - age_at_first_reproduction: COMBINE days -> years; distinct from age_at_maturity
 #     (first reproduction runs ~1.2x later than female sexual maturity on shared
 #     species), so it is its own trait, not a source for the maturity trait.
-# Still skipped -- the crosswalk would genuinely be a guess (confirmed on the
-# .vtr values, not just asserted):
-#   - specific_root_area: GRooT's own column is internally mixed-unit -- its
-#     overall median is ~350 but the 17 species it shares with AusTraits sit at
-#     0.1-0.5 (a ~1000x within-source gap), so even single-source GRooT SRA is
-#     untrustworthy. AusTraits root_specific_root_area alone is clean but has no
-#     second source to anchor its unit; left out of the registry.
-#   - root_n_concentration stays GRooT-only (fine-root, mg/g): AusTraits
-#     root_n_per_dry_mass is documented mg/g too, but its median runs 2x lower on
-#     only 2 shared species. The offset is confounded between coarse-root dilution
-#     (AusTraits does not state fine-root-only) and genuinely low-N Australian
-#     sclerophyll flora; at n=2 the two cannot be separated, so it is not coalesced.
-#   - salinity: four incompatible quantities -- baseflor 0-9 soil indicator,
-#     coral/octocoral seawater ppt ~32-35 (n=2-3), pottier 0-4 tolerance index,
-#     madin halophily categories. (baseflor's 0-9 could instead feed
-#     ellenberg_salt, which is on the same scale.)
-#   - growth_rate: von Bertalanffy K (beukhof, sharkipedia), coral linear
-#     extension mm/yr, zooplankton per-day, and AnAge's Gompertz constant are
-#     physically different rates, not one unit.
+# Method-cautioned sources -- kept, not dropped: the unit is correct but the
+# definition differs from GRooT, so the source carries a `caution` and the
+# default coalesce reports the most complete source instead of a median (see
+# nsrc()'s caution field and .trait_caution_col()):
+#   - root_diameter: AusTraits is maximum root diameter (APD trait_0012111,
+#     incl. coarse roots; ratio ~0.3x GRooT), GRooT is fine-root.
+#   - root_n_concentration: AusTraits root_N_per_dry_mass is whole-root N (APD
+#     trait_0000838; ~2x lower), GRooT is fine-root.
+#   - rooting_depth: BROT rootdepth runs ~2x GRooT (maximum vs typical depth).
+# specific_root_area (GRooT-only, cm^2/g): three source papers (Quanquan 2011, an
+#   unpublished MSc thesis; Mokany & Ash 2008; Chanteloup & Bonis 2013) sit ~1000x
+#   below GRooT's cm2 g-1 standard (data paper median 385.8) from a compilation
+#   unit error, not GRooT's conversion -- AusTraits carries the identical Mokany
+#   2008 data equally low. The x1000 correction is grounded, not guessed: Mokany &
+#   Ash 2008's own SRA-SLA regression (Fig 1B, log10 SRA = 1.019 + 0.024*(SLA -
+#   18.208), SRA in m2/kg) puts the real magnitude at ~10 m2/kg = ~100 cm2/g, and
+#   the stored values x1000 land in that range (GRooT-stored x1000 = 22-538 cm2/g
+#   vs the regression's 70-260). taxifydb's parse_groot rescales the three papers
+#   x1000, with standardized sources winning per species (a species with any clean
+#   record keeps its clean median -- Mokany's paper itself cautions its pot-grown
+#   values differ from the field -- and the rescaled papers fill only species no
+#   clean source covers). Result: 529 species, median 386, 0 sub-1. AusTraits is
+#   not a second source here because it IS Mokany 2008. Requires the rebuilt
+#   groot.vtr (enrichment-2026.07) to be installed. (An earlier drop-the-papers fix
+#   was reverted: reading the papers showed the x1000 is grounded and recoverable.)
+# Sixth wave (widening two existing traits, both grounded on the .vtr values):
+#   - diet_guild gains elton_traits: taxifydb's parse_elton_traits derives one
+#     guild per species from the ten EltonTraits diet fractions (summed within
+#     guild, dominant >=50% wins, else omnivore). The derived label agrees 93%
+#     with EltonTraits' own diet_5cat and 83% with AVONET's independent
+#     trophic_niche on shared species, and it extends diet_guild from birds +
+#     reptiles to mammals. Requires the rebuilt elton_traits.vtr (the diet_guild
+#     column is added at build time, so the runtime map is identity).
+#   - ellenberg_salt gains baseflor: Baseflor's salinity column is the same 0-9
+#     Ellenberg scale (Pearson r = 0.88, mean |diff| = 0.10 vs FloraWeb ell_salt_de
+#     on 2369 shared species), so it joins floraweb + ecoflora directly. This is
+#     the clean piece salvaged from the incompatible standalone salinity trait
+#     below.
+# Deliberately unregistered (the quantities are physically different, not one
+# harmonizable trait -- kept here so the decision is not silently relitigated):
+#   - salinity (as a marine/tolerance trait): coral/octocoral seawater ppt ~32-35
+#     (n=2-3), pottier 0-4 tolerance index, and madin halophily categories are not
+#     one quantity. Baseflor's 0-9 soil indicator is handled above by feeding
+#     ellenberg_salt, its true scale; the marine remainder has no common unit.
+#   - growth_rate: von Bertalanffy K is the one harmonizable slice and already
+#     ships as von_bertalanffy_k (beukhof, sharkipedia). Coral linear extension
+#     mm/yr, zooplankton per-day, and AnAge's Gompertz constant are physically
+#     different rates, not one unit, so growth_rate stays unregistered.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -310,8 +336,12 @@
   }
 
   # A numeric source that is used verbatim (already in the canonical unit).
-  nsrc <- function(enr, col, cite, note, map = num) {
-    list(enrichment = enr, col = col, citation = cite, note = note, map = map)
+  # `caution` (default NA) flags a source whose unit is correct but whose
+  # method/definition differs from the trait's reference source (e.g. maximum
+  # vs fine-root diameter). It drives the method-aware coalesce in add_trait().
+  nsrc <- function(enr, col, cite, note, map = num, caution = NA_character_) {
+    list(enrichment = enr, col = col, citation = cite, note = note,
+         map = map, caution = caution)
   }
 
   list(
@@ -580,7 +610,8 @@
       label = "Ellenberg salt (S)", kind = "numeric", unit = "0-9 (classic)", vocab = NULL,
       sources = list(
         floraweb = nsrc("floraweb", "ell_salt_de", "FloraWeb / BiolFlor (Klotz, Kuehn & Durka 2002)", "Classic Ellenberg salt tolerance."),
-        ecoflora = nsrc("ecoflora", "ell_salt_uk", "Ecoflora (Fitter & Peat 1994)", "British Ellenberg salt tolerance.")
+        ecoflora = nsrc("ecoflora", "ell_salt_uk", "Ecoflora (Fitter & Peat 1994)", "British Ellenberg salt tolerance."),
+        baseflor = nsrc("baseflor", "salinity", "Baseflor (Julve, Programme Catminat)", "Ellenberg-style salinity, same 0-9 scale (Pearson r = 0.88 vs FloraWeb on shared species).")
       )
     ),
 
@@ -786,10 +817,13 @@
       vocab = c("carnivore", "herbivore", "omnivore", "invertivore",
                 "frugivore", "granivore", "nectarivore", "scavenger"),
       sources = list(
-        avonet     = list(enrichment = "avonet", col = "trophic_niche",
+        avonet       = list(enrichment = "avonet", col = "trophic_niche",
                           citation = "AVONET (Tobias et al. 2022)", note = "Trophic niche; vertivore and aquatic predator -> carnivore, herbivore terrestrial/aquatic -> herbivore.",
                           map = function(v) .xw_cat(v, diet_lookup)),
-        repttraits = list(enrichment = "repttraits", col = "diet",
+        elton_traits = list(enrichment = "elton_traits", col = "diet_guild",
+                          citation = "EltonTraits 1.0 (Wilman et al. 2014)", note = "Dominant guild from the ten diet-fraction columns (summed within guild, >=50% wins, else omnivore); birds and mammals. Agrees 93% with EltonTraits' own diet_5cat, 83% with AVONET.",
+                          map = function(v) v),
+        repttraits   = list(enrichment = "repttraits", col = "diet",
                           citation = "ReptTraits (Oskyrko et al. 2024)", note = "Carnivorous / herbivorous / omnivorous.",
                           map = function(v) .xw_cat(v, diet_lookup))
       )
@@ -1118,7 +1152,9 @@
     root_diameter = list(
       label = "Root diameter", kind = "numeric", unit = "mm", vocab = NULL,
       sources = list(
-        groot = nsrc("groot", "root_diameter", "GRooT (Guerrero-Ramirez et al. 2021)", "Fine-root diameter, mm.")
+        groot     = nsrc("groot", "root_diameter", "GRooT (Guerrero-Ramirez et al. 2021)", "Fine-root diameter, mm."),
+        austraits = nsrc("austraits", "root_diameter", "AusTraits (Falster et al. 2021)", "Root diameter, mm (no conversion).",
+                         caution = "AusTraits reports maximum root diameter (APD trait_0012111), including coarse roots; GRooT is fine-root diameter. Runs ~0.3x GRooT on shared species.")
       )
     ),
     specific_root_length = list(
@@ -1126,6 +1162,12 @@
       sources = list(
         groot     = nsrc("groot", "specific_root_length", "GRooT (Guerrero-Ramirez et al. 2021)", "Specific root length, m/g."),
         austraits = nsrc("austraits", "root_specific_root_length", "AusTraits (Falster et al. 2021)", "Specific root length, m/g (agrees with GRooT, ratio 1.12 on shared species).")
+      )
+    ),
+    specific_root_area = list(
+      label = "Specific root area", kind = "numeric", unit = "cm2/g", vocab = NULL,
+      sources = list(
+        groot = nsrc("groot", "specific_root_area", "GRooT (Guerrero-Ramirez et al. 2021)", "Specific root area, cm^2/g (data paper Table 1, median 385.8). Three source papers (Quanquan 2011, Mokany & Ash 2008, Chanteloup & Bonis 2013) are ~1000x low from a compilation unit error and are rescaled x1000 in taxifydb's parse_groot -- grounded by Mokany & Ash 2008's own SRA-SLA regression (real SRA ~10 m2/kg = ~100 cm2/g), not a guess -- with standardized sources winning per species. GRooT-only: AusTraits root_specific_root_area is entirely Mokany 2008, the same primary data, so it cannot serve as an independent second source.")
       )
     ),
     root_tissue_density = list(
@@ -1151,13 +1193,17 @@
     root_n_concentration = list(
       label = "Root nitrogen concentration", kind = "numeric", unit = "mg/g", vocab = NULL,
       sources = list(
-        groot = nsrc("groot", "root_n_concentration", "GRooT (Guerrero-Ramirez et al. 2021)", "Root nitrogen concentration, mg/g.")
+        groot     = nsrc("groot", "root_n_concentration", "GRooT (Guerrero-Ramirez et al. 2021)", "Root nitrogen concentration, mg/g."),
+        austraits = nsrc("austraits", "root_n_per_dry_mass", "AusTraits (Falster et al. 2021)", "Root N per dry mass, mg/g (no conversion).",
+                         caution = "AusTraits root_N_per_dry_mass (APD trait_0000838) is whole-root N; GRooT is fine-root. Runs ~2x lower on shared species.")
       )
     ),
     rooting_depth = list(
       label = "Rooting depth", kind = "numeric", unit = "m", vocab = NULL,
       sources = list(
-        groot = nsrc("groot", "rooting_depth", "GRooT (Guerrero-Ramirez et al. 2021)", "Maximum rooting depth, metres.")
+        groot = nsrc("groot", "rooting_depth", "GRooT (Guerrero-Ramirez et al. 2021)", "Maximum rooting depth, metres."),
+        brot  = nsrc("brot", "rootdepth", "BROT 2.0 (Tavsanoglu & Pausas 2018)", "Rooting depth, metres (no conversion).",
+                     caution = "BROT rooting depth runs ~2x GRooT on shared species, likely a maximum-vs-typical depth definition difference.")
       )
     ),
     root_mycorrhizal_colonization = list(
@@ -1250,9 +1296,9 @@
 # categorical -> first) and validating against the reducers each kind allows.
 .resolve_combine <- function(combine, kind) {
   ok <- if (kind == "numeric") {
-    c("median", "mean", "first", "min", "max")
+    c("median", "mean", "first", "min", "max", "complete")
   } else {
-    c("first", "vote")
+    c("first", "vote", "complete")
   }
   if (is.null(combine)) return(if (kind == "numeric") "median" else "first")
   combine <- as.character(combine)[1L]
@@ -1268,14 +1314,28 @@
 # Reduce a list of per-source harmonized vectors (in priority order) to one
 # value, source label, and count per row. `first` walks priority order; the
 # numeric aggregators reduce the non-NA values; `vote` takes the categorical
-# majority with priority-order tie-breaking. When an aggregator is used the
-# source label is the comma-separated set of contributing sources.
+# majority with priority-order tie-breaking. `complete` selects the single most
+# populated source (ties broken by priority order) and reports it verbatim --
+# used when sources measure the trait by different methods, where blending would
+# manufacture a value matching no method. When an aggregator is used the source
+# label is the comma-separated set of contributing sources.
 .coalesce_sources <- function(per_src, ord, kind, combine) {
   n         <- length(per_src[[1L]])
   na_scalar <- if (kind == "numeric") NA_real_ else NA_character_
   present   <- vapply(per_src, function(v) !is.na(v), logical(n))
   if (is.null(dim(present))) present <- matrix(present, nrow = n)
   nsrc      <- as.integer(rowSums(present))
+
+  if (combine == "complete") {
+    counts <- vapply(per_src, function(v) sum(!is.na(v)), integer(1L))
+    j      <- which.max(counts)          # ties -> first in ord (registry priority)
+    v      <- per_src[[j]]
+    has    <- !is.na(v)
+    return(list(value  = v,
+                source = ifelse(has, ord[j], NA_character_),
+                n      = as.integer(has),
+                best   = ord[j]))
+  }
 
   if (combine == "first") {
     val <- rep(na_scalar, n)
@@ -1319,4 +1379,58 @@
     r[r %in% top][1L]            # priority order preserved in r
   }, character(1L))
   list(value = val, source = contrib, n = nsrc)
+}
+
+
+# Build the per-row `<trait>_caution` vector for a coalesced trait, or NULL when
+# no caution applies. `cvec` is the named per-source caution text (NA where the
+# source carries none). Two cases:
+#   * method-discordant selection (combine "complete" with a cautioned source):
+#     the whole trait mixes methods, so every reported row is flagged with which
+#     source was used and what the alternatives measure.
+#   * otherwise: flag only the rows whose producing source(s) are cautioned.
+.trait_caution_col <- function(co, cvec, disc, combine) {
+  if (all(is.na(cvec))) return(NULL)
+  val <- co$value
+  n   <- length(val)
+
+  if (disc && combine == "complete") {
+    if (all(is.na(val))) return(NULL)
+    altc <- cvec[!is.na(cvec)]
+    txt  <- sprintf(
+      paste0("Sources measure this differently; reported the most complete ",
+             "source '%s'. %s Use mode = \"wide\" to see every source."),
+      co$best,
+      paste(sprintf("[%s] %s", names(altc), unname(altc)), collapse = " "))
+    return(ifelse(!is.na(val), txt, NA_character_))
+  }
+
+  src <- co$source
+  out <- vapply(seq_len(n), function(i) {
+    s <- src[i]
+    if (is.na(s)) return(NA_character_)
+    parts <- strsplit(s, ",", fixed = TRUE)[[1L]]
+    cc    <- cvec[parts]; cc <- cc[!is.na(cc)]
+    if (!length(cc)) NA_character_
+    else paste(sprintf("[%s] %s", names(cc), unname(cc)), collapse = " | ")
+  }, character(1L))
+  if (all(is.na(out))) NULL else out
+}
+
+
+# Wide-mode caution column: for each row, the caution text of every cautioned
+# source that actually supplied a value there. NULL when no cautioned source
+# contributed any value. `per_src` is named by source; `cvec` the caution texts.
+.trait_wide_caution <- function(per_src, cvec, n) {
+  caut <- names(cvec)[!is.na(cvec)]
+  if (!length(caut)) return(NULL)
+  out <- rep(NA_character_, n)
+  for (s in caut) {
+    v <- per_src[[s]]
+    if (is.null(v)) next
+    hit <- !is.na(v)
+    piece <- sprintf("[%s] %s", s, cvec[[s]])
+    out[hit] <- ifelse(is.na(out[hit]), piece, paste(out[hit], piece, sep = " | "))
+  }
+  if (all(is.na(out))) NULL else out
 }

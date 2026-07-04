@@ -34,6 +34,11 @@ The same data.frame with additional columns:
 \item{foraging_aerial}{Percentage of foraging: aerial.}
 \item{elton_body_mass_g}{Body mass in grams.}
 \item{nocturnal}{Nocturnal activity (0 = diurnal, 1 = nocturnal).}
+\item{diet_guild}{Dominant diet guild derived from the ten diet-fraction
+columns (fractions summed within guild, the guild reaching 50 percent
+wins, otherwise omnivore): carnivore, herbivore, omnivore, invertivore,
+frugivore, granivore, nectarivore, scavenger. Also reachable across
+sources via \code{add_trait(x, "diet_guild")}.}
 }
 }
 \description{

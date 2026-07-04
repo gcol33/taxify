@@ -1,3 +1,16 @@
+# taxify (development version)
+
+## New features
+
+* `add_trait("diet_guild")` now also draws on EltonTraits (Wilman et al. 2014),
+  extending diet guilds from birds and reptiles to mammals. The guild is derived
+  from the ten EltonTraits diet fractions (built into `elton_traits.vtr`) and
+  agrees 93% with EltonTraits' own diet classification and 83% with AVONET.
+  `add_elton_traits()` exposes the same `diet_guild` column directly.
+* `add_trait("ellenberg_salt")` gains Baseflor as a third source: its salinity
+  column is on the same 0-9 Ellenberg scale as FloraWeb and Ecoflora (Pearson
+  r = 0.88 on shared species), so it joins them without rescaling.
+
 # taxify 0.3.2
 
 ## New features
@@ -6,16 +19,20 @@
   reconciling their vocabularies and units. Where each `add_*()` door joins one
   dataset, `add_trait("seed_mass")` gathers the sources: it pulls seed mass from
   Diaz et al. and GIFT and returns both in one unit (mg), woodiness from Zanne
-  and GIFT in one vocabulary, and likewise plant height and SLA. Provenance stays
-  explicit -- the default `mode = "wide"` gives one harmonized column per source
-  (`seed_mass_diaz`, `seed_mass_gift`), so agreement and conflict are visible;
-  opt into `mode = "coalesce"` for one best-available value plus its source.
+  and GIFT in one vocabulary, and likewise plant height and SLA. The default
+  `mode = "coalesce"` adds one value per row with the columns that document it --
+  `seed_mass`, `seed_mass_unit`, `seed_mass_sources`, and `seed_mass_n` -- which
+  keeps chained calls tidy; `mode = "wide"` instead gives one harmonized column
+  per source (`seed_mass_diaz`, `seed_mass_gift`) to inspect agreement and
+  conflict. When sources measure a trait by different methods (for example
+  maximum vs fine-root diameter), the value is not blended: the most complete
+  source is reported and a `seed_mass_caution` column explains the difference.
   `list_traits()` lists the available traits and `trait_info()` shows a trait's
-  sources, units, and harmonization rules. The registry ships dozens of traits
-  spanning plant functional and root traits, animal body size, life history, and
-  morphology, diel activity, thermal limits, phenology, indicator values, and
-  conservation status, each with a crosswalk grounded on the source values
-  rather than assumed.
+  sources, units, harmonization notes, and cautions. The registry ships dozens of
+  traits spanning plant functional and root traits, animal body size, life
+  history and morphology, diel activity, thermal limits, phenology, indicator
+  values, and conservation status, each with a crosswalk grounded on the source
+  values rather than assumed.
 
 ## Renamed (source-named doors)
 

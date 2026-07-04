@@ -6,10 +6,12 @@
 #' `add_*()` doors each join one dataset, `add_trait()` is the cross-source
 #' verb: you name the trait, it gathers the sources.
 #'
-#' Each source keeps its provenance. In the default `"wide"` mode every source
-#' becomes its own column (`<trait>_<source>`), so agreement and conflict stay
-#' visible; sources are never silently collapsed. The opt-in `"coalesce"` mode
-#' adds a single best-available value together with the source that supplied it.
+#' Each source keeps its provenance. The default `"coalesce"` mode reduces the
+#' sources to one value per row plus the columns that document it -- its unit,
+#' the sources that contributed, how many, and a caution when the sources
+#' measure the trait by different methods. The opt-in `"wide"` mode instead
+#' gives every source its own column (`<trait>_<source>`), so per-source
+#' agreement and conflict stay fully visible.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param trait Character. A single trait name; see [list_traits()] for the
@@ -17,32 +19,42 @@
 #' @param sources Which sources to use. Either the string `"all"` (the default)
 #'   for every source registered for the trait, or a character vector of source
 #'   names (see [trait_info()]).
-#' @param mode One of `"wide"` (default) or `"coalesce"`. `"wide"` attaches one
-#'   harmonized column per source. `"coalesce"` reduces the sources to one value
-#'   per row (see `combine`).
+#' @param mode One of `"coalesce"` (default) or `"wide"`. `"coalesce"` reduces
+#'   the sources to one value per row (see `combine`). `"wide"` attaches one
+#'   harmonized column per source.
 #' @param combine How `mode = "coalesce"` reduces the per-source values for a
-#'   row. `NULL` (default) picks `"median"` for numeric traits and `"first"` for
-#'   categorical traits. Numeric options: `"median"`, `"mean"`, `"first"`
-#'   (highest-priority source that has a value), `"min"`, `"max"`. Categorical
-#'   options: `"first"` or `"vote"` (majority across sources, ties broken by
-#'   priority). Median is the numeric default because trait values are skewed and
-#'   sources differ in definition, so a single outlier or mislabeled source
-#'   should not decide the value.
+#'   row. `NULL` (default) is method-aware: when the trait's sources agree in
+#'   method it uses `"median"` for numeric traits and `"first"` for categorical
+#'   traits; when sources measure the trait differently (a source carries a
+#'   caution, e.g. maximum vs fine-root diameter) it uses `"complete"` instead of
+#'   blending them. Numeric options: `"median"`, `"mean"`, `"first"`
+#'   (highest-priority source that has a value), `"min"`, `"max"`, `"complete"`
+#'   (the single most populated source, reported verbatim). Categorical options:
+#'   `"first"`, `"vote"` (majority across sources, ties broken by priority), or
+#'   `"complete"`. Median is the numeric default for concordant sources because
+#'   trait values are skewed, so a single outlier should not decide the value;
+#'   `"complete"` is the default for discordant sources because a median across
+#'   methods matches no method. Passing `combine` explicitly overrides this and
+#'   is applied to all sources.
 #' @param priority Character vector of source names giving the priority order
-#'   (highest priority first), used by `combine = "first"` and for tie-breaking
-#'   `combine = "vote"`. Only used when `mode = "coalesce"`; defaults to the
-#'   registered order for the trait (see [trait_info()]).
+#'   (highest priority first), used by `combine = "first"`, for tie-breaking
+#'   `combine = "vote"`, and to break ties in `combine = "complete"`. Only used
+#'   when `mode = "coalesce"`; defaults to the registered order for the trait
+#'   (see [trait_info()]).
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with added columns.
 #'   \describe{
+#'     \item{`mode = "coalesce"`}{`<trait>` (the reduced value); `<trait>_unit`
+#'       (the canonical unit, numeric traits only); `<trait>_sources` (the source
+#'       it came from, or the comma-separated contributing sources with an
+#'       aggregating `combine`); `<trait>_n` (how many sources backed the value);
+#'       and, only when a source measured the trait differently,
+#'       `<trait>_caution` explaining the method difference. To inspect every
+#'       source, use `mode = "wide"`.}
 #'     \item{`mode = "wide"`}{One column per source, `<trait>_<source>`, each
 #'       harmonized to the trait's shared vocabulary (categorical) or unit
-#'       (numeric).}
-#'     \item{`mode = "coalesce"`}{Three columns: `<trait>` (the reduced value),
-#'       `<trait>_source` (the source it came from with `combine = "first"`, or
-#'       the comma-separated contributing sources with an aggregating
-#'       `combine`), and `<trait>_n` (how many sources had any value for that
-#'       row). To inspect conflicts between sources, use `mode = "wide"`.}
+#'       (numeric); `<trait>_unit`; and `<trait>_caution` on rows where a
+#'       cautioned source supplied a value.}
 #'   }
 #'   Numeric traits are returned in the trait's canonical unit (see
 #'   [trait_info()]); rows absent from a source get `NA`.
@@ -53,6 +65,14 @@
 #' unit. For example, GIFT seed mass (grams) and Diaz et al. seed mass
 #' (milligrams) both arrive as milligrams. The mappings and units for a trait
 #' are listed by [trait_info()].
+#'
+#' Some sources report the same trait in the right unit but under a different
+#' definition (for example AusTraits root diameter is a maximum including coarse
+#' roots, while GRooT is fine-root only). Such a source carries a caution in the
+#' registry. In `mode = "coalesce"` with the default `combine`, a trait whose
+#' sources disagree in method is not blended: the most complete source is
+#' reported and `<trait>_caution` records the difference. [trait_info()] lists
+#' each source's harmonization note and caution.
 #'
 #' A source enrichment that is not installed and cannot be downloaded or built
 #' is skipped with a warning, and the trait is assembled from the sources that
@@ -66,19 +86,19 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' # One column per source, harmonized:
+#' # One coalesced value plus its provenance (unit, sources, count):
 #' taxify("Abies alba") |>
-#'   add_trait("woodiness")
+#'   add_trait("seed_mass")
 #'
-#' # Numeric trait, coalesced to one value plus its provenance:
+#' # One column per source, to inspect agreement and conflict:
 #' taxify("Abies alba") |>
-#'   add_trait("seed_mass", mode = "coalesce")
+#'   add_trait("woodiness", mode = "wide")
 #'
 #' options(old)
 #'
 #' @export
 add_trait <- function(x, trait, sources = "all",
-                      mode = c("wide", "coalesce"),
+                      mode = c("coalesce", "wide"),
                       combine = NULL, priority = NULL, verbose = TRUE) {
   if (!is.data.frame(x) || !"accepted_name" %in% names(x)) {
     stop("Input must be a taxify() result with an 'accepted_name' column.",
@@ -88,6 +108,7 @@ add_trait <- function(x, trait, sources = "all",
   reg   <- .trait_registry()
   trait <- .resolve_trait_name(trait, names(reg))
   spec  <- reg[[trait]]
+  auto    <- is.null(combine)                     # combine left to the default?
   combine <- .resolve_combine(combine, spec$kind)
 
   all_src <- names(spec$sources)
@@ -115,13 +136,40 @@ add_trait <- function(x, trait, sources = "all",
     per_src[[s]] <- if (is.null(raw)) rep(na_scalar, nrow(x)) else sp$map(raw)
   }
 
+  # Per-source caution (method/definition differs from the reference source).
+  cvec <- vapply(ord, function(s) spec$sources[[s]]$caution %||% NA_character_,
+                 character(1L))
+  names(cvec) <- ord
+  # Discordance is data-aware: it only matters when at least two sources actually
+  # supply values here and one of them is cautioned. A single source that has
+  # data is not a method conflict (its own caution is still surfaced per row).
+  has_data     <- vapply(ord, function(s) any(!is.na(per_src[[s]])), logical(1L))
+  contributing <- ord[has_data]
+  disc <- length(contributing) >= 2L && any(!is.na(cvec[contributing]))
+  unit <- if (!is.null(spec$unit) && !is.na(spec$unit)) spec$unit else NULL
+
   if (mode == "wide") {
     for (s in ord) x[[paste0(trait, "_", s)]] <- per_src[[s]]
+    if (!is.null(unit)) x[[paste0(trait, "_unit")]] <- unit
+    cr <- .trait_wide_caution(per_src, cvec, nrow(x))
+    if (!is.null(cr)) x[[paste0(trait, "_caution")]] <- cr
   } else {
-    co <- .coalesce_sources(per_src[ord], ord, spec$kind, combine)
-    x[[trait]]                    <- co$value
-    x[[paste0(trait, "_source")]] <- co$source
-    x[[paste0(trait, "_n")]]      <- co$n
+    # When sources measure the trait differently, do not blend: report the most
+    # complete source and explain (unless the caller forced `combine`).
+    use_combine <- if (auto && disc) "complete" else combine
+    co <- .coalesce_sources(per_src[ord], ord, spec$kind, use_combine)
+    x[[trait]] <- co$value
+    if (!is.null(unit)) x[[paste0(trait, "_unit")]] <- unit
+    x[[paste0(trait, "_sources")]] <- co$source
+    x[[paste0(trait, "_n")]]       <- co$n
+    cr <- .trait_caution_col(co, cvec, disc, use_combine)
+    if (!is.null(cr)) x[[paste0(trait, "_caution")]] <- cr
+    if (auto && disc && verbose && any(!is.na(co$value))) {
+      message(sprintf(
+        paste0("add_trait('%s'): sources use different methods; reported the ",
+               "most complete source ('%s'). See '%s_caution' or mode = \"wide\"."),
+        trait, co$best, trait))
+    }
   }
 
   attr(x, "taxify_traits") <- c(
@@ -189,8 +237,10 @@ list_traits <- function() {
 #'
 #' @param trait Character. A single trait name; see [list_traits()].
 #' @return A data.frame (invisibly-friendly) with columns `source`,
-#'   `enrichment`, `column`, `citation`, `note`. The header line (label, kind,
-#'   unit, default priority, vocabulary) is printed as a message.
+#'   `enrichment`, `column`, `citation`, `note` (unit or vocabulary
+#'   harmonization), and `caution` (a method or definition difference from the
+#'   reference source, or `NA`). The header line (label, kind, unit, default
+#'   priority, vocabulary) is printed as a message.
 #' @seealso [add_trait()], [list_traits()]
 #' @examples
 #' trait_info("woodiness")
@@ -218,6 +268,7 @@ trait_info <- function(trait) {
     column     = vapply(srcs, function(s) s$col, character(1L)),
     citation   = vapply(srcs, function(s) s$citation %||% NA_character_, character(1L)),
     note       = vapply(srcs, function(s) s$note %||% NA_character_, character(1L)),
+    caution    = vapply(srcs, function(s) s$caution %||% NA_character_, character(1L)),
     stringsAsFactors = FALSE, row.names = NULL
   )
 }

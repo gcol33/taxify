@@ -45,6 +45,33 @@ test_that("list_traits() advertises the registered traits", {
   expect_equal(lt$unit[lt$trait == "seed_mass"], "mg")
 })
 
+test_that("specific_root_area is registered GRooT-only in cm2/g", {
+  lt <- list_traits()
+  expect_true("specific_root_area" %in% lt$trait)
+  expect_equal(lt$kind[lt$trait == "specific_root_area"], "numeric")
+  expect_equal(lt$unit[lt$trait == "specific_root_area"], "cm2/g")
+  expect_equal(lt$n_sources[lt$trait == "specific_root_area"], 1L)
+
+  ti <- suppressMessages(trait_info("specific_root_area"))
+  expect_equal(ti$source, "groot")
+  expect_true(all(is.na(ti$caution)))          # no cautioned second source
+})
+
+test_that("diet_guild carries EltonTraits alongside AVONET and ReptTraits", {
+  ti <- suppressMessages(trait_info("diet_guild"))
+  expect_true("elton_traits" %in% ti$source)
+  expect_setequal(ti$source, c("avonet", "elton_traits", "repttraits"))
+  expect_equal(ti$column[ti$source == "elton_traits"], "diet_guild")
+})
+
+test_that("ellenberg_salt carries Baseflor on the same 0-9 scale", {
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "ellenberg_salt"], "0-9 (classic)")
+  ti <- suppressMessages(trait_info("ellenberg_salt"))
+  expect_setequal(ti$source, c("floraweb", "ecoflora", "baseflor"))
+  expect_equal(ti$column[ti$source == "baseflor"], "salinity")
+})
+
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
@@ -58,11 +85,23 @@ test_that("wide mode attaches one harmonized column per source (categorical)", {
   on.exit(options(old), add = TRUE)
   skip_if_not(trait_ready(), "example enrichments not available")
 
-  r <- add_trait(mk("Abies alba"), "woodiness", verbose = FALSE)
+  r <- add_trait(mk("Abies alba"), "woodiness", mode = "wide", verbose = FALSE)
   expect_true(all(c("woodiness_zanne", "woodiness_gift") %in% names(r)))
   # Zanne 'woody' and GIFT 'woody' both map to canonical 'woody'.
   expect_equal(r$woodiness_zanne, "woody")
   expect_equal(r$woodiness_gift, "woody")
+})
+
+test_that("mode defaults to coalesce (one value plus provenance columns)", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  skip_if_not(trait_ready(), "example enrichments not available")
+
+  r <- add_trait(mk("Abies alba"), "seed_mass", verbose = FALSE)
+  expect_true(all(c("seed_mass", "seed_mass_unit", "seed_mass_sources",
+                    "seed_mass_n") %in% names(r)))
+  expect_equal(r$seed_mass_unit, "mg")            # canonical unit column
+  expect_false("seed_mass_diaz" %in% names(r))    # not wide by default
 })
 
 test_that("numeric sources are converted to the canonical unit", {
@@ -71,14 +110,14 @@ test_that("numeric sources are converted to the canonical unit", {
   skip_if_not(trait_ready(), "example enrichments not available")
 
   # Seed mass: Diaz already mg; GIFT grams x1000 -> mg.
-  sm <- add_trait(mk("Abies alba"), "seed_mass", verbose = FALSE)
+  sm <- add_trait(mk("Abies alba"), "seed_mass", mode = "wide", verbose = FALSE)
   expect_type(sm$seed_mass_diaz, "double")
   expect_type(sm$seed_mass_gift, "double")
   expect_equal(sm$seed_mass_diaz, 62.007, tolerance = 1e-3)
   expect_equal(sm$seed_mass_gift, 73.9425, tolerance = 1e-3)   # 0.0739425 * 1000
 
   # SLA: LEDA mm2/mg; GIFT cm2/g x0.1 -> mm2/mg. Same species -> equal here.
-  sl <- add_trait(mk("Abies alba"), "sla", verbose = FALSE)
+  sl <- add_trait(mk("Abies alba"), "sla", mode = "wide", verbose = FALSE)
   expect_equal(sl$sla_leda, 5.87, tolerance = 1e-3)
   expect_equal(sl$sla_gift, 5.87, tolerance = 1e-3)            # 58.7 * 0.1
 })
@@ -90,16 +129,18 @@ test_that("coalesce defaults to median for numeric traits", {
 
   # Default numeric combine is median across all sources that carry the row.
   w <- add_trait(mk("Abies alba"), "seed_mass", mode = "wide", verbose = FALSE)
-  wide_vals <- unlist(w[1, grepl("^seed_mass_", names(w))], use.names = FALSE)
+  src_cols  <- setdiff(grep("^seed_mass_", names(w), value = TRUE),
+                       c("seed_mass_unit", "seed_mass_caution"))
+  wide_vals <- unlist(w[1, src_cols], use.names = FALSE)
   wide_vals <- wide_vals[!is.na(wide_vals)]
 
   d <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce", verbose = FALSE)
-  expect_true(all(c("seed_mass", "seed_mass_source", "seed_mass_n") %in% names(d)))
+  expect_true(all(c("seed_mass", "seed_mass_sources", "seed_mass_n") %in% names(d)))
   expect_gte(d$seed_mass_n, 2L)
   expect_equal(d$seed_mass_n, length(wide_vals))
   expect_equal(d$seed_mass, stats::median(wide_vals), tolerance = 1e-6)
-  expect_match(d$seed_mass_source, "diaz")
-  expect_match(d$seed_mass_source, "gift")
+  expect_match(d$seed_mass_sources, "diaz")
+  expect_match(d$seed_mass_sources, "gift")
 })
 
 test_that("combine = 'first' honours priority order", {
@@ -109,12 +150,12 @@ test_that("combine = 'first' honours priority order", {
 
   d <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce",
                  combine = "first", verbose = FALSE)
-  expect_equal(d$seed_mass_source, "diaz")        # default priority diaz > gift
+  expect_equal(d$seed_mass_sources, "diaz")       # default priority diaz > gift
   expect_equal(d$seed_mass, 62.007, tolerance = 1e-3)
 
   g <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce",
                  combine = "first", priority = "gift", verbose = FALSE)
-  expect_equal(g$seed_mass_source, "gift")
+  expect_equal(g$seed_mass_sources, "gift")
   expect_equal(g$seed_mass, 73.9425, tolerance = 1e-3)
 })
 
@@ -130,7 +171,8 @@ test_that("sources= restricts which sources are joined", {
   on.exit(options(old), add = TRUE)
   skip_if_not(trait_ready(), "example enrichments not available")
 
-  r <- add_trait(mk("Abies alba"), "woodiness", sources = "gift", verbose = FALSE)
+  r <- add_trait(mk("Abies alba"), "woodiness", sources = "gift",
+                 mode = "wide", verbose = FALSE)
   expect_true("woodiness_gift" %in% names(r))
   expect_false("woodiness_zanne" %in% names(r))
 })
@@ -147,7 +189,8 @@ test_that("absent species get NA across sources", {
   on.exit(options(old), add = TRUE)
   skip_if_not(trait_ready(), "example enrichments not available")
 
-  r <- add_trait(mk("Zzznotaspecies fakename"), "seed_mass", verbose = FALSE)
+  r <- add_trait(mk("Zzznotaspecies fakename"), "seed_mass", mode = "wide",
+                 verbose = FALSE)
   expect_true(is.na(r$seed_mass_diaz))
   expect_true(is.na(r$seed_mass_gift))
 })
@@ -161,6 +204,45 @@ test_that("EIVE dimensions are their own add_trait() traits, apart from ellenber
   expect_false("eive" %in% el$enrichment)
   ei <- suppressMessages(trait_info("eive_light"))
   expect_equal(ei$enrichment, "eive")
+})
+
+test_that("trait_info() carries a caution column; root traits gain cautioned sources", {
+  ti <- suppressMessages(trait_info("root_diameter"))
+  expect_true("caution" %in% names(ti))
+  expect_setequal(ti$source, c("groot", "austraits"))
+  expect_true(is.na(ti$caution[ti$source == "groot"]))
+  expect_match(ti$caution[ti$source == "austraits"], "maximum root diameter")
+
+  rn <- suppressMessages(trait_info("root_n_concentration"))
+  expect_match(rn$caution[rn$source == "austraits"], "whole-root N")
+  rd <- suppressMessages(trait_info("rooting_depth"))
+  expect_match(rd$caution[rd$source == "brot"], "typical depth")
+})
+
+test_that("combine = 'complete' selects the most populated source (ties by priority)", {
+  per <- list(a = c(1, NA, NA), b = c(2, 3, NA))       # b more complete
+  co  <- .coalesce_sources(per, c("a", "b"), "numeric", "complete")
+  expect_equal(co$best, "b")
+  expect_equal(co$value, c(2, 3, NA))
+  expect_equal(co$source, c("b", "b", NA))
+  expect_equal(co$n, c(1L, 1L, 0L))
+
+  per2 <- list(a = c(1, NA), b = c(NA, 2))             # equal counts -> first
+  co2  <- .coalesce_sources(per2, c("a", "b"), "numeric", "complete")
+  expect_equal(co2$best, "a")
+})
+
+test_that("discordant sources are not blended: caution explains the method choice", {
+  per  <- list(groot = c(0.3, 0.3, NA), austraits = c(4, NA, 5))
+  cvec <- c(groot = NA_character_, austraits = "maximum diameter, incl. coarse roots")
+  co   <- .coalesce_sources(per, c("groot", "austraits"), "numeric", "complete")
+  expect_equal(co$best, "groot")                       # 2 vs 2 -> priority (groot)
+  expect_equal(co$value, c(0.3, 0.3, NA))              # verbatim, not a blend
+
+  cr <- .trait_caution_col(co, cvec, disc = TRUE, combine = "complete")
+  expect_match(cr[1], "measure this differently")
+  expect_match(cr[1], "maximum diameter")
+  expect_true(is.na(cr[3]))                            # no value -> no caution
 })
 
 test_that("add_zanne() is the source-named woodiness door", {
