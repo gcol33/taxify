@@ -45,6 +45,13 @@
   `head_length`/`head_width` (mm; amphibian and beetle morphometrics). The depth
   traits `depth_min`/`depth_max` gain coral occurrence-depth limits (Coral Trait
   DB, octocoral) in the same metres unit as the fish sources.
+* Eleven more `add_trait()` traits, including a new prokaryote domain from Madin
+  et al. (2020): `gram_stain`, `oxygen_metabolism`, `cell_shape`,
+  `optimal_growth_temperature` (deg C), and `genome_size` (bp). Also
+  `caudal_fin_shape` (Beukhof + Quimbayo fish fin shape), `voltinism`
+  (generations per year; Arthropod Traits + EuPollTrait), `migration` (AVONET),
+  `flightless` (BIRDBASE), `venomous` (ReptTraits), and `sociality` (EuPollTrait
+  bees). `thermal_max` gains Pottier amphibian CTmax on the same degrees-C scale.
 
 # taxify 0.3.2
 

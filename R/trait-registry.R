@@ -197,6 +197,23 @@
 #     unpinnable across arthropod/fish/mussel sources, disjoint taxa so no
 #     calibration) and offspring_size (egg-diameter vs hatchling-length ambiguous
 #     between amphibio and beukhof, and neonate_mass/egg_mass already cover it).
+# Tenth wave (high-fill single-source columns surfaced by a per-enrichment gap
+# scan; numeric units are unambiguous from the column name so are taken verbatim,
+# no conversion). Opens the prokaryote domain (Madin et al. 2020), previously
+# unused by any trait:
+#   - caudal_fin_shape (NEW): beukhof fin_shape + quimbayo caudal_fin, one fish
+#     fin-shape vocabulary ('truncated'/'lanceolated' folded to truncate/lanceolate).
+#   - voltinism (NEW, per year): arthropod_traits voltinism + eupolltrait
+#     number_of_generations, both generations per year (verbatim count).
+#   - migration (avonet: sedentary/partial/full), flightless (birdbase: no/yes/
+#     partial), venomous (repttraits), sociality (eupolltrait bees: solitary/
+#     parasocial/eusocial, brood parasites and inquilines -> cleptoparasite).
+#   - Prokaryote traits from Madin: gram_stain, oxygen_metabolism (obligate
+#     variants folded in; microaerophilic/anaerobic tested before aerobic since
+#     both contain the "aero" substring), cell_shape (coccobacillus tested before
+#     its parts), optimal_growth_temperature (deg C) and genome_size (bp).
+#   - thermal_max widened with pottier heat_tolerance_c (amphibian CTmax/LT50),
+#     same degrees-C upper-thermal-limit concept as GlobTherm on disjoint taxa.
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
@@ -436,6 +453,41 @@
   wave_lookup    <- c(protected = "protected", exposed = "exposed",
                       broad = "intermediate", both = "intermediate")
   clarity_lookup <- c(clear = "clear", turbid = "turbid", both = "both")
+
+  # Caudal fin shape (beukhof + quimbayo share these fish fin categories).
+  fin_patterns <- c(
+    "round"     = "rounded",
+    "fork"      = "forked",
+    "trunc"     = "truncate",
+    "lanceolat" = "lanceolate",
+    "point"     = "pointed",
+    "lunate"    = "lunate",
+    "heteroc"   = "heterocercal")
+
+  # Bacterial oxygen metabolism (madin); "microaerophilic" and "anaerobic" both
+  # contain the "aero" substring, so they are tested before "aerobic".
+  oxymet_patterns <- c(
+    "microaero" = "microaerophilic",
+    "facultat"  = "facultative",
+    "anaerob"   = "anaerobic",
+    "aerob"     = "aerobic")
+
+  # Bacterial cell shape (madin); "coccobacillus" tested before its two parts.
+  cellshape_patterns <- c(
+    "coccobac"        = "coccobacillus",
+    "bacill|rod"      = "bacillus",
+    "cocc"            = "coccus",
+    "spiral|helic"    = "spiral",
+    "vibrio|comma"    = "vibrio",
+    "filament"        = "filament",
+    "star|pleo|tail|disc|flask|ring|box|triangular" = "other")
+
+  # Bee sociality (eupolltrait); brood parasites and inquilines -> cleptoparasite.
+  sociality_patterns <- c(
+    "eusocial"                        = "eusocial",
+    "parasocial|primitively|subsocial" = "parasocial",
+    "brood_parasite|inquiline|clepto" = "cleptoparasite",
+    "solitary"                        = "solitary")
 
   # Leaf lifespan is in months in all three sources: on shared species the
   # austraits / brot / bien medians agree 1:1 (ratio ~1.0), so they are used
@@ -1035,6 +1087,70 @@
                           map = function(v) .xw_grep(v, forage_patterns))
       )
     ),
+    migration = list(
+      label = "Migratory behaviour (bird)", kind = "categorical", unit = NA_character_,
+      vocab = c("sedentary", "partial", "full"),
+      sources = list(
+        avonet = list(enrichment = "avonet", col = "migration",
+                      citation = "AVONET (Tobias et al. 2022)", note = "sedentary / partial / full migrant.",
+                      map = function(v) .xw_cat(v, c(sedentary = "sedentary", partial = "partial",
+                                                     full = "full", migratory = "full")))
+      )
+    ),
+    flightless = list(
+      label = "Flightlessness (bird)", kind = "categorical", unit = NA_character_,
+      vocab = c("no", "yes", "partial"),
+      sources = list(
+        birdbase = list(enrichment = "birdbase", col = "flightlessness",
+                        citation = "Sekercioglu et al. 2025 (BIRDBASE)", note = "Flightless: no / yes / partial.",
+                        map = function(v) .xw_cat(v, c(no = "no", yes = "yes", partial = "partial")))
+      )
+    ),
+    venomous = list(
+      label = "Venomous (reptile)", kind = "categorical", unit = NA_character_,
+      vocab = c("yes", "no"),
+      sources = list(
+        repttraits = list(enrichment = "repttraits", col = "venomous_yes_or_no",
+                          citation = "ReptTraits (Oskyrko et al. 2024)", note = "Venomous flag.",
+                          map = function(v) .xw_cat(v, binary_yn))
+      )
+    ),
+    sociality = list(
+      label = "Sociality (bee)", kind = "categorical", unit = NA_character_,
+      vocab = c("solitary", "parasocial", "eusocial", "cleptoparasite"),
+      sources = list(
+        eupolltrait = list(enrichment = "eupolltrait", col = "sociality",
+                           citation = "EuPollTrait (Milicic et al. 2025)", note = "solitary / parasocial / eusocial; brood parasites and inquilines -> cleptoparasite.",
+                           map = function(v) .xw_grep(v, sociality_patterns))
+      )
+    ),
+    gram_stain = list(
+      label = "Gram stain (prokaryote)", kind = "categorical", unit = NA_character_,
+      vocab = c("positive", "negative"),
+      sources = list(
+        madin = list(enrichment = "madin", col = "gram_stain",
+                     citation = "Madin et al. 2020 (prokaryote traits)", note = "Gram-positive / Gram-negative.",
+                     map = function(v) .xw_cat(v, c(positive = "positive", negative = "negative")))
+      )
+    ),
+    oxygen_metabolism = list(
+      label = "Oxygen metabolism (prokaryote)", kind = "categorical", unit = NA_character_,
+      vocab = c("aerobic", "anaerobic", "facultative", "microaerophilic"),
+      sources = list(
+        madin = list(enrichment = "madin", col = "metabolism",
+                     citation = "Madin et al. 2020 (prokaryote traits)", note = "aerobic / anaerobic / facultative / microaerophilic (obligate variants folded in).",
+                     map = function(v) .xw_grep(v, oxymet_patterns))
+      )
+    ),
+    cell_shape = list(
+      label = "Cell shape (prokaryote)", kind = "categorical", unit = NA_character_,
+      vocab = c("bacillus", "coccus", "coccobacillus", "spiral", "vibrio", "filament", "other"),
+      sources = list(
+        madin = list(enrichment = "madin", col = "cell_shape",
+                     citation = "Madin et al. 2020 (prokaryote traits)", note = "bacillus (rod) / coccus / coccobacillus / spiral / vibrio / filament.",
+                     map = function(v) .xw_grep(v, cellshape_patterns))
+      )
+    ),
 
     ## ---- additional numeric traits (units grounded on the .vtr values) -----
     depth_min = list(
@@ -1187,6 +1303,25 @@
         saproxylic = nsrc("saproxylic", "head_width", "Saproxylic beetle traits", "Head width, mm (disjoint taxa from huang_amph; unit mm verbatim).")
       )
     ),
+    voltinism = list(
+      label = "Voltinism (generations per year)", kind = "numeric", unit = "per year", vocab = NULL,
+      sources = list(
+        arthropod_traits = nsrc("arthropod_traits", "voltinism", "Arthropod Traits (Gossner et al. 2015)", "Generations per year."),
+        eupolltrait      = nsrc("eupolltrait", "number_of_generations", "EuPollTrait (Milicic et al. 2025)", "Number of generations per year.")
+      )
+    ),
+    optimal_growth_temperature = list(
+      label = "Optimal growth temperature (prokaryote)", kind = "numeric", unit = "deg C", vocab = NULL,
+      sources = list(
+        madin = nsrc("madin", "growth_temp_c", "Madin et al. 2020 (prokaryote traits)", "Optimal growth temperature, degrees C.")
+      )
+    ),
+    genome_size = list(
+      label = "Genome size (prokaryote)", kind = "numeric", unit = "bp", vocab = NULL,
+      sources = list(
+        madin = nsrc("madin", "genome_size_bp", "Madin et al. 2020 (prokaryote traits)", "Genome size, base pairs.")
+      )
+    ),
 
     ## ---- additional categorical traits ------------------------------------
     conservation_status = list(
@@ -1226,6 +1361,18 @@
         pelagic  = list(enrichment = "pelagic", col = "body_shape",
                         citation = "Gleiber et al. 2022", note = "Fish body shape; -9999 -> NA.",
                         map = function(v) .xw_grep(v, bodyshape_patterns))
+      )
+    ),
+    caudal_fin_shape = list(
+      label = "Caudal fin shape (fish)", kind = "categorical", unit = NA_character_,
+      vocab = c("rounded", "truncate", "forked", "pointed", "lanceolate", "lunate", "heterocercal"),
+      sources = list(
+        beukhof  = list(enrichment = "beukhof", col = "fin_shape",
+                        citation = "Beukhof et al. 2019", note = "Caudal fin shape.",
+                        map = function(v) .xw_grep(v, fin_patterns)),
+        quimbayo = list(enrichment = "quimbayo", col = "caudal_fin",
+                        citation = "Quimbayo et al. 2021", note = "Caudal fin shape ('truncated'/'lanceolated' folded in).",
+                        map = function(v) .xw_grep(v, fin_patterns))
       )
     ),
     sexual_system = list(
@@ -1374,7 +1521,8 @@
     thermal_max = list(
       label = "Upper thermal limit", kind = "numeric", unit = "deg C", vocab = NULL,
       sources = list(
-        globtherm = nsrc("globtherm", "thermal_max_c", "GlobTherm (Bennett et al. 2018)", "Upper thermal tolerance (CTmax / UTNZ / lethal temperature), degrees C.")
+        globtherm = nsrc("globtherm", "thermal_max_c", "GlobTherm (Bennett et al. 2018)", "Upper thermal tolerance (CTmax / UTNZ / lethal temperature), degrees C."),
+        pottier   = nsrc("pottier", "heat_tolerance_c", "Pottier et al. 2022", "Amphibian upper thermal tolerance (CTmax / LT50), degrees C.")
       )
     ),
     thermal_min = list(

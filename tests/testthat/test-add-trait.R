@@ -240,6 +240,50 @@ test_that("depth_min/depth_max gain coral occurrence-depth sources", {
   expect_equal(dmax$column[dmax$source == "coral_traits"], "depth_lower_m")
 })
 
+test_that("caudal_fin_shape and voltinism coalesce their two sources", {
+  cf <- suppressMessages(trait_info("caudal_fin_shape"))
+  expect_setequal(cf$source, c("beukhof", "quimbayo"))
+  reg <- taxify:::.trait_registry()
+  m <- reg$caudal_fin_shape$sources$quimbayo$map
+  expect_equal(m(c("truncated", "lanceolated", "rounded", "forked")),
+               c("truncate", "lanceolate", "rounded", "forked"))
+  vo <- suppressMessages(trait_info("voltinism"))
+  expect_setequal(vo$source, c("arthropod_traits", "eupolltrait"))
+  expect_equal(list_traits()$unit[list_traits()$trait == "voltinism"], "per year")
+})
+
+test_that("single-source vertebrate behaviour traits are registered", {
+  lt <- list_traits()
+  expect_true(all(c("migration", "flightless", "venomous", "sociality") %in% lt$trait))
+  expect_equal(suppressMessages(trait_info("migration"))$source, "avonet")
+  expect_equal(suppressMessages(trait_info("flightless"))$source, "birdbase")
+  expect_equal(suppressMessages(trait_info("venomous"))$source, "repttraits")
+})
+
+test_that("prokaryote traits (Madin) map cleanly, including tricky substrings", {
+  lt <- list_traits()
+  expect_true(all(c("gram_stain", "oxygen_metabolism", "cell_shape",
+                    "optimal_growth_temperature", "genome_size") %in% lt$trait))
+  expect_equal(lt$unit[lt$trait == "genome_size"], "bp")
+  expect_equal(lt$unit[lt$trait == "optimal_growth_temperature"], "deg C")
+  reg <- taxify:::.trait_registry()
+  # microaerophilic / anaerobic tested before aerobic (both contain "aero")
+  om <- reg$oxygen_metabolism$sources$madin$map
+  expect_equal(om(c("obligate aerobic", "obligate anaerobic", "microaerophilic",
+                    "facultative")),
+               c("aerobic", "anaerobic", "microaerophilic", "facultative"))
+  # coccobacillus tested before bacillus and coccus
+  cs <- reg$cell_shape$sources$madin$map
+  expect_equal(cs(c("coccobacillus", "bacillus", "coccus")),
+               c("coccobacillus", "bacillus", "coccus"))
+})
+
+test_that("thermal_max gains the pottier amphibian source", {
+  ti <- suppressMessages(trait_info("thermal_max"))
+  expect_setequal(ti$source, c("globtherm", "pottier"))
+  expect_equal(ti$column[ti$source == "pottier"], "heat_tolerance_c")
+})
+
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
