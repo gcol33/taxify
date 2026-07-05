@@ -115,11 +115,11 @@
       "source_url": "https://files.opentreeoflife.org/ott/ott3.7.3/ott3.7.3.tgz"
     },
     "worms": {
-      "latest": "2026.06",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/worms-2026.06/worms.vtr",
-      "full_size": 325840921,
-      "full_sha256": "47751d25670a3fc4589231293f0460b486af18f470c972bb042c540570857577",
-      "nrow": 1547836,
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/worms-2026.07/worms.vtr",
+      "full_size": 346514811,
+      "full_sha256": "986f59375b772e4b47287883ee71a02ffcc79d0a70807fdd31dc7c8d79314e2e",
+      "nrow": 1557860,
       "source_url": "https://api.checklistbank.org/dataset/2011/archive",
       "extras": [
         {
