@@ -430,7 +430,7 @@
     siliqua = "silique", drupe = "drupe", berry = "berry",
     follicle = "follicle", cone = "cone", samara = "samara",
     nut = "nut", schizocarp = "schizocarp", utricle = "utricle",
-    pome = "pome")
+    mericarp = "schizocarp", nutlet = "nut", pome = "pome")
   diet_lookup <- c(
     invertivore = "invertivore", omnivore = "omnivore",
     omnivorous = "omnivore", frugivore = "frugivore",
@@ -1177,6 +1177,9 @@
                         map = function(v) .xw_cat(v, fr_lookup)),
         baseflor = list(enrichment = "baseflor", col = "fruit_type",
                         citation = "Baseflor (Julve, Catminat)", note = "Morphological fruit type; pyxid -> capsule.",
+                        map = function(v) .xw_cat(v, fr_lookup)),
+        austraits = list(enrichment = "austraits", col = "fruit_type",
+                        citation = "AusTraits (Falster et al. 2021)", note = "Morphological fruit type; mericarp -> schizocarp, nutlet -> nut, unmatched long-tail types -> NA.",
                         map = function(v) .xw_cat(v, fr_lookup))
       )
     ),
@@ -1355,6 +1358,15 @@
                         flagella = "motile", gliding = "motile", `axial filament` = "motile")))
       )
     ),
+    sporulation = list(
+      label = "Sporulation (prokaryote)", kind = "categorical", unit = NA_character_,
+      vocab = c("yes", "no"),
+      sources = list(
+        madin = list(enrichment = "madin", col = "sporulation",
+                     citation = "Madin et al. 2020 (prokaryote traits)", note = "Endospore formation: yes / no.",
+                     map = function(v) .xw_cat(v, c(yes = "yes", no = "no")))
+      )
+    ),
     fungal_trophic_mode = list(
       label = "Fungal trophic mode", kind = "categorical", unit = NA_character_,
       vocab = c("pathotroph", "saprotroph", "symbiotroph", "mixed"),
@@ -1365,6 +1377,16 @@
         fungal_traits = list(enrichment = "fungal_traits", col = "primary_lifestyle",
                           citation = "FungalTraits (Polme et al. 2020)", note = "Primary lifestyle mapped to trophic mode: *_saprotroph -> saprotroph, pathogen/parasite -> pathotroph, mycorrhizal/lichen/endophyte -> symbiotroph.",
                           map = function(v) .xw_grep(v, fungtroph_patterns))
+      )
+    ),
+    larval_nutrition = list(
+      label = "Larval nutrition (bee)", kind = "categorical", unit = NA_character_,
+      vocab = c("pollen/nectar", "pollen/nectar/oil", "zoophagous",
+                "phytophagous_(bulbs)", "phytophagous_(roots)", "saprophagous", "saproxylic"),
+      sources = list(
+        eupolltrait = list(enrichment = "eupolltrait", col = "larval_nutrition",
+                          citation = "EuPollTrait (Milicic et al. 2025)", note = "Larval food source, verbatim.",
+                          map = function(v) v)
       )
     ),
 
@@ -1573,6 +1595,12 @@
         rimet_phyto = nsrc("rimet_phyto", "cell_thickness_um", "Rimet et al. phytoplankton morphology", "Micrometres.")
       )
     ),
+    cell_surface_area = list(
+      label = "Cell surface area (microalgae)", kind = "numeric", unit = "um2", vocab = NULL,
+      sources = list(
+        rimet_phyto = nsrc("rimet_phyto", "cell_surface_area_um2", "Rimet et al. phytoplankton morphology", "Square micrometres.")
+      )
+    ),
     colony_diameter = list(
       label = "Colony maximum diameter (coral)", kind = "numeric", unit = "cm", vocab = NULL,
       sources = list(
@@ -1583,6 +1611,18 @@
       label = "Corallite width (coral)", kind = "numeric", unit = "mm", vocab = NULL,
       sources = list(
         coral_traits = nsrc("coral_traits", "corallite_width_max_mm", "Coral Trait Database (Madin et al. 2016)", "Maximum corallite width, mm.")
+      )
+    ),
+    carapace_length = list(
+      label = "Carapace length (turtle)", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        chelonians = nsrc("chelonians", "carapace_length_mm", "TurtleTraits (Chelonians)", "Straight carapace length, mm.")
+      )
+    ),
+    colour_lightness = list(
+      label = "Body colour lightness (beetle)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        saproxylic = nsrc("saproxylic", "colour_lightness", "Saproxylic beetle traits (Hagge et al. 2021)", "Mean grey value of the body, 0 (black) to 255 (white).")
       )
     ),
     voltinism = list(
@@ -1608,6 +1648,12 @@
       label = "Optimal growth pH (prokaryote)", kind = "numeric", unit = "pH", vocab = NULL,
       sources = list(
         madin = nsrc("madin", "optimum_ph", "Madin et al. 2020 (prokaryote traits)", "Optimal growth pH.")
+      )
+    ),
+    gc_content = list(
+      label = "Genome GC content (prokaryote)", kind = "numeric", unit = "%", vocab = NULL,
+      sources = list(
+        madin = nsrc("madin", "gc_content_pct", "Madin et al. 2020 (prokaryote traits)", "Guanine-cytosine content of the genome, percent.")
       )
     ),
 
@@ -1692,6 +1738,16 @@
         fishbase = list(enrichment = "fishbase", col = "airbreathing",
                         citation = "FishBase (Froese & Pauly)", note = "Water/WaterAssumed -> none; facultative and obligate (incl. genus-inferred) kept.",
                         map = function(v) .xw_grep(v, airbreath_patterns))
+      )
+    ),
+    parental_care = list(
+      label = "Parental care (fish)", kind = "categorical", unit = NA_character_,
+      vocab = c("guarder", "non-guarder", "bearer"),
+      sources = list(
+        beukhof = list(enrichment = "beukhof", col = "spawning_type",
+                       citation = "Beukhof et al. 2019", note = "Balon reproductive guild: guarder / non-guarder / bearer.",
+                       map = function(v) .xw_cat(v, c(guarder = "guarder",
+                          `non-guarder` = "non-guarder", bearer = "bearer")))
       )
     ),
     sexual_system = list(

@@ -2,6 +2,18 @@
 
 ## New features
 
+* Seven new single-source `add_trait()` traits, each grounded on its source's
+  own values before wiring: `gc_content` (prokaryote genome GC %, Madin et al.
+  2020) and `sporulation` (endospore formation, same source), extending the
+  prokaryote block; `larval_nutrition` (bee larval food, EuPollTrait);
+  `colour_lightness` (beetle body greyness 0-255, saproxylic beetle traits, a
+  melanism axis); `cell_surface_area` (microalgae, um2, Rimet et al., alongside
+  `cell_length`/`cell_width`/`cell_thickness`/`cell_biovolume`); `carapace_length`
+  (turtle, mm, TurtleTraits); and `parental_care` (fish Balon reproductive guild
+  guarder/non-guarder/bearer, Beukhof et al. 2019). Verified end-to-end
+  (Thermus aquaticus GC 67%, Bacillus subtilis sporulates, leatherback carapace
+  2.26 m, stickleback a guarder). `add_trait("fruit_type")` also gains AusTraits
+  as a third plant source.
 * Three new `add_trait()` traits, each grounded on the source's own values
   before wiring: `zooxanthellate` (coral symbiotic state, from the Coral Trait
   Database and the octocoral dataset, which share the
