@@ -6687,6 +6687,54 @@
         "doi": "10.1111/jbi.13623"
       },
       "license": "CC BY 4.0"
+    },
+    "hosts": {
+      "latest": "2010.1",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/hosts.vtr",
+      "nrow": 19090,
+      "license": "CC0",
+      "source_doi": "10.5519/havt50xw",
+      "source_url": "https://data.nhm.ac.uk/dataset/hosts-a-database-of-the-world-s-lepidopteran-hostplants",
+      "source_format": "ckan-datastore-jsonl",
+      "source_version": "2010.1",
+      "species_col": "canonical_name",
+      "trait_cols": [
+        "host_plant_count",
+        "host_family_count"
+      ],
+      "static": true,
+      "citation": {
+        "key": "hosts2010",
+        "type": "misc",
+        "authors": "Robinson GS, Ackery PR, Kitching IJ, Beccaloni GW, Hernandez LM",
+        "year": "2010",
+        "title": "HOSTS - a Database of the World's Lepidopteran Hostplants",
+        "url": "https://data.nhm.ac.uk/dataset/hosts-a-database-of-the-world-s-lepidopteran-hostplants"
+      }
+    },
+    "usda_fungus_host": {
+      "latest": "2021.1",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/usda_fungus_host.vtr",
+      "nrow": 73546,
+      "license": "U.S. Public Domain",
+      "source_doi": "10.15482/USDA.ADC/1524414",
+      "source_url": "https://api.figshare.com/v2/articles/24855585",
+      "source_format": "csv",
+      "source_version": "2021.1",
+      "species_col": "canonical_name",
+      "trait_cols": [
+        "fungus_host_count",
+        "fungus_host_genus_count"
+      ],
+      "static": true,
+      "citation": {
+        "key": "farr2021",
+        "type": "misc",
+        "authors": "Farr DF, Rossman AY, Castlebury LA",
+        "year": "2021",
+        "title": "United States National Fungus Collections Fungus-Host Dataset",
+        "url": "https://doi.org/10.15482/USDA.ADC/1524414"
+      }
     }
   }
 }
