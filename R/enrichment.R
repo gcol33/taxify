@@ -83,7 +83,7 @@ check_enrichment_version <- function(name) {
 #' 5. Build from source (if enrichment is in the build registry)
 #' 6. Error with report link
 #'
-#' @param name Character. Enrichment identifier (e.g., "conservation_status").
+#' @param name Character. Enrichment identifier (e.g., "iucn").
 #' @param verbose Logical.
 #' @return Character. Path to the .vtr file, or NULL if all paths failed
 #'   (only when called with `allow_null = TRUE` internally).
@@ -296,7 +296,7 @@ resolve_enrichment_entry <- function(manifest, name) {
 #' Downloads pre-built enrichment `.vtr` files from the taxify manifest.
 #'
 #' @param enrichment Character. One or more enrichment names (e.g.,
-#'   `"conservation_status"`, `"griis"`, `"woodiness"`).
+#'   `"iucn"`, `"griis"`, `"zanne"`).
 #' @param version Character. `"latest"` (default) or a specific version string.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The path(s) to the downloaded `.vtr` file(s) (invisibly).
@@ -304,9 +304,9 @@ resolve_enrichment_entry <- function(manifest, name) {
 #' @details
 #' Available enrichments:
 #' \describe{
-#'   \item{conservation_status}{IUCN conservation status (LC/NT/VU/EN/CR/EW/EX)}
+#'   \item{iucn}{IUCN conservation status (LC/NT/VU/EN/CR/EW/EX)}
 #'   \item{griis}{GRIIS invasive species status by country}
-#'   \item{woodiness}{Zanne et al. 2014 woody/herbaceous classification}
+#'   \item{zanne}{Zanne et al. 2014 woody/herbaceous classification}
 #'   \item{wcvp}{WCVP native range by TDWG botanical region}
 #'   \item{eive}{EIVE 1.0 ecological indicator values (European plants)}
 #'   \item{diaz_traits}{Diaz et al. 2022 seed mass and plant height}
@@ -613,8 +613,8 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 #' Simple name-based enrichment join
 #'
 #' Joins an enrichment .vtr on `accepted_name == canonical_name`. Used by
-#' enrichment functions that add columns without filtering (conservation_status,
-#' woodiness, indicator_values, etc.).
+#' enrichment functions that add columns without filtering (iucn,
+#' zanne, indicator_values, etc.).
 #'
 #' @param x A taxify_result data.frame.
 #' @param enrichment_name Character. Enrichment identifier for ensure/download.

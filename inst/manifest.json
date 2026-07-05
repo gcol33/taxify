@@ -179,9 +179,9 @@
     }
   },
   "enrichments": {
-    "conservation_status": {
+    "iucn": {
       "latest": "2026.07",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/conservation_status.vtr",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/iucn.vtr",
       "nrow": 185874,
       "source_url": "https://hosted-datasets.gbif.org/datasets/iucn/iucn-latest.zip",
       "source_format": "dwca",
@@ -1650,9 +1650,9 @@
       "license": "CC0",
       "source_doi": {}
     },
-    "woodiness": {
+    "zanne": {
       "latest": "2026.07",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/woodiness.vtr",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/zanne.vtr",
       "nrow": 53737,
       "source_url": "https://raw.githubusercontent.com/ejedwards/reanalysis_zanne2014/master/dryad/GlobalWoodinessDatabase.csv",
       "source_format": "dryad_zip",
@@ -2196,9 +2196,9 @@
       "license": "CC BY 4.0",
       "source_doi": "10.14284/574"
     },
-    "fish_traits": {
+    "fishmorph": {
       "latest": "2026.07",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/fish_traits.vtr",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/fishmorph.vtr",
       "nrow": 9043,
       "source_url": "https://ndownloader.figshare.com/files/28672242",
       "source_format": "csv",

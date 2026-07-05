@@ -38,7 +38,7 @@
 add_zanne <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x,
-    enrichment_name = "woodiness",
+    enrichment_name = "zanne",
     col_map         = c(woodiness = "woodiness"),
     source_label    = "Zanne et al. 2014",
     cols            = cols,

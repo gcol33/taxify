@@ -1017,7 +1017,7 @@
       vocab = c("woody", "non-woody", "variable"),
       sources = list(
         zanne = list(
-          enrichment = "woodiness", col = "woodiness",
+          enrichment = "zanne", col = "woodiness",
           citation = "Zanne et al. 2014",
           note = "Zanne 'herbaceous' maps to canonical 'non-woody'.",
           map = function(v) .xw_cat(v, c(woody = "woody", herbaceous = "non-woody", variable = "variable"))),
@@ -1602,7 +1602,7 @@
       label = "IUCN Red List status", kind = "categorical", unit = NA_character_,
       vocab = c("LC", "NT", "VU", "EN", "CR", "EW", "EX", "DD"),
       sources = list(
-        conservation_status = list(enrichment = "conservation_status", col = "conservation_status",
+        conservation_status = list(enrichment = "iucn", col = "conservation_status",
                           citation = "IUCN Red List", note = "IUCN category.",
                           map = function(v) .xw_cat(v, iucn_lookup)),
         birdbase  = list(enrichment = "birdbase", col = "iucn_status",

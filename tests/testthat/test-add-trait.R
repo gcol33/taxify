@@ -9,8 +9,8 @@ mk <- function(sp) data.frame(
 )
 
 trait_ready <- function() {
-  p <- file.path(taxify_example_data(), "enrichment", "woodiness", "latest",
-                 "woodiness.vtr")
+  p <- file.path(taxify_example_data(), "enrichment", "zanne", "latest",
+                 "zanne.vtr")
   file.exists(p)
 }
 
@@ -28,8 +28,8 @@ test_that("add_trait() records its sources (with match counts) for cite()", {
   expect_true(length(enr) >= 1L)
   nm       <- vapply(enr, function(e) e$name, character(1L))
   nmatched <- vapply(enr, function(e) as.integer(e$n_matched), integer(1L))
-  # Zanne (the "woodiness" enrichment) carries Abies alba -> recorded, matched.
-  expect_true("woodiness" %in% nm)
+  # Zanne (the "zanne" enrichment) carries Abies alba -> recorded, matched.
+  expect_true("zanne" %in% nm)
   expect_true(any(nmatched > 0L))
   # A source with no value for the species is recorded with n_matched 0 so that
   # cite() drops it (Abies alba is absent from AusTraits in the example db).

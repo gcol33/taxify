@@ -1,5 +1,5 @@
 {
-  "name": "conservation_status",
+  "name": "iucn",
   "version": "example",
   "nrow": 1,
   "static": true,

@@ -35,7 +35,7 @@
 add_iucn <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x,
-    enrichment_name = "conservation_status",
+    enrichment_name = "iucn",
     col_map         = c(conservation_status = "conservation_status"),
     source_label    = "IUCN Red List",
     cols            = cols,

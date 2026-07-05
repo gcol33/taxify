@@ -10,8 +10,8 @@
 # and order, and lands the documented value on the right species. This checks
 # both properties.
 #
-# Requires the WFO backbone and the conservation_status, common_names, and
-# woodiness enrichments (downloaded on first run; needs internet only then).
+# Requires the WFO backbone and the iucn, common_names, and
+# zanne enrichments (downloaded on first run; needs internet only then).
 
 cat("=== taxify end-to-end test: enrichment join correctness (#1) ===\n\n")
 

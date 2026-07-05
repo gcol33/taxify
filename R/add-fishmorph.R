@@ -69,7 +69,7 @@ add_fishmorph <- function(x, cols = NULL, verbose = TRUE) {
   )
   enrich_simple(
     x,
-    enrichment_name = "fish_traits",
+    enrichment_name = "fishmorph",
     col_map         = col_map,
     source_label    = "FISHMORPH",
     na_types        = na_types,

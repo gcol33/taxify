@@ -8,7 +8,7 @@ taxify_download_enrichment(enrichment, version = "latest", verbose = TRUE)
 }
 \arguments{
 \item{enrichment}{Character. One or more enrichment names (e.g.,
-\code{"conservation_status"}, \code{"griis"}, \code{"woodiness"}).}
+\code{"iucn"}, \code{"griis"}, \code{"zanne"}).}
 
 \item{version}{Character. \code{"latest"} (default) or a specific version string.}
 
@@ -23,9 +23,9 @@ Downloads pre-built enrichment \code{.vtr} files from the taxify manifest.
 \details{
 Available enrichments:
 \describe{
-\item{conservation_status}{IUCN conservation status (LC/NT/VU/EN/CR/EW/EX)}
+\item{iucn}{IUCN conservation status (LC/NT/VU/EN/CR/EW/EX)}
 \item{griis}{GRIIS invasive species status by country}
-\item{woodiness}{Zanne et al. 2014 woody/herbaceous classification}
+\item{zanne}{Zanne et al. 2014 woody/herbaceous classification}
 \item{wcvp}{WCVP native range by TDWG botanical region}
 \item{eive}{EIVE 1.0 ecological indicator values (European plants)}
 \item{diaz_traits}{Diaz et al. 2022 seed mass and plant height}
