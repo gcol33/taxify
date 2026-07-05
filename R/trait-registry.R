@@ -541,6 +541,8 @@
   wave_lookup    <- c(protected = "protected", exposed = "exposed",
                       broad = "intermediate", both = "intermediate")
   clarity_lookup <- c(clear = "clear", turbid = "turbid", both = "both")
+  zoox_lookup    <- c(zooxanthellate = "zooxanthellate",
+                      azooxanthellate = "azooxanthellate", both = "both")
 
   # Caudal fin shape (beukhof + quimbayo share these fish fin categories).
   fin_patterns <- c(
@@ -1565,6 +1567,12 @@
         rimet_phyto = nsrc("rimet_phyto", "cell_biovolume_um3", "Rimet et al. phytoplankton morphology", "Cubic micrometres.")
       )
     ),
+    cell_thickness = list(
+      label = "Cell thickness (microalgae)", kind = "numeric", unit = "um", vocab = NULL,
+      sources = list(
+        rimet_phyto = nsrc("rimet_phyto", "cell_thickness_um", "Rimet et al. phytoplankton morphology", "Micrometres.")
+      )
+    ),
     colony_diameter = list(
       label = "Colony maximum diameter (coral)", kind = "numeric", unit = "cm", vocab = NULL,
       sources = list(
@@ -1594,6 +1602,12 @@
       label = "Genome size (prokaryote)", kind = "numeric", unit = "bp", vocab = NULL,
       sources = list(
         madin = nsrc("madin", "genome_size_bp", "Madin et al. 2020 (prokaryote traits)", "Genome size, base pairs.")
+      )
+    ),
+    optimal_growth_ph = list(
+      label = "Optimal growth pH (prokaryote)", kind = "numeric", unit = "pH", vocab = NULL,
+      sources = list(
+        madin = nsrc("madin", "optimum_ph", "Madin et al. 2020 (prokaryote traits)", "Optimal growth pH.")
       )
     ),
 
@@ -1795,6 +1809,18 @@
         octocoral    = list(enrichment = "octocoral", col = "water_clarity_preference",
                            citation = "Gomez-Gras et al. 2024", note = "clear / turbid / both.",
                            map = function(v) .xw_cat(v, clarity_lookup))
+      )
+    ),
+    zooxanthellate = list(
+      label = "Zooxanthellate symbiosis (coral)", kind = "categorical", unit = NA_character_,
+      vocab = c("zooxanthellate", "azooxanthellate", "both"),
+      sources = list(
+        coral_traits = list(enrichment = "coral_traits", col = "symbiotic_state",
+                           citation = "Coral Trait DB (Madin et al. 2016)", note = "zooxanthellate / azooxanthellate / both.",
+                           map = function(v) .xw_cat(v, zoox_lookup)),
+        octocoral    = list(enrichment = "octocoral", col = "zooxanthellate",
+                           citation = "Gomez-Gras et al. 2024", note = "zooxanthellate / azooxanthellate.",
+                           map = function(v) .xw_cat(v, zoox_lookup))
       )
     ),
     wing_length = list(

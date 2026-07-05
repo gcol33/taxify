@@ -2,6 +2,13 @@
 
 ## New features
 
+* Three new `add_trait()` traits, each grounded on the source's own values
+  before wiring: `zooxanthellate` (coral symbiotic state, from the Coral Trait
+  Database and the octocoral dataset, which share the
+  zooxanthellate/azooxanthellate vocabulary), `optimal_growth_ph` (prokaryote,
+  from Madin et al. 2020, the pH companion to `optimal_growth_temperature`), and
+  `cell_thickness` (microalgae, from Rimet et al., alongside the existing
+  `cell_length`/`cell_width`/`cell_biovolume`).
 * `add_trait("diet_guild")` now also draws on EltonTraits (Wilman et al. 2014),
   extending diet guilds from birds and reptiles to mammals. The guild is derived
   from the ten EltonTraits diet fractions (built into `elton_traits.vtr`) and
