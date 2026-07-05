@@ -38,7 +38,7 @@ add_nesttrait <- function(x, cols = NULL, verbose = TRUE) {
   )
   enrich_simple(
     x,
-    enrichment_name = "bird_nest",
+    enrichment_name = "nesttrait",
     col_map         = col_map,
     source_label    = "NestTrait",
     na_types        = na_types,

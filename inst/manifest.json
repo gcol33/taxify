@@ -4919,9 +4919,9 @@
       "license": "CC BY 4.0",
       "source_doi": "10.1038/s41597-022-01655-1"
     },
-    "bird_nest": {
+    "nesttrait": {
       "latest": "2026.07",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/bird_nest.vtr",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/nesttrait.vtr",
       "nrow": 12621,
       "source_url": "https://zenodo.org/records/10128906/files/NestTrait_v2.csv?download=1",
       "source_format": "csv",
@@ -4961,7 +4961,7 @@
       ],
       "static": true,
       "citation": {
-        "key": "bird_nest2.0",
+        "key": "nesttrait2.0",
         "type": "article",
         "authors": "Chia SY, Fang YT, Su YT, Tsai PY, Hsieh C, Tsao SH, Juang JY, Hung CM, Tuanmu MN",
         "year": "2023",
