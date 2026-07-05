@@ -284,11 +284,17 @@
 #   - mate_guarding (NEW): odonata contact (tandem) / noncontact (sentinel) / none
 #     (n=399).
 #   - flight_mode (NEW): odonata percher (sit-and-wait) / flier (patrolling), n=1067.
-#   SKIPPED this wave: nest_type -- birdbase Nest_Type is uncoded abbreviations
-#   (CP, CV, SP, PL, SC, DM, PN, BU, HC, ...; 170 distinct comma-combinations) with
-#   no legend in the source or taxifydb, so decoding them would be a column-header
-#   guess; bird_nest carries clean neststr_* flags but as one-hot binaries needing a
-#   build-time collapse (and it already has its own add_bird_nest() door). Not
+#   SKIPPED this wave: nest_type. Its codebook IS decodable -- BIRDBASE's own
+#   "Legend"/"Nest Details" sheets define all 14 architecture codes (BU burrow,
+#   CP cup, CR crevice, CV tree cavity, DM dome, HC half-cup, NO no nest, O other
+#   bird's nest, PL platform, PN pendant, SA saucer, SC scrape, SP sphere, M mound;
+#   the 170 comma-combinations are multi-type nesters). But nest architecture is
+#   inherently MULTI-LABEL and already served at full fidelity by two doors:
+#   add_birdbase() surfaces birdbase_nest_type (the whole comma string, no loss) and
+#   add_bird_nest() surfaces NestTrait's one-hot neststr_* flags. The registry stores
+#   one categorical per species, so registering it would force a lossy collapse of
+#   both sources and duplicate two working doors -- zero harmonization gain (same
+#   door-vs-registry logic as economic_use below). Not
 #   registered: economic_use / useful_plants -- a single-source 0/1 use matrix
 #   (animal_food, human_food, medicines, ...) already fully surfaced by the
 #   add_useful_plants() door; the cross-source trait verb has nothing to harmonize
@@ -298,9 +304,11 @@
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is
 #     "n"/"2"/"2, n" (ambiguous), austraits is almost entirely "2", and
-#     tree_of_sex is a *predicted* (modeled) ploidy with junk multi-digit codes
-#     (23, 234, 12.5). No groundable common scale, so ploidy stays unregistered
-#     (FloraWeb's chromosome/ploidy columns are empty, as noted above).
+#     tree_of_sex's predicted_ploidy is *modeled* (not measured), vertebrate-only
+#     (n=104, 0 plants / 0 inverts) and mixes clean 2/3/4 with junk codes (23, 234,
+#     12.5, 34) -- verified against the .vtr, not just the header. No groundable
+#     common scale, so ploidy stays unregistered (FloraWeb's chromosome/ploidy
+#     columns are empty, as noted above).
 #   - salinity (as a marine/tolerance trait): coral/octocoral seawater ppt ~32-35
 #     (n=2-3), pottier 0-4 tolerance index, and madin halophily categories are not
 #     one quantity. Baseflor's 0-9 soil indicator is handled above by feeding
