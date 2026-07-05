@@ -544,6 +544,53 @@
   zoox_lookup    <- c(zooxanthellate = "zooxanthellate",
                       azooxanthellate = "azooxanthellate", both = "both")
 
+  # Algae (algae_traits): calcification state, gamete type, life-cycle ploidy
+  # phase (compound "haplodiplontic > isomorphic" -> primary phase), and the
+  # substrate the thallus attaches to.
+  calc_lookup <- c(`non-calcified` = "non-calcified",
+                   `calcified articulated` = "calcified-articulated",
+                   `calcified non-articulated` = "calcified-non-articulated")
+  gamete_lookup <- c(oogamous = "oogamous", isogamous = "isogamous",
+                     anisogamous = "anisogamous")
+  algcyc_patterns <- c(haplodiplontic = "haplodiplontic",
+                       diplontic = "diplontic", haplontic = "haplontic")
+  algsub_lookup <- c(epilithic = "epilithic", epiphytic = "epiphytic",
+                     endophytic = "endophytic", endolithic = "endolithic",
+                     endozoic = "endozoic", epizoic = "epizoic",
+                     unattached = "unattached")
+
+  # Marine benthic invertebrate functional guilds. arctic_traits and nztd carry
+  # the same three axes under different wording; harmonized to standard groups
+  # (Solan/Queiros bioturbation functional groups; standard living-habit and
+  # feeding-guild vocabularies).
+  bioturb_patterns <- c(
+    "no bioturbation|^none$" = "none",
+    "biodiffus|diffusive"    = "biodiffusor",
+    "conveyor"               = "conveyor",
+    "bioirrig"               = "bioirrigator",
+    "surface"                = "surface-modifier")
+  livhabit_patterns <- c(
+    "free living|crawler" = "free-living",
+    "burrow"              = "burrowing",
+    "tube"                = "tube-dwelling",
+    "crevice"             = "crevice-dwelling",
+    "parasit|commensal"   = "parasitic",
+    "attach|zoic|phytic"  = "attached")
+  feedguild_patterns <- c(
+    "deposit"             = "deposit-feeder",
+    "filter|suspension"   = "suspension-feeder",
+    "predator"            = "predator",
+    "graz|scrap"          = "grazer",
+    "scaveng|opportunist" = "scavenger")
+
+  # Octocoral colony growth form (type_of_growth).
+  ocgrow_lookup <- c(`erect branched` = "erect-branched",
+                     `erect unbranched` = "erect-unbranched",
+                     `horizontal unbranched` = "horizontal-unbranched",
+                     `horizontal branched` = "horizontal-branched",
+                     massive = "massive", encrusting = "encrusting",
+                     `solitary/pseudosolitary` = "solitary")
+
   # Caudal fin shape (beukhof + quimbayo share these fish fin categories).
   fin_patterns <- c(
     "round"     = "rounded",
@@ -1387,6 +1434,101 @@
         eupolltrait = list(enrichment = "eupolltrait", col = "larval_nutrition",
                           citation = "EuPollTrait (Milicic et al. 2025)", note = "Larval food source, verbatim.",
                           map = function(v) v)
+      )
+    ),
+
+    ## ---- algae and marine-benthic functional traits -----------------------
+    calcification = list(
+      label = "Calcification (algae)", kind = "categorical", unit = NA_character_,
+      vocab = c("non-calcified", "calcified-articulated", "calcified-non-articulated"),
+      sources = list(
+        algae_traits = list(enrichment = "algae_traits", col = "calcification",
+                          citation = "AlgaeTraits", note = "Calcification state; 'unreported' -> NA.",
+                          map = function(v) .xw_cat(v, calc_lookup))
+      )
+    ),
+    gamete_type = list(
+      label = "Gamete type (algae)", kind = "categorical", unit = NA_character_,
+      vocab = c("oogamous", "isogamous", "anisogamous"),
+      sources = list(
+        algae_traits = list(enrichment = "algae_traits", col = "gamete_type",
+                          citation = "AlgaeTraits", note = "oogamous / isogamous / anisogamous; unknown and 'not applicable' -> NA.",
+                          map = function(v) .xw_cat(v, gamete_lookup))
+      )
+    ),
+    algal_life_cycle = list(
+      label = "Life-cycle ploidy phase (algae)", kind = "categorical", unit = NA_character_,
+      vocab = c("haplodiplontic", "diplontic", "haplontic"),
+      sources = list(
+        algae_traits = list(enrichment = "algae_traits", col = "life_cycle",
+                          citation = "AlgaeTraits", note = "Dominant ploidy phase; compound labels ('haplodiplontic > isomorphic') take the primary phase (haplodiplontic tested first, since it contains the other two as substrings).",
+                          map = function(v) .xw_grep(v, algcyc_patterns))
+      )
+    ),
+    algal_substrate = list(
+      label = "Attachment substrate (algae)", kind = "categorical", unit = NA_character_,
+      vocab = c("epilithic", "epiphytic", "endophytic", "endolithic",
+                "endozoic", "epizoic", "unattached"),
+      sources = list(
+        algae_traits = list(enrichment = "algae_traits", col = "substrate",
+                          citation = "AlgaeTraits", note = "Substrate the thallus attaches to, verbatim.",
+                          map = function(v) .xw_cat(v, algsub_lookup))
+      )
+    ),
+    bioturbation = list(
+      label = "Bioturbation mode (benthic invertebrate)", kind = "categorical", unit = NA_character_,
+      vocab = c("biodiffusor", "surface-modifier", "conveyor", "bioirrigator", "none"),
+      sources = list(
+        arctic_traits = list(enrichment = "arctic_traits", col = "bioturbation",
+                          citation = "Arctic Traits (Degen & Faulwetter 2019)", note = "Sediment-reworking functional group; 'surface deposition' -> surface-modifier, 'diffusive mixing' -> biodiffusor.",
+                          map = function(v) .xw_grep(v, bioturb_patterns)),
+        nztd          = list(enrichment = "nztd", col = "bioturbation",
+                          citation = "New Zealand Trait Database", note = "Solan/Queiros functional group, verbatim wording harmonized.",
+                          map = function(v) .xw_grep(v, bioturb_patterns))
+      )
+    ),
+    living_habit = list(
+      label = "Living habit (benthic invertebrate)", kind = "categorical", unit = NA_character_,
+      vocab = c("free-living", "burrowing", "tube-dwelling", "crevice-dwelling",
+                "parasitic", "attached"),
+      sources = list(
+        arctic_traits = list(enrichment = "arctic_traits", col = "living_habit",
+                          citation = "Arctic Traits (Degen & Faulwetter 2019)", note = "Life habit relative to the substrate.",
+                          map = function(v) .xw_grep(v, livhabit_patterns)),
+        nztd          = list(enrichment = "nztd", col = "living_habit",
+                          citation = "New Zealand Trait Database", note = "Life habit relative to the substrate.",
+                          map = function(v) .xw_grep(v, livhabit_patterns))
+      )
+    ),
+    feeding_guild = list(
+      label = "Feeding guild (benthic invertebrate)", kind = "categorical", unit = NA_character_,
+      vocab = c("deposit-feeder", "suspension-feeder", "predator", "grazer", "scavenger"),
+      sources = list(
+        arctic_traits = list(enrichment = "arctic_traits", col = "feeding_habit",
+                          citation = "Arctic Traits (Degen & Faulwetter 2019)", note = "Functional feeding guild; surface/subsurface deposit -> deposit-feeder.",
+                          map = function(v) .xw_grep(v, feedguild_patterns)),
+        nztd          = list(enrichment = "nztd", col = "feeding_mode",
+                          citation = "New Zealand Trait Database", note = "Functional feeding guild.",
+                          map = function(v) .xw_grep(v, feedguild_patterns))
+      )
+    ),
+    skeletal_rigidity = list(
+      label = "Skeletal rigidity (octocoral)", kind = "categorical", unit = NA_character_,
+      vocab = c("soft", "semi-rigid", "rigid"),
+      sources = list(
+        octocoral = list(enrichment = "octocoral", col = "skeletal_rigidity",
+                          citation = "Gomez-Gras et al. 2024", note = "soft / semi-rigid / rigid.",
+                          map = function(v) .xw_cat(v, c(soft = "soft", `semi-rigid` = "semi-rigid", rigid = "rigid")))
+      )
+    ),
+    colony_growth_form = list(
+      label = "Colony growth form (octocoral)", kind = "categorical", unit = NA_character_,
+      vocab = c("erect-branched", "erect-unbranched", "horizontal-branched",
+                "horizontal-unbranched", "massive", "encrusting", "solitary"),
+      sources = list(
+        octocoral = list(enrichment = "octocoral", col = "type_of_growth",
+                          citation = "Gomez-Gras et al. 2024", note = "Colony architecture.",
+                          map = function(v) .xw_cat(v, ocgrow_lookup))
       )
     ),
 

@@ -2,6 +2,16 @@
 
 ## New features
 
+* Nine new `add_trait()` traits covering algae, marine-benthic invertebrates,
+  and octocorals, each grounded on its source's own vocabulary before wiring.
+  Algae (AlgaeTraits): `calcification`, `gamete_type`, `algal_life_cycle`
+  (dominant ploidy phase), `algal_substrate`. Marine benthos, harmonized across
+  two sources (Arctic Traits + New Zealand Trait Database): `bioturbation`
+  (Solan/Queiros functional groups), `living_habit`, `feeding_guild`.
+  Octocoral (Gomez-Gras et al. 2024): `skeletal_rigidity`, `colony_growth_form`.
+  Verified end-to-end (Corallina calcified-articulated, Fucus diplontic,
+  Laminaria haplodiplontic; the bryozoan Alcyonidium gelatinosum an attached
+  suspension-feeder with no bioturbation).
 * Seven new single-source `add_trait()` traits, each grounded on its source's
   own values before wiring: `gc_content` (prokaryote genome GC %, Madin et al.
   2020) and `sporulation` (endospore formation, same source), extending the
