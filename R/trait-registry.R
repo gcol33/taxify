@@ -291,7 +291,7 @@
 #   the 170 comma-combinations are multi-type nesters). But nest architecture is
 #   inherently MULTI-LABEL and already served at full fidelity by two doors:
 #   add_birdbase() surfaces birdbase_nest_type (the whole comma string, no loss) and
-#   add_bird_nest() surfaces NestTrait's one-hot neststr_* flags. The registry stores
+#   add_nesttrait() surfaces NestTrait's one-hot neststr_* flags. The registry stores
 #   one categorical per species, so registering it would force a lossy collapse of
 #   both sources and duplicate two working doors -- zero harmonization gain (same
 #   door-vs-registry logic as economic_use below). Not
