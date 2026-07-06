@@ -6402,6 +6402,34 @@
       "license": "CC BY 4.0",
       "source_doi": "10.1890/14-2252.1"
     },
+    "kew_sid": {
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/kew_sid.vtr",
+      "nrow": 50146,
+      "source_url": "https://ser-sid.org/",
+      "source_format": "json",
+      "source_version": "2026.07",
+      "trait_cols": [
+        "lifeform",
+        "thousand_seed_weight",
+        "n_seed_weight_records",
+        "storage_behaviour",
+        "oil_content_pct",
+        "protein_content_pct",
+        "fruit_type"
+      ],
+      "static": true,
+      "citation": {
+        "key": "kewsid",
+        "type": "misc",
+        "authors": "Royal Botanic Gardens Kew",
+        "year": "2024",
+        "title": "Seed Information Database (SID), served as SER-SID",
+        "url": "https://ser-sid.org/"
+      },
+      "license": "CC BY 2.0",
+      "source_doi": null
+    },
     "nztd": {
       "latest": "2026.07",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/nztd.vtr",

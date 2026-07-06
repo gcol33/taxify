@@ -2,6 +2,12 @@
 
 ## New features
 
+* `add_kew_sid()` opens the Kew Seed Information Database (SER-SID, CC BY 2.0):
+  seed weight (thousand-seed weight over 42,000 species), storage behaviour
+  (orthodox/recalcitrant/intermediate), oil and protein content, life form, and
+  fruit type, joined on `accepted_name` across 50,146 accepted names. Verified
+  end-to-end (*Quercus robur* 3493 g/1000 seeds and recalcitrant; *Helianthus
+  annuus* 43.5% seed oil).
 * `add_edwards_phyto()` opens the Edwards et al. (2015) phytoplankton
   nutrient-utilization database (~130 species): Droop/Monod uptake and growth
   parameters for ammonium, nitrate, and phosphorus (`mu`/`k`/`vmax`/`qmin`/`qmax`),
