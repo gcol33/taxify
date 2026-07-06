@@ -4416,7 +4416,7 @@
         "type": "article",
         "authors": "Faurby S, Davis M, Pedersen R, Schowanek SD, Antonelli1 A, Svenning JC",
         "year": "2018",
-        "title": "<scp>PHYLACINE<\/scp> 1.2: The Phylogenetic Atlas of Mammal Macroecology",
+        "title": "<scp>PHYLACINE</scp> 1.2: The Phylogenetic Atlas of Mammal Macroecology",
         "journal": "Ecology",
         "volume": "99",
         "pages": "2626-2626",
@@ -4835,7 +4835,7 @@
         "type": "article",
         "authors": "Maitner BS, Boyle B, Casler N, Condit R, Donoghue J, Durán SM, Guaderrama D, Hinchliff CE, Jørgensen PM, Kraft NJB, McGill B, Merow C, et al.",
         "year": "2017",
-        "title": "The <scp>bien r<\/scp> package: A tool to access the Botanical Information and Ecology Network (BIEN) database",
+        "title": "The <scp>bien r</scp> package: A tool to access the Botanical Information and Ecology Network (BIEN) database",
         "journal": "Methods in Ecology and Evolution",
         "volume": "9",
         "pages": "373-379",
@@ -6734,6 +6734,61 @@
         "year": "2021",
         "title": "United States National Fungus Collections Fungus-Host Dataset",
         "url": "https://doi.org/10.15482/USDA.ADC/1524414"
+      }
+    },
+    "bacdive": {
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/bacdive.vtr",
+      "nrow": 19889,
+      "license": "CC BY 4.0",
+      "source_doi": "10.1093/nar/gkab961",
+      "source_url": "https://bacdive.dsmz.de/",
+      "source_format": "bacdive-fetch-jsonl-gz",
+      "source_version": "2026.07",
+      "species_col": "canonical_name",
+      "trait_cols": [
+        "gram_stain",
+        "cell_shape",
+        "motility",
+        "oxygen_metabolism",
+        "cell_length_um",
+        "cell_width_um",
+        "optimal_growth_temp_c",
+        "optimal_growth_ph"
+      ],
+      "static": true,
+      "citation": {
+        "key": "bacdive2022",
+        "type": "article",
+        "authors": "Reimer LC, Sarda Carbasse J, Koblitz J, Ebeling C, Podstawka A, Overmann J",
+        "year": "2022",
+        "title": "BacDive in 2022: the knowledge base for standardized bacterial and archaeal data",
+        "url": "https://doi.org/10.1093/nar/gkab961"
+      }
+    },
+    "globi": {
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/globi.vtr",
+      "nrow": 544015,
+      "license": "CC BY 4.0 (derived counts; source records carry contributor licenses)",
+      "source_doi": "10.1016/j.ecoinf.2014.08.005",
+      "source_url": "https://www.globalbioticinteractions.org/",
+      "source_format": "globi-edges-tsv-gz",
+      "source_version": "2026.07",
+      "species_col": "canonical_name",
+      "trait_cols": [
+        "interaction_degree",
+        "n_interaction_types",
+        "n_interaction_records"
+      ],
+      "static": true,
+      "citation": {
+        "key": "globi2014",
+        "type": "article",
+        "authors": "Poelen JH, Simons JD, Mungall CJ",
+        "year": "2014",
+        "title": "Global Biotic Interactions: An open infrastructure to share and analyze species-interaction datasets",
+        "url": "https://doi.org/10.1016/j.ecoinf.2014.08.005"
       }
     }
   }
