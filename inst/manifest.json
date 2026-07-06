@@ -6790,6 +6790,32 @@
         "title": "Global Biotic Interactions: An open infrastructure to share and analyze species-interaction datasets",
         "url": "https://doi.org/10.1016/j.ecoinf.2014.08.005"
       }
+    },
+    "italic": {
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/italic.vtr",
+      "nrow": 3677,
+      "license": "CC BY-SA 4.0",
+      "source_doi": "10.3390/jof9050556",
+      "source_url": "https://italic.units.it/",
+      "source_format": "italic-crawl-jsonl",
+      "source_version": "8.0",
+      "species_col": "canonical_name",
+      "trait_cols": [
+        "growth_form",
+        "substrata",
+        "photobiont",
+        "reproductive_strategy"
+      ],
+      "static": true,
+      "citation": {
+        "key": "italic2023",
+        "type": "article",
+        "authors": "Martellos S, Conti M, Nimis PL",
+        "year": "2023",
+        "title": "Aggregation of Italian Lichen Data in ITALIC 7.0",
+        "url": "https://doi.org/10.3390/jof9050556"
+      }
     }
   }
 }

@@ -333,6 +333,25 @@
 #   - cell_length / cell_width (um): bacdive prokaryote cells (med 2 x 0.6 um, a
 #     textbook rod) join rimet_phyto's microalgae on the same um unit (disjoint
 #     taxa, distribution-sanity grounded); the trait labels drop "(microalgae)".
+# Sixteenth wave (ITALIC 8.0 lichen descriptors, a taxon otherwise near-absent
+# from the trait registry; four NEW single-source categoricals grounded on the
+# crawled taxon-page vocabulary):
+#   - lichen_growth_form (NEW; crustose/foliose/fruticose/squamulose/leprose):
+#     kept SEPARATE from the plant growth_form trait (tree/shrub/herb) -- same
+#     column name, different concept (thallus morphology). Lichenicolous and
+#     non-lichenised entries are lifestyle categories, not thallus forms -> NA.
+#   - substrate (NEW; rock/bark/wood/soil/leaves): primary class of a multi-
+#     substrate record by priority (rock > bark > wood > soil > leaves).
+#   - photobiont (NEW; green algae/Trentepohlia/cyanobacteria). GROUNDING CATCH:
+#     the dominant value "green algae other than Trentepohlia" CONTAINS the
+#     substring "Trentepohlia", so a bare grepl("trentepohlia") would mislabel
+#     all ~185 green-algae species; the green-algae/cyanobacteria classes are
+#     tested before the bare Trentepohlia class.
+#   - reproductive_strategy (NEW; sexual/asexual): kept SEPARATE from the animal
+#     reproductive_mode trait (oviparous/viviparous). "mainly sexual, or asexual
+#     ..." keeps sexual; "mainly asexual, by soredia/isidia/fragmentation" -> asexual.
+#   All four mappers verified against the crawled ITALIC values. Requires the
+#   italic.vtr (enrichment-2026.07); source is CC BY-SA 4.0 per ITALIC 8.0.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -643,6 +662,39 @@
     "parasocial|primitively|subsocial" = "parasocial",
     "brood_parasite|inquiline|clepto" = "cleptoparasite",
     "solitary"                        = "solitary")
+
+  # Lichen thallus growth form (italic); lichenicolous / non-lichenised entries
+  # are lifestyle categories, not thallus forms, so they fall through to NA.
+  lichen_gf_patterns <- c(
+    "crustose"   = "crustose",
+    "foliose"    = "foliose",
+    "fruticose"  = "fruticose",
+    "squamulose" = "squamulose",
+    "leprose"    = "leprose")
+
+  # Lichen substrate (italic); a multi-substrate record is reduced to one primary
+  # class by priority (rock > bark > wood > soil > leaves); the rare "bark and
+  # rocks"-type compounds take the higher-priority class.
+  lichen_substrate_patterns <- c(
+    "rock"                 = "rock",
+    "bark"                 = "bark",
+    "lignum|wood"          = "wood",
+    "soil|terricol|debris" = "soil",
+    "leaf|leaves|foliicol" = "leaves")
+
+  # Lichen photobiont (italic). Trap: the dominant value "green algae other than
+  # Trentepohlia" CONTAINS the substring "Trentepohlia", so the green-algae and
+  # cyanobacteria classes must be tested before the bare Trentepohlia class.
+  photobiont_patterns <- c(
+    "other than trentepohlia|green alga" = "green algae",
+    "cyanobacteria"                      = "cyanobacteria",
+    "trentepohlia"                       = "Trentepohlia")
+
+  # Lichen reproductive strategy (italic); "mainly sexual, or asexual ..." keeps
+  # the primary (sexual), "mainly asexual, by soredia/isidia/fragmentation" -> asexual.
+  lichen_repro_patterns <- c(
+    "mainly sexual"  = "sexual",
+    "mainly asexual" = "asexual")
 
   # Fungal trophic mode. funguild's compound hyphenated values (a fungus with
   # several modes) become "mixed"; fungal_traits' primary_lifestyle vocabulary
@@ -1951,6 +2003,44 @@
         sharkipedia = list(enrichment = "sharkipedia", col = "reproductive_mode",
                         citation = "Sharkipedia (sharkipedia.org)", note = "Shark strategies (matrotrophy, placentotrophy, aplacental/histotrophic/lecithotrophic viviparity) collapse to viviparous; oviparous kept.",
                         map = function(v) .xw_grep(v, parity_patterns))
+      )
+    ),
+
+    ## ---- lichen descriptors (ITALIC) --------------------------------------
+    lichen_growth_form = list(
+      label = "Lichen growth form (thallus)", kind = "categorical", unit = NA_character_,
+      vocab = c("crustose", "foliose", "fruticose", "squamulose", "leprose"),
+      sources = list(
+        italic = list(enrichment = "italic", col = "growth_form",
+                      citation = "ITALIC 8.0 (Nimis; Italian lichens)", note = "Thallus growth form; lichenicolous and non-lichenised entries are lifestyle categories, not thallus forms, and map to NA.",
+                      map = function(v) .xw_grep(v, lichen_gf_patterns))
+      )
+    ),
+    substrate = list(
+      label = "Substrate", kind = "categorical", unit = NA_character_,
+      vocab = c("rock", "bark", "wood", "soil", "leaves"),
+      sources = list(
+        italic = list(enrichment = "italic", col = "substrata",
+                      citation = "ITALIC 8.0 (Nimis; Italian lichens)", note = "Primary substrate of a possibly multi-substrate record (priority rock > bark > wood > soil > leaves).",
+                      map = function(v) .xw_grep(v, lichen_substrate_patterns))
+      )
+    ),
+    photobiont = list(
+      label = "Lichen photobiont", kind = "categorical", unit = NA_character_,
+      vocab = c("green algae", "Trentepohlia", "cyanobacteria"),
+      sources = list(
+        italic = list(enrichment = "italic", col = "photobiont",
+                      citation = "ITALIC 8.0 (Nimis; Italian lichens)", note = "Photosynthetic partner; 'green algae other than Trentepohlia' maps to green algae (the substring Trentepohlia is not matched first).",
+                      map = function(v) .xw_grep(v, photobiont_patterns))
+      )
+    ),
+    reproductive_strategy = list(
+      label = "Reproductive strategy (sexual / asexual)", kind = "categorical", unit = NA_character_,
+      vocab = c("sexual", "asexual"),
+      sources = list(
+        italic = list(enrichment = "italic", col = "reproductive_strategy",
+                      citation = "ITALIC 8.0 (Nimis; Italian lichens)", note = "Primary strategy; 'mainly sexual, or asexual ...' keeps sexual, 'mainly asexual, by soredia/isidia/fragmentation' maps to asexual.",
+                      map = function(v) .xw_grep(v, lichen_repro_patterns))
       )
     ),
     leaf_type = list(

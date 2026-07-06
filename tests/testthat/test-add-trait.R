@@ -339,6 +339,27 @@ test_that("BacDive is wired as a second prokaryote source alongside Madin", {
   expect_equal(mo(c("motile", "non-motile")), c("motile", "non-motile"))
 })
 
+test_that("ITALIC lichen descriptors are registered as distinct lichen traits", {
+  reg <- taxify:::.trait_registry()
+  for (tr in c("lichen_growth_form", "substrate", "photobiont", "reproductive_strategy"))
+    expect_equal(reg[[tr]]$sources$italic$enrichment, "italic", info = tr)
+  # Kept separate from the plant growth_form and animal reproductive_mode traits.
+  expect_false("italic" %in% names(reg$growth_form$sources))
+  expect_false("italic" %in% names(reg$reproductive_mode$sources))
+  # Growth form: lichenicolous / non-lichenised are not thallus forms -> NA.
+  gf <- reg$lichen_growth_form$sources$italic$map
+  expect_equal(gf(c("Crustose", "Foliose, narrow lobed", "Fruticose", "Lichenicolous fungus")),
+               c("crustose", "foliose", "fruticose", NA))
+  # Photobiont trap: "green algae other than Trentepohlia" must not map to Trentepohlia.
+  pb <- reg$photobiont$sources$italic$map
+  expect_equal(pb(c("green algae other than Trentepohlia", "Trentepohlia",
+                    "cyanobacteria, coccaceous (e.g. Gloeocapsa )")),
+               c("green algae", "Trentepohlia", "cyanobacteria"))
+  rs <- reg$reproductive_strategy$sources$italic$map
+  expect_equal(rs(c("mainly sexual, or asexual by conidia", "mainly asexual, by soredia")),
+               c("sexual", "asexual"))
+})
+
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
