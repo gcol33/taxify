@@ -454,6 +454,12 @@
 # other source carries nutrient-uptake kinetics, and cell_volume is not the same
 # quantity as the animal/plant body_size verbs, so nothing harmonizes to a shared
 # unit; add_edwards_phyto() surfaces them, the cross-source verb does not.
+# seed_mass gains a sixth-to-seventh source: kew_sid (Kew Seed Information
+# Database, ~42k species with a thousand-seed weight). A thousand-seed weight in
+# grams equals the per-seed mass in milligrams, so the map is identity -- grounded
+# on shared species against the existing mg sources: median(kew_tsw / seed_mass_mg)
+# = 1.00 vs diaz (n=23,277), bien (n=10,384), austraits (n=7,738, IQR exactly
+# [1,1]) and ecoflora (n=2,398). It roughly doubles seed_mass species coverage.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -902,7 +908,8 @@
         austraits = nsrc("austraits", "seed_dry_mass_mg", "AusTraits (Falster et al. 2021)", "Milligrams."),
         bien      = nsrc("bien", "seed_mass_mg", "BIEN (Maitner et al. 2018)", "Milligrams."),
         brot      = nsrc("brot", "seed_mass_mg", "BROT 2.0 (Tavsanoglu & Pausas 2018)", "Milligrams."),
-        ecoflora  = nsrc("ecoflora", "seed_weight_mg_uk", "Ecoflora (Fitter & Peat 1994)", "Milligrams.")
+        ecoflora  = nsrc("ecoflora", "seed_weight_mg_uk", "Ecoflora (Fitter & Peat 1994)", "Milligrams."),
+        kew_sid   = nsrc("kew_sid", "thousand_seed_weight", "Kew SID (RBG Kew)", "Thousand-seed weight in grams equals per-seed mass in milligrams (x1).")
       )
     ),
     sla = list(

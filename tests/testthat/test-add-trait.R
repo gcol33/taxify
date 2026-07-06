@@ -363,7 +363,7 @@ test_that("ITALIC lichen descriptors are registered as distinct lichen traits", 
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
-  expect_setequal(ti$source, c("diaz", "gift", "austraits", "bien", "brot", "ecoflora"))
+  expect_setequal(ti$source, c("diaz", "gift", "austraits", "bien", "brot", "ecoflora", "kew_sid"))
   expect_true(any(grepl("x1000", ti$note)))          # GIFT g -> mg conversion noted
   expect_error(suppressMessages(trait_info("nope")), "unknown trait")
 })

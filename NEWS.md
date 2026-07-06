@@ -7,7 +7,10 @@
   (orthodox/recalcitrant/intermediate), oil and protein content, life form, and
   fruit type, joined on `accepted_name` across 50,146 accepted names. Verified
   end-to-end (*Quercus robur* 3493 g/1000 seeds and recalcitrant; *Helianthus
-  annuus* 43.5% seed oil).
+  annuus* 43.5% seed oil). Its seed weight also joins the cross-source
+  `add_trait("seed_mass")` verb as a seventh source (a thousand-seed weight in
+  grams equals the per-seed mass in mg; grounded at ratio 1.00 against Diaz,
+  BIEN, and AusTraits), roughly doubling seed-mass species coverage.
 * `add_edwards_phyto()` opens the Edwards et al. (2015) phytoplankton
   nutrient-utilization database (~130 species): Droop/Monod uptake and growth
   parameters for ammonium, nitrate, and phosphorus (`mu`/`k`/`vmax`/`qmin`/`qmax`),
