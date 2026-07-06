@@ -394,6 +394,24 @@
 #   Requires spider_traits/parravicini/zooplankton/sheld .vtr (enrichment-2026.07);
 #   spider_traits was also missing from both manifests (its add_spider_traits() door
 #   could not resolve) and is added here.
+# Eighteenth wave (FISHMORPH, the last un-mined morphology database; Brosse et al.
+# 2021, CC BY 4.0, 9043 freshwater fish). Nine NEW single-source numeric traits,
+# all dimensionless body-shape ratios taken verbatim (unit "index"), grounded on
+# distribution sanity + the source's own definitions (the wave-13 single-source
+# morphometrics pattern): body_elongation (length/depth, med 4.0), oral_gape_position
+# (0 = inferior .. 1 = superior, med 0.41), relative_eye_size (eye/head length,
+# med 0.39), vertical_eye_position (med 0.55), relative_maxillary_length (med 0.37),
+# body_lateral_shape (body/peduncle depth, med 0.57), pectoral_fin_position (med 0.27),
+# pectoral_fin_size (fin/body length, med 0.18), caudal_peduncle_throttling (med 2.4).
+# REJECTED by grounding: (1) FISHMORPH max_body_length is NOT a body_length source --
+# it IS the FishBase max length (median ratio exactly 1.000 across 8525 shared
+# species), the same-data trap as AusTraits==Mokany and lizard_traits==Oskyrko;
+# (2) oral_gape_position was NOT binned into the categorical mouth_position -- the
+# two share only 40 species and the index does not separate quimbayo's classes
+# (terminal spans 0.12-0.69, overlapping superior 0.30-0.80), so the bin cutoffs
+# cannot be grounded; the continuous index stays its own trait, lossless. Pure
+# registry edits: the fishmorph .vtr and add_fishmorph() door already carry every
+# column (enrichment-2026.07), so no rebuild or manifest change is needed.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -1840,6 +1858,60 @@
       sources = list(
         beukhof  = nsrc("beukhof", "aspect_ratio", "Beukhof et al. 2019", "Caudal-fin aspect ratio (height^2 / area), unitless."),
         quimbayo = nsrc("quimbayo", "aspect_ratio", "Quimbayo et al. 2021", "Caudal-fin aspect ratio, unitless (ratio 1.00 vs Beukhof on 406 shared species).")
+      )
+    ),
+    body_elongation = list(
+      label = "Body elongation (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "body_elongation", "FISHMORPH (Brosse et al. 2021)", "Body length / maximum body depth; dimensionless, median 4.0 (range 1.0-44), distribution-sanity grounded.")
+      )
+    ),
+    vertical_eye_position = list(
+      label = "Vertical eye position (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "vertical_eye_position", "FISHMORPH (Brosse et al. 2021)", "Eye midline height / head depth; 0-1 index, median 0.55.")
+      )
+    ),
+    relative_eye_size = list(
+      label = "Relative eye size (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "relative_eye_size", "FISHMORPH (Brosse et al. 2021)", "Eye diameter / head length; 0-1 index, median 0.39.")
+      )
+    ),
+    oral_gape_position = list(
+      label = "Oral gape position (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "oral_gape_position", "FISHMORPH (Brosse et al. 2021)", "Mouth position, 0 = inferior, 0.5 = terminal, 1 = superior; 0-1 index, median 0.41. Kept as its own continuous index rather than binned into the categorical mouth_position: the two share only 40 species and the index does not separate quimbayo's classes (terminal spans 0.12-0.69, overlapping superior 0.30-0.80).")
+      )
+    ),
+    relative_maxillary_length = list(
+      label = "Relative maxillary length (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "relative_maxillary_length", "FISHMORPH (Brosse et al. 2021)", "Maxillary length / head length; index, median 0.37.")
+      )
+    ),
+    body_lateral_shape = list(
+      label = "Body lateral shape (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "body_lateral_shape", "FISHMORPH (Brosse et al. 2021)", "Body depth / caudal peduncle depth; index, median 0.57.")
+      )
+    ),
+    pectoral_fin_position = list(
+      label = "Pectoral fin position (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "pectoral_fin_position", "FISHMORPH (Brosse et al. 2021)", "Pectoral fin insertion height / body depth; 0-1 index, median 0.27.")
+      )
+    ),
+    pectoral_fin_size = list(
+      label = "Pectoral fin size (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "pectoral_fin_size", "FISHMORPH (Brosse et al. 2021)", "Pectoral fin length / body length; index, median 0.18.")
+      )
+    ),
+    caudal_peduncle_throttling = list(
+      label = "Caudal peduncle throttling (fish)", kind = "numeric", unit = "index", vocab = NULL,
+      sources = list(
+        fishmorph = nsrc("fishmorph", "caudal_peduncle_throttling", "FISHMORPH (Brosse et al. 2021)", "Caudal peduncle depth / caudal fin depth; index, median 2.4.")
       )
     ),
     head_length = list(
