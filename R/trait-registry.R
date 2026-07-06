@@ -434,6 +434,19 @@
 # and disperse_fecundity stays rejected for the wave-17 per-event-vs-per-year
 # reason regardless. Registry + door edits; the .vtr columns already exist
 # (enrichment-2026.07), so no rebuild.
+# The join_col unlock also surfaced two more latent bugs of the same kind (a
+# genus-keyed source silently all-NA through the verb), caught by a new guard
+# test that enumerates the genus-keyed enrichments and asserts join_col:
+#   - diet_guild's blanchard source (ant genus diet) lacked join_col; it is
+#     genus-keyed, so it now sets join_col = "genus" (Camponotus/Formica ->
+#     omnivore through the verb, matching add_blanchard()).
+#   - elevation_min / elevation_max had a FungalRoot source that is NOT a fix
+#     but a grounding rejection: FungalRoot's elevation_* is the elevation of a
+#     genus-grain mycorrhizal sampling record (one number per genus, e.g.
+#     Acer 85 m, Acanthus 2 m), not a species elevational range limit -- a
+#     different quantity from the birdbase/repttraits/globtherm species ranges;
+#     and elevation_max has 7 non-NA values, all degenerate at ~3300 m. Both
+#     FungalRoot elevation slots removed (413 -> 411 source-slots).
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -1444,8 +1457,8 @@
         chelonians   = list(enrichment = "chelonians", col = "diet",
                           citation = "TurtleTraits (Chelonians)", note = "Turtle diet; compound labels ('omnivorous to carnivorous') take the primary guild by pattern order.",
                           map = function(v) .xw_grep(v, diet_patterns)),
-        blanchard    = list(enrichment = "blanchard", col = "diet",
-                          citation = "Blanchard et al. (ant traits)", note = "Ant diet; predator -> carnivore.",
+        blanchard    = list(enrichment = "blanchard", col = "diet", join_col = "genus",
+                          citation = "Blanchard et al. (ant traits)", note = "Ant diet (genus-keyed); predator -> carnivore.",
                           map = function(v) .xw_grep(v, diet_patterns)),
         parravicini  = list(enrichment = "parravicini", col = "trophic_guild",
                           citation = "Parravicini et al. 2020", note = "Reef-fish guild codes (legend verified empirically): H herbivore, I invertivore, O omnivore, P piscivore -> carnivore, PK planktivore.",
@@ -1778,8 +1791,11 @@
       sources = list(
         birdbase   = nsrc("birdbase", "elevation_min_m", "Sekercioglu et al. 2025 (BIRDBASE)", "Metres."),
         repttraits = nsrc("repttraits", "elevation_min_m", "ReptTraits (Oskyrko et al. 2024)", "Metres."),
-        globtherm  = nsrc("globtherm", "elevation_min", "GlobTherm (Bennett et al. 2018)", "Metres."),
-        fungalroot = nsrc("fungalroot", "elevation_min", "FungalRoot (Soudzilovskaia et al. 2020)", "Metres.")
+        globtherm  = nsrc("globtherm", "elevation_min", "GlobTherm (Bennett et al. 2018)", "Metres.")
+        # FungalRoot's elevation_* is the elevation of a genus-grain mycorrhizal
+        # sampling record, not a species elevational range limit (and its
+        # elevation_max has 7 non-NA values, all degenerate at ~3300 m), so it is
+        # a different quantity from the species-level ranges above and excluded.
       )
     ),
     elevation_max = list(
@@ -1787,8 +1803,9 @@
       sources = list(
         birdbase   = nsrc("birdbase", "elevation_max_m", "Sekercioglu et al. 2025 (BIRDBASE)", "Metres."),
         repttraits = nsrc("repttraits", "elevation_max_m", "ReptTraits (Oskyrko et al. 2024)", "Metres."),
-        globtherm  = nsrc("globtherm", "elevation_max", "GlobTherm (Bennett et al. 2018)", "Metres."),
-        fungalroot = nsrc("fungalroot", "elevation_max", "FungalRoot (Soudzilovskaia et al. 2020)", "Metres.")
+        globtherm  = nsrc("globtherm", "elevation_max", "GlobTherm (Bennett et al. 2018)", "Metres.")
+        # FungalRoot elevation_max excluded (see elevation_min): sampling-record
+        # elevation at genus grain, degenerate max column.
       )
     ),
     home_range = list(

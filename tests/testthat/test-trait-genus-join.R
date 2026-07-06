@@ -16,6 +16,27 @@ test_that("nineteenth-wave traits are registered and well-formed", {
                    "genus")
 })
 
+test_that("every genus-keyed enrichment feeding the verb sets join_col=genus", {
+  # A genus-resolved enrichment joined on the accepted_name default returns
+  # all-NA through the verb (the latent bug the join_col unlock exists to fix).
+  # Enumerate the known genus-keyed enrichments and assert no registry source
+  # references one without join_col = "genus".
+  genus_keyed <- c("disperse", "blanchard", "fungal_traits", "fungalroot")
+  reg <- taxify:::.trait_registry()
+  for (tr in names(reg)) {
+    for (sn in names(reg[[tr]]$sources)) {
+      src <- reg[[tr]]$sources[[sn]]
+      if (src$enrichment %in% genus_keyed) {
+        expect_identical(
+          src$join_col %||% "accepted_name", "genus",
+          info = sprintf("trait '%s' source '%s' (enrichment '%s')",
+                         tr, sn, src$enrichment)
+        )
+      }
+    }
+  }
+})
+
 test_that("nest modality maps keep multi-modal pipe sets verbatim", {
   reg <- taxify:::.trait_registry()
   m   <- reg$nest_structure$sources$nesttrait$map
@@ -47,6 +68,17 @@ test_that("add_trait() joins a genus-keyed source on genus (recovery test)", {
   stage_fungalroot(dd, df)
   old <- options(taxify.data_dir = dd)
   on.exit(options(old), add = TRUE)
+
+  # Hermetic against test-file ordering: drop any session-cached real fungalroot
+  # path and short-circuit the version check so the staged temp dir is used.
+  taxify:::set_backbone_path("enrichment_fungalroot", NULL)
+  assign(".enrichment_version_checked.fungalroot", TRUE,
+         envir = taxify:::.taxify_env)
+  on.exit({
+    taxify:::set_backbone_path("enrichment_fungalroot", NULL)
+    assign(".enrichment_version_checked.fungalroot", NULL,
+           envir = taxify:::.taxify_env)
+  }, add = TRUE)
 
   x <- data.frame(
     accepted_name = c("Abies alba", "Betula pendula", "Pisum sativum", "Homo sapiens"),
