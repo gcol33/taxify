@@ -412,6 +412,28 @@
 # cannot be grounded; the continuous index stays its own trait, lossless. Pure
 # registry edits: the fishmorph .vtr and add_fishmorph() door already carry every
 # column (enrichment-2026.07), so no rebuild or manifest change is needed.
+# Nineteenth wave (genus-keyed sources reach the trait verb + NestTrait nest
+# modalities). This wave's enabling change is an engine unlock: a registry source
+# may now set join_col = "genus", which add_trait() threads through .trait_join_one
+# to enrich_simple(join_col=) -- previously every trait-verb source joined on
+# accepted_name, so a genus-keyed source silently returned all-NA. That also fixes
+# a latent bug: fungal_trophic_mode's FungalTraits source (genus-keyed) was joining
+# on accepted_name and contributing nothing; it now carries join_col = "genus".
+# NEW traits: mycorrhizal_type (FungalRoot, Soudzilovskaia et al. 2020; 4188 plant
+# genera, majority-consensus AM/EcM/ErM/OM/NM + dual types, joined on genus;
+# textbook-correct end-to-end -- Abies/Betula/Quercus EcM, Pisum AM), and the
+# NestTrait (Chia et al. 2023, 12,615 birds) nest-modality categoricals
+# nest_structure / nest_site / nest_attachment, kept verbatim as pipe-delimited
+# multi-modal sets ("cup|dome") since a species genuinely uses several -- derived
+# at build time from the one-hot flag groups (taxifydb #5). DOOR-ONLY (not the
+# verb): disperse (Sarremejane et al. 2020, 462 European freshwater-invert genera).
+# Its build-time _mid numeric columns (body_size_cm, female_wing_mm, fecundity) and
+# the disperse_drift categorical are now surfaced by add_disperse(), but they stay
+# out of the cross-source verb: single-source coarse genus-level ordinal-bin
+# midpoints, so the door is their home (same call as economic_use/useful_plants),
+# and disperse_fecundity stays rejected for the wave-17 per-event-vs-per-year
+# reason regardless. Registry + door edits; the .vtr columns already exist
+# (enrichment-2026.07), so no rebuild.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -498,6 +520,10 @@
   cm2mm_p <- function(v) num_pos(v) * 10                            # cm -> mm, negatives dropped
   d2y     <- function(v) num_pos(v) / 365.25                        # days -> years, negatives dropped
   mgcm2g  <- function(v) num(v) / 1000       # mg/cm^3 -> g/cm^3 (stem specific density)
+  # A categorical source used verbatim: trim, empty string -> NA. Used for the
+  # NestTrait columns, whose values are already pipe-delimited multi-modal tokens
+  # (e.g. "tree|cliff_bank") that must be preserved, not collapsed to one token.
+  chr_verbatim <- function(v) { s <- trimws(as.character(v)); s[!nzchar(s)] <- NA_character_; s }
 
   # Categorical crosswalks for the added traits (grounded on the sources'
   # distinct values). Flower colour takes the first colour word of a possibly
@@ -829,9 +855,10 @@
   # `caution` (default NA) flags a source whose unit is correct but whose
   # method/definition differs from the trait's reference source (e.g. maximum
   # vs fine-root diameter). It drives the method-aware coalesce in add_trait().
-  nsrc <- function(enr, col, cite, note, map = num, caution = NA_character_) {
+  nsrc <- function(enr, col, cite, note, map = num, caution = NA_character_,
+                   join_col = "accepted_name") {
     list(enrichment = enr, col = col, citation = cite, note = note,
-         map = map, caution = caution)
+         map = map, caution = caution, join_col = join_col)
   }
 
   list(
@@ -1612,7 +1639,7 @@
         funguild      = list(enrichment = "funguild", col = "trophic_mode",
                           citation = "FUNGuild (Nguyen et al. 2016)", note = "pathotroph / saprotroph / symbiotroph; hyphenated multi-mode entries -> mixed.",
                           map = fungtroph_funguild),
-        fungal_traits = list(enrichment = "fungal_traits", col = "primary_lifestyle",
+        fungal_traits = list(enrichment = "fungal_traits", col = "primary_lifestyle", join_col = "genus",
                           citation = "FungalTraits (Polme et al. 2020)", note = "Primary lifestyle mapped to trophic mode: *_saprotroph -> saprotroph, pathogen/parasite -> pathotroph, mycorrhizal/lichen/endophyte -> symbiotroph.",
                           map = function(v) .xw_grep(v, fungtroph_patterns))
       )
@@ -2515,6 +2542,49 @@
                           citation = "Global Zooplankton Trait DB (Pata & Hunt 2025)", note = "present (incl. weak/strong/reverse) -> yes, absent -> no, 'maybe' -> NA. Daily vertical movement, distinct from bird seasonal migration.",
                           map = function(v) .xw_grep(v, presence_yn))
       )
+    ),
+
+    ## ---- nineteenth wave: NestTrait bird nest modalities + genus-keyed
+    ##      mycorrhizal type (validates the trait verb's join_col unlock) ------
+    nest_structure = list(
+      label = "Nest structure (birds)", kind = "categorical", unit = NA_character_,
+      vocab = c("scrape", "platform", "cup", "dome", "dome_tunnel",
+                "primary_cavity", "second_cavity"),
+      sources = list(
+        nesttrait = list(enrichment = "nesttrait", col = "nest_structure",
+                          citation = "NestTrait v2 (Chia et al. 2023)", note = "Nest structural type. Multi-modal species keep every modality as a pipe-delimited set (e.g. 'cup|dome') in source order; derived at build time from the seven one-hot NestStr_* flags.",
+                          map = chr_verbatim)
+      )
+    ),
+    nest_site = list(
+      label = "Nest site (birds)", kind = "categorical", unit = NA_character_,
+      vocab = c("ground", "tree", "nontree", "cliff_bank", "underground",
+                "waterbody", "termite_ant"),
+      sources = list(
+        nesttrait = list(enrichment = "nesttrait", col = "nest_site",
+                          citation = "NestTrait v2 (Chia et al. 2023)", note = "Nest placement. Multi-modal species keep every modality as a pipe-delimited set (e.g. 'tree|cliff_bank'); derived at build time from the seven one-hot NestSite_* flags.",
+                          map = chr_verbatim)
+      )
+    ),
+    nest_attachment = list(
+      label = "Nest attachment (birds)", kind = "categorical", unit = NA_character_,
+      vocab = c("basal", "forked", "lateral", "pensile"),
+      sources = list(
+        nesttrait = list(enrichment = "nesttrait", col = "nest_attachment",
+                          citation = "NestTrait v2 (Chia et al. 2023)", note = "How the nest attaches to its support. Multi-modal species keep every modality as a pipe-delimited set; derived at build time from the four one-hot NestAtt_* flags.",
+                          map = chr_verbatim)
+      )
+    ),
+    mycorrhizal_type = list(
+      label = "Mycorrhizal type", kind = "categorical", unit = NA_character_,
+      vocab = c("AM", "EcM", "ErM", "OM", "NM", "EcM-AM", "ErM-EcM", "ErM-AM",
+                "uncertain", "Other"),
+      sources = list(
+        fungalroot = list(enrichment = "fungalroot", col = "mycorrhizal_type",
+                          join_col = "genus",
+                          citation = "FungalRoot (Soudzilovskaia et al. 2020)", note = "Genus-level majority-consensus mycorrhizal type (AM arbuscular, EcM ecto, ErM ericoid, OM orchid, NM non-mycorrhizal, plus dual types); joined on genus. Verbatim source code.",
+                          map = chr_verbatim)
+      )
     )
   )
 }
@@ -2562,7 +2632,8 @@
 # (before crosswalk). Reuses enrich_simple() for the aggregate-aware join. A
 # source that is unavailable (not installed, no download, no build) is skipped
 # with a warning and returns NULL, so add_trait() still works from the rest.
-.trait_join_one <- function(x, enrichment, col, kind, verbose = TRUE) {
+.trait_join_one <- function(x, enrichment, col, kind, join_col = "accepted_name",
+                            verbose = TRUE) {
   tmp  <- ".__taxify_trait_raw__"
   na_t <- stats::setNames(
     list(if (kind == "numeric") NA_real_ else NA_character_), tmp)
@@ -2572,6 +2643,8 @@
       col_map      = stats::setNames(col, tmp),
       source_label = enrichment,
       na_types     = na_t,
+      join_col     = join_col,
+      expose_all   = FALSE,
       verbose      = FALSE
     ),
     error = function(e) {

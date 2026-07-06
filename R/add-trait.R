@@ -132,7 +132,9 @@ add_trait <- function(x, trait, sources = "all",
   per_src <- list()
   for (s in ord) {
     sp  <- spec$sources[[s]]
-    raw <- .trait_join_one(x, sp$enrichment, sp$col, spec$kind, verbose = verbose)
+    raw <- .trait_join_one(x, sp$enrichment, sp$col, spec$kind,
+                           join_col = sp$join_col %||% "accepted_name",
+                           verbose = verbose)
     per_src[[s]] <- if (is.null(raw)) rep(na_scalar, nrow(x)) else sp$map(raw)
   }
 

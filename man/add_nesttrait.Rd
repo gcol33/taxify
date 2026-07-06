@@ -14,9 +14,11 @@ add_nesttrait(x, cols = NULL, verbose = TRUE)
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with 20 additional 0/1 indicator columns prefixed
-\code{nesttrait_}: \code{brood_parasite}, \code{mound_builder}, seven \verb{nestsite_*}, seven
-\verb{neststr_*} and four \verb{nestatt_*} flags.
+The same data.frame with three collapsed categorical columns
+(\code{nesttrait_structure}, \code{nesttrait_site}, \code{nesttrait_attachment}, each a
+pipe-delimited set of modalities for multi-modal species) plus 20 raw 0/1
+indicator columns prefixed \code{nesttrait_}: \code{brood_parasite}, \code{mound_builder},
+seven \verb{nestsite_*}, seven \verb{neststr_*} and four \verb{nestatt_*} flags.
 }
 \description{
 Joins bird nest-site, nest-structure and nest-attachment indicators to a

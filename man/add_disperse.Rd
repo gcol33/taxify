@@ -17,7 +17,9 @@ add_disperse(x, cols = NULL, verbose = TRUE)
 The same data.frame with categorical \code{disperse_body_size_cm},
 \code{disperse_life_cycle}, \code{disperse_repro_cycles}, \code{disperse_dispersal},
 \code{disperse_adult_lifespan}, \code{disperse_female_wing_mm}, \code{disperse_wing_type},
-\code{disperse_fecundity} (joined on genus).
+\code{disperse_fecundity}, \code{disperse_drift}, and the numeric bin-midpoint columns
+\code{disperse_body_size_cm_mid}, \code{disperse_female_wing_mm_mid},
+\code{disperse_fecundity_mid} (all joined on genus).
 }
 \description{
 Joins genus-level dispersal-related traits for European aquatic

@@ -10,7 +10,9 @@
 #' @return The same data.frame with categorical `disperse_body_size_cm`,
 #'   `disperse_life_cycle`, `disperse_repro_cycles`, `disperse_dispersal`,
 #'   `disperse_adult_lifespan`, `disperse_female_wing_mm`, `disperse_wing_type`,
-#'   `disperse_fecundity` (joined on genus).
+#'   `disperse_fecundity`, `disperse_drift`, and the numeric bin-midpoint columns
+#'   `disperse_body_size_cm_mid`, `disperse_female_wing_mm_mid`,
+#'   `disperse_fecundity_mid` (all joined on genus).
 #'
 #' @details Source: DISPERSE (Sarremejane et al. 2020, Scientific Data, CC-BY
 #'   4.0). Joins on genus because the database is genus-resolved.
@@ -28,12 +30,18 @@
 #'
 #' @export
 add_disperse <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c("disperse_body_size_cm", "disperse_life_cycle",
+  cat_cols <- c("disperse_body_size_cm", "disperse_life_cycle",
             "disperse_repro_cycles", "disperse_dispersal",
             "disperse_adult_lifespan", "disperse_female_wing_mm",
-            "disperse_wing_type", "disperse_fecundity")
+            "disperse_wing_type", "disperse_fecundity", "disperse_drift")
+  mid_cols <- c("disperse_body_size_cm_mid", "disperse_female_wing_mm_mid",
+            "disperse_fecundity_mid")
+  base_cols <- c(cat_cols, mid_cols)
   col_map <- stats::setNames(base_cols, base_cols)
-  na_types <- stats::setNames(rep(list(NA_character_), length(base_cols)), base_cols)
+  na_types <- c(
+    stats::setNames(rep(list(NA_character_), length(cat_cols)), cat_cols),
+    stats::setNames(rep(list(NA_real_), length(mid_cols)), mid_cols)
+  )
   enrich_simple(
     x,
     enrichment_name = "disperse",
