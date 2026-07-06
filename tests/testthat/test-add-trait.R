@@ -313,12 +313,30 @@ test_that("leaf dimensions, fish, prokaryote and bee traits are registered", {
   expect_equal(suppressMessages(trait_info("feeding_mode"))$source, "beukhof")
   expect_equal(suppressMessages(trait_info("mouth_position"))$source, "quimbayo")
   expect_equal(suppressMessages(trait_info("air_breathing"))$source, "fishbase")
-  expect_equal(suppressMessages(trait_info("motility"))$source, "madin")
+  expect_setequal(suppressMessages(trait_info("motility"))$source, c("madin", "bacdive"))
   expect_equal(suppressMessages(trait_info("lecty"))$source, "eupolltrait")
   reg <- taxify:::.trait_registry()
   ab <- reg$air_breathing$sources$fishbase$map
   expect_equal(ab(c("WaterAssumed", "Facultative", "Obligate", "FacultativeObligate")),
                c("none", "facultative", "obligate", "facultative"))
+})
+
+test_that("BacDive is wired as a second prokaryote source alongside Madin", {
+  for (tr in c("gram_stain", "oxygen_metabolism", "cell_shape", "motility",
+               "optimal_growth_temperature", "optimal_growth_ph")) {
+    expect_true("bacdive" %in% suppressMessages(trait_info(tr))$source,
+                info = tr)
+  }
+  for (tr in c("cell_length", "cell_width"))
+    expect_setequal(suppressMessages(trait_info(tr))$source, c("rimet_phyto", "bacdive"))
+  reg <- taxify:::.trait_registry()
+  # BacDive cell_shape tokens fold to the shared vocabulary.
+  cs <- reg$cell_shape$sources$bacdive$map
+  expect_equal(cs(c("rod", "ovoid", "oval", "sphere", "curved", "spiral")),
+               c("bacillus", "coccobacillus", "coccobacillus", "coccus", "vibrio", "spiral"))
+  # BacDive motility is pre-normalized, so it needs its own map.
+  mo <- reg$motility$sources$bacdive$map
+  expect_equal(mo(c("motile", "non-motile")), c("motile", "non-motile"))
 })
 
 test_that("trait_info() returns one row per source with harmonization notes", {

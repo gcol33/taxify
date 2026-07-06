@@ -317,6 +317,22 @@
 #     ships as von_bertalanffy_k (beukhof, sharkipedia). Coral linear extension
 #     mm/yr, zooplankton per-day, and AnAge's Gompertz constant are physically
 #     different rates, not one unit, so growth_rate stays unregistered.
+# Fifteenth wave (BacDive (DSMZ) added as a second prokaryote source to the six
+# traits Madin already carried, roughly doubling species coverage; ~18.6k BacDive
+# species vs ~11k Madin):
+#   - gram_stain, oxygen_metabolism, cell_shape, motility: same canonical vocab as
+#     madin. oxygen_metabolism reuses oxymet_patterns (aerobe/anaerobe/facultative
+#     anaerobe/microaerophile all hit the same stems); cell_shape reuses (and this
+#     wave widened) cellshape_patterns for bacdive's ovoid/oval/ellipsoidal ->
+#     coccobacillus, sphere -> coccus, curved -> vibrio (none collide with madin's
+#     tokens, verified). motility gets its own map since bacdive is pre-normalized
+#     to motile / non-motile (madin's map keys on no/yes/flagella/...).
+#   - optimal_growth_temperature (deg C) and optimal_growth_ph (pH): shared-species
+#     ratio 1.00 vs madin (11,117 and 3,371 shared species) -- identical units,
+#     median coalesce.
+#   - cell_length / cell_width (um): bacdive prokaryote cells (med 2 x 0.6 um, a
+#     textbook rod) join rimet_phyto's microalgae on the same um unit (disjoint
+#     taxa, distribution-sanity grounded); the trait labels drop "(microalgae)".
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -609,14 +625,16 @@
     "anaerob"   = "anaerobic",
     "aerob"     = "aerobic")
 
-  # Bacterial cell shape (madin); "coccobacillus" tested before its two parts.
+  # Bacterial cell shape (madin + bacdive); "coccobacillus" tested before its two
+  # parts. bacdive adds ovoid/oval/ellipsoidal (short ovoid rods -> coccobacillus),
+  # sphere (-> coccus) and curved (-> vibrio); none collide with madin's tokens.
   cellshape_patterns <- c(
-    "coccobac"        = "coccobacillus",
-    "bacill|rod"      = "bacillus",
-    "cocc"            = "coccus",
-    "spiral|helic"    = "spiral",
-    "vibrio|comma"    = "vibrio",
-    "filament"        = "filament",
+    "coccobac|ovoid|oval|ellips"      = "coccobacillus",
+    "bacill|rod"                      = "bacillus",
+    "cocc|sphere"                     = "coccus",
+    "spiral|helic"                    = "spiral",
+    "vibrio|comma|curved"             = "vibrio",
+    "filament"                        = "filament",
     "star|pleo|tail|disc|flask|ring|box|triangular" = "other")
 
   # Bee sociality (eupolltrait); brood parasites and inquilines -> cleptoparasite.
@@ -1374,6 +1392,9 @@
       sources = list(
         madin = list(enrichment = "madin", col = "gram_stain",
                      citation = "Madin et al. 2020 (prokaryote traits)", note = "Gram-positive / Gram-negative.",
+                     map = function(v) .xw_cat(v, c(positive = "positive", negative = "negative"))),
+        bacdive = list(enrichment = "bacdive", col = "gram_stain",
+                     citation = "BacDive (DSMZ; Reimer et al. 2022)", note = "positive / negative ('variable' strains dropped).",
                      map = function(v) .xw_cat(v, c(positive = "positive", negative = "negative")))
       )
     ),
@@ -1383,6 +1404,9 @@
       sources = list(
         madin = list(enrichment = "madin", col = "metabolism",
                      citation = "Madin et al. 2020 (prokaryote traits)", note = "aerobic / anaerobic / facultative / microaerophilic (obligate variants folded in).",
+                     map = function(v) .xw_grep(v, oxymet_patterns)),
+        bacdive = list(enrichment = "bacdive", col = "oxygen_metabolism",
+                     citation = "BacDive (DSMZ; Reimer et al. 2022)", note = "aerobe/anaerobe/facultative anaerobe/microaerophile folded to the same four classes.",
                      map = function(v) .xw_grep(v, oxymet_patterns))
       )
     ),
@@ -1392,6 +1416,9 @@
       sources = list(
         madin = list(enrichment = "madin", col = "cell_shape",
                      citation = "Madin et al. 2020 (prokaryote traits)", note = "bacillus (rod) / coccus / coccobacillus / spiral / vibrio / filament.",
+                     map = function(v) .xw_grep(v, cellshape_patterns)),
+        bacdive = list(enrichment = "bacdive", col = "cell_shape",
+                     citation = "BacDive (DSMZ; Reimer et al. 2022)", note = "rod -> bacillus; ovoid/oval -> coccobacillus; sphere -> coccus; curved -> vibrio.",
                      map = function(v) .xw_grep(v, cellshape_patterns))
       )
     ),
@@ -1402,7 +1429,10 @@
         madin = list(enrichment = "madin", col = "motility",
                      citation = "Madin et al. 2020 (prokaryote traits)", note = "flagella / gliding / axial filament -> motile; 'no' -> non-motile.",
                      map = function(v) .xw_cat(v, c(no = "non-motile", yes = "motile",
-                        flagella = "motile", gliding = "motile", `axial filament` = "motile")))
+                        flagella = "motile", gliding = "motile", `axial filament` = "motile"))),
+        bacdive = list(enrichment = "bacdive", col = "motility",
+                     citation = "BacDive (DSMZ; Reimer et al. 2022)", note = "motile / non-motile.",
+                     map = function(v) .xw_cat(v, c(motile = "motile", `non-motile` = "non-motile")))
       )
     ),
     sporulation = list(
@@ -1714,15 +1744,17 @@
       )
     ),
     cell_length = list(
-      label = "Cell length (microalgae)", kind = "numeric", unit = "um", vocab = NULL,
+      label = "Cell length", kind = "numeric", unit = "um", vocab = NULL,
       sources = list(
-        rimet_phyto = nsrc("rimet_phyto", "cell_length_um", "Rimet et al. phytoplankton morphology", "Micrometres.")
+        rimet_phyto = nsrc("rimet_phyto", "cell_length_um", "Rimet et al. phytoplankton morphology", "Micrometres (microalgae)."),
+        bacdive     = nsrc("bacdive", "cell_length_um", "BacDive (DSMZ; Reimer et al. 2022)", "Micrometres (prokaryote strains; disjoint taxa from rimet_phyto).")
       )
     ),
     cell_width = list(
-      label = "Cell width (microalgae)", kind = "numeric", unit = "um", vocab = NULL,
+      label = "Cell width", kind = "numeric", unit = "um", vocab = NULL,
       sources = list(
-        rimet_phyto = nsrc("rimet_phyto", "cell_width_um", "Rimet et al. phytoplankton morphology", "Micrometres.")
+        rimet_phyto = nsrc("rimet_phyto", "cell_width_um", "Rimet et al. phytoplankton morphology", "Micrometres (microalgae)."),
+        bacdive     = nsrc("bacdive", "cell_width_um", "BacDive (DSMZ; Reimer et al. 2022)", "Micrometres (prokaryote strains; disjoint taxa from rimet_phyto).")
       )
     ),
     cell_biovolume = list(
@@ -1777,7 +1809,8 @@
     optimal_growth_temperature = list(
       label = "Optimal growth temperature (prokaryote)", kind = "numeric", unit = "deg C", vocab = NULL,
       sources = list(
-        madin = nsrc("madin", "growth_temp_c", "Madin et al. 2020 (prokaryote traits)", "Optimal growth temperature, degrees C.")
+        madin   = nsrc("madin", "growth_temp_c", "Madin et al. 2020 (prokaryote traits)", "Optimal growth temperature, degrees C."),
+        bacdive = nsrc("bacdive", "optimal_growth_temp_c", "BacDive (DSMZ; Reimer et al. 2022)", "Optimal growth temperature, degrees C (ratio 1.00 vs madin on 11,117 shared species).")
       )
     ),
     genome_size = list(
@@ -1789,7 +1822,8 @@
     optimal_growth_ph = list(
       label = "Optimal growth pH (prokaryote)", kind = "numeric", unit = "pH", vocab = NULL,
       sources = list(
-        madin = nsrc("madin", "optimum_ph", "Madin et al. 2020 (prokaryote traits)", "Optimal growth pH.")
+        madin   = nsrc("madin", "optimum_ph", "Madin et al. 2020 (prokaryote traits)", "Optimal growth pH."),
+        bacdive = nsrc("bacdive", "optimal_growth_ph", "BacDive (DSMZ; Reimer et al. 2022)", "Optimal growth pH (ratio 1.00 vs madin on 3,371 shared species).")
       )
     ),
     gc_content = list(
