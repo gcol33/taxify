@@ -447,6 +447,13 @@
 #     different quantity from the birdbase/repttraits/globtherm species ranges;
 #     and elevation_max has 7 non-NA values, all degenerate at ~3300 m. Both
 #     FungalRoot elevation slots removed (413 -> 411 source-slots).
+# DOOR-ONLY (not the verb): edwards_phyto (Edwards et al. 2015, ~130 phytoplankton
+# species). Its columns are single-source phytoplankton nutrient physiology --
+# Droop/Monod uptake and growth parameters (mu/k/vmax/qmin/qmax) for ammonium,
+# nitrate and phosphorus, plus cell_volume (micron^3) and carbon_per_cell. No
+# other source carries nutrient-uptake kinetics, and cell_volume is not the same
+# quantity as the animal/plant body_size verbs, so nothing harmonizes to a shared
+# unit; add_edwards_phyto() surfaces them, the cross-source verb does not.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup

@@ -2,6 +2,14 @@
 
 ## New features
 
+* `add_edwards_phyto()` opens the Edwards et al. (2015) phytoplankton
+  nutrient-utilization database (~130 species): Droop/Monod uptake and growth
+  parameters for ammonium, nitrate, and phosphorus (`mu`/`k`/`vmax`/`qmin`/`qmax`),
+  plus cell volume, carbon content, taxonomic group, and marine/freshwater
+  habitat. A curated core attaches by default; `cols = "all"` surfaces every
+  uptake parameter. Door-only (single-source physiology with no cross-source
+  analogue), so it stays out of the `add_trait()` verb. Verified end-to-end
+  (*Alexandrium catenella* recovered as a marine dinoflagellate).
 * Nine new `add_trait()` traits covering algae, marine-benthic invertebrates,
   and octocorals, each grounded on its source's own vocabulary before wiring.
   Algae (AlgaeTraits): `calcification`, `gamete_type`, `algal_life_cycle`
