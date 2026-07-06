@@ -4922,7 +4922,7 @@
     "nesttrait": {
       "latest": "2026.07",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/nesttrait.vtr",
-      "nrow": 12621,
+      "nrow": 12615,
       "source_url": "https://zenodo.org/records/10128906/files/NestTrait_v2.csv?download=1",
       "source_format": "csv",
       "source_version": "2.0",
@@ -4947,6 +4947,9 @@
         "nestatt_forked",
         "nestatt_lateral",
         "nestatt_pensile",
+        "nest_structure",
+        "nest_site",
+        "nest_attachment",
         "seq_hbwblv5",
         "order",
         "family",
@@ -6326,7 +6329,10 @@
         "disperse_female_wing_mm",
         "disperse_wing_type",
         "disperse_fecundity",
-        "disperse_drift"
+        "disperse_drift",
+        "disperse_body_size_cm_mid",
+        "disperse_female_wing_mm_mid",
+        "disperse_fecundity_mid"
       ],
       "static": true,
       "citation": {
