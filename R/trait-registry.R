@@ -352,6 +352,48 @@
 #     ..." keeps sexual; "mainly asexual, by soredia/isidia/fragmentation" -> asexual.
 #   All four mappers verified against the crawled ITALIC values. Requires the
 #   italic.vtr (enrichment-2026.07); source is CC BY-SA 4.0 per ITALIC 8.0.
+# Seventeenth wave (four never-mined trait databases opened at once -- three
+# whole taxa near-absent from the registry until now; every numeric widening is
+# a disjoint taxon grounded on distribution sanity, every categorical on the
+# source's own vocabulary):
+#   - Spiders (World Spider Trait DB, Pekar et al. 2021, CC BY 4.0, 9346 species):
+#     body_length (mm, med 5.0, join), activity_time (circadian_activity -- only
+#     the clean diurnal/nocturnal text tokens map; the source's numeric fuzzy-
+#     affinity codes fall to NA), and two NEW categoricals -- hunting_guild
+#     (Cardoso et al. 2011 8-guild scheme) and web_building (yes/no).
+#   - Reef fishes (Parravicini et al. 2020, 6910 species) widen diet_guild. The
+#     source ships no legend for its H/I/O/P/PK codes, so the ambiguous P/PK pair
+#     was disambiguated EMPIRICALLY against known species (Chromis / Dascyllus /
+#     Pseudanthias all PK = planktivore; Cephalopholis / Epinephelus / Sphyraena
+#     all P = piscivore). A first web lookup guessed the reverse; the species
+#     check corrected it. P -> carnivore, PK -> planktivore, and the guild vocab
+#     gains planktivore + detritivore.
+#   - Marine zooplankton (Global Zooplankton Trait DB, Pata & Hunt 2025, 4216
+#     species): body_length (mm, join), diet_guild (trophic_group primary token;
+#     suspension-feeder/parasite -> NA), and two NEW categoricals -- bioluminescence
+#     (yes/no) and diel_vertical_migration (yes/no; daily vertical movement, kept
+#     distinct from the bird seasonal `migration` trait).
+#   - Freshwater mussels (Hopper et al. 2023, 313 species) widen longevity (max_age;
+#     the ~190 yr maximum is Margaritifera, genuine), age_at_maturity (mature_age),
+#     body_length (max shell length, mm) and sexual_system (hermaphrodite flag:
+#     true -> hermaphrodite, false -> gonochoric).
+#   FECUNDITY + OFFSPRING_SIZE re-examined against the source papers this wave
+#   (not reflexively skipped) and STILL unregistered, now on hardened evidence:
+#   (1) the zooplankton DB carries `fecundity` (med 458) AND a separate `clutchsize`
+#   (med 11.7) -- a 40x gap proving "fecundity" is a per-year/lifetime aggregate,
+#   not the per-clutch count already shipped as clutch_litter_size; (2) fish
+#   fecundity (Beukhof, from FishBase) is unstandardized between annual and batch
+#   fecundity, so even single-source it has no pinnable unit/period (unlike the
+#   wave-13 single-source morphometrics); (3) across the disjoint taxa the values
+#   span six orders of magnitude (spider ~18 eggs/sac, zooplankton ~460, mussel
+#   ~89,000 glochidia/brood, max 8.3M) with no shared species to calibrate a common
+#   unit. offspring_size stays out for the same egg-vs-hatchling ambiguity noted in
+#   wave 9 (neonate_mass / egg_mass already cover it). disperse (462 European
+#   freshwater-invert genera) was left for a later wave: it is genus-keyed and all
+#   its columns are pre-binned ordinal ranges, not values the trait maps consume.
+#   Requires spider_traits/parravicini/zooplankton/sheld .vtr (enrichment-2026.07);
+#   spider_traits was also missing from both manifests (its add_spider_traits() door
+#   could not resolve) and is added here.
 
 
 # Map raw categorical values to a canonical vocabulary through a named lookup
@@ -481,11 +523,20 @@
     "omnivor"                     = "omnivore",
     "carnivor|predator|piscivor"  = "carnivore",
     "herbivor"                    = "herbivore",
+    "detritivor"                  = "detritivore",
+    "planktivor"                  = "planktivore",
     "insectivor|invertivor"       = "invertivore",
     "frugivor"                    = "frugivore",
     "granivor"                    = "granivore",
     "nectarivor"                  = "nectarivore",
     "scaveng"                     = "scavenger")
+  # Parravicini reef-fish trophic guild codes. The source ships no legend, so
+  # the P/PK pair was disambiguated empirically against known species (Chromis /
+  # Dascyllus / Pseudanthias all PK = planktivores; Cephalopholis / Epinephelus /
+  # Sphyraena all P = piscivores): H herbivore, I invertivore, O omnivore,
+  # P piscivore (-> carnivore), PK planktivore.
+  parra_guild <- c(H = "herbivore", I = "invertivore", O = "omnivore",
+                   P = "carnivore", PK = "planktivore")
   lh_map <- function(v) {
     s   <- tolower(trimws(as.character(v)))
     s2  <- gsub("short_lived_perennial", "perennial", s, fixed = TRUE)
@@ -655,6 +706,31 @@
     "vibrio|comma|curved"             = "vibrio",
     "filament"                        = "filament",
     "star|pleo|tail|disc|flask|ring|box|triangular" = "other")
+
+  # Spider hunting guild (World Spider Trait DB; Cardoso et al. 2011 guilds).
+  # Web-builders and hunters fold to the standard guild set; "active hunter"
+  # and bare "hunter" fall to other-hunter.
+  spider_guild_patterns <- c(
+    "orb"         = "orb weaver",
+    "sheet"       = "sheet-web weaver",
+    "space"       = "space-web weaver",
+    "ambush"      = "ambush hunter",
+    "ground"      = "ground hunter",
+    "specialist"  = "specialist",
+    "sensing"     = "sensing",
+    "hunter|hunt" = "other hunter")
+
+  # Spider web building (World Spider Trait DB): builds a web or not; "burrow"
+  # is a retreat, not a web, and falls through to NA.
+  webbuild_lookup <- c(yes = "yes", no = "no", present = "yes", absent = "no")
+
+  # Zooplankton presence flags (bioluminescence, diel vertical migration): the
+  # ordered regex on "present"/"absent" folds "likely present" and
+  # "present; weak/strong/reverse" to yes and leaves "maybe" as NA.
+  presence_yn <- c("present" = "yes", "absent" = "no")
+
+  # Freshwater-mussel sexual system (sheld): hermaphrodite flag true/false.
+  mussel_sexsys <- c(`true` = "hermaphrodite", `false` = "gonochoric")
 
   # Bee sociality (eupolltrait); brood parasites and inquilines -> cleptoparasite.
   sociality_patterns <- c(
@@ -871,7 +947,8 @@
         repttraits = nsrc("repttraits", "longevity_yr", "ReptTraits (Oskyrko et al. 2024)", "Years."),
         chelonians = nsrc("chelonians", "max_lifespan_y", "TurtleTraits (Chelonians)", "Years."),
         amphibio   = nsrc("amphibio", "longevity_yr", "AmphiBIO (Oliveira et al. 2017)", "Maximum longevity, years."),
-        beukhof    = nsrc("beukhof", "age_max", "Beukhof et al. 2019", "Maximum observed age, years (ratio 1.00 vs anage on shared species; the ~390 yr maximum is the Greenland shark, not a unit error).")
+        beukhof    = nsrc("beukhof", "age_max", "Beukhof et al. 2019", "Maximum observed age, years (ratio 1.00 vs anage on shared species; the ~390 yr maximum is the Greenland shark, not a unit error)."),
+        sheld      = nsrc("sheld", "max_age", "Freshwater Mussel Traits (Hopper et al. 2023)", "Maximum age, years (freshwater mussels; the ~190 yr maximum is Margaritifera, genuine).")
       )
     ),
     trophic_level = list(
@@ -906,7 +983,8 @@
         amniote    = nsrc("amniote", "female_maturity_d", "Amniote LHD (Myhrvold et al. 2015)", "Days converted to years (/365.25); negative sentinels dropped.", map = d2y),
         amphibio   = nsrc("amphibio", "age_maturity_y", "AmphiBIO (Oliveira et al. 2017)", "Years."),
         chelonians = nsrc("chelonians", "age_maturity_y", "TurtleTraits (Chelonians)", "Years (ratio 1.00 vs anage on shared species)."),
-        beukhof    = nsrc("beukhof", "age_maturity", "Beukhof et al. 2019", "Age at maturity, years (ratio 1.00 vs anage on 198 shared species; a handful of deep-sea species exceed 50 yr).")
+        beukhof    = nsrc("beukhof", "age_maturity", "Beukhof et al. 2019", "Age at maturity, years (ratio 1.00 vs anage on 198 shared species; a handful of deep-sea species exceed 50 yr)."),
+        sheld      = nsrc("sheld", "mature_age", "Freshwater Mussel Traits (Hopper et al. 2023)", "Age at maturity, years (freshwater mussels).")
       )
     ),
     male_maturity = list(
@@ -943,7 +1021,10 @@
         fishbase    = nsrc("fishbase", "body_length_cm", "FishBase (Froese & Pauly)", "Standard/total length, cm converted to mm (x10).", map = cm2mm),
         sealifebase = nsrc("sealifebase", "body_length_cm", "SeaLifeBase (Palomares & Pauly)", "Body length, cm converted to mm (x10).", map = cm2mm),
         huang_amph  = nsrc("huang_amph", "svl_mm", "Huang et al. amphibian morphology", "Snout-vent length, mm."),
-        pottier     = nsrc("pottier", "svl_mm", "Pottier et al. 2022", "Snout-vent length, mm.")
+        pottier     = nsrc("pottier", "svl_mm", "Pottier et al. 2022", "Snout-vent length, mm."),
+        spider_traits = nsrc("spider_traits", "body_length_mm", "World Spider Trait DB (Pekar et al. 2021)", "Total body length, mm (across-record median, not split by sex; distribution-sanity grounded, disjoint taxon)."),
+        zooplankton = nsrc("zooplankton", "body_length_max_mm", "Global Zooplankton Trait DB (Pata & Hunt 2025)", "Maximum body length, mm (gelatinous colonial chains reach ~1 m)."),
+        sheld       = nsrc("sheld", "max_length_mm", "Freshwater Mussel Traits (Hopper et al. 2023)", "Maximum shell length, mm (freshwater mussels).")
       )
     ),
     metabolic_rate = list(
@@ -1303,7 +1384,8 @@
     diet_guild = list(
       label = "Diet guild", kind = "categorical", unit = NA_character_,
       vocab = c("carnivore", "herbivore", "omnivore", "invertivore",
-                "frugivore", "granivore", "nectarivore", "scavenger"),
+                "planktivore", "detritivore", "frugivore", "granivore",
+                "nectarivore", "scavenger"),
       sources = list(
         avonet       = list(enrichment = "avonet", col = "trophic_niche",
                           citation = "AVONET (Tobias et al. 2022)", note = "Trophic niche; vertivore and aquatic predator -> carnivore, herbivore terrestrial/aquatic -> herbivore.",
@@ -1319,6 +1401,12 @@
                           map = function(v) .xw_grep(v, diet_patterns)),
         blanchard    = list(enrichment = "blanchard", col = "diet",
                           citation = "Blanchard et al. (ant traits)", note = "Ant diet; predator -> carnivore.",
+                          map = function(v) .xw_grep(v, diet_patterns)),
+        parravicini  = list(enrichment = "parravicini", col = "trophic_guild",
+                          citation = "Parravicini et al. 2020", note = "Reef-fish guild codes (legend verified empirically): H herbivore, I invertivore, O omnivore, P piscivore -> carnivore, PK planktivore.",
+                          map = function(v) .xw_cat(v, parra_guild)),
+        zooplankton  = list(enrichment = "zooplankton", col = "trophic_group",
+                          citation = "Global Zooplankton Trait DB (Pata & Hunt 2025)", note = "Marine zooplankton; primary token of a compound value (carnivore/omnivore/herbivore/detritivore/planktivore); suspension-feeder and parasite -> NA.",
                           map = function(v) .xw_grep(v, diet_patterns))
       )
     ),
@@ -1340,7 +1428,10 @@
                           map = function(v) .xw_cat(v, act_code)),
         pantheria  = list(enrichment = "pantheria", col = "x1_1_activitycycle",
                           citation = "PanTHERIA (Jones et al. 2009)", note = "PanTHERIA 1/2/3 activity-cycle code: 1 nocturnal, 2 cathemeral, 3 diurnal.",
-                          map = function(v) .xw_cat(v, act_code))
+                          map = function(v) .xw_cat(v, act_code)),
+        spider_traits = list(enrichment = "spider_traits", col = "circadian_activity",
+                          citation = "World Spider Trait DB (Pekar et al. 2021)", note = "Clean text tokens (diurnal / nocturnal / crepuscular) mapped; the source's numeric fuzzy-affinity codes fall through to NA.",
+                          map = function(v) .xw_grep(v, act_patterns))
       )
     ),
     foraging_mode = list(
@@ -1990,7 +2081,10 @@
                         map = function(v) .xw_grep(v, sexsys_patterns)),
         octocoral    = list(enrichment = "octocoral", col = "sexual_system",
                         citation = "Gomez-Gras et al. 2024", note = "Octocoral sexual system.",
-                        map = function(v) .xw_grep(v, sexsys_patterns))
+                        map = function(v) .xw_grep(v, sexsys_patterns)),
+        sheld        = list(enrichment = "sheld", col = "hermaphrodite",
+                        citation = "Freshwater Mussel Traits (Hopper et al. 2023)", note = "Freshwater mussels; true -> hermaphrodite, false -> gonochoric.",
+                        map = function(v) .xw_cat(v, mussel_sexsys))
       )
     ),
     reproductive_mode = list(
@@ -2306,6 +2400,48 @@
       label = "Age at first reproduction", kind = "numeric", unit = "yr", vocab = NULL,
       sources = list(
         combine = nsrc("combine", "age_first_reproduction_d", "COMBINE (Soria et al. 2021)", "Days converted to years (/365.25); distinct from age at maturity.", map = d2y)
+      )
+    ),
+
+    ## ---- spider behaviour (World Spider Trait DB) --------------------------
+    hunting_guild = list(
+      label = "Hunting guild (spider)", kind = "categorical", unit = NA_character_,
+      vocab = c("orb weaver", "sheet-web weaver", "space-web weaver",
+                "ambush hunter", "ground hunter", "other hunter",
+                "specialist", "sensing"),
+      sources = list(
+        spider_traits = list(enrichment = "spider_traits", col = "hunting_guild",
+                          citation = "World Spider Trait DB (Pekar et al. 2021)", note = "Cardoso et al. 2011 guilds; web-builders and hunters folded to the standard set, 'active hunter'/bare hunter -> other hunter.",
+                          map = function(v) .xw_grep(v, spider_guild_patterns))
+      )
+    ),
+    web_building = list(
+      label = "Web building (spider)", kind = "categorical", unit = NA_character_,
+      vocab = c("yes", "no"),
+      sources = list(
+        spider_traits = list(enrichment = "spider_traits", col = "web_building",
+                          citation = "World Spider Trait DB (Pekar et al. 2021)", note = "Builds a capture web or not; yes/present -> yes, no/absent -> no, 'burrow' (a retreat, not a web) -> NA.",
+                          map = function(v) .xw_cat(v, webbuild_lookup))
+      )
+    ),
+
+    ## ---- zooplankton behaviour (Global Zooplankton Trait DB) --------------
+    bioluminescence = list(
+      label = "Bioluminescence (zooplankton)", kind = "categorical", unit = NA_character_,
+      vocab = c("yes", "no"),
+      sources = list(
+        zooplankton = list(enrichment = "zooplankton", col = "bioluminescence",
+                          citation = "Global Zooplankton Trait DB (Pata & Hunt 2025)", note = "present / likely present -> yes, absent -> no.",
+                          map = function(v) .xw_grep(v, presence_yn))
+      )
+    ),
+    diel_vertical_migration = list(
+      label = "Diel vertical migration (zooplankton)", kind = "categorical", unit = NA_character_,
+      vocab = c("yes", "no"),
+      sources = list(
+        zooplankton = list(enrichment = "zooplankton", col = "diel_vertical_migration",
+                          citation = "Global Zooplankton Trait DB (Pata & Hunt 2025)", note = "present (incl. weak/strong/reverse) -> yes, absent -> no, 'maybe' -> NA. Daily vertical movement, distinct from bird seasonal migration.",
+                          map = function(v) .xw_grep(v, presence_yn))
       )
     )
   )

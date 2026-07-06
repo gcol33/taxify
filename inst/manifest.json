@@ -5828,6 +5828,41 @@
       "license": "CC BY 4.0",
       "source_doi": "10.1371/journal.pbio.3000702"
     },
+    "spider_traits": {
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/spider_traits.vtr",
+      "nrow": 9346,
+      "source_url": "https://spidertraits.sci.muni.cz/backend/data/export/csv/family/*/genus/*/species/*/original-name/*/trait-category/*/trait/*/method/*/location/*/country/*/dataset/*/authors/*/reference/*/row-link/*",
+      "source_format": "csv",
+      "source_version": "2026.07",
+      "trait_cols": [
+        "body_length_mm",
+        "prosoma_length_mm",
+        "prosoma_width_mm",
+        "abdomen_length_mm",
+        "leg1_length_mm",
+        "ballooning",
+        "web_building",
+        "hunting_guild",
+        "web_type",
+        "circadian_activity",
+        "stratum"
+      ],
+      "static": true,
+      "citation": {
+        "key": "pekar2021spider",
+        "type": "article",
+        "authors": "Pekar S, et al.",
+        "year": "2021",
+        "title": "The World Spider Trait database: a centralized global open repository for curated data on spider traits",
+        "journal": "Database",
+        "volume": "2021",
+        "pages": "baab064",
+        "doi": "10.1093/database/baab064"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.1093/database/baab064"
+    },
     "odonata": {
       "latest": "2026.07",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/odonata.vtr",
