@@ -106,6 +106,23 @@
   (FishBase); `motility` (prokaryote; Madin); and `lecty` (bee pollen host
   breadth; EuPollTrait).
 
+## Bug fixes
+
+* Static enrichments now refresh their local cache when the source data is
+  rebuilt and re-released under the same tag. Previously a version-locked
+  enrichment never re-checked, so a cache downloaded before a rebuild stayed
+  stale forever (silent all-NA for any newly added columns). The manifest now
+  carries a `content_id` (an md5 of the built `.vtr`); a static cache is
+  reconciled against it entirely offline, re-downloading only when the bytes
+  actually changed. A pre-existing cache with no stored id is hashed in place,
+  so an unchanged asset is adopted without a download. Fixes stale
+  `add_nesttrait()` nest-modality columns and `add_disperse()` bin-midpoint
+  columns for anyone who cached those before the rebuild.
+* `add_trait()` now joins genus-keyed sources on `genus`: the ant-diet
+  contribution to `diet_guild` (Blanchard) was silently all-NA, and
+  `fungal_trophic_mode`'s FungalTraits source likewise. A registry guard test
+  now asserts every genus-keyed source is joined correctly.
+
 # taxify 0.3.2
 
 ## New features

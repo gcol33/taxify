@@ -54,8 +54,9 @@ fetch_manifest <- function() {
 #' @return A named list.
 #' @noRd
 local_manifest <- function() {
-  path <- system.file("manifest.json", package = "taxify")
-  if (!nzchar(path)) {
+  path <- getOption("taxify.manifest_path",
+                    system.file("manifest.json", package = "taxify"))
+  if (!nzchar(path) || !file.exists(path)) {
     stop("inst/manifest.json not found in package installation.", call. = FALSE)
   }
   jsonlite::read_json(path, simplifyVector = FALSE)

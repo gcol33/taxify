@@ -4921,6 +4921,7 @@
     },
     "nesttrait": {
       "latest": "2026.07",
+      "content_id": "e1cc9d7cadd2f91c6a2cb7b8a2e17c50",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/nesttrait.vtr",
       "nrow": 12615,
       "source_url": "https://zenodo.org/records/10128906/files/NestTrait_v2.csv?download=1",
@@ -6315,6 +6316,7 @@
     },
     "disperse": {
       "latest": "2026.07",
+      "content_id": "184f5b35217c6b3f27d399212ef0ad22",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/disperse.vtr",
       "nrow": 462,
       "source_url": "https://api.figshare.com/v2/articles/12417251",

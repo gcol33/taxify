@@ -54,14 +54,58 @@ read_enrichment_meta <- function(vtr_path) {
 #' @param name Character. Enrichment identifier.
 #' @return Logical. TRUE means a newer version is available.
 #' @noRd
+# Content identity of a built .vtr: the md5 of the file, used to detect a
+# same-tag republish (rebuilt asset re-uploaded under an unchanged release tag).
+# tools::md5sum is base R, so this adds no dependency.
+content_id_of <- function(vtr_path) {
+  if (is.null(vtr_path) || !file.exists(vtr_path)) return(NA_character_)
+  unname(tools::md5sum(vtr_path))
+}
+
+# Adopt a content id into an existing cache's meta.json (idempotent metadata
+# upgrade for a legacy cache whose bytes already match the shipped asset), so
+# later sessions compare the stored id instead of re-hashing the file.
+write_enrichment_content_id <- function(vtr_path, content_id) {
+  meta_path <- file.path(dirname(vtr_path), "meta.json")
+  meta <- if (file.exists(meta_path)) {
+    tryCatch(jsonlite::read_json(meta_path, simplifyVector = TRUE),
+             error = function(e) list())
+  } else list()
+  meta$content_id <- content_id
+  tryCatch(
+    jsonlite::write_json(meta, meta_path, pretty = TRUE, auto_unbox = TRUE),
+    error = function(e) NULL
+  )
+  invisible(content_id)
+}
+
 check_enrichment_version <- function(name) {
   vtr_path <- enrichment_vtr_path(name)
   meta <- read_enrichment_meta(vtr_path)
 
   if (is.null(meta)) return(TRUE)  # No local copy
 
-  # Static enrichments (version-locked datasets) never need updates
-  if (isTRUE(meta$static)) return(FALSE)
+  # Static enrichments never phone home, but a same-tag republish would leave
+  # the cache stale forever. Reconcile against the bundled manifest's content
+  # id (a hash of the built .vtr) entirely offline: a package update ships a
+  # changed content id for any rebuilt asset, which forces a one-time refresh.
+  # A legacy cache with no stored id is hashed in place, so an unchanged asset
+  # is adopted without any download. When the bundled manifest carries no
+  # content id (older manifest), the historical "never update" behaviour holds.
+  if (isTRUE(meta$static)) {
+    entry <- tryCatch(resolve_enrichment_entry(local_manifest(), name),
+                      error = function(e) NULL)
+    bundled_cid <- entry$content_id
+    if (is.null(bundled_cid)) return(FALSE)
+    local_cid <- meta$content_id
+    if (is.null(local_cid)) {
+      local_cid <- content_id_of(vtr_path)
+      if (identical(as.character(local_cid), as.character(bundled_cid))) {
+        write_enrichment_content_id(vtr_path, local_cid)
+      }
+    }
+    return(!identical(as.character(local_cid), as.character(bundled_cid)))
+  }
 
   manifest <- fetch_manifest()
   entry <- resolve_enrichment_entry(manifest, name)
@@ -250,11 +294,14 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
 
   file.rename(tmp_path, vtr_path)
 
-  # Write meta.json
+  # Write meta.json. The content id is the md5 of the freshly downloaded file,
+  # which matches the manifest's content_id and lets the static-cache gate
+  # detect a future same-tag republish offline.
   meta <- list(
     version       = actual_version,
     static        = isTRUE(entry$static),
     pinned        = (version != "latest"),
+    content_id    = content_id_of(vtr_path),
     downloaded_at = format(Sys.Date(), "%Y-%m-%d")
   )
   jsonlite::write_json(
