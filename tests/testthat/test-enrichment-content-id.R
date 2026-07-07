@@ -10,7 +10,8 @@ stage_static <- function(dd, name, df, meta_extra = list(), manifest_cid = NULL)
   dir.create(edir, recursive = TRUE, showWarnings = FALSE)
   vtr <- file.path(edir, paste0(name, ".vtr"))
   vectra::write_vtr(df, vtr)
-  meta <- c(list(version = "2026.07", static = TRUE), meta_extra)
+  meta <- c(list(version = "2026.07", static = TRUE,
+                 downloaded_at = "2026-07-06"), meta_extra)
   jsonlite::write_json(meta, file.path(edir, "meta.json"),
                        pretty = TRUE, auto_unbox = TRUE)
   # A minimal bundled manifest with one enrichment entry.
@@ -75,6 +76,22 @@ test_that("legacy cache with differing bytes triggers a refresh", {
   old <- options(taxify.data_dir = dd, taxify.manifest_path = s$manifest)
   on.exit(options(old), add = TRUE)
   expect_true(taxify:::check_enrichment_version("demo"))
+})
+
+test_that("a bundled/staged copy (no downloaded_at) is never refreshed", {
+  # The example database and test mocks are subsets whose bytes differ from the
+  # released asset; the gate must leave them alone even against a mismatched id.
+  dd <- tempfile("cid_"); dir.create(dd)
+  s <- stage_static(dd, "demo", df,
+                    meta_extra = list(downloaded_at = NULL),  # drop the marker
+                    manifest_cid = "some_other_md5")
+  # stage_static seeds downloaded_at; overwrite meta.json without it.
+  jsonlite::write_json(list(version = "2026.07", static = TRUE),
+                       file.path(dd, "enrichment", "demo", "latest", "meta.json"),
+                       pretty = TRUE, auto_unbox = TRUE)
+  old <- options(taxify.data_dir = dd, taxify.manifest_path = s$manifest)
+  on.exit(options(old), add = TRUE)
+  expect_false(taxify:::check_enrichment_version("demo"))
 })
 
 test_that("no content_id in the manifest preserves legacy static behaviour", {

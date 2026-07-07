@@ -64,8 +64,9 @@ content_id_of <- function(vtr_path) {
 
 # Adopt a content id into an existing cache's meta.json (idempotent metadata
 # upgrade for a legacy cache whose bytes already match the shipped asset), so
-# later sessions compare the stored id instead of re-hashing the file.
-write_enrichment_content_id <- function(vtr_path, content_id) {
+# later sessions compare the stored id instead of re-hashing the file. Works
+# for enrichments and backbones alike -- both keep a meta.json beside the .vtr.
+write_content_id_meta <- function(vtr_path, content_id) {
   meta_path <- file.path(dirname(vtr_path), "meta.json")
   meta <- if (file.exists(meta_path)) {
     tryCatch(jsonlite::read_json(meta_path, simplifyVector = TRUE),
@@ -79,7 +80,31 @@ write_enrichment_content_id <- function(vtr_path, content_id) {
   invisible(content_id)
 }
 
+# Shared refresh decision by content identity, used by both the enrichment and
+# backbone version checks. Returns TRUE/FALSE, or NA when no content id is
+# shipped (the caller then keeps its legacy behaviour). A legacy cache with no
+# stored id is hashed in place when `hash_missing = TRUE` and, if its bytes
+# already match the shipped id, the id is adopted via `adopt` so later sessions
+# skip the hash. Backbones pass `hash_missing = FALSE` to avoid rehashing a
+# multi-GB file: they compare only the id their downloaded meta already carries.
+reconcile_content_id <- function(vtr_path, local_cid, bundled_cid,
+                                 adopt = NULL, hash_missing = TRUE) {
+  if (is.null(bundled_cid)) return(NA)
+  if (is.null(local_cid)) {
+    if (!isTRUE(hash_missing)) return(NA)
+    local_cid <- content_id_of(vtr_path)
+    if (identical(as.character(local_cid), as.character(bundled_cid)) &&
+        !is.null(adopt)) {
+      adopt(local_cid)
+    }
+  }
+  !identical(as.character(local_cid), as.character(bundled_cid))
+}
+
 check_enrichment_version <- function(name) {
+  # Never refresh against the read-only example database (offline fixtures).
+  if (is_example_data_dir()) return(FALSE)
+
   vtr_path <- enrichment_vtr_path(name)
   meta <- read_enrichment_meta(vtr_path)
 
@@ -93,18 +118,18 @@ check_enrichment_version <- function(name) {
   # is adopted without any download. When the bundled manifest carries no
   # content id (older manifest), the historical "never update" behaviour holds.
   if (isTRUE(meta$static)) {
+    # Only reconcile caches the runtime actually downloaded (downloaded_at is
+    # written by download_enrichment). Bundled example data and staged test
+    # mocks lack it and are deliberately left untouched -- they are subsets or
+    # fixtures whose bytes intentionally differ from the released asset, and
+    # must never be silently replaced by a full download.
+    if (is.null(meta$downloaded_at)) return(FALSE)
     entry <- tryCatch(resolve_enrichment_entry(local_manifest(), name),
                       error = function(e) NULL)
-    bundled_cid <- entry$content_id
-    if (is.null(bundled_cid)) return(FALSE)
-    local_cid <- meta$content_id
-    if (is.null(local_cid)) {
-      local_cid <- content_id_of(vtr_path)
-      if (identical(as.character(local_cid), as.character(bundled_cid))) {
-        write_enrichment_content_id(vtr_path, local_cid)
-      }
-    }
-    return(!identical(as.character(local_cid), as.character(bundled_cid)))
+    s <- reconcile_content_id(
+      vtr_path, meta$content_id, entry$content_id,
+      adopt = function(cid) write_content_id_meta(vtr_path, cid))
+    return(if (is.na(s)) FALSE else s)
   }
 
   manifest <- fetch_manifest()

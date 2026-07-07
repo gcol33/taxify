@@ -117,7 +117,10 @@
   actually changed. A pre-existing cache with no stored id is hashed in place,
   so an unchanged asset is adopted without a download. Fixes stale
   `add_nesttrait()` nest-modality columns and `add_disperse()` bin-midpoint
-  columns for anyone who cached those before the rebuild.
+  columns for anyone who cached those before the rebuild. Every enrichment
+  asset now carries a content id, and the same gate is extended to backbones
+  (a content id catches a same-tag republish that a version bump would miss).
+  The read-only example database and its offline fixtures are never touched.
 * `add_trait()` now joins genus-keyed sources on `genus`: the ant-diet
   contribution to `diet_guild` (Blanchard) was silently all-NA, and
   `fungal_trophic_mode`'s FungalTraits source likewise. A registry guard test

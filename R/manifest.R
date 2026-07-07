@@ -73,23 +73,44 @@ local_manifest <- function() {
 #'   local backbone exists yet).
 #' @noRd
 check_version <- function(backend_name) {
-  meta <- read_version_meta(backend_name, "latest")
+  # Never refresh against the read-only example database (offline fixtures).
+  if (is_example_data_dir()) return(FALSE)
 
-  # Frozen/bundled backbones (e.g. the example database) never phone home.
+  meta <- read_version_meta(backend_name, "latest")
+  vtr  <- versioned_vtr_path(backend_name, "latest")
+
+  # Frozen/bundled backbones (e.g. the example database) never phone home, but
+  # a shipped content id still lets a same-tag republish refresh them offline
+  # (mirrors the static-enrichment gate; the example db is small to hash).
   if (!is.null(meta) && isTRUE(meta$static %in% c(TRUE, "TRUE", "true"))) {
-    return(FALSE)
+    # Only reconcile runtime-downloaded caches (downloaded_at present); the
+    # bundled example database and staged mocks lack it and are left untouched.
+    if (is.null(meta$downloaded_at)) return(FALSE)
+    entry <- tryCatch(resolve_manifest_entry(local_manifest(), backend_name),
+                      error = function(e) NULL)
+    s <- reconcile_content_id(vtr, meta$content_id, entry$content_id,
+                              adopt = function(cid) write_content_id_meta(vtr, cid))
+    return(if (is.na(s)) FALSE else s)
   }
 
   manifest <- fetch_manifest()
   entry <- resolve_manifest_entry(manifest, backend_name)
   if (is.null(entry)) return(FALSE)  # Unknown backend — skip
 
-  latest <- entry$latest
-
   if (is.null(meta)) return(TRUE)   # No local copy at all
 
-  # Compare: simple string comparison works for "YYYY.MM" format
-  isTRUE(meta$version != latest)
+  # A version bump (simple string comparison for "YYYY.MM") is the usual signal.
+  if (isTRUE(meta$version != entry$latest)) return(TRUE)
+
+  # Same version: the content id catches a same-tag republish that a version
+  # string alone would miss. Only for runtime-downloaded caches (downloaded_at);
+  # hash_missing = FALSE avoids rehashing a multi-GB backbone -- a cache
+  # downloaded with a content id in its meta is compared, older caches (no
+  # stored id) fall through to the historical no-update path.
+  if (is.null(meta$downloaded_at)) return(FALSE)
+  s <- reconcile_content_id(vtr, meta$content_id, entry$content_id,
+                            hash_missing = FALSE)
+  if (is.na(s)) FALSE else s
 }
 
 

@@ -32,9 +32,13 @@
 #' @param pinned Logical. `FALSE` for the rolling "latest" slot.
 #' @noRd
 write_version_meta <- function(dir, backend_name, version, pinned = FALSE) {
+  vtr <- file.path(dir, paste0(backend_name, ".vtr"))
   meta <- list(
     version      = version,
     pinned       = pinned,
+    # md5 of the downloaded .vtr, so check_version() can detect a same-tag
+    # republish offline (matches the manifest's content_id for this backend).
+    content_id   = content_id_of(vtr),
     downloaded_at = format(Sys.Date(), "%Y-%m-%d")
   )
   path <- file.path(dir, "meta.json")
