@@ -3,14 +3,21 @@
 # Runs on the user's input vector (small), not the backbone (large).
 # The backbone is already clean \u2014 this prepares user names for matching.
 
-# Qualifier patterns: cf., aff., s.l., s.str., sp., spp., subsp., var., f.,
-# auct., sensu, non, nec, vel, agg.
+# Qualifier patterns: determination (cf., aff., nr.), sensu/aggregate (s.l.,
+# s.str., s.s., agg., coll.), open nomenclature (sp., spp., indet., nov.), and
+# the infraspecific ranks (subsp./ssp./nssp., var., f./fo./forma, subvar.,
+# subf., convar., notho- variants, cv., f.sp., pv.). Every spelling folds to one
+# canonical token via .qualifier_canon_map below. The trailing `(?=\s|$)` makes
+# each token match only as a whole trailing word, never inside an epithet.
 # Match qualifier + optional trailing period, followed by space or end.
 .qualifier_pattern <- paste0(
   "\\b(",
   paste(
-    c("cf", "aff", "s\\.l", "s\\.str", "sp", "spp", "species",
-      "subsp", "var", "f",
+    c("cf", "aff", "nr", "s\\.l", "s\\.str", "sp", "spp", "species",
+      "subsp", "subspecies", "nssp", "ssp", "nothosubsp", "nothossp",
+      "var", "nothovar", "nvar", "subvar", "convar",
+      "f", "fo", "forma", "subf", "subforma",
+      "cv", "indet", "nov", "pv", "gr", "group",
       "auct", "sensu", "non", "nec", "vel", "agg", "aggr", "sect"),
     collapse = "|"
   ),
@@ -39,11 +46,21 @@
 
 # Compressed key (tolower, dots/spaces removed) -> canonical token.
 .qualifier_canon_map <- c(
-  cf      = "cf.",   aff   = "aff.",
+  cf      = "cf.",   aff   = "aff.",   nr = "nr.",
   agg     = "agg.",  aggr  = "agg.",
   sl      = "s.l.",  sstr  = "s.str.",
   sp      = "sp.",   spp   = "sp.",   species = "sp.",
-  sect    = "sect.", subsp = "subsp.", var = "var.", f = "f.",
+  sect    = "sect.",
+  # infraspecific ranks; notho- and spelled-out variants fold to the base rank
+  subsp   = "subsp.", subspecies = "subsp.", ssp = "subsp.", nssp = "subsp.",
+  nothosubsp = "subsp.", nothossp = "subsp.",
+  var     = "var.",  nothovar = "var.", nvar = "var.",
+  subvar  = "subvar.", convar = "convar.",
+  f       = "f.",    fo    = "f.",    forma = "f.",
+  subf    = "subf.", subforma = "subf.",
+  cv      = "cv.",   pv    = "pv.",
+  # open nomenclature
+  indet   = "indet.", nov  = "nov.",  gr = "group", group = "group",
   auct    = "auct.", sensu = "sensu", non = "non", nec = "nec", vel = "vel"
 )
 
@@ -51,12 +68,15 @@
 .aggregate_tokens <- c("agg.", "s.l.")
 
 # Multi-word and spaced concept markers, stripped before single-token parsing
-# (the single-token pass would otherwise mangle "sensu lato" into "sensu").
+# (the single-token pass would otherwise mangle "sensu lato" into "sensu", or
+# split "f. sp." into a bare forma "f." plus a species "sp.").
 # Order: s.str. before s.l. so "s. str." is never partly eaten by the s.l. rule.
 .concept_multiword <- list(
-  list(pat = "\\s*\\b(sensu\\s+stricto|s\\.\\s*str\\.?)(?=\\s|$)", canon = "s.str."),
-  list(pat = "\\s*\\b(sensu\\s+lato|s\\.\\s*l\\.?|coll\\.\\s*sp\\.?)(?=\\s|$)",
-       canon = "s.l.")
+  list(pat = "\\s*\\b(sensu\\s+stricto|s\\.\\s*str(?:ict)?\\.?|s\\.\\s*s\\.?)(?=\\s|$)",
+       canon = "s.str."),
+  list(pat = "\\s*\\b(sensu\\s+lato|s\\.\\s*l(?:at)?\\.?|coll\\.(?:\\s*sp\\.?)?)(?=\\s|$)",
+       canon = "s.l."),
+  list(pat = "\\s*\\b(f\\.\\s*sp\\.?)(?=\\s|$)", canon = "f.sp.")
 )
 
 #' Canonicalize a raw qualifier token to its display form
@@ -250,7 +270,7 @@ clean_one <- function(name) {
   # If qualifier reduced the name to a bare genus, flag it
   genus_only <- FALSE
   if (!is.na(qualifier) &&
-      qualifier %in% c("sp.", "sect.", "agg.") &&
+      qualifier %in% c("sp.", "sect.", "agg.", "indet.") &&
       length(strsplit(s, " ", fixed = TRUE)[[1L]]) == 1L) {
     genus_only <- TRUE
   }
@@ -380,7 +400,7 @@ clean_names <- function(x) {
   word_count <- nchar(gsub("[^ ]", "", s)) + 1L
   word_count[na_mask] <- 0L
   genus_only <- !is.na(qualifier) &
-    qualifier %in% c("sp.", "sect.", "agg.") &
+    qualifier %in% c("sp.", "sect.", "agg.", "indet.") &
     word_count == 1L
 
   # Flag abbreviated genus (e.g. "Q. robur"): single-letter first token (with an

@@ -1,3 +1,26 @@
+# taxify 0.3.4
+
+## Bug fixes
+
+* `clean_names()` recognizes a much wider set of taxonomic qualifiers and rank
+  abbreviations. Previously an unrecognized marker survived into the cleaned
+  name, so the name no longer matched the backbone's bare binomial/trinomial
+  (it dropped to fuzzy) and the annotation was lost from the `qualifier` column.
+  Now folded to their canonical tokens: the subspecies abbreviations `ssp.` and
+  `nssp.` and the spelled-out `subspecies` (to `subsp.`); the sensu-stricto form
+  `s.s.` (to `s.str.`); the forma spellings `fo.` and `forma` (to `f.`); the
+  infraspecific ranks `subvar.`, `subf.`, and `convar.`; the notho- (hybrid)
+  ranks `nothosubsp.` and `nothovar.` (to `subsp.`/`var.`, the hybrid signal
+  being carried separately by the multiplication sign); cultivar `cv.`; the
+  pathogen infrasubspecific categories `f. sp.` (forma specialis, previously
+  mislabelled as a bare forma) and `pv.` (pathovar); the determination marker
+  `nr.` ("near"); the open-nomenclature markers `indet.` and `sp. nov.`; the
+  long and bare concept forms `s. lat.` and `coll.` (to `s.l.`); and the
+  species-group markers `group` and `gr.`. Each token matches only as a whole
+  trailing word, so it never touches a real epithet (`Carex novae-zelandiae`
+  and `Convallaria majalis` are untouched). The qualifier registry in
+  `R/clean.R` remains the single source of truth for every spelling.
+
 # taxify 0.3.3
 
 ## New features
