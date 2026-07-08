@@ -1,6 +1,6 @@
 ## Submission
 
-This is a feature update (version 0.3.2) of taxify, currently on CRAN at 0.2.12.
+This is a feature update (version 0.3.4) of taxify, currently on CRAN at 0.2.12.
 
 Since 0.2.12 the package gained a cross-source trait interface: `add_trait()`
 attaches one trait across every enrichment that carries it, harmonizing their
@@ -50,7 +50,7 @@ The NOTE is:
 If the URL checker flags https://www.itis.gov, that is the official ITIS
 (Integrated Taxonomic Information System) homepage and is valid; the US
 government server intermittently returns 404 to the automated HEAD request,
-but the page resolves with status 200 in a browser and via curl.
+but the page resolves in a browser.
 
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
