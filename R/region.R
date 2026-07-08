@@ -350,58 +350,83 @@ filter_fuzzy_by_region <- function(matches, region, range_mode,
 # ---- Coordinate -> TDWG Level 3 code (point-in-polygon) ----
 #
 # Coordinates are mapped to botanical regions by point-in-polygon against the
-# WGSRPD Level 3 boundaries. The boundary file is downloaded once and cached in
-# the taxify data directory. The default engine is a native ray-casting test
-# (no spatial dependency); when terra or sf is installed it is used instead
-# (faster on large point sets, handles CRS reprojection), selectable via
-# options(taxify.pip_engine = "terra" | "sf" | "native").
+# WGSRPD Level 3 boundaries. The boundaries ship as a pre-built .vtr from
+# taxifydb (a long-format vertex table), downloaded once through the manifest
+# and cached in the taxify data directory -- the runtime never fetches the
+# GeoJSON. The default engine is a native ray-casting test (no spatial
+# dependency); when terra or sf is installed it is used instead (faster on
+# large point sets, handles CRS reprojection), selectable via
+# options(taxify.pip_engine = "terra" | "sf" | "native"). All three engines
+# rebuild their geometry from the same .vtr.
 
-#' Default URL for the WGSRPD Level 3 GeoJSON boundaries
+#' Path to the cached WGSRPD Level 3 boundary `.vtr`
 #' @noRd
-wgsrpd_geojson_url <- function() {
-  getOption(
-    "taxify.wgsrpd_url",
-    "https://raw.githubusercontent.com/tdwg/wgsrpd/master/geojson/level3.geojson"
-  )
+wgsrpd_vtr_path <- function() {
+  versioned_vtr_path("wgsrpd", "latest")
 }
 
 
-#' Path to the cached WGSRPD Level 3 GeoJSON, downloading it if needed
+#' Ensure the WGSRPD Level 3 boundary `.vtr` is on disk
 #'
-#' @param download Logical. Fetch the file if it is not already cached.
+#' Resolves the boundary `.vtr` the same way backbones are resolved: a local
+#' cache first, then the pre-built download from the manifest, then a
+#' build-from-source via taxifydb if it is installed. No live GeoJSON fetch.
+#'
+#' @param download Logical. Fetch the `.vtr` if it is not already cached.
 #' @param verbose Logical.
-#' @return Character path to the cached GeoJSON, or `NULL` if it is unavailable.
+#' @return Character path to the `.vtr`, or `NULL` if it is unavailable.
 #' @noRd
-wgsrpd_geojson_path <- function(download = TRUE, verbose = FALSE) {
-  dir  <- file.path(taxify_data_dir(), "wgsrpd")
-  path <- file.path(dir, "level3.geojson")
+ensure_wgsrpd_vtr <- function(download = TRUE, verbose = FALSE) {
+  path <- wgsrpd_vtr_path()
   if (file.exists(path)) return(path)
   if (!download) return(NULL)
 
-  if (!dir.exists(dir)) dir.create(dir, recursive = TRUE, showWarnings = FALSE)
-  url <- wgsrpd_geojson_url()
-  if (verbose) message("  Downloading WGSRPD Level 3 boundaries...")
-  tmp <- tempfile(tmpdir = dir, fileext = ".geojson.tmp")
-  on.exit(if (file.exists(tmp)) unlink(tmp), add = TRUE)
-  ok <- tryCatch({
-    h <- curl::new_handle()
-    curl::handle_setheaders(h, "User-Agent" = "R taxify")
-    curl::curl_download(url, tmp, handle = h, quiet = !verbose)
-    TRUE
-  }, error = function(e) FALSE)
-  if (!ok || !file.exists(tmp)) return(NULL)
-  file.rename(tmp, path)
-  path
+  dl <- tryCatch(download_backbone("wgsrpd", verbose = verbose),
+                 error = function(e) NULL)
+  if (!is.null(dl) && file.exists(dl)) return(dl)
+
+  if (requireNamespace("taxifydb", quietly = TRUE)) {
+    built <- tryCatch(
+      taxifydb::build_wgsrpd(output_dir = dirname(path), verbose = verbose),
+      error = function(e) NULL
+    )
+    if (!is.null(built) && file.exists(built)) return(built)
+  }
+  NULL
 }
 
 
-#' Parse the WGSRPD Level 3 GeoJSON into per-feature polygon rings
+#' Read the WGSRPD Level 3 boundary vertex table
 #'
-#' Caches the parsed structure in the session environment. Each feature is a
-#' list with `code`, a bounding box `bbox` (`xmin, xmax, ymin, ymax`) for fast
-#' rejection, and `polys` (a list of polygons, each a list of rings where the
-#' first ring is the outer boundary and the rest are holes; every ring is a
-#' two-column matrix of longitude/latitude).
+#' Caches the collected data.frame in the session environment. Columns:
+#' `code`, `geom` (polygon index within a feature), `ring` (`1` = outer,
+#' `2+` = holes), `seq` (vertex order), `lon`, `lat`.
+#'
+#' @param verbose Logical.
+#' @return A data.frame, or `NULL` if the boundaries are unavailable.
+#' @noRd
+wgsrpd_vertices <- function(verbose = FALSE) {
+  cached <- get0("wgsrpd_df", envir = .taxify_env, inherits = FALSE)
+  if (!is.null(cached)) return(cached)
+
+  path <- ensure_wgsrpd_vtr(download = TRUE, verbose = verbose)
+  if (is.null(path)) return(NULL)
+
+  df <- tryCatch(vectra::collect(vectra::tbl(path)),
+                 error = function(e) NULL)
+  if (is.null(df) || nrow(df) == 0L) return(NULL)
+  assign("wgsrpd_df", df, envir = .taxify_env)
+  df
+}
+
+
+#' Reassemble the boundary vertex table into per-feature polygon rings
+#'
+#' Caches the structure in the session environment. Each feature is a list with
+#' `code`, a bounding box `bbox` (`xmin, xmax, ymin, ymax`) for fast rejection,
+#' and `polys` (a list of polygons, each a list of rings where the first ring
+#' is the outer boundary and the rest are holes; every ring is a two-column
+#' matrix of longitude/latitude).
 #'
 #' @param verbose Logical.
 #' @return A list of features, or `NULL` if the boundaries are unavailable.
@@ -410,37 +435,27 @@ wgsrpd_polygons <- function(verbose = FALSE) {
   cached <- get0("wgsrpd_polygons", envir = .taxify_env, inherits = FALSE)
   if (!is.null(cached)) return(cached)
 
-  path <- wgsrpd_geojson_path(download = TRUE, verbose = verbose)
-  if (is.null(path)) return(NULL)
+  df <- wgsrpd_vertices(verbose = verbose)
+  if (is.null(df)) return(NULL)
 
-  gj <- tryCatch(jsonlite::fromJSON(path, simplifyVector = FALSE),
-                 error = function(e) NULL)
-  if (is.null(gj) || is.null(gj$features)) return(NULL)
-
-  ring_matrix <- function(ring) {
-    do.call(rbind, lapply(ring, function(pt) c(pt[[1L]], pt[[2L]])))
-  }
-
-  feats <- lapply(gj$features, function(ft) {
-    code <- ft$properties$LEVEL3_COD
-    geom <- ft$geometry
-    if (is.null(geom) || is.null(geom$type)) return(NULL)
-    polys <- if (geom$type == "Polygon") {
-      list(lapply(geom$coordinates, ring_matrix))
-    } else if (geom$type == "MultiPolygon") {
-      lapply(geom$coordinates, function(poly) lapply(poly, ring_matrix))
-    } else {
-      return(NULL)
-    }
+  df <- df[order(df$code, df$geom, df$ring, df$seq), , drop = FALSE]
+  feats <- lapply(split(df, df$code), function(cd) {
+    polys <- lapply(split(cd, cd$geom), function(gm) {
+      lapply(split(gm, gm$ring), function(rg) {
+        cbind(rg$lon, rg$lat)
+      })
+    })
+    names(polys) <- NULL
+    polys <- lapply(polys, function(p) { names(p) <- NULL; p })
     all_pts <- do.call(rbind, lapply(polys, function(p) p[[1L]]))
     list(
-      code  = code,
+      code  = cd$code[1L],
       bbox  = c(min(all_pts[, 1L]), max(all_pts[, 1L]),
                 min(all_pts[, 2L]), max(all_pts[, 2L])),
       polys = polys
     )
   })
-  feats <- feats[!vapply(feats, is.null, logical(1L))]
+  names(feats) <- NULL
   assign("wgsrpd_polygons", feats, envir = .taxify_env)
   feats
 }
@@ -519,6 +534,43 @@ region_pip_engine <- function() {
 }
 
 
+#' Build WKT MULTIPOLYGON strings for every WGSRPD Level 3 feature
+#'
+#' terra and sf both parse WKT, so the boundary geometry is reconstructed once
+#' from the shared feature list and reused by either engine. Caches a named
+#' character vector (code -> WKT) in the session environment.
+#'
+#' @param verbose Logical.
+#' @return A named character vector of WKT strings, or `NULL` if the boundaries
+#'   are unavailable.
+#' @noRd
+wgsrpd_wkt <- function(verbose = FALSE) {
+  cached <- get0("wgsrpd_wkt", envir = .taxify_env, inherits = FALSE)
+  if (!is.null(cached)) return(cached)
+
+  feats <- wgsrpd_polygons(verbose = verbose)
+  if (is.null(feats)) return(NULL)
+
+  ring_wkt <- function(ring) {
+    paste0("(", paste(sprintf("%.10f %.10f", ring[, 1L], ring[, 2L]),
+                      collapse = ", "), ")")
+  }
+  poly_wkt <- function(poly) {
+    paste0("(", paste(vapply(poly, ring_wkt, character(1L)), collapse = ", "),
+           ")")
+  }
+  wkt <- vapply(feats, function(ft) {
+    paste0("MULTIPOLYGON(",
+           paste(vapply(ft$polys, poly_wkt, character(1L)), collapse = ", "),
+           ")")
+  }, character(1L))
+  names(wkt) <- vapply(feats, function(ft) ft$code, character(1L))
+
+  assign("wgsrpd_wkt", wkt, envir = .taxify_env)
+  wkt
+}
+
+
 #' Locate points with terra
 #'
 #' @param m Two-column lon/lat matrix.
@@ -527,11 +579,13 @@ region_pip_engine <- function() {
 #'   if the boundaries are unavailable.
 #' @noRd
 locate_points_terra <- function(m, verbose = FALSE) {
-  path <- wgsrpd_geojson_path(download = TRUE, verbose = verbose)
-  if (is.null(path)) return(NULL)
   polys <- get0("wgsrpd_terra", envir = .taxify_env, inherits = FALSE)
   if (is.null(polys)) {
-    polys <- terra::vect(path)
+    wkt <- wgsrpd_wkt(verbose = verbose)
+    if (is.null(wkt)) return(NULL)
+    polys <- terra::vect(unname(wkt), crs = "EPSG:4326")
+    terra::values(polys) <- data.frame(LEVEL3_COD = names(wkt),
+                                        stringsAsFactors = FALSE)
     assign("wgsrpd_terra", polys, envir = .taxify_env)
   }
   pts <- terra::vect(m, type = "points", crs = "EPSG:4326")
@@ -551,11 +605,12 @@ locate_points_terra <- function(m, verbose = FALSE) {
 #'   if the boundaries are unavailable.
 #' @noRd
 locate_points_sf <- function(m, verbose = FALSE) {
-  path <- wgsrpd_geojson_path(download = TRUE, verbose = verbose)
-  if (is.null(path)) return(NULL)
   polys <- get0("wgsrpd_sf", envir = .taxify_env, inherits = FALSE)
   if (is.null(polys)) {
-    polys <- sf::st_read(path, quiet = TRUE)
+    wkt <- wgsrpd_wkt(verbose = verbose)
+    if (is.null(wkt)) return(NULL)
+    geom  <- sf::st_as_sfc(unname(wkt), crs = 4326)
+    polys <- sf::st_sf(LEVEL3_COD = names(wkt), geometry = geom)
     assign("wgsrpd_sf", polys, envir = .taxify_env)
   }
   old <- suppressMessages(sf::sf_use_s2(FALSE))

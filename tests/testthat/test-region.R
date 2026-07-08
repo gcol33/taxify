@@ -148,9 +148,12 @@ test_that("coords_to_codes and resolve_region union codes and coordinates", {
 })
 
 test_that("coords_to_codes warns when boundaries are unavailable", {
-  # Missing boundary file makes every engine return NULL (no download here).
+  # Missing boundary .vtr makes every engine return NULL (no download here).
+  rm(list = intersect(c("wgsrpd_df", "wgsrpd_wkt", "wgsrpd_terra",
+                        "wgsrpd_sf", "wgsrpd_polygons"), ls(.taxify_env)),
+     envir = .taxify_env)
   with_mocked_bindings(
-    wgsrpd_geojson_path = function(...) NULL,
+    ensure_wgsrpd_vtr = function(...) NULL,
     {
       expect_warning(out <- coords_to_codes(c(5, 5)), "boundaries unavailable")
       expect_null(out)
@@ -188,22 +191,22 @@ test_that("terra and sf engines agree with native on a synthetic region", {
   skip_if_not_installed("sf")
   skip_if_not_installed("terra")
 
-  rm(list = intersect(c("wgsrpd_terra", "wgsrpd_sf", "wgsrpd_polygons"),
-                      ls(.taxify_env)), envir = .taxify_env)
+  keys <- c("wgsrpd_df", "wgsrpd_wkt", "wgsrpd_terra", "wgsrpd_sf",
+            "wgsrpd_polygons")
+  rm(list = intersect(keys, ls(.taxify_env)), envir = .taxify_env)
 
   dd <- file.path(tempfile("taxregion_"))
-  dir.create(file.path(dd, "wgsrpd"), recursive = TRUE)
+  dir.create(file.path(dd, "wgsrpd", "latest"), recursive = TRUE)
   on.exit({
     unlink(dd, recursive = TRUE)
-    rm(list = intersect(c("wgsrpd_terra", "wgsrpd_sf", "wgsrpd_polygons"),
-                        ls(.taxify_env)), envir = .taxify_env)
+    rm(list = intersect(keys, ls(.taxify_env)), envir = .taxify_env)
   }, add = TRUE)
-  gj <- paste0(
-    '{"type":"FeatureCollection","features":[{"type":"Feature",',
-    '"properties":{"LEVEL3_COD":"BOX"},"geometry":{"type":"Polygon",',
-    '"coordinates":[[[0,0],[10,0],[10,10],[0,10],[0,0]]]}}]}'
+  box_df <- data.frame(
+    code = "BOX", geom = 1L, ring = 1L, seq = 1:5,
+    lon = c(0, 10, 10, 0, 0), lat = c(0, 0, 10, 10, 0),
+    stringsAsFactors = FALSE
   )
-  writeLines(gj, file.path(dd, "wgsrpd", "level3.geojson"))
+  vectra::write_vtr(box_df, file.path(dd, "wgsrpd", "latest", "wgsrpd.vtr"))
   old <- options(taxify.data_dir = dd); on.exit(options(old), add = TRUE)
 
   for (eng in c("native", "terra", "sf")) {
