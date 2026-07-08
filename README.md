@@ -1,8 +1,12 @@
 # taxify
 
-*the species names never quite match*
+*offline taxonomic name resolution*
 
 [![CRAN status](https://www.r-pkg.org/badges/version/taxify)](https://CRAN.R-project.org/package=taxify)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/taxify)](https://cran.r-project.org/package=taxify)
+[![Monthly downloads](https://cranlogs.r-pkg.org/badges/taxify)](https://cran.r-project.org/package=taxify)
+[![R-CMD-check](https://github.com/gcol33/taxify/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/gcol33/taxify/actions/workflows/R-CMD-check.yml)
+[![Codecov test coverage](https://codecov.io/gh/gcol33/taxify/graph/badge.svg)](https://app.codecov.io/gh/gcol33/taxify)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Offline taxonomic name matching against local Darwin Core backbones, with matching done in C.**
