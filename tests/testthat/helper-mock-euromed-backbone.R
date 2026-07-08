@@ -20,7 +20,10 @@ mock_euromed_backbone_df <- function() {
       "b1000008-0000-0000-0000-000000000008",
       "b1000009-0000-0000-0000-000000000009",
       "b1000010-0000-0000-0000-000000000010",
-      "b1000011-0000-0000-0000-000000000011"
+      "b1000011-0000-0000-0000-000000000011",
+      "b1000012-0000-0000-0000-000000000012",
+      "b1000013-0000-0000-0000-000000000013",
+      "b1000014-0000-0000-0000-000000000014"
     ),
     canonical_name = c(
       "Quercus robur",
@@ -37,19 +40,24 @@ mock_euromed_backbone_df <- function() {
       "Betula pendula",
       "Betula verrucosa",
       "Betula",
-      "Ranunculus"
+      "Ranunculus",
+      "Taraxacum",
+      "Taraxacum officinale",
+      "Taraxacum officinale aggr."
     ),
     taxon_rank = c(
       "SPECIES", "GENUS", "SPECIES", "SUBSPECIES",
       "SPECIES", "SUBSPECIES", "SPECIES", "SUBSPECIES",
       "SPECIES", "SPECIES", "SPECIES", "SPECIES",
-      "SPECIES", "GENUS", "GENUS"
+      "SPECIES", "GENUS", "GENUS",
+      "GENUS", "SPECIES", "SPECIES AGGREGATE"
     ),
     taxonomic_status = c(
       "ACCEPTED", "ACCEPTED", "SYNONYM", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "ACCEPTED", "ACCEPTED",
       "ACCEPTED", "ACCEPTED", "SYNONYM", "ACCEPTED",
-      "SYNONYM", "ACCEPTED", "ACCEPTED"
+      "SYNONYM", "ACCEPTED", "ACCEPTED",
+      "ACCEPTED", "ACCEPTED", "ACCEPTED"
     ),
     accepted_name_usage_id = c(
       NA, NA,
@@ -58,36 +66,42 @@ mock_euromed_backbone_df <- function() {
       "b1000006-0000-0000-0000-000000000006",
       NA,
       "b1000008-0000-0000-0000-000000000008",
-      NA, NA
+      NA, NA,
+      NA, NA, NA
     ),
     family = c(
       "Fagaceae", "Fagaceae", "Fagaceae", "Fagaceae",
       "Fagaceae", "Fagaceae", "Pinaceae", "Pinaceae",
       "Pinaceae", "Ranunculaceae", "Ranunculaceae", "Betulaceae",
-      "Betulaceae", "Betulaceae", "Ranunculaceae"
+      "Betulaceae", "Betulaceae", "Ranunculaceae",
+      "Asteraceae", "Asteraceae", "Asteraceae"
     ),
     genus = c(
       "Quercus", "Quercus", "Quercus", "Quercus",
       "Fagus", "Fagus", "Abies", "Abies",
       "Pinus", "Ranunculus", "Ranunculus", "Betula",
-      "Betula", "Betula", "Ranunculus"
+      "Betula", "Betula", "Ranunculus",
+      "Taraxacum", "Taraxacum", "Taraxacum"
     ),
     specific_epithet = c(
       "robur", NA, "pedunculata", "robur",
       "sylvatica", "sylvatica", "alba", "alba",
       "sylvestris", "acris", "acer", "pendula",
-      "verrucosa", NA, NA
+      "verrucosa", NA, NA,
+      NA, "officinale", "officinale"
     ),
     authorship = c(
       "L.", NA, "(Loisel.) Bonnier & Layens", NA,
       "L.", NA, "Mill.", NA,
       "L.", "L.", NA, "Roth",
-      NA, "L.", "L."
+      NA, "L.", "L.",
+      NA, "F.H.Wigg.", NA
     ),
     infraspecific_epithet = c(
       NA, NA, NA, "robur",
       NA, "sylvatica", NA, "alba",
       NA, NA, NA, NA,
+      NA, NA, NA,
       NA, NA, NA
     ),
     stringsAsFactors = FALSE

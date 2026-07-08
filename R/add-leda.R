@@ -64,24 +64,11 @@ add_leda <- function(x, cols = NULL, verbose = TRUE) {
     clonal_growth        = "clonal_growth",
     buoyancy             = "buoyancy"
   )
-  na_types <- list(
-    raunkiaer_life_form  = NA_character_,
-    raunkiaer_variable   = NA_integer_,
-    dispersal_type       = NA_character_,
-    terminal_velocity_ms = NA_real_,
-    seed_mass_mg         = NA_real_,
-    canopy_height_m      = NA_real_,
-    leaf_mass_mg         = NA_real_,
-    sla_mm2_mg           = NA_real_,
-    clonal_growth        = NA_integer_,
-    buoyancy             = NA_character_
-  )
   enrich_simple(
     x,
     enrichment_name = "leda",
     col_map         = col_map,
     source_label    = "LEDA Traitbase",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

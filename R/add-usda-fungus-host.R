@@ -26,6 +26,12 @@
 #' Farr DF, Rossman AY, Castlebury LA (2021) United States National Fungus
 #' Collections Fungus-Host Dataset. Ag Data Commons. doi:10.15482/USDA.ADC/1524414
 #'
+#' @examples
+#' \donttest{
+#' taxify("Puccinia graminis", backend = "gbif") |>
+#'   add_usda_fungus_host()
+#' }
+#'
 #' @export
 add_usda_fungus_host <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(

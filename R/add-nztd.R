@@ -29,15 +29,11 @@ add_nztd <- function(x, cols = NULL, verbose = TRUE) {
             "living_habit", "mobility", "morphology", "movement_method",
             "rigidity")
   col_map <- stats::setNames(base_cols, paste0("nztd_", base_cols))
-  na_types <- stats::setNames(
-    rep(list(NA_character_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "nztd",
     col_map         = col_map,
     source_label    = "NZTD",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

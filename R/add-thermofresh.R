@@ -40,14 +40,11 @@ add_thermofresh <- function(x, cols = NULL, verbose = TRUE) {
     thermofresh_ltmax = "ltmax",
     thermofresh_ltmin = "ltmin"
   )
-  na_types <- stats::setNames(rep(list(NA_real_), length(num_cols)),
-                              names(num_cols))
   enrich_simple(
     x,
     enrichment_name = "thermofresh",
     col_map         = num_cols,
     source_label    = "ThermoFresh freshwater thermal tolerance",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

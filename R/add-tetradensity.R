@@ -24,13 +24,11 @@
 #' @export
 add_tetradensity <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(tetradensity_density_ind_km2 = "density_ind_km2")
-  na_types <- list(tetradensity_density_ind_km2 = NA_real_)
   enrich_simple(
     x,
     enrichment_name = "tetradensity",
     col_map         = col_map,
     source_label    = "TetraDENSITY",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

@@ -34,6 +34,12 @@
 #' infrastructure to share and analyze species-interaction datasets. Ecological
 #' Informatics 24:148-159. doi:10.1016/j.ecoinf.2014.08.005
 #'
+#' @examples
+#' \donttest{
+#' taxify("Apis mellifera", backend = "gbif") |>
+#'   add_globi()
+#' }
+#'
 #' @export
 add_globi <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(

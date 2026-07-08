@@ -30,15 +30,11 @@ add_bee_ostwald <- function(x, cols = NULL, verbose = TRUE) {
             "tongue_width_mm", "body_length_mm", "thorax_length_mm",
             "hair_length_mm", "hair_coverage_pct")
   col_map <- stats::setNames(base_cols, paste0("bee_ostwald_", base_cols))
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "bee_ostwald",
     col_map         = col_map,
     source_label    = "Bee morphology (Ostwald)",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

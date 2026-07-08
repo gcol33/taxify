@@ -56,21 +56,11 @@ add_avonet <- function(x, cols = NULL, verbose = TRUE) {
     trophic_niche     = "trophic_niche",
     migration         = "migration"
   )
-  na_types <- list(
-    beak_length       = NA_real_,
-    beak_depth        = NA_real_,
-    wing_length       = NA_real_,
-    tail_length       = NA_real_,
-    tarsus_length     = NA_real_,
-    avonet_body_mass_g = NA_real_,
-    hand_wing_index   = NA_real_
-  )
   enrich_simple(
     x,
     enrichment_name = "avonet",
     col_map         = col_map,
     source_label    = "AVONET",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

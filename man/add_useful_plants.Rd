@@ -4,10 +4,13 @@
 \alias{add_useful_plants}
 \title{Add human-use categories (World Checklist of Useful Plant Species)}
 \usage{
-add_useful_plants(x, verbose = TRUE)
+add_useful_plants(x, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
+
+\item{cols}{Character vector of use-category columns to attach, or \code{"all"}.
+\code{NULL} (default) attaches all eleven. See \code{\link[=enrichment_cols]{enrichment_cols()}}.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

@@ -30,6 +30,12 @@
 #' Italian Lichen Data in ITALIC 7.0. Journal of Fungi 9(5):556.
 #' doi:10.3390/jof9050556
 #'
+#' @examples
+#' \donttest{
+#' taxify("Xanthoria parietina", backend = "gbif") |>
+#'   add_italic()
+#' }
+#'
 #' @export
 add_italic <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(

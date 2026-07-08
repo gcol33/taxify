@@ -50,18 +50,11 @@ add_madin <- function(x, cols = NULL, verbose = TRUE) {
     madin_genome_size_bp   = "genome_size_bp",
     madin_gc_content_pct   = "gc_content_pct"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_character_), length(col_map)), names(col_map)
-  )
-  na_types[c("madin_growth_temp_c", "madin_optimum_temp_c", "madin_optimum_ph",
-             "madin_genome_size_bp", "madin_gc_content_pct")] <-
-    list(NA_real_)
   enrich_simple(
     x,
     enrichment_name = "madin",
     col_map         = col_map,
     source_label    = "Madin bacteria/archaea traits",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

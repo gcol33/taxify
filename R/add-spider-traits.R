@@ -54,18 +54,11 @@ add_spider_traits <- function(x, cols = NULL, verbose = TRUE) {
     spider_circadian_activity = "circadian_activity",
     spider_stratum            = "stratum"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_character_), length(col_map)), names(col_map)
-  )
-  na_types[c("spider_body_length_mm", "spider_prosoma_length_mm",
-             "spider_prosoma_width_mm", "spider_abdomen_length_mm",
-             "spider_leg1_length_mm")] <- list(NA_real_)
   enrich_simple(
     x,
     enrichment_name = "spider_traits",
     col_map         = col_map,
     source_label    = "World Spider Trait Database",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

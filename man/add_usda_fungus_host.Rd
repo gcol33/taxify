@@ -34,6 +34,13 @@ Source: Farr, Rossman & Castlebury (2021) United States National Fungus
 Collections Fungus-Host Dataset, Ag Data Commons (U.S. Public Domain).
 Fungi only; ~99k species with at least one recorded host.
 }
+\examples{
+\donttest{
+taxify("Puccinia graminis", backend = "gbif") |>
+  add_usda_fungus_host()
+}
+
+}
 \references{
 Farr DF, Rossman AY, Castlebury LA (2021) United States National Fungus
 Collections Fungus-Host Dataset. Ag Data Commons. doi:10.15482/USDA.ADC/1524414

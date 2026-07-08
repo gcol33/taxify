@@ -30,17 +30,11 @@ add_frugivoria <- function(x, cols = NULL, verbose = TRUE) {
   cat_cols <- c("taxon_group", "diet_category")
   all_cols <- c(num_cols, cat_cols)
   col_map <- stats::setNames(all_cols, paste0("frugivoria_", all_cols))
-  na_types <- stats::setNames(
-    c(rep(list(NA_real_), length(num_cols)),
-      rep(list(NA_character_), length(cat_cols))),
-    paste0("frugivoria_", all_cols)
-  )
   enrich_simple(
     x,
     enrichment_name = "frugivoria",
     col_map         = col_map,
     source_label    = "Frugivoria",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

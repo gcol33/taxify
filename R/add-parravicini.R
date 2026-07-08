@@ -25,13 +25,11 @@
 #' @export
 add_parravicini <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(parravicini_trophic_guild = "trophic_guild")
-  na_types <- list(parravicini_trophic_guild = NA_character_)
   enrich_simple(
     x,
     enrichment_name = "parravicini",
     col_map         = col_map,
     source_label    = "Parravicini reef-fish trophic guilds",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

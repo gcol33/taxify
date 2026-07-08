@@ -12,6 +12,10 @@
 #'       country suffix (e.g., `alien_first_record_AT`).
 #'     \item `"all"`: adds one column set per country in the dataset.
 #'   }
+#' @param cols Character vector of value columns to attach (from
+#'   `alien_first_record`, `alien_first_record_source`,
+#'   `alien_first_record_reference`), or `"all"`. `NULL` (default) attaches all
+#'   three.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional column(s):
 #' \describe{
@@ -41,7 +45,7 @@
 #' options(old)
 #'
 #' @export
-add_alien_first_records <- function(x, country, verbose = TRUE) {
+add_alien_first_records <- function(x, country, cols = NULL, verbose = TRUE) {
   if (missing(country)) {
     stop("'country' is required. Use an ISO 3166-1 alpha-2 code (e.g., \"AT\") or \"all\".",
          call. = FALSE)
@@ -57,7 +61,7 @@ add_alien_first_records <- function(x, country, verbose = TRUE) {
       alien_first_record_reference = "alien_first_record_reference"
     ),
     source_label    = "Alien first records (Seebens et al.)",
-    na_types        = list(alien_first_record = NA_integer_),
+    cols            = cols,
     verbose         = verbose
   )
 }

@@ -36,16 +36,11 @@ add_animaltraits <- function(x, cols = NULL, verbose = TRUE) {
     animaltraits_body_mass_kg     = "body_mass_kg",
     animaltraits_metabolic_rate_w = "metabolic_rate_w"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)),
-    names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "animaltraits",
     col_map         = col_map,
     source_label    = "AnimalTraits",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

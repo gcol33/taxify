@@ -41,19 +41,11 @@ add_nesttrait <- function(x, cols = NULL, verbose = TRUE) {
     nesttrait_attachment = "nest_attachment",
     stats::setNames(flag_cols, paste0("nesttrait_", flag_cols))
   )
-  na_types <- c(
-    list(nesttrait_structure = NA_character_,
-         nesttrait_site       = NA_character_,
-         nesttrait_attachment = NA_character_),
-    stats::setNames(rep(list(NA_real_), length(flag_cols)),
-                    paste0("nesttrait_", flag_cols))
-  )
   enrich_simple(
     x,
     enrichment_name = "nesttrait",
     col_map         = col_map,
     source_label    = "NestTrait",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

@@ -47,14 +47,11 @@ add_freshwater_insects_conus <- function(x, cols = NULL, verbose = TRUE) {
     fwinsect_voltinism      = "voltinism_abbrev",
     fwinsect_max_body_size  = "max_body_size_abbrev"
   )
-  na_types <- stats::setNames(rep(list(NA_character_), length(cat_cols)),
-                              names(cat_cols))
   enrich_simple(
     x,
     enrichment_name = "freshwater_insects_conus",
     col_map         = cat_cols,
     source_label    = "Freshwater Insects CONUS genus traits",
-    na_types        = na_types,
     join_col        = "genus",
     cols            = cols,
     verbose         = verbose

@@ -5,6 +5,8 @@
 #' crop-wild-relative flag.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param cols Character vector of use-category columns to attach, or `"all"`.
+#'   `NULL` (default) attaches all eleven. See [enrichment_cols()].
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
@@ -36,7 +38,7 @@
 #' }
 #'
 #' @export
-add_useful_plants <- function(x, verbose = TRUE) {
+add_useful_plants <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(
     useful_animal_food        = "animal_food",
     useful_environmental_uses = "environmental_uses",
@@ -50,15 +52,12 @@ add_useful_plants <- function(x, verbose = TRUE) {
     useful_social_uses        = "social_uses",
     useful_crop_wild_relative = "crop_wild_relative"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "useful_plants",
     col_map         = col_map,
     source_label    = "World Checklist of Useful Plant Species",
-    na_types        = na_types,
+    cols            = cols,
     verbose         = verbose
   )
 }

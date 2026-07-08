@@ -64,19 +64,11 @@ add_birdbase <- function(x, cols = NULL, verbose = TRUE) {
     birdbase_nest_type          = "nest_type",
     birdbase_flightlessness     = "flightlessness"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[c("birdbase_iucn_status", "birdbase_realm",
-             "birdbase_primary_habitat", "birdbase_primary_diet",
-             "birdbase_nest_type", "birdbase_flightlessness")] <-
-    list(NA_character_)
   enrich_simple(
     x,
     enrichment_name = "birdbase",
     col_map         = col_map,
     source_label    = "BIRDBASE",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

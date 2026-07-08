@@ -47,16 +47,11 @@ add_kew_sid <- function(x, cols = NULL, verbose = TRUE) {
     sid_lifeform          = "lifeform"
   )
   col_map <- c(num_cols, cat_cols)
-  na_types <- c(
-    stats::setNames(rep(list(NA_real_), length(num_cols)), names(num_cols)),
-    stats::setNames(rep(list(NA_character_), length(cat_cols)), names(cat_cols))
-  )
   enrich_simple(
     x,
     enrichment_name = "kew_sid",
     col_map         = col_map,
     source_label    = "Kew Seed Information Database (SID)",
-    na_types        = na_types,
     col_prefix      = "sid",
     cols            = cols,
     verbose         = verbose

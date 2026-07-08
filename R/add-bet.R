@@ -65,18 +65,11 @@ add_bet <- function(x, cols = NULL, verbose = TRUE) {
     bet_epiphyte            = "epiphyte",
     bet_redlist_category    = "redlist_category"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[c("bet_growth_form", "bet_life_form", "bet_life_strategy",
-             "bet_sexual_condition", "bet_redlist_category")] <-
-    list(NA_character_)
   enrich_simple(
     x,
     enrichment_name = "bet",
     col_map         = col_map,
     source_label    = "Bryophytes of Europe Traits",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

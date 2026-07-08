@@ -49,23 +49,11 @@ add_leptraits <- function(x, cols = NULL, verbose = TRUE) {
     n_hostplant_families  = "n_hostplant_families",
     flight_months         = "flight_months"
   )
-  na_types <- list(
-    wingspan_mm          = NA_real_,
-    voltinism            = NA_real_,
-    diapause_stage       = NA_character_,
-    canopy_affinity      = NA_character_,
-    edge_affinity        = NA_character_,
-    moisture_affinity    = NA_character_,
-    disturbance_affinity = NA_character_,
-    n_hostplant_families = NA_integer_,
-    flight_months        = NA_integer_
-  )
   enrich_simple(
     x,
     enrichment_name = "leptraits",
     col_map         = col_map,
     source_label    = "LepTraits",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

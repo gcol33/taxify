@@ -50,15 +50,11 @@ add_sharkipedia <- function(x, cols = NULL, verbose = TRUE) {
     sharkipedia_gestation_length          = "gestation_length",
     sharkipedia_natural_mortality         = "natural_mortality"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "sharkipedia",
     col_map         = col_map,
     source_label    = "Sharkipedia",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

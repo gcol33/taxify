@@ -38,16 +38,11 @@ add_disperse <- function(x, cols = NULL, verbose = TRUE) {
             "disperse_fecundity_mid")
   base_cols <- c(cat_cols, mid_cols)
   col_map <- stats::setNames(base_cols, base_cols)
-  na_types <- c(
-    stats::setNames(rep(list(NA_character_), length(cat_cols)), cat_cols),
-    stats::setNames(rep(list(NA_real_), length(mid_cols)), mid_cols)
-  )
   enrich_simple(
     x,
     enrichment_name = "disperse",
     col_map         = col_map,
     source_label    = "DISPERSE",
-    na_types        = na_types,
     join_col        = "genus",
     cols            = cols,
     verbose         = verbose

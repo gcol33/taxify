@@ -35,6 +35,13 @@ Source: ITALIC 8.0 (Nimis; Univ. of Trieste), taxon-page descriptors,
 CC BY-SA 4.0. Lichens are otherwise almost absent from the bundled trait
 databases.
 }
+\examples{
+\donttest{
+taxify("Xanthoria parietina", backend = "gbif") |>
+  add_italic()
+}
+
+}
 \references{
 Nimis PL. ITALIC - The Information System on Italian Lichens, Version 8.0.
 University of Trieste, Dept. of Biology (https://italic.units.it), accessed

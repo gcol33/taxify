@@ -1,0 +1,15 @@
+{
+  "name": "kew_sid",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 2.0",
+  "citation": {
+    "key": "kewsid",
+    "type": "misc",
+    "authors": "Royal Botanic Gardens Kew",
+    "year": "2024",
+    "title": "Seed Information Database (SID), served as SER-SID",
+    "url": "https://ser-sid.org/"
+  }
+}

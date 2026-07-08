@@ -113,3 +113,74 @@ test_that("normalize_aggregate_name appends marker for aggregate-rank rows", {
 test_that("aggregates argument is validated", {
   expect_error(taxify("Quercus robur", aggregates = "nonsense", verbose = FALSE))
 })
+
+
+# ---- End-to-end: preserve resolves aggregates, collapse resolves binomials ----
+#
+# The mock Euro+Med backbone carries a dedicated aggregate taxon
+# ("Taraxacum officinale aggr.", SPECIES AGGREGATE) alongside its binomial
+# ("Taraxacum officinale"), mirroring the 433 aggregate taxa the real Euro+Med
+# 2020.1 backbone holds. Fagus sylvatica has a binomial but no aggregate taxon,
+# so it exercises the preserve-fell-back path.
+
+setup_mock_euromed <- function() {
+  bb <- mock_euromed_backbone_vtr()
+  set_backbone_path("euromed", bb)
+  # skip the once-per-session network version check
+  .taxify_env[[".version_checked.euromed"]] <- TRUE
+  # defer cleanup to the calling test's frame, not this helper's
+  withr::defer(set_backbone_path("euromed", NULL), envir = parent.frame())
+  invisible(bb)
+}
+
+test_that("the aggregates default is preserve", {
+  expect_equal(eval(formals(taxify)$aggregates)[[1L]], "preserve")
+})
+
+test_that("preserve (default) resolves an aggregate query to the aggregate taxon", {
+  setup_mock_euromed()
+  res <- taxify("Taraxacum officinale agg.", backend = "euromed", verbose = FALSE)
+
+  expect_equal(res$match_type, "exact")
+  expect_equal(res$matched_name, "Taraxacum officinale aggr.")
+  expect_equal(res$accepted_name, "Taraxacum officinale aggr.")
+  expect_match(res$rank, "aggregate", ignore.case = TRUE)
+  # preserve honoured the aggregate concept: no fallback
+  expect_false(res$aggregate_fallback)
+  # the input marker is still recorded
+  expect_equal(res$qualifier, "agg.")
+})
+
+test_that("collapse resolves an aggregate query to the binomial", {
+  setup_mock_euromed()
+  res <- taxify("Taraxacum officinale agg.", backend = "euromed",
+                aggregates = "collapse", verbose = FALSE)
+
+  expect_equal(res$match_type, "exact")
+  expect_equal(res$matched_name, "Taraxacum officinale")
+  expect_equal(res$accepted_name, "Taraxacum officinale")
+  # collapse is explicit, so no "fallback" is flagged
+  expect_true(is.na(res$aggregate_fallback))
+  # the marker is still recorded even though it was stripped for matching
+  expect_equal(res$qualifier, "agg.")
+})
+
+test_that("preserve flags a silent fallback when the backbone lacks the aggregate taxon", {
+  setup_mock_euromed()
+  # Fagus sylvatica has no "Fagus sylvatica aggr." in the backbone, so preserve
+  # falls through to the binomial -- and must say so.
+  res <- taxify("Fagus sylvatica agg.", backend = "euromed", verbose = FALSE)
+
+  expect_equal(res$matched_name, "Fagus sylvatica")
+  expect_true(res$aggregate_fallback)
+})
+
+test_that("aggregate_fallback is NA for non-aggregate queries", {
+  setup_mock_euromed()
+  res <- taxify(c("Quercus robur", "Taraxacum officinale agg."),
+                backend = "euromed", verbose = FALSE)
+  # plain binomial: not an aggregate query at all
+  expect_true(is.na(res$aggregate_fallback[1L]))
+  # aggregate query that resolved: FALSE, not NA
+  expect_false(res$aggregate_fallback[2L])
+})

@@ -38,15 +38,11 @@ add_gwdd <- function(x, cols = NULL, verbose = TRUE) {
     gwdd_wood_density_branch_g_cm3 = "wood_density_branch_g_cm3",
     gwdd_n_measurements            = "n_measurements"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "gwdd",
     col_map         = col_map,
     source_label    = "Global Wood Density Database v2",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

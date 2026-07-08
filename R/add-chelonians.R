@@ -59,18 +59,11 @@ add_chelonians <- function(x, cols = NULL, verbose = TRUE) {
     chelonian_habitat_type       = "habitat_type",
     chelonian_shell_type         = "shell_type"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[c("chelonian_diet", "chelonian_activity_time",
-             "chelonian_microhabitat", "chelonian_habitat_type",
-             "chelonian_shell_type")] <- list(NA_character_)
   enrich_simple(
     x,
     enrichment_name = "chelonians",
     col_map         = col_map,
     source_label    = "CheloniansTraits",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

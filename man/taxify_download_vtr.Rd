@@ -2,13 +2,15 @@
 % Please edit documentation in R/download.R
 \name{taxify_download_vtr}
 \alias{taxify_download_vtr}
-\title{Download a taxify backbone}
+\title{Download a pre-built taxify backbone}
 \usage{
 taxify_download_vtr(backend = "wfo", version = "latest", verbose = TRUE)
 }
 \arguments{
-\item{backend}{Character. One of \code{"wfo"}, \code{"col"}, \code{"gbif"}, or
-\code{"register"}. Multiple backends can be specified as a character vector.}
+\item{backend}{Character. A backend name (e.g. \code{"wfo"}, \code{"col"}, \code{"gbif"},
+...; see the backends in \code{\link[=list_enrichments]{list_enrichments()}}'s companion manifest) or
+\code{"register"} for the genus register. Multiple backends can be given as a
+character vector.}
 
 \item{version}{Character. \code{"latest"} (default) downloads into
 \verb{<data_dir>/<backend>/latest/} and will be overwritten on future updates.
@@ -21,7 +23,13 @@ folder that is never overwritten.}
 The path(s) to the downloaded \code{.vtr} file(s) (invisibly).
 }
 \description{
-Downloads a pre-built \code{.vtr} backbone from Zenodo using the taxify manifest.
-Progress is always shown. No prompts are shown — calling this function is
-consent.
+Downloads a pre-built \code{.vtr} backbone from GitHub Releases using the taxify
+manifest. This needs no build tools and does not require \code{taxifydb}; it is the
+fast path \code{\link[=taxify]{taxify()}} uses internally on first use. Call it directly to
+pre-fetch backbones before an offline session. Progress is always shown; no
+prompts are shown, so calling this function is consent.
+}
+\seealso{
+\code{\link[=taxify_download]{taxify_download()}} to build a backbone from source via \code{taxifydb},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} for enrichment layers.
 }

@@ -98,10 +98,12 @@ against the local snapshot in C avoids the per-name cost of the CSV-into-RAM app
 
 ## What you get back
 
-`taxify()` returns one row per input name with a fixed 16-column schema: the matched and
-accepted names, IDs, rank, family, genus, epithet, authorship, synonym and hybrid flags,
-the match type (`exact`, `exact_ci`, `fuzzy`, or `none`), the fuzzy distance, the backend,
-and the backbone version used. `summary()` prints a compact digest of how the batch resolved.
+`taxify()` returns one row per input name with a fixed schema: the matched and accepted
+names with their IDs and authorship, rank, family, genus, epithet, synonym / hybrid /
+ambiguity flags, any taxonomic qualifier, the match type (`exact`, `exact_ci`, `fuzzy`,
+`abbrev`, `out_of_scope`, or `none`), the fuzzy distance, a coarse kingdom / taxon-group
+label, the backend, and the backbone version used. `summary()` prints a compact digest of
+how the batch resolved.
 
 ```r
 result <- taxify(c("Quercus robur", "Pinus abies", "Quercus robus", "Taraxacum officinale"))
@@ -109,13 +111,14 @@ summary(result)
 #> -- taxify results ----------------------------------------------------
 #>   backend: WFO  |  4 names submitted
 #>
-#>   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2)
-#>   unmatched       0
+#>   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2, abbrev: 0)
+#>   --------------------------------------------------------------
+#>   taxon groups: vascular plant: 4
 ```
 
 ## Trait and status enrichment
 
-More than sixty enrichment layers join published trait and status data to your results through
+More than eighty enrichment layers join published trait and status data to your results through
 the backbone-resolved accepted name, so synonyms in either dataset land on the same key:
 
 ```r

@@ -29,15 +29,11 @@ add_rimet_phyto <- function(x, cols = NULL, verbose = TRUE) {
   base_cols <- c("cell_length_um", "cell_width_um", "cell_thickness_um",
             "cell_surface_area_um2", "cell_biovolume_um3")
   col_map <- stats::setNames(base_cols, paste0("rimet_phyto_", base_cols))
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "rimet_phyto",
     col_map         = col_map,
     source_label    = "Rimet phytoplankton",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

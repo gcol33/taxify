@@ -2,7 +2,7 @@
 % Please edit documentation in R/backend.R
 \name{taxify_download}
 \alias{taxify_download}
-\title{Download a backbone database}
+\title{Build a backbone database from source}
 \usage{
 taxify_download(backend, dest = NULL, verbose = TRUE, ...)
 }
@@ -21,11 +21,16 @@ taxify_download(backend, dest = NULL, verbose = TRUE, ...)
 The path to the \code{.vtr} file (invisibly).
 }
 \description{
-Downloads the latest Darwin Core snapshot for the specified backend and
-converts it to vectra's \code{.vtr} format for fast repeated queries.
+Builds the backbone \code{.vtr} for a backend from its upstream Darwin Core source,
+delegating to the sibling \code{taxifydb} package (which must be installed). This
+is the from-source path, for rebuilding a backbone locally.
 }
 \details{
-Always re-downloads the latest release, overwriting any existing backbone.
-Use \code{\link[=taxify]{taxify()}} for day-to-day matching — it auto-downloads on first use
-and reuses the local copy thereafter.
+For everyday use you do not need this: \code{\link[=taxify]{taxify()}} auto-downloads the pre-built
+\code{.vtr} on first use, and \code{\link[=taxify_download_vtr]{taxify_download_vtr()}} fetches a pre-built backbone
+directly without \code{taxifydb}.
+}
+\seealso{
+\code{\link[=taxify_download_vtr]{taxify_download_vtr()}} to fetch a pre-built backbone, \code{\link[=taxify]{taxify()}}
+which downloads on first use.
 }

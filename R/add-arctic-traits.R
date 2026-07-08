@@ -31,15 +31,11 @@ add_arctic_traits <- function(x, cols = NULL, verbose = TRUE) {
             "depth_range", "trophic_level", "fragility", "sociability",
             "longevity")
   col_map <- stats::setNames(base_cols, paste0("arctic_traits_", base_cols))
-  na_types <- stats::setNames(
-    rep(list(NA_character_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "arctic_traits",
     col_map         = col_map,
     source_label    = "Arctic Traits Database",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

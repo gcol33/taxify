@@ -56,19 +56,11 @@ add_coral_traits <- function(x, cols = NULL, verbose = TRUE) {
     coral_depth_upper_m           = "depth_upper_m",
     coral_skeletal_density_g_cm3  = "skeletal_density_g_cm3"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_character_), length(col_map)), names(col_map)
-  )
-  na_types[c("coral_corallite_width_max_mm", "coral_colony_max_diameter_cm",
-             "coral_growth_rate_mm_yr", "coral_depth_lower_m",
-             "coral_depth_upper_m", "coral_skeletal_density_g_cm3")] <-
-    list(NA_real_)
   enrich_simple(
     x,
     enrichment_name = "coral_traits",
     col_map         = col_map,
     source_label    = "Coral Trait Database",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

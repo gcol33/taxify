@@ -288,20 +288,26 @@ has_xdelta3 <- function() {
 
 # ---- User-facing download function ----
 
-#' Download a taxify backbone
+#' Download a pre-built taxify backbone
 #'
-#' Downloads a pre-built `.vtr` backbone from Zenodo using the taxify manifest.
-#' Progress is always shown. No prompts are shown — calling this function is
-#' consent.
+#' Downloads a pre-built `.vtr` backbone from GitHub Releases using the taxify
+#' manifest. This needs no build tools and does not require `taxifydb`; it is the
+#' fast path [taxify()] uses internally on first use. Call it directly to
+#' pre-fetch backbones before an offline session. Progress is always shown; no
+#' prompts are shown, so calling this function is consent.
 #'
-#' @param backend Character. One of `"wfo"`, `"col"`, `"gbif"`, or
-#'   `"register"`. Multiple backends can be specified as a character vector.
+#' @param backend Character. A backend name (e.g. `"wfo"`, `"col"`, `"gbif"`,
+#'   ...; see the backends in [list_enrichments()]'s companion manifest) or
+#'   `"register"` for the genus register. Multiple backends can be given as a
+#'   character vector.
 #' @param version Character. `"latest"` (default) downloads into
 #'   `<data_dir>/<backend>/latest/` and will be overwritten on future updates.
 #'   A specific version string (e.g., `"2024.01"`) downloads into a pinned
 #'   folder that is never overwritten.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The path(s) to the downloaded `.vtr` file(s) (invisibly).
+#' @seealso [taxify_download()] to build a backbone from source via `taxifydb`,
+#'   [taxify_download_enrichment()] for enrichment layers.
 #' @export
 taxify_download_vtr <- function(backend = "wfo",
                                 version = "latest",

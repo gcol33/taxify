@@ -60,27 +60,11 @@ add_amphibio <- function(x, cols = NULL, verbose = TRUE) {
     diurnal             = "diurnal",
     nocturnal_amphibio  = "nocturnal_amphibio"
   )
-  na_types <- list(
-    body_size_mm        = NA_real_,
-    age_maturity_y      = NA_real_,
-    longevity_yr        = NA_real_,
-    litter_size         = NA_real_,
-    reproductive_output = NA_real_,
-    offspring_size_mm   = NA_real_,
-    direct_development  = NA_integer_,
-    larval              = NA_integer_,
-    aquatic             = NA_integer_,
-    fossorial           = NA_integer_,
-    arboreal            = NA_integer_,
-    diurnal             = NA_integer_,
-    nocturnal_amphibio  = NA_integer_
-  )
   enrich_simple(
     x,
     enrichment_name = "amphibio",
     col_map         = col_map,
     source_label    = "AmphiBIO",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

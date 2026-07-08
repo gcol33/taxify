@@ -62,17 +62,11 @@ add_combine <- function(x, cols = NULL, verbose = TRUE) {
     combine_foraging_stratum     = "foraging_stratum",
     combine_biogeographical_realm = "biogeographical_realm"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[c("combine_foraging_stratum",
-             "combine_biogeographical_realm")] <- list(NA_character_)
   enrich_simple(
     x,
     enrichment_name = "combine",
     col_map         = col_map,
     source_label    = "COMBINE",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

@@ -53,3 +53,149 @@ articles:
   - inspecting-names
   - hybrid-names
   - large-scale
+reference:
+- title: Match and inspect names
+  desc: Resolve a vector of names against local backbones and check a list before you trust it.
+  contents:
+  - taxify
+  - inspect
+  - taxify_regions
+  - taxify_long
+  - export_data
+  - cite
+- title: Explore the backbone
+  desc: Read the backbone the other ways — list synonyms, list the taxa within a group, attach the full classification.
+  contents:
+  - synonyms
+  - children
+  - add_classification
+  - taxify_candidates
+- title: Backbone data and cache
+  desc: Download, cache, and inspect backbone snapshots and the unified genus register.
+  contents:
+  - taxify_download
+  - taxify_download_vtr
+  - taxify_download_enrichment
+  - taxify_data_dir
+  - taxify_example_data
+  - taxify_clear_cache
+  - taxify_refresh_manifest
+  - taxify_load_register
+  - taxify_register_coverage
+  - lookup_genus
+- title: Backend-specific columns
+  desc: Attach extra columns from the backbone that matched.
+  contents:
+  - add_col_info
+  - add_gbif_info
+  - add_wfo_info
+  - add_hybrid_info
+- title: Traits across sources
+  desc: Name one trait; gather and harmonize it from every source that carries it.
+  contents:
+  - add_trait
+  - list_traits
+  - trait_info
+- title: Custom data and discovery
+  desc: Join your own table, and browse the available enrichment layers and columns.
+  contents:
+  - add_data
+  - list_enrichments
+  - enrichment_cols
+- title: Enrichments — distribution and status
+  contents:
+  - add_iucn
+  - add_griis
+  - add_glonaf
+  - add_alien_first_records
+  - add_wcvp
+  - add_common_names
+  - add_globi
+- title: Enrichments — plants
+  contents:
+  - add_zanne
+  - add_eive
+  - add_diaz_traits
+  - add_leda
+  - add_groot
+  - add_baseflor
+  - add_ecoflora
+  - add_floraweb
+  - add_austraits
+  - add_bien
+  - add_brot
+  - add_bet
+  - add_kew_sid
+  - add_useful_plants
+  - add_gwdd
+  - add_pignatti
+  - add_gift
+  - gift_traits
+- title: Enrichments — fungi, algae, lichens, and microbes
+  contents:
+  - add_fungal_traits
+  - add_fungalroot
+  - add_funguild
+  - add_usda_fungus_host
+  - add_italic
+  - add_algae_traits
+  - add_bacdive
+  - add_madin
+  - add_rimet_phyto
+  - add_edwards_phyto
+  - add_ramond
+- title: Enrichments — birds and mammals
+  contents:
+  - add_avonet
+  - add_birdbase
+  - add_nesttrait
+  - add_elton_traits
+  - add_frugivoria
+  - add_pantheria
+  - add_phylacine
+  - add_combine
+  - add_homerange
+  - add_tetradensity
+  - add_eurobat
+- title: Enrichments — reptiles, amphibians, and fish
+  contents:
+  - add_repttraits
+  - add_chelonians
+  - add_amphibio
+  - add_huang_amph
+  - add_pottier
+  - add_fishbase
+  - add_fishmorph
+  - add_beukhof
+  - add_quimbayo
+  - add_parravicini
+  - add_pelagic
+  - add_sharkipedia
+- title: Enrichments — invertebrates and aquatic life
+  contents:
+  - add_arthropod_traits
+  - add_spider_traits
+  - add_bee_ostwald
+  - add_eupolltrait
+  - add_leptraits
+  - add_odonata
+  - add_saproxylic
+  - add_hosts
+  - add_blanchard
+  - add_coral_traits
+  - add_octocoral
+  - add_zooplankton
+  - add_arctic_traits
+  - add_nztd
+  - add_disperse
+  - add_freshwater_insects_conus
+  - add_thermofresh
+  - add_sheld
+  - add_sealifebase
+- title: Enrichments — cross-taxon
+  contents:
+  - add_amniote
+  - add_anage
+  - add_animaltraits
+  - add_globtherm
+  - add_tree_of_sex

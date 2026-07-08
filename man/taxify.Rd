@@ -44,9 +44,12 @@ default), \code{"levenshtein"}, or \code{"jw"} (Jaro-Winkler).}
 \code{agg.} / \code{s.l.} qualifier). \code{"preserve"} (default) keeps the aggregate as
 its own concept: it matches the backbone's aggregate taxon
 (\code{"<binomial> aggr."}) where one exists, otherwise falls back to the
-binomial. \code{"collapse"} strips the marker and matches the binomial species,
-the way any non-aggregate name is matched. Either way the qualifier is
-recorded in the \code{qualifier} column.}
+binomial. When it falls back, the \code{aggregate_fallback} column is set \code{TRUE}
+so the aggregate-to-species collapse is visible rather than silent (only
+the aggregate-bearing backbones -- Euro+Med, WoRMS -- carry aggregate taxa,
+so preserve falls back for the others). \code{"collapse"} strips the marker and
+matches the binomial species, the way any non-aggregate name is matched.
+Either way the qualifier is recorded in the \code{qualifier} column.}
 
 \item{region}{TDWG botanical region(s) to constrain fuzzy matching to, or
 \code{NULL} (default) for no geographic constraint. Accepts Level 3 codes
@@ -112,6 +115,11 @@ accepted name's full citation.}
 qualifies the whole name (e.g. \code{"Cf. Pinus sylvestris"}), \code{"species"}
 when it qualifies the species (inline \code{cf.} or trailing \code{agg.}), \code{NA}
 when there is no qualifier.}
+\item{aggregate_fallback}{Logical. For an aggregate query under
+\code{aggregates = "preserve"}: \code{FALSE} when it resolved to the backbone's
+dedicated aggregate taxon, \code{TRUE} when no such taxon existed and it fell
+back to the nominal binomial. \code{NA} for non-aggregate queries and under
+\code{aggregates = "collapse"}, where the collapse is explicit.}
 \item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, \code{"abbrev"}
 (an abbreviated genus such as \code{"Q. robur"} resolved via genus initial
 plus epithet), or \code{"none"}.}

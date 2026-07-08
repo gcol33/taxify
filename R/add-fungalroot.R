@@ -53,7 +53,6 @@ add_fungalroot <- function(x, verbose = TRUE) {
     enrichment_name = "fungalroot",
     col_map         = stats::setNames(.fungalroot_cols, .fungalroot_cols),
     source_label    = "FungalRoot (Soudzilovskaia et al. 2020)",
-    na_types        = list(mycorrhizal_records = NA_integer_),
     join_col        = "genus",
     verbose         = verbose
   )

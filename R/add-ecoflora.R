@@ -62,19 +62,11 @@ add_ecoflora <- function(x, cols = NULL, verbose = TRUE) {
     "ell_light_uk", "ell_moisture_uk", "ell_reaction_uk", "ell_nitrogen_uk",
     "ell_salt_uk"
   )
-  na_types <- list(
-    height_max_mm_uk      = NA_real_,
-    height_min_mm_uk      = NA_real_,
-    seed_weight_mg_uk     = NA_real_,
-    flower_begin_month_uk = NA_integer_,
-    flower_end_month_uk   = NA_integer_
-  )
   enrich_simple(
     x,
     enrichment_name = "ecoflora",
     col_map         = stats::setNames(base_cols, base_cols),
     source_label    = "Ecoflora (Ecological Flora of the British Isles)",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

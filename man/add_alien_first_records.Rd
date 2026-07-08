@@ -4,7 +4,7 @@
 \alias{add_alien_first_records}
 \title{Add alien species first record years}
 \usage{
-add_alien_first_records(x, country, verbose = TRUE)
+add_alien_first_records(x, country, cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
@@ -16,6 +16,11 @@ add_alien_first_records(x, country, verbose = TRUE)
 country suffix (e.g., \code{alien_first_record_AT}).
 \item \code{"all"}: adds one column set per country in the dataset.
 }}
+
+\item{cols}{Character vector of value columns to attach (from
+\code{alien_first_record}, \code{alien_first_record_source},
+\code{alien_first_record_reference}), or \code{"all"}. \code{NULL} (default) attaches all
+three.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

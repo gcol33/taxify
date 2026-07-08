@@ -63,16 +63,11 @@ add_fishmorph <- function(x, cols = NULL, verbose = TRUE) {
     fish_pectoral_fin_size        = "pectoral_fin_size",
     fish_caudal_peduncle_throttling = "caudal_peduncle_throttling"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)),
-    names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "fishmorph",
     col_map         = col_map,
     source_label    = "FISHMORPH",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

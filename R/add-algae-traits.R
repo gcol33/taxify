@@ -53,22 +53,11 @@ add_algae_traits <- function(x, cols = NULL, verbose = TRUE) {
     algae_environment   = "environment",
     algae_substrate     = "substrate"
   )
-  na_types <- list(
-    algae_body_size_cm  = NA_real_,
-    algae_growth_form   = NA_character_,
-    algae_calcification = NA_character_,
-    algae_life_span     = NA_character_,
-    algae_tidal_zone    = NA_character_,
-    algae_wave_exposure = NA_character_,
-    algae_environment   = NA_character_,
-    algae_substrate     = NA_character_
-  )
   enrich_simple(
     x,
     enrichment_name = "algae_traits",
     col_map         = col_map,
     source_label    = "AlgaeTraits",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

@@ -31,15 +31,11 @@ add_saproxylic <- function(x, cols = NULL, verbose = TRUE) {
             "elytra_length_mm", "wing_length_mm", "wing_aspect",
             "antenna_length_mm", "eye_length_mm")
   col_map <- stats::setNames(base_cols, paste0("saproxylic_", base_cols))
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "saproxylic",
     col_map         = col_map,
     source_label    = "Saproxylic beetle morphology",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

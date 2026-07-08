@@ -57,13 +57,11 @@ add_groot <- function(x, cols = NULL, verbose = TRUE) {
     "lateral_spread", "root_mycorrhizal_colonization", "rooting_depth"
   )
   col_map  <- stats::setNames(base_cols, base_cols)
-  na_types <- stats::setNames(rep(list(NA_real_), length(base_cols)), base_cols)
   enrich_simple(
     x,
     enrichment_name = "groot",
     col_map         = col_map,
     source_label    = "GRooT",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

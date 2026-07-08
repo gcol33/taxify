@@ -57,16 +57,11 @@ add_edwards_phyto <- function(x, cols = NULL, verbose = TRUE) {
     edwards_qmin_p          = "qmin_p"
   )
   col_map <- c(cat_cols, num_cols)
-  na_types <- c(
-    stats::setNames(rep(list(NA_character_), length(cat_cols)), names(cat_cols)),
-    stats::setNames(rep(list(NA_real_), length(num_cols)), names(num_cols))
-  )
   enrich_simple(
     x,
     enrichment_name = "edwards_phyto",
     col_map         = col_map,
     source_label    = "Edwards phytoplankton nutrient traits",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

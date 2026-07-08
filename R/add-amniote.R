@@ -59,16 +59,11 @@ add_amniote <- function(x, cols = NULL, verbose = TRUE) {
     amniote_weaning_d           = "weaning_d",
     amniote_birth_hatching_wt_g = "birth_hatching_wt_g"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[["amniote_class"]] <- NA_character_
   enrich_simple(
     x,
     enrichment_name = "amniote",
     col_map         = col_map,
     source_label    = "Amniote Life History Database",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

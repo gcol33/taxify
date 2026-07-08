@@ -48,16 +48,11 @@ add_pantheria <- function(x, cols = NULL, verbose = TRUE) {
     diet_breadth          = "diet_breadth",
     habitat_breadth       = "habitat_breadth"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)),
-    names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "pantheria",
     col_map         = col_map,
     source_label    = "PanTHERIA",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

@@ -71,24 +71,11 @@ add_baseflor <- function(x, cols = NULL, verbose = TRUE) {
     continentality     = "continentality",
     salinity           = "salinity"
   )
-  na_types <- list(
-    flower_begin_month = NA_integer_,
-    flower_end_month   = NA_integer_,
-    pollination_vector = NA_character_,
-    dispersal_mode     = NA_character_,
-    breeding_system    = NA_character_,
-    flower_colour      = NA_character_,
-    fruit_type         = NA_character_,
-    woody_growth_form  = NA_character_,
-    continentality     = NA_integer_,
-    salinity           = NA_integer_
-  )
   enrich_simple(
     x,
     enrichment_name = "baseflor",
     col_map         = col_map,
     source_label    = "Baseflor (Catminat / Julve)",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

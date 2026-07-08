@@ -62,19 +62,11 @@ add_austraits <- function(x, cols = NULL, verbose = TRUE) {
     austraits_seed_dry_mass_mg       = "seed_dry_mass_mg",
     austraits_wood_density_g_cm3     = "wood_density_g_cm3"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[c("austraits_plant_growth_form", "austraits_life_history",
-             "austraits_woodiness", "austraits_photosynthetic_pathway",
-             "austraits_dispersal_syndrome", "austraits_resprouting_capacity",
-             "austraits_flowering_time")] <- list(NA_character_)
   enrich_simple(
     x,
     enrichment_name = "austraits",
     col_map         = col_map,
     source_label    = "AusTraits",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

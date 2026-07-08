@@ -324,6 +324,71 @@ extract_reptiledb_genera <- function(bb_path) {
 }
 
 
+#' Extract genera from a vascular-plant backbone (LCVP, WCVP)
+#'
+#' Both are vascular-plant-only, so kingdom is always "Plantae". Genera are the
+#' union of any genus-rank rows (WCVP carries them; LCVP is species-and-below
+#' only) and the genera of accepted species, deduplicated. Family (and order,
+#' where the backbone stores it) are kept; neither source records phylum/class.
+#' Genus-rank rows sort first, so their family/order win over the species-
+#' derived value for a genus present at both ranks.
+#' @noRd
+.extract_plant_genera <- function(bb_path) {
+  pick <- function(df, col) if (col %in% names(df)) df[[col]] else NA_character_
+
+  gr <- tryCatch(
+    vectra::tbl(bb_path) |>
+      vectra::filter(taxon_rank == "GENUS") |>
+      vectra::collect(),
+    error = function(e) NULL
+  )
+  sp <- tryCatch(
+    vectra::tbl(bb_path) |>
+      vectra::filter(taxon_rank == "SPECIES" & taxonomic_status == "ACCEPTED") |>
+      vectra::collect(),
+    error = function(e) NULL
+  )
+
+  rows <- list()
+  if (!is.null(gr) && nrow(gr) > 0L) {
+    rows$genus_rank <- data.frame(
+      genus  = gr$canonical_name,
+      order  = pick(gr, "order"),
+      family = pick(gr, "family"),
+      stringsAsFactors = FALSE
+    )
+  }
+  if (!is.null(sp) && nrow(sp) > 0L) {
+    rows$species <- data.frame(
+      genus  = sp$genus,
+      order  = pick(sp, "order"),
+      family = pick(sp, "family"),
+      stringsAsFactors = FALSE
+    )
+  }
+  if (length(rows) == 0L) return(empty_genus_df())
+
+  combined <- do.call(rbind, rows)
+  combined <- combined[!is.na(combined$genus) & nzchar(combined$genus), ,
+                       drop = FALSE]
+  if (nrow(combined) == 0L) return(empty_genus_df())
+  combined <- combined[!duplicated(combined$genus), , drop = FALSE]
+
+  data.frame(
+    genus   = combined$genus,
+    kingdom = "Plantae",
+    phylum  = NA_character_,
+    class   = NA_character_,
+    order   = combined$order,
+    family  = combined$family,
+    stringsAsFactors = FALSE
+  )
+}
+
+extract_lcvp_genera <- function(bb_path) .extract_plant_genera(bb_path)
+extract_wcvp_genera <- function(bb_path) .extract_plant_genera(bb_path)
+
+
 # ---- Kingdom name normalization ----
 
 #' Normalize non-standard kingdom names to standard taxonomy
@@ -431,8 +496,8 @@ infer_kingdom_from_family <- function(resolved) {
 #' @return data.frame with deduplicated genera and resolved classification.
 #' @noRd
 resolve_genus_classification <- function(genera_list) {
-  priority <- c("worms", "col", "reptiledb", "gbif", "euromed", "itis",
-                "ncbi", "ott", "wfo", "fishbase", "sealifebase")
+  priority <- c("worms", "col", "wcvp", "reptiledb", "gbif", "euromed",
+                "lcvp", "itis", "ncbi", "ott", "wfo", "fishbase", "sealifebase")
 
   # Combine all genera, tagging each with its source backend
   all_rows <- lapply(priority, function(be) {
@@ -675,7 +740,9 @@ build_genus_register <- function(verbose = TRUE) {
     sealifebase = list(be = sealifebase_backend(),
                        extract_fn = extract_sealifebase_genera),
     reptiledb   = list(be = reptiledb_backend(),
-                       extract_fn = extract_reptiledb_genera)
+                       extract_fn = extract_reptiledb_genera),
+    lcvp        = list(be = lcvp_backend(),  extract_fn = extract_lcvp_genera),
+    wcvp        = list(be = wcvp_backend(),  extract_fn = extract_wcvp_genera)
   )
 
   genera_list <- list()
@@ -855,7 +922,9 @@ build_backend_coverage <- function(verbose = TRUE) {
     sealifebase = list(be = sealifebase_backend(),
                        extract_fn = extract_sealifebase_genera),
     reptiledb   = list(be = reptiledb_backend(),
-                       extract_fn = extract_reptiledb_genera)
+                       extract_fn = extract_reptiledb_genera),
+    lcvp        = list(be = lcvp_backend(),  extract_fn = extract_lcvp_genera),
+    wcvp        = list(be = wcvp_backend(),  extract_fn = extract_wcvp_genera)
   )
 
   coverage_rows <- list()

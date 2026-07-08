@@ -68,17 +68,12 @@ add_repttraits <- function(x, cols = NULL, verbose = TRUE) {
   base_cols <- c(chr_cols, num_cols)
 
   col_map  <- stats::setNames(base_cols, base_cols)
-  na_types <- c(
-    stats::setNames(rep(list(NA_character_), length(chr_cols)), chr_cols),
-    stats::setNames(rep(list(NA_real_), length(num_cols)), num_cols)
-  )
 
   enrich_simple(
     x,
     enrichment_name = "repttraits",
     col_map         = col_map,
     source_label    = "ReptTraits (Oskyrko et al. 2024)",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

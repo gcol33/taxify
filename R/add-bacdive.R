@@ -32,6 +32,12 @@
 #' bacterial and archaeal data. Nucleic Acids Research 50:D741-D746.
 #' doi:10.1093/nar/gkab961
 #'
+#' @examples
+#' \donttest{
+#' taxify("Escherichia coli", backend = "gbif") |>
+#'   add_bacdive()
+#' }
+#'
 #' @export
 add_bacdive <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(

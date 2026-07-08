@@ -51,20 +51,11 @@ add_fishbase <- function(x, cols = NULL, verbose = TRUE) {
     fb_habitat        = "habitat",
     fb_importance     = "importance"
   )
-  na_types <- stats::setNames(
-    c(
-      rep(list(NA_real_), 6L),
-      list(NA_character_),
-      list(NA_character_)
-    ),
-    names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "fishbase",
     col_map         = col_map,
     source_label    = "FishBase",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

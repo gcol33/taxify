@@ -54,16 +54,11 @@ add_ramond <- function(x, cols = NULL, verbose = TRUE) {
     ramond_size_max_um = "size_max_um"
   )
   col_map  <- c(cat_cols, num_cols)
-  na_types <- c(
-    stats::setNames(rep(list(NA_character_), length(cat_cols)), names(cat_cols)),
-    stats::setNames(rep(list(NA_real_), length(num_cols)), names(num_cols))
-  )
   enrich_simple(
     x,
     enrichment_name = "ramond",
     col_map         = col_map,
     source_label    = "Ramond marine protist traits",
-    na_types        = na_types,
     join_col        = "genus",
     cols            = cols,
     verbose         = verbose

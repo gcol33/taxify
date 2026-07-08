@@ -43,17 +43,11 @@ add_globtherm <- function(x, cols = NULL, verbose = TRUE) {
     globtherm_thermal_max_error  = "thermal_max_error",
     globtherm_thermal_min_error  = "thermal_min_error"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[c("globtherm_thermal_max_metric",
-             "globtherm_thermal_min_metric")] <- list(NA_character_)
   enrich_simple(
     x,
     enrichment_name = "globtherm",
     col_map         = col_map,
     source_label    = "GlobTherm",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

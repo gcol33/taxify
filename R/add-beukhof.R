@@ -34,17 +34,11 @@ add_beukhof <- function(x, cols = NULL, verbose = TRUE) {
                 "spawning_type")
   all_cols <- c(num_cols, cat_cols)
   col_map <- stats::setNames(all_cols, paste0("beukhof_", all_cols))
-  na_types <- stats::setNames(
-    c(rep(list(NA_real_), length(num_cols)),
-      rep(list(NA_character_), length(cat_cols))),
-    paste0("beukhof_", all_cols)
-  )
   enrich_simple(
     x,
     enrichment_name = "beukhof",
     col_map         = col_map,
     source_label    = "Beukhof marine fish",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

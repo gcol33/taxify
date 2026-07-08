@@ -52,16 +52,11 @@ add_anage <- function(x, cols = NULL, verbose = TRUE) {
     growth_rate            = "growth_rate",
     temperature_k          = "temperature_k"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)),
-    names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "anage",
     col_map         = col_map,
     source_label    = "AnAge",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

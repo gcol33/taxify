@@ -33,17 +33,11 @@ add_octocoral <- function(x, cols = NULL, verbose = TRUE) {
                 "skeletal_rigidity", "calcareous_sclerites_presence")
   all_cols <- c(num_cols, cat_cols)
   col_map <- stats::setNames(all_cols, paste0("octocoral_", all_cols))
-  na_types <- stats::setNames(
-    c(rep(list(NA_real_), length(num_cols)),
-      rep(list(NA_character_), length(cat_cols))),
-    paste0("octocoral_", all_cols)
-  )
   enrich_simple(
     x,
     enrichment_name = "octocoral",
     col_map         = col_map,
     source_label    = "Octocoral Trait Database",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

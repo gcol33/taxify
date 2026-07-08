@@ -73,17 +73,11 @@ add_elton_traits <- function(x, cols = NULL, verbose = TRUE) {
     nocturnal          = "nocturnal",
     diet_guild         = "diet_guild"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)),
-    names(col_map)
-  )
-  na_types$diet_guild <- NA_character_
   enrich_simple(
     x,
     enrichment_name = "elton_traits",
     col_map         = col_map,
     source_label    = "EltonTraits 1.0",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

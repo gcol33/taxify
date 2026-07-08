@@ -63,17 +63,11 @@ add_bien <- function(x, cols = NULL, verbose = TRUE) {
     bien_dispersal_syndrome  = "dispersal_syndrome",
     bien_flower_color        = "flower_color"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[c("bien_growth_form", "bien_woodiness", "bien_dispersal_syndrome",
-             "bien_flower_color")] <- list(NA_character_)
   enrich_simple(
     x,
     enrichment_name = "bien",
     col_map         = col_map,
     source_label    = "BIEN",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

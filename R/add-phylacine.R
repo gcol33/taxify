@@ -52,17 +52,11 @@ add_phylacine <- function(x, cols = NULL, verbose = TRUE) {
     phylacine_island_endemicity      = "island_endemicity",
     phylacine_iucn_status            = "iucn_status"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_real_), length(col_map)), names(col_map)
-  )
-  na_types[c("phylacine_island_endemicity",
-             "phylacine_iucn_status")] <- list(NA_character_)
   enrich_simple(
     x,
     enrichment_name = "phylacine",
     col_map         = col_map,
     source_label    = "PHYLACINE",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

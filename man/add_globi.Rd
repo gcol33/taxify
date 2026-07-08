@@ -41,6 +41,13 @@ of their original data contributors, who should be cited in derivative work.
 Partner counts are resolved to accepted names before counting, so synonymous
 partners are not double-counted.
 }
+\examples{
+\donttest{
+taxify("Apis mellifera", backend = "gbif") |>
+  add_globi()
+}
+
+}
 \references{
 Poelen JH, Simons JD, Mungall CJ (2014) Global Biotic Interactions: An open
 infrastructure to share and analyze species-interaction datasets. Ecological

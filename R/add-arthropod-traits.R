@@ -53,24 +53,11 @@ add_arthropod_traits <- function(x, cols = NULL, verbose = TRUE) {
     arthropod_feeding_guild = "feeding_guild",
     arthropod_trophic_range = "trophic_range"
   )
-  na_types <- list(
-    arthropod_body_size_mm  = NA_real_,
-    arthropod_dispersal     = NA_real_,
-    arthropod_voltinism     = NA_real_,
-    arthropod_fecundity     = NA_real_,
-    arthropod_development_d = NA_real_,
-    arthropod_lifespan_d    = NA_real_,
-    arthropod_thermal_mean  = NA_real_,
-    arthropod_diurnality    = NA_character_,
-    arthropod_feeding_guild = NA_character_,
-    arthropod_trophic_range = NA_character_
-  )
   enrich_simple(
     x,
     enrichment_name = "arthropod_traits",
     col_map         = col_map,
     source_label    = "NW European Arthropods",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

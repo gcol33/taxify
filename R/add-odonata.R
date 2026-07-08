@@ -27,15 +27,11 @@ add_odonata <- function(x, cols = NULL, verbose = TRUE) {
   base_cols <- c("territoriality", "flight_mode", "mate_guarding",
             "habitat_openness", "has_wing_pigment")
   col_map <- stats::setNames(base_cols, paste0("odonata_", base_cols))
-  na_types <- stats::setNames(
-    rep(list(NA_character_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "odonata",
     col_map         = col_map,
     source_label    = "Odonate Phenotypic Database",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

@@ -30,17 +30,11 @@ add_sheld <- function(x, cols = NULL, verbose = TRUE) {
   cat_cols <- c("brood", "marsupial_gills", "hermaphrodite", "shell_sculpture")
   all_cols <- c(num_cols, cat_cols)
   col_map <- stats::setNames(all_cols, paste0("sheld_", all_cols))
-  na_types <- stats::setNames(
-    c(rep(list(NA_real_), length(num_cols)),
-      rep(list(NA_character_), length(cat_cols))),
-    paste0("sheld_", all_cols)
-  )
   enrich_simple(
     x,
     enrichment_name = "sheld",
     col_map         = col_map,
     source_label    = "SHELD freshwater mussels",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

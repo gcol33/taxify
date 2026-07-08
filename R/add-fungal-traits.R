@@ -59,16 +59,11 @@ add_fungal_traits <- function(x, cols = NULL, verbose = TRUE) {
     endophytic_interaction_capability  = "endophytic_interaction_capability",
     ectomycorrhiza_exploration_type    = "ectomycorrhiza_exploration_type"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_character_), length(col_map)),
-    names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "fungal_traits",
     col_map         = col_map,
     source_label    = "FungalTraits",
-    na_types        = na_types,
     join_col        = "genus",
     cols            = cols,
     verbose         = verbose

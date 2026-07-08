@@ -15,14 +15,15 @@ new_backend <- function(name, ..., class = character()) {
 }
 
 
-#' Download a backbone database
+#' Build a backbone database from source
 #'
-#' Downloads the latest Darwin Core snapshot for the specified backend and
-#' converts it to vectra's `.vtr` format for fast repeated queries.
+#' Builds the backbone `.vtr` for a backend from its upstream Darwin Core source,
+#' delegating to the sibling `taxifydb` package (which must be installed). This
+#' is the from-source path, for rebuilding a backbone locally.
 #'
-#' Always re-downloads the latest release, overwriting any existing backbone.
-#' Use [taxify()] for day-to-day matching — it auto-downloads on first use
-#' and reuses the local copy thereafter.
+#' For everyday use you do not need this: [taxify()] auto-downloads the pre-built
+#' `.vtr` on first use, and [taxify_download_vtr()] fetches a pre-built backbone
+#' directly without `taxifydb`.
 #'
 #' @param backend A `taxify_backend` object or a character string
 #'   (e.g., `"wfo"`).
@@ -31,6 +32,8 @@ new_backend <- function(name, ..., class = character()) {
 #' @param verbose Logical. Print progress messages.
 #' @param ... Additional arguments passed to methods.
 #' @return The path to the `.vtr` file (invisibly).
+#' @seealso [taxify_download_vtr()] to fetch a pre-built backbone, [taxify()]
+#'   which downloads on first use.
 #' @export
 taxify_download <- function(backend, dest = NULL, verbose = TRUE, ...) {
   if (is.character(backend)) {
@@ -871,8 +874,10 @@ resolve_backend <- function(backend) {
     fishbase = fishbase_backend(),
     sealifebase = sealifebase_backend(),
     reptiledb = reptiledb_backend(),
+    lcvp = lcvp_backend(),
+    wcvp = wcvp_backend(),
     stop(sprintf(
-      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms, fungorum, algaebase, euromed, fishbase, sealifebase, reptiledb",
+      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms, fungorum, algaebase, euromed, fishbase, sealifebase, reptiledb, lcvp, wcvp",
       backend), call. = FALSE)
   )
 }

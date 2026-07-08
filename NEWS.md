@@ -2,6 +2,29 @@
 
 ## New features
 
+* WCVP and LCVP join the plant backbones. `taxify(x, backend = "wcvp")` matches
+  against Kew's World Checklist of Vascular Plants (Govaerts et al. 2021, ~1.4M
+  names, CC BY 4.0); `backend = "lcvp"` matches the Leipzig Catalogue of Vascular
+  Plants (Freiberg et al. 2020, MIT). Both slot into the fallback chain
+  (`backend = c("wcvp", "wfo")`) and contribute their genera (kingdom Plantae) to
+  the unified genus register. Fifteen backbones are now available.
+* Four new verbs read the backbone in the directions `taxify()` does not.
+  `synonyms()` lists every synonym that resolves to a name's accepted taxon (the
+  reverse of the forward resolution). `add_classification()` fills the higher
+  ranks (kingdom, phylum, class, order) from the matched backbone, complementing
+  the `family` and `genus` already in the core output. `children()` lists the
+  accepted taxa within a genus or family, for building a checklist rather than
+  only validating one. `taxify_candidates()` expands an ambiguous match
+  (`is_ambiguous`) into one row per candidate accepted taxon, so homonyms can be
+  resolved by hand.
+* `taxify()` gains an `aggregate_fallback` column that makes the default
+  `aggregates = "preserve"` accountable. Where a backbone carries no dedicated
+  aggregate taxon for an aggregate query, preserve falls back to the nominal
+  binomial; that collapse is now flagged (`TRUE` on fallback, `FALSE` when the
+  aggregate taxon was matched, `NA` for non-aggregate queries and under
+  `collapse`) rather than being silent. Only Euro+Med (433 aggregate taxa) and
+  WoRMS (189) carry them, so preserve is a no-op for the other backbones -- the
+  flag now says so per row.
 * `add_kew_sid()` opens the Kew Seed Information Database (SER-SID, CC BY 2.0):
   seed weight (thousand-seed weight over 42,000 species), storage behaviour
   (orthodox/recalcitrant/intermediate), oil and protein content, life form, and

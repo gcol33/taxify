@@ -48,13 +48,6 @@ add_eive <- function(x, cols = NULL, verbose = TRUE) {
       eive_nutrients   = "nutrients"
     ),
     source_label    = "EIVE 1.0",
-    na_types        = list(
-      eive_light       = NA_real_,
-      eive_temperature = NA_real_,
-      eive_moisture    = NA_real_,
-      eive_reaction    = NA_real_,
-      eive_nutrients   = NA_real_
-    ),
     cols            = cols,
     verbose         = verbose
   )

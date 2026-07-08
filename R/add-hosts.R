@@ -25,6 +25,12 @@
 #' HOSTS - a Database of the World's Lepidopteran Hostplants. Natural History
 #' Museum, London. doi:10.5519/havt50xw
 #'
+#' @examples
+#' \donttest{
+#' taxify("Papilio machaon", backend = "gbif") |>
+#'   add_hosts()
+#' }
+#'
 #' @export
 add_hosts <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(

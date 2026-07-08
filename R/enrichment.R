@@ -404,6 +404,22 @@ taxify_download_enrichment <- function(enrichment,
 # ---- Shared enrichment join helpers ----
 
 
+#' NA sentinel matching a column's storage type
+#'
+#' Returns the typed `NA` that keeps an output column the same type as its
+#' source column, so a door never has to hand-declare `na_types`.
+#'
+#' @param v A prototype value (one element of the source column).
+#' @return `NA_integer_`, `NA_real_`, `NA` (logical), or `NA_character_`.
+#' @noRd
+na_sentinel_for <- function(v) {
+  if (is.integer(v)) NA_integer_
+  else if (is.numeric(v)) NA_real_
+  else if (is.logical(v)) NA
+  else NA_character_
+}
+
+
 #' Build aggregate-aware candidate join keys for a species-level enrichment
 #'
 #' Encodes the trait-inheritance rule: traits flow down the hierarchy
@@ -471,14 +487,19 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
   col_map <- col_map[col_map %in% names(df)]
   if (length(col_map) == 0L) return(x)
 
-  # Initialize output columns
+  # Initialize output columns, typing each NA sentinel from its source column
+  # (numeric -> NA_real_, else NA_character_) unless na_types overrides it.
+  if (is.null(na_types)) na_types <- list()
   for (out_col in names(col_map)) {
-    na_val <- if (!is.null(na_types) && out_col %in% names(na_types)) {
-      na_types[[out_col]]
-    } else {
-      NA_character_
+    if (is.null(na_types[[out_col]])) {
+      src <- col_map[[out_col]]
+      na_types[[out_col]] <- if (src %in% names(df)) {
+        na_sentinel_for(df[[src]])
+      } else {
+        NA_character_
+      }
     }
-    x[[out_col]] <- na_val
+    x[[out_col]] <- na_types[[out_col]]
   }
 
   # License lookup is delegated to taxifydb; emergency fallback leaves it unset.
@@ -556,18 +577,25 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
     groups <- groups[!is.na(groups)]
   }
 
-  # Build output column names and initialize with correct NA types
+  # Build output column names, typing each NA sentinel from its source column
+  # in df (unless na_types overrides it), then initialize per group.
+  if (is.null(na_types)) na_types <- list()
+  for (base_col in names(value_cols)) {
+    if (is.null(na_types[[base_col]])) {
+      src <- value_cols[[base_col]]
+      na_types[[base_col]] <- if (src %in% names(df)) {
+        na_sentinel_for(df[[src]])
+      } else {
+        NA_character_
+      }
+    }
+  }
   out_cols <- character(0L)
   for (g in groups) {
     for (base_col in names(value_cols)) {
       out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
       out_cols <- c(out_cols, out_col)
-      na_val <- if (!is.null(na_types) && base_col %in% names(na_types)) {
-        na_types[[base_col]]
-      } else {
-        NA_character_
-      }
-      x[[out_col]] <- na_val
+      x[[out_col]] <- na_types[[base_col]]
     }
   }
 
@@ -838,14 +866,22 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
                                  join_col = join_col))
   }
 
-  # Initialize output columns
+  # Read the .vtr schema once: it types the output columns and confirms which
+  # source columns exist. NA sentinels are derived from the source column's type
+  # (numeric -> NA_real_, else NA_character_), so a door never hand-declares
+  # na_types; an explicit na_types entry still wins.
+  schema <- vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
+  if (is.null(na_types)) na_types <- list()
   for (out_col in names(col_map)) {
-    na_val <- if (!is.null(na_types) && out_col %in% names(na_types)) {
-      na_types[[out_col]]
-    } else {
-      NA_character_
+    if (is.null(na_types[[out_col]])) {
+      src <- col_map[[out_col]]
+      na_types[[out_col]] <- if (src %in% names(schema)) {
+        na_sentinel_for(schema[[src]])
+      } else {
+        NA_character_
+      }
     }
-    x[[out_col]] <- na_val
+    x[[out_col]] <- na_types[[out_col]]
   }
 
   valid_rows <- which(!is.na(x[[join_col]]))
@@ -857,8 +893,6 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
                                license = lic))
   }
 
-  # Check which source columns exist in the .vtr
-  schema <- vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
   available_src <- intersect(unname(col_map), names(schema))
   if (length(available_src) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
@@ -1071,18 +1105,25 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     .taxify_env[[".taxify_long_tip_shown"]] <- TRUE
   }
 
-  # Build output column names and initialize with correct NA types
+  # Build output column names, typing each NA sentinel from its source column
+  # (unless na_types overrides it), then initialize per group.
+  if (is.null(na_types)) na_types <- list()
+  for (base_col in names(value_cols)) {
+    if (is.null(na_types[[base_col]])) {
+      src <- value_cols[[base_col]]
+      na_types[[base_col]] <- if (src %in% names(schema)) {
+        na_sentinel_for(schema[[src]])
+      } else {
+        NA_character_
+      }
+    }
+  }
   out_cols <- character(0L)
   for (g in groups) {
     for (base_col in names(value_cols)) {
       out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
       out_cols <- c(out_cols, out_col)
-      na_val <- if (!is.null(na_types) && base_col %in% names(na_types)) {
-        na_types[[base_col]]
-      } else {
-        NA_character_
-      }
-      x[[out_col]] <- na_val
+      x[[out_col]] <- na_types[[base_col]]
     }
   }
 

@@ -1,0 +1,6 @@
+{
+  "backend": "wcvp",
+  "version": "example",
+  "nrow": 3,
+  "static": true
+}

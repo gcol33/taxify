@@ -26,13 +26,11 @@
 add_homerange <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- c(homerange_home_range_km2 = "home_range_km2",
                homerange_body_mass_kg   = "body_mass_kg")
-  na_types <- stats::setNames(rep(list(NA_real_), 2), names(col_map))
   enrich_simple(
     x,
     enrichment_name = "homerange",
     col_map         = col_map,
     source_label    = "HomeRange",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

@@ -29,17 +29,11 @@ add_blanchard <- function(x, cols = NULL, verbose = TRUE) {
   num_cols <- c("colony_size_workers")
   all_cols <- c(cat_cols, num_cols)
   col_map <- stats::setNames(all_cols, paste0("blanchard_", all_cols))
-  na_types <- stats::setNames(
-    c(rep(list(NA_character_), length(cat_cols)),
-      rep(list(NA_real_), length(num_cols))),
-    paste0("blanchard_", all_cols)
-  )
   enrich_simple(
     x,
     enrichment_name = "blanchard",
     col_map         = col_map,
     source_label    = "Blanchard ant traits",
-    na_types        = na_types,
     join_col        = "genus",
     cols            = cols,
     verbose         = verbose

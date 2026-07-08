@@ -32,6 +32,13 @@ hostplant families it has been recorded feeding on.
 Source: Robinson et al. (2010) HOSTS, Natural History Museum, London (CC0).
 Lepidoptera only; ~24k species with at least one recorded hostplant.
 }
+\examples{
+\donttest{
+taxify("Papilio machaon", backend = "gbif") |>
+  add_hosts()
+}
+
+}
 \references{
 Robinson GS, Ackery PR, Kitching IJ, Beccaloni GW, Hernandez LM (2010)
 HOSTS - a Database of the World's Lepidopteran Hostplants. Natural History

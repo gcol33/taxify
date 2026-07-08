@@ -196,7 +196,7 @@ is_example_data_dir <- function() {
 installed_backbones <- function() {
   known <- c("wfo", "col", "gbif", "itis", "ncbi", "ott", "worms",
              "fungorum", "algaebase", "euromed", "fishbase", "sealifebase",
-             "reptiledb")
+             "reptiledb", "lcvp", "wcvp")
   ok <- vapply(known, function(nm) {
     p <- versioned_vtr_path(nm, "latest")
     file.exists(p) && is_compiled_backbone(p)

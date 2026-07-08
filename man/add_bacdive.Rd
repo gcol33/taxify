@@ -39,6 +39,13 @@ pH prefer the optimum measurement, falling back to the growth measurement.
 Source: BacDive (Reimer et al.), DSMZ, CC BY 4.0. ~18.6k bacterial and
 archaeal species with at least one phenotypic trait.
 }
+\examples{
+\donttest{
+taxify("Escherichia coli", backend = "gbif") |>
+  add_bacdive()
+}
+
+}
 \references{
 Reimer LC et al. (2022) BacDive in 2022: the knowledge base for standardized
 bacterial and archaeal data. Nucleic Acids Research 50:D741-D746.

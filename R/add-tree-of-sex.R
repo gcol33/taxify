@@ -47,15 +47,11 @@ add_tree_of_sex <- function(x, cols = NULL, verbose = TRUE) {
     tos_environmental_sd = "environmental_sd",
     tos_haplodiploidy   = "haplodiploidy"
   )
-  na_types <- stats::setNames(
-    rep(list(NA_character_), length(col_map)), names(col_map)
-  )
   enrich_simple(
     x,
     enrichment_name = "tree_of_sex",
     col_map         = col_map,
     source_label    = "Tree of Sex",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

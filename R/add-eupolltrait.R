@@ -31,17 +31,11 @@ add_eupolltrait <- function(x, cols = NULL, verbose = TRUE) {
   cat_cols <- c("sociality", "nest", "larval_nutrition", "body_length_category")
   all_cols <- c(num_cols, cat_cols)
   col_map <- stats::setNames(all_cols, paste0("eupolltrait_", all_cols))
-  na_types <- stats::setNames(
-    c(rep(list(NA_real_), length(num_cols)),
-      rep(list(NA_character_), length(cat_cols))),
-    paste0("eupolltrait_", all_cols)
-  )
   enrich_simple(
     x,
     enrichment_name = "eupolltrait",
     col_map         = col_map,
     source_label    = "EuPollTrait",
-    na_types        = na_types,
     cols            = cols,
     verbose         = verbose
   )

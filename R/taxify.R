@@ -28,9 +28,12 @@
 #'   `agg.` / `s.l.` qualifier). `"preserve"` (default) keeps the aggregate as
 #'   its own concept: it matches the backbone's aggregate taxon
 #'   (`"<binomial> aggr."`) where one exists, otherwise falls back to the
-#'   binomial. `"collapse"` strips the marker and matches the binomial species,
-#'   the way any non-aggregate name is matched. Either way the qualifier is
-#'   recorded in the `qualifier` column.
+#'   binomial. When it falls back, the `aggregate_fallback` column is set `TRUE`
+#'   so the aggregate-to-species collapse is visible rather than silent (only
+#'   the aggregate-bearing backbones -- Euro+Med, WoRMS -- carry aggregate taxa,
+#'   so preserve falls back for the others). `"collapse"` strips the marker and
+#'   matches the binomial species, the way any non-aggregate name is matched.
+#'   Either way the qualifier is recorded in the `qualifier` column.
 #' @param region TDWG botanical region(s) to constrain fuzzy matching to, or
 #'   `NULL` (default) for no geographic constraint. Accepts Level 3 codes
 #'   (`"BGM"`, `c("BGM", "GER")`) or region names at any level, matched case-
@@ -91,6 +94,11 @@
 #'     qualifies the whole name (e.g. `"Cf. Pinus sylvestris"`), `"species"`
 #'     when it qualifies the species (inline `cf.` or trailing `agg.`), `NA`
 #'     when there is no qualifier.}
+#'   \item{aggregate_fallback}{Logical. For an aggregate query under
+#'     `aggregates = "preserve"`: `FALSE` when it resolved to the backbone's
+#'     dedicated aggregate taxon, `TRUE` when no such taxon existed and it fell
+#'     back to the nominal binomial. `NA` for non-aggregate queries and under
+#'     `aggregates = "collapse"`, where the collapse is explicit.}
 #'   \item{match_type}{One of `"exact"`, `"exact_ci"`, `"fuzzy"`, `"abbrev"`
 #'     (an abbreviated genus such as `"Q. robur"` resolved via genus initial
 #'     plus epithet), or `"none"`.}
@@ -238,32 +246,22 @@ taxify <- function(x,
                                      region = region, range_mode = range,
                                      verbose = verbose, label = be_name)
 
-      # Merge sub_result back into main result
+      # Merge sub_result back into main result. Copy every match column the
+      # sub-result carries (so a schema addition needs no edit here); backend and
+      # backbone_version are stamped from this backend, and input_name / the
+      # input-side qualifier columns are left untouched (reassigned later).
       matched_in_sub <- which(!is.na(sub_result$match_type))
       if (length(matched_in_sub) > 0L) {
         bb_ver <- format_backbone_version(bb_path, be$name, be$version)
-        for (j in matched_in_sub) {
-          i <- unmatched_idx[j]
-          result$matched_name[i]      <- sub_result$matched_name[j]
-          result$accepted_name[i]     <- sub_result$accepted_name[j]
-          result$taxon_id[i]          <- sub_result$taxon_id[j]
-          result$accepted_id[i]       <- sub_result$accepted_id[j]
-          result$rank[i]              <- sub_result$rank[j]
-          result$family[i]            <- sub_result$family[j]
-          result$genus[i]             <- sub_result$genus[j]
-          result$epithet[i]           <- sub_result$epithet[j]
-          result$authorship[i]        <- sub_result$authorship[j]
-          result$accepted_authorship[i] <- sub_result$accepted_authorship[j] %||%
-                                          NA_character_
-          result$is_synonym[i]        <- sub_result$is_synonym[j]
-          result$match_type[i]        <- sub_result$match_type[j]
-          result$fuzzy_dist[i]        <- sub_result$fuzzy_dist[j]
-          result$is_ambiguous[i]      <- sub_result$is_ambiguous[j] %||% NA
-          result$ambiguous_targets[i] <- sub_result$ambiguous_targets[j] %||%
-                                          NA_character_
-          result$backend[i]           <- be$name
-          result$backbone_version[i]  <- bb_ver
+        dst    <- unmatched_idx[matched_in_sub]
+        copy_cols <- setdiff(intersect(names(sub_result), names(result)),
+                             c("input_name", "backend", "backbone_version",
+                               "qualifier", "qualifier_position"))
+        for (col in copy_cols) {
+          result[[col]][dst] <- sub_result[[col]][matched_in_sub]
         }
+        result$backend[dst]          <- be$name
+        result$backbone_version[dst] <- bb_ver
       }
     }
   }
@@ -280,6 +278,7 @@ taxify <- function(x,
   # Carry input-side qualifier info (rows are 1:1 with names_df)
   result$qualifier          <- names_df$qualifier
   result$qualifier_position <- names_df$qualifier_position
+  result <- attach_aggregate_fallback(result, names_df)
 
   result <- enrich_with_register(result, names_df, backend)
   rownames(result) <- NULL
@@ -325,6 +324,7 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   # Carry input-side qualifier info (rows are 1:1 with names_df)
   result$qualifier          <- names_df$qualifier
   result$qualifier_position <- names_df$qualifier_position
+  result <- attach_aggregate_fallback(result, names_df)
 
   result <- enrich_with_register(result, names_df, be$name)
   rownames(result) <- NULL
@@ -353,6 +353,46 @@ attach_agg_key <- function(names_df, aggregates = "preserve") {
     }
   }
   names_df
+}
+
+
+#' Flag aggregate queries that silently collapsed to the binomial
+#'
+#' In preserve mode an aggregate input (`"<binomial> agg."`) should match the
+#' backbone's dedicated aggregate taxon (`"<binomial> aggr."`). Where the
+#' backbone carries no such taxon the match falls through to the nominal
+#' binomial, and without a signal that collapse is invisible. This records it in
+#' an `aggregate_fallback` column so a preserve query that could not honour the
+#' aggregate concept is visible rather than hidden:
+#'   * `TRUE`  aggregate input resolved to the binomial (preserve fell back),
+#'   * `FALSE` aggregate input resolved to the dedicated aggregate taxon,
+#'   * `NA`    not an aggregate query (or one that matched nothing), or
+#'             `aggregates = "collapse"`, where discarding the aggregate concept
+#'             is what the caller asked for.
+#'
+#' The flag keys on `agg_key`, which `attach_agg_key()` populates only in
+#' preserve mode, so it is uniformly `NA` under collapse. Resolution to the
+#' aggregate taxon is detected from the trailing `aggr.` marker on the matched
+#' backbone name -- only aggregate taxa carry it.
+#'
+#' @param result The match result data.frame.
+#' @param names_df Data.frame from `attach_agg_key()`; rows 1:1 with `result`.
+#' @return `result` with an `aggregate_fallback` logical column.
+#' @noRd
+attach_aggregate_fallback <- function(result, names_df) {
+  fb <- rep(NA, nrow(result))
+  agg_key <- names_df$agg_key
+  if (!is.null(agg_key)) {
+    tracked <- !is.na(agg_key)
+    matched <- !is.na(result$match_type) &
+      !result$match_type %in% c("none", "out_of_scope")
+    resolved_agg <- !is.na(result$matched_name) &
+      grepl("\\baggr?\\.?\\s*$", result$matched_name, ignore.case = TRUE)
+    idx <- which(tracked & matched)
+    fb[idx] <- !resolved_agg[idx]
+  }
+  result$aggregate_fallback <- fb
+  result
 }
 
 
@@ -399,6 +439,52 @@ run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
 }
 
 
+#' Load the genus register from cache or disk, or NULL if unavailable
+#'
+#' @return The register data.frame, or NULL if it is not installed / fails to
+#'   load.
+#' @noRd
+load_register_or_null <- function() {
+  tryCatch({
+    if (is.null(.taxify_env$register)) {
+      path <- register_vtr_path()
+      if (file.exists(path)) taxify_load_register(verbose = FALSE)
+    }
+    .taxify_env$register
+  }, error = function(e) NULL)
+}
+
+
+#' Union of genera covered by the given backend(s)
+#'
+#' Reads the backend-coverage table once per backend and memoizes each backend's
+#' covered-genus vector in the package environment.
+#'
+#' @param backend Character vector of backend names, or a `taxify_backend`.
+#' @return A character vector of covered genera, or NULL when no coverage table
+#'   is installed / it fails to read.
+#' @noRd
+covered_genera_for <- function(backend) {
+  tryCatch({
+    cov_path <- coverage_vtr_path()
+    if (!file.exists(cov_path)) return(NULL)
+    be_names <- if (is.character(backend)) backend else backend$name
+    covered <- character(0)
+    for (be in be_names) {
+      cache_key <- paste0("coverage_", be)
+      if (is.null(.taxify_env[[cache_key]])) {
+        cov <- vectra::tbl(cov_path) |>
+          vectra::filter(backend == be) |>
+          vectra::collect()
+        .taxify_env[[cache_key]] <- cov$genus
+      }
+      covered <- union(covered, .taxify_env[[cache_key]])
+    }
+    covered
+  }, error = function(e) NULL)
+}
+
+
 #' Pre-filter out-of-scope names before fuzzy matching
 #'
 #' Checks unmatched names against the genus register and backend coverage.
@@ -412,37 +498,10 @@ run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
 #'   promoted to `"out_of_scope"`.
 #' @noRd
 prefilter_out_of_scope <- function(result, names_df, backend) {
-  reg <- tryCatch({
-    if (is.null(.taxify_env$register)) {
-      path <- register_vtr_path()
-      if (file.exists(path)) taxify_load_register(verbose = FALSE)
-    }
-    .taxify_env$register
-  }, error = function(e) NULL)
-
+  reg <- load_register_or_null()
   if (is.null(reg) || nrow(reg) == 0L) return(result)
 
-  covered_genera <- tryCatch({
-    cov_path <- coverage_vtr_path()
-    if (file.exists(cov_path)) {
-      be_names <- if (is.character(backend)) backend else backend$name
-      covered <- character(0)
-      for (be in be_names) {
-        cache_key <- paste0("coverage_", be)
-        if (is.null(.taxify_env[[cache_key]])) {
-          cov <- vectra::tbl(cov_path) |>
-            vectra::filter(backend == be) |>
-            vectra::collect()
-          .taxify_env[[cache_key]] <- cov$genus
-        }
-        covered <- union(covered, .taxify_env[[cache_key]])
-      }
-      covered
-    } else {
-      NULL
-    }
-  }, error = function(e) NULL)
-
+  covered_genera <- covered_genera_for(backend)
   if (is.null(covered_genera)) return(result)
 
   reg_lookup <- stats::setNames(seq_len(nrow(reg)), reg$genus)
@@ -479,36 +538,10 @@ prefilter_out_of_scope <- function(result, names_df, backend) {
 #' @return The result data.frame with life_form enrichment.
 #' @noRd
 enrich_with_register <- function(result, names_df, backend) {
-  reg <- tryCatch({
-    if (is.null(.taxify_env$register)) {
-      path <- register_vtr_path()
-      if (file.exists(path)) taxify_load_register(verbose = FALSE)
-    }
-    .taxify_env$register
-  }, error = function(e) NULL)
-
+  reg <- load_register_or_null()
   if (is.null(reg) || nrow(reg) == 0L) return(result)
 
-  covered_genera <- tryCatch({
-    cov_path <- coverage_vtr_path()
-    if (file.exists(cov_path)) {
-      be_names <- if (is.character(backend)) backend else backend$name
-      covered <- character(0)
-      for (be in be_names) {
-        cache_key <- paste0("coverage_", be)
-        if (is.null(.taxify_env[[cache_key]])) {
-          cov <- vectra::tbl(cov_path) |>
-            vectra::filter(backend == be) |>
-            vectra::collect()
-          .taxify_env[[cache_key]] <- cov$genus
-        }
-        covered <- union(covered, .taxify_env[[cache_key]])
-      }
-      covered
-    } else {
-      NULL
-    }
-  }, error = function(e) NULL)
+  covered_genera <- covered_genera_for(backend)
 
   # Ensure classification columns exist
   if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_

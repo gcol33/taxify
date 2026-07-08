@@ -39,10 +39,6 @@ add_diaz_traits <- function(x, cols = NULL, verbose = TRUE) {
       plant_height_m = "plant_height_m"
     ),
     source_label    = "Diaz et al. 2022",
-    na_types        = list(
-      seed_mass_mg   = NA_real_,
-      plant_height_m = NA_real_
-    ),
     cols            = cols,
     verbose         = verbose
   )

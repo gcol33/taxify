@@ -118,18 +118,15 @@ add_gift <- function(x, cols = NULL, verbose = TRUE) {
   }
 
   # Full col_map over every bundled gift_ column (identity: .vtr name = output).
-  # The engine applies the cols selection, defaulting to .gift_default_cols.
-  col_map  <- stats::setNames(available$column, available$column)
-  na_types <- stats::setNames(
-    lapply(available$type, function(t) if (t == "numeric") NA_real_ else NA_character_),
-    available$column)
+  # The engine applies the cols selection, defaulting to .gift_default_cols, and
+  # types each column from the .vtr schema.
+  col_map <- stats::setNames(available$column, available$column)
 
   enrich_simple(
     x,
     enrichment_name = "gift",
     col_map         = col_map,
     source_label    = "GIFT (Weigelt et al. 2020)",
-    na_types        = na_types,
     cols            = cols,
     default_cols    = .gift_default_cols,
     col_prefix      = "gift_",
