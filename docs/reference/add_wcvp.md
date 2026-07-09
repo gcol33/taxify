@@ -7,7 +7,7 @@ result, filtered by TDWG botanical region.
 ## Usage
 
 ``` r
-add_wcvp(x, region, verbose = TRUE)
+add_wcvp(x, region, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -30,6 +30,13 @@ add_wcvp(x, region, verbose = TRUE)
     `native_status_GER`.
 
   - `"all"`: adds one column per region in the dataset.
+
+- cols:
+
+  Which columns to attach. `NULL` (the default) attaches the curated
+  set; a character vector of column names attaches just those, and
+  `"all"` attaches every column the source carries (see
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)).
 
 - verbose:
 

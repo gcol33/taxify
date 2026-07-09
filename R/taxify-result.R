@@ -12,6 +12,7 @@
 #' @param x A `taxify_result` object.
 #' @param ... Passed to the next method.
 #' @return `x`, invisibly.
+#' @keywords internal
 #' @export
 print.taxify_result <- function(x, ...) {
   NextMethod()
@@ -35,6 +36,7 @@ print.taxify_result <- function(x, ...) {
 #' @param object A `taxify_result` object.
 #' @param ... Ignored.
 #' @return `object`, invisibly.
+#' @keywords internal
 #' @export
 summary.taxify_result <- function(object, ...) {
   meta <- attr(object, "taxify_meta")

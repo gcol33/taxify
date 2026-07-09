@@ -43,9 +43,9 @@ The closest local analogue is [taxadb](https://docs.ropensci.org/taxadb/), which
 backbone snapshots on disk; the [migration vignette](https://gillescolling.com/taxify/articles/migration.html)
 walks through the differences in matching strategy, output schema, and enrichment.
 
-## Thirteen backbones, one call
+## Fifteen backbones, one call
 
-`taxify` ships thirteen backbones as compressed `.vtr` files, downloaded once and matched
+`taxify` ships fifteen backbones as compressed `.vtr` files, downloaded once and matched
 locally. Pass several and they form a fallback chain: a name unmatched by the first
 backbone cascades to the next.
 
@@ -223,4 +223,4 @@ It helps with my coffee addiction.
 
 ## License
 
-MIT (see the LICENSE.md file)
+MIT (see the LICENSE file)

@@ -8,7 +8,7 @@ categories is a 0/1 flag, plus a crop-wild-relative flag.
 ## Usage
 
 ``` r
-add_useful_plants(x, verbose = TRUE)
+add_useful_plants(x, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -17,6 +17,12 @@ add_useful_plants(x, verbose = TRUE)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+- cols:
+
+  Character vector of use-category columns to attach, or `"all"`. `NULL`
+  (default) attaches all eleven. See
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md).
 
 - verbose:
 

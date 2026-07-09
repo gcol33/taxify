@@ -24,7 +24,7 @@ is reduced to its dominant modality (with the database's own labels)."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,7 @@ is reduced to its dominant modality (with the database's own labels).</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_disperse</span><span class="op">(</span><span class="va">x</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_disperse</span><span class="op">(</span><span class="va">x</span>, cols <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -91,6 +91,10 @@ is reduced to its dominant modality (with the database's own labels).</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A data.frame returned by <code><a href="taxify.html">taxify()</a></code>.</p></dd>
+
+
+<dt id="arg-cols">cols<a class="anchor" aria-label="anchor" href="#arg-cols"></a></dt>
+<dd><p>Which columns to attach: <code>NULL</code> (default) the curated set, <code>"all"</code> every column the source carries, or a character vector of names. See <code><a href="enrichment_cols.html">enrichment_cols</a></code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -102,7 +106,9 @@ is reduced to its dominant modality (with the database's own labels).</p>
     <p>The same data.frame with categorical <code>disperse_body_size_cm</code>,
 <code>disperse_life_cycle</code>, <code>disperse_repro_cycles</code>, <code>disperse_dispersal</code>,
 <code>disperse_adult_lifespan</code>, <code>disperse_female_wing_mm</code>, <code>disperse_wing_type</code>,
-<code>disperse_fecundity</code> (joined on genus).</p>
+<code>disperse_fecundity</code>, <code>disperse_drift</code>, and the numeric bin-midpoint columns
+<code>disperse_body_size_cm_mid</code>, <code>disperse_female_wing_mm_mid</code>,
+<code>disperse_fecundity_mid</code> (all joined on genus).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

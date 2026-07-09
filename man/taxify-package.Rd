@@ -3,13 +3,14 @@
 \docType{package}
 \name{taxify-package}
 \alias{taxify-package}
-\title{taxify: Offline Taxonomic Name Matching Against Local Darwin Core Snapshots}
+\title{taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones}
 \description{
-Match taxonomic names against locally stored Darwin Core backbone databases ('WFO', 'COL', 'GBIF', 'ITIS', 'NCBI Taxonomy', 'Open Tree of Life', 'WoRMS', 'Euro+Med', 'Species Fungorum', 'AlgaeBase', 'FishBase', 'SeaLifeBase', 'Reptile Database'). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the 'vectra' C11 columnar engine.
+Match taxonomic names against locally stored Darwin Core backbone databases ('WFO', 'COL', 'GBIF', 'ITIS', 'NCBI Taxonomy', 'Open Tree of Life', 'WoRMS', 'Euro+Med', 'Species Fungorum', 'AlgaeBase', 'FishBase', 'SeaLifeBase', 'Reptile Database', 'LCVP', 'WCVP'). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the 'vectra' C11 columnar engine.
 }
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://gillescolling.com/taxify/}
   \item \url{https://github.com/gcol33/taxify}
   \item Report bugs at \url{https://github.com/gcol33/taxify/issues}
 }

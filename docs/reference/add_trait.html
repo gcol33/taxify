@@ -28,7 +28,7 @@ verb: you name the trait, it gathers the sources."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,8 @@ verb: you name the trait, it gathers the sources.</p>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">trait</span>,</span>
 <span>  sources <span class="op">=</span> <span class="st">"all"</span>,</span>
-<span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wide"</span>, <span class="st">"coalesce"</span><span class="op">)</span>,</span>
+<span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coalesce"</span>, <span class="st">"wide"</span><span class="op">)</span>,</span>
+<span>  combine <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  priority <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -118,15 +119,34 @@ names (see <code><a href="trait_info.html">trait_info()</a></code>).</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p>One of <code>"wide"</code> (default) or <code>"coalesce"</code>. <code>"wide"</code> attaches one
-harmonized column per source. <code>"coalesce"</code> attaches one value per row,
-taken from the highest-priority source that has one.</p></dd>
+<dd><p>One of <code>"coalesce"</code> (default) or <code>"wide"</code>. <code>"coalesce"</code> reduces
+the sources to one value per row (see <code>combine</code>). <code>"wide"</code> attaches one
+harmonized column per source.</p></dd>
+
+
+<dt id="arg-combine">combine<a class="anchor" aria-label="anchor" href="#arg-combine"></a></dt>
+<dd><p>How <code>mode = "coalesce"</code> reduces the per-source values for a
+row. <code>NULL</code> (default) is method-aware: when the trait's sources agree in
+method it uses <code>"median"</code> for numeric traits and <code>"first"</code> for categorical
+traits; when sources measure the trait differently (a source carries a
+caution, e.g. maximum vs fine-root diameter) it uses <code>"complete"</code> instead of
+blending them. Numeric options: <code>"median"</code>, <code>"mean"</code>, <code>"first"</code>
+(highest-priority source that has a value), <code>"min"</code>, <code>"max"</code>, <code>"complete"</code>
+(the single most populated source, reported verbatim). Categorical options:
+<code>"first"</code>, <code>"vote"</code> (majority across sources, ties broken by priority), or
+<code>"complete"</code>. Median is the numeric default for concordant sources because
+trait values are skewed, so a single outlier should not decide the value;
+<code>"complete"</code> is the default for discordant sources because a median across
+methods matches no method. Passing <code>combine</code> explicitly overrides this and
+is applied to all sources.</p></dd>
 
 
 <dt id="arg-priority">priority<a class="anchor" aria-label="anchor" href="#arg-priority"></a></dt>
-<dd><p>Character vector of source names giving the coalesce order
-(highest priority first). Only used when <code>mode = "coalesce"</code>; defaults to
-the registered order for the trait (see <code><a href="trait_info.html">trait_info()</a></code>).</p></dd>
+<dd><p>Character vector of source names giving the priority order
+(highest priority first), used by <code>combine = "first"</code>, for tie-breaking
+<code>combine = "vote"</code>, and to break ties in <code>combine = "complete"</code>. Only used
+when <code>mode = "coalesce"</code>; defaults to the registered order for the trait
+(see <code><a href="trait_info.html">trait_info()</a></code>).</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -135,16 +155,20 @@ the registered order for the trait (see <code><a href="trait_info.html">trait_in
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with added columns.</p><dl><dt><code>mode = "wide"</code></dt>
+    <p>The same data.frame with added columns.</p><dl><dt><code>mode = "coalesce"</code></dt>
+<dd><p><code>&lt;trait&gt;</code> (the reduced value); <code>&lt;trait&gt;_unit</code>
+(the canonical unit, numeric traits only); <code>&lt;trait&gt;_sources</code> (the source
+it came from, or the comma-separated contributing sources with an
+aggregating <code>combine</code>); <code>&lt;trait&gt;_n</code> (how many sources backed the value);
+and, only when a source measured the trait differently,
+<code>&lt;trait&gt;_caution</code> explaining the method difference. To inspect every
+source, use <code>mode = "wide"</code>.</p></dd>
+
+<dt><code>mode = "wide"</code></dt>
 <dd><p>One column per source, <code>&lt;trait&gt;_&lt;source&gt;</code>, each
 harmonized to the trait's shared vocabulary (categorical) or unit
-(numeric).</p></dd>
-
-<dt><code>mode = "coalesce"</code></dt>
-<dd><p>Three columns: <code>&lt;trait&gt;</code> (the coalesced
-value), <code>&lt;trait&gt;_source</code> (which source it came from), and <code>&lt;trait&gt;_n</code>
-(how many sources had any value for that row). To inspect conflicts
-between sources, use <code>mode = "wide"</code>.</p></dd>
+(numeric); <code>&lt;trait&gt;_unit</code>; and <code>&lt;trait&gt;_caution</code> on rows where a
+cautioned source supplied a value.</p></dd>
 
 
 </dl><p>Numeric traits are returned in the trait's canonical unit (see
@@ -152,15 +176,24 @@ between sources, use <code>mode = "wide"</code>.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Each source keeps its provenance. In the default <code>"wide"</code> mode every source
-becomes its own column (<code>&lt;trait&gt;_&lt;source&gt;</code>), so agreement and conflict stay
-visible; sources are never silently collapsed. The opt-in <code>"coalesce"</code> mode
-adds a single best-available value together with the source that supplied it.</p>
+    <p>Each source keeps its provenance. The default <code>"coalesce"</code> mode reduces the
+sources to one value per row plus the columns that document it – its unit,
+the sources that contributed, how many, and a caution when the sources
+measure the trait by different methods. The opt-in <code>"wide"</code> mode instead
+gives every source its own column (<code>&lt;trait&gt;_&lt;source&gt;</code>), so per-source
+agreement and conflict stay fully visible.</p>
 <p>Harmonization is per source: a categorical source is mapped to the trait's
 shared vocabulary, and a numeric source is converted to the trait's canonical
 unit. For example, GIFT seed mass (grams) and Diaz et al. seed mass
 (milligrams) both arrive as milligrams. The mappings and units for a trait
 are listed by <code><a href="trait_info.html">trait_info()</a></code>.</p>
+<p>Some sources report the same trait in the right unit but under a different
+definition (for example AusTraits root diameter is a maximum including coarse
+roots, while GRooT is fine-root only). Such a source carries a caution in the
+registry. In <code>mode = "coalesce"</code> with the default <code>combine</code>, a trait whose
+sources disagree in method is not blended: the most complete source is
+reported and <code>&lt;trait&gt;_caution</code> records the difference. <code><a href="trait_info.html">trait_info()</a></code> lists
+each source's harmonization note and caution.</p>
 <p>A source enrichment that is not installed and cannot be downloaded or built
 is skipped with a warning, and the trait is assembled from the sources that
 are available.</p>
@@ -177,13 +210,13 @@ trait's sources and units. The per-source doors (<code><a href="add_zanne.html">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
 <span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># One column per source, harmonized:</span></span>
+<span><span class="co"># One coalesced value plus its provenance (unit, sources, count):</span></span>
 <span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"woodiness"</span><span class="op">)</span></span>
+<span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"seed_mass"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Numeric trait, coalesced to one value plus its provenance:</span></span>
+<span><span class="co"># One column per source, to inspect agreement and conflict:</span></span>
 <span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"seed_mass"</span>, mode <span class="op">=</span> <span class="st">"coalesce"</span><span class="op">)</span></span>
+<span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"woodiness"</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
 <span></span></code></pre></div>

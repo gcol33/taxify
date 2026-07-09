@@ -1,9 +1,16 @@
 # taxify
 
-*the species names never quite match*
+*offline taxonomic name resolution*
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/taxify)](https://CRAN.R-project.org/package=taxify)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/taxify)](https://cran.r-project.org/package=taxify)
+[![Monthly
+downloads](https://cranlogs.r-pkg.org/badges/taxify)](https://cran.r-project.org/package=taxify)
+[![R-CMD-check](https://github.com/gcol33/taxify/actions/workflows/R-CMD-check.yml/badge.svg)](https://github.com/gcol33/taxify/actions/workflows/R-CMD-check.yml)
+[![Codecov test
+coverage](https://codecov.io/gh/gcol33/taxify/graph/badge.svg)](https://app.codecov.io/gh/gcol33/taxify)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -49,9 +56,9 @@ vignette](https://gillescolling.com/taxify/articles/migration.html)
 walks through the differences in matching strategy, output schema, and
 enrichment.
 
-## Thirteen backbones, one call
+## Fifteen backbones, one call
 
-`taxify` ships thirteen backbones as compressed `.vtr` files, downloaded
+`taxify` ships fifteen backbones as compressed `.vtr` files, downloaded
 once and matched locally. Pass several and they form a fallback chain: a
 name unmatched by the first backbone cascades to the next.
 
@@ -112,11 +119,12 @@ cost of the CSV-into-RAM approach:
 ## What you get back
 
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-returns one row per input name with a fixed 16-column schema: the
-matched and accepted names, IDs, rank, family, genus, epithet,
-authorship, synonym and hybrid flags, the match type (`exact`,
-`exact_ci`, `fuzzy`, or `none`), the fuzzy distance, the backend, and
-the backbone version used.
+returns one row per input name with a fixed schema: the matched and
+accepted names with their IDs and authorship, rank, family, genus,
+epithet, synonym / hybrid / ambiguity flags, any taxonomic qualifier,
+the match type (`exact`, `exact_ci`, `fuzzy`, `abbrev`, `out_of_scope`,
+or `none`), the fuzzy distance, a coarse kingdom / taxon-group label,
+the backend, and the backbone version used.
 [`summary()`](https://rdrr.io/r/base/summary.html) prints a compact
 digest of how the batch resolved.
 
@@ -127,13 +135,14 @@ summary(result)
 #> -- taxify results ----------------------------------------------------
 #>   backend: WFO  |  4 names submitted
 #>
-#>   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2)
-#>   unmatched       0
+#>   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2, abbrev: 0)
+#>   --------------------------------------------------------------
+#>   taxon groups: vascular plant: 4
 ```
 
 ## Trait and status enrichment
 
-More than sixty enrichment layers join published trait and status data
+More than eighty enrichment layers join published trait and status data
 to your results through the backbone-resolved accepted name, so synonyms
 in either dataset land on the same key:
 
@@ -257,4 +266,4 @@ Coffee](https://img.shields.io/badge/-Buy%20me%20a%20coffee-FFDD00?logo=buymeaco
 
 ## License
 
-MIT (see the LICENSE.md file)
+MIT (see the LICENSE file)

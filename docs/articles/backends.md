@@ -101,9 +101,10 @@ animals. FishBase covers fishes; SeaLifeBase covers the non-fish marine
 and aquatic groups (molluscs, crustaceans, marine mammals, and the
 rest). Both are compiled from the rfishbase package rather than a file
 download, taking accepted species from `load_taxa()` and synonym links
-from `synonyms()`. They carry species-rank rows only, so their genera
-enter the genus register derived from those species. The data is CC
-BY-NC 3.0.
+from
+[`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md).
+They carry species-rank rows only, so their genera enter the genus
+register derived from those species. The data is CC BY-NC 3.0.
 
 The Reptile Database is the taxonomic reference for reptiles, with ~50k
 names covering snakes, lizards, turtles, crocodilians, and the tuatara.

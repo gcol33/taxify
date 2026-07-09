@@ -23,8 +23,10 @@ trait_info(trait)
 ## Value
 
 A data.frame (invisibly-friendly) with columns `source`, `enrichment`,
-`column`, `citation`, `note`. The header line (label, kind, unit,
-default priority, vocabulary) is printed as a message.
+`column`, `citation`, `note` (unit or vocabulary harmonization), and
+`caution` (a method or definition difference from the reference source,
+or `NA`). The header line (label, kind, unit, default priority,
+vocabulary) is printed as a message.
 
 ## See also
 

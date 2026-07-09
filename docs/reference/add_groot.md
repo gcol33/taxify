@@ -4,13 +4,15 @@ Joins species-level root traits from the Global Root Traits (GRooT)
 database to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result by looking up `accepted_name`. GRooT aggregates root trait
-records to per-species means; this layer carries the nine best-populated
-key traits.
+records to per-species means. The `.vtr` carries the full GRooT trait
+set (38 root traits); the default attaches the nine best-populated key
+traits, and `cols = "all"` attaches every one. Run
+`enrichment_cols("groot")` to list them.
 
 ## Usage
 
 ``` r
-add_groot(x, verbose = TRUE)
+add_groot(x, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -20,13 +22,20 @@ add_groot(x, verbose = TRUE)
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
+- cols:
+
+  Which columns to attach: `NULL` (default) the nine key traits below,
+  `"all"` every GRooT trait, or a character vector of names. See
+  [`enrichment_cols`](https://gillescolling.com/taxify/reference/enrichment_cols.md).
+
 - verbose:
 
   Logical. Default `TRUE`.
 
 ## Value
 
-The same data.frame with additional columns (per-species means):
+The same data.frame with additional columns (per-species means). The
+default set:
 
 - root_diameter:
 
@@ -64,7 +73,13 @@ The same data.frame with additional columns (per-species means):
 
   Maximum rooting depth.
 
-Units follow the GRooT data paper; see the reference below.
+`cols = "all"` additionally attaches root chemistry (P/K/Ca/Mg/Mn
+concentrations, C:N and N:P ratios), architecture (branching density and
+ratio, stele diameter and fraction, cortex thickness, vessel diameter
+and number), turnover (root lifespan, production, turnover rate, litter
+mass-loss rate), and specific root area, respiration, and dry-matter
+content, among others. Units follow the GRooT data paper; see the
+reference below.
 
 ## Details
 

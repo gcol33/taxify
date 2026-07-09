@@ -12,8 +12,8 @@ taxify_download_enrichment(enrichment, version = "latest", verbose = TRUE)
 
 - enrichment:
 
-  Character. One or more enrichment names (e.g.,
-  `"conservation_status"`, `"griis"`, `"woodiness"`).
+  Character. One or more enrichment names (e.g., `"iucn"`, `"griis"`,
+  `"zanne"`).
 
 - version:
 
@@ -31,7 +31,7 @@ The path(s) to the downloaded `.vtr` file(s) (invisibly).
 
 Available enrichments:
 
-- conservation_status:
+- iucn:
 
   IUCN conservation status (LC/NT/VU/EN/CR/EW/EX)
 
@@ -39,7 +39,7 @@ Available enrichments:
 
   GRIIS invasive species status by country
 
-- woodiness:
+- zanne:
 
   Zanne et al. 2014 woody/herbaceous classification
 

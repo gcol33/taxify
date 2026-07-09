@@ -8,7 +8,7 @@ result by looking up `accepted_name`.
 ## Usage
 
 ``` r
-add_avonet(x, verbose = TRUE)
+add_avonet(x, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -17,6 +17,13 @@ add_avonet(x, verbose = TRUE)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+- cols:
+
+  Which columns to attach. `NULL` (the default) attaches the curated
+  set; a character vector of column names attaches just those, and
+  `"all"` attaches every column the source carries (see
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)).
 
 - verbose:
 

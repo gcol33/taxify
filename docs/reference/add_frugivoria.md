@@ -7,7 +7,7 @@ result by `accepted_name`.
 ## Usage
 
 ``` r
-add_frugivoria(x, verbose = TRUE)
+add_frugivoria(x, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -16,6 +16,12 @@ add_frugivoria(x, verbose = TRUE)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+- cols:
+
+  Which columns to attach: `NULL` (default) the curated set, `"all"`
+  every column the source carries, or a character vector of names. See
+  [`enrichment_cols`](https://gillescolling.com/taxify/reference/enrichment_cols.md).
 
 - verbose:
 

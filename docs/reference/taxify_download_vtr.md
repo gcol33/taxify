@@ -1,8 +1,12 @@
-# Download a taxify backbone
+# Download a pre-built taxify backbone
 
-Downloads a pre-built `.vtr` backbone from Zenodo using the taxify
-manifest. Progress is always shown. No prompts are shown — calling this
-function is consent.
+Downloads a pre-built `.vtr` backbone from GitHub Releases using the
+taxify manifest. This needs no build tools and does not require
+`taxifydb`; it is the fast path
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) uses
+internally on first use. Call it directly to pre-fetch backbones before
+an offline session. Progress is always shown; no prompts are shown, so
+calling this function is consent.
 
 ## Usage
 
@@ -14,8 +18,11 @@ taxify_download_vtr(backend = "wfo", version = "latest", verbose = TRUE)
 
 - backend:
 
-  Character. One of `"wfo"`, `"col"`, `"gbif"`, or `"register"`.
-  Multiple backends can be specified as a character vector.
+  Character. A backend name (e.g. `"wfo"`, `"col"`, `"gbif"`, ...; see
+  the backends in
+  [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)'s
+  companion manifest) or `"register"` for the genus register. Multiple
+  backends can be given as a character vector.
 
 - version:
 
@@ -31,3 +38,10 @@ taxify_download_vtr(backend = "wfo", version = "latest", verbose = TRUE)
 ## Value
 
 The path(s) to the downloaded `.vtr` file(s) (invisibly).
+
+## See also
+
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
+to build a backbone from source via `taxifydb`,
+[`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
+for enrichment layers.

@@ -5,15 +5,15 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Offline Taxonomic Name Matching Against Local Darwin Core Snapshots • taxify</title>
+<title>Offline Taxonomic Name Matching Against Darwin Core Backbones • taxify</title>
 <script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
-<meta property="og:title" content="Offline Taxonomic Name Matching Against Local Darwin Core Snapshots">
-<meta name="description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the vectra C11 columnar engine.">
-<meta property="og:description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Species Fungorum, AlgaeBase). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the vectra C11 columnar engine.">
+<meta property="og:title" content="Offline Taxonomic Name Matching Against Darwin Core Backbones">
+<meta name="description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the vectra C11 columnar engine.">
+<meta property="og:description" content="Match taxonomic names against locally stored Darwin Core backbone databases (WFO, COL, GBIF, ITIS, NCBI Taxonomy, Open Tree of Life, WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the vectra C11 columnar engine.">
 <script>
 (function () {
   var D = String.fromCharCode(36);
@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,8 +92,8 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="taxify">taxify<a class="anchor" aria-label="anchor" href="#taxify"></a>
 </h1></div>
-<p><em>the species names never quite match</em></p>
-<p><a href="https://CRAN.R-project.org/package=taxify" class="external-link"><img src="https://www.r-pkg.org/badges/version/taxify" alt="CRAN status"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
+<p><em>offline taxonomic name resolution</em></p>
+<p><a href="https://CRAN.R-project.org/package=taxify" class="external-link"><img src="https://www.r-pkg.org/badges/version/taxify" alt="CRAN status"></a> <a href="https://cran.r-project.org/package=taxify" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/taxify" alt="CRAN downloads"></a> <a href="https://cran.r-project.org/package=taxify" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/taxify" alt="Monthly downloads"></a> <a href="https://github.com/gcol33/taxify/actions/workflows/R-CMD-check.yml" class="external-link"><img src="https://github.com/gcol33/taxify/actions/workflows/R-CMD-check.yml/badge.svg" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/gcol33/taxify" class="external-link"><img src="https://codecov.io/gh/gcol33/taxify/graph/badge.svg" alt="Codecov test coverage"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
 <p><strong>Offline taxonomic name matching against local Darwin Core backbones, with matching done in C.</strong></p>
 <p>Hand it a column of messy species names. <code>taxify</code> cleans them, matches them against a backbone you already have on disk, resolves synonyms to accepted names, and returns one standardized data.frame. Every step runs locally against a versioned snapshot, so there are no API calls, no rate limits, and the same input gives the same output on any machine. The matching engine is written in C through the <a href="https://github.com/gcol33/vectra" class="external-link">vectra</a> columnar engine.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -113,9 +113,9 @@
 <p>The closest local analogue is <a href="https://docs.ropensci.org/taxadb/" class="external-link">taxadb</a>, which also stores backbone snapshots on disk; the <a href="https://gillescolling.com/taxify/articles/migration.html">migration vignette</a> walks through the differences in matching strategy, output schema, and enrichment.</p>
 </div>
 <div class="section level2">
-<h2 id="thirteen-backbones-one-call">Thirteen backbones, one call<a class="anchor" aria-label="anchor" href="#thirteen-backbones-one-call"></a>
+<h2 id="fifteen-backbones-one-call">Fifteen backbones, one call<a class="anchor" aria-label="anchor" href="#fifteen-backbones-one-call"></a>
 </h2>
-<p><code>taxify</code> ships thirteen backbones as compressed <code>.vtr</code> files, downloaded once and matched locally. Pass several and they form a fallback chain: a name unmatched by the first backbone cascades to the next.</p>
+<p><code>taxify</code> ships fifteen backbones as compressed <code>.vtr</code> files, downloaded once and matched locally. Pass several and they form a fallback chain: a name unmatched by the first backbone cascades to the next.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># WFO first (plants), then GBIF for whatever WFO doesn't cover</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span></span>
@@ -246,20 +246,21 @@
 <div class="section level2">
 <h2 id="what-you-get-back">What you get back<a class="anchor" aria-label="anchor" href="#what-you-get-back"></a>
 </h2>
-<p><code><a href="reference/taxify.html">taxify()</a></code> returns one row per input name with a fixed 16-column schema: the matched and accepted names, IDs, rank, family, genus, epithet, authorship, synonym and hybrid flags, the match type (<code>exact</code>, <code>exact_ci</code>, <code>fuzzy</code>, or <code>none</code>), the fuzzy distance, the backend, and the backbone version used. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> prints a compact digest of how the batch resolved.</p>
+<p><code><a href="reference/taxify.html">taxify()</a></code> returns one row per input name with a fixed schema: the matched and accepted names with their IDs and authorship, rank, family, genus, epithet, synonym / hybrid / ambiguity flags, any taxonomic qualifier, the match type (<code>exact</code>, <code>exact_ci</code>, <code>fuzzy</code>, <code>abbrev</code>, <code>out_of_scope</code>, or <code>none</code>), the fuzzy distance, a coarse kingdom / taxon-group label, the backend, and the backbone version used. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> prints a compact digest of how the batch resolved.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus abies"</span>, <span class="st">"Quercus robus"</span>, <span class="st">"Taraxacum officinale"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; -- taxify results ----------------------------------------------------</span></span>
 <span><span class="co">#&gt;   backend: WFO  |  4 names submitted</span></span>
 <span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt;   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2)</span></span>
-<span><span class="co">#&gt;   unmatched       0</span></span></code></pre></div>
+<span><span class="co">#&gt;   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2, abbrev: 0)</span></span>
+<span><span class="co">#&gt;   --------------------------------------------------------------</span></span>
+<span><span class="co">#&gt;   taxon groups: vascular plant: 4</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="trait-and-status-enrichment">Trait and status enrichment<a class="anchor" aria-label="anchor" href="#trait-and-status-enrichment"></a>
 </h2>
-<p>More than sixty enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
+<p>More than eighty enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plants</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -333,7 +334,7 @@
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>MIT (see the LICENSE.md file)</p>
+<p>MIT (see the LICENSE file)</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -348,11 +349,19 @@
 <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li>
+<a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
+</li>
 </ul>
 </div>
 
+<div class="community">
+<h2 data-toc-skip>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CONTRIBUTING.html">Contributing guide</a></li>
+<li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
+</ul>
+</div>
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>

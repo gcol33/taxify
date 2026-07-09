@@ -10,7 +10,7 @@ carries related naturalized-alien status.
 ## Usage
 
 ``` r
-add_griis(x, country, verbose = TRUE)
+add_griis(x, country, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -31,6 +31,13 @@ add_griis(x, country, verbose = TRUE)
     `invasive_status_DE`.
 
   - `"all"`: adds one column per country in the dataset.
+
+- cols:
+
+  Which columns to attach. `NULL` (the default) attaches the curated
+  set; a character vector of column names attaches just those, and
+  `"all"` attaches every column the source carries (see
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)).
 
 - verbose:
 

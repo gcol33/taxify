@@ -8,7 +8,7 @@ result by looking up `accepted_name`.
 ## Usage
 
 ``` r
-add_elton_traits(x, verbose = TRUE)
+add_elton_traits(x, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -17,6 +17,12 @@ add_elton_traits(x, verbose = TRUE)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+- cols:
+
+  Which columns to attach: `NULL` (default) the curated set, `"all"`
+  every column the source carries, or a character vector of names. See
+  [`enrichment_cols`](https://gillescolling.com/taxify/reference/enrichment_cols.md).
 
 - verbose:
 
@@ -97,6 +103,14 @@ The same data.frame with additional columns:
 - nocturnal:
 
   Nocturnal activity (0 = diurnal, 1 = nocturnal).
+
+- diet_guild:
+
+  Dominant diet guild derived from the ten diet-fraction columns
+  (fractions summed within guild, the guild reaching 50 percent wins,
+  otherwise omnivore): carnivore, herbivore, omnivore, invertivore,
+  frugivore, granivore, nectarivore, scavenger. Also reachable across
+  sources via `add_trait(x, "diet_guild")`.
 
 ## Details
 

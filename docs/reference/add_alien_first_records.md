@@ -8,7 +8,7 @@ Record Database (Seebens et al. 2017).
 ## Usage
 
 ``` r
-add_alien_first_records(x, country, verbose = TRUE)
+add_alien_first_records(x, country, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -28,6 +28,13 @@ add_alien_first_records(x, country, verbose = TRUE)
     suffix (e.g., `alien_first_record_AT`).
 
   - `"all"`: adds one column set per country in the dataset.
+
+- cols:
+
+  Character vector of value columns to attach (from
+  `alien_first_record`, `alien_first_record_source`,
+  `alien_first_record_reference`), or `"all"`. `NULL` (default) attaches
+  all three.
 
 - verbose:
 

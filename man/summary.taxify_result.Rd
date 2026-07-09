@@ -19,3 +19,4 @@ Prints a compact digest of match quality and life-form scope to the console.
 Uses \code{cat()} so output is captured by \code{capture.output()} and rendered
 correctly in knitr chunks.
 }
+\keyword{internal}

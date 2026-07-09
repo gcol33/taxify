@@ -64,9 +64,13 @@ taxify(
   `s.l.` qualifier). `"preserve"` (default) keeps the aggregate as its
   own concept: it matches the backbone's aggregate taxon
   (`"<binomial> aggr."`) where one exists, otherwise falls back to the
-  binomial. `"collapse"` strips the marker and matches the binomial
-  species, the way any non-aggregate name is matched. Either way the
-  qualifier is recorded in the `qualifier` column.
+  binomial. When it falls back, the `aggregate_fallback` column is set
+  `TRUE` so the aggregate-to-species collapse is visible rather than
+  silent (only the aggregate-bearing backbones – Euro+Med, WoRMS – carry
+  aggregate taxa, so preserve falls back for the others). `"collapse"`
+  strips the marker and matches the binomial species, the way any
+  non-aggregate name is matched. Either way the qualifier is recorded in
+  the `qualifier` column.
 
 - region:
 
@@ -185,6 +189,14 @@ A data.frame with one row per input name and the following columns:
   name (e.g. `"Cf. Pinus sylvestris"`), `"species"` when it qualifies
   the species (inline `cf.` or trailing `agg.`), `NA` when there is no
   qualifier.
+
+- aggregate_fallback:
+
+  Logical. For an aggregate query under `aggregates = "preserve"`:
+  `FALSE` when it resolved to the backbone's dedicated aggregate taxon,
+  `TRUE` when no such taxon existed and it fell back to the nominal
+  binomial. `NA` for non-aggregate queries and under
+  `aggregates = "collapse"`, where the collapse is explicit.
 
 - match_type:
 

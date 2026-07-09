@@ -9,7 +9,7 @@ Database taxonomy, so it joins cleanly against the `reptiledb` backbone
 ## Usage
 
 ``` r
-add_repttraits(x, verbose = TRUE)
+add_repttraits(x, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -18,6 +18,12 @@ add_repttraits(x, verbose = TRUE)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+- cols:
+
+  Which columns to attach: `NULL` (default) the curated set, `"all"`
+  every column the source carries, or a character vector of names. See
+  [`enrichment_cols`](https://gillescolling.com/taxify/reference/enrichment_cols.md).
 
 - verbose:
 

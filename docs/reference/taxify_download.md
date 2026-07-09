@@ -1,7 +1,9 @@
-# Download a backbone database
+# Build a backbone database from source
 
-Downloads the latest Darwin Core snapshot for the specified backend and
-converts it to vectra's `.vtr` format for fast repeated queries.
+Builds the backbone `.vtr` for a backend from its upstream Darwin Core
+source, delegating to the sibling `taxifydb` package (which must be
+installed). This is the from-source path, for rebuilding a backbone
+locally.
 
 ## Usage
 
@@ -34,8 +36,15 @@ The path to the `.vtr` file (invisibly).
 
 ## Details
 
-Always re-downloads the latest release, overwriting any existing
-backbone. Use
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) for
-day-to-day matching — it auto-downloads on first use and reuses the
-local copy thereafter.
+For everyday use you do not need this:
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+auto-downloads the pre-built `.vtr` on first use, and
+[`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md)
+fetches a pre-built backbone directly without `taxifydb`.
+
+## See also
+
+[`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md)
+to fetch a pre-built backbone,
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) which
+downloads on first use.

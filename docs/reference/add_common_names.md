@@ -7,7 +7,7 @@ result by looking up `accepted_name`, filtered by language.
 ## Usage
 
 ``` r
-add_common_names(x, lang = "en", verbose = TRUE)
+add_common_names(x, lang = "en", cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -22,6 +22,13 @@ add_common_names(x, lang = "en", verbose = TRUE)
   Character. ISO 639-1 language code (e.g., `"en"`, `"de"`, `"fr"`), or
   `NA` to return names without a language tag (NCBI/OTT sources).
   Default `"en"`.
+
+- cols:
+
+  Which columns to attach. `NULL` (the default) attaches the curated
+  set; a character vector of column names attaches just those, and
+  `"all"` attaches every column the source carries (see
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)).
 
 - verbose:
 

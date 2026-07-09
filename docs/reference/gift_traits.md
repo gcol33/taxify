@@ -26,7 +26,9 @@ A data.frame with one row per trait column:
 
 ## See also
 
-[`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
+[`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md),
+[`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
+for the same listing on any enrichment.
 
 ## Examples
 

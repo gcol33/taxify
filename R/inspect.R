@@ -496,6 +496,7 @@ range_outlier_rows <- function(acc, matched, min_batch, verbose = FALSE) {
 #' @param x A `taxify_inspection` object.
 #' @param ... Ignored.
 #' @return `x`, invisibly.
+#' @keywords internal
 #' @export
 print.taxify_inspection <- function(x, ...) {
   meta <- attr(x, "taxify_inspection_meta")

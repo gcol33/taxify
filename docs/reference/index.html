@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,271 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="match-and-inspect-names">Match and inspect names<a class="anchor" aria-label="anchor" href="#match-and-inspect-names"></a></h2>
+
+      <div class="section-desc"><p>Resolve a vector of names against local backbones and check a list before you trust it.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="taxify.html">taxify()</a></code>
+
+        </dt>
+        <dd>Match taxonomic names against local backbone databases</dd>
+
+        <dt>
+
+          <code><a href="inspect.html">inspect()</a></code>
+
+        </dt>
+        <dd>Inspect a name list for probable typos and other anomalies</dd>
+
+        <dt>
+
+          <code><a href="taxify_regions.html">taxify_regions()</a></code>
+
+        </dt>
+        <dd>List TDWG botanical regions</dd>
+
+        <dt>
+
+          <code><a href="taxify_long.html">taxify_long()</a></code>
+
+        </dt>
+        <dd>Reshape grouped enrichment columns to long format</dd>
+
+        <dt>
+
+          <code><a href="export_data.html">export_data()</a></code>
+
+        </dt>
+        <dd>Export a taxify result to file</dd>
+
+        <dt>
+
+          <code><a href="cite.html">cite()</a></code>
+
+        </dt>
+        <dd>Cite data sources used in a taxify result</dd>
+      </dl></div><div class="section level2">
+      <h2 id="explore-the-backbone">Explore the backbone<a class="anchor" aria-label="anchor" href="#explore-the-backbone"></a></h2>
+
+      <div class="section-desc"><p>Read the backbone the other ways — list synonyms, list the taxa within a group, attach the full classification.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="synonyms.html">synonyms()</a></code>
+
+        </dt>
+        <dd>List the synonyms of a name</dd>
+
+        <dt>
+
+          <code><a href="children.html">children()</a></code>
+
+        </dt>
+        <dd>List the accepted taxa within a genus or family</dd>
+
+        <dt>
+
+          <code><a href="add_classification.html">add_classification()</a></code>
+
+        </dt>
+        <dd>Add the full higher classification to a taxify result</dd>
+
+        <dt>
+
+          <code><a href="taxify_candidates.html">taxify_candidates()</a></code>
+
+        </dt>
+        <dd>Expand ambiguous matches into their candidate taxa</dd>
+      </dl></div><div class="section level2">
+      <h2 id="backbone-data-and-cache">Backbone data and cache<a class="anchor" aria-label="anchor" href="#backbone-data-and-cache"></a></h2>
+
+      <div class="section-desc"><p>Download, cache, and inspect backbone snapshots and the unified genus register.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="taxify_download.html">taxify_download()</a></code>
+
+        </dt>
+        <dd>Build a backbone database from source</dd>
+
+        <dt>
+
+          <code><a href="taxify_download_vtr.html">taxify_download_vtr()</a></code>
+
+        </dt>
+        <dd>Download a pre-built taxify backbone</dd>
+
+        <dt>
+
+          <code><a href="taxify_download_enrichment.html">taxify_download_enrichment()</a></code>
+
+        </dt>
+        <dd>Download one or more enrichment .vtr files</dd>
+
+        <dt>
+
+          <code><a href="taxify_data_dir.html">taxify_data_dir()</a></code>
+
+        </dt>
+        <dd>Get the taxify data directory</dd>
+
+        <dt>
+
+          <code><a href="taxify_example_data.html">taxify_example_data()</a></code>
+
+        </dt>
+        <dd>Path to the bundled example database</dd>
+
+        <dt>
+
+          <code><a href="taxify_clear_cache.html">taxify_clear_cache()</a></code>
+
+        </dt>
+        <dd>Clear all cached backbones</dd>
+
+        <dt>
+
+          <code><a href="taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code>
+
+        </dt>
+        <dd>Invalidate the session manifest cache</dd>
+
+        <dt>
+
+          <code><a href="taxify_load_register.html">taxify_load_register()</a></code>
+
+        </dt>
+        <dd>Load the unified genus register into memory</dd>
+
+        <dt>
+
+          <code><a href="taxify_register_coverage.html">taxify_register_coverage()</a></code>
+
+        </dt>
+        <dd>Show backend coverage for a genus</dd>
+
+        <dt>
+
+          <code><a href="lookup_genus.html">lookup_genus()</a></code>
+
+        </dt>
+        <dd>Look up a genus in the register</dd>
+      </dl></div><div class="section level2">
+      <h2 id="backend-specific-columns">Backend-specific columns<a class="anchor" aria-label="anchor" href="#backend-specific-columns"></a></h2>
+
+      <div class="section-desc"><p>Attach extra columns from the backbone that matched.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="add_col_info.html">add_col_info()</a></code>
+
+        </dt>
+        <dd>Add COL-specific columns</dd>
+
+        <dt>
+
+          <code><a href="add_gbif_info.html">add_gbif_info()</a></code>
+
+        </dt>
+        <dd>Add GBIF-specific columns</dd>
+
+        <dt>
+
+          <code><a href="add_wfo_info.html">add_wfo_info()</a></code>
+
+        </dt>
+        <dd>Add WFO-specific columns</dd>
+
+        <dt>
+
+          <code><a href="add_hybrid_info.html">add_hybrid_info()</a></code>
+
+        </dt>
+        <dd>Add hybrid parent and type information</dd>
+      </dl></div><div class="section level2">
+      <h2 id="traits-across-sources">Traits across sources<a class="anchor" aria-label="anchor" href="#traits-across-sources"></a></h2>
+
+      <div class="section-desc"><p>Name one trait; gather and harmonize it from every source that carries it.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="add_trait.html">add_trait()</a></code>
+
+        </dt>
+        <dd>Add a trait from every source that carries it</dd>
+
+        <dt>
+
+          <code><a href="list_traits.html">list_traits()</a></code>
+
+        </dt>
+        <dd>List the traits available to add_trait()</dd>
+
+        <dt>
+
+          <code><a href="trait_info.html">trait_info()</a></code>
+
+        </dt>
+        <dd>Describe a trait's sources and units</dd>
+      </dl></div><div class="section level2">
+      <h2 id="custom-data-and-discovery">Custom data and discovery<a class="anchor" aria-label="anchor" href="#custom-data-and-discovery"></a></h2>
+
+      <div class="section-desc"><p>Join your own table, and browse the available enrichment layers and columns.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="add_data.html">add_data()</a></code>
+
+        </dt>
+        <dd>Add custom data by taxonomic matching</dd>
+
+        <dt>
+
+          <code><a href="list_enrichments.html">list_enrichments()</a></code>
+
+        </dt>
+        <dd>List available enrichments</dd>
+
+        <dt>
+
+          <code><a href="enrichment_cols.html">enrichment_cols()</a></code>
+
+        </dt>
+        <dd>Browse the trait columns an enrichment door can attach</dd>
+      </dl></div><div class="section level2">
+      <h2 id="enrichments-distribution-and-status">Enrichments — distribution and status<a class="anchor" aria-label="anchor" href="#enrichments-distribution-and-status"></a></h2>
 
 
 
@@ -80,10 +344,24 @@
 
       <dl><dt>
 
-          <code><a href="add_algae_traits.html">add_algae_traits()</a></code>
+          <code><a href="add_iucn.html">add_iucn()</a></code>
 
         </dt>
-        <dd>Add macroalgal functional traits (AlgaeTraits)</dd>
+        <dd>Add IUCN Red List conservation status</dd>
+
+        <dt>
+
+          <code><a href="add_griis.html">add_griis()</a></code>
+
+        </dt>
+        <dd>Add invasive species status (GRIIS)</dd>
+
+        <dt>
+
+          <code><a href="add_glonaf.html">add_glonaf()</a></code>
+
+        </dt>
+        <dd>Add naturalized alien flora status (GloNAF)</dd>
 
         <dt>
 
@@ -94,143 +372,10 @@
 
         <dt>
 
-          <code><a href="add_amniote.html">add_amniote()</a></code>
+          <code><a href="add_wcvp.html">add_wcvp()</a></code>
 
         </dt>
-        <dd>Add amniote life-history traits (Amniote Life History Database)</dd>
-
-        <dt>
-
-          <code><a href="add_amphibio.html">add_amphibio()</a></code>
-
-        </dt>
-        <dd>Add amphibian life-history traits (AmphiBIO)</dd>
-
-        <dt>
-
-          <code><a href="add_anage.html">add_anage()</a></code>
-
-        </dt>
-        <dd>Add longevity and life-history traits (AnAge)</dd>
-
-        <dt>
-
-          <code><a href="add_animaltraits.html">add_animaltraits()</a></code>
-
-        </dt>
-        <dd>Add cross-taxon body mass and metabolic rate (AnimalTraits)</dd>
-
-        <dt>
-
-          <code><a href="add_arctic_traits.html">add_arctic_traits()</a></code>
-
-        </dt>
-        <dd>Add Arctic marine benthos traits</dd>
-
-        <dt>
-
-          <code><a href="add_arthropod_traits.html">add_arthropod_traits()</a></code>
-
-        </dt>
-        <dd>Add arthropod life-history traits (NW European Arthropods)</dd>
-
-        <dt>
-
-          <code><a href="add_austraits.html">add_austraits()</a></code>
-
-        </dt>
-        <dd>Add Australian plant traits (AusTraits)</dd>
-
-        <dt>
-
-          <code><a href="add_avonet.html">add_avonet()</a></code>
-
-        </dt>
-        <dd>Add bird morphology and migration (AVONET)</dd>
-
-        <dt>
-
-          <code><a href="add_baseflor.html">add_baseflor()</a></code>
-
-        </dt>
-        <dd>Add plant traits from Baseflor (Catminat / Julve)</dd>
-
-        <dt>
-
-          <code><a href="add_bee_ostwald.html">add_bee_ostwald()</a></code>
-
-        </dt>
-        <dd>Add bee morphometrics (Ostwald)</dd>
-
-        <dt>
-
-          <code><a href="add_bet.html">add_bet()</a></code>
-
-        </dt>
-        <dd>Add bryophyte traits (Bryophytes of Europe Traits)</dd>
-
-        <dt>
-
-          <code><a href="add_beukhof.html">add_beukhof()</a></code>
-
-        </dt>
-        <dd>Add marine fish traits (Beukhof)</dd>
-
-        <dt>
-
-          <code><a href="add_bien.html">add_bien()</a></code>
-
-        </dt>
-        <dd>Add plant traits (BIEN)</dd>
-
-        <dt>
-
-          <code><a href="add_birdbase.html">add_birdbase()</a></code>
-
-        </dt>
-        <dd>Add bird traits (BIRDBASE)</dd>
-
-        <dt>
-
-          <code><a href="add_bird_nest.html">add_bird_nest()</a></code>
-
-        </dt>
-        <dd>Add bird nest traits (NestTrait)</dd>
-
-        <dt>
-
-          <code><a href="add_blanchard.html">add_blanchard()</a></code>
-
-        </dt>
-        <dd>Add ant genus defensive traits (Blanchard &amp; Moreau)</dd>
-
-        <dt>
-
-          <code><a href="add_brot.html">add_brot()</a></code>
-
-        </dt>
-        <dd>Add Mediterranean plant traits (BROT 2.0)</dd>
-
-        <dt>
-
-          <code><a href="add_chelonians.html">add_chelonians()</a></code>
-
-        </dt>
-        <dd>Add turtle traits (CheloniansTraits)</dd>
-
-        <dt>
-
-          <code><a href="add_col_info.html">add_col_info()</a></code>
-
-        </dt>
-        <dd>Add COL-specific columns</dd>
-
-        <dt>
-
-          <code><a href="add_combine.html">add_combine()</a></code>
-
-        </dt>
-        <dd>Add mammal traits (COMBINE)</dd>
+        <dd>Add WCVP native range status</dd>
 
         <dt>
 
@@ -241,38 +386,26 @@
 
         <dt>
 
-          <code><a href="add_coral_traits.html">add_coral_traits()</a></code>
+          <code><a href="add_globi.html">add_globi()</a></code>
 
         </dt>
-        <dd>Add scleractinian coral traits (Coral Trait Database)</dd>
+        <dd>Add biotic interaction degree (GloBI)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="enrichments-plants">Enrichments — plants<a class="anchor" aria-label="anchor" href="#enrichments-plants"></a></h2>
 
-        <dt>
 
-          <code><a href="add_data.html">add_data()</a></code>
 
-        </dt>
-        <dd>Add custom data by taxonomic matching</dd>
+      <dl></dl></div><div class="section level2">
 
-        <dt>
 
-          <code><a href="add_diaz_traits.html">add_diaz_traits()</a></code>
 
-        </dt>
-        <dd>Add seed mass and plant height (Diaz et al. 2022)</dd>
 
-        <dt>
+      <dl><dt>
 
-          <code><a href="add_disperse.html">add_disperse()</a></code>
+          <code><a href="add_zanne.html">add_zanne()</a></code>
 
         </dt>
-        <dd>Add aquatic-invertebrate dispersal traits (DISPERSE)</dd>
-
-        <dt>
-
-          <code><a href="add_ecoflora.html">add_ecoflora()</a></code>
-
-        </dt>
-        <dd>Add British plant traits from Ecoflora</dd>
+        <dd>Add woodiness (Zanne et al. 2014)</dd>
 
         <dt>
 
@@ -283,6 +416,234 @@
 
         <dt>
 
+          <code><a href="add_diaz_traits.html">add_diaz_traits()</a></code>
+
+        </dt>
+        <dd>Add seed mass and plant height (Diaz et al. 2022)</dd>
+
+        <dt>
+
+          <code><a href="add_leda.html">add_leda()</a></code>
+
+        </dt>
+        <dd>Add plant traits from LEDA Traitbase</dd>
+
+        <dt>
+
+          <code><a href="add_groot.html">add_groot()</a></code>
+
+        </dt>
+        <dd>Add root traits (GRooT)</dd>
+
+        <dt>
+
+          <code><a href="add_baseflor.html">add_baseflor()</a></code>
+
+        </dt>
+        <dd>Add plant traits from Baseflor (Catminat / Julve)</dd>
+
+        <dt>
+
+          <code><a href="add_ecoflora.html">add_ecoflora()</a></code>
+
+        </dt>
+        <dd>Add British plant traits from Ecoflora</dd>
+
+        <dt>
+
+          <code><a href="add_floraweb.html">add_floraweb()</a></code>
+
+        </dt>
+        <dd>Add German plant traits from FloraWeb</dd>
+
+        <dt>
+
+          <code><a href="add_austraits.html">add_austraits()</a></code>
+
+        </dt>
+        <dd>Add Australian plant traits (AusTraits)</dd>
+
+        <dt>
+
+          <code><a href="add_bien.html">add_bien()</a></code>
+
+        </dt>
+        <dd>Add plant traits (BIEN)</dd>
+
+        <dt>
+
+          <code><a href="add_brot.html">add_brot()</a></code>
+
+        </dt>
+        <dd>Add Mediterranean plant traits (BROT 2.0)</dd>
+
+        <dt>
+
+          <code><a href="add_bet.html">add_bet()</a></code>
+
+        </dt>
+        <dd>Add bryophyte traits (Bryophytes of Europe Traits)</dd>
+
+        <dt>
+
+          <code><a href="add_kew_sid.html">add_kew_sid()</a></code>
+
+        </dt>
+        <dd>Add seed traits from the Kew Seed Information Database (SER-SID)</dd>
+
+        <dt>
+
+          <code><a href="add_useful_plants.html">add_useful_plants()</a></code>
+
+        </dt>
+        <dd>Add human-use categories (World Checklist of Useful Plant Species)</dd>
+
+        <dt>
+
+          <code><a href="add_gwdd.html">add_gwdd()</a></code>
+
+        </dt>
+        <dd>Add wood density (Global Wood Density Database v2)</dd>
+
+        <dt>
+
+          <code><a href="add_pignatti.html">add_pignatti()</a></code>
+
+        </dt>
+        <dd>Add Italian plant traits from Pignatti (on demand, via TR8)</dd>
+
+        <dt>
+
+          <code><a href="add_gift.html">add_gift()</a></code>
+
+        </dt>
+        <dd>Add plant traits from GIFT</dd>
+
+        <dt>
+
+          <code><a href="gift_traits.html">gift_traits()</a></code>
+
+        </dt>
+        <dd>Browse the bundled GIFT trait columns</dd>
+      </dl></div><div class="section level2">
+      <h2 id="enrichments-fungi-algae-lichens-and-microbes">Enrichments — fungi, algae, lichens, and microbes<a class="anchor" aria-label="anchor" href="#enrichments-fungi-algae-lichens-and-microbes"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="add_fungal_traits.html">add_fungal_traits()</a></code>
+
+        </dt>
+        <dd>Add fungal lifestyle and trait data (FungalTraits)</dd>
+
+        <dt>
+
+          <code><a href="add_fungalroot.html">add_fungalroot()</a></code>
+
+        </dt>
+        <dd>Add mycorrhizal type from FungalRoot</dd>
+
+        <dt>
+
+          <code><a href="add_funguild.html">add_funguild()</a></code>
+
+        </dt>
+        <dd>Add fungal functional guild data (FUNGuild)</dd>
+
+        <dt>
+
+          <code><a href="add_usda_fungus_host.html">add_usda_fungus_host()</a></code>
+
+        </dt>
+        <dd>Add fungal host breadth (USDA Fungus-Host Dataset)</dd>
+
+        <dt>
+
+          <code><a href="add_italic.html">add_italic()</a></code>
+
+        </dt>
+        <dd>Add Italian-lichen taxon-page traits (ITALIC)</dd>
+
+        <dt>
+
+          <code><a href="add_algae_traits.html">add_algae_traits()</a></code>
+
+        </dt>
+        <dd>Add macroalgal functional traits (AlgaeTraits)</dd>
+
+        <dt>
+
+          <code><a href="add_bacdive.html">add_bacdive()</a></code>
+
+        </dt>
+        <dd>Add bacterial and archaeal strain phenotypes (BacDive)</dd>
+
+        <dt>
+
+          <code><a href="add_madin.html">add_madin()</a></code>
+
+        </dt>
+        <dd>Add bacterial and archaeal traits (Madin et al.)</dd>
+
+        <dt>
+
+          <code><a href="add_rimet_phyto.html">add_rimet_phyto()</a></code>
+
+        </dt>
+        <dd>Add phytoplankton cell metrics (Rimet &amp; Druart)</dd>
+
+        <dt>
+
+          <code><a href="add_edwards_phyto.html">add_edwards_phyto()</a></code>
+
+        </dt>
+        <dd>Add phytoplankton nutrient-uptake traits (Edwards et al.)</dd>
+
+        <dt>
+
+          <code><a href="add_ramond.html">add_ramond()</a></code>
+
+        </dt>
+        <dd>Add marine protist functional traits (Ramond et al.)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="enrichments-birds-and-mammals">Enrichments — birds and mammals<a class="anchor" aria-label="anchor" href="#enrichments-birds-and-mammals"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="add_avonet.html">add_avonet()</a></code>
+
+        </dt>
+        <dd>Add bird morphology and migration (AVONET)</dd>
+
+        <dt>
+
+          <code><a href="add_birdbase.html">add_birdbase()</a></code>
+
+        </dt>
+        <dd>Add bird traits (BIRDBASE)</dd>
+
+        <dt>
+
+          <code><a href="add_nesttrait.html">add_nesttrait()</a></code>
+
+        </dt>
+        <dd>Add bird nest traits (NestTrait)</dd>
+
+        <dt>
+
           <code><a href="add_elton_traits.html">add_elton_traits()</a></code>
 
         </dt>
@@ -290,10 +651,96 @@
 
         <dt>
 
-          <code><a href="add_eupolltrait.html">add_eupolltrait()</a></code>
+          <code><a href="add_frugivoria.html">add_frugivoria()</a></code>
 
         </dt>
-        <dd>Add European pollinator traits (EuPollTrait)</dd>
+        <dd>Add Neotropical frugivore traits (Frugivoria)</dd>
+
+        <dt>
+
+          <code><a href="add_pantheria.html">add_pantheria()</a></code>
+
+        </dt>
+        <dd>Add mammal life-history traits (PanTHERIA)</dd>
+
+        <dt>
+
+          <code><a href="add_phylacine.html">add_phylacine()</a></code>
+
+        </dt>
+        <dd>Add mammal traits including extinct species (PHYLACINE)</dd>
+
+        <dt>
+
+          <code><a href="add_combine.html">add_combine()</a></code>
+
+        </dt>
+        <dd>Add mammal traits (COMBINE)</dd>
+
+        <dt>
+
+          <code><a href="add_homerange.html">add_homerange()</a></code>
+
+        </dt>
+        <dd>Add mammal home-range size (HomeRange)</dd>
+
+        <dt>
+
+          <code><a href="add_tetradensity.html">add_tetradensity()</a></code>
+
+        </dt>
+        <dd>Add population density (TetraDENSITY)</dd>
+
+        <dt>
+
+          <code><a href="add_eurobat.html">add_eurobat()</a></code>
+
+        </dt>
+        <dd>Add European bat traits (EuroBaTrait)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="enrichments-reptiles-amphibians-and-fish">Enrichments — reptiles, amphibians, and fish<a class="anchor" aria-label="anchor" href="#enrichments-reptiles-amphibians-and-fish"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="add_repttraits.html">add_repttraits()</a></code>
+
+        </dt>
+        <dd>Add reptile ecological traits and distribution (ReptTraits)</dd>
+
+        <dt>
+
+          <code><a href="add_chelonians.html">add_chelonians()</a></code>
+
+        </dt>
+        <dd>Add turtle traits (CheloniansTraits)</dd>
+
+        <dt>
+
+          <code><a href="add_amphibio.html">add_amphibio()</a></code>
+
+        </dt>
+        <dd>Add amphibian life-history traits (AmphiBIO)</dd>
+
+        <dt>
+
+          <code><a href="add_huang_amph.html">add_huang_amph()</a></code>
+
+        </dt>
+        <dd>Add amphibian morphometrics (Huang)</dd>
+
+        <dt>
+
+          <code><a href="add_pottier.html">add_pottier()</a></code>
+
+        </dt>
+        <dd>Add amphibian heat tolerance (Pottier)</dd>
 
         <dt>
 
@@ -311,164 +758,17 @@
 
         <dt>
 
-          <code><a href="add_floraweb.html">add_floraweb()</a></code>
+          <code><a href="add_beukhof.html">add_beukhof()</a></code>
 
         </dt>
-        <dd>Add German plant traits from FloraWeb</dd>
+        <dd>Add marine fish traits (Beukhof)</dd>
 
         <dt>
 
-          <code><a href="add_frugivoria.html">add_frugivoria()</a></code>
+          <code><a href="add_quimbayo.html">add_quimbayo()</a></code>
 
         </dt>
-        <dd>Add Neotropical frugivore traits (Frugivoria)</dd>
-
-        <dt>
-
-          <code><a href="add_fungalroot.html">add_fungalroot()</a></code>
-
-        </dt>
-        <dd>Add mycorrhizal type from FungalRoot</dd>
-
-        <dt>
-
-          <code><a href="add_fungal_traits.html">add_fungal_traits()</a></code>
-
-        </dt>
-        <dd>Add fungal lifestyle and trait data (FungalTraits)</dd>
-
-        <dt>
-
-          <code><a href="add_funguild.html">add_funguild()</a></code>
-
-        </dt>
-        <dd>Add fungal functional guild data (FUNGuild)</dd>
-
-        <dt>
-
-          <code><a href="add_gbif_info.html">add_gbif_info()</a></code>
-
-        </dt>
-        <dd>Add GBIF-specific columns</dd>
-
-        <dt>
-
-          <code><a href="add_gift.html">add_gift()</a></code>
-
-        </dt>
-        <dd>Add plant traits from GIFT</dd>
-
-        <dt>
-
-          <code><a href="add_globtherm.html">add_globtherm()</a></code>
-
-        </dt>
-        <dd>Add thermal tolerance limits (GlobTherm)</dd>
-
-        <dt>
-
-          <code><a href="add_glonaf.html">add_glonaf()</a></code>
-
-        </dt>
-        <dd>Add naturalized alien flora status (GloNAF)</dd>
-
-        <dt>
-
-          <code><a href="add_griis.html">add_griis()</a></code>
-
-        </dt>
-        <dd>Add invasive species status (GRIIS)</dd>
-
-        <dt>
-
-          <code><a href="add_groot.html">add_groot()</a></code>
-
-        </dt>
-        <dd>Add root traits (GRooT)</dd>
-
-        <dt>
-
-          <code><a href="add_gwdd.html">add_gwdd()</a></code>
-
-        </dt>
-        <dd>Add wood density (Global Wood Density Database v2)</dd>
-
-        <dt>
-
-          <code><a href="add_homerange.html">add_homerange()</a></code>
-
-        </dt>
-        <dd>Add mammal home-range size (HomeRange)</dd>
-
-        <dt>
-
-          <code><a href="add_huang_amph.html">add_huang_amph()</a></code>
-
-        </dt>
-        <dd>Add amphibian morphometrics (Huang)</dd>
-
-        <dt>
-
-          <code><a href="add_hybrid_info.html">add_hybrid_info()</a></code>
-
-        </dt>
-        <dd>Add hybrid parent and type information</dd>
-
-        <dt>
-
-          <code><a href="add_iucn.html">add_iucn()</a></code>
-
-        </dt>
-        <dd>Add IUCN Red List conservation status</dd>
-
-        <dt>
-
-          <code><a href="add_leda.html">add_leda()</a></code>
-
-        </dt>
-        <dd>Add plant traits from LEDA Traitbase</dd>
-
-        <dt>
-
-          <code><a href="add_leptraits.html">add_leptraits()</a></code>
-
-        </dt>
-        <dd>Add butterfly traits (LepTraits)</dd>
-
-        <dt>
-
-          <code><a href="add_madin.html">add_madin()</a></code>
-
-        </dt>
-        <dd>Add bacterial and archaeal traits (Madin et al.)</dd>
-
-        <dt>
-
-          <code><a href="add_nztd.html">add_nztd()</a></code>
-
-        </dt>
-        <dd>Add NZ marine benthos traits (NZTD)</dd>
-
-        <dt>
-
-          <code><a href="add_octocoral.html">add_octocoral()</a></code>
-
-        </dt>
-        <dd>Add octocoral traits (Octocoral Trait Database)</dd>
-
-        <dt>
-
-          <code><a href="add_odonata.html">add_odonata()</a></code>
-
-        </dt>
-        <dd>Add odonate behavioural/ecological traits (OPD)</dd>
-
-        <dt>
-
-          <code><a href="add_pantheria.html">add_pantheria()</a></code>
-
-        </dt>
-        <dd>Add mammal life-history traits (PanTHERIA)</dd>
+        <dd>Add reef-fish traits (Quimbayo)</dd>
 
         <dt>
 
@@ -486,73 +786,26 @@
 
         <dt>
 
-          <code><a href="add_phylacine.html">add_phylacine()</a></code>
-
-        </dt>
-        <dd>Add mammal traits including extinct species (PHYLACINE)</dd>
-
-        <dt>
-
-          <code><a href="add_pignatti.html">add_pignatti()</a></code>
-
-        </dt>
-        <dd>Add Italian plant traits from Pignatti (on demand, via TR8)</dd>
-
-        <dt>
-
-          <code><a href="add_pottier.html">add_pottier()</a></code>
-
-        </dt>
-        <dd>Add amphibian heat tolerance (Pottier)</dd>
-
-        <dt>
-
-          <code><a href="add_quimbayo.html">add_quimbayo()</a></code>
-
-        </dt>
-        <dd>Add reef-fish traits (Quimbayo)</dd>
-
-        <dt>
-
-          <code><a href="add_repttraits.html">add_repttraits()</a></code>
-
-        </dt>
-        <dd>Add reptile ecological traits and distribution (ReptTraits)</dd>
-
-        <dt>
-
-          <code><a href="add_rimet_phyto.html">add_rimet_phyto()</a></code>
-
-        </dt>
-        <dd>Add phytoplankton cell metrics (Rimet &amp; Druart)</dd>
-
-        <dt>
-
-          <code><a href="add_saproxylic.html">add_saproxylic()</a></code>
-
-        </dt>
-        <dd>Add saproxylic beetle morphology (Hagge)</dd>
-
-        <dt>
-
-          <code><a href="add_sealifebase.html">add_sealifebase()</a></code>
-
-        </dt>
-        <dd>Add aquatic-life traits (SeaLifeBase)</dd>
-
-        <dt>
-
           <code><a href="add_sharkipedia.html">add_sharkipedia()</a></code>
 
         </dt>
         <dd>Add elasmobranch life-history traits (Sharkipedia)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="enrichments-invertebrates-and-aquatic-life">Enrichments — invertebrates and aquatic life<a class="anchor" aria-label="anchor" href="#enrichments-invertebrates-and-aquatic-life"></a></h2>
 
-        <dt>
 
-          <code><a href="add_sheld.html">add_sheld()</a></code>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="add_arthropod_traits.html">add_arthropod_traits()</a></code>
 
         </dt>
-        <dd>Add freshwater mussel traits (SHELD)</dd>
+        <dd>Add arthropod life-history traits (NW European Arthropods)</dd>
 
         <dt>
 
@@ -563,52 +816,66 @@
 
         <dt>
 
-          <code><a href="add_tetradensity.html">add_tetradensity()</a></code>
+          <code><a href="add_bee_ostwald.html">add_bee_ostwald()</a></code>
 
         </dt>
-        <dd>Add population density (TetraDENSITY)</dd>
+        <dd>Add bee morphometrics (Ostwald)</dd>
 
         <dt>
 
-          <code><a href="add_trait.html">add_trait()</a></code>
+          <code><a href="add_eupolltrait.html">add_eupolltrait()</a></code>
 
         </dt>
-        <dd>Add a trait from every source that carries it</dd>
+        <dd>Add European pollinator traits (EuPollTrait)</dd>
 
         <dt>
 
-          <code><a href="add_tree_of_sex.html">add_tree_of_sex()</a></code>
+          <code><a href="add_leptraits.html">add_leptraits()</a></code>
 
         </dt>
-        <dd>Add sex-determination traits (Tree of Sex)</dd>
+        <dd>Add butterfly traits (LepTraits)</dd>
 
         <dt>
 
-          <code><a href="add_useful_plants.html">add_useful_plants()</a></code>
+          <code><a href="add_odonata.html">add_odonata()</a></code>
 
         </dt>
-        <dd>Add human-use categories (World Checklist of Useful Plant Species)</dd>
+        <dd>Add odonate behavioural/ecological traits (OPD)</dd>
 
         <dt>
 
-          <code><a href="add_wcvp.html">add_wcvp()</a></code>
+          <code><a href="add_saproxylic.html">add_saproxylic()</a></code>
 
         </dt>
-        <dd>Add WCVP native range status</dd>
+        <dd>Add saproxylic beetle morphology (Hagge)</dd>
 
         <dt>
 
-          <code><a href="add_wfo_info.html">add_wfo_info()</a></code>
+          <code><a href="add_hosts.html">add_hosts()</a></code>
 
         </dt>
-        <dd>Add WFO-specific columns</dd>
+        <dd>Add Lepidoptera hostplant breadth (NHM HOSTS)</dd>
 
         <dt>
 
-          <code><a href="add_zanne.html">add_zanne()</a></code>
+          <code><a href="add_blanchard.html">add_blanchard()</a></code>
 
         </dt>
-        <dd>Add woodiness (Zanne et al. 2014)</dd>
+        <dd>Add ant genus defensive traits (Blanchard &amp; Moreau)</dd>
+
+        <dt>
+
+          <code><a href="add_coral_traits.html">add_coral_traits()</a></code>
+
+        </dt>
+        <dd>Add scleractinian coral traits (Coral Trait Database)</dd>
+
+        <dt>
+
+          <code><a href="add_octocoral.html">add_octocoral()</a></code>
+
+        </dt>
+        <dd>Add octocoral traits (Octocoral Trait Database)</dd>
 
         <dt>
 
@@ -619,166 +886,99 @@
 
         <dt>
 
-          <code><a href="cite.html">cite()</a></code>
+          <code><a href="add_arctic_traits.html">add_arctic_traits()</a></code>
 
         </dt>
-        <dd>Cite data sources used in a taxify result</dd>
+        <dd>Add Arctic marine benthos traits</dd>
 
         <dt>
 
-          <code><a href="export_data.html">export_data()</a></code>
+          <code><a href="add_nztd.html">add_nztd()</a></code>
 
         </dt>
-        <dd>Export a taxify result to file</dd>
+        <dd>Add NZ marine benthos traits (NZTD)</dd>
 
         <dt>
 
-          <code><a href="gift_traits.html">gift_traits()</a></code>
+          <code><a href="add_disperse.html">add_disperse()</a></code>
 
         </dt>
-        <dd>Browse the bundled GIFT trait columns</dd>
+        <dd>Add aquatic-invertebrate dispersal traits (DISPERSE)</dd>
 
         <dt>
 
-          <code><a href="inspect.html">inspect()</a></code>
+          <code><a href="add_freshwater_insects_conus.html">add_freshwater_insects_conus()</a></code>
 
         </dt>
-        <dd>Inspect a name list for probable typos and other anomalies</dd>
+        <dd>Add freshwater-insect genus traits (Freshwater Insects CONUS)</dd>
 
         <dt>
 
-          <code><a href="list_enrichments.html">list_enrichments()</a></code>
+          <code><a href="add_thermofresh.html">add_thermofresh()</a></code>
 
         </dt>
-        <dd>List available enrichments</dd>
+        <dd>Add freshwater thermal-tolerance traits (ThermoFresh)</dd>
 
         <dt>
 
-          <code><a href="list_traits.html">list_traits()</a></code>
+          <code><a href="add_sheld.html">add_sheld()</a></code>
 
         </dt>
-        <dd>List the traits available to add_trait()</dd>
+        <dd>Add freshwater mussel traits (SHELD)</dd>
 
         <dt>
 
-          <code><a href="lookup_genus.html">lookup_genus()</a></code>
+          <code><a href="add_sealifebase.html">add_sealifebase()</a></code>
 
         </dt>
-        <dd>Look up a genus in the register</dd>
+        <dd>Add aquatic-life traits (SeaLifeBase)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="enrichments-cross-taxon">Enrichments — cross-taxon<a class="anchor" aria-label="anchor" href="#enrichments-cross-taxon"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="add_amniote.html">add_amniote()</a></code>
+
+        </dt>
+        <dd>Add amniote life-history traits (Amniote Life History Database)</dd>
 
         <dt>
 
-          <code><a href="print.taxify_inspection.html">print(<i>&lt;taxify_inspection&gt;</i>)</a></code>
+          <code><a href="add_anage.html">add_anage()</a></code>
 
         </dt>
-        <dd>Print a taxify inspection report</dd>
+        <dd>Add longevity and life-history traits (AnAge)</dd>
 
         <dt>
 
-          <code><a href="print.taxify_result.html">print(<i>&lt;taxify_result&gt;</i>)</a></code>
+          <code><a href="add_animaltraits.html">add_animaltraits()</a></code>
 
         </dt>
-        <dd>Print a taxify_result</dd>
+        <dd>Add cross-taxon body mass and metabolic rate (AnimalTraits)</dd>
 
         <dt>
 
-          <code><a href="summary.taxify_result.html">summary(<i>&lt;taxify_result&gt;</i>)</a></code>
+          <code><a href="add_globtherm.html">add_globtherm()</a></code>
 
         </dt>
-        <dd>Summarise a taxify_result</dd>
+        <dd>Add thermal tolerance limits (GlobTherm)</dd>
 
         <dt>
 
-          <code><a href="taxify.html">taxify()</a></code>
+          <code><a href="add_tree_of_sex.html">add_tree_of_sex()</a></code>
 
         </dt>
-        <dd>Match taxonomic names against local backbone databases</dd>
-
-        <dt>
-
-          <code><a href="taxify_clear_cache.html">taxify_clear_cache()</a></code>
-
-        </dt>
-        <dd>Clear all cached backbones</dd>
-
-        <dt>
-
-          <code><a href="taxify_data_dir.html">taxify_data_dir()</a></code>
-
-        </dt>
-        <dd>Get the taxify data directory</dd>
-
-        <dt>
-
-          <code><a href="taxify_download.html">taxify_download()</a></code>
-
-        </dt>
-        <dd>Download a backbone database</dd>
-
-        <dt>
-
-          <code><a href="taxify_download_enrichment.html">taxify_download_enrichment()</a></code>
-
-        </dt>
-        <dd>Download one or more enrichment .vtr files</dd>
-
-        <dt>
-
-          <code><a href="taxify_download_vtr.html">taxify_download_vtr()</a></code>
-
-        </dt>
-        <dd>Download a taxify backbone</dd>
-
-        <dt>
-
-          <code><a href="taxify_example_data.html">taxify_example_data()</a></code>
-
-        </dt>
-        <dd>Path to the bundled example database</dd>
-
-        <dt>
-
-          <code><a href="taxify_load_register.html">taxify_load_register()</a></code>
-
-        </dt>
-        <dd>Load the unified genus register into memory</dd>
-
-        <dt>
-
-          <code><a href="taxify_long.html">taxify_long()</a></code>
-
-        </dt>
-        <dd>Reshape grouped enrichment columns to long format</dd>
-
-        <dt>
-
-          <code><a href="taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code>
-
-        </dt>
-        <dd>Invalidate the session manifest cache</dd>
-
-        <dt>
-
-          <code><a href="taxify_regions.html">taxify_regions()</a></code>
-
-        </dt>
-        <dd>List TDWG botanical regions</dd>
-
-        <dt>
-
-          <code><a href="taxify_register_coverage.html">taxify_register_coverage()</a></code>
-
-        </dt>
-        <dd>Show backend coverage for a genus</dd>
-
-        <dt>
-
-          <code><a href="trait_info.html">trait_info()</a></code>
-
-        </dt>
-        <dd>Describe a trait's sources and units</dd>
+        <dd>Add sex-determination traits (Tree of Sex)</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,9 +138,12 @@ default), <code>"levenshtein"</code>, or <code>"jw"</code> (Jaro-Winkler).</p></
 <code>agg.</code> / <code>s.l.</code> qualifier). <code>"preserve"</code> (default) keeps the aggregate as
 its own concept: it matches the backbone's aggregate taxon
 (<code>"&lt;binomial&gt; aggr."</code>) where one exists, otherwise falls back to the
-binomial. <code>"collapse"</code> strips the marker and matches the binomial species,
-the way any non-aggregate name is matched. Either way the qualifier is
-recorded in the <code>qualifier</code> column.</p></dd>
+binomial. When it falls back, the <code>aggregate_fallback</code> column is set <code>TRUE</code>
+so the aggregate-to-species collapse is visible rather than silent (only
+the aggregate-bearing backbones – Euro+Med, WoRMS – carry aggregate taxa,
+so preserve falls back for the others). <code>"collapse"</code> strips the marker and
+matches the binomial species, the way any non-aggregate name is matched.
+Either way the qualifier is recorded in the <code>qualifier</code> column.</p></dd>
 
 
 <dt id="arg-region">region<a class="anchor" aria-label="anchor" href="#arg-region"></a></dt>
@@ -243,6 +246,13 @@ accepted name's full citation.</p></dd>
 qualifies the whole name (e.g. <code>"Cf. Pinus sylvestris"</code>), <code>"species"</code>
 when it qualifies the species (inline <code>cf.</code> or trailing <code>agg.</code>), <code>NA</code>
 when there is no qualifier.</p></dd>
+
+<dt>aggregate_fallback</dt>
+<dd><p>Logical. For an aggregate query under
+<code>aggregates = "preserve"</code>: <code>FALSE</code> when it resolved to the backbone's
+dedicated aggregate taxon, <code>TRUE</code> when no such taxon existed and it fell
+back to the nominal binomial. <code>NA</code> for non-aggregate queries and under
+<code>aggregates = "collapse"</code>, where the collapse is explicit.</p></dd>
 
 <dt>match_type</dt>
 <dd><p>One of <code>"exact"</code>, <code>"exact_ci"</code>, <code>"fuzzy"</code>, <code>"abbrev"</code>

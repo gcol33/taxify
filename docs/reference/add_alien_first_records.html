@@ -24,7 +24,7 @@ by country. Data from the Global Alien Species First Record Database
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,7 @@ by country. Data from the Global Alien Species First Record Database
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_alien_first_records</span><span class="op">(</span><span class="va">x</span>, <span class="va">country</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_alien_first_records</span><span class="op">(</span><span class="va">x</span>, <span class="va">country</span>, cols <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -99,6 +99,13 @@ by country. Data from the Global Alien Species First Record Database
 country suffix (e.g., <code>alien_first_record_AT</code>).</p></li>
 <li><p><code>"all"</code>: adds one column set per country in the dataset.</p></li>
 </ul></dd>
+
+
+<dt id="arg-cols">cols<a class="anchor" aria-label="anchor" href="#arg-cols"></a></dt>
+<dd><p>Character vector of value columns to attach (from
+<code>alien_first_record</code>, <code>alien_first_record_source</code>,
+<code>alien_first_record_reference</code>), or <code>"all"</code>. <code>NULL</code> (default) attaches all
+three.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

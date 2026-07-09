@@ -9,7 +9,7 @@ and joins on the `genus` column already present in taxify output.
 ## Usage
 
 ``` r
-add_fungal_traits(x, verbose = TRUE)
+add_fungal_traits(x, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -18,6 +18,12 @@ add_fungal_traits(x, verbose = TRUE)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+- cols:
+
+  Which columns to attach: `NULL` (default) the curated set, `"all"`
+  every column the source carries, or a character vector of names. See
+  [`enrichment_cols`](https://gillescolling.com/taxify/reference/enrichment_cols.md).
 
 - verbose:
 

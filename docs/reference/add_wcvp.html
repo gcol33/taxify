@@ -22,7 +22,7 @@ data to a taxify() result, filtered by TDWG botanical region."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,7 @@ data to a <code><a href="taxify.html">taxify()</a></code> result, filtered by TD
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_wcvp</span><span class="op">(</span><span class="va">x</span>, <span class="va">region</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_wcvp</span><span class="op">(</span><span class="va">x</span>, <span class="va">region</span>, cols <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -98,6 +98,12 @@ column (no suffix).</p></li>
 <code>native_status_BGM</code>, <code>native_status_GER</code>.</p></li>
 <li><p><code>"all"</code>: adds one column per region in the dataset.</p></li>
 </ul></dd>
+
+
+<dt id="arg-cols">cols<a class="anchor" aria-label="anchor" href="#arg-cols"></a></dt>
+<dd><p>Which columns to attach. <code>NULL</code> (the default) attaches the
+curated set; a character vector of column names attaches just those, and
+<code>"all"</code> attaches every column the source carries (see <code><a href="enrichment_cols.html">enrichment_cols()</a></code>).</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

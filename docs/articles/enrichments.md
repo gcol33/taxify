@@ -257,59 +257,57 @@ list_traits()
 #> 4          sla Specific leaf area     numeric mm2/mg         2  leda, gift
 ```
 
-By default (`mode = "wide"`) each source becomes its own column,
-`<trait>_<source>`, so agreement and disagreement between sources stay
-visible. Woodiness comes from both Zanne et al. and GIFT, harmonized to
-one vocabulary (`woody` / `non-woody` / `variable`):
-
-``` r
-
-taxify("Abies alba") |>
-  add_trait("woodiness")
-#> # accepted_name  ... woodiness_zanne woodiness_gift
-#> # Abies alba     ...           woody          woody
-```
-
-Numeric traits are returned in one canonical unit regardless of how each
-source stores them. GIFT records seed mass in grams and Diaz et al. in
-milligrams; `add_trait("seed_mass")` returns both in milligrams:
+By default (`mode = "coalesce"`)
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+returns one value per row plus the columns that document it:
+`<trait>_unit`, `<trait>_sources`, and `<trait>_n`. Numeric traits are
+returned in one canonical unit regardless of how each source stores
+them. GIFT records seed mass in grams and Diaz et al. in milligrams;
+`add_trait("seed_mass")` reconciles both to milligrams and reports the
+median:
 
 ``` r
 
 taxify("Abies alba") |>
   add_trait("seed_mass")
-#> # accepted_name  ... seed_mass_diaz seed_mass_gift
-#> # Abies alba     ...         62.007        73.9425
+#> # accepted_name  ... seed_mass seed_mass_unit seed_mass_sources seed_mass_n
+#> # Abies alba     ...   67.9748             mg        diaz,gift            2
 ```
 
-For one value per row, `mode = "coalesce"` takes the highest-priority
-source that has a value and records which source it came from, plus how
-many sources had any value:
+To inspect the sources individually, `mode = "wide"` gives each its own
+column, `<trait>_<source>`. Woodiness comes from both Zanne et al. and
+GIFT, harmonized to one vocabulary (`woody` / `non-woody` / `variable`):
 
 ``` r
 
 taxify("Abies alba") |>
-  add_trait("seed_mass", mode = "coalesce")
-#> # accepted_name  ... seed_mass seed_mass_source seed_mass_n
-#> # Abies alba     ...    62.007             diaz           2
+  add_trait("woodiness", mode = "wide")
+#> # accepted_name  ... woodiness_zanne woodiness_gift
+#> # Abies alba     ...           woody          woody
 ```
 
+When a trait’s sources measure it by different methods,
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+does not average them. It reports the most complete source and adds a
+`<trait>_caution` column explaining the difference. Root diameter, for
+example, is fine-root in GRooT but a maximum (including coarse roots) in
+AusTraits, so the two are not blended into a value matching neither.
+
 [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
-lists a trait’s sources, units, and the harmonization applied to each:
+lists a trait’s sources, units, the harmonization applied to each, and
+any method caution:
 
 ``` r
 
 trait_info("seed_mass")
 #> Seed mass (numeric, mg)  |  default priority: diaz > gift
-#>   source  enrichment       column                   note
-#> 1   diaz diaz_traits seed_mass_mg            Milligrams.
-#> 2   gift        gift gift_seed_mass_mean GIFT grams converted to mg (x1000).
+#>   source  enrichment       column                   note caution
+#> 1   diaz diaz_traits seed_mass_mg            Milligrams.      NA
+#> 2   gift        gift gift_seed_mass_mean GIFT grams -> mg.    NA
 ```
 
-Sources are never silently merged: `"wide"` keeps every source visible,
-and `"coalesce"` always records provenance in `<trait>_source`. Restrict
-to particular sources with `sources =`, and set the coalesce order with
-`priority =`.
+Restrict to particular sources with `sources =`, set the reducer with
+`combine =`, and set the source order with `priority =`.
 
 Enrichment doors are named after their source
 ([`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md),

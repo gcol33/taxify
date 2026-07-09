@@ -19,7 +19,7 @@ for France).
 ## Usage
 
 ``` r
-add_floraweb(x, verbose = TRUE)
+add_floraweb(x, cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -28,6 +28,15 @@ add_floraweb(x, verbose = TRUE)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+- cols:
+
+  Which FloraWeb columns to attach. `NULL` (the default) attaches all of
+  them; a character vector of `_de` column names attaches just those
+  (see
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md),
+  or the columns listed below). Pass `"all"` for the full set
+  explicitly.
 
 - verbose:
 

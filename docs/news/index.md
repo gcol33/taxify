@@ -1,6 +1,235 @@
 # Changelog
 
-## taxify (development version)
+## taxify 0.3.4
+
+### Bug fixes
+
+- `clean_names()` recognizes a much wider set of taxonomic qualifiers
+  and rank abbreviations. Previously an unrecognized marker survived
+  into the cleaned name, so the name no longer matched the backbone’s
+  bare binomial/trinomial (it dropped to fuzzy) and the annotation was
+  lost from the `qualifier` column. Now folded to their canonical
+  tokens: the subspecies abbreviations `ssp.` and `nssp.` and the
+  spelled-out `subspecies` (to `subsp.`); the sensu-stricto form `s.s.`
+  (to `s.str.`); the forma spellings `fo.` and `forma` (to `f.`); the
+  infraspecific ranks `subvar.`, `subf.`, and `convar.`; the notho-
+  (hybrid) ranks `nothosubsp.` and `nothovar.` (to `subsp.`/`var.`, the
+  hybrid signal being carried separately by the multiplication sign);
+  cultivar `cv.`; the pathogen infrasubspecific categories `f. sp.`
+  (forma specialis, previously mislabelled as a bare forma) and `pv.`
+  (pathovar); the determination marker `nr.` (“near”); the
+  open-nomenclature markers `indet.` and `sp. nov.`; the long and bare
+  concept forms `s. lat.` and `coll.` (to `s.l.`); and the species-group
+  markers `group` and `gr.`. Each token matches only as a whole trailing
+  word, so it never touches a real epithet (`Carex novae-zelandiae` and
+  `Convallaria majalis` are untouched). The qualifier registry in
+  `R/clean.R` remains the single source of truth for every spelling.
+
+## taxify 0.3.3
+
+### New features
+
+- WCVP and LCVP join the plant backbones. `taxify(x, backend = "wcvp")`
+  matches against Kew’s World Checklist of Vascular Plants (Govaerts et
+  al. 2021, ~1.4M names, CC BY 4.0); `backend = "lcvp"` matches the
+  Leipzig Catalogue of Vascular Plants (Freiberg et al. 2020, MIT). Both
+  slot into the fallback chain (`backend = c("wcvp", "wfo")`) and
+  contribute their genera (kingdom Plantae) to the unified genus
+  register. Fifteen backbones are now available.
+- Four new verbs read the backbone in the directions
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  does not.
+  [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
+  lists every synonym that resolves to a name’s accepted taxon (the
+  reverse of the forward resolution).
+  [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md)
+  fills the higher ranks (kingdom, phylum, class, order) from the
+  matched backbone, complementing the `family` and `genus` already in
+  the core output.
+  [`children()`](https://gillescolling.com/taxify/reference/children.md)
+  lists the accepted taxa within a genus or family, for building a
+  checklist rather than only validating one.
+  [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)
+  expands an ambiguous match (`is_ambiguous`) into one row per candidate
+  accepted taxon, so homonyms can be resolved by hand.
+- [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  gains an `aggregate_fallback` column that makes the default
+  `aggregates = "preserve"` accountable. Where a backbone carries no
+  dedicated aggregate taxon for an aggregate query, preserve falls back
+  to the nominal binomial; that collapse is now flagged (`TRUE` on
+  fallback, `FALSE` when the aggregate taxon was matched, `NA` for
+  non-aggregate queries and under `collapse`) rather than being silent.
+  Only Euro+Med (433 aggregate taxa) and WoRMS (189) carry them, so
+  preserve is a no-op for the other backbones – the flag now says so per
+  row.
+- [`add_kew_sid()`](https://gillescolling.com/taxify/reference/add_kew_sid.md)
+  opens the Kew Seed Information Database (SER-SID, CC BY 2.0): seed
+  weight (thousand-seed weight over 42,000 species), storage behaviour
+  (orthodox/recalcitrant/intermediate), oil and protein content, life
+  form, and fruit type, joined on `accepted_name` across 50,146 accepted
+  names. Verified end-to-end (*Quercus robur* 3493 g/1000 seeds and
+  recalcitrant; *Helianthus annuus* 43.5% seed oil). Its seed weight
+  also joins the cross-source `add_trait("seed_mass")` verb as a seventh
+  source (a thousand-seed weight in grams equals the per-seed mass in
+  mg; grounded at ratio 1.00 against Diaz, BIEN, and AusTraits), roughly
+  doubling seed-mass species coverage.
+- [`add_edwards_phyto()`](https://gillescolling.com/taxify/reference/add_edwards_phyto.md)
+  opens the Edwards et al. (2015) phytoplankton nutrient-utilization
+  database (~130 species): Droop/Monod uptake and growth parameters for
+  ammonium, nitrate, and phosphorus (`mu`/`k`/`vmax`/`qmin`/`qmax`),
+  plus cell volume, carbon content, taxonomic group, and
+  marine/freshwater habitat. A curated core attaches by default;
+  `cols = "all"` surfaces every uptake parameter. Door-only
+  (single-source physiology with no cross-source analogue), so it stays
+  out of the
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  verb. Verified end-to-end (*Alexandrium catenella* recovered as a
+  marine dinoflagellate).
+- Nine new
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  traits covering algae, marine-benthic invertebrates, and octocorals,
+  each grounded on its source’s own vocabulary before wiring. Algae
+  (AlgaeTraits): `calcification`, `gamete_type`, `algal_life_cycle`
+  (dominant ploidy phase), `algal_substrate`. Marine benthos, harmonized
+  across two sources (Arctic Traits + New Zealand Trait Database):
+  `bioturbation` (Solan/Queiros functional groups), `living_habit`,
+  `feeding_guild`. Octocoral (Gomez-Gras et al. 2024):
+  `skeletal_rigidity`, `colony_growth_form`. Verified end-to-end
+  (Corallina calcified-articulated, Fucus diplontic, Laminaria
+  haplodiplontic; the bryozoan Alcyonidium gelatinosum an attached
+  suspension-feeder with no bioturbation).
+- Seven new single-source
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  traits, each grounded on its source’s own values before wiring:
+  `gc_content` (prokaryote genome GC %, Madin et al.
+  2020. and `sporulation` (endospore formation, same source), extending
+        the prokaryote block; `larval_nutrition` (bee larval food,
+        EuPollTrait); `colour_lightness` (beetle body greyness 0-255,
+        saproxylic beetle traits, a melanism axis); `cell_surface_area`
+        (microalgae, um2, Rimet et al., alongside
+        `cell_length`/`cell_width`/`cell_thickness`/`cell_biovolume`);
+        `carapace_length` (turtle, mm, TurtleTraits); and
+        `parental_care` (fish Balon reproductive guild
+        guarder/non-guarder/bearer, Beukhof et al. 2019). Verified
+        end-to-end (Thermus aquaticus GC 67%, Bacillus subtilis
+        sporulates, leatherback carapace 2.26 m, stickleback a guarder).
+        `add_trait("fruit_type")` also gains AusTraits as a third plant
+        source.
+- Three new
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  traits, each grounded on the source’s own values before wiring:
+  `zooxanthellate` (coral symbiotic state, from the Coral Trait Database
+  and the octocoral dataset, which share the
+  zooxanthellate/azooxanthellate vocabulary), `optimal_growth_ph`
+  (prokaryote, from Madin et al. 2020, the pH companion to
+  `optimal_growth_temperature`), and `cell_thickness` (microalgae, from
+  Rimet et al., alongside the existing
+  `cell_length`/`cell_width`/`cell_biovolume`).
+- `add_trait("diet_guild")` now also draws on EltonTraits (Wilman et
+  al. 2014), extending diet guilds from birds and reptiles to mammals.
+  The guild is derived from the ten EltonTraits diet fractions (built
+  into `elton_traits.vtr`) and agrees 93% with EltonTraits’ own diet
+  classification and 83% with AVONET.
+  [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md)
+  exposes the same `diet_guild` column directly.
+- `add_trait("ellenberg_salt")` gains Baseflor as a third source: its
+  salinity column is on the same 0-9 Ellenberg scale as FloraWeb and
+  Ecoflora (Pearson r = 0.88 on shared species), so it joins them
+  without rescaling.
+- New
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  traits `egg_length` and `egg_width` (mm) gather reptile, bird, and
+  turtle egg dimensions from the Amniote database, ReptTraits, and
+  TurtleTraits, which agree to within measurement noise on shared
+  species.
+- New `add_trait("brain_mass")` (g) coalesces COMBINE with AnimalTraits
+  (kg converted to grams), calibrated 1:1 on shared species.
+- Wider taxonomic coverage for several life-history traits, each source
+  shared-species calibrated before it was added:
+  `reproductive_frequency` now spans mammals through reptiles and
+  turtles (AnAge, PanTHERIA, ReptTraits, TurtleTraits added);
+  `clutch_litter_size` gains turtles (TurtleTraits) and birds
+  (Birdbase); `age_at_maturity` gains turtles and fish (TurtleTraits,
+  Beukhof); and `longevity` gains fish (Beukhof, whose ~390 yr maximum
+  is the Greenland shark).
+- `add_trait("pollination_vector")` gains FloraWeb and AusTraits, which
+  agree 82-91% with the existing Baseflor and Ecoflora sources on shared
+  species. Named insect taxa (bee, beetle, fly, …) resolve to `insect`;
+  AusTraits’ coarse `biotic`/`abiotic` and animal (bird, bat) records
+  have no single vector in this vocabulary and stay `NA` rather than
+  being guessed.
+- Six new
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  traits, each numeric source shared-species calibrated (ratio ~1.00)
+  against a co-registered source before it was added: `male_maturity`
+  (yr; AnAge, Amniote, COMBINE – the male analogue of
+  `age_at_maturity`), `incubation_period` (days; Amniote, TurtleTraits
+  egg incubation, kept separate from the combined
+  `gestation_incubation`), `diet_breadth` (count of dietary categories;
+  COMBINE, PanTHERIA, Birdbase), `tongue_length` (mm; Ostwald,
+  EuPollTrait bee proboscis), `aspect_ratio` (caudal-fin aspect ratio;
+  Beukhof, Quimbayo), and `foraging_mode` (active/ambush/mixed;
+  ReptTraits, TurtleTraits).
+- `add_trait("diet_guild")` gains TurtleTraits and Blanchard ant diets,
+  mapped to the guild vocabulary by ordered regex (compound “omnivorous
+  to carnivorous” resolves to its primary guild; ant “predator” to
+  carnivore).
+- Six more
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  traits: `reproductive_mode` (oviparous/ovoviviparous/ viviparous;
+  ReptTraits plus Sharkipedia, whose shark strategies collapse to
+  viviparous); the coral-habitat traits `coloniality`, `wave_exposure`,
+  and `water_clarity` (Coral Trait DB and octocoral, sharing one
+  vocabulary); and `head_length`/`head_width` (mm; amphibian and beetle
+  morphometrics). The depth traits `depth_min`/`depth_max` gain coral
+  occurrence-depth limits (Coral Trait DB, octocoral) in the same metres
+  unit as the fish sources.
+- Eleven more
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  traits, including a new prokaryote domain from Madin et al. (2020):
+  `gram_stain`, `oxygen_metabolism`, `cell_shape`,
+  `optimal_growth_temperature` (deg C), and `genome_size` (bp). Also
+  `caudal_fin_shape` (Beukhof + Quimbayo fish fin shape), `voltinism`
+  (generations per year; Arthropod Traits + EuPollTrait), `migration`
+  (AVONET), `flightless` (BIRDBASE), `venomous` (ReptTraits), and
+  `sociality` (EuPollTrait bees). `thermal_max` gains Pottier amphibian
+  CTmax on the same degrees-C scale.
+- Nine more
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  traits: `wingspan` (mm; LepTraits butterflies, whose source column is
+  labelled mm but is actually cm, corrected on the known wingspans of
+  monarch, cabbage white, and swallowtail); `leaf_length` and
+  `leaf_width` (mm; AusTraits); `fungal_trophic_mode` (FUNGuild and
+  FungalTraits); `feeding_mode` and `mouth_position` (fish; Beukhof,
+  Quimbayo); `air_breathing` (FishBase); `motility` (prokaryote; Madin);
+  and `lecty` (bee pollen host breadth; EuPollTrait).
+
+### Bug fixes
+
+- Static enrichments now refresh their local cache when the source data
+  is rebuilt and re-released under the same tag. Previously a
+  version-locked enrichment never re-checked, so a cache downloaded
+  before a rebuild stayed stale forever (silent all-NA for any newly
+  added columns). The manifest now carries a `content_id` (an md5 of the
+  built `.vtr`); a static cache is reconciled against it entirely
+  offline, re-downloading only when the bytes actually changed. A
+  pre-existing cache with no stored id is hashed in place, so an
+  unchanged asset is adopted without a download. Fixes stale
+  [`add_nesttrait()`](https://gillescolling.com/taxify/reference/add_nesttrait.md)
+  nest-modality columns and
+  [`add_disperse()`](https://gillescolling.com/taxify/reference/add_disperse.md)
+  bin-midpoint columns for anyone who cached those before the rebuild.
+  Every enrichment asset now carries a content id, and the same gate is
+  extended to backbones (a content id catches a same-tag republish that
+  a version bump would miss). The read-only example database and its
+  offline fixtures are never touched.
+- [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  now joins genus-keyed sources on `genus`: the ant-diet contribution to
+  `diet_guild` (Blanchard) was silently all-NA, and
+  `fungal_trophic_mode`’s FungalTraits source likewise. A registry guard
+  test now asserts every genus-keyed source is joined correctly.
+
+## taxify 0.3.2
 
 ### New features
 
@@ -11,23 +240,36 @@
   joins one dataset, `add_trait("seed_mass")` gathers the sources: it
   pulls seed mass from Diaz et al. and GIFT and returns both in one unit
   (mg), woodiness from Zanne and GIFT in one vocabulary, and likewise
-  plant height and SLA. Provenance stays explicit – the default
-  `mode = "wide"` gives one harmonized column per source
-  (`seed_mass_diaz`, `seed_mass_gift`), so agreement and conflict are
-  visible; opt into `mode = "coalesce"` for one best-available value
-  plus its source.
+  plant height and SLA. The default `mode = "coalesce"` adds one value
+  per row with the columns that document it – `seed_mass`,
+  `seed_mass_unit`, `seed_mass_sources`, and `seed_mass_n` – which keeps
+  chained calls tidy; `mode = "wide"` instead gives one harmonized
+  column per source (`seed_mass_diaz`, `seed_mass_gift`) to inspect
+  agreement and conflict. When sources measure a trait by different
+  methods (for example maximum vs fine-root diameter), the value is not
+  blended: the most complete source is reported and a
+  `seed_mass_caution` column explains the difference.
   [`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md)
   lists the available traits and
   [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
-  shows a trait’s sources, units, and harmonization rules.
+  shows a trait’s sources, units, harmonization notes, and cautions. The
+  registry ships dozens of traits spanning plant functional and root
+  traits, animal body size, life history and morphology, diel activity,
+  thermal limits, phenology, indicator values, and conservation status,
+  each with a crosswalk grounded on the source values rather than
+  assumed.
 
 ### Renamed (source-named doors)
 
 - Enrichment doors are named after their source; the trait name is
   reserved for
   [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md).
-  `add_woodiness()`, `add_conservation_status()`,
-  `add_invasive_status()`, and `add_fish_traits()` are renamed to
+  [`add_woodiness()`](https://rdrr.io/pkg/taxify/man/add_woodiness.html),
+  [`add_conservation_status()`](https://rdrr.io/pkg/taxify/man/add_conservation_status.html),
+  [`add_invasive_status()`](https://rdrr.io/pkg/taxify/man/add_invasive_status.html),
+  and
+  [`add_fish_traits()`](https://rdrr.io/pkg/taxify/man/add_fish_traits.html)
+  are renamed to
   [`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md)
   (Zanne et al. 2014),
   [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
@@ -74,9 +316,11 @@
   al. 2024) by accepted name. Beyond body-size and life-history traits,
   it carries a per-species distribution signal – biogeographic realm,
   elevation range and mean climate – across all reptiles. This replaces
-  the earlier `add_lizard_traits()`, which drew on the same ReptTraits
-  source but was mislabelled (it covered all reptiles, not lizards) and
-  exposed only the morphology columns. License: CC-BY 4.0.
+  the earlier
+  [`add_lizard_traits()`](https://rdrr.io/pkg/taxify/man/add_lizard_traits.html),
+  which drew on the same ReptTraits source but was mislabelled (it
+  covered all reptiles, not lizards) and exposed only the morphology
+  columns. License: CC-BY 4.0.
 - New
   [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
   flags probable typos and other anomalies in a name list and returns
@@ -368,11 +612,14 @@ CRAN release: 2026-06-30
 - Added an end-to-end regression test
   (`tests/e2e/test-e2e-enrichment.R`) for the enrichment join fixed in
   0.2.5 ([\#1](https://github.com/gcol33/taxify/issues/1)). It checks
-  that `add_conservation_status()`,
+  that
+  [`add_conservation_status()`](https://rdrr.io/pkg/taxify/man/add_conservation_status.html),
   [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
-  and `add_woodiness()` attach each value to the row’s own accepted
-  taxon, stay invariant to batch composition and order, and land
-  documented values on the correct species.
+  and
+  [`add_woodiness()`](https://rdrr.io/pkg/taxify/man/add_woodiness.html)
+  attach each value to the row’s own accepted taxon, stay invariant to
+  batch composition and order, and land documented values on the correct
+  species.
 
 ## taxify 0.2.7
 

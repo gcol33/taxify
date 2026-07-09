@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -148,14 +148,18 @@ backbone(s)</td>
 <td>Leipzig Catalogue of Vascular Plants</td>
 <td>Vascular plants</td>
 <td>Bundled in package</td>
-<td><code>taxify(backend = "lcvp")</code></td>
+<td>
+<code>taxify(backend = "wfo")</code> (nearest vascular-plant
+backbone)</td>
 </tr>
 <tr class="even">
 <td><a href="https://matildabrown.github.io/rWCVP/" class="external-link">rWCVP</a></td>
 <td>World Checklist of Vascular Plants (Kew)</td>
 <td>Vascular plants</td>
 <td>Local snapshot</td>
-<td><code>taxify(backend = "wcvp")</code></td>
+<td>
+<code>taxify(backend = "wfo")</code> for names;
+<code><a href="../reference/add_wcvp.html">add_wcvp()</a></code> for native ranges</td>
 </tr>
 <tr class="odd">
 <td><a href="https://docs.ropensci.org/taxadb/" class="external-link">taxadb</a></td>
@@ -170,7 +174,7 @@ backbone(s)</td>
 WFO)</td>
 <td>Vascular plants</td>
 <td>Bundled in package</td>
-<td><code>taxify(backend = c("wcvp", "wfo"))</code></td>
+<td><code>taxify(backend = "wfo")</code></td>
 </tr>
 <tr class="odd">
 <td><a href="https://github.com/ecoinfor/U.Taxonstand" class="external-link">U.Taxonstand</a></td>
@@ -214,7 +218,7 @@ there is no urgent reason to switch.</p>
 <p>That said, there are situations where taxify offers a better fit:</p>
 <ul>
 <li>
-<strong>Multiple backbones.</strong> taxify matches against seven
+<strong>Multiple backbones.</strong> taxify matches against thirteen
 backbones offline and can chain them in a single call:
 <code>taxify(names, backend = c("wfo", "col", "gbif"))</code>.</li>
 <li>
@@ -223,7 +227,7 @@ with genus-blocked fuzzy joins. Ten thousand names resolve in
 seconds.</li>
 <li>
 <strong>Enrichments.</strong> Results pipe directly into more than
-sixty published trait and status datasets (IUCN, GRIIS, WCVP, EIVE,
+eighty published trait and status datasets (IUCN, GRIIS, WCVP, EIVE,
 EltonTraits, etc.) with a single <code>|&gt;</code> chain.</li>
 <li>
 <strong>Reproducibility.</strong> Backbones are versioned files on
@@ -258,26 +262,34 @@ closest taxify equivalent.</p>
 </tr>
 <tr class="even">
 <td><code>classification()</code></td>
-<td><code><a href="../reference/taxify.html">taxify()</a></code></td>
 <td>
-<code>family</code>, <code>genus</code>, <code>rank</code> columns
-in the output; <code><a href="../reference/add_col_info.html">add_col_info()</a></code> for full hierarchy</td>
+<code><a href="../reference/taxify.html">taxify()</a></code> + <code><a href="../reference/add_classification.html">add_classification()</a></code>
+</td>
+<td>
+<code>family</code>, <code>genus</code>, <code>rank</code> in the
+core output; <code><a href="../reference/add_classification.html">add_classification()</a></code> fills kingdom / phylum /
+class / order</td>
 </tr>
 <tr class="odd">
-<td><code>synonyms()</code></td>
-<td><code><a href="../reference/taxify.html">taxify()</a></code></td>
-<td>
-<code>is_synonym</code> + <code>accepted_name</code> columns in the
-output</td>
+<td><code><a href="../reference/synonyms.html">synonyms()</a></code></td>
+<td><code><a href="../reference/synonyms.html">synonyms()</a></code></td>
+<td>Lists every synonym that resolves to a name’s accepted taxon</td>
 </tr>
 <tr class="even">
+<td>
+<code><a href="../reference/children.html">children()</a></code> / <code>downstream()</code>
+</td>
+<td><code><a href="../reference/children.html">children()</a></code></td>
+<td>Lists the accepted taxa within a genus or family</td>
+</tr>
+<tr class="odd">
 <td><code>tax_name()</code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
 <td>
 <code>family</code>, <code>genus</code>, <code>rank</code>
 columns</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>sci2comm()</code></td>
 <td><code><a href="../reference/add_common_names.html">add_common_names()</a></code></td>
 <td>Pipe enrichment; GBIF vernacular names by language</td>
@@ -285,13 +297,13 @@ columns</td>
 </tbody>
 </table>
 <p>taxize also has functions that serve a different purpose (fetching
-database IDs, enumerating child taxa, retrieving occurrence or sequence
-data). These are not name-resolution functions, so taxify does not cover
-them. The “What taxify does not do” section below points to the right
-packages for those tasks.</p>
+database IDs, retrieving occurrence or sequence data). These are not
+name-resolution functions, so taxify does not cover them. The “What
+taxify does not do” section below points to the right packages for those
+tasks.</p>
 <p>The key structural difference: taxize returned results in varied
 formats depending on the function (<code>classification()</code> gave a
-nested list of data.frames, <code>synonyms()</code> another nested list,
+nested list of data.frames, <code><a href="../reference/synonyms.html">synonyms()</a></code> another nested list,
 <code>get_tsn()</code> a character vector with attributes). taxify
 returns the same 16-column data.frame from every call. Synonym status,
 classification, and match quality are columns, not separate API
@@ -589,7 +601,7 @@ across the three large vascular-plant authorities).</p>
 <p>With taxize, name resolution typically meant several separate calls:
 <code>gnr_resolve()</code> for matching, <code>get_gbifid()</code> for
 IDs, <code>classification()</code> for hierarchy,
-<code>synonyms()</code> for synonym status.</p>
+<code><a href="../reference/synonyms.html">synonyms()</a></code> for synonym status.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxize ---</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a></span><span class="op">)</span></span>
@@ -600,7 +612,7 @@ IDs, <code>classification()</code> for hierarchy,
 <span><span class="va">resolved</span>  <span class="op">&lt;-</span> <span class="fu">gnr_resolve</span><span class="op">(</span><span class="va">names</span>, best_match_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">gbif_ids</span>  <span class="op">&lt;-</span> <span class="fu">get_gbifid</span><span class="op">(</span><span class="va">names</span><span class="op">)</span></span>
 <span><span class="va">class_list</span> <span class="op">&lt;-</span> <span class="fu">classification</span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
-<span><span class="va">syn_list</span>   <span class="op">&lt;-</span> <span class="fu">synonyms</span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">syn_list</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/synonyms.html">synonyms</a></span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span></code></pre></div>
 <p>With taxify, all of that is one call:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
