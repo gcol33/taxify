@@ -55,7 +55,7 @@ articles:
   navbar: Special topics
   contents:
   - inspecting-names
-  - hybrid-names
+  - hybrids-and-aggregates
   - large-scale
 reference:
 - title: Match and inspect names

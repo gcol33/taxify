@@ -262,8 +262,8 @@ pak::pak("gcol33/taxify")          # vectra is installed automatically
   data](https://gillescolling.com/taxify/articles/custom-data.html)
 - [Inspecting a name
   list](https://gillescolling.com/taxify/articles/inspecting-names.html)
-- [Hybrid
-  names](https://gillescolling.com/taxify/articles/hybrid-names.html)
+- [Hybrids and
+  aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html)
 - [Migrating from taxize, WorldFlora, and related
   tools](https://gillescolling.com/taxify/articles/migration.html)
 - [Large-scale

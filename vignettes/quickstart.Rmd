@@ -492,7 +492,7 @@ detail:
 
 - [Custom data](https://gillescolling.com/taxify/articles/custom-data.html)
 
-- [Hybrid names](https://gillescolling.com/taxify/articles/hybrid-names.html)
+- [Hybrids and aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html)
 
 - [Large-scale matching](https://gillescolling.com/taxify/articles/large-scale.html)
 

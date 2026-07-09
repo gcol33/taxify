@@ -1,4 +1,16 @@
-# Hybrid name detection and parsing
+# Hybrids and aggregates
+
+Most names resolve to a single binomial. Two kinds do not, and both need
+handling in matching and again in trait resolution. A **hybrid** names a
+cross between two taxa, sometimes as a nothospecies (`Mentha ×piperita`)
+and sometimes as a formula that spells out both parents
+(`Salix alba × Salix fragilis`). An **aggregate** names a group of
+closely related microspecies under one label (`Rubus fruticosus agg.`,
+`Galium mollugo s.l.`), sitting one step above the binomial. taxify
+treats the two with a parallel fallback: where a hybrid formula has no
+record of its own, it resolves through its two parents; where an
+aggregate has no record of its own, it falls back to the nominal
+binomial. This vignette covers hybrids first, then aggregates.
 
 ## Hybrid names in taxonomy
 
@@ -353,3 +365,123 @@ lookup for the set of unique parents (memoized within a session). The
 parse itself is pure string work; the parent resolution reuses the same
 matching engine as
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+## Aggregate names in taxonomy
+
+An aggregate groups several closely related microspecies under one name.
+Apomictic complexes are the usual reason: *Rubus fruticosus*, *Taraxacum
+officinale*, and *Hieracium* each cover hundreds of
+near-indistinguishable segregates, and field data routinely records the
+aggregate rather than commit to a microspecies. Two markers signal one:
+
+> Rubus fruticosus agg.
+
+*agg.* (aggregate) is the explicit form. The other is *s.l.* (*sensu
+lato*, “in the broad sense”), which widens a name to include taxa a
+narrow reading would split off:
+
+> Galium mollugo s.l.
+
+Both mean the same thing for matching: the name refers to the group, not
+to a single binomial. taxify folds the spelling variants a source might
+use – `agg.`, `aggr.`, `agg`, `-agg`, `coll. sp.`, `sensu lato` – to a
+canonical `agg.` or `s.l.` marker, recorded in the `qualifier` column.
+The opposite marker, *s.str.* (*sensu stricto*, “in the narrow sense”),
+is a qualifier but not an aggregate: it points at the core binomial, so
+it is recorded in `qualifier` and matched as an ordinary name.
+
+## How taxify matches aggregates
+
+A backbone may or may not carry a dedicated taxon for the aggregate.
+Only the aggregate-bearing backbones – Euro+Med and WoRMS – store
+`"<binomial> aggr."` as a concept of its own; the others record the
+binomial but not the group above it. The `aggregates` argument sets what
+happens in each case.
+
+`aggregates = "preserve"` (the default) keeps the aggregate as its own
+concept. It matches the backbone’s aggregate taxon where one exists, and
+otherwise falls back to the nominal binomial, setting
+`aggregate_fallback = TRUE` so the aggregate-to-species collapse is
+visible rather than silent. `aggregate_fallback` is `FALSE` when the
+dedicated aggregate taxon was found, `TRUE` when it fell back, and `NA`
+for non-aggregate names.
+
+`aggregates = "collapse"` strips the marker up front and matches the
+binomial the way any name is matched. The qualifier is still recorded,
+but there is no fallback to flag, so `aggregate_fallback` stays `NA`.
+
+## Worked example: an aggregate species list
+
+Matched against WFO, which carries no aggregate taxa, each aggregate
+falls back to its binomial and is flagged.
+
+``` r
+
+agg_names <- c(
+  "Rubus fruticosus agg.",
+  "Taraxacum officinale agg.",
+  "Galium mollugo s.l.",
+  "Quercus robur"
+)
+
+res <- taxify(agg_names, backend = "wfo")
+res[, c("input_name", "accepted_name", "qualifier",
+        "aggregate_fallback", "match_type")]
+```
+
+| input_name | accepted_name | qualifier | aggregate_fallback | match_type |
+|:---|:---|:---|:---|:---|
+| Rubus fruticosus agg. | Rubus fruticosus | agg. | TRUE | exact |
+| Taraxacum officinale agg. | Taraxacum officinale | agg. | TRUE | exact |
+| Galium mollugo s.l. | Galium mollugo | s.l. | TRUE | exact |
+| Quercus robur | Quercus robur | NA | NA | exact |
+
+The three aggregates resolve to their binomials with
+`aggregate_fallback = TRUE`; the plain species carries `NA` in both
+qualifier columns. Against Euro+Med, where *Rubus fruticosus* aggr. is a
+stored taxon, the same query would resolve to the aggregate itself with
+`aggregate_fallback = FALSE`.
+
+## Traits for aggregates: the binomial fallback
+
+Trait enrichment is aggregate-aware, the same way it is hybrid-aware.
+The join resolves an aggregate along the taxonomic hierarchy rather than
+expecting an exact string hit:
+
+- a **species** query takes its own value first, and inherits its
+  aggregate’s value where the source records the trait only at the
+  aggregate level;
+- an **aggregate** query takes the aggregate-level value first, and
+  where the source carries none it falls back to the nominal binomial’s
+  value as a pragmatic stand-in – the species’ own measurement standing
+  in for the group, not an aggregate-level figure.
+
+This happens automatically inside every `add_<source>()` door and inside
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md).
+
+``` r
+
+# Rubus fruticosus agg. takes the aggregate's trait where the source records
+# one, otherwise the nominal Rubus fruticosus value.
+taxify("Rubus fruticosus agg.") |>
+  add_trait("plant_height")
+```
+
+The binomial fallback is on by default. Turn it off, per call or
+globally, to keep an aggregate without aggregate-level data as `NA`:
+
+``` r
+
+taxify("Rubus fruticosus agg.") |>
+  add_trait("plant_height", aggregate_trait_fallback = FALSE)
+
+options(taxify.aggregate_trait_fallback = FALSE)
+```
+
+With `options(taxify.trait_provenance = TRUE)`, each enrichment adds a
+`<enrichment>_basis` column recording where each value came from:
+`"primary"` for a same-level hit, `"aggregate"` for a species inheriting
+its aggregate’s value, and `"binomial"` for an aggregate standing in on
+its binomial. The [enrichments
+vignette](https://gillescolling.com/taxify/articles/enrichments.html)
+covers the enrichment join and the provenance columns in general.

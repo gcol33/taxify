@@ -29,7 +29,7 @@
 
 - [Inspecting a name list with
   inspect()](https://gillescolling.com/taxify/articles/inspecting-names.md):
-- [Hybrid name detection and
-  parsing](https://gillescolling.com/taxify/articles/hybrid-names.md):
+- [Hybrids and
+  aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.md):
 - [Working with large species
   lists](https://gillescolling.com/taxify/articles/large-scale.md):
