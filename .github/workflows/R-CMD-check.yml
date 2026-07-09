@@ -34,16 +34,49 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: r-lib/actions/setup-pandoc@v2
+      # Setup steps download the toolchain from external CDNs and occasionally
+      # hit transient 5xx. Each runs once with continue-on-error, then a guarded
+      # second attempt covers a transient failure without failing the job.
+      - name: Setup pandoc
+        id: pandoc
+        continue-on-error: true
+        uses: r-lib/actions/setup-pandoc@v2
 
-      - uses: r-lib/actions/setup-r@v2
+      - name: Setup pandoc (retry)
+        if: steps.pandoc.outcome == 'failure'
+        uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Setup R
+        id: setup-r
+        continue-on-error: true
+        uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
           extra-repositories: https://gcol33.r-universe.dev
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
+      - name: Setup R (retry)
+        if: steps.setup-r.outcome == 'failure'
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+          extra-repositories: https://gcol33.r-universe.dev
+
+      - name: Install dependencies
+        id: deps
+        continue-on-error: true
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          cache-version: 1
+          needs: check
+
+      - name: Install dependencies (retry)
+        if: steps.deps.outcome == 'failure'
+        uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           cache-version: 1
