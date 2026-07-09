@@ -877,8 +877,8 @@ resolve_backend <- function(backend) {
     lcvp = lcvp_backend(),
     wcvp = wcvp_backend(),
     stop(sprintf(
-      "Unknown backend '%s'. Available: wfo, col, gbif, itis, ncbi, ott, worms, fungorum, algaebase, euromed, fishbase, sealifebase, reptiledb, lcvp, wcvp",
-      backend), call. = FALSE)
+      "Unknown backend '%s'. Available: %s",
+      backend, paste(backbone_names(), collapse = ", ")), call. = FALSE)
   )
 }
 

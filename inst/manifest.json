@@ -160,6 +160,48 @@
       "full_size": 28922945,
       "full_sha256": "db74b3e49aa84fb10149dbda301bffb72ffee53751de6bda6a9774a96766d7c4"
     },
+    "lcvp": {
+      "latest": "3.0.1",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/lcvp-3.0.1/lcvp.vtr",
+      "nrow": 1337891,
+      "full_size": 252318496,
+      "full_sha256": "98516d90690db6a9b4f7eb39e1691de495a7a899f7d6fd024f753dddcfc404ff",
+      "content_id": "4f57e33fa5b1a75fa163005fb1e1a979",
+      "source_url": "https://raw.githubusercontent.com/idiv-biodiversity/LCVP/master/data/tab_lcvp.rda",
+      "citation": {
+        "key": "freiberg2020lcvp",
+        "type": "article",
+        "authors": "Freiberg M, Winter M, Gentile A, Zizka A, Muellner-Riehl AN, Weigelt A, Wirth C",
+        "year": "2020",
+        "title": "LCVP, The Leipzig catalogue of vascular plants, a new taxonomic reference list for all known vascular plants",
+        "journal": "Scientific Data",
+        "volume": "7",
+        "pages": "416",
+        "doi": "10.1038/s41597-020-00702-z"
+      },
+      "license": "MIT"
+    },
+    "wcvp": {
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/wcvp-2026.06/wcvp.vtr",
+      "nrow": 1448984,
+      "full_size": 333566252,
+      "full_sha256": "a509949cbd9946284a80ff8960665b5af266690f1598b3114a399240481a0f9a",
+      "content_id": "f08825669ec386086db9cd0755ab6115",
+      "source_url": "https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip",
+      "citation": {
+        "key": "govaerts2021wcvp",
+        "type": "article",
+        "authors": "Govaerts R, Nic Lughadha E, Black N, Turner R, Paton A",
+        "year": "2021",
+        "title": "The World Checklist of Vascular Plants, a continuously updated resource for exploring global plant diversity",
+        "journal": "Scientific Data",
+        "volume": "8",
+        "pages": "215",
+        "doi": "10.1038/s41597-021-00997-6"
+      },
+      "license": "CC BY 4.0"
+    },
     "reptiledb": {
       "latest": "2026.06",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/reptiledb-2026.06/reptiledb.vtr",
@@ -4474,7 +4516,7 @@
         "type": "article",
         "authors": "Faurby S, Davis M, Pedersen R, Schowanek SD, Antonelli1 A, Svenning JC",
         "year": "2018",
-        "title": "<scp>PHYLACINE<\/scp> 1.2: The Phylogenetic Atlas of Mammal Macroecology",
+        "title": "<scp>PHYLACINE</scp> 1.2: The Phylogenetic Atlas of Mammal Macroecology",
         "journal": "Ecology",
         "volume": "99",
         "pages": "2626-2626",
@@ -4898,7 +4940,7 @@
         "type": "article",
         "authors": "Maitner BS, Boyle B, Casler N, Condit R, Donoghue J, Durán SM, Guaderrama D, Hinchliff CE, Jørgensen PM, Kraft NJB, McGill B, Merow C, et al.",
         "year": "2017",
-        "title": "The <scp>bien r<\/scp> package: A tool to access the Botanical Information and Ecology Network (BIEN) database",
+        "title": "The <scp>bien r</scp> package: A tool to access the Botanical Information and Ecology Network (BIEN) database",
         "journal": "Methods in Ecology and Evolution",
         "volume": "9",
         "pages": "373-379",

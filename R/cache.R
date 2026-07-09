@@ -194,9 +194,7 @@ is_example_data_dir <- function() {
 #' @return Character vector of installed backend names (possibly empty).
 #' @noRd
 installed_backbones <- function() {
-  known <- c("wfo", "col", "gbif", "itis", "ncbi", "ott", "worms",
-             "fungorum", "algaebase", "euromed", "fishbase", "sealifebase",
-             "reptiledb", "lcvp", "wcvp")
+  known <- backbone_names()
   ok <- vapply(known, function(nm) {
     p <- versioned_vtr_path(nm, "latest")
     file.exists(p) && is_compiled_backbone(p)

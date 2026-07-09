@@ -1,0 +1,85 @@
+---
+title: "Databases: every backbone, enrichment, and trait"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", echo = FALSE)
+library(taxify)
+
+# Render from the manifest that ships with this build, so the tables always match
+# the installed package and need no network. list_backbones() / list_enrichments()
+# read the session manifest cache; point it at the bundled copy.
+mp <- system.file("manifest.json", package = "taxify")
+if (nzchar(mp)) {
+  bundled <- jsonlite::read_json(mp, simplifyVector = FALSE)
+  assign("manifest", bundled, envir = taxify:::.taxify_env)
+}
+
+link <- function(url) ifelse(is.na(url) | !nzchar(url), "",
+                             sprintf("[source](%s)", url))
+```
+
+taxify resolves names against local taxonomic **backbones** and joins external
+**enrichment** datasets that carry **traits**. This page lists all three, straight
+from the manifest this version ships. In an R session, the same content is one call
+away:
+
+```{r echo = TRUE, eval = FALSE}
+taxify_databases()   # backbones + enrichments in one frame
+list_backbones()     # the taxonomic backbones
+list_enrichments()   # the trait / status datasets
+list_traits()        # the cross-source trait vocabulary add_trait() draws on
+```
+
+## Taxonomic backbones
+
+Each is a pre-built `.vtr` downloaded once and matched locally. Pass several to
+`taxify()` and they form a fallback chain.
+
+```{r}
+bb <- list_backbones(verbose = FALSE)
+bb$source <- link(bb$source)
+knitr::kable(
+  bb[, c("name", "scope", "n_names", "size_mb", "version", "source")],
+  col.names = c("Backbone", "Scope", "Names", "MB", "Version", ""),
+  format.args = list(big.mark = ","),
+  align = c("l", "l", "r", "r", "l", "l")
+)
+```
+
+## Enrichment datasets
+
+Each `add_<source>()` door joins one dataset to a `taxify()` result on the accepted
+name. `add_trait()` gathers a single trait across every source that carries it. Browse
+a dataset's columns in R with `enrichment_cols("<name>")`.
+
+```{r}
+en <- list_enrichments(verbose = FALSE)
+en <- en[order(en$name), ]
+tc <- ifelse(is.na(en$trait_cols), "", en$trait_cols)
+en$n_cols <- vapply(strsplit(tc, ",\\s*"),
+                    function(x) sum(nzchar(x)), integer(1))
+en$source_url <- link(en$source_url)
+knitr::kable(
+  en[, c("name", "version", "nrow", "n_cols", "source_url")],
+  col.names = c("Enrichment", "Version", "Rows", "Columns", ""),
+  format.args = list(big.mark = ","),
+  align = c("l", "l", "r", "r", "l"),
+  row.names = FALSE
+)
+```
+
+## Cross-source traits
+
+Name one trait; `add_trait()` finds and harmonizes it from the sources below.
+
+```{r}
+tr <- list_traits()
+tr <- tr[order(tr$trait), ]
+knitr::kable(
+  tr[, c("trait", "label", "kind", "unit", "n_sources", "sources")],
+  col.names = c("Trait", "Label", "Kind", "Unit", "Sources", "From"),
+  align = c("l", "l", "l", "l", "r", "l"),
+  row.names = FALSE
+)
+```

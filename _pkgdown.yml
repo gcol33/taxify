@@ -39,6 +39,10 @@ articles:
   contents:
   - quickstart
   - migration
+- title: Databases
+  navbar: Databases
+  contents:
+  - articles/databases
 - title: Core features
   navbar: Core features
   contents:
@@ -96,12 +100,14 @@ reference:
   - add_trait
   - list_traits
   - trait_info
-- title: Custom data and discovery
-  desc: Join your own table, and browse the available enrichment layers and columns.
+- title: Browse and discover
+  desc: See every backbone, enrichment, and trait taxify offers, and join your own table.
   contents:
-  - add_data
+  - taxify_databases
+  - list_backbones
   - list_enrichments
   - enrichment_cols
+  - add_data
 - title: Enrichments — distribution and status
   contents:
   - add_iucn

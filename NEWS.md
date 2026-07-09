@@ -1,3 +1,24 @@
+# taxify 0.3.5
+
+## Discovery
+
+* New `list_backbones()` lists every supported taxonomic backbone with its scope,
+  name count, download size, version, install status, and source, mirroring
+  `list_enrichments()`. New `taxify_databases()` stacks the backbones and
+  enrichments into one overview so the full breadth is one call away. A canonical
+  backbone registry now backs `resolve_backend()`, `installed_backbones()`, and
+  these verbs, so the supported set cannot drift between them.
+
+* A "Databases" pkgdown article lists every backbone, enrichment, and trait,
+  generated from the shipped manifest so it stays current.
+
+## Backbones
+
+* The LCVP and WCVP backbones are downloadable as pre-built `.vtr` files. They
+  previously had no published release and could only be built from source; both
+  are now in the manifest (`lcvp-3.0.1`, `wcvp-2026.06`), so all fifteen
+  backbones resolve without `taxifydb` installed.
+
 # taxify 0.3.4
 
 ## Bug fixes
