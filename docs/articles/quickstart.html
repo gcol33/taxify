@@ -368,7 +368,6 @@ function draw(tc){VA.bg(x,W,H);
   bar(b2,wfoFrac,C.red,'WorldFlora',wfoFrac>=1,wfoFrac>=1?fmt(WFO):fmt(simSec));
   x.fillStyle=C.mut;x.font=VA.F(12);x.textAlign='left';x.fillText('elapsed (simulated): '+fmt(simSec),BX,b2+bh+22);
   if(taxDone&&tc>PERIOD-HOLD-0.01){var aa=VA.clamp((tc-(PERIOD-HOLD))/1.0,0,1);x.globalAlpha=aa;VA.glow(x,C.green,8);x.fillStyle=C.green;x.font=VA.F(20,true);x.textAlign='center';x.fillText(Math.round(WFO/TAX)+'x faster',W/2,H-40);VA.noglow(x);x.globalAlpha=1;}
-  x.fillStyle=C.mut;x.font=VA.F(11);x.textAlign='center';x.fillText('package benchmark, Windows, R 4.5.2 -- both against a local copy',W/2,H-14);
   VA.scan(x,W,H);
 }
 VA.run(draw,PERIOD,null,'sp','sp-cv');
