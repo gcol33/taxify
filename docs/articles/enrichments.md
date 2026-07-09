@@ -82,6 +82,40 @@ exploits hash indexes on the `canonical_name` column in the enrichment
 `.vtr`, making even enrichments with hundreds of thousands of rows
 resolve in under a second.
 
+### Species aggregates
+
+Aggregate concepts (`"Rubus fruticosus agg."`, `"Galium mollugo s.l."`)
+sit above the binomial, so the join resolves them along the taxonomic
+hierarchy. A species query takes its own value first and inherits its
+aggregate’s value where the source records the trait only at the
+aggregate level. An aggregate query takes the aggregate-level value
+first, and where the source carries none it falls back to the nominal
+binomial’s value as a pragmatic stand-in. That binomial value is the
+species’ own measurement standing in for the group, not an
+aggregate-level figure.
+
+``` r
+
+# Rubus fruticosus agg. gets the aggregate's trait where the source has it,
+# otherwise the nominal Rubus fruticosus value.
+taxify("Rubus fruticosus agg.") |>
+  add_trait("plant_height")
+```
+
+The binomial fallback is on by default. Turn it off to keep an aggregate
+without aggregate-level data as `NA`:
+
+``` r
+
+options(taxify.aggregate_trait_fallback = FALSE)
+```
+
+With `options(taxify.trait_provenance = TRUE)`, each enrichment adds a
+`<enrichment>_basis` column recording where each value came from:
+`"primary"` for a same-level hit, `"aggregate"` for a species inheriting
+its aggregate’s value, and `"binomial"` for an aggregate standing in on
+its binomial.
+
 ### Cross-backbone name resolution
 
 A subtle but important design decision underlies the enrichment `.vtr`
@@ -156,7 +190,7 @@ emergency result is ephemeral and not cached. If all three paths fail,
 an error is raised with a link to the GitHub issue tracker so the
 failure can be reported.
 
-### \### The enrichment data directory
+### The enrichment data directory
 
 All enrichment `.vtr` files live under a single root directory,
 organized by enrichment name and version:

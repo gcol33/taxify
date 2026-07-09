@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,15 @@
       <small>Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.7" id="taxify-037">taxify 0.3.7<a class="anchor" aria-label="anchor" href="#taxify-037"></a></h2>
+<div class="section level3">
+<h3 id="aggregate-trait-resolution-0-3-7">Aggregate trait resolution<a class="anchor" aria-label="anchor" href="#aggregate-trait-resolution-0-3-7"></a></h3>
+<ul><li><p>An aggregate query (<code>"Rubus fruticosus agg."</code>, <code>"... s.l."</code>) now falls back to the nominal binomial’s trait when a source carries no aggregate-level value. Aggregate-level values are still used first where present; the binomial is a pragmatic stand-in, not a real aggregate-level measurement. This also fixes a preserve-fell-back aggregate (one with no dedicated aggregate taxon in the backbone) reaching its binomial’s traits.</p></li>
+<li><p>The fallback is on by default and can be turned off per call with <code>aggregate_trait_fallback = FALSE</code>, or globally with <code>options(taxify.aggregate_trait_fallback = FALSE)</code>, which keeps a resolved aggregate without aggregate-level data as <code>NA</code>.</p></li>
+<li><p><code>options(taxify.trait_provenance = TRUE)</code> now adds a character <code>&lt;enrichment&gt;_basis</code> column (<code>"primary"</code> a same-level hit, <code>"aggregate"</code> a species inheriting its aggregate’s value, <code>"binomial"</code> an aggregate standing in on its binomial) in place of the earlier logical <code>&lt;enrichment&gt;_inherited</code> flag, so the basis of every filled value is explicit.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.6" id="taxify-036">taxify 0.3.6<a class="anchor" aria-label="anchor" href="#taxify-036"></a></h2>
 <div class="section level3">

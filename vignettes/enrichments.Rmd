@@ -183,7 +183,7 @@ issues a warning explaining the situation. This emergency result is
 ephemeral and not cached. If all three paths fail, an error is raised with
 a link to the GitHub issue tracker so the failure can be reported.
 
-### ### The enrichment data directory
+### The enrichment data directory
 
 All enrichment `.vtr` files live under a single root directory, organized
 by enrichment name and version:

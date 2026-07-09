@@ -1,5 +1,29 @@
 # Changelog
 
+## taxify 0.3.7
+
+### Aggregate trait resolution
+
+- An aggregate query (`"Rubus fruticosus agg."`, `"... s.l."`) now falls
+  back to the nominal binomial’s trait when a source carries no
+  aggregate-level value. Aggregate-level values are still used first
+  where present; the binomial is a pragmatic stand-in, not a real
+  aggregate-level measurement. This also fixes a preserve-fell-back
+  aggregate (one with no dedicated aggregate taxon in the backbone)
+  reaching its binomial’s traits.
+
+- The fallback is on by default and can be turned off per call with
+  `aggregate_trait_fallback = FALSE`, or globally with
+  `options(taxify.aggregate_trait_fallback = FALSE)`, which keeps a
+  resolved aggregate without aggregate-level data as `NA`.
+
+- `options(taxify.trait_provenance = TRUE)` now adds a character
+  `<enrichment>_basis` column (`"primary"` a same-level hit,
+  `"aggregate"` a species inheriting its aggregate’s value, `"binomial"`
+  an aggregate standing in on its binomial) in place of the earlier
+  logical `<enrichment>_inherited` flag, so the basis of every filled
+  value is explicit.
+
 ## taxify 0.3.6
 
 ### Hybrid matching

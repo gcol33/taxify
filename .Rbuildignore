@@ -5,6 +5,7 @@
 ^CONTRIBUTING\.md$
 ^LICENSE\.md$
 ^_pkgdown\.yml$
+^build_site\.R$
 ^docs$
 ^pkgdown$
 ^\.github$

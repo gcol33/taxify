@@ -124,11 +124,11 @@ Several things are visible here. The two nothospecies (Mentha, Platanus)
 matched because WFO stores these as accepted names with the × character
 in the canonical name. The nothogenus ×Cupressocyparis matched too:
 taxify tries the sign-retained forms, and WFO resolves the cross to its
-accepted genus (*Hesperotropsis*). The hybrid formula did **not**
-collapse to its first parent: WFO carries no single record for this
-cross, so `match_type` is `hybrid_formula`. Because both parents resolve
-against WFO, the cross is named by them – `accepted_name` is “Salix alba
-× Salix fragilis” (the accepted-parent cross) and `matched_name` the
+accepted genus (*Hesperotropsis*). The hybrid formula resolves through
+its two parents: WFO carries no single record for this cross, so
+`match_type` is `hybrid_formula`. Because both parents resolve against
+WFO, the cross is named by them – `accepted_name` is “Salix alba × Salix
+fragilis” (the accepted-parent cross) and `matched_name` the
 input-parent cross. When a parent cannot be matched, both stay `NA`.
 
 The `is_hybrid` column is TRUE for all four hybrid inputs and

@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -264,14 +264,13 @@ nothogenus, and a hybrid formula. We pass them all to
 Platanus) matched because WFO stores these as accepted names with the ×
 character in the canonical name. The nothogenus ×Cupressocyparis matched
 too: taxify tries the sign-retained forms, and WFO resolves the cross to
-its accepted genus (<em>Hesperotropsis</em>). The hybrid formula did
-<strong>not</strong> collapse to its first parent: WFO carries no single
-record for this cross, so <code>match_type</code> is
-<code>hybrid_formula</code>. Because both parents resolve against WFO,
-the cross is named by them – <code>accepted_name</code> is “Salix alba ×
-Salix fragilis” (the accepted-parent cross) and
-<code>matched_name</code> the input-parent cross. When a parent cannot
-be matched, both stay <code>NA</code>.</p>
+its accepted genus (<em>Hesperotropsis</em>). The hybrid formula
+resolves through its two parents: WFO carries no single record for this
+cross, so <code>match_type</code> is <code>hybrid_formula</code>.
+Because both parents resolve against WFO, the cross is named by them –
+<code>accepted_name</code> is “Salix alba × Salix fragilis” (the
+accepted-parent cross) and <code>matched_name</code> the input-parent
+cross. When a parent cannot be matched, both stay <code>NA</code>.</p>
 <p>The <code>is_hybrid</code> column is TRUE for all four hybrid inputs
 and <code>hybrid_type</code> names the kind, regardless of whether the
 name matched. Both record a property of the input, not of the match
