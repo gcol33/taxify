@@ -23,41 +23,66 @@ test_that("attach_agg_key populates agg_key only in preserve mode", {
   expect_true(all(is.na(cc$agg_key)))
 })
 
-test_that("agg_join_keys encodes the directional inheritance rule", {
+test_that("agg_join_keys encodes the directional resolution rule", {
   # species query: own name primary, aggregate form as downward fallback
   sp <- agg_join_keys("Achillea millefolium", NA_character_)
   expect_equal(sp$primary, "Achillea millefolium")
   expect_equal(sp$inherit, "Achillea millefolium aggr.")
+  expect_false(sp$is_agg)
 
-  # aggregate query: aggregate key only, never falls down to the species
+  # aggregate query: aggregate key primary, nominal binomial as upward fallback
   ag <- agg_join_keys("Achillea millefolium aggr.", "agg.")
   expect_equal(ag$primary, "Achillea millefolium aggr.")
-  expect_true(is.na(ag$inherit))
+  expect_equal(ag$inherit, "Achillea millefolium")
+  expect_true(ag$is_agg)
 
-  # aggregate query that fell back to the binomial still targets the aggregate
+  # a preserve-fell-back aggregate (accepted_name is the binomial) still targets
+  # the aggregate first, then the binomial
   ag2 <- agg_join_keys("Achillea millefolium", "agg.")
   expect_equal(ag2$primary, "Achillea millefolium aggr.")
-  expect_true(is.na(ag2$inherit))
+  expect_equal(ag2$inherit, "Achillea millefolium")
+
+  # binomial_fallback = FALSE keeps an aggregate query aggregate-only (no leak up)
+  agf <- agg_join_keys("Achillea millefolium aggr.", "agg.",
+                       binomial_fallback = FALSE)
+  expect_equal(agf$primary, "Achillea millefolium aggr.")
+  expect_true(is.na(agf$inherit))
 
   # s.l. is treated as aggregate too
   sl <- agg_join_keys("Ranunculus auricomus", "s.l.")
   expect_equal(sl$primary, "Ranunculus auricomus aggr.")
+  expect_true(sl$is_agg)
 })
 
-test_that("agg_select_idx prefers same-level, flags downward inheritance", {
+test_that("agg_select_idx prefers same-level, records the fill basis", {
   enr <- c("Achillea millefolium", "Agropyron pectinatum aggr.")
 
-  # case 4 + case 3: species->species exact, species->agg inherited
+  # species->species exact (primary), species->aggregate inherited (downward)
   keys <- agg_join_keys(c("Achillea millefolium", "Agropyron pectinatum"),
                         c(NA, NA))
   sel <- agg_select_idx(keys, enr)
   expect_equal(sel$idx, c(1L, 2L))
   expect_equal(sel$inherited, c(FALSE, TRUE))
+  expect_equal(sel$basis, c("primary", "aggregate"))
 
-  # case 1: aggregate query, only a species key present -> no match (no leak up)
+  # aggregate query, only the nominal binomial present -> upward binomial fallback
   keys2 <- agg_join_keys("Achillea millefolium", "agg.")
   sel2 <- agg_select_idx(keys2, enr)
-  expect_true(is.na(sel2$idx))
+  expect_equal(sel2$idx, 1L)
+  expect_equal(sel2$basis, "binomial")
+
+  # with the fallback off, the same aggregate query stays unmatched
+  keys3 <- agg_join_keys("Achillea millefolium", "agg.",
+                         binomial_fallback = FALSE)
+  sel3 <- agg_select_idx(keys3, enr)
+  expect_true(is.na(sel3$idx))
+  expect_true(is.na(sel3$basis))
+
+  # aggregate query with a real aggregate-level row -> primary, not a fallback
+  keys4 <- agg_join_keys("Agropyron pectinatum aggr.", "agg.")
+  sel4 <- agg_select_idx(keys4, enr)
+  expect_equal(sel4$idx, 2L)
+  expect_equal(sel4$basis, "primary")
 })
 
 test_that("normalize_aggregate_name covers all marker spellings", {
@@ -183,4 +208,79 @@ test_that("aggregate_fallback is NA for non-aggregate queries", {
   expect_true(is.na(res$aggregate_fallback[1L]))
   # aggregate query that resolved: FALSE, not NA
   expect_false(res$aggregate_fallback[2L])
+})
+
+
+# ---- Trait join: aggregate query falls back to the nominal binomial ----
+#
+# When a source carries no aggregate-level value, an aggregate query pulls the
+# nominal binomial's trait as a pragmatic stand-in (default on), recorded as
+# basis = "binomial". aggregate_trait_fallback = FALSE keeps it NA.
+
+test_that("an aggregate query inherits the nominal binomial's trait by default", {
+  setup_mock_euromed()
+  install_mock_enrichment("mockagg", data.frame(
+    canonical_name = "Taraxacum officinale", plant_height = 30,
+    stringsAsFactors = FALSE))
+  x <- taxify("Taraxacum officinale agg.", backend = "euromed", verbose = FALSE)
+  # resolved to the aggregate taxon, which the source does not carry
+  expect_equal(x$accepted_name, "Taraxacum officinale aggr.")
+  x <- enrich_simple(x, "mockagg", col_map = c(plant_height = "plant_height"),
+    source_label = "mock", join_col = "accepted_name",
+    expose_all = FALSE, verbose = FALSE)
+  # falls up to the nominal binomial's value
+  expect_equal(x$plant_height, 30)
+})
+
+test_that("aggregate_trait_fallback = FALSE keeps the aggregate NA", {
+  setup_mock_euromed()
+  install_mock_enrichment("mockagg2", data.frame(
+    canonical_name = "Taraxacum officinale", plant_height = 30,
+    stringsAsFactors = FALSE))
+  x <- taxify("Taraxacum officinale agg.", backend = "euromed", verbose = FALSE)
+  x <- enrich_simple(x, "mockagg2", col_map = c(plant_height = "plant_height"),
+    source_label = "mock", join_col = "accepted_name",
+    expose_all = FALSE, verbose = FALSE, aggregate_trait_fallback = FALSE)
+  expect_true(is.na(x$plant_height))
+})
+
+test_that("a real aggregate-level value wins over the binomial fallback", {
+  setup_mock_euromed()
+  install_mock_enrichment("mockagg3", data.frame(
+    canonical_name = c("Taraxacum officinale aggr.", "Taraxacum officinale"),
+    plant_height = c(45, 30), stringsAsFactors = FALSE))
+  x <- taxify("Taraxacum officinale agg.", backend = "euromed", verbose = FALSE)
+  x <- enrich_simple(x, "mockagg3", col_map = c(plant_height = "plant_height"),
+    source_label = "mock", join_col = "accepted_name",
+    expose_all = FALSE, verbose = FALSE)
+  # the aggregate-level measurement, not the binomial stand-in
+  expect_equal(x$plant_height, 45)
+})
+
+test_that("the trait provenance option records basis = 'binomial'", {
+  setup_mock_euromed()
+  install_mock_enrichment("mockagg4", data.frame(
+    canonical_name = "Taraxacum officinale", plant_height = 30,
+    stringsAsFactors = FALSE))
+  withr::local_options(taxify.trait_provenance = TRUE)
+  x <- taxify("Taraxacum officinale agg.", backend = "euromed", verbose = FALSE)
+  x <- enrich_simple(x, "mockagg4", col_map = c(plant_height = "plant_height"),
+    source_label = "mock", join_col = "accepted_name",
+    expose_all = FALSE, verbose = FALSE)
+  expect_equal(x$mockagg4_basis, "binomial")
+})
+
+test_that("a preserve-fell-back aggregate still reaches the binomial's trait", {
+  setup_mock_euromed()
+  # Fagus sylvatica has no aggregate taxon, so the query fell back to the
+  # binomial at match time; the trait join must still find the binomial's value.
+  install_mock_enrichment("mockagg5", data.frame(
+    canonical_name = "Fagus sylvatica", plant_height = 40,
+    stringsAsFactors = FALSE))
+  x <- taxify("Fagus sylvatica agg.", backend = "euromed", verbose = FALSE)
+  expect_true(x$aggregate_fallback)
+  x <- enrich_simple(x, "mockagg5", col_map = c(plant_height = "plant_height"),
+    source_label = "mock", join_col = "accepted_name",
+    expose_all = FALSE, verbose = FALSE)
+  expect_equal(x$plant_height, 40)
 })

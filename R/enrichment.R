@@ -422,46 +422,68 @@ na_sentinel_for <- function(v) {
 
 #' Build aggregate-aware candidate join keys for a species-level enrichment
 #'
-#' Encodes the trait-inheritance rule: traits flow down the hierarchy
-#' (aggregate -> species), never up. An aggregate-concept query takes only the
-#' aggregate key (`"<binomial> aggr."`); a species query takes its own name
-#' first, then the aggregate key as a fallback (case 3, inherit down). Aggregate
-#' markers are canonicalized so the keys line up with enrichment sources
-#' regardless of spelling.
+#' Encodes the trait-resolution rule for aggregates. A species query takes its
+#' own name first, then the aggregate key (`"<binomial> aggr."`) as a downward
+#' fallback -- a member inherits its aggregate's value. An aggregate query takes
+#' the aggregate key first; when `binomial_fallback` is `TRUE` (the default) it
+#' then falls *up* to the nominal binomial where the source carries no
+#' aggregate-level value. That upward hit is the binomial's own trait standing
+#' in for the aggregate, not a real aggregate-level measurement, and
+#' `agg_select_idx()` records it as `basis = "binomial"`. With
+#' `binomial_fallback = FALSE` an aggregate query stays unmatched when no
+#' aggregate-level value exists. Aggregate markers are canonicalized so the keys
+#' line up with enrichment sources regardless of spelling.
 #'
 #' @param acc Character vector of accepted names (the join column).
 #' @param qualifier Character vector of canonical qualifiers from `taxify()`
-#'   (`NA` when absent — every row is then treated as a species query).
-#' @return A list with `primary` and `inherit` character vectors (same length
-#'   as `acc`); `inherit` is `NA` for aggregate queries.
+#'   (`NA` when absent -- every row is then treated as a species query).
+#' @param binomial_fallback Logical. When `TRUE`, an aggregate query with no
+#'   aggregate-level value falls back to the nominal binomial's value.
+#' @return A list with `primary`, `inherit`, and `is_agg` (logical) vectors,
+#'   each the length of `acc`. For a species query `inherit` is the aggregate
+#'   form; for an aggregate query it is the bare binomial (or `NA` when
+#'   `binomial_fallback = FALSE`).
 #' @noRd
-agg_join_keys <- function(acc, qualifier) {
+agg_join_keys <- function(acc, qualifier, binomial_fallback = TRUE) {
   if (is.null(qualifier)) qualifier <- rep(NA_character_, length(acc))
   is_agg   <- !is.na(qualifier) & qualifier %in% .aggregate_tokens
   binom    <- strip_agg_marker(acc)
   agg_form <- ifelse(!is.na(binom), paste0(binom, " aggr."), NA_character_)
+  agg_inherit <- if (isTRUE(binomial_fallback)) binom else NA_character_
   list(
     primary = ifelse(is_agg, agg_form, canon_agg_marker(acc)),
-    inherit = ifelse(is_agg, NA_character_, agg_form)
+    inherit = ifelse(is_agg, agg_inherit, agg_form),
+    is_agg  = is_agg
   )
 }
 
 
 #' Resolve aggregate-aware join keys against an enrichment key vector
 #'
-#' Picks the primary-key hit when present, else the downward-inheritance hit.
+#' Picks the primary-key hit when present, else the inherited hit, and records
+#' the basis of each filled value.
 #'
 #' @param keys List from `agg_join_keys()`.
 #' @param enr_key Character vector of canonicalized enrichment lookup keys.
 #' @return A list with `idx` (row index into `enr_key` per query row, `NA` for
-#'   no match) and `inherited` (logical; `TRUE` where the value came from the
-#'   aggregate fallback rather than an exact same-level hit).
+#'   no match), `inherited` (logical; `TRUE` where the value came from an
+#'   inherited key rather than a same-level hit), and `basis` (character:
+#'   `"primary"` a same-level hit, `"aggregate"` a species inheriting its
+#'   aggregate's value downward, `"binomial"` an aggregate falling back to the
+#'   nominal binomial upward, `NA` no match).
 #' @noRd
 agg_select_idx <- function(keys, enr_key) {
   idx_p <- match(keys$primary, enr_key)
   idx_i <- match(keys$inherit, enr_key)
   inherited <- is.na(idx_p) & !is.na(idx_i)
-  list(idx = ifelse(!is.na(idx_p), idx_p, idx_i), inherited = inherited)
+  idx <- ifelse(!is.na(idx_p), idx_p, idx_i)
+  is_agg <- keys$is_agg
+  if (is.null(is_agg)) is_agg <- rep(FALSE, length(idx))
+  basis <- rep(NA_character_, length(idx))
+  basis[!is.na(idx_p)]       <- "primary"
+  basis[inherited & !is_agg] <- "aggregate"
+  basis[inherited &  is_agg] <- "binomial"
+  list(idx = idx, inherited = inherited, basis = basis)
 }
 
 
@@ -516,7 +538,9 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
 
   # Resolve a per-row index into df (aggregate-aware for species-level joins)
   if (join_col == "accepted_name") {
-    keys    <- agg_join_keys(x[[join_col]], x[["qualifier"]])
+    keys    <- agg_join_keys(x[[join_col]], x[["qualifier"]],
+                             binomial_fallback =
+                               getOption("taxify.aggregate_trait_fallback", TRUE))
     enr_key <- canon_agg_marker(df[[df_join_key]])
     keep    <- !duplicated(enr_key)
     df      <- df[keep, , drop = FALSE]
@@ -524,7 +548,7 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
     sel <- agg_select_idx(keys, enr_key)
     idx <- sel$idx
     if (isTRUE(getOption("taxify.trait_provenance", FALSE))) {
-      x[[paste0(enrichment_name, "_inherited")]] <- sel$inherited
+      x[[paste0(enrichment_name, "_basis")]] <- sel$basis
     }
   } else {
     df  <- df[!duplicated(df[[df_join_key]]), , drop = FALSE]
@@ -917,7 +941,9 @@ enrichment_cols <- function(source) {
 enrich_simple <- function(x, enrichment_name, col_map, source_label,
                           na_types = NULL, join_col = "accepted_name",
                           cols = NULL, default_cols = NULL, col_prefix = NULL,
-                          expose_all = TRUE, verbose = TRUE) {
+                          expose_all = TRUE, verbose = TRUE,
+                          aggregate_trait_fallback =
+                            getOption("taxify.aggregate_trait_fallback", TRUE)) {
   if (!join_col %in% names(x)) {
     stop(sprintf("x must have a '%s' column (from taxify())", join_col),
          call. = FALSE)
@@ -1031,13 +1057,16 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
 
   # Direct join (only when there are resolved rows to look up). Species-level
   # joins are aggregate-aware: an aggregate query reaches the aggregate trait
-  # row, and a species query inherits an aggregate-level trait when no
-  # species-level one exists (downward inheritance only). Genus-level joins keep
+  # row, a species query inherits an aggregate-level trait when no species-level
+  # one exists (downward), and -- when aggregate_trait_fallback is on -- an
+  # aggregate query with no aggregate-level value falls back to the nominal
+  # binomial (upward, recorded as basis = "binomial"). Genus-level joins keep
   # plain exact matching.
   if (length(valid_rows) > 0L) {
     agg_aware <- join_col == "accepted_name"
     if (agg_aware) {
-      keys <- agg_join_keys(x[[join_col]], x[["qualifier"]])
+      keys <- agg_join_keys(x[[join_col]], x[["qualifier"]],
+                            binomial_fallback = aggregate_trait_fallback)
       lookup_pool <- unique(c(keys$primary[valid_rows], keys$inherit[valid_rows]))
       lookup_pool <- lookup_pool[!is.na(lookup_pool)]
     } else {
@@ -1066,7 +1095,7 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
         sel <- agg_select_idx(keys, enr_key)
         idx <- sel$idx
         if (isTRUE(getOption("taxify.trait_provenance", FALSE))) {
-          x[[paste0(enrichment_name, "_inherited")]] <- sel$inherited
+          x[[paste0(enrichment_name, "_basis")]] <- sel$basis
         }
       } else {
         joined <- joined[!duplicated(joined$lookup_name), , drop = FALSE]
