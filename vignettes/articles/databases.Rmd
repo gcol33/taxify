@@ -15,8 +15,14 @@ if (nzchar(mp)) {
   assign("manifest", bundled, envir = taxify:::.taxify_env)
 }
 
-link <- function(url) ifelse(is.na(url) | !nzchar(url), "",
-                             sprintf("[source](%s)", url))
+link <- function(url) {
+  # Some source_url values are bare DOIs (10.xxxx/...) rather than full URLs;
+  # render those through doi.org so the link is absolute, not relative to /articles/.
+  href <- ifelse(is.na(url) | grepl("^https?://", url), url,
+          ifelse(grepl("^10\\.[0-9]", url), paste0("https://doi.org/", url),
+                 paste0("https://", url)))
+  ifelse(is.na(url) | !nzchar(url), "", sprintf("[source](%s)", href))
+}
 ```
 
 ```{=html}

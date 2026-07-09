@@ -41,7 +41,7 @@
       "https://www.fishbase.org/",
       "https://www.sealifebase.org/",
       "http://www.reptile-database.org/",
-      "https://www.idiv.de/en/lcvp.html",
+      "https://github.com/idiv-biodiversity/LCVP",
       "https://powo.science.kew.org/"
     ),
     stringsAsFactors = FALSE

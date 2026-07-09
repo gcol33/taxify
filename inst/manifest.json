@@ -104,7 +104,7 @@
       "full_size": 510291103,
       "full_sha256": "81a482f304c276011ba7913a5b8aef988b241575958ce73fd140cf0c3575ef02",
       "nrow": 2739317,
-      "source_url": "https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump.tar.gz"
+      "source_url": "https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz"
     },
     "ott": {
       "latest": "3.7.3",
@@ -148,7 +148,7 @@
       "latest": "2026.06",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/fishbase-2026.06/fishbase.vtr",
       "nrow": 102703,
-      "source_url": "https://fishbase.ropensci.org",
+      "source_url": "https://www.fishbase.se",
       "full_size": 19036291,
       "full_sha256": "099f478fbbc346441237807109d3925a9010b74e98753ed18b5b3d9b0967b0ed"
     },
@@ -156,7 +156,7 @@
       "latest": "2026.06",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/sealifebase-2026.06/sealifebase.vtr",
       "nrow": 134031,
-      "source_url": "https://sealifebase.ropensci.org",
+      "source_url": "https://www.sealifebase.org",
       "full_size": 28922945,
       "full_sha256": "db74b3e49aa84fb10149dbda301bffb72ffee53751de6bda6a9774a96766d7c4"
     },
@@ -1808,7 +1808,7 @@
       "latest": "2026.07",
       "content_id": "8b811906e1173a76cf58d58aa6f3b82c",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/leda.vtr",
-      "source_url": "https://uol.de/f/5/inst/biologie/ag/landeco/download/LEDA/Data_files/",
+      "source_url": "https://uol.de/en/landeco/research/leda/data-files",
       "source_format": "multi_tsv",
       "source_version": "2008.1",
       "species_col": "SBS_name",
@@ -1895,7 +1895,7 @@
       "content_id": "945e45208ed22598d6b112d0658bd7ec",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/fishbase.vtr",
       "nrow": 37805,
-      "source_url": "https://fishbase.ropensci.org",
+      "source_url": "https://www.fishbase.se",
       "source_format": "rfishbase",
       "source_version": "2026.04",
       "species_col": "canonical_name",
@@ -2833,7 +2833,7 @@
       "content_id": "c260650234794cf4b871f0eb71adcbca",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/ecoflora.vtr",
       "nrow": 3077,
-      "source_url": "https://www.ecoflora.org.uk/",
+      "source_url": "http://ecoflora.org.uk/",
       "source_format": "csv",
       "source_version": "2026.06",
       "species_col": "species",
@@ -2998,7 +2998,7 @@
       "content_id": "8b4d18daec3f89b059f63c739b453803",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/sealifebase.vtr",
       "nrow": 111710,
-      "source_url": "https://sealifebase.ropensci.org",
+      "source_url": "https://www.sealifebase.org",
       "source_format": "rfishbase",
       "source_version": "2026.06",
       "species_col": "canonical_name",
@@ -5953,7 +5953,7 @@
       "content_id": "db5a0d7e9d0b8d78dfe1e3aed899ca6e",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/spider_traits.vtr",
       "nrow": 9346,
-      "source_url": "https://spidertraits.sci.muni.cz/backend/data/export/csv/family/*/genus/*/species/*/original-name/*/trait-category/*/trait/*/method/*/location/*/country/*/dataset/*/authors/*/reference/*/row-link/*",
+      "source_url": "https://spidertraits.sci.muni.cz/",
       "source_format": "csv",
       "source_version": "2026.07",
       "trait_cols": [
@@ -6952,7 +6952,7 @@
       "nrow": 19090,
       "license": "CC0",
       "source_doi": "10.5519/havt50xw",
-      "source_url": "https://data.nhm.ac.uk/dataset/hosts-a-database-of-the-world-s-lepidopteran-hostplants",
+      "source_url": "https://data.nhm.ac.uk/dataset/hosts",
       "source_format": "ckan-datastore-jsonl",
       "source_version": "2010.1",
       "species_col": "canonical_name",
@@ -6967,7 +6967,7 @@
         "authors": "Robinson GS, Ackery PR, Kitching IJ, Beccaloni GW, Hernandez LM",
         "year": "2010",
         "title": "HOSTS - a Database of the World's Lepidopteran Hostplants",
-        "url": "https://data.nhm.ac.uk/dataset/hosts-a-database-of-the-world-s-lepidopteran-hostplants"
+        "url": "https://data.nhm.ac.uk/dataset/hosts"
       }
     },
     "usda_fungus_host": {
