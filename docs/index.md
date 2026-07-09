@@ -86,6 +86,13 @@ taxify(
 | [FishBase](https://www.fishbase.org/) | Fishes | ~100k |
 | [SeaLifeBase](https://www.sealifebase.org/) | Non-fish marine/aquatic | ~134k |
 | [Reptile Database](http://www.reptile-database.org/) | Reptiles | ~50k |
+| [LCVP](https://www.idiv.de/en/lcvp.html) | Vascular plants | ~1.3M |
+| [WCVP](https://powo.science.kew.org/) | Vascular plants | ~1.4M |
+
+[`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
+returns this table live, with the installed and version status of each.
+[`taxify_databases()`](https://gillescolling.com/taxify/reference/taxify_databases.md)
+adds the enrichment layers alongside it for the full picture.
 
 ## Names are cleaned before matching
 
@@ -109,12 +116,18 @@ On the same WFO backbone and the same 5,000 plant names (Windows, R
 4.5.2), matching against the local snapshot in C avoids the per-name
 cost of the CSV-into-RAM approach:
 
-|                           | taxify            | WorldFlora             |
-|---------------------------|-------------------|------------------------|
-| Exact match (1,000 names) | 0.1 s             | 1.3 s                  |
-| Fuzzy match (1,000 names) | 1.0 s             | 1,862 s (31 min)       |
-| Fuzzy match (5,000 names) | 1.1 s             | ~83 min (extrapolated) |
-| Backbone load             | ~3 s (first call) | 33 s (CSV into RAM)    |
+|  | taxify | WorldFlora | taxize |
+|----|----|----|----|
+| Exact match (1,000 names) | 0.1 s | 1.3 s | ~7 s † |
+| Fuzzy match (1,000 names) | 1.0 s | 1,862 s (31 min) | ~7 s † |
+| Fuzzy match (5,000 names) | 1.1 s | ~83 min (extrapolated) | ~31 s † |
+| Backbone load | ~3 s (first call) | 33 s (CSV into RAM) | none (online) |
+
+† taxize resolves names through the Global Names online resolver
+(`gna_verifier`), which returns exact and fuzzy matches in one request,
+so one figure covers both rows. These are single indicative runs: the
+time is network-bound and varies with service load, and is not tied to
+the WFO backbone the other two use.
 
 ## What you get back
 
@@ -172,7 +185,13 @@ GloNAF, LepTraits, AnimalTraits, and regional plant-trait sets for
 France (Baseflor), Britain (Ecoflora), and Germany (FloraWeb), and more.
 The [enrichments
 vignette](https://gillescolling.com/taxify/articles/enrichments.html)
-lists the full set with references and licenses.
+lists the full set with references and licenses, and
+[`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
+returns it in R;
+[`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md)
+browses the cross-source trait vocabulary that
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+draws on.
 
 To join your own table,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)

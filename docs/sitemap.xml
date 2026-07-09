@@ -2,6 +2,7 @@
 <url><loc>https://gillescolling.com/taxify/404.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/backends.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/custom-data.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/articles/databases.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/enrichments.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/fuzzy-matching.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/hybrid-names.html</loc></url>
@@ -119,6 +120,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/index.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/inspect.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/is_aggregate_name.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/list_backbones.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/list_enrichments.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/list_traits.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/lookup_genus.html</loc></url>
@@ -135,6 +137,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/taxify.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_candidates.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_clear_cache.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/taxify_databases.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_data_dir.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_download.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_download_enrichment.html</loc></url>

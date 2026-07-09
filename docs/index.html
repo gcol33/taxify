@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,9 @@
     <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
     <li><a class="dropdown-item" href="articles/quickstart.html">Getting started with taxify</a></li>
     <li><a class="dropdown-item" href="articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Databases</h6></li>
+    <li><a class="dropdown-item" href="articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="articles/backends.html">Choosing and combining backends</a></li>
@@ -97,7 +100,7 @@
 <p><strong>Offline taxonomic name matching against local Darwin Core backbones, with matching done in C.</strong></p>
 <p>Hand it a column of messy species names. <code>taxify</code> cleans them, matches them against a backbone you already have on disk, resolves synonyms to accepted names, and returns one standardized data.frame. Every step runs locally against a versioned snapshot, so there are no API calls, no rate limits, and the same input gives the same output on any machine. The matching engine is written in C through the <a href="https://github.com/gcol33/vectra" class="external-link">vectra</a> columnar engine.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># match against WFO (downloads the backbone on first use, ~120 MB)</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -199,8 +202,19 @@
 <td>Reptiles</td>
 <td>~50k</td>
 </tr>
+<tr>
+<td><a href="https://www.idiv.de/en/lcvp.html" class="external-link">LCVP</a></td>
+<td>Vascular plants</td>
+<td>~1.3M</td>
+</tr>
+<tr>
+<td><a href="https://powo.science.kew.org/" class="external-link">WCVP</a></td>
+<td>Vascular plants</td>
+<td>~1.4M</td>
+</tr>
 </tbody>
 </table>
+<p><code><a href="reference/list_backbones.html">list_backbones()</a></code> returns this table live, with the installed and version status of each. <code><a href="reference/taxify_databases.html">taxify_databases()</a></code> adds the enrichment layers alongside it for the full picture.</p>
 </div>
 <div class="section level2">
 <h2 id="names-are-cleaned-before-matching">Names are cleaned before matching<a class="anchor" aria-label="anchor" href="#names-are-cleaned-before-matching"></a>
@@ -214,34 +228,46 @@
 <p>Fuzzy matching is configurable (Damerau-Levenshtein, Levenshtein, or Jaro-Winkler, with a distance threshold), and runs genus-blocked so a typo only competes against names in the same genus.</p>
 <p>On the same WFO backbone and the same 5,000 plant names (Windows, R 4.5.2), matching against the local snapshot in C avoids the per-name cost of the CSV-into-RAM approach:</p>
 <table class="table">
+<colgroup>
+<col width="25%">
+<col width="25%">
+<col width="25%">
+<col width="25%">
+</colgroup>
 <thead><tr>
 <th></th>
 <th>taxify</th>
 <th>WorldFlora</th>
+<th>taxize</th>
 </tr></thead>
 <tbody>
 <tr>
 <td>Exact match (1,000 names)</td>
 <td>0.1 s</td>
 <td>1.3 s</td>
+<td>~7 s †</td>
 </tr>
 <tr>
 <td>Fuzzy match (1,000 names)</td>
 <td>1.0 s</td>
 <td>1,862 s (31 min)</td>
+<td>~7 s †</td>
 </tr>
 <tr>
 <td>Fuzzy match (5,000 names)</td>
 <td>1.1 s</td>
 <td>~83 min (extrapolated)</td>
+<td>~31 s †</td>
 </tr>
 <tr>
 <td>Backbone load</td>
 <td>~3 s (first call)</td>
 <td>33 s (CSV into RAM)</td>
+<td>none (online)</td>
 </tr>
 </tbody>
 </table>
+<p>† taxize resolves names through the Global Names online resolver (<code>gna_verifier</code>), which returns exact and fuzzy matches in one request, so one figure covers both rows. These are single indicative runs: the time is network-bound and varies with service load, and is not tied to the WFO backbone the other two use.</p>
 </div>
 <div class="section level2">
 <h2 id="what-you-get-back">What you get back<a class="anchor" aria-label="anchor" href="#what-you-get-back"></a>
@@ -277,7 +303,7 @@
 <span><span class="co"># one trait, gathered across every source that has it</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"seed_mass"</span><span class="op">)</span>         <span class="co"># Diaz + GIFT, harmonized to mg</span></span></code></pre></div>
-<p>Sources span all kingdoms: IUCN, GRIIS, GBIF common names, WCVP, EIVE, Diaz et al., LEDA, GIFT, FungalTraits, FUNGuild, AlgaeTraits, EltonTraits, AVONET, PanTHERIA, AmphiBIO, FISHMORPH, FishBase, AnAge, GloNAF, LepTraits, AnimalTraits, and regional plant-trait sets for France (Baseflor), Britain (Ecoflora), and Germany (FloraWeb), and more. The <a href="https://gillescolling.com/taxify/articles/enrichments.html">enrichments vignette</a> lists the full set with references and licenses.</p>
+<p>Sources span all kingdoms: IUCN, GRIIS, GBIF common names, WCVP, EIVE, Diaz et al., LEDA, GIFT, FungalTraits, FUNGuild, AlgaeTraits, EltonTraits, AVONET, PanTHERIA, AmphiBIO, FISHMORPH, FishBase, AnAge, GloNAF, LepTraits, AnimalTraits, and regional plant-trait sets for France (Baseflor), Britain (Ecoflora), and Germany (FloraWeb), and more. The <a href="https://gillescolling.com/taxify/articles/enrichments.html">enrichments vignette</a> lists the full set with references and licenses, and <code><a href="reference/list_enrichments.html">list_enrichments()</a></code> returns it in R; <code><a href="reference/list_traits.html">list_traits()</a></code> browses the cross-source trait vocabulary that <code><a href="reference/add_trait.html">add_trait()</a></code> draws on.</p>
 <p>To join your own table, <code><a href="reference/add_data.html">add_data()</a></code> auto-detects the species column, matches it through the same backbone(s) used in the original call, and left-joins. It accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and <code>.vtr</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"TRY_traits.csv"</span><span class="op">)</span></span>

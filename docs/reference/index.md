@@ -83,17 +83,21 @@ it.
 - [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
   : Describe a trait's sources and units
 
-## Custom data and discovery
+## Browse and discover
 
-Join your own table, and browse the available enrichment layers and
-columns.
+See every backbone, enrichment, and trait taxify offers, and join your
+own table.
 
-- [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-  : Add custom data by taxonomic matching
+- [`taxify_databases()`](https://gillescolling.com/taxify/reference/taxify_databases.md)
+  : One overview of every database taxify knows about
+- [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
+  : List supported taxonomic backbones
 - [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
   : List available enrichments
 - [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
   : Browse the trait columns an enrichment door can attach
+- [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+  : Add custom data by taxonomic matching
 
 ## Enrichments — distribution and status
 

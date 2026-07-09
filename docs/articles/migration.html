@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +52,9 @@
     <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
     <li><a class="dropdown-item" href="../articles/quickstart.html">Getting started with taxify</a></li>
     <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Databases</h6></li>
+    <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
@@ -256,12 +259,12 @@ closest taxify equivalent.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>gnr_resolve()</code></td>
+<td><code><a href="https://docs.ropensci.org/taxize/reference/gnr_resolve.html" class="external-link">gnr_resolve()</a></code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
 <td>Any backend; returns best match per name</td>
 </tr>
 <tr class="even">
-<td><code>classification()</code></td>
+<td><code><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification()</a></code></td>
 <td>
 <code><a href="../reference/taxify.html">taxify()</a></code> + <code><a href="../reference/add_classification.html">add_classification()</a></code>
 </td>
@@ -277,20 +280,20 @@ class / order</td>
 </tr>
 <tr class="even">
 <td>
-<code><a href="../reference/children.html">children()</a></code> / <code>downstream()</code>
+<code><a href="../reference/children.html">children()</a></code> / <code><a href="https://docs.ropensci.org/taxize/reference/downstream.html" class="external-link">downstream()</a></code>
 </td>
 <td><code><a href="../reference/children.html">children()</a></code></td>
 <td>Lists the accepted taxa within a genus or family</td>
 </tr>
 <tr class="odd">
-<td><code>tax_name()</code></td>
+<td><code><a href="https://docs.ropensci.org/taxize/reference/tax_name.html" class="external-link">tax_name()</a></code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
 <td>
 <code>family</code>, <code>genus</code>, <code>rank</code>
 columns</td>
 </tr>
 <tr class="even">
-<td><code>sci2comm()</code></td>
+<td><code><a href="https://docs.ropensci.org/taxize/reference/sci2comm.html" class="external-link">sci2comm()</a></code></td>
 <td><code><a href="../reference/add_common_names.html">add_common_names()</a></code></td>
 <td>Pipe enrichment; GBIF vernacular names by language</td>
 </tr>
@@ -302,9 +305,9 @@ name-resolution functions, so taxify does not cover them. The “What
 taxify does not do” section below points to the right packages for those
 tasks.</p>
 <p>The key structural difference: taxize returned results in varied
-formats depending on the function (<code>classification()</code> gave a
+formats depending on the function (<code><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification()</a></code> gave a
 nested list of data.frames, <code><a href="../reference/synonyms.html">synonyms()</a></code> another nested list,
-<code>get_tsn()</code> a character vector with attributes). taxify
+<code><a href="https://docs.ropensci.org/taxize/reference/get_tsn.html" class="external-link">get_tsn()</a></code> a character vector with attributes). taxify
 returns the same 16-column data.frame from every call. Synonym status,
 classification, and match quality are columns, not separate API
 calls.</p>
@@ -599,8 +602,8 @@ across the three large vascular-plant authorities).</p>
 <h2 id="example-1-basic-name-resolution">Example 1: Basic name resolution<a class="anchor" aria-label="anchor" href="#example-1-basic-name-resolution"></a>
 </h2>
 <p>With taxize, name resolution typically meant several separate calls:
-<code>gnr_resolve()</code> for matching, <code>get_gbifid()</code> for
-IDs, <code>classification()</code> for hierarchy,
+<code><a href="https://docs.ropensci.org/taxize/reference/gnr_resolve.html" class="external-link">gnr_resolve()</a></code> for matching, <code><a href="https://docs.ropensci.org/taxize/reference/get_gbifid.html" class="external-link">get_gbifid()</a></code> for
+IDs, <code><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification()</a></code> for hierarchy,
 <code><a href="../reference/synonyms.html">synonyms()</a></code> for synonym status.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxize ---</span></span>
@@ -609,14 +612,14 @@ IDs, <code>classification()</code> for hierarchy,
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span>,</span>
 <span>           <span class="st">"Panthera leo"</span>, <span class="st">"Salmo trutta"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">resolved</span>  <span class="op">&lt;-</span> <span class="fu">gnr_resolve</span><span class="op">(</span><span class="va">names</span>, best_match_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">gbif_ids</span>  <span class="op">&lt;-</span> <span class="fu">get_gbifid</span><span class="op">(</span><span class="va">names</span><span class="op">)</span></span>
-<span><span class="va">class_list</span> <span class="op">&lt;-</span> <span class="fu">classification</span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
+<span><span class="va">resolved</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/taxize/reference/gnr_resolve.html" class="external-link">gnr_resolve</a></span><span class="op">(</span><span class="va">names</span>, best_match_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">gbif_ids</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/taxize/reference/get_gbifid.html" class="external-link">get_gbifid</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span></span>
+<span><span class="va">class_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification</a></span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span><span class="va">syn_list</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/synonyms.html">synonyms</a></span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span></code></pre></div>
 <p>With taxify, all of that is one call:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span>,</span>
 <span>           <span class="st">"Panthera leo"</span>, <span class="st">"Salmo trutta"</span><span class="op">)</span></span>
@@ -652,7 +655,7 @@ best match per input.</p>
 happen in a single call:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>,</span>
 <span>           <span class="st">"Pinus silvestris"</span>, <span class="st">"Rosa canina"</span><span class="op">)</span></span>
@@ -680,7 +683,7 @@ taxify handles both: the fuzzy matcher corrects the spelling to
 <p>taxify can chain multiple backbones in a single call. Unmatched names
 cascade to the next backbone automatically.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gcol33/taxify" class="external-link">taxify</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Mixed kingdom input: plants, animals, fungi</span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -842,11 +845,11 @@ names, returns classification metadata, and joins enrichment layers.
 Several things that taxize or other packages handle are outside its
 scope.</p>
 <p><strong>Common-to-scientific name lookup.</strong> taxize had
-<code>comm2sci()</code> to go from “European robin” to <em>Erithacus
+<code><a href="https://docs.ropensci.org/taxize/reference/comm2sci.html" class="external-link">comm2sci()</a></code> to go from “European robin” to <em>Erithacus
 rubecula</em>. taxify matches scientific names, not vernacular input.
 For that direction, the GBIF API (<code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code>)
 accepts common names and returns candidates.</p>
-<p><strong>Downstream taxa.</strong> taxize’s <code>downstream()</code>
+<p><strong>Downstream taxa.</strong> taxize’s <code><a href="https://docs.ropensci.org/taxize/reference/downstream.html" class="external-link">downstream()</a></code>
 returned all children of a higher taxon (e.g., all species in a genus).
 taxify does not enumerate children. For tree-based queries, the rotl
 package provides access to the Open Tree of Life synthetic tree, and
@@ -884,7 +887,7 @@ annotation for a single taxon, these packages return that immediately.
 taxify works against the snapshot on disk and only sees changes when the
 backbone is updated.</p></li>
 <li><p><strong>Common-to-scientific lookups.</strong> taxize had
-<code>comm2sci()</code> to go from “European robin” to <em>Erithacus
+<code><a href="https://docs.ropensci.org/taxize/reference/comm2sci.html" class="external-link">comm2sci()</a></code> to go from “European robin” to <em>Erithacus
 rubecula</em>. taxify matches scientific names, not vernacular input.
 For that direction, <code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code> accepts common
 names and returns candidates.</p></li>
@@ -892,7 +895,7 @@ names and returns candidates.</p></li>
 list all species in a family or all subspecies of a species, taxify does
 not provide that query. Use
 <code>rgbif::name_usage(key, data = "children")</code> or
-<code>rotl::tol_subtree()</code>.</p></li>
+<code><a href="https://docs.ropensci.org/rotl/reference/tol_subtree.html" class="external-link">rotl::tol_subtree()</a></code>.</p></li>
 <li><p><strong>Wider biodiversity-data cleaning.</strong> <a href="https://brunobrr.github.io/bdc/" class="external-link">bdc</a> wraps the entire
 data-cleaning workflow (coordinate cleaning, dataset merging, taxonomic
 harmonization, occurrence flagging). taxify can replace its taxonomic

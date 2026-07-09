@@ -1,6 +1,35 @@
 # Changelog
 
+## taxify 0.3.5
+
+### Discovery
+
+- New
+  [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
+  lists every supported taxonomic backbone with its scope, name count,
+  download size, version, install status, and source, mirroring
+  [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md).
+  New
+  [`taxify_databases()`](https://gillescolling.com/taxify/reference/taxify_databases.md)
+  stacks the backbones and enrichments into one overview so the full
+  breadth is one call away. A canonical backbone registry now backs
+  `resolve_backend()`, `installed_backbones()`, and these verbs, so the
+  supported set cannot drift between them.
+
+- A “Databases” pkgdown article lists every backbone, enrichment, and
+  trait, generated from the shipped manifest so it stays current.
+
+### Backbones
+
+- The LCVP and WCVP backbones are downloadable as pre-built `.vtr`
+  files. They previously had no published release and could only be
+  built from source; both are now in the manifest (`lcvp-3.0.1`,
+  `wcvp-2026.06`), so all fifteen backbones resolve without `taxifydb`
+  installed.
+
 ## taxify 0.3.4
+
+CRAN release: 2026-07-09
 
 ### Bug fixes
 
@@ -264,12 +293,8 @@
 - Enrichment doors are named after their source; the trait name is
   reserved for
   [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md).
-  [`add_woodiness()`](https://rdrr.io/pkg/taxify/man/add_woodiness.html),
-  [`add_conservation_status()`](https://rdrr.io/pkg/taxify/man/add_conservation_status.html),
-  [`add_invasive_status()`](https://rdrr.io/pkg/taxify/man/add_invasive_status.html),
-  and
-  [`add_fish_traits()`](https://rdrr.io/pkg/taxify/man/add_fish_traits.html)
-  are renamed to
+  `add_woodiness()`, `add_conservation_status()`,
+  `add_invasive_status()`, and `add_fish_traits()` are renamed to
   [`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md)
   (Zanne et al. 2014),
   [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
@@ -316,11 +341,9 @@
   al. 2024) by accepted name. Beyond body-size and life-history traits,
   it carries a per-species distribution signal – biogeographic realm,
   elevation range and mean climate – across all reptiles. This replaces
-  the earlier
-  [`add_lizard_traits()`](https://rdrr.io/pkg/taxify/man/add_lizard_traits.html),
-  which drew on the same ReptTraits source but was mislabelled (it
-  covered all reptiles, not lizards) and exposed only the morphology
-  columns. License: CC-BY 4.0.
+  the earlier `add_lizard_traits()`, which drew on the same ReptTraits
+  source but was mislabelled (it covered all reptiles, not lizards) and
+  exposed only the morphology columns. License: CC-BY 4.0.
 - New
   [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
   flags probable typos and other anomalies in a name list and returns
@@ -612,14 +635,11 @@ CRAN release: 2026-06-30
 - Added an end-to-end regression test
   (`tests/e2e/test-e2e-enrichment.R`) for the enrichment join fixed in
   0.2.5 ([\#1](https://github.com/gcol33/taxify/issues/1)). It checks
-  that
-  [`add_conservation_status()`](https://rdrr.io/pkg/taxify/man/add_conservation_status.html),
+  that `add_conservation_status()`,
   [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
-  and
-  [`add_woodiness()`](https://rdrr.io/pkg/taxify/man/add_woodiness.html)
-  attach each value to the row’s own accepted taxon, stay invariant to
-  batch composition and order, and land documented values on the correct
-  species.
+  and `add_woodiness()` attach each value to the row’s own accepted
+  taxon, stay invariant to batch composition and order, and land
+  documented values on the correct species.
 
 ## taxify 0.2.7
 

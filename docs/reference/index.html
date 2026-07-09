@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,6 +35,9 @@
     <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
     <li><a class="dropdown-item" href="../articles/quickstart.html">Getting started with taxify</a></li>
     <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Databases</h6></li>
+    <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
@@ -303,9 +306,9 @@
         </dt>
         <dd>Describe a trait's sources and units</dd>
       </dl></div><div class="section level2">
-      <h2 id="custom-data-and-discovery">Custom data and discovery<a class="anchor" aria-label="anchor" href="#custom-data-and-discovery"></a></h2>
+      <h2 id="browse-and-discover">Browse and discover<a class="anchor" aria-label="anchor" href="#browse-and-discover"></a></h2>
 
-      <div class="section-desc"><p>Join your own table, and browse the available enrichment layers and columns.</p></div>
+      <div class="section-desc"><p>See every backbone, enrichment, and trait taxify offers, and join your own table.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -314,10 +317,17 @@
 
       <dl><dt>
 
-          <code><a href="add_data.html">add_data()</a></code>
+          <code><a href="taxify_databases.html">taxify_databases()</a></code>
 
         </dt>
-        <dd>Add custom data by taxonomic matching</dd>
+        <dd>One overview of every database taxify knows about</dd>
+
+        <dt>
+
+          <code><a href="list_backbones.html">list_backbones()</a></code>
+
+        </dt>
+        <dd>List supported taxonomic backbones</dd>
 
         <dt>
 
@@ -332,6 +342,13 @@
 
         </dt>
         <dd>Browse the trait columns an enrichment door can attach</dd>
+
+        <dt>
+
+          <code><a href="add_data.html">add_data()</a></code>
+
+        </dt>
+        <dd>Add custom data by taxonomic matching</dd>
       </dl></div><div class="section level2">
       <h2 id="enrichments-distribution-and-status">Enrichments — distribution and status<a class="anchor" aria-label="anchor" href="#enrichments-distribution-and-status"></a></h2>
 

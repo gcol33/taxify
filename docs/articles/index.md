@@ -7,6 +7,11 @@
 - [Migrating from taxize, WorldFlora, and related
   tools](https://gillescolling.com/taxify/articles/migration.md):
 
+### Databases
+
+- [Databases: every backbone, enrichment, and
+  trait](https://gillescolling.com/taxify/articles/databases.md):
+
 ### Core features
 
 - [Choosing and combining
