@@ -26,7 +26,7 @@ historical names collapse onto a current name."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,14 +143,19 @@ accepted taxa within a genus or family.</p></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Amphibolurus vitticeps is a synonym of Pogona vitticeps</span></span>
-<span><span class="fu">synonyms</span><span class="op">(</span><span class="st">"Pogona vitticeps"</span>, backend <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Amphibolurus vitticeps is a synonym of Pogona vitticeps</span></span></span>
+<span class="r-in"><span><span class="fu">synonyms</span><span class="op">(</span><span class="st">"Pogona vitticeps"</span>, backend <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         input_name    accepted_name                synonym authorship    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Pogona vitticeps Pogona vitticeps Amphibolurus vitticeps       &lt;NA&gt; SPECIES</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           taxon_id   backend</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 reptiledb-ex-007 reptiledb</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

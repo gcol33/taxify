@@ -56,6 +56,7 @@ summary.taxify_result <- function(object, ...) {
                (tally$abbrev %||% 0L)
   n_oos     <- tally$out_of_scope %||% 0L
   n_none    <- tally$unmatched %||% 0L
+  n_hybform <- tally$hybrid_formula %||% 0L
 
   # Header
   backend_str <- paste(toupper(meta$backend), collapse = " + ")
@@ -112,6 +113,12 @@ summary.taxify_result <- function(object, ...) {
     } else {
       cat(sprintf("  out of scope%5d%s\n", n_oos, tip_str))
     }
+  }
+
+  # Hybrid-formula line (crosses whose parents are resolved separately)
+  if (n_hybform > 0L) {
+    cat(sprintf("  hybrid formula%3d  (cross not a single taxon; see hybrid_parent_* columns)\n",
+                n_hybform))
   }
 
   # Unmatched line (always shown, breakdown by taxon_group helps diagnose)

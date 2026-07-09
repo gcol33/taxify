@@ -26,7 +26,7 @@ phylogenetically imputed) values are used."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -171,11 +171,37 @@ extrinsic traits. Ecology 102:e03344. <a href="https://doi.org/10.1002/ecy.3344"
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Vulpes vulpes"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_combine</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Vulpes vulpes"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_combine</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_combine(): attaching 15 of 57 columns. Pass cols = "all" for all, or see enrichment_cols("combine").</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      input_name  matched_name accepted_name    taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Vulpes vulpes Vulpes vulpes Vulpes vulpes gbif-ex-004 gbif-ex-004 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    family  genus epithet       authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Canidae Vulpes  vulpes (Linnaeus, 1758)    (Linnaeus, 1758)      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist is_ambiguous ambiguous_targets backend</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA        FALSE              &lt;NA&gt;    gbif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            backbone_version kingdom_group taxon_group life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 gbif:example (2026-06-24)       unknown     unknown   unknown      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type combine_adult_mass_g</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;               4580.3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   combine_adult_body_length_mm combine_litter_size_n combine_litters_per_year_n</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                          630                 4.732                          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   combine_max_longevity_d combine_gestation_length_d combine_weaning_age_d</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  7774.5                     52.352                 49.71</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   combine_generation_length_d combine_dispersal_km combine_habitat_breadth_n</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    2105.397                2.448                         6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   combine_diet_breadth_n combine_trophic_level combine_activity_cycle</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      2                     2                      2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   combine_foraging_stratum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                        G</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                   combine_biogeographical_realm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Afrotropical, Australasian, Indomalayan, Nearctic, Palearctic</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF example, COMBINE 1.0 | cite() for full citations</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

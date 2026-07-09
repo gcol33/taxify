@@ -26,7 +26,7 @@ list_enrichments() for the backbone side."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,10 +113,43 @@ cannot be fetched offline.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
-<span><span class="fu">list_backbones</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu">list_backbones</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           name                         scope n_names size_mb version installed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          wfo               Vascular plants 1638552     760 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          col                  All kingdoms 5302873    1869 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         gbif                  All kingdoms 6404001    1769 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4         itis   US focus, freshwater/marine  991868     195 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5         ncbi                      All life 2739317     487 2026.05      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          ott          All life (synthetic) 3690217     693   3.7.3      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7        worms                Marine/aquatic 1557860     330 2026.07      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      euromed European/Mediterranean plants  133426      29 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9     fungorum                         Fungi  315037      68 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   algaebase                         Algae  172351      35 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11    fishbase                        Fishes  102703      18 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 sealifebase       Non-fish marine/aquatic  134031      28 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13   reptiledb                      Reptiles   50043       9 2026.06      TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14        lcvp               Vascular plants 1337891     241   3.0.1     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15        wcvp               Vascular plants 1448984     318 2026.06     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                       source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          https://www.worldfloraonline.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2           https://www.catalogueoflife.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                      https://www.gbif.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                       https://www.itis.gov</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      https://www.ncbi.nlm.nih.gov/taxonomy</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          https://opentreeoflife.github.io/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7             https://www.marinespecies.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                   https://europlusmed.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9           https://www.speciesfungorum.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10                https://www.algaebase.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11                 https://www.fishbase.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12              https://www.sealifebase.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13          http://www.reptile-database.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 https://github.com/idiv-biodiversity/LCVP</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15             https://powo.science.kew.org/</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

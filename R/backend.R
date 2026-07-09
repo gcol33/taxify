@@ -302,13 +302,16 @@ precompute_keys <- function(df, name_col, genus_col, epithet_col) {
 #' @return The updated result data.frame.
 #' @noRd
 match_exact_compiled <- function(result, names_df, bb_path, col_map) {
-  cleaned    <- names_df$cleaned
-  genus_only <- names_df$genus_only
-  has_name   <- !is.na(cleaned)
+  cleaned     <- names_df$cleaned
+  genus_only  <- names_df$genus_only
+  has_name    <- !is.na(cleaned)
   hybrid_name <- names_df$hybrid_name
+  hybrid_type <- names_df$hybrid_type %||% rep(NA_character_, nrow(names_df))
   n <- nrow(names_df)
 
-  if (!any(has_name)) return(result)
+  # Nothing to match only when there is neither a cleaned name nor a hybrid
+  # backbone-form key (a formula carries the latter but no cleaned name).
+  if (!any(has_name) && all(is.na(hybrid_name))) return(result)
 
   name_col  <- col_map$name
   genus_col <- col_map$genus
@@ -353,12 +356,48 @@ match_exact_compiled <- function(result, names_df, bb_path, col_map) {
                               name_col, "exact")
   }
 
-  # --- Pass 1: Hybrid names (nothospecies form: "Genus × epithet") ---
+  # --- Pass 1: Hybrid backbone form (multiplication sign retained) ---
+  # Backbones keep the sign: nothospecies "Genus [x] epithet", nothogenus
+  # "[x] Genus ..." (where [x] is U+00D7). For a nothogenus, also try the
+  # no-space "[x]Genus ..." spelling some backbones store.
   hybrid_mask <- has_name & !genus_only & !is.na(hybrid_name) &
     is.na(result$match_type)
   if (any(hybrid_mask)) {
-    result <- lookup_and_fill(result, hybrid_name[hybrid_mask],
-                              which(hybrid_mask), name_col, "exact")
+    hk_idx <- which(hybrid_mask)
+    keys <- hybrid_name[hk_idx]
+    ridx <- hk_idx
+    ng <- !is.na(hybrid_type[hk_idx]) & hybrid_type[hk_idx] == "nothogenus"
+    if (any(ng)) {
+      keys <- c(keys, sub(" ", "", keys[ng], fixed = TRUE))
+      ridx <- c(ridx, hk_idx[ng])
+    }
+    result <- lookup_and_fill(result, keys, ridx, name_col, "exact")
+  }
+
+  # --- Pass 1b: Full hybrid-formula string ---
+  # A formula ("Salix alba × Salix fragilis") has no cleaned name (has_name is
+  # FALSE), so it is skipped by the passes above. Try the full parent-expanded
+  # formula first: some backbones store it as a name/synonym of the resulting
+  # nothospecies, in which case the cross resolves normally. When it misses the
+  # row stays unmatched and is finalized as "hybrid_formula" (parents then feed
+  # the trait fallback).
+  is_formula <- !is.na(hybrid_type) & hybrid_type == "formula" &
+    !is.na(hybrid_name)
+  fmask <- is_formula & is.na(result$match_type)
+  if (any(fmask)) {
+    result <- lookup_and_fill(result, hybrid_name[which(fmask)], which(fmask),
+                              name_col, "exact")
+    ci_still <- is_formula & is.na(result$match_type)
+    if (any(ci_still)) {
+      result <- lookup_and_fill(result, tolower(hybrid_name[which(ci_still)]),
+                                which(ci_still), "key_ci", "exact_ci")
+    }
+    norm_still <- is_formula & is.na(result$match_type)
+    if (any(norm_still)) {
+      result <- lookup_and_fill(result,
+                                normalize_epithets(hybrid_name[which(norm_still)]),
+                                which(norm_still), "key_normalized", "exact_ci")
+    }
   }
 
   # --- Pass 2: Exact (case-sensitive) ---

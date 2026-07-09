@@ -8,10 +8,14 @@
 #' \describe{
 #'   \item{hybrid_parent_1}{First parent (full binomial), `NA` if not a
 #'     hybrid formula.}
-#'   \item{hybrid_parent_2}{Second parent (full binomial, abbreviated
+#'   \item{hybrid_parent_2}{Second parent (full binomial, abbreviated or omitted
 #'     genus expanded), `NA` if not a hybrid formula.}
+#'   \item{hybrid_parent_1_accepted, hybrid_parent_2_accepted}{The accepted
+#'     name each parent resolves to against the backend(s) used for `x` (from
+#'     the result's metadata), or `NA` if the parent did not match.}
 #'   \item{hybrid_type}{One of `"nothogenus"`, `"nothospecies"`,
-#'     `"formula"`, or `NA` if not a hybrid.}
+#'     `"formula"`, or `NA` if not a hybrid (same value as the `hybrid_type`
+#'     column already on a [taxify()] result).}
 #' }
 #'
 #' @examples
@@ -40,7 +44,20 @@ add_hybrid_info <- function(x) {
 
   x$hybrid_parent_1 <- vapply(parsed, `[[`, character(1L), "parent_1")
   x$hybrid_parent_2 <- vapply(parsed, `[[`, character(1L), "parent_2")
-  x$hybrid_type <- vapply(parsed, `[[`, character(1L), "hybrid_type")
+  x$hybrid_type     <- vapply(parsed, `[[`, character(1L), "hybrid_type")
+
+  # Resolve each parent to its accepted name against the backend(s) used for x.
+  x$hybrid_parent_1_accepted <- NA_character_
+  x$hybrid_parent_2_accepted <- NA_character_
+  parents <- unique(c(x$hybrid_parent_1, x$hybrid_parent_2))
+  parents <- parents[!is.na(parents) & nzchar(parents)]
+  if (length(parents) > 0L) {
+    meta    <- attr(x, "taxify_meta")
+    backend <- if (!is.null(meta$backend)) meta$backend else "wfo"
+    acc <- .resolve_parents_accepted(parents, backend)
+    x$hybrid_parent_1_accepted <- unname(acc[x$hybrid_parent_1])
+    x$hybrid_parent_2_accepted <- unname(acc[x$hybrid_parent_2])
+  }
 
   n_enriched <- sum(!is.na(x$hybrid_type))
   register_enrichment(x, "hybrid_info", "taxify", NA_character_, n_enriched)

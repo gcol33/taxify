@@ -24,7 +24,7 @@ parent is auto-detected: a genus is tried first, then a family."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,13 +123,22 @@ object. Default <code>"wfo"</code>.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">children</span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">children</span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                name     authorship    rank   family   genus   taxon_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   Quercus petraea (Matt.) Liebl. SPECIES Fagaceae Quercus wfo-ex-002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Quercus pyrenaica         Willd. SPECIES Fagaceae Quercus wfo-ex-003</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     Quercus robur             L. SPECIES Fagaceae Quercus wfo-ex-001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   parent_rank backend</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       genus     wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       genus     wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       genus     wfo</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

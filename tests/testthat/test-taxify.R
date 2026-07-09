@@ -93,6 +93,85 @@ test_that("taxify with fuzzy = FALSE skips fuzzy", {
   expect_equal(result$match_type, "none")
 })
 
+test_that("taxify does not collapse a hybrid formula to its first parent", {
+  setup_mock_backend()
+  result <- taxify("Salix alba x Salix fragilis", verbose = FALSE)
+  expect_equal(result$match_type, "hybrid_formula")
+  expect_true(result$is_hybrid)
+  expect_equal(result$hybrid_type, "formula")
+  # no false single-taxon match to Salix alba; the cross is named by its two
+  # (resolved) parents instead
+  cross <- paste0("Salix alba ", intToUtf8(0x00D7), " Salix fragilis")
+  expect_equal(result$matched_name, cross)
+  expect_equal(result$accepted_name, cross)
+  # parent columns are not in the default output (they live in add_hybrid_info)
+  expect_false("hybrid_parent_1" %in% names(result))
+})
+
+test_that("taxify matches a nothogenus via the sign-stripped form", {
+  setup_mock_backend()
+  result <- taxify("x Festulolium", verbose = FALSE)
+  expect_equal(result$match_type, "exact")
+  expect_equal(result$matched_name, "Festulolium")
+  expect_true(result$is_hybrid)
+  expect_equal(result$hybrid_type, "nothogenus")
+})
+
+test_that("taxify matches a nothospecies", {
+  setup_mock_backend()
+  result <- taxify("Quercus x hispanica", verbose = FALSE)
+  expect_equal(result$matched_name, "Quercus hispanica")
+  expect_true(result$is_hybrid)
+  expect_equal(result$hybrid_type, "nothospecies")
+})
+
+test_that("taxify matches a sign-only hybrid via the hybrid backbone-form pass", {
+  # A backbone that stores hybrids only with the multiplication sign retained
+  # (as WFO / COL do), with no sign-stripped row to fall back on.
+  sx <- intToUtf8(0x00D7)  # multiplication sign, kept out of the source as ASCII
+  notho_genus <- paste0(sx, " Cupressocyparis leylandii")
+  notho_sp    <- paste0("Salix ", sx, " rubens")
+  df <- mock_backbone_df()
+  extra <- df[c(1L, 1L), ]
+  extra$canonical_name <- c(notho_genus, notho_sp)
+  extra$taxon_id <- c("wfo-9001", "wfo-9002")
+  extra$taxon_rank <- c("SPECIES", "SPECIES")
+  extra$taxonomic_status <- c("ACCEPTED", "ACCEPTED")
+  extra$accepted_name_usage_id <- c(NA_character_, NA_character_)
+  extra$family <- c("Cupressaceae", "Salicaceae")
+  extra$genus <- c("Cupressocyparis", "Salix")
+  extra$specific_epithet <- c("leylandii", "rubens")
+  extra$authorship <- c(NA_character_, NA_character_)
+  extra$infraspecific_epithet <- c(NA_character_, NA_character_)
+
+  df2 <- rbind(df, extra)
+  df2 <- precompute_keys(df2, "canonical_name", "genus", "specific_epithet")
+  df2 <- embed_accepted(df2, id_col = "taxon_id",
+                        acc_id_col = "accepted_name_usage_id",
+                        name_col = "canonical_name", family_col = "family",
+                        genus_col = "genus", status_col = "taxonomic_status",
+                        authorship_col = "authorship")
+  df2 <- df2[order(df2$genus, na.last = TRUE), ]
+  rownames(df2) <- NULL
+  tmp <- tempfile(fileext = ".vtr")
+  vectra::write_vtr(df2, tmp, batch_size = 50000L)
+
+  be <- wfo_backend()
+  set_backbone_path(be$name, tmp)
+
+  result <- taxify(c("x Cupressocyparis leylandii", "Salix x rubens"),
+                   verbose = FALSE)
+  # Nothogenus: only the sign form exists, so the plain-form pass cannot match
+  # it -- it resolves through the hybrid backbone-form pass ("× Genus ...").
+  expect_equal(result$match_type[1L], "exact")
+  expect_equal(result$matched_name[1L], notho_genus)
+  expect_equal(result$hybrid_type[1L], "nothogenus")
+  # Nothospecies stored with the sign ("Genus [x] epithet").
+  expect_equal(result$match_type[2L], "exact")
+  expect_equal(result$matched_name[2L], notho_sp)
+  expect_equal(result$hybrid_type[2L], "nothospecies")
+})
+
 test_that("taxify strips authorship before matching", {
   setup_mock_backend()
   result <- taxify("Quercus robur L.", verbose = FALSE)

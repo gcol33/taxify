@@ -24,7 +24,7 @@ dominant modality."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -122,11 +122,30 @@ benthic invertebrates. figshare. <a href="https://doi.org/10.6084/m9.figshare.21
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Macomona liliana"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_nztd</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Macomona liliana"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_nztd</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_nztd(): attaching 9 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("nztd").</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         input_name matched_name accepted_name taxon_id accepted_id rank family</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Macomona liliana         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;   &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym is_hybrid match_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE       none</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       unknown     unknown   unknown      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type nztd_bioturbation nztd_body_size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;              &lt;NA&gt;           &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nztd_degree_of_attachment nztd_feeding_mode nztd_living_habit nztd_mobility</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      &lt;NA&gt;              &lt;NA&gt;              &lt;NA&gt;          &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   nztd_morphology nztd_movement_method nztd_rigidity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1            &lt;NA&gt;                 &lt;NA&gt;          &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF NA | cite() for full citations</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

@@ -24,7 +24,7 @@ accepted_name. Long-format observations are reduced to one value per species
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,11 +154,34 @@ ray life history traits and abundance time-series. Scientific Data 9:559.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Carcharodon carcharias"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_sharkipedia</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Carcharodon carcharias"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_sharkipedia</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_sharkipedia(): attaching 11 of 52 columns. Pass cols = "all" for all, or see enrichment_cols("sharkipedia").</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               input_name matched_name accepted_name taxon_id accepted_id rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Carcharodon carcharias         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   family genus epithet authorship accepted_authorship is_synonym is_hybrid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   &lt;NA&gt;  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   match_type fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       none         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       unknown     unknown   unknown      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type sharkipedia_lmax_cm sharkipedia_vbgf_linf_cm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;                  NA                       NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sharkipedia_vbgf_k sharkipedia_vbgf_t0 sharkipedia_length_first_maturity_cm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA                  NA                                   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sharkipedia_length_birth_cm sharkipedia_amax_observed_yr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                          NA                           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sharkipedia_age_first_maturity_yr sharkipedia_uterine_fecundity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                NA                            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sharkipedia_gestation_length sharkipedia_natural_mortality</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                           NA                            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF NA | cite() for full citations</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

@@ -39,6 +39,18 @@ test_that("add_hybrid_info handles nothogenus", {
   expect_true(is.na(result$hybrid_parent_1))
 })
 
+test_that("add_hybrid_info resolves formula parents to accepted names", {
+  setup_mock_backend()
+  # same-genus shorthand: second parent is a bare epithet
+  result <- taxify("Salix alba x fragilis", verbose = FALSE) |>
+    add_hybrid_info()
+  expect_equal(result$hybrid_type, "formula")
+  expect_equal(result$hybrid_parent_1, "Salix alba")
+  expect_equal(result$hybrid_parent_2, "Salix fragilis")
+  expect_equal(result$hybrid_parent_1_accepted, "Salix alba")
+  expect_equal(result$hybrid_parent_2_accepted, "Salix fragilis")
+})
+
 # -- add_wfo_info --
 
 test_that("add_wfo_info adds extra WFO columns", {

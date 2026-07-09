@@ -805,6 +805,115 @@ enrichment_cols <- function(source) {
 }
 
 
+# Resolve a set of parent binomials to their accepted names against backend(s).
+# Memoized per (backend, parent-set) within a session so a chain of add_trait
+# sources over the same hybrids resolves the parents only once.
+.resolve_parents_accepted <- function(parents, backend) {
+  parents <- unique(parents[!is.na(parents) & nzchar(parents)])
+  if (length(parents) == 0L) {
+    return(stats::setNames(character(0L), character(0L)))
+  }
+  be_key <- paste(as.character(backend), collapse = "+")
+  key    <- paste0(".pacc_", be_key, "_", paste(sort(parents), collapse = "|"))
+  cached <- .taxify_env[[key]]
+  if (!is.null(cached)) return(cached)
+  pr  <- taxify(parents, backend = backend, verbose = FALSE)
+  acc <- stats::setNames(pr$accepted_name, pr$input_name)
+  .taxify_env[[key]] <- acc
+  acc
+}
+
+# Look up a set of names in an enrichment .vtr, returning the joined rows.
+.enrichment_vtr_lookup <- function(vtr_path, join_key, keys, src_cols) {
+  keys <- unique(keys[!is.na(keys)])
+  if (length(keys) == 0L) return(NULL)
+  nd  <- data.frame(lookup_name = keys, stringsAsFactors = FALSE)
+  tmp <- tempfile(fileext = ".vtr")
+  on.exit(unlink(tmp), add = TRUE)
+  vectra::write_vtr(nd, tmp)
+  select_cols <- unique(c(join_key, src_cols))
+  vectra::inner_join(
+    vectra::tbl(tmp),
+    vectra::tbl(vtr_path) |> vectra::select(!!!lapply(select_cols, as.name)),
+    by = stats::setNames(join_key, "lookup_name")
+  ) |> vectra::collect()
+}
+
+# Hybrid trait ladder: for a formula-hybrid row whose trait is still missing
+# after the direct join, fill it from the two parents -- numeric averaged, a
+# categorical taken as the shared value or "A x B" on disagreement (with a
+# warning on the door path). When the parents were materialized as columns
+# (add_hybrid_info) and the door exposes all columns, per-parent trait values
+# are added as `<trait>_parent1` / `<trait>_parent2`.
+.hybrid_trait_fallback <- function(x, col_map, join_key, vtr_path,
+                                   expose_all = TRUE, verbose = TRUE) {
+  if (!all(c("hybrid_type", "input_name") %in% names(x))) return(x)
+  hf <- which(!is.na(x$hybrid_type) & x$hybrid_type == "formula")
+  if (length(hf) == 0L) return(x)
+
+  pf <- lapply(x$input_name[hf], parse_hybrid_formula)
+  p1 <- vapply(pf, function(z) z$parent_1 %||% NA_character_, character(1L))
+  p2 <- vapply(pf, function(z) z$parent_2 %||% NA_character_, character(1L))
+
+  meta    <- attr(x, "taxify_meta")
+  backend <- if (!is.null(meta$backend)) meta$backend else "wfo"
+  acc <- .resolve_parents_accepted(c(p1, p2), backend)
+  a1  <- unname(acc[p1]); a2 <- unname(acc[p2])
+
+  lk <- .enrichment_vtr_lookup(vtr_path, join_key, c(a1, a2), unname(col_map))
+  if (is.null(lk) || nrow(lk) == 0L) return(x)
+  lk  <- lk[!duplicated(lk$lookup_name), , drop = FALSE]
+  ix1 <- match(a1, lk$lookup_name)
+  ix2 <- match(a2, lk$lookup_name)
+
+  show_parents <- isTRUE(expose_all) && "hybrid_parent_1" %in% names(x)
+  conflict <- character(0L)
+
+  for (out_col in names(col_map)) {
+    src <- col_map[[out_col]]
+    if (!src %in% names(lk)) next
+    v1 <- lk[[src]][ix1]
+    v2 <- lk[[src]][ix2]
+    numeric_col <- is.numeric(x[[out_col]])
+
+    for (k in seq_along(hf)) {
+      r <- hf[k]
+      if (!is.na(x[[out_col]][r])) next            # a direct value wins
+      w1 <- v1[k]; w2 <- v2[k]
+      if (is.na(w1) && is.na(w2)) next
+      if (is.na(w1)) {
+        x[[out_col]][r] <- w2
+      } else if (is.na(w2)) {
+        x[[out_col]][r] <- w1
+      } else if (numeric_col) {
+        x[[out_col]][r] <- mean(c(w1, w2))
+      } else if (identical(as.character(w1), as.character(w2))) {
+        x[[out_col]][r] <- w1
+      } else {
+        x[[out_col]][r] <- paste(w1, "x", w2)
+        conflict <- c(conflict, out_col)
+      }
+    }
+
+    if (show_parents) {
+      p1col <- paste0(out_col, "_parent1")
+      p2col <- paste0(out_col, "_parent2")
+      x[[p1col]] <- if (numeric_col) NA_real_ else NA_character_
+      x[[p2col]] <- if (numeric_col) NA_real_ else NA_character_
+      x[[p1col]][hf] <- v1
+      x[[p2col]][hf] <- v2
+    }
+  }
+
+  if (length(conflict) > 0L && isTRUE(expose_all)) {
+    warning(sprintf(
+      "Hybrid parents disagree on categorical trait(s): %s; combined as \"A x B\".",
+      paste(unique(conflict), collapse = ", ")), call. = FALSE)
+  }
+  x
+}
+
+
 enrich_simple <- function(x, enrichment_name, col_map, source_label,
                           na_types = NULL, join_col = "accepted_name",
                           cols = NULL, default_cols = NULL, col_prefix = NULL,
@@ -885,16 +994,15 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   }
 
   valid_rows <- which(!is.na(x[[join_col]]))
-  if (length(valid_rows) == 0L) {
-    meta <- read_enrichment_meta(vtr_path)
-    ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
-                               license = lic))
-  }
+
+  # A species-level join can still enrich a formula hybrid (accepted_name NA)
+  # from its parents, so an empty valid_rows is not necessarily the end.
+  has_formula <- join_col == "accepted_name" && "hybrid_type" %in% names(x) &&
+    any(!is.na(x$hybrid_type) & x$hybrid_type == "formula")
 
   available_src <- intersect(unname(col_map), names(schema))
-  if (length(available_src) == 0L) {
+  if (length(available_src) == 0L ||
+      (length(valid_rows) == 0L && !has_formula)) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
     lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
@@ -921,64 +1029,65 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
     ), call. = FALSE)
   }
 
-  # Species-level joins are aggregate-aware: an aggregate query reaches the
-  # aggregate trait row, and a species query inherits an aggregate-level trait
-  # when no species-level one exists (downward inheritance only). Genus-level
-  # joins keep plain exact matching.
-  agg_aware <- join_col == "accepted_name"
-  if (agg_aware) {
-    keys <- agg_join_keys(x[[join_col]], x[["qualifier"]])
-    lookup_pool <- unique(c(keys$primary[valid_rows], keys$inherit[valid_rows]))
-    lookup_pool <- lookup_pool[!is.na(lookup_pool)]
-  } else {
-    lookup_pool <- unique(x[[join_col]][valid_rows])
-  }
-
-  # Build temp .vtr with the lookup keys
-  names_df <- data.frame(lookup_name = lookup_pool, stringsAsFactors = FALSE)
-  tmp <- tempfile(fileext = ".vtr")
-  on.exit(unlink(tmp), add = TRUE)
-  vectra::write_vtr(names_df, tmp)
-
-  # Select only needed columns from enrichment .vtr
-  select_cols <- unique(c(join_key, unname(col_map)))
-  joined <- vectra::inner_join(
-    vectra::tbl(tmp),
-    vectra::tbl(vtr_path) |>
-      vectra::select(!!!lapply(select_cols, as.name)),
-    by = stats::setNames(join_key, "lookup_name")
-  ) |> vectra::collect()
-
-  if (nrow(joined) == 0L) {
-    meta <- read_enrichment_meta(vtr_path)
-    ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
-                               license = lic))
-  }
-
-  # Resolve a per-row index into `joined`
-  if (agg_aware) {
-    enr_key <- canon_agg_marker(joined$lookup_name)
-    keep    <- !duplicated(enr_key)
-    joined  <- joined[keep, , drop = FALSE]
-    enr_key <- enr_key[keep]
-    sel <- agg_select_idx(keys, enr_key)
-    idx <- sel$idx
-    if (isTRUE(getOption("taxify.trait_provenance", FALSE))) {
-      x[[paste0(enrichment_name, "_inherited")]] <- sel$inherited
+  # Direct join (only when there are resolved rows to look up). Species-level
+  # joins are aggregate-aware: an aggregate query reaches the aggregate trait
+  # row, and a species query inherits an aggregate-level trait when no
+  # species-level one exists (downward inheritance only). Genus-level joins keep
+  # plain exact matching.
+  if (length(valid_rows) > 0L) {
+    agg_aware <- join_col == "accepted_name"
+    if (agg_aware) {
+      keys <- agg_join_keys(x[[join_col]], x[["qualifier"]])
+      lookup_pool <- unique(c(keys$primary[valid_rows], keys$inherit[valid_rows]))
+      lookup_pool <- lookup_pool[!is.na(lookup_pool)]
+    } else {
+      lookup_pool <- unique(x[[join_col]][valid_rows])
     }
-  } else {
-    joined <- joined[!duplicated(joined$lookup_name), , drop = FALSE]
-    idx <- match(x[[join_col]], joined$lookup_name)
+
+    names_df <- data.frame(lookup_name = lookup_pool, stringsAsFactors = FALSE)
+    tmp <- tempfile(fileext = ".vtr")
+    on.exit(unlink(tmp), add = TRUE)
+    vectra::write_vtr(names_df, tmp)
+
+    select_cols <- unique(c(join_key, unname(col_map)))
+    joined <- vectra::inner_join(
+      vectra::tbl(tmp),
+      vectra::tbl(vtr_path) |>
+        vectra::select(!!!lapply(select_cols, as.name)),
+      by = stats::setNames(join_key, "lookup_name")
+    ) |> vectra::collect()
+
+    if (nrow(joined) > 0L) {
+      if (agg_aware) {
+        enr_key <- canon_agg_marker(joined$lookup_name)
+        keep    <- !duplicated(enr_key)
+        joined  <- joined[keep, , drop = FALSE]
+        enr_key <- enr_key[keep]
+        sel <- agg_select_idx(keys, enr_key)
+        idx <- sel$idx
+        if (isTRUE(getOption("taxify.trait_provenance", FALSE))) {
+          x[[paste0(enrichment_name, "_inherited")]] <- sel$inherited
+        }
+      } else {
+        joined <- joined[!duplicated(joined$lookup_name), , drop = FALSE]
+        idx <- match(x[[join_col]], joined$lookup_name)
+      }
+
+      matched <- which(!is.na(idx))
+      for (out_col in names(col_map)) {
+        src_col <- col_map[[out_col]]
+        if (src_col %in% names(joined)) {
+          x[[out_col]][matched] <- joined[[src_col]][idx[matched]]
+        }
+      }
+    }
   }
 
-  matched <- which(!is.na(idx))
-  for (out_col in names(col_map)) {
-    src_col <- col_map[[out_col]]
-    if (src_col %in% names(joined)) {
-      x[[out_col]][matched] <- joined[[src_col]][idx[matched]]
-    }
+  # Hybrid ladder: a formula whose trait is still missing after the direct join
+  # is filled from the average of its two parents (species-level joins only).
+  if (join_col == "accepted_name") {
+    x <- .hybrid_trait_fallback(x, col_map, join_key, vtr_path,
+                                expose_all = expose_all, verbose = verbose)
   }
 
   meta <- read_enrichment_meta(vtr_path)

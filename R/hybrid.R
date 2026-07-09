@@ -55,19 +55,24 @@ detect_hybrid <- function(name) {
     }
   }
 
-  # Case 3: Hybrid formula — "x" between two binomials (or abbreviated)
-  # e.g., "Quercus pyrenaica x Q. petraea"
-  # e.g., "Quercus pyrenaica x Quercus petraea"
+  # Case 3: Hybrid formula — "x" between two parents.
+  # The second parent may be a full binomial, an abbreviated genus, or (a common
+  # shorthand) a bare epithet that inherits parent 1's genus:
+  #   "Quercus pyrenaica x Quercus petraea"  (full)
+  #   "Quercus pyrenaica x Q. petraea"       (abbreviated genus)
+  #   "Salix alba x fragilis"                (same-genus shorthand)
   x_positions <- which(tolower(tokens) == "x")
   for (xp in x_positions) {
     # Must have content before and after
     if (xp > 1L && xp < length(tokens)) {
       before <- tokens[1L:(xp - 1L)]
       after <- tokens[(xp + 1L):length(tokens)]
-      # Before should look like a binomial (genus + epithet or just genus)
-      # After should start with a capital letter (genus) or abbreviated genus
+      # Before should look like a binomial (genus + epithet, or more).
+      # After starts with a genus (capital), an abbreviated genus ("Q."), or a
+      # bare epithet (lowercase) taken as parent 1's genus repeated.
       if (length(before) >= 2L && grepl("^[A-Z]", before[1L]) &&
-          (grepl("^[A-Z]", after[1L]) || grepl("^[A-Z]\\.", after[1L]))) {
+          (grepl("^[A-Z]", after[1L]) || grepl("^[A-Z]\\.", after[1L]) ||
+           grepl("^[a-z]", after[1L]))) {
         # This is a formula hybrid
         stripped <- paste(before, collapse = " ")
         return(list(is_hybrid = TRUE, hybrid_type = "formula",
@@ -129,10 +134,14 @@ parse_hybrid_formula <- function(name) {
           parent_1 <- paste(before, collapse = " ")
           genus <- before[1L]
 
-          # Expand abbreviated genus in parent 2
-          # e.g., "Q. petraea" -> "Quercus petraea"
+          # Expand parent 2's genus. Three forms:
+          #   "Q. petraea"  -> replace the abbreviation with the full genus
+          #   "petraea"     -> bare epithet, prepend parent 1's genus
+          #   "Quercus ..." -> full genus, left as-is
           if (grepl("^[A-Z]\\.$", after[1L])) {
             after[1L] <- genus
+          } else if (grepl("^[a-z]", after[1L])) {
+            after <- c(genus, after)
           }
           parent_2 <- paste(after, collapse = " ")
 

@@ -70,9 +70,13 @@
 #' @return A data.frame with one row per input name and the following columns:
 #' \describe{
 #'   \item{input_name}{The original name as provided.}
-#'   \item{matched_name}{Full name in the backbone that matched.}
+#'   \item{matched_name}{Full name in the backbone that matched. For an
+#'     unresolved hybrid formula (`match_type = "hybrid_formula"`) it holds the
+#'     input-parent cross (e.g. `"Salix alba x Salix fragilis"`) when both
+#'     parents resolve, else `NA`.}
 #'   \item{accepted_name}{Resolved accepted name (equals `matched_name`
-#'     if not a synonym).}
+#'     if not a synonym). For a hybrid formula it holds the accepted-parent
+#'     cross (both parents resolved), else `NA`.}
 #'   \item{taxon_id}{Backend-specific ID of the matched name.}
 #'   \item{accepted_id}{ID of the accepted name.}
 #'   \item{rank}{Taxonomic rank (species, subspecies, genus, etc.).}
@@ -86,6 +90,13 @@
 #'     accepted name's full citation.}
 #'   \item{is_synonym}{Logical. Was the match a synonym?}
 #'   \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
+#'   \item{hybrid_type}{`"nothogenus"` (`"x Cupressocyparis leylandii"`),
+#'     `"nothospecies"` (`"Quercus x hispanica"`), `"formula"`
+#'     (`"Salix alba x Salix fragilis"`), or `NA` for a non-hybrid. Nothogenus
+#'     and nothospecies resolve to a single backbone taxon in the usual columns;
+#'     a formula does not (its match columns are `NA` and `match_type` is
+#'     `"hybrid_formula"`). The parent binomials of a formula, and their accepted
+#'     names, are added on demand by [add_hybrid_info()].}
 #'   \item{qualifier}{Canonical taxonomic qualifier found in the input name
 #'     (`"cf."`, `"aff."`, `"agg."`, `"s.l."`, `"s.str."`, `"sp."`, ...), or
 #'     `NA`. Spelling variants are folded to one token (`"aggr."`, `"agg"` and
@@ -101,7 +112,9 @@
 #'     `aggregates = "collapse"`, where the collapse is explicit.}
 #'   \item{match_type}{One of `"exact"`, `"exact_ci"`, `"fuzzy"`, `"abbrev"`
 #'     (an abbreviated genus such as `"Q. robur"` resolved via genus initial
-#'     plus epithet), or `"none"`.}
+#'     plus epithet), `"hybrid_formula"` (a two-parent cross; the row's
+#'     backbone-match columns are `NA` and the parents are resolved into the
+#'     `hybrid_parent_*` columns instead), or `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
 #'   \item{is_ambiguous}{Logical. `TRUE` when the matched scientificName had
 #'     multiple synonym rows pointing to different accepted taxa at the same
@@ -227,19 +240,8 @@ taxify <- function(x,
       if (verbose) message(sprintf("  [%s] Matching %d remaining names...",
                                     be_name, length(unmatched_idx)))
 
-      sub_names_df <- data.frame(
-        original = names_df$original[unmatched_idx],
-        cleaned = names_df$cleaned[unmatched_idx],
-        is_hybrid = names_df$is_hybrid[unmatched_idx],
-        qualifier = names_df$qualifier[unmatched_idx],
-        qualifier_position = names_df$qualifier_position[unmatched_idx],
-        is_aggregate = names_df$is_aggregate[unmatched_idx],
-        agg_key = names_df$agg_key[unmatched_idx],
-        genus_only = names_df$genus_only[unmatched_idx],
-        hybrid_name = names_df$hybrid_name[unmatched_idx],
-        genus_abbrev = names_df$genus_abbrev[unmatched_idx],
-        stringsAsFactors = FALSE
-      )
+      sub_names_df <- names_df[unmatched_idx, , drop = FALSE]
+      rownames(sub_names_df) <- NULL
 
       sub_result <- run_match_stages(be, sub_names_df, bb_path, fuzzy,
                                      fuzzy_threshold, fuzzy_method,
@@ -281,6 +283,7 @@ taxify <- function(x,
   result <- attach_aggregate_fallback(result, names_df)
 
   result <- enrich_with_register(result, names_df, backend)
+  result <- finalize_hybrids(result, names_df, backend)
   rownames(result) <- NULL
   as_taxify_result(result, backend = backend)
 }
@@ -327,6 +330,7 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   result <- attach_aggregate_fallback(result, names_df)
 
   result <- enrich_with_register(result, names_df, be$name)
+  result <- finalize_hybrids(result, names_df, be)
   rownames(result) <- NULL
   as_taxify_result(result, backend = be$name)
 }
@@ -392,6 +396,73 @@ attach_aggregate_fallback <- function(result, names_df) {
     fb[idx] <- !resolved_agg[idx]
   }
   result$aggregate_fallback <- fb
+  result
+}
+
+
+#' Finalize hybrid rows: attach `hybrid_type` and mark unresolved formula crosses
+#'
+#' `hybrid_type` (`"nothogenus"` / `"nothospecies"` / `"formula"` / `NA`) is the
+#' one hybrid column carried in the default output. A formula such as
+#' `"Salix alba x Salix fragilis"` is first tried against the backbone as a whole
+#' (some backbones store the cross as a name/synonym of the resulting
+#' nothospecies -- see Pass 1b in `match_exact_compiled()`); when it resolves it
+#' is a normal match. When it does not, the row is left unresolved --
+#' `match_type = "hybrid_formula"`, `is_hybrid = TRUE`, all backbone-match
+#' columns `NA` -- rather than silently collapsed to parent 1. The parents feed
+#' the hybrid-aware trait fallback and are materialized on demand by
+#' [add_hybrid_info()].
+#'
+#' @param result The match result data.frame.
+#' @param names_df Data.frame from `clean_names()`; rows 1:1 with `result`.
+#' @param backend Backend name(s) or a `taxify_backend`, used to resolve the
+#'   parents of an unresolved formula.
+#' @return `result` with `hybrid_type` attached and unresolved formulas marked.
+#' @noRd
+finalize_hybrids <- function(result, names_df, backend) {
+  n <- nrow(result)
+  ht <- names_df$hybrid_type %||% rep(NA_character_, n)
+  result$hybrid_type <- ht
+
+  # Only formula rows that did NOT resolve against the backbone (Pass 1b) are
+  # marked as an unresolved cross; a formula that matched a stored nothospecies
+  # keeps its normal resolution.
+  unresolved <- is.na(result$match_type) | result$match_type == "none"
+  form <- which(!is.na(ht) & ht == "formula" & !is.na(result$input_name) &
+                  unresolved)
+  if (length(form) == 0L) return(result)
+
+  na_cols <- intersect(
+    c("matched_name", "taxon_id", "accepted_id", "rank",
+      "family", "genus", "epithet", "authorship", "accepted_authorship",
+      "is_synonym", "fuzzy_dist", "is_ambiguous", "ambiguous_targets",
+      "aggregate_fallback"),
+    names(result))
+  for (col in na_cols) result[[col]][form] <- NA
+  result$match_type[form] <- "hybrid_formula"
+  result$is_hybrid[form]  <- TRUE
+
+  # No single backbone taxon matched, but the cross is named by its parents.
+  # When BOTH parents resolve against the backend, fill matched_name with the
+  # input-parent cross and accepted_name with the accepted-parent cross (the two
+  # differ only when a parent is itself a synonym, mirroring synonym rows).
+  # When a parent does not resolve, both stay NA.
+  if ("accepted_name" %in% names(result)) {
+    result$accepted_name[form] <- NA_character_
+    pf <- lapply(result$input_name[form], parse_hybrid_formula)
+    p1 <- vapply(pf, function(z) z$parent_1 %||% NA_character_, character(1L))
+    p2 <- vapply(pf, function(z) z$parent_2 %||% NA_character_, character(1L))
+    acc <- .resolve_parents_accepted(c(p1, p2), backend)
+    a1  <- unname(acc[p1]); a2 <- unname(acc[p2])
+    both <- !is.na(a1) & !is.na(a2)
+    if (any(both)) {
+      result$accepted_name[form[both]] <- paste(a1[both], .hybrid_sign, a2[both])
+      if ("matched_name" %in% names(result)) {
+        result$matched_name[form[both]] <-
+          paste(p1[both], .hybrid_sign, p2[both])
+      }
+    }
+  }
   result
 }
 
@@ -629,6 +700,7 @@ as_taxify_result <- function(result, backend) {
     case_insensitive = sum(mt == "exact_ci",    na.rm = TRUE),
     fuzzy            = sum(mt == "fuzzy",        na.rm = TRUE),
     abbrev           = sum(mt == "abbrev",      na.rm = TRUE),
+    hybrid_formula   = sum(mt == "hybrid_formula", na.rm = TRUE),
     out_of_scope     = sum(mt == "out_of_scope", na.rm = TRUE),
     unmatched        = sum(mt == "none",         na.rm = TRUE)
   )

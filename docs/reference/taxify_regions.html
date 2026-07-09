@@ -28,7 +28,7 @@ the code and the Level 1, 2, and 3 names."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,9 +111,61 @@ code or name contains it are returned.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">taxify_regions</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">taxify_regions</span><span class="op">(</span><span class="st">"belgium"</span><span class="op">)</span></span>
-<span><span class="fu">taxify_regions</span><span class="op">(</span><span class="st">"Europe"</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">taxify_regions</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   code                name            level2_name      level1_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  ABT             Alberta         Western Canada NORTHERN AMERICA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  AFG         Afghanistan           Western Asia   ASIA-TEMPERATE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  AGE Argentina Northeast Southern South America SOUTHERN AMERICA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  AGS     Argentina South Southern South America SOUTHERN AMERICA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  AGW Argentina Northwest Southern South America SOUTHERN AMERICA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  ALA             Alabama    Southeastern U.S.A. NORTHERN AMERICA</span>
+<span class="r-in"><span><span class="fu">taxify_regions</span><span class="op">(</span><span class="st">"belgium"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   code    name   level2_name level1_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  BGM Belgium Middle Europe      EUROPE</span>
+<span class="r-in"><span><span class="fu">taxify_regions</span><span class="op">(</span><span class="st">"Europe"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    code                      name         level2_name level1_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   ALB                   Albania Southeastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   AUT                   Austria       Middle Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   BAL                  Baleares Southwestern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   BGM                   Belgium       Middle Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   BLR                   Belarus      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   BLT             Baltic States      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   BUL                  Bulgaria Southeastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   COR                     Corse Southwestern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   CZE            Czechoslovakia       Middle Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10  DEN                   Denmark     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11  FIN                   Finland     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  FOR                   Føroyar     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13  FRA                    France Southwestern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14  GER                   Germany       Middle Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15  GRB             Great Britain     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16  GRC                    Greece Southeastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17  HUN                   Hungary       Middle Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18  ICE                   Iceland     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19  IRE                   Ireland     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20  ITA                     Italy Southeastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21  KRI                     Kriti Southeastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22  KRY                      Krym      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23  NET               Netherlands       Middle Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24  NOR                    Norway     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25  POL                    Poland       Middle Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26  POR                  Portugal Southwestern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27  ROM                   Romania Southeastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28  RUC   Central European Russia      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29  RUE      East European Russia      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30  RUN     North European Russia      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31  RUS     South European Russia      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32  RUW Northwest European Russia      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33  SAR                  Sardegna Southwestern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34  SIC                   Sicilia Southeastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35  SPA                     Spain Southwestern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36  SVA                  Svalbard     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37  SWE                    Sweden     Northern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38  SWI               Switzerland       Middle Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39  TUE          Turkey-in-Europe Southeastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40  UKR                   Ukraine      Eastern Europe      EUROPE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41  YUG                Yugoslavia Southeastern Europe      EUROPE</span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

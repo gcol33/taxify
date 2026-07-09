@@ -24,7 +24,7 @@ by country. Data from the Global Alien Species First Record Database
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,17 +140,61 @@ Coverage: ~77k species x country combinations across all taxa.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Robinia pseudoacacia"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_alien_first_records</span><span class="op">(</span>country <span class="op">=</span> <span class="st">"AT"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Robinia pseudoacacia"</span>, <span class="st">"Ailanthus altissima"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_alien_first_records</span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Robinia pseudoacacia"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_alien_first_records</span><span class="op">(</span>country <span class="op">=</span> <span class="st">"AT"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             input_name         matched_name        accepted_name   taxon_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   accepted_id    rank   family   genus      epithet authorship</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  wfo-ex-006 species Fabaceae Robinia pseudoacacia         L.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   accepted_authorship is_synonym is_hybrid match_type fuzzy_dist is_ambiguous</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  L.      FALSE     FALSE      exact         NA        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ambiguous_targets backend         backbone_version kingdom_group taxon_group</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              &lt;NA&gt;     wfo wfo:example (2026-06-24)          &lt;NA&gt;        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   life_form qualifier qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      &lt;NA&gt;      &lt;NA&gt;               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   alien_first_record         alien_first_record_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 11 example_alien_first_record_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           alien_first_record_reference</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_alien_first_record_reference</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, Alien first records (Seebens et al.) example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Robinia pseudoacacia"</span>, <span class="st">"Ailanthus altissima"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_alien_first_records</span><span class="op">(</span>country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 2 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Tip: pipe into taxify_long() to reshape wide columns to long format.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             input_name         matched_name        accepted_name   taxon_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Ailanthus altissima  Ailanthus altissima  Ailanthus altissima wfo-ex-007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   accepted_id    rank        family     genus      epithet      authorship</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  wfo-ex-006 species      Fabaceae   Robinia pseudoacacia              L.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  wfo-ex-007 species Simaroubaceae Ailanthus    altissima (Mill.) Swingle</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   accepted_authorship is_synonym is_hybrid match_type fuzzy_dist is_ambiguous</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  L.      FALSE     FALSE      exact         NA        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     (Mill.) Swingle      FALSE     FALSE      exact         NA        FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ambiguous_targets backend         backbone_version kingdom_group taxon_group</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              &lt;NA&gt;     wfo wfo:example (2026-06-24)          &lt;NA&gt;        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2              &lt;NA&gt;     wfo wfo:example (2026-06-24)          &lt;NA&gt;        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   life_form qualifier qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      &lt;NA&gt;      &lt;NA&gt;               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      &lt;NA&gt;      &lt;NA&gt;               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   alien_first_record_AT      alien_first_record_source_AT</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    11 example_alien_first_record_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    13 example_alien_first_record_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        alien_first_record_reference_AT alien_first_record_DE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_alien_first_record_reference                    12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 example_alien_first_record_reference                    14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        alien_first_record_source_DE      alien_first_record_reference_DE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_alien_first_record_source example_alien_first_record_reference</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 example_alien_first_record_source example_alien_first_record_reference</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, Alien first records (Seebens et al.) example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

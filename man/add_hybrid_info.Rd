@@ -14,10 +14,14 @@ The same data.frame with additional columns:
 \describe{
 \item{hybrid_parent_1}{First parent (full binomial), \code{NA} if not a
 hybrid formula.}
-\item{hybrid_parent_2}{Second parent (full binomial, abbreviated
+\item{hybrid_parent_2}{Second parent (full binomial, abbreviated or omitted
 genus expanded), \code{NA} if not a hybrid formula.}
+\item{hybrid_parent_1_accepted, hybrid_parent_2_accepted}{The accepted
+name each parent resolves to against the backend(s) used for \code{x} (from
+the result's metadata), or \code{NA} if the parent did not match.}
 \item{hybrid_type}{One of \code{"nothogenus"}, \code{"nothospecies"},
-\code{"formula"}, or \code{NA} if not a hybrid.}
+\code{"formula"}, or \code{NA} if not a hybrid (same value as the \code{hybrid_type}
+column already on a \code{\link[=taxify]{taxify()}} result).}
 }
 }
 \description{

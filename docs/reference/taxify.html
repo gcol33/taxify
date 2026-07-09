@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -199,11 +199,15 @@ callers who want that. Ignored when no region is set.</p></dd>
 <dd><p>The original name as provided.</p></dd>
 
 <dt>matched_name</dt>
-<dd><p>Full name in the backbone that matched.</p></dd>
+<dd><p>Full name in the backbone that matched. For an
+unresolved hybrid formula (<code>match_type = "hybrid_formula"</code>) it holds the
+input-parent cross (e.g. <code>"Salix alba x Salix fragilis"</code>) when both
+parents resolve, else <code>NA</code>.</p></dd>
 
 <dt>accepted_name</dt>
 <dd><p>Resolved accepted name (equals <code>matched_name</code>
-if not a synonym).</p></dd>
+if not a synonym). For a hybrid formula it holds the accepted-parent
+cross (both parents resolved), else <code>NA</code>.</p></dd>
 
 <dt>taxon_id</dt>
 <dd><p>Backend-specific ID of the matched name.</p></dd>
@@ -238,6 +242,15 @@ accepted name's full citation.</p></dd>
 <dt>is_hybrid</dt>
 <dd><p>Logical. Was a hybrid marker detected in the input?</p></dd>
 
+<dt>hybrid_type</dt>
+<dd><p><code>"nothogenus"</code> (<code>"x Cupressocyparis leylandii"</code>),
+<code>"nothospecies"</code> (<code>"Quercus x hispanica"</code>), <code>"formula"</code>
+(<code>"Salix alba x Salix fragilis"</code>), or <code>NA</code> for a non-hybrid. Nothogenus
+and nothospecies resolve to a single backbone taxon in the usual columns;
+a formula does not (its match columns are <code>NA</code> and <code>match_type</code> is
+<code>"hybrid_formula"</code>). The parent binomials of a formula, and their accepted
+names, are added on demand by <code><a href="add_hybrid_info.html">add_hybrid_info()</a></code>.</p></dd>
+
 <dt>qualifier</dt>
 <dd><p>Canonical taxonomic qualifier found in the input name
 (<code>"cf."</code>, <code>"aff."</code>, <code>"agg."</code>, <code>"s.l."</code>, <code>"s.str."</code>, <code>"sp."</code>, ...), or
@@ -260,7 +273,9 @@ back to the nominal binomial. <code>NA</code> for non-aggregate queries and unde
 <dt>match_type</dt>
 <dd><p>One of <code>"exact"</code>, <code>"exact_ci"</code>, <code>"fuzzy"</code>, <code>"abbrev"</code>
 (an abbreviated genus such as <code>"Q. robur"</code> resolved via genus initial
-plus epithet), or <code>"none"</code>.</p></dd>
+plus epithet), <code>"hybrid_formula"</code> (a two-parent cross; the row's
+backbone-match columns are <code>NA</code> and the parents are resolved into the
+<code>hybrid_parent_*</code> columns instead), or <code>"none"</code>.</p></dd>
 
 <dt>fuzzy_dist</dt>
 <dd><p>Normalized string distance (0–1), <code>NA</code> if exact.</p></dd>
@@ -295,31 +310,107 @@ by later ones (fallback chain).</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Match a few names</span></span>
-<span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Disable fuzzy matching</span></span>
-<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,</span></span>
-<span><span class="co"># or a region name resolved via the bundled WGSRPD crosswalk</span></span>
-<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"EUR"</span><span class="op">)</span></span>
-<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"Belgium"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Constrain by coordinates (downloads WGSRPD boundaries on first use)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.35</span>, <span class="fl">50.85</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span>
-<span><span class="co"># Fallback chain: try WFO first, then COL for unmatched</span></span>
-<span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Panthera leo"</span><span class="op">)</span>,</span>
-<span>       backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Match a few names</span></span></span>
+<span class="r-in"><span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 2 names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         input_name     matched_name    accepted_name   taxon_id accepted_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    Quercus robur    Quercus robur    Quercus robur wfo-ex-001  wfo-ex-001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Pinus sylvestris Pinus sylvestris Pinus sylvestris wfo-ex-004  wfo-ex-004</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      rank   family   genus    epithet authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 species Fagaceae Quercus      robur         L.                  L.      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 species Pinaceae   Pinus sylvestris         L.                  L.      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist is_ambiguous ambiguous_targets backend</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA        FALSE              &lt;NA&gt;     wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     FALSE      exact         NA        FALSE              &lt;NA&gt;     wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 wfo:example (2026-06-24)       plantae  gymnosperm gymnosperm      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Disable fuzzy matching</span></span></span>
+<span class="r-in"><span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      input_name matched_name accepted_name taxon_id accepted_id rank family</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Quercus robus         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;   &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym is_hybrid match_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE       none</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group  life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       plantae  angiosperm angiosperm      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO NA | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,</span></span></span>
+<span class="r-in"><span><span class="co"># or a region name resolved via the bundled WGSRPD crosswalk</span></span></span>
+<span class="r-in"><span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"EUR"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      input_name  matched_name accepted_name   taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Quercus robus Quercus robur Quercus robur wfo-ex-001  wfo-ex-001 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     family   genus epithet authorship accepted_authorship is_synonym is_hybrid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Fagaceae Quercus   robur         L.                  L.      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   match_type fuzzy_dist is_ambiguous ambiguous_targets backend</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      fuzzy 0.07692308        FALSE              &lt;NA&gt;     wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example | cite() for full citations</span>
+<span class="r-in"><span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"Belgium"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      input_name  matched_name accepted_name   taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Quercus robus Quercus robur Quercus robur wfo-ex-001  wfo-ex-001 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     family   genus epithet authorship accepted_authorship is_synonym is_hybrid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Fagaceae Quercus   robur         L.                  L.      FALSE     FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   match_type fuzzy_dist is_ambiguous ambiguous_targets backend</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      fuzzy 0.07692308        FALSE              &lt;NA&gt;     wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Constrain by coordinates (downloads WGSRPD boundaries on first use)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.35</span>, <span class="fl">50.85</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fallback chain: try WFO first, then COL for unmatched</span></span></span>
+<span class="r-in"><span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Panthera leo"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 2 names against 2 backends: wfo -&gt; col</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 2 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Fuzzy matching 1 unmatched...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 remaining names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      input_name  matched_name accepted_name   taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Quercus robur Quercus robur Quercus robur wfo-ex-001  wfo-ex-001 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Panthera leo  Panthera leo  Panthera leo col-ex-002  col-ex-002 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     family    genus epithet       authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Fagaceae  Quercus   robur               L.                  L.      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Felidae Panthera     leo (Linnaeus, 1758)    (Linnaeus, 1758)      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist is_ambiguous ambiguous_targets backend</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA        FALSE              &lt;NA&gt;     wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     FALSE      exact         NA        FALSE              &lt;NA&gt;     col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 col:example (2026-06-24)       unknown     unknown    unknown      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO + COL | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

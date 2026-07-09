@@ -91,9 +91,13 @@ callers who want that. Ignored when no region is set.}
 A data.frame with one row per input name and the following columns:
 \describe{
 \item{input_name}{The original name as provided.}
-\item{matched_name}{Full name in the backbone that matched.}
+\item{matched_name}{Full name in the backbone that matched. For an
+unresolved hybrid formula (\code{match_type = "hybrid_formula"}) it holds the
+input-parent cross (e.g. \code{"Salix alba x Salix fragilis"}) when both
+parents resolve, else \code{NA}.}
 \item{accepted_name}{Resolved accepted name (equals \code{matched_name}
-if not a synonym).}
+if not a synonym). For a hybrid formula it holds the accepted-parent
+cross (both parents resolved), else \code{NA}.}
 \item{taxon_id}{Backend-specific ID of the matched name.}
 \item{accepted_id}{ID of the accepted name.}
 \item{rank}{Taxonomic rank (species, subspecies, genus, etc.).}
@@ -107,6 +111,13 @@ author, so \code{accepted_name} and \code{accepted_authorship} together form the
 accepted name's full citation.}
 \item{is_synonym}{Logical. Was the match a synonym?}
 \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
+\item{hybrid_type}{\code{"nothogenus"} (\code{"x Cupressocyparis leylandii"}),
+\code{"nothospecies"} (\code{"Quercus x hispanica"}), \code{"formula"}
+(\code{"Salix alba x Salix fragilis"}), or \code{NA} for a non-hybrid. Nothogenus
+and nothospecies resolve to a single backbone taxon in the usual columns;
+a formula does not (its match columns are \code{NA} and \code{match_type} is
+\code{"hybrid_formula"}). The parent binomials of a formula, and their accepted
+names, are added on demand by \code{\link[=add_hybrid_info]{add_hybrid_info()}}.}
 \item{qualifier}{Canonical taxonomic qualifier found in the input name
 (\code{"cf."}, \code{"aff."}, \code{"agg."}, \code{"s.l."}, \code{"s.str."}, \code{"sp."}, ...), or
 \code{NA}. Spelling variants are folded to one token (\code{"aggr."}, \code{"agg"} and
@@ -122,7 +133,9 @@ back to the nominal binomial. \code{NA} for non-aggregate queries and under
 \code{aggregates = "collapse"}, where the collapse is explicit.}
 \item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, \code{"abbrev"}
 (an abbreviated genus such as \code{"Q. robur"} resolved via genus initial
-plus epithet), or \code{"none"}.}
+plus epithet), \code{"hybrid_formula"} (a two-parent cross; the row's
+backbone-match columns are \code{NA} and the parents are resolved into the
+\verb{hybrid_parent_*} columns instead), or \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
 \item{is_ambiguous}{Logical. \code{TRUE} when the matched scientificName had
 multiple synonym rows pointing to different accepted taxa at the same

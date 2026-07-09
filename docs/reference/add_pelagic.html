@@ -22,7 +22,7 @@ accepted_name."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -121,11 +121,34 @@ Data. <a href="https://doi.org/10.5683/SP3/0YFJED" class="external-link">doi:10.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Thunnus albacares"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_pelagic</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Thunnus albacares"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_pelagic</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_pelagic(): attaching 13 of 57 columns. Pass cols = "all" for all, or see enrichment_cols("pelagic").</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          input_name matched_name accepted_name taxon_id accepted_id rank family</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Thunnus albacares         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;   &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym is_hybrid match_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE       none</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       unknown     unknown   unknown      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type pelagic_depth_min_m pelagic_depth_max_m</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;                  NA                  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pelagic_temp_min_c pelagic_temp_max_c pelagic_temp_mean_c</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA                 NA                  NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pelagic_length_min_tl_cm pelagic_length_max_tl_cm pelagic_trophic_level</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                       NA                       NA                    NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pelagic_vert_habitat pelagic_horz_habitat pelagic_body_shape</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 &lt;NA&gt;                 &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pelagic_phys_defense pelagic_gregarious</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF NA | cite() for full citations</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

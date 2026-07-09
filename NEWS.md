@@ -1,3 +1,30 @@
+# taxify 0.3.6
+
+## Hybrid matching
+
+* Hybrid names are handled by type instead of being reduced to their first
+  component. `taxify()` gains a `hybrid_type` column (`"nothogenus"`,
+  `"nothospecies"`, `"formula"`, or `NA`).
+
+* Hybrid formulas (`"Salix alba × Salix fragilis"`) no longer resolve to a
+  single species. Previously the cross was silently cut to its first parent and
+  returned as an exact match to `Salix alba`; now the cross row carries
+  `match_type = "hybrid_formula"` with `NA` backbone-match columns. The parent
+  binomials, and their accepted names, are available on demand via
+  `add_hybrid_info()`, which now adds `hybrid_parent_1`, `hybrid_parent_2`,
+  `hybrid_parent_1_accepted`, and `hybrid_parent_2_accepted`.
+
+* The same-genus formula shorthand is recognized: `"Salix alba × fragilis"`
+  (second parent written as a bare epithet) parses to parents `"Salix alba"` and
+  `"Salix fragilis"`.
+
+* Nothogenus names match backbones that store the multiplication sign.
+  `"× Cupressocyparis leylandii"` previously returned `NA` against backbones
+  whose canonical form keeps the sign (e.g. `"× Cupressocyparis leylandii"`);
+  matching now tries the `"× Genus ..."` and `"×Genus ..."` forms alongside the
+  sign-stripped binomial. Nothospecies (`"Quercus × hispanica"`) continue to
+  match as before.
+
 # taxify 0.3.5
 
 ## Discovery

@@ -95,3 +95,34 @@ test_that("parse_hybrid_formula returns NA for non-hybrids", {
   expect_true(is.na(res$parent_2))
   expect_true(is.na(res$hybrid_type))
 })
+
+test_that("detect_hybrid handles the same-genus formula shorthand", {
+  res <- detect_hybrid("Salix alba x fragilis")
+  expect_true(res$is_hybrid)
+  expect_equal(res$hybrid_type, "formula")
+})
+
+test_that("parse_hybrid_formula expands a bare-epithet second parent", {
+  res <- parse_hybrid_formula("Salix alba x fragilis")
+  expect_equal(res$parent_1, "Salix alba")
+  expect_equal(res$parent_2, "Salix fragilis")
+  expect_equal(res$hybrid_type, "formula")
+})
+
+test_that("clean_names drops the cleaned name of a formula", {
+  cn <- clean_names(c("Salix alba x Salix fragilis", "Salix alba x fragilis"))
+  expect_true(all(cn$is_hybrid))
+  expect_equal(cn$hybrid_type, c("formula", "formula"))
+  # A formula is not a single taxon, so it carries no cleaned name to match.
+  expect_true(all(is.na(cn$cleaned)))
+})
+
+test_that("clean_names builds the sign-marked backbone form for hybrids", {
+  cn <- clean_names(c("x Cupressocyparis leylandii", "Quercus x hispanica"))
+  expect_equal(cn$hybrid_type, c("nothogenus", "nothospecies"))
+  expect_equal(cn$hybrid_name,
+               c("× Cupressocyparis leylandii", "Quercus × hispanica"))
+  # the sign-stripped binomial is still available for matching
+  expect_equal(cn$cleaned,
+               c("Cupressocyparis leylandii", "Quercus hispanica"))
+})

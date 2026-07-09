@@ -103,8 +103,8 @@ res[, c("input_name", "accepted_name", "family",
 ```
 
 Ten names, ten rows, every match readable. Each row also carries genus,
-authorship, taxon and accepted IDs, a hybrid flag, the backend, and the exact
-backbone version (the full table is wider, the same shape for any input).
+authorship, taxon and accepted IDs, a hybrid flag and type, the backend, and the
+exact backbone version (the full table is wider, the same shape for any input).
 
 Each name reaches its accepted name a different way. The animation below walks one
 name at a time through the pipeline: the clean step strips authorship, a

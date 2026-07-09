@@ -59,26 +59,42 @@ function. The function tokenizes the name, looks for the hybrid marker in
 specific positions, and classifies the result as nothogenus, nothospecies,
 formula, or non-hybrid.
 
-The output of `taxify()` includes an `is_hybrid` column (logical) that
-records whether a hybrid marker was found in the original input. This
-column is always present regardless of whether the name ultimately matched
-a backbone record. The finer classification into nothogenus, nothospecies,
-or formula is not exposed directly in the main output; it becomes available
-through `add_hybrid_info()`, which we cover below after looking at how
-matched hybrids behave in the result table.
+The output of `taxify()` includes two hybrid columns. `is_hybrid` (logical)
+records whether a hybrid marker was found in the original input; it is always
+present regardless of whether the name matched a backbone record.
+`hybrid_type` records the finer classification: `"nothogenus"`,
+`"nothospecies"`, `"formula"`, or `NA` for a non-hybrid. The parent binomials
+of a formula (and their resolved accepted names) are added on demand by
+`add_hybrid_info()`, covered below.
 
-After detection, the hybrid marker is stripped from the name before
-matching. For a nothospecies like "Mentha ×piperita", the cleaned
-form becomes "Mentha piperita". For a hybrid formula like "Salix alba
-× Salix fragilis", only the first parent binomial ("Salix alba") is
-retained as the cleaned name, since formulas are not single taxon names
-and cannot match a backbone record directly.
+After detection, the hybrid marker is handled by type. For a nothospecies
+like "Mentha ×piperita", the cleaned form becomes "Mentha piperita", and
+taxify also tries the sign-retained form "Mentha × piperita" (some backbones
+store the × in the canonical name). For a nothogenus like
+"×Cupressocyparis leylandii", taxify tries the sign-retained
+"× Cupressocyparis leylandii" and the no-space "×Cupressocyparis leylandii"
+alongside the stripped binomial, so a backbone that keeps the sign still
+matches.
 
-For nothospecies, taxify also constructs a secondary search form with the
-multiplication sign reinserted ("Mentha × piperita") and attempts to
-match that against the backbone. Some backbones store nothospecies with the
-× character in the canonical name, so this secondary attempt can
-recover matches that the stripped form misses.
+A **hybrid formula** is not a single taxon name, so it is handled
+differently. taxify first tries the full parent-expanded formula
+("Salix alba × Salix fragilis") against the backbone: some backbones store a
+cross as a name or synonym of the resulting nothospecies (here *Salix ×
+rubens*), and when they do, the formula resolves normally.
+
+If the formula itself is not stored as a backbone synonym, taxify parses the
+parents. When both parents resolve, `matched_name` contains the input-parent
+formula and `accepted_name` contains the accepted-parent formula (these differ
+only when a parent is a synonym, mirroring an ordinary synonym row). If either
+parent fails to resolve, both remain `NA`, but the row is still flagged
+`is_hybrid = TRUE` with `match_type = "hybrid_formula"`. This is the cleanest
+behavior possible without a full parentage crosswalk. The parents are also
+recoverable through `add_hybrid_info()`, and downstream trait joins fall back
+to them automatically (see below).
+
+The same-genus formula shorthand is recognized: `"Salix alba × fragilis"`,
+where the second parent is written as a bare epithet, parses to parents
+"Salix alba" and "Salix fragilis".
 
 ## Worked example: matching a mixed species list
 
@@ -96,63 +112,66 @@ names <- c(
 )
 
 result <- taxify(names, backend = "wfo")
-result[, c("input_name", "accepted_name", "is_hybrid", "match_type")]
+result[, c("input_name", "accepted_name", "is_hybrid", "hybrid_type", "match_type")]
 ```
 
 The expected output looks roughly like this:
 
-| input_name                   | accepted_name         | is_hybrid | match_type |
-|:-----------------------------|:----------------------|:----------|:-----------|
-| Quercus robur                | Quercus robur         | FALSE     | exact      |
-| Mentha x piperita            | Mentha × piperita | TRUE      | exact      |
-| x Cupressocyparis leylandii  | NA                    | TRUE      | none       |
-| Salix alba x Salix fragilis  | Salix alba            | TRUE      | exact      |
-| Platanus x hispanica         | Platanus × hispanica | TRUE   | exact      |
+| input_name                   | accepted_name               | is_hybrid | hybrid_type  | match_type     |
+|:-----------------------------|:----------------------------|:----------|:-------------|:---------------|
+| Quercus robur                | Quercus robur               | FALSE     | NA           | exact          |
+| Mentha x piperita            | Mentha × piperita           | TRUE      | nothospecies | exact          |
+| x Cupressocyparis leylandii  | Hesperotropsis leylandii    | TRUE      | nothogenus   | exact          |
+| Salix alba x Salix fragilis  | Salix alba × Salix fragilis | TRUE      | formula      | hybrid_formula |
+| Platanus x hispanica         | Platanus × hispanica        | TRUE      | nothospecies | exact          |
 
 Several things are visible here. The two nothospecies (Mentha, Platanus)
-matched successfully because WFO stores these as accepted names with the
-× character in the canonical name. The nothogenus
-×Cupressocyparis returned no match because intergeneric hybrid genera
-are less commonly included in backbone databases. The hybrid formula
-matched only the first parent (Salix alba), since the formula itself is
-not a single taxon name.
+matched because WFO stores these as accepted names with the × character in
+the canonical name. The nothogenus ×Cupressocyparis matched too: taxify tries
+the sign-retained forms, and WFO resolves the cross to its accepted genus
+(*Hesperotropsis*). The hybrid formula did **not** collapse to its first
+parent: WFO carries no single record for this cross, so `match_type` is
+`hybrid_formula`. Because both parents resolve against WFO, the cross is named
+by them -- `accepted_name` is "Salix alba × Salix fragilis" (the accepted-parent
+cross) and `matched_name` the input-parent cross. When a parent cannot be
+matched, both stay `NA`. Either way the row is never a misleading single match
+to *Salix alba*.
 
-The `is_hybrid` column is TRUE for all four hybrid inputs, regardless of
-whether the name matched. This column records a property of the input, not
-of the match result.
+The `is_hybrid` column is TRUE for all four hybrid inputs and `hybrid_type`
+names the kind, regardless of whether the name matched. Both record a property
+of the input, not of the match result.
 
 ## Extracting hybrid details with add_hybrid_info()
 
-The `add_hybrid_info()` function takes a `taxify()` result and parses the
-`input_name` column to extract structured hybrid information. It adds
-three columns:
+`hybrid_type` is already in the `taxify()` output. `add_hybrid_info()` goes
+further for **hybrid formulas**: it parses the `input_name` column for the two
+parents and resolves each against the same backend(s) used for the result. It
+adds four columns:
 
 - `hybrid_parent_1`: the first parent binomial (for formulas) or NA
-
 - `hybrid_parent_2`: the second parent binomial (for formulas, with
-  abbreviated genera expanded) or NA
-- `hybrid_type`: one of `"nothogenus"`, `"nothospecies"`, `"formula"`, or
-  NA for non-hybrids
+  abbreviated or omitted genera expanded) or NA
+- `hybrid_parent_1_accepted`, `hybrid_parent_2_accepted`: the accepted name
+  each parent resolves to, or NA if it did not match
 
-For nothogenus and nothospecies names, both parent columns are NA because
-the input names only the hybrid itself, not its parents. The parent species
-of Mentha ×piperita (Mentha aquatica and Mentha spicata) are not
-encoded in the name string. Only hybrid formulas carry both parent names
-explicitly.
+For nothogenus and nothospecies names, the parent columns are NA because the
+input names only the hybrid itself, not its parents. The parent species of
+Mentha ×piperita (Mentha aquatica and Mentha spicata) are not encoded in the
+name string. Only hybrid formulas carry both parent names explicitly.
 
 ```{r}
 result |> add_hybrid_info()
 ```
 
-The three new columns for our five-name example:
+The new columns for our five-name example:
 
-| input_name                   | hybrid_type   | hybrid_parent_1 | hybrid_parent_2   |
-|:-----------------------------|:--------------|:-----------------|:------------------|
-| Quercus robur                | NA            | NA               | NA                |
-| Mentha x piperita            | nothospecies  | NA               | NA                |
-| x Cupressocyparis leylandii  | nothogenus    | NA               | NA                |
-| Salix alba x Salix fragilis  | formula       | Salix alba       | Salix fragilis    |
-| Platanus x hispanica         | nothospecies  | NA               | NA                |
+| input_name                   | hybrid_type   | hybrid_parent_1 | hybrid_parent_1_accepted | hybrid_parent_2 |
+|:-----------------------------|:--------------|:----------------|:-------------------------|:----------------|
+| Quercus robur                | NA            | NA              | NA                       | NA              |
+| Mentha x piperita            | nothospecies  | NA              | NA                       | NA              |
+| x Cupressocyparis leylandii  | nothogenus    | NA              | NA                       | NA              |
+| Salix alba x Salix fragilis  | formula       | Salix alba      | Salix alba               | Salix fragilis  |
+| Platanus x hispanica         | nothospecies  | NA              | NA                       | NA              |
 
 ## Worked example: parsing hybrid formulas
 
@@ -200,47 +219,57 @@ databases.
 nothospecies as accepted names, with the × character as part of the
 canonical name. Mentha ×piperita, Platanus ×hispanica, and
 Narcissus ×medioluteus are examples that appear in both backbones.
-taxify's matching logic handles the marker correctly: it first tries the
-stripped form ("Mentha piperita") and then the form with the ×
-reinserted ("Mentha × piperita"). At least one of these typically
-matches.
+taxify's matching logic handles the marker correctly: it tries the
+stripped form ("Mentha piperita") and the form with the ×
+reinserted ("Mentha × piperita"). At least one of these typically matches.
 
-**Nothogenera** have lower coverage. Intergeneric hybrids like
-×Cupressocyparis, ×Triticosecale, and ×Festulolium exist in
-some backbones but are absent from others. WFO includes several
-nothogenera relevant to agriculture and horticulture. COL's coverage
-varies by taxonomic group. When a nothogenus does not match, the output
-row will have `match_type = "none"` and `accepted_name = NA`, but
-`is_hybrid` will still be TRUE.
+**Nothogenera** are matched through the same sign-aware logic, so coverage
+follows the backbone. taxify tries "× Cupressocyparis leylandii",
+"×Cupressocyparis leylandii", and the stripped "Cupressocyparis leylandii",
+so a backbone that stores the sign form (as WFO and COL do) resolves the
+cross. When a nothogenus is genuinely absent, the row has
+`match_type = "none"` and `accepted_name = NA`, with `is_hybrid` still TRUE.
 
-**Hybrid formulas** will not match a backbone record directly, because the
-formula is not a taxon name. taxify extracts the first parent binomial as
-the cleaned name for matching, so the result row reflects the match status
-of the first parent. To resolve both parents, match them separately.
-
-```{r}
-# Match both parents of a hybrid formula separately
-parents <- c("Salix alba", "Salix fragilis")
-parent_result <- taxify(parents, backend = "wfo")
-```
-
-This approach gives a full match result (accepted name, synonym status,
-authorship) for each parent individually. In a dataset with many hybrid
-formulas, we can extract the parent columns from `add_hybrid_info()` and
-feed them back through `taxify()` as a batch.
+**Hybrid formulas** are tried against the backbone as a whole first (some
+backbones store the cross as a synonym of the nothospecies). When that
+misses, the row is marked `match_type = "hybrid_formula"` with `NA` match
+columns -- never collapsed to one parent. To work with the parents, use
+`add_hybrid_info()`, which resolves both against the same backend:
 
 ```{r}
-# Batch-resolve all hybrid formula parents
 info <- result |> add_hybrid_info()
-formula_rows <- info[info$hybrid_type == "formula" & !is.na(info$hybrid_type), ]
-
-all_parents <- unique(na.omit(c(
-  formula_rows$hybrid_parent_1,
-  formula_rows$hybrid_parent_2
-)))
-
-parent_matches <- taxify(all_parents, backend = "wfo")
+formula_rows <- info[!is.na(info$hybrid_type) & info$hybrid_type == "formula", ]
+formula_rows[, c("input_name", "hybrid_parent_1", "hybrid_parent_1_accepted",
+                 "hybrid_parent_2", "hybrid_parent_2_accepted")]
 ```
+
+## Traits for hybrids: the parent fallback
+
+Trait enrichment is hybrid-aware. When you attach traits to a result that
+contains a hybrid formula, each trait is resolved with a ladder:
+
+1. **the hybrid directly** -- if the cross resolved to a nothospecies and that
+   name carries the trait, it is used as-is;
+2. **the average of both parents** -- otherwise the two parents are resolved
+   and their trait values combined: numeric traits are averaged, and a
+   categorical trait is taken as the shared value, or reported as `"A x B"`
+   (with a warning) when the parents disagree;
+3. **the single available parent** -- if only one parent carries the trait,
+   its value is used.
+
+This happens automatically inside every `add_<source>()` door and inside
+`add_trait()`; no extra call is needed.
+
+```{r}
+# A hybrid formula with no direct trait record inherits from its parents
+taxify("Salix alba x Salix fragilis", backend = "wfo") |>
+  add_trait("plant_height")
+```
+
+If the parents have first been materialized with `add_hybrid_info()`, the
+trait doors additionally expose each parent's own value as
+`<trait>_parent1` / `<trait>_parent2`, so the components of the average are
+visible alongside the combined value.
 
 ## The multiplication sign and its substitutes
 
@@ -303,7 +332,8 @@ does not interfere with hybrid detection or matching.
 taxify("Mentha x piperita L.", backend = "wfo")
 ```
 
-**Adding hybrid info is lightweight.** `add_hybrid_info()` operates
-entirely on the `input_name` column via string parsing. It does not
-re-query any backbone or access any files on disk. On a result with 10,000
-rows, the function completes in milliseconds.
+**Adding hybrid info resolves the parents.** `add_hybrid_info()` parses the
+parents from the `input_name` column and resolves each against the backend(s)
+used for the result, so it makes one backbone lookup for the set of unique
+parents (memoized within a session). The parse itself is pure string work; the
+parent resolution reuses the same matching engine as `taxify()`.
