@@ -105,6 +105,18 @@
 
     
     
+<style>
+/* This page only: the manifest tables are wide, so widen the layout and let the
+   tables use the extra room. The max-width cap is a no-op on narrow screens
+   (the container is already smaller than the cap there), so no media query is
+   needed. Prose keeps a readable line length. */
+/* !important overrides Bootstrap's responsive .container max-width, which is set
+   inside a min-width media query and would otherwise cap this page. */
+.container.template-article { max-width: 1560px !important; }
+.template-article main > p,
+.template-article main > div.sourceCode { max-width: 900px; }
+.template-article main table { width: 100%; }
+</style>
 <p>taxify resolves names against local taxonomic
 <strong>backbones</strong> and joins external
 <strong>enrichment</strong> datasets that carry <strong>traits</strong>.
