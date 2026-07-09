@@ -27,13 +27,21 @@ The same data.frame with additional columns:
 
 - hybrid_parent_2:
 
-  Second parent (full binomial, abbreviated genus expanded), `NA` if not
-  a hybrid formula.
+  Second parent (full binomial, abbreviated or omitted genus expanded),
+  `NA` if not a hybrid formula.
+
+- hybrid_parent_1_accepted, hybrid_parent_2_accepted:
+
+  The accepted name each parent resolves to against the backend(s) used
+  for `x` (from the result's metadata), or `NA` if the parent did not
+  match.
 
 - hybrid_type:
 
   One of `"nothogenus"`, `"nothospecies"`, `"formula"`, or `NA` if not a
-  hybrid.
+  hybrid (same value as the `hybrid_type` column already on a
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  result).
 
 ## Examples
 

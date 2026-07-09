@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Enriching results with trait and status data"
 output: rmarkdown::html_vignette
 vignette: >
@@ -26,7 +26,7 @@ incompatible formats. Manually aligning names between a taxonomic backbone
 and a trait database can consume hours even for moderately sized species
 lists.
 
-taxify ships with more than sixty enrichment layers that attach published
+taxify ships with more than eighty enrichment layers that attach published
 trait and status datasets to a `taxify()` result in a single pipe call. Each
 enrichment is backed by a pre-built `.vtr` file that downloads automatically
 on first use and caches locally for all subsequent sessions. The enrichment
@@ -137,7 +137,7 @@ This check adds negligible latency because the manifest itself is cached.
 If the pre-built `.vtr` download fails (network issues, mirror outage,
 transient server errors), taxify does not stop immediately. Instead, it
 attempts to build the enrichment from the original source data. Each of
-the 18 enrichments has a build recipe in an internal registry
+the 81 enrichments has a build recipe in an internal registry
 (`.enrichment_build_registry`) that knows how to download the raw CSV, ZIP,
 or API response from the upstream source, parse it into a data.frame with
 a `canonical_name` column, and produce the `.vtr` file locally. This
@@ -161,17 +161,17 @@ by enrichment name and version:
 ```
 taxify_data_dir()/
   enrichment/
-    conservation_status/
+    iucn/
       latest/
-        conservation_status.vtr
+        iucn.vtr
         meta.json
     griis/
       latest/
         griis.vtr
         meta.json
-    woodiness/
+    zanne/
       latest/
-        woodiness.vtr
+        zanne.vtr
         meta.json
     ...
 ```
@@ -181,8 +181,8 @@ directory (typically `~/.local/share/taxify` on Linux/macOS or
 `%LOCALAPPDATA%/taxify` on Windows). This directory is also where backbone
 `.vtr` files are stored, so a single `taxify_data_dir()` call reveals
 where all taxify data lives on the system. Enrichment files are modest in
-size: most are between 1 and 20 MB. The full set of 18 enrichments totals
-roughly 150-200 MB.
+size: most are between 1 and 20 MB. The full set of 81 enrichments is
+correspondingly larger.
 
 
 ## Discovering enrichments
@@ -199,7 +199,7 @@ library(taxify)
 
 list_enrichments()
 #>              name version   nrow static                              trait_cols ...
-#> 1 conservation_status  ...  166000   TRUE                   conservation_status ...
+#> 1 iucn  ...  166000   TRUE                   conservation_status ...
 #> 2               griis  ...   23000  FALSE                      invasive_status ...
 #> 3                wcvp  ...  340000  FALSE                        native_status ...
 #> ...
@@ -211,7 +211,7 @@ FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, ReptTraits,
 LepTraits, AnimalTraits, NW European Arthropods) are based on published,
 version-locked datasets that have a single definitive release.
 These never trigger version checks, so they add zero network overhead to
-a session. Non-static enrichments (conservation_status, GRIIS, WCVP,
+a session. Non-static enrichments (iucn, GRIIS, WCVP,
 common_names) are periodically updated as the upstream source publishes new
 releases. For these, taxify checks once per session whether a newer version
 is available and updates transparently if so.
@@ -307,18 +307,18 @@ enrichment names and downloads each one to the local data directory.
 
 ```{r pre-download}
 # Download a single enrichment
-taxify_download_enrichment("conservation_status")
+taxify_download_enrichment("iucn")
 
 # Download several at once
-taxify_download_enrichment(c("woodiness", "eive", "leda"))
+taxify_download_enrichment(c("zanne", "eive", "leda"))
 
 # Download all of them
 taxify_download_enrichment(c(
-  "conservation_status", "griis", "wcvp", "eive",
+  "iucn", "griis", "wcvp", "eive",
   "elton_traits", "avonet", "pantheria", "amphibio",
-  "common_names", "woodiness", "diaz_traits", "leda",
+  "common_names", "zanne", "diaz_traits", "leda",
   "fungal_traits", "funguild", "algae_traits",
-  "fish_traits", "fishbase", "repttraits", "anage", "glonaf",
+  "fishmorph", "fishbase", "repttraits", "anage", "glonaf",
   "leptraits", "animaltraits", "arthropod_traits", "alien_first_records",
   "baseflor", "ecoflora", "floraweb"
 ))
@@ -348,7 +348,7 @@ immediately without any network access.
 ## Simple enrichments
 
 Simple enrichments add one or more columns via a flat join on
-`accepted_name`. Eighteen of the twenty-two enrichment layers use this
+`accepted_name`. Seventy-six of the 81 enrichment layers use this
 pattern. They differ only in which columns they add and which taxonomic
 groups they cover. We group them below by taxon focus, starting with plants
 (which have the most enrichment layers), then conservation status
@@ -367,7 +367,7 @@ that are straightforward to integrate.
 
 #### Woodiness (Zanne et al. 2014)
 
-The woodiness enrichment classifies ~50,000 plant species as woody,
+The zanne enrichment classifies ~50,000 plant species as woody,
 herbaceous, or variable. The dataset comes from Zanne et al. (2014), a
 landmark study on the radiation of angiosperms into freezing environments,
 published in *Nature*. The underlying classification draws on the world's
@@ -2019,8 +2019,8 @@ slightly different sets of names).
 
 | Enrichment | Taxon scope | Geographic scope | ~Species |
 |---|---|---|---|
-| conservation_status | all groups | global | 166,000 |
-| woodiness | plants | global | 50,000 |
+| iucn | all groups | global | 166,000 |
+| zanne | plants | global | 50,000 |
 | eive | plants | European | 14,500 |
 | diaz_traits | plants | global | 46,000 |
 | leda | plants | NW European | 8,000 |
@@ -2031,7 +2031,7 @@ slightly different sets of names).
 | fungal_traits | fungi | global | 10,200 genera |
 | funguild | fungi | global | 13,000 |
 | algae_traits | macroalgae | European | 1,745 |
-| fish_traits | freshwater fish | global | 8,300 |
+| fishmorph | freshwater fish | global | 8,300 |
 | fishbase | all fish | global | 35,000 |
 | repttraits | reptiles | global | 12,060 |
 | anage | vertebrates | global | 4,700 |
@@ -2125,8 +2125,8 @@ summary(result)
 #>   taxon groups: plant: 3
 #>
 #>   enrichments:
-#>     conservation_status  (IUCN Red List 2025.1)     -- 3 of 3 matched
-#>     woodiness            (Zanne et al. 2014 1.0)    -- 3 of 3 matched
+#>     iucn                 (IUCN Red List 2025.1)     -- 3 of 3 matched
+#>     zanne                (Zanne et al. 2014 1.0)    -- 3 of 3 matched
 #>     eive                 (EIVE 1.0 2023.1)          -- 3 of 3 matched
 ```
 
@@ -2149,7 +2149,7 @@ The version strings in the register provide exact provenance information
 for the methods section of a paper. Rather than writing "we used the IUCN
 Red List" (which version? downloaded when?), we can report the version
 string directly from `summary()` (e.g., "IUCN Red List v2025.1 as
-distributed by taxify enrichment conservation_status v2025.04").
+distributed by taxify enrichment iucn v2025.04").
 
 
 ## Practical guidance: which enrichments for which taxa
@@ -2555,7 +2555,7 @@ A minimal methods paragraph citing enrichments might read:
 ## Summary
 
 taxify's enrichment system turns taxonomic name matching into a gateway to
-ecological trait data. The 22 built-in enrichments cover conservation status,
+ecological trait data. The 81 built-in enrichments cover conservation status,
 growth form, ecological niches, functional traits, diet, morphology,
 life-history, geographic ranges, invasive status, and vernacular names
 across plants, birds, mammals, amphibians, vertebrates, butterflies,

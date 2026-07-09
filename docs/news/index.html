@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,16 @@
       <small>Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.6" id="taxify-036">taxify 0.3.6<a class="anchor" aria-label="anchor" href="#taxify-036"></a></h2>
+<div class="section level3">
+<h3 id="hybrid-matching-0-3-6">Hybrid matching<a class="anchor" aria-label="anchor" href="#hybrid-matching-0-3-6"></a></h3>
+<ul><li><p>Hybrid names are handled by type instead of being reduced to their first component. <code><a href="../reference/taxify.html">taxify()</a></code> gains a <code>hybrid_type</code> column (<code>"nothogenus"</code>, <code>"nothospecies"</code>, <code>"formula"</code>, or <code>NA</code>).</p></li>
+<li><p>Hybrid formulas (<code>"Salix alba × Salix fragilis"</code>) no longer resolve to a single species. Previously the cross was silently cut to its first parent and returned as an exact match to <code>Salix alba</code>; now the cross row carries <code>match_type = "hybrid_formula"</code> with <code>NA</code> backbone-match columns. The parent binomials, and their accepted names, are available on demand via <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>, which now adds <code>hybrid_parent_1</code>, <code>hybrid_parent_2</code>, <code>hybrid_parent_1_accepted</code>, and <code>hybrid_parent_2_accepted</code>.</p></li>
+<li><p>The same-genus formula shorthand is recognized: <code>"Salix alba × fragilis"</code> (second parent written as a bare epithet) parses to parents <code>"Salix alba"</code> and <code>"Salix fragilis"</code>.</p></li>
+<li><p>Nothogenus names match backbones that store the multiplication sign. <code>"× Cupressocyparis leylandii"</code> previously returned <code>NA</code> against backbones whose canonical form keeps the sign (e.g. <code>"× Cupressocyparis leylandii"</code>); matching now tries the <code>"× Genus ..."</code> and <code>"×Genus ..."</code> forms alongside the sign-stripped binomial. Nothospecies (<code>"Quercus × hispanica"</code>) continue to match as before.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.5" id="taxify-035">taxify 0.3.5<a class="anchor" aria-label="anchor" href="#taxify-035"></a></h2>
 <div class="section level3">

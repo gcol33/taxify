@@ -12,8 +12,8 @@ to overlap with a taxify workflow.
 |----|----|----|----|----|
 | [taxize](https://docs.ropensci.org/taxize/) | ~20 web services (NCBI, ITIS, GBIF, EOL, IUCN, WoRMS, Tropicos, …) | All kingdoms | Live API | `taxify(backend = c(...))` with the relevant local backbone(s) |
 | [WorldFlora](https://cran.r-project.org/package=WorldFlora) | World Flora Online classification (`WFO.match`) | Land plants (vascular + bryophytes) | Local file | `taxify(backend = "wfo")` |
-| [lcvplants](https://github.com/idiv-biodiversity/lcvplants) | Leipzig Catalogue of Vascular Plants | Vascular plants | Bundled in package | `taxify(backend = "wfo")` (nearest vascular-plant backbone) |
-| [rWCVP](https://matildabrown.github.io/rWCVP/) | World Checklist of Vascular Plants (Kew) | Vascular plants | Local snapshot | `taxify(backend = "wfo")` for names; [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) for native ranges |
+| [lcvplants](https://github.com/idiv-biodiversity/lcvplants) | Leipzig Catalogue of Vascular Plants | Vascular plants | Bundled in package | `taxify(backend = "lcvp")` |
+| [rWCVP](https://matildabrown.github.io/rWCVP/) | World Checklist of Vascular Plants (Kew) | Vascular plants | Local snapshot | `taxify(backend = "wcvp")` for names; [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md) for native ranges |
 | [taxadb](https://docs.ropensci.org/taxadb/) | GBIF, ITIS, COL, NCBI, OTT, WFO snapshots | All kingdoms | Local DuckDB / MonetDB | `taxify(backend = c(...))` |
 | [Taxonstand](https://cran.r-project.org/package=Taxonstand) | The Plant List (retired by Kew in 2013, superseded by WCVP and WFO) | Vascular plants | Bundled in package | `taxify(backend = "wfo")` |
 | [U.Taxonstand](https://github.com/ecoinfor/U.Taxonstand) | User-supplied or bundled checklists | Configurable | Local | `taxify(backend = ...)` plus [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md) |
@@ -26,7 +26,7 @@ there is no urgent reason to switch.
 
 That said, there are situations where taxify offers a better fit:
 
-- **Multiple backbones.** taxify matches against thirteen backbones
+- **Multiple backbones.** taxify matches against fifteen backbones
   offline and can chain them in a single call:
   `taxify(names, backend = c("wfo", "col", "gbif"))`.
 - **Speed at scale.** The matching engine is written in C with
@@ -68,7 +68,7 @@ gave a nested list of data.frames,
 [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
 another nested list,
 [`get_tsn()`](https://docs.ropensci.org/taxize/reference/get_tsn.html) a
-character vector with attributes). taxify returns the same 16-column
+character vector with attributes). taxify returns the same 26-column
 data.frame from every call. Synonym status, classification, and match
 quality are columns, not separate API calls.
 
@@ -88,7 +88,7 @@ a backend-agnostic schema: `matched_name`, `taxon_id`, `accepted_name`,
 `accepted_id`, and so on. The WFO-specific columns are still accessible
 via
 [`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md)
-when needed, but the default output is the same 16 columns whether the
+when needed, but the default output is the same 26 columns whether the
 backend is WFO, COL, or GBIF.
 
 taxify also handles backbone management automatically: the first
@@ -104,7 +104,7 @@ data. The package centres on `LCVP()` and `lcvp_search()`.
 
 | lcvplants function | taxify equivalent | Notes |
 |----|----|----|
-| `LCVP(splist)` | `taxify(splist, backend = "lcvp")` | Returns the standardized 16-column data.frame |
+| `LCVP(splist)` | `taxify(splist, backend = "lcvp")` | Returns the standardized 26-column data.frame |
 | `lcvp_search()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | Search by name; same output schema |
 | `lcvp_fuzzy_search()` | `taxify(fuzzy = TRUE)` | Genus-blocked Damerau-Levenshtein; on by default |
 | `tab_lcvp` (data object) | `taxify_data_dir() / lcvp / latest / lcvp.vtr` | The LCVP snapshot is shipped as a `.vtr` file rather than an in-package data object |
@@ -239,7 +239,7 @@ result$is_synonym
 result$taxon_id        # GBIF usage key
 ```
 
-The output is a data.frame with 16 columns and one row per input name.
+The output is a data.frame with 26 columns and one row per input name.
 
 ## Example 2: WFO matching with fuzzy + synonyms
 
@@ -340,11 +340,11 @@ result |> add_data(my_traits, species_col = "species")
 locally. After the initial download (typically 50–300 MB depending on
 the backbone), no internet connection is needed.
 
-**Multi-backend.** taxify supports seven backbones through a single
+**Multi-backend.** taxify supports fifteen backbones through a single
 function, with optional fallback chains that cascade unmatched names
 automatically.
 
-**Output format.** taxify always returns a data.frame with 16
+**Output format.** taxify always returns a data.frame with 26
 standardized columns, regardless of the backend:
 
 | Column | Type | Content |
@@ -359,12 +359,22 @@ standardized columns, regardless of the backend:
 | `genus` | character | Genus name |
 | `epithet` | character | Specific epithet |
 | `authorship` | character | Taxonomic authority |
+| `accepted_authorship` | character | Authorship of the accepted name |
 | `is_synonym` | logical | Was the matched name a synonym? |
 | `is_hybrid` | logical | Hybrid marker detected in the input? |
 | `match_type` | character | `"exact"`, `"exact_ci"`, `"fuzzy"`, or `"none"` |
 | `fuzzy_dist` | numeric | Normalized edit distance (NA if exact) |
+| `is_ambiguous` | logical | TRUE if the match is an unresolved homonym |
+| `ambiguous_targets` | character | Candidate accepted IDs when `is_ambiguous` |
 | `backend` | character | Which backend matched this name |
 | `backbone_version` | character | Backend name, version, and download date |
+| `kingdom_group` | character | Coarse kingdom group (from the genus register) |
+| `taxon_group` | character | Taxon grouping (from the genus register) |
+| `life_form` | character | Life form (from the genus register) |
+| `qualifier` | character | Canonical taxonomic qualifier (cf., aff., agg., s.l., …) |
+| `qualifier_position` | character | `"genus"` or `"species"` placement of the qualifier |
+| `aggregate_fallback` | logical | TRUE when an aggregate query fell back to the binomial |
+| `hybrid_type` | character | Hybrid formula / type detected |
 
 **Speed.** taxify uses vectra’s C-level join engine with hash indexes
 and genus-blocked fuzzy joins, processing thousands of names per second.
@@ -466,10 +476,10 @@ packages remain the right answer:
 
 ## Discovering available enrichments
 
-taxify bundles 12 enrichment datasets that cover conservation status,
-invasive species, functional traits, morphological measurements, and
-vernacular names. These are joined to the taxify result by piping
-through `add_*()` functions.
+taxify bundles more than eighty enrichment datasets that cover
+conservation status, invasive species, functional traits, morphological
+measurements, and vernacular names. These are joined to the taxify
+result by piping through `add_*()` functions.
 
 ``` r
 
@@ -478,27 +488,18 @@ list_enrichments()
 ```
 
 Each enrichment downloads automatically on first use and is cached
-locally, following the same pattern as backbones. The full list:
-[`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md),
-[`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md),
-[`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md),
-[`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md),
-[`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md),
-[`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md),
-[`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md),
-[`add_amphibio()`](https://gillescolling.com/taxify/reference/add_amphibio.md),
-[`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
-[`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md),
-[`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md),
-and
-[`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md).
+locally, following the same pattern as backbones.
+[`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
+lists every source-named `add_*()` door, and the cross-source
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+verb gathers a single trait across every source that carries it.
 
 ## Summary
 
 Migrating from taxize, WorldFlora, lcvplants, rWCVP, taxadb, or
 Taxonstand to taxify means replacing the package’s resolution call with
 `taxify(backend = ...)` and optional `add_*()` enrichment pipes. The
-output is a flat 16-column data.frame, not nested lists or long-format
+output is a flat 26-column data.frame, not nested lists or long-format
 join tables, and matching runs offline against versioned backbone files
 so results do not change between sessions unless the user explicitly
 updates the backbone.

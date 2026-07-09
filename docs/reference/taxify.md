@@ -127,11 +127,16 @@ A data.frame with one row per input name and the following columns:
 
 - matched_name:
 
-  Full name in the backbone that matched.
+  Full name in the backbone that matched. For an unresolved hybrid
+  formula (`match_type = "hybrid_formula"`) it holds the input-parent
+  cross (e.g. `"Salix alba x Salix fragilis"`) when both parents
+  resolve, else `NA`.
 
 - accepted_name:
 
-  Resolved accepted name (equals `matched_name` if not a synonym).
+  Resolved accepted name (equals `matched_name` if not a synonym). For a
+  hybrid formula it holds the accepted-parent cross (both parents
+  resolved), else `NA`.
 
 - taxon_id:
 
@@ -176,6 +181,17 @@ A data.frame with one row per input name and the following columns:
 
   Logical. Was a hybrid marker detected in the input?
 
+- hybrid_type:
+
+  `"nothogenus"` (`"x Cupressocyparis leylandii"`), `"nothospecies"`
+  (`"Quercus x hispanica"`), `"formula"`
+  (`"Salix alba x Salix fragilis"`), or `NA` for a non-hybrid.
+  Nothogenus and nothospecies resolve to a single backbone taxon in the
+  usual columns; a formula does not (its match columns are `NA` and
+  `match_type` is `"hybrid_formula"`). The parent binomials of a
+  formula, and their accepted names, are added on demand by
+  [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md).
+
 - qualifier:
 
   Canonical taxonomic qualifier found in the input name (`"cf."`,
@@ -202,7 +218,9 @@ A data.frame with one row per input name and the following columns:
 
   One of `"exact"`, `"exact_ci"`, `"fuzzy"`, `"abbrev"` (an abbreviated
   genus such as `"Q. robur"` resolved via genus initial plus epithet),
-  or `"none"`.
+  `"hybrid_formula"` (a two-parent cross; the row's backbone-match
+  columns are `NA` and the parents are resolved into the
+  `hybrid_parent_*` columns instead), or `"none"`.
 
 - fuzzy_dist:
 

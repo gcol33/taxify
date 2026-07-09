@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -151,9 +151,7 @@ backbone(s)</td>
 <td>Leipzig Catalogue of Vascular Plants</td>
 <td>Vascular plants</td>
 <td>Bundled in package</td>
-<td>
-<code>taxify(backend = "wfo")</code> (nearest vascular-plant
-backbone)</td>
+<td><code>taxify(backend = "lcvp")</code></td>
 </tr>
 <tr class="even">
 <td><a href="https://matildabrown.github.io/rWCVP/" class="external-link">rWCVP</a></td>
@@ -161,7 +159,7 @@ backbone)</td>
 <td>Vascular plants</td>
 <td>Local snapshot</td>
 <td>
-<code>taxify(backend = "wfo")</code> for names;
+<code>taxify(backend = "wcvp")</code> for names;
 <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code> for native ranges</td>
 </tr>
 <tr class="odd">
@@ -221,7 +219,7 @@ there is no urgent reason to switch.</p>
 <p>That said, there are situations where taxify offers a better fit:</p>
 <ul>
 <li>
-<strong>Multiple backbones.</strong> taxify matches against thirteen
+<strong>Multiple backbones.</strong> taxify matches against fifteen
 backbones offline and can chain them in a single call:
 <code>taxify(names, backend = c("wfo", "col", "gbif"))</code>.</li>
 <li>
@@ -308,7 +306,7 @@ tasks.</p>
 formats depending on the function (<code><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification()</a></code> gave a
 nested list of data.frames, <code><a href="../reference/synonyms.html">synonyms()</a></code> another nested list,
 <code><a href="https://docs.ropensci.org/taxize/reference/get_tsn.html" class="external-link">get_tsn()</a></code> a character vector with attributes). taxify
-returns the same 16-column data.frame from every call. Synonym status,
+returns the same 26-column data.frame from every call. Synonym status,
 classification, and match quality are columns, not separate API
 calls.</p>
 </div>
@@ -367,7 +365,7 @@ backend-agnostic schema: <code>matched_name</code>,
 <code>taxon_id</code>, <code>accepted_name</code>,
 <code>accepted_id</code>, and so on. The WFO-specific columns are still
 accessible via <code><a href="../reference/add_wfo_info.html">add_wfo_info()</a></code> when needed, but the default
-output is the same 16 columns whether the backend is WFO, COL, or
+output is the same 26 columns whether the backend is WFO, COL, or
 GBIF.</p>
 <p>taxify also handles backbone management automatically: the first
 <code><a href="../reference/taxify.html">taxify()</a></code> call downloads the backbone, subsequent calls
@@ -396,7 +394,7 @@ as bundled data. The package centres on <code>LCVP()</code> and
 <tr class="odd">
 <td><code>LCVP(splist)</code></td>
 <td><code>taxify(splist, backend = "lcvp")</code></td>
-<td>Returns the standardized 16-column data.frame</td>
+<td>Returns the standardized 26-column data.frame</td>
 </tr>
 <tr class="even">
 <td><code>lcvp_search()</code></td>
@@ -631,7 +629,7 @@ IDs, <code><a href="https://docs.ropensci.org/taxize/reference/classification.ht
 <span><span class="va">result</span><span class="op">$</span><span class="va">genus</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">is_synonym</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">taxon_id</span>        <span class="co"># GBIF usage key</span></span></code></pre></div>
-<p>The output is a data.frame with 16 columns and one row per input
+<p>The output is a data.frame with 26 columns and one row per input
 name.</p>
 </div>
 <div class="section level2">
@@ -725,11 +723,11 @@ cascade to the next backbone automatically.</p>
 <p><strong>Offline matching.</strong> taxify downloads backbone files
 once and matches locally. After the initial download (typically 50–300
 MB depending on the backbone), no internet connection is needed.</p>
-<p><strong>Multi-backend.</strong> taxify supports seven backbones
+<p><strong>Multi-backend.</strong> taxify supports fifteen backbones
 through a single function, with optional fallback chains that cascade
 unmatched names automatically.</p>
 <p><strong>Output format.</strong> taxify always returns a data.frame
-with 16 standardized columns, regardless of the backend:</p>
+with 26 standardized columns, regardless of the backend:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -793,16 +791,21 @@ with 16 standardized columns, regardless of the backend:</p>
 <td>Taxonomic authority</td>
 </tr>
 <tr class="odd">
+<td><code>accepted_authorship</code></td>
+<td>character</td>
+<td>Authorship of the accepted name</td>
+</tr>
+<tr class="even">
 <td><code>is_synonym</code></td>
 <td>logical</td>
 <td>Was the matched name a synonym?</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>is_hybrid</code></td>
 <td>logical</td>
 <td>Hybrid marker detected in the input?</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>match_type</code></td>
 <td>character</td>
 <td>
@@ -810,20 +813,68 @@ with 16 standardized columns, regardless of the backend:</p>
 or <code>"none"</code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>fuzzy_dist</code></td>
 <td>numeric</td>
 <td>Normalized edit distance (NA if exact)</td>
 </tr>
+<tr class="even">
+<td><code>is_ambiguous</code></td>
+<td>logical</td>
+<td>TRUE if the match is an unresolved homonym</td>
+</tr>
 <tr class="odd">
+<td><code>ambiguous_targets</code></td>
+<td>character</td>
+<td>Candidate accepted IDs when <code>is_ambiguous</code>
+</td>
+</tr>
+<tr class="even">
 <td><code>backend</code></td>
 <td>character</td>
 <td>Which backend matched this name</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>backbone_version</code></td>
 <td>character</td>
 <td>Backend name, version, and download date</td>
+</tr>
+<tr class="even">
+<td><code>kingdom_group</code></td>
+<td>character</td>
+<td>Coarse kingdom group (from the genus register)</td>
+</tr>
+<tr class="odd">
+<td><code>taxon_group</code></td>
+<td>character</td>
+<td>Taxon grouping (from the genus register)</td>
+</tr>
+<tr class="even">
+<td><code>life_form</code></td>
+<td>character</td>
+<td>Life form (from the genus register)</td>
+</tr>
+<tr class="odd">
+<td><code>qualifier</code></td>
+<td>character</td>
+<td>Canonical taxonomic qualifier (cf., aff., agg., s.l., …)</td>
+</tr>
+<tr class="even">
+<td><code>qualifier_position</code></td>
+<td>character</td>
+<td>
+<code>"genus"</code> or <code>"species"</code> placement of the
+qualifier</td>
+</tr>
+<tr class="odd">
+<td><code>aggregate_fallback</code></td>
+<td>logical</td>
+<td>TRUE when an aggregate query fell back to the binomial</td>
+</tr>
+<tr class="even">
+<td><code>hybrid_type</code></td>
+<td>character</td>
+<td>Hybrid formula / type detected</td>
 </tr>
 </tbody>
 </table>
@@ -918,21 +969,18 @@ taxadb’s dplyr surface is more ergonomic for custom queries.</p></li>
 <div class="section level2">
 <h2 id="discovering-available-enrichments">Discovering available enrichments<a class="anchor" aria-label="anchor" href="#discovering-available-enrichments"></a>
 </h2>
-<p>taxify bundles 12 enrichment datasets that cover conservation status,
-invasive species, functional traits, morphological measurements, and
-vernacular names. These are joined to the taxify result by piping
-through <code>add_*()</code> functions.</p>
+<p>taxify bundles more than eighty enrichment datasets that cover
+conservation status, invasive species, functional traits, morphological
+measurements, and vernacular names. These are joined to the taxify
+result by piping through <code>add_*()</code> functions.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See all available enrichments and their metadata</span></span>
 <span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Each enrichment downloads automatically on first use and is cached
-locally, following the same pattern as backbones. The full list:
-<code><a href="../reference/add_iucn.html">add_iucn()</a></code>, <code><a href="../reference/add_griis.html">add_griis()</a></code>,
-<code><a href="../reference/add_wcvp.html">add_wcvp()</a></code>, <code><a href="../reference/add_eive.html">add_eive()</a></code>,
-<code><a href="../reference/add_elton_traits.html">add_elton_traits()</a></code>, <code><a href="../reference/add_avonet.html">add_avonet()</a></code>,
-<code><a href="../reference/add_pantheria.html">add_pantheria()</a></code>, <code><a href="../reference/add_amphibio.html">add_amphibio()</a></code>,
-<code><a href="../reference/add_common_names.html">add_common_names()</a></code>, <code><a href="../reference/add_zanne.html">add_zanne()</a></code>,
-<code><a href="../reference/add_diaz_traits.html">add_diaz_traits()</a></code>, and <code><a href="../reference/add_leda.html">add_leda()</a></code>.</p>
+locally, following the same pattern as backbones.
+<code><a href="../reference/list_enrichments.html">list_enrichments()</a></code> lists every source-named
+<code>add_*()</code> door, and the cross-source <code><a href="../reference/add_trait.html">add_trait()</a></code>
+verb gathers a single trait across every source that carries it.</p>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
@@ -940,7 +988,7 @@ locally, following the same pattern as backbones. The full list:
 <p>Migrating from taxize, WorldFlora, lcvplants, rWCVP, taxadb, or
 Taxonstand to taxify means replacing the package’s resolution call with
 <code>taxify(backend = ...)</code> and optional <code>add_*()</code>
-enrichment pipes. The output is a flat 16-column data.frame, not nested
+enrichment pipes. The output is a flat 26-column data.frame, not nested
 lists or long-format join tables, and matching runs offline against
 versioned backbone files so results do not change between sessions
 unless the user explicitly updates the backbone.</p>

@@ -122,36 +122,11 @@ Zenodo. <a href="https://doi.org/10.5281/zenodo.8102913" class="external-link">d
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Calanus finmarchicus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">add_zooplankton</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> add_zooplankton(): attaching 11 of 86 columns. Pass cols = "all" for all, or see enrichment_cols("zooplankton").</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             input_name matched_name accepted_name taxon_id accepted_id rank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Calanus finmarchicus         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   family genus epithet authorship accepted_authorship is_synonym is_hybrid</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   &lt;NA&gt;  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   match_type fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       none         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group life_form qualifier qualifier_position</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       unknown     unknown   unknown      &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type zooplankton_body_length_max_mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;                             NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   zooplankton_carbon_weight_mg zooplankton_nitrogen_pdw_pct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                           NA                           NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   zooplankton_vertical_distribution zooplankton_reproduction_mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                              &lt;NA&gt;                          &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   zooplankton_trophic_group zooplankton_feeding_mode zooplankton_myelination</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      &lt;NA&gt;                     &lt;NA&gt;                    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   zooplankton_habitat_association zooplankton_diel_vertical_migration</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                            &lt;NA&gt;                                &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   zooplankton_bioluminescence</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                        &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF NA | cite() for full citations</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Calanus finmarchicus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_zooplankton</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># }</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

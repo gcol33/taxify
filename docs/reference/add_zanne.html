@@ -135,27 +135,14 @@ freezing environments. Nature 506:89-92.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
-<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">add_zanne</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      input_name  matched_name accepted_name   taxon_id accepted_id    rank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Quercus robur Quercus robur Quercus robur wfo-ex-001  wfo-ex-001 species</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     family   genus epithet authorship accepted_authorship is_synonym is_hybrid</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Fagaceae Quercus   robur         L.                  L.      FALSE     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   match_type fuzzy_dist is_ambiguous ambiguous_targets backend</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      exact         NA        FALSE              &lt;NA&gt;     wfo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type woodiness</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;     woody</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, Zanne et al. 2014 example | cite() for full citations</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
+<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_zanne</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

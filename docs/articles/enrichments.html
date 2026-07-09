@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,7 +116,7 @@ treat synonyms inconsistently, and distribute data in incompatible
 formats. Manually aligning names between a taxonomic backbone and a
 trait database can consume hours even for moderately sized species
 lists.</p>
-<p>taxify ships with more than sixty enrichment layers that attach
+<p>taxify ships with more than eighty enrichment layers that attach
 published trait and status datasets to a <code><a href="../reference/taxify.html">taxify()</a></code> result in
 a single pipe call. Each enrichment is backed by a pre-built
 <code>.vtr</code> file that downloads automatically on first use and
@@ -234,7 +234,7 @@ check adds negligible latency because the manifest itself is cached.</p>
 <p>If the pre-built <code>.vtr</code> download fails (network issues,
 mirror outage, transient server errors), taxify does not stop
 immediately. Instead, it attempts to build the enrichment from the
-original source data. Each of the 18 enrichments has a build recipe in
+original source data. Each of the 81 enrichments has a build recipe in
 an internal registry (<code>.enrichment_build_registry</code>) that
 knows how to download the raw CSV, ZIP, or API response from the
 upstream source, parse it into a data.frame with a
@@ -259,17 +259,17 @@ failure can be reported.</p>
 directory, organized by enrichment name and version:</p>
 <pre><code><span><span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span><span class="op">/</span></span>
 <span>  <span class="va">enrichment</span><span class="op">/</span></span>
-<span>    <span class="va">conservation_status</span><span class="op">/</span></span>
+<span>    <span class="va">iucn</span><span class="op">/</span></span>
 <span>      <span class="va">latest</span><span class="op">/</span></span>
-<span>        <span class="va">conservation_status.vtr</span></span>
+<span>        <span class="va">iucn.vtr</span></span>
 <span>        <span class="va">meta.json</span></span>
 <span>    <span class="va">griis</span><span class="op">/</span></span>
 <span>      <span class="va">latest</span><span class="op">/</span></span>
 <span>        <span class="va">griis.vtr</span></span>
 <span>        <span class="va">meta.json</span></span>
-<span>    <span class="va">woodiness</span><span class="op">/</span></span>
+<span>    <span class="va">zanne</span><span class="op">/</span></span>
 <span>      <span class="va">latest</span><span class="op">/</span></span>
-<span>        <span class="va">woodiness.vtr</span></span>
+<span>        <span class="va">zanne.vtr</span></span>
 <span>        <span class="va">meta.json</span></span>
 <span>    <span class="va">...</span></span></code></pre>
 <p>The <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code> function returns the
@@ -279,7 +279,7 @@ platform-appropriate data directory (typically
 where backbone <code>.vtr</code> files are stored, so a single
 <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code> call reveals where all taxify data lives
 on the system. Enrichment files are modest in size: most are between 1
-and 20 MB. The full set of 18 enrichments totals roughly 150-200 MB.</p>
+and 20 MB. The full set of 81 enrichments is correspondingly larger.</p>
 </div>
 </div>
 <div class="section level2">
@@ -298,7 +298,7 @@ source).</p>
 <span></span>
 <span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              name version   nrow static                              trait_cols ...</span></span>
-<span><span class="co">#&gt; 1 conservation_status  ...  166000   TRUE                   conservation_status ...</span></span>
+<span><span class="co">#&gt; 1 iucn  ...  166000   TRUE                   conservation_status ...</span></span>
 <span><span class="co">#&gt; 2               griis  ...   23000  FALSE                      invasive_status ...</span></span>
 <span><span class="co">#&gt; 3                wcvp  ...  340000  FALSE                        native_status ...</span></span>
 <span><span class="co">#&gt; ...</span></span></code></pre></div>
@@ -308,10 +308,10 @@ traits, FungalTraits, FUNGuild, AlgaeTraits, FISHMORPH, ReptTraits,
 LepTraits, AnimalTraits, NW European Arthropods) are based on published,
 version-locked datasets that have a single definitive release. These
 never trigger version checks, so they add zero network overhead to a
-session. Non-static enrichments (conservation_status, GRIIS, WCVP,
-common_names) are periodically updated as the upstream source publishes
-new releases. For these, taxify checks once per session whether a newer
-version is available and updates transparently if so.</p>
+session. Non-static enrichments (iucn, GRIIS, WCVP, common_names) are
+periodically updated as the upstream source publishes new releases. For
+these, taxify checks once per session whether a newer version is
+available and updates transparently if so.</p>
 <p>The <code>nrow</code> column gives a rough sense of enrichment size.
 Conservation status has ~166,000 rows (one per assessed species), WCVP
 has ~340,000 (one per species-region combination), and the smaller
@@ -400,18 +400,18 @@ vector of enrichment names and downloads each one to the local data
 directory.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Download a single enrichment</span></span>
-<span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="st">"conservation_status"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="st">"iucn"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Download several at once</span></span>
-<span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"woodiness"</span>, <span class="st">"eive"</span>, <span class="st">"leda"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zanne"</span>, <span class="st">"eive"</span>, <span class="st">"leda"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Download all of them</span></span>
 <span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"conservation_status"</span>, <span class="st">"griis"</span>, <span class="st">"wcvp"</span>, <span class="st">"eive"</span>,</span>
+<span>  <span class="st">"iucn"</span>, <span class="st">"griis"</span>, <span class="st">"wcvp"</span>, <span class="st">"eive"</span>,</span>
 <span>  <span class="st">"elton_traits"</span>, <span class="st">"avonet"</span>, <span class="st">"pantheria"</span>, <span class="st">"amphibio"</span>,</span>
-<span>  <span class="st">"common_names"</span>, <span class="st">"woodiness"</span>, <span class="st">"diaz_traits"</span>, <span class="st">"leda"</span>,</span>
+<span>  <span class="st">"common_names"</span>, <span class="st">"zanne"</span>, <span class="st">"diaz_traits"</span>, <span class="st">"leda"</span>,</span>
 <span>  <span class="st">"fungal_traits"</span>, <span class="st">"funguild"</span>, <span class="st">"algae_traits"</span>,</span>
-<span>  <span class="st">"fish_traits"</span>, <span class="st">"fishbase"</span>, <span class="st">"repttraits"</span>, <span class="st">"anage"</span>, <span class="st">"glonaf"</span>,</span>
+<span>  <span class="st">"fishmorph"</span>, <span class="st">"fishbase"</span>, <span class="st">"repttraits"</span>, <span class="st">"anage"</span>, <span class="st">"glonaf"</span>,</span>
 <span>  <span class="st">"leptraits"</span>, <span class="st">"animaltraits"</span>, <span class="st">"arthropod_traits"</span>, <span class="st">"alien_first_records"</span>,</span>
 <span>  <span class="st">"baseflor"</span>, <span class="st">"ecoflora"</span>, <span class="st">"floraweb"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -438,8 +438,8 @@ access.</p>
 <h2 id="simple-enrichments">Simple enrichments<a class="anchor" aria-label="anchor" href="#simple-enrichments"></a>
 </h2>
 <p>Simple enrichments add one or more columns via a flat join on
-<code>accepted_name</code>. Eighteen of the twenty-two enrichment layers
-use this pattern. They differ only in which columns they add and which
+<code>accepted_name</code>. Seventy-six of the 81 enrichment layers use
+this pattern. They differ only in which columns they add and which
 taxonomic groups they cover. We group them below by taxon focus,
 starting with plants (which have the most enrichment layers), then
 conservation status (cross-taxon), birds, mammals, amphibians,
@@ -458,7 +458,7 @@ open-access datasets that are straightforward to integrate.</p>
 <div class="section level4">
 <h4 id="woodiness-zanne-et-al--2014">Woodiness (Zanne et al. 2014)<a class="anchor" aria-label="anchor" href="#woodiness-zanne-et-al--2014"></a>
 </h4>
-<p>The woodiness enrichment classifies ~50,000 plant species as woody,
+<p>The zanne enrichment classifies ~50,000 plant species as woody,
 herbaceous, or variable. The dataset comes from Zanne et al. (2014), a
 landmark study on the radiation of angiosperms into freezing
 environments, published in <em>Nature</em>. The underlying
@@ -2099,13 +2099,13 @@ accept slightly different sets of names).</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>conservation_status</td>
+<td>iucn</td>
 <td>all groups</td>
 <td>global</td>
 <td>166,000</td>
 </tr>
 <tr class="even">
-<td>woodiness</td>
+<td>zanne</td>
 <td>plants</td>
 <td>global</td>
 <td>50,000</td>
@@ -2171,7 +2171,7 @@ accept slightly different sets of names).</p>
 <td>1,745</td>
 </tr>
 <tr class="odd">
-<td>fish_traits</td>
+<td>fishmorph</td>
 <td>freshwater fish</td>
 <td>global</td>
 <td>8,300</td>
@@ -2326,8 +2326,8 @@ overview of the entire analysis pipeline.</p>
 <span><span class="co">#&gt;   taxon groups: plant: 3</span></span>
 <span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt;   enrichments:</span></span>
-<span><span class="co">#&gt;     conservation_status  (IUCN Red List 2025.1)     -- 3 of 3 matched</span></span>
-<span><span class="co">#&gt;     woodiness            (Zanne et al. 2014 1.0)    -- 3 of 3 matched</span></span>
+<span><span class="co">#&gt;     iucn                 (IUCN Red List 2025.1)     -- 3 of 3 matched</span></span>
+<span><span class="co">#&gt;     zanne                (Zanne et al. 2014 1.0)    -- 3 of 3 matched</span></span>
 <span><span class="co">#&gt;     eive                 (EIVE 1.0 2023.1)          -- 3 of 3 matched</span></span></code></pre></div>
 <p>The enrichment register lists each applied enrichment with its source
 name, version, and the fraction of successfully matched names. In this
@@ -2347,8 +2347,7 @@ species, or names at ranks other than species.</p>
 information for the methods section of a paper. Rather than writing “we
 used the IUCN Red List” (which version? downloaded when?), we can report
 the version string directly from <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> (e.g., “IUCN Red
-List v2025.1 as distributed by taxify enrichment conservation_status
-v2025.04”).</p>
+List v2025.1 as distributed by taxify enrichment iucn v2025.04”).</p>
 </div>
 <div class="section level2">
 <h2 id="practical-guidance-which-enrichments-for-which-taxa">Practical guidance: which enrichments for which taxa<a class="anchor" aria-label="anchor" href="#practical-guidance-which-enrichments-for-which-taxa"></a>
@@ -2735,7 +2734,7 @@ recorded in the taxify result metadata and available via
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <p>taxify’s enrichment system turns taxonomic name matching into a
-gateway to ecological trait data. The 22 built-in enrichments cover
+gateway to ecological trait data. The 81 built-in enrichments cover
 conservation status, growth form, ecological niches, functional traits,
 diet, morphology, life-history, geographic ranges, invasive status, and
 vernacular names across plants, birds, mammals, amphibians, vertebrates,

@@ -217,54 +217,20 @@ genus register installed; without it they are skipped (with a message at
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># On raw names: register + list checks (no matching)</span></span></span>
-<span class="r-in"><span><span class="fu">inspect</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Bogusus fakus"</span>, <span class="st">"Carexus mysteriosa"</span>,</span></span>
-<span class="r-in"><span>          <span class="st">"Carexus mysteriosa"</span>, <span class="st">"Carexus mysteryosa"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── taxify inspection ──────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   5 names inspected  |  4 with anomalies</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   backbones: none (register + list checks only)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   unresolved: 4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [unresolved] Bogusus fakus       -&gt;  ?                   genus 'Bogusus' is not in the taxonomic register</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [unresolved] Carexus mysteriosa  -&gt;  ?                   genus 'Carexus' is not in the taxonomic register</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [unresolved] Carexus mysteriosa  -&gt;  ?                   genus 'Carexus' is not in the taxonomic register</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [unresolved] Carexus mysteryosa  -&gt;  Carexus mysteriosa  genus 'Carexus' is not in the taxonomic register; near-duplicate of more frequent 'Carexus mysteriosa'</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Opt in to matching to also get typos, synonyms, ambiguity</span></span></span>
-<span class="r-in"><span><span class="fu">inspect</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robus"</span><span class="op">)</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 2 names against 8 backends: wfo -&gt; col -&gt; gbif -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; lcvp -&gt; wcvp</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 2 names...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Fuzzy matching 1 unmatched...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Skipped (all names matched)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Skipped (all names matched)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Skipped (all names matched)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── taxify inspection ──────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2 names inspected  |  1 with anomalies</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   backbones: wfo, col, gbif, fishbase, sealifebase, reptiledb, lcvp, wcvp</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   review: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [review] Quercus robus  -&gt;  Quercus robur  likely misspelling</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Or match yourself and inspect the result</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robus"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">inspect</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 2 names...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ── taxify inspection ──────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2 names inspected  |  1 with anomalies</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   backbones: wfo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   review: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ────────────────────────────────────────────────────────────</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [review] Quercus robus  -&gt;  Quercus robur  likely misspelling</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># On raw names: register + list checks (no matching)</span></span>
+<span><span class="fu">inspect</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Bogusus fakus"</span>, <span class="st">"Carexus mysteriosa"</span>,</span>
+<span>          <span class="st">"Carexus mysteriosa"</span>, <span class="st">"Carexus mysteryosa"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Opt in to matching to also get typos, synonyms, ambiguity</span></span>
+<span><span class="fu">inspect</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robus"</span><span class="op">)</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Or match yourself and inspect the result</span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robus"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">inspect</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

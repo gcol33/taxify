@@ -178,41 +178,14 @@ time and is redistributed under the source licence (CC BY-NC-SA 4.0). The
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
-<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">add_ecoflora</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        input_name    matched_name   accepted_name   taxon_id accepted_id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Bellis perennis Bellis perennis Bellis perennis wfo-ex-009  wfo-ex-009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      rank     family  genus  epithet authorship accepted_authorship is_synonym</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 species Asteraceae Bellis perennis         L.                  L.      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist is_ambiguous ambiguous_targets backend</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA        FALSE              &lt;NA&gt;     wfo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type         height_max_mm_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt; example_height_max_mm_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           height_min_mm_uk         leaf_area_uk         leaf_longevity_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_height_min_mm_uk example_leaf_area_uk example_leaf_longevity_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           root_system_uk         photosynthetic_pathway_uk         life_form_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_root_system_uk example_photosynthetic_pathway_uk example_life_form_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           reproduction_uk         flower_begin_month_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_reproduction_uk example_flower_begin_month_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           flower_end_month_uk         pollination_vector_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_flower_end_month_uk example_pollination_vector_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           seed_weight_mg_uk         propagule_uk         ell_light_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_seed_weight_mg_uk example_propagule_uk example_ell_light_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ell_moisture_uk         ell_reaction_uk         ell_nitrogen_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_ell_moisture_uk example_ell_reaction_uk example_ell_nitrogen_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ell_salt_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_ell_salt_uk</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, Ecoflora (Ecological Flora of the British Isles) example | cite() for full citations</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
+<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_ecoflora</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

@@ -120,32 +120,11 @@ States of America. Scientific Data 10:745. <a href="https://doi.org/10.1038/s415
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Lampsilis cardium"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">add_sheld</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> add_sheld(): attaching 12 of 105 columns. Pass cols = "all" for all, or see enrichment_cols("sheld").</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          input_name matched_name accepted_name taxon_id accepted_id rank family</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Lampsilis cardium         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;   &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym is_hybrid match_type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE       none</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group life_form qualifier qualifier_position</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       plantae     unknown   unknown      &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type sheld_mean_length_mm sheld_max_length_mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;                   NA                  NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   sheld_mature_age sheld_max_age sheld_growth_rate sheld_fecundity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               NA            NA                NA              NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   sheld_n_host_species sheld_n_host_family sheld_brood sheld_marsupial_gills</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   NA                  NA        &lt;NA&gt;                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   sheld_hermaphrodite sheld_shell_sculpture</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                &lt;NA&gt;                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF NA | cite() for full citations</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Lampsilis cardium"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_sheld</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># }</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

@@ -186,73 +186,14 @@ Schriftenreihe fuer Vegetationskunde 38. Bundesamt fuer Naturschutz, Bonn.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
-<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">add_floraweb</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        input_name    matched_name   accepted_name   taxon_id accepted_id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Bellis perennis Bellis perennis Bellis perennis wfo-ex-009  wfo-ex-009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      rank     family  genus  epithet authorship accepted_authorship is_synonym</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 species Asteraceae Bellis perennis         L.                  L.      FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist is_ambiguous ambiguous_targets backend</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA        FALSE              &lt;NA&gt;     wfo</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type         height_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt; example_height_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           life_form_de         leaf_shape_de         leaf_anatomy_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_life_form_de example_leaf_shape_de example_leaf_anatomy_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           leaf_persistence_de         storage_organs_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_leaf_persistence_de example_storage_organs_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           flowering_months_de         flowering_months_biolflor_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_flowering_months_de example_flowering_months_biolflor_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           flowering_phase_de         phenological_season_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_flowering_phase_de example_phenological_season_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           description_de         pollination_vector_de         pollinator_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_description_de example_pollination_vector_de example_pollinator_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           pollinator_reward_de         flower_type_de         flower_class_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_pollinator_reward_de example_flower_type_de example_flower_class_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           dispersal_type_de         diaspore_type_de         germinule_type_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_dispersal_type_de example_diaspore_type_de example_germinule_type_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           reproduction_type_de         vegetative_spread_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_reproduction_type_de example_vegetative_spread_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           fertilization_type_de         apomixis_de         dicliny_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_fertilization_type_de example_apomixis_de example_dicliny_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           dichogamy_de         self_incompatibility_de         si_mechanism_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_dichogamy_de example_self_incompatibility_de example_si_mechanism_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ploidy_de         chromosome_number_de         chromosome_freq_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_ploidy_de example_chromosome_number_de example_chromosome_freq_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           chromosomes_de         ell_light_de         ell_temperature_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_chromosomes_de example_ell_light_de example_ell_temperature_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ell_continentality_de         ell_moisture_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_ell_continentality_de example_ell_moisture_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ell_moisture_variability_de         ell_reaction_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_ell_moisture_variability_de example_ell_reaction_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ell_nitrogen_de         ell_salt_de         heavy_metal_resistance_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_ell_nitrogen_de example_ell_salt_de example_heavy_metal_resistance_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           strategy_type_de         habitat_site_de         formation_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_strategy_type_de example_habitat_site_de example_formation_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           plant_community_de         biotope_type_de         forest_binding_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_plant_community_de example_biotope_type_de example_forest_binding_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           hemeroby_de         urbanity_de         floristic_zones_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_hemeroby_de example_urbanity_de example_floristic_zones_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           areal_formula_de         areal_type_de         oceanity_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_areal_formula_de example_areal_type_de example_oceanity_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           range_centre_de         world_range_size_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_range_centre_de example_world_range_size_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           world_range_frequency_de         world_range_position_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_world_range_frequency_de example_world_range_position_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           world_range_hazard_de         germany_range_share_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_world_range_hazard_de example_germany_range_share_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           germany_responsibility_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_germany_responsibility_de</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, FloraWeb (BfN; BiolFlor data, Klotz, Kuehn &amp; Durka 2002) example | cite() for full citations</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
+<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_floraweb</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

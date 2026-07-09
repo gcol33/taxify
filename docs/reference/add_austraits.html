@@ -170,38 +170,11 @@ Australian flora. Scientific Data 8:254. <a href="https://doi.org/10.1038/s41597
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Eucalyptus globulus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">add_austraits</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> add_austraits(): attaching 16 of 530 columns. Pass cols = "all" for all, or see enrichment_cols("austraits").</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            input_name matched_name accepted_name taxon_id accepted_id rank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Eucalyptus globulus         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   family genus epithet authorship accepted_authorship is_synonym is_hybrid</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   &lt;NA&gt;  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   match_type fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       none         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group  life_form qualifier qualifier_position</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       plantae  angiosperm angiosperm      &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type austraits_plant_growth_form</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;                        &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   austraits_life_history austraits_woodiness austraits_photosynthetic_pathway</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   &lt;NA&gt;                &lt;NA&gt;                             &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   austraits_dispersal_syndrome austraits_resprouting_capacity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         &lt;NA&gt;                           &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   austraits_flowering_time austraits_plant_height_m austraits_leaf_length_mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                     &lt;NA&gt;                       NA                       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   austraits_leaf_width_mm austraits_leaf_area_mm2 austraits_leaf_mass_per_area</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      NA                      NA                           NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   austraits_leaf_n_per_dry_mass austraits_leaf_p_per_dry_mass</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                            NA                            NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   austraits_seed_dry_mass_mg austraits_wood_density_g_cm3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         NA                           NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF NA | cite() for full citations</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Eucalyptus globulus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_austraits</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># }</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

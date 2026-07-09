@@ -271,8 +271,7 @@ record for this cross, so <code>match_type</code> is
 the cross is named by them – <code>accepted_name</code> is “Salix alba ×
 Salix fragilis” (the accepted-parent cross) and
 <code>matched_name</code> the input-parent cross. When a parent cannot
-be matched, both stay <code>NA</code>. Either way the row is never a
-misleading single match to <em>Salix alba</em>.</p>
+be matched, both stay <code>NA</code>.</p>
 <p>The <code>is_hybrid</code> column is TRUE for all four hybrid inputs
 and <code>hybrid_type</code> names the kind, regardless of whether the
 name matched. Both record a property of the input, not of the match
@@ -287,16 +286,13 @@ formulas</strong>: it parses the <code>input_name</code> column for the
 two parents and resolves each against the same backend(s) used for the
 result. It adds four columns:</p>
 <ul>
-<li>
-<code>hybrid_parent_1</code>: the first parent binomial (for
-formulas) or NA</li>
-<li>
-<code>hybrid_parent_2</code>: the second parent binomial (for
-formulas, with abbreviated or omitted genera expanded) or NA</li>
-<li>
-<code>hybrid_parent_1_accepted</code>,
+<li><p><code>hybrid_parent_1</code>: the first parent binomial (for
+formulas) or NA</p></li>
+<li><p><code>hybrid_parent_2</code>: the second parent binomial (for
+formulas, with abbreviated or omitted genera expanded) or NA</p></li>
+<li><p><code>hybrid_parent_1_accepted</code>,
 <code>hybrid_parent_2_accepted</code>: the accepted name each parent
-resolves to, or NA if it did not match</li>
+resolves to, or NA if it did not match</p></li>
 </ul>
 <p>For nothogenus and nothospecies names, the parent columns are NA
 because the input names only the hybrid itself, not its parents. The

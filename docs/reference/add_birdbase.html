@@ -173,36 +173,11 @@ and life-history traits. Scientific Data.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Struthio camelus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">add_birdbase</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> add_birdbase(): attaching 17 of 95 columns. Pass cols = "all" for all, or see enrichment_cols("birdbase").</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         input_name matched_name accepted_name taxon_id accepted_id rank family</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Struthio camelus         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;   &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym is_hybrid match_type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE       none</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group life_form qualifier qualifier_position</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       unknown     unknown   unknown      &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type birdbase_iucn_status birdbase_realm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;                 &lt;NA&gt;           &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   birdbase_latitudinal_zone birdbase_island_endemic birdbase_restricted_range</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                        NA                      NA                        NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   birdbase_elevation_min_m birdbase_elevation_max_m birdbase_elevation_range_m</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                       NA                       NA                         NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   birdbase_primary_habitat birdbase_habitat_breadth birdbase_primary_diet</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                     &lt;NA&gt;                       NA                  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   birdbase_diet_breadth birdbase_specialization_esi birdbase_clutch_min</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    NA                          NA                  NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   birdbase_clutch_max birdbase_nest_type birdbase_flightlessness</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                  NA               &lt;NA&gt;                    &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF NA | cite() for full citations</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Struthio camelus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_birdbase</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># }</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

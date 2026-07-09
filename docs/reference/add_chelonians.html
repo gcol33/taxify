@@ -163,36 +163,11 @@ global turtles and tortoises. figshare.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Chelonia mydas"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>  <span class="fu">add_chelonians</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   Fuzzy matching 1 unmatched...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> add_chelonians(): attaching 14 of 79 columns. Pass cols = "all" for all, or see enrichment_cols("chelonians").</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       input_name matched_name accepted_name taxon_id accepted_id rank family</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Chelonia mydas         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;   &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym is_hybrid match_type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA     FALSE       none</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fuzzy_dist is_ambiguous ambiguous_targets backend backbone_version</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1         NA           NA              &lt;NA&gt;    &lt;NA&gt;             &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group life_form qualifier qualifier_position</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       unknown     unknown   unknown      &lt;NA&gt;               &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type chelonian_carapace_length_mm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;                           NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   chelonian_max_mass_g chelonian_clutch_size_mean chelonian_clutch_size_max</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   NA                         NA                        NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   chelonian_clutches_per_year chelonian_incubation_d chelonian_age_maturity_y</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                          NA                     NA                       NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   chelonian_max_lifespan_y chelonian_range_size_km2 chelonian_diet</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                       NA                       NA           &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   chelonian_activity_time chelonian_microhabitat chelonian_habitat_type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    &lt;NA&gt;                   &lt;NA&gt;                   &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   chelonian_shell_type</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF NA | cite() for full citations</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># \donttest{</span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Chelonia mydas"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_chelonians</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># }</span></span>
+<span></span></code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

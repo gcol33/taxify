@@ -16,9 +16,10 @@ cleaned, matched against a backbone you keep on disk, synonyms resolved
 to the accepted name. Matching runs in C through the
 [vectra](https://github.com/gcol33/vectra) engine, so there are no web
 services and no rate limits, and the same input gives the same output on
-any machine. Thirteen Darwin Core backbones are available (WFO, COL,
+any machine. Fifteen Darwin Core backbones are available (WFO, COL,
 GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
-FishBase, SeaLifeBase, Reptile Database), all queried offline.
+FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP), all queried
+offline.
 
 ``` r
 
@@ -70,9 +71,9 @@ res[, c("input_name", "accepted_name", "family",
     #> 10 Taraxacum officinale Taraxacum officinale  Asteraceae      FALSE      exact         NA
 
 Ten names, ten rows, every match readable. Each row also carries genus,
-authorship, taxon and accepted IDs, a hybrid flag, the backend, and the
-exact backbone version (the full table is wider, the same shape for any
-input).
+authorship, taxon and accepted IDs, a hybrid flag and type, the backend,
+and the exact backbone version (the full table is wider, the same shape
+for any input).
 
 Each name reaches its accepted name a different way. The animation below
 walks one name at a time through the pipeline: the clean step strips
@@ -184,7 +185,7 @@ vignette](https://gillescolling.com/taxify/articles/custom-data.html).
 ## The enrichment layers
 
 taxify also ships published trait and status layers that attach on the
-accepted name. There are more than sixty, across the tree of life and
+accepted name. There are more than eighty, across the tree of life and
 for the conservation and invasion records this kind of work needs. Each
 `add_*()` matches its own source against the backbone and attaches on
 the accepted name, so any of them stacks into a pipeline the same way.

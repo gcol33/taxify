@@ -329,9 +329,9 @@ The sizes below are approximate and depend on the backbone version.
 | OTT     | 3,500,000      | 300-400 MB        | Synthetic tree (multi-source)  |
 | WoRMS   | 600,000        | 60-80 MB          | Marine taxa                    |
 
-A full installation of all seven backbones occupies roughly 1.5-2 GB.
-Most workflows need only one or two. The WFO backbone alone covers the
-vast majority of plant taxonomy use cases at under 70 MB.
+A full installation of all fifteen backbones occupies several GB. Most
+workflows need only one or two. The WFO backbone alone covers the vast
+majority of plant taxonomy use cases at under 70 MB.
 
 The download sizes are comparable to the on-disk sizes since the `.vtr`
 format is already compressed. No additional decompression step runs
@@ -340,8 +340,8 @@ reads at query time.
 
 Enrichment files are much smaller. The largest enrichment is WCVP
 (native range data, ~2 million rows) at roughly 30-40 MB. Most
-enrichments are under 5 MB. A full set of 12 enrichments adds about
-80-100 MB to disk usage.
+enrichments are under 5 MB. A full set of 81 enrichments adds a few
+hundred MB to disk usage.
 
 ## Memory footprint
 
@@ -367,8 +367,7 @@ fuzzy pass.
 
 Enrichment `.vtr` files are loaded on demand. Calling
 [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
-loads the conservation_status enrichment (~60,000 rows, a few MB).
-Calling
+loads the iucn enrichment (~60,000 rows, a few MB). Calling
 [`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md)
 loads EltonTraits (~15,000 rows). Enrichment joins use a different
 mechanism than backbone matching: they build a temporary `.vtr` of
@@ -581,13 +580,13 @@ which resolves to the platform-specific user data directory via
           col.vtr
           ...
       enrichment/
-        conservation_status/
+        iucn/
           latest/
-            conservation_status.vtr
+            iucn.vtr
             meta.json
-        woodiness/
+        zanne/
           latest/
-            woodiness.vtr
+            zanne.vtr
             meta.json
         ...
 
@@ -655,8 +654,8 @@ taxify_download_vtr(c("wfo", "col"))
 
 # Enrichments
 taxify_download_enrichment(c(
-  "conservation_status",
-  "woodiness",
+  "iucn",
+  "zanne",
   "eive",
   "elton_traits"
 ))
@@ -687,7 +686,7 @@ To see which enrichments are available and their current versions:
 
 list_enrichments()
 #>                name version    nrow static
-#> 1 conservation_status 2026.04   59583  FALSE
+#> 1 iucn 2026.04   59583  FALSE
 #> 2               griis 2026.04   98131  FALSE
 #> 3                wcvp 2026.04 1973234  FALSE
 #> 4                eive     1.0   14835   TRUE
@@ -698,9 +697,8 @@ list_enrichments()
 
 Static enrichments (those based on published, version-locked datasets
 like EltonTraits 1.0 or PanTHERIA 1.0) are never re-downloaded after the
-initial fetch. Non-static enrichments (conservation_status, griis, wcvp,
-common_names) are checked once per session and updated if a newer build
-is available.
+initial fetch. Non-static enrichments (iucn, griis, wcvp, common_names)
+are checked once per session and updated if a newer build is available.
 
 ## Practical scaling guidance
 

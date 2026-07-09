@@ -12,7 +12,7 @@ knitr::opts_chunk$set(eval = FALSE)
 ```
 
 taxify matches taxonomic names against locally stored Darwin Core backbone
-databases. Thirteen backends are available, each compiled from a different
+databases. Fifteen backends are available, each compiled from a different
 authoritative source. The backend we choose determines which names can be
 matched, what taxonomic opinion governs synonym resolution, and which extra
 metadata columns are available downstream. This vignette walks through the
@@ -21,26 +21,28 @@ practical guidance on which combination to pick for a given project.
 
 ## Backend overview
 
-The table below summarizes the thirteen backends. "Approx. names" is the total
+The table below summarizes the fifteen backends. "Approx. names" is the total
 number of name strings in the compiled backbone (accepted names plus
 synonyms); the actual species count is lower because each accepted species
 may have several synonym entries pointing to it.
 
 | Backend | Full name | Scope | Approx. names | Source format |
 |:--------|:----------|:------|:--------------|:--------------|
-| `wfo` | World Flora Online | Vascular plants, bryophytes | ~400k | Zenodo ZIP (classification.txt) |
-| `col` | Catalogue of Life | All kingdoms | ~4.5M | ChecklistBank DwC-A (Taxon.tsv) |
-| `gbif` | GBIF Backbone Taxonomy | All kingdoms | ~10M | GBIF simple.txt.gz (30 positional cols) |
-| `itis` | Integrated Taxonomic Information System | All kingdoms, US focus | ~900k | SQLite dump from itis.gov |
-| `ncbi` | NCBI Taxonomy | All life incl. viruses | ~2.5M | Pipe-delimited .dmp files (taxdump) |
-| `ott` | Open Tree of Life | All life (synthetic) | ~4M | Pipe-delimited taxonomy.tsv + synonyms.tsv |
-| `worms` | World Register of Marine Species | Marine and brackish | ~600k | ChecklistBank DwC-A |
+| `wfo` | World Flora Online | Vascular plants, bryophytes | ~1.6M | Zenodo ZIP (classification.txt) |
+| `col` | Catalogue of Life | All kingdoms | ~5.3M | ChecklistBank DwC-A (Taxon.tsv) |
+| `gbif` | GBIF Backbone Taxonomy | All kingdoms | ~6.4M | GBIF simple.txt.gz (30 positional cols) |
+| `itis` | Integrated Taxonomic Information System | All kingdoms, US focus | ~990k | SQLite dump from itis.gov |
+| `ncbi` | NCBI Taxonomy | All life incl. viruses | ~2.7M | Pipe-delimited .dmp files (taxdump) |
+| `ott` | Open Tree of Life | All life (synthetic) | ~3.7M | Pipe-delimited taxonomy.tsv + synonyms.tsv |
+| `worms` | World Register of Marine Species | Marine and brackish | ~1.6M | ChecklistBank DwC-A |
 | `euromed` | Euro+Med PlantBase | European/Mediterranean plants | ~132k | Semicolon-delimited CSV |
-| `fungorum` | Species Fungorum Plus | Fungi | ~500k | ChecklistBank DwC-A |
+| `fungorum` | Species Fungorum Plus | Fungi | ~315k | ChecklistBank DwC-A |
 | `algaebase` | AlgaeBase | Algae and cyanobacteria | ~170k | ChecklistBank DwC-A (CC BY-NC) |
 | `fishbase` | FishBase | Fishes | ~100k | rfishbase (load_taxa + synonyms) |
 | `sealifebase` | SeaLifeBase | Non-fish marine and aquatic | ~134k | rfishbase (load_taxa + synonyms) |
 | `reptiledb` | Reptile Database | Reptiles | ~50k | reptarium taxa.csv + synonym/checklist XLSX |
+| `lcvp` | Leipzig Catalogue of Vascular Plants | Vascular plants | ~1.3M | idiv-biodiversity tab_lcvp.rda (R data package) |
+| `wcvp` | World Checklist of Vascular Plants (Kew) | Vascular plants | ~1.4M | Kew wcvp.zip (wcvp_names.csv) |
 
 A few things stand out. WFO is the standard reference for plant taxonomy and
 the default backend in taxify. It is maintained by the World Flora Online
@@ -51,7 +53,7 @@ COL and GBIF both cover all kingdoms, but they differ in curation strategy.
 COL is an expert-curated checklist assembled from over 160 sector databases,
 each maintained by a taxonomic authority for its group. GBIF's backbone is
 assembled algorithmically from COL, ITIS, and dozens of other sources, which
-gives it broader raw coverage (~10M names vs COL's ~4.5M) at the cost of
+gives it broader raw coverage (~6.4M names vs COL's ~5.3M) at the cost of
 occasional inconsistencies where source databases disagree. In practice, COL
 tends to give cleaner synonym resolution; GBIF tends to match more names.
 
@@ -91,7 +93,7 @@ European vegetation surveys and datasets aligned with the European Vegetation
 Archive (EVA). Its data is licensed CC BY-SA 3.0.
 
 Species Fungorum Plus is the specialist reference for fungal taxonomy, with
-~500k names curated by the Royal Botanic Gardens, Kew. It covers Ascomycota,
+~315k names curated by the Royal Botanic Gardens, Kew. It covers Ascomycota,
 Basidiomycota, and other fungal phyla, including anamorphs and teleomorphs.
 For purely mycological datasets, it gives better synonym resolution than
 generalist databases.
@@ -193,10 +195,13 @@ result <- taxify(plants, backend = "wfo")
 result[, c("input_name", "accepted_name", "family", "match_type", "backend")]
 ```
 
-Every row in the output has 16 columns regardless of which backend produced
+Every row in the output has 26 columns regardless of which backend produced
 it: `input_name`, `matched_name`, `accepted_name`, `taxon_id`, `accepted_id`,
-`rank`, `family`, `genus`, `epithet`, `authorship`, `is_synonym`, `is_hybrid`,
-`match_type`, `fuzzy_dist`, `backend`, and `backbone_version`. The `backend`
+`rank`, `family`, `genus`, `epithet`, `authorship`, `accepted_authorship`,
+`is_synonym`, `is_hybrid`, `match_type`, `fuzzy_dist`, `is_ambiguous`,
+`ambiguous_targets`, `backend`, `backbone_version`, `kingdom_group`,
+`taxon_group`, `life_form`, `qualifier`, `qualifier_position`,
+`aggregate_fallback`, and `hybrid_type`. The `backend`
 column records `"wfo"` for matched rows and `NA` for unmatched ones. The
 `backbone_version` column records the backend name, version, and download date
 (e.g., `"wfo:2024-12 (2026-04-01)"`) so we can cite the exact data snapshot
@@ -231,7 +236,7 @@ beginnings). The default `"dl"` (Damerau-Levenshtein) is a good all-rounder.
 
 ## Backend-specific output differences
 
-All thirteen backends produce the same 16-column output schema. This is a
+All fifteen backends produce the same 26-column output schema. This is a
 deliberate design choice: downstream code does not need to know which backend
 produced a match. That said, the content of those columns varies in ways
 worth knowing about.
@@ -333,7 +338,7 @@ opinion. For names that exist in multiple backends, the first backend in the
 chain always wins.
 
 This has practical consequences. If we put GBIF first, everything would match
-there (GBIF has ~10M names, the largest of any backend) and the curated
+there (GBIF has ~6.4M names, the largest of any backend) and the curated
 opinions from WFO, COL, or WoRMS would never be consulted. For a plant-heavy
 list with some non-plant taxa mixed in, `c("wfo", "col")` or `c("wfo",
 "col", "gbif")` is a sensible ordering: we get WFO's curated plant taxonomy
@@ -446,7 +451,7 @@ result <- taxify(estuary_species, backend = c("worms", "col"))
 ### Worked example: fungi with Species Fungorum + COL fallback
 
 Mycological datasets benefit from using Species Fungorum Plus as the primary
-backend. It is curated specifically for fungi, with ~500k names including
+backend. It is curated specifically for fungi, with ~315k names including
 anamorphs, teleomorphs, and the pleomorphic naming changes introduced by the
 2011 Melbourne Code. Synonym coverage for fungal genera is better than in
 generalist databases, where fungal taxonomy is often a secondary concern.
@@ -661,15 +666,16 @@ result <- taxify(species_list, backend = c("wfo", "col", "gbif")) |>
 This produces a wide data.frame with the union of all extra columns. For a
 given row, only the columns from its backend are populated; the rest are `NA`.
 Whether this is useful depends on the analysis. For most workflows, the base
-16 columns are sufficient, and backend-specific extras are only needed when
+26 columns are sufficient, and backend-specific extras are only needed when
 we require nomenclatural details, habitat flags, or publication references
 that the standard output does not include.
 
 ## The genus register
 
 taxify ships a unified genus register built from the union of genera across
-all eight pre-built backends (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, and
-Euro+Med). The register contains ~100k genera, each with its family, higher
+all fifteen pre-built backends (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS,
+Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase, Reptile
+Database, LCVP, and WCVP). The register contains ~500k genera, each with its family, higher
 classification (kingdom through order, where available), and a `life_form`
 label (e.g., `"vascular plant"`, `"animal"`, `"fungus"`). The classification
 is resolved by priority: WoRMS > COL > GBIF > Euro+Med > ITIS > NCBI > OTT
@@ -803,7 +809,7 @@ to NCBI, GBIF, WoRMS, and IRMNG make it a good bridge between different
 identifier systems.
 
 **Maximum coverage / catch-all.** Use `backend = c("col", "gbif")`. COL
-provides expert-curated taxonomy for ~4.5M names. GBIF's backbone adds ~10M
+provides expert-curated taxonomy for ~5.3M names. GBIF's backbone adds ~6.4M
 names from additional sources. Together they cover virtually all described
 species with a nomenclatural record. This combination is a reasonable default
 when the taxonomic composition of the dataset is unknown.
@@ -817,7 +823,7 @@ to each name.
 ### Performance considerations
 
 Backend size affects download time and, to a lesser extent, matching speed.
-WFO (~400k names) matches faster than GBIF (~10M names) for the same query.
+WFO (~1.6M names) matches faster than GBIF (~6.4M names) for the same query.
 However, taxify uses index-accelerated genus-blocked joins at the C level
 (via vectra), so even GBIF matching is fast for typical species lists. A
 list of 5,000 names resolves against GBIF in under a second on modern
