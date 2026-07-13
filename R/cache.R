@@ -238,7 +238,7 @@ ensure_backbone <- function(backend, version = "latest", verbose = TRUE) {
           be_name
         ))
       }
-      taxify_download(backend, verbose = verbose)
+      taxify_build(backend, verbose = verbose)
     }
   )
 

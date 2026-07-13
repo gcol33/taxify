@@ -47,7 +47,7 @@ fungorum_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_fungorum <- function(backend, dest = NULL,
+taxify_build.taxify_fungorum <- function(backend, dest = NULL,
                                             verbose = TRUE, ...) {
   require_taxifydb("Building the Species Fungorum backbone from source")
   output_dir <- dest %||% versioned_dir("fungorum", "latest")

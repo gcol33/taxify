@@ -46,7 +46,7 @@ itis_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_itis <- function(backend, dest = NULL,
+taxify_build.taxify_itis <- function(backend, dest = NULL,
                                         verbose = TRUE, ...) {
   require_taxifydb("Building the ITIS backbone from source")
   output_dir <- dest %||% versioned_dir("itis", "latest")

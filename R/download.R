@@ -4,7 +4,7 @@
 # It downloads the pre-built .vtr from Zenodo (via the manifest URL), writes
 # a meta.json alongside it, and returns the path to the .vtr.
 #
-# The backends still have their own taxify_download S3 methods for the
+# The backends still have their own taxify_build() S3 methods for the
 # *build-from-source* path (CSV/ZIP → .vtr conversion). This file handles
 # the *pre-built* path.
 #
@@ -296,6 +296,9 @@ has_xdelta3 <- function() {
 #' pre-fetch backbones before an offline session. Progress is always shown; no
 #' prompts are shown, so calling this function is consent.
 #'
+#' If no pre-built `.vtr` is available for a backend, it falls back to building
+#' from source via [taxify_build()] (which requires `taxifydb`).
+#'
 #' @param backend Character. A backend name (e.g. `"wfo"`, `"col"`, `"gbif"`,
 #'   ...; see the backends in [list_enrichments()]'s companion manifest) or
 #'   `"register"` for the genus register. Multiple backends can be given as a
@@ -306,16 +309,36 @@ has_xdelta3 <- function() {
 #'   folder that is never overwritten.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The path(s) to the downloaded `.vtr` file(s) (invisibly).
-#' @seealso [taxify_download()] to build a backbone from source via `taxifydb`,
+#' @seealso [taxify_build()] to build a backbone from source via `taxifydb`,
 #'   [taxify_download_enrichment()] for enrichment layers.
+#' @export
+taxify_download <- function(backend = "wfo",
+                            version = "latest",
+                            verbose = TRUE) {
+  paths <- vapply(backend, function(be) {
+    tryCatch(
+      download_backbone(be, version = version, verbose = verbose),
+      error = function(e) {
+        if (verbose) {
+          message(sprintf(
+            "Pre-built .vtr not available for '%s'. Building from source...", be
+          ))
+        }
+        taxify_build(be, verbose = verbose)
+      }
+    )
+  }, character(1L))
+  invisible(paths)
+}
+
+
+#' @rdname taxify_download
 #' @export
 taxify_download_vtr <- function(backend = "wfo",
                                 version = "latest",
                                 verbose = TRUE) {
-  paths <- vapply(backend, function(be) {
-    download_backbone(be, version = version, verbose = verbose)
-  }, character(1L))
-  invisible(paths)
+  .Deprecated("taxify_download")
+  taxify_download(backend = backend, version = version, verbose = verbose)
 }
 
 

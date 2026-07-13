@@ -43,7 +43,7 @@ fishbase_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_fishbase <- function(backend, dest = NULL,
+taxify_build.taxify_fishbase <- function(backend, dest = NULL,
                                             verbose = TRUE, ...) {
   require_taxifydb("Building the FishBase backbone from source")
   output_dir <- dest %||% versioned_dir("fishbase", "latest")

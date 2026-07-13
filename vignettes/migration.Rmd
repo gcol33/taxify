@@ -384,7 +384,7 @@ and genus-blocked fuzzy joins, processing thousands of names per second.
 **Reproducibility.** taxify pins backbone versions locally and records
 the version string in the `backbone_version` column of every result. The
 same backbone file produces the same output indefinitely. Version
-pinning is also available: `taxify_download_vtr("wfo", version =
+pinning is also available: `taxify_download("wfo", version =
 "2024.06")` downloads a specific release.
 
 

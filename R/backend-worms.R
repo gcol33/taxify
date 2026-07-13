@@ -44,7 +44,7 @@ worms_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_worms <- function(backend, dest = NULL,
+taxify_build.taxify_worms <- function(backend, dest = NULL,
                                          verbose = TRUE, ...) {
   require_taxifydb("Building the WoRMS backbone from source")
   output_dir <- dest %||% versioned_dir("worms", "latest")

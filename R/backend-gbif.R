@@ -49,7 +49,7 @@ gbif_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_gbif <- function(backend, dest = NULL,
+taxify_build.taxify_gbif <- function(backend, dest = NULL,
                                         verbose = TRUE, ...) {
   require_taxifydb("Building the GBIF backbone from source")
   output_dir <- dest %||% versioned_dir("gbif", "latest")

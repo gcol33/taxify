@@ -48,7 +48,7 @@ wfo_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_wfo <- function(backend, dest = NULL,
+taxify_build.taxify_wfo <- function(backend, dest = NULL,
                                        verbose = TRUE, ...) {
   require_taxifydb("Building the WFO backbone from source")
   output_dir <- dest %||% versioned_dir("wfo", "latest")

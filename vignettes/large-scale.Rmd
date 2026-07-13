@@ -607,7 +607,7 @@ cleaner to separate the download step from the analysis step. Downloads can
 fail due to network issues, and you want to know about that before a 2-hour
 matching run starts.
 
-`taxify_download_vtr()` downloads one or more backbone `.vtr` files.
+`taxify_download()` downloads one or more backbone `.vtr` files.
 `taxify_download_enrichment()` does the same for enrichment layers. Both
 are idempotent: if the file already exists and the version is current, they
 return immediately.
@@ -617,7 +617,7 @@ return immediately.
 # with conservation status and trait enrichments
 
 # Backbones
-taxify_download_vtr(c("wfo", "col"))
+taxify_download(c("wfo", "col"))
 
 # Enrichments
 taxify_download_enrichment(c(
@@ -782,7 +782,7 @@ result <- taxify(noisy_names, backend = "wfo",
 | `taxify(..., fuzzy = FALSE)` | Skip fuzzy matching for clean input |
 | `taxify(..., backend = c("wfo", "col"))` | Multi-backend fallback chain |
 | `taxify_data_dir()` | Find where backbones are stored |
-| `taxify_download_vtr()` | Pre-download backbone `.vtr` files |
+| `taxify_download()` | Pre-download backbone `.vtr` files |
 | `taxify_download_enrichment()` | Pre-download enrichment `.vtr` files |
 | `taxify_clear_cache()` | Free backbone memory after matching |
 | `taxify_refresh_manifest()` | Force re-check for backbone updates |

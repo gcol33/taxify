@@ -47,7 +47,7 @@ reptiledb_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_reptiledb <- function(backend, dest = NULL,
+taxify_build.taxify_reptiledb <- function(backend, dest = NULL,
                                              verbose = TRUE, ...) {
   require_taxifydb("Building the Reptile Database backbone from source")
   output_dir <- dest %||% versioned_dir("reptiledb", "latest")

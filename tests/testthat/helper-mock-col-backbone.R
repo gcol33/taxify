@@ -121,7 +121,7 @@ mock_col_backbone_df <- function() {
 
 #' Create a mock COL backbone as a vectra .vtr file
 #'
-#' Uses the same precomputation pipeline as taxify_download.taxify_col.
+#' Uses the same precomputation pipeline as taxify_build.taxify_col.
 #'
 #' @return Path to the temporary .vtr file.
 mock_col_backbone_vtr <- function() {

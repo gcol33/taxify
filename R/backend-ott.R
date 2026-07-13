@@ -44,7 +44,7 @@ ott_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_ott <- function(backend, dest = NULL,
+taxify_build.taxify_ott <- function(backend, dest = NULL,
                                        verbose = TRUE, ...) {
   require_taxifydb("Building the OTT backbone from source")
   output_dir <- dest %||% versioned_dir("ott", "latest")

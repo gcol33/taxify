@@ -23,7 +23,7 @@ sealifebase_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_sealifebase <- function(backend, dest = NULL,
+taxify_build.taxify_sealifebase <- function(backend, dest = NULL,
                                                verbose = TRUE, ...) {
   require_taxifydb("Building the SeaLifeBase backbone from source")
   output_dir <- dest %||% versioned_dir("sealifebase", "latest")

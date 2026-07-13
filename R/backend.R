@@ -22,7 +22,7 @@ new_backend <- function(name, ..., class = character()) {
 #' is the from-source path, for rebuilding a backbone locally.
 #'
 #' For everyday use you do not need this: [taxify()] auto-downloads the pre-built
-#' `.vtr` on first use, and [taxify_download_vtr()] fetches a pre-built backbone
+#' `.vtr` on first use, and [taxify_download()] fetches a pre-built backbone
 #' directly without `taxifydb`.
 #'
 #' @param backend A `taxify_backend` object or a character string
@@ -32,15 +32,15 @@ new_backend <- function(name, ..., class = character()) {
 #' @param verbose Logical. Print progress messages.
 #' @param ... Additional arguments passed to methods.
 #' @return The path to the `.vtr` file (invisibly).
-#' @seealso [taxify_download_vtr()] to fetch a pre-built backbone, [taxify()]
+#' @seealso [taxify_download()] to fetch a pre-built backbone, [taxify()]
 #'   which downloads on first use.
 #' @export
-taxify_download <- function(backend, dest = NULL, verbose = TRUE, ...) {
+taxify_build <- function(backend, dest = NULL, verbose = TRUE, ...) {
   if (is.character(backend)) {
     backend <- resolve_backend(backend)
-    return(taxify_download(backend, dest = dest, verbose = verbose, ...))
+    return(taxify_build(backend, dest = dest, verbose = verbose, ...))
   }
-  UseMethod("taxify_download")
+  UseMethod("taxify_build")
 }
 
 

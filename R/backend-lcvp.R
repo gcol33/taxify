@@ -48,7 +48,7 @@ lcvp_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_lcvp <- function(backend, dest = NULL,
+taxify_build.taxify_lcvp <- function(backend, dest = NULL,
                                         verbose = TRUE, ...) {
   require_taxifydb("Building the LCVP backbone from source")
   output_dir <- dest %||% versioned_dir("lcvp", "latest")

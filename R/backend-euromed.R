@@ -49,7 +49,7 @@ euromed_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_euromed <- function(backend, dest = NULL,
+taxify_build.taxify_euromed <- function(backend, dest = NULL,
                                            verbose = TRUE, ...) {
   require_taxifydb("Building the Euro+Med backbone from source")
   output_dir <- dest %||% versioned_dir("euromed", "latest")

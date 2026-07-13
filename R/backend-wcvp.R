@@ -51,7 +51,7 @@ wcvp_backend <- function() {
 
 
 #' @export
-taxify_download.taxify_wcvp <- function(backend, dest = NULL,
+taxify_build.taxify_wcvp <- function(backend, dest = NULL,
                                         verbose = TRUE, ...) {
   require_taxifydb("Building the WCVP backbone from source")
   output_dir <- dest %||% versioned_dir("wcvp", "latest")
