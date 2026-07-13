@@ -161,6 +161,24 @@ When multiple backends are specified, names are matched against each
 backend in order. Names matched by an earlier backend are not re-matched
 by later ones (fallback chain).
 }
+\section{Backbone-specific accepted names}{
+
+Each backend is an independent taxonomy, and they can legitimately disagree
+on which name is accepted and which is a synonym. \code{taxify()} returns the
+matched backend's own current treatment; it does not reconcile backends
+against each other. Choose the backend whose treatment you want, or query
+several and compare the \code{accepted_name} and \code{backend} columns.
+
+For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
+accepts \verb{Macropus rufus} and \verb{Macropus parma}, treating \verb{Osphranter rufus}
+and \verb{Notamacropus parma} as synonyms of them, so
+\code{taxify("Osphranter rufus", backend = "gbif")} resolves to \verb{Macropus rufus}.
+The Catalogue of Life splits the genus and does the reverse, so
+\code{taxify("Macropus rufus", backend = "col")} resolves to \verb{Osphranter rufus}.
+Both are faithful to their source; the difference is in the backbones, not in
+the matching.
+}
+
 \examples{
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())

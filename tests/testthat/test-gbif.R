@@ -153,6 +153,49 @@ test_that("GBIF accepted info is self for accepted names", {
 })
 
 
+# -- Backbone-specific accepted taxon (GBIF differs from COL) --
+#
+# GBIF's Backbone Taxonomy treats Macropus rufus / Macropus parma as the
+# accepted names and Osphranter rufus / Notamacropus parma as synonyms of them;
+# Catalogue of Life splits Macropus and accepts Osphranter / Notamacropus. The
+# backend must return GBIF's own treatment, not COL's, so these lock the
+# direction of resolution. See ?taxify for the documented difference.
+
+test_that("GBIF keeps Macropus rufus / parma as the accepted names", {
+  be <- gbif_backend()
+  backbone <- mock_gbif_backbone_vtr()
+
+  result <- match_exact(be, clean_names(c("Macropus rufus", "Macropus parma")),
+                        backbone)
+  expect_equal(result$matched_name, c("Macropus rufus", "Macropus parma"))
+  expect_false(any(result$is_synonym))
+  expect_equal(result$accepted_name, c("Macropus rufus", "Macropus parma"))
+  expect_equal(result$accepted_id, c("5219963", "5219984"))
+})
+
+test_that("GBIF resolves Osphranter rufus to accepted Macropus rufus", {
+  be <- gbif_backend()
+  backbone <- mock_gbif_backbone_vtr()
+
+  result <- match_exact(be, clean_names("Osphranter rufus"), backbone)
+  expect_equal(result$matched_name[1L], "Osphranter rufus")
+  expect_true(result$is_synonym[1L])
+  expect_equal(result$accepted_name[1L], "Macropus rufus")
+  expect_equal(result$accepted_id[1L], "5219963")
+})
+
+test_that("GBIF resolves Notamacropus parma to accepted Macropus parma", {
+  be <- gbif_backend()
+  backbone <- mock_gbif_backbone_vtr()
+
+  result <- match_exact(be, clean_names("Notamacropus parma"), backbone)
+  expect_equal(result$matched_name[1L], "Notamacropus parma")
+  expect_true(result$is_synonym[1L])
+  expect_equal(result$accepted_name[1L], "Macropus parma")
+  expect_equal(result$accepted_id[1L], "5219984")
+})
+
+
 # -- NA handling --
 
 test_that("GBIF handles NA inputs without crashing", {

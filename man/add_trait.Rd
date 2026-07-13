@@ -58,9 +58,12 @@ The same data.frame with added columns.
 (the canonical unit, numeric traits only); \verb{<trait>_sources} (the source
 it came from, or the comma-separated contributing sources with an
 aggregating \code{combine}); \verb{<trait>_n} (how many sources backed the value);
-and, only when a source measured the trait differently,
-\verb{<trait>_caution} explaining the method difference. To inspect every
-source, use \code{mode = "wide"}.}
+for numeric traits, \verb{<trait>_min} and \verb{<trait>_max} (the range of
+values behind the headline -- across the contributing sources, and
+across a source's own records where that spread was recorded at build
+time, so a life-stage or population span stays visible); and, only when
+a source measured the trait differently, \verb{<trait>_caution} explaining
+the method difference. To inspect every source, use \code{mode = "wide"}.}
 \item{\code{mode = "wide"}}{One column per source, \verb{<trait>_<source>}, each
 harmonized to the trait's shared vocabulary (categorical) or unit
 (numeric); \verb{<trait>_unit}; and \verb{<trait>_caution} on rows where a

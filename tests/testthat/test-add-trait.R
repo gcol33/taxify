@@ -431,6 +431,37 @@ test_that("coalesce defaults to median for numeric traits", {
   expect_match(d$seed_mass_sources, "gift")
 })
 
+test_that("numeric coalesce reports the spread as <trait>_min / <trait>_max", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  skip_if_not(trait_ready(), "example enrichments not available")
+
+  # No example seed-mass source stores a within-source range, so min/max are the
+  # extremes across the contributing sources and bracket the median headline.
+  # Derive the expected range from the same per-source (wide) values.
+  w <- add_trait(mk("Abies alba"), "seed_mass", mode = "wide", verbose = FALSE)
+  src_cols  <- setdiff(grep("^seed_mass_", names(w), value = TRUE),
+                       c("seed_mass_unit", "seed_mass_caution"))
+  wide_vals <- unlist(w[1, src_cols], use.names = FALSE)
+  wide_vals <- wide_vals[!is.na(wide_vals)]
+
+  d <- add_trait(mk("Abies alba"), "seed_mass", verbose = FALSE)
+  expect_true(all(c("seed_mass_min", "seed_mass_max") %in% names(d)))
+  expect_equal(d$seed_mass_min, min(wide_vals), tolerance = 1e-6)
+  expect_equal(d$seed_mass_max, max(wide_vals), tolerance = 1e-6)
+  expect_gte(d$seed_mass, d$seed_mass_min)
+  expect_lte(d$seed_mass, d$seed_mass_max)
+})
+
+test_that("categorical coalesce adds no min/max columns", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  skip_if_not(trait_ready(), "example enrichments not available")
+
+  r <- add_trait(mk("Abies alba"), "woodiness", verbose = FALSE)
+  expect_false(any(c("woodiness_min", "woodiness_max") %in% names(r)))
+})
+
 test_that("combine = 'first' honours priority order", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
@@ -531,6 +562,49 @@ test_that("discordant sources are not blended: caution explains the method choic
   expect_match(cr[1], "measure this differently")
   expect_match(cr[1], "maximum diameter")
   expect_true(is.na(cr[3]))                            # no value -> no caution
+})
+
+test_that(".trait_join_spread surfaces a source's stored within-source min/max", {
+  df <- data.frame(canonical_name = "Aaa bbb",
+                   myval = 50, myval_min = 10, myval_max = 100,
+                   stringsAsFactors = FALSE)
+  install_mock_enrichment("mockspread", df)
+  x   <- data.frame(accepted_name = "Aaa bbb", stringsAsFactors = FALSE)
+  res <- .trait_join_spread(x, "mockspread", "myval", verbose = FALSE)
+  expect_equal(res$value, 50)
+  expect_equal(res$min, 10)
+  expect_equal(res$max, 100)
+})
+
+test_that(".trait_join_spread falls back to the value when no spread is stored", {
+  df <- data.frame(canonical_name = "Aaa bbb", myval = 50, stringsAsFactors = FALSE)
+  install_mock_enrichment("mocknospread", df)
+  x   <- data.frame(accepted_name = "Aaa bbb", stringsAsFactors = FALSE)
+  res <- .trait_join_spread(x, "mocknospread", "myval", verbose = FALSE)
+  expect_equal(res$value, 50)
+  expect_equal(res$min, 50)          # min/max collapse to the point value
+  expect_equal(res$max, 50)
+})
+
+test_that(".trait_join_spread applies the unit map to the value and both bounds", {
+  df <- data.frame(canonical_name = "Aaa bbb",
+                   myval = 5, myval_min = 1, myval_max = 10,
+                   stringsAsFactors = FALSE)
+  install_mock_enrichment("mockmap", df)
+  x   <- data.frame(accepted_name = "Aaa bbb", stringsAsFactors = FALSE)
+  res <- .trait_join_spread(x, "mockmap", "myval", map = function(v) v * 1000,
+                            verbose = FALSE)
+  expect_equal(res$value, 5000)
+  expect_equal(res$min, 1000)
+  expect_equal(res$max, 10000)
+})
+
+test_that(".coalesce_spread unions per-source lows and highs, ignoring NA", {
+  per_min <- list(a = c(10, NA, NA), b = c(5, 20, NA))
+  per_max <- list(a = c(30, NA, NA), b = c(8, 25, NA))
+  s <- .coalesce_spread(per_min, per_max)
+  expect_equal(s$min, c(5, 20, NA))
+  expect_equal(s$max, c(30, 25, NA))
 })
 
 test_that("add_zanne() is the source-named woodiness door", {

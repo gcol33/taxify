@@ -9,7 +9,7 @@
 # - family already denormalized (resolved from family_key during conversion)
 
 mock_gbif_backbone_df <- function() {
-  data.frame(
+  base <- data.frame(
     taxon_id = c(
       "2878688", "2878691", "2878689", "2878700",
       "5285637", "5285640", "2704173", "2704174",
@@ -154,6 +154,43 @@ mock_gbif_backbone_df <- function() {
     ),
     stringsAsFactors = FALSE
   )
+
+  # Kangaroo rows exercise a real GBIF-vs-COL backbone difference. GBIF's
+  # Backbone Taxonomy keeps Macropus rufus / Macropus parma as the ACCEPTED
+  # names and lists Osphranter rufus / Notamacropus parma as SYNONYMS of them;
+  # Catalogue of Life does the reverse. Keys are the live GBIF backbone keys, so
+  # these lock in that the backend follows GBIF's own accepted taxon.
+  roos <- data.frame(
+    taxon_id               = c("5219963", "5219984", "12019022", "11981515"),
+    canonical_name         = c("Macropus rufus", "Macropus parma",
+                               "Osphranter rufus", "Notamacropus parma"),
+    scientific_name        = c("Macropus rufus (Desmarest, 1822)",
+                               "Macropus parma Waterhouse, 1846",
+                               "Osphranter rufus (Desmarest, 1822)",
+                               "Notamacropus parma (Waterhouse, 1845)"),
+    taxon_rank             = c("SPECIES", "SPECIES", "SPECIES", "SPECIES"),
+    taxonomic_status       = c("ACCEPTED", "ACCEPTED", "SYNONYM", "SYNONYM"),
+    parent_key             = c("2440171", "2440171", "5219963", "5219984"),
+    accepted_name_usage_id = c(NA, NA, "5219963", "5219984"),
+    family                 = c("Macropodidae", "Macropodidae",
+                               "Macropodidae", "Macropodidae"),
+    genus                  = c("Macropus", "Macropus",
+                               "Osphranter", "Notamacropus"),
+    specific_epithet       = c("rufus", "parma", "rufus", "parma"),
+    authorship             = c(NA, "Waterhouse", NA, NA),
+    infraspecific_epithet  = c(NA, NA, NA, NA),
+    notho_type             = c(NA, NA, NA, NA),
+    nom_status             = c("{}", "{}", "{}", "{}"),
+    bracket_authorship     = c("Desmarest", NA, "Desmarest", "Waterhouse"),
+    bracket_year           = c("1822", NA, "1822", "1845"),
+    year                   = c(NA, "1846", NA, NA),
+    name_published_in      = c(NA, NA, NA, NA),
+    origin                 = c("SOURCE", "SOURCE", "SOURCE", "SOURCE"),
+    issues                 = c("{}", "{}", "{}", "{}"),
+    stringsAsFactors       = FALSE
+  )
+
+  rbind(base, roos)
 }
 
 

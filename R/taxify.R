@@ -129,6 +129,22 @@
 #'     (e.g., `"wfo:2024-12 (2026-04-01)"`). Useful for reproducibility.}
 #' }
 #'
+#' @section Backbone-specific accepted names:
+#' Each backend is an independent taxonomy, and they can legitimately disagree
+#' on which name is accepted and which is a synonym. `taxify()` returns the
+#' matched backend's own current treatment; it does not reconcile backends
+#' against each other. Choose the backend whose treatment you want, or query
+#' several and compare the `accepted_name` and `backend` columns.
+#'
+#' For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
+#' accepts `Macropus rufus` and `Macropus parma`, treating `Osphranter rufus`
+#' and `Notamacropus parma` as synonyms of them, so
+#' `taxify("Osphranter rufus", backend = "gbif")` resolves to `Macropus rufus`.
+#' The Catalogue of Life splits the genus and does the reverse, so
+#' `taxify("Macropus rufus", backend = "col")` resolves to `Osphranter rufus`.
+#' Both are faithful to their source; the difference is in the backbones, not in
+#' the matching.
+#'
 #' @examples
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())

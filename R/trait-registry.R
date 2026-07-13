@@ -2692,6 +2692,43 @@
 }
 
 
+# Fetch one numeric source's value plus its within-source min/max, where the
+# .vtr stores them as <col>_min / <col>_max (built by taxifydb wherever a source
+# has several records per species). The source's unit map is applied to all
+# three. Missing spread columns come back all-NA, so min/max fall back to the
+# point value -- the source then contributes only to the cross-source range, and
+# the same code path deepens automatically once a rebuilt .vtr carries the
+# stored spread. pmin/pmax guard against a non-monotonic map swapping the bounds.
+.trait_join_spread <- function(x, enrichment, col, join_col = "accepted_name",
+                               map = identity, verbose = TRUE) {
+  cm   <- c(.v = col, .lo = paste0(col, "_min"), .hi = paste0(col, "_max"))
+  na_t <- list(.v = NA_real_, .lo = NA_real_, .hi = NA_real_)
+  res <- tryCatch(
+    enrich_simple(
+      x, enrichment_name = enrichment,
+      col_map = cm, source_label = enrichment,
+      na_types = na_t, join_col = join_col,
+      expose_all = FALSE, verbose = FALSE
+    ),
+    error = function(e) {
+      if (verbose) {
+        warning(sprintf(
+          "add_trait(): source '%s' unavailable (%s); skipping.",
+          enrichment, conditionMessage(e)), call. = FALSE)
+      }
+      NULL
+    }
+  )
+  if (is.null(res)) return(NULL)
+  v  <- map(res[[".v"]])
+  lo <- map(res[[".lo"]])
+  hi <- map(res[[".hi"]])
+  lo[is.na(lo)] <- v[is.na(lo)]        # no stored lower bound -> the value
+  hi[is.na(hi)] <- v[is.na(hi)]        # no stored upper bound -> the value
+  list(value = v, min = pmin(lo, hi), max = pmax(lo, hi))
+}
+
+
 # Resolve the coalesce reducer, defaulting by trait kind (numeric -> median,
 # categorical -> first) and validating against the reducers each kind allows.
 .resolve_combine <- function(combine, kind) {
@@ -2779,6 +2816,25 @@
     r[r %in% top][1L]            # priority order preserved in r
   }, character(1L))
   list(value = val, source = contrib, n = nsrc)
+}
+
+
+# Reduce the per-source lower/upper bounds (in priority order) to one spread per
+# row: the smallest lower bound and largest upper bound across every source that
+# supplied a value there. With no stored within-source spread each source's
+# min/max equal its point value, so this returns the cross-source range; with
+# stored spread it widens to the extremes actually observed in any source.
+.coalesce_spread <- function(per_min, per_max) {
+  n  <- length(per_min[[1L]])
+  Lo <- do.call(cbind, per_min)
+  Hi <- do.call(cbind, per_max)
+  mn <- vapply(seq_len(n), function(i) {
+    r <- Lo[i, ]; r <- r[!is.na(r)]; if (!length(r)) NA_real_ else min(r)
+  }, numeric(1L))
+  mx <- vapply(seq_len(n), function(i) {
+    r <- Hi[i, ]; r <- r[!is.na(r)]; if (!length(r)) NA_real_ else max(r)
+  }, numeric(1L))
+  list(min = mn, max = mx)
 }
 
 

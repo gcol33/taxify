@@ -941,6 +941,7 @@ enrichment_cols <- function(source) {
 enrich_simple <- function(x, enrichment_name, col_map, source_label,
                           na_types = NULL, join_col = "accepted_name",
                           cols = NULL, default_cols = NULL, col_prefix = NULL,
+                          out_prefix = NULL,
                           expose_all = TRUE, verbose = TRUE,
                           aggregate_trait_fallback =
                             getOption("taxify.aggregate_trait_fallback", TRUE)) {
@@ -962,7 +963,11 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
       extra <- setdiff(av$column, unname(col_map))
       if (length(extra) > 0L) {
         default_cols <- names(col_map)               # curated output = default
-        ex_out <- make.unique(c(names(col_map), extra))[-seq_along(col_map)]
+        # Auto-exposed extras keep their raw .vtr names unless the door sets an
+        # out_prefix (namespacing every exposed column, so two sibling sources
+        # -- e.g. combine + combine_imputed -- never collide on a shared extra).
+        raw_out <- if (is.null(out_prefix)) extra else paste0(out_prefix, extra)
+        ex_out  <- make.unique(c(names(col_map), raw_out))[-seq_along(col_map)]
         col_map <- c(col_map, stats::setNames(extra, ex_out))
         if (is.null(na_types)) na_types <- list()
         et <- av$type[match(extra, av$column)]
