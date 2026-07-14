@@ -1349,6 +1349,36 @@
           map = function(v) .xw_cat(v, c(woody = "woody", herbaceous = "non-woody", variable = "variable")))
       )
     ),
+    # Invasive-species impact (IUCN EICAT / SEICAT). GIDIAS already stores the
+    # canonical category, so the map only validates the token; single-source for
+    # now but kept in the verb because further EICAT sources (an IUCN registry,
+    # taxon-specific assessments) coalesce onto the same ordinal categories.
+    environmental_impact = list(
+      label = "Environmental impact (EICAT)", kind = "categorical", unit = NA_character_,
+      vocab = c("MC", "MN", "MO", "MR", "MV", "DD"),
+      sources = list(
+        gidias = nsrc("gidias", "gidias_eicat_category", "Bacher et al. 2025 (GIDIAS)",
+                      "IUCN EICAT category: most severe magnitude among the species' negative environmental impacts (MC/MN/MO/MR/MV), or DD.",
+                      map = function(v) {
+                        u <- toupper(trimws(as.character(v)))
+                        u[!(u %in% c("MC", "MN", "MO", "MR", "MV", "DD"))] <- NA_character_
+                        u
+                      })
+      )
+    ),
+    socioeconomic_impact = list(
+      label = "Socio-economic impact (SEICAT)", kind = "categorical", unit = NA_character_,
+      vocab = c("MC", "MN", "MO", "MR", "DD"),
+      sources = list(
+        gidias = nsrc("gidias", "gidias_seicat_category", "Bacher et al. 2025 (GIDIAS)",
+                      "IUCN SEICAT category: most severe magnitude among the species' negative socio-economic impacts (MC/MN/MO/MR), or DD.",
+                      map = function(v) {
+                        u <- toupper(trimws(as.character(v)))
+                        u[!(u %in% c("MC", "MN", "MO", "MR", "DD"))] <- NA_character_
+                        u
+                      })
+      )
+    ),
     photosynthetic_pathway = list(
       label = "Photosynthetic pathway", kind = "categorical", unit = NA_character_,
       vocab = c("c3", "c4", "cam", "c3-c4", "c3-cam"),

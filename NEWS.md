@@ -1,3 +1,23 @@
+# taxify 0.3.9
+
+## Invasion impact (EICAT / SEICAT)
+
+* `add_gidias()` joins per-species invasion-impact aggregates from GIDIAS
+  (Bacher et al. 2025, CC BY 4.0), the IPBES invasive-species assessment's
+  global impact compilation. Each species carries its IUCN EICAT
+  environmental-impact category (`gidias_eicat_category`, `MC`/`MN`/`MO`/`MR`/`MV`,
+  or `DD`) and SEICAT socio-economic-impact category (`gidias_seicat_category`),
+  each the most severe magnitude among the species' documented negative impacts,
+  alongside the driving mechanism, affected well-being constituents, realms, and
+  record and source counts. Only the derived per-species aggregates are
+  distributed, not the raw impact records.
+
+* `add_trait()` gains two categorical traits, `"environmental_impact"` (EICAT)
+  and `"socioeconomic_impact"` (SEICAT), so invasion impact reconciles across
+  sources the way every other trait does. GIDIAS is the first source; the
+  ordinal categories are shared so further EICAT assessments can coalesce onto
+  them later.
+
 # taxify 0.3.8
 
 ## Economic cost of invasions

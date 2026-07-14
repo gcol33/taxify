@@ -114,6 +114,7 @@ reference:
   - add_griis
   - add_glonaf
   - add_invacost
+  - add_gidias
   - add_alien_first_records
   - add_wcvp
   - add_common_names

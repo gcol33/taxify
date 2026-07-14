@@ -4598,6 +4598,44 @@
       "license": "CC BY 4.0",
       "source_doi": "10.6084/m9.figshare.12668570"
     },
+    "gidias": {
+      "latest": "2025.1",
+      "content_id": "f7ffc6621e143c245179e8d7c39fca54",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/gidias.vtr",
+      "nrow": 3390,
+      "source_url": "https://ndownloader.figshare.com/files/53894801",
+      "source_format": "csv",
+      "source_version": "2025.1",
+      "trait_cols": [
+        "gidias_eicat_category",
+        "gidias_eicat_magnitude",
+        "gidias_eicat_mechanism",
+        "gidias_seicat_category",
+        "gidias_seicat_magnitude",
+        "gidias_seicat_affected",
+        "gidias_ias_taxon",
+        "gidias_kingdom",
+        "gidias_realms",
+        "gidias_n_records",
+        "gidias_n_negative",
+        "gidias_n_sources",
+        "gidias_global_extinction"
+      ],
+      "static": true,
+      "citation": {
+        "key": "bacher2025gidias",
+        "type": "article",
+        "authors": "Bacher S, Ryan-Colton E, Coiro M, Cassey P, Galil BS, Núñez MA, et al.",
+        "year": "2025",
+        "title": "Global Impacts Dataset of Invasive Alien Species (GIDIAS)",
+        "journal": "Scientific Data",
+        "volume": "12",
+        "pages": "832",
+        "doi": "10.1038/s41597-025-05184-5"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.6084/m9.figshare.27908838"
+    },
     "phylacine": {
       "latest": "2026.07",
       "content_id": "09d94f1ef749f45e0483f5b105802854",
