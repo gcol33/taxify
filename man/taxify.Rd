@@ -6,7 +6,7 @@
 \usage{
 taxify(
   x,
-  backend = "wfo",
+  backend = NULL,
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
   fuzzy_method = c("dl", "levenshtein", "jw"),
@@ -22,8 +22,11 @@ taxify(
 \item{x}{Character vector of taxonomic names.}
 
 \item{backend}{Character vector of backend names (e.g., \code{"wfo"}, \code{"col"},
-\code{"gbif"}) or a single \code{taxify_backend} object. When multiple backends
-are given, they are tried in order as a fallback chain. Default \code{"wfo"}.}
+\code{"gbif"}) or a single \code{taxify_backend} object. Several are tried in order
+as a fallback chain. \code{NULL} (default) uses every installed backbone in
+priority order, installing the default set (COL, GBIF, ITIS) on first use;
+override the priority with \code{options(taxify.backbone_priority = ...)} and the
+first-run set with \code{options(taxify.default_backbones = ...)}.}
 
 \item{fuzzy}{Logical. Enable fuzzy matching for names that fail exact
 match. Default \code{TRUE}.}
@@ -177,18 +180,26 @@ containing the matched name, accepted name, taxonomic hierarchy, and
 match quality information.
 }
 \details{
-When multiple backends are specified, names are matched against each
-backend in order. Names matched by an earlier backend are not re-matched
-by later ones (fallback chain).
+By default \code{taxify()} matches against \strong{every installed backbone}, tried in
+priority order as a fallback chain: a name is resolved by the first backbone
+(COL, then the domain authorities, then the broad aggregators) that matches
+it, and names matched earlier are not re-matched later. On a fresh setup with
+nothing installed yet, the first call downloads a default set (COL, GBIF,
+ITIS) once; pre-install a different set with \code{\link[=install_backbones]{install_backbones()}}. Name a
+backend (or several) explicitly to match only against that one, or those in
+that order.
 }
 \section{Backbone-specific accepted names}{
 
 Each backend is an independent taxonomy, and they can legitimately disagree
 on which name is accepted and which is a synonym. \code{taxify()} returns the
 matched backend's own current treatment; it does not reconcile backends
-against each other. Choose the backend whose treatment you want, or pass
-several with \code{mode = "wide"} (or \code{"agreement"}) to see each backbone's
-\code{accepted_name} side by side and where they disagree.
+against each other by voting (a consensus would regress toward the most
+conservative treatment across backbones that copy one another). With the
+default multi-backend fallback, \code{accepted_name} is the pick of the
+highest-priority backbone that matched. To see where backbones disagree, pass
+\code{mode = "wide"} (or \code{"agreement"}) for each backbone's \code{accepted_name} side by
+side; to follow one authority, name a single \code{backend}.
 
 For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 accepts \verb{Macropus rufus} and \verb{Macropus parma}, treating \verb{Osphranter rufus}

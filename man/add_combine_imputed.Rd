@@ -54,5 +54,6 @@ Soria CD et al. (2021) COMBINE: a coalesced mammal database of intrinsic and
 extrinsic traits. Ecology 102:e03344. \doi{10.1002/ecy.3344}
 }
 \seealso{
-\code{\link[=add_combine_reported]{add_combine_reported()}} for the measured values.
+\code{\link[=add_combine_reported]{add_combine_reported()}} for the measured values; \code{\link[=add_combine]{add_combine()}}
+for the two coalesced with per-trait provenance.
 }

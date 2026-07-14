@@ -16,18 +16,34 @@ names. See \code{\link{enrichment_cols}}.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same as \code{\link[=add_combine_reported]{add_combine_reported()}} (the \verb{combine_*} reported
-columns).
+The same data.frame with the \verb{combine_*} trait columns (reported
+values, gaps filled from the imputed table) and, beside each, a
+\verb{combine_*_src} column tagging that cell as \code{"reported"}, \code{"imputed"}, or
+\code{NA}. Traits COMBINE does not impute (for example
+\code{combine_biogeographical_realm}) come out \code{"reported"} wherever present. If
+the imputed table is unavailable, the reported values are returned with
+every \verb{_src} tag \code{"reported"} or \code{NA}.
 }
 \description{
-A thin wrapper around \code{\link[=add_combine_reported]{add_combine_reported()}}, kept so existing code keeps
-working. New code should call \code{\link[=add_combine_reported]{add_combine_reported()}} (reported values) or
-\code{\link[=add_combine_imputed]{add_combine_imputed()}} (phylogenetically imputed values) explicitly.
+The default COMBINE door. Attaches the reported (measured or literature
+compiled) trait values and fills each still-missing cell from COMBINE's
+phylogenetically imputed table, so a single call reaches the fullest coverage
+COMBINE offers. A measurement is never overwritten: the reported value wins
+wherever it exists and the imputed model only fills gaps. Beside every trait
+sits a \verb{<trait>_src} column recording where that cell came from -- \code{"reported"},
+\code{"imputed"}, or \code{NA} when neither table has it -- so a model estimate is
+always distinguishable from a measurement.
+}
+\details{
+For a single-table view use \code{\link[=add_combine_reported]{add_combine_reported()}} (measured values only)
+or \code{\link[=add_combine_imputed]{add_combine_imputed()}} (the imputed table on its own).
 }
 \examples{
 \donttest{
-taxify("Vulpes vulpes", backend = "gbif") |>
+# Coverage-filled values with per-trait provenance:
+res <- taxify("Osphranter rufus", backend = "col") |>
   add_combine()
+res[, c("combine_gestation_length_d", "combine_gestation_length_d_src")]
 }
 }
 \seealso{

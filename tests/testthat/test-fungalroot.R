@@ -41,7 +41,9 @@ test_that("add_fungalroot joins mycorrhizal type by genus", {
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
 
-  result <- taxify("Quercus robur", verbose = FALSE)
+  # The temp data dir holds only the enrichment; match against the cached wfo
+  # mock explicitly rather than the (empty) default installed set.
+  result <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
   enriched <- add_fungalroot(result, verbose = FALSE)
 
   expect_true(all(c("mycorrhizal_type", "mycorrhizal_status",
@@ -58,7 +60,7 @@ test_that("add_fungalroot annotates any species in a covered genus", {
   on.exit(options(old), add = TRUE)
 
   # Pinus sylvestris is not in the enrichment by binomial, but its genus is.
-  result <- taxify("Pinus sylvestris", verbose = FALSE)
+  result <- taxify("Pinus sylvestris", backend = "wfo", verbose = FALSE)
   enriched <- add_fungalroot(result, verbose = FALSE)
 
   expect_equal(enriched$mycorrhizal_type, "EcM")
@@ -72,7 +74,7 @@ test_that("add_fungalroot returns NA for genera not in FungalRoot", {
   on.exit(options(old), add = TRUE)
 
   # Picea is in the mock backbone but absent from the enrichment .vtr
-  result <- taxify("Picea polita", verbose = FALSE)
+  result <- taxify("Picea polita", backend = "wfo", verbose = FALSE)
   enriched <- add_fungalroot(result, verbose = FALSE)
 
   expect_true(is.na(enriched$mycorrhizal_type))

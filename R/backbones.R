@@ -56,6 +56,178 @@ backbone_names <- function() {
 }
 
 
+# ---- Default-backend resolution (all installed, priority-ordered) ----
+#
+# taxify(backend = NULL) matches against every installed backbone as a
+# first-match fallback chain: accepted_name comes from the first backbone (in
+# the priority order below) that matched each name. The order is the editorial
+# call behind that pick -- it trusts the most current, authoritative treatment
+# first. It is not a consensus/vote (that would regress toward the stalest
+# treatment across backbones that copy each other); disagreement is surfaced
+# instead via mode = "agreement" / "wide".
+
+
+#' Backbone priority order for the first-match fallback pick
+#'
+#' The modern multi-kingdom synthesis (COL) first, then the domain authorities
+#' (marine, vascular plants, fungi, algae, fishes, reptiles), then the broad but
+#' more conservative aggregators (GBIF, ITIS, NCBI, OTT). Override with
+#' `options(taxify.backbone_priority = c(...))`; any omitted known backbone is
+#' appended so the order stays total over the registry.
+#'
+#' @return Character vector of every backbone name, in priority order.
+#' @noRd
+.backbone_priority <- function() {
+  default <- c(
+    "col", "worms", "wcvp", "euromed", "lcvp", "wfo",
+    "fungorum", "algaebase", "fishbase", "sealifebase", "reptiledb",
+    "gbif", "itis", "ncbi", "ott"
+  )
+  known <- backbone_names()
+  # Guard against a registry change leaving a name out of the default list.
+  default <- c(intersect(default, known), setdiff(known, default))
+
+  opt <- getOption("taxify.backbone_priority")
+  if (is.null(opt)) return(default)
+  opt <- as.character(opt)
+  opt <- opt[opt %in% known]
+  c(opt, setdiff(default, opt))
+}
+
+
+#' Order a set of backbone names by the fallback priority
+#'
+#' @param names Character vector of backbone names.
+#' @return `names`, reordered by [.backbone_priority()]. Unknown names sort last
+#'   in their original order.
+#' @noRd
+order_by_priority <- function(names) {
+  pr <- .backbone_priority()
+  names[order(match(names, pr, nomatch = length(pr) + 1L),
+              seq_along(names))]
+}
+
+
+#' The set installed on first run when no backbone is present yet
+#'
+#' Two multi-kingdom authorities plus a third cross-check: COL (modern
+#' synthesis, priority 1), GBIF (broad, conservative), ITIS (an independent
+#' third opinion). Enough for cross-kingdom coverage and a meaningful
+#' cross-backbone agreement signal from the first call. Override with
+#' `options(taxify.default_backbones = c(...))`.
+#'
+#' @return Character vector of backbone names, in priority order.
+#' @noRd
+.default_backbone_set <- function() {
+  opt <- getOption("taxify.default_backbones")
+  set <- if (!is.null(opt) && is.character(opt) && length(opt)) {
+    intersect(opt, backbone_names())
+  } else {
+    c("col", "gbif", "itis")
+  }
+  order_by_priority(set)
+}
+
+
+#' Human-readable total download size for a set of backbones
+#'
+#' @param set Character vector of backbone names.
+#' @return A string like `" (~4.0 GB total)"`, or `""` when the manifest is
+#'   unreachable or a size is missing (so the message never shows a wrong total).
+#' @noRd
+default_set_size_note <- function(set) {
+  bb <- tryCatch(fetch_manifest()$backends, error = function(e) NULL)
+  if (is.null(bb)) return("")
+  total <- 0
+  for (nm in set) {
+    s <- tryCatch(bb[[nm]]$full_size, error = function(e) NULL)
+    if (is.null(s) || length(s) != 1L || is.na(s)) return("")
+    total <- total + as.numeric(s)
+  }
+  sprintf(" (~%.1f GB total)", total / 1073741824)
+}
+
+
+#' Resolve the default backend when `taxify(backend = NULL)` is called
+#'
+#' Every installed backbone, in priority order. On a fresh setup with none
+#' installed, downloads the default set ([.default_backbone_set()]) first.
+#'
+#' @param verbose Logical.
+#' @return Character vector of backend names in priority order.
+#' @noRd
+resolve_default_backend <- function(verbose = TRUE) {
+  inst <- installed_backbones()
+  if (length(inst) > 0L) return(order_by_priority(inst))
+
+  set <- .default_backbone_set()
+  if (verbose) {
+    message(sprintf(paste0(
+      "No taxonomic backbone installed yet -- downloading the default set: ",
+      "%s%s.\nThis runs once; files are cached in %s. Pre-install a different ",
+      "set with install_backbones(), or set it via ",
+      "options(taxify.default_backbones = ...)."),
+      paste(toupper(set), collapse = ", "),
+      default_set_size_note(set), taxify_data_dir()))
+  }
+  install_backbones(set, verbose = verbose)
+
+  inst <- order_by_priority(intersect(set, installed_backbones()))
+  if (length(inst) == 0L) {
+    stop("Could not install any default backbone. Check your internet ",
+         "connection, or install one manually with install_backbones().",
+         call. = FALSE)
+  }
+  inst
+}
+
+
+#' Install taxonomic backbones for offline matching
+#'
+#' Downloads the pre-built `.vtr` for each named backbone into the taxify data
+#' directory ([taxify_data_dir()]), so subsequent [taxify()] calls match against
+#' them offline. taxify installs its default set automatically on first use
+#' (COL, GBIF, ITIS); call this to pre-install a specific set, add a backbone to
+#' the default, or refresh to the latest release. Already-current backbones are
+#' skipped.
+#'
+#' @param backends Character vector of backbone names (see [list_backbones()]).
+#'   `NULL` (default) installs taxify's first-run set: COL, GBIF, and ITIS.
+#' @param verbose Logical. Default `TRUE`.
+#' @return Invisibly, the backbones now installed (those that downloaded
+#'   successfully), in priority order.
+#' @seealso [list_backbones()] for the full set with sizes, [taxify()].
+#' @examples
+#' \dontrun{
+#' # Pre-install a marine-focused set before matching:
+#' install_backbones(c("col", "worms"))
+#' }
+#' @export
+install_backbones <- function(backends = NULL, verbose = TRUE) {
+  if (is.null(backends)) backends <- .default_backbone_set()
+  backends <- as.character(backends)
+  unknown  <- setdiff(backends, backbone_names())
+  if (length(unknown)) {
+    stop(sprintf("Unknown backbone(s): %s. See list_backbones().",
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+
+  ok <- character(0)
+  for (nm in order_by_priority(unique(backends))) {
+    installed <- tryCatch({
+      ensure_backbone(resolve_backend(nm), verbose = verbose)
+      TRUE
+    }, error = function(e) {
+      warning(sprintf("Could not install backbone '%s': %s", nm,
+                      conditionMessage(e)), call. = FALSE)
+      FALSE
+    })
+    if (isTRUE(installed)) ok <- c(ok, nm)
+  }
+  invisible(order_by_priority(ok))
+}
+
+
 #' List supported taxonomic backbones
 #'
 #' Returns every taxonomic backbone `taxify()` can match against, its taxonomic

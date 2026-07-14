@@ -2,8 +2,9 @@
 # reported (measured/compiled) values and a phylogenetically imputed table with
 # the gaps filled by a model. add_combine_reported() joins the first,
 # add_combine_imputed() the second under namespaced combine_imputed_* columns,
-# and add_combine() is a thin wrapper on the reported door. These run against
-# mock enrichments so they need no network or bundled fixture.
+# and add_combine() coalesces the two -- reported values win, imputed fills the
+# gaps -- tagging each cell's origin in a companion combine_*_src column. These
+# run against mock enrichments so they need no network or bundled fixture.
 
 # One row per COMBINE column, in the source's own column names. The imputed
 # table fills cells the reported table leaves NA (it never adds species).
@@ -110,13 +111,39 @@ test_that("a non-mammal (absent from COMBINE) gets all-NA columns", {
   expect_true(all(vapply(combine_cols, function(cc) is.na(r[[cc]][1L]), logical(1))))
 })
 
-test_that("add_combine() is a thin wrapper on add_combine_reported()", {
+test_that("add_combine() coalesces reported over imputed and tags provenance", {
   install_mock_enrichment("combine", combine_fixture(imputed = FALSE))
+  install_mock_enrichment("combine_imputed", combine_fixture(imputed = TRUE))
 
-  x <- mk_res(c("Vulpes vulpes", "Panthera leo"))
-  a <- add_combine(x, verbose = FALSE)
-  b <- add_combine_reported(x, verbose = FALSE)
-  expect_identical(names(a), names(b))
-  expect_equal(a$combine_adult_mass_g, b$combine_adult_mass_g)
-  expect_equal(a$combine_biogeographical_realm, b$combine_biogeographical_realm)
+  r <- add_combine(mk_res(c("Vulpes vulpes", "Panthera leo")), verbose = FALSE)
+  fox  <- r$accepted_name == "Vulpes vulpes"
+  lion <- r$accepted_name == "Panthera leo"
+
+  # a measurement is kept and tagged "reported"
+  expect_equal(r$combine_adult_mass_g[fox], 4820)
+  expect_equal(r$combine_adult_mass_g_src[fox], "reported")
+
+  # a reported gap is filled from the imputed table and tagged "imputed"
+  expect_equal(r$combine_adult_mass_g[lion], 190000)
+  expect_equal(r$combine_adult_mass_g_src[lion], "imputed")
+
+  # a trait absent from the reported table is fully imputed for both species
+  expect_equal(r$combine_generation_length_d[fox], 730)
+  expect_equal(r$combine_generation_length_d[lion], 2500)
+  expect_equal(r$combine_generation_length_d_src, c("imputed", "imputed"))
+
+  # a non-imputed trait is always "reported" where present
+  expect_equal(r$combine_biogeographical_realm[fox], "Palearctic")
+  expect_equal(r$combine_biogeographical_realm_src[fox], "reported")
+
+  # no bare combine_imputed_* columns leak into the output
+  expect_false(any(grepl("^combine_imputed_", names(r))))
+
+  # every value column is immediately followed by its provenance tag
+  nms   <- names(r)
+  vcols <- grep("^combine_.*(?<!_src)$", nms, value = TRUE, perl = TRUE)
+  for (vcol in vcols) {
+    pos <- match(vcol, nms)
+    expect_equal(nms[pos + 1L], paste0(vcol, "_src"))
+  }
 })

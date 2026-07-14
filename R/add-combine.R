@@ -45,8 +45,9 @@
 #' Soria CD et al. (2021) COMBINE: a coalesced mammal database of intrinsic and
 #' extrinsic traits. Ecology 102:e03344. \doi{10.1002/ecy.3344}
 #'
-#' @seealso [add_combine_imputed()] for the imputed values; [add_pantheria()],
-#'   [add_anage()] for other mammal trait sources.
+#' @seealso [add_combine()] for reported values with imputed gaps filled and
+#'   per-trait provenance; [add_combine_imputed()] for the imputed values;
+#'   [add_pantheria()], [add_anage()] for other mammal trait sources.
 #'
 #' @examples
 #' \donttest{
@@ -97,7 +98,8 @@ add_combine_reported <- function(x, cols = NULL, verbose = TRUE) {
 #' Soria CD et al. (2021) COMBINE: a coalesced mammal database of intrinsic and
 #' extrinsic traits. Ecology 102:e03344. \doi{10.1002/ecy.3344}
 #'
-#' @seealso [add_combine_reported()] for the measured values.
+#' @seealso [add_combine_reported()] for the measured values; [add_combine()]
+#'   for the two coalesced with per-trait provenance.
 #'
 #' @examples
 #' \donttest{
@@ -130,22 +132,86 @@ add_combine_imputed <- function(x, cols = NULL, verbose = TRUE) {
 
 #' Add mammal traits (COMBINE)
 #'
-#' A thin wrapper around [add_combine_reported()], kept so existing code keeps
-#' working. New code should call [add_combine_reported()] (reported values) or
-#' [add_combine_imputed()] (phylogenetically imputed values) explicitly.
+#' The default COMBINE door. Attaches the reported (measured or literature
+#' compiled) trait values and fills each still-missing cell from COMBINE's
+#' phylogenetically imputed table, so a single call reaches the fullest coverage
+#' COMBINE offers. A measurement is never overwritten: the reported value wins
+#' wherever it exists and the imputed model only fills gaps. Beside every trait
+#' sits a `<trait>_src` column recording where that cell came from -- `"reported"`,
+#' `"imputed"`, or `NA` when neither table has it -- so a model estimate is
+#' always distinguishable from a measurement.
+#'
+#' For a single-table view use [add_combine_reported()] (measured values only)
+#' or [add_combine_imputed()] (the imputed table on its own).
 #'
 #' @inheritParams add_combine_reported
-#' @return The same as [add_combine_reported()] (the `combine_*` reported
-#'   columns).
+#' @return The same data.frame with the `combine_*` trait columns (reported
+#'   values, gaps filled from the imputed table) and, beside each, a
+#'   `combine_*_src` column tagging that cell as `"reported"`, `"imputed"`, or
+#'   `NA`. Traits COMBINE does not impute (for example
+#'   `combine_biogeographical_realm`) come out `"reported"` wherever present. If
+#'   the imputed table is unavailable, the reported values are returned with
+#'   every `_src` tag `"reported"` or `NA`.
 #' @seealso [add_combine_reported()], [add_combine_imputed()]
 #' @examples
 #' \donttest{
-#' taxify("Vulpes vulpes", backend = "gbif") |>
+#' # Coverage-filled values with per-trait provenance:
+#' res <- taxify("Osphranter rufus", backend = "col") |>
 #'   add_combine()
+#' res[, c("combine_gestation_length_d", "combine_gestation_length_d_src")]
 #' }
 #' @export
 add_combine <- function(x, cols = NULL, verbose = TRUE) {
-  add_combine_reported(x, cols = cols, verbose = verbose)
+  # The reported door (no prefix) selects on combine_* names; the imputed door
+  # (combine_imputed_ prefix) selects on bare trait tokens. Translate a cols
+  # request into each vocabulary so both joins pick the same traits.
+  is_all <- is.character(cols) && length(cols) == 1L && tolower(cols) == "all"
+  if (is.null(cols) || is_all) {
+    cols_rep <- cols
+    cols_bare <- cols
+  } else {
+    cols_bare <- sub("^combine_(imputed_)?", "", as.character(cols))
+    cols_rep  <- paste0("combine_", cols_bare)
+  }
+
+  out <- add_combine_reported(x, cols = cols_rep, verbose = verbose)
+  # The imputed table may be missing (offline, taxifydb absent); degrade to
+  # reported-only rather than fail the whole join.
+  imp <- tryCatch(
+    add_combine_imputed(x, cols = cols_bare, verbose = FALSE),
+    error = function(e) NULL
+  )
+  # out and imp are both column-fills on the same x, so they share row order and
+  # count; the imputed columns align to out row-for-row without a re-join.
+
+  val_cols <- grep("^combine_", names(out), value = TRUE)
+  val_cols <- val_cols[!grepl("_src$", val_cols)]
+  for (vcol in val_cols) {
+    icol  <- paste0("combine_imputed_", sub("^combine_", "", vcol))
+    rep_v <- out[[vcol]]
+    imp_v <- if (!is.null(imp) && icol %in% names(imp)) {
+      imp[[icol]]
+    } else {
+      rep(NA, length(rep_v))
+    }
+    src <- rep(NA_character_, length(rep_v))
+    src[!is.na(imp_v)] <- "imputed"   # provisional; a measurement overrides it
+    src[!is.na(rep_v)] <- "reported"
+    fill <- is.na(rep_v) & !is.na(imp_v)
+    if (any(fill)) rep_v[fill] <- imp_v[fill]
+    out[[vcol]] <- rep_v
+    out[[paste0(vcol, "_src")]] <- src
+  }
+
+  # Place each provenance tag immediately after its value column.
+  ordered <- character(0)
+  for (nm in names(out)) {
+    if (grepl("_src$", nm) && sub("_src$", "", nm) %in% val_cols) next
+    ordered <- c(ordered, nm)
+    tag <- paste0(nm, "_src")
+    if (nm %in% val_cols && tag %in% names(out)) ordered <- c(ordered, tag)
+  }
+  out[, ordered, drop = FALSE]
 }
 
 
