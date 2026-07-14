@@ -31,8 +31,9 @@ The same data.frame with additional columns. The default set:
 \description{
 Joins biological traits of North-West European continental-shelf benthic
 macrofauna from the Cefas biological-traits database to a \code{\link[=taxify]{taxify()}} result by
-looking up \code{accepted_name}. The source fuzzy-codes traits at genus and above;
-each trait is reduced to its highest-scoring modality.
+looking up \code{genus}. The source fuzzy-codes traits at genus level, and each
+trait is reduced to its highest-scoring modality, so the join is on \code{genus}
+rather than \code{accepted_name}: every species in a coded genus is annotated.
 }
 \details{
 Source: North-West European continental-shelf benthos biological-traits

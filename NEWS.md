@@ -1,3 +1,17 @@
+# taxify 0.3.11
+
+## Genus-resolved enrichment joins
+
+* `add_cefas_btrait()` now joins on `genus`. The Cefas benthic-traits database
+  codes traits at genus level, so the previous species-level join returned `NA`
+  for every species; it now annotates every species in a coded genus.
+* `add_epa_freshwater()` now uses a species-first, genus-fallback join. The US
+  EPA Freshwater Biological Traits Database records each trait at the finest
+  resolution available, so a species keeps its species-level values and any
+  trait still missing is filled from the taxon's genus-level row (a species
+  value is never overwritten). This is a new `genus_fallback` option on the
+  shared enrichment engine, available to any mixed-resolution source.
+
 # taxify 0.3.10
 
 ## Five more trait sources

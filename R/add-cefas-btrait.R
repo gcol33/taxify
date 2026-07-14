@@ -2,8 +2,9 @@
 #'
 #' Joins biological traits of North-West European continental-shelf benthic
 #' macrofauna from the Cefas biological-traits database to a [taxify()] result by
-#' looking up `accepted_name`. The source fuzzy-codes traits at genus and above;
-#' each trait is reduced to its highest-scoring modality.
+#' looking up `genus`. The source fuzzy-codes traits at genus level, and each
+#' trait is reduced to its highest-scoring modality, so the join is on `genus`
+#' rather than `accepted_name`: every species in a coded genus is annotated.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set,
@@ -46,7 +47,7 @@ add_cefas_btrait <- function(x, cols = NULL, verbose = TRUE) {
   col_map <- stats::setNames(base, paste0("cefas_", base))
   enrich_simple(
     x, enrichment_name = "cefas_btrait", col_map = col_map,
-    source_label = "Cefas benthic traits",
+    source_label = "Cefas benthic traits", join_col = "genus",
     cols = cols, col_prefix = "cefas_", out_prefix = "cefas_", verbose = verbose
   )
 }

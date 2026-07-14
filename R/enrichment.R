@@ -749,6 +749,10 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 #'   to NA_character_ for all columns. Use NA_real_ for numeric columns, etc.
 #' @param join_col Character. Column in `x` to join on. Default `"accepted_name"`
 #'   for species-level enrichments. Use `"genus"` for genus-level enrichments.
+#' @param genus_fallback Logical. For a mixed-resolution source keyed at both
+#'   species and genus level, fill rows that found no species-level match from
+#'   their genus-level row (species resolution still wins). Only applies when
+#'   `join_col = "accepted_name"` and `x` has a `genus` column. Default `FALSE`.
 #' @param verbose Logical.
 #' @return The enriched data.frame.
 #' @noRd
@@ -1015,6 +1019,7 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
                           cols = NULL, default_cols = NULL, col_prefix = NULL,
                           out_prefix = NULL,
                           expose_all = TRUE, verbose = TRUE,
+                          genus_fallback = FALSE,
                           aggregate_trait_fallback =
                             getOption("taxify.aggregate_trait_fallback", TRUE)) {
   if (!join_col %in% names(x)) {
@@ -1184,6 +1189,46 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
         src_col <- col_map[[out_col]]
         if (src_col %in% names(joined)) {
           x[[out_col]][matched] <- joined[[src_col]][idx[matched]]
+        }
+      }
+    }
+  }
+
+  # Genus fallback: a mixed-resolution source (e.g. the USEPA freshwater trait
+  # table) records each trait at the finest level available -- some at species,
+  # some only at genus, and often a mix within one species. After the
+  # species-level join, any trait cell still empty is filled from the taxon's
+  # genus-level row (x$genus matched against the same key column, where the
+  # genus-rank strings live). The fill is per cell: a species-level value is
+  # never overwritten, only genuine gaps inherit the coarser genus value.
+  if (isTRUE(genus_fallback) && join_col == "accepted_name" &&
+      "genus" %in% names(x)) {
+    gap_rows <- which(
+      !is.na(x[["genus"]]) &
+        rowSums(is.na(x[, names(col_map), drop = FALSE])) > 0L
+    )
+    if (length(gap_rows) > 0L) {
+      gpool <- unique(x[["genus"]][gap_rows])
+      gnames <- data.frame(lookup_name = gpool, stringsAsFactors = FALSE)
+      gtmp <- tempfile(fileext = ".vtr")
+      on.exit(unlink(gtmp), add = TRUE)
+      vectra::write_vtr(gnames, gtmp)
+      select_cols <- unique(c(join_key, unname(col_map)))
+      gjoin <- vectra::inner_join(
+        vectra::tbl(gtmp),
+        vectra::tbl(vtr_path) |>
+          vectra::select(!!!lapply(select_cols, as.name)),
+        by = stats::setNames(join_key, "lookup_name")
+      ) |> vectra::collect()
+      if (nrow(gjoin) > 0L) {
+        gjoin <- gjoin[!duplicated(gjoin$lookup_name), , drop = FALSE]
+        gidx  <- match(x[["genus"]], gjoin$lookup_name)
+        for (out_col in names(col_map)) {
+          src_col <- col_map[[out_col]]
+          if (src_col %in% names(gjoin)) {
+            fill <- which(is.na(x[[out_col]]) & !is.na(gidx))
+            x[[out_col]][fill] <- gjoin[[src_col]][gidx[fill]]
+          }
         }
       }
     }

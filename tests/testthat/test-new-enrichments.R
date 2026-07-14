@@ -1,10 +1,12 @@
 # Five source doors shipped from previously-unreleased taxifydb parsers
 # (kew_cvalues, copepod_traits, fishtraits, epa_freshwater, cefas_btrait).
 # Each joins a pre-built .vtr; these run against mock enrichments, so no network
-# or bundled fixture is needed.
+# or bundled fixture is needed. kew/copepod/fishtraits are species-keyed;
+# cefas_btrait is genus-keyed; epa_freshwater is mixed (species then genus).
 
 mk_res <- function(sp) data.frame(
-  query = sp, accepted_name = sp, matched_name = sp, stringsAsFactors = FALSE
+  query = sp, accepted_name = sp, matched_name = sp,
+  genus = sub(" .*$", "", sp), stringsAsFactors = FALSE
 )
 
 test_that("add_kew_cvalues() attaches prefixed genome-size columns", {
@@ -44,27 +46,40 @@ test_that("add_fishtraits() attaches prefixed life-history columns", {
   expect_equal(r$ft_common_name[1L], "Largemouth Bass")
 })
 
-test_that("add_epa_freshwater() attaches prefixed functional traits", {
+test_that("add_epa_freshwater() falls back from species to genus-level rows", {
+  # Mixed-resolution source: a genus row plus a finer species row.
   install_mock_enrichment("epa_freshwater", data.frame(
-    canonical_name = "Baetis", feeding_mode = "collector-gatherer",
-    habit = "swimmer", voltinism = "multivoltine",
-    thermal_preference = "cool-warm", body_size_class = "small",
+    canonical_name = c("Baetis", "Baetis rhodani"),
+    feeding_mode = c("collector-gatherer", "scraper"),
+    habit = c("swimmer", "clinger"),
+    voltinism = c("multivoltine", "univoltine"),
+    thermal_preference = c("cool-warm", "cold"),
+    body_size_class = c("small", "small"),
     stringsAsFactors = FALSE))
-  r <- add_epa_freshwater(mk_res("Baetis"), verbose = FALSE)
+  r <- add_epa_freshwater(
+    mk_res(c("Baetis rhodani", "Baetis fuscatus")), verbose = FALSE)
   expect_true(all(c("epa_feeding_mode", "epa_habit",
                     "epa_voltinism") %in% names(r)))
-  expect_equal(r$epa_habit[1L], "swimmer")
+  # Species with its own row keeps the finer species-level value.
+  expect_equal(r$epa_habit[r$accepted_name == "Baetis rhodani"], "clinger")
+  # Species with no row inherits the genus-level value.
+  expect_equal(r$epa_habit[r$accepted_name == "Baetis fuscatus"], "swimmer")
+  expect_equal(r$epa_feeding_mode[r$accepted_name == "Baetis fuscatus"],
+               "collector-gatherer")
 })
 
-test_that("add_cefas_btrait() attaches prefixed benthic traits", {
+test_that("add_cefas_btrait() joins genus-level benthic traits on genus", {
+  # Genus-keyed source: the .vtr canonical_name column holds genus names.
   install_mock_enrichment("cefas_btrait", data.frame(
-    canonical_name = "Abra alba", body_size = "small", morphology = "soft",
-    lifespan = "1-3 years", living_habit = "burrower", feeding_mode = "deposit",
-    mobility = "low", bioturbation = "biodiffuser", stringsAsFactors = FALSE))
+    canonical_name = "Abra", body_size = "11 to 20", morphology = "soft",
+    lifespan = "1 to 3", living_habit = "burrower", feeding_mode = "Suspension",
+    mobility = "low", bioturbation = "Diffusive mixing", stringsAsFactors = FALSE))
   r <- add_cefas_btrait(mk_res("Abra alba"), verbose = FALSE)
   expect_true(all(c("cefas_body_size", "cefas_feeding_mode",
                     "cefas_bioturbation") %in% names(r)))
-  expect_equal(r$cefas_feeding_mode[1L], "deposit")
+  # The species query resolves through its genus.
+  expect_equal(r$cefas_feeding_mode[1L], "Suspension")
+  expect_equal(r$cefas_bioturbation[1L], "Diffusive mixing")
 })
 
 test_that("the five new enrichments are registered in the bundled manifest", {

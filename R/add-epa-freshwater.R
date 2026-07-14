@@ -1,8 +1,11 @@
 #' Add freshwater invertebrate traits (US EPA)
 #'
 #' Joins primary functional traits of freshwater macroinvertebrates from the
-#' U.S. EPA Freshwater Biological Traits Database to a [taxify()] result by
-#' looking up `accepted_name`. Records are reduced to per-taxon modes.
+#' U.S. EPA Freshwater Biological Traits Database to a [taxify()] result.
+#' Records are reduced to per-taxon modes. The database records each trait at
+#' the finest available resolution, so the join matches `accepted_name` first
+#' and then fills any trait still missing from the taxon's genus-level row; a
+#' species-level value is never overwritten.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set,
@@ -44,6 +47,7 @@ add_epa_freshwater <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x, enrichment_name = "epa_freshwater", col_map = col_map,
     source_label = "US EPA Freshwater Biological Traits",
+    genus_fallback = TRUE,
     cols = cols, col_prefix = "epa_", out_prefix = "epa_", verbose = verbose
   )
 }

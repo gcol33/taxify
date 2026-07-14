@@ -29,8 +29,11 @@ and diapause.
 }
 \description{
 Joins primary functional traits of freshwater macroinvertebrates from the
-U.S. EPA Freshwater Biological Traits Database to a \code{\link[=taxify]{taxify()}} result by
-looking up \code{accepted_name}. Records are reduced to per-taxon modes.
+U.S. EPA Freshwater Biological Traits Database to a \code{\link[=taxify]{taxify()}} result.
+Records are reduced to per-taxon modes. The database records each trait at
+the finest available resolution, so the join matches \code{accepted_name} first
+and then fills any trait still missing from the taxon's genus-level row; a
+species-level value is never overwritten.
 }
 \details{
 Source: U.S. EPA Freshwater Biological Traits Database (2012), a public-domain
