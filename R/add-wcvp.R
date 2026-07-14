@@ -13,6 +13,7 @@
 #'       `native_status_BGM`, `native_status_GER`.
 #'     \item `"all"`: adds one column per region in the dataset.
 #'   }
+#'   List the region codes WCVP covers with `enrichment_groups("wcvp")`.
 #' @param cols Which columns to attach. `NULL` (the default) attaches the
 #'   curated set; a character vector of column names attaches just those, and
 #'   `"all"` attaches every column the source carries (see [enrichment_cols()]).

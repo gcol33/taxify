@@ -6,7 +6,8 @@
 #' @param x A data.frame returned by [taxify()].
 #' @param lang Character. ISO 639-1 language code (e.g., `"en"`, `"de"`,
 #'   `"fr"`), or `NA` to return names without a language tag (NCBI/OTT
-#'   sources). Default `"en"`.
+#'   sources). Default `"en"`. List the languages present with
+#'   `enrichment_groups("common_names")`.
 #' @param cols Which columns to attach. `NULL` (the default) attaches the
 #'   curated set; a character vector of column names attaches just those, and
 #'   `"all"` attaches every column the source carries (see [enrichment_cols()]).

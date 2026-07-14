@@ -11,7 +11,8 @@ add_common_names(x, lang = "en", cols = NULL, verbose = TRUE)
 
 \item{lang}{Character. ISO 639-1 language code (e.g., \code{"en"}, \code{"de"},
 \code{"fr"}), or \code{NA} to return names without a language tag (NCBI/OTT
-sources). Default \code{"en"}.}
+sources). Default \code{"en"}. List the languages present with
+\code{enrichment_groups("common_names")}.}
 
 \item{cols}{Which columns to attach. \code{NULL} (the default) attaches the
 curated set; a character vector of column names attaches just those, and

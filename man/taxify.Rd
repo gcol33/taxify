@@ -14,6 +14,7 @@ taxify(
   region = NULL,
   coords = NULL,
   range = c("present", "native", "introduced"),
+  mode = c("fallback", "wide", "agreement"),
   verbose = TRUE
 )
 }
@@ -84,6 +85,25 @@ introduced, or extinct) -- the right choice for name disambiguation.
 \code{"native"} accepts only native records, \code{"introduced"} only introduced
 (alien) records; both fold an ecological filter into matching and are for
 callers who want that. Ignored when no region is set.}
+
+\item{mode}{Character. How to combine results when \code{backend} names more than
+one backbone. \code{"fallback"} (default) is the fallback chain described above:
+one answer per name, from the first backbone that matched. \code{"wide"} and
+\code{"agreement"} instead consult \strong{every} backbone for every name and report
+how they compare, so a backbone disagreement (see the \emph{Backbone-specific
+accepted names} section) is visible in one call rather than by querying each
+backbone by hand. Both return a strict superset of the \code{"fallback"} result
+(the same standard columns, with \code{accepted_name} still the fallback pick, so
+the frame still pipes into the \verb{add_*()} enrichments) plus:
+\itemize{
+\item \code{"wide"}: one \verb{accepted_<backbone>} column per backbone and a
+logical \code{all_agree}.
+\item \code{"agreement"}: \code{n_backbones_matched}, \code{n_distinct_accepted}, and
+\code{all_agree}.
+}
+\code{all_agree} is \code{TRUE}/\code{FALSE} when at least two backbones matched the name
+and \code{NA} when fewer than two did (nothing to compare). Ignored (with a
+message) when only one backbone is given, since there is nothing to compare.}
 
 \item{verbose}{Logical. Print progress messages. Default \code{TRUE}.}
 }
@@ -166,8 +186,9 @@ by later ones (fallback chain).
 Each backend is an independent taxonomy, and they can legitimately disagree
 on which name is accepted and which is a synonym. \code{taxify()} returns the
 matched backend's own current treatment; it does not reconcile backends
-against each other. Choose the backend whose treatment you want, or query
-several and compare the \code{accepted_name} and \code{backend} columns.
+against each other. Choose the backend whose treatment you want, or pass
+several with \code{mode = "wide"} (or \code{"agreement"}) to see each backbone's
+\code{accepted_name} side by side and where they disagree.
 
 For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 accepts \verb{Macropus rufus} and \verb{Macropus parma}, treating \verb{Osphranter rufus}
@@ -202,6 +223,10 @@ taxify("Quercus robus", coords = c(4.35, 50.85))
 # Fallback chain: try WFO first, then COL for unmatched
 taxify(c("Quercus robur", "Panthera leo"),
        backend = c("wfo", "col"))
+
+# Compare how two backbones resolve the same names, side by side
+taxify(c("Quercus robur", "Pinus sylvestris"),
+       backend = c("wfo", "col"), mode = "wide")
 
 options(old)
 

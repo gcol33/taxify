@@ -829,6 +829,78 @@ enrichment_cols <- function(source) {
 }
 
 
+#' Browse the group values a grouped enrichment can filter on
+#'
+#' Some enrichment doors attach data per group: GRIIS invasive status by country
+#' ([add_griis()]), WCVP native ranges by TDWG region ([add_wcvp()]), vernacular
+#' names by language ([add_common_names()]), alien first records by country
+#' ([add_alien_first_records()]). This lists the valid group values for such a
+#' door, the way [enrichment_cols()] lists a door's columns, so a country,
+#' region, or language code need not be guessed. Read offline from the local
+#' `.vtr` metadata (falling back to the manifest, then a scan of the `.vtr`); the
+#' first call may trigger the one-time download.
+#'
+#' @param source Character. A grouped enrichment name (see [list_enrichments()]).
+#' @param verbose Logical. Print the group column and count. Default `TRUE`.
+#' @return A character vector of the available group values, sorted. Stops with a
+#'   pointer to [enrichment_cols()] when `source` is a flat (non-grouped)
+#'   enrichment, which has no group values.
+#' @seealso [enrichment_cols()], [list_enrichments()], [add_griis()],
+#'   [add_wcvp()], [add_common_names()], [add_alien_first_records()]
+#' @examples
+#' \donttest{
+#' old <- options(taxify.data_dir = taxify_example_data())
+#' enrichment_groups("griis")   # ISO country codes GRIIS covers
+#' options(old)
+#' }
+#' @export
+enrichment_groups <- function(source, verbose = TRUE) {
+  vtr_path <- ensure_enrichment(source, verbose = verbose)
+  if (is.null(vtr_path)) {
+    stop(sprintf(paste0(
+      "enrichment_groups(): enrichment '%s' is not available. It downloads on ",
+      "first use; install 'taxifydb' to build it, or check your connection."),
+      source), call. = FALSE)
+  }
+
+  meta      <- read_enrichment_meta(vtr_path)
+  group_col <- meta$group_col
+  if (is.null(group_col) || length(group_col) == 0L ||
+      is.na(group_col) || !nzchar(group_col)) {
+    stop(sprintf(paste0(
+      "enrichment_groups(): '%s' is not a grouped enrichment (no group ",
+      "column). Use enrichment_cols(\"%s\") to see its columns."),
+      source, source), call. = FALSE)
+  }
+
+  # Group values: local meta.json (O(1)) -> manifest -> distinct scan of the .vtr.
+  groups <- meta$available_groups
+  if (is.null(groups) || length(groups) == 0L) {
+    manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
+    entry <- if (!is.null(manifest)) {
+      resolve_enrichment_entry(manifest, source)
+    } else {
+      NULL
+    }
+    groups <- entry$available_groups
+    if (is.null(groups) || length(groups) == 0L) {
+      grp <- vectra::tbl(vtr_path) |>
+        vectra::select(!!as.name(group_col)) |>
+        vectra::distinct() |>
+        vectra::collect()
+      groups <- grp[[group_col]]
+    }
+  }
+
+  groups <- sort(unique(as.character(groups[!is.na(groups)])))
+  if (verbose) {
+    message(sprintf("%s: %d group value(s) in column '%s'.",
+                    source, length(groups), group_col))
+  }
+  groups
+}
+
+
 # Resolve a set of parent binomials to their accepted names against backend(s).
 # Memoized per (backend, parent-set) within a session so a chain of add_trait
 # sources over the same hybrids resolves the parents only once.

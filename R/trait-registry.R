@@ -300,6 +300,9 @@
 #   add_useful_plants() door; the cross-source trait verb has nothing to harmonize
 #   on one source, so the door is its correct home. odonata habitat_openness left
 #   out as an odonate-jargon habitat descriptor, not a distinct behavioural axis.
+#   economic_cost (InvaCost cumulative 2017-USD cost) is the same case: a single
+#   source fully surfaced by add_invacost(), nothing to harmonize cross-source, so
+#   it stays a door and no economic_cost trait is registered.
 # Deliberately unregistered (the quantities are physically different, not one
 # harmonizable trait -- kept here so the decision is not silently relitigated):
 #   - ploidy: the candidate sources do not share a clean encoding -- GIFT is

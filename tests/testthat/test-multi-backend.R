@@ -129,3 +129,92 @@ test_that("taxify rejects non-character non-backend input", {
   expect_error(taxify("Quercus robur", backend = 123),
                "backend must be a character")
 })
+
+
+# ---- Comparison modes (mode = "wide" / "agreement") ----
+
+# GBIF and COL mocks both carry the red/parma kangaroos with opposite treatments
+# (GBIF accepts Macropus, COL accepts Osphranter/Notamacropus), so they exercise
+# a genuine backbone disagreement.
+setup_gbif_col <- function() {
+  set_backbone_path("gbif", mock_gbif_backbone_vtr())
+  set_backbone_path("col",  mock_col_backbone_vtr())
+}
+
+test_that("mode = 'wide' is a superset of the standard result", {
+  setup_gbif_col()
+  std  <- taxify(c("Quercus robur", "Macropus rufus"),
+                 backend = c("gbif", "col"), verbose = FALSE)
+  wide <- taxify(c("Quercus robur", "Macropus rufus"),
+                 backend = c("gbif", "col"), mode = "wide", verbose = FALSE)
+
+  # Every standard column survives, plus the comparison columns.
+  expect_true(all(names(std) %in% names(wide)))
+  expect_true(all(c("accepted_gbif", "accepted_col", "all_agree") %in% names(wide)))
+  # accepted_name stays the fallback pick, so the frame is still pipeable.
+  expect_equal(wide$accepted_name, std$accepted_name)
+  expect_equal(nrow(wide), 2L)
+})
+
+test_that("mode = 'wide' surfaces a backbone disagreement", {
+  setup_gbif_col()
+  wide <- taxify("Macropus rufus", backend = c("gbif", "col"),
+                 mode = "wide", verbose = FALSE)
+
+  # GBIF keeps Macropus rufus accepted; COL resolves it to Osphranter rufus.
+  expect_equal(wide$accepted_gbif, "Macropus rufus")
+  expect_equal(wide$accepted_col,  "Osphranter rufus")
+  expect_false(wide$all_agree)
+  # Base pick is the first backbone (gbif) that matched.
+  expect_equal(wide$accepted_name, "Macropus rufus")
+  expect_equal(wide$backend, "gbif")
+})
+
+test_that("mode = 'wide' reports agreement where backbones concur", {
+  setup_gbif_col()
+  wide <- taxify("Quercus robur", backend = c("gbif", "col"),
+                 mode = "wide", verbose = FALSE)
+  expect_equal(wide$accepted_gbif, "Quercus robur")
+  expect_equal(wide$accepted_col,  "Quercus robur")
+  expect_true(wide$all_agree)
+})
+
+test_that("all_agree is NA when fewer than two backbones match", {
+  setup_wfo_gbif()
+  # Macropus rufus is in the GBIF mock only; the WFO mock is plants, so just one
+  # backbone matches and there is nothing to compare.
+  wide <- taxify("Macropus rufus", backend = c("wfo", "gbif"),
+                 mode = "wide", verbose = FALSE)
+  expect_true(is.na(wide$all_agree))
+  expect_true(is.na(wide$accepted_wfo))
+  expect_equal(wide$accepted_gbif, "Macropus rufus")
+})
+
+test_that("mode = 'agreement' returns the compact verdict columns", {
+  setup_gbif_col()
+  agr <- taxify(c("Quercus robur", "Macropus rufus"),
+                backend = c("gbif", "col"), mode = "agreement",
+                verbose = FALSE)
+  expect_true(all(c("n_backbones_matched", "n_distinct_accepted", "all_agree")
+                  %in% names(agr)))
+  # No per-backbone accepted_* columns in agreement mode.
+  expect_false("accepted_gbif" %in% names(agr))
+
+  # Quercus: both agree -> 2 matched, 1 distinct, agree TRUE.
+  expect_equal(agr$n_backbones_matched[1L], 2L)
+  expect_equal(agr$n_distinct_accepted[1L], 1L)
+  expect_true(agr$all_agree[1L])
+
+  # Macropus rufus: both match but disagree -> 2 matched, 2 distinct, FALSE.
+  expect_equal(agr$n_backbones_matched[2L], 2L)
+  expect_equal(agr$n_distinct_accepted[2L], 2L)
+  expect_false(agr$all_agree[2L])
+})
+
+test_that("mode is ignored (with no compare columns) for a single backend", {
+  set_backbone_path("wfo", mock_backbone_vtr())
+  result <- taxify("Quercus robur", backend = "wfo", mode = "wide",
+                   verbose = FALSE)
+  expect_false("all_agree" %in% names(result))
+  expect_false(any(grepl("^accepted_(wfo|col|gbif)$", names(result))))
+})

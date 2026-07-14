@@ -125,3 +125,36 @@ test_that("taxify_candidates() returns an empty frame when nothing is ambiguous"
   r <- taxify("Quercus robur", verbose = FALSE)
   expect_equal(nrow(taxify_candidates(r, verbose = FALSE)), 0L)
 })
+
+
+# ---- enrichment_groups() ----
+
+enrichment_ready <- function(name) {
+  file.exists(file.path(taxify_example_data(), "enrichment", name, "latest",
+                        paste0(name, ".vtr")))
+}
+
+test_that("enrichment_groups() lists the group values of a grouped enrichment", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  taxify_clear_cache()
+  skip_if_not(enrichment_ready("griis"), "griis example enrichment missing")
+
+  g <- enrichment_groups("griis", verbose = FALSE)
+  expect_type(g, "character")
+  # The bundled GRIIS example carries Austria and Germany.
+  expect_setequal(g, c("AT", "DE"))
+  # Sorted, unique, no NA.
+  expect_false(anyNA(g))
+  expect_equal(g, sort(g))
+})
+
+test_that("enrichment_groups() errors on a flat (non-grouped) enrichment", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  taxify_clear_cache()
+  skip_if_not(enrichment_ready("zanne"), "zanne example enrichment missing")
+
+  expect_error(enrichment_groups("zanne", verbose = FALSE),
+               "not a grouped enrichment")
+})

@@ -17,7 +17,8 @@ column (no suffix).
 \item Multiple codes (e.g., \code{c("BGM", "GER")}): adds
 \code{native_status_BGM}, \code{native_status_GER}.
 \item \code{"all"}: adds one column per region in the dataset.
-}}
+}
+List the region codes WCVP covers with \code{enrichment_groups("wcvp")}.}
 
 \item{cols}{Which columns to attach. \code{NULL} (the default) attaches the
 curated set; a character vector of column names attaches just those, and

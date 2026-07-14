@@ -15,7 +15,9 @@ add_alien_first_records(x, country, cols = NULL, verbose = TRUE)
 \item Multiple codes (e.g., \code{c("AT", "DE")}): adds columns with
 country suffix (e.g., \code{alien_first_record_AT}).
 \item \code{"all"}: adds one column set per country in the dataset.
-}}
+}
+List the country codes covered with
+\code{enrichment_groups("alien_first_records")}.}
 
 \item{cols}{Character vector of value columns to attach (from
 \code{alien_first_record}, \code{alien_first_record_source},

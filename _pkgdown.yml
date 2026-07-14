@@ -113,6 +113,7 @@ reference:
   - add_iucn
   - add_griis
   - add_glonaf
+  - add_invacost
   - add_alien_first_records
   - add_wcvp
   - add_common_names

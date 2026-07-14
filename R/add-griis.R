@@ -13,6 +13,7 @@
 #'       `invasive_status_AT`, `invasive_status_DE`.
 #'     \item `"all"`: adds one column per country in the dataset.
 #'   }
+#'   List the codes GRIIS covers with `enrichment_groups("griis")`.
 #' @param cols Which columns to attach. `NULL` (the default) attaches the
 #'   curated set; a character vector of column names attaches just those, and
 #'   `"all"` attaches every column the source carries (see [enrichment_cols()]).

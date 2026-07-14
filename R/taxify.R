@@ -65,6 +65,24 @@
 #'   `"native"` accepts only native records, `"introduced"` only introduced
 #'   (alien) records; both fold an ecological filter into matching and are for
 #'   callers who want that. Ignored when no region is set.
+#' @param mode Character. How to combine results when `backend` names more than
+#'   one backbone. `"fallback"` (default) is the fallback chain described above:
+#'   one answer per name, from the first backbone that matched. `"wide"` and
+#'   `"agreement"` instead consult **every** backbone for every name and report
+#'   how they compare, so a backbone disagreement (see the *Backbone-specific
+#'   accepted names* section) is visible in one call rather than by querying each
+#'   backbone by hand. Both return a strict superset of the `"fallback"` result
+#'   (the same standard columns, with `accepted_name` still the fallback pick, so
+#'   the frame still pipes into the `add_*()` enrichments) plus:
+#'   \itemize{
+#'     \item `"wide"`: one `accepted_<backbone>` column per backbone and a
+#'       logical `all_agree`.
+#'     \item `"agreement"`: `n_backbones_matched`, `n_distinct_accepted`, and
+#'       `all_agree`.
+#'   }
+#'   `all_agree` is `TRUE`/`FALSE` when at least two backbones matched the name
+#'   and `NA` when fewer than two did (nothing to compare). Ignored (with a
+#'   message) when only one backbone is given, since there is nothing to compare.
 #' @param verbose Logical. Print progress messages. Default `TRUE`.
 #'
 #' @return A data.frame with one row per input name and the following columns:
@@ -133,8 +151,9 @@
 #' Each backend is an independent taxonomy, and they can legitimately disagree
 #' on which name is accepted and which is a synonym. `taxify()` returns the
 #' matched backend's own current treatment; it does not reconcile backends
-#' against each other. Choose the backend whose treatment you want, or query
-#' several and compare the `accepted_name` and `backend` columns.
+#' against each other. Choose the backend whose treatment you want, or pass
+#' several with `mode = "wide"` (or `"agreement"`) to see each backbone's
+#' `accepted_name` side by side and where they disagree.
 #'
 #' For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 #' accepts `Macropus rufus` and `Macropus parma`, treating `Osphranter rufus`
@@ -169,6 +188,10 @@
 #' taxify(c("Quercus robur", "Panthera leo"),
 #'        backend = c("wfo", "col"))
 #'
+#' # Compare how two backbones resolve the same names, side by side
+#' taxify(c("Quercus robur", "Pinus sylvestris"),
+#'        backend = c("wfo", "col"), mode = "wide")
+#'
 #' options(old)
 #'
 #' @export
@@ -181,11 +204,13 @@ taxify <- function(x,
                    region = NULL,
                    coords = NULL,
                    range = c("present", "native", "introduced"),
+                   mode = c("fallback", "wide", "agreement"),
                    verbose = TRUE) {
 
   fuzzy_method <- match.arg(fuzzy_method)
   aggregates   <- match.arg(aggregates)
   range        <- match.arg(range)
+  mode         <- match.arg(mode)
   region       <- resolve_region(region, coords, verbose = verbose)
 
   if (!is.character(x)) {
@@ -193,6 +218,22 @@ taxify <- function(x,
   }
   if (length(x) == 0L) {
     stop("x must have at least one element", call. = FALSE)
+  }
+
+  # Comparison modes consult every backbone for every name. They need >= 2
+  # named backbones; with fewer there is nothing to compare, so fall through to
+  # the normal single-answer result.
+  if (mode != "fallback") {
+    be_names <- if (inherits(backend, "taxify_backend")) backend$name else backend
+    if (!is.character(be_names) || length(be_names) < 2L) {
+      if (verbose) message(sprintf(
+        "mode = \"%s\" needs >= 2 backends; returning the standard result.",
+        mode))
+    } else {
+      ensure_backends_current(be_names, verbose = verbose)
+      return(taxify_compare(x, be_names, mode, fuzzy, fuzzy_threshold,
+                            fuzzy_method, aggregates, region, range, verbose))
+    }
   }
 
   # Handle single backend object
@@ -302,6 +343,96 @@ taxify <- function(x,
   result <- finalize_hybrids(result, names_df, backend)
   rownames(result) <- NULL
   as_taxify_result(result, backend = backend)
+}
+
+
+#' Compare name resolution across several backbones
+#'
+#' Backs `taxify(..., mode = "wide" | "agreement")`. Runs every backbone
+#' independently over the full name list (no fallback chaining), then assembles
+#' one result. The base columns are the fallback pick -- the first backbone in
+#' `backend` order that matched each name -- so a comparison result is a strict
+#' superset of the standard `mode = "fallback"` output and still carries a single
+#' `accepted_name` that pipes into the `add_*()` enrichments. On top of the base:
+#'   * `"wide"` adds one `accepted_<backbone>` column per backbone plus a logical
+#'     `all_agree`;
+#'   * `"agreement"` adds `n_backbones_matched`, `n_distinct_accepted`, and
+#'     `all_agree`.
+#' `all_agree` is `TRUE`/`FALSE` when at least two backbones matched the name and
+#' `NA` when fewer than two did.
+#'
+#' @param x Character vector of names.
+#' @param backend Character vector of >= 2 backbone names, in priority order.
+#' @param mode `"wide"` or `"agreement"`.
+#' @param fuzzy,fuzzy_threshold,fuzzy_method,aggregates,region,range,verbose
+#'   Passed through to each per-backbone [taxify_single()] run.
+#' @return A `taxify_result` data.frame.
+#' @noRd
+taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
+                           fuzzy_method, aggregates, region, range, verbose) {
+  if (verbose) message(sprintf(
+    "Comparing %d names across %d backbones: %s",
+    length(x), length(backend), paste(backend, collapse = ", ")))
+
+  # One independent run per backbone over all names (no fallback chaining), so
+  # every backbone reports its own treatment of every name.
+  per_be <- lapply(backend, function(be_name) {
+    be <- resolve_backend(be_name)
+    r  <- taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
+                        aggregates, region = region, range_mode = range,
+                        verbose = verbose)
+    attr(r, "taxify_meta") <- NULL
+    class(r) <- "data.frame"
+    r
+  })
+  names(per_be) <- backend
+
+  is_matched <- function(r) {
+    !is.na(r$match_type) & !r$match_type %in% c("none", "out_of_scope")
+  }
+
+  # Base = fallback pick: first backbone (in order) that matched each name.
+  base <- per_be[[1L]]
+  base_matched <- is_matched(base)
+  for (k in seq_along(backend)[-1L]) {
+    r    <- per_be[[k]]
+    fill <- which(!base_matched & is_matched(r))
+    if (length(fill)) {
+      for (col in intersect(names(base), names(r))) {
+        base[[col]][fill] <- r[[col]][fill]
+      }
+      base_matched[fill] <- TRUE
+    }
+  }
+
+  # Per-backbone accepted names, masked to matched rows for the agreement stats.
+  acc_masked <- lapply(per_be, function(r) {
+    a <- r$accepted_name
+    a[!is_matched(r)] <- NA_character_
+    a
+  })
+  acc_mat    <- do.call(cbind, acc_masked)          # character matrix
+  n_matched  <- rowSums(!is.na(acc_mat))
+  n_distinct <- apply(acc_mat, 1L, function(v) length(unique(v[!is.na(v)])))
+  all_agree  <- ifelse(n_matched >= 2L, n_distinct <= 1L, NA)
+
+  if (mode == "wide") {
+    for (k in seq_along(backend)) {
+      base[[paste0("accepted_", backend[k])]] <- per_be[[k]]$accepted_name
+    }
+    base$all_agree <- all_agree
+  } else { # "agreement"
+    base$n_backbones_matched <- as.integer(n_matched)
+    base$n_distinct_accepted <- as.integer(n_distinct)
+    base$all_agree           <- all_agree
+  }
+
+  rownames(base) <- NULL
+  out  <- as_taxify_result(base, backend = backend)
+  meta <- attr(out, "taxify_meta")
+  meta$mode <- mode
+  attr(out, "taxify_meta") <- meta
+  out
 }
 
 

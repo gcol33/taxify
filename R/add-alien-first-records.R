@@ -12,6 +12,8 @@
 #'       country suffix (e.g., `alien_first_record_AT`).
 #'     \item `"all"`: adds one column set per country in the dataset.
 #'   }
+#'   List the country codes covered with
+#'   `enrichment_groups("alien_first_records")`.
 #' @param cols Character vector of value columns to attach (from
 #'   `alien_first_record`, `alien_first_record_source`,
 #'   `alien_first_record_reference`), or `"all"`. `NULL` (default) attaches all

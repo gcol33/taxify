@@ -16,7 +16,8 @@ add_griis(x, country, cols = NULL, verbose = TRUE)
 \item Multiple codes (e.g., \code{c("AT", "DE")}): adds
 \code{invasive_status_AT}, \code{invasive_status_DE}.
 \item \code{"all"}: adds one column per country in the dataset.
-}}
+}
+List the codes GRIIS covers with \code{enrichment_groups("griis")}.}
 
 \item{cols}{Which columns to attach. \code{NULL} (the default) attaches the
 curated set; a character vector of column names attaches just those, and

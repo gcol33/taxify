@@ -7,7 +7,7 @@
 # - Status values stored as uppercase (normalized during download)
 
 mock_col_backbone_df <- function() {
-  data.frame(
+  base <- data.frame(
     taxon_id = c(
       "5T6MX", "5T6MY", "5T6MZ", "5T6N1",
       "5T6N2", "5T6N3", "5T6N4", "5T6N5",
@@ -116,6 +116,37 @@ mock_col_backbone_df <- function() {
     ),
     stringsAsFactors = FALSE
   )
+
+  # Kangaroo rows encode Catalogue of Life's split of Macropus, the mirror image
+  # of the GBIF mock (see helper-mock-gbif-backbone.R): COL accepts Osphranter
+  # rufus / Notamacropus parma and treats Macropus rufus / Macropus parma as
+  # SYNONYMS of them. Running both backbones with mode = "wide" then shows the
+  # backbone disagreement in one call.
+  roos <- data.frame(
+    taxon_id               = c("COLROO1", "COLROO2", "COLROO3", "COLROO4"),
+    canonical_name         = c("Osphranter rufus", "Notamacropus parma",
+                               "Macropus rufus", "Macropus parma"),
+    scientificName         = c("Osphranter rufus (Desmarest, 1822)",
+                               "Notamacropus parma (Waterhouse, 1845)",
+                               "Macropus rufus (Desmarest, 1822)",
+                               "Macropus parma Waterhouse, 1846"),
+    taxon_rank             = c("SPECIES", "SPECIES", "SPECIES", "SPECIES"),
+    taxonomic_status       = c("ACCEPTED", "ACCEPTED", "SYNONYM", "SYNONYM"),
+    accepted_name_usage_id = c(NA, NA, "COLROO1", "COLROO2"),
+    family                 = c("Macropodidae", "Macropodidae",
+                               "Macropodidae", "Macropodidae"),
+    genus                  = c("Osphranter", "Notamacropus",
+                               "Macropus", "Macropus"),
+    specific_epithet       = c("rufus", "parma", "rufus", "parma"),
+    authorship             = c(NA, NA, NA, "Waterhouse"),
+    infraspecific_epithet  = c(NA, NA, NA, NA),
+    notho                  = c(NA, NA, NA, NA),
+    nomenclaturalCode      = c("ICZN", "ICZN", "ICZN", "ICZN"),
+    kingdom                = c("Animalia", "Animalia", "Animalia", "Animalia"),
+    stringsAsFactors       = FALSE
+  )
+
+  rbind(base, roos)
 }
 
 
