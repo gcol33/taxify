@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,7 +73,63 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.11" id="taxify-0311">taxify 0.3.11<a class="anchor" aria-label="anchor" href="#taxify-0311"></a></h2>
+<div class="section level3">
+<h3 id="genus-resolved-enrichment-joins-0-3-11">Genus-resolved enrichment joins<a class="anchor" aria-label="anchor" href="#genus-resolved-enrichment-joins-0-3-11"></a></h3>
+<ul><li>
+<code><a href="../reference/add_cefas_btrait.html">add_cefas_btrait()</a></code> now joins on <code>genus</code>. The Cefas benthic-traits database codes traits at genus level, so the previous species-level join returned <code>NA</code> for every species; it now annotates every species in a coded genus.</li>
+<li>
+<code><a href="../reference/add_epa_freshwater.html">add_epa_freshwater()</a></code> now uses a species-first, genus-fallback join. The US EPA Freshwater Biological Traits Database records each trait at the finest resolution available, so a species keeps its species-level values and any trait still missing is filled from the taxon’s genus-level row (a species value is never overwritten). This is a new <code>genus_fallback</code> option on the shared enrichment engine, available to any mixed-resolution source.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.10" id="taxify-0310">taxify 0.3.10<a class="anchor" aria-label="anchor" href="#taxify-0310"></a></h2>
+<div class="section level3">
+<h3 id="five-more-trait-sources-0-3-10">Five more trait sources<a class="anchor" aria-label="anchor" href="#five-more-trait-sources-0-3-10"></a></h3>
+<ul><li>Five enrichments that had working parsers but had never been released now have doors: <code><a href="../reference/add_kew_cvalues.html">add_kew_cvalues()</a></code> (plant genome size, chromosome number and ploidy from the Kew Plant DNA C-values database, CC BY), <code><a href="../reference/add_copepod_traits.html">add_copepod_traits()</a></code> (marine copepod body size, egg and clutch traits, Brun et al. 2017, CC BY 3.0), <code><a href="../reference/add_fishtraits.html">add_fishtraits()</a></code> (United States freshwater-fish life history, temperature and salinity tolerance, and conservation traits, Frimpong &amp; Angermeier 2009, public domain), <code><a href="../reference/add_epa_freshwater.html">add_epa_freshwater()</a></code> (freshwater-invertebrate functional traits, US EPA, public domain), and <code><a href="../reference/add_cefas_btrait.html">add_cefas_btrait()</a></code> (North-West European shelf benthic biological traits, Cefas, OGL v3.0). Each is source-prefixed (<code>cval_</code>, <code>cop_</code>, <code>ft_</code>, <code>epa_</code>, <code>cefas_</code>) and takes <code>cols = "all"</code> for the full column set.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-and-metadata-0-3-10">Documentation and metadata<a class="anchor" aria-label="anchor" href="#documentation-and-metadata-0-3-10"></a></h3>
+<ul><li>The reference index now lists <code><a href="../reference/add_combine_reported.html">add_combine_reported()</a></code>, <code><a href="../reference/add_combine_imputed.html">add_combine_imputed()</a></code>, <code><a href="../reference/enrichment_groups.html">enrichment_groups()</a></code>, and the low-level building blocks.</li>
+<li>
+<code>thermofresh</code>, <code>ramond</code>, <code>freshwater_insects_conus</code>, and <code>eurobat</code> are flagged static in the manifest, so their version is not re-checked each session.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.9" id="taxify-039">taxify 0.3.9<a class="anchor" aria-label="anchor" href="#taxify-039"></a></h2>
+<div class="section level3">
+<h3 id="invasion-impact-eicat--seicat-0-3-9">Invasion impact (EICAT / SEICAT)<a class="anchor" aria-label="anchor" href="#invasion-impact-eicat--seicat-0-3-9"></a></h3>
+<ul><li><p><code><a href="../reference/add_gidias.html">add_gidias()</a></code> joins per-species invasion-impact aggregates from GIDIAS (Bacher et al. 2025, CC BY 4.0), the IPBES invasive-species assessment’s global impact compilation. Each species carries its IUCN EICAT environmental-impact category (<code>gidias_eicat_category</code>, <code>MC</code>/<code>MN</code>/<code>MO</code>/<code>MR</code>/<code>MV</code>, or <code>DD</code>) and SEICAT socio-economic-impact category (<code>gidias_seicat_category</code>), each the most severe magnitude among the species’ documented negative impacts, alongside the driving mechanism, affected well-being constituents, realms, and record and source counts. Only the derived per-species aggregates are distributed, not the raw impact records.</p></li>
+<li><p><code><a href="../reference/add_trait.html">add_trait()</a></code> gains two categorical traits, <code>"environmental_impact"</code> (EICAT) and <code>"socioeconomic_impact"</code> (SEICAT), so invasion impact reconciles across sources the way every other trait does. GIDIAS is the first source; the ordinal categories are shared so further EICAT assessments can coalesce onto them later.</p></li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.8" id="taxify-038">taxify 0.3.8<a class="anchor" aria-label="anchor" href="#taxify-038"></a></h2>
+<div class="section level3">
+<h3 id="economic-cost-of-invasions-0-3-8">Economic cost of invasions<a class="anchor" aria-label="anchor" href="#economic-cost-of-invasions-0-3-8"></a></h3>
+<ul><li>
+<code><a href="../reference/add_invacost.html">add_invacost()</a></code> joins per-species economic-cost aggregates from InvaCost (Diagne et al. 2020, CC BY 4.0): <code>invacost_cost_total_usd</code> (cumulative documented 2017-USD cost), <code>invacost_cost_n</code> (number of estimates), and the dominant <code>invacost_cost_type</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="phylacine-mass-is-not-silently-model-derived-0-3-8">PHYLACINE mass is not silently model-derived<a class="anchor" aria-label="anchor" href="#phylacine-mass-is-not-silently-model-derived-0-3-8"></a></h3>
+<ul><li>
+<code><a href="../reference/add_phylacine.html">add_phylacine()</a></code> surfaces <code>phylacine_mass_method</code> and <code>phylacine_mass_method_class</code>, recording whether a body mass is measured (<code>reported</code>), allometrically <code>estimated</code>, or phylogenetically <code>imputed</code>.</li>
+<li>
+<code>add_trait("body_mass")</code> now flags model-derived PHYLACINE masses per species: where PHYLACINE contributes an imputed or estimated mass, <code>body_mass_caution</code> explains it for that species only; measured masses are left unflagged. A trait registry source can attach such a per-record caution via <code>caution_col</code> / <code>caution_fn</code>, distinct from the existing whole-source method caution.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.7" id="taxify-037">taxify 0.3.7<a class="anchor" aria-label="anchor" href="#taxify-037"></a></h2>
+<div class="section level3">
+<h3 id="compare-backbones-in-one-call-0-3-7">Compare backbones in one call<a class="anchor" aria-label="anchor" href="#compare-backbones-in-one-call-0-3-7"></a></h3>
+<ul><li>
+<code><a href="../reference/taxify.html">taxify()</a></code> gains a <code>mode</code> argument. With more than one <code>backend</code>, the default <code>mode = "fallback"</code> is the usual fallback chain, while <code>mode = "wide"</code> consults every backbone for every name and adds one <code>accepted_&lt;backbone&gt;</code> column plus a logical <code>all_agree</code>, and <code>mode = "agreement"</code> adds <code>n_backbones_matched</code>, <code>n_distinct_accepted</code>, and <code>all_agree</code>. Both are a strict superset of the standard result (a single <code>accepted_name</code>, still pipeable into the <code>add_*()</code> enrichments), so a backbone disagreement, such as GBIF keeping <code>Macropus rufus</code> where the Catalogue of Life resolves it to <code>Osphranter rufus</code>, is visible in one call instead of querying each backbone by hand.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="discovering-group-values-0-3-7">Discovering group values<a class="anchor" aria-label="anchor" href="#discovering-group-values-0-3-7"></a></h3>
+<ul><li>
+<code><a href="../reference/enrichment_groups.html">enrichment_groups()</a></code> lists the group values a grouped enrichment door can filter on, the way <code><a href="../reference/enrichment_cols.html">enrichment_cols()</a></code> lists a door’s columns. It answers “what country / region / language codes are valid?” for <code>add_griis(country=)</code>, <code>add_wcvp(region=)</code>, <code>add_common_names(lang=)</code>, and <code>add_alien_first_records(country=)</code>.</li>
+</ul></div>
 <div class="section level3">
 <h3 id="aggregate-trait-resolution-0-3-7">Aggregate trait resolution<a class="anchor" aria-label="anchor" href="#aggregate-trait-resolution-0-3-7"></a></h3>
 <ul><li><p>An aggregate query (<code>"Rubus fruticosus agg."</code>, <code>"... s.l."</code>) now falls back to the nominal binomial’s trait when a source carries no aggregate-level value. Aggregate-level values are still used first where present; the binomial is a pragmatic stand-in, not a real aggregate-level measurement. This also fixes a preserve-fell-back aggregate (one with no dedicated aggregate taxon in the backbone) reaching its binomial’s traits.</p></li>

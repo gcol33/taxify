@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,6 +98,7 @@ match quality information.</p>
 <span>  region <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  coords <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"present"</span>, <span class="st">"native"</span>, <span class="st">"introduced"</span><span class="op">)</span>,</span>
+<span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fallback"</span>, <span class="st">"wide"</span>, <span class="st">"agreement"</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -187,6 +188,24 @@ introduced, or extinct) – the right choice for name disambiguation.
 <code>"native"</code> accepts only native records, <code>"introduced"</code> only introduced
 (alien) records; both fold an ecological filter into matching and are for
 callers who want that. Ignored when no region is set.</p></dd>
+
+
+<dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
+<dd><p>Character. How to combine results when <code>backend</code> names more than
+one backbone. <code>"fallback"</code> (default) is the fallback chain described above:
+one answer per name, from the first backbone that matched. <code>"wide"</code> and
+<code>"agreement"</code> instead consult <strong>every</strong> backbone for every name and report
+how they compare, so a backbone disagreement (see the <em>Backbone-specific
+accepted names</em> section) is visible in one call rather than by querying each
+backbone by hand. Both return a strict superset of the <code>"fallback"</code> result
+(the same standard columns, with <code>accepted_name</code> still the fallback pick, so
+the frame still pipes into the <code>add_*()</code> enrichments) plus:</p><ul><li><p><code>"wide"</code>: one <code>accepted_&lt;backbone&gt;</code> column per backbone and a
+logical <code>all_agree</code>.</p></li>
+<li><p><code>"agreement"</code>: <code>n_backbones_matched</code>, <code>n_distinct_accepted</code>, and
+<code>all_agree</code>.</p></li>
+</ul><p><code>all_agree</code> is <code>TRUE</code>/<code>FALSE</code> when at least two backbones matched the name
+and <code>NA</code> when fewer than two did (nothing to compare). Ignored (with a
+message) when only one backbone is given, since there is nothing to compare.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -307,6 +326,25 @@ accepted taxon IDs when <code>is_ambiguous = TRUE</code>; <code>NA</code> otherw
 backend in order. Names matched by an earlier backend are not re-matched
 by later ones (fallback chain).</p>
     </div>
+    <div class="section level2">
+    <h2 id="backbone-specific-accepted-names">Backbone-specific accepted names<a class="anchor" aria-label="anchor" href="#backbone-specific-accepted-names"></a></h2>
+
+
+<p>Each backend is an independent taxonomy, and they can legitimately disagree
+on which name is accepted and which is a synonym. <code>taxify()</code> returns the
+matched backend's own current treatment; it does not reconcile backends
+against each other. Choose the backend whose treatment you want, or pass
+several with <code>mode = "wide"</code> (or <code>"agreement"</code>) to see each backbone's
+<code>accepted_name</code> side by side and where they disagree.</p>
+<p>For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
+accepts <code>Macropus rufus</code> and <code>Macropus parma</code>, treating <code>Osphranter rufus</code>
+and <code>Notamacropus parma</code> as synonyms of them, so
+<code>taxify("Osphranter rufus", backend = "gbif")</code> resolves to <code>Macropus rufus</code>.
+The Catalogue of Life splits the genus and does the reverse, so
+<code>taxify("Macropus rufus", backend = "col")</code> resolves to <code>Osphranter rufus</code>.
+Both are faithful to their source; the difference is in the backbones, not in
+the matching.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -332,6 +370,10 @@ by later ones (fallback chain).</p>
 <span><span class="co"># Fallback chain: try WFO first, then COL for unmatched</span></span>
 <span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Panthera leo"</span><span class="op">)</span>,</span>
 <span>       backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compare how two backbones resolve the same names, side by side</span></span>
+<span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span><span class="op">)</span>,</span>
+<span>       backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
 <span></span></code></pre></div>

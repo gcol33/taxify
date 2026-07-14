@@ -32,6 +32,8 @@ add_griis(x, country, cols = NULL, verbose = TRUE)
 
   - `"all"`: adds one column per country in the dataset.
 
+  List the codes GRIIS covers with `enrichment_groups("griis")`.
+
 - cols:
 
   Which columns to attach. `NULL` (the default) attaches the curated

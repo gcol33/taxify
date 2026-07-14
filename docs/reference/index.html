@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -171,14 +171,7 @@
 
       <dl><dt>
 
-          <code><a href="taxify_download.html">taxify_download()</a></code>
-
-        </dt>
-        <dd>Build a backbone database from source</dd>
-
-        <dt>
-
-          <code><a href="taxify_download_vtr.html">taxify_download_vtr()</a></code>
+          <code><a href="taxify_download.html">taxify_download()</a></code> <code><a href="taxify_download.html">taxify_download_vtr()</a></code>
 
         </dt>
         <dd>Download a pre-built taxify backbone</dd>
@@ -345,6 +338,13 @@
 
         <dt>
 
+          <code><a href="enrichment_groups.html">enrichment_groups()</a></code>
+
+        </dt>
+        <dd>Browse the group values a grouped enrichment can filter on</dd>
+
+        <dt>
+
           <code><a href="add_data.html">add_data()</a></code>
 
         </dt>
@@ -379,6 +379,20 @@
 
         </dt>
         <dd>Add naturalized alien flora status (GloNAF)</dd>
+
+        <dt>
+
+          <code><a href="add_invacost.html">add_invacost()</a></code>
+
+        </dt>
+        <dd>Add economic cost of biological invasions (InvaCost)</dd>
+
+        <dt>
+
+          <code><a href="add_gidias.html">add_gidias()</a></code>
+
+        </dt>
+        <dd>Add invasive-species impact (EICAT / SEICAT, GIDIAS)</dd>
 
         <dt>
 
@@ -507,6 +521,13 @@
 
         </dt>
         <dd>Add seed traits from the Kew Seed Information Database (SER-SID)</dd>
+
+        <dt>
+
+          <code><a href="add_kew_cvalues.html">add_kew_cvalues()</a></code>
+
+        </dt>
+        <dd>Add plant genome size (Kew Plant DNA C-values)</dd>
 
         <dt>
 
@@ -696,6 +717,20 @@
 
         <dt>
 
+          <code><a href="add_combine_reported.html">add_combine_reported()</a></code>
+
+        </dt>
+        <dd>Add mammal traits from COMBINE (reported values)</dd>
+
+        <dt>
+
+          <code><a href="add_combine_imputed.html">add_combine_imputed()</a></code>
+
+        </dt>
+        <dd>Add mammal traits from COMBINE (phylogenetically imputed values)</dd>
+
+        <dt>
+
           <code><a href="add_homerange.html">add_homerange()</a></code>
 
         </dt>
@@ -772,6 +807,13 @@
 
         </dt>
         <dd>Add freshwater fish morphological traits (FISHMORPH)</dd>
+
+        <dt>
+
+          <code><a href="add_fishtraits.html">add_fishtraits()</a></code>
+
+        </dt>
+        <dd>Add United States freshwater fish traits (FishTraits)</dd>
 
         <dt>
 
@@ -945,6 +987,27 @@
 
         <dt>
 
+          <code><a href="add_copepod_traits.html">add_copepod_traits()</a></code>
+
+        </dt>
+        <dd>Add copepod traits (Brun et al. 2017)</dd>
+
+        <dt>
+
+          <code><a href="add_epa_freshwater.html">add_epa_freshwater()</a></code>
+
+        </dt>
+        <dd>Add freshwater invertebrate traits (US EPA)</dd>
+
+        <dt>
+
+          <code><a href="add_cefas_btrait.html">add_cefas_btrait()</a></code>
+
+        </dt>
+        <dd>Add benthic invertebrate traits (Cefas)</dd>
+
+        <dt>
+
           <code><a href="add_sealifebase.html">add_sealifebase()</a></code>
 
         </dt>
@@ -993,6 +1056,64 @@
 
         </dt>
         <dd>Add sex-determination traits (Tree of Sex)</dd>
+      </dl></div><div class="section level2">
+      <h2 id="low-level-building-blocks">Low-level building blocks<a class="anchor" aria-label="anchor" href="#low-level-building-blocks"></a></h2>
+
+      <div class="section-desc"><p>Exported internals for power users and custom pipelines.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="taxify_build.html">taxify_build()</a></code>
+
+        </dt>
+        <dd>Build a backbone database from source</dd>
+
+        <dt>
+
+          <code><a href="score_candidates.html">score_candidates()</a></code>
+
+        </dt>
+        <dd>Score match candidates by resolution priority</dd>
+
+        <dt>
+
+          <code><a href="embed_accepted.html">embed_accepted()</a></code>
+
+        </dt>
+        <dd>Embed accepted taxon info at build time (synonym self-join)</dd>
+
+        <dt>
+
+          <code><a href="precompute_keys.html">precompute_keys()</a></code>
+
+        </dt>
+        <dd>Precompute matching keys at build time</dd>
+
+        <dt>
+
+          <code><a href="normalize_epithets.html">normalize_epithets()</a></code>
+
+        </dt>
+        <dd>Vectorized Latin orthographic normalization</dd>
+
+        <dt>
+
+          <code><a href="is_aggregate_name.html">is_aggregate_name()</a></code>
+
+        </dt>
+        <dd>Test whether a canonical name carries an aggregate marker</dd>
+
+        <dt>
+
+          <code><a href="normalize_aggregate_name.html">normalize_aggregate_name()</a></code>
+
+        </dt>
+        <dd>Normalize aggregate markers on canonical names (build-time)</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

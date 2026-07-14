@@ -327,8 +327,7 @@ Download, cache, and inspect backbone snapshots and the unified genus
 register.
 
 - [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
-  : Build a backbone database from source
-- [`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md)
+  [`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download.md)
   : Download a pre-built taxify backbone
 - [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
   : Download one or more enrichment .vtr files
@@ -385,6 +384,8 @@ own table.
   : List available enrichments
 - [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
   : Browse the trait columns an enrichment door can attach
+- [`enrichment_groups()`](https://gillescolling.com/taxify/reference/enrichment_groups.md)
+  : Browse the group values a grouped enrichment can filter on
 - [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
   : Add custom data by taxonomic matching
 
@@ -396,6 +397,10 @@ own table.
   : Add invasive species status (GRIIS)
 - [`add_glonaf()`](https://gillescolling.com/taxify/reference/add_glonaf.md)
   : Add naturalized alien flora status (GloNAF)
+- [`add_invacost()`](https://gillescolling.com/taxify/reference/add_invacost.md)
+  : Add economic cost of biological invasions (InvaCost)
+- [`add_gidias()`](https://gillescolling.com/taxify/reference/add_gidias.md)
+  : Add invasive-species impact (EICAT / SEICAT, GIDIAS)
 - [`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md)
   : Add alien species first record years
 - [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
@@ -433,6 +438,8 @@ own table.
   Add bryophyte traits (Bryophytes of Europe Traits)
 - [`add_kew_sid()`](https://gillescolling.com/taxify/reference/add_kew_sid.md)
   : Add seed traits from the Kew Seed Information Database (SER-SID)
+- [`add_kew_cvalues()`](https://gillescolling.com/taxify/reference/add_kew_cvalues.md)
+  : Add plant genome size (Kew Plant DNA C-values)
 - [`add_useful_plants()`](https://gillescolling.com/taxify/reference/add_useful_plants.md)
   : Add human-use categories (World Checklist of Useful Plant Species)
 - [`add_gwdd()`](https://gillescolling.com/taxify/reference/add_gwdd.md)
@@ -487,6 +494,10 @@ own table.
   : Add mammal traits including extinct species (PHYLACINE)
 - [`add_combine()`](https://gillescolling.com/taxify/reference/add_combine.md)
   : Add mammal traits (COMBINE)
+- [`add_combine_reported()`](https://gillescolling.com/taxify/reference/add_combine_reported.md)
+  : Add mammal traits from COMBINE (reported values)
+- [`add_combine_imputed()`](https://gillescolling.com/taxify/reference/add_combine_imputed.md)
+  : Add mammal traits from COMBINE (phylogenetically imputed values)
 - [`add_homerange()`](https://gillescolling.com/taxify/reference/add_homerange.md)
   : Add mammal home-range size (HomeRange)
 - [`add_tetradensity()`](https://gillescolling.com/taxify/reference/add_tetradensity.md)
@@ -510,6 +521,8 @@ own table.
   : Add fish traits (FishBase)
 - [`add_fishmorph()`](https://gillescolling.com/taxify/reference/add_fishmorph.md)
   : Add freshwater fish morphological traits (FISHMORPH)
+- [`add_fishtraits()`](https://gillescolling.com/taxify/reference/add_fishtraits.md)
+  : Add United States freshwater fish traits (FishTraits)
 - [`add_beukhof()`](https://gillescolling.com/taxify/reference/add_beukhof.md)
   : Add marine fish traits (Beukhof)
 - [`add_quimbayo()`](https://gillescolling.com/taxify/reference/add_quimbayo.md)
@@ -559,6 +572,12 @@ own table.
   : Add freshwater thermal-tolerance traits (ThermoFresh)
 - [`add_sheld()`](https://gillescolling.com/taxify/reference/add_sheld.md)
   : Add freshwater mussel traits (SHELD)
+- [`add_copepod_traits()`](https://gillescolling.com/taxify/reference/add_copepod_traits.md)
+  : Add copepod traits (Brun et al. 2017)
+- [`add_epa_freshwater()`](https://gillescolling.com/taxify/reference/add_epa_freshwater.md)
+  : Add freshwater invertebrate traits (US EPA)
+- [`add_cefas_btrait()`](https://gillescolling.com/taxify/reference/add_cefas_btrait.md)
+  : Add benthic invertebrate traits (Cefas)
 - [`add_sealifebase()`](https://gillescolling.com/taxify/reference/add_sealifebase.md)
   : Add aquatic-life traits (SeaLifeBase)
 
@@ -574,6 +593,25 @@ own table.
   : Add thermal tolerance limits (GlobTherm)
 - [`add_tree_of_sex()`](https://gillescolling.com/taxify/reference/add_tree_of_sex.md)
   : Add sex-determination traits (Tree of Sex)
+
+## Low-level building blocks
+
+Exported internals for power users and custom pipelines.
+
+- [`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md)
+  : Build a backbone database from source
+- [`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md)
+  : Score match candidates by resolution priority
+- [`embed_accepted()`](https://gillescolling.com/taxify/reference/embed_accepted.md)
+  : Embed accepted taxon info at build time (synonym self-join)
+- [`precompute_keys()`](https://gillescolling.com/taxify/reference/precompute_keys.md)
+  : Precompute matching keys at build time
+- [`normalize_epithets()`](https://gillescolling.com/taxify/reference/normalize_epithets.md)
+  : Vectorized Latin orthographic normalization
+- [`is_aggregate_name()`](https://gillescolling.com/taxify/reference/is_aggregate_name.md)
+  : Test whether a canonical name carries an aggregate marker
+- [`normalize_aggregate_name()`](https://gillescolling.com/taxify/reference/normalize_aggregate_name.md)
+  : Normalize aggregate markers on canonical names (build-time)
 
 # Articles
 

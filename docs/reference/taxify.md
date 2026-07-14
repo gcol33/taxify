@@ -18,6 +18,7 @@ taxify(
   region = NULL,
   coords = NULL,
   range = c("present", "native", "introduced"),
+  mode = c("fallback", "wide", "agreement"),
   verbose = TRUE
 )
 ```
@@ -112,6 +113,30 @@ taxify(
   `"native"` accepts only native records, `"introduced"` only introduced
   (alien) records; both fold an ecological filter into matching and are
   for callers who want that. Ignored when no region is set.
+
+- mode:
+
+  Character. How to combine results when `backend` names more than one
+  backbone. `"fallback"` (default) is the fallback chain described
+  above: one answer per name, from the first backbone that matched.
+  `"wide"` and `"agreement"` instead consult **every** backbone for
+  every name and report how they compare, so a backbone disagreement
+  (see the *Backbone-specific accepted names* section) is visible in one
+  call rather than by querying each backbone by hand. Both return a
+  strict superset of the `"fallback"` result (the same standard columns,
+  with `accepted_name` still the fallback pick, so the frame still pipes
+  into the `add_*()` enrichments) plus:
+
+  - `"wide"`: one `accepted_<backbone>` column per backbone and a
+    logical `all_agree`.
+
+  - `"agreement"`: `n_backbones_matched`, `n_distinct_accepted`, and
+    `all_agree`.
+
+  `all_agree` is `TRUE`/`FALSE` when at least two backbones matched the
+  name and `NA` when fewer than two did (nothing to compare). Ignored
+  (with a message) when only one backbone is given, since there is
+  nothing to compare.
 
 - verbose:
 
@@ -254,6 +279,25 @@ When multiple backends are specified, names are matched against each
 backend in order. Names matched by an earlier backend are not re-matched
 by later ones (fallback chain).
 
+## Backbone-specific accepted names
+
+Each backend is an independent taxonomy, and they can legitimately
+disagree on which name is accepted and which is a synonym. `taxify()`
+returns the matched backend's own current treatment; it does not
+reconcile backends against each other. Choose the backend whose
+treatment you want, or pass several with `mode = "wide"` (or
+`"agreement"`) to see each backbone's `accepted_name` side by side and
+where they disagree.
+
+For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
+accepts `Macropus rufus` and `Macropus parma`, treating
+`Osphranter rufus` and `Notamacropus parma` as synonyms of them, so
+`taxify("Osphranter rufus", backend = "gbif")` resolves to
+`Macropus rufus`. The Catalogue of Life splits the genus and does the
+reverse, so `taxify("Macropus rufus", backend = "col")` resolves to
+`Osphranter rufus`. Both are faithful to their source; the difference is
+in the backbones, not in the matching.
+
 ## Examples
 
 ``` r
@@ -279,6 +323,10 @@ taxify("Quercus robus", coords = c(4.35, 50.85))
 # Fallback chain: try WFO first, then COL for unmatched
 taxify(c("Quercus robur", "Panthera leo"),
        backend = c("wfo", "col"))
+
+# Compare how two backbones resolve the same names, side by side
+taxify(c("Quercus robur", "Pinus sylvestris"),
+       backend = c("wfo", "col"), mode = "wide")
 
 options(old)
 ```

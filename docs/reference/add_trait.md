@@ -89,10 +89,13 @@ The same data.frame with added columns.
   `<trait>` (the reduced value); `<trait>_unit` (the canonical unit,
   numeric traits only); `<trait>_sources` (the source it came from, or
   the comma-separated contributing sources with an aggregating
-  `combine`); `<trait>_n` (how many sources backed the value); and, only
-  when a source measured the trait differently, `<trait>_caution`
-  explaining the method difference. To inspect every source, use
-  `mode = "wide"`.
+  `combine`); `<trait>_n` (how many sources backed the value); for
+  numeric traits, `<trait>_min` and `<trait>_max` (the range of values
+  behind the headline – across the contributing sources, and across a
+  source's own records where that spread was recorded at build time, so
+  a life-stage or population span stays visible); and, only when a
+  source measured the trait differently, `<trait>_caution` explaining
+  the method difference. To inspect every source, use `mode = "wide"`.
 
 - `mode = "wide"`:
 

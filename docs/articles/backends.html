@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -327,15 +327,15 @@ remainder of the R session. Subsequent calls, whether in the same
 session or future sessions, reuse the local copy without any network
 access.</p>
 <p>To download a backbone ahead of time (useful on a shared server or in
-a Docker image), use <code><a href="../reference/taxify_download_vtr.html">taxify_download_vtr()</a></code>:</p>
+a Docker image), use <code><a href="../reference/taxify_download.html">taxify_download()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Download one backbone</span></span>
-<span><span class="fu"><a href="../reference/taxify_download_vtr.html">taxify_download_vtr</a></span><span class="op">(</span><span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Download several at once</span></span>
-<span><span class="fu"><a href="../reference/taxify_download_vtr.html">taxify_download_vtr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"worms"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"worms"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Pre-built <code>.vtr</code> files are hosted on Zenodo and typically
 range from 50 MB (AlgaeBase) to 400 MB (GBIF), depending on the backend.
 The files are compiled from the raw Darwin Core sources with precomputed
@@ -349,7 +349,7 @@ exists. If the network is unavailable, taxify falls back to the bundled
 manifest and uses whatever local copy is on disk. The version check is
 logged to the console so there are no silent updates.</p>
 <p>For backends with large source files, the build-from-source path also
-exists. <code>taxify_download("gbif")</code> downloads the raw 1.5 GB
+exists. <code>taxify_build("gbif")</code> downloads the raw 1.5 GB
 <code>simple.txt.gz</code> from GBIF, parses all 30 positional columns,
 denormalizes the family hierarchy via self-joins, and compiles the
 result into <code>.vtr</code> format. This is slower than downloading
@@ -358,7 +358,7 @@ path is mainly useful for CI pipelines or users who want to customize
 the compilation step.</p>
 <p>We can also pin a specific backbone version:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download_vtr.html">taxify_download_vtr</a></span><span class="op">(</span><span class="st">"wfo"</span>, version <span class="op">=</span> <span class="st">"2024.01"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span>, version <span class="op">=</span> <span class="st">"2024.01"</span><span class="op">)</span></span></code></pre></div>
 <p>Pinned versions are stored in their own directory
 (<code>taxify_data_dir()/wfo/2024.01/</code>) and are never overwritten
 by future updates. The “latest” slot
@@ -1037,7 +1037,7 @@ Version checks happen once per R session, and any update is logged to
 the console with the old and new version numbers.</p>
 <p>To lock a specific backbone version for a project:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download_vtr.html">taxify_download_vtr</a></span><span class="op">(</span><span class="st">"wfo"</span>, version <span class="op">=</span> <span class="st">"2024.01"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span>, version <span class="op">=</span> <span class="st">"2024.01"</span><span class="op">)</span></span></code></pre></div>
 <p>Pinned versions live in their own directories and are never
 overwritten. The “latest” slot continues to track new releases
 independently. A project that needs exact reproducibility can pin all

@@ -31,6 +31,8 @@ add_wcvp(x, region, cols = NULL, verbose = TRUE)
 
   - `"all"`: adds one column per region in the dataset.
 
+  List the region codes WCVP covers with `enrichment_groups("wcvp")`.
+
 - cols:
 
   Which columns to attach. `NULL` (the default) attaches the curated

@@ -68,9 +68,12 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | birdbase | 2026.07 | 13,067 | 95 | [source](https://ndownloader.figshare.com/files/55634729) |
 | blanchard | 2026.07 | 333 | 19 | [source](https://doi.org/10.5061/dryad.st6sc) |
 | brot | 2026.07 | 2,882 | 44 | [source](https://api.figshare.com/v2/articles/5280868) |
+| cefas_btrait | 2022.1 | 932 | 10 | [source](https://data-api.cefas.co.uk/api/export/11935?format=csv) |
 | chelonians | 2026.07 | 362 | 79 | [source](https://ndownloader.figshare.com/files/53840531) |
 | combine | 2026.07 | 6,791 | 57 | [source](https://ndownloader.figshare.com/files/27703263) |
+| combine_imputed | 2026.07 | 6,791 | 69 | [source](https://ndownloader.figshare.com/files/27703266) |
 | common_names | 2026.07 | 704,521 | 3 | [source](https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip) |
+| copepod_traits | 2017.1 | 1,524 | 17 | [source](https://store.pangaea.de/Publications/BrunP-etal_2016/Brun-etal_2016_Copepode_trait.xlsx) |
 | coral_traits | 2026.07 | 1,813 | 107 | [source](https://ndownloader.figshare.com/files/3678603) |
 | diaz_traits | 2026.07 | 52,037 | 29 | [source](https://raw.githubusercontent.com/kydahl/biodiv-hotspots/main/data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx) |
 | disperse | 2026.07 | 462 | 12 | [source](https://api.figshare.com/v2/articles/12417251) |
@@ -78,16 +81,19 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | edwards_phyto | 2026.07 | 169 | 33 | [source](https://esapubs.org/archive/ecol/E096/202/) |
 | eive | 2026.07 | 16,737 | 18 | [source](https://zenodo.org/records/7534792/files/EIVE_Paper_1.0_SM_08.xlsx?download=1) |
 | elton_traits | 2026.07 | 17,556 | 48 | [source](https://ndownloader.figshare.com/files/5631081) |
+| epa_freshwater | 2012.1 | 2,777 | 9 | [source](https://ofmpub.epa.gov/eims/eimscomm.getfile?p_download_id=526642) |
 | eupolltrait | 2026.07 | 3,275 | 39 | [source](https://zenodo.org/api/records/18032357) |
 | eurobat | 2026.07 | 52 | 62 | [source](https://doi.org/10.6084/m9.figshare.21777161) |
 | fishbase | 2026.07 | 37,805 | 239 | [source](https://www.fishbase.se) |
 | fishmorph | 2026.07 | 9,043 | 15 | [source](https://ndownloader.figshare.com/files/28672242) |
+| fishtraits | 14.3 | 865 | 28 | [source](https://www.sciencebase.gov/catalog/file/get/5a7c6e8ce4b00f54eb2318c0?name=FishTraits_14.3.xls) |
 | floraweb | 2026.07 | 5,594 | 59 | [source](https://www.floraweb.de/) |
 | freshwater_insects_conus | 2026.07 | 1,030 | 14 | [source](https://portal.edirepository.org/nis/mapbrowse?packageid=edi.481.5) |
 | frugivoria | 2026.07 | 1,932 | 60 | [source](https://pasta.lternet.edu/package/data/eml/edi/1220/5/) |
 | fungal_traits | 2026.07 | 11,061 | 24 | [source](https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM4_ESM.xlsx) |
 | fungalroot | 2026.07 | 4,188 | 18 | [source](https://orphans.gbif.org/EE/744edc21-8dd2-474e-8a0b-b8c3d56a3c2d.232.zip) |
 | funguild | 2026.07 | 16,094 | 9 | [source](http://www.stbates.org/funguild_db_2.php) |
+| gidias | 2025.1 | 3,390 | 13 | [source](https://ndownloader.figshare.com/files/53894801) |
 | gift | 2026.07 | 279,943 | 109 | [source](https://gift.uni-goettingen.de) |
 | globi | 2026.07 | 544,015 | 3 | [source](https://www.globalbioticinteractions.org/) |
 | globtherm | 2026.07 | 2,366 | 42 | [source](https://doi.org/10.5061/dryad.1cv08) |
@@ -98,8 +104,10 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | homerange | 2026.07 | 1,051 | 35 | [source](https://doi.org/10.5061/dryad.d2547d85x) |
 | hosts | 2010.1 | 19,090 | 2 | [source](https://data.nhm.ac.uk/dataset/hosts) |
 | huang_amph | 2026.07 | 4,776 | 85 | [source](https://api.figshare.com/v2/articles/21159229) |
+| invacost | 4.1 | 905 | 3 | [source](https://ndownloader.figshare.com/files/33669518) |
 | italic | 2026.07 | 3,677 | 4 | [source](https://italic.units.it/) |
 | iucn | 2026.07 | 185,874 | 1 | [source](https://hosted-datasets.gbif.org/datasets/iucn/iucn-latest.zip) |
+| kew_cvalues | 7.1 | 13,575 | 12 | [source](https://cvalues.science.kew.org/search) |
 | kew_sid | 2026.07 | 50,146 | 7 | [source](https://ser-sid.org/) |
 | leda | 2026.07 | 14,191 | 25 | [source](https://uol.de/en/landeco/research/leda/data-files) |
 | leptraits | 2026.07 | 13,590 | 40 | [source](https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv) |
@@ -111,7 +119,7 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | pantheria | 2026.07 | 5,957 | 53 | [source](https://esapubs.org/archive/ecol/E090/184/PanTHERIA_1-0_WR05_Aug2008.txt) |
 | parravicini | 2026.07 | 6,910 | 34 | [source](https://raw.githubusercontent.com/valerianoparravicini/Trophic_Fish_2020/master/data/converted_experts_classification.csv) |
 | pelagic | 2026.07 | 590 | 57 | [source](https://borealisdata.ca/api/datasets/:persistentId?persistentId=doi:10.5683/SP3/0YFJED) |
-| phylacine | 2026.07 | 6,380 | 23 | [source](https://raw.githubusercontent.com/MegaPast2Future/PHYLACINE_1.2/master/Data/Traits/Trait_data.csv) |
+| phylacine | 2026.07 | 6,380 | 24 | [source](https://raw.githubusercontent.com/MegaPast2Future/PHYLACINE_1.2/master/Data/Traits/Trait_data.csv) |
 | pottier | 2026.07 | 667 | 77 | [source](https://zenodo.org/api/records/6565454) |
 | quimbayo | 2026.07 | 2,293 | 60 | [source](https://zenodo.org/api/records/4455016) |
 | ramond | 2026.07 | 1,212 | 32 | [source](https://www.seanoe.org/data/00405/51662/) |
@@ -199,6 +207,7 @@ finds and harmonizes it from the sources below.
 | ellenberg_salt | Ellenberg salt (S) | numeric | 0-9 (classic) | 3 | floraweb, ecoflora, baseflor |
 | ellenberg_temperature | Ellenberg temperature (T) | numeric | 1-9 (classic) | 2 | floraweb, bet |
 | elytra_length | Elytra length | numeric | mm | 1 | saproxylic |
+| environmental_impact | Environmental impact (EICAT) | categorical | NA | 1 | gidias |
 | feeding_guild | Feeding guild (benthic invertebrate) | categorical | NA | 2 | arctic_traits, nztd |
 | feeding_mode | Feeding mode (fish) | categorical | NA | 1 | beukhof |
 | flight_mode | Flight mode (odonate) | categorical | NA | 1 | odonata |
@@ -292,6 +301,7 @@ finds and harmonizes it from the sources below.
 | skeletal_rigidity | Skeletal rigidity (octocoral) | categorical | NA | 1 | octocoral |
 | sla | Specific leaf area | numeric | mm2/mg | 4 | leda, gift, bien, brot |
 | sociality | Sociality (bee) | categorical | NA | 1 | eupolltrait |
+| socioeconomic_impact | Socio-economic impact (SEICAT) | categorical | NA | 1 | gidias |
 | specific_root_area | Specific root area | numeric | cm2/g | 1 | groot |
 | specific_root_length | Specific root length | numeric | m/g | 2 | groot, austraits |
 | sporulation | Sporulation (prokaryote) | categorical | NA | 1 | madin |

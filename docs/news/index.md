@@ -1,6 +1,129 @@
 # Changelog
 
+## taxify 0.3.11
+
+### Genus-resolved enrichment joins
+
+- [`add_cefas_btrait()`](https://gillescolling.com/taxify/reference/add_cefas_btrait.md)
+  now joins on `genus`. The Cefas benthic-traits database codes traits
+  at genus level, so the previous species-level join returned `NA` for
+  every species; it now annotates every species in a coded genus.
+- [`add_epa_freshwater()`](https://gillescolling.com/taxify/reference/add_epa_freshwater.md)
+  now uses a species-first, genus-fallback join. The US EPA Freshwater
+  Biological Traits Database records each trait at the finest resolution
+  available, so a species keeps its species-level values and any trait
+  still missing is filled from the taxon’s genus-level row (a species
+  value is never overwritten). This is a new `genus_fallback` option on
+  the shared enrichment engine, available to any mixed-resolution
+  source.
+
+## taxify 0.3.10
+
+### Five more trait sources
+
+- Five enrichments that had working parsers but had never been released
+  now have doors:
+  [`add_kew_cvalues()`](https://gillescolling.com/taxify/reference/add_kew_cvalues.md)
+  (plant genome size, chromosome number and ploidy from the Kew Plant
+  DNA C-values database, CC BY),
+  [`add_copepod_traits()`](https://gillescolling.com/taxify/reference/add_copepod_traits.md)
+  (marine copepod body size, egg and clutch traits, Brun et al. 2017, CC
+  BY 3.0),
+  [`add_fishtraits()`](https://gillescolling.com/taxify/reference/add_fishtraits.md)
+  (United States freshwater-fish life history, temperature and salinity
+  tolerance, and conservation traits, Frimpong & Angermeier 2009, public
+  domain),
+  [`add_epa_freshwater()`](https://gillescolling.com/taxify/reference/add_epa_freshwater.md)
+  (freshwater-invertebrate functional traits, US EPA, public domain),
+  and
+  [`add_cefas_btrait()`](https://gillescolling.com/taxify/reference/add_cefas_btrait.md)
+  (North-West European shelf benthic biological traits, Cefas, OGL
+  v3.0). Each is source-prefixed (`cval_`, `cop_`, `ft_`, `epa_`,
+  `cefas_`) and takes `cols = "all"` for the full column set.
+
+### Documentation and metadata
+
+- The reference index now lists
+  [`add_combine_reported()`](https://gillescolling.com/taxify/reference/add_combine_reported.md),
+  [`add_combine_imputed()`](https://gillescolling.com/taxify/reference/add_combine_imputed.md),
+  [`enrichment_groups()`](https://gillescolling.com/taxify/reference/enrichment_groups.md),
+  and the low-level building blocks.
+- `thermofresh`, `ramond`, `freshwater_insects_conus`, and `eurobat` are
+  flagged static in the manifest, so their version is not re-checked
+  each session.
+
+## taxify 0.3.9
+
+### Invasion impact (EICAT / SEICAT)
+
+- [`add_gidias()`](https://gillescolling.com/taxify/reference/add_gidias.md)
+  joins per-species invasion-impact aggregates from GIDIAS (Bacher et
+  al. 2025, CC BY 4.0), the IPBES invasive-species assessment’s global
+  impact compilation. Each species carries its IUCN EICAT
+  environmental-impact category (`gidias_eicat_category`,
+  `MC`/`MN`/`MO`/`MR`/`MV`, or `DD`) and SEICAT socio-economic-impact
+  category (`gidias_seicat_category`), each the most severe magnitude
+  among the species’ documented negative impacts, alongside the driving
+  mechanism, affected well-being constituents, realms, and record and
+  source counts. Only the derived per-species aggregates are
+  distributed, not the raw impact records.
+
+- [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  gains two categorical traits, `"environmental_impact"` (EICAT) and
+  `"socioeconomic_impact"` (SEICAT), so invasion impact reconciles
+  across sources the way every other trait does. GIDIAS is the first
+  source; the ordinal categories are shared so further EICAT assessments
+  can coalesce onto them later.
+
+## taxify 0.3.8
+
+### Economic cost of invasions
+
+- [`add_invacost()`](https://gillescolling.com/taxify/reference/add_invacost.md)
+  joins per-species economic-cost aggregates from InvaCost (Diagne et
+  al. 2020, CC BY 4.0): `invacost_cost_total_usd` (cumulative documented
+  2017-USD cost), `invacost_cost_n` (number of estimates), and the
+  dominant `invacost_cost_type`.
+
+### PHYLACINE mass is not silently model-derived
+
+- [`add_phylacine()`](https://gillescolling.com/taxify/reference/add_phylacine.md)
+  surfaces `phylacine_mass_method` and `phylacine_mass_method_class`,
+  recording whether a body mass is measured (`reported`), allometrically
+  `estimated`, or phylogenetically `imputed`.
+- `add_trait("body_mass")` now flags model-derived PHYLACINE masses per
+  species: where PHYLACINE contributes an imputed or estimated mass,
+  `body_mass_caution` explains it for that species only; measured masses
+  are left unflagged. A trait registry source can attach such a
+  per-record caution via `caution_col` / `caution_fn`, distinct from the
+  existing whole-source method caution.
+
 ## taxify 0.3.7
+
+### Compare backbones in one call
+
+- [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  gains a `mode` argument. With more than one `backend`, the default
+  `mode = "fallback"` is the usual fallback chain, while `mode = "wide"`
+  consults every backbone for every name and adds one
+  `accepted_<backbone>` column plus a logical `all_agree`, and
+  `mode = "agreement"` adds `n_backbones_matched`,
+  `n_distinct_accepted`, and `all_agree`. Both are a strict superset of
+  the standard result (a single `accepted_name`, still pipeable into the
+  `add_*()` enrichments), so a backbone disagreement, such as GBIF
+  keeping `Macropus rufus` where the Catalogue of Life resolves it to
+  `Osphranter rufus`, is visible in one call instead of querying each
+  backbone by hand.
+
+### Discovering group values
+
+- [`enrichment_groups()`](https://gillescolling.com/taxify/reference/enrichment_groups.md)
+  lists the group values a grouped enrichment door can filter on, the
+  way
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
+  lists a door’s columns. It answers “what country / region / language
+  codes are valid?” for `add_griis(country=)`, `add_wcvp(region=)`,
+  `add_common_names(lang=)`, and `add_alien_first_records(country=)`.
 
 ### Aggregate trait resolution
 

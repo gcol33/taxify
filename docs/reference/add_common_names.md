@@ -21,7 +21,8 @@ add_common_names(x, lang = "en", cols = NULL, verbose = TRUE)
 
   Character. ISO 639-1 language code (e.g., `"en"`, `"de"`, `"fr"`), or
   `NA` to return names without a language tag (NCBI/OTT sources).
-  Default `"en"`.
+  Default `"en"`. List the languages present with
+  `enrichment_groups("common_names")`.
 
 - cols:
 

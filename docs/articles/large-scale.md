@@ -638,7 +638,7 @@ is cleaner to separate the download step from the analysis step.
 Downloads can fail due to network issues, and you want to know about
 that before a 2-hour matching run starts.
 
-[`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md)
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
 downloads one or more backbone `.vtr` files.
 [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
 does the same for enrichment layers. Both are idempotent: if the file
@@ -650,7 +650,7 @@ already exists and the version is current, they return immediately.
 # with conservation status and trait enrichments
 
 # Backbones
-taxify_download_vtr(c("wfo", "col"))
+taxify_download(c("wfo", "col"))
 
 # Enrichments
 taxify_download_enrichment(c(
@@ -818,7 +818,7 @@ result <- taxify(noisy_names, backend = "wfo",
 | `taxify(..., fuzzy = FALSE)` | Skip fuzzy matching for clean input |
 | `taxify(..., backend = c("wfo", "col"))` | Multi-backend fallback chain |
 | [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md) | Find where backbones are stored |
-| [`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md) | Pre-download backbone `.vtr` files |
+| [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md) | Pre-download backbone `.vtr` files |
 | [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md) | Pre-download enrichment `.vtr` files |
 | [`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md) | Free backbone memory after matching |
 | [`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md) | Force re-check for backbone updates |

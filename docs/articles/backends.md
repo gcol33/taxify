@@ -128,17 +128,17 @@ copy without any network access.
 
 To download a backbone ahead of time (useful on a shared server or in a
 Docker image), use
-[`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download_vtr.md):
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md):
 
 ``` r
 
 library(taxify)
 
 # Download one backbone
-taxify_download_vtr("wfo")
+taxify_download("wfo")
 
 # Download several at once
-taxify_download_vtr(c("wfo", "col", "worms"))
+taxify_download(c("wfo", "col", "worms"))
 ```
 
 Pre-built `.vtr` files are hosted on Zenodo and typically range from 50
@@ -157,19 +157,18 @@ local copy is on disk. The version check is logged to the console so
 there are no silent updates.
 
 For backends with large source files, the build-from-source path also
-exists. `taxify_download("gbif")` downloads the raw 1.5 GB
-`simple.txt.gz` from GBIF, parses all 30 positional columns,
-denormalizes the family hierarchy via self-joins, and compiles the
-result into `.vtr` format. This is slower than downloading the pre-built
-file but produces the same output. The build-from-source path is mainly
-useful for CI pipelines or users who want to customize the compilation
-step.
+exists. `taxify_build("gbif")` downloads the raw 1.5 GB `simple.txt.gz`
+from GBIF, parses all 30 positional columns, denormalizes the family
+hierarchy via self-joins, and compiles the result into `.vtr` format.
+This is slower than downloading the pre-built file but produces the same
+output. The build-from-source path is mainly useful for CI pipelines or
+users who want to customize the compilation step.
 
 We can also pin a specific backbone version:
 
 ``` r
 
-taxify_download_vtr("wfo", version = "2024.01")
+taxify_download("wfo", version = "2024.01")
 ```
 
 Pinned versions are stored in their own directory
@@ -912,7 +911,7 @@ To lock a specific backbone version for a project:
 
 ``` r
 
-taxify_download_vtr("wfo", version = "2024.01")
+taxify_download("wfo", version = "2024.01")
 ```
 
 Pinned versions live in their own directories and are never overwritten.

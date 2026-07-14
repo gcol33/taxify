@@ -28,7 +28,7 @@ verb: you name the trait, it gathers the sources."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -163,9 +163,12 @@ when <code>mode = "coalesce"</code>; defaults to the registered order for the tr
 (the canonical unit, numeric traits only); <code>&lt;trait&gt;_sources</code> (the source
 it came from, or the comma-separated contributing sources with an
 aggregating <code>combine</code>); <code>&lt;trait&gt;_n</code> (how many sources backed the value);
-and, only when a source measured the trait differently,
-<code>&lt;trait&gt;_caution</code> explaining the method difference. To inspect every
-source, use <code>mode = "wide"</code>.</p></dd>
+for numeric traits, <code>&lt;trait&gt;_min</code> and <code>&lt;trait&gt;_max</code> (the range of
+values behind the headline – across the contributing sources, and
+across a source's own records where that spread was recorded at build
+time, so a life-stage or population span stays visible); and, only when
+a source measured the trait differently, <code>&lt;trait&gt;_caution</code> explaining
+the method difference. To inspect every source, use <code>mode = "wide"</code>.</p></dd>
 
 <dt><code>mode = "wide"</code></dt>
 <dd><p>One column per source, <code>&lt;trait&gt;_&lt;source&gt;</code>, each

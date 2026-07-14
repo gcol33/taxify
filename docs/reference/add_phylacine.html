@@ -26,7 +26,7 @@ add_combine(), not as a replacement."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -141,12 +141,26 @@ invertebrate.</p></dd>
 <dd><p>IUCN status (includes EP = extinct in
 prehistory, EX, EW).</p></dd>
 
+<dt>phylacine_mass_method</dt>
+<dd><p>How the body mass was obtained (the PHYLACINE
+<code>Mass.Method</code> field, verbatim): <code>Reported</code>, <code>Imputed</code>, or an allometric
+estimate (e.g. "Assumed isometric based on head-body length").</p></dd>
+
+<dt>phylacine_mass_method_class</dt>
+<dd><p>Coarse provenance of the body mass:
+<code>reported</code> (measured/compiled), <code>estimated</code> (allometric or same-size
+analogy), or <code>imputed</code> (phylogenetic gap-fill). Only <code>reported</code> is an
+observation; the others are model estimates.</p></dd>
+
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Source: PHYLACINE v1.2 (Faurby et al. 2018, Ecology, CC0). Coverage: ~5.8k
-mammal species including extinct taxa.</p>
+mammal species including extinct taxa. <code>Mass.g</code> is partly modelled (PHYLACINE
+gap-fills data-poor and extinct species); <code>phylacine_mass_method</code> /
+<code>phylacine_mass_method_class</code> record how each mass was derived, so a modelled
+mass is not mistaken for a measurement where PHYLACINE is the only source.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

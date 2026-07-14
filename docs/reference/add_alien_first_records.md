@@ -29,6 +29,9 @@ add_alien_first_records(x, country, cols = NULL, verbose = TRUE)
 
   - `"all"`: adds one column set per country in the dataset.
 
+  List the country codes covered with
+  `enrichment_groups("alien_first_records")`.
+
 - cols:
 
   Character vector of value columns to attach (from
