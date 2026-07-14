@@ -1,6 +1,6 @@
 Package: taxify
 Title: Offline Taxonomic Name Matching Against Darwin Core Backbones
-Version: 0.3.9
+Version: 0.3.10
 Authors@R:
     person("Gilles", "Colling", , "gilles.colling051@gmail.com",
            role = c("aut", "cre", "cph"),

@@ -107,6 +107,7 @@ reference:
   - list_backbones
   - list_enrichments
   - enrichment_cols
+  - enrichment_groups
   - add_data
 - title: Enrichments — distribution and status
   contents:
@@ -134,6 +135,7 @@ reference:
   - add_brot
   - add_bet
   - add_kew_sid
+  - add_kew_cvalues
   - add_useful_plants
   - add_gwdd
   - add_pignatti
@@ -162,6 +164,8 @@ reference:
   - add_pantheria
   - add_phylacine
   - add_combine
+  - add_combine_reported
+  - add_combine_imputed
   - add_homerange
   - add_tetradensity
   - add_eurobat
@@ -174,6 +178,7 @@ reference:
   - add_pottier
   - add_fishbase
   - add_fishmorph
+  - add_fishtraits
   - add_beukhof
   - add_quimbayo
   - add_parravicini
@@ -199,6 +204,9 @@ reference:
   - add_freshwater_insects_conus
   - add_thermofresh
   - add_sheld
+  - add_copepod_traits
+  - add_epa_freshwater
+  - add_cefas_btrait
   - add_sealifebase
 - title: Enrichments — cross-taxon
   contents:
@@ -207,3 +215,13 @@ reference:
   - add_animaltraits
   - add_globtherm
   - add_tree_of_sex
+- title: Low-level building blocks
+  desc: Exported internals for power users and custom pipelines.
+  contents:
+  - taxify_build
+  - score_candidates
+  - embed_accepted
+  - precompute_keys
+  - normalize_epithets
+  - is_aggregate_name
+  - normalize_aggregate_name

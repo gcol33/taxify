@@ -1,3 +1,26 @@
+# taxify 0.3.10
+
+## Five more trait sources
+
+* Five enrichments that had working parsers but had never been released now have
+  doors: `add_kew_cvalues()` (plant genome size, chromosome number and ploidy
+  from the Kew Plant DNA C-values database, CC BY), `add_copepod_traits()`
+  (marine copepod body size, egg and clutch traits, Brun et al. 2017, CC BY 3.0),
+  `add_fishtraits()` (United States freshwater-fish life history, temperature and
+  salinity tolerance, and conservation traits, Frimpong & Angermeier 2009, public
+  domain), `add_epa_freshwater()` (freshwater-invertebrate functional traits, US
+  EPA, public domain), and `add_cefas_btrait()` (North-West European shelf
+  benthic biological traits, Cefas, OGL v3.0). Each is source-prefixed
+  (`cval_`, `cop_`, `ft_`, `epa_`, `cefas_`) and takes `cols = "all"` for the
+  full column set.
+
+## Documentation and metadata
+
+* The reference index now lists `add_combine_reported()`, `add_combine_imputed()`,
+  `enrichment_groups()`, and the low-level building blocks.
+* `thermofresh`, `ramond`, `freshwater_insects_conus`, and `eurobat` are flagged
+  static in the manifest, so their version is not re-checked each session.
+
 # taxify 0.3.9
 
 ## Invasion impact (EICAT / SEICAT)

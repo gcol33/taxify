@@ -4676,7 +4676,7 @@
         "type": "article",
         "authors": "Faurby S, Davis M, Pedersen R, Schowanek SD, Antonelli1 A, Svenning JC",
         "year": "2018",
-        "title": "<scp>PHYLACINE</scp> 1.2: The Phylogenetic Atlas of Mammal Macroecology",
+        "title": "<scp>PHYLACINE<\/scp> 1.2: The Phylogenetic Atlas of Mammal Macroecology",
         "journal": "Ecology",
         "volume": "99",
         "pages": "2626-2626",
@@ -5100,7 +5100,7 @@
         "type": "article",
         "authors": "Maitner BS, Boyle B, Casler N, Condit R, Donoghue J, Durán SM, Guaderrama D, Hinchliff CE, Jørgensen PM, Kraft NJB, McGill B, Merow C, et al.",
         "year": "2017",
-        "title": "The <scp>bien r</scp> package: A tool to access the Botanical Information and Ecology Network (BIEN) database",
+        "title": "The <scp>bien r<\/scp> package: A tool to access the Botanical Information and Ecology Network (BIEN) database",
         "journal": "Methods in Ecology and Evolution",
         "volume": "9",
         "pages": "373-379",
@@ -7240,6 +7240,7 @@
       }
     },
     "thermofresh": {
+      "static": true,
       "latest": "2026.07",
       "content_id": "3ecf48cb16fc2df79e04e3354c8ec02f",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/thermofresh.vtr",
@@ -7256,6 +7257,7 @@
       ]
     },
     "ramond": {
+      "static": true,
       "latest": "2026.07",
       "content_id": "c73910e5f58505252fec0af132280a02",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/ramond.vtr",
@@ -7300,6 +7302,7 @@
       "species_col": "genus"
     },
     "freshwater_insects_conus": {
+      "static": true,
       "latest": "2026.07",
       "content_id": "aad00e742e09bfb2052e37bf950056ee",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/freshwater_insects_conus.vtr",
@@ -7326,6 +7329,7 @@
       "species_col": "genus"
     },
     "eurobat": {
+      "static": true,
       "latest": "2026.07",
       "content_id": "8549ae18d6ac7b7eb6cb31a8772fa0b8",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/eurobat.vtr",
@@ -7397,6 +7401,185 @@
         "sexualmaturityfemale",
         "sexualmaturitymale"
       ]
+    },
+    "kew_cvalues": {
+      "latest": "7.1",
+      "content_id": "627e41e63dcb5e54d7037df9b47190cb",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/kew_cvalues.vtr",
+      "nrow": 13575,
+      "source_url": "https://cvalues.science.kew.org/search",
+      "source_format": "html",
+      "source_version": "7.1",
+      "trait_cols": [
+        "genome_size_1c_pg",
+        "genome_size_1c_pg_min",
+        "genome_size_1c_pg_max",
+        "genome_size_1c_pg_n",
+        "chromosome_2n",
+        "chromosome_2n_min",
+        "chromosome_2n_max",
+        "chromosome_2n_n",
+        "ploidy_x",
+        "ploidy_x_min",
+        "ploidy_x_max",
+        "ploidy_x_n"
+      ],
+      "static": true,
+      "citation": {
+        "authors": "Pellicer J, Leitch IJ",
+        "year": "2020",
+        "title": "The Plant DNA C-values database (release 7.1): an updated online repository of plant genome size data for comparative studies",
+        "journal": "New Phytologist",
+        "volume": "226",
+        "pages": "301-305"
+      },
+      "license": "CC BY"
+    },
+    "copepod_traits": {
+      "latest": "2017.1",
+      "content_id": "db43473252c40e8b990d5ccc05bf66b7",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/copepod_traits.vtr",
+      "nrow": 1524,
+      "source_url": "https://store.pangaea.de/Publications/BrunP-etal_2016/Brun-etal_2016_Copepode_trait.xlsx",
+      "source_format": "xlsx",
+      "source_version": "2017.1",
+      "trait_cols": [
+        "body_length_mm",
+        "body_length_mm_min",
+        "body_length_mm_max",
+        "body_length_mm_n",
+        "egg_diameter_um",
+        "egg_diameter_um_min",
+        "egg_diameter_um_max",
+        "egg_diameter_um_n",
+        "clutch_size",
+        "clutch_size_min",
+        "clutch_size_max",
+        "clutch_size_n",
+        "feeding_mode",
+        "feeder_type",
+        "spawning_strategy",
+        "myelination",
+        "resting_eggs"
+      ],
+      "static": true,
+      "citation": {
+        "authors": "Brun P, Payne MR, Kiorboe T",
+        "year": "2017",
+        "title": "A trait database for marine copepods",
+        "journal": "Earth System Science Data",
+        "volume": "9",
+        "pages": "99-113",
+        "doi": "10.5194/essd-9-99-2017"
+      },
+      "license": "CC BY 3.0",
+      "source_doi": "10.1594/PANGAEA.862968"
+    },
+    "fishtraits": {
+      "latest": "14.3",
+      "content_id": "4264bc3c3fa6e6b2c3aa15910f681197",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/fishtraits.vtr",
+      "nrow": 865,
+      "source_url": "https://www.sciencebase.gov/catalog/file/get/5a7c6e8ce4b00f54eb2318c0?name=FishTraits_14.3.xls",
+      "source_format": "xls",
+      "source_version": "14.3",
+      "trait_cols": [
+        "itis_tsn",
+        "common_name",
+        "native",
+        "diet_nonfeeding",
+        "diet_benthic",
+        "diet_surface_watercolumn",
+        "diet_algae_phyto",
+        "diet_macrophyte",
+        "diet_detritus",
+        "diet_invertebrates",
+        "diet_fish_crustacea",
+        "diet_blood",
+        "diet_eggs",
+        "max_length_cm",
+        "maturity_age_yr",
+        "longevity_yr",
+        "fecundity_max",
+        "serial_spawner",
+        "spawning_season_months",
+        "repro_guild",
+        "euryhaline",
+        "min_temp_c",
+        "max_temp_c",
+        "potamodromous_anadromous",
+        "prefers_lotic",
+        "prefers_lentic",
+        "listed",
+        "extinct"
+      ],
+      "static": true,
+      "citation": {
+        "authors": "Frimpong EA, Angermeier PL",
+        "year": "2009",
+        "title": "FishTraits: a database of ecological and life-history traits of freshwater fishes of the United States",
+        "journal": "Fisheries",
+        "volume": "34",
+        "pages": "487-495"
+      },
+      "license": "Public domain (U.S. Government work)"
+    },
+    "epa_freshwater": {
+      "latest": "2012.1",
+      "content_id": "860116fabb30a72e0a25d9fc499e98d9",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/epa_freshwater.vtr",
+      "nrow": 2777,
+      "source_url": "https://ofmpub.epa.gov/eims/eimscomm.getfile?p_download_id=526642",
+      "source_format": "xls",
+      "source_version": "2012.1",
+      "trait_cols": [
+        "feeding_mode",
+        "habit",
+        "voltinism",
+        "thermal_preference",
+        "body_size_class",
+        "body_shape",
+        "rheophily",
+        "oviposition_behavior",
+        "diapause"
+      ],
+      "static": true,
+      "citation": {
+        "authors": "U.S. Environmental Protection Agency",
+        "year": "2012",
+        "title": "Freshwater Biological Traits Database"
+      },
+      "license": "Public domain (U.S. Government work)"
+    },
+    "cefas_btrait": {
+      "latest": "2022.1",
+      "content_id": "16b5e5ec8f52643c8f5276bc55213cab",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/cefas_btrait.vtr",
+      "nrow": 932,
+      "source_url": "https://data-api.cefas.co.uk/api/export/11935?format=csv",
+      "source_format": "csv",
+      "source_version": "2022.1",
+      "trait_cols": [
+        "body_size",
+        "morphology",
+        "lifespan",
+        "egg_development",
+        "larval_development",
+        "living_habit",
+        "sediment_position",
+        "feeding_mode",
+        "mobility",
+        "bioturbation"
+      ],
+      "static": true,
+      "citation": {
+        "authors": "Centre for Environment, Fisheries and Aquaculture Science (Cefas)",
+        "year": "2022",
+        "title": "North-West European continental-shelf benthos biological-traits database",
+        "doi": "10.14466/CefasDataHub.123"
+      },
+      "license": "OGL v3.0",
+      "source_doi": "10.14466/CefasDataHub.123"
     }
   }
 }
