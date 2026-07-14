@@ -62,7 +62,9 @@ and extrinsic traits. Ecology 102:e03344.
 ## See also
 
 [`add_combine_reported()`](https://gillescolling.com/taxify/reference/add_combine_reported.md)
-for the measured values.
+for the measured values;
+[`add_combine()`](https://gillescolling.com/taxify/reference/add_combine.md)
+for the two coalesced with per-trait provenance.
 
 ## Examples
 

@@ -1,5 +1,53 @@
 # Changelog
 
+## taxify 0.3.12
+
+### Default backend is now every installed backbone
+
+- `taxify(backend = NULL)` (the new default) matches against **every
+  installed backbone** as a first-match fallback chain, instead of only
+  WFO. A name is resolved by the first backbone that matches it in
+  priority order – COL, then the domain authorities (marine, vascular
+  plants, fungi, algae, fishes, reptiles), then the broad aggregators
+  (GBIF, ITIS, NCBI, OTT) – so cross- kingdom input works without
+  knowing which backbone to name, and disagreement cases resolve to the
+  more current treatment (e.g. `Macropus rufus` -\> `Osphranter rufus`).
+  It is a first-match pick, not a consensus vote (a vote would regress
+  toward the most conservative treatment across backbones that copy one
+  another); use `mode = "wide"` / `"agreement"` to see disagreement.
+- On a fresh setup with nothing installed, the first
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  call downloads a default set once – **COL, GBIF, and ITIS** – covering
+  all kingdoms with a genuine cross-backbone agreement signal.
+  Pre-install a different set with the new
+  [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md),
+  or set it via `options(taxify.default_backbones = ...)`. The priority
+  order is configurable with `options(taxify.backbone_priority = ...)`.
+- New exported
+  [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+  downloads one or more backbones for offline use (defaults to the
+  first-run set).
+- Naming a `backend` explicitly is unchanged, so existing calls keep
+  working; only the unset default moved off WFO.
+
+### COMBINE: one door fills imputed gaps and tags provenance
+
+- [`add_combine()`](https://gillescolling.com/taxify/reference/add_combine.md)
+  is now the full COMBINE door rather than a thin alias of
+  [`add_combine_reported()`](https://gillescolling.com/taxify/reference/add_combine_reported.md).
+  It attaches the reported (measured) values and fills each
+  still-missing cell from COMBINE’s phylogenetically imputed table, so a
+  single call reaches COMBINE’s fullest coverage. A measurement is never
+  overwritten – the reported value wins and the model only fills gaps –
+  and a companion `combine_<trait>_src` column tags every cell as
+  `"reported"`, `"imputed"`, or `NA`, keeping the measured-vs-modelled
+  distinction explicit per cell.
+  [`add_combine_reported()`](https://gillescolling.com/taxify/reference/add_combine_reported.md)
+  (measured only) and
+  [`add_combine_imputed()`](https://gillescolling.com/taxify/reference/add_combine_imputed.md)
+  (the imputed table on its own) are unchanged. Runtime-only; no data
+  rebuild.
+
 ## taxify 0.3.11
 
 ### Genus-resolved enrichment joins

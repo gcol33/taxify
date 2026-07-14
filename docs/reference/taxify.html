@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@ match quality information.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">taxify</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  backend <span class="op">=</span> <span class="st">"wfo"</span>,</span>
+<span>  backend <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fuzzy <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  fuzzy_threshold <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  fuzzy_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dl"</span>, <span class="st">"levenshtein"</span>, <span class="st">"jw"</span><span class="op">)</span>,</span>
@@ -113,8 +113,11 @@ match quality information.</p>
 
 <dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
 <dd><p>Character vector of backend names (e.g., <code>"wfo"</code>, <code>"col"</code>,
-<code>"gbif"</code>) or a single <code>taxify_backend</code> object. When multiple backends
-are given, they are tried in order as a fallback chain. Default <code>"wfo"</code>.</p></dd>
+<code>"gbif"</code>) or a single <code>taxify_backend</code> object. Several are tried in order
+as a fallback chain. <code>NULL</code> (default) uses every installed backbone in
+priority order, installing the default set (COL, GBIF, ITIS) on first use;
+override the priority with <code>options(taxify.backbone_priority = ...)</code> and the
+first-run set with <code>options(taxify.default_backbones = ...)</code>.</p></dd>
 
 
 <dt id="arg-fuzzy">fuzzy<a class="anchor" aria-label="anchor" href="#arg-fuzzy"></a></dt>
@@ -322,9 +325,14 @@ accepted taxon IDs when <code>is_ambiguous = TRUE</code>; <code>NA</code> otherw
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>When multiple backends are specified, names are matched against each
-backend in order. Names matched by an earlier backend are not re-matched
-by later ones (fallback chain).</p>
+    <p>By default <code>taxify()</code> matches against <strong>every installed backbone</strong>, tried in
+priority order as a fallback chain: a name is resolved by the first backbone
+(COL, then the domain authorities, then the broad aggregators) that matches
+it, and names matched earlier are not re-matched later. On a fresh setup with
+nothing installed yet, the first call downloads a default set (COL, GBIF,
+ITIS) once; pre-install a different set with <code><a href="install_backbones.html">install_backbones()</a></code>. Name a
+backend (or several) explicitly to match only against that one, or those in
+that order.</p>
     </div>
     <div class="section level2">
     <h2 id="backbone-specific-accepted-names">Backbone-specific accepted names<a class="anchor" aria-label="anchor" href="#backbone-specific-accepted-names"></a></h2>
@@ -333,9 +341,12 @@ by later ones (fallback chain).</p>
 <p>Each backend is an independent taxonomy, and they can legitimately disagree
 on which name is accepted and which is a synonym. <code>taxify()</code> returns the
 matched backend's own current treatment; it does not reconcile backends
-against each other. Choose the backend whose treatment you want, or pass
-several with <code>mode = "wide"</code> (or <code>"agreement"</code>) to see each backbone's
-<code>accepted_name</code> side by side and where they disagree.</p>
+against each other by voting (a consensus would regress toward the most
+conservative treatment across backbones that copy one another). With the
+default multi-backend fallback, <code>accepted_name</code> is the pick of the
+highest-priority backbone that matched. To see where backbones disagree, pass
+<code>mode = "wide"</code> (or <code>"agreement"</code>) for each backbone's <code>accepted_name</code> side by
+side; to follow one authority, name a single <code>backend</code>.</p>
 <p>For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 accepts <code>Macropus rufus</code> and <code>Macropus parma</code>, treating <code>Osphranter rufus</code>
 and <code>Notamacropus parma</code> as synonyms of them, so

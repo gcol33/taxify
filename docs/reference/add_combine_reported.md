@@ -115,6 +115,8 @@ and extrinsic traits. Ecology 102:e03344.
 
 ## See also
 
+[`add_combine()`](https://gillescolling.com/taxify/reference/add_combine.md)
+for reported values with imputed gaps filled and per-trait provenance;
 [`add_combine_imputed()`](https://gillescolling.com/taxify/reference/add_combine_imputed.md)
 for the imputed values;
 [`add_pantheria()`](https://gillescolling.com/taxify/reference/add_pantheria.md),

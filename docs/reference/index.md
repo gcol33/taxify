@@ -37,6 +37,8 @@ group, attach the full classification.
 Download, cache, and inspect backbone snapshots and the unified genus
 register.
 
+- [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+  : Install taxonomic backbones for offline matching
 - [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
   [`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download.md)
   : Download a pre-built taxify backbone
