@@ -462,6 +462,22 @@
 # [1,1]) and ecoflora (n=2,398). It roughly doubles seed_mass species coverage.
 
 
+# Per-record caution text for a PHYLACINE body mass, keyed on the mass provenance
+# class (parse_phylacine's mass_method_class). Measured (`reported`) masses get
+# no caution; model-derived masses are flagged for that species only.
+.phylacine_mass_caution <- function(v) {
+  cls <- tolower(trimws(as.character(v)))
+  out <- rep(NA_character_, length(cls))
+  out[cls == "imputed"]   <- paste(
+    "PHYLACINE body mass is phylogenetically imputed for this species",
+    "(a model estimate, not a measurement).")
+  out[cls == "estimated"] <- paste(
+    "PHYLACINE body mass is estimated by allometric scaling for this species",
+    "(not a direct measurement).")
+  out
+}
+
+
 # Map raw categorical values to a canonical vocabulary through a named lookup
 # (names = source values, values = canonical). Case- and whitespace-insensitive;
 # values with no lookup entry become NA.
@@ -881,10 +897,19 @@
   # `caution` (default NA) flags a source whose unit is correct but whose
   # method/definition differs from the trait's reference source (e.g. maximum
   # vs fine-root diameter). It drives the method-aware coalesce in add_trait().
+  # `caution_col` + `caution_fn` flag INDIVIDUAL rows instead of the whole
+  # source: `caution_col` names a companion column in the same enrichment and
+  # `caution_fn` maps its per-species value to caution text (NA where none), so
+  # e.g. a PHYLACINE body mass that is model-imputed for one species is flagged
+  # for that species only, without cautioning the source's measured values. A
+  # per-record caution annotates provenance; it does not make the trait
+  # method-discordant (it stays out of the coalesce's complete/median switch).
   nsrc <- function(enr, col, cite, note, map = num, caution = NA_character_,
-                   join_col = "accepted_name") {
+                   join_col = "accepted_name",
+                   caution_col = NA_character_, caution_fn = NULL) {
     list(enrichment = enr, col = col, citation = cite, note = note,
-         map = map, caution = caution, join_col = join_col)
+         map = map, caution = caution, join_col = join_col,
+         caution_col = caution_col, caution_fn = caution_fn)
   }
 
   list(
@@ -999,7 +1024,9 @@
         elton_traits = nsrc("elton_traits", "body_mass_g", "EltonTraits (Wilman et al. 2014)", "Grams."),
         avonet       = nsrc("avonet", "body_mass_g", "AVONET (Tobias et al. 2022)", "Grams."),
         anage        = nsrc("anage", "body_mass_g", "AnAge (Tacutu et al. 2018)", "Grams."),
-        phylacine    = nsrc("phylacine", "mass_g", "PHYLACINE (Faurby et al. 2018)", "Grams."),
+        phylacine    = nsrc("phylacine", "mass_g", "PHYLACINE (Faurby et al. 2018)", "Grams.",
+                            caution_col = "mass_method_class",
+                            caution_fn  = .phylacine_mass_caution),
         repttraits   = nsrc("repttraits", "body_mass_g", "ReptTraits (Oskyrko et al. 2024)", "Grams."),
         fishbase     = nsrc("fishbase", "body_mass_g", "FishBase (Froese & Pauly)", "Grams."),
         sealifebase  = nsrc("sealifebase", "body_mass_g", "SeaLifeBase (Palomares & Pauly)", "Grams."),
@@ -2887,6 +2914,32 @@
     hit <- !is.na(v)
     piece <- sprintf("[%s] %s", s, cvec[[s]])
     out[hit] <- ifelse(is.na(out[hit]), piece, paste(out[hit], piece, sep = " | "))
+  }
+  if (all(is.na(out))) NULL else out
+}
+
+
+# Merge per-record source cautions (`perrec`, named by source, each a length-n
+# text vector NA where no caution) into an existing caution vector `cr` (or NULL).
+# In coalesce mode pass `contributors` = the coalesced source label per row so a
+# source's caution fires only where it actually contributed to the reported
+# value; in wide mode pass NULL (each source's text is already gated to where it
+# supplied a value). Returns NULL when nothing is flagged.
+.merge_perrec_caution <- function(cr, perrec, contributors, n) {
+  if (!length(perrec)) return(cr)
+  out <- if (is.null(cr)) rep(NA_character_, n) else cr
+  for (s in names(perrec)) {
+    txt <- perrec[[s]]
+    if (!is.null(contributors)) {
+      inrow <- vapply(seq_len(n), function(i) {
+        cs <- contributors[i]
+        !is.na(cs) && s %in% strsplit(cs, ",", fixed = TRUE)[[1L]]
+      }, logical(1L))
+      txt[!inrow] <- NA_character_
+    }
+    hit <- !is.na(txt)
+    out[hit] <- ifelse(is.na(out[hit]), txt[hit],
+                       paste(out[hit], txt[hit], sep = " | "))
   }
   if (all(is.na(out))) NULL else out
 }

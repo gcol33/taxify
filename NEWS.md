@@ -1,4 +1,44 @@
+# taxify 0.3.8
+
+## Economic cost of invasions
+
+* `add_invacost()` joins per-species economic-cost aggregates from InvaCost
+  (Diagne et al. 2020, CC BY 4.0): `invacost_cost_total_usd` (cumulative
+  documented 2017-USD cost), `invacost_cost_n` (number of estimates), and the
+  dominant `invacost_cost_type`.
+
+## PHYLACINE mass is not silently model-derived
+
+* `add_phylacine()` surfaces `phylacine_mass_method` and
+  `phylacine_mass_method_class`, recording whether a body mass is measured
+  (`reported`), allometrically `estimated`, or phylogenetically `imputed`.
+* `add_trait("body_mass")` now flags model-derived PHYLACINE masses per species:
+  where PHYLACINE contributes an imputed or estimated mass, `body_mass_caution`
+  explains it for that species only; measured masses are left unflagged. A trait
+  registry source can attach such a per-record caution via `caution_col` /
+  `caution_fn`, distinct from the existing whole-source method caution.
+
 # taxify 0.3.7
+
+## Compare backbones in one call
+
+* `taxify()` gains a `mode` argument. With more than one `backend`, the default
+  `mode = "fallback"` is the usual fallback chain, while `mode = "wide"` consults
+  every backbone for every name and adds one `accepted_<backbone>` column plus a
+  logical `all_agree`, and `mode = "agreement"` adds `n_backbones_matched`,
+  `n_distinct_accepted`, and `all_agree`. Both are a strict superset of the
+  standard result (a single `accepted_name`, still pipeable into the `add_*()`
+  enrichments), so a backbone disagreement, such as GBIF keeping `Macropus rufus`
+  where the Catalogue of Life resolves it to `Osphranter rufus`, is visible in
+  one call instead of querying each backbone by hand.
+
+## Discovering group values
+
+* `enrichment_groups()` lists the group values a grouped enrichment door can
+  filter on, the way `enrichment_cols()` lists a door's columns. It answers "what
+  country / region / language codes are valid?" for `add_griis(country=)`,
+  `add_wcvp(region=)`, `add_common_names(lang=)`, and
+  `add_alien_first_records(country=)`.
 
 ## Aggregate trait resolution
 

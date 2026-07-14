@@ -158,10 +158,33 @@ add_trait <- function(x, trait, sources = "all",
     }
   }
 
-  # Per-source caution (method/definition differs from the reference source).
-  cvec <- vapply(ord, function(s) spec$sources[[s]]$caution %||% NA_character_,
-                 character(1L))
+  # Two kinds of caution. Static per-source cautions (`cvec`) flag a whole source
+  # whose method/definition differs from the reference; they drive the coalesce's
+  # complete-vs-median switch below. Per-record cautions (`perrec`) flag
+  # individual species from a companion column in the same enrichment (e.g. a
+  # model-imputed PHYLACINE body mass) and are provenance annotations only, so
+  # they are kept out of `cvec` and the discordance test.
+  is_perrec <- function(sp) {
+    cc <- sp$caution_col
+    !is.null(cc) && length(cc) && !is.na(cc) && nzchar(cc) && !is.null(sp$caution_fn)
+  }
+  cvec <- vapply(ord, function(s) {
+    sp <- spec$sources[[s]]
+    if (is_perrec(sp)) NA_character_ else sp$caution %||% NA_character_
+  }, character(1L))
   names(cvec) <- ord
+  perrec <- list()
+  for (s in ord) {
+    sp <- spec$sources[[s]]
+    if (!is_perrec(sp)) next
+    jc   <- sp$join_col %||% "accepted_name"
+    comp <- .trait_join_one(x, sp$enrichment, sp$caution_col, "categorical",
+                            join_col = jc, verbose = FALSE)
+    if (is.null(comp)) next
+    ctext <- sp$caution_fn(comp)
+    ctext[is.na(per_src[[s]])] <- NA_character_   # only where the source has a value
+    if (any(!is.na(ctext))) perrec[[s]] <- ctext
+  }
   # Discordance is data-aware: it only matters when at least two sources actually
   # supply values here and one of them is cautioned. A single source that has
   # data is not a method conflict (its own caution is still surfaced per row).
@@ -174,6 +197,7 @@ add_trait <- function(x, trait, sources = "all",
     for (s in ord) x[[paste0(trait, "_", s)]] <- per_src[[s]]
     if (!is.null(unit)) x[[paste0(trait, "_unit")]] <- unit
     cr <- .trait_wide_caution(per_src, cvec, nrow(x))
+    cr <- .merge_perrec_caution(cr, perrec, NULL, nrow(x))
     if (!is.null(cr)) x[[paste0(trait, "_caution")]] <- cr
   } else {
     # When sources measure the trait differently, do not blend: report the most
@@ -196,6 +220,7 @@ add_trait <- function(x, trait, sources = "all",
       x[[paste0(trait, "_max")]] <- sp_range$max
     }
     cr <- .trait_caution_col(co, cvec, disc, use_combine)
+    cr <- .merge_perrec_caution(cr, perrec, co$source, nrow(x))
     if (!is.null(cr)) x[[paste0(trait, "_caution")]] <- cr
     if (auto && disc && verbose && any(!is.na(co$value))) {
       message(sprintf(

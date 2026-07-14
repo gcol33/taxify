@@ -28,6 +28,13 @@ invertebrate.}
 \item{phylacine_island_endemicity}{Island endemicity class.}
 \item{phylacine_iucn_status}{IUCN status (includes EP = extinct in
 prehistory, EX, EW).}
+\item{phylacine_mass_method}{How the body mass was obtained (the PHYLACINE
+\code{Mass.Method} field, verbatim): \code{Reported}, \code{Imputed}, or an allometric
+estimate (e.g. "Assumed isometric based on head-body length").}
+\item{phylacine_mass_method_class}{Coarse provenance of the body mass:
+\code{reported} (measured/compiled), \code{estimated} (allometric or same-size
+analogy), or \code{imputed} (phylogenetic gap-fill). Only \code{reported} is an
+observation; the others are model estimates.}
 }
 }
 \description{
@@ -38,7 +45,10 @@ extinct mammals; it is offered alongside \code{\link[=add_pantheria]{add_panther
 }
 \details{
 Source: PHYLACINE v1.2 (Faurby et al. 2018, Ecology, CC0). Coverage: ~5.8k
-mammal species including extinct taxa.
+mammal species including extinct taxa. \code{Mass.g} is partly modelled (PHYLACINE
+gap-fills data-poor and extinct species); \code{phylacine_mass_method} /
+\code{phylacine_mass_method_class} record how each mass was derived, so a modelled
+mass is not mistaken for a measurement where PHYLACINE is the only source.
 }
 \examples{
 \donttest{

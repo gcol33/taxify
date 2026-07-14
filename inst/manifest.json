@@ -4570,9 +4570,37 @@
       "license": "CC BY-SA 4.0",
       "source_doi": "10.16904/envidat.348"
     },
+    "invacost": {
+      "latest": "4.1",
+      "content_id": "c8bffe4cf5ede0b753a6dbe5af93663b",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/invacost.vtr",
+      "nrow": 905,
+      "source_url": "https://ndownloader.figshare.com/files/33669518",
+      "source_format": "xlsx",
+      "source_version": "4.1",
+      "trait_cols": [
+        "cost_total_usd",
+        "cost_n",
+        "cost_type"
+      ],
+      "static": true,
+      "citation": {
+        "key": "diagne2020invacost",
+        "type": "article",
+        "authors": "Diagne C, Leroy B, Vaissière AC, Gozlan RE, Roiz D, Jarić I, Salles JM, Bradshaw CJA, Courchamp F",
+        "year": "2020",
+        "title": "InvaCost, a public database of the economic costs of biological invasions worldwide",
+        "journal": "Scientific Data",
+        "volume": "7",
+        "pages": "277",
+        "doi": "10.1038/s41597-020-00586-z"
+      },
+      "license": "CC BY 4.0",
+      "source_doi": "10.6084/m9.figshare.12668570"
+    },
     "phylacine": {
       "latest": "2026.07",
-      "content_id": "95fb68c0539e83c1bacd32120ee53e67",
+      "content_id": "09d94f1ef749f45e0483f5b105802854",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/phylacine.vtr",
       "nrow": 6380,
       "source_url": "https://raw.githubusercontent.com/MegaPast2Future/PHYLACINE_1.2/master/Data/Traits/Trait_data.csv",
@@ -4596,6 +4624,7 @@
         "life_habit_method",
         "life_habit_source",
         "mass_method",
+        "mass_method_class",
         "mass_source",
         "mass_comparison",
         "mass_comparison_source",
