@@ -1,5 +1,131 @@
 # Changelog
 
+## taxify 0.3.14
+
+### A wrong temperature reached users, and is fixed
+
+- FishTraits shipped a `-1` missing-data code in its two temperature
+  columns, so 90 introduced fish (goldfish, zebrafish, brown trout)
+  reported a July maximum of -1 degrees C, which is impossible in the
+  conterminous US.
+  [`add_fishtraits()`](https://gillescolling.com/taxify/reference/add_fishtraits.md)
+  surfaced it as `ft_min_temp_c` / `ft_max_temp_c`. The rebuilt data
+  reads NA for those species, and the warmest-month value now bottoms
+  out at a believable 20.4 degrees C. Species whose January minimum
+  genuinely is -1 keep it.
+- The same source also used “.” for an absent text value, which reached
+  `ft_itis_tsn` and `ft_common_name`, and produced five unusable rows
+  named after a family (“Percidae .”). Both are cleaned.
+- The corrected data ships under the existing release, and taxify
+  refreshes a stale local copy once, on its own, the first time you use
+  it.
+
+### The range climate gains its minimum and maximum
+
+- New `climatic_temp_min` and `climatic_temp_max` (degrees C): the
+  coldest-month and warmest-month temperature at a species’ range
+  centroid, from FishTraits. They join `climatic_temp_mean` in the
+  climatic-niche family, which stays apart from the organismal
+  `thermal_max` / `thermal_min`. Largemouth bass shows why the split
+  earns its keep: its range tops out at 32.0 degrees C while it can
+  survive 33.5. These were held back until the `-1` code above was
+  fixed.
+
+### Plant chromosome numbers
+
+- `chromosome_number` reported a count nobody had measured, and is
+  fixed. *Arabidopsis thaliana* read 15 and *Acer campestre* 39, from
+  species recorded at more than one cytotype: Kew holds a diploid 2n =
+  10 and a tetraploid 2n = 20 for *Arabidopsis*, and averaging them
+  lands on 15, which is in neither record. The value is now the base
+  cytotype (10 and 26 for those two), and the range across cytotypes is
+  reported in `chromosome_number_min` / `chromosome_number_max`, so
+  nothing is lost. 421 species change value, and every value now comes
+  from a real record.
+- An odd chromosome number is still reported wherever Kew measured one.
+  A triploid carries an odd 2n by definition (Tahiti lime is 2n = 3x =
+  27), as do aneuploid hybrids and the gametophytic counts of mosses and
+  liverworts.
+- Kew’s plant genome size is a continuous measurement and is unaffected.
+- Every Kew value can now be traced to the paper it was measured in.
+  `add_kew_cvalues(cols = "all")` attaches `cval_original_reference` and
+  `cval_estimation_method`, both populated for every species, covering
+  941 distinct papers. Where a species carries records from several
+  papers, all are listed, as with *Arabidopsis thaliana* (“Bennett et
+  al.,2003; Schmuths et al.,2004”).
+- The estimation method is worth reading before comparing genome sizes.
+  9,015 species were measured by flow cytometry and 3,391 by Feulgen
+  densitometry, which are different measurements, and 97 species carry
+  both.
+- The corrected data ships under the existing release, and taxify
+  refreshes a stale local copy once, on its own, the first time you use
+  it.
+- New
+  [`add_ccdb()`](https://gillescolling.com/taxify/reference/add_ccdb.md):
+  somatic chromosome numbers from the Chromosome Counts Database for
+  65,051 plant species, with the range of cytotypes each spans. CCDB
+  states no licence, so taxify publishes no copy; the door builds it on
+  your machine through taxifydb, like the other build-only sources.
+- The `chromosome_number` trait continues to come from Kew alone. CCDB
+  covers seven times more species, but a source reachable only where a
+  build tool is installed would make
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  return a different number on two machines running the same code.
+- Kew’s plant genome size stays behind
+  [`add_kew_cvalues()`](https://gillescolling.com/taxify/reference/add_kew_cvalues.md)
+  in picograms rather than joining the prokaryote `genome_size` trait in
+  base pairs. The picogram to base-pair conversion is a constant, but a
+  plant 1C value counts every subgenome a polyploid carries, while a
+  bacterial genome size counts one chromosome.
+
+## taxify 0.3.13
+
+### Four sources taxify cannot redistribute now have doors
+
+- New
+  [`add_gmpd()`](https://gillescolling.com/taxify/reference/add_gmpd.md)
+  (Global Mammal Parasite Database 2.0: per-host parasite richness,
+  counts by parasite type, mean prevalence),
+  [`add_plantatt()`](https://gillescolling.com/taxify/reference/add_plantatt.md)
+  (British and Irish vascular plants: Ellenberg values, maximum height,
+  life-form/woodiness/status codes),
+  [`add_bryoatt()`](https://gillescolling.com/taxify/reference/add_bryoatt.md)
+  (the bryophyte companion – a group otherwise almost absent from the
+  bundled traits), and
+  [`add_clopla()`](https://gillescolling.com/taxify/reference/add_clopla.md)
+  (CLO-PLA clonal and bud-bank traits of the Central European flora, 29
+  codes kept verbatim).
+- These four state no usable licence, so taxify publishes no copy of
+  them and they carry no manifest entry. The door builds the data from
+  the original source on your own machine through taxifydb, which is
+  required for them and errors with an install instruction when absent.
+  taxify redistributes none of the data; cite the sources when you use
+  them.
+
+### Climatic niche is now separate from thermal tolerance
+
+- New `climatic_temp_mean`: the mean annual temperature of a species’
+  range, in degrees C, from the NW European arthropod dataset (WorldClim
+  BIO1 over occurrence buffers) and ReptTraits (CHELSA over GARD
+  ranges). It is kept strictly apart from `thermal_max` / `thermal_min`,
+  which are organismal CTmax and CTmin: a range climate is bounded by
+  dispersal, competition and history, so it sits well inside what an
+  animal can survive.
+
+### New traits
+
+- `forearm_length` (mm): the standard bat measurement, from COMBINE,
+  PanTHERIA and the European bat dataset (the first two carried it for
+  1130 and 1012 species without any trait reaching it).
+- `chromosome_number` (2n): from the Kew Plant DNA C-values database.
+- `thermal_max` / `thermal_min` gain the freshwater thermal-tolerance
+  database (CTmax and CTmin of freshwater fish, invertebrates and
+  amphibians).
+- `body_mass`, `longevity`, `clutch_litter_size` and `diet_guild` gain
+  the European bat dataset; `longevity` and `age_at_maturity` gain
+  FishTraits; `clutch_litter_size` gains the zooplankton per-clutch egg
+  count.
+
 ## taxify 0.3.12
 
 ### Default backend is now every installed backbone

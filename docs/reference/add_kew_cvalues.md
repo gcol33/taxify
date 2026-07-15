@@ -3,8 +3,10 @@
 Joins plant genome-size data from the Kew Plant DNA C-values database
 (Pellicer & Leitch 2020) to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result by looking up `accepted_name`. Records are reduced to per-species
-medians.
+result by looking up `accepted_name`. The 1C DNA amount is a per-species
+median. The chromosome number and ploidy level are the base cytotype,
+with the range across a species' cytotypes in the `_min` / `_max`
+columns.
 
 ## Usage
 
@@ -39,14 +41,26 @@ The same data.frame with additional columns. The default set:
 
 - cval_chromosome_2n:
 
-  Somatic chromosome number (2n).
+  Somatic chromosome number (2n), base cytotype.
 
 - cval_ploidy_x:
 
-  Ploidy level.
+  Ploidy level, base cytotype.
 
 `cols = "all"` also attaches the per-species min/max/n spread of each
-value.
+value, plus per-species provenance:
+
+- cval_original_reference:
+
+  The paper(s) the values were measured in, joined by `"; "` where a
+  species carries records from several.
+
+- cval_estimation_method:
+
+  The method(s) used, in the source's codes: `FC:PI` and other `FC:`
+  variants are flow cytometry with the named stain, `Fe` is Feulgen
+  densitometry. The two are not interchangeable, so a species measured
+  by both reports both.
 
 ## Details
 

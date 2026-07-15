@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,55 @@
       <small>Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.14" id="taxify-0314">taxify 0.3.14<a class="anchor" aria-label="anchor" href="#taxify-0314"></a></h2>
+<div class="section level3">
+<h3 id="a-wrong-temperature-reached-users-and-is-fixed-0-3-14">A wrong temperature reached users, and is fixed<a class="anchor" aria-label="anchor" href="#a-wrong-temperature-reached-users-and-is-fixed-0-3-14"></a></h3>
+<ul><li>FishTraits shipped a <code>-1</code> missing-data code in its two temperature columns, so 90 introduced fish (goldfish, zebrafish, brown trout) reported a July maximum of -1 degrees C, which is impossible in the conterminous US. <code><a href="../reference/add_fishtraits.html">add_fishtraits()</a></code> surfaced it as <code>ft_min_temp_c</code> / <code>ft_max_temp_c</code>. The rebuilt data reads NA for those species, and the warmest-month value now bottoms out at a believable 20.4 degrees C. Species whose January minimum genuinely is -1 keep it.</li>
+<li>The same source also used “.” for an absent text value, which reached <code>ft_itis_tsn</code> and <code>ft_common_name</code>, and produced five unusable rows named after a family (“Percidae .”). Both are cleaned.</li>
+<li>The corrected data ships under the existing release, and taxify refreshes a stale local copy once, on its own, the first time you use it.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="the-range-climate-gains-its-minimum-and-maximum-0-3-14">The range climate gains its minimum and maximum<a class="anchor" aria-label="anchor" href="#the-range-climate-gains-its-minimum-and-maximum-0-3-14"></a></h3>
+<ul><li>New <code>climatic_temp_min</code> and <code>climatic_temp_max</code> (degrees C): the coldest-month and warmest-month temperature at a species’ range centroid, from FishTraits. They join <code>climatic_temp_mean</code> in the climatic-niche family, which stays apart from the organismal <code>thermal_max</code> / <code>thermal_min</code>. Largemouth bass shows why the split earns its keep: its range tops out at 32.0 degrees C while it can survive 33.5. These were held back until the <code>-1</code> code above was fixed.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="plant-chromosome-numbers-0-3-14">Plant chromosome numbers<a class="anchor" aria-label="anchor" href="#plant-chromosome-numbers-0-3-14"></a></h3>
+<ul><li>
+<code>chromosome_number</code> reported a count nobody had measured, and is fixed. <em>Arabidopsis thaliana</em> read 15 and <em>Acer campestre</em> 39, from species recorded at more than one cytotype: Kew holds a diploid 2n = 10 and a tetraploid 2n = 20 for <em>Arabidopsis</em>, and averaging them lands on 15, which is in neither record. The value is now the base cytotype (10 and 26 for those two), and the range across cytotypes is reported in <code>chromosome_number_min</code> / <code>chromosome_number_max</code>, so nothing is lost. 421 species change value, and every value now comes from a real record.</li>
+<li>An odd chromosome number is still reported wherever Kew measured one. A triploid carries an odd 2n by definition (Tahiti lime is 2n = 3x = 27), as do aneuploid hybrids and the gametophytic counts of mosses and liverworts.</li>
+<li>Kew’s plant genome size is a continuous measurement and is unaffected.</li>
+<li>Every Kew value can now be traced to the paper it was measured in. <code>add_kew_cvalues(cols = "all")</code> attaches <code>cval_original_reference</code> and <code>cval_estimation_method</code>, both populated for every species, covering 941 distinct papers. Where a species carries records from several papers, all are listed, as with <em>Arabidopsis thaliana</em> (“Bennett et al.,2003; Schmuths et al.,2004”).</li>
+<li>The estimation method is worth reading before comparing genome sizes. 9,015 species were measured by flow cytometry and 3,391 by Feulgen densitometry, which are different measurements, and 97 species carry both.</li>
+<li>The corrected data ships under the existing release, and taxify refreshes a stale local copy once, on its own, the first time you use it.</li>
+<li>New <code><a href="../reference/add_ccdb.html">add_ccdb()</a></code>: somatic chromosome numbers from the Chromosome Counts Database for 65,051 plant species, with the range of cytotypes each spans. CCDB states no licence, so taxify publishes no copy; the door builds it on your machine through taxifydb, like the other build-only sources.</li>
+<li>The <code>chromosome_number</code> trait continues to come from Kew alone. CCDB covers seven times more species, but a source reachable only where a build tool is installed would make <code><a href="../reference/add_trait.html">add_trait()</a></code> return a different number on two machines running the same code.</li>
+<li>Kew’s plant genome size stays behind <code><a href="../reference/add_kew_cvalues.html">add_kew_cvalues()</a></code> in picograms rather than joining the prokaryote <code>genome_size</code> trait in base pairs. The picogram to base-pair conversion is a constant, but a plant 1C value counts every subgenome a polyploid carries, while a bacterial genome size counts one chromosome.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.13" id="taxify-0313">taxify 0.3.13<a class="anchor" aria-label="anchor" href="#taxify-0313"></a></h2>
+<div class="section level3">
+<h3 id="four-sources-taxify-cannot-redistribute-now-have-doors-0-3-13">Four sources taxify cannot redistribute now have doors<a class="anchor" aria-label="anchor" href="#four-sources-taxify-cannot-redistribute-now-have-doors-0-3-13"></a></h3>
+<ul><li>New <code><a href="../reference/add_gmpd.html">add_gmpd()</a></code> (Global Mammal Parasite Database 2.0: per-host parasite richness, counts by parasite type, mean prevalence), <code><a href="../reference/add_plantatt.html">add_plantatt()</a></code> (British and Irish vascular plants: Ellenberg values, maximum height, life-form/woodiness/status codes), <code><a href="../reference/add_bryoatt.html">add_bryoatt()</a></code> (the bryophyte companion – a group otherwise almost absent from the bundled traits), and <code><a href="../reference/add_clopla.html">add_clopla()</a></code> (CLO-PLA clonal and bud-bank traits of the Central European flora, 29 codes kept verbatim).</li>
+<li>These four state no usable licence, so taxify publishes no copy of them and they carry no manifest entry. The door builds the data from the original source on your own machine through taxifydb, which is required for them and errors with an install instruction when absent. taxify redistributes none of the data; cite the sources when you use them.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="climatic-niche-is-now-separate-from-thermal-tolerance-0-3-13">Climatic niche is now separate from thermal tolerance<a class="anchor" aria-label="anchor" href="#climatic-niche-is-now-separate-from-thermal-tolerance-0-3-13"></a></h3>
+<ul><li>New <code>climatic_temp_mean</code>: the mean annual temperature of a species’ range, in degrees C, from the NW European arthropod dataset (WorldClim BIO1 over occurrence buffers) and ReptTraits (CHELSA over GARD ranges). It is kept strictly apart from <code>thermal_max</code> / <code>thermal_min</code>, which are organismal CTmax and CTmin: a range climate is bounded by dispersal, competition and history, so it sits well inside what an animal can survive.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-traits-0-3-13">New traits<a class="anchor" aria-label="anchor" href="#new-traits-0-3-13"></a></h3>
+<ul><li>
+<code>forearm_length</code> (mm): the standard bat measurement, from COMBINE, PanTHERIA and the European bat dataset (the first two carried it for 1130 and 1012 species without any trait reaching it).</li>
+<li>
+<code>chromosome_number</code> (2n): from the Kew Plant DNA C-values database.</li>
+<li>
+<code>thermal_max</code> / <code>thermal_min</code> gain the freshwater thermal-tolerance database (CTmax and CTmin of freshwater fish, invertebrates and amphibians).</li>
+<li>
+<code>body_mass</code>, <code>longevity</code>, <code>clutch_litter_size</code> and <code>diet_guild</code> gain the European bat dataset; <code>longevity</code> and <code>age_at_maturity</code> gain FishTraits; <code>clutch_litter_size</code> gains the zooplankton per-clutch egg count.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.12" id="taxify-0312">taxify 0.3.12<a class="anchor" aria-label="anchor" href="#taxify-0312"></a></h2>
 <div class="section level3">

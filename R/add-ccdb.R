@@ -28,8 +28,9 @@
 #' among a species' cytotypes rather than measurement error, so a polyploid
 #' complex legitimately spans a wide range (*Sedum acre* runs 2n = 40 to 120).
 #' Where a species is covered by both, this and the CC BY
-#' [add_kew_cvalues()] chromosome column agree exactly for 83% of species; the
-#' rest are compilations differing over which cytotype is typical.
+#' [add_kew_cvalues()] chromosome column agree exactly for 85% of the 7133
+#' species they share; the rest are compilations differing over which cytotype
+#' is typical.
 #'
 #' @references
 #' Rice A, Glick L, Abadi S, Einhorn M, Kopelman NM, Salman-Minkov A,

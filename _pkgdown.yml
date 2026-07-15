@@ -131,12 +131,16 @@ reference:
   - add_baseflor
   - add_ecoflora
   - add_floraweb
+  - add_plantatt
+  - add_bryoatt
+  - add_clopla
   - add_austraits
   - add_bien
   - add_brot
   - add_bet
   - add_kew_sid
   - add_kew_cvalues
+  - add_ccdb
   - add_useful_plants
   - add_gwdd
   - add_pignatti
@@ -170,6 +174,7 @@ reference:
   - add_homerange
   - add_tetradensity
   - add_eurobat
+  - add_gmpd
 - title: Enrichments — reptiles, amphibians, and fish
   contents:
   - add_repttraits

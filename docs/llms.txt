@@ -430,6 +430,12 @@ own table.
   : Add British plant traits from Ecoflora
 - [`add_floraweb()`](https://gillescolling.com/taxify/reference/add_floraweb.md)
   : Add German plant traits from FloraWeb
+- [`add_plantatt()`](https://gillescolling.com/taxify/reference/add_plantatt.md)
+  : Add British and Irish plant attributes (PLANTATT)
+- [`add_bryoatt()`](https://gillescolling.com/taxify/reference/add_bryoatt.md)
+  : Add British and Irish bryophyte attributes (BRYOATT)
+- [`add_clopla()`](https://gillescolling.com/taxify/reference/add_clopla.md)
+  : Add clonal and bud-bank traits (CLO-PLA)
 - [`add_austraits()`](https://gillescolling.com/taxify/reference/add_austraits.md)
   : Add Australian plant traits (AusTraits)
 - [`add_bien()`](https://gillescolling.com/taxify/reference/add_bien.md)
@@ -442,6 +448,8 @@ own table.
   : Add seed traits from the Kew Seed Information Database (SER-SID)
 - [`add_kew_cvalues()`](https://gillescolling.com/taxify/reference/add_kew_cvalues.md)
   : Add plant genome size (Kew Plant DNA C-values)
+- [`add_ccdb()`](https://gillescolling.com/taxify/reference/add_ccdb.md)
+  : Add plant chromosome numbers (Chromosome Counts Database)
 - [`add_useful_plants()`](https://gillescolling.com/taxify/reference/add_useful_plants.md)
   : Add human-use categories (World Checklist of Useful Plant Species)
 - [`add_gwdd()`](https://gillescolling.com/taxify/reference/add_gwdd.md)
@@ -506,6 +514,8 @@ own table.
   : Add population density (TetraDENSITY)
 - [`add_eurobat()`](https://gillescolling.com/taxify/reference/add_eurobat.md)
   : Add European bat traits (EuroBaTrait)
+- [`add_gmpd()`](https://gillescolling.com/taxify/reference/add_gmpd.md)
+  : Add mammal parasite burden (GMPD 2.0)
 
 ## Enrichments — reptiles, amphibians, and fish
 
