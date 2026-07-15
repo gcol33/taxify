@@ -38,6 +38,10 @@ recorded).}
 species' negative environmental impacts.}
 \item{gidias_seicat_category}{SEICAT socio-economic-impact category
 (\code{MC}/\code{MN}/\code{MO}/\code{MR}/\code{DD}, or \code{NA}).}
+\item{gidias_ncp_direction}{Direction of the species' impact on nature's
+contributions to people: \code{"Negative"}, \code{"Positive"}, \code{"Neutral"}, or a
+combination (\code{"Negative; Positive"}) where the records disagree. GIDIAS
+scores no magnitude for this block, so there is no category to report.}
 \item{gidias_ias_taxon}{Functional group: \code{Plant}, \code{Invertebrate},
 \code{Vertebrate}, or \code{Microbe}.}
 \item{gidias_realms}{Realm(s) the impacts span: terrestrial, freshwater,
@@ -46,8 +50,9 @@ and/or marine.}
 \item{gidias_n_sources}{Number of distinct sources documenting the impacts.}
 }
 \code{cols = "all"} additionally attaches the numeric EICAT/SEICAT magnitudes
-(0-3), the affected well-being constituents, kingdom, the negative-record
-count, and a global-extinction flag.
+(0-3), the affected well-being constituents and contributions to people
+(\code{gidias_ncp_affected}), kingdom, the negative-record count, and a
+global-extinction flag.
 }
 \description{
 Joins per-species environmental- and socio-economic-impact aggregates from
@@ -81,10 +86,11 @@ those the species-level category is the most severe impact on anything, not
 the impact on each thing.
 
 The vocabulary is the coarse one GIDIAS controls: \code{"Vertebrate"}, not
-\code{"Aves"}. \code{"Any"} is the only group carrying SEICAT and the impact records
-with no affected taxon recorded (12\% of the negative ones), so
-\code{gidias_seicat_category} is \code{NA} on every other group: socio-economic impact
-is not a question the affected-native-taxon axis can answer.
+\code{"Aves"}. \code{"Any"} is the only group carrying the impact records with no
+affected taxon recorded (12\% of the negative ones) and the two people-facing
+blocks, so \code{gidias_seicat_category} and \code{gidias_ncp_direction} are \code{NA} on
+every other group: impact on people is not a question the
+affected-native-taxon axis can answer.
 }
 
 \examples{

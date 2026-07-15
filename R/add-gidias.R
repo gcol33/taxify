@@ -40,6 +40,10 @@
 #'     species' negative environmental impacts.}
 #'   \item{gidias_seicat_category}{SEICAT socio-economic-impact category
 #'     (`MC`/`MN`/`MO`/`MR`/`DD`, or `NA`).}
+#'   \item{gidias_ncp_direction}{Direction of the species' impact on nature's
+#'     contributions to people: `"Negative"`, `"Positive"`, `"Neutral"`, or a
+#'     combination (`"Negative; Positive"`) where the records disagree. GIDIAS
+#'     scores no magnitude for this block, so there is no category to report.}
 #'   \item{gidias_ias_taxon}{Functional group: `Plant`, `Invertebrate`,
 #'     `Vertebrate`, or `Microbe`.}
 #'   \item{gidias_realms}{Realm(s) the impacts span: terrestrial, freshwater,
@@ -48,8 +52,9 @@
 #'   \item{gidias_n_sources}{Number of distinct sources documenting the impacts.}
 #' }
 #' `cols = "all"` additionally attaches the numeric EICAT/SEICAT magnitudes
-#' (0-3), the affected well-being constituents, kingdom, the negative-record
-#' count, and a global-extinction flag.
+#' (0-3), the affected well-being constituents and contributions to people
+#' (`gidias_ncp_affected`), kingdom, the negative-record count, and a
+#' global-extinction flag.
 #'
 #' @section What a species impacts:
 #' GIDIAS records the affected native taxon per impact record, so `group`
@@ -61,10 +66,11 @@
 #' the impact on each thing.
 #'
 #' The vocabulary is the coarse one GIDIAS controls: `"Vertebrate"`, not
-#' `"Aves"`. `"Any"` is the only group carrying SEICAT and the impact records
-#' with no affected taxon recorded (12% of the negative ones), so
-#' `gidias_seicat_category` is `NA` on every other group: socio-economic impact
-#' is not a question the affected-native-taxon axis can answer.
+#' `"Aves"`. `"Any"` is the only group carrying the impact records with no
+#' affected taxon recorded (12% of the negative ones) and the two people-facing
+#' blocks, so `gidias_seicat_category` and `gidias_ncp_direction` are `NA` on
+#' every other group: impact on people is not a question the
+#' affected-native-taxon axis can answer.
 #'
 #' @details
 #' Source: GIDIAS (Bacher et al. 2025, Scientific Data; CC BY 4.0), compiled for
@@ -94,8 +100,8 @@
 add_gidias <- function(x, group = "Any", cols = NULL, verbose = TRUE) {
   base_cols <- c(
     "gidias_eicat_category", "gidias_eicat_mechanism",
-    "gidias_seicat_category", "gidias_ias_taxon", "gidias_realms",
-    "gidias_n_records", "gidias_n_sources"
+    "gidias_seicat_category", "gidias_ncp_direction", "gidias_ias_taxon",
+    "gidias_realms", "gidias_n_records", "gidias_n_sources"
   )
   enrich_by_group(
     x,

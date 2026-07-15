@@ -22,6 +22,11 @@ gidias_fixture <- function() data.frame(
   gidias_seicat_magnitude  = c(NA_integer_, NA_integer_, NA_integer_, 1L),
   gidias_seicat_affected   = c(NA_character_, NA_character_, NA_character_,
                                "Material and immaterial assets;"),
+  # NCP: a direction, never a category -- GIDIAS scores no magnitude scale for
+  # this block. Carried by the "Any" grain alongside SEICAT.
+  gidias_ncp_direction     = c("Negative; Positive", NA, NA, "Negative"),
+  gidias_ncp_affected      = c("1. Habitat creation and maintenance", NA, NA,
+                               "8. Formation of soils"),
   gidias_ias_taxon         = c("Vertebrate", "Vertebrate", "Vertebrate", "Plant"),
   gidias_kingdom           = c("Animalia", "Animalia", "Animalia", "Plantae"),
   gidias_realms            = c("Terrestrial", "Terrestrial", "Terrestrial",
@@ -72,7 +77,7 @@ test_that("add_gidias() leaves a species absent from GIDIAS all-NA", {
 
   r <- add_gidias(mk_res("Quercus robur"), verbose = FALSE)
   gcols <- grep("^gidias_", names(r), value = TRUE)
-  expect_length(gcols, 7L)
+  expect_length(gcols, 8L)
   expect_true(all(vapply(gcols, function(cc) is.na(r[[cc]][1L]), logical(1))))
 })
 
@@ -106,15 +111,33 @@ test_that("add_gidias() with several groups suffixes each column set", {
   expect_equal(r$gidias_eicat_category_Vertebrate[1L], "MV")
 })
 
-test_that("SEICAT is carried by the aggregate grain only", {
+test_that("the people-facing blocks are carried by the aggregate grain only", {
   install_mock_enrichment("gidias", gidias_fixture())
 
-  expect_equal(
-    add_gidias(mk_res("Felis catus"), verbose = FALSE)$gidias_seicat_category[1L],
-    "DD")
-  expect_true(is.na(
-    add_gidias(mk_res("Felis catus"), group = "Vertebrate",
-               verbose = FALSE)$gidias_seicat_category[1L]))
+  agg <- add_gidias(mk_res("Felis catus"), verbose = FALSE)
+  vert <- add_gidias(mk_res("Felis catus"), group = "Vertebrate", verbose = FALSE)
+
+  expect_equal(agg$gidias_seicat_category[1L], "DD")
+  expect_true(is.na(vert$gidias_seicat_category[1L]))
+
+  # NCP is about contributions to people, so it does not slice by affected
+  # native taxon either.
+  expect_equal(agg$gidias_ncp_direction[1L], "Negative; Positive")
+  expect_true(is.na(vert$gidias_ncp_direction[1L]))
+})
+
+test_that("NCP reaches the default column set as a direction, not a category", {
+  install_mock_enrichment("gidias", gidias_fixture())
+
+  r <- add_gidias(mk_res("Felis catus"), verbose = FALSE)
+  # GIDIAS scores no magnitude scale for NCP, so the door must not invent one.
+  expect_true("gidias_ncp_direction" %in% names(r))
+  expect_false(any(grepl("ncp_(category|magnitude)", names(r))))
+  # The affected contributions are extended, not default -- mirroring SEICAT.
+  expect_false("gidias_ncp_affected" %in% names(r))
+  expect_true("gidias_ncp_affected" %in%
+                names(add_gidias(mk_res("Felis catus"), cols = "all",
+                                 verbose = FALSE)))
 })
 
 test_that("EICAT and SEICAT resolve through add_trait()", {
@@ -169,5 +192,5 @@ test_that("GIDIAS is registered in the bundled manifest as a static enrichment",
   m <- jsonlite::read_json(mpath, simplifyVector = FALSE)
   expect_true("gidias" %in% names(m$enrichments))
   expect_true(isTRUE(m$enrichments$gidias$static))
-  expect_length(m$enrichments$gidias$trait_cols, 13L)
+  expect_length(m$enrichments$gidias$trait_cols, 15L)
 })

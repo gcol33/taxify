@@ -4617,6 +4617,8 @@
         "gidias_seicat_category",
         "gidias_seicat_magnitude",
         "gidias_seicat_affected",
+        "gidias_ncp_direction",
+        "gidias_ncp_affected",
         "gidias_ias_taxon",
         "gidias_kingdom",
         "gidias_realms",
