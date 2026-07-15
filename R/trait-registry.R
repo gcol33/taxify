@@ -320,6 +320,22 @@
 #     ships as von_bertalanffy_k (beukhof, sharkipedia). Coral linear extension
 #     mm/yr, zooplankton per-day, and AnAge's Gompertz constant are physically
 #     different rates, not one unit, so growth_rate stays unregistered.
+#   - kew_cvalues genome_size_1c_pg does NOT join genome_size (madin, bp,
+#     prokaryotes), even though 1 pg = 0.978 Gbp is a physical constant. The two
+#     columns are different quantities: a prokaryote genome size is one haploid
+#     chromosome, while a plant 1C is the holoploid gametic complement and so
+#     scales with ploidy. Kew's own Triticum series proves it -- 6.20 pg at 2x
+#     (T. monococcum), 12.00 at 4x (T. turgidum), 17.30 at 6x (T. aestivum) --
+#     so T. aestivum's 1C spans three subgenomes where E. coli's genome size
+#     spans one. The taxa are disjoint (0 shared species), which is exactly what
+#     makes the merge unsafe rather than safe: nothing would ever surface the
+#     mismatch, the same reason salinity and growth_rate stay out. (Contrast
+#     climatic_temp_mean, which does coalesce across disjoint taxa: there both
+#     sources measure the identical quantity, an annual-mean surface, and differ
+#     only in raster.) The conversion does not calibrate cleanly either -- against
+#     genomes with a published assembly it scatters 0.80x (Vitis) to 2.17x
+#     (Arabidopsis), with no shared species to pin it. Plant genome size stays
+#     behind add_kew_cvalues() as cval_genome_size_1c_pg, in its own unit.
 # Fifteenth wave (BacDive (DSMZ) added as a second prokaryote source to the six
 # traits Madin already carried, roughly doubling species coverage; ~18.6k BacDive
 # species vs ~11k Madin):
@@ -486,8 +502,8 @@
 # Deliberately unregistered this wave (grounding rejections, kept so they are not
 # relitigated):
 #   - fishtraits min_temp_c / max_temp_c are NOT thermal_min / thermal_max. They
-#     are a climatic niche and belong in the climatic-niche family below, not in
-#     the bin. The source's own FGDC metadata settles it: min_temp_c is "the
+#     are a climatic niche and register in the climatic-niche family below, not
+#     in the bin. The source's own FGDC metadata settles it: min_temp_c is "the
 #     30-year average minimum January temperature at range centroid" and
 #     max_temp_c "30-year average maximum July temperature at range centroid",
 #     both extracted from PRISM 400-m grids. (The source files them under a
@@ -496,8 +512,7 @@
 #     -22.5 deg C, impossible as a fish's organismal cold limit since its water
 #     freezes at 0, and max_temp_c runs below true CTmax (ratio 0.88 vs
 #     thermofresh on 115 shared species, 0.91 vs globtherm), as a range climate
-#     should. They are blocked from registering only by the -1 sentinel bug noted
-#     with the family below.
+#     should.
 #   - fishtraits max_length_cm is NOT a body_length source: ratio 1.000 vs
 #     fishbase on 794 shared species (IQR [0.997, 1.000]) -- the same-data trap
 #     already seen with FISHMORPH==FishBase and lizard_traits==Oskyrko.
@@ -520,8 +535,8 @@
 #   - copepod_traits feeder_type is not foraging_mode: only "Ambush feeder" (27)
 #     and "Cruise feeder" (30) map to the active/ambush vocabulary, while the
 #     majority value "Feeding current" (94) is a third mode with no counterpart.
-# The climatic-niche family (NEW: climatic_temp_mean, deg C) is the home for
-# range-climate columns, kept
+# The climatic-niche family (NEW: climatic_temp_mean, climatic_temp_min,
+# climatic_temp_max, all deg C) is the home for range-climate columns, kept
 # strictly apart from the organismal thermal_max / thermal_min. Both describe
 # temperature in deg C, so the separation is by quantity, not unit: a range
 # climate is bounded by dispersal, competition and history and sits well inside
@@ -539,18 +554,21 @@
 #     the two rasters for one species -- each species carries exactly one source.
 #     Medians are regionally right: 9.55 deg C for NW European arthropods, 21.01
 #     for global reptiles.
-#   - climatic_temp_min / climatic_temp_max (fishtraits min_temp_c / max_temp_c,
-#     the coldest-month minimum and warmest-month maximum at the range centroid)
-#     are NOT registered yet, blocked on gcol33/taxifydb#13: the shipped
-#     fishtraits.vtr carries an unhandled -1 missing-data code. parse_fishtraits
-#     strips the source's documented -999 / -555 codes but not -1, which marks
-#     the 90 introduced species that have no US range centroid to extract PRISM
-#     from -- they carry min == max == -1, and a July maximum of -1 deg C is
-#     impossible in the conterminous US (the real floor is 20.4). It cannot be
-#     cleaned by a map here: -1 is ALSO a genuine January minimum for 8 other
-#     species (the values run on a continuous 0.1-deg grid through -1), so only
-#     the PAIR identifies the sentinel, and a map sees one column at a time. The
-#     fix belongs in the parser, where both columns are in scope.
+#   - climatic_temp_min / climatic_temp_max: fishtraits min_temp_c / max_temp_c,
+#     the coldest-month (January) minimum and warmest-month (July) maximum at the
+#     range centroid, from PRISM 400-m grids per the source's FGDC definitions.
+#     Single-source, so no cross-source calibration applies; both are pinned by
+#     that metadata and by a distribution right for a US range climate
+#     (min_temp_c med -2.7 floor -22.5; max_temp_c med 32.0 floor 20.4). Taken
+#     verbatim, in the unit the source states.
+#     Both carried a third missing-data code, now stripped in the parser: -1
+#     marks "no mapped native range in the conterminous US" and spans the whole
+#     range-derived block (area, perimeter, patches, latitudinal and longitudinal
+#     range, and both PRISM temperatures) on the same introduced species, none of
+#     which has a centroid to sample. It could not be stripped per column, since
+#     -1 is also a genuine January minimum for 6 native species on a continuous
+#     0.1-deg grid running through it, so the fix belongs in the parser where the
+#     whole block is in scope (gcol33/taxifydb#13).
 # Deliberately NOT joined to climatic_temp_min / climatic_temp_max: arthropod_traits
 # thermal_minimum / thermal_maximum (and thermal_range). They are the spatial min
 # and max of the ANNUAL MEAN surface across a species' occurrences -- the coldest
@@ -563,20 +581,20 @@
 # reason salinity and growth_rate stay unregistered. arthropod's thermal_mean does
 # join climatic_temp_mean, because that one IS an annual mean; its min/max/range
 # stay with add_arthropod_traits().
-# chromosome_number (NEW, count, 2n) is registered from kew_cvalues ONLY. CCDB was
-# the intended second source and is REJECTED on a grounding catch: its
-# /services/statistics/ endpoint pools gametic (n) and sporophytic (2n) records
-# into one distribution and medians over the mixture, so the value it returns is
-# predominantly n, not the 2n its taxifydb column name asserts. Evidence: the
-# ratio against kew is 0.5000 with IQR [0.500, 0.500] across 6140 shared species,
-# and every textbook check lands on n -- Abies alba 12 (2n=24), Zea mays 10
-# (2n=20), Oryza sativa 12 (2n=24), Pisum sativum 7 (2n=14), Triticum aestivum 21
-# (2n=42). The raw distribution field shows the pooling directly (Zea:
-# "10=0.77_20=0.03_40=0.01" = n, 2n and 4n records in one series), and the
-# endpoint accepts no gametic/sporophytic parameter, so the scale cannot be
-# recovered from this response. Kew's column is clean 2n and matches every check.
-# Tracked upstream as a taxifydb parser bug; CCDB can join this trait once its
-# counts are read from the per-record endpoint that carries the count type.
+# chromosome_number (count, 2n) is registered from kew_cvalues ONLY, and the
+# reason is availability, not scale. CCDB's counts are now correct (taxifydb
+# doubles the gametic number its service reports; ratio against kew 1.0000, IQR
+# [1, 1] across 6140 shared species, 83.3% exact) and reach 65,051 species
+# against kew's 9,375 -- but CCDB carries no explicit licence, so it is a
+# build-only source with no published .vtr, reachable only where taxifydb is
+# installed. Every source in this registry is a downloadable .vtr, and that is
+# what keeps the verb reproducible: a source that appears only when a build tool
+# happens to be installed would make add_trait() return a different number on
+# two machines running the same code, silently (the two compilations disagree on
+# which cytotype is typical for 6.1% of shared species -- Duchesnea indica 84 vs
+# 14 -- so the divergence would be real, not cosmetic). CCDB is reached through
+# its own door, add_ccdb(), like every other build-only source (gmpd, plantatt,
+# bryoatt, clopla), none of which feeds the verb either.
 
 
 # Per-record caution text for a PHYLACINE body mass, keyed on the mass provenance
@@ -2632,15 +2650,18 @@
         repttraits       = nsrc("repttraits", "mean_annual_temp_c", "ReptTraits (Oskyrko et al. 2024)", "Mean annual temperature over the species' range, degrees C, from CHELSA (Karger et al. 2017) on the GARD ranges (Roll et al. 2017) per the source's own trait-source sheet.")
       )
     ),
-    # climatic_temp_min / climatic_temp_max (fishtraits min_temp_c / max_temp_c)
-    # are the obvious next members of this family and are deliberately NOT
-    # registered yet: the shipped fishtraits.vtr still carries an unhandled -1
-    # missing-data code in both columns (gcol33/taxifydb#13). The code cannot be
-    # cleaned here -- it is only identifiable as the PAIR min == max == -1 (90
-    # introduced species with no US range centroid), while -1 on its own is a
-    # genuine January minimum for 8 other species -- and a registry map sees one
-    # column at a time. They join once the parser NAs the pair and the asset is
-    # rebuilt.
+    climatic_temp_min = list(
+      label = "Coldest-month temperature of range", kind = "numeric", unit = "deg C", vocab = NULL,
+      sources = list(
+        fishtraits = nsrc("fishtraits", "min_temp_c", "FishTraits (Frimpong & Angermeier 2009)", "30-year average minimum January temperature at the range centroid, degrees C, read from PRISM 400-m grids per the source's FGDC field definition. A range climate, not a cold tolerance: it reaches -22.5 deg C, well below the freezing point of the water the fish lives in.")
+      )
+    ),
+    climatic_temp_max = list(
+      label = "Warmest-month temperature of range", kind = "numeric", unit = "deg C", vocab = NULL,
+      sources = list(
+        fishtraits = nsrc("fishtraits", "max_temp_c", "FishTraits (Frimpong & Angermeier 2009)", "30-year average maximum July temperature at the range centroid, degrees C, read from PRISM 400-m grids per the source's FGDC field definition. A range climate, not a heat tolerance: it runs at 0.88x the CTmax thermofresh measures on the same species.")
+      )
+    ),
 
     ## ---- AVONET bird morphology (numeric, mm; single-source) --------------
     beak_width = list(

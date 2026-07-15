@@ -1,3 +1,43 @@
+# taxify 0.3.14
+
+## A wrong temperature reached users, and is fixed
+
+* FishTraits shipped a `-1` missing-data code in its two temperature columns, so
+  90 introduced fish (goldfish, zebrafish, brown trout) reported a July maximum
+  of -1 degrees C, which is impossible in the conterminous US. `add_fishtraits()`
+  surfaced it as `ft_min_temp_c` / `ft_max_temp_c`. The rebuilt data reads NA for
+  those species, and the warmest-month value now bottoms out at a believable
+  20.4 degrees C. Species whose January minimum genuinely is -1 keep it.
+* The same source also used "." for an absent text value, which reached
+  `ft_itis_tsn` and `ft_common_name`, and produced five unusable rows named
+  after a family ("Percidae ."). Both are cleaned.
+* The corrected data ships under the existing release, and taxify refreshes a
+  stale local copy once, on its own, the first time you use it.
+
+## The range climate gains its minimum and maximum
+
+* New `climatic_temp_min` and `climatic_temp_max` (degrees C): the coldest-month
+  and warmest-month temperature at a species' range centroid, from FishTraits.
+  They join `climatic_temp_mean` in the climatic-niche family, which stays apart
+  from the organismal `thermal_max` / `thermal_min`. Largemouth bass shows why
+  the split earns its keep: its range tops out at 32.0 degrees C while it can
+  survive 33.5. These were held back until the `-1` code above was fixed.
+
+## Plant chromosome numbers
+
+* New `add_ccdb()`: somatic chromosome numbers from the Chromosome Counts
+  Database for 65,051 plant species, with the range of cytotypes each spans.
+  CCDB states no licence, so taxify publishes no copy; the door builds it on your
+  machine through taxifydb, like the other build-only sources.
+* The `chromosome_number` trait continues to come from Kew alone. CCDB covers
+  seven times more species, but a source reachable only where a build tool is
+  installed would make `add_trait()` return a different number on two machines
+  running the same code.
+* Kew's plant genome size stays behind `add_kew_cvalues()` in picograms rather
+  than joining the prokaryote `genome_size` trait in base pairs. The picogram to
+  base-pair conversion is a constant, but a plant 1C value counts every subgenome
+  a polyploid carries, while a bacterial genome size counts one chromosome.
+
 # taxify 0.3.13
 
 ## Four sources taxify cannot redistribute now have doors

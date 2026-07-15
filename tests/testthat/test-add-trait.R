@@ -350,6 +350,12 @@ test_that("the climatic niche stays separate from organismal thermal tolerance",
   lt <- list_traits()
   expect_equal(lt$unit[lt$trait == "climatic_temp_mean"], "deg C")
 
+  # The family is the three range-climate traits, all deg C.
+  fam <- grep("^climatic_", lt$trait, value = TRUE)
+  expect_setequal(fam, c("climatic_temp_mean", "climatic_temp_min",
+                         "climatic_temp_max"))
+  expect_true(all(lt$unit[lt$trait %in% fam] == "deg C"))
+
   # No source may feed both families: that is the confusion the split prevents.
   for (tr in c("thermal_max", "thermal_min")) {
     th <- suppressMessages(trait_info(tr))
@@ -374,22 +380,73 @@ test_that("the climatic niche stays separate from organismal thermal tolerance",
   }
 })
 
-test_that("fishtraits climatic temps stay unregistered while the -1 code stands", {
-  # The shipped fishtraits.vtr carries an unhandled -1 missing-data code in
-  # min_temp_c / max_temp_c (taxifydb#13). It is identifiable only as the pair
-  # min == max == -1, so a single-column map cannot strip it without destroying
-  # the 8 species whose January minimum genuinely is -1.
-  expect_false("climatic_temp_min" %in% names(taxify:::.trait_registry()))
-  expect_false("climatic_temp_max" %in% names(taxify:::.trait_registry()))
+test_that("fishtraits climatic temps register as the range-climate min and max", {
+  for (tr in c("climatic_temp_min", "climatic_temp_max")) {
+    ti <- suppressMessages(trait_info(tr))
+    expect_equal(ti$source, "fishtraits", info = tr)
+    lt <- list_traits()
+    expect_equal(lt$unit[lt$trait == tr], "deg C", info = tr)
+  }
+  reg <- taxify:::.trait_registry()
+  expect_equal(reg$climatic_temp_min$sources$fishtraits$col, "min_temp_c")
+  expect_equal(reg$climatic_temp_max$sources$fishtraits$col, "max_temp_c")
+
+  # Taken verbatim, in the source's own unit: the map rescales nothing.
+  for (tr in c("climatic_temp_min", "climatic_temp_max")) {
+    m <- reg[[tr]]$sources$fishtraits$map
+    expect_equal(m(c("20.4", "-22.5", "32")), c(20.4, -22.5, 32), info = tr)
+  }
+  # The -1 no-range code is the parser's job, where the whole range-derived
+  # block is in scope. A map sees one column and would destroy the genuine
+  # -1 January minima, so it must not try.
+  expect_equal(reg$climatic_temp_min$sources$fishtraits$map("-1"), -1)
 })
 
-test_that("chromosome_number ships from kew_cvalues alone (CCDB rejected)", {
-  # CCDB's statistics endpoint pools gametic and sporophytic counts, so its
-  # column carries n, not the 2n it claims (taxifydb#12). Kew's is clean 2n.
+test_that("chromosome_number ships from kew_cvalues alone (CCDB is build-only)", {
+  # CCDB's counts are correct now, but it carries no licence and so has no
+  # published .vtr. It reaches users through add_ccdb(), not the verb.
   ti <- suppressMessages(trait_info("chromosome_number"))
   expect_equal(ti$source, "kew_cvalues")
   expect_equal(ti$column, "chromosome_2n")
   expect_false("ccdb" %in% ti$source)
+})
+
+test_that("plant 1C genome size stays out of the prokaryote genome_size trait", {
+  # 1 pg = 0.978 Gbp is a constant, but a plant 1C is the holoploid gametic
+  # complement (it scales with ploidy) while a prokaryote genome size is one
+  # haploid chromosome. Disjoint taxa would hide that, not expose it.
+  ti <- suppressMessages(trait_info("genome_size"))
+  expect_equal(ti$source, "madin")
+  expect_false("kew_cvalues" %in% ti$source)
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "genome_size"], "bp")
+  # No trait may pick up kew's picogram column under a base-pair unit.
+  reg <- taxify:::.trait_registry()
+  for (tr in names(reg)) {
+    for (sn in names(reg[[tr]]$sources)) {
+      s <- reg[[tr]]$sources[[sn]]
+      if (identical(s$enrichment, "kew_cvalues")) {
+        expect_false(s$col == "genome_size_1c_pg",
+                     info = sprintf("trait '%s' uses kew 1C picograms", tr))
+      }
+    }
+  }
+})
+
+test_that("no build-only source feeds the cross-source trait verb", {
+  # Every trait source must be a downloadable .vtr. A source reachable only
+  # where taxifydb is installed would make add_trait() return a different
+  # number on two machines running the same code, with no error.
+  bo  <- taxify:::.build_only_enrichments()
+  reg <- taxify:::.trait_registry()
+  for (tr in names(reg)) {
+    for (sn in names(reg[[tr]]$sources)) {
+      enr <- reg[[tr]]$sources[[sn]]$enrichment
+      expect_false(enr %in% bo,
+                   info = sprintf("trait '%s' uses build-only source '%s'",
+                                  tr, enr))
+    }
+  }
 })
 
 test_that("wingspan corrects the mislabelled leptraits cm column to mm", {
