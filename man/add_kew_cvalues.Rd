@@ -19,15 +19,26 @@ names. See \code{\link{enrichment_cols}}.}
 The same data.frame with additional columns. The default set:
 \describe{
 \item{cval_genome_size_1c_pg}{Genome size (1C DNA amount, picograms).}
-\item{cval_chromosome_2n}{Somatic chromosome number (2n).}
-\item{cval_ploidy_x}{Ploidy level.}
+\item{cval_chromosome_2n}{Somatic chromosome number (2n), base cytotype.}
+\item{cval_ploidy_x}{Ploidy level, base cytotype.}
 }
-\code{cols = "all"} also attaches the per-species min/max/n spread of each value.
+\code{cols = "all"} also attaches the per-species min/max/n spread of each value,
+plus per-species provenance:
+\describe{
+\item{cval_original_reference}{The paper(s) the values were measured in,
+joined by \code{"; "} where a species carries records from several.}
+\item{cval_estimation_method}{The method(s) used, in the source's codes:
+\code{FC:PI} and other \verb{FC:} variants are flow cytometry with the named stain,
+\code{Fe} is Feulgen densitometry. The two are not interchangeable, so a
+species measured by both reports both.}
+}
 }
 \description{
 Joins plant genome-size data from the Kew Plant DNA C-values database
 (Pellicer & Leitch 2020) to a \code{\link[=taxify]{taxify()}} result by looking up \code{accepted_name}.
-Records are reduced to per-species medians.
+The 1C DNA amount is a per-species median. The chromosome number and ploidy
+level are the base cytotype, with the range across a species' cytotypes in the
+\verb{_min} / \verb{_max} columns.
 }
 \details{
 Source: Kew Plant DNA C-values database, release 7.1 (Royal Botanic Gardens

@@ -37,6 +37,15 @@
   triploid carries an odd 2n by definition (Tahiti lime is 2n = 3x = 27), as do
   aneuploid hybrids and the gametophytic counts of mosses and liverworts.
 * Kew's plant genome size is a continuous measurement and is unaffected.
+* Every Kew value can now be traced to the paper it was measured in.
+  `add_kew_cvalues(cols = "all")` attaches `cval_original_reference` and
+  `cval_estimation_method`, both populated for every species, covering 941
+  distinct papers. Where a species carries records from several papers, all are
+  listed, as with *Arabidopsis thaliana* ("Bennett et al.,2003; Schmuths
+  et al.,2004").
+* The estimation method is worth reading before comparing genome sizes. 9,015
+  species were measured by flow cytometry and 3,391 by Feulgen densitometry,
+  which are different measurements, and 97 species carry both.
 * The corrected data ships under the existing release, and taxify refreshes a
   stale local copy once, on its own, the first time you use it.
 * New `add_ccdb()`: somatic chromosome numbers from the Chromosome Counts
