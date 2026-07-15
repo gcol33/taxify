@@ -1039,11 +1039,16 @@
   # for that species only, without cautioning the source's measured values. A
   # per-record caution annotates provenance; it does not make the trait
   # method-discordant (it stays out of the coalesce's complete/median switch).
+  # `group` pins the grain a source is read at, as a named length-1 vector
+  # (c(<group column> = <value>)). A .vtr that carries several rows per species
+  # -- one per group plus a species-level aggregate, e.g. gidias's
+  # affected_taxon -- is otherwise read by whichever row sorts first, which is
+  # not a contract. Sources on a single-grain .vtr leave it NULL.
   nsrc <- function(enr, col, cite, note, map = num, caution = NA_character_,
-                   join_col = "accepted_name",
+                   join_col = "accepted_name", group = NULL,
                    caution_col = NA_character_, caution_fn = NULL) {
     list(enrichment = enr, col = col, citation = cite, note = note,
-         map = map, caution = caution, join_col = join_col,
+         map = map, caution = caution, join_col = join_col, group = group,
          caution_col = caution_col, caution_fn = caution_fn)
   }
 
@@ -1497,6 +1502,7 @@
       sources = list(
         gidias = nsrc("gidias", "gidias_eicat_category", "Bacher et al. 2025 (GIDIAS)",
                       "IUCN EICAT category: most severe magnitude among the species' negative environmental impacts (MC/MN/MO/MR/MV), or DD.",
+                      group = c(affected_taxon = "Any"),
                       map = function(v) {
                         u <- toupper(trimws(as.character(v)))
                         u[!(u %in% c("MC", "MN", "MO", "MR", "MV", "DD"))] <- NA_character_
@@ -1510,6 +1516,7 @@
       sources = list(
         gidias = nsrc("gidias", "gidias_seicat_category", "Bacher et al. 2025 (GIDIAS)",
                       "IUCN SEICAT category: most severe magnitude among the species' negative socio-economic impacts (MC/MN/MO/MR), or DD.",
+                      group = c(affected_taxon = "Any"),
                       map = function(v) {
                         u <- toupper(trimws(as.character(v)))
                         u[!(u %in% c("MC", "MN", "MO", "MR", "DD"))] <- NA_character_
@@ -2905,20 +2912,35 @@
 # source that is unavailable (not installed, no download, no build) is skipped
 # with a warning and returns NULL, so add_trait() still works from the rest.
 .trait_join_one <- function(x, enrichment, col, kind, join_col = "accepted_name",
-                            verbose = TRUE) {
+                            group = NULL, verbose = TRUE) {
   tmp  <- ".__taxify_trait_raw__"
   na_t <- stats::setNames(
     list(if (kind == "numeric") NA_real_ else NA_character_), tmp)
   res <- tryCatch(
-    enrich_simple(
-      x, enrichment_name = enrichment,
-      col_map      = stats::setNames(col, tmp),
-      source_label = enrichment,
-      na_types     = na_t,
-      join_col     = join_col,
-      expose_all   = FALSE,
-      verbose      = FALSE
-    ),
+    if (is.null(group)) {
+      enrich_simple(
+        x, enrichment_name = enrichment,
+        col_map      = stats::setNames(col, tmp),
+        source_label = enrichment,
+        na_types     = na_t,
+        join_col     = join_col,
+        expose_all   = FALSE,
+        verbose      = FALSE
+      )
+    } else {
+      # A grain-pinned source (see nsrc's `group`): one group, so the value
+      # lands in an unsuffixed `tmp` exactly as the ungrouped path leaves it.
+      enrich_by_group(
+        x, enrichment_name = enrichment,
+        group_col    = names(group),
+        groups       = unname(group),
+        value_cols   = stats::setNames(col, tmp),
+        source_label = enrichment,
+        na_types     = na_t,
+        expose_all   = FALSE,
+        verbose      = FALSE
+      )
+    },
     error = function(e) {
       if (verbose) {
         warning(sprintf(

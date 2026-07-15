@@ -1314,8 +1314,8 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
 #' @noRd
 enrich_by_group <- function(x, enrichment_name, group_col, groups,
                             value_cols, source_label,
-                            na_types = NULL, cols = NULL, expose_all = TRUE,
-                            verbose = TRUE) {
+                            na_types = NULL, cols = NULL, col_prefix = NULL,
+                            expose_all = TRUE, verbose = TRUE) {
   if (!"accepted_name" %in% names(x)) {
     stop("x must have an 'accepted_name' column (from taxify())", call. = FALSE)
   }
@@ -1352,13 +1352,13 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   # Expose every other per-(species, group) column the widened .vtr carries,
   # defaulting output to the door's curated value_cols. cols selects among them
   # ("all" or a vector); the extras keep their .vtr names.
+  default_vc <- names(value_cols)
   if (isTRUE(expose_all)) {
     reserved <- c(join_key, group_col, "canonical_name", "accepted_name",
                   "genus", unname(value_cols))
     extra <- setdiff(names(schema), reserved)
     extra <- extra[!is.na(extra) & nzchar(extra)]
     if (length(extra) > 0L) {
-      default_vc <- names(value_cols)
       ex_out <- make.unique(c(names(value_cols), extra))[-seq_along(value_cols)]
       value_cols <- c(value_cols, stats::setNames(extra, ex_out))
       if (is.null(na_types)) na_types <- list()
@@ -1366,20 +1366,13 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
         na_types[[ex_out[k]]] <-
           if (is.numeric(schema[[extra[k]]])) NA_real_ else NA_character_
       }
-      sel <- if (is.null(cols)) default_vc
-             else if (length(cols) == 1L && identical(tolower(cols), "all"))
-               names(value_cols)
-             else {
-               idx <- match(tolower(cols), tolower(names(value_cols)))
-               if (anyNA(idx)) stop(sprintf(
-                 "add_%s(): unknown column(s): %s. Use \"all\", names, or NULL.",
-                 enrichment_name, paste(cols[is.na(idx)], collapse = ", ")),
-                 call. = FALSE)
-               names(value_cols)[idx]
-             }
-      value_cols <- value_cols[sel]
     }
   }
+  # Same selector the ungrouped doors use, so cols behaves identically on both
+  # (and is honoured even when the .vtr carries no extras beyond the curated
+  # set, which the grouped path used to skip).
+  value_cols <- .apply_col_selection(value_cols, cols, default_vc, col_prefix,
+                                     enrichment_name)
 
   # Resolve "all" groups: manifest (O(1)) → vectra distinct() (fallback)
   if (length(groups) == 1L && !anyNA(groups) && groups == "all") {

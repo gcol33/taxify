@@ -4,10 +4,23 @@
 \alias{add_gidias}
 \title{Add invasive-species impact (EICAT / SEICAT, GIDIAS)}
 \usage{
-add_gidias(x, cols = NULL, verbose = TRUE)
+add_gidias(x, group = "Any", cols = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
+
+\item{group}{Character. Which affected native taxon the impact is measured
+against:
+\itemize{
+\item \code{"Any"} (default): every impact record for the species, the
+species-level summary.
+\item One of \code{"Plant"}, \code{"Invertebrate"}, \code{"Vertebrate"}, \code{"Microbe"},
+\code{"Fungi"}: only the impacts recorded against that group.
+\item Several (e.g. \code{c("Plant", "Vertebrate")}): adds columns with a
+group suffix (e.g. \code{gidias_eicat_category_Plant}).
+\item \code{"all"}: one column set per group, \code{"Any"} included.
+}
+List them with \code{enrichment_groups("gidias")}.}
 
 \item{cols}{Which columns to attach: \code{NULL} (default) the curated set,
 \code{"all"} every column the source carries, or a character vector of
@@ -57,11 +70,35 @@ the IPBES thematic assessment report on invasive alien species. Only the
 derived per-species aggregates are distributed here, not the raw impact
 records.
 }
+\section{What a species impacts}{
+
+GIDIAS records the affected native taxon per impact record, so \code{group}
+asks the question at that grain: \code{add_gidias(group = "Invertebrate")} scores
+\emph{Felis catus} \code{"MO"} (reduced populations) where the default \code{"Any"} scores
+it \code{"MV"}, the global extinctions it drove among vertebrates. 28\% of species
+with a recorded affected taxon impact two or more of the five groups, so for
+those the species-level category is the most severe impact on anything, not
+the impact on each thing.
+
+The vocabulary is the coarse one GIDIAS controls: \code{"Vertebrate"}, not
+\code{"Aves"}. \code{"Any"} is the only group carrying SEICAT and the impact records
+with no affected taxon recorded (12\% of the negative ones), so
+\code{gidias_seicat_category} is \code{NA} on every other group: socio-economic impact
+is not a question the affected-native-taxon axis can answer.
+}
+
 \examples{
 \dontrun{
 # Downloads the GIDIAS enrichment on first use.
 taxify("Felis catus", backend = "gbif") |>
   add_gidias()
+
+# What the cat does to invertebrates, rather than to anything at all.
+taxify("Felis catus", backend = "gbif") |>
+  add_gidias(group = "Invertebrate")
+
+taxify("Felis catus", backend = "gbif") |>
+  add_gidias(group = c("Invertebrate", "Vertebrate"))
 }
 
 }

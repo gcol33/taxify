@@ -153,7 +153,8 @@ add_trait <- function(x, trait, sources = "all",
       }
     } else {
       raw <- .trait_join_one(x, sp$enrichment, sp$col, spec$kind,
-                             join_col = jc, verbose = verbose)
+                             join_col = jc, group = sp$group,
+                             verbose = verbose)
       per_src[[s]] <- if (is.null(raw)) rep(na_scalar, nrow(x)) else sp$map(raw)
     }
   }
@@ -179,7 +180,7 @@ add_trait <- function(x, trait, sources = "all",
     if (!is_perrec(sp)) next
     jc   <- sp$join_col %||% "accepted_name"
     comp <- .trait_join_one(x, sp$enrichment, sp$caution_col, "categorical",
-                            join_col = jc, verbose = FALSE)
+                            join_col = jc, group = sp$group, verbose = FALSE)
     if (is.null(comp)) next
     ctext <- sp$caution_fn(comp)
     ctext[is.na(per_src[[s]])] <- NA_character_   # only where the source has a value

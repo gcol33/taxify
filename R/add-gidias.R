@@ -15,6 +15,18 @@
 #' [add_trait()] with `"environmental_impact"` or `"socioeconomic_impact"`.
 #'
 #' @param x A data.frame returned by [taxify()].
+#' @param group Character. Which affected native taxon the impact is measured
+#'   against:
+#'   \itemize{
+#'     \item `"Any"` (default): every impact record for the species, the
+#'       species-level summary.
+#'     \item One of `"Plant"`, `"Invertebrate"`, `"Vertebrate"`, `"Microbe"`,
+#'       `"Fungi"`: only the impacts recorded against that group.
+#'     \item Several (e.g. `c("Plant", "Vertebrate")`): adds columns with a
+#'       group suffix (e.g. `gidias_eicat_category_Plant`).
+#'     \item `"all"`: one column set per group, `"Any"` included.
+#'   }
+#'   List them with `enrichment_groups("gidias")`.
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set,
 #'   \code{"all"} every column the source carries, or a character vector of
 #'   names. See \code{\link{enrichment_cols}}.
@@ -39,6 +51,21 @@
 #' (0-3), the affected well-being constituents, kingdom, the negative-record
 #' count, and a global-extinction flag.
 #'
+#' @section What a species impacts:
+#' GIDIAS records the affected native taxon per impact record, so `group`
+#' asks the question at that grain: `add_gidias(group = "Invertebrate")` scores
+#' *Felis catus* `"MO"` (reduced populations) where the default `"Any"` scores
+#' it `"MV"`, the global extinctions it drove among vertebrates. 28% of species
+#' with a recorded affected taxon impact two or more of the five groups, so for
+#' those the species-level category is the most severe impact on anything, not
+#' the impact on each thing.
+#'
+#' The vocabulary is the coarse one GIDIAS controls: `"Vertebrate"`, not
+#' `"Aves"`. `"Any"` is the only group carrying SEICAT and the impact records
+#' with no affected taxon recorded (12% of the negative ones), so
+#' `gidias_seicat_category` is `NA` on every other group: socio-economic impact
+#' is not a question the affected-native-taxon axis can answer.
+#'
 #' @details
 #' Source: GIDIAS (Bacher et al. 2025, Scientific Data; CC BY 4.0), compiled for
 #' the IPBES thematic assessment report on invasive alien species. Only the
@@ -54,20 +81,28 @@
 #' # Downloads the GIDIAS enrichment on first use.
 #' taxify("Felis catus", backend = "gbif") |>
 #'   add_gidias()
+#'
+#' # What the cat does to invertebrates, rather than to anything at all.
+#' taxify("Felis catus", backend = "gbif") |>
+#'   add_gidias(group = "Invertebrate")
+#'
+#' taxify("Felis catus", backend = "gbif") |>
+#'   add_gidias(group = c("Invertebrate", "Vertebrate"))
 #' }
 #'
 #' @export
-add_gidias <- function(x, cols = NULL, verbose = TRUE) {
+add_gidias <- function(x, group = "Any", cols = NULL, verbose = TRUE) {
   base_cols <- c(
     "gidias_eicat_category", "gidias_eicat_mechanism",
     "gidias_seicat_category", "gidias_ias_taxon", "gidias_realms",
     "gidias_n_records", "gidias_n_sources"
   )
-  col_map <- stats::setNames(base_cols, base_cols)
-  enrich_simple(
+  enrich_by_group(
     x,
     enrichment_name = "gidias",
-    col_map         = col_map,
+    group_col       = "affected_taxon",
+    groups          = group,
+    value_cols      = stats::setNames(base_cols, base_cols),
     source_label    = "GIDIAS (Bacher et al. 2025)",
     cols            = cols,
     col_prefix      = "gidias_",

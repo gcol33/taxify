@@ -1,3 +1,26 @@
+# taxify (development version)
+
+## `add_gidias()` can ask what a species impacts
+
+* GIDIAS scores each impact record against an affected native taxon, so
+  `add_gidias(group = )` reads impact at that grain: *Felis catus* is `"MO"`
+  against invertebrates (reduced populations) where the default is `"MV"`, the
+  global extinctions it drove among vertebrates. 28% of species with an
+  affected taxon recorded impact two or more of the five groups
+  (`Plant`, `Invertebrate`, `Vertebrate`, `Microbe`, `Fungi`), so for those the
+  species-level category is the most severe impact on anything, not the impact
+  on each thing. `enrichment_groups("gidias")` lists them; several groups
+  suffix the columns, as `add_alien_first_records()` does for countries.
+
+* `add_gidias()` with no `group` is unchanged: it reads the `"Any"` grain, the
+  same all-records summary it returned before, with the same columns. `"Any"`
+  is the only grain carrying SEICAT and the impact records with no affected
+  taxon recorded, so `gidias_seicat_category` is `NA` on the other groups.
+  Requires the rebuilt `gidias` enrichment.
+
+* `cols` now works on the grouped doors even when the source carries no columns
+  beyond the curated set, which previously ignored it.
+
 # taxify 0.3.14
 
 ## A wrong temperature reached users, and is fixed
