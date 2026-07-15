@@ -25,6 +25,16 @@
 
 ## Plant chromosome numbers
 
+* `chromosome_number` reported an odd count for 356 plants, and is fixed.
+  *Arabidopsis thaliana* read 15 and *Acer campestre* 39, from species recorded
+  at more than one cytotype: averaging a diploid 2n = 10 and a tetraploid 2n = 20
+  lands on 15, which no plant carries. The value is now the base cytotype (10 and
+  26 for those two), and the range across cytotypes is reported in
+  `chromosome_number_min` / `chromosome_number_max`, so nothing is lost. Ploidy
+  is now a whole number for every species, and 421 species change value.
+* Kew's plant genome size is a continuous measurement and is unaffected.
+* The corrected data ships under the existing release, and taxify refreshes a
+  stale local copy once, on its own, the first time you use it.
 * New `add_ccdb()`: somatic chromosome numbers from the Chromosome Counts
   Database for 65,051 plant species, with the range of cytotypes each spans.
   CCDB states no licence, so taxify publishes no copy; the door builds it on your
