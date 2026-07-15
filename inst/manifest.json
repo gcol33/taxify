@@ -80,31 +80,35 @@
       "source_url": "https://www.itis.gov/downloads/itisSqlite.zip"
     },
     "euromed": {
-      "latest": "2026.06",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/euromed-2026.06/euromed.vtr",
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/euromed-2026.07/euromed.vtr",
       "citation": {
-        "key": "euromed2020",
+        "key": "euromed2026",
         "type": "misc",
         "authors": "Euro+Med",
-        "year": "2020",
+        "year": "2026",
         "title": "Euro+Med PlantBase -- the information resource for Euro-Mediterranean plant diversity",
-        "url": "https://europlusmed.org"
+        "url": "https://europlusmed.org",
+        "note": "accessed 2026-07-11"
       },
-      "full_size": 30389373,
-      "full_sha256": "6ff976b2f056f65034684a4c2d26a5426ea0a40a58a8c11664220f2a4a9b6757",
-      "nrow": 133426
+      "full_size": 34576063,
+      "full_sha256": "4515c73ed5ab65dcdb87f94be55e747ff6e4095321ffe6cb697f1da8e25f1731",
+      "nrow": 146922,
+      "content_id": "066682024bbd866f476d0aeaf3c02e00",
+      "source_url": "https://europlusmed.org"
     },
     "register": {
       "latest": "2024.12",
       "full_url": "https://zenodo.org/records/PLACEHOLDER/files/register_2024.12.vtr"
     },
     "ncbi": {
-      "latest": "2026.05",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/ncbi-2026.05/ncbi.vtr",
-      "full_size": 510291103,
-      "full_sha256": "81a482f304c276011ba7913a5b8aef988b241575958ce73fd140cf0c3575ef02",
-      "nrow": 2739317,
-      "source_url": "https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz"
+      "latest": "2026.06",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/ncbi-2026.06/ncbi.vtr",
+      "full_size": 514271185,
+      "full_sha256": "8db142ab21d93240f71f51972c69e15ec484b19cf915ea4bb08c239348a637b3",
+      "nrow": 2759103,
+      "source_url": "https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz",
+      "content_id": "cf68cc9c431162a128e7468ae2ea7216"
     },
     "ott": {
       "latest": "3.7.3",

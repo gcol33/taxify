@@ -237,6 +237,9 @@ format_bibtex_entry <- function(cit) {
   add_field("pages",   cit$pages)
   add_field("doi",     cit$doi)
   add_field("url",     cit$url)
+  # Carries the access date for sources harvested live from a server, where
+  # the year alone does not identify what was retrieved.
+  add_field("note",    cit$note)
 
   paste0(
     sprintf("@%s{%s,\n", bib_type, key),

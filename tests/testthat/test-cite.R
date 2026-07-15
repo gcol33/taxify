@@ -168,6 +168,21 @@ test_that("format_bibtex_entry produces valid misc entry", {
   bib <- format_bibtex_entry(cit)
   expect_true(grepl("^@misc\\{wfo2024,", bib))
   expect_true(grepl("url = \\{http", bib))
+  expect_false(grepl("note = ", bib))
+})
+
+test_that("format_bibtex_entry carries note through", {
+  cit <- list(
+    key     = "euromed2026",
+    type    = "misc",
+    authors = "Euro+Med",
+    year    = "2026",
+    title   = "Euro+Med PlantBase",
+    url     = "https://europlusmed.org",
+    note    = "accessed 2026-07-11"
+  )
+  bib <- format_bibtex_entry(cit)
+  expect_true(grepl("note = \\{accessed 2026-07-11\\}", bib))
 })
 
 
