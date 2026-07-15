@@ -16,6 +16,27 @@
 
 # ---- Path helpers ----
 
+#' Enrichments taxify builds locally and never redistributes
+#'
+#' taxify only ships a pre-built `.vtr` for a source whose licence permits
+#' redistribution. These sources do not qualify -- their terms are citation-only
+#' or unstated -- so no asset is published, they carry no manifest entry, and no
+#' version can be checked. Their doors reach them through taxifydb, which builds
+#' the `.vtr` from the original source on the user's own machine. taxify
+#' redistributes none of the data.
+#'
+#' ccdb has no door yet: its counts pool gametic and sporophytic records, so the
+#' column taxifydb names chromosome_number_2n predominantly carries n. Blocked on
+#' gcol33/taxifydb#12; the chromosome_number trait ships from kew_cvalues alone
+#' until then.
+#'
+#' @return Character vector of enrichment identifiers.
+#' @noRd
+.build_only_enrichments <- function() {
+  c("ccdb", "gmpd", "plantatt", "bryoatt", "clopla")
+}
+
+
 #' Return the versioned directory for an enrichment
 #' @noRd
 enrichment_dir <- function(name, version = "latest") {
@@ -104,6 +125,10 @@ reconcile_content_id <- function(vtr_path, local_cid, bundled_cid,
 check_enrichment_version <- function(name) {
   # Never refresh against the read-only example database (offline fixtures).
   if (is_example_data_dir()) return(FALSE)
+
+  # A build-only source publishes no asset and has no manifest entry, so there
+  # is no version to compare against: the local build is the only copy.
+  if (name %in% .build_only_enrichments()) return(FALSE)
 
   vtr_path <- enrichment_vtr_path(name)
   meta <- read_enrichment_meta(vtr_path)
@@ -199,14 +224,17 @@ ensure_enrichment <- function(name, verbose = TRUE) {
     return(vtr_path)
   }
 
-  # 4. Download from manifest
-  path <- tryCatch(
-    download_enrichment(name, verbose = verbose),
-    error = function(e) NULL
-  )
-  if (!is.null(path) && file.exists(path)) {
-    set_backbone_path(cache_key, path)
-    return(path)
+  # 4. Download from manifest (a build-only source publishes no asset, so this
+  #    step is skipped rather than attempted and swallowed).
+  if (!name %in% .build_only_enrichments()) {
+    path <- tryCatch(
+      download_enrichment(name, verbose = verbose),
+      error = function(e) NULL
+    )
+    if (!is.null(path) && file.exists(path)) {
+      set_backbone_path(cache_key, path)
+      return(path)
+    }
   }
 
   # 5. Build from source via taxifydb (if installed)
@@ -216,7 +244,11 @@ ensure_enrichment <- function(name, verbose = TRUE) {
     if (name %in% available) {
       if (verbose) {
         message(sprintf(
-          "Pre-built .vtr not available for enrichment '%s'. Building from source via taxifydb...",
+          if (name %in% .build_only_enrichments()) {
+            "Enrichment '%s' is not redistributed by taxify. Building it from the original source via taxifydb (one time)..."
+          } else {
+            "Pre-built .vtr not available for enrichment '%s'. Building from source via taxifydb..."
+          },
           name
         ))
       }
@@ -678,6 +710,16 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
 #' @noRd
 try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) {
   if (!requireNamespace("taxifydb", quietly = TRUE)) {
+    if (name %in% .build_only_enrichments()) {
+      stop(sprintf(
+        paste0("Enrichment '%s' requires the 'taxifydb' package.\n",
+               "  Its licence does not permit redistribution, so taxify ships no\n",
+               "  pre-built copy: taxifydb builds it from the original source on\n",
+               "  your own machine.\n",
+               "  Install with: remotes::install_github(\"gcol33/taxifydb\")"),
+        name
+      ), call. = FALSE)
+    }
     stop(sprintf(
       paste0("Enrichment '%s' is not available:\n",
              "  %s\n",

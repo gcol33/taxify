@@ -280,8 +280,116 @@ test_that("prokaryote traits (Madin) map cleanly, including tricky substrings", 
 
 test_that("thermal_max gains the pottier amphibian source", {
   ti <- suppressMessages(trait_info("thermal_max"))
-  expect_setequal(ti$source, c("globtherm", "pottier"))
+  expect_setequal(ti$source, c("globtherm", "pottier", "thermofresh"))
   expect_equal(ti$column[ti$source == "pottier"], "heat_tolerance_c")
+})
+
+test_that("thermofresh feeds both thermal limits from its CTmax/CTmin columns", {
+  # Calibrated against globtherm before wiring: ratio 1.00 on 135 shared species
+  # for ctmax, 1.00 on 16 for ctmin. The source's lethal columns (lt50, ltmax,
+  # ltmin) are deliberately left out, so one record type feeds each trait.
+  tmax <- suppressMessages(trait_info("thermal_max"))
+  tmin <- suppressMessages(trait_info("thermal_min"))
+  expect_equal(tmax$column[tmax$source == "thermofresh"], "ctmax")
+  expect_equal(tmin$column[tmin$source == "thermofresh"], "ctmin")
+  expect_setequal(tmin$source, c("globtherm", "thermofresh"))
+  # Both limits stay on one unit, so the coalesce never mixes scales.
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "thermal_max"], "deg C")
+  expect_equal(lt$unit[lt$trait == "thermal_min"], "deg C")
+})
+
+test_that("forearm_length is registered from the three mammal sources", {
+  # combine and pantheria both carried the standard bat measurement without any
+  # trait claiming it; they agree at ratio 1.00 on 972 shared species.
+  ti <- suppressMessages(trait_info("forearm_length"))
+  expect_setequal(ti$source, c("combine", "pantheria", "eurobat"))
+  expect_equal(ti$column[ti$source == "pantheria"], "x8_1_adultforearmlen_mm")
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "forearm_length"], "mm")
+})
+
+test_that("eurobat and fishtraits reach the traits they calibrated against", {
+  for (tr in c("body_mass", "longevity", "clutch_litter_size", "diet_guild")) {
+    ti <- suppressMessages(trait_info(tr))
+    expect_true("eurobat" %in% ti$source, info = tr)
+  }
+  for (tr in c("longevity", "age_at_maturity")) {
+    ti <- suppressMessages(trait_info(tr))
+    expect_true("fishtraits" %in% ti$source, info = tr)
+  }
+  # fishtraits' temperature columns are a climatic niche, not organismal
+  # tolerance (min_temp_c runs to -22.5 deg C), so they stay out of the thermal
+  # traits and ship as the climatic_temp_* family instead; its max_length_cm is
+  # the same data as fishbase.
+  for (tr in c("thermal_min", "thermal_max", "body_length")) {
+    ti <- suppressMessages(trait_info(tr))
+    expect_false("fishtraits" %in% ti$source, info = tr)
+  }
+  # copepod_traits is the Brun compilation that zooplankton already ingested.
+  for (tr in c("body_length", "clutch_litter_size", "egg_length")) {
+    ti <- suppressMessages(trait_info(tr))
+    expect_false("copepod_traits" %in% ti$source, info = tr)
+  }
+})
+
+test_that("eurobat diet maps onto the shared guild vocabulary", {
+  reg <- taxify:::.trait_registry()
+  m   <- reg$diet_guild$sources$eurobat$map
+  expect_equal(m(c("Insectivorous", "Frugivorous")),
+               c("invertivore", "frugivore"))
+})
+
+test_that("the climatic niche stays separate from organismal thermal tolerance", {
+  # Range climate and thermal tolerance are both deg C, so nothing but the
+  # quantity keeps them apart: a species' range climate sits well inside what it
+  # can survive. fishtraits' warmest-month value is 0.88x the CTmax thermofresh
+  # measures on the same species.
+  cmean <- suppressMessages(trait_info("climatic_temp_mean"))
+  expect_setequal(cmean$source, c("arthropod_traits", "repttraits"))
+  lt <- list_traits()
+  expect_equal(lt$unit[lt$trait == "climatic_temp_mean"], "deg C")
+
+  # No source may feed both families: that is the confusion the split prevents.
+  for (tr in c("thermal_max", "thermal_min")) {
+    th <- suppressMessages(trait_info(tr))
+    expect_false(any(th$source %in% c("fishtraits", "arthropod_traits")), info = tr)
+  }
+
+  # arthropod_traits contributes only its annual mean. Its thermal_minimum /
+  # thermal_maximum are the spatial spread of that same annual-mean surface (a
+  # niche breadth), not a within-year extreme, so they join nothing.
+  expect_equal(cmean$column[cmean$source == "arthropod_traits"], "thermal_mean")
+  reg <- taxify:::.trait_registry()
+  for (tr in names(reg)) {
+    for (sn in names(reg[[tr]]$sources)) {
+      s <- reg[[tr]]$sources[[sn]]
+      if (identical(s$enrichment, "arthropod_traits")) {
+        expect_false(
+          s$col %in% c("thermal_minimum", "thermal_maximum", "thermal_range"),
+          info = sprintf("trait '%s' uses arthropod col '%s'", tr, s$col)
+        )
+      }
+    }
+  }
+})
+
+test_that("fishtraits climatic temps stay unregistered while the -1 code stands", {
+  # The shipped fishtraits.vtr carries an unhandled -1 missing-data code in
+  # min_temp_c / max_temp_c (taxifydb#13). It is identifiable only as the pair
+  # min == max == -1, so a single-column map cannot strip it without destroying
+  # the 8 species whose January minimum genuinely is -1.
+  expect_false("climatic_temp_min" %in% names(taxify:::.trait_registry()))
+  expect_false("climatic_temp_max" %in% names(taxify:::.trait_registry()))
+})
+
+test_that("chromosome_number ships from kew_cvalues alone (CCDB rejected)", {
+  # CCDB's statistics endpoint pools gametic and sporophytic counts, so its
+  # column carries n, not the 2n it claims (taxifydb#12). Kew's is clean 2n.
+  ti <- suppressMessages(trait_info("chromosome_number"))
+  expect_equal(ti$source, "kew_cvalues")
+  expect_equal(ti$column, "chromosome_2n")
+  expect_false("ccdb" %in% ti$source)
 })
 
 test_that("wingspan corrects the mislabelled leptraits cm column to mm", {

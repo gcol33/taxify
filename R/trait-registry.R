@@ -463,6 +463,120 @@
 # on shared species against the existing mg sources: median(kew_tsw / seed_mass_mg)
 # = 1.00 vs diaz (n=23,277), bien (n=10,384), austraits (n=7,738, IQR exactly
 # [1,1]) and ecoflora (n=2,398). It roughly doubles seed_mass species coverage.
+# Twentieth wave (the Wave-A/Wave-B enrichments reach the verb; every numeric
+# source shared-species calibrated against an incumbent before wiring):
+#   - thermal_max / thermal_min gain thermofresh (freshwater fish, inverts and
+#     amphibians): ctmax ratio 1.00 vs globtherm on 135 shared species, ctmin
+#     ratio 1.00 on 16. Only ctmax/ctmin are taken -- the source keeps its lethal
+#     limits (lt50, ltmax, ltmin) in separate columns, so one record type feeds
+#     each trait instead of blending tolerance with lethality within a source.
+#   - forearm_length (NEW, mm): combine + pantheria + eurobat. The standard bat
+#     body measurement, carried by two incumbent sources (1130 and 1012 species)
+#     and never claimed by a trait. combine/pantheria agree at ratio 1.00 on 972
+#     shared species; eurobat 1.01 / 1.00 against them.
+#   - eurobat (52 European bats) also feeds body_mass (0.99 vs combine, 1.03 vs
+#     pantheria), longevity (1.00 vs anage), clutch_litter_size (1.00 vs combine
+#     and pantheria) and diet_guild (insectivorous -> invertivore via the existing
+#     diet_patterns).
+#   - fishtraits feeds longevity (1.00 vs anage on 295 shared species) and
+#     age_at_maturity (the years unit is pinned by anage's days column running
+#     365x higher on 70 shared species).
+#   - clutch_litter_size gains zooplankton clutchsize, the per-clutch count the
+#     wave-17 fecundity rejection already identified as the harmonizable slice.
+# Deliberately unregistered this wave (grounding rejections, kept so they are not
+# relitigated):
+#   - fishtraits min_temp_c / max_temp_c are NOT thermal_min / thermal_max. They
+#     are a climatic niche and belong in the climatic-niche family below, not in
+#     the bin. The source's own FGDC metadata settles it: min_temp_c is "the
+#     30-year average minimum January temperature at range centroid" and
+#     max_temp_c "30-year average maximum July temperature at range centroid",
+#     both extracted from PRISM 400-m grids. (The source files them under a
+#     "Temperature Tolerances" heading, which is what invites the misreading; the
+#     field definitions are unambiguous.) The data agrees -- min_temp_c reaches
+#     -22.5 deg C, impossible as a fish's organismal cold limit since its water
+#     freezes at 0, and max_temp_c runs below true CTmax (ratio 0.88 vs
+#     thermofresh on 115 shared species, 0.91 vs globtherm), as a range climate
+#     should. They are blocked from registering only by the -1 sentinel bug noted
+#     with the family below.
+#   - fishtraits max_length_cm is NOT a body_length source: ratio 1.000 vs
+#     fishbase on 794 shared species (IQR [0.997, 1.000]) -- the same-data trap
+#     already seen with FISHMORPH==FishBase and lizard_traits==Oskyrko.
+#   - copepod_traits is NOT a source for body_length / clutch_litter_size /
+#     egg_length: it is the Brun et al. 2017 compilation that the registered
+#     zooplankton DB (Pata & Hunt 2025) ingested. 1356 of its 1524 species are
+#     already in zooplankton; on the 1118 species where both carry a body length
+#     36.9% are EXACTLY equal and 88% of the rest sit below zooplankton's max,
+#     the signature of one lineage aggregated median-vs-max. Its clutch_size is
+#     70.7% exactly equal to zooplankton clutchsize on the 41 shared species and
+#     adds 1 net-new species, so zooplankton carries that slot instead. Its
+#     egg_diameter_um also stays out: egg diameter is not the egg_length the
+#     amniote/repttraits/chelonians slots measure, the same definitional gap that
+#     keeps offspring_size unregistered.
+#   - eurobat aspectratioindex is NOT aspect_ratio: a bat's WING aspect ratio is a
+#     different quantity from the beukhof/quimbayo fish CAUDAL-FIN aspect ratio, a
+#     column-name match over two unrelated measurements.
+#   - fishtraits repro_guild (Balon codes A_1_1, A_1_2, ...) ships no legend, so
+#     decoding it would be a column-header guess.
+#   - copepod_traits feeder_type is not foraging_mode: only "Ambush feeder" (27)
+#     and "Cruise feeder" (30) map to the active/ambush vocabulary, while the
+#     majority value "Feeding current" (94) is a third mode with no counterpart.
+# The climatic-niche family (NEW: climatic_temp_mean, deg C) is the home for
+# range-climate columns, kept
+# strictly apart from the organismal thermal_max / thermal_min. Both describe
+# temperature in deg C, so the separation is by quantity, not unit: a range
+# climate is bounded by dispersal, competition and history and sits well inside
+# what the animal can survive (fishtraits' warmest-month value is 0.88x the CTmax
+# thermofresh measures on the same species). Every source here is pinned by its
+# own documentation, since range-climate columns are unusually easy to mistake
+# for tolerance:
+#   - climatic_temp_mean: arthropod_traits thermal_mean (WorldClim BIO1 averaged
+#     over 0.2-degree buffers around occurrences; Logghe et al. 2025 state the
+#     method and warn "these data should not be used as precise thermal limits...
+#     this method calculates realised thermal niche") + repttraits
+#     mean_annual_temp_c (CHELSA, Karger et al. 2017, over the GARD ranges of
+#     Roll et al. 2017, per ReptTraits' own trait-source sheet). Disjoint taxa
+#     (0 shared species: arthropods vs reptiles), so the coalesce never blends
+#     the two rasters for one species -- each species carries exactly one source.
+#     Medians are regionally right: 9.55 deg C for NW European arthropods, 21.01
+#     for global reptiles.
+#   - climatic_temp_min / climatic_temp_max (fishtraits min_temp_c / max_temp_c,
+#     the coldest-month minimum and warmest-month maximum at the range centroid)
+#     are NOT registered yet, blocked on gcol33/taxifydb#13: the shipped
+#     fishtraits.vtr carries an unhandled -1 missing-data code. parse_fishtraits
+#     strips the source's documented -999 / -555 codes but not -1, which marks
+#     the 90 introduced species that have no US range centroid to extract PRISM
+#     from -- they carry min == max == -1, and a July maximum of -1 deg C is
+#     impossible in the conterminous US (the real floor is 20.4). It cannot be
+#     cleaned by a map here: -1 is ALSO a genuine January minimum for 8 other
+#     species (the values run on a continuous 0.1-deg grid through -1), so only
+#     the PAIR identifies the sentinel, and a map sees one column at a time. The
+#     fix belongs in the parser, where both columns are in scope.
+# Deliberately NOT joined to climatic_temp_min / climatic_temp_max: arthropod_traits
+# thermal_minimum / thermal_maximum (and thermal_range). They are the spatial min
+# and max of the ANNUAL MEAN surface across a species' occurrences -- the coldest
+# and warmest annual mean it lives in, a niche-breadth measure on the BIO1 axis --
+# whereas the fishtraits pair is a WITHIN-YEAR seasonal extreme at one point. The
+# two answer different questions and differ by roughly 10 deg C for the same
+# place (arthropod thermal_maximum medians 14.46, a NW European annual mean, where
+# a July maximum there is ~22). Merging them would put incomparable numbers in one
+# column, and the disjoint taxa would hide it rather than expose it -- the same
+# reason salinity and growth_rate stay unregistered. arthropod's thermal_mean does
+# join climatic_temp_mean, because that one IS an annual mean; its min/max/range
+# stay with add_arthropod_traits().
+# chromosome_number (NEW, count, 2n) is registered from kew_cvalues ONLY. CCDB was
+# the intended second source and is REJECTED on a grounding catch: its
+# /services/statistics/ endpoint pools gametic (n) and sporophytic (2n) records
+# into one distribution and medians over the mixture, so the value it returns is
+# predominantly n, not the 2n its taxifydb column name asserts. Evidence: the
+# ratio against kew is 0.5000 with IQR [0.500, 0.500] across 6140 shared species,
+# and every textbook check lands on n -- Abies alba 12 (2n=24), Zea mays 10
+# (2n=20), Oryza sativa 12 (2n=24), Pisum sativum 7 (2n=14), Triticum aestivum 21
+# (2n=42). The raw distribution field shows the pooling directly (Zea:
+# "10=0.77_20=0.03_40=0.01" = n, 2n and 4n records in one series), and the
+# endpoint accepts no gametic/sporophytic parameter, so the scale cannot be
+# recovered from this response. Kew's column is clean 2n and matches every check.
+# Tracked upstream as a taxifydb parser bug; CCDB can join this trait once its
+# counts are read from the per-record endpoint that carries the count type.
 
 
 # Per-record caution text for a PHYLACINE body mass, keyed on the mass provenance
@@ -1036,7 +1150,8 @@
         frugivoria   = nsrc("frugivoria", "body_mass_g", "Frugivoria (Gerstner et al.)", "Grams."),
         pottier      = nsrc("pottier", "body_mass_g", "Pottier et al.", "Grams."),
         animaltraits = nsrc("animaltraits", "body_mass_kg", "AnimalTraits (Herberstein et al. 2022)", "kg converted to grams (x1000).", map = numk),
-        homerange    = nsrc("homerange", "body_mass_kg", "Broekman et al. HomeRange", "kg converted to grams (x1000).", map = numk)
+        homerange    = nsrc("homerange", "body_mass_kg", "Broekman et al. HomeRange", "kg converted to grams (x1000).", map = numk),
+        eurobat      = nsrc("eurobat", "body_mass_g", "EuroBaT (European bat traits)", "Grams (ratio 0.99 vs combine and 1.03 vs pantheria on shared species).")
       )
     ),
     longevity = list(
@@ -1050,6 +1165,8 @@
         chelonians = nsrc("chelonians", "max_lifespan_y", "TurtleTraits (Chelonians)", "Years."),
         amphibio   = nsrc("amphibio", "longevity_yr", "AmphiBIO (Oliveira et al. 2017)", "Maximum longevity, years."),
         beukhof    = nsrc("beukhof", "age_max", "Beukhof et al. 2019", "Maximum observed age, years (ratio 1.00 vs anage on shared species; the ~390 yr maximum is the Greenland shark, not a unit error)."),
+        fishtraits = nsrc("fishtraits", "longevity_yr", "FishTraits v14.3 (Frimpong & Angermeier 2009)", "Maximum age of US freshwater fish, years (ratio 1.00 vs anage on 295 shared species)."),
+        eurobat    = nsrc("eurobat", "max_longevity_yr", "EuroBaT (European bat traits)", "Maximum longevity, years (ratio 1.00 vs anage on 28 shared species)."),
         sheld      = nsrc("sheld", "max_age", "Freshwater Mussel Traits (Hopper et al. 2023)", "Maximum age, years (freshwater mussels; the ~190 yr maximum is Margaritifera, genuine).")
       )
     ),
@@ -1075,7 +1192,9 @@
         repttraits = nsrc("repttraits", "clutch_size", "ReptTraits (Oskyrko et al. 2024)", "Eggs per clutch."),
         amphibio   = nsrc("amphibio", "litter_size", "AmphiBIO (Oliveira et al. 2017)", "Eggs per clutch (amphibian clutches reach the thousands)."),
         chelonians = nsrc("chelonians", "clutch_size_mean", "TurtleTraits (Chelonians)", "Mean eggs per clutch (ratio 1.00 vs amniote on shared species)."),
-        birdbase   = nsrc("birdbase", "clutch_mean", "Birdbase", "Mean of the reported clutch min/max (ratio 1.00 vs amniote on 6781 shared species).")
+        birdbase   = nsrc("birdbase", "clutch_mean", "Birdbase", "Mean of the reported clutch min/max (ratio 1.00 vs amniote on 6781 shared species)."),
+        eurobat    = nsrc("eurobat", "litter_size", "EuroBaT (European bat traits)", "Offspring per litter (ratio 1.00 vs combine and pantheria on shared species)."),
+        zooplankton = nsrc("zooplankton", "clutchsize", "Global Zooplankton Trait DB (Pata & Hunt 2025)", "Eggs per clutch of marine zooplankton. Distinct from the source's fecundity column, which is a per-year/lifetime aggregate and stays unregistered.")
       )
     ),
     age_at_maturity = list(
@@ -1086,6 +1205,7 @@
         amphibio   = nsrc("amphibio", "age_maturity_y", "AmphiBIO (Oliveira et al. 2017)", "Years."),
         chelonians = nsrc("chelonians", "age_maturity_y", "TurtleTraits (Chelonians)", "Years (ratio 1.00 vs anage on shared species)."),
         beukhof    = nsrc("beukhof", "age_maturity", "Beukhof et al. 2019", "Age at maturity, years (ratio 1.00 vs anage on 198 shared species; a handful of deep-sea species exceed 50 yr)."),
+        fishtraits = nsrc("fishtraits", "maturity_age_yr", "FishTraits v14.3 (Frimpong & Angermeier 2009)", "Age at maturity of US freshwater fish, years (the years unit is confirmed against anage, whose days column runs 365x higher on 70 shared species; medians agree at 3 yr vs beukhof)."),
         sheld      = nsrc("sheld", "mature_age", "Freshwater Mussel Traits (Hopper et al. 2023)", "Age at maturity, years (freshwater mussels).")
       )
     ),
@@ -1537,6 +1657,9 @@
         parravicini  = list(enrichment = "parravicini", col = "trophic_guild",
                           citation = "Parravicini et al. 2020", note = "Reef-fish guild codes (legend verified empirically): H herbivore, I invertivore, O omnivore, P piscivore -> carnivore, PK planktivore.",
                           map = function(v) .xw_cat(v, parra_guild)),
+        eurobat      = list(enrichment = "eurobat", col = "diet_type",
+                          citation = "EuroBaT (European bat traits)", note = "European bats; insectivorous -> invertivore, frugivorous -> frugivore.",
+                          map = function(v) .xw_grep(v, diet_patterns)),
         zooplankton  = list(enrichment = "zooplankton", col = "trophic_group",
                           citation = "Global Zooplankton Trait DB (Pata & Hunt 2025)", note = "Marine zooplankton; primary token of a compound value (carnivore/omnivore/herbivore/detritivore/planktivore); suspension-feeder and parasite -> NA.",
                           map = function(v) .xw_grep(v, diet_patterns))
@@ -2058,6 +2181,14 @@
         huang_amph = nsrc("huang_amph", "hindlimb_length_mm", "Huang et al. amphibian morphology", "Amphibian hindlimb length, mm.", map = num_pos)
       )
     ),
+    forearm_length = list(
+      label = "Forearm length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        combine   = nsrc("combine", "adult_forearm_length_mm", "COMBINE (Soria et al. 2021)", "Adult forearm length, mm (the standard bat body measurement)."),
+        pantheria = nsrc("pantheria", "x8_1_adultforearmlen_mm", "PanTHERIA (Jones et al. 2009)", "Adult forearm length, mm (ratio 1.00 vs combine on 972 shared species)."),
+        eurobat   = nsrc("eurobat", "forearm_length_mm", "EuroBaT (European bat traits)", "Forearm length, mm (ratio 1.01 vs combine and 1.00 vs pantheria on shared species).")
+      )
+    ),
     elytra_length = list(
       label = "Elytra length", kind = "numeric", unit = "mm", vocab = NULL,
       sources = list(
@@ -2150,6 +2281,12 @@
       label = "Genome size (prokaryote)", kind = "numeric", unit = "bp", vocab = NULL,
       sources = list(
         madin = nsrc("madin", "genome_size_bp", "Madin et al. 2020 (prokaryote traits)", "Genome size, base pairs.")
+      )
+    ),
+    chromosome_number = list(
+      label = "Chromosome number (2n)", kind = "numeric", unit = "count", vocab = NULL,
+      sources = list(
+        kew_cvalues = nsrc("kew_cvalues", "chromosome_2n", "Kew Plant DNA C-values 7.1 (Pellicer & Leitch 2020)", "Somatic chromosome number (2n) of vascular plants, verified against textbook counts (Zea mays 20, Oryza sativa 24, Pisum sativum 14, Triticum aestivum 42).")
       )
     ),
     optimal_growth_ph = list(
@@ -2471,16 +2608,39 @@
     thermal_max = list(
       label = "Upper thermal limit", kind = "numeric", unit = "deg C", vocab = NULL,
       sources = list(
-        globtherm = nsrc("globtherm", "thermal_max_c", "GlobTherm (Bennett et al. 2018)", "Upper thermal tolerance (CTmax / UTNZ / lethal temperature), degrees C."),
-        pottier   = nsrc("pottier", "heat_tolerance_c", "Pottier et al. 2022", "Amphibian upper thermal tolerance (CTmax / LT50), degrees C.")
+        globtherm   = nsrc("globtherm", "thermal_max_c", "GlobTherm (Bennett et al. 2018)", "Upper thermal tolerance (CTmax / UTNZ / lethal temperature), degrees C."),
+        pottier     = nsrc("pottier", "heat_tolerance_c", "Pottier et al. 2022", "Amphibian upper thermal tolerance (CTmax / LT50), degrees C."),
+        thermofresh = nsrc("thermofresh", "ctmax", "Freshwater thermal-tolerance database (Bayat et al., Zenodo 14056760)", "Critical thermal maximum (CTmax) of freshwater fish, invertebrates and amphibians, degrees C (ratio 1.00 vs globtherm on 135 shared species). The source's lethal limits (lt50 / ltmax) are separate columns and are left out, so one record type feeds this trait.")
       )
     ),
     thermal_min = list(
       label = "Lower thermal limit", kind = "numeric", unit = "deg C", vocab = NULL,
       sources = list(
-        globtherm = nsrc("globtherm", "thermal_min_c", "GlobTherm (Bennett et al. 2018)", "Lower thermal tolerance, degrees C.")
+        globtherm   = nsrc("globtherm", "thermal_min_c", "GlobTherm (Bennett et al. 2018)", "Lower thermal tolerance, degrees C."),
+        thermofresh = nsrc("thermofresh", "ctmin", "Freshwater thermal-tolerance database (Bayat et al., Zenodo 14056760)", "Critical thermal minimum (CTmin) of freshwater fish, invertebrates and amphibians, degrees C (ratio 1.00 vs globtherm on 16 shared species).")
       )
     ),
+
+    ## ---- Climatic niche: the climate where a species lives, not what it can
+    ## tolerate physiologically. Kept strictly apart from thermal_max/thermal_min
+    ## (organismal CTmax/CTmin): a species' range climate is bounded by dispersal,
+    ## competition and history, so it sits well inside its tolerance.
+    climatic_temp_mean = list(
+      label = "Mean annual temperature of range", kind = "numeric", unit = "deg C", vocab = NULL,
+      sources = list(
+        arthropod_traits = nsrc("arthropod_traits", "thermal_mean", "Logghe et al. 2025 (NW European arthropod traits)", "Mean annual temperature (WorldClim BIO1) averaged over 0.2-degree buffers around the species' occurrences, degrees C. The source calls this a realised thermal niche and warns it is not a thermal limit."),
+        repttraits       = nsrc("repttraits", "mean_annual_temp_c", "ReptTraits (Oskyrko et al. 2024)", "Mean annual temperature over the species' range, degrees C, from CHELSA (Karger et al. 2017) on the GARD ranges (Roll et al. 2017) per the source's own trait-source sheet.")
+      )
+    ),
+    # climatic_temp_min / climatic_temp_max (fishtraits min_temp_c / max_temp_c)
+    # are the obvious next members of this family and are deliberately NOT
+    # registered yet: the shipped fishtraits.vtr still carries an unhandled -1
+    # missing-data code in both columns (gcol33/taxifydb#13). The code cannot be
+    # cleaned here -- it is only identifiable as the PAIR min == max == -1 (90
+    # introduced species with no US range centroid), while -1 on its own is a
+    # genuine January minimum for 8 other species -- and a registry map sees one
+    # column at a time. They join once the parser NAs the pair and the asset is
+    # rebuilt.
 
     ## ---- AVONET bird morphology (numeric, mm; single-source) --------------
     beak_width = list(

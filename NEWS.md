@@ -1,3 +1,41 @@
+# taxify 0.3.13
+
+## Four sources taxify cannot redistribute now have doors
+
+* New `add_gmpd()` (Global Mammal Parasite Database 2.0: per-host parasite
+  richness, counts by parasite type, mean prevalence), `add_plantatt()`
+  (British and Irish vascular plants: Ellenberg values, maximum height,
+  life-form/woodiness/status codes), `add_bryoatt()` (the bryophyte companion --
+  a group otherwise almost absent from the bundled traits), and `add_clopla()`
+  (CLO-PLA clonal and bud-bank traits of the Central European flora, 29 codes
+  kept verbatim).
+* These four state no usable licence, so taxify publishes no copy of them and
+  they carry no manifest entry. The door builds the data from the original
+  source on your own machine through taxifydb, which is required for them and
+  errors with an install instruction when absent. taxify redistributes none of
+  the data; cite the sources when you use them.
+
+## Climatic niche is now separate from thermal tolerance
+
+* New `climatic_temp_mean`: the mean annual temperature of a species' range, in
+  degrees C, from the NW European arthropod dataset (WorldClim BIO1 over
+  occurrence buffers) and ReptTraits (CHELSA over GARD ranges). It is kept
+  strictly apart from `thermal_max` / `thermal_min`, which are organismal CTmax
+  and CTmin: a range climate is bounded by dispersal, competition and history,
+  so it sits well inside what an animal can survive.
+
+## New traits
+
+* `forearm_length` (mm): the standard bat measurement, from COMBINE, PanTHERIA
+  and the European bat dataset (the first two carried it for 1130 and 1012
+  species without any trait reaching it).
+* `chromosome_number` (2n): from the Kew Plant DNA C-values database.
+* `thermal_max` / `thermal_min` gain the freshwater thermal-tolerance database
+  (CTmax and CTmin of freshwater fish, invertebrates and amphibians).
+* `body_mass`, `longevity`, `clutch_litter_size` and `diet_guild` gain the
+  European bat dataset; `longevity` and `age_at_maturity` gain FishTraits;
+  `clutch_litter_size` gains the zooplankton per-clutch egg count.
+
 # taxify 0.3.12
 
 ## Default backend is now every installed backbone

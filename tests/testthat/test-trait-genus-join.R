@@ -21,7 +21,7 @@ test_that("every genus-keyed enrichment feeding the verb sets join_col=genus", {
   # all-NA through the verb (the latent bug the join_col unlock exists to fix).
   # Enumerate the known genus-keyed enrichments and assert no registry source
   # references one without join_col = "genus".
-  genus_keyed <- c("disperse", "blanchard", "fungal_traits", "fungalroot")
+  genus_keyed <- genus_keyed_enrichments()
   reg <- taxify:::.trait_registry()
   for (tr in names(reg)) {
     for (sn in names(reg[[tr]]$sources)) {
