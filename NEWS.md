@@ -25,13 +25,17 @@
 
 ## Plant chromosome numbers
 
-* `chromosome_number` reported an odd count for 356 plants, and is fixed.
+* `chromosome_number` reported a count nobody had measured, and is fixed.
   *Arabidopsis thaliana* read 15 and *Acer campestre* 39, from species recorded
-  at more than one cytotype: averaging a diploid 2n = 10 and a tetraploid 2n = 20
-  lands on 15, which no plant carries. The value is now the base cytotype (10 and
-  26 for those two), and the range across cytotypes is reported in
-  `chromosome_number_min` / `chromosome_number_max`, so nothing is lost. Ploidy
-  is now a whole number for every species, and 421 species change value.
+  at more than one cytotype: Kew holds a diploid 2n = 10 and a tetraploid 2n = 20
+  for *Arabidopsis*, and averaging them lands on 15, which is in neither record.
+  The value is now the base cytotype (10 and 26 for those two), and the range
+  across cytotypes is reported in `chromosome_number_min` /
+  `chromosome_number_max`, so nothing is lost. 421 species change value, and
+  every value now comes from a real record.
+* An odd chromosome number is still reported wherever Kew measured one. A
+  triploid carries an odd 2n by definition (Tahiti lime is 2n = 3x = 27), as do
+  aneuploid hybrids and the gametophytic counts of mosses and liverworts.
 * Kew's plant genome size is a continuous measurement and is unaffected.
 * The corrected data ships under the existing release, and taxify refreshes a
   stale local copy once, on its own, the first time you use it.
