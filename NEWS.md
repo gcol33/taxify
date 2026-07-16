@@ -1,4 +1,4 @@
-# taxify (development version)
+# taxify 0.3.15
 
 ## `add_gidias()` can ask what a species impacts
 
@@ -20,6 +20,13 @@
 
 * `cols` now works on the grouped doors even when the source carries no columns
   beyond the curated set, which previously ignored it.
+
+## Citations carry an access date
+
+* A source harvested live from a server is not identified by its year: two
+  harvests a year apart share it. `format_bibtex_entry()` now emits the
+  citation's `note` field, so an access date recorded in the manifest reaches
+  the BibTeX entry. Entries carrying no `note` are unchanged.
 
 # taxify 0.3.14
 
