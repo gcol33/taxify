@@ -1,3 +1,11 @@
+# taxify 0.3.18
+
+## Documentation
+
+* The README now notes that the backbones are pre-built by the companion
+  taxifydb package, and updates the enrichment-layer count to match
+  `list_enrichments()`.
+
 # taxify 0.3.17
 
 ## A downloaded backbone reports the version it actually contains
