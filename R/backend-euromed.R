@@ -7,8 +7,9 @@
 # fine-grained infraspecific taxonomy (subspecies, varieties, forms).
 # License: CC-BY-SA-3.0 (applies to derived .vtr data file).
 
-# Euro+Med version pin (referenced by the constructor; updated with package releases)
-.euromed_version <- "2020.1"
+# Euro+Med version pin (fallback label only; the downloaded meta.json / manifest
+# version wins at runtime via format_backbone_version()). Updated with releases.
+.euromed_version <- "2026.07"
 
 # Column map for shared matching engine
 # These map to the unified backbone schema produced by taxifydb

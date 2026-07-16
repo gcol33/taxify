@@ -217,6 +217,15 @@ download_backbone <- function(backend_name,
   # Atomic rename
   file.rename(tmp_path, vtr_path)
 
+  # Clear any stale `.meta` sidecar. That file is a taxifydb build-from-source
+  # artifact; a downloaded backbone is defined to carry none (its version lives
+  # in the meta.json written below). If this slot was previously built from
+  # source, the leftover `.meta` would shadow meta.json in
+  # format_backbone_version() and report the old built version for the freshly
+  # downloaded data.
+  stale_meta <- paste0(tools::file_path_sans_ext(vtr_path), ".meta")
+  if (file.exists(stale_meta)) unlink(stale_meta)
+
   # Download sidecar extras (e.g., col_species_profile.vtr) into the same
   # versioned directory. Each manifest entry under `extras` is
   # {name, url, size, sha256}. Failures here are non-fatal \u2014 the main
