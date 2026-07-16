@@ -1,3 +1,22 @@
+# taxify 0.3.17
+
+## A downloaded backbone reports the version it actually contains
+
+* Downloading a backbone into a slot that was previously built from source no
+  longer keeps reporting the old built version. `download_backbone()` now clears
+  the stale `.meta` build sidecar it leaves behind, restoring the invariant that
+  a downloaded backbone carries only its `meta.json`. Previously the leftover
+  `.meta` shadowed `meta.json` in `format_backbone_version()`, so a freshly
+  downloaded release (e.g. Euro+Med 2026.07) was still labelled with the old
+  built version (2020.1) in the `backbone_version` output column.
+
+## meta.json and manifest reads tolerate a UTF-8 BOM
+
+* A `meta.json` or manifest carrying a leading UTF-8 byte-order mark (as written
+  by Windows PowerShell's `Set-Content` / `Out-File`) no longer emits an
+  "illegal byte-order-mark" warning on every version read. All meta.json and
+  manifest reads strip a leading BOM before parsing.
+
 # taxify 0.3.16
 
 ## The genus register is reachable and builds from what you have
