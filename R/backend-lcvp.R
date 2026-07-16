@@ -53,6 +53,5 @@ taxify_build.taxify_lcvp <- function(backend, dest = NULL,
   require_taxifydb("Building the LCVP backbone from source")
   output_dir <- dest %||% versioned_dir("lcvp", "latest")
   taxifydb::build_lcvp(output_dir = output_dir,
-                       version = backend$version,
                        verbose = verbose)
 }

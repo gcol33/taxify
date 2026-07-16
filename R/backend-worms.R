@@ -49,6 +49,5 @@ taxify_build.taxify_worms <- function(backend, dest = NULL,
   require_taxifydb("Building the WoRMS backbone from source")
   output_dir <- dest %||% versioned_dir("worms", "latest")
   taxifydb::build_worms(output_dir = output_dir,
-                        version = backend$version,
                         verbose = verbose)
 }

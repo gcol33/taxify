@@ -316,6 +316,11 @@ taxify_download <- function(backend = "wfo",
                             version = "latest",
                             verbose = TRUE) {
   paths <- vapply(backend, function(be) {
+    # The genus register is not a downloadable backbone; it is built locally
+    # from whichever backbones are installed.
+    if (identical(be, "register")) {
+      return(taxify_build_register(verbose = verbose))
+    }
     tryCatch(
       download_backbone(be, version = version, verbose = verbose),
       error = function(e) {

@@ -49,6 +49,5 @@ taxify_build.taxify_ncbi <- function(backend, dest = NULL,
   require_taxifydb("Building the NCBI backbone from source")
   output_dir <- dest %||% versioned_dir("ncbi", "latest")
   taxifydb::build_ncbi(output_dir = output_dir,
-                       version = backend$version,
                        verbose = verbose)
 }

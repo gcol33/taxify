@@ -92,8 +92,25 @@ read_backbone_meta <- function(vtr_path) {
 format_backbone_version <- function(vtr_path, backend_name, version) {
   meta <- read_backbone_meta(vtr_path)
   be  <- (meta$backend %||% backend_name)
-  ver <- (meta$version %||% version)
+  ver <- meta$version
   dt  <- meta$download_date
+
+  # A downloaded backbone carries no `.meta` sidecar (that is a taxifydb build
+  # artifact), so fall back to the meta.json written at download time. It holds
+  # the manifest version, which is authoritative -- preferred over the backend
+  # constructor's declared version, a static default that drifts as releases
+  # advance.
+  if (is.null(ver)) {
+    mj <- file.path(dirname(vtr_path), "meta.json")
+    if (file.exists(mj)) {
+      j <- tryCatch(jsonlite::read_json(mj, simplifyVector = TRUE),
+                    error = function(e) NULL)
+      ver <- j$version %||% ver
+      dt  <- dt %||% j$downloaded_at
+    }
+  }
+  ver <- ver %||% version
+
   if (length(dt) == 1L && !is.na(dt) && nzchar(dt)) {
     sprintf("%s:%s (%s)", be, ver, dt)
   } else {
@@ -201,6 +218,24 @@ installed_backbones <- function() {
     file.exists(p) && is_compiled_backbone(p)
   }, logical(1L))
   known[ok]
+}
+
+
+#' Resolve an installed backbone's .vtr path without downloading
+#'
+#' Unlike [ensure_backbone()], this never triggers a download or a
+#' build-from-source. It returns the path to the compiled `.vtr` for the given
+#' version if it is already present on disk, otherwise `NULL`. Used by the
+#' genus-register builder, which unions only the backbones the user has
+#' actually installed rather than pulling every known backbone.
+#'
+#' @param backend_name Character.
+#' @param version Character. `"latest"` or a specific version string.
+#' @return Character path, or `NULL` if not installed.
+#' @noRd
+installed_backbone_path <- function(backend_name, version = "latest") {
+  p <- versioned_vtr_path(backend_name, version)
+  if (file.exists(p) && is_compiled_backbone(p)) p else NULL
 }
 
 

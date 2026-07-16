@@ -51,6 +51,5 @@ taxify_build.taxify_itis <- function(backend, dest = NULL,
   require_taxifydb("Building the ITIS backbone from source")
   output_dir <- dest %||% versioned_dir("itis", "latest")
   taxifydb::build_itis(output_dir = output_dir,
-                       version = backend$version,
                        verbose = verbose)
 }

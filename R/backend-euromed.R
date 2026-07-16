@@ -54,6 +54,5 @@ taxify_build.taxify_euromed <- function(backend, dest = NULL,
   require_taxifydb("Building the Euro+Med backbone from source")
   output_dir <- dest %||% versioned_dir("euromed", "latest")
   taxifydb::build_euromed(output_dir = output_dir,
-                          version = backend$version,
                           verbose = verbose)
 }

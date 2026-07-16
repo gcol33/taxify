@@ -55,6 +55,5 @@ taxify_build.taxify_col <- function(backend, dest = NULL,
   require_taxifydb("Building the COL backbone from source")
   output_dir <- dest %||% versioned_dir("col", "latest")
   taxifydb::build_col(output_dir = output_dir,
-                      version = backend$version,
                       verbose = verbose)
 }

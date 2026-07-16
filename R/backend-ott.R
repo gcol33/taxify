@@ -49,6 +49,5 @@ taxify_build.taxify_ott <- function(backend, dest = NULL,
   require_taxifydb("Building the OTT backbone from source")
   output_dir <- dest %||% versioned_dir("ott", "latest")
   taxifydb::build_ott(output_dir = output_dir,
-                      version = backend$version,
                       verbose = verbose)
 }

@@ -54,6 +54,5 @@ taxify_build.taxify_gbif <- function(backend, dest = NULL,
   require_taxifydb("Building the GBIF backbone from source")
   output_dir <- dest %||% versioned_dir("gbif", "latest")
   taxifydb::build_gbif(output_dir = output_dir,
-                       version = backend$version,
                        verbose = verbose)
 }

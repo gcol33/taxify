@@ -56,6 +56,5 @@ taxify_build.taxify_wcvp <- function(backend, dest = NULL,
   require_taxifydb("Building the WCVP backbone from source")
   output_dir <- dest %||% versioned_dir("wcvp", "latest")
   taxifydb::build_wcvp(output_dir = output_dir,
-                       version = backend$version,
                        verbose = verbose)
 }

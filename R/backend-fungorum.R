@@ -52,6 +52,5 @@ taxify_build.taxify_fungorum <- function(backend, dest = NULL,
   require_taxifydb("Building the Species Fungorum backbone from source")
   output_dir <- dest %||% versioned_dir("fungorum", "latest")
   taxifydb::build_fungorum(output_dir = output_dir,
-                           version = backend$version,
                            verbose = verbose)
 }

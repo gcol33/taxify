@@ -28,6 +28,5 @@ taxify_build.taxify_sealifebase <- function(backend, dest = NULL,
   require_taxifydb("Building the SeaLifeBase backbone from source")
   output_dir <- dest %||% versioned_dir("sealifebase", "latest")
   taxifydb::build_sealifebase(output_dir = output_dir,
-                              version = backend$version,
                               verbose = verbose)
 }

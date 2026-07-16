@@ -1,3 +1,36 @@
+# taxify 0.3.16
+
+## The genus register is reachable and builds from what you have
+
+* `taxify_build_register()` is now exported. It builds the unified genus
+  register from the backbones you have installed and is the front door for the
+  `life_form` / `kingdom_group` / `taxon_group` output columns, out-of-scope
+  detection, and `inspect()`'s no-backbone checks. Previously the only builder
+  was internal, so `taxify_load_register()` on a fresh setup pointed users at a
+  function they could not call, and the manifest's register entry was a Zenodo
+  placeholder that never resolved. `taxify_download("register")` is a
+  convenience alias for it.
+
+* Building the register no longer force-downloads every known backbone. It
+  unions only the backbones actually installed (via the new internal
+  `installed_backbone_path()`), matching the documented "union of installed
+  backends" behaviour instead of silently pulling several gigabytes.
+
+## Backbone version reflects the installed data, not a static default
+
+* The build-from-source shims no longer pass a hardcoded version label into
+  `taxifydb::build_<name>()`; taxifydb stamps its own current version. A backbone
+  built from source is now labelled with the data it actually contains, not a
+  constant that drifts as releases advance.
+
+* `format_backbone_version()` falls back to the download-time `meta.json`
+  (the manifest version) before the backend constructor's static default, so a
+  downloaded backbone reports the version it was downloaded at.
+
+* Manifest: the `reptiledb` backbone points at the `reptiledb-2026.07` release
+  (byte-identical to 2026.06) and records its content id; the placeholder
+  `register` entry is removed.
+
 # taxify 0.3.15
 
 ## `add_gidias()` can ask what a species impacts

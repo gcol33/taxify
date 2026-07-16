@@ -55,6 +55,5 @@ taxify_build.taxify_algaebase <- function(backend, dest = NULL,
   require_taxifydb("Building the AlgaeBase backbone from source")
   output_dir <- dest %||% versioned_dir("algaebase", "latest")
   taxifydb::build_algaebase(output_dir = output_dir,
-                            version = backend$version,
                             verbose = verbose)
 }

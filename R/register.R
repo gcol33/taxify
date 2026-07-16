@@ -749,10 +749,8 @@ build_genus_register <- function(verbose = TRUE) {
   gbif_path   <- NULL
 
   for (be_name in names(backends)) {
-    be   <- backends[[be_name]]$be
-    path <- tryCatch(ensure_backbone(be, verbose = FALSE),
-                     error = function(e) NULL)
-    if (is.null(path) || !file.exists(path)) {
+    path <- installed_backbone_path(be_name)
+    if (is.null(path)) {
       if (verbose) message(sprintf("  [%s] Not installed, skipping.", be_name))
       next
     }
@@ -931,9 +929,8 @@ build_backend_coverage <- function(verbose = TRUE) {
 
   for (be_name in names(backends)) {
     be   <- backends[[be_name]]$be
-    path <- tryCatch(ensure_backbone(be, verbose = FALSE),
-                     error = function(e) NULL)
-    if (is.null(path) || !file.exists(path)) {
+    path <- installed_backbone_path(be_name)
+    if (is.null(path)) {
       if (verbose) message(sprintf("  [%s] Not installed, skipping.", be_name))
       next
     }
@@ -999,6 +996,35 @@ build_unified_register <- function(verbose = TRUE) {
 }
 
 
+#' Build the unified genus register from installed backbones
+#'
+#' The genus register is a cross-backbone index of every genus in the backbones
+#' you have installed, carrying each genus's higher classification and its
+#' `life_form` / `kingdom_group` / `taxon_group` labels. [taxify()] consults it
+#' to fill those columns in its output regardless of which backbone matched, and
+#' to flag out-of-scope names before fuzzy matching; [inspect()] uses it for the
+#' anomaly checks that need no backbone. Without a register, those features are
+#' silently skipped.
+#'
+#' The register is built locally from whichever backbones are installed (see
+#' [taxify_download()] and [install_backbones()]); it is not itself downloaded.
+#' Installing more backbones first yields a register with broader genus
+#' coverage. Building reads every installed backbone once and can take a few
+#' minutes.
+#'
+#' `taxify_download("register")` is a convenience alias for this function.
+#'
+#' @param verbose Logical. Print progress messages. Default `TRUE`.
+#' @return Path to `genus_register.vtr` (invisibly).
+#' @seealso [taxify_load_register()] to load it into memory,
+#'   [taxify_register_coverage()] to query backend coverage for a genus.
+#' @export
+taxify_build_register <- function(verbose = TRUE) {
+  res <- build_unified_register(verbose = verbose)
+  invisible(res$register)
+}
+
+
 # ---- User-facing functions (exported) ----
 
 #' Load the unified genus register into memory
@@ -1023,7 +1049,7 @@ taxify_load_register <- function(force = FALSE, verbose = TRUE) {
   path <- register_vtr_path()
   if (!file.exists(path)) {
     stop(sprintf(
-      "Genus register not found at: %s\nRun build_unified_register() to build it.",
+      "Genus register not found at: %s\nRun taxify_build_register() to build it from your installed backbones.",
       path
     ), call. = FALSE)
   }
@@ -1078,7 +1104,7 @@ taxify_register_coverage <- function(genus) {
   path <- coverage_vtr_path()
   if (!file.exists(path)) {
     stop(sprintf(
-      "Backend coverage not found at: %s\nRun build_unified_register() to build it.",
+      "Backend coverage not found at: %s\nRun taxify_build_register() to build it from your installed backbones.",
       path
     ), call. = FALSE)
   }

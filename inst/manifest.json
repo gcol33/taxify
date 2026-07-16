@@ -97,10 +97,6 @@
       "content_id": "066682024bbd866f476d0aeaf3c02e00",
       "source_url": "https://europlusmed.org"
     },
-    "register": {
-      "latest": "2024.12",
-      "full_url": "https://zenodo.org/records/PLACEHOLDER/files/register_2024.12.vtr"
-    },
     "ncbi": {
       "latest": "2026.06",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/ncbi-2026.06/ncbi.vtr",
@@ -207,11 +203,12 @@
       "license": "CC BY 4.0"
     },
     "reptiledb": {
-      "latest": "2026.06",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/reptiledb-2026.06/reptiledb.vtr",
+      "latest": "2026.07",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/reptiledb-2026.07/reptiledb.vtr",
       "nrow": 50043,
       "full_size": 9594935,
       "full_sha256": "d241f4c64ee21a290836f3d3c3c0570a933757e6e6e2037e89eb38946f173b4f",
+      "content_id": "047bde3e1e5503dc9204b2c9419d420f",
       "source_url": "http://reptile-database.reptarium.cz/interfaces/export/taxa.csv",
       "citation": {
         "key": "uetz2026reptiledb",

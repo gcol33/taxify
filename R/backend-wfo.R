@@ -53,6 +53,5 @@ taxify_build.taxify_wfo <- function(backend, dest = NULL,
   require_taxifydb("Building the WFO backbone from source")
   output_dir <- dest %||% versioned_dir("wfo", "latest")
   taxifydb::build_wfo(output_dir = output_dir,
-                      version = backend$version,
                       verbose = verbose)
 }
