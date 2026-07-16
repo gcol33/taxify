@@ -67,6 +67,9 @@ read_backbone_meta <- function(vtr_path) {
   meta_path <- paste0(tools::file_path_sans_ext(vtr_path), ".meta")
   if (!file.exists(meta_path)) return(NULL)
   lines <- readLines(meta_path, warn = FALSE)
+  # Strip a leading UTF-8 BOM (U+FEFF) so a sidecar written by PowerShell does
+  # not fold the mark into the first key name.
+  if (length(lines)) lines[1] <- sub("^\ufeff", "", enc2utf8(lines[1]))
   pairs <- strsplit(lines, "=", fixed = TRUE)
   keys <- vapply(pairs, `[`, character(1L), 1L)
   vals <- vapply(pairs, function(p) paste(p[-1L], collapse = "="), character(1L))
@@ -103,7 +106,7 @@ format_backbone_version <- function(vtr_path, backend_name, version) {
   if (is.null(ver)) {
     mj <- file.path(dirname(vtr_path), "meta.json")
     if (file.exists(mj)) {
-      j <- tryCatch(jsonlite::read_json(mj, simplifyVector = TRUE),
+      j <- tryCatch(read_json_bom(mj, simplifyVector = TRUE),
                     error = function(e) NULL)
       ver <- j$version %||% ver
       dt  <- dt %||% j$downloaded_at

@@ -30,7 +30,7 @@ fetch_manifest <- function() {
       tmp <- tempfile(fileext = ".json")
       on.exit(unlink(tmp), add = TRUE)
       curl::curl_download(.manifest_url, tmp, quiet = TRUE)
-      jsonlite::read_json(tmp, simplifyVector = FALSE)
+      read_json_bom(tmp, simplifyVector = FALSE)
     },
     error = function(e) {
       warning(
@@ -59,7 +59,31 @@ local_manifest <- function() {
   if (!nzchar(path) || !file.exists(path)) {
     stop("inst/manifest.json not found in package installation.", call. = FALSE)
   }
-  jsonlite::read_json(path, simplifyVector = FALSE)
+  read_json_bom(path, simplifyVector = FALSE)
+}
+
+
+#' Read a JSON file, tolerating a leading UTF-8 BOM
+#'
+#' PowerShell's `Set-Content` / `Out-File` (and some editors) prepend a UTF-8
+#' byte-order mark (`EF BB BF`); `jsonlite` then warns "illegal byte-order-mark"
+#' on every read and, on some parsers, fails outright. Strip a leading BOM
+#' before parsing so a `meta.json` or manifest written outside the R download
+#' path still reads cleanly. Every `meta.json` / manifest read goes through this.
+#'
+#' @param path Character. Path to a JSON file.
+#' @param ... Passed to [jsonlite::fromJSON()] (e.g. `simplifyVector`).
+#' @return The parsed JSON.
+#' @noRd
+read_json_bom <- function(path, ...) {
+  raw <- readBin(path, "raw", n = file.info(path)$size)
+  if (length(raw) >= 3L && raw[1] == as.raw(0xEF) &&
+      raw[2] == as.raw(0xBB) && raw[3] == as.raw(0xBF)) {
+    raw <- raw[-(1:3)]
+  }
+  txt <- rawToChar(raw)
+  Encoding(txt) <- "UTF-8"
+  jsonlite::fromJSON(txt, ...)
 }
 
 
@@ -240,7 +264,7 @@ use_local_manifest <- function() {
     # Read meta.json if present, otherwise fall back to "unknown"
     meta_json <- file.path(dirname(vtr_path), "meta.json")
     if (file.exists(meta_json)) {
-      meta <- jsonlite::read_json(meta_json, simplifyVector = TRUE)
+      meta <- read_json_bom(meta_json, simplifyVector = TRUE)
       version <- meta$version %||% "unknown"
     } else {
       version <- "unknown"

@@ -108,3 +108,33 @@ test_that("download_backbone clears a stale build .meta so meta.json wins", {
     }
   )
 })
+
+# Helper: write a JSON file with a leading UTF-8 BOM (as PowerShell's
+# Set-Content / Out-File does on Windows PowerShell 5.1).
+write_bom_json <- function(path, body) {
+  con <- file(path, open = "wb")
+  on.exit(close(con))
+  writeBin(c(as.raw(c(0xEF, 0xBB, 0xBF)), charToRaw(body)), con)
+}
+
+test_that("read_json_bom strips a UTF-8 BOM and parses without warning", {
+  p <- tempfile(fileext = ".json"); on.exit(unlink(p), add = TRUE)
+  write_bom_json(p, '{"version":"3.7.3","downloaded_at":"2026-05-14"}')
+
+  expect_silent(j <- read_json_bom(p, simplifyVector = TRUE))
+  expect_equal(j$version, "3.7.3")
+  expect_equal(j$downloaded_at, "2026-05-14")
+})
+
+test_that("format_backbone_version reads a BOM-prefixed meta.json cleanly", {
+  # Reproduces the ott case: meta.json written by PowerShell carried a BOM,
+  # so every version read warned "illegal byte-order-mark".
+  dir <- tempfile("bb_"); dir.create(dir)
+  on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+  vtr <- file.path(dir, "ott.vtr"); writeLines("placeholder", vtr)
+  write_bom_json(file.path(dir, "meta.json"),
+                 '{"version":"3.7.3","downloaded_at":"2026-05-14"}')
+
+  expect_warning(v <- format_backbone_version(vtr, "ott", "?"), NA)
+  expect_equal(v, "ott:3.7.3 (2026-05-14)")
+})

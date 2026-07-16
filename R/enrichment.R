@@ -61,7 +61,7 @@ enrichment_vtr_path <- function(name, version = "latest") {
 read_enrichment_meta <- function(vtr_path) {
   meta_path <- file.path(dirname(vtr_path), "meta.json")
   if (!file.exists(meta_path)) return(NULL)
-  jsonlite::read_json(meta_path, simplifyVector = TRUE)
+  read_json_bom(meta_path, simplifyVector = TRUE)
 }
 
 
@@ -90,7 +90,7 @@ content_id_of <- function(vtr_path) {
 write_content_id_meta <- function(vtr_path, content_id) {
   meta_path <- file.path(dirname(vtr_path), "meta.json")
   meta <- if (file.exists(meta_path)) {
-    tryCatch(jsonlite::read_json(meta_path, simplifyVector = TRUE),
+    tryCatch(read_json_bom(meta_path, simplifyVector = TRUE),
              error = function(e) list())
   } else list()
   meta$content_id <- content_id

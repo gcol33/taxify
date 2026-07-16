@@ -58,7 +58,7 @@ read_version_meta <- function(backend_name, version = "latest") {
   dir <- versioned_dir(backend_name, version)
   path <- file.path(dir, "meta.json")
   if (!file.exists(path)) return(NULL)
-  jsonlite::read_json(path, simplifyVector = TRUE)
+  read_json_bom(path, simplifyVector = TRUE)
 }
 
 
