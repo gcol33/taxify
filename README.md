@@ -45,7 +45,8 @@ walks through the differences in matching strategy, output schema, and enrichmen
 
 ## Fifteen backbones, one call
 
-`taxify` ships fifteen backbones as compressed `.vtr` files, downloaded once and matched
+`taxify` ships fifteen backbones as compressed `.vtr` files, pre-built by the companion
+[taxifydb](https://github.com/gcol33/taxifydb) package, downloaded once, and matched
 locally. Pass several and they form a fallback chain: a name unmatched by the first
 backbone cascades to the next.
 
@@ -132,7 +133,7 @@ summary(result)
 
 ## Trait and status enrichment
 
-More than eighty enrichment layers join published trait and status data to your results through
+Nearly ninety enrichment layers join published trait and status data to your results through
 the backbone-resolved accepted name, so synonyms in either dataset land on the same key:
 
 ```r
