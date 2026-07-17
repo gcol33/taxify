@@ -14,6 +14,7 @@ taxify(
   region = NULL,
   coords = NULL,
   range = c("present", "native", "introduced"),
+  kingdom = NULL,
   mode = c("fallback", "wide", "agreement"),
   verbose = TRUE
 )
@@ -88,6 +89,21 @@ introduced, or extinct) -- the right choice for name disambiguation.
 \code{"native"} accepts only native records, \code{"introduced"} only introduced
 (alien) records; both fold an ecological filter into matching and are for
 callers who want that. Ignored when no region is set.}
+
+\item{kingdom}{Character. Restrict matches to one or more kingdoms, to
+disambiguate a name shared across kingdoms (a \emph{Prunella} that is both a bird
+and a plant, an \emph{Oenanthe} that is both). \code{NULL} (default) applies no
+constraint. Accepts a kingdom name or a common alias, case-insensitively:
+\code{"animals"}/\code{"Animalia"}/\code{"Metazoa"}, \code{"plants"}/\code{"Plantae"},
+\code{"fungi"}, \code{"bacteria"}, \code{"archaea"}, \code{"chromista"}, \code{"protozoa"},
+\code{"viruses"}. A matched taxon is kept only when its kingdom is the requested
+one (or is unknown, which is never rejected); with the default multi-backend
+fallback, a name a backbone resolves into the wrong kingdom is passed on to
+the next backbone, so the in-kingdom treatment wins. The kingdom is read
+from the backbone where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a
+backbone that does not (WFO, GBIF), it falls back to the genus register's
+kingdom, which cannot split a genus that is itself homonymous across
+kingdoms -- name a kingdom-appropriate \code{backend} for those.}
 
 \item{mode}{Character. How to combine results when \code{backend} names more than
 one backbone. \code{"fallback"} (default) is the fallback chain described above:

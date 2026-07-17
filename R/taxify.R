@@ -73,6 +73,20 @@
 #'   `"native"` accepts only native records, `"introduced"` only introduced
 #'   (alien) records; both fold an ecological filter into matching and are for
 #'   callers who want that. Ignored when no region is set.
+#' @param kingdom Character. Restrict matches to one or more kingdoms, to
+#'   disambiguate a name shared across kingdoms (a *Prunella* that is both a bird
+#'   and a plant, an *Oenanthe* that is both). `NULL` (default) applies no
+#'   constraint. Accepts a kingdom name or a common alias, case-insensitively:
+#'   `"animals"`/`"Animalia"`/`"Metazoa"`, `"plants"`/`"Plantae"`,
+#'   `"fungi"`, `"bacteria"`, `"archaea"`, `"chromista"`, `"protozoa"`,
+#'   `"viruses"`. A matched taxon is kept only when its kingdom is the requested
+#'   one (or is unknown, which is never rejected); with the default multi-backend
+#'   fallback, a name a backbone resolves into the wrong kingdom is passed on to
+#'   the next backbone, so the in-kingdom treatment wins. The kingdom is read
+#'   from the backbone where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a
+#'   backbone that does not (WFO, GBIF), it falls back to the genus register's
+#'   kingdom, which cannot split a genus that is itself homonymous across
+#'   kingdoms -- name a kingdom-appropriate `backend` for those.
 #' @param mode Character. How to combine results when `backend` names more than
 #'   one backbone. `"fallback"` (default) is the fallback chain described above:
 #'   one answer per name, from the first backbone that matched. `"wide"` and
@@ -215,6 +229,7 @@ taxify <- function(x,
                    region = NULL,
                    coords = NULL,
                    range = c("present", "native", "introduced"),
+                   kingdom = NULL,
                    mode = c("fallback", "wide", "agreement"),
                    verbose = TRUE) {
 
@@ -223,6 +238,7 @@ taxify <- function(x,
   range        <- match.arg(range)
   mode         <- match.arg(mode)
   region       <- resolve_region(region, coords, verbose = verbose)
+  kingdom      <- resolve_kingdom_filter(kingdom)
 
   if (!is.character(x)) {
     stop("x must be a character vector", call. = FALSE)
@@ -249,7 +265,8 @@ taxify <- function(x,
     } else {
       ensure_backends_current(be_names, verbose = verbose)
       return(taxify_compare(x, be_names, mode, fuzzy, fuzzy_threshold,
-                            fuzzy_method, aggregates, region, range, verbose))
+                            fuzzy_method, aggregates, region, range, kingdom,
+                            verbose))
     }
   }
 
@@ -258,7 +275,7 @@ taxify <- function(x,
     ensure_backends_current(backend$name, verbose = verbose)
     return(taxify_single(x, backend, fuzzy, fuzzy_threshold, fuzzy_method,
                          aggregates, region = region, range_mode = range,
-                         verbose = verbose))
+                         kingdom = kingdom, verbose = verbose))
   }
 
   if (!is.character(backend) || length(backend) == 0L) {
@@ -272,7 +289,7 @@ taxify <- function(x,
     be <- resolve_backend(backend)
     return(taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                          aggregates, region = region, range_mode = range,
-                         verbose = verbose))
+                         kingdom = kingdom, verbose = verbose))
   }
 
   # Multi-backend fallback chain
@@ -296,6 +313,7 @@ taxify <- function(x,
                                  fuzzy_method, region = region,
                                  range_mode = range, verbose = verbose,
                                  label = be_name)
+      result <- filter_result_by_kingdom(result, bb_path, kingdom, be$name)
 
       matched <- !is.na(result$match_type)
       result$backend <- ifelse(matched, be$name, NA_character_)
@@ -321,6 +339,8 @@ taxify <- function(x,
                                      fuzzy_threshold, fuzzy_method,
                                      region = region, range_mode = range,
                                      verbose = verbose, label = be_name)
+      sub_result <- filter_result_by_kingdom(sub_result, bb_path, kingdom,
+                                             be$name)
 
       # Merge sub_result back into main result. Copy every match column the
       # sub-result carries (so a schema addition needs no edit here); backend and
@@ -386,7 +406,8 @@ taxify <- function(x,
 #' @return A `taxify_result` data.frame.
 #' @noRd
 taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
-                           fuzzy_method, aggregates, region, range, verbose) {
+                           fuzzy_method, aggregates, region, range,
+                           kingdom = NULL, verbose) {
   if (verbose) message(sprintf(
     "Comparing %d names across %d backbones: %s",
     length(x), length(backend), paste(backend, collapse = ", ")))
@@ -397,7 +418,7 @@ taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
     be <- resolve_backend(be_name)
     r  <- taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                         aggregates, region = region, range_mode = range,
-                        verbose = verbose)
+                        kingdom = kingdom, verbose = verbose)
     attr(r, "taxify_meta") <- NULL
     class(r) <- "data.frame"
     r
@@ -465,7 +486,7 @@ taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
 #' @noRd
 taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                           aggregates = "preserve", region = NULL,
-                          range_mode = "present", verbose) {
+                          range_mode = "present", kingdom = NULL, verbose) {
   bb_path <- ensure_backbone(be, verbose = verbose)
 
   if (verbose) message(sprintf("Matching %d names...", length(x)))
@@ -474,6 +495,7 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
                              fuzzy_method, region = region,
                              range_mode = range_mode, verbose = verbose)
+  result <- filter_result_by_kingdom(result, bb_path, kingdom, be$name)
 
   matched <- !is.na(result$match_type)
   result$backend <- ifelse(matched, be$name, NA_character_)
@@ -671,6 +693,158 @@ run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
                           region = region, range_mode = range_mode)
   }
   result
+}
+
+
+# ---- Kingdom disambiguation (the `kingdom =` filter) ----
+#
+# A coarse kingdom vocabulary shared by the user hint, the backbone `kingdom`
+# column, and the genus register's `kingdom_group`, so all three compare in one
+# space. Values outside the vocabulary (informal clade names, "incertae sedis",
+# "unknown", "") collapse to NA and are never a rejection reason -- an unknown
+# kingdom is kept, only a known-and-wrong kingdom is filtered out.
+
+
+#' Aliases mapping user/source kingdom spellings to the coarse vocabulary
+#' @noRd
+.kingdom_group_aliases <- c(
+  animal = "animalia", animals = "animalia", animalia = "animalia",
+  metazoa = "animalia", fauna = "animalia",
+  plant = "plantae", plants = "plantae", plantae = "plantae",
+  viridiplantae = "plantae", archaeplastida = "plantae",
+  chloroplastida = "plantae", flora = "plantae",
+  fungus = "fungi", fungi = "fungi",
+  bacterium = "bacteria", bacteria = "bacteria", eubacteria = "bacteria",
+  monera = "bacteria",
+  archaeon = "archaea", archaea = "archaea", archaeal = "archaea",
+  chromista = "chromista", chromist = "chromista",
+  protozoa = "protozoa", protozoan = "protozoa", protist = "protozoa",
+  protists = "protozoa",
+  virus = "viruses", viruses = "viruses", viral = "viruses"
+)
+
+
+#' Normalize a kingdom string to the coarse kingdom-group vocabulary
+#'
+#' Case-insensitive; also folds the NCBI clade / OTT names that
+#' [normalize_kingdom_names()] resolves. Unrecognised, empty, or explicitly
+#' unknown values return `NA` (never a rejection reason downstream).
+#'
+#' @param x Character vector.
+#' @return Character vector of coarse kingdom groups (or `NA`).
+#' @noRd
+normalize_kingdom_group <- function(x) {
+  if (length(x) == 0L) return(character(0L))
+  y <- tolower(trimws(as.character(normalize_kingdom_names(as.character(x)))))
+  y[is.na(y) | !nzchar(y) | y %in% c("unknown", "incertae sedis",
+                                     "incertae_sedis", "na")] <- NA_character_
+  hit <- match(y, names(.kingdom_group_aliases))
+  # Anything outside the coarse vocabulary is NA: an unknown source kingdom is
+  # then never a rejection reason, and an unknown user hint fails validation.
+  ifelse(!is.na(hit), unname(.kingdom_group_aliases[hit]), NA_character_)
+}
+
+
+#' Resolve the user `kingdom =` argument to a set of coarse kingdom groups
+#'
+#' @param kingdom `NULL`, or a character vector of kingdom names / aliases.
+#' @return `NULL` when no constraint, else a character vector of coarse kingdom
+#'   groups. Errors when none of the supplied values are recognisable.
+#' @noRd
+resolve_kingdom_filter <- function(kingdom) {
+  if (is.null(kingdom)) return(NULL)
+  if (!is.character(kingdom) || length(kingdom) == 0L) {
+    stop("kingdom must be NULL or a character vector of kingdom names.",
+         call. = FALSE)
+  }
+  set <- unique(normalize_kingdom_group(kingdom))
+  set <- set[!is.na(set)]
+  if (length(set) == 0L) {
+    stop(sprintf(paste0(
+      "kingdom: none of %s is a recognised kingdom. Use one of: animalia, ",
+      "plantae, fungi, bacteria, archaea, chromista, protozoa, viruses ",
+      "(aliases like \"animals\"/\"plants\" are accepted)."),
+      paste(sQuote(kingdom), collapse = ", ")), call. = FALSE)
+  }
+  set
+}
+
+
+#' Demote matched rows back to unmatched (blanking their match columns)
+#'
+#' Used by the kingdom filter: an out-of-kingdom match is cleared so the
+#' fallback chain treats the name as still unresolved (a later backbone may
+#' supply an in-kingdom answer); a single-backend run then finalizes it to
+#' `"none"`.
+#'
+#' @param result The match result data.frame.
+#' @param rows Integer row indices to demote.
+#' @return `result` with those rows blanked.
+#' @noRd
+demote_match_rows <- function(result, rows) {
+  if (length(rows) == 0L) return(result)
+  na_cols <- intersect(
+    c("matched_name", "accepted_name", "taxon_id", "accepted_id", "rank",
+      "family", "genus", "epithet", "authorship", "accepted_authorship",
+      "is_synonym", "fuzzy_dist", "is_ambiguous", "ambiguous_targets",
+      "aggregate_fallback", "backend", "backbone_version"),
+    names(result))
+  for (col in na_cols) result[[col]][rows] <- NA
+  result$match_type[rows] <- NA_character_
+  result
+}
+
+
+#' Drop matched rows whose kingdom is not among the requested set
+#'
+#' Reads each matched row's kingdom from the backbone's `kingdom` column where
+#' it stores one, falling back to the genus register's `kingdom_group`. A row
+#' whose resolved kingdom is known and outside `kingdom_set` is demoted (see
+#' [demote_match_rows()]); an unknown kingdom is always kept.
+#'
+#' @param result The match result data.frame (post `run_match_stages()`).
+#' @param bb_path Path to the backbone `.vtr`.
+#' @param kingdom_set `NULL` (no-op) or a coarse kingdom-group vector.
+#' @param be_name Backend name (unused directly; kept for symmetry / clarity).
+#' @return `result`, possibly with out-of-kingdom rows demoted.
+#' @noRd
+filter_result_by_kingdom <- function(result, bb_path, kingdom_set, be_name) {
+  if (is.null(kingdom_set)) return(result)
+  matched <- which(!is.na(result$match_type) &
+                     !result$match_type %in%
+                       c("none", "out_of_scope", "hybrid_formula"))
+  if (length(matched) == 0L) return(result)
+
+  kg <- rep(NA_character_, nrow(result))
+
+  # 1. Backbone kingdom column (COL/ITIS/NCBI/OTT/WoRMS store one).
+  schema <- tryCatch(
+    names(vectra::collect(utils::head(vectra::tbl(bb_path), 1L))),
+    error = function(e) character(0L))
+  if ("kingdom" %in% schema && "accepted_id" %in% names(result)) {
+    j <- tryCatch(
+      backbone_join(bb_path, result$accepted_id[matched], bb_key = "taxon_id",
+                    select_cols = c("taxon_id", "kingdom")),
+      error = function(e) NULL)
+    if (!is.null(j) && nrow(j) > 0L) {
+      j   <- j[!duplicated(j$lookup), , drop = FALSE]
+      idx <- match(result$accepted_id[matched], j$lookup)
+      kg[matched] <- normalize_kingdom_group(j$kingdom[idx])
+    }
+  }
+
+  # 2. Genus register fallback for rows the backbone left unknown.
+  need <- matched[is.na(kg[matched])]
+  if (length(need) > 0L && "genus" %in% names(result)) {
+    reg <- load_register_or_null()
+    if (!is.null(reg) && all(c("genus", "kingdom_group") %in% names(reg))) {
+      gk <- stats::setNames(reg$kingdom_group, reg$genus)
+      kg[need] <- normalize_kingdom_group(unname(gk[result$genus[need]]))
+    }
+  }
+
+  bad <- matched[!is.na(kg[matched]) & !(kg[matched] %in% kingdom_set)]
+  demote_match_rows(result, bad)
 }
 
 

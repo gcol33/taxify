@@ -62,17 +62,22 @@ reference:
   desc: Resolve a vector of names against local backbones and check a list before you trust it.
   contents:
   - taxify
+  - comm2sci
+  - id2name
   - inspect
   - taxify_regions
   - taxify_long
   - export_data
   - cite
 - title: Explore the backbone
-  desc: Read the backbone the other ways — list synonyms, list the taxa within a group, attach the full classification.
+  desc: Read the backbone the other ways — list synonyms, list the taxa within or beneath a group, attach the full classification, build a taxonomy tree.
   contents:
   - synonyms
   - children
+  - downstream
   - add_classification
+  - class2tree
+  - lowest_common
   - taxify_candidates
 - title: Backbone data and cache
   desc: Download, cache, and inspect backbone snapshots and the unified genus register.
