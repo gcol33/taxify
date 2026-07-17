@@ -111,26 +111,85 @@ region_alias_map <- function() {
 }
 
 
+#' Is the marine distribution asset installed?
+#'
+#' Marine region support (MEOW ecoregion names, coordinate lookup, and range
+#' filtering) activates only when the `marine_distribution` enrichment `.vtr` is
+#' present locally. Checked without a download so the plant-only default path is
+#' untouched: no marine asset means the runtime behaves exactly as before.
+#'
+#' @return Logical scalar.
+#' @noRd
+marine_region_active <- function() {
+  file.exists(enrichment_vtr_path("marine_distribution"))
+}
+
+
+#' Build the folded-name to MEOW `ECO_CODE` alias map
+#'
+#' The marine counterpart of [region_alias_map()]. There is no bundled MEOW
+#' crosswalk (the attribute table is gated like the geometry), so the map is
+#' derived from the installed `marine_distribution` enrichment itself, whose
+#' rows carry `region_code` (ECO_CODE) alongside `ecoregion`, `province`, and
+#' `realm` names. Ecoregion names map to their own code; a province or realm
+#' name expands to every member ecoregion code, exactly as a WGSRPD Level 1/2
+#' name expands to its member Level 3 codes.
+#'
+#' @return A data.frame with `key` and `code`, or `NULL` when the marine asset
+#'   is not installed or unreadable.
+#' @noRd
+meow_alias_map <- function() {
+  cached <- get0("meow_alias_map", envir = .taxify_env, inherits = FALSE)
+  if (!is.null(cached)) return(cached)
+  if (!marine_region_active()) return(NULL)
+
+  path <- enrichment_vtr_path("marine_distribution")
+  sel <- c("region_code", "ecoregion", "province", "realm")
+  tab <- tryCatch(
+    vectra::collect(
+      vectra::tbl(path) |> vectra::select(!!!lapply(sel, as.name))),
+    error = function(e) NULL
+  )
+  if (is.null(tab) || nrow(tab) == 0L) return(NULL)
+  tab <- unique(tab)
+  code <- as.character(tab$region_code)
+
+  aliases <- rbind(
+    data.frame(key = fold_region_key(tab$ecoregion), code = code,
+               stringsAsFactors = FALSE),
+    data.frame(key = fold_region_key(tab$province), code = code,
+               stringsAsFactors = FALSE),
+    data.frame(key = fold_region_key(tab$realm), code = code,
+               stringsAsFactors = FALSE)
+  )
+  aliases <- unique(aliases[nzchar(aliases$key) & nzchar(aliases$code),
+                            , drop = FALSE])
+  assign("meow_alias_map", aliases, envir = .taxify_env)
+  aliases
+}
+
+
 #' Validate and normalize a user-supplied region argument
 #'
-#' Resolves each element to one or more TDWG Level 3 codes: a known code (or any
-#' bare 3-letter token) is used directly; a region name (Level 1, 2, or 3, case-
-#' and accent-insensitive) is expanded via the bundled WGSRPD crosswalk.
-#' Unresolvable, non-code tokens trigger a warning and are dropped. Returns
-#' `NULL` when nothing usable remains (so the caller treats it as "no filter").
-#' Unrecognized codes are kept rather than rejected: a code that matches no WCVP
-#' record makes the soft filter a no-op, so a typo degrades gracefully instead
-#' of producing wrong results.
+#' Resolves each element to one or more region codes. Botanical (TDWG Level 3):
+#' a known code (or any bare 3-letter token) is used directly; a region name
+#' (Level 1, 2, or 3, case- and accent-insensitive) is expanded via the bundled
+#' WGSRPD crosswalk. Marine (MEOW ecoregion, only when the `marine_distribution`
+#' asset is installed): a numeric `ECO_CODE`, or an ecoregion / province / realm
+#' name, is resolved from the installed enrichment. Unresolvable, non-code tokens
+#' trigger a warning and are dropped. Returns `NULL` when nothing usable remains
+#' (so the caller treats it as "no filter"). Unrecognized codes are kept rather
+#' than rejected: a code that matches no range record makes the soft filter a
+#' no-op, so a typo degrades gracefully instead of producing wrong results.
 #'
-#' @param region Character vector of TDWG Level 3 codes or region names, or
-#'   `NULL`.
+#' @param region Character vector of region codes or names, or `NULL`.
 #' @return Normalized character vector of codes, or `NULL`.
 #' @noRd
 validate_region <- function(region) {
   if (is.null(region)) return(NULL)
   if (!is.character(region)) {
-    stop("region must be a character vector of TDWG Level 3 codes or region ",
-         "names, or NULL.", call. = FALSE)
+    stop("region must be a character vector of region codes or names, or NULL.",
+         call. = FALSE)
   }
   region <- trimws(region)
   region <- region[!is.na(region) & nzchar(region)]
@@ -140,15 +199,23 @@ validate_region <- function(region) {
   codes   <- if (is.null(tab)) character(0L) else tab$code
   aliases <- region_alias_map()
 
+  marine    <- marine_region_active()
+  m_aliases <- if (marine) meow_alias_map() else NULL
+  m_codes   <- if (is.null(m_aliases)) character(0L) else unique(m_aliases$code)
+
   out         <- character(0L)
   unresolved  <- character(0L)
   for (tok in region) {
-    up <- toupper(tok)
+    up  <- toupper(tok)
+    key <- fold_region_key(tok)
     if (up %in% codes) {
       out <- c(out, up)
-    } else if (!is.null(aliases) &&
-               fold_region_key(tok) %in% aliases$key) {
-      out <- c(out, aliases$code[aliases$key == fold_region_key(tok)])
+    } else if (!is.null(aliases) && key %in% aliases$key) {
+      out <- c(out, aliases$code[aliases$key == key])
+    } else if (marine && grepl("^[0-9]+$", tok) && tok %in% m_codes) {
+      out <- c(out, tok)
+    } else if (!is.null(m_aliases) && key %in% m_aliases$key) {
+      out <- c(out, m_aliases$code[m_aliases$key == key])
     } else if (grepl("^[A-Za-z]{3}$", tok)) {
       out <- c(out, up)
     } else {
@@ -169,32 +236,34 @@ validate_region <- function(region) {
 }
 
 
-#' Build the in-region and has-range-data sets for a vector of accepted names
+#' Build the in-region and has-range-data sets from one range provider
 #'
-#' Looks the accepted names up in the WCVP range table (one inner_join against
-#' the candidate names, so only matching rows are pulled). Returns two sets:
-#' `present` (recorded in `region` under the chosen `range_mode`) and
-#' `has_data` (recorded anywhere in WCVP, used to tell "absent from this region"
-#' apart from "no range data at all").
+#' Looks the accepted names up in one range enrichment (one inner_join against
+#' the candidate names, so only matching rows are pulled) and classifies each on
+#' `code_col` against the region codes. The shared engine behind both the WCVP
+#' (plant, `tdwg_code`) and marine (`marine_distribution`, `region_code`)
+#' providers.
 #'
-#' @param accepted_names Character vector of candidate accepted names.
-#' @param region Character vector of TDWG Level 3 codes (already validated).
+#' @param an Unique candidate accepted names.
+#' @param codes Region codes belonging to this provider's vocabulary.
 #' @param range_mode One of `"present"`, `"native"`, `"introduced"`.
+#' @param enrichment Enrichment identifier (e.g. `"wcvp"`).
+#' @param code_col The provider's region-code column (e.g. `"tdwg_code"`).
 #' @param verbose Logical.
 #' @return List with `present` and `has_data` character vectors, or `NULL` when
-#'   WCVP range data is unavailable (caller then skips filtering).
+#'   the provider's range data is unavailable.
 #' @noRd
-region_range_sets <- function(accepted_names, region, range_mode,
-                              verbose = FALSE) {
-  an <- unique(accepted_names[!is.na(accepted_names) & nzchar(accepted_names)])
-  if (length(an) == 0L) {
-    return(list(present = character(0L), has_data = character(0L)))
-  }
+provider_range_sets <- function(an, codes, range_mode, enrichment, code_col,
+                                verbose = FALSE) {
+  if (length(codes) == 0L) return(NULL)
 
-  vtr_path <- tryCatch(ensure_enrichment("wcvp", verbose = FALSE),
+  vtr_path <- tryCatch(ensure_enrichment(enrichment, verbose = FALSE),
                        error = function(e) NULL)
   if (is.null(vtr_path)) {
-    if (verbose) message("  Region filter skipped: WCVP range data unavailable.")
+    if (verbose) {
+      message(sprintf("  Region filter: '%s' range data unavailable.",
+                      enrichment))
+    }
     return(NULL)
   }
 
@@ -209,13 +278,13 @@ region_range_sets <- function(accepted_names, region, range_mode,
   } else {
     return(NULL)
   }
-  if (!all(c("tdwg_code", "native_status") %in% names(schema))) return(NULL)
+  if (!all(c(code_col, "native_status") %in% names(schema))) return(NULL)
 
   tmp <- tempfile(fileext = ".vtr")
   on.exit(unlink(tmp), add = TRUE)
   vectra::write_vtr(data.frame(lookup_name = an, stringsAsFactors = FALSE), tmp)
 
-  sel <- c(join_key, "tdwg_code", "native_status")
+  sel <- c(join_key, code_col, "native_status")
   joined <- tryCatch(
     vectra::inner_join(
       vectra::tbl(tmp),
@@ -229,11 +298,61 @@ region_range_sets <- function(accepted_names, region, range_mode,
     return(list(present = character(0L), has_data = character(0L)))
   }
 
-  in_region <- joined$tdwg_code %in% region
+  in_region <- joined[[code_col]] %in% codes
   status_ok <- range_status_ok(range_mode, joined$native_status)
   list(
     present  = unique(joined$lookup_name[in_region & status_ok]),
     has_data = unique(joined$lookup_name)
+  )
+}
+
+
+#' Build the in-region and has-range-data sets across all range providers
+#'
+#' Routes each region code to its provider by vocabulary -- alphabetic TDWG
+#' Level 3 codes to WCVP (`tdwg_code`), numeric MEOW `ECO_CODE`s to the marine
+#' distribution asset (`region_code`, issue #21) -- and unions the results by
+#' accepted name. A provider is only touched when it owns at least one of the
+#' resolved codes, so a plant-only region query never downloads the marine
+#' asset and vice versa. Returns two sets: `present` (recorded in `region` under
+#' the chosen `range_mode` by any provider) and `has_data` (recorded anywhere by
+#' any provider, used to tell "absent from this region" apart from "no range
+#' data at all").
+#'
+#' @param accepted_names Character vector of candidate accepted names.
+#' @param region Character vector of region codes (already validated).
+#' @param range_mode One of `"present"`, `"native"`, `"introduced"`.
+#' @param verbose Logical.
+#' @return List with `present` and `has_data`, or `NULL` when no provider has
+#'   range data (caller then skips filtering).
+#' @noRd
+region_range_sets <- function(accepted_names, region, range_mode,
+                              verbose = FALSE) {
+  an <- unique(accepted_names[!is.na(accepted_names) & nzchar(accepted_names)])
+  if (length(an) == 0L) {
+    return(list(present = character(0L), has_data = character(0L)))
+  }
+
+  meow_codes <- region[grepl("^[0-9]+$", region)]
+  tdwg_codes <- setdiff(region, meow_codes)
+
+  wcvp <- provider_range_sets(an, tdwg_codes, range_mode, "wcvp",
+                              "tdwg_code", verbose)
+  marine <- if (marine_region_active()) {
+    provider_range_sets(an, meow_codes, range_mode, "marine_distribution",
+                        "region_code", verbose)
+  } else {
+    NULL
+  }
+
+  if (is.null(wcvp) && is.null(marine)) {
+    if (verbose) message("  Region filter skipped: no range data available.")
+    return(NULL)
+  }
+
+  list(
+    present  = unique(c(wcvp$present,  marine$present)),
+    has_data = unique(c(wcvp$has_data, marine$has_data))
   )
 }
 
@@ -347,97 +466,37 @@ filter_fuzzy_by_region <- function(matches, region, range_mode,
 }
 
 
-# ---- Coordinate -> TDWG Level 3 code (point-in-polygon) ----
+# ---- Coordinate -> region code (point-in-polygon), scheme-generic ----
 #
-# Coordinates are mapped to botanical regions by point-in-polygon against the
-# WGSRPD Level 3 boundaries. The boundaries ship as a pre-built .vtr from
-# taxifydb (a long-format vertex table), downloaded once through the manifest
+# The same machinery serves two boundary sets: WGSRPD Level 3 botanical regions
+# (scheme "wgsrpd", coordinates -> tdwg_code) and MEOW marine ecoregions
+# (scheme "meow", coordinates -> ECO_CODE, issue #21). Both ship as a pre-built
+# long-format vertex `.vtr` from taxifydb, downloaded once through the manifest
 # and cached in the taxify data directory -- the runtime never fetches the
 # GeoJSON. The default engine is a native ray-casting test (no spatial
 # dependency); when terra or sf is installed it is used instead (faster on
 # large point sets, handles CRS reprojection), selectable via
 # options(taxify.pip_engine = "terra" | "sf" | "native"). All three engines
-# rebuild their geometry from the same .vtr.
+# rebuild their geometry from the same `.vtr`.
+#
+# The scheme-specific parts (which `.vtr`, which taxifydb builder, the per-scheme
+# session caches) live in the thin `wgsrpd_*` / `meow_*` wrappers below; the pure
+# geometry transforms they share (`assemble_polygons`, `feats_to_wkt`, the terra
+# and sf locators) take data, not a scheme, so there is one implementation of
+# each. `wgsrpd_*` keep their names because callers and tests bind to them.
 
-#' Path to the cached WGSRPD Level 3 boundary `.vtr`
+#' Assemble a boundary vertex table into per-feature polygon rings
+#'
+#' Pure transform shared by every scheme. Each feature is a list with `code`, a
+#' bounding box `bbox` (`xmin, xmax, ymin, ymax`) for fast rejection, and
+#' `polys` (a list of polygons, each a list of rings where the first ring is the
+#' outer boundary and the rest are holes; every ring is a two-column matrix of
+#' longitude/latitude).
+#'
+#' @param df A vertex table with `code`, `geom`, `ring`, `seq`, `lon`, `lat`.
+#' @return A list of features.
 #' @noRd
-wgsrpd_vtr_path <- function() {
-  versioned_vtr_path("wgsrpd", "latest")
-}
-
-
-#' Ensure the WGSRPD Level 3 boundary `.vtr` is on disk
-#'
-#' Resolves the boundary `.vtr` the same way backbones are resolved: a local
-#' cache first, then the pre-built download from the manifest, then a
-#' build-from-source via taxifydb if it is installed. No live GeoJSON fetch.
-#'
-#' @param download Logical. Fetch the `.vtr` if it is not already cached.
-#' @param verbose Logical.
-#' @return Character path to the `.vtr`, or `NULL` if it is unavailable.
-#' @noRd
-ensure_wgsrpd_vtr <- function(download = TRUE, verbose = FALSE) {
-  path <- wgsrpd_vtr_path()
-  if (file.exists(path)) return(path)
-  if (!download) return(NULL)
-
-  dl <- tryCatch(download_backbone("wgsrpd", verbose = verbose),
-                 error = function(e) NULL)
-  if (!is.null(dl) && file.exists(dl)) return(dl)
-
-  if (requireNamespace("taxifydb", quietly = TRUE)) {
-    built <- tryCatch(
-      taxifydb::build_wgsrpd(output_dir = dirname(path), verbose = verbose),
-      error = function(e) NULL
-    )
-    if (!is.null(built) && file.exists(built)) return(built)
-  }
-  NULL
-}
-
-
-#' Read the WGSRPD Level 3 boundary vertex table
-#'
-#' Caches the collected data.frame in the session environment. Columns:
-#' `code`, `geom` (polygon index within a feature), `ring` (`1` = outer,
-#' `2+` = holes), `seq` (vertex order), `lon`, `lat`.
-#'
-#' @param verbose Logical.
-#' @return A data.frame, or `NULL` if the boundaries are unavailable.
-#' @noRd
-wgsrpd_vertices <- function(verbose = FALSE) {
-  cached <- get0("wgsrpd_df", envir = .taxify_env, inherits = FALSE)
-  if (!is.null(cached)) return(cached)
-
-  path <- ensure_wgsrpd_vtr(download = TRUE, verbose = verbose)
-  if (is.null(path)) return(NULL)
-
-  df <- tryCatch(vectra::collect(vectra::tbl(path)),
-                 error = function(e) NULL)
-  if (is.null(df) || nrow(df) == 0L) return(NULL)
-  assign("wgsrpd_df", df, envir = .taxify_env)
-  df
-}
-
-
-#' Reassemble the boundary vertex table into per-feature polygon rings
-#'
-#' Caches the structure in the session environment. Each feature is a list with
-#' `code`, a bounding box `bbox` (`xmin, xmax, ymin, ymax`) for fast rejection,
-#' and `polys` (a list of polygons, each a list of rings where the first ring
-#' is the outer boundary and the rest are holes; every ring is a two-column
-#' matrix of longitude/latitude).
-#'
-#' @param verbose Logical.
-#' @return A list of features, or `NULL` if the boundaries are unavailable.
-#' @noRd
-wgsrpd_polygons <- function(verbose = FALSE) {
-  cached <- get0("wgsrpd_polygons", envir = .taxify_env, inherits = FALSE)
-  if (!is.null(cached)) return(cached)
-
-  df <- wgsrpd_vertices(verbose = verbose)
-  if (is.null(df)) return(NULL)
-
+assemble_polygons <- function(df) {
   df <- df[order(df$code, df$geom, df$ring, df$seq), , drop = FALSE]
   feats <- lapply(split(df, df$code), function(cd) {
     polys <- lapply(split(cd, cd$geom), function(gm) {
@@ -456,8 +515,136 @@ wgsrpd_polygons <- function(verbose = FALSE) {
     )
   })
   names(feats) <- NULL
-  assign("wgsrpd_polygons", feats, envir = .taxify_env)
   feats
+}
+
+
+#' Ensure a boundary `.vtr` is on disk, per scheme
+#'
+#' Resolves the boundary `.vtr` the same way backbones are resolved: a local
+#' cache first, then the pre-built download from the manifest, then a
+#' build-from-source via taxifydb if it is installed. No live GeoJSON fetch.
+#'
+#' @param scheme One of `"wgsrpd"`, `"meow"`.
+#' @param download Logical. Fetch the `.vtr` if it is not already cached.
+#' @param verbose Logical.
+#' @return Character path to the `.vtr`, or `NULL` if it is unavailable.
+#' @noRd
+ensure_boundary_vtr <- function(scheme, download = TRUE, verbose = FALSE) {
+  path <- versioned_vtr_path(scheme, "latest")
+  if (file.exists(path)) return(path)
+  if (!download) return(NULL)
+
+  dl <- tryCatch(download_backbone(scheme, verbose = verbose),
+                 error = function(e) NULL)
+  if (!is.null(dl) && file.exists(dl)) return(dl)
+
+  if (requireNamespace("taxifydb", quietly = TRUE)) {
+    built <- tryCatch(
+      switch(scheme,
+        wgsrpd = taxifydb::build_wgsrpd(output_dir = dirname(path),
+                                        verbose = verbose),
+        meow   = taxifydb::build_meow(output_dir = dirname(path),
+                                      verbose = verbose),
+        NULL),
+      error = function(e) NULL
+    )
+    if (!is.null(built) && file.exists(built)) return(built)
+  }
+  NULL
+}
+
+
+#' Read a boundary vertex table, per scheme, cached in the session
+#'
+#' Columns: `code`, `geom` (polygon index within a feature), `ring` (`1` =
+#' outer, `2+` = holes), `seq` (vertex order), `lon`, `lat`. Cached under
+#' `<scheme>_df`.
+#' @noRd
+boundary_vertices <- function(scheme, ensure_fn, verbose = FALSE) {
+  key <- paste0(scheme, "_df")
+  cached <- get0(key, envir = .taxify_env, inherits = FALSE)
+  if (!is.null(cached)) return(cached)
+
+  path <- ensure_fn(download = TRUE, verbose = verbose)
+  if (is.null(path)) return(NULL)
+
+  df <- tryCatch(vectra::collect(vectra::tbl(path)),
+                 error = function(e) NULL)
+  if (is.null(df) || nrow(df) == 0L) return(NULL)
+  assign(key, df, envir = .taxify_env)
+  df
+}
+
+
+#' Reassemble a boundary vertex table into per-feature polygon rings, per scheme
+#'
+#' Cached under `<scheme>_polygons`. See [assemble_polygons()] for the shape.
+#' @noRd
+boundary_polygons <- function(scheme, vertices_fn, verbose = FALSE) {
+  key <- paste0(scheme, "_polygons")
+  cached <- get0(key, envir = .taxify_env, inherits = FALSE)
+  if (!is.null(cached)) return(cached)
+
+  df <- vertices_fn(verbose = verbose)
+  if (is.null(df)) return(NULL)
+  feats <- assemble_polygons(df)
+  assign(key, feats, envir = .taxify_env)
+  feats
+}
+
+
+# WGSRPD Level 3 botanical boundaries (scheme "wgsrpd").
+
+#' Path to the cached WGSRPD Level 3 boundary `.vtr`
+#' @noRd
+wgsrpd_vtr_path <- function() {
+  versioned_vtr_path("wgsrpd", "latest")
+}
+
+#' Ensure the WGSRPD Level 3 boundary `.vtr` is on disk
+#' @noRd
+ensure_wgsrpd_vtr <- function(download = TRUE, verbose = FALSE) {
+  ensure_boundary_vtr("wgsrpd", download = download, verbose = verbose)
+}
+
+#' Read the WGSRPD Level 3 boundary vertex table
+#' @noRd
+wgsrpd_vertices <- function(verbose = FALSE) {
+  boundary_vertices("wgsrpd", ensure_wgsrpd_vtr, verbose = verbose)
+}
+
+#' Reassemble the WGSRPD boundary vertex table into per-feature polygon rings
+#' @noRd
+wgsrpd_polygons <- function(verbose = FALSE) {
+  boundary_polygons("wgsrpd", wgsrpd_vertices, verbose = verbose)
+}
+
+
+# MEOW marine ecoregion boundaries (scheme "meow", issue #21).
+
+#' Path to the cached MEOW ecoregion boundary `.vtr`
+#' @noRd
+meow_vtr_path <- function() {
+  versioned_vtr_path("meow", "latest")
+}
+
+#' Ensure the MEOW ecoregion boundary `.vtr` is on disk
+#' @noRd
+ensure_meow_vtr <- function(download = TRUE, verbose = FALSE) {
+  ensure_boundary_vtr("meow", download = download, verbose = verbose)
+}
+
+#' Read the MEOW ecoregion boundary vertex table
+#' @noRd
+meow_vertices <- function(verbose = FALSE) {
+  boundary_vertices("meow", ensure_meow_vtr, verbose = verbose)
+}
+
+#' Reassemble the MEOW boundary vertex table into per-feature polygon rings
+#' @noRd
+meow_polygons <- function(verbose = FALSE) {
+  boundary_polygons("meow", meow_vertices, verbose = verbose)
 }
 
 
@@ -534,23 +721,15 @@ region_pip_engine <- function() {
 }
 
 
-#' Build WKT MULTIPOLYGON strings for every WGSRPD Level 3 feature
+#' Build WKT MULTIPOLYGON strings for every boundary feature
 #'
-#' terra and sf both parse WKT, so the boundary geometry is reconstructed once
-#' from the shared feature list and reused by either engine. Caches a named
-#' character vector (code -> WKT) in the session environment.
+#' Pure transform: terra and sf both parse WKT, so the boundary geometry is
+#' reconstructed once from a shared feature list and reused by either engine.
 #'
-#' @param verbose Logical.
-#' @return A named character vector of WKT strings, or `NULL` if the boundaries
-#'   are unavailable.
+#' @param feats Parsed features from [assemble_polygons()].
+#' @return A named character vector (code -> WKT).
 #' @noRd
-wgsrpd_wkt <- function(verbose = FALSE) {
-  cached <- get0("wgsrpd_wkt", envir = .taxify_env, inherits = FALSE)
-  if (!is.null(cached)) return(cached)
-
-  feats <- wgsrpd_polygons(verbose = verbose)
-  if (is.null(feats)) return(NULL)
-
+feats_to_wkt <- function(feats) {
   ring_wkt <- function(ring) {
     paste0("(", paste(sprintf("%.10f %.10f", ring[, 1L], ring[, 2L]),
                       collapse = ", "), ")")
@@ -565,78 +744,104 @@ wgsrpd_wkt <- function(verbose = FALSE) {
            ")")
   }, character(1L))
   names(wkt) <- vapply(feats, function(ft) ft$code, character(1L))
-
-  assign("wgsrpd_wkt", wkt, envir = .taxify_env)
   wkt
 }
 
-
-#' Locate points with terra
-#'
-#' @param m Two-column lon/lat matrix.
-#' @param verbose Logical.
-#' @return Character vector of Level 3 codes (`NA` outside any region), or `NULL`
-#'   if the boundaries are unavailable.
+#' Cached WKT for a scheme's boundaries
 #' @noRd
-locate_points_terra <- function(m, verbose = FALSE) {
-  polys <- get0("wgsrpd_terra", envir = .taxify_env, inherits = FALSE)
-  if (is.null(polys)) {
-    wkt <- wgsrpd_wkt(verbose = verbose)
-    if (is.null(wkt)) return(NULL)
-    polys <- terra::vect(unname(wkt), crs = "EPSG:4326")
-    terra::values(polys) <- data.frame(LEVEL3_COD = names(wkt),
-                                        stringsAsFactors = FALSE)
-    assign("wgsrpd_terra", polys, envir = .taxify_env)
-  }
-  pts <- terra::vect(m, type = "points", crs = "EPSG:4326")
-  ex  <- terra::extract(polys, pts)
-  ex$LEVEL3_COD[match(seq_len(nrow(m)), ex$id.y)]
+boundary_wkt <- function(scheme, polygons_fn, verbose = FALSE) {
+  key <- paste0(scheme, "_wkt")
+  cached <- get0(key, envir = .taxify_env, inherits = FALSE)
+  if (!is.null(cached)) return(cached)
+  feats <- polygons_fn(verbose = verbose)
+  if (is.null(feats)) return(NULL)
+  wkt <- feats_to_wkt(feats)
+  assign(key, wkt, envir = .taxify_env)
+  wkt
+}
+
+#' @noRd
+wgsrpd_wkt <- function(verbose = FALSE) {
+  boundary_wkt("wgsrpd", wgsrpd_polygons, verbose = verbose)
+}
+
+#' @noRd
+meow_wkt <- function(verbose = FALSE) {
+  boundary_wkt("meow", meow_polygons, verbose = verbose)
 }
 
 
-#' Locate points with sf
-#'
-#' The WGSRPD polygons trip s2's spherical validity checks, so the planar GEOS
-#' backend is used for the intersection (restored afterwards).
+#' Locate points with terra against a scheme's boundaries
 #'
 #' @param m Two-column lon/lat matrix.
+#' @param scheme One of `"wgsrpd"`, `"meow"`.
 #' @param verbose Logical.
-#' @return Character vector of Level 3 codes (`NA` outside any region), or `NULL`
+#' @return Character vector of region codes (`NA` outside any region), or `NULL`
 #'   if the boundaries are unavailable.
 #' @noRd
-locate_points_sf <- function(m, verbose = FALSE) {
-  polys <- get0("wgsrpd_sf", envir = .taxify_env, inherits = FALSE)
+locate_points_terra <- function(m, scheme = "wgsrpd", verbose = FALSE) {
+  key <- paste0(scheme, "_terra")
+  polys <- get0(key, envir = .taxify_env, inherits = FALSE)
   if (is.null(polys)) {
-    wkt <- wgsrpd_wkt(verbose = verbose)
+    wkt <- switch(scheme, wgsrpd = wgsrpd_wkt(verbose), meow = meow_wkt(verbose))
+    if (is.null(wkt)) return(NULL)
+    polys <- terra::vect(unname(wkt), crs = "EPSG:4326")
+    terra::values(polys) <- data.frame(region_code = names(wkt),
+                                        stringsAsFactors = FALSE)
+    assign(key, polys, envir = .taxify_env)
+  }
+  pts <- terra::vect(m, type = "points", crs = "EPSG:4326")
+  ex  <- terra::extract(polys, pts)
+  ex$region_code[match(seq_len(nrow(m)), ex$id.y)]
+}
+
+
+#' Locate points with sf against a scheme's boundaries
+#'
+#' The boundary polygons trip s2's spherical validity checks, so the planar
+#' GEOS backend is used for the intersection (restored afterwards).
+#'
+#' @param m Two-column lon/lat matrix.
+#' @param scheme One of `"wgsrpd"`, `"meow"`.
+#' @param verbose Logical.
+#' @return Character vector of region codes (`NA` outside any region), or `NULL`
+#'   if the boundaries are unavailable.
+#' @noRd
+locate_points_sf <- function(m, scheme = "wgsrpd", verbose = FALSE) {
+  key <- paste0(scheme, "_sf")
+  polys <- get0(key, envir = .taxify_env, inherits = FALSE)
+  if (is.null(polys)) {
+    wkt <- switch(scheme, wgsrpd = wgsrpd_wkt(verbose), meow = meow_wkt(verbose))
     if (is.null(wkt)) return(NULL)
     geom  <- sf::st_as_sfc(unname(wkt), crs = 4326)
-    polys <- sf::st_sf(LEVEL3_COD = names(wkt), geometry = geom)
-    assign("wgsrpd_sf", polys, envir = .taxify_env)
+    polys <- sf::st_sf(region_code = names(wkt), geometry = geom)
+    assign(key, polys, envir = .taxify_env)
   }
   old <- suppressMessages(sf::sf_use_s2(FALSE))
   on.exit(suppressMessages(sf::sf_use_s2(old)), add = TRUE)
   pts <- sf::st_as_sf(data.frame(lon = m[, 1L], lat = m[, 2L]),
                       coords = c("lon", "lat"), crs = 4326)
   idx <- suppressMessages(sf::st_intersects(pts, polys))
-  vapply(idx, function(i) if (length(i)) polys$LEVEL3_COD[i[1L]] else NA_character_,
+  vapply(idx, function(i) if (length(i)) polys$region_code[i[1L]] else NA_character_,
          character(1L))
 }
 
 
-#' Locate points, dispatching to the selected engine with a native fallback
+#' Locate points against a scheme, dispatching to the selected engine
 #'
 #' @param m Two-column lon/lat matrix.
+#' @param scheme One of `"wgsrpd"`, `"meow"`.
 #' @param verbose Logical.
-#' @return Character vector of Level 3 codes, or `NULL` if the boundaries are
+#' @return Character vector of region codes, or `NULL` if the boundaries are
 #'   unavailable.
 #' @noRd
-locate_codes <- function(m, verbose = FALSE) {
+locate_codes <- function(m, scheme = "wgsrpd", verbose = FALSE) {
   engine <- region_pip_engine()
   if (engine != "native") {
     res <- tryCatch(
       switch(engine,
-             terra = locate_points_terra(m, verbose),
-             sf    = locate_points_sf(m, verbose)),
+             terra = locate_points_terra(m, scheme, verbose),
+             sf    = locate_points_sf(m, scheme, verbose)),
       error = function(e) {
         if (verbose) {
           message(sprintf("  %s point-in-polygon failed (%s); using native.",
@@ -647,7 +852,9 @@ locate_codes <- function(m, verbose = FALSE) {
     )
     if (!identical(res, "__fallback__")) return(res)
   }
-  feats <- wgsrpd_polygons(verbose = verbose)
+  feats <- switch(scheme,
+                  wgsrpd = wgsrpd_polygons(verbose = verbose),
+                  meow   = meow_polygons(verbose = verbose))
   if (is.null(feats)) return(NULL)
   locate_points(m[, 1L], m[, 2L], feats)
 }
@@ -749,28 +956,43 @@ normalize_coords <- function(coords) {
 }
 
 
-#' Map coordinates to TDWG Level 3 codes
+#' Map coordinates to region codes (TDWG botanical + MEOW marine ecoregion)
+#'
+#' Runs point-in-polygon against the WGSRPD Level 3 boundaries (yielding
+#' `tdwg_code`s) and, when the marine distribution asset is installed, also
+#' against the MEOW ecoregion boundaries (yielding numeric `ECO_CODE`s), and
+#' returns the union. A coastal point can fall in both a botanical region and a
+#' marine ecoregion; an inland point resolves only to TDWG, an open-ocean point
+#' only to MEOW. The two code spaces are disjoint (TDWG is alphabetic, ECO_CODE
+#' numeric), so [region_range_sets()] routes each to its provider.
 #'
 #' @param coords Coordinate input (see [normalize_coords()]).
 #' @param verbose Logical.
-#' @return Character vector of unique Level 3 codes (possibly empty), or `NULL`
-#'   if the boundaries are unavailable.
+#' @return Character vector of unique region codes (possibly empty), or `NULL`
+#'   if no boundary set is available.
 #' @noRd
 coords_to_codes <- function(coords, verbose = FALSE) {
   if (is.null(coords)) return(NULL)
   m <- normalize_coords(coords)
   if (nrow(m) == 0L) return(character(0L))
 
-  codes <- locate_codes(m, verbose = verbose)
-  if (is.null(codes)) {
-    warning("Coordinate region lookup skipped: WGSRPD boundaries unavailable ",
+  tdwg <- locate_codes(m, "wgsrpd", verbose = verbose)
+  meow <- if (marine_region_active()) {
+    locate_codes(m, "meow", verbose = verbose)
+  } else {
+    NULL
+  }
+
+  if (is.null(tdwg) && is.null(meow)) {
+    warning("Coordinate region lookup skipped: region boundaries unavailable ",
             "(offline, or download failed).", call. = FALSE)
     return(NULL)
   }
 
+  codes  <- c(tdwg, meow)
   n_miss <- sum(is.na(codes))
   if (n_miss > 0L && verbose) {
-    message(sprintf("  %d coordinate(s) fell outside any botanical region.",
+    message(sprintf("  %d coordinate(s) fell outside any known region.",
                     n_miss))
   }
   unique(codes[!is.na(codes)])

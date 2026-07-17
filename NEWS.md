@@ -1,3 +1,27 @@
+# taxify 0.3.20
+
+## Region filtering generalizes beyond plants (issue #21)
+
+* `region=` and `coords=` now constrain fuzzy matching for marine taxa, not
+  only vascular plants. When the `marine_distribution` asset is installed,
+  `region_range_sets()` unions two providers behind the unchanged arguments:
+  WCVP (plants, keyed on TDWG Level 3 `tdwg_code`) and the marine distribution
+  table (keyed on MEOW ecoregion `region_code`). Each resolved region code is
+  routed to its provider by vocabulary -- alphabetic TDWG codes to WCVP, numeric
+  MEOW `ECO_CODE`s to the marine table -- through one shared engine, so a
+  plant-only query never touches the marine asset and vice versa.
+
+* `region=` accepts MEOW ecoregion codes and ecoregion / province / realm names
+  (a province or realm expands to its member ecoregions), resolved from the
+  installed marine asset. `coords=` maps points to MEOW ecoregions by
+  point-in-polygon against a new `meow.vtr` boundary set, unioned with the
+  WGSRPD botanical lookup, so a coastal coordinate can resolve to both a
+  botanical region and a marine ecoregion. The point-in-polygon machinery is
+  now scheme-generic across the botanical and marine boundary sets.
+
+* Marine support is inert until the `marine_distribution` enrichment is
+  installed: the plant-only default path is unchanged.
+
 # taxify 0.3.19
 
 ## Five new name-resolution verbs

@@ -56,39 +56,43 @@ so preserve falls back for the others). \code{"collapse"} strips the marker and
 matches the binomial species, the way any non-aggregate name is matched.
 Either way the qualifier is recorded in the \code{qualifier} column.}
 
-\item{region}{TDWG botanical region(s) to constrain fuzzy matching to, or
-\code{NULL} (default) for no geographic constraint. Accepts Level 3 codes
-(\code{"BGM"}, \code{c("BGM", "GER")}) or region names at any level, matched case-
-and accent-insensitively against the bundled WGSRPD crosswalk: a Level 3
-name (\code{"Belgium"}), a Level 2 region (\code{"Middle Europe"}), or a Level 1
-continent (\code{"Europe"}, which expands to all its codes). See
-\code{\link[=taxify_regions]{taxify_regions()}} for the full list. When set, \strong{fuzzy} candidates are
-restricted to species with WCVP records in the region(s); exact matches are
-always kept. The filter only narrows genuinely ambiguous fuzzy candidates:
-a candidate is dropped only when the same input name has another candidate
-that is in-region or has no WCVP range data, so non-plant matches (no WCVP
-coverage) are never affected and a name whose only candidate is
-out-of-region is still returned. WCVP is vascular plants only, so this
-disambiguates plant names.}
+\item{region}{Region(s) to constrain fuzzy matching to, or \code{NULL} (default)
+for no geographic constraint. Botanical (WCVP, vascular plants): TDWG Level
+3 codes (\code{"BGM"}, \code{c("BGM", "GER")}) or region names at any level, matched
+case- and accent-insensitively against the bundled WGSRPD crosswalk -- a
+Level 3 name (\code{"Belgium"}), a Level 2 region (\code{"Middle Europe"}), or a Level
+1 continent (\code{"Europe"}, which expands to all its codes). Marine (only when
+the \code{marine_distribution} asset is installed): a MEOW ecoregion \code{ECO_CODE},
+or an ecoregion / province / realm name (a province or realm expands to its
+member ecoregions). See \code{\link[=taxify_regions]{taxify_regions()}} for the botanical list. When set,
+\strong{fuzzy} candidates are restricted to species with range records in the
+region(s); exact matches are always kept. The filter only narrows genuinely
+ambiguous fuzzy candidates: a candidate is dropped only when the same input
+name has another candidate that is in-region or has no range data, so a
+match in a group with no range coverage is never affected and a name whose
+only candidate is out-of-region is still returned.}
 
-\item{coords}{Coordinates to constrain fuzzy matching to, mapped to TDWG
-regions by point-in-polygon and unioned with \code{region}. A single
+\item{coords}{Coordinates to constrain fuzzy matching to, mapped to region
+codes by point-in-polygon and unioned with \code{region}. Points are tested
+against the WGSRPD botanical boundaries (yielding TDWG codes) and, when the
+marine asset is installed, the MEOW ecoregion boundaries (yielding
+\code{ECO_CODE}s), so a coastal point can resolve to both. A single
 \code{c(lon, lat)} pair, a matrix/data.frame of longitude/latitude columns
 (named \code{lon}/\code{lat} or \code{x}/\code{y}, else the first two columns as lon, lat), or
 a point-geometry spatial object (an \pkg{sf}/\code{sfc} object or a \pkg{terra}
 \code{SpatVector}, reprojected to longitude/latitude automatically). \code{NULL}
-(default) for none. The WGSRPD boundary file is downloaded once and cached;
+(default) for none. Each boundary file is downloaded once and cached;
 coordinate lookup needs that download (or a prior cache). The point-in-
 polygon test uses \pkg{terra} or \pkg{sf} when installed, otherwise a
 native fallback; force the engine with
 \code{options(taxify.pip_engine = "terra" | "sf" | "native")}.}
 
-\item{range}{Character. Which WCVP statuses count as in-region when \code{region}
+\item{range}{Character. Which range statuses count as in-region when \code{region}
 or \code{coords} is set. \code{"present"} (default) accepts any record (native,
-introduced, or extinct) -- the right choice for name disambiguation.
-\code{"native"} accepts only native records, \code{"introduced"} only introduced
-(alien) records; both fold an ecological filter into matching and are for
-callers who want that. Ignored when no region is set.}
+introduced, extinct, or unknown status) -- the right choice for name
+disambiguation. \code{"native"} accepts only native records, \code{"introduced"} only
+introduced (alien) records; both fold an ecological filter into matching and
+are for callers who want that. Ignored when no region is set.}
 
 \item{kingdom}{Character. Restrict matches to one or more kingdoms, to
 disambiguate a name shared across kingdoms (a \emph{Prunella} that is both a bird
