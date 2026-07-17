@@ -62,9 +62,12 @@ reference:
   desc: Resolve a vector of names against local backbones and check a list before you trust it.
   contents:
   - taxify
+  - parse_name
   - comm2sci
+  - sci2comm
   - id2name
   - inspect
+  - reconcile
   - taxify_regions
   - taxify_long
   - export_data
@@ -75,6 +78,7 @@ reference:
   - synonyms
   - children
   - downstream
+  - upstream
   - add_classification
   - class2tree
   - lowest_common
@@ -94,6 +98,8 @@ reference:
   - taxify_load_register
   - taxify_register_coverage
   - lookup_genus
+  - taxify_lock
+  - taxify_restore
 - title: Backend-specific columns
   desc: Attach extra columns from the backbone that matched.
   contents:

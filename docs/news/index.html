@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,36 @@
       <small>Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.20" id="taxify-0320">taxify 0.3.20<a class="anchor" aria-label="anchor" href="#taxify-0320"></a></h2>
+<div class="section level3">
+<h3 id="region-filtering-generalizes-beyond-plants-issue-0-3-20">Region filtering generalizes beyond plants (issue <a href="https://github.com/gcol33/taxify/issues/21" class="external-link">#21</a>)<a class="anchor" aria-label="anchor" href="#region-filtering-generalizes-beyond-plants-issue-0-3-20"></a></h3>
+<ul><li><p><code>region=</code> and <code>coords=</code> now constrain fuzzy matching for marine taxa, not only vascular plants. When the <code>marine_distribution</code> asset is installed, <code>region_range_sets()</code> unions two providers behind the unchanged arguments: WCVP (plants, keyed on TDWG Level 3 <code>tdwg_code</code>) and the marine distribution table (keyed on MEOW ecoregion <code>region_code</code>). Each resolved region code is routed to its provider by vocabulary – alphabetic TDWG codes to WCVP, numeric MEOW <code>ECO_CODE</code>s to the marine table – through one shared engine, so a plant-only query never touches the marine asset and vice versa.</p></li>
+<li><p><code>region=</code> accepts MEOW ecoregion codes and ecoregion / province / realm names (a province or realm expands to its member ecoregions), resolved from the installed marine asset. <code>coords=</code> maps points to MEOW ecoregions by point-in-polygon against a new <code>meow.vtr</code> boundary set, unioned with the WGSRPD botanical lookup, so a coastal coordinate can resolve to both a botanical region and a marine ecoregion. The point-in-polygon machinery is now scheme-generic across the botanical and marine boundary sets.</p></li>
+<li><p>Marine support is inert until the <code>marine_distribution</code> enrichment is installed: the plant-only default path is unchanged.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="five-more-name-verbs-0-3-20">Five more name verbs<a class="anchor" aria-label="anchor" href="#five-more-name-verbs-0-3-20"></a></h3>
+<ul><li>
+<code><a href="../reference/parse_name.html">parse_name()</a></code> decomposes a name into its parts – genus, specific epithet, infraspecific rank and epithet, authorship, hybrid status, open-nomenclature qualifier, and the canonical form – without matching against a backbone, the role <code><a href="https://docs.ropensci.org/rgbif/reference/name_parse.html" class="external-link">rgbif::name_parse()</a></code> or gnparser fill. It reuses the same cleaning pipeline <code><a href="../reference/taxify.html">taxify()</a></code> runs, so a name breaks apart the way it matches.</li>
+<li>
+<code><a href="../reference/upstream.html">upstream()</a></code> returns the higher classification (ancestors) of a taxon as a tidy long frame, one row per rank from kingdom down to genus; <code>to =</code> restricts it to a single rank (“what family is this in?”). The ancestor-direction complement of <code><a href="../reference/downstream.html">downstream()</a></code>.</li>
+<li>
+<code><a href="../reference/sci2comm.html">sci2comm()</a></code> resolves scientific names to their common (vernacular) names – the forward complement of <code><a href="../reference/comm2sci.html">comm2sci()</a></code>, reading the bundled <code>common_names</code> data offline. <code>resolve = TRUE</code> (default) taxifys the input to its accepted name first.</li>
+<li>
+<code><a href="../reference/reconcile.html">reconcile()</a></code> reports how a checklist maps onto a backbone’s current treatment, classifying each name as <code>unchanged</code>, <code>synonym</code>, <code>misspelling</code>, <code>ambiguous</code>, or <code>unresolved</code>, and flagging many-to-one merges where several inputs collapse onto one accepted name – a checklist-migration summary.</li>
+<li>
+<code><a href="../reference/taxify_lock.html">taxify_lock()</a></code> / <code><a href="../reference/taxify_restore.html">taxify_restore()</a></code> write and verify a reproducibility lockfile: <code><a href="../reference/taxify_lock.html">taxify_lock()</a></code> serializes the resolved backbones and enrichment layers (name, version, content id, download date) behind a result to JSON, and <code><a href="../reference/taxify_restore.html">taxify_restore()</a></code> compares a lockfile to the current install and reports <code>ok</code> / <code>version_drift</code> / <code>content_drift</code> / <code>missing</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="authorship-aware-homonym-disambiguation-0-3-20">Authorship-aware homonym disambiguation<a class="anchor" aria-label="anchor" href="#authorship-aware-homonym-disambiguation-0-3-20"></a></h3>
+<ul><li>When an ambiguous match (a homonym such as <em>Pinus abies</em> L. vs Thunb.) carries an author in the input, <code><a href="../reference/taxify.html">taxify()</a></code> now resolves it to the single author-matching accepted target instead of returning the tie. The tiebreak only touches ambiguous author-bearing rows; the fast path and every unambiguous result are unchanged.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-20">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-20"></a></h3>
+<ul><li>Resolved an <code>R CMD check</code> warning about an unresolvable <code>taxifydb::build_meow</code> reference. The scheme’s boundary builder is now looked up by name at run time, so the marine builder is used when taxifydb provides it and skipped cleanly when it does not.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.19" id="taxify-0319">taxify 0.3.19<a class="anchor" aria-label="anchor" href="#taxify-0319"></a></h2>
 <div class="section level3">

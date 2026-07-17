@@ -7,12 +7,18 @@ before you trust it.
 
 - [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) :
   Match taxonomic names against local backbone databases
+- [`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md)
+  : Parse taxonomic names into their structural parts
 - [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md)
   : Resolve common (vernacular) names to scientific names
+- [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+  : Resolve scientific names to common (vernacular) names
 - [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md) :
   Resolve backend IDs to names
 - [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) :
   Inspect a name list for probable typos and other anomalies
+- [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+  : Reconcile a checklist against a backbone's current treatment
 - [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
   : List TDWG botanical regions
 - [`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
@@ -34,6 +40,8 @@ tree.
   : List the accepted taxa within a genus or family
 - [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
   : List all descendants of a taxon down to a target rank
+- [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
+  : List the higher classification (ancestors) of a taxon
 - [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md)
   : Add the full higher classification to a taxify result
 - [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md)
@@ -71,6 +79,10 @@ register.
   : Show backend coverage for a genus
 - [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
   : Look up a genus in the register
+- [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+  : Record the exact backbone and enrichment versions behind a result
+- [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+  : Check an install against a lockfile
 
 ## Backend-specific columns
 

@@ -1,5 +1,87 @@
 # Changelog
 
+## taxify 0.3.20
+
+### Region filtering generalizes beyond plants (issue [\#21](https://github.com/gcol33/taxify/issues/21))
+
+- `region=` and `coords=` now constrain fuzzy matching for marine taxa,
+  not only vascular plants. When the `marine_distribution` asset is
+  installed, `region_range_sets()` unions two providers behind the
+  unchanged arguments: WCVP (plants, keyed on TDWG Level 3 `tdwg_code`)
+  and the marine distribution table (keyed on MEOW ecoregion
+  `region_code`). Each resolved region code is routed to its provider by
+  vocabulary – alphabetic TDWG codes to WCVP, numeric MEOW `ECO_CODE`s
+  to the marine table – through one shared engine, so a plant-only query
+  never touches the marine asset and vice versa.
+
+- `region=` accepts MEOW ecoregion codes and ecoregion / province /
+  realm names (a province or realm expands to its member ecoregions),
+  resolved from the installed marine asset. `coords=` maps points to
+  MEOW ecoregions by point-in-polygon against a new `meow.vtr` boundary
+  set, unioned with the WGSRPD botanical lookup, so a coastal coordinate
+  can resolve to both a botanical region and a marine ecoregion. The
+  point-in-polygon machinery is now scheme-generic across the botanical
+  and marine boundary sets.
+
+- Marine support is inert until the `marine_distribution` enrichment is
+  installed: the plant-only default path is unchanged.
+
+### Five more name verbs
+
+- [`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md)
+  decomposes a name into its parts – genus, specific epithet,
+  infraspecific rank and epithet, authorship, hybrid status,
+  open-nomenclature qualifier, and the canonical form – without matching
+  against a backbone, the role
+  [`rgbif::name_parse()`](https://docs.ropensci.org/rgbif/reference/name_parse.html)
+  or gnparser fill. It reuses the same cleaning pipeline
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  runs, so a name breaks apart the way it matches.
+- [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
+  returns the higher classification (ancestors) of a taxon as a tidy
+  long frame, one row per rank from kingdom down to genus; `to =`
+  restricts it to a single rank (“what family is this in?”). The
+  ancestor-direction complement of
+  [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md).
+- [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+  resolves scientific names to their common (vernacular) names – the
+  forward complement of
+  [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+  reading the bundled `common_names` data offline. `resolve = TRUE`
+  (default) taxifys the input to its accepted name first.
+- [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+  reports how a checklist maps onto a backbone’s current treatment,
+  classifying each name as `unchanged`, `synonym`, `misspelling`,
+  `ambiguous`, or `unresolved`, and flagging many-to-one merges where
+  several inputs collapse onto one accepted name – a checklist-migration
+  summary.
+- [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+  /
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+  write and verify a reproducibility lockfile:
+  [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+  serializes the resolved backbones and enrichment layers (name,
+  version, content id, download date) behind a result to JSON, and
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+  compares a lockfile to the current install and reports `ok` /
+  `version_drift` / `content_drift` / `missing`.
+
+### Authorship-aware homonym disambiguation
+
+- When an ambiguous match (a homonym such as *Pinus abies* L. vs Thunb.)
+  carries an author in the input,
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) now
+  resolves it to the single author-matching accepted target instead of
+  returning the tie. The tiebreak only touches ambiguous author-bearing
+  rows; the fast path and every unambiguous result are unchanged.
+
+### Bug fixes
+
+- Resolved an `R CMD check` warning about an unresolvable
+  `taxifydb::build_meow` reference. The scheme’s boundary builder is now
+  looked up by name at run time, so the marine builder is used when
+  taxifydb provides it and skipped cleanly when it does not.
+
 ## taxify 0.3.19
 
 ### Five new name-resolution verbs

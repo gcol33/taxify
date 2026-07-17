@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,10 +90,24 @@
 
         <dt>
 
+          <code><a href="parse_name.html">parse_name()</a></code>
+
+        </dt>
+        <dd>Parse taxonomic names into their structural parts</dd>
+
+        <dt>
+
           <code><a href="comm2sci.html">comm2sci()</a></code>
 
         </dt>
         <dd>Resolve common (vernacular) names to scientific names</dd>
+
+        <dt>
+
+          <code><a href="sci2comm.html">sci2comm()</a></code>
+
+        </dt>
+        <dd>Resolve scientific names to common (vernacular) names</dd>
 
         <dt>
 
@@ -108,6 +122,13 @@
 
         </dt>
         <dd>Inspect a name list for probable typos and other anomalies</dd>
+
+        <dt>
+
+          <code><a href="reconcile.html">reconcile()</a></code>
+
+        </dt>
+        <dd>Reconcile a checklist against a backbone's current treatment</dd>
 
         <dt>
 
@@ -166,6 +187,13 @@
 
         </dt>
         <dd>List all descendants of a taxon down to a target rank</dd>
+
+        <dt>
+
+          <code><a href="upstream.html">upstream()</a></code>
+
+        </dt>
+        <dd>List the higher classification (ancestors) of a taxon</dd>
 
         <dt>
 
@@ -280,6 +308,20 @@
 
         </dt>
         <dd>Look up a genus in the register</dd>
+
+        <dt>
+
+          <code><a href="taxify_lock.html">taxify_lock()</a></code>
+
+        </dt>
+        <dd>Record the exact backbone and enrichment versions behind a result</dd>
+
+        <dt>
+
+          <code><a href="taxify_restore.html">taxify_restore()</a></code>
+
+        </dt>
+        <dd>Check an install against a lockfile</dd>
       </dl></div><div class="section level2">
       <h2 id="backend-specific-columns">Backend-specific columns<a class="anchor" aria-label="anchor" href="#backend-specific-columns"></a></h2>
 

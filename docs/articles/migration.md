@@ -53,7 +53,7 @@ closest taxify equivalent.
 | [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md) | [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md) | Lists every synonym that resolves to a name’s accepted taxon |
 | [`children()`](https://gillescolling.com/taxify/reference/children.md) / [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md) | [`children()`](https://gillescolling.com/taxify/reference/children.md) | Lists the accepted taxa within a genus or family |
 | [`tax_name()`](https://docs.ropensci.org/taxize/reference/tax_name.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `family`, `genus`, `rank` columns |
-| [`sci2comm()`](https://docs.ropensci.org/taxize/reference/sci2comm.html) | [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | Pipe enrichment; GBIF vernacular names by language |
+| [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md) | [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | Pipe enrichment; GBIF vernacular names by language |
 
 taxize also has functions that serve a different purpose (fetching
 database IDs, retrieving occurrence or sequence data). These are not
