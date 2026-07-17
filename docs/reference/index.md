@@ -7,6 +7,10 @@ before you trust it.
 
 - [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) :
   Match taxonomic names against local backbone databases
+- [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md)
+  : Resolve common (vernacular) names to scientific names
+- [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md) :
+  Resolve backend IDs to names
 - [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) :
   Inspect a name list for probable typos and other anomalies
 - [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
@@ -20,15 +24,22 @@ before you trust it.
 
 ## Explore the backbone
 
-Read the backbone the other ways — list synonyms, list the taxa within a
-group, attach the full classification.
+Read the backbone the other ways — list synonyms, list the taxa within
+or beneath a group, attach the full classification, build a taxonomy
+tree.
 
 - [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
   : List the synonyms of a name
 - [`children()`](https://gillescolling.com/taxify/reference/children.md)
   : List the accepted taxa within a genus or family
+- [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
+  : List all descendants of a taxon down to a target rank
 - [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md)
   : Add the full higher classification to a taxify result
+- [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md)
+  : Build a taxonomy tree from resolved names
+- [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md)
+  : Lowest common taxon of a set of names
 - [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)
   : Expand ambiguous matches into their candidate taxa
 
@@ -52,6 +63,8 @@ register.
   : Clear all cached backbones
 - [`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md)
   : Invalidate the session manifest cache
+- [`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
+  : Build the unified genus register from installed backbones
 - [`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md)
   : Load the unified genus register into memory
 - [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)

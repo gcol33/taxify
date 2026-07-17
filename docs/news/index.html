@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,72 @@
       <small>Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.19" id="taxify-0319">taxify 0.3.19<a class="anchor" aria-label="anchor" href="#taxify-0319"></a></h2>
+<div class="section level3">
+<h3 id="five-new-name-resolution-verbs-0-3-19">Five new name-resolution verbs<a class="anchor" aria-label="anchor" href="#five-new-name-resolution-verbs-0-3-19"></a></h3>
+<ul><li>
+<code><a href="../reference/comm2sci.html">comm2sci()</a></code> resolves common (vernacular) names to scientific names – the reverse of <code><a href="../reference/add_common_names.html">add_common_names()</a></code>. Reads the bundled <code>common_names</code> data offline; <code>resolve = TRUE</code> runs the matches through <code><a href="../reference/taxify.html">taxify()</a></code> and returns an enrichable <code>taxify_result</code>.</li>
+<li>
+<code><a href="../reference/id2name.html">id2name()</a></code> looks a backend ID (a GBIF key, ITIS TSN, WoRMS AphiaID, …) back up to its name, rank, classification, and accepted-name resolution – the inverse of the <code>taxon_id</code> / <code>accepted_id</code> columns <code><a href="../reference/taxify.html">taxify()</a></code> emits.</li>
+<li>
+<code><a href="../reference/downstream.html">downstream()</a></code> lists every accepted taxon at a chosen rank (species by default) beneath a higher taxon, where <code><a href="../reference/children.html">children()</a></code> gives only the immediate level.</li>
+<li>
+<code><a href="../reference/class2tree.html">class2tree()</a></code> assembles a taxonomy tree (Newick, plus an <code>ape</code> <code>phylo</code> object when <code>ape</code> is installed) from a set of resolved names, and <code><a href="../reference/lowest_common.html">lowest_common()</a></code> reports the deepest rank at which a set of names shares a common ancestor.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="cross-kingdom-disambiguation-on-taxify-0-3-19">Cross-kingdom disambiguation on <code>taxify()</code>
+<a class="anchor" aria-label="anchor" href="#cross-kingdom-disambiguation-on-taxify-0-3-19"></a></h3>
+<ul><li>
+<code>taxify(..., kingdom = )</code> restricts matches to one or more kingdoms (<code>"animals"</code>, <code>"plants"</code>, <code>"fungi"</code>, …), so a name shared across kingdoms (a <em>Prunella</em> that is both a bird and a plant) resolves to the intended one. A match whose kingdom is wrong is passed on to the next backbone in the fallback chain; the kingdom is read from the backbone where it stores one, falling back to the genus register otherwise.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.18" id="taxify-0318">taxify 0.3.18<a class="anchor" aria-label="anchor" href="#taxify-0318"></a></h2>
+<div class="section level3">
+<h3 id="documentation-0-3-18">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-18"></a></h3>
+<ul><li>The README now notes that the backbones are pre-built by the companion taxifydb package, and updates the enrichment-layer count to match <code><a href="../reference/list_enrichments.html">list_enrichments()</a></code>.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.17" id="taxify-0317">taxify 0.3.17<a class="anchor" aria-label="anchor" href="#taxify-0317"></a></h2>
+<div class="section level3">
+<h3 id="a-downloaded-backbone-reports-the-version-it-actually-contains-0-3-17">A downloaded backbone reports the version it actually contains<a class="anchor" aria-label="anchor" href="#a-downloaded-backbone-reports-the-version-it-actually-contains-0-3-17"></a></h3>
+<ul><li>Downloading a backbone into a slot that was previously built from source no longer keeps reporting the old built version. <code>download_backbone()</code> now clears the stale <code>.meta</code> build sidecar it leaves behind, restoring the invariant that a downloaded backbone carries only its <code>meta.json</code>. Previously the leftover <code>.meta</code> shadowed <code>meta.json</code> in <code>format_backbone_version()</code>, so a freshly downloaded release (e.g. Euro+Med 2026.07) was still labelled with the old built version (2020.1) in the <code>backbone_version</code> output column.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="metajson-and-manifest-reads-tolerate-a-utf-bom-0-3-17">meta.json and manifest reads tolerate a UTF-8 BOM<a class="anchor" aria-label="anchor" href="#metajson-and-manifest-reads-tolerate-a-utf-bom-0-3-17"></a></h3>
+<ul><li>A <code>meta.json</code> or manifest carrying a leading UTF-8 byte-order mark (as written by Windows PowerShell’s <code>Set-Content</code> / <code>Out-File</code>) no longer emits an “illegal byte-order-mark” warning on every version read. All meta.json and manifest reads strip a leading BOM before parsing.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.16" id="taxify-0316">taxify 0.3.16<a class="anchor" aria-label="anchor" href="#taxify-0316"></a></h2>
+<div class="section level3">
+<h3 id="the-genus-register-is-reachable-and-builds-from-what-you-have-0-3-16">The genus register is reachable and builds from what you have<a class="anchor" aria-label="anchor" href="#the-genus-register-is-reachable-and-builds-from-what-you-have-0-3-16"></a></h3>
+<ul><li><p><code><a href="../reference/taxify_build_register.html">taxify_build_register()</a></code> is now exported. It builds the unified genus register from the backbones you have installed and is the front door for the <code>life_form</code> / <code>kingdom_group</code> / <code>taxon_group</code> output columns, out-of-scope detection, and <code><a href="../reference/inspect.html">inspect()</a></code>’s no-backbone checks. Previously the only builder was internal, so <code><a href="../reference/taxify_load_register.html">taxify_load_register()</a></code> on a fresh setup pointed users at a function they could not call, and the manifest’s register entry was a Zenodo placeholder that never resolved. <code>taxify_download("register")</code> is a convenience alias for it.</p></li>
+<li><p>Building the register no longer force-downloads every known backbone. It unions only the backbones actually installed (via the new internal <code>installed_backbone_path()</code>), matching the documented “union of installed backends” behaviour instead of silently pulling several gigabytes.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="backbone-version-reflects-the-installed-data-not-a-static-default-0-3-16">Backbone version reflects the installed data, not a static default<a class="anchor" aria-label="anchor" href="#backbone-version-reflects-the-installed-data-not-a-static-default-0-3-16"></a></h3>
+<ul><li><p>The build-from-source shims no longer pass a hardcoded version label into <code>taxifydb::build_&lt;name&gt;()</code>; taxifydb stamps its own current version. A backbone built from source is now labelled with the data it actually contains, not a constant that drifts as releases advance.</p></li>
+<li><p><code>format_backbone_version()</code> falls back to the download-time <code>meta.json</code> (the manifest version) before the backend constructor’s static default, so a downloaded backbone reports the version it was downloaded at.</p></li>
+<li><p>Manifest: the <code>reptiledb</code> backbone points at the <code>reptiledb-2026.07</code> release (byte-identical to 2026.06) and records its content id; the placeholder <code>register</code> entry is removed.</p></li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.15" id="taxify-0315">taxify 0.3.15<a class="anchor" aria-label="anchor" href="#taxify-0315"></a></h2>
+<div class="section level3">
+<h3 id="add_gidias-can-ask-what-a-species-impacts-0-3-15">
+<code>add_gidias()</code> can ask what a species impacts<a class="anchor" aria-label="anchor" href="#add_gidias-can-ask-what-a-species-impacts-0-3-15"></a></h3>
+<ul><li><p>GIDIAS scores each impact record against an affected native taxon, so <code>add_gidias(group = )</code> reads impact at that grain: <em>Felis catus</em> is <code>"MO"</code> against invertebrates (reduced populations) where the default is <code>"MV"</code>, the global extinctions it drove among vertebrates. 28% of species with an affected taxon recorded impact two or more of the five groups (<code>Plant</code>, <code>Invertebrate</code>, <code>Vertebrate</code>, <code>Microbe</code>, <code>Fungi</code>), so for those the species-level category is the most severe impact on anything, not the impact on each thing. <code>enrichment_groups("gidias")</code> lists them; several groups suffix the columns, as <code><a href="../reference/add_alien_first_records.html">add_alien_first_records()</a></code> does for countries.</p></li>
+<li><p><code><a href="../reference/add_gidias.html">add_gidias()</a></code> with no <code>group</code> is unchanged: it reads the <code>"Any"</code> grain, the same all-records summary it returned before, with the same columns. <code>"Any"</code> is the only grain carrying SEICAT and the impact records with no affected taxon recorded, so <code>gidias_seicat_category</code> is <code>NA</code> on the other groups. Requires the rebuilt <code>gidias</code> enrichment.</p></li>
+<li><p><code>cols</code> now works on the grouped doors even when the source carries no columns beyond the curated set, which previously ignored it.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="citations-carry-an-access-date-0-3-15">Citations carry an access date<a class="anchor" aria-label="anchor" href="#citations-carry-an-access-date-0-3-15"></a></h3>
+<ul><li>A source harvested live from a server is not identified by its year: two harvests a year apart share it. <code>format_bibtex_entry()</code> now emits the citation’s <code>note</code> field, so an access date recorded in the manifest reaches the BibTeX entry. Entries carrying no <code>note</code> are unchanged.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.14" id="taxify-0314">taxify 0.3.14<a class="anchor" aria-label="anchor" href="#taxify-0314"></a></h2>
 <div class="section level3">

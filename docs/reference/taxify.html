@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,6 +98,7 @@ match quality information.</p>
 <span>  region <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  coords <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"present"</span>, <span class="st">"native"</span>, <span class="st">"introduced"</span><span class="op">)</span>,</span>
+<span>  kingdom <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fallback"</span>, <span class="st">"wide"</span>, <span class="st">"agreement"</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -191,6 +192,23 @@ introduced, or extinct) – the right choice for name disambiguation.
 <code>"native"</code> accepts only native records, <code>"introduced"</code> only introduced
 (alien) records; both fold an ecological filter into matching and are for
 callers who want that. Ignored when no region is set.</p></dd>
+
+
+<dt id="arg-kingdom">kingdom<a class="anchor" aria-label="anchor" href="#arg-kingdom"></a></dt>
+<dd><p>Character. Restrict matches to one or more kingdoms, to
+disambiguate a name shared across kingdoms (a <em>Prunella</em> that is both a bird
+and a plant, an <em>Oenanthe</em> that is both). <code>NULL</code> (default) applies no
+constraint. Accepts a kingdom name or a common alias, case-insensitively:
+<code>"animals"</code>/<code>"Animalia"</code>/<code>"Metazoa"</code>, <code>"plants"</code>/<code>"Plantae"</code>,
+<code>"fungi"</code>, <code>"bacteria"</code>, <code>"archaea"</code>, <code>"chromista"</code>, <code>"protozoa"</code>,
+<code>"viruses"</code>. A matched taxon is kept only when its kingdom is the requested
+one (or is unknown, which is never rejected); with the default multi-backend
+fallback, a name a backbone resolves into the wrong kingdom is passed on to
+the next backbone, so the in-kingdom treatment wins. The kingdom is read
+from the backbone where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a
+backbone that does not (WFO, GBIF), it falls back to the genus register's
+kingdom, which cannot split a genus that is itself homonymous across
+kingdoms – name a kingdom-appropriate <code>backend</code> for those.</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>

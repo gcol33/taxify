@@ -11,7 +11,7 @@ distributed.
 ## Usage
 
 ``` r
-add_gidias(x, cols = NULL, verbose = TRUE)
+add_gidias(x, group = "Any", cols = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -20,6 +20,23 @@ add_gidias(x, cols = NULL, verbose = TRUE)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+- group:
+
+  Character. Which affected native taxon the impact is measured against:
+
+  - `"Any"` (default): every impact record for the species, the
+    species-level summary.
+
+  - One of `"Plant"`, `"Invertebrate"`, `"Vertebrate"`, `"Microbe"`,
+    `"Fungi"`: only the impacts recorded against that group.
+
+  - Several (e.g. `c("Plant", "Vertebrate")`): adds columns with a group
+    suffix (e.g. `gidias_eicat_category_Plant`).
+
+  - `"all"`: one column set per group, `"Any"` included.
+
+  List them with `enrichment_groups("gidias")`.
 
 - cols:
 
@@ -50,6 +67,13 @@ The same data.frame with additional columns. The default set:
   SEICAT socio-economic-impact category (`MC`/`MN`/`MO`/`MR`/`DD`, or
   `NA`).
 
+- gidias_ncp_direction:
+
+  Direction of the species' impact on nature's contributions to people:
+  `"Negative"`, `"Positive"`, `"Neutral"`, or a combination
+  (`"Negative; Positive"`) where the records disagree. GIDIAS scores no
+  magnitude for this block, so there is no category to report.
+
 - gidias_ias_taxon:
 
   Functional group: `Plant`, `Invertebrate`, `Vertebrate`, or `Microbe`.
@@ -67,8 +91,9 @@ The same data.frame with additional columns. The default set:
   Number of distinct sources documenting the impacts.
 
 `cols = "all"` additionally attaches the numeric EICAT/SEICAT magnitudes
-(0-3), the affected well-being constituents, kingdom, the
-negative-record count, and a global-extinction flag.
+(0-3), the affected well-being constituents and contributions to people
+(`gidias_ncp_affected`), kingdom, the negative-record count, and a
+global-extinction flag.
 
 ## Details
 
@@ -87,6 +112,23 @@ compiled for the IPBES thematic assessment report on invasive alien
 species. Only the derived per-species aggregates are distributed here,
 not the raw impact records.
 
+## What a species impacts
+
+GIDIAS records the affected native taxon per impact record, so `group`
+asks the question at that grain: `add_gidias(group = "Invertebrate")`
+scores *Felis catus* `"MO"` (reduced populations) where the default
+`"Any"` scores it `"MV"`, the global extinctions it drove among
+vertebrates. 28% of species with a recorded affected taxon impact two or
+more of the five groups, so for those the species-level category is the
+most severe impact on anything, not the impact on each thing.
+
+The vocabulary is the coarse one GIDIAS controls: `"Vertebrate"`, not
+`"Aves"`. `"Any"` is the only group carrying the impact records with no
+affected taxon recorded (12% of the negative ones) and the two
+people-facing blocks, so `gidias_seicat_category` and
+`gidias_ncp_direction` are `NA` on every other group: impact on people
+is not a question the affected-native-taxon axis can answer.
+
 ## References
 
 Bacher S et al. (2025) Global Impacts Dataset of Invasive Alien Species
@@ -100,5 +142,12 @@ if (FALSE) { # \dontrun{
 # Downloads the GIDIAS enrichment on first use.
 taxify("Felis catus", backend = "gbif") |>
   add_gidias()
+
+# What the cat does to invertebrates, rather than to anything at all.
+taxify("Felis catus", backend = "gbif") |>
+  add_gidias(group = "Invertebrate")
+
+taxify("Felis catus", backend = "gbif") |>
+  add_gidias(group = c("Invertebrate", "Vertebrate"))
 } # }
 ```

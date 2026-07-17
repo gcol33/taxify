@@ -28,7 +28,7 @@ raw impact records are not distributed."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,7 @@ raw impact records are not distributed.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_gidias</span><span class="op">(</span><span class="va">x</span>, cols <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">add_gidias</span><span class="op">(</span><span class="va">x</span>, group <span class="op">=</span> <span class="st">"Any"</span>, cols <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -100,6 +100,18 @@ raw impact records are not distributed.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A data.frame returned by <code><a href="taxify.html">taxify()</a></code>.</p></dd>
+
+
+<dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
+<dd><p>Character. Which affected native taxon the impact is measured
+against:</p><ul><li><p><code>"Any"</code> (default): every impact record for the species, the
+species-level summary.</p></li>
+<li><p>One of <code>"Plant"</code>, <code>"Invertebrate"</code>, <code>"Vertebrate"</code>, <code>"Microbe"</code>,
+<code>"Fungi"</code>: only the impacts recorded against that group.</p></li>
+<li><p>Several (e.g. <code>c("Plant", "Vertebrate")</code>): adds columns with a
+group suffix (e.g. <code>gidias_eicat_category_Plant</code>).</p></li>
+<li><p><code>"all"</code>: one column set per group, <code>"Any"</code> included.</p></li>
+</ul><p>List them with <code>enrichment_groups("gidias")</code>.</p></dd>
 
 
 <dt id="arg-cols">cols<a class="anchor" aria-label="anchor" href="#arg-cols"></a></dt>
@@ -127,6 +139,12 @@ species' negative environmental impacts.</p></dd>
 <dd><p>SEICAT socio-economic-impact category
 (<code>MC</code>/<code>MN</code>/<code>MO</code>/<code>MR</code>/<code>DD</code>, or <code>NA</code>).</p></dd>
 
+<dt>gidias_ncp_direction</dt>
+<dd><p>Direction of the species' impact on nature's
+contributions to people: <code>"Negative"</code>, <code>"Positive"</code>, <code>"Neutral"</code>, or a
+combination (<code>"Negative; Positive"</code>) where the records disagree. GIDIAS
+scores no magnitude for this block, so there is no category to report.</p></dd>
+
 <dt>gidias_ias_taxon</dt>
 <dd><p>Functional group: <code>Plant</code>, <code>Invertebrate</code>,
 <code>Vertebrate</code>, or <code>Microbe</code>.</p></dd>
@@ -143,8 +161,9 @@ and/or marine.</p></dd>
 
 
 </dl><p><code>cols = "all"</code> additionally attaches the numeric EICAT/SEICAT magnitudes
-(0-3), the affected well-being constituents, kingdom, the negative-record
-count, and a global-extinction flag.</p>
+(0-3), the affected well-being constituents and contributions to people
+(<code>gidias_ncp_affected</code>), kingdom, the negative-record count, and a
+global-extinction flag.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -161,6 +180,24 @@ derived per-species aggregates are distributed here, not the raw impact
 records.</p>
     </div>
     <div class="section level2">
+    <h2 id="what-a-species-impacts">What a species impacts<a class="anchor" aria-label="anchor" href="#what-a-species-impacts"></a></h2>
+
+
+<p>GIDIAS records the affected native taxon per impact record, so <code>group</code>
+asks the question at that grain: <code>add_gidias(group = "Invertebrate")</code> scores
+<em>Felis catus</em> <code>"MO"</code> (reduced populations) where the default <code>"Any"</code> scores
+it <code>"MV"</code>, the global extinctions it drove among vertebrates. 28% of species
+with a recorded affected taxon impact two or more of the five groups, so for
+those the species-level category is the most severe impact on anything, not
+the impact on each thing.</p>
+<p>The vocabulary is the coarse one GIDIAS controls: <code>"Vertebrate"</code>, not
+<code>"Aves"</code>. <code>"Any"</code> is the only group carrying the impact records with no
+affected taxon recorded (12% of the negative ones) and the two people-facing
+blocks, so <code>gidias_seicat_category</code> and <code>gidias_ncp_direction</code> are <code>NA</code> on
+every other group: impact on people is not a question the
+affected-native-taxon axis can answer.</p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Bacher S et al. (2025) Global Impacts Dataset of Invasive Alien Species
 (GIDIAS). Scientific Data 12:832. <a href="https://doi.org/10.1038/s41597-025-05184-5" class="external-link">doi:10.1038/s41597-025-05184-5</a></p>
@@ -172,6 +209,13 @@ records.</p>
 <span><span class="co"># Downloads the GIDIAS enrichment on first use.</span></span>
 <span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Felis catus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">add_gidias</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># What the cat does to invertebrates, rather than to anything at all.</span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Felis catus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_gidias</span><span class="op">(</span>group <span class="op">=</span> <span class="st">"Invertebrate"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Felis catus"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_gidias</span><span class="op">(</span>group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Invertebrate"</span>, <span class="st">"Vertebrate"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="co"># }</span></span>
 <span></span></code></pre></div>
     </div>

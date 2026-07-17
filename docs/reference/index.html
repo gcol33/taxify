@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,6 +90,20 @@
 
         <dt>
 
+          <code><a href="comm2sci.html">comm2sci()</a></code>
+
+        </dt>
+        <dd>Resolve common (vernacular) names to scientific names</dd>
+
+        <dt>
+
+          <code><a href="id2name.html">id2name()</a></code>
+
+        </dt>
+        <dd>Resolve backend IDs to names</dd>
+
+        <dt>
+
           <code><a href="inspect.html">inspect()</a></code>
 
         </dt>
@@ -125,7 +139,7 @@
       </dl></div><div class="section level2">
       <h2 id="explore-the-backbone">Explore the backbone<a class="anchor" aria-label="anchor" href="#explore-the-backbone"></a></h2>
 
-      <div class="section-desc"><p>Read the backbone the other ways — list synonyms, list the taxa within a group, attach the full classification.</p></div>
+      <div class="section-desc"><p>Read the backbone the other ways — list synonyms, list the taxa within or beneath a group, attach the full classification, build a taxonomy tree.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -148,10 +162,31 @@
 
         <dt>
 
+          <code><a href="downstream.html">downstream()</a></code>
+
+        </dt>
+        <dd>List all descendants of a taxon down to a target rank</dd>
+
+        <dt>
+
           <code><a href="add_classification.html">add_classification()</a></code>
 
         </dt>
         <dd>Add the full higher classification to a taxify result</dd>
+
+        <dt>
+
+          <code><a href="class2tree.html">class2tree()</a></code>
+
+        </dt>
+        <dd>Build a taxonomy tree from resolved names</dd>
+
+        <dt>
+
+          <code><a href="lowest_common.html">lowest_common()</a></code>
+
+        </dt>
+        <dd>Lowest common taxon of a set of names</dd>
 
         <dt>
 
@@ -217,6 +252,13 @@
 
         </dt>
         <dd>Invalidate the session manifest cache</dd>
+
+        <dt>
+
+          <code><a href="taxify_build_register.html">taxify_build_register()</a></code>
+
+        </dt>
+        <dd>Build the unified genus register from installed backbones</dd>
 
         <dt>
 

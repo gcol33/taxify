@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -852,17 +852,20 @@ output does not include.</p>
 <div class="section level2">
 <h2 id="the-genus-register">The genus register<a class="anchor" aria-label="anchor" href="#the-genus-register"></a>
 </h2>
-<p>taxify ships a unified genus register built from the union of genera
-across all fifteen pre-built backends (WFO, COL, GBIF, ITIS, NCBI, OTT,
-WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase,
-Reptile Database, LCVP, and WCVP). The register contains ~500k genera,
-each with its family, higher classification (kingdom through order,
-where available), and a <code>life_form</code> label (e.g.,
-<code>"vascular plant"</code>, <code>"animal"</code>,
-<code>"fungus"</code>). The classification is resolved by priority:
-WoRMS &gt; COL &gt; GBIF &gt; Euro+Med &gt; ITIS &gt; NCBI &gt; OTT &gt;
-WFO. If COL and WFO disagree about which family a genus belongs to,
-COL’s assignment wins.</p>
+<p>taxify builds a unified genus register from the union of genera
+across the backbones you have installed (up to all fifteen: WFO, COL,
+GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
+FishBase, SeaLifeBase, Reptile Database, LCVP, and WCVP). Build it with
+<code><a href="../reference/taxify_build_register.html">taxify_build_register()</a></code> (equivalently
+<code>taxify_download("register")</code>); it reads each installed
+backbone once and stores the result under the data directory. With all
+fifteen installed the register holds ~500k genera, each with its family,
+higher classification (kingdom through order, where available), and a
+<code>life_form</code> label (e.g., <code>"vascular plant"</code>,
+<code>"animal"</code>, <code>"fungus"</code>). The classification is
+resolved by priority: WoRMS &gt; COL &gt; GBIF &gt; Euro+Med &gt; ITIS
+&gt; NCBI &gt; OTT &gt; WFO. If COL and WFO disagree about which family
+a genus belongs to, COL’s assignment wins.</p>
 <p>The register serves two purposes in taxify’s matching pipeline.
 First, it provides <code>life_form</code>, <code>kingdom_group</code>,
 and <code>taxon_group</code> columns in taxify output for every matched

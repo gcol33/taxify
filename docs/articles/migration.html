@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -278,7 +278,7 @@ class / order</td>
 </tr>
 <tr class="even">
 <td>
-<code><a href="../reference/children.html">children()</a></code> / <code><a href="https://docs.ropensci.org/taxize/reference/downstream.html" class="external-link">downstream()</a></code>
+<code><a href="../reference/children.html">children()</a></code> / <code><a href="../reference/downstream.html">downstream()</a></code>
 </td>
 <td><code><a href="../reference/children.html">children()</a></code></td>
 <td>Lists the accepted taxa within a genus or family</td>
@@ -896,11 +896,11 @@ names, returns classification metadata, and joins enrichment layers.
 Several things that taxize or other packages handle are outside its
 scope.</p>
 <p><strong>Common-to-scientific name lookup.</strong> taxize had
-<code><a href="https://docs.ropensci.org/taxize/reference/comm2sci.html" class="external-link">comm2sci()</a></code> to go from “European robin” to <em>Erithacus
+<code><a href="../reference/comm2sci.html">comm2sci()</a></code> to go from “European robin” to <em>Erithacus
 rubecula</em>. taxify matches scientific names, not vernacular input.
 For that direction, the GBIF API (<code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code>)
 accepts common names and returns candidates.</p>
-<p><strong>Downstream taxa.</strong> taxize’s <code><a href="https://docs.ropensci.org/taxize/reference/downstream.html" class="external-link">downstream()</a></code>
+<p><strong>Downstream taxa.</strong> taxize’s <code><a href="../reference/downstream.html">downstream()</a></code>
 returned all children of a higher taxon (e.g., all species in a genus).
 taxify does not enumerate children. For tree-based queries, the rotl
 package provides access to the Open Tree of Life synthetic tree, and
@@ -938,7 +938,7 @@ annotation for a single taxon, these packages return that immediately.
 taxify works against the snapshot on disk and only sees changes when the
 backbone is updated.</p></li>
 <li><p><strong>Common-to-scientific lookups.</strong> taxize had
-<code><a href="https://docs.ropensci.org/taxize/reference/comm2sci.html" class="external-link">comm2sci()</a></code> to go from “European robin” to <em>Erithacus
+<code><a href="../reference/comm2sci.html">comm2sci()</a></code> to go from “European robin” to <em>Erithacus
 rubecula</em>. taxify matches scientific names, not vernacular input.
 For that direction, <code><a href="https://docs.ropensci.org/rgbif/reference/name_suggest.html" class="external-link">rgbif::name_suggest()</a></code> accepts common
 names and returns candidates.</p></li>

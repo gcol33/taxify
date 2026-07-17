@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.19</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,7 +118,7 @@
 <div class="section level2">
 <h2 id="fifteen-backbones-one-call">Fifteen backbones, one call<a class="anchor" aria-label="anchor" href="#fifteen-backbones-one-call"></a>
 </h2>
-<p><code>taxify</code> ships fifteen backbones as compressed <code>.vtr</code> files, downloaded once and matched locally. Pass several and they form a fallback chain: a name unmatched by the first backbone cascades to the next.</p>
+<p><code>taxify</code> ships fifteen backbones as compressed <code>.vtr</code> files, pre-built by the companion <a href="https://github.com/gcol33/taxifydb" class="external-link">taxifydb</a> package, downloaded once, and matched locally. Pass several and they form a fallback chain: a name unmatched by the first backbone cascades to the next.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># WFO first (plants), then GBIF for whatever WFO doesn't cover</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span></span>
@@ -286,7 +286,7 @@
 <div class="section level2">
 <h2 id="trait-and-status-enrichment">Trait and status enrichment<a class="anchor" aria-label="anchor" href="#trait-and-status-enrichment"></a>
 </h2>
-<p>More than eighty enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
+<p>Nearly ninety enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plants</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span><span class="op">)</span> <span class="op">|&gt;</span></span>

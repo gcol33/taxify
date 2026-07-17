@@ -124,11 +124,15 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_zooplankton.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/children.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/cite.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/class2tree.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/comm2sci.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/downstream.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/embed_accepted.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/enrichment_cols.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/enrichment_groups.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/export_data.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/gift_traits.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/id2name.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/index.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/inspect.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/install_backbones.html</loc></url>
@@ -137,6 +141,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/list_enrichments.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/list_traits.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/lookup_genus.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/lowest_common.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/normalize_aggregate_name.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/normalize_epithets.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/precompute_keys.html</loc></url>
@@ -149,6 +154,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/taxify-package.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_build.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/taxify_build_register.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_candidates.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_clear_cache.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_databases.html</loc></url>

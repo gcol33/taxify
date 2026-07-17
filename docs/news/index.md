@@ -1,5 +1,145 @@
 # Changelog
 
+## taxify 0.3.19
+
+### Five new name-resolution verbs
+
+- [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md)
+  resolves common (vernacular) names to scientific names – the reverse
+  of
+  [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md).
+  Reads the bundled `common_names` data offline; `resolve = TRUE` runs
+  the matches through
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) and
+  returns an enrichable `taxify_result`.
+- [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md)
+  looks a backend ID (a GBIF key, ITIS TSN, WoRMS AphiaID, …) back up to
+  its name, rank, classification, and accepted-name resolution – the
+  inverse of the `taxon_id` / `accepted_id` columns
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  emits.
+- [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
+  lists every accepted taxon at a chosen rank (species by default)
+  beneath a higher taxon, where
+  [`children()`](https://gillescolling.com/taxify/reference/children.md)
+  gives only the immediate level.
+- [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md)
+  assembles a taxonomy tree (Newick, plus an `ape` `phylo` object when
+  `ape` is installed) from a set of resolved names, and
+  [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md)
+  reports the deepest rank at which a set of names shares a common
+  ancestor.
+
+### Cross-kingdom disambiguation on `taxify()`
+
+- `taxify(..., kingdom = )` restricts matches to one or more kingdoms
+  (`"animals"`, `"plants"`, `"fungi"`, …), so a name shared across
+  kingdoms (a *Prunella* that is both a bird and a plant) resolves to
+  the intended one. A match whose kingdom is wrong is passed on to the
+  next backbone in the fallback chain; the kingdom is read from the
+  backbone where it stores one, falling back to the genus register
+  otherwise.
+
+## taxify 0.3.18
+
+### Documentation
+
+- The README now notes that the backbones are pre-built by the companion
+  taxifydb package, and updates the enrichment-layer count to match
+  [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md).
+
+## taxify 0.3.17
+
+### A downloaded backbone reports the version it actually contains
+
+- Downloading a backbone into a slot that was previously built from
+  source no longer keeps reporting the old built version.
+  `download_backbone()` now clears the stale `.meta` build sidecar it
+  leaves behind, restoring the invariant that a downloaded backbone
+  carries only its `meta.json`. Previously the leftover `.meta` shadowed
+  `meta.json` in `format_backbone_version()`, so a freshly downloaded
+  release (e.g. Euro+Med 2026.07) was still labelled with the old built
+  version (2020.1) in the `backbone_version` output column.
+
+### meta.json and manifest reads tolerate a UTF-8 BOM
+
+- A `meta.json` or manifest carrying a leading UTF-8 byte-order mark (as
+  written by Windows PowerShell’s `Set-Content` / `Out-File`) no longer
+  emits an “illegal byte-order-mark” warning on every version read. All
+  meta.json and manifest reads strip a leading BOM before parsing.
+
+## taxify 0.3.16
+
+### The genus register is reachable and builds from what you have
+
+- [`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
+  is now exported. It builds the unified genus register from the
+  backbones you have installed and is the front door for the `life_form`
+  / `kingdom_group` / `taxon_group` output columns, out-of-scope
+  detection, and
+  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)’s
+  no-backbone checks. Previously the only builder was internal, so
+  [`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md)
+  on a fresh setup pointed users at a function they could not call, and
+  the manifest’s register entry was a Zenodo placeholder that never
+  resolved. `taxify_download("register")` is a convenience alias for it.
+
+- Building the register no longer force-downloads every known backbone.
+  It unions only the backbones actually installed (via the new internal
+  `installed_backbone_path()`), matching the documented “union of
+  installed backends” behaviour instead of silently pulling several
+  gigabytes.
+
+### Backbone version reflects the installed data, not a static default
+
+- The build-from-source shims no longer pass a hardcoded version label
+  into `taxifydb::build_<name>()`; taxifydb stamps its own current
+  version. A backbone built from source is now labelled with the data it
+  actually contains, not a constant that drifts as releases advance.
+
+- `format_backbone_version()` falls back to the download-time
+  `meta.json` (the manifest version) before the backend constructor’s
+  static default, so a downloaded backbone reports the version it was
+  downloaded at.
+
+- Manifest: the `reptiledb` backbone points at the `reptiledb-2026.07`
+  release (byte-identical to 2026.06) and records its content id; the
+  placeholder `register` entry is removed.
+
+## taxify 0.3.15
+
+### `add_gidias()` can ask what a species impacts
+
+- GIDIAS scores each impact record against an affected native taxon, so
+  `add_gidias(group = )` reads impact at that grain: *Felis catus* is
+  `"MO"` against invertebrates (reduced populations) where the default
+  is `"MV"`, the global extinctions it drove among vertebrates. 28% of
+  species with an affected taxon recorded impact two or more of the five
+  groups (`Plant`, `Invertebrate`, `Vertebrate`, `Microbe`, `Fungi`), so
+  for those the species-level category is the most severe impact on
+  anything, not the impact on each thing. `enrichment_groups("gidias")`
+  lists them; several groups suffix the columns, as
+  [`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md)
+  does for countries.
+
+- [`add_gidias()`](https://gillescolling.com/taxify/reference/add_gidias.md)
+  with no `group` is unchanged: it reads the `"Any"` grain, the same
+  all-records summary it returned before, with the same columns. `"Any"`
+  is the only grain carrying SEICAT and the impact records with no
+  affected taxon recorded, so `gidias_seicat_category` is `NA` on the
+  other groups. Requires the rebuilt `gidias` enrichment.
+
+- `cols` now works on the grouped doors even when the source carries no
+  columns beyond the curated set, which previously ignored it.
+
+### Citations carry an access date
+
+- A source harvested live from a server is not identified by its year:
+  two harvests a year apart share it. `format_bibtex_entry()` now emits
+  the citation’s `note` field, so an access date recorded in the
+  manifest reaches the BibTeX entry. Entries carrying no `note` are
+  unchanged.
+
 ## taxify 0.3.14
 
 ### A wrong temperature reached users, and is fixed

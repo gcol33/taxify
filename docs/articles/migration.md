@@ -51,7 +51,7 @@ closest taxify equivalent.
 | [`gnr_resolve()`](https://docs.ropensci.org/taxize/reference/gnr_resolve.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | Any backend; returns best match per name |
 | [`classification()`](https://docs.ropensci.org/taxize/reference/classification.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) + [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md) | `family`, `genus`, `rank` in the core output; [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md) fills kingdom / phylum / class / order |
 | [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md) | [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md) | Lists every synonym that resolves to a name’s accepted taxon |
-| [`children()`](https://gillescolling.com/taxify/reference/children.md) / [`downstream()`](https://docs.ropensci.org/taxize/reference/downstream.html) | [`children()`](https://gillescolling.com/taxify/reference/children.md) | Lists the accepted taxa within a genus or family |
+| [`children()`](https://gillescolling.com/taxify/reference/children.md) / [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md) | [`children()`](https://gillescolling.com/taxify/reference/children.md) | Lists the accepted taxa within a genus or family |
 | [`tax_name()`](https://docs.ropensci.org/taxize/reference/tax_name.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `family`, `genus`, `rank` columns |
 | [`sci2comm()`](https://docs.ropensci.org/taxize/reference/sci2comm.html) | [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md) | Pipe enrichment; GBIF vernacular names by language |
 
@@ -393,14 +393,14 @@ Several things that taxize or other packages handle are outside its
 scope.
 
 **Common-to-scientific name lookup.** taxize had
-[`comm2sci()`](https://docs.ropensci.org/taxize/reference/comm2sci.html)
+[`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md)
 to go from “European robin” to *Erithacus rubecula*. taxify matches
 scientific names, not vernacular input. For that direction, the GBIF API
 ([`rgbif::name_suggest()`](https://docs.ropensci.org/rgbif/reference/name_suggest.html))
 accepts common names and returns candidates.
 
 **Downstream taxa.** taxize’s
-[`downstream()`](https://docs.ropensci.org/taxize/reference/downstream.html)
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
 returned all children of a higher taxon (e.g., all species in a genus).
 taxify does not enumerate children. For tree-based queries, the rotl
 package provides access to the Open Tree of Life synthetic tree, and
@@ -441,7 +441,7 @@ packages remain the right answer:
   is updated.
 
 - **Common-to-scientific lookups.** taxize had
-  [`comm2sci()`](https://docs.ropensci.org/taxize/reference/comm2sci.html)
+  [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md)
   to go from “European robin” to *Erithacus rubecula*. taxify matches
   scientific names, not vernacular input. For that direction,
   [`rgbif::name_suggest()`](https://docs.ropensci.org/rgbif/reference/name_suggest.html)

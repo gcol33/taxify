@@ -710,16 +710,19 @@ include.
 
 ## The genus register
 
-taxify ships a unified genus register built from the union of genera
-across all fifteen pre-built backends (WFO, COL, GBIF, ITIS, NCBI, OTT,
-WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase,
-Reptile Database, LCVP, and WCVP). The register contains ~500k genera,
-each with its family, higher classification (kingdom through order,
-where available), and a `life_form` label (e.g., `"vascular plant"`,
-`"animal"`, `"fungus"`). The classification is resolved by priority:
-WoRMS \> COL \> GBIF \> Euro+Med \> ITIS \> NCBI \> OTT \> WFO. If COL
-and WFO disagree about which family a genus belongs to, COL’s assignment
-wins.
+taxify builds a unified genus register from the union of genera across
+the backbones you have installed (up to all fifteen: WFO, COL, GBIF,
+ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase,
+SeaLifeBase, Reptile Database, LCVP, and WCVP). Build it with
+[`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
+(equivalently `taxify_download("register")`); it reads each installed
+backbone once and stores the result under the data directory. With all
+fifteen installed the register holds ~500k genera, each with its family,
+higher classification (kingdom through order, where available), and a
+`life_form` label (e.g., `"vascular plant"`, `"animal"`, `"fungus"`).
+The classification is resolved by priority: WoRMS \> COL \> GBIF \>
+Euro+Med \> ITIS \> NCBI \> OTT \> WFO. If COL and WFO disagree about
+which family a genus belongs to, COL’s assignment wins.
 
 The register serves two purposes in taxify’s matching pipeline. First,
 it provides `life_form`, `kingdom_group`, and `taxon_group` columns in

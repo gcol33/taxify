@@ -18,6 +18,7 @@ taxify(
   region = NULL,
   coords = NULL,
   range = c("present", "native", "introduced"),
+  kingdom = NULL,
   mode = c("fallback", "wide", "agreement"),
   verbose = TRUE
 )
@@ -117,6 +118,24 @@ taxify(
   `"native"` accepts only native records, `"introduced"` only introduced
   (alien) records; both fold an ecological filter into matching and are
   for callers who want that. Ignored when no region is set.
+
+- kingdom:
+
+  Character. Restrict matches to one or more kingdoms, to disambiguate a
+  name shared across kingdoms (a *Prunella* that is both a bird and a
+  plant, an *Oenanthe* that is both). `NULL` (default) applies no
+  constraint. Accepts a kingdom name or a common alias,
+  case-insensitively: `"animals"`/`"Animalia"`/`"Metazoa"`,
+  `"plants"`/`"Plantae"`, `"fungi"`, `"bacteria"`, `"archaea"`,
+  `"chromista"`, `"protozoa"`, `"viruses"`. A matched taxon is kept only
+  when its kingdom is the requested one (or is unknown, which is never
+  rejected); with the default multi-backend fallback, a name a backbone
+  resolves into the wrong kingdom is passed on to the next backbone, so
+  the in-kingdom treatment wins. The kingdom is read from the backbone
+  where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a backbone that
+  does not (WFO, GBIF), it falls back to the genus register's kingdom,
+  which cannot split a genus that is itself homonymous across kingdoms –
+  name a kingdom-appropriate `backend` for those.
 
 - mode:
 

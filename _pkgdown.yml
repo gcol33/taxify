@@ -90,6 +90,7 @@ reference:
   - taxify_example_data
   - taxify_clear_cache
   - taxify_refresh_manifest
+  - taxify_build_register
   - taxify_load_register
   - taxify_register_coverage
   - lookup_genus
