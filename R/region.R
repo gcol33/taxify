@@ -540,16 +540,22 @@ ensure_boundary_vtr <- function(scheme, download = TRUE, verbose = FALSE) {
   if (!is.null(dl) && file.exists(dl)) return(dl)
 
   if (requireNamespace("taxifydb", quietly = TRUE)) {
-    built <- tryCatch(
-      switch(scheme,
-        wgsrpd = taxifydb::build_wgsrpd(output_dir = dirname(path),
-                                        verbose = verbose),
-        meow   = taxifydb::build_meow(output_dir = dirname(path),
-                                      verbose = verbose),
-        NULL),
-      error = function(e) NULL
-    )
-    if (!is.null(built) && file.exists(built)) return(built)
+    # Resolve the scheme's builder by name at run time. build_wgsrpd() ships in
+    # taxifydb; build_meow() is the marine-boundary builder (taxifydb#21) that
+    # may not be present yet, so a static taxifydb::build_meow reference would
+    # be unresolvable. Look it up instead, and fall through when it is absent.
+    builder_name <- switch(scheme,
+                           wgsrpd = "build_wgsrpd",
+                           meow   = "build_meow",
+                           NULL)
+    ns <- asNamespace("taxifydb")
+    if (!is.null(builder_name) &&
+        exists(builder_name, envir = ns, inherits = FALSE)) {
+      builder <- get(builder_name, envir = ns)
+      built <- tryCatch(builder(output_dir = dirname(path), verbose = verbose),
+                        error = function(e) NULL)
+      if (!is.null(built) && file.exists(built)) return(built)
+    }
   }
   NULL
 }
