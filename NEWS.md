@@ -22,6 +22,46 @@
 * Marine support is inert until the `marine_distribution` enrichment is
   installed: the plant-only default path is unchanged.
 
+## Five more name verbs
+
+* `parse_name()` decomposes a name into its parts -- genus, specific epithet,
+  infraspecific rank and epithet, authorship, hybrid status, open-nomenclature
+  qualifier, and the canonical form -- without matching against a backbone, the
+  role `rgbif::name_parse()` or gnparser fill. It reuses the same cleaning
+  pipeline `taxify()` runs, so a name breaks apart the way it matches.
+* `upstream()` returns the higher classification (ancestors) of a taxon as a
+  tidy long frame, one row per rank from kingdom down to genus; `to =` restricts
+  it to a single rank ("what family is this in?"). The ancestor-direction
+  complement of `downstream()`.
+* `sci2comm()` resolves scientific names to their common (vernacular) names --
+  the forward complement of `comm2sci()`, reading the bundled `common_names`
+  data offline. `resolve = TRUE` (default) taxifys the input to its accepted
+  name first.
+* `reconcile()` reports how a checklist maps onto a backbone's current
+  treatment, classifying each name as `unchanged`, `synonym`, `misspelling`,
+  `ambiguous`, or `unresolved`, and flagging many-to-one merges where several
+  inputs collapse onto one accepted name -- a checklist-migration summary.
+* `taxify_lock()` / `taxify_restore()` write and verify a reproducibility
+  lockfile: `taxify_lock()` serializes the resolved backbones and enrichment
+  layers (name, version, content id, download date) behind a result to JSON, and
+  `taxify_restore()` compares a lockfile to the current install and reports
+  `ok` / `version_drift` / `content_drift` / `missing`.
+
+## Authorship-aware homonym disambiguation
+
+* When an ambiguous match (a homonym such as *Pinus abies* L. vs Thunb.) carries
+  an author in the input, `taxify()` now resolves it to the single
+  author-matching accepted target instead of returning the tie. The tiebreak
+  only touches ambiguous author-bearing rows; the fast path and every
+  unambiguous result are unchanged.
+
+## Bug fixes
+
+* Resolved an `R CMD check` warning about an unresolvable `taxifydb::build_meow`
+  reference. The scheme's boundary builder is now looked up by name at run time,
+  so the marine builder is used when taxifydb provides it and skipped cleanly
+  when it does not.
+
 # taxify 0.3.19
 
 ## Five new name-resolution verbs
