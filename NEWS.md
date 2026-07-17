@@ -1,3 +1,30 @@
+# taxify 0.3.19
+
+## Five new name-resolution verbs
+
+* `comm2sci()` resolves common (vernacular) names to scientific names -- the
+  reverse of `add_common_names()`. Reads the bundled `common_names` data
+  offline; `resolve = TRUE` runs the matches through `taxify()` and returns an
+  enrichable `taxify_result`.
+* `id2name()` looks a backend ID (a GBIF key, ITIS TSN, WoRMS AphiaID, ...) back
+  up to its name, rank, classification, and accepted-name resolution -- the
+  inverse of the `taxon_id` / `accepted_id` columns `taxify()` emits.
+* `downstream()` lists every accepted taxon at a chosen rank (species by
+  default) beneath a higher taxon, where `children()` gives only the immediate
+  level.
+* `class2tree()` assembles a taxonomy tree (Newick, plus an `ape` `phylo` object
+  when `ape` is installed) from a set of resolved names, and `lowest_common()`
+  reports the deepest rank at which a set of names shares a common ancestor.
+
+## Cross-kingdom disambiguation on `taxify()`
+
+* `taxify(..., kingdom = )` restricts matches to one or more kingdoms
+  (`"animals"`, `"plants"`, `"fungi"`, ...), so a name shared across kingdoms (a
+  *Prunella* that is both a bird and a plant) resolves to the intended one. A
+  match whose kingdom is wrong is passed on to the next backbone in the fallback
+  chain; the kingdom is read from the backbone where it stores one, falling back
+  to the genus register otherwise.
+
 # taxify 0.3.18
 
 ## Documentation
