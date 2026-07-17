@@ -692,6 +692,10 @@ run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
                           threshold = fuzzy_threshold, names_df = names_df,
                           region = region, range_mode = range_mode)
   }
+
+  # Settle homonym ambiguity where the input carried an author (no-op when no
+  # ambiguous row carries one).
+  result <- disambiguate_by_authorship(result, bb_path)
   result
 }
 

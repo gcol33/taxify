@@ -173,3 +173,117 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backend = NULL,
   class(resolved) <- c("taxify_result", "data.frame")
   resolved
 }
+
+
+#' Resolve scientific names to common (vernacular) names
+#'
+#' The forward direction of [comm2sci()]: given a scientific name, return the
+#' common name(s) it is known by. Reads the bundled `common_names` enrichment
+#' (GBIF, NCBI, and Open Tree vernaculars) offline; the first call may trigger
+#' the one-time download. Where [add_common_names()] attaches vernaculars to a
+#' [taxify()] result as columns, `sci2comm()` takes bare names and returns the
+#' long lookup table -- one row per (name, vernacular). A name maps to many
+#' common names (across languages and synonyms), so a query can carry several
+#' rows.
+#'
+#' @param x Character vector of scientific names.
+#' @param lang Character. Restrict to one language: an ISO 639-1 code (`"en"`,
+#'   `"de"`, ...) as used by the GBIF source, or `NA` for the untagged
+#'   NCBI/Open Tree names. `NULL` (default) returns every language. List the
+#'   languages present with `enrichment_groups("common_names")`.
+#' @param resolve Logical. When `TRUE` (default), each input is run through
+#'   [taxify()] first so a synonym or misspelling reports its accepted taxon's
+#'   vernaculars. When `FALSE`, the input name is looked up verbatim (faster,
+#'   offline; use when the names are already accepted).
+#' @param backend Passed to [taxify()] when `resolve = TRUE`; `NULL` (default)
+#'   uses every installed backbone. Ignored when `resolve = FALSE`.
+#' @param verbose Logical. Default `TRUE`.
+#'
+#' @return A data.frame with one row per (query, vernacular):
+#' \describe{
+#'   \item{query}{The scientific name as supplied.}
+#'   \item{scientific_name}{The accepted name looked up (equals `query` when
+#'     `resolve = FALSE` or the query was already accepted).}
+#'   \item{common_name}{A vernacular name.}
+#'   \item{lang}{Language tag (`NA` for NCBI/Open Tree).}
+#' }
+#' A query with no vernacular contributes no rows.
+#'
+#' @seealso [comm2sci()] for the reverse direction (common -> scientific),
+#'   [add_common_names()] to attach vernaculars to a [taxify()] result.
+#'
+#' @examples
+#' # Runs offline against the bundled example database.
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
+#' # The bundled example maps Quercus robur -> "example_common_name" (en + de)
+#' sci2comm("Quercus robur", resolve = FALSE)
+#'
+#' options(old)
+#'
+#' @export
+sci2comm <- function(x, lang = NULL, resolve = TRUE, backend = NULL,
+                     verbose = TRUE) {
+  if (!is.character(x) || length(x) == 0L) {
+    stop("x must be a non-empty character vector.", call. = FALSE)
+  }
+  x_in <- x[!is.na(x) & nzchar(trimws(x))]
+
+  empty <- data.frame(
+    query = character(0L), scientific_name = character(0L),
+    common_name = character(0L), lang = character(0L),
+    stringsAsFactors = FALSE
+  )
+  if (length(x_in) == 0L) return(empty)
+
+  vtr_path <- ensure_enrichment("common_names", verbose = verbose)
+  if (is.null(vtr_path)) {
+    stop(paste0(
+      "sci2comm(): the 'common_names' data is not available. It downloads on ",
+      "first use; install 'taxifydb' to build it, or check your connection."),
+      call. = FALSE)
+  }
+
+  # query -> the scientific name to look up (accepted name when resolving).
+  if (resolve) {
+    res <- taxify(x_in, backend = backend, fuzzy = TRUE, verbose = verbose)
+    acc <- data.frame(query = res$input_name,
+                      scientific_name = res$accepted_name,
+                      stringsAsFactors = FALSE)
+    acc <- acc[!is.na(acc$scientific_name), , drop = FALSE]
+  } else {
+    acc <- data.frame(query = x_in, scientific_name = x_in,
+                      stringsAsFactors = FALSE)
+  }
+  if (nrow(acc) == 0L) return(empty)
+
+  hit <- .enrichment_vtr_lookup(
+    vtr_path, join_key = "canonical_name",
+    keys = acc$scientific_name, src_cols = c("common_name", "lang"))
+  if (is.null(hit) || nrow(hit) == 0L) return(empty)
+
+  out <- merge(acc, hit, by.x = "scientific_name", by.y = "lookup_name")
+  if (nrow(out) == 0L) return(empty)
+
+  if (!is.null(lang)) {
+    out <- if (length(lang) == 1L && is.na(lang)) {
+      out[is.na(out$lang), , drop = FALSE]
+    } else {
+      out[!is.na(out$lang) & out$lang %in% lang, , drop = FALSE]
+    }
+  }
+  if (nrow(out) == 0L) return(empty)
+
+  tab <- data.frame(
+    query           = out$query,
+    scientific_name = out$scientific_name,
+    common_name     = out$common_name,
+    lang            = out$lang,
+    stringsAsFactors = FALSE
+  )
+  tab <- tab[!duplicated(tab[c("query", "common_name", "lang")]), , drop = FALSE]
+  tab <- tab[order(tab$query, is.na(tab$lang), tab$lang, tab$common_name), ,
+             drop = FALSE]
+  rownames(tab) <- NULL
+  tab
+}
