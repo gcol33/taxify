@@ -86,10 +86,10 @@ differ from the backbone rather than on names that just carry extra authorship o
 qualifiers:
 
 ```r
-"Quercus robur L."            ->  "Quercus robur"      # authorship stripped
-"Pinus cf. sylvestris"        ->  "Pinus sylvestris"   # qualifier removed
-"Nothofagus x alpina"         ->  "Nothofagus alpina"  # hybrid marker normalized
-"Betula pendula (Roth) Doll"  ->  "Betula pendula"     # parenthesized author stripped
+"Quercus robur L."            ->  "Quercus robur"        # authorship stripped
+"Pinus cf. sylvestris"        ->  "Pinus sylvestris"     # qualifier removed
+"Nothofagus x alpina"         ->  "Nothofagus × alpina"  # hybrid sign normalized (x -> ×)
+"Betula pendula (Roth) Doll"  ->  "Betula pendula"       # parenthesized author stripped
 ```
 
 Fuzzy matching is configurable (Damerau-Levenshtein, Levenshtein, or Jaro-Winkler, with a
@@ -129,6 +129,42 @@ summary(result)
 #>   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2, abbrev: 0)
 #>   --------------------------------------------------------------
 #>   taxon groups: vascular plant: 4
+```
+
+## Navigate the backbone, not just match it
+
+Matching goes query -> accepted name. The same local backbone reads the other
+directions too, without a second data source:
+
+```r
+synonyms("Picea abies")                     # every synonym of an accepted name
+children("Quercus")                         # accepted species in a genus
+downstream("Fagaceae", downto = "genus")    # all genera under a family
+upstream("Quercus robur", to = "family")    # the family a species sits in
+```
+
+Decompose a name without matching it, or go from a backend ID back to a name:
+
+```r
+parse_name("Quercus robur (L.) H.Karst.")   # genus / epithet / author / rank, no lookup
+id2name("2878688", backend = "gbif")        # GBIF usage key -> name + classification
+```
+
+Cross the vernacular boundary in either direction, and shape a lineage into a tree:
+
+```r
+comm2sci("pedunculate oak")                 # common name -> scientific
+sci2comm("Quercus robur")                   # scientific -> common names
+class2tree(species)                         # taxonomy as a Newick / ape phylo tree
+lowest_common(species)                      # deepest shared rank (the MRCA)
+```
+
+For migrating an old checklist and recording exactly what you matched against:
+
+```r
+reconcile(old_species_list)                 # how each name maps onto the current backbone
+lock <- taxify_lock(result)                 # freeze the resolved backbone + enrichment versions
+cite(result)                                # formatted citations for every source used
 ```
 
 ## Trait and status enrichment
@@ -236,3 +272,17 @@ It helps with my coffee addiction.
 ## License
 
 MIT (see the LICENSE file)
+
+## Citation
+
+```bibtex
+@software{taxify,
+  author = {Colling, Gilles},
+  title  = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
+  year   = {2026},
+  url    = {https://github.com/gcol33/taxify}
+}
+```
+
+Cite the backbones and enrichment layers you actually used with `cite(result)`,
+which pulls each source's own reference from the manifest.
