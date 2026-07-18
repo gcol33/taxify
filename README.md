@@ -133,8 +133,9 @@ summary(result)
 
 ## Navigate the backbone, not just match it
 
-Matching goes query -> accepted name. The same local backbone reads the other
-directions too, without a second data source:
+`taxify()` resolves a name to its accepted name. The same local backbone file
+answers the related lookups too -- synonyms, children, ancestors, descendants --
+with nothing else to download:
 
 ```r
 synonyms("Picea abies")                     # every synonym of an accepted name

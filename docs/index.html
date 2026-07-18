@@ -221,10 +221,10 @@
 </h2>
 <p>Input names are normalized first, so the fuzzy pass only runs on names that genuinely differ from the backbone rather than on names that just carry extra authorship or qualifiers:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="st">"Quercus robur L."</span>            <span class="op">-&gt;</span>  <span class="st">"Quercus robur"</span>      <span class="co"># authorship stripped</span></span>
-<span><span class="st">"Pinus cf. sylvestris"</span>        <span class="op">-&gt;</span>  <span class="st">"Pinus sylvestris"</span>   <span class="co"># qualifier removed</span></span>
-<span><span class="st">"Nothofagus x alpina"</span>         <span class="op">-&gt;</span>  <span class="st">"Nothofagus alpina"</span>  <span class="co"># hybrid marker normalized</span></span>
-<span><span class="st">"Betula pendula (Roth) Doll"</span>  <span class="op">-&gt;</span>  <span class="st">"Betula pendula"</span>     <span class="co"># parenthesized author stripped</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="st">"Quercus robur L."</span>            <span class="op">-&gt;</span>  <span class="st">"Quercus robur"</span>        <span class="co"># authorship stripped</span></span>
+<span><span class="st">"Pinus cf. sylvestris"</span>        <span class="op">-&gt;</span>  <span class="st">"Pinus sylvestris"</span>     <span class="co"># qualifier removed</span></span>
+<span><span class="st">"Nothofagus x alpina"</span>         <span class="op">-&gt;</span>  <span class="st">"Nothofagus × alpina"</span>  <span class="co"># hybrid sign normalized (x -&gt; ×)</span></span>
+<span><span class="st">"Betula pendula (Roth) Doll"</span>  <span class="op">-&gt;</span>  <span class="st">"Betula pendula"</span>       <span class="co"># parenthesized author stripped</span></span></code></pre></div>
 <p>Fuzzy matching is configurable (Damerau-Levenshtein, Levenshtein, or Jaro-Winkler, with a distance threshold), and runs genus-blocked so a typo only competes against names in the same genus.</p>
 <p>On the same WFO backbone and the same 5,000 plant names (Windows, R 4.5.2), matching against the local snapshot in C avoids the per-name cost of the CSV-into-RAM approach:</p>
 <table class="table">
@@ -284,10 +284,35 @@
 <span><span class="co">#&gt;   taxon groups: vascular plant: 4</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="navigate-the-backbone-not-just-match-it">Navigate the backbone, not just match it<a class="anchor" aria-label="anchor" href="#navigate-the-backbone-not-just-match-it"></a>
+</h2>
+<p><code><a href="reference/taxify.html">taxify()</a></code> resolves a name to its accepted name. The same local backbone file answers the related lookups too – synonyms, children, ancestors, descendants – with nothing else to download:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/synonyms.html">synonyms</a></span><span class="op">(</span><span class="st">"Picea abies"</span><span class="op">)</span>                     <span class="co"># every synonym of an accepted name</span></span>
+<span><span class="fu"><a href="reference/children.html">children</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span>                         <span class="co"># accepted species in a genus</span></span>
+<span><span class="fu"><a href="reference/downstream.html">downstream</a></span><span class="op">(</span><span class="st">"Fagaceae"</span>, downto <span class="op">=</span> <span class="st">"genus"</span><span class="op">)</span>    <span class="co"># all genera under a family</span></span>
+<span><span class="fu"><a href="reference/upstream.html">upstream</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, to <span class="op">=</span> <span class="st">"family"</span><span class="op">)</span>    <span class="co"># the family a species sits in</span></span></code></pre></div>
+<p>Decompose a name without matching it, or go from a backend ID back to a name:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/parse_name.html">parse_name</a></span><span class="op">(</span><span class="st">"Quercus robur (L.) H.Karst."</span><span class="op">)</span>   <span class="co"># genus / epithet / author / rank, no lookup</span></span>
+<span><span class="fu"><a href="reference/id2name.html">id2name</a></span><span class="op">(</span><span class="st">"2878688"</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span>        <span class="co"># GBIF usage key -&gt; name + classification</span></span></code></pre></div>
+<p>Cross the vernacular boundary in either direction, and shape a lineage into a tree:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/comm2sci.html">comm2sci</a></span><span class="op">(</span><span class="st">"pedunculate oak"</span><span class="op">)</span>                 <span class="co"># common name -&gt; scientific</span></span>
+<span><span class="fu"><a href="reference/sci2comm.html">sci2comm</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span>                   <span class="co"># scientific -&gt; common names</span></span>
+<span><span class="fu"><a href="reference/class2tree.html">class2tree</a></span><span class="op">(</span><span class="va">species</span><span class="op">)</span>                         <span class="co"># taxonomy as a Newick / ape phylo tree</span></span>
+<span><span class="fu"><a href="reference/lowest_common.html">lowest_common</a></span><span class="op">(</span><span class="va">species</span><span class="op">)</span>                      <span class="co"># deepest shared rank (the MRCA)</span></span></code></pre></div>
+<p>For migrating an old checklist and recording exactly what you matched against:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/reconcile.html">reconcile</a></span><span class="op">(</span><span class="va">old_species_list</span><span class="op">)</span>                 <span class="co"># how each name maps onto the current backbone</span></span>
+<span><span class="va">lock</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify_lock.html">taxify_lock</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span>                 <span class="co"># freeze the resolved backbone + enrichment versions</span></span>
+<span><span class="fu"><a href="reference/cite.html">cite</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span>                                <span class="co"># formatted citations for every source used</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="trait-and-status-enrichment">Trait and status enrichment<a class="anchor" aria-label="anchor" href="#trait-and-status-enrichment"></a>
 </h2>
 <p>Nearly ninety enrichment layers join published trait and status data to your results through the backbone-resolved accepted name, so synonyms in either dataset land on the same key:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plants</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/add_iucn.html">add_iucn</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span>                  <span class="co"># IUCN Red List</span></span>
@@ -305,7 +330,7 @@
 <span>  <span class="fu"><a href="reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"seed_mass"</span><span class="op">)</span>         <span class="co"># Diaz + GIFT, harmonized to mg</span></span></code></pre></div>
 <p>Sources span all kingdoms: IUCN, GRIIS, GBIF common names, WCVP, EIVE, Diaz et al., LEDA, GIFT, FungalTraits, FUNGuild, AlgaeTraits, EltonTraits, AVONET, PanTHERIA, AmphiBIO, FISHMORPH, FishBase, AnAge, GloNAF, LepTraits, AnimalTraits, and regional plant-trait sets for France (Baseflor), Britain (Ecoflora), and Germany (FloraWeb), and more. The <a href="https://gillescolling.com/taxify/articles/enrichments.html">enrichments vignette</a> lists the full set with references and licenses, and <code><a href="reference/list_enrichments.html">list_enrichments()</a></code> returns it in R; <code><a href="reference/list_traits.html">list_traits()</a></code> browses the cross-source trait vocabulary that <code><a href="reference/add_trait.html">add_trait()</a></code> draws on.</p>
 <p>To join your own table, <code><a href="reference/add_data.html">add_data()</a></code> auto-detects the species column, matches it through the same backbone(s) used in the original call, and left-joins. It accepts data.frames, CSV, CSV.GZ, XLSX, SQLite, and <code>.vtr</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"TRY_traits.csv"</span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"TRY_traits.csv"</span>, cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LeafArea"</span>, <span class="st">"SLA"</span>, <span class="st">"PlantHeight"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -313,21 +338,21 @@
 <h2 id="check-a-list-before-you-trust-it">Check a list before you trust it<a class="anchor" aria-label="anchor" href="#check-a-list-before-you-trust-it"></a>
 </h2>
 <p><code><a href="reference/inspect.html">inspect()</a></code> returns only the names that look wrong, each labelled with what stands out and the name to use instead. It catches typos, retired synonyms, made-up genera, near-duplicate spellings, and the lone animal in a list of plants, and ranks them by whether they need a decision, a second look, or just optional cleanup.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">field_names</span><span class="op">)</span>                  <span class="co"># offline register and list checks</span></span>
 <span><span class="fu"><a href="reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">field_names</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># also typos, synonyms, ambiguity</span></span></code></pre></div>
 <p>For regional field lists, <code>region</code> steers a fuzzy correction toward species that actually occur where you work, so a misspelling resolves to the plant that grows there even when a one-letter neighbour from another continent sits just as close in spelling. Pass a region name, a TDWG code, or coordinates.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, region <span class="op">=</span> <span class="st">"Belgium"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.35</span>, <span class="fl">50.85</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
 <p>Or the development version from GitHub:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
 </div>
@@ -361,6 +386,17 @@
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
 <p>MIT (see the LICENSE file)</p>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co">@software{taxify,</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">  author = {Colling, Gilles},</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">  title  = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">  year   = {2026},</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">  url    = {https://github.com/gcol33/taxify}</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">}</span></span></code></pre></div>
+<p>Cite the backbones and enrichment layers you actually used with <code>cite(result)</code>, which pulls each source’s own reference from the manifest.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
