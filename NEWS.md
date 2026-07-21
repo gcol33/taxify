@@ -1,3 +1,30 @@
+# taxify 0.3.21
+
+## The marine region assets ship (issue #21)
+
+* 0.3.20 added the marine range providers but the data they read did not exist
+  yet, so the marine path stayed inert for everyone. Both assets are now
+  published and registered in the manifest, and `region=` / `coords=` constrain
+  marine matches out of the box.
+
+* New `meow` boundary entry: 196,807 polygon vertices across all 232 Marine
+  Ecoregions of the World, resolved through `download_backbone()` the way
+  `wgsrpd` is. Reference geometry, so it does not join the taxonomic backbone
+  set that `list_backbones()` reports.
+
+* New `marine_distribution` enrichment entry: WoRMS distribution records rolled
+  up to MEOW ecoregions, keyed on `canonical_name` with a `region_code` and a
+  native/introduced status, the marine counterpart of the WCVP range table.
+
+* `taxify_regions()` lists both vocabularies `region=` accepts, and gains a
+  `scheme` argument (`"all"`, `"wgsrpd"`, `"meow"`) and a `scheme` column. It
+  resolved marine names as soon as the asset was installed but only ever listed
+  the botanical crosswalk, and the warning for an unrecognised region pointed
+  users there. MEOW rows reuse the three name columns, since the two schemes
+  nest the same way: ecoregion as `name`, province as `level2_name`, realm as
+  `level1_name`. Marine rows appear only when the asset is installed, which is
+  also when they resolve.
+
 # taxify 0.3.20
 
 ## Region filtering generalizes beyond plants (issue #21)

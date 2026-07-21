@@ -42,17 +42,18 @@ field_names <- c(
 
 ## How the constraint works
 
-The filter rests on WCVP, the World Checklist of Vascular Plants, which records
-where each accepted species occurs by TDWG botanical region. `taxify()` resolves
-your `region` input to TDWG Level 3 codes, looks the candidate fuzzy names up in
-WCVP, and drops an out-of-region candidate when a better one survives. Three
-rules keep it conservative:
+The filter rests on two range sources. For vascular plants it uses WCVP, the
+World Checklist of Vascular Plants, which records where each accepted species
+occurs by TDWG botanical region. For marine taxa it uses WoRMS distribution
+records rolled up to Marine Ecoregions of the World. `taxify()` resolves your
+`region` input to codes in whichever vocabulary it belongs to, looks the
+candidate fuzzy names up in the matching source, and drops an out-of-region
+candidate when a better one survives. Three rules keep it conservative:
 
 - It filters fuzzy candidates only. It trusts an exact or case-folded match as
   given.
-- It never drops a candidate with no WCVP range data. Absence of data is not
-  absence from the region, so a non-plant match (no WCVP record) passes through
-  untouched.
+- It never drops a candidate with no range data. Absence of data is not absence
+  from the region, so a match neither source covers passes through untouched.
 - It keeps every candidate for a name when all of them are out of region. The
   filter refines a match; it does not refuse one.
 
@@ -145,17 +146,19 @@ argument is ignored when no region is set.
 
 ## Looking up regions
 
-`taxify_regions()` returns the crosswalk so you can find the right code or
-confirm a name resolves. With no argument it lists every Level 3 region; with a
-search term it filters, matching the code and the Level 1, 2, and 3 names.
+`taxify_regions()` returns the regions `region=` accepts so you can find the
+right code or confirm a name resolves. With no argument it lists both
+vocabularies; with a search term it filters, matching the code and all three
+level names. The `scheme` column names the vocabulary a row belongs to, and
+`scheme=` restricts the listing to one of them.
 
 ```{r}
 taxify_regions("Belgium")
 ```
 
 ```
-#>   code    name  level2_name level1_name
-#> 1  BGM Belgium Middle Europe      EUROPE
+#>   code    name   level2_name level1_name scheme
+#> 1  BGM Belgium Middle Europe      EUROPE wgsrpd
 ```
 
 ```{r}
@@ -167,18 +170,81 @@ nrow(taxify_regions("Europe"))
 head(taxify_regions())
 ```
 
-The same crosswalk powers `add_wcvp()`, so the codes here are the ones that
-appear in native-range enrichment output.
+The same crosswalk powers `add_wcvp()`, so the botanical codes here are the ones
+that appear in native-range enrichment output.
+
+## Marine regions
+
+Marine names use the second range source: WoRMS distribution records rolled up
+to Marine Ecoregions of the World. It arrives with the `marine_distribution`
+asset, which downloads on first use, and from then on `region=` takes MEOW names
+and codes the same way it takes botanical ones.
+
+```{r}
+taxify(c("Carcinus maenus", "Gadus morhua"), region = "North Sea")
+```
+
+```
+#>        input_name   accepted_name     family match_type backend
+#> 1 Carcinus maenus Carcinus maenas Carcinidae      fuzzy     col
+#> 2    Gadus morhua    Gadus morhua    Gadidae      exact     col
+```
+
+An ecoregion name resolves to its own code. A province or realm name expands to
+its member ecoregions, the way a TDWG Level 1 continent expands to its Level 3
+codes.
+
+```{r}
+head(taxify_regions("Temperate Northern Atlantic", scheme = "meow"))
+```
+
+```
+#>    code                           name                       level2_name
+#> 1 25042                     Carolinian Warm Temperate Northwest Atlantic
+#> 2 20043        Northern Gulf of Mexico Warm Temperate Northwest Atlantic
+#> 3 25040     Gulf of Maine/Bay of Fundy Cold Temperate Northwest Atlantic
+#> 4 20041                      Virginian Cold Temperate Northwest Atlantic
+#> 5 20030                   Adriatic Sea                 Mediterranean Sea
+#> 6 25033 Tunisian Plateau/Gulf of Sidra                 Mediterranean Sea
+#>                   level1_name scheme
+#> 1 Temperate Northern Atlantic   meow
+#> 2 Temperate Northern Atlantic   meow
+#> 3 Temperate Northern Atlantic   meow
+#> 4 Temperate Northern Atlantic   meow
+#> 5 Temperate Northern Atlantic   meow
+#> 6 Temperate Northern Atlantic   meow
+```
+
+Coordinates behave the same way. A point at sea maps to the MEOW ecoregion
+containing it, and `taxify()` unions that with the botanical lookup, so a single
+`coords` argument serves a list holding both plants and marine animals.
+
+```{r}
+# central North Sea
+taxify(field_names, coords = c(3.0, 56.0))
+```
+
+MEOW maps coastal and shelf waters, so a point over a deep ocean basin belongs
+to no ecoregion. The filter treats that as absence of data and leaves those
+names alone.
 
 ## What it covers, and what it does not
 
-WCVP is vascular plants. For names outside that scope there is no range data,
-so the filter leaves them alone by design, which is why a mixed plant-and-animal
-list can carry a region without harming the animal matches. The constraint also
-acts on fuzzy candidates only, so it changes nothing for a list that matches
-exactly throughout. It is most useful on regional field lists with the usual
-crop of misspellings, where the right correction and a plausible wrong one are
-a single edit apart.
+The two sources cover vascular plants and marine taxa. A name outside both
+scopes has no range records, so the filter leaves it alone by design, which is
+why a mixed list can carry a region without harming the matches it has no data
+for.
+
+Marine ranges inherit the grain of the underlying record. WoRMS files a
+distribution against a named locality, and those run from a single bay to a
+whole ocean basin; a record against a basin maps to every ecoregion inside it.
+The median species spans 4 ecoregions and a quarter span exactly one, so most
+ranges are sharp. About 0.3% span more than half the ocean, and for those the
+filter is permissive: a species recorded that widely is in region wherever you
+ask, so it breaks no ties. The constraint also acts on fuzzy candidates only, so it changes nothing
+for a list that matches exactly throughout. It is most useful on regional field
+lists with the usual crop of misspellings, where the right correction and a
+plausible wrong one are a single edit apart.
 
 The related check in `inspect()` looks at the other end of the pipeline. Rather
 than steering a correction, it takes matched names and flags the ones WCVP does
