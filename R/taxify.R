@@ -319,7 +319,7 @@ taxify <- function(x,
                                  label = be_name, scope = backend)
       result <- filter_result_by_kingdom(result, bb_path, kingdom, be$name)
 
-      matched <- !is.na(result$match_type)
+      matched <- is_backbone_match(result$match_type)
       result$backend <- ifelse(matched, be$name, NA_character_)
       bb_ver <- format_backbone_version(bb_path, be$name, be$version)
       result$backbone_version[matched] <- bb_ver
@@ -348,21 +348,24 @@ taxify <- function(x,
                                              be$name)
 
       # Merge sub_result back into main result. Copy every match column the
-      # sub-result carries (so a schema addition needs no edit here); backend and
-      # backbone_version are stamped from this backend, and input_name / the
-      # input-side qualifier columns are left untouched (reassigned later).
-      matched_in_sub <- which(!is.na(sub_result$match_type))
-      if (length(matched_in_sub) > 0L) {
+      # sub-result carries (so a schema addition needs no edit here), including
+      # a verdict this backend reached without a lookup; backend and
+      # backbone_version are stamped only on the rows a lookup did produce, and
+      # input_name / the input-side qualifier columns are left untouched
+      # (reassigned later).
+      resolved_in_sub <- which(!is.na(sub_result$match_type))
+      if (length(resolved_in_sub) > 0L) {
         bb_ver <- format_backbone_version(bb_path, be$name, be$version)
-        dst    <- unmatched_idx[matched_in_sub]
+        dst    <- unmatched_idx[resolved_in_sub]
         copy_cols <- setdiff(intersect(names(sub_result), names(result)),
                              c("input_name", "backend", "backbone_version",
                                "qualifier", "qualifier_position"))
         for (col in copy_cols) {
-          result[[col]][dst] <- sub_result[[col]][matched_in_sub]
+          result[[col]][dst] <- sub_result[[col]][resolved_in_sub]
         }
-        result$backend[dst]          <- be$name
-        result$backbone_version[dst] <- bb_ver
+        stamped <- dst[is_backbone_match(sub_result$match_type[resolved_in_sub])]
+        result$backend[stamped]          <- be$name
+        result$backbone_version[stamped] <- bb_ver
       }
     }
   }
@@ -502,7 +505,7 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                              range_mode = range_mode, verbose = verbose)
   result <- filter_result_by_kingdom(result, bb_path, kingdom, be$name)
 
-  matched <- !is.na(result$match_type)
+  matched <- is_backbone_match(result$match_type)
   result$backend <- ifelse(matched, be$name, NA_character_)
   result$backbone_version[matched] <- format_backbone_version(
     bb_path, be$name, be$version
@@ -780,6 +783,22 @@ resolve_kingdom_filter <- function(kingdom) {
       paste(sQuote(kingdom), collapse = ", ")), call. = FALSE)
   }
   set
+}
+
+
+#' Did a backbone lookup produce this row?
+#'
+#' The `backend` and `backbone_version` columns name the backbone that resolved
+#' a name, so only the match types a backbone lookup can produce may carry them.
+#' `"out_of_scope"`, `"hybrid_formula"` and `"none"` are verdicts reached without
+#' one, and `NA` is a name still in flight.
+#'
+#' @param match_type Character vector of match types.
+#' @return Logical vector, `TRUE` where a backbone produced the row.
+#' @noRd
+is_backbone_match <- function(match_type) {
+  !is.na(match_type) &
+    match_type %in% c("exact", "exact_ci", "fuzzy", "abbrev")
 }
 
 

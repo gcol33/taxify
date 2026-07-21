@@ -363,3 +363,45 @@ test_that("release_out_of_scope() is a no-op without a coverage table", {
   )
   expect_equal(out$match_type, "out_of_scope")
 })
+
+
+test_that("backend and backbone_version name only backbone-resolved rows (#9)", {
+  # Regression (#9, problem 2): the stamp gated on `!is.na(match_type)`, so an
+  # out-of-scope row -- reached from the coverage table with no lookup -- was
+  # given a backend name and a resolved backbone version. Selecting
+  # `result[result$backend == "wfo", ]` then counted it as a WFO match, and a
+  # per-backbone hit rate over-reported every backbone in the chain.
+  cov_path <- set_oos_chain_fixture(macropus_backends = character(0))
+
+  result <- with_mocked_bindings(
+    coverage_vtr_path = function() cov_path,
+    taxify(c("Quercus robur", "Macropus rufus",
+             "Quercus robur x Quercus petraea", "Zzzyxia qqqnotarealname"),
+           backend = c("wfo", "gbif"), fuzzy = FALSE, verbose = FALSE)
+  )
+
+  by_input <- function(nm, col) result[[col]][result$input_name == nm]
+
+  expect_equal(by_input("Quercus robur", "backend"), "wfo")
+  expect_false(is.na(by_input("Quercus robur", "backbone_version")))
+
+  # Every verdict reached without a lookup carries neither.
+  for (nm in c("Macropus rufus", "Quercus robur x Quercus petraea",
+               "Zzzyxia qqqnotarealname")) {
+    expect_true(is.na(by_input(nm, "backend")), info = nm)
+    expect_true(is.na(by_input(nm, "backbone_version")), info = nm)
+  }
+
+  # The documented contract: the column selects what a backbone resolved.
+  expect_equal(sum(result$backend == "wfo", na.rm = TRUE), 1L)
+})
+
+
+test_that("is_backbone_match() covers the whole match_type vocabulary", {
+  expect_equal(
+    is_backbone_match(c("exact", "exact_ci", "fuzzy", "abbrev",
+                        "out_of_scope", "hybrid_formula", "none", NA)),
+    c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE)
+  )
+  expect_equal(is_backbone_match(character(0)), logical(0))
+})

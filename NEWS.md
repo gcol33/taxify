@@ -26,6 +26,15 @@
   released again for any name another backbone in the chain still covers. A
   single-backend query is unchanged.
 
+* `backend` and `backbone_version` now name only the rows a backbone lookup
+  actually resolved. They were stamped whenever `match_type` was non-`NA`, which
+  swept in the verdicts a backbone never produced: an `out_of_scope` row read
+  the leading backend's name and its resolved version even though no lookup
+  found it there. Selecting `result[result$backend == "wfo", ]` then counted
+  those rows, so a per-backbone hit rate over-reported every backbone in the
+  chain. `"exact"`, `"exact_ci"`, `"fuzzy"` and `"abbrev"` carry the two
+  columns; `"out_of_scope"`, `"hybrid_formula"` and `"none"` leave them `NA`.
+
 ## The marine region assets ship (issue #21)
 
 * 0.3.20 added the marine range providers but the data they read did not exist
