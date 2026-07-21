@@ -125,21 +125,21 @@ marine_region_active <- function() {
 }
 
 
-#' Build the folded-name to MEOW `ECO_CODE` alias map
+#' The distinct MEOW ecoregion / province / realm table
 #'
-#' The marine counterpart of [region_alias_map()]. There is no bundled MEOW
-#' crosswalk (the attribute table is gated like the geometry), so the map is
+#' The marine counterpart of [wgsrpd_table()]. There is no bundled MEOW
+#' crosswalk (the attribute table is gated like the geometry), so the table is
 #' derived from the installed `marine_distribution` enrichment itself, whose
-#' rows carry `region_code` (ECO_CODE) alongside `ecoregion`, `province`, and
-#' `realm` names. Ecoregion names map to their own code; a province or realm
-#' name expands to every member ecoregion code, exactly as a WGSRPD Level 1/2
-#' name expands to its member Level 3 codes.
+#' rows carry `region_code` (ECO_CODE) alongside the `ecoregion`, `province`,
+#' and `realm` names. Backs both [meow_alias_map()] and the marine rows of
+#' [taxify_regions()], and is cached for the session.
 #'
-#' @return A data.frame with `key` and `code`, or `NULL` when the marine asset
-#'   is not installed or unreadable.
+#' @return A data.frame with `region_code`, `ecoregion`, `province`, and
+#'   `realm`, one row per ecoregion, or `NULL` when the marine asset is not
+#'   installed or unreadable.
 #' @noRd
-meow_alias_map <- function() {
-  cached <- get0("meow_alias_map", envir = .taxify_env, inherits = FALSE)
+meow_table <- function() {
+  cached <- get0("meow_table", envir = .taxify_env, inherits = FALSE)
   if (!is.null(cached)) return(cached)
   if (!marine_region_active()) return(NULL)
 
@@ -152,7 +152,30 @@ meow_alias_map <- function() {
   )
   if (is.null(tab) || nrow(tab) == 0L) return(NULL)
   tab <- unique(tab)
-  code <- as.character(tab$region_code)
+  tab$region_code <- as.character(tab$region_code)
+  rownames(tab) <- NULL
+  assign("meow_table", tab, envir = .taxify_env)
+  tab
+}
+
+
+#' Build the folded-name to MEOW `ECO_CODE` alias map
+#'
+#' The marine counterpart of [region_alias_map()], built from the ecoregion,
+#' province, and realm names carried by [meow_table()]. An ecoregion name maps
+#' to its own code; a province or realm name expands to every member ecoregion
+#' code, exactly as a WGSRPD Level 1/2 name expands to its member Level 3 codes.
+#'
+#' @return A data.frame with `key` and `code`, or `NULL` when the marine asset
+#'   is not installed or unreadable.
+#' @noRd
+meow_alias_map <- function() {
+  cached <- get0("meow_alias_map", envir = .taxify_env, inherits = FALSE)
+  if (!is.null(cached)) return(cached)
+
+  tab <- meow_table()
+  if (is.null(tab)) return(NULL)
+  code <- tab$region_code
 
   aliases <- rbind(
     data.frame(key = fold_region_key(tab$ecoregion), code = code,
@@ -1027,31 +1050,58 @@ resolve_region <- function(region = NULL, coords = NULL, verbose = FALSE) {
 }
 
 
-#' List TDWG botanical regions
+#' List the regions accepted by `region=`
 #'
-#' Returns the bundled WGSRPD (World Geographical Scheme for Recording Plant
-#' Distributions) Level 3 crosswalk: the botanical-country codes and names used
-#' by the `region` argument of [taxify()] and by [add_wcvp()]. Optionally
-#' filtered by a search term matched (case- and accent-insensitively) against
-#' the code and the Level 1, 2, and 3 names.
+#' Returns every region code and name the `region` argument of [taxify()]
+#' resolves, across both vocabularies it accepts, optionally filtered by a
+#' search term matched (case- and accent-insensitively) against the code and
+#' all three level names.
+#'
+#' Botanical regions (`scheme = "wgsrpd"`) come from the bundled WGSRPD (World
+#' Geographical Scheme for Recording Plant Distributions) Level 3 crosswalk, and
+#' are also the codes [add_wcvp()] uses. Marine regions (`scheme = "meow"`) are
+#' the Marine Ecoregions of the World, listed only when the `marine_distribution`
+#' asset is installed, since that is also when `region=` resolves them. The two
+#' schemes nest the same way, so they share the three name columns: a MEOW
+#' ecoregion is the `name`, its province the `level2_name`, and its realm the
+#' `level1_name`.
 #'
 #' @param search Optional character string. If supplied, only regions whose
 #'   code or name contains it are returned.
-#' @return A data.frame with columns `code`, `name`, `level2_name`, and
-#'   `level1_name`, one row per Level 3 region.
+#' @param scheme Which vocabulary to list: `"all"` (the default), `"wgsrpd"`
+#'   for the botanical regions, or `"meow"` for the marine ones.
+#' @return A data.frame with columns `code`, `name`, `level2_name`,
+#'   `level1_name`, and `scheme`, one row per region.
 #' @examples
 #' head(taxify_regions())
 #' taxify_regions("belgium")
 #' taxify_regions("Europe")
 #' @export
-taxify_regions <- function(search = NULL) {
-  tab <- wgsrpd_table()
-  if (is.null(tab)) {
-    return(data.frame(code = character(0L), name = character(0L),
+taxify_regions <- function(search = NULL, scheme = c("all", "wgsrpd", "meow")) {
+  scheme <- match.arg(scheme)
+  empty <- data.frame(code = character(0L), name = character(0L),
                       level2_name = character(0L), level1_name = character(0L),
-                      stringsAsFactors = FALSE))
+                      scheme = character(0L), stringsAsFactors = FALSE)
+
+  out <- empty
+  if (scheme %in% c("all", "wgsrpd")) {
+    tab <- wgsrpd_table()
+    if (!is.null(tab)) {
+      bot <- tab[, c("code", "name", "level2_name", "level1_name")]
+      bot$scheme <- "wgsrpd"
+      out <- rbind(out, bot)
+    }
   }
-  out <- tab[, c("code", "name", "level2_name", "level1_name")]
+  if (scheme %in% c("all", "meow")) {
+    mt <- meow_table()
+    if (!is.null(mt)) {
+      mar <- data.frame(code = mt$region_code, name = mt$ecoregion,
+                        level2_name = mt$province, level1_name = mt$realm,
+                        scheme = "meow", stringsAsFactors = FALSE)
+      out <- rbind(out, mar)
+    }
+  }
+
   if (!is.null(search) && length(search) == 1L && nzchar(search)) {
     key <- fold_region_key(search)
     hay <- fold_region_key(paste(out$code, out$name,

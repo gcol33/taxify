@@ -64,7 +64,7 @@ Level 3 name (\code{"Belgium"}), a Level 2 region (\code{"Middle Europe"}), or a
 1 continent (\code{"Europe"}, which expands to all its codes). Marine (only when
 the \code{marine_distribution} asset is installed): a MEOW ecoregion \code{ECO_CODE},
 or an ecoregion / province / realm name (a province or realm expands to its
-member ecoregions). See \code{\link[=taxify_regions]{taxify_regions()}} for the botanical list. When set,
+member ecoregions). See \code{\link[=taxify_regions]{taxify_regions()}} for both lists. When set,
 \strong{fuzzy} candidates are restricted to species with range records in the
 region(s); exact matches are always kept. The filter only narrows genuinely
 ambiguous fuzzy candidates: a candidate is dropped only when the same input

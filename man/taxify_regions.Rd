@@ -2,24 +2,36 @@
 % Please edit documentation in R/region.R
 \name{taxify_regions}
 \alias{taxify_regions}
-\title{List TDWG botanical regions}
+\title{List the regions accepted by \verb{region=}}
 \usage{
-taxify_regions(search = NULL)
+taxify_regions(search = NULL, scheme = c("all", "wgsrpd", "meow"))
 }
 \arguments{
 \item{search}{Optional character string. If supplied, only regions whose
 code or name contains it are returned.}
+
+\item{scheme}{Which vocabulary to list: \code{"all"} (the default), \code{"wgsrpd"}
+for the botanical regions, or \code{"meow"} for the marine ones.}
 }
 \value{
-A data.frame with columns \code{code}, \code{name}, \code{level2_name}, and
-\code{level1_name}, one row per Level 3 region.
+A data.frame with columns \code{code}, \code{name}, \code{level2_name},
+\code{level1_name}, and \code{scheme}, one row per region.
 }
 \description{
-Returns the bundled WGSRPD (World Geographical Scheme for Recording Plant
-Distributions) Level 3 crosswalk: the botanical-country codes and names used
-by the \code{region} argument of \code{\link[=taxify]{taxify()}} and by \code{\link[=add_wcvp]{add_wcvp()}}. Optionally
-filtered by a search term matched (case- and accent-insensitively) against
-the code and the Level 1, 2, and 3 names.
+Returns every region code and name the \code{region} argument of \code{\link[=taxify]{taxify()}}
+resolves, across both vocabularies it accepts, optionally filtered by a
+search term matched (case- and accent-insensitively) against the code and
+all three level names.
+}
+\details{
+Botanical regions (\code{scheme = "wgsrpd"}) come from the bundled WGSRPD (World
+Geographical Scheme for Recording Plant Distributions) Level 3 crosswalk, and
+are also the codes \code{\link[=add_wcvp]{add_wcvp()}} uses. Marine regions (\code{scheme = "meow"}) are
+the Marine Ecoregions of the World, listed only when the \code{marine_distribution}
+asset is installed, since that is also when \verb{region=} resolves them. The two
+schemes nest the same way, so they share the three name columns: a MEOW
+ecoregion is the \code{name}, its province the \code{level2_name}, and its realm the
+\code{level1_name}.
 }
 \examples{
 head(taxify_regions())

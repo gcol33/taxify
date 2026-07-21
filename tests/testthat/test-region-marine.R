@@ -31,7 +31,7 @@ local_marine_data <- function(env = parent.frame()) {
   vectra::write_vtr(box, file.path(dd, "meow", "latest", "meow.vtr"))
 
   keys <- c("meow_df", "meow_polygons", "meow_wkt", "meow_terra", "meow_sf",
-            "meow_alias_map", "enrichment_marine_distribution")
+            "meow_table", "meow_alias_map", "enrichment_marine_distribution")
   rm(list = intersect(keys, ls(.taxify_env)), envir = .taxify_env)
   # Skip the once-per-session network freshness check for the fixture asset.
   assign(".enrichment_version_checked.marine_distribution", TRUE,
@@ -64,6 +64,27 @@ test_that("meow_alias_map resolves ecoregion, province, and realm names", {
   # a realm name expands to every member ecoregion code
   expect_setequal(am$code[am$key == "test realm"], "9999")
   expect_setequal(am$code[am$key == "other realm"], "8888")
+})
+
+test_that("taxify_regions lists marine regions only when the asset is installed", {
+  withr::local_options(list(taxify.data_dir = tempfile("empty_")))
+  expect_equal(nrow(taxify_regions(scheme = "meow")), 0L)
+
+  local_marine_data()
+  mar <- taxify_regions(scheme = "meow")
+  expect_setequal(mar$code, c("9999", "8888"))
+  expect_equal(mar$name[mar$code == "9999"], "Test Sea")
+  # a MEOW province is the level-2 name and its realm the level-1 name, so the
+  # two vocabularies share one shape
+  expect_equal(mar$level2_name[mar$code == "9999"], "Test Province")
+  expect_equal(mar$level1_name[mar$code == "9999"], "Test Realm")
+  expect_true(all(mar$scheme == "meow"))
+
+  # the default lists both vocabularies, and search spans them
+  both <- taxify_regions()
+  expect_true(all(c("wgsrpd", "meow") %in% both$scheme))
+  expect_setequal(taxify_regions("test realm")$code, "9999")
+  expect_true(all(taxify_regions("test realm")$scheme == "meow"))
 })
 
 test_that("validate_region resolves MEOW names and numeric codes when active", {
