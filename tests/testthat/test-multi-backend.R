@@ -218,3 +218,148 @@ test_that("mode is ignored (with no compare columns) for a single backend", {
   expect_false("all_agree" %in% names(result))
   expect_false(any(grepl("^accepted_(wfo|col|gbif)$", names(result))))
 })
+
+
+# ---- out_of_scope must not close off the rest of the chain (#9) ----
+
+# The coverage table decides which genera a backbone can carry. WFO is vascular
+# plants, so *Macropus* is the real shape of this bug: absent from the WFO mock
+# backbone, present in the GBIF one, and in the register because another
+# backbone contributed it. `set_oos_chain_fixture()` installs the register, the
+# coverage mock and both backbones, and returns the coverage path for
+# `with_mocked_bindings()`. `macropus_backends` names the backends whose
+# coverage includes it.
+set_oos_chain_fixture <- function(macropus_backends = "gbif",
+                                  env = parent.frame()) {
+  setup_wfo_gbif()
+
+  .taxify_env$register <- data.frame(
+    genus         = c("Quercus",       "Macropus"),
+    kingdom       = c("Plantae",       "Animalia"),
+    phylum        = c("Tracheophyta",  "Chordata"),
+    class         = c("Magnoliopsida", "Mammalia"),
+    order         = c("Fagales",       "Diprotodontia"),
+    family        = c("Fagaceae",      "Macropodidae"),
+    kingdom_group = c("plantae",       "animalia"),
+    taxon_group   = c("angiosperm",    "mammal"),
+    life_form     = c("angiosperm",    "mammal"),
+    stringsAsFactors = FALSE
+  )
+
+  cov_path <- mock_coverage_vtr(
+    genus   = c("Quercus", "Quercus", rep("Macropus", length(macropus_backends))),
+    backend = c("wfo",     "gbif",    macropus_backends)
+  )
+  clear_coverage_cache()
+  withr::defer({
+    set_backbone_path("wfo", NULL)
+    set_backbone_path("gbif", NULL)
+    .taxify_env$register <- NULL
+    clear_coverage_cache()
+  }, envir = env)
+
+  cov_path
+}
+
+
+test_that("a genus the leading backbone lacks still reaches a later one", {
+  # Regression (#9): prefilter_out_of_scope() wrote "out_of_scope" into
+  # match_type, and the fallback loop only retries rows where match_type is NA.
+  # One backbone's coverage gap therefore closed the name off from every
+  # backbone behind it -- including the package's own documented example,
+  # taxify(c("Quercus robur", "Panthera leo"), backend = c("wfo", "gbif")).
+  cov_path <- set_oos_chain_fixture()
+
+  result <- with_mocked_bindings(
+    coverage_vtr_path = function() cov_path,
+    taxify(c("Quercus robur", "Macropus rufus"), backend = c("wfo", "gbif"),
+           fuzzy = FALSE, verbose = FALSE)
+  )
+
+  qr <- result[result$input_name == "Quercus robur", ]
+  expect_true(qr$match_type %in% c("exact", "exact_ci"))
+  expect_equal(qr$backend, "wfo")
+
+  mr <- result[result$input_name == "Macropus rufus", ]
+  expect_true(mr$match_type %in% c("exact", "exact_ci"))
+  expect_equal(mr$backend, "gbif")
+  expect_equal(mr$accepted_name, "Macropus rufus")
+})
+
+
+test_that("out_of_scope survives when no backbone in the chain covers the genus", {
+  # The other half of the contract: releasing a mark must not delete it. With
+  # Macropus covered by neither backbone the verdict stands, and it is reported
+  # as out_of_scope rather than the weaker "none". The GBIF backbone does carry
+  # Macropus rufus, so this also pins that an uncovered genus is never consulted
+  # for -- the coverage table, not the backbone content, ends the chain.
+  cov_path <- set_oos_chain_fixture(macropus_backends = character(0))
+
+  result <- with_mocked_bindings(
+    coverage_vtr_path = function() cov_path,
+    taxify("Macropus rufus", backend = c("wfo", "gbif"), fuzzy = FALSE,
+           verbose = FALSE)
+  )
+
+  expect_equal(result$match_type, "out_of_scope")
+  expect_equal(result$life_form, "mammal")
+})
+
+
+test_that("a single-backend query keeps its own out_of_scope verdict", {
+  # scope defaults to the one backend, so nothing is releasable and the
+  # single-backend path is unchanged.
+  cov_path <- set_oos_chain_fixture()
+
+  result <- with_mocked_bindings(
+    coverage_vtr_path = function() cov_path,
+    taxify("Macropus rufus", backend = "wfo", fuzzy = FALSE, verbose = FALSE)
+  )
+
+  expect_equal(result$match_type, "out_of_scope")
+})
+
+
+test_that("release_out_of_scope() lifts only the rows another backend covers", {
+  cov_path <- mock_coverage_vtr(genus   = c("Quercus", "Abies"),
+                                backend = c("wfo",     "gbif"))
+  clear_coverage_cache()
+  withr::defer(clear_coverage_cache())
+
+  result <- data.frame(
+    input_name = c("Abies alba", "Boletus edulis", "Quercus robur"),
+    match_type = c("out_of_scope", "out_of_scope", "exact"),
+    stringsAsFactors = FALSE
+  )
+  names_df <- data.frame(
+    cleaned = c("Abies alba", "Boletus edulis", "Quercus robur"),
+    stringsAsFactors = FALSE
+  )
+
+  out <- with_mocked_bindings(
+    coverage_vtr_path = function() cov_path,
+    release_out_of_scope(result, names_df, c("wfo", "gbif"))
+  )
+
+  # Abies is covered by gbif -> released back to NA for the next backbone.
+  expect_true(is.na(out$match_type[1L]))
+  # Boletus is covered by neither -> the verdict stands.
+  expect_equal(out$match_type[2L], "out_of_scope")
+  # A matched row is never touched.
+  expect_equal(out$match_type[3L], "exact")
+})
+
+
+test_that("release_out_of_scope() is a no-op without a coverage table", {
+  clear_coverage_cache()
+  withr::defer(clear_coverage_cache())
+  result <- data.frame(input_name = "Abies alba", match_type = "out_of_scope",
+                       stringsAsFactors = FALSE)
+  names_df <- data.frame(cleaned = "Abies alba", stringsAsFactors = FALSE)
+
+  out <- with_mocked_bindings(
+    coverage_vtr_path = function() tempfile(fileext = ".vtr"),
+    release_out_of_scope(result, names_df, c("wfo", "gbif"))
+  )
+  expect_equal(out$match_type, "out_of_scope")
+})

@@ -1,5 +1,31 @@
 # taxify 0.3.21
 
+## The fallback chain reaches every backbone again (issue #9)
+
+* A name whose genus the leading backbone did not cover was marked
+  `"out_of_scope"` and then skipped by every backbone behind it, because the
+  fallback loop only retried rows whose `match_type` was `NA`. The chain ended
+  at whichever backbone happened to be first. The package's own documented
+  example, `taxify(c("Quercus robur", "Panthera leo"), backend = c("wfo",
+  "gbif"))`, returned *Panthera leo* as `out_of_scope` without ever consulting
+  GBIF.
+
+* The default `backend = NULL` path was hit hardest, since COL leads the
+  priority order: on a full install 41.4% of register genera (207,980 of
+  502,088) sit outside COL's coverage, and every one of them is carried by a
+  backbone further down the chain. 14,354 of those are marine genera that never
+  reached WoRMS, so `region=` could not constrain a marine name COL does not
+  list. `taxify("Parvocaris samnitica")` now resolves through WoRMS instead of
+  returning `out_of_scope`.
+
+* `"out_of_scope"` means what the documentation always said it meant: no
+  backbone in the query covers the genus. The per-backbone mark still runs, so
+  the abbreviated-genus and fuzzy stages are still skipped for a backbone that
+  cannot carry the name (which also stops a spurious fuzzy near-match there
+  from outranking the exact match waiting further down the chain), but it is
+  released again for any name another backbone in the chain still covers. A
+  single-backend query is unchanged.
+
 ## The marine region assets ship (issue #21)
 
 * 0.3.20 added the marine range providers but the data they read did not exist

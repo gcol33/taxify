@@ -316,7 +316,7 @@ taxify <- function(x,
       result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
                                  fuzzy_method, region = region,
                                  range_mode = range, verbose = verbose,
-                                 label = be_name)
+                                 label = be_name, scope = backend)
       result <- filter_result_by_kingdom(result, bb_path, kingdom, be$name)
 
       matched <- !is.na(result$match_type)
@@ -342,7 +342,8 @@ taxify <- function(x,
       sub_result <- run_match_stages(be, sub_names_df, bb_path, fuzzy,
                                      fuzzy_threshold, fuzzy_method,
                                      region = region, range_mode = range,
-                                     verbose = verbose, label = be_name)
+                                     verbose = verbose, label = be_name,
+                                     scope = backend)
       sub_result <- filter_result_by_kingdom(sub_result, bb_path, kingdom,
                                              be$name)
 
@@ -671,12 +672,15 @@ finalize_hybrids <- function(result, names_df, backend) {
 #' @param fuzzy_method Character. Fuzzy distance method.
 #' @param verbose Logical.
 #' @param label Optional backend label for verbose messages (NULL = no prefix).
+#' @param scope Character vector of every backend the calling query may consult,
+#'   used to decide which out-of-scope marks to release. `NULL` means this
+#'   backend is the whole query.
 #' @return The match result data.frame.
 #' @noRd
 run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
                              fuzzy_method, region = NULL,
                              range_mode = "present", verbose = FALSE,
-                             label = NULL) {
+                             label = NULL, scope = NULL) {
   pre <- if (is.null(label)) "  " else sprintf("  [%s] ", label)
   n_unresolved <- function(res) {
     sum(is.na(res$match_type) & !is.na(names_df$cleaned))
@@ -700,7 +704,8 @@ run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
   # Settle homonym ambiguity where the input carried an author (no-op when no
   # ambiguous row carries one).
   result <- disambiguate_by_authorship(result, bb_path)
-  result
+
+  release_out_of_scope(result, names_df, scope %||% be$name)
 }
 
 
@@ -902,11 +907,37 @@ covered_genera_for <- function(backend) {
 }
 
 
+#' Genus of a name, from its cleaned form or else the raw input
+#'
+#' The genus used for every register and coverage lookup on an unmatched row.
+#'
+#' @param result The match result data.frame.
+#' @param names_df The cleaned names data.frame from `clean_names()`.
+#' @param rows Integer row indices to read.
+#' @return Character vector of genus names, `NA` where neither form carries one.
+#' @noRd
+input_genus_for_rows <- function(result, names_df, rows) {
+  cleaned <- names_df$cleaned[rows]
+  raw     <- result$input_name[rows]
+  ifelse(!is.na(cleaned) & nzchar(cleaned),
+         sub(" .*", "", cleaned),
+         ifelse(!is.na(raw) & nzchar(raw),
+                sub(" .*", "", trimws(raw)),
+                NA_character_))
+}
+
+
 #' Pre-filter out-of-scope names before fuzzy matching
 #'
 #' Checks unmatched names against the genus register and backend coverage.
 #' Names whose genus is known but not covered by the requested backend are
-#' marked `"out_of_scope"` immediately.
+#' marked `"out_of_scope"` immediately, so the abbreviated-genus and fuzzy
+#' stages skip them: fuzzy matching against a backbone that does not carry the
+#' genus is wasted work, and a spurious near-match there would outrank the exact
+#' match waiting in a later backbone.
+#'
+#' The mark is scoped to this one backbone. [release_out_of_scope()] lifts it
+#' again for any name the rest of the chain can still answer.
 #'
 #' @param result The match result data.frame after exact matching.
 #' @param names_df The cleaned names data.frame from `clean_names()`.
@@ -926,13 +957,7 @@ prefilter_out_of_scope <- function(result, names_df, backend) {
   unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
   if (length(unmatched_rows) == 0L) return(result)
 
-  cleaned_um <- names_df$cleaned[unmatched_rows]
-  raw_um     <- result$input_name[unmatched_rows]
-  genus_names <- ifelse(!is.na(cleaned_um) & nzchar(cleaned_um),
-                        sub(" .*", "", cleaned_um),
-                        ifelse(!is.na(raw_um) & nzchar(raw_um),
-                               sub(" .*", "", trimws(raw_um)),
-                               NA_character_))
+  genus_names <- input_genus_for_rows(result, names_df, unmatched_rows)
 
   in_register   <- !is.na(genus_names) & nzchar(genus_names) &
                    !is.na(reg_lookup[genus_names])
@@ -941,6 +966,40 @@ prefilter_out_of_scope <- function(result, names_df, backend) {
 
   if (any(oos_mask)) {
     result$match_type[unmatched_rows[oos_mask]] <- "out_of_scope"
+  }
+
+  result
+}
+
+
+#' Release out-of-scope marks that a later backbone can still answer
+#'
+#' `"out_of_scope"` in a result means the query as a whole has no backbone for
+#' the name. [prefilter_out_of_scope()] writes it per backbone, to steer the
+#' local stages, so on a fallback chain it has to be lifted again for every name
+#' another backbone in `scope` covers. Those rows return to `NA` and re-enter
+#' the chain; a name no backbone covers keeps the mark.
+#'
+#' @param result The match result data.frame.
+#' @param names_df The cleaned names data.frame from `clean_names()`.
+#' @param scope Character vector of every backend this call may consult.
+#' @return The result data.frame, with releasable rows back at `NA` match_type.
+#' @noRd
+release_out_of_scope <- function(result, names_df, scope) {
+  if (length(scope) == 0L) return(result)
+
+  oos_rows <- which(!is.na(result$match_type) &
+                    result$match_type == "out_of_scope")
+  if (length(oos_rows) == 0L) return(result)
+
+  covered_genera <- covered_genera_for(scope)
+  if (is.null(covered_genera)) return(result)
+
+  genus_names <- input_genus_for_rows(result, names_df, oos_rows)
+  releasable  <- !is.na(genus_names) & genus_names %in% covered_genera
+
+  if (any(releasable)) {
+    result$match_type[oos_rows[releasable]] <- NA_character_
   }
 
   result
@@ -992,16 +1051,8 @@ enrich_with_register <- function(result, names_df, backend) {
 
   if (any(!is_matched)) {
     u_idx <- which(!is_matched)
-    u_rows <- active_rows[u_idx]
-    cleaned_u <- names_df$cleaned[u_rows]
-    raw_u     <- result$input_name[u_rows]
-    genus_names[u_idx] <- ifelse(
-      !is.na(cleaned_u) & nzchar(cleaned_u),
-      sub(" .*", "", cleaned_u),
-      ifelse(!is.na(raw_u) & nzchar(raw_u),
-             sub(" .*", "", trimws(raw_u)),
-             NA_character_)
-    )
+    genus_names[u_idx] <- input_genus_for_rows(result, names_df,
+                                               active_rows[u_idx])
   }
 
   reg_idx <- unname(reg_lookup[genus_names])
