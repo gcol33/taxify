@@ -6,7 +6,7 @@
 #' @importFrom utils read.csv read.delim
 NULL
 
-# Suppress R CMD check NOTEs for vectra NSE column references
+# Column names referenced via non-standard evaluation in vectra filter/select
 utils::globalVariables(c(
   "taxonID", "scientificName", "taxonRank", "taxonomicStatus",
   "acceptedNameUsageID", "family", "genus", "specificEpithet",

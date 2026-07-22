@@ -625,12 +625,6 @@ boundary_polygons <- function(scheme, vertices_fn, verbose = FALSE) {
 
 # WGSRPD Level 3 botanical boundaries (scheme "wgsrpd").
 
-#' Path to the cached WGSRPD Level 3 boundary `.vtr`
-#' @noRd
-wgsrpd_vtr_path <- function() {
-  versioned_vtr_path("wgsrpd", "latest")
-}
-
 #' Ensure the WGSRPD Level 3 boundary `.vtr` is on disk
 #' @noRd
 ensure_wgsrpd_vtr <- function(download = TRUE, verbose = FALSE) {
@@ -651,12 +645,6 @@ wgsrpd_polygons <- function(verbose = FALSE) {
 
 
 # MEOW marine ecoregion boundaries (scheme "meow", issue #21).
-
-#' Path to the cached MEOW ecoregion boundary `.vtr`
-#' @noRd
-meow_vtr_path <- function() {
-  versioned_vtr_path("meow", "latest")
-}
 
 #' Ensure the MEOW ecoregion boundary `.vtr` is on disk
 #' @noRd

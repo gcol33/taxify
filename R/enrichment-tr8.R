@@ -7,9 +7,9 @@
 # machine. If the source is unreachable the call errors rather than attaching
 # silent NA. taxify itself redistributes nothing.
 #
-# (Ecoflora and BiolFlor were previously fetched live here too. Both are now
-# bundled .vtr enrichments -- see add_ecoflora() and add_floraweb() -- built by
-# taxifydb from frozen scrape snapshots, so they work offline.)
+# Ecoflora and BiolFlor traits are bundled .vtr enrichments -- see
+# add_ecoflora() and add_floraweb() -- built by taxifydb from frozen scrape
+# snapshots, so they work offline without TR8.
 
 
 #' Join a TR8-backed trait source on demand (no redistribution)

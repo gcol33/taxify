@@ -33,21 +33,6 @@ set_backbone_path <- function(backend_name, path) {
 }
 
 
-#' Create a fresh vectra node from a cached backbone path
-#'
-#' @param backend_name Character string.
-#' @return A vectra node (lazy handle).
-#' @noRd
-backbone_node <- function(backend_name) {
-  path <- get_backbone_path(backend_name)
-  if (is.null(path)) {
-    stop(sprintf("No backbone path cached for '%s'", backend_name),
-         call. = FALSE)
-  }
-  vectra::tbl(path)
-}
-
-
 # ---- Backbone metadata (sidecar .meta files) ----
 # .meta files are written by taxifydb at build time; taxify only reads them.
 
