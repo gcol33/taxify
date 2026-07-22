@@ -1,13 +1,16 @@
-# Analyze the ~200 unmatched names in detail
-setwd("C:/Users/Gilles Colling/Documents/dev/vectra")
-devtools::load_all()
-setwd("C:/Users/Gilles Colling/Documents/dev/taxify")
+# Analyze the unmatched names in detail.
+#
+# Set TAXIFY_ASAAS_CORPUS to the EVA-to-WFO ground-truth CSV, then run from the
+# package root. See tests/e2e/README.md.
 devtools::load_all()
 
-truth <- utils::read.csv(
-  "J:/Phd Local/Gilles_paper2/Data/ASAAS/Data prep/05_Taxa_WFO/02_eva_one_to_one_wfo_clean.csv",
-  stringsAsFactors = FALSE
-)
+corpus_path <- Sys.getenv("TAXIFY_ASAAS_CORPUS", unset = "")
+if (!nzchar(corpus_path) || !file.exists(corpus_path)) {
+  stop("Set TAXIFY_ASAAS_CORPUS to the EVA-to-WFO ground-truth CSV.",
+       call. = FALSE)
+}
+
+truth <- utils::read.csv(corpus_path, stringsAsFactors = FALSE)
 
 # Same subset
 is_synonym    <- truth$EVA_TAXON != truth$WFO_TAXON & !is.na(truth$WFO_TAXON)

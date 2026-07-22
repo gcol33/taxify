@@ -1,176 +1,216 @@
-# ASAAS validation: compare taxify results against known WFO matches
+# Accuracy regression: taxify against the curated EVA-to-WFO ground truth.
 #
-# Uses the curated ASAAS species-to-WFO mapping as ground truth.
-# This dataset was hand-cleaned and verified during the ASAAS data prep.
+# The corpus is the hand-cleaned one-to-one EVA/ASAAS species mapping produced
+# during the ASAAS data preparation (34,589 vegetation-survey names, 32,425 of
+# them carrying a verified WFO target). It is access-restricted vegetation-plot
+# data and is not redistributed with the package.
 #
-# Run with:
-#   setwd("C:/Users/Gilles Colling/Documents/dev/taxify")
-#   devtools::load_all()
-#   source("tests/e2e/test-asaas-validation.R")
+# Point at it with the corpus CSV path:
+#
+#   Sys.setenv(TAXIFY_ASAAS_CORPUS = ".../02_eva_one_to_one_wfo_clean.csv")
+#   testthat::test_file("tests/e2e/test-asaas-validation.R")
+#
+# Required columns: EVA_TAXON, WFO_TAXON, WFO_TAXON_RANK, WFO_GENUS, WFO_FAMILY,
+# WFO_ID.
+#
+# Reading the numbers
+# -------------------
+# The corpus was curated against a 2024 WFO snapshot; the package resolves
+# against whichever WFO release is installed (2026.06 at the time these
+# thresholds were set). A name the corpus maps to one accepted name and taxify
+# maps to another is therefore not automatically a taxify error -- WFO itself
+# re-circumscribes genera between releases. Three divergence classes are
+# separated below and only the aggregate floors are asserted:
+#
+#   drift    the same WFO ID under a different accepted name. The backbone
+#            renamed the taxon; taxify followed it and the corpus did not.
+#   hybrid   the corpus collapses "A x B" to its first parent; taxify expands
+#            the formula to both parents. A convention difference.
+#   genuine  a different WFO ID, i.e. taxify landed on another record.
+#
+# A failure here means the accuracy floor was breached, not that taxify must be
+# made to agree with the corpus. Before changing matching code to close a gap,
+# establish which class moved.
+#
+# Baseline measured on the full corpus, WFO 2026.06, no sampling:
+#
+#             match_rate  name   family  genus  wfo_id
+#   exact       0.9469   0.9227  0.9574  0.9418  0.8080
+#   fuzzy       0.9792   0.9152  0.9575  0.9416  0.8031
+#
+# Fuzzy trades accuracy for recall: it converts ~1,100 unmatched names into
+# matches (+3.2 pp match rate) at a cost of ~0.8 pp accepted-name agreement.
+# Both sides of that trade are asserted so neither can silently erode.
 
-asaas_path <- "J:/Phd Local/Gilles_paper2/Data/ASAAS/Data prep/05_Taxa_WFO/02_eva_one_to_one_wfo_clean.csv"
-if (!file.exists(asaas_path)) {
-  stop("ASAAS data not found at: ", asaas_path,
-       "\nThis test requires access to the J: drive (Phd Local).")
-}
+library(testthat)
 
-cat("=== ASAAS Validation Test ===\n\n")
+corpus_path <- Sys.getenv("TAXIFY_ASAAS_CORPUS", unset = "")
 
-# --- 1. Load ground truth ---
-cat("--- Loading ASAAS ground truth ---\n")
-truth <- utils::read.csv(asaas_path, stringsAsFactors = FALSE)
-cat(sprintf("  %d unique species in ASAAS\n", nrow(truth)))
-cat(sprintf("  Columns: %s\n\n", paste(names(truth), collapse = ", ")))
-
-# --- 2. Subset selection ---
-# Take a stratified sample: some exact, some synonyms (EVA != WFO), some hybrids,
-# some infraspecific, plus a random sample for breadth.
-
-is_synonym    <- truth$EVA_TAXON != truth$WFO_TAXON & !is.na(truth$WFO_TAXON)
-is_hybrid     <- grepl("\u00d7| x |^x ", truth$EVA_TAXON, ignore.case = FALSE)
-is_infraspec  <- grepl("subsp\\.|var\\.|f\\.", truth$EVA_TAXON)
-has_na_wfo    <- is.na(truth$WFO_TAXON) | truth$WFO_TAXON == ""
-
-set.seed(42)
-n_per_group <- 200
-
-idx_synonym   <- sample(which(is_synonym & !is_hybrid), min(n_per_group, sum(is_synonym & !is_hybrid)))
-idx_hybrid    <- sample(which(is_hybrid), min(n_per_group, sum(is_hybrid)))
-idx_infraspec <- sample(which(is_infraspec & !is_synonym), min(n_per_group, sum(is_infraspec & !is_synonym)))
-idx_exact     <- sample(which(!is_synonym & !is_hybrid & !is_infraspec & !has_na_wfo),
-                        min(n_per_group, sum(!is_synonym & !is_hybrid & !is_infraspec & !has_na_wfo)))
-idx_random    <- sample(nrow(truth), min(500, nrow(truth)))
-
-all_idx <- sort(unique(c(idx_synonym, idx_hybrid, idx_infraspec, idx_exact, idx_random)))
-subset <- truth[all_idx, ]
-
-cat(sprintf("--- Subset: %d names ---\n", nrow(subset)))
-cat(sprintf("  Synonyms (EVA != WFO):  %d\n", sum(is_synonym[all_idx], na.rm = TRUE))  )
-cat(sprintf("  Hybrids:                %d\n", sum(is_hybrid[all_idx], na.rm = TRUE)))
-cat(sprintf("  Infraspecific:          %d\n", sum(is_infraspec[all_idx], na.rm = TRUE)))
-cat(sprintf("  Exact (same name):      %d\n\n",
-            sum(!is_synonym[all_idx] & !is_hybrid[all_idx] & !is_infraspec[all_idx] & !has_na_wfo[all_idx], na.rm = TRUE)))
-
-# --- 3. Run taxify ---
-cat("--- Running taxify (exact + fuzzy) ---\n")
-t0 <- Sys.time()
-res <- taxify(subset$EVA_TAXON, backend = "wfo", fuzzy = TRUE, verbose = FALSE)
-dt <- difftime(Sys.time(), t0, units = "secs")
-cat(sprintf("  %d names matched in %.1f sec (%.0f names/sec)\n\n",
-            nrow(res), dt, nrow(res) / as.numeric(dt)))
-
-# --- 4. Compare against ground truth ---
-cat("--- Comparing against ground truth ---\n")
-
-# Merge results with truth
-comp <- data.frame(
-  eva_taxon     = subset$EVA_TAXON,
-  wfo_expected  = subset$WFO_TAXON,
-  wfo_family    = subset$WFO_FAMILY,
-  wfo_genus     = subset$WFO_GENUS,
-  wfo_rank      = subset$WFO_TAXON_RANK,
-  wfo_id        = subset$WFO_ID,
-  # taxify results
-  tx_accepted   = res$accepted_name,
-  tx_matched    = res$matched_name,
-  tx_family     = res$family,
-  tx_genus      = res$genus,
-  tx_match_type = res$match_type,
-  tx_is_synonym = res$is_synonym,
-  tx_fuzzy_dist = res$fuzzy_dist,
-  tx_taxon_id   = res$taxon_id,
-  stringsAsFactors = FALSE
-)
-
-# Classification: how well did taxify agree with ASAAS ground truth?
-
-# 4a. Match rate
-matched <- comp$tx_match_type != "none" & !is.na(comp$tx_match_type)
-cat(sprintf("  Match rate:         %d / %d (%.1f%%)\n",
-            sum(matched), nrow(comp), 100 * mean(matched)))
-
-# 4b. Accepted name agreement (where both have a result)
-has_both <- matched & !is.na(comp$wfo_expected) & comp$wfo_expected != ""
-name_agree <- comp$tx_accepted == comp$wfo_expected
-cat(sprintf("  Accepted name match: %d / %d (%.1f%%)\n",
-            sum(name_agree[has_both], na.rm = TRUE), sum(has_both),
-            100 * mean(name_agree[has_both], na.rm = TRUE)))
-
-# 4c. Family agreement
-fam_agree <- comp$tx_family == comp$wfo_family
-cat(sprintf("  Family match:       %d / %d (%.1f%%)\n",
-            sum(fam_agree[has_both], na.rm = TRUE), sum(has_both),
-            100 * mean(fam_agree[has_both], na.rm = TRUE)))
-
-# 4d. Genus agreement
-gen_agree <- comp$tx_genus == comp$wfo_genus
-cat(sprintf("  Genus match:        %d / %d (%.1f%%)\n",
-            sum(gen_agree[has_both], na.rm = TRUE), sum(has_both),
-            100 * mean(gen_agree[has_both], na.rm = TRUE)))
-
-# 4e. WFO ID agreement
-id_agree <- comp$tx_taxon_id == comp$wfo_id
-cat(sprintf("  WFO ID match:       %d / %d (%.1f%%)\n\n",
-            sum(id_agree[has_both], na.rm = TRUE), sum(has_both),
-            100 * mean(id_agree[has_both], na.rm = TRUE)))
-
-# --- 5. Disagreement analysis ---
-cat("--- Disagreements (accepted name differs) ---\n")
-
-disagree_idx <- which(has_both & !name_agree & matched)
-if (length(disagree_idx) > 0) {
-  cat(sprintf("  %d disagreements found. Showing first 30:\n\n", length(disagree_idx)))
-  show_n <- min(30, length(disagree_idx))
-  for (j in disagree_idx[seq_len(show_n)]) {
-    cat(sprintf("  INPUT:    %s\n", comp$eva_taxon[j]))
-    cat(sprintf("  EXPECTED: %s (family=%s, id=%s)\n",
-                comp$wfo_expected[j], comp$wfo_family[j], comp$wfo_id[j]))
-    cat(sprintf("  GOT:      %s (family=%s, id=%s, match=%s, dist=%.3f)\n\n",
-                comp$tx_accepted[j], comp$tx_family[j], comp$tx_taxon_id[j],
-                comp$tx_match_type[j],
-                ifelse(is.na(comp$tx_fuzzy_dist[j]), 0, comp$tx_fuzzy_dist[j])))
+skip_if_no_corpus <- function() {
+  if (!nzchar(corpus_path)) {
+    skip("Set TAXIFY_ASAAS_CORPUS to the EVA-to-WFO ground-truth CSV.")
   }
-} else {
-  cat("  None! Perfect agreement.\n\n")
-}
-
-# --- 6. Unmatched analysis ---
-cat("--- Unmatched names ---\n")
-unmatched_idx <- which(!matched & !is.na(comp$wfo_expected) & comp$wfo_expected != "")
-if (length(unmatched_idx) > 0) {
-  cat(sprintf("  %d names unmatched by taxify but have ASAAS WFO match. Showing first 20:\n\n",
-              length(unmatched_idx)))
-  show_n <- min(20, length(unmatched_idx))
-  for (j in unmatched_idx[seq_len(show_n)]) {
-    cat(sprintf("  %s -> expected: %s\n", comp$eva_taxon[j], comp$wfo_expected[j]))
+  if (!file.exists(corpus_path)) {
+    skip(paste0("TAXIFY_ASAAS_CORPUS does not exist: ", corpus_path))
   }
-} else {
-  cat("  All names with ASAAS ground truth were matched by taxify.\n")
+  if (!"wfo" %in% installed_backbones()) {
+    skip("The WFO backbone is not installed.")
+  }
 }
 
-# --- 7. Match type breakdown ---
-cat("\n--- Match type breakdown ---\n")
-type_tbl <- table(comp$tx_match_type, useNA = "ifany")
-for (nm in names(type_tbl)) {
-  cat(sprintf("  %-10s %d (%.1f%%)\n", nm, type_tbl[nm], 100 * type_tbl[nm] / nrow(comp)))
+required_cols <- c("EVA_TAXON", "WFO_TAXON", "WFO_TAXON_RANK", "WFO_GENUS",
+                   "WFO_FAMILY", "WFO_ID")
+
+load_corpus <- function() {
+  truth <- utils::read.csv(corpus_path, stringsAsFactors = FALSE)
+  missing <- setdiff(required_cols, names(truth))
+  if (length(missing)) {
+    stop("Corpus is missing required column(s): ",
+         paste(missing, collapse = ", "), call. = FALSE)
+  }
+  truth
 }
 
-# --- 8. Full-dataset run (optional, all 34k names) ---
-cat("\n--- Full ASAAS validation (all 34k names, exact only) ---\n")
-t1 <- Sys.time()
-res_full <- taxify(truth$EVA_TAXON, backend = "wfo", fuzzy = FALSE, verbose = FALSE)
-dt_full <- difftime(Sys.time(), t1, units = "secs")
-matched_full <- res_full$match_type != "none" & !is.na(res_full$match_type)
-has_truth <- !is.na(truth$WFO_TAXON) & truth$WFO_TAXON != ""
-agree_full <- res_full$accepted_name == truth$WFO_TAXON
+# Agreement over the rows where taxify matched and the corpus carries a target.
+# A missing value counts against the rate rather than leaving the denominator:
+# a match that returns no family has failed to deliver the family, and dropping
+# those rows would report accuracy on a set that shrinks as coverage worsens.
+agreement <- function(got, want, comparable) {
+  n <- sum(comparable)
+  if (n == 0L) return(NA_real_)
+  sum(got[comparable] == want[comparable], na.rm = TRUE) / n
+}
 
-cat(sprintf("  %d names in %.1f sec (%.0f names/sec)\n", nrow(truth), dt_full,
-            nrow(truth) / as.numeric(dt_full)))
-cat(sprintf("  Match rate:          %d / %d (%.1f%%)\n",
-            sum(matched_full), nrow(truth), 100 * mean(matched_full)))
-cat(sprintf("  Accepted name agree: %d / %d (%.1f%%)\n",
-            sum(agree_full[has_truth & matched_full], na.rm = TRUE),
-            sum(has_truth & matched_full),
-            100 * mean(agree_full[has_truth & matched_full], na.rm = TRUE)))
+run_corpus <- function(truth, fuzzy) {
+  res <- taxify(truth$EVA_TAXON, backend = "wfo", fuzzy = fuzzy, verbose = FALSE)
+  has_truth  <- !is.na(truth$WFO_TAXON) & nzchar(truth$WFO_TAXON)
+  matched    <- !is.na(res$match_type) & res$match_type != "none"
+  comparable <- matched & has_truth
+  list(
+    res          = res,
+    matched      = matched,
+    comparable   = comparable,
+    match_rate   = mean(matched),
+    n_comparable = sum(comparable),
+    name_agree   = agreement(res$accepted_name, truth$WFO_TAXON,  comparable),
+    family_agree = agreement(res$family,        truth$WFO_FAMILY, comparable),
+    genus_agree  = agreement(res$genus,         truth$WFO_GENUS,  comparable),
+    id_agree     = agreement(res$taxon_id,      truth$WFO_ID,     comparable)
+  )
+}
 
-cat("\n=== ASAAS Validation COMPLETE ===\n")
+report <- function(label, m) {
+  cat(sprintf(
+    "\n%s: match %.4f | name %.4f | family %.4f | genus %.4f | wfo_id %.4f (n=%d)\n",
+    label, m$match_rate, m$name_agree, m$family_agree, m$genus_agree,
+    m$id_agree, m$n_comparable))
+}
+
+
+test_that("the corpus is the expected shape", {
+  skip_if_no_corpus()
+  truth <- load_corpus()
+
+  expect_true(all(required_cols %in% names(truth)))
+  # Guards against being pointed at a truncated or sampled file: the accuracy
+  # floors below are only meaningful over the whole corpus.
+  expect_gte(nrow(truth), 30000L)
+  expect_gte(sum(!is.na(truth$WFO_TAXON) & nzchar(truth$WFO_TAXON)), 28000L)
+})
+
+
+test_that("exact matching holds its accuracy floor on the full corpus", {
+  skip_if_no_corpus()
+  truth <- load_corpus()
+  m <- run_corpus(truth, fuzzy = FALSE)
+  report("exact", m)
+
+  expect_gte(m$match_rate,   0.94)
+  expect_gte(m$name_agree,   0.91)
+  expect_gte(m$family_agree, 0.95)
+  expect_gte(m$genus_agree,  0.93)
+  expect_gte(m$id_agree,     0.79)
+})
+
+
+test_that("fuzzy matching raises recall without eroding accuracy", {
+  skip_if_no_corpus()
+  truth <- load_corpus()
+  exact <- run_corpus(truth, fuzzy = FALSE)
+  fuzzy <- run_corpus(truth, fuzzy = TRUE)
+  report("fuzzy", fuzzy)
+
+  # Recall: fuzzy exists to resolve names exact matching leaves unmatched.
+  expect_gte(fuzzy$match_rate, 0.97)
+  expect_gt(fuzzy$match_rate, exact$match_rate)
+
+  # Accuracy: the extra recall must not be bought with wrong answers.
+  expect_gte(fuzzy$name_agree,   0.90)
+  expect_gte(fuzzy$family_agree, 0.95)
+  expect_gte(fuzzy$genus_agree,  0.93)
+
+  # The cost of fuzzy over exact is bounded. A widening gap means fuzzy is
+  # resolving names it should be declining.
+  expect_lt(exact$name_agree - fuzzy$name_agree, 0.02)
+})
+
+
+test_that("divergence stays dominated by backbone drift and known conventions", {
+  skip_if_no_corpus()
+  truth <- load_corpus()
+  m <- run_corpus(truth, fuzzy = FALSE)
+  res <- m$res
+
+  disagree <- which(m$comparable & res$accepted_name != truth$WFO_TAXON)
+  expect_gt(length(disagree), 0L)
+
+  exp_id <- truth$WFO_ID[disagree]
+  got_id <- res$taxon_id[disagree]
+  drift  <- !is.na(exp_id) & !is.na(got_id) & exp_id == got_id
+
+  hybrid <- res$match_type[disagree] == "hybrid_formula"
+
+  genus_of <- function(x) sub(" .*$", "", x)
+  same_genus <- genus_of(truth$WFO_TAXON[disagree]) == genus_of(res$accepted_name[disagree])
+  hard <- !drift & !hybrid & !same_genus & !is.na(same_genus)
+
+  cat(sprintf(
+    "\ndivergence: %d total | drift %d | hybrid convention %d | different genus %d\n",
+    length(disagree), sum(drift), sum(hybrid), sum(hard)))
+
+  # A hard miss is a different genus that is neither a rename nor a hybrid
+  # formula. These are the ones worth reading; cap the share so a matching
+  # regression that scatters names across genera fails here.
+  expect_lt(sum(hard) / m$n_comparable, 0.015)
+})
+
+
+test_that("unauthored homonyms are flagged rather than silently resolved", {
+  skip_if_no_corpus()
+
+  # WFO carries two Schedonorus arundinaceus records under different authors,
+  # a synonym of Scolochloa festucacea (Roem. & Schult.) and one of Lolium
+  # arundinaceum ((Schreb.) Dumort.). With no authorship in the query neither
+  # can be preferred, so the result must carry the ambiguity flag.
+  res <- taxify("Schedonorus arundinaceus", backend = "wfo", fuzzy = FALSE,
+                verbose = FALSE)
+
+  expect_equal(res$match_type, "exact")
+  expect_true(res$is_ambiguous)
+  expect_true(res$accepted_name %in% c("Scolochloa festucacea",
+                                       "Lolium arundinaceum"))
+})
+
+
+test_that("hybrid formulae expand to both parents", {
+  skip_if_no_corpus()
+
+  # The corpus records the first parent only; taxify resolves both. Pinned so
+  # the expansion is not quietly dropped to match the corpus convention.
+  res <- taxify("Cirsium pannonicum \u00d7 erisithales", backend = "wfo",
+                fuzzy = FALSE, verbose = FALSE)
+
+  expect_equal(res$match_type, "hybrid_formula")
+  expect_match(res$accepted_name, "Cirsium pannonicum")
+  expect_match(res$accepted_name, "erisithales")
+})
