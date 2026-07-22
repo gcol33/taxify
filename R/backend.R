@@ -138,9 +138,17 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
                                  range_mode = range_mode)
 
   if (isTRUE(backend$prefix_fallback)) {
+    # Backbone rows the join pass already resolved a query onto. Each pass
+    # deduplicates its own targets, so without carrying these forward the
+    # fallback would hand a second query the row the first pass claimed.
+    claimed <- result$taxon_id[!is.na(result$match_type) &
+                               result$match_type == "fuzzy"]
+    claimed <- unique(claimed[!is.na(claimed)])
+
     result <- fuzzy_match_prefix_blocked(result, names_df, bb_path, method,
                                          threshold, col_map, region = region,
-                                         range_mode = range_mode)
+                                         range_mode = range_mode,
+                                         taken = claimed)
   }
 
   result
@@ -714,11 +722,14 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 #' @param method Character. Distance algorithm.
 #' @param threshold Numeric. Maximum normalized distance.
 #' @param col_map Named list mapping logical roles to backbone column names.
+#' @param taken Character vector of backbone-row IDs the preceding fuzzy pass
+#'   already claimed, so this pass cannot collapse a second query onto one.
 #' @return The updated result data.frame.
 #' @noRd
 fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
                                        threshold, col_map, region = NULL,
-                                       range_mode = "present") {
+                                       range_mode = "present",
+                                       taken = character(0L)) {
   unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
   if (length(unmatched_rows) == 0L) return(result)
 
@@ -794,7 +805,7 @@ fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
 
   if (nrow(matches) > 0L) {
     best <- pick_best_vec(matches)
-    best <- dedup_fuzzy_targets(best, id_col = col_map$id)
+    best <- dedup_fuzzy_targets(best, id_col = col_map$id, taken = taken)
     idx <- best$row_idx
     result$matched_name[idx]      <- best[[col_map$name]]
     result$taxon_id[idx]          <- best[[col_map$id]]

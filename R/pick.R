@@ -3,6 +3,9 @@
 # When multiple backbone rows match a single input name, pick the best one.
 #
 # Priority (smaller score = better):
+#   0. smallest fuzzy distance      (fuzzy matches only; decides which backbone
+#                                    name the input meant, before the tiebreaks
+#                                    below decide which row of that name to take)
 #   1. ACCEPTED > SYNONYM           (case-tolerant: works for "Accepted"/"ACCEPTED")
 #   2. SPECIES  > higher ranks      (case-tolerant)
 #   3. nomenclaturalStatus = Valid  (when the column is present in the .vtr)
@@ -44,20 +47,28 @@ epithet_key <- function(names) {
 #' Score match candidates by resolution priority
 #'
 #' Computes the per-row priority scores used to rank backbone candidates for a
-#' name (smaller is better): ACCEPTED over SYNONYM (`status_score`), SPECIES
-#' over higher ranks (`rank_score`), nomenclaturally Valid (`valid_score`),
-#' and epithet-preserving accepted target (`epithet_score`, the homotypic
+#' name (smaller is better): smallest fuzzy distance (`dist_score`), then
+#' ACCEPTED over SYNONYM (`status_score`), SPECIES over higher ranks
+#' (`rank_score`), nomenclaturally Valid (`valid_score`), and
+#' epithet-preserving accepted target (`epithet_score`, the homotypic
 #' basionym among same-name homonym synonyms, e.g. `Pinus abies` ->
 #' `Picea abies`). Used by the matching engine's best-match selection and, in
 #' the `taxifydb` build pipeline, to collapse each backbone key to the single
 #' accepted name `taxify()` resolves it to.
 #'
+#' `dist_score` orders first because candidates for a fuzzy query are different
+#' backbone names: the closest one is the best reading of the input, and the
+#' remaining scores then choose among the rows carrying that name. It is 0
+#' throughout when `fuzzy_dist` is absent, which is every exact-match path.
+#'
 #' @param candidates A data.frame with `taxonomicStatus` and `taxonRank`, and
-#'   optionally `nomenclaturalStatus` (validity), plus `matched_name_std` and
-#'   `accepted_name` (epithet preservation).
-#' @return A list with integer vectors `status_score`, `rank_score`,
-#'   `valid_score`, `epithet_score`, and the character `tier` signature
-#'   (`"status/rank/valid/epithet"`) per row, in input order.
+#'   optionally `fuzzy_dist` (fuzzy proximity), `nomenclaturalStatus`
+#'   (validity), plus `matched_name_std` and `accepted_name` (epithet
+#'   preservation).
+#' @return A list with the numeric vector `dist_score`, integer vectors
+#'   `status_score`, `rank_score`, `valid_score`, `epithet_score`, and the
+#'   character `tier` signature (`"dist/status/rank/valid/epithet"`) per row,
+#'   in input order.
 #' @keywords internal
 #' @export
 score_candidates <- function(candidates) {
@@ -91,9 +102,23 @@ score_candidates <- function(candidates) {
     epithet_score <- integer(nrow(candidates))
   }
 
-  tier <- paste(status_score, rank_score, valid_score, epithet_score,
+  # Fuzzy distance, when the matcher supplied one. Candidates for a fuzzy query
+  # are different backbone names at different edit distances, so the closer name
+  # is the better reading of the input and outranks every taxonomic tiebreak:
+  # those decide which row of a name to take, not which name was meant. Absent
+  # or NA (every exact-match path) the score is uniformly 0 and has no effect.
+  fd <- candidates$fuzzy_dist
+  if (!is.null(fd)) {
+    dist_score <- as.numeric(fd)
+    dist_score[is.na(dist_score)] <- 0
+  } else {
+    dist_score <- numeric(nrow(candidates))
+  }
+
+  tier <- paste(dist_score, status_score, rank_score, valid_score, epithet_score,
                 sep = "/")
-  list(status_score  = status_score,
+  list(dist_score    = dist_score,
+       status_score  = status_score,
        rank_score    = rank_score,
        valid_score   = valid_score,
        epithet_score = epithet_score,
@@ -124,8 +149,8 @@ pick_best <- function(candidates) {
   }
 
   s <- score_candidates(candidates)
-  ord <- order(s$status_score, s$rank_score, s$valid_score, s$epithet_score,
-               candidates$taxonID)
+  ord <- order(s$dist_score, s$status_score, s$rank_score, s$valid_score,
+               s$epithet_score, candidates$taxonID)
   best_idx <- ord[1L]
 
   # Tier-level ambiguity: rows in the same tier as the best, disagreeing on
@@ -178,7 +203,7 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
   }
 
   s <- score_candidates(matches)
-  ord <- order(matches[[group_col]], s$status_score, s$rank_score,
+  ord <- order(matches[[group_col]], s$dist_score, s$status_score, s$rank_score,
                s$valid_score, s$epithet_score, matches$taxonID)
   sorted <- matches[ord, , drop = FALSE]
   sorted_tier <- s$tier[ord]
@@ -235,10 +260,15 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
 #' @param best A data.frame with one row per query, including `row_idx`,
 #'   `fuzzy_dist`, and a column matching `id_col`.
 #' @param id_col Character. Name of the backbone-row ID column.
+#' @param taken Character vector of backbone-row IDs already claimed by an
+#'   earlier fuzzy pass. Matching is run in passes (the join pass, then the
+#'   prefix-blocked fallback over what it left), and deduplicating within a pass
+#'   only would let the runner-up claim its own copy of a row the previous pass
+#'   already took.
 #' @return The filtered data.frame.
 #' @noRd
-dedup_fuzzy_targets <- function(best, id_col) {
-  if (nrow(best) <= 1L) return(best)
+dedup_fuzzy_targets <- function(best, id_col, taken = character(0L)) {
+  if (nrow(best) == 0L)             return(best)
   if (!id_col %in% names(best))     return(best)
   if (!"fuzzy_dist" %in% names(best)) return(best)
 
@@ -248,7 +278,16 @@ dedup_fuzzy_targets <- function(best, id_col) {
   keep <- rep(TRUE, nrow(best))
   # Only fight over rows with non-NA target and non-zero (truly fuzzy) distance.
   candidate <- !is.na(ids) & !is.na(d) & d > 0
-  if (!any(candidate)) return(best)
+
+  if (length(taken)) {
+    already <- candidate & ids %in% taken
+    if (any(already)) {
+      keep[already] <- FALSE
+      candidate     <- candidate & !already
+    }
+  }
+
+  if (!any(candidate) || nrow(best) == 1L) return(best[keep, , drop = FALSE])
 
   ord <- order(ids, d, na.last = TRUE)
   ord_keep <- candidate[ord]

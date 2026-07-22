@@ -8,22 +8,31 @@ score_candidates(candidates)
 }
 \arguments{
 \item{candidates}{A data.frame with \code{taxonomicStatus} and \code{taxonRank}, and
-optionally \code{nomenclaturalStatus} (validity), plus \code{matched_name_std} and
-\code{accepted_name} (epithet preservation).}
+optionally \code{fuzzy_dist} (fuzzy proximity), \code{nomenclaturalStatus}
+(validity), plus \code{matched_name_std} and \code{accepted_name} (epithet
+preservation).}
 }
 \value{
-A list with integer vectors \code{status_score}, \code{rank_score},
-\code{valid_score}, \code{epithet_score}, and the character \code{tier} signature
-(\code{"status/rank/valid/epithet"}) per row, in input order.
+A list with the numeric vector \code{dist_score}, integer vectors
+\code{status_score}, \code{rank_score}, \code{valid_score}, \code{epithet_score}, and the
+character \code{tier} signature (\code{"dist/status/rank/valid/epithet"}) per row,
+in input order.
 }
 \description{
 Computes the per-row priority scores used to rank backbone candidates for a
-name (smaller is better): ACCEPTED over SYNONYM (\code{status_score}), SPECIES
-over higher ranks (\code{rank_score}), nomenclaturally Valid (\code{valid_score}),
-and epithet-preserving accepted target (\code{epithet_score}, the homotypic
+name (smaller is better): smallest fuzzy distance (\code{dist_score}), then
+ACCEPTED over SYNONYM (\code{status_score}), SPECIES over higher ranks
+(\code{rank_score}), nomenclaturally Valid (\code{valid_score}), and
+epithet-preserving accepted target (\code{epithet_score}, the homotypic
 basionym among same-name homonym synonyms, e.g. \verb{Pinus abies} ->
 \verb{Picea abies}). Used by the matching engine's best-match selection and, in
 the \code{taxifydb} build pipeline, to collapse each backbone key to the single
 accepted name \code{taxify()} resolves it to.
+}
+\details{
+\code{dist_score} orders first because candidates for a fuzzy query are different
+backbone names: the closest one is the best reading of the input, and the
+remaining scores then choose among the rows carrying that name. It is 0
+throughout when \code{fuzzy_dist} is absent, which is every exact-match path.
 }
 \keyword{internal}

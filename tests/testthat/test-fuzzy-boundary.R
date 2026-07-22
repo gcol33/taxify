@@ -257,36 +257,38 @@ test_that("taxify() leaves the farther queries of a collapsing group unresolved"
 })
 
 
-test_that("KNOWN DEFECT: the prefix fallback re-collapses one query onto a taken row", {
+test_that("the prefix fallback cannot re-claim a row the join pass took", {
   setup_fuzzy_backend()
 
   qs <- c("Cherleria bisulcata", "Cherleria bisulcus", "Cherleria bisulcum",
           "Cherleria bisulcis")
   res <- taxify(qs, verbose = FALSE)
 
-  # dedup_fuzzy_targets runs once per fuzzy pass, so a query the genus-blocked
-  # pass dropped competes again in the prefix-blocked pass, where it is the
-  # closest of what remains. Two distinct queries end up on wfo-f0005.
-  expect_equal(sum(res$taxon_id %in% "wfo-f0005"), 2L)
-  expect_equal(res$match_type[2L], "fuzzy")
-  expect_equal(res$accepted_name[2L], "Cherleria bisulca")
-  expect_equal(res$fuzzy_dist[2L], 2 / 18, tolerance = 1e-6)
+  # Matching runs in passes and each deduplicates its own targets, so the
+  # claimed rows of the earlier pass have to be carried into the later one:
+  # otherwise a query the join pass dropped wins the same backbone row in the
+  # prefix-blocked pass, where it is the closest of what remains.
+  expect_equal(sum(res$taxon_id %in% "wfo-f0005"), 1L)
+  expect_equal(res$match_type[2L], "none")
+  expect_true(is.na(res$accepted_name[2L]))
+  expect_true(is.na(res$taxon_id[2L]))
 })
 
 
-test_that("KNOWN DEFECT: the farther of two candidates wins on the lower taxon_id", {
+test_that("the closer of two fuzzy candidates wins regardless of taxon_id", {
   setup_fuzzy_backend()
 
-  # 'Carex flavaa' is 0.0833 from 'Carex flava' and 0.1667 from 'Carex flacca'.
-  # Candidate ranking has no fuzzy_dist term, so flacca wins on its lower id.
+  # 'Carex flavaa' is 0.0833 from 'Carex flava' (wfo-f0002) and 0.1667 from
+  # 'Carex flacca' (wfo-f0001). The farther candidate holds the lower id, so
+  # this resolves correctly only when distance outranks the id tiebreak.
   wide <- taxify("Carex flavaa", verbose = FALSE)
-  expect_equal(wide$accepted_name, "Carex flacca")
-  expect_equal(wide$taxon_id, "wfo-f0001")
-  expect_equal(wide$fuzzy_dist, 2 / 12, tolerance = 1e-6)
-  expect_true(wide$is_ambiguous)
+  expect_equal(wide$accepted_name, "Carex flava")
+  expect_equal(wide$taxon_id, "wfo-f0002")
+  expect_equal(wide$fuzzy_dist, 1 / 12, tolerance = 1e-6)
+  expect_false(wide$is_ambiguous)
 
-  # Excluding the farther candidate with a tighter threshold returns the closer
-  # species, which was in range for the call above too.
+  # Excluding the farther candidate with a tighter threshold cannot change the
+  # answer: it was never the better one.
   narrow <- taxify("Carex flavaa", fuzzy_threshold = 0.15, verbose = FALSE)
   expect_equal(narrow$accepted_name, "Carex flava")
   expect_equal(narrow$taxon_id, "wfo-f0002")

@@ -169,7 +169,8 @@ test_that("taxify matches a sign-only hybrid via the hybrid backbone-form pass",
   result <- taxify(c("x Cupressocyparis leylandii", "Salix x rubens"),
                    verbose = FALSE)
   # Nothogenus: only the sign form exists, so the plain-form pass cannot match
-  # it -- it resolves through the hybrid backbone-form pass ("× Genus ...").
+  # it -- it resolves through the hybrid backbone-form pass, where the name
+  # carries a hybrid sign ahead of the genus.
   expect_equal(result$match_type[1L], "exact")
   expect_equal(result$matched_name[1L], notho_genus)
   expect_equal(result$hybrid_type[1L], "nothogenus")

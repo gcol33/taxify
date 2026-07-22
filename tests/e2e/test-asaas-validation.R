@@ -36,10 +36,10 @@
 #
 #             match_rate  name   family  genus  wfo_id
 #   exact       0.9469   0.9227  0.9574  0.9418  0.8080
-#   fuzzy       0.9792   0.9152  0.9575  0.9416  0.8031
+#   fuzzy       0.9783   0.9172  0.9574  0.9413  0.8050
 #
-# Fuzzy trades accuracy for recall: it converts ~1,100 unmatched names into
-# matches (+3.2 pp match rate) at a cost of ~0.8 pp accepted-name agreement.
+# Fuzzy trades accuracy for recall: it converts ~1,080 unmatched names into
+# matches (+3.1 pp match rate) at a cost of ~0.55 pp accepted-name agreement.
 # Both sides of that trade are asserted so neither can silently erode.
 
 library(testthat)

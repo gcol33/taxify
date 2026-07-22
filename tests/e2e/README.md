@@ -36,13 +36,13 @@ Measured on the full corpus with no sampling, WFO 2026.06:
 | mode | match rate | accepted name | family | genus | WFO ID |
 |---|---|---|---|---|---|
 | exact | 0.9469 | 0.9227 | 0.9574 | 0.9418 | 0.8080 |
-| fuzzy | 0.9792 | 0.9152 | 0.9575 | 0.9416 | 0.8031 |
+| fuzzy | 0.9783 | 0.9172 | 0.9574 | 0.9413 | 0.8050 |
 
 Agreement counts a missing value as a miss rather than dropping it from the
 denominator, so coverage loss shows up in the rate.
 
-Fuzzy matching converts about 1,100 unmatched names into matches (+3.2 pp match
-rate) and costs about 0.8 pp of accepted-name agreement. Both directions are
+Fuzzy matching converts about 1,080 unmatched names into matches (+3.1 pp match
+rate) and costs about 0.55 pp of accepted-name agreement. Both directions are
 asserted, so neither recall nor precision can erode unnoticed.
 
 ### Interpreting a disagreement
