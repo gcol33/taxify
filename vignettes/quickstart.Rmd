@@ -103,7 +103,7 @@ res[, c("input_name", "accepted_name", "family",
 ```
 
 Ten names, ten rows, every match readable. Each row also carries genus,
-authorship, taxon and accepted IDs, a hybrid flag and type, the backend, and the
+authorship, taxon and accepted IDs, a hybrid flag and type, the backbone, and the
 exact backbone version (the full table is wider, the same shape for any input).
 
 Each name reaches its accepted name a different way. The animation below walks one
@@ -241,19 +241,19 @@ summary(res)
 
 ```
 #> ── taxify results ──────────────────────────────────────────────────────────
-#>   backend: WFO v2024-12  |  10 names submitted
+#>   backbone: WFO v2024-12  |  10 names submitted
 #>
 #>   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)
 #>   ────────────────────────────────────────────────────────────
 #>   taxon groups: angiosperm: 8  gymnosperm: 1  unknown: 1
 ```
 
-The digest reports the backend and version, the match-route breakdown (all ten
+The digest reports the backbone and version, the match-route breakdown (all ten
 resolved here, including the abbreviated `Q. petraea`), and the taxon-group mix.
 When a name is out of scope (an animal in a plant-only backbone) or genuinely
-absent, the digest tallies it and suggests an alternative backend. The match types and the multi-backend fallback
-(`backend = c("wfo", "col", "gbif")`) are covered in the
-[backends vignette](https://gillescolling.com/taxify/articles/backends.html).
+absent, the digest tallies it and suggests an alternative backbone. The match types and the multi-backbone fallback
+(`backbone = c("wfo", "col", "gbif")`) are covered in the
+[backbones vignette](https://gillescolling.com/taxify/articles/backbones.html).
 
 ## Offline, and how much faster
 
@@ -487,7 +487,7 @@ values. The same three lines work for any attribute the package can attach.
 This vignette is the fast path. Each step has a dedicated vignette with the full
 detail:
 
-- [Backends and multi-backend fallback](https://gillescolling.com/taxify/articles/backends.html)
+- [Backends and multi-backbone fallback](https://gillescolling.com/taxify/articles/backbones.html)
 
 - [Fuzzy matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
 

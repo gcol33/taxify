@@ -42,7 +42,7 @@ the value here is the across-record median and is not split by sex.
 }
 \examples{
 \dontrun{
-taxify("Araneus diadematus", backend = "gbif") |>
+taxify("Araneus diadematus", backbone = "gbif") |>
   add_spider_traits()
 }
 

@@ -577,7 +577,7 @@ get the looser treatment with explicit human oversight.
 |:-------------|:-------------------------------------------|:------------------------------------------------------|
 | `match_type` | `"exact"`, `"exact_ci"`, `"fuzzy"`, `"none"`, `"out_of_scope"` | How the name was matched. `"exact"` is case-sensitive, `"exact_ci"` includes case-insensitive and Latin normalization matches. |
 | `fuzzy_dist` | Numeric (0-1) or `NA`                      | Normalized string distance for fuzzy matches. `NA` for exact matches and unmatched names. |
-| `backend`    | `"wfo"`, `"col"`, `"gbif"`, etc.           | Which backbone provided the match. Useful in multi-backend fallback chains. |
+| `backbone`    | `"wfo"`, `"col"`, `"gbif"`, etc.           | Which backbone provided the match. Useful in multi-backbone fallback chains. |
 
 The `match_type` and `fuzzy_dist` columns together give a complete picture of
 match quality. Exact matches are definitive, and fuzzy matches with distance

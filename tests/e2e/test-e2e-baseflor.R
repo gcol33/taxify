@@ -29,7 +29,7 @@ species <- c(
 
 enrich <- function(x) {
   r <- tryCatch(
-    taxify(x, backend = "wfo", verbose = FALSE) |> add_baseflor(),
+    taxify(x, backbone = "wfo", verbose = FALSE) |> add_baseflor(),
     error = function(e) {
       cat("  SKIP: baseflor enrichment unavailable (", conditionMessage(e),
           ")\n", sep = "")

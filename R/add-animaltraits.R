@@ -25,7 +25,7 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Drosophila melanogaster", backend = "gbif") |>
+#' taxify("Drosophila melanogaster", backbone = "gbif") |>
 #'   add_animaltraits()
 #'
 #' options(old)

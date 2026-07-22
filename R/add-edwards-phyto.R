@@ -36,7 +36,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Thalassiosira pseudonana", backend = "gbif") |>
+#' taxify("Thalassiosira pseudonana", backbone = "gbif") |>
 #'   add_edwards_phyto()
 #' }
 #'

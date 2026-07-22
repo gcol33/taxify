@@ -39,7 +39,7 @@ butterfly species globally (Papilionoidea).
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Vanessa cardui", backend = "gbif") |>
+taxify("Vanessa cardui", backbone = "gbif") |>
   add_leptraits()
 
 options(old)

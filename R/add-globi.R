@@ -36,7 +36,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Apis mellifera", backend = "gbif") |>
+#' taxify("Apis mellifera", backbone = "gbif") |>
 #'   add_globi()
 #' }
 #'

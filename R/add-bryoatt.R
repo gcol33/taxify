@@ -40,7 +40,7 @@
 #' @examples
 #' \dontrun{
 #' # Builds the enrichment on first use (needs taxifydb).
-#' taxify("Polytrichum commune", backend = "gbif") |>
+#' taxify("Polytrichum commune", backbone = "gbif") |>
 #'   add_bryoatt()
 #' }
 #'

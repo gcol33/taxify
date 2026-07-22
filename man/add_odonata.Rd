@@ -27,7 +27,7 @@ Source: Odonate Phenotypic Database (Waller et al., Dryad, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Calopteryx splendens", backend = "gbif") |>
+taxify("Calopteryx splendens", backbone = "gbif") |>
   add_odonata()
 }
 

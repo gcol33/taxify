@@ -18,7 +18,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Panthera leo", backend = "gbif") |>
+#' taxify("Panthera leo", backbone = "gbif") |>
 #'   add_homerange()
 #' }
 #'

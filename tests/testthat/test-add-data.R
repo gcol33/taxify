@@ -2,16 +2,16 @@
 
 setup_mock_backend <- function() {
   # Pin a per-test hermetic data dir holding only a wfo mock on disk, so the
-  # default backend (backend = NULL) resolves to exactly wfo regardless of any
+  # default backbone (backbone = NULL) resolves to exactly wfo regardless of any
   # data-dir state another test file leaves in the option. Scoped to the calling
   # test_that() block. The same mock is cached, which ensure_backbone() prefers.
-  bb_path <- mock_backbone_vtr()
+  vtr_path <- mock_backbone_vtr()
   dd <- tempfile("dd_adddata_")
   dir.create(file.path(dd, "wfo", "latest"), recursive = TRUE, showWarnings = FALSE)
-  file.copy(bb_path, file.path(dd, "wfo", "latest", "wfo.vtr"))
+  file.copy(vtr_path, file.path(dd, "wfo", "latest", "wfo.vtr"))
   withr::local_options(list(taxify.data_dir = dd), .local_envir = parent.frame())
   be <- wfo_backend()
-  set_backbone_path(be$name, bb_path)
+  set_backbone_path(be$name, vtr_path)
   be
 }
 

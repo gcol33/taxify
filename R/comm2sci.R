@@ -47,17 +47,17 @@ common_name_variants <- function(s) {
 #'   names through [taxify()] and return a `taxify_result` (with a leading
 #'   `query_common` column), so the result pipes straight into the `add_*()`
 #'   enrichments.
-#' @param backend Passed to [taxify()] when `resolve = TRUE`; `NULL` (default)
+#' @param backbone Passed to [taxify()] when `resolve = TRUE`; `NULL` (default)
 #'   uses every installed backbone. Ignored when `resolve = FALSE`.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return When `resolve = FALSE`, a data.frame with one row per
 #'   (query, scientific match):
 #' \describe{
-#'   \item{query}{The common name as supplied.}
+#'   \item{input_name}{The common name as supplied.}
 #'   \item{common_name}{The vernacular name as stored in the source (its
-#'     casing, which may differ from `query`).}
-#'   \item{scientific_name}{The accepted scientific name.}
+#'     casing, which may differ from `input_name`).}
+#'   \item{accepted_name}{The accepted scientific name.}
 #'   \item{lang}{Language tag of the vernacular name (`NA` for NCBI/Open Tree).}
 #' }
 #' A query with no match contributes no rows. When `resolve = TRUE`, a
@@ -76,12 +76,12 @@ common_name_variants <- function(s) {
 #' comm2sci("example_common_name")
 #'
 #' # Resolve straight to a taxify_result you can enrich
-#' comm2sci("example_common_name", resolve = TRUE, backend = "wfo")
+#' comm2sci("example_common_name", resolve = TRUE, backbone = "wfo")
 #'
 #' options(old)
 #'
 #' @export
-comm2sci <- function(x, lang = NULL, resolve = FALSE, backend = NULL,
+comm2sci <- function(x, lang = NULL, resolve = FALSE, backbone = NULL,
                      verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {
     stop("x must be a non-empty character vector.", call. = FALSE)
@@ -89,12 +89,12 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backend = NULL,
   x_in <- x[!is.na(x) & nzchar(trimws(x))]
 
   empty <- data.frame(
-    query = character(0L), common_name = character(0L),
-    scientific_name = character(0L), lang = character(0L),
+    input_name = character(0L), common_name = character(0L),
+    accepted_name = character(0L), lang = character(0L),
     stringsAsFactors = FALSE
   )
   if (length(x_in) == 0L) {
-    if (resolve) return(taxify(character(0L), backend = backend,
+    if (resolve) return(taxify(character(0L), backbone = backbone,
                                verbose = FALSE))
     return(empty)
   }
@@ -109,24 +109,24 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backend = NULL,
 
   # variant -> query map (many variants per query), then one indexed join.
   vmap <- do.call(rbind, lapply(x_in, function(q) {
-    data.frame(query = q, variant = common_name_variants(q),
+    data.frame(input_name = q, variant = common_name_variants(q),
                stringsAsFactors = FALSE)
   }))
-  vmap <- vmap[!duplicated(vmap[c("query", "variant")]), , drop = FALSE]
+  vmap <- vmap[!duplicated(vmap[c("input_name", "variant")]), , drop = FALSE]
 
   hit <- .enrichment_vtr_lookup(
     vtr_path, join_key = "common_name",
     keys = vmap$variant, src_cols = c("canonical_name", "lang"))
   if (is.null(hit) || nrow(hit) == 0L) {
-    if (resolve) return(taxify(character(0L), backend = backend,
+    if (resolve) return(taxify(character(0L), backbone = backbone,
                                verbose = FALSE))
     return(empty)
   }
 
-  # Map each matched vernacular (lookup_name == the variant) back to its query.
+  # Map each matched vernacular (lookup_name == the variant) back to its input_name.
   out <- merge(vmap, hit, by.x = "variant", by.y = "lookup_name")
   if (nrow(out) == 0L) {
-    if (resolve) return(taxify(character(0L), backend = backend,
+    if (resolve) return(taxify(character(0L), backbone = backbone,
                                verbose = FALSE))
     return(empty)
   }
@@ -139,33 +139,33 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backend = NULL,
     }
   }
   if (nrow(out) == 0L) {
-    if (resolve) return(taxify(character(0L), backend = backend,
+    if (resolve) return(taxify(character(0L), backbone = backbone,
                                verbose = FALSE))
     return(empty)
   }
 
   tab <- data.frame(
-    query           = out$query,
+    input_name           = out$input_name,
     common_name     = out$variant,
-    scientific_name = out$canonical_name,
+    accepted_name = out$canonical_name,
     lang            = out$lang,
     stringsAsFactors = FALSE
   )
-  tab <- tab[!duplicated(tab[c("query", "scientific_name", "lang")]), ,
+  tab <- tab[!duplicated(tab[c("input_name", "accepted_name", "lang")]), ,
              drop = FALSE]
-  tab <- tab[order(tab$query, tab$scientific_name,
+  tab <- tab[order(tab$input_name, tab$accepted_name,
                    is.na(tab$lang), tab$lang), , drop = FALSE]
   rownames(tab) <- NULL
 
   if (!resolve) return(tab)
 
-  # Resolve the distinct scientific names, then re-expand to keep every query
+  # Resolve the distinct scientific names, then re-expand to keep every input_name
   # (a query can map to several names, a name to several queries).
-  sci <- unique(tab$scientific_name)
-  res <- taxify(sci, backend = backend, verbose = verbose)
-  ridx <- match(tab$scientific_name, res$input_name)
+  sci <- unique(tab$accepted_name)
+  res <- taxify(sci, backbone = backbone, verbose = verbose)
+  ridx <- match(tab$accepted_name, res$input_name)
   resolved <- res[ridx, , drop = FALSE]
-  resolved <- cbind(query_common = tab$query, resolved,
+  resolved <- cbind(query_common = tab$input_name, resolved,
                     stringsAsFactors = FALSE)
   rownames(resolved) <- NULL
   meta <- attr(res, "taxify_meta")
@@ -195,15 +195,15 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backend = NULL,
 #'   [taxify()] first so a synonym or misspelling reports its accepted taxon's
 #'   vernaculars. When `FALSE`, the input name is looked up verbatim (faster,
 #'   offline; use when the names are already accepted).
-#' @param backend Passed to [taxify()] when `resolve = TRUE`; `NULL` (default)
+#' @param backbone Passed to [taxify()] when `resolve = TRUE`; `NULL` (default)
 #'   uses every installed backbone. Ignored when `resolve = FALSE`.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame with one row per (query, vernacular):
 #' \describe{
-#'   \item{query}{The scientific name as supplied.}
-#'   \item{scientific_name}{The accepted name looked up (equals `query` when
-#'     `resolve = FALSE` or the query was already accepted).}
+#'   \item{input_name}{The scientific name as supplied.}
+#'   \item{accepted_name}{The accepted name looked up (equals `input_name` when
+#'     `resolve = FALSE` or the input_name was already accepted).}
 #'   \item{common_name}{A vernacular name.}
 #'   \item{lang}{Language tag (`NA` for NCBI/Open Tree).}
 #' }
@@ -222,7 +222,7 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backend = NULL,
 #' options(old)
 #'
 #' @export
-sci2comm <- function(x, lang = NULL, resolve = TRUE, backend = NULL,
+sci2comm <- function(x, lang = NULL, resolve = TRUE, backbone = NULL,
                      verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {
     stop("x must be a non-empty character vector.", call. = FALSE)
@@ -230,7 +230,7 @@ sci2comm <- function(x, lang = NULL, resolve = TRUE, backend = NULL,
   x_in <- x[!is.na(x) & nzchar(trimws(x))]
 
   empty <- data.frame(
-    query = character(0L), scientific_name = character(0L),
+    input_name = character(0L), accepted_name = character(0L),
     common_name = character(0L), lang = character(0L),
     stringsAsFactors = FALSE
   )
@@ -244,25 +244,25 @@ sci2comm <- function(x, lang = NULL, resolve = TRUE, backend = NULL,
       call. = FALSE)
   }
 
-  # query -> the scientific name to look up (accepted name when resolving).
+  # input_name -> the scientific name to look up (accepted name when resolving).
   if (resolve) {
-    res <- taxify(x_in, backend = backend, fuzzy = TRUE, verbose = verbose)
-    acc <- data.frame(query = res$input_name,
-                      scientific_name = res$accepted_name,
+    res <- taxify(x_in, backbone = backbone, fuzzy = TRUE, verbose = verbose)
+    acc <- data.frame(input_name = res$input_name,
+                      accepted_name = res$accepted_name,
                       stringsAsFactors = FALSE)
-    acc <- acc[!is.na(acc$scientific_name), , drop = FALSE]
+    acc <- acc[!is.na(acc$accepted_name), , drop = FALSE]
   } else {
-    acc <- data.frame(query = x_in, scientific_name = x_in,
+    acc <- data.frame(input_name = x_in, accepted_name = x_in,
                       stringsAsFactors = FALSE)
   }
   if (nrow(acc) == 0L) return(empty)
 
   hit <- .enrichment_vtr_lookup(
     vtr_path, join_key = "canonical_name",
-    keys = acc$scientific_name, src_cols = c("common_name", "lang"))
+    keys = acc$accepted_name, src_cols = c("common_name", "lang"))
   if (is.null(hit) || nrow(hit) == 0L) return(empty)
 
-  out <- merge(acc, hit, by.x = "scientific_name", by.y = "lookup_name")
+  out <- merge(acc, hit, by.x = "accepted_name", by.y = "lookup_name")
   if (nrow(out) == 0L) return(empty)
 
   if (!is.null(lang)) {
@@ -275,14 +275,14 @@ sci2comm <- function(x, lang = NULL, resolve = TRUE, backend = NULL,
   if (nrow(out) == 0L) return(empty)
 
   tab <- data.frame(
-    query           = out$query,
-    scientific_name = out$scientific_name,
+    input_name           = out$input_name,
+    accepted_name = out$accepted_name,
     common_name     = out$common_name,
     lang            = out$lang,
     stringsAsFactors = FALSE
   )
-  tab <- tab[!duplicated(tab[c("query", "common_name", "lang")]), , drop = FALSE]
-  tab <- tab[order(tab$query, is.na(tab$lang), tab$lang, tab$common_name), ,
+  tab <- tab[!duplicated(tab[c("input_name", "common_name", "lang")]), , drop = FALSE]
+  tab <- tab[order(tab$input_name, is.na(tab$lang), tab$lang, tab$common_name), ,
              drop = FALSE]
   rownames(tab) <- NULL
   tab

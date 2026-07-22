@@ -34,7 +34,7 @@
 #'
 #' @param taxon A single taxonomic name (a species, genus, or higher taxon;
 #'   synonyms and typos are resolved first).
-#' @param backend A single backend name or a `taxify_backend` object. `NULL`
+#' @param backbone A single backbone name or a `taxify_backend` object. `NULL`
 #'   (default) uses the highest-priority installed backbone; name one that
 #'   stores the higher ranks (e.g. `"col"`) for a full lineage.
 #' @param to Optional rank (or ranks) to restrict the output to -- e.g.
@@ -42,9 +42,9 @@
 #'   `NULL` (default) returns the whole lineage.
 #' @param verbose Logical. Default `TRUE`.
 #'
-#' @return A data.frame with one row per ancestor rank, columns: `query` (the
+#' @return A data.frame with one row per ancestor rank, columns: `input_name` (the
 #'   name as supplied), `accepted_name` (what it resolved to), `rank`, `name`,
-#'   `backend`, ordered kingdom -> genus. Empty when `taxon` does not resolve or
+#'   `backbone`, ordered kingdom -> genus. Empty when `taxon` does not resolve or
 #'   the backbone stores no ranks above it.
 #'
 #' @seealso [downstream()] for descendants, [add_classification()] to attach the
@@ -55,34 +55,34 @@
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
 #' # The lineage above a species (reptiledb carries the full higher hierarchy)
-#' upstream("Naja naja", backend = "reptiledb")
+#' upstream("Naja naja", backbone = "reptiledb")
 #'
 #' # Just the family
-#' upstream("Naja naja", backend = "reptiledb", to = "family")
+#' upstream("Naja naja", backbone = "reptiledb", to = "family")
 #'
 #' options(old)
 #'
 #' @export
-upstream <- function(taxon, backend = NULL, to = NULL, verbose = TRUE) {
+upstream <- function(taxon, backbone = NULL, to = NULL, verbose = TRUE) {
   if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||
       !nzchar(trimws(taxon))) {
     stop("taxon must be a single non-empty name.", call. = FALSE)
   }
-  backend <- resolve_single_backend(backend, verbose = verbose)
-  be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
-  bb <- backbone_path(backend, verbose = verbose)
+  backbone <- resolve_single_backend(backbone, verbose = verbose)
+  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+  bb <- backbone_path(backbone, verbose = verbose)
 
   empty <- data.frame(
-    query = character(0L), accepted_name = character(0L),
-    rank = character(0L), name = character(0L), backend = character(0L),
+    input_name = character(0L), accepted_name = character(0L),
+    rank = character(0L), name = character(0L), backbone = character(0L),
     stringsAsFactors = FALSE
   )
 
   # Resolve the query (handles synonyms / typos) to its accepted taxon.
-  res <- taxify(taxon, backend = backend, fuzzy = TRUE, verbose = FALSE)
+  res <- taxify(taxon, backbone = backbone, fuzzy = TRUE, verbose = FALSE)
   if (nrow(res) == 0L || is.na(res$accepted_id[1L])) {
     if (verbose) message(sprintf("upstream(): '%s' did not resolve against '%s'.",
-                                 taxon, be_name))
+                                 taxon, bb_name))
     return(empty)
   }
   acc_id   <- res$accepted_id[1L]
@@ -96,7 +96,7 @@ upstream <- function(taxon, backend = NULL, to = NULL, verbose = TRUE) {
   avail <- intersect(.upstream_cols, schema)
   if (length(avail) == 0L) {
     if (verbose) message(sprintf(
-      "upstream(): backend '%s' stores no classification columns.", be_name))
+      "upstream(): backbone '%s' stores no classification columns.", bb_name))
     return(empty)
   }
 
@@ -115,8 +115,8 @@ upstream <- function(taxon, backend = NULL, to = NULL, verbose = TRUE) {
     if (unname(.upstream_rank_order[col]) >= own_idx) return(NULL)
     val <- row[[col]]
     if (is.na(val) || !nzchar(val)) return(NULL)
-    data.frame(query = taxon, accepted_name = acc_name, rank = col,
-               name = val, backend = be_name, stringsAsFactors = FALSE)
+    data.frame(input_name = taxon, accepted_name = acc_name, rank = col,
+               name = val, backbone = bb_name, stringsAsFactors = FALSE)
   })
   out <- do.call(rbind, lineage)
   if (is.null(out) || nrow(out) == 0L) return(empty)

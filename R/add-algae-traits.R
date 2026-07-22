@@ -36,7 +36,7 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Fucus vesiculosus", backend = "gbif") |>
+#' taxify("Fucus vesiculosus", backbone = "gbif") |>
 #'   add_algae_traits()
 #'
 #' options(old)

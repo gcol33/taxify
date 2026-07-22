@@ -47,7 +47,7 @@ is typical.
 \examples{
 \dontrun{
 # Builds the enrichment on first use (requires taxifydb).
-taxify("Zea mays", backend = "gbif") |>
+taxify("Zea mays", backbone = "gbif") |>
   add_ccdb()
 }
 

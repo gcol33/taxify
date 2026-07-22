@@ -29,7 +29,7 @@ idx_random    <- sample(nrow(truth), min(500, nrow(truth)))
 all_idx <- sort(unique(c(idx_synonym, idx_hybrid, idx_infraspec, idx_exact, idx_random)))
 subset <- truth[all_idx, ]
 
-res <- taxify(subset$EVA_TAXON, backend = "wfo", fuzzy = TRUE, verbose = FALSE)
+res <- taxify(subset$EVA_TAXON, backbone = "wfo", fuzzy = TRUE, verbose = FALSE)
 
 comp <- data.frame(
   eva = subset$EVA_TAXON,

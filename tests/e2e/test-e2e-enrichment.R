@@ -34,7 +34,7 @@ congeners <- c(
 )
 
 enrich <- function(x) {
-  taxify(x, backend = "wfo", verbose = FALSE) |>
+  taxify(x, backbone = "wfo", verbose = FALSE) |>
     add_iucn() |>
     add_common_names(lang = "en") |>
     add_zanne()

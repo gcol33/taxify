@@ -39,7 +39,7 @@ Coverage: ~14.9k bacterial and archaeal species.
 }
 \examples{
 \dontrun{
-taxify("Escherichia coli", backend = "gbif") |>
+taxify("Escherichia coli", backbone = "gbif") |>
   add_madin()
 }
 

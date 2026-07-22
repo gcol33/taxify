@@ -146,11 +146,11 @@ label that confirms it. *Panthera leo* now matches in GBIF, so it is no longer
 a candidate typo, but it remains a kingdom-group outlier in a plant list.
 
 If you have already matched the list, inspect the result instead of asking
-`inspect()` to match again. This reuses the exact backend, region, and options
+`inspect()` to match again. This reuses the exact backbone, region, and options
 of your original call.
 
 ```{r}
-taxify(names, backend = c("wfo", "gbif")) |>
+taxify(names, backbone = c("wfo", "gbif")) |>
   inspect()
 ```
 
@@ -236,7 +236,7 @@ the genus register installed. Without it they are skipped, with a message at
 
 Printing is a convenience. The object underneath is an ordinary data.frame
 with columns `input_name`, `suggestion`, `anomalies`, `tier`, `reason`,
-`fuzzy_dist`, and `backend`, so the report drops straight into a cleaning
+`fuzzy_dist`, and `backbone`, so the report drops straight into a cleaning
 script.
 
 ```{r}

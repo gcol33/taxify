@@ -94,10 +94,10 @@ add_data <- function(x, data,
   }
 
   meta <- attr(x, "taxify_meta")
-  if (is.null(meta) || is.null(meta$backend)) {
+  if (is.null(meta) || is.null(meta$backbone)) {
     stop("x has no taxify_meta -- was it created by taxify()?", call. = FALSE)
   }
-  backend <- meta$backend
+  backbone <- meta$backbone
 
   # ---- Read data ----
   if (is.character(data) && length(data) == 1L) {
@@ -122,7 +122,7 @@ add_data <- function(x, data,
       }
       # Auto-detect sheet and start_row when not specified
       if (is.null(sheet) || is.null(start_row)) {
-        detected <- detect_xlsx_layout(data, backend, sheet = sheet,
+        detected <- detect_xlsx_layout(data, backbone, sheet = sheet,
                                        start_row = start_row,
                                        species_col = species_col,
                                        verbose = verbose)
@@ -158,7 +158,7 @@ add_data <- function(x, data,
 
   # ---- Detect species column ----
   if (is.null(species_col)) {
-    species_col <- detect_species_col(data, backend, verbose = verbose)
+    species_col <- detect_species_col(data, backbone, verbose = verbose)
   } else {
     if (!species_col %in% names(data)) {
       stop(sprintf("species_col '%s' not found in data. Available: %s",
@@ -188,10 +188,10 @@ add_data <- function(x, data,
   if (verbose) {
     message(sprintf("Matching %d names from '%s' through %s backbone...",
                     length(species_names), species_col,
-                    paste(toupper(backend), collapse = " + ")))
+                    paste(toupper(backbone), collapse = " + ")))
   }
 
-  data_matched <- taxify(species_names, backend = backend,
+  data_matched <- taxify(species_names, backbone = backbone,
                          fuzzy = fuzzy, fuzzy_threshold = fuzzy_threshold,
                          verbose = verbose)
 
@@ -452,11 +452,11 @@ identical_row <- function(a, b) {
 #' Returns the column with the highest match rate.
 #'
 #' @param data A data.frame.
-#' @param backend Character vector of backend names.
+#' @param backbone Character vector of backbone names.
 #' @param verbose Logical.
 #' @return Column name (character scalar).
 #' @noRd
-detect_species_col <- function(data, backend, verbose = TRUE) {
+detect_species_col <- function(data, backbone, verbose = TRUE) {
   char_cols <- names(data)[vapply(data, is.character, logical(1L))]
 
   if (length(char_cols) == 0L) {
@@ -479,7 +479,7 @@ detect_species_col <- function(data, backend, verbose = TRUE) {
     if (length(probe_names) == 0L) next
 
     probe_result <- tryCatch(
-      taxify(probe_names, backend = backend, verbose = FALSE),
+      taxify(probe_names, backbone = backbone, verbose = FALSE),
       error = function(e) NULL
     )
     if (is.null(probe_result)) next
@@ -521,14 +521,14 @@ detect_species_col <- function(data, backend, verbose = TRUE) {
 #' start_row, and species_col.
 #'
 #' @param path Character. Path to the `.xlsx` file.
-#' @param backend Character vector of backend names.
+#' @param backbone Character vector of backbone names.
 #' @param sheet Integer/character or NULL. If set, only that sheet is tested.
 #' @param start_row Integer or NULL. If set, only that row is tested.
 #' @param species_col Character or NULL. If set, only that column is probed.
 #' @param verbose Logical.
 #' @return A list with `sheet`, `start_row`, and `species_col`.
 #' @noRd
-detect_xlsx_layout <- function(path, backend, sheet = NULL, start_row = NULL,
+detect_xlsx_layout <- function(path, backbone, sheet = NULL, start_row = NULL,
                                species_col = NULL, verbose = TRUE) {
   wb <- openxlsx2::wb_load(path)
   sheet_names <- wb$sheet_names
@@ -572,7 +572,7 @@ detect_xlsx_layout <- function(path, backend, sheet = NULL, start_row = NULL,
         if (length(probe) < 2L) next
 
         result <- tryCatch(
-          taxify(probe, backend = backend, verbose = FALSE),
+          taxify(probe, backbone = backbone, verbose = FALSE),
           error = function(e) NULL
         )
         if (is.null(result)) next

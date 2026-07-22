@@ -24,7 +24,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Baetis rhodani", backend = "gbif") |>
+#' taxify("Baetis rhodani", backbone = "gbif") |>
 #'   add_disperse()
 #' }
 #'

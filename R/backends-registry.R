@@ -1,8 +1,8 @@
 # ---- Backend construction from the canonical registry ----
 #
 # taxifydb normalizes every backbone to one Darwin Core schema at build time, so
-# every backend matches against the same columns and builds through the same
-# delegation. The per-backend object therefore differs only in its name, class,
+# every backbone matches against the same columns and builds through the same
+# delegation. The per-backbone handle therefore differs only in its name, class,
 # static version default, and whether the prefix-blocked fuzzy pass runs -- all
 # of which come from a row of .backbone_registry() (R/backbones.R). One factory
 # builds the object from that row; the thin named wrappers below are the entry
@@ -34,7 +34,7 @@
 )
 
 
-#' Construct a backend object from its registry row
+#' Construct a backend handle from its backbone's registry row
 #'
 #' @param name Backbone name (a row of [.backbone_registry()]).
 #' @return A taxify_backend object of class `c("taxify_<name>", "taxify_backend")`.
@@ -44,7 +44,7 @@ make_backend <- function(name) {
   i <- match(name, reg$name)
   if (is.na(i)) {
     stop(sprintf(
-      "Unknown backend '%s'. Available: %s",
+      "Unknown backbone '%s'. Available: %s",
       name, paste(reg$name, collapse = ", ")), call. = FALSE)
   }
   be <- new_backend(
@@ -58,7 +58,7 @@ make_backend <- function(name) {
 }
 
 
-# Thin per-backend constructors: the named entry points other modules and tests
+# Thin per-backbone constructors: the named entry points other modules and tests
 # call. Each fixes its registry name; make_backend() supplies the object.
 wfo_backend         <- function() make_backend("wfo")
 col_backend         <- function() make_backend("col")
@@ -77,9 +77,9 @@ lcvp_backend        <- function() make_backend("lcvp")
 wcvp_backend        <- function() make_backend("wcvp")
 
 
-# Default build method for every backend: delegates to taxifydb::build_<name>(),
+# Default build method for every backbone: delegates to taxifydb::build_<name>(),
 # mirroring the single-default-method shape of taxify_load.taxify_backend(). The
-# slug is always the backend name, so one method covers all backbones.
+# slug is always the backbone name, so one method covers all backbones.
 #' @exportS3Method
 taxify_build.taxify_backend <- function(backend, dest = NULL,
                                         verbose = TRUE, ...) {

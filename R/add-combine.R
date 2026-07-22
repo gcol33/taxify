@@ -51,7 +51,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Vulpes vulpes", backend = "gbif") |>
+#' taxify("Vulpes vulpes", backbone = "gbif") |>
 #'   add_combine_reported()
 #' }
 #'
@@ -108,7 +108,7 @@ add_combine_reported <- function(x, cols = NULL, verbose = TRUE) {
 #' @examples
 #' \dontrun{
 #' # Compare reported vs imputed gestation length for a mammal:
-#' taxify("Vulpes vulpes", backend = "gbif") |>
+#' taxify("Vulpes vulpes", backbone = "gbif") |>
 #'   add_combine_reported() |>
 #'   add_combine_imputed()
 #' }
@@ -160,7 +160,7 @@ add_combine_imputed <- function(x, cols = NULL, verbose = TRUE) {
 #' @examples
 #' \dontrun{
 #' # Coverage-filled values with per-trait provenance:
-#' res <- taxify("Osphranter rufus", backend = "col") |>
+#' res <- taxify("Osphranter rufus", backbone = "col") |>
 #'   add_combine()
 #' res[, c("combine_gestation_length_d", "combine_gestation_length_d_src")]
 #' }

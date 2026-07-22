@@ -45,7 +45,7 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Parus major", backend = "gbif") |>
+#' taxify("Parus major", backbone = "gbif") |>
 #'   add_elton_traits()
 #'
 #' options(old)

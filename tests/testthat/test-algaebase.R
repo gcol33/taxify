@@ -1,4 +1,4 @@
-# ---- AlgaeBase backend tests ----
+# ---- AlgaeBase vtr_path tests ----
 
 # -- Backend construction --
 
@@ -14,10 +14,10 @@ test_that("algaebase_backend creates correct object", {
 
 test_that("AlgaeBase exact matching finds known species", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
   names_df <- clean_names("Chlorella vulgaris")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Chlorella vulgaris")
   expect_equal(result$match_type[1L], "exact")
   expect_equal(result$taxon_id[1L], "200001")
@@ -29,11 +29,11 @@ test_that("AlgaeBase exact matching finds known species", {
 
 test_that("AlgaeBase exact matching handles multiple inputs", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
   names_df <- clean_names(c("Chlorella vulgaris", "Ulva lactuca",
                             "Fucus vesiculosus"))
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(nrow(result), 3L)
   expect_equal(result$matched_name,
                c("Chlorella vulgaris", "Ulva lactuca", "Fucus vesiculosus"))
@@ -42,30 +42,30 @@ test_that("AlgaeBase exact matching handles multiple inputs", {
 
 test_that("AlgaeBase case-insensitive matching works", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
   names_df <- clean_names("chlorella vulgaris")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Chlorella vulgaris")
   expect_equal(result$match_type[1L], "exact_ci")
 })
 
 test_that("AlgaeBase unmatched names have NA match_type", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
   names_df <- clean_names("Nonexistus imaginus")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_true(is.na(result$match_type[1L]))
   expect_true(is.na(result$matched_name[1L]))
 })
 
 test_that("AlgaeBase exact matching finds synonyms and resolves accepted info", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
   names_df <- clean_names("Ulva latissima")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Ulva latissima")
   expect_true(result$is_synonym[1L])
   expect_equal(result$accepted_name[1L], "Ulva lactuca")
@@ -74,10 +74,10 @@ test_that("AlgaeBase exact matching finds synonyms and resolves accepted info", 
 
 test_that("AlgaeBase synonym with old name resolves correctly", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
   names_df <- clean_names("Fucus inflatus")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Fucus inflatus")
   expect_true(result$is_synonym[1L])
   expect_equal(result$accepted_name[1L], "Fucus vesiculosus")
@@ -89,13 +89,13 @@ test_that("AlgaeBase synonym with old name resolves correctly", {
 
 test_that("AlgaeBase fuzzy matching catches typos", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
 
   names_df <- clean_names("Chlorella vulgares")
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_true(is.na(result$match_type[1L]))
 
-  result <- match_fuzzy(be, result, backbone, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
   expect_equal(result$matched_name[1L], "Chlorella vulgaris")
   expect_equal(result$match_type[1L], "fuzzy")
   expect_true(!is.na(result$fuzzy_dist[1L]))
@@ -105,11 +105,11 @@ test_that("AlgaeBase fuzzy matching catches typos", {
 
 test_that("AlgaeBase fuzzy matching respects threshold", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
 
   names_df <- clean_names("Zzzzzz xxxxxx")
-  result <- match_exact(be, names_df, backbone)
-  result <- match_fuzzy(be, result, backbone, method = "dl", threshold = 0.2)
+  result <- match_exact(be, names_df, vtr_path)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
   expect_true(is.na(result$match_type[1L]))
 })
 
@@ -118,10 +118,10 @@ test_that("AlgaeBase fuzzy matching respects threshold", {
 
 test_that("AlgaeBase accepted info is precomputed for synonyms", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
 
   names_df <- clean_names("Ulva latissima")
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
 
   expect_equal(result$accepted_name[1L], "Ulva lactuca")
   expect_equal(result$accepted_id[1L], "200003")
@@ -130,10 +130,10 @@ test_that("AlgaeBase accepted info is precomputed for synonyms", {
 
 test_that("AlgaeBase accepted info is self for accepted names", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
 
   names_df <- clean_names("Chlorella vulgaris")
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
 
   expect_equal(result$accepted_name[1L], "Chlorella vulgaris")
   expect_equal(result$accepted_id[1L], "200001")
@@ -145,10 +145,10 @@ test_that("AlgaeBase accepted info is self for accepted names", {
 
 test_that("AlgaeBase handles NA inputs without crashing", {
   be <- algaebase_backend()
-  backbone <- mock_algaebase_backbone_vtr()
+  vtr_path <- mock_algaebase_backbone_vtr()
   names_df <- clean_names(c("Chlorella vulgaris", NA, ""))
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(nrow(result), 3L)
   expect_equal(result$matched_name[1L], "Chlorella vulgaris")
   expect_true(is.na(result$matched_name[2L]))

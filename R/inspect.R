@@ -69,7 +69,7 @@
 #' @return A `taxify_inspection` data.frame (one row per anomalous name, ordered
 #'   most-notable first) with columns `input_name`, `suggestion` (the name to use
 #'   instead, or `NA`), `anomalies` (`|`-joined labels), `tier` (ordered factor
-#'   `note` < `review` < `unresolved`), `reason`, `fuzzy_dist`, and `backend`.
+#'   `note` < `review` < `unresolved`), `reason`, `fuzzy_dist`, and `backbone`.
 #'   Zero rows means nothing stood out.
 #'
 #' @examples
@@ -113,7 +113,7 @@ inspect <- function(x,
         res <- bare_taxify_result(x)
       } else {
         res <- tryCatch(
-          taxify(x, backend = inst, region = region, coords = coords,
+          taxify(x, backbone = inst, region = region, coords = coords,
                  range = range, verbose = verbose),
           error = function(e) {
             warning("inspect(): backbone matching failed (",
@@ -185,7 +185,7 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
   acc       <- col("accepted_name",     rep(NA_character_, n))
   fd        <- col("fuzzy_dist",        rep(NA_real_, n))
   amb_tgt   <- col("ambiguous_targets", rep(NA_character_, n))
-  backend   <- col("backend",           rep(NA_character_, n))
+  backbone   <- col("backbone",           rep(NA_character_, n))
   syn_raw   <- col("is_synonym",        rep(FALSE, n))
   amb_raw   <- col("is_ambiguous",      rep(FALSE, n))
   input     <- res$input_name
@@ -352,13 +352,13 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
                         ordered = TRUE),
     reason     = reasons_chr[ord],
     fuzzy_dist = fd[ord],
-    backend    = backend[ord],
+    backbone    = backbone[ord],
     stringsAsFactors = FALSE
   )
   rownames(out) <- NULL
 
-  bk <- attr(res, "taxify_meta")$backend
-  if (is.null(bk)) bk <- unique(backend[!is.na(backend)])
+  bk <- attr(res, "taxify_meta")$backbone
+  if (is.null(bk)) bk <- unique(backbone[!is.na(backbone)])
   bk <- bk[!is.na(bk)]
 
   tier_counts <- table(factor(tier_lab[tier_num[keep]], levels = tier_lab))

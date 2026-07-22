@@ -85,14 +85,14 @@
 #' @examples
 #' \dontrun{
 #' # Downloads the GIDIAS enrichment on first use.
-#' taxify("Felis catus", backend = "gbif") |>
+#' taxify("Felis catus", backbone = "gbif") |>
 #'   add_gidias()
 #'
 #' # What the cat does to invertebrates, rather than to anything at all.
-#' taxify("Felis catus", backend = "gbif") |>
+#' taxify("Felis catus", backbone = "gbif") |>
 #'   add_gidias(group = "Invertebrate")
 #'
-#' taxify("Felis catus", backend = "gbif") |>
+#' taxify("Felis catus", backbone = "gbif") |>
 #'   add_gidias(group = c("Invertebrate", "Vertebrate"))
 #' }
 #'

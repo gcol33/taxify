@@ -28,7 +28,7 @@ species <- c(
 
 enrich <- function(x) {
   r <- tryCatch(
-    taxify(x, backend = "wfo", verbose = FALSE) |> add_floraweb(verbose = FALSE),
+    taxify(x, backbone = "wfo", verbose = FALSE) |> add_floraweb(verbose = FALSE),
     error = function(e) {
       cat("  SKIP: floraweb enrichment unavailable (", conditionMessage(e),
           ")\n", sep = "")

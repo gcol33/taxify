@@ -1,23 +1,23 @@
 # Tests for the Reptile Database backbone (reptiledb) and the ReptTraits
 # enrichment (add_repttraits), run offline against the bundled example database.
 
-test_that("reptiledb backend matches accepted reptile names", {
+test_that("reptiledb backbone matches accepted reptile names", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  res <- taxify("Python regius", backend = "reptiledb", verbose = FALSE)
+  res <- taxify("Python regius", backbone = "reptiledb", verbose = FALSE)
 
   expect_equal(res$accepted_name, "Python regius")
   expect_equal(res$match_type, "exact")
   expect_equal(res$family, "Pythonidae")
-  expect_equal(res$backend, "reptiledb")
+  expect_equal(res$backbone, "reptiledb")
 })
 
 test_that("reptiledb resolves a synonym to its accepted name", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  res <- taxify("Amphibolurus vitticeps", backend = "reptiledb", verbose = FALSE)
+  res <- taxify("Amphibolurus vitticeps", backbone = "reptiledb", verbose = FALSE)
 
   expect_equal(res$accepted_name, "Pogona vitticeps")
   expect_true(res$is_synonym)
@@ -28,7 +28,7 @@ test_that("reptiledb fuzzy-matches a misspelt reptile name", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  res <- taxify("Python regus", backend = "reptiledb", verbose = FALSE)
+  res <- taxify("Python regus", backbone = "reptiledb", verbose = FALSE)
 
   expect_equal(res$accepted_name, "Python regius")
   expect_equal(res$match_type, "fuzzy")
@@ -45,7 +45,7 @@ test_that("add_repttraits joins the distribution and trait columns", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  enriched <- taxify("Pogona vitticeps", backend = "reptiledb", verbose = FALSE) |>
+  enriched <- taxify("Pogona vitticeps", backbone = "reptiledb", verbose = FALSE) |>
     add_repttraits(verbose = FALSE)
 
   rt_cols <- c(
@@ -64,7 +64,7 @@ test_that("add_repttraits returns NA for reptiles absent from ReptTraits", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  enriched <- taxify("Naja naja", backend = "reptiledb", verbose = FALSE) |>
+  enriched <- taxify("Naja naja", backbone = "reptiledb", verbose = FALSE) |>
     add_repttraits(verbose = FALSE)
 
   expect_true("biogeographic_realm" %in% names(enriched))

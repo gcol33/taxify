@@ -12,7 +12,7 @@ parse_name(x)
 \value{
 A data.frame with one row per input name and columns:
 \describe{
-\item{input}{The original name as supplied.}
+\item{input_name}{The original name as supplied.}
 \item{genus}{The genus (first token), or a single-letter initial for an
 abbreviated genus (\code{"Q. robur"}). \code{NA} for an unresolvable hybrid
 formula.}

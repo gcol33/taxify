@@ -34,7 +34,7 @@ Lepidoptera only; ~24k species with at least one recorded hostplant.
 }
 \examples{
 \dontrun{
-taxify("Papilio machaon", backend = "gbif") |>
+taxify("Papilio machaon", backbone = "gbif") |>
   add_hosts()
 }
 

@@ -37,7 +37,7 @@ values are reduced to species-level medians per metric.
 }
 \examples{
 \dontrun{
-taxify("Salmo trutta", backend = "gbif") |>
+taxify("Salmo trutta", backbone = "gbif") |>
   add_thermofresh()
 }
 

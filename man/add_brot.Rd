@@ -29,7 +29,7 @@ Source: BROT 2.0 (Tavsanoglu & Pausas 2018, Scientific Data, CC-BY 4.0).
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Quercus coccifera", backend = "gbif") |>
+taxify("Quercus coccifera", backbone = "gbif") |>
   add_brot()
 
 options(old)

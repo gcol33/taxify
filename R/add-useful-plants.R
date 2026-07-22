@@ -33,7 +33,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Acorus calamus", backend = "gbif") |>
+#' taxify("Acorus calamus", backbone = "gbif") |>
 #'   add_useful_plants()
 #' }
 #'

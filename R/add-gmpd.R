@@ -43,7 +43,7 @@
 #' @examples
 #' \dontrun{
 #' # Builds the enrichment on first use (needs taxifydb).
-#' taxify("Panthera leo", backend = "gbif") |>
+#' taxify("Panthera leo", backbone = "gbif") |>
 #'   add_gmpd()
 #' }
 #'

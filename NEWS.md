@@ -1,5 +1,49 @@
 # taxify 0.3.21
 
+## Breaking: `backend` is renamed to `backbone` throughout the API (issue #24)
+
+* Two real concepts had one name. A `backbone` is a data source and its `.vtr`
+  file; a `backend` is the `taxify_backend` S3 handle that knows how to read
+  one. The name-string layer conflated them -- `install_backbones(backends =)`
+  and `backbone_path(backend)` collided inside single lines. `backbone` now
+  names the data source and its name string everywhere, `backend` names the S3
+  handle only, and `resolve_backend()` is the single crossing point between
+  them.
+
+* **This breaks existing code, with no aliases.** `taxify(backend = "wfo")` is
+  now `taxify(backbone = "wfo")`, and the same for `synonyms()`, `children()`,
+  `upstream()`, `downstream()`, `id2name()`, `reconcile()`, `comm2sci()`,
+  `sci2comm()`, `class2tree()`, `lowest_common()` and `taxify_download()`.
+  `install_backbones(backends =)` becomes `install_backbones(backbones =)`.
+
+* The `backend` output column is renamed to `backbone` in `taxify()`,
+  `taxify_long()`, `reconcile()`, `inspect()` and `taxify_register_coverage()`.
+  A lockfile's `backends` key becomes `backbones`, so a lockfile written before
+  this release no longer loads.
+
+* Three other conflations went with it. `comm2sci()` and `sci2comm()` returned
+  the accepted name as `scientific_name`; it is `accepted_name`, the name every
+  other verb uses. Their `query` column and `parse_name()`'s `input` and
+  `upstream()`'s `query` are all the caller's input string, so they are all
+  `input_name` now. `register_enrichment()`'s `source` argument is the
+  human-readable description, which `enrich_simple()` already called
+  `source_label`; the key is `name`.
+
+* `bb_path` and `vtr_path` named the same value; it is `vtr_path` everywhere.
+
+* Not renamed: the `backends` key inside `inst/manifest.json`, and the
+  `backend` column inside the published `backend_coverage.vtr`. Both are
+  serialized schemas that `taxifydb` writes and taxify only reads, so renaming
+  them is a coordinated release rather than a rename. The runtime translates at
+  the boundary, and `taxify_register_coverage()` reports `backbone`.
+
+## An example fixture was keyed at the wrong level
+
+* `add_fungal_traits()` joins on `genus`, but the bundled example database
+  shipped a `fungal_traits.vtr` keyed on `canonical_name` with no `genus`
+  column, so its own documented example errored. The fixture is rebuilt from
+  the released asset at genus grain.
+
 ## The performance and size figures are measured, and generated from the manifest (issue #19)
 
 * The README's headline "1,862x faster than WorldFlora" had nothing in the

@@ -159,7 +159,7 @@ mock_gbif_backbone_df <- function() {
   # Backbone Taxonomy keeps Macropus rufus / Macropus parma as the ACCEPTED
   # names and lists Osphranter rufus / Notamacropus parma as SYNONYMS of them;
   # Catalogue of Life does the reverse. Keys are the live GBIF backbone keys, so
-  # these lock in that the backend follows GBIF's own accepted taxon.
+  # these lock in that the backbone follows GBIF's own accepted taxon.
   roos <- data.frame(
     taxon_id               = c("5219963", "5219984", "12019022", "11981515"),
     canonical_name         = c("Macropus rufus", "Macropus parma",

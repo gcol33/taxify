@@ -38,7 +38,7 @@ taxonomic groups (~166k species).
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Panthera tigris", backend = "gbif") |>
+taxify("Panthera tigris", backbone = "gbif") |>
   add_iucn()
 
 options(old)

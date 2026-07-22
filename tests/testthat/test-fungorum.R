@@ -1,4 +1,4 @@
-# ---- Species Fungorum Plus backend tests ----
+# ---- Species Fungorum Plus vtr_path tests ----
 
 # -- Backend construction --
 
@@ -14,10 +14,10 @@ test_that("fungorum_backend creates correct object", {
 
 test_that("Fungorum exact matching finds known species", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
   names_df <- clean_names("Amanita muscaria")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Amanita muscaria")
   expect_equal(result$match_type[1L], "exact")
   expect_equal(result$taxon_id[1L], "100001")
@@ -29,11 +29,11 @@ test_that("Fungorum exact matching finds known species", {
 
 test_that("Fungorum exact matching handles multiple inputs", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
   names_df <- clean_names(c("Amanita muscaria", "Boletus edulis",
                             "Cantharellus cibarius"))
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(nrow(result), 3L)
   expect_equal(result$matched_name,
                c("Amanita muscaria", "Boletus edulis", "Cantharellus cibarius"))
@@ -42,30 +42,30 @@ test_that("Fungorum exact matching handles multiple inputs", {
 
 test_that("Fungorum case-insensitive matching works", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
   names_df <- clean_names("amanita muscaria")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Amanita muscaria")
   expect_equal(result$match_type[1L], "exact_ci")
 })
 
 test_that("Fungorum unmatched names have NA match_type", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
   names_df <- clean_names("Nonexistus imaginus")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_true(is.na(result$match_type[1L]))
   expect_true(is.na(result$matched_name[1L]))
 })
 
 test_that("Fungorum exact matching finds synonyms and resolves accepted info", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
   names_df <- clean_names("Boletus bulbosus")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Boletus bulbosus")
   expect_true(result$is_synonym[1L])
   expect_equal(result$accepted_name[1L], "Boletus edulis")
@@ -74,10 +74,10 @@ test_that("Fungorum exact matching finds synonyms and resolves accepted info", {
 
 test_that("Fungorum synonym with old name resolves correctly", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
   names_df <- clean_names("Cantharellus pallens")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Cantharellus pallens")
   expect_true(result$is_synonym[1L])
   expect_equal(result$accepted_name[1L], "Cantharellus cibarius")
@@ -89,13 +89,13 @@ test_that("Fungorum synonym with old name resolves correctly", {
 
 test_that("Fungorum fuzzy matching catches typos", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
 
   names_df <- clean_names("Amanita muscarai")
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_true(is.na(result$match_type[1L]))
 
-  result <- match_fuzzy(be, result, backbone, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
   expect_equal(result$matched_name[1L], "Amanita muscaria")
   expect_equal(result$match_type[1L], "fuzzy")
   expect_true(!is.na(result$fuzzy_dist[1L]))
@@ -105,11 +105,11 @@ test_that("Fungorum fuzzy matching catches typos", {
 
 test_that("Fungorum fuzzy matching respects threshold", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
 
   names_df <- clean_names("Zzzzzz xxxxxx")
-  result <- match_exact(be, names_df, backbone)
-  result <- match_fuzzy(be, result, backbone, method = "dl", threshold = 0.2)
+  result <- match_exact(be, names_df, vtr_path)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
   expect_true(is.na(result$match_type[1L]))
 })
 
@@ -118,10 +118,10 @@ test_that("Fungorum fuzzy matching respects threshold", {
 
 test_that("Fungorum accepted info is precomputed for synonyms", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
 
   names_df <- clean_names("Boletus bulbosus")
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
 
   expect_equal(result$accepted_name[1L], "Boletus edulis")
   expect_equal(result$accepted_id[1L], "100003")
@@ -130,10 +130,10 @@ test_that("Fungorum accepted info is precomputed for synonyms", {
 
 test_that("Fungorum accepted info is self for accepted names", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
 
   names_df <- clean_names("Amanita muscaria")
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
 
   expect_equal(result$accepted_name[1L], "Amanita muscaria")
   expect_equal(result$accepted_id[1L], "100001")
@@ -145,10 +145,10 @@ test_that("Fungorum accepted info is self for accepted names", {
 
 test_that("Fungorum handles NA inputs without crashing", {
   be <- fungorum_backend()
-  backbone <- mock_fungorum_backbone_vtr()
+  vtr_path <- mock_fungorum_backbone_vtr()
   names_df <- clean_names(c("Amanita muscaria", NA, ""))
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(nrow(result), 3L)
   expect_equal(result$matched_name[1L], "Amanita muscaria")
   expect_true(is.na(result$matched_name[2L]))

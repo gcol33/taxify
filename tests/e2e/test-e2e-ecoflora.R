@@ -27,7 +27,7 @@ species <- c(
 
 enrich <- function(x) {
   r <- tryCatch(
-    taxify(x, backend = "wfo", verbose = FALSE) |> add_ecoflora(verbose = FALSE),
+    taxify(x, backbone = "wfo", verbose = FALSE) |> add_ecoflora(verbose = FALSE),
     error = function(e) {
       cat("  SKIP: ecoflora enrichment unavailable (", conditionMessage(e),
           ")\n", sep = "")

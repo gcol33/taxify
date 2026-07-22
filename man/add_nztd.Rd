@@ -28,7 +28,7 @@ Source: NZTD (Lam-Gordillo et al. 2023, figshare, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Macomona liliana", backend = "gbif") |>
+taxify("Macomona liliana", backbone = "gbif") |>
   add_nztd()
 }
 

@@ -1,8 +1,8 @@
 # Tests for use_local_manifest() and clear_local_manifest()
 
-# Helper: create a minimal fake versioned backend on disk
-make_fake_backend <- function(base_dir, be_name, vtr_file, version) {
-  be_dir <- file.path(base_dir, be_name, "latest")
+# Helper: create a minimal fake versioned backbone on disk
+make_fake_backend <- function(base_dir, bb_name, vtr_file, version) {
+  be_dir <- file.path(base_dir, bb_name, "latest")
   dir.create(be_dir, recursive = TRUE, showWarnings = FALSE)
   vtr_path <- file.path(be_dir, vtr_file)
   writeLines("placeholder", vtr_path)
@@ -14,7 +14,7 @@ make_fake_backend <- function(base_dir, be_name, vtr_file, version) {
 }
 
 
-test_that("use_local_manifest() finds no backends when data_dir is empty", {
+test_that("use_local_manifest() finds no backbones when data_dir is empty", {
   tmp_dir <- tempfile("taxify_test_")
   dir.create(tmp_dir, recursive = TRUE)
   on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
@@ -29,10 +29,10 @@ test_that("use_local_manifest() finds no backends when data_dir is empty", {
     taxify_data_dir = function() tmp_dir,
     {
       msg <- capture.output(use_local_manifest(), type = "message")
-      # Should report "no backends installed" or similar
-      expect_true(any(grepl("not installed|no backends|Local manifest",
+      # Should report "no backbones installed" or similar
+      expect_true(any(grepl("not installed|no backbones|Local manifest",
                             msg, ignore.case = TRUE)))
-      # Manifest should be set but empty (no backends)
+      # Manifest should be set but empty (no backbones)
       expect_true(!is.null(.taxify_env$manifest))
       expect_equal(length(.taxify_env$manifest), 0L)
     }
@@ -40,12 +40,12 @@ test_that("use_local_manifest() finds no backends when data_dir is empty", {
 })
 
 
-test_that("use_local_manifest() finds installed backends and builds file:// URLs", {
+test_that("use_local_manifest() finds installed backbones and builds file:// URLs", {
   tmp_dir <- tempfile("taxify_test_")
   dir.create(tmp_dir, recursive = TRUE)
   on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
 
-  # Create fake wfo and col backends, skip gbif and register
+  # Create fake wfo and col backbones, skip gbif and register
   make_fake_backend(tmp_dir, "wfo", "wfo.vtr", "2024.12")
   make_fake_backend(tmp_dir, "col", "col.vtr", "2024.11")
 

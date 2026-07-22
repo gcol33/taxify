@@ -43,7 +43,7 @@ The build-from-source fallback requires the \pkg{rfishbase} package
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Octopus vulgaris", backend = "gbif") |>
+taxify("Octopus vulgaris", backbone = "gbif") |>
   add_sealifebase()
 
 options(old)

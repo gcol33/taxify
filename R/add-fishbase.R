@@ -34,7 +34,7 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Gadus morhua", backend = "gbif") |>
+#' taxify("Gadus morhua", backbone = "gbif") |>
 #'   add_fishbase()
 #'
 #' options(old)

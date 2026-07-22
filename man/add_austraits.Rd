@@ -47,7 +47,7 @@ Coverage: ~33k Australian plant taxa.
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Eucalyptus globulus", backend = "gbif") |>
+taxify("Eucalyptus globulus", backbone = "gbif") |>
   add_austraits()
 
 options(old)

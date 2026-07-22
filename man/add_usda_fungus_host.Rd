@@ -36,7 +36,7 @@ Fungi only; ~99k species with at least one recorded host.
 }
 \examples{
 \dontrun{
-taxify("Puccinia graminis", backend = "gbif") |>
+taxify("Puccinia graminis", backbone = "gbif") |>
   add_usda_fungus_host()
 }
 

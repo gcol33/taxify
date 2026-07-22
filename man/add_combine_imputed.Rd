@@ -43,7 +43,7 @@ fills gaps, applying both doors and comparing \verb{combine_*} with
 \examples{
 \dontrun{
 # Compare reported vs imputed gestation length for a mammal:
-taxify("Vulpes vulpes", backend = "gbif") |>
+taxify("Vulpes vulpes", backbone = "gbif") |>
   add_combine_reported() |>
   add_combine_imputed()
 }

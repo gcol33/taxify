@@ -29,7 +29,7 @@ of Vienna PHAIDRA, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Astarte borealis", backend = "gbif") |>
+taxify("Astarte borealis", backbone = "gbif") |>
   add_arctic_traits()
 }
 

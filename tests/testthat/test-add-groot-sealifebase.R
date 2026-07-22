@@ -33,7 +33,7 @@ test_that("add_sealifebase joins aquatic traits by accepted name", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  enriched <- taxify("Octopus vulgaris", backend = "gbif", verbose = FALSE) |>
+  enriched <- taxify("Octopus vulgaris", backbone = "gbif", verbose = FALSE) |>
     add_sealifebase(verbose = FALSE)
 
   sb_cols <- c(
@@ -49,7 +49,7 @@ test_that("add_sealifebase returns NA for species absent from SeaLifeBase", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  enriched <- taxify("Gadus morhua", backend = "gbif", verbose = FALSE) |>
+  enriched <- taxify("Gadus morhua", backbone = "gbif", verbose = FALSE) |>
     add_sealifebase(verbose = FALSE)
 
   expect_true("sb_habitat" %in% names(enriched))

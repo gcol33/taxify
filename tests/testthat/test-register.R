@@ -63,11 +63,11 @@ test_that("lookup_genus() errors on non-scalar input", {
 
 test_that("taxify() sets match_type = 'out_of_scope' and life_form for genus-in-register", {
   # Set up mock WFO backbone (Quercus and Pinus are plants, Boletus is not in WFO)
-  bb_path <- mock_backbone_vtr()
+  vtr_path <- mock_backbone_vtr()
   be <- wfo_backend()
 
   # Inject mock backbone path into cache
-  set_backbone_path("wfo", bb_path)
+  set_backbone_path("wfo", vtr_path)
   on.exit({
     set_backbone_path("wfo", NULL)
     .taxify_env$register <- NULL
@@ -90,7 +90,7 @@ test_that("taxify() sets match_type = 'out_of_scope' and life_form for genus-in-
   # Coverage: WFO covers the plant genera but not Boletus, so Boletus is
   # out_of_scope. Mock the coverage file so the test does not depend on a real
   # coverage .vtr being present in the user data dir.
-  cov_path <- mock_coverage_vtr(genus = c("Quercus", "Pinus"), backend = "wfo")
+  cov_path <- mock_coverage_vtr(genus = c("Quercus", "Pinus"), backbone = "wfo")
   clear_coverage_cache()
   on.exit(clear_coverage_cache(), add = TRUE)
 
@@ -98,7 +98,7 @@ test_that("taxify() sets match_type = 'out_of_scope' and life_form for genus-in-
     ensure_coverage = function(verbose = TRUE) cov_path,
     taxify(
       c("Quercus robur", "Boletus edulis", "Xxxx yyyyy"),
-      backend = "wfo",
+      backbone = "wfo",
       fuzzy = FALSE,
       verbose = FALSE
     )
@@ -121,8 +121,8 @@ test_that("taxify() sets match_type = 'out_of_scope' and life_form for genus-in-
 
 
 test_that("taxify() does not enrich when register is unavailable", {
-  bb_path <- mock_backbone_vtr()
-  set_backbone_path("wfo", bb_path)
+  vtr_path <- mock_backbone_vtr()
+  set_backbone_path("wfo", vtr_path)
   on.exit({
     set_backbone_path("wfo", NULL)
     .taxify_env$register <- NULL  # restore to allow real register on next load
@@ -133,7 +133,7 @@ test_that("taxify() does not enrich when register is unavailable", {
 
   result <- taxify(
     c("Quercus robur", "Boletus edulis"),
-    backend = "wfo",
+    backbone = "wfo",
     fuzzy = FALSE,
     verbose = FALSE
   )
@@ -144,8 +144,8 @@ test_that("taxify() does not enrich when register is unavailable", {
 
 
 test_that("out_of_scope enrichment does not affect matched names", {
-  bb_path <- mock_backbone_vtr()
-  set_backbone_path("wfo", bb_path)
+  vtr_path <- mock_backbone_vtr()
+  set_backbone_path("wfo", vtr_path)
   on.exit({
     set_backbone_path("wfo", NULL)
     .taxify_env$register <- NULL
@@ -166,7 +166,7 @@ test_that("out_of_scope enrichment does not affect matched names", {
 
   result <- taxify(
     c("Quercus robur", "Pinus sylvestris"),
-    backend = "wfo",
+    backbone = "wfo",
     fuzzy = FALSE,
     verbose = FALSE
   )
@@ -191,8 +191,8 @@ test_that("taxify() returns a data.frame when the register exists but coverage d
   # NULL there turned `result` into a list via `$<-` and crashed as_taxify_result()
   # with "incorrect number of dimensions" on every machine without a cached
   # coverage file.
-  bb_path <- mock_backbone_vtr()
-  set_backbone_path("wfo", bb_path)
+  vtr_path <- mock_backbone_vtr()
+  set_backbone_path("wfo", vtr_path)
   on.exit({
     set_backbone_path("wfo", NULL)
     .taxify_env$register <- NULL
@@ -207,7 +207,7 @@ test_that("taxify() returns a data.frame when the register exists but coverage d
 
   result <- with_mocked_bindings(
     ensure_coverage = function(verbose = TRUE) NULL,
-    taxify(c("Quercus robur", "Pinus sylvestris"), backend = "wfo",
+    taxify(c("Quercus robur", "Pinus sylvestris"), backbone = "wfo",
            fuzzy = FALSE, verbose = FALSE)
   )
 

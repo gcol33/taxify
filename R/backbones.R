@@ -12,7 +12,7 @@
 #'
 #' The single source of truth for the supported-backbone set. Alongside the
 #' display fields (`scope`, `source`) it carries the construction fields the
-#' backend factory reads: `label` (human name used in build/shim messages),
+#' backbone factory reads: `label` (human name used in build/shim messages),
 #' `version` (the static default the runtime falls back to when neither a
 #' downloaded meta.json nor the manifest supplies one), and `prefix_fallback`
 #' (whether the prefix-blocked fuzzy pass runs for this backbone).
@@ -91,9 +91,9 @@ backbone_label <- function(name) {
 }
 
 
-# ---- Default-backend resolution (all installed, priority-ordered) ----
+# ---- Default-backbone resolution (all installed, priority-ordered) ----
 #
-# taxify(backend = NULL) matches against every installed backbone as a
+# taxify(backbone = NULL) matches against every installed backbone as a
 # first-match fallback chain: accepted_name comes from the first backbone (in
 # the priority order below) that matched each name. The order is the editorial
 # call behind that pick -- it trusts the most current, authoritative treatment
@@ -183,13 +183,13 @@ default_set_size_note <- function(set) {
 }
 
 
-#' Resolve the default backend when `taxify(backend = NULL)` is called
+#' Resolve the default backbone when `taxify(backbone = NULL)` is called
 #'
 #' Every installed backbone, in priority order. On a fresh setup with none
 #' installed, downloads the default set ([.default_backbone_set()]) first.
 #'
 #' @param verbose Logical.
-#' @return Character vector of backend names in priority order.
+#' @return Character vector of backbone names in priority order.
 #' @noRd
 resolve_default_backend <- function(verbose = TRUE) {
   inst <- installed_backbones()
@@ -221,18 +221,18 @@ resolve_default_backend <- function(verbose = TRUE) {
 #'
 #' The browse and lookup verbs ([synonyms()], [children()], [downstream()],
 #' [upstream()], [id2name()]) read one backbone directly rather than running the
-#' whole fallback chain, so `backend = NULL` resolves to the highest-priority
+#' whole fallback chain, so `backbone = NULL` resolves to the highest-priority
 #' installed backbone -- installing the default set on a fresh machine exactly as
 #' [taxify()] does, never a specific backbone the user did not ask for. A name or
 #' a `taxify_backend` object is returned unchanged.
 #'
-#' @param backend `NULL`, a backend name, or a `taxify_backend` object.
+#' @param backbone `NULL`, a backbone name, or a `taxify_backend` object.
 #' @param verbose Logical.
-#' @return A single backend name, or the `taxify_backend` object passed in.
+#' @return A single backbone name, or the `taxify_backend` object passed in.
 #' @noRd
-resolve_single_backend <- function(backend, verbose = TRUE) {
-  if (is.null(backend)) return(resolve_default_backend(verbose = verbose)[[1L]])
-  backend
+resolve_single_backend <- function(backbone, verbose = TRUE) {
+  if (is.null(backbone)) return(resolve_default_backend(verbose = verbose)[[1L]])
+  backbone
 }
 
 
@@ -245,7 +245,7 @@ resolve_single_backend <- function(backend, verbose = TRUE) {
 #' the default, or refresh to the latest release. Already-current backbones are
 #' skipped.
 #'
-#' @param backends Character vector of backbone names (see [list_backbones()]).
+#' @param backbones Character vector of backbone names (see [list_backbones()]).
 #'   `NULL` (default) installs taxify's first-run set: COL, GBIF, and ITIS.
 #' @param verbose Logical. Default `TRUE`.
 #' @return Invisibly, the backbones now installed (those that downloaded
@@ -257,17 +257,17 @@ resolve_single_backend <- function(backend, verbose = TRUE) {
 #' install_backbones(c("col", "worms"))
 #' }
 #' @export
-install_backbones <- function(backends = NULL, verbose = TRUE) {
-  if (is.null(backends)) backends <- .default_backbone_set()
-  backends <- as.character(backends)
-  unknown  <- setdiff(backends, backbone_names())
+install_backbones <- function(backbones = NULL, verbose = TRUE) {
+  if (is.null(backbones)) backbones <- .default_backbone_set()
+  backbones <- as.character(backbones)
+  unknown  <- setdiff(backbones, backbone_names())
   if (length(unknown)) {
     stop(sprintf("Unknown backbone(s): %s. See list_backbones().",
                  paste(unknown, collapse = ", ")), call. = FALSE)
   }
 
   ok <- character(0)
-  for (nm in order_by_priority(unique(backends))) {
+  for (nm in order_by_priority(unique(backbones))) {
     installed <- tryCatch({
       ensure_backbone(resolve_backend(nm), verbose = verbose)
       TRUE

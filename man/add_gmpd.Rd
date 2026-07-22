@@ -51,7 +51,7 @@ the data. Cite Stephens et al. (2017) when you use it.
 \examples{
 \dontrun{
 # Builds the enrichment on first use (needs taxifydb).
-taxify("Panthera leo", backend = "gbif") |>
+taxify("Panthera leo", backbone = "gbif") |>
   add_gmpd()
 }
 

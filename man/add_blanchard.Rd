@@ -28,7 +28,7 @@ Joins on genus because the database is genus-resolved.
 }
 \examples{
 \dontrun{
-taxify("Camponotus pennsylvanicus", backend = "gbif") |>
+taxify("Camponotus pennsylvanicus", backbone = "gbif") |>
   add_blanchard()
 }
 

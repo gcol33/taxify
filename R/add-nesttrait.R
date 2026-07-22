@@ -21,7 +21,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Turdus merula", backend = "gbif") |>
+#' taxify("Turdus merula", backbone = "gbif") |>
 #'   add_nesttrait()
 #' }
 #'

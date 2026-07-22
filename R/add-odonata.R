@@ -18,7 +18,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Calopteryx splendens", backend = "gbif") |>
+#' taxify("Calopteryx splendens", backbone = "gbif") |>
 #'   add_odonata()
 #' }
 #'

@@ -233,8 +233,8 @@ test_that("install_backbones() short-circuits on backbones already on disk", {
 test_that("install_backbones() deduplicates and returns priority order", {
   calls <- character(0)
   out <- with_mocked_bindings(
-    ensure_backbone = function(backend, version = "latest", verbose = TRUE) {
-      calls <<- c(calls, backend$name)
+    ensure_backbone = function(backbone, version = "latest", verbose = TRUE) {
+      calls <<- c(calls, backbone$name)
       "mock.vtr"
     },
     install_backbones(c("ott", "col", "ott", "ncbi"), verbose = FALSE)
@@ -246,8 +246,8 @@ test_that("install_backbones() deduplicates and returns priority order", {
 test_that("install_backbones(NULL) installs the first-run set COL, GBIF, ITIS", {
   calls <- character(0)
   out <- with_mocked_bindings(
-    ensure_backbone = function(backend, version = "latest", verbose = TRUE) {
-      calls <<- c(calls, backend$name)
+    ensure_backbone = function(backbone, version = "latest", verbose = TRUE) {
+      calls <<- c(calls, backbone$name)
       "mock.vtr"
     },
     install_backbones(verbose = FALSE)
@@ -262,8 +262,8 @@ test_that("install_backbones() follows the taxify.default_backbones option", {
 
   calls <- character(0)
   with_mocked_bindings(
-    ensure_backbone = function(backend, version = "latest", verbose = TRUE) {
-      calls <<- c(calls, backend$name)
+    ensure_backbone = function(backbone, version = "latest", verbose = TRUE) {
+      calls <<- c(calls, backbone$name)
       "mock.vtr"
     },
     install_backbones(verbose = FALSE)
@@ -275,8 +275,8 @@ test_that("install_backbones() warns on a failed backbone and drops it from the 
   out <- NULL
   expect_warning(
     out <- with_mocked_bindings(
-      ensure_backbone = function(backend, version = "latest", verbose = TRUE) {
-        if (backend$name == "ncbi") stop("no route to host")
+      ensure_backbone = function(backbone, version = "latest", verbose = TRUE) {
+        if (backbone$name == "ncbi") stop("no route to host")
         "mock.vtr"
       },
       install_backbones(c("col", "ncbi"), verbose = FALSE)
@@ -290,7 +290,7 @@ test_that("install_backbones() rejects unknown names before touching the network
   called <- FALSE
   expect_error(
     with_mocked_bindings(
-      ensure_backbone = function(backend, version = "latest", verbose = TRUE) {
+      ensure_backbone = function(backbone, version = "latest", verbose = TRUE) {
         called <<- TRUE
         "mock.vtr"
       },

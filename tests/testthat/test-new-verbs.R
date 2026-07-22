@@ -24,9 +24,9 @@ test_that("comm2sci() resolves a common name to its scientific name", {
 
   r <- comm2sci("example_common_name", verbose = FALSE)
   expect_s3_class(r, "data.frame")
-  expect_true("Quercus robur" %in% r$scientific_name)
+  expect_true("Quercus robur" %in% r$accepted_name)
   expect_setequal(names(r),
-                  c("query", "common_name", "scientific_name", "lang"))
+                  c("input_name", "common_name", "accepted_name", "lang"))
   # Both language rows (en + de) are present with no lang filter.
   expect_setequal(r$lang, c("en", "de"))
 })
@@ -49,7 +49,7 @@ test_that("comm2sci() is case-insensitive and empty on no match", {
   skip_if_not(enrichment_ready("common_names"), "common_names example missing")
 
   a <- comm2sci("EXAMPLE_COMMON_NAME", verbose = FALSE)
-  expect_true("Quercus robur" %in% a$scientific_name)
+  expect_true("Quercus robur" %in% a$accepted_name)
   expect_equal(nrow(comm2sci("no such creature", verbose = FALSE)), 0L)
 })
 
@@ -60,7 +60,7 @@ test_that("comm2sci(resolve = TRUE) returns an enrichable taxify_result", {
   skip_if_not(enrichment_ready("common_names"), "common_names example missing")
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  r <- comm2sci("example_common_name", resolve = TRUE, backend = "wfo",
+  r <- comm2sci("example_common_name", resolve = TRUE, backbone = "wfo",
                 verbose = FALSE)
   expect_s3_class(r, "taxify_result")
   expect_true("query_common" %in% names(r))
@@ -79,16 +79,16 @@ test_that("id2name() resolves a backbone ID to its name and classification", {
 
   # The col example backbone holds two accepted species: col-ex-001 is
   # Quercus robur (Fagaceae) and col-ex-002 is Panthera leo (Felidae).
-  id <- id2name("col-ex-001", backend = "col", verbose = FALSE)
+  id <- id2name("col-ex-001", backbone = "col", verbose = FALSE)
   expect_equal(id$name, "Quercus robur")
   expect_equal(id$accepted_name, "Quercus robur")
   expect_equal(id$authorship, "L.")
   expect_equal(toupper(id$rank), "SPECIES")
   expect_equal(id$genus, "Quercus")
   expect_equal(id$family, "Fagaceae")
-  expect_equal(id$backend, "col")
+  expect_equal(id$backbone, "col")
 
-  cat_id <- id2name("col-ex-002", backend = "col", verbose = FALSE)
+  cat_id <- id2name("col-ex-002", backbone = "col", verbose = FALSE)
   expect_equal(cat_id$name, "Panthera leo")
   expect_equal(cat_id$genus, "Panthera")
   expect_equal(cat_id$family, "Felidae")
@@ -100,7 +100,7 @@ test_that("id2name() keeps unknown IDs as NA rows in input order", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("col"), "col example backbone missing")
 
-  id <- id2name(c("nope-999", "col-ex-001"), backend = "col", verbose = FALSE)
+  id <- id2name(c("nope-999", "col-ex-001"), backbone = "col", verbose = FALSE)
   expect_equal(nrow(id), 2L)
   expect_true(is.na(id$name[1]))
   expect_equal(id$name[2], "Quercus robur")
@@ -115,7 +115,7 @@ test_that("downstream() lists all species under a genus", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  d <- downstream("Quercus", backend = "wfo", verbose = FALSE)
+  d <- downstream("Quercus", backbone = "wfo", verbose = FALSE)
   expect_true(all(c("Quercus robur", "Quercus petraea", "Quercus pyrenaica")
                   %in% d$name))
   expect_true(all(toupper(d$rank) == "SPECIES"))
@@ -130,7 +130,7 @@ test_that("downstream() returns empty for an unknown taxon", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  expect_equal(nrow(downstream("Notagenus", backend = "wfo", verbose = FALSE)),
+  expect_equal(nrow(downstream("Notagenus", backbone = "wfo", verbose = FALSE)),
                0L)
 })
 
@@ -143,7 +143,7 @@ test_that("lowest_common() finds the shared genus of two congeners", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  lc <- lowest_common(c("Quercus robur", "Quercus petraea"), backend = "wfo",
+  lc <- lowest_common(c("Quercus robur", "Quercus petraea"), backbone = "wfo",
                       verbose = FALSE)
   expect_equal(lc$rank, "genus")
   expect_equal(lc$name, "Quercus")
@@ -156,7 +156,7 @@ test_that("lowest_common() ignores an empty-string rank value (#15)", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  r <- taxify(c("Quercus robur", "Quercus petraea"), backend = "wfo",
+  r <- taxify(c("Quercus robur", "Quercus petraea"), backbone = "wfo",
               verbose = FALSE)
   # Some backbones store "" (not NA) for an unresolved rank; a blank must not be
   # reported as the shared ancestor. With genus blanked, the MRCA falls through
@@ -174,7 +174,7 @@ test_that("class2tree() builds a Newick tree over resolved names", {
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
   tr <- class2tree(c("Quercus robur", "Quercus petraea", "Quercus pyrenaica"),
-                   backend = "wfo", verbose = FALSE)
+                   backbone = "wfo", verbose = FALSE)
   expect_s3_class(tr, "taxify_tree")
   expect_equal(length(tr$tip_labels), 3L)
   expect_match(tr$newick, "Quercus_robur")
@@ -190,7 +190,7 @@ test_that("class2tree() collapses inputs sharing one accepted name to one tip", 
   # Amphibolurus vitticeps is a synonym of Pogona vitticeps: two inputs, one
   # accepted name, so the tree carries one tip where there were two inputs.
   tr <- class2tree(c("Pogona vitticeps", "Amphibolurus vitticeps"),
-                   backend = "reptiledb", verbose = FALSE)
+                   backbone = "reptiledb", verbose = FALSE)
   expect_s3_class(tr, "taxify_tree")
   expect_equal(length(tr$tip_labels), 1L)
   expect_equal(anyDuplicated(tr$tip_labels), 0L)
@@ -214,12 +214,12 @@ test_that("kingdom = keeps an in-kingdom match and drops an out-of-kingdom one",
   taxify_clear_cache()
   skip_if_not(backbone_ready("reptiledb"), "reptiledb example backbone missing")
 
-  keep <- taxify("Naja naja", backend = "reptiledb", kingdom = "animals",
+  keep <- taxify("Naja naja", backbone = "reptiledb", kingdom = "animals",
                  verbose = FALSE)
   expect_equal(keep$match_type, "exact")
   expect_equal(keep$accepted_name, "Naja naja")
 
-  drop <- taxify("Naja naja", backend = "reptiledb", kingdom = "plants",
+  drop <- taxify("Naja naja", backbone = "reptiledb", kingdom = "plants",
                  verbose = FALSE)
   expect_equal(drop$match_type, "none")
   expect_true(is.na(drop$accepted_name))

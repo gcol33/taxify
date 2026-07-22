@@ -41,7 +41,7 @@ genus-level categorical modalities.
 }
 \examples{
 \dontrun{
-taxify("Baetis", backend = "gbif") |>
+taxify("Baetis", backbone = "gbif") |>
   add_freshwater_insects_conus()
 }
 

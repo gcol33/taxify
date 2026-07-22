@@ -44,7 +44,7 @@ Coverage: ~11k bird species. Birds only.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Parus major", backend = "gbif") |>
+taxify("Parus major", backbone = "gbif") |>
   add_avonet()
 
 options(old)

@@ -27,7 +27,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Papilio machaon", backend = "gbif") |>
+#' taxify("Papilio machaon", backbone = "gbif") |>
 #'   add_hosts()
 #' }
 #'

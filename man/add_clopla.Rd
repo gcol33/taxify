@@ -52,7 +52,7 @@ use it.
 \examples{
 \dontrun{
 # Builds the enrichment on first use (needs taxifydb).
-taxify("Trifolium repens", backend = "gbif") |>
+taxify("Trifolium repens", backbone = "gbif") |>
   add_clopla()
 }
 

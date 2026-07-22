@@ -1,6 +1,6 @@
-# End-to-end test: GBIF backend with real backbone
+# End-to-end test: GBIF backbone with real backbone
 
-cat("=== taxify end-to-end test: GBIF backend ===\n\n")
+cat("=== taxify end-to-end test: GBIF backbone ===\n\n")
 
 # --- 1. Download backbone ---
 cat("--- Step 1: Download GBIF backbone ---\n")
@@ -21,7 +21,7 @@ basic_names <- c(
   "Escherichia coli"      # bacterium
 )
 
-res <- taxify(basic_names, backend = "gbif", verbose = FALSE)
+res <- taxify(basic_names, backbone = "gbif", verbose = FALSE)
 cat(sprintf("  Matched: %d / %d\n", sum(res$match_type != "none"), length(basic_names)))
 for (i in seq_len(nrow(res))) {
   cat(sprintf("    %s -> %s (%s, %s)\n",
@@ -40,7 +40,7 @@ synonym_names <- c(
   "Panthera leo"           # accepted (control)
 )
 
-res_syn <- taxify(synonym_names, backend = "gbif", verbose = FALSE)
+res_syn <- taxify(synonym_names, backbone = "gbif", verbose = FALSE)
 for (i in seq_len(nrow(res_syn))) {
   cat(sprintf("  %s -> %s (synonym=%s)\n",
               res_syn$input_name[i], res_syn$accepted_name[i],
@@ -57,7 +57,7 @@ fuzzy_names <- c(
   "Salmo truta"       # typo
 )
 
-res_fuzzy <- taxify(fuzzy_names, backend = "gbif", verbose = FALSE)
+res_fuzzy <- taxify(fuzzy_names, backbone = "gbif", verbose = FALSE)
 for (i in seq_len(nrow(res_fuzzy))) {
   cat(sprintf("  %s -> %s (%s, dist=%.3f)\n",
               res_fuzzy$input_name[i],
@@ -82,7 +82,7 @@ species_pool <- c(
 set.seed(42)
 bench_1k <- sample(species_pool, 1000, replace = TRUE)
 t1 <- Sys.time()
-res_1k <- taxify(bench_1k, backend = "gbif", fuzzy = FALSE, verbose = FALSE)
+res_1k <- taxify(bench_1k, backbone = "gbif", fuzzy = FALSE, verbose = FALSE)
 dt_1k <- difftime(Sys.time(), t1, units = "secs")
 cat(sprintf("  1,000 names (exact only): %.1f sec (%.0f names/sec)\n",
             dt_1k, 1000 / as.numeric(dt_1k)))
@@ -97,7 +97,7 @@ expected_cols <- c(
   "input_name", "matched_name", "accepted_name", "taxon_id",
   "accepted_id", "rank", "family", "genus", "epithet",
   "authorship", "is_synonym", "is_hybrid", "match_type",
-  "fuzzy_dist", "backend", "backbone_version"
+  "fuzzy_dist", "backbone", "backbone_version"
 )
 actual_cols <- names(res)
 missing <- setdiff(expected_cols, actual_cols)
@@ -114,7 +114,7 @@ cat("\n")
 
 # --- 7. add_gbif_info() extension ---
 cat("--- Step 7: add_gbif_info() ---\n")
-res_ext <- taxify(c("Quercus robur", "Panthera leo"), backend = "gbif",
+res_ext <- taxify(c("Quercus robur", "Panthera leo"), backbone = "gbif",
                   verbose = FALSE) |>
   add_gbif_info()
 extra_cols <- setdiff(names(res_ext), expected_cols)

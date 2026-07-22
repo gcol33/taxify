@@ -17,7 +17,7 @@ hybrid formula.}
 \item{hybrid_parent_2}{Second parent (full binomial, abbreviated or omitted
 genus expanded), \code{NA} if not a hybrid formula.}
 \item{hybrid_parent_1_accepted, hybrid_parent_2_accepted}{The accepted
-name each parent resolves to against the backend(s) used for \code{x} (from
+name each parent resolves to against the backbone(s) used for \code{x} (from
 the result's metadata), or \code{NA} if the parent did not match.}
 \item{hybrid_type}{One of \code{"nothogenus"}, \code{"nothospecies"},
 \code{"formula"}, or \code{NA} if not a hybrid (same value as the \code{hybrid_type}

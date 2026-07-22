@@ -1,4 +1,4 @@
-# ---- ITIS backend tests ----
+# ---- ITIS backbone tests ----
 #
 # ITIS is one of the three backbones a fresh install downloads, so the default
 # first-run chain runs through it. Everything below is offline: the fixture in
@@ -37,12 +37,12 @@ test_that("ITIS col_map is the unified Darwin Core schema", {
   expect_equal(be$col_map$epithet, "specific_epithet")
 })
 
-test_that("resolve_backend('itis') dispatches to the ITIS backend", {
+test_that("resolve_backend('itis') dispatches to the ITIS backbone", {
   be <- taxify:::resolve_backend("itis")
   expect_s3_class(be, "taxify_itis")
   expect_identical(be$name, "itis")
   expect_identical(be$version, "2025.04")
-  # An already-constructed backend passes through untouched.
+  # An already-constructed backbone passes through untouched.
   expect_identical(taxify:::resolve_backend(be), be)
 })
 
@@ -179,11 +179,11 @@ test_that("ITIS handles NA and empty inputs without crashing", {
 
 # -- End-to-end through taxify() --
 
-test_that("taxify(backend = 'itis') resolves names, synonyms and typos", {
+test_that("taxify(backbone = 'itis') resolves names, synonyms and typos", {
   itis_fixture()
   res <- taxify(c("Ursus arctos", "Felis canadensis", "Acer saccharophorum",
                   "Ursus arctus", "Nonexistus imaginus"),
-                backend = "itis", verbose = FALSE)
+                backbone = "itis", verbose = FALSE)
 
   expect_equal(nrow(res), 5L)
   expect_equal(res$accepted_name,
@@ -192,7 +192,7 @@ test_that("taxify(backend = 'itis') resolves names, synonyms and typos", {
   expect_equal(res$accepted_id,
                c("180543", "180596", "28728", "180543", NA))
   expect_equal(res$match_type, c("exact", "exact", "exact", "fuzzy", "none"))
-  expect_equal(res$backend, c(rep("itis", 4L), NA))
+  expect_equal(res$backbone, c(rep("itis", 4L), NA))
   expect_equal(res$backbone_version[1L], "itis:2025.04")
 })
 
@@ -200,7 +200,7 @@ test_that("ITIS carries the parent_tsn-resolved family and genus into the result
   itis_fixture()
   res <- taxify(c("Acer saccharophorum", "Toxicodendron radicans",
                   "Salmo salar sebago"),
-                backend = "itis", verbose = FALSE)
+                backbone = "itis", verbose = FALSE)
 
   expect_equal(res$family, c("Sapindaceae", "Anacardiaceae", "Salmonidae"))
   expect_equal(res$genus, c("Acer", "Toxicodendron", "Salmo"))
@@ -211,7 +211,7 @@ test_that("add_classification() fills kingdom from ITIS and leaves deeper ranks 
   # ITIS resolves kingdom (and family/genus) by walking parent_tsn, but stores
   # no phylum/class/order column, so those stay NA rather than being invented.
   itis_fixture()
-  res <- taxify(c("Ursus arctos", "Acer saccharum"), backend = "itis",
+  res <- taxify(c("Ursus arctos", "Acer saccharum"), backbone = "itis",
                 verbose = FALSE)
   cl <- add_classification(res, verbose = FALSE)
 
@@ -223,16 +223,16 @@ test_that("add_classification() fills kingdom from ITIS and leaves deeper ranks 
 
 test_that("upstream() walks the ITIS classification kingdom -> genus", {
   itis_fixture()
-  up <- upstream("Ursus arctos", backend = "itis", verbose = FALSE)
+  up <- upstream("Ursus arctos", backbone = "itis", verbose = FALSE)
 
   expect_equal(up$rank, c("kingdom", "family", "genus"))
   expect_equal(up$name, c("Animalia", "Ursidae", "Ursus"))
-  expect_true(all(up$backend == "itis"))
+  expect_true(all(up$backbone == "itis"))
 })
 
 test_that("synonyms() lists the ITIS synonyms of an accepted taxon", {
   itis_fixture()
-  syn <- synonyms("Ursus arctos", backend = "itis", verbose = FALSE)
+  syn <- synonyms("Ursus arctos", backbone = "itis", verbose = FALSE)
 
   expect_equal(nrow(syn), 1L)
   expect_equal(syn$synonym, "Ursus horribilis")
@@ -242,7 +242,7 @@ test_that("synonyms() lists the ITIS synonyms of an accepted taxon", {
 
 test_that("children() lists accepted ITIS species and skips synonyms", {
   itis_fixture()
-  kids <- children("Acer", backend = "itis", verbose = FALSE)
+  kids <- children("Acer", backbone = "itis", verbose = FALSE)
 
   expect_equal(kids$name, "Acer saccharum")
   expect_equal(kids$taxon_id, "28728")
@@ -251,7 +251,7 @@ test_that("children() lists accepted ITIS species and skips synonyms", {
 
 test_that("id2name() resolves an ITIS TSN to its name and accepted taxon", {
   itis_fixture()
-  out <- id2name("180544", backend = "itis", verbose = FALSE)
+  out <- id2name("180544", backbone = "itis", verbose = FALSE)
 
   expect_equal(out$name, "Ursus horribilis")
   expect_true(out$is_synonym)
@@ -266,9 +266,9 @@ test_that("ITIS picks up names a preceding backbone in the chain misses", {
   withr::defer(set_backbone_path("wfo", NULL))
 
   res <- taxify(c("Quercus robur", "Ursus arctos"),
-                backend = c("wfo", "itis"), verbose = FALSE)
+                backbone = c("wfo", "itis"), verbose = FALSE)
 
-  expect_equal(res$backend, c("wfo", "itis"))
+  expect_equal(res$backbone, c("wfo", "itis"))
   expect_equal(res$accepted_name, c("Quercus robur", "Ursus arctos"))
   expect_equal(res$accepted_id[2L], "180543")
 })

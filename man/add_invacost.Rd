@@ -43,7 +43,7 @@ filtering) use the \code{invacost} R package on the full database.
 }
 \examples{
 \dontrun{
-taxify("Solenopsis invicta", backend = "gbif") |>
+taxify("Solenopsis invicta", backbone = "gbif") |>
   add_invacost()
 }
 

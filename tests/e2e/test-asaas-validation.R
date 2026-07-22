@@ -82,7 +82,7 @@ agreement <- function(got, want, comparable) {
 }
 
 run_corpus <- function(truth, fuzzy) {
-  res <- taxify(truth$EVA_TAXON, backend = "wfo", fuzzy = fuzzy, verbose = FALSE)
+  res <- taxify(truth$EVA_TAXON, backbone = "wfo", fuzzy = fuzzy, verbose = FALSE)
   has_truth  <- !is.na(truth$WFO_TAXON) & nzchar(truth$WFO_TAXON)
   matched    <- !is.na(res$match_type) & res$match_type != "none"
   comparable <- matched & has_truth
@@ -192,7 +192,7 @@ test_that("unauthored homonyms are flagged rather than silently resolved", {
   # a synonym of Scolochloa festucacea (Roem. & Schult.) and one of Lolium
   # arundinaceum ((Schreb.) Dumort.). With no authorship in the query neither
   # can be preferred, so the result must carry the ambiguity flag.
-  res <- taxify("Schedonorus arundinaceus", backend = "wfo", fuzzy = FALSE,
+  res <- taxify("Schedonorus arundinaceus", backbone = "wfo", fuzzy = FALSE,
                 verbose = FALSE)
 
   expect_equal(res$match_type, "exact")
@@ -207,7 +207,7 @@ test_that("hybrid formulae expand to both parents", {
 
   # The corpus records the first parent only; taxify resolves both. Pinned so
   # the expansion is not quietly dropped to match the corpus convention.
-  res <- taxify("Cirsium pannonicum \u00d7 erisithales", backend = "wfo",
+  res <- taxify("Cirsium pannonicum \u00d7 erisithales", backbone = "wfo",
                 fuzzy = FALSE, verbose = FALSE)
 
   expect_equal(res$match_type, "hybrid_formula")

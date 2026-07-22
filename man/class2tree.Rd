@@ -5,14 +5,14 @@
 \alias{print.taxify_tree}
 \title{Build a taxonomy tree from resolved names}
 \usage{
-class2tree(x, backend = NULL, verbose = TRUE)
+class2tree(x, backbone = NULL, verbose = TRUE)
 
 \method{print}{taxify_tree}(x, ...)
 }
 \arguments{
 \item{x}{Character vector of names, or a \code{\link[=taxify]{taxify()}} result.}
 
-\item{backend}{Backend passed to \code{\link[=taxify]{taxify()}} when \code{x} is raw names. \code{NULL}
+\item{backbone}{Backend passed to \code{\link[=taxify]{taxify()}} when \code{x} is raw names. \code{NULL}
 (default) uses every installed backbone. Ignored when \code{x} is a result.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}

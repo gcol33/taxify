@@ -29,7 +29,7 @@ Source: Huang amphibian morphological dataset (figshare, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Bufo bufo", backend = "gbif") |>
+taxify("Bufo bufo", backbone = "gbif") |>
   add_huang_amph()
 }
 

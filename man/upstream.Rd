@@ -4,13 +4,13 @@
 \alias{upstream}
 \title{List the higher classification (ancestors) of a taxon}
 \usage{
-upstream(taxon, backend = NULL, to = NULL, verbose = TRUE)
+upstream(taxon, backbone = NULL, to = NULL, verbose = TRUE)
 }
 \arguments{
 \item{taxon}{A single taxonomic name (a species, genus, or higher taxon;
 synonyms and typos are resolved first).}
 
-\item{backend}{A single backend name or a \code{taxify_backend} object. \code{NULL}
+\item{backbone}{A single backbone name or a \code{taxify_backend} object. \code{NULL}
 (default) uses the highest-priority installed backbone; name one that
 stores the higher ranks (e.g. \code{"col"}) for a full lineage.}
 
@@ -21,9 +21,9 @@ stores the higher ranks (e.g. \code{"col"}) for a full lineage.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-A data.frame with one row per ancestor rank, columns: \code{query} (the
+A data.frame with one row per ancestor rank, columns: \code{input_name} (the
 name as supplied), \code{accepted_name} (what it resolved to), \code{rank}, \code{name},
-\code{backend}, ordered kingdom -> genus. Empty when \code{taxon} does not resolve or
+\code{backbone}, ordered kingdom -> genus. Empty when \code{taxon} does not resolve or
 the backbone stores no ranks above it.
 }
 \description{
@@ -40,10 +40,10 @@ lineage returned is the accepted taxon's.
 old <- options(taxify.data_dir = taxify_example_data())
 
 # The lineage above a species (reptiledb carries the full higher hierarchy)
-upstream("Naja naja", backend = "reptiledb")
+upstream("Naja naja", backbone = "reptiledb")
 
 # Just the family
-upstream("Naja naja", backend = "reptiledb", to = "family")
+upstream("Naja naja", backbone = "reptiledb", to = "family")
 
 options(old)
 

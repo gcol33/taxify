@@ -1,22 +1,22 @@
 # ---- Backend ID -> name ----
 #
-# taxify() returns backend IDs (taxon_id, accepted_id) alongside the names.
+# taxify() returns backbone IDs (taxon_id, accepted_id) alongside the names.
 # id2name() is the reverse: given an ID from a backbone, return the name it
 # belongs to, its rank and classification, and -- for a synonym ID -- the
 # accepted name it resolves to. The round-trip for a dataset that stored GBIF
 # keys / TSNs / AphiaIDs and now needs the current names back.
 
 
-#' Resolve backend IDs to names
+#' Resolve backbone IDs to names
 #'
-#' Looks up one or more backend taxon IDs in a backbone and returns the name,
+#' Looks up one or more backbone taxon IDs in a backbone and returns the name,
 #' rank, classification, and accepted-name resolution for each. The inverse of
 #' the `taxon_id` / `accepted_id` columns [taxify()] emits.
 #'
-#' @param id A vector of backend IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
+#' @param id A vector of backbone IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
 #'   AphiaIDs). Coerced to character, matched against the backbone's `taxon_id`.
-#'   IDs are backbone-specific, so name the `backend` they came from.
-#' @param backend A single backend name (e.g. `"col"`, `"gbif"`) or a
+#'   IDs are backbone-specific, so name the `backbone` they came from.
+#' @param backbone A single backbone name (e.g. `"col"`, `"gbif"`) or a
 #'   `taxify_backend` object. `NULL` (default) uses the highest-priority
 #'   installed backbone.
 #' @param verbose Logical. Default `TRUE`.
@@ -33,7 +33,7 @@
 #'     when the ID is itself accepted).}
 #'   \item{family}{Family.}
 #'   \item{genus}{Genus.}
-#'   \item{backend}{Backend used.}
+#'   \item{backbone}{Backend used.}
 #' }
 #' IDs not found in the backbone yield a row with `NA` name columns, so the
 #' output stays aligned one-to-one with the input.
@@ -45,19 +45,19 @@
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
 #' # Round-trip: resolve a name, then look its ID back up
-#' r <- taxify("Quercus robur", backend = "col")
-#' id2name(r$taxon_id, backend = "col")
+#' r <- taxify("Quercus robur", backbone = "col")
+#' id2name(r$taxon_id, backbone = "col")
 #'
 #' options(old)
 #'
 #' @export
-id2name <- function(id, backend = NULL, verbose = TRUE) {
+id2name <- function(id, backbone = NULL, verbose = TRUE) {
   if (length(id) == 0L) {
     stop("id must have at least one element.", call. = FALSE)
   }
-  backend <- resolve_single_backend(backend, verbose = verbose)
-  be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
-  bb <- backbone_path(backend, verbose = verbose)
+  backbone <- resolve_single_backend(backbone, verbose = verbose)
+  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+  bb <- backbone_path(backbone, verbose = verbose)
 
   ids <- as.character(id)
 
@@ -79,7 +79,7 @@ id2name <- function(id, backend = NULL, verbose = TRUE) {
     accepted_name = NA_character_,
     family        = NA_character_,
     genus         = NA_character_,
-    backend       = be_name,
+    backbone       = bb_name,
     stringsAsFactors = FALSE
   )
 

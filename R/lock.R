@@ -20,9 +20,9 @@ nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
 
 #' Build a lockfile entry for one installed backbone
 #' @noRd
-.backbone_lock_entry <- function(be_name) {
-  meta <- tryCatch(read_version_meta(be_name, "latest"), error = function(e) NULL)
-  vtr  <- versioned_vtr_path(be_name, "latest")
+.backbone_lock_entry <- function(bb_name) {
+  meta <- tryCatch(read_version_meta(bb_name, "latest"), error = function(e) NULL)
+  vtr  <- versioned_vtr_path(bb_name, "latest")
   installed <- file.exists(vtr)
   # A .meta sidecar (taxifydb build) or meta.json (download) supplies version;
   # fall back to the version string in the backbone-version formatter.
@@ -32,7 +32,7 @@ nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
     ver  <- side$version %||% NA_character_
   }
   list(
-    name          = be_name,
+    name          = bb_name,
     version       = ver %||% NA_character_,
     content_id    = meta$content_id %||% NA_character_,
     downloaded_at = meta$downloaded_at %||% NA_character_,
@@ -76,7 +76,7 @@ nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A lock list (invisibly when `file` is written), with elements
-#'   `taxify_version`, `created`, `r_version`, `backends`, and `enrichments`.
+#'   `taxify_version`, `created`, `r_version`, `backbones`, and `enrichments`.
 #'
 #' @seealso [taxify_restore()] to check an install against a lockfile, [cite()]
 #'   for prose citations.
@@ -85,9 +85,9 @@ nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' res  <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+#' res  <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
 #' lock <- taxify_lock(res)
-#' lock$backends[[1]]$name
+#' lock$backbones[[1]]$name
 #'
 #' options(old)
 #'
@@ -98,25 +98,25 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
       stop("x must be a taxify() result or NULL.", call. = FALSE)
     }
     meta <- attr(x, "taxify_meta")
-    # Backbones that actually matched a row, else the backends that were tried.
-    be_names <- if ("backend" %in% names(x)) {
-      unique(x$backend[!is.na(x$backend)])
+    # Backbones that actually matched a row, else the backbones that were tried.
+    bb_names <- if ("backbone" %in% names(x)) {
+      unique(x$backbone[!is.na(x$backbone)])
     } else character(0L)
-    if (length(be_names) == 0L) be_names <- as.character(meta$backend %||% character(0L))
+    if (length(bb_names) == 0L) bb_names <- as.character(meta$backbone %||% character(0L))
     enrich <- meta$enrichments %||% list()
   } else {
-    be_names <- installed_backbones()
+    bb_names <- installed_backbones()
     enrich <- list()
   }
 
-  backends <- lapply(unique(be_names), .backbone_lock_entry)
+  backbones <- lapply(unique(bb_names), .backbone_lock_entry)
   enrichments <- lapply(enrich, .enrichment_lock_entry)
 
   lock <- list(
     taxify_version = as.character(utils::packageVersion("taxify")),
     created        = format(Sys.Date(), "%Y-%m-%d"),
     r_version      = R.version.string,
-    backends       = backends,
+    backbones       = backbones,
     enrichments    = enrichments
   )
 
@@ -191,7 +191,7 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' res  <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+#' res  <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
 #' lock <- taxify_lock(res)
 #' taxify_restore(lock, verbose = FALSE)
 #'
@@ -199,7 +199,7 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #'
 #' @export
 taxify_restore <- function(file, verbose = TRUE) {
-  lock <- if (is.list(file) && !is.null(file$backends)) {
+  lock <- if (is.list(file) && !is.null(file$backbones)) {
     file
   } else if (is.character(file) && length(file) == 1L && file.exists(file)) {
     read_json_bom(file, simplifyVector = FALSE)
@@ -215,7 +215,7 @@ taxify_restore <- function(file, verbose = TRUE) {
 
   rows <- list()
 
-  for (b in lock$backends %||% list()) {
+  for (b in lock$backbones %||% list()) {
     meta <- tryCatch(read_version_meta(b$name, "latest"), error = function(e) NULL)
     vtr  <- versioned_vtr_path(b$name, "latest")
     installed <- file.exists(vtr)

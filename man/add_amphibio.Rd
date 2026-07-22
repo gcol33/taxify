@@ -45,7 +45,7 @@ Coverage: ~6,800 amphibian species. Amphibians only.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Bufo bufo", backend = "gbif") |>
+taxify("Bufo bufo", backbone = "gbif") |>
   add_amphibio()
 
 options(old)

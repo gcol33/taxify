@@ -29,7 +29,7 @@ Source: Hagge et al. (2021) saproxylic beetle morphology (Dryad, CC0).
 }
 \examples{
 \dontrun{
-taxify("Rhysodes sulcatus", backend = "gbif") |>
+taxify("Rhysodes sulcatus", backbone = "gbif") |>
   add_saproxylic()
 }
 

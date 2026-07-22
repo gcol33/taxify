@@ -1,11 +1,11 @@
-# End-to-end test: WFO backend with real backbone
+# End-to-end test: WFO backbone with real backbone
 #
 # Run with:
 #   Rscript tests/e2e/test-e2e-wfo.R
 #
 # Requires internet connection for first download.
 
-cat("=== taxify end-to-end test: WFO backend ===\n\n")
+cat("=== taxify end-to-end test: WFO backbone ===\n\n")
 
 # --- 1. Download backbone ---
 cat("--- Step 1: Download WFO backbone ---\n")
@@ -31,7 +31,7 @@ basic_names <- c(
   "Achillea millefolium"  # herb, accepted
 )
 
-res <- taxify(basic_names, backend = "wfo", verbose = FALSE)
+res <- taxify(basic_names, backbone = "wfo", verbose = FALSE)
 cat(sprintf("  Matched: %d / %d\n", sum(res$match_type != "none"), length(basic_names)))
 
 # All should be exact matches
@@ -51,7 +51,7 @@ synonym_names <- c(
   "Centaurea jacea"        # accepted (control)
 )
 
-res_syn <- taxify(synonym_names, backend = "wfo", verbose = FALSE)
+res_syn <- taxify(synonym_names, backbone = "wfo", verbose = FALSE)
 cat(sprintf("  Matched: %d / %d\n", sum(res_syn$match_type != "none"), length(synonym_names)))
 
 # Check synonym resolution
@@ -73,7 +73,7 @@ fuzzy_names <- c(
   "Querkus robur"        # typo in genus: Querkus -> Quercus
 )
 
-res_fuzzy <- taxify(fuzzy_names, backend = "wfo", verbose = FALSE)
+res_fuzzy <- taxify(fuzzy_names, backbone = "wfo", verbose = FALSE)
 for (i in seq_len(nrow(res_fuzzy))) {
   cat(sprintf("  %s -> %s (match=%s, dist=%.3f)\n",
               res_fuzzy$input_name[i],
@@ -96,7 +96,7 @@ hybrid_names <- c(
   "Mentha aquatica x M. spicata"  # hybrid formula (may not be in WFO)
 )
 
-res_hybrid <- taxify(hybrid_names, backend = "wfo", verbose = FALSE)
+res_hybrid <- taxify(hybrid_names, backbone = "wfo", verbose = FALSE)
 for (i in seq_len(nrow(res_hybrid))) {
   cat(sprintf("  %s -> %s (hybrid=%s, match=%s)\n",
               res_hybrid$input_name[i],
@@ -117,7 +117,7 @@ author_names <- c(
   "Rosa canina L. ex Sm."
 )
 
-res_auth <- taxify(author_names, backend = "wfo", verbose = FALSE)
+res_auth <- taxify(author_names, backbone = "wfo", verbose = FALSE)
 cat("  Names with authorship:\n")
 for (i in seq_len(nrow(res_auth))) {
   cat(sprintf("    %s -> %s (match=%s)\n",
@@ -137,7 +137,7 @@ qualifier_names <- c(
   "Betula pendula subsp. pendula"
 )
 
-res_qual <- taxify(qualifier_names, backend = "wfo", verbose = FALSE)
+res_qual <- taxify(qualifier_names, backbone = "wfo", verbose = FALSE)
 cat("  Names with qualifiers:\n")
 for (i in seq_len(nrow(res_qual))) {
   cat(sprintf("    %s -> %s (match=%s)\n",
@@ -156,7 +156,7 @@ encoding_names <- c(
 # Note: actual mojibake testing requires bad-encoded input files.
 # For now, test that Latin-1 author names in the backbone don't cause issues.
 
-res_enc <- taxify(encoding_names, backend = "wfo", verbose = FALSE)
+res_enc <- taxify(encoding_names, backbone = "wfo", verbose = FALSE)
 stopifnot(all(res_enc$match_type == "exact"))
 cat("  PASS: Encoding test (ASCII names matched)\n\n")
 
@@ -171,7 +171,7 @@ edge_names <- c(
   "42"                  # number only
 )
 
-res_edge <- taxify(edge_names, backend = "wfo", verbose = FALSE)
+res_edge <- taxify(edge_names, backbone = "wfo", verbose = FALSE)
 cat("  Edge cases:\n")
 for (i in seq_len(nrow(res_edge))) {
   cat(sprintf("    '%s' -> match=%s\n",
@@ -211,7 +211,7 @@ species_pool <- c(
 # 1000 names
 bench_1k <- sample(species_pool, 1000, replace = TRUE)
 t1 <- Sys.time()
-res_1k <- taxify(bench_1k, backend = "wfo", fuzzy = FALSE, verbose = FALSE)
+res_1k <- taxify(bench_1k, backbone = "wfo", fuzzy = FALSE, verbose = FALSE)
 dt_1k <- difftime(Sys.time(), t1, units = "secs")
 cat(sprintf("  1,000 names (exact only): %.1f sec (%.0f names/sec)\n",
             dt_1k, 1000 / as.numeric(dt_1k)))
@@ -220,14 +220,14 @@ cat(sprintf("    Matched: %d / %d\n",
 
 # 1000 names with fuzzy
 t2 <- Sys.time()
-res_1kf <- taxify(bench_1k, backend = "wfo", fuzzy = TRUE, verbose = FALSE)
+res_1kf <- taxify(bench_1k, backbone = "wfo", fuzzy = TRUE, verbose = FALSE)
 dt_1kf <- difftime(Sys.time(), t2, units = "secs")
 cat(sprintf("  1,000 names (with fuzzy): %.1f sec\n", dt_1kf))
 
 # 10000 names
 bench_10k <- sample(species_pool, 10000, replace = TRUE)
 t3 <- Sys.time()
-res_10k <- taxify(bench_10k, backend = "wfo", fuzzy = FALSE, verbose = FALSE)
+res_10k <- taxify(bench_10k, backbone = "wfo", fuzzy = FALSE, verbose = FALSE)
 dt_10k <- difftime(Sys.time(), t3, units = "secs")
 cat(sprintf("  10,000 names (exact only): %.1f sec (%.0f names/sec)\n",
             dt_10k, 10000 / as.numeric(dt_10k)))
@@ -243,7 +243,7 @@ expected_cols <- c(
   "input_name", "matched_name", "accepted_name", "taxon_id",
   "accepted_id", "rank", "family", "genus", "epithet",
   "authorship", "is_synonym", "is_hybrid", "match_type",
-  "fuzzy_dist", "backend", "backbone_version"
+  "fuzzy_dist", "backbone", "backbone_version"
 )
 actual_cols <- names(res)
 missing <- setdiff(expected_cols, actual_cols)
@@ -257,7 +257,7 @@ cat("\n")
 
 # --- 8. add_wfo_info() extension ---
 cat("--- Step 8: add_wfo_info() ---\n")
-res_ext <- taxify(c("Quercus robur", "Pinus sylvestris"), backend = "wfo",
+res_ext <- taxify(c("Quercus robur", "Pinus sylvestris"), backbone = "wfo",
                   verbose = FALSE) |>
   add_wfo_info()
 extra_cols <- setdiff(names(res_ext), expected_cols)

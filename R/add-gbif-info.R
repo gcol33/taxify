@@ -2,9 +2,9 @@
 #'
 #' Joins extra GBIF backbone columns to a [taxify()] result by
 #' looking up `taxon_id` in the GBIF backbone. Only enriches rows where
-#' `backend == "gbif"`.
+#' `backbone == "gbif"`.
 #'
-#' @param x A data.frame returned by [taxify()] with `backend == "gbif"`.
+#' @param x A data.frame returned by [taxify()] with `backbone == "gbif"`.
 #' @return The same data.frame with additional columns:
 #' \describe{
 #'   \item{notho_type}{Hybrid type: `"GENERIC"`, `"SPECIFIC"`, or
@@ -22,7 +22,7 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Quercus robur", backend = "gbif") |>
+#' taxify("Quercus robur", backbone = "gbif") |>
 #'   add_gbif_info()
 #'
 #' options(old)

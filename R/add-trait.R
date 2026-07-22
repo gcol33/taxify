@@ -244,7 +244,7 @@ add_trait <- function(x, trait, sources = "all",
     x <- register_enrichment(
       x,
       name      = sp$enrichment,
-      source    = sp$citation %||% sp$enrichment,
+      source_label = sp$citation %||% sp$enrichment,
       version   = NA_character_,
       n_matched = sum(!is.na(per_src[[s]]))
     )

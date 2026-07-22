@@ -816,7 +816,7 @@ locate_points_terra <- function(m, scheme = "wgsrpd", verbose = FALSE) {
 #' Locate points with sf against a scheme's boundaries
 #'
 #' The boundary polygons trip s2's spherical validity checks, so the planar
-#' GEOS backend is used for the intersection (restored afterwards).
+#' GEOS backbone is used for the intersection (restored afterwards).
 #'
 #' @param m Two-column lon/lat matrix.
 #' @param scheme One of `"wgsrpd"`, `"meow"`.

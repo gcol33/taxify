@@ -52,7 +52,7 @@ mass is not mistaken for a measurement where PHYLACINE is the only source.
 }
 \examples{
 \dontrun{
-taxify("Mammuthus primigenius", backend = "gbif") |>
+taxify("Mammuthus primigenius", backbone = "gbif") |>
   add_phylacine()
 }
 

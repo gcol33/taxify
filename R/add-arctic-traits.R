@@ -20,7 +20,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Astarte borealis", backend = "gbif") |>
+#' taxify("Astarte borealis", backbone = "gbif") |>
 #'   add_arctic_traits()
 #' }
 #'

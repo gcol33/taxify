@@ -31,7 +31,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Silene latifolia", backend = "gbif") |>
+#' taxify("Silene latifolia", backbone = "gbif") |>
 #'   add_tree_of_sex()
 #' }
 #'

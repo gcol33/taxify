@@ -35,7 +35,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Araneus diadematus", backend = "gbif") |>
+#' taxify("Araneus diadematus", backbone = "gbif") |>
 #'   add_spider_traits()
 #' }
 #'

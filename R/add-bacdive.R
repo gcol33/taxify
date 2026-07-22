@@ -34,7 +34,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Escherichia coli", backend = "gbif") |>
+#' taxify("Escherichia coli", backbone = "gbif") |>
 #'   add_bacdive()
 #' }
 #'

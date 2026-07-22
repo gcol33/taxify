@@ -27,18 +27,18 @@ Attaches the Linnaean ranks above family (kingdom, phylum, class, order) to a
 \code{\link[=taxify]{taxify()}} result by joining each matched row back to its backbone. The core
 \code{taxify()} output already carries \code{family} and \code{genus}; this fills the ranks
 above them, for whichever ranks the matched backbone stores. Rows matched by
-different backends are each joined against their own backbone.
+different backbones are each joined against their own backbone.
 }
 \examples{
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Naja naja", backend = "reptiledb") |>
+taxify("Naja naja", backbone = "reptiledb") |>
   add_classification()
 
 options(old)
 
 }
 \seealso{
-\code{\link[=add_col_info]{add_col_info()}}, \code{\link[=add_gbif_info]{add_gbif_info()}} for backend-specific extras.
+\code{\link[=add_col_info]{add_col_info()}}, \code{\link[=add_gbif_info]{add_gbif_info()}} for backbone-specific extras.
 }

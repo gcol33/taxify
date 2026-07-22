@@ -1,4 +1,4 @@
-# Default backend: taxify(backend = NULL) matches against every installed
+# Default backbone: taxify(backbone = NULL) matches against every installed
 # backbone in priority order (first-match fallback pick), and a fresh setup
 # installs COL + GBIF + ITIS. The ordering/resolution logic is pure; the
 # integration checks run against the bundled example database (no network).
@@ -55,7 +55,7 @@ test_that("resolve_default_backend() returns installed backbones, priority-order
   expect_lt(match("col", res), match("wfo", res))    # col outranks wfo
 })
 
-test_that("taxify(backend = NULL) equals naming the resolved installed set", {
+test_that("taxify(backbone = NULL) equals naming the resolved installed set", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()
@@ -66,14 +66,14 @@ test_that("taxify(backend = NULL) equals naming the resolved installed set", {
   def <- taxify("Quercus robur", verbose = FALSE)
   expect_s3_class(def, "data.frame")
   expect_equal(nrow(def), 1L)
-  expect_equal(def$backend, "col")
+  expect_equal(def$backbone, "col")
   expect_equal(def$accepted_name, "Quercus robur")
   expect_equal(def$taxon_id, "col-ex-001")
 
   expl <- taxify("Quercus robur",
-                 backend = taxify:::resolve_default_backend(verbose = FALSE),
+                 backbone = taxify:::resolve_default_backend(verbose = FALSE),
                  verbose = FALSE)
-  expect_equal(expl$backend, "col")
+  expect_equal(expl$backbone, "col")
   expect_equal(expl$accepted_name, "Quercus robur")
   expect_equal(expl$taxon_id, "col-ex-001")
 })

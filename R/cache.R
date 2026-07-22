@@ -5,12 +5,12 @@
 
 #' Get a cached backbone path
 #'
-#' @param backend_name Character string (e.g., "wfo").
+#' @param backbone_name Character string (e.g., "wfo").
 #' @return A character path or NULL if not cached.
 #' @noRd
-get_backbone_path <- function(backend_name) {
-  if (exists(backend_name, envir = .taxify_cache, inherits = FALSE)) {
-    get(backend_name, envir = .taxify_cache, inherits = FALSE)
+get_backbone_path <- function(backbone_name) {
+  if (exists(backbone_name, envir = .taxify_cache, inherits = FALSE)) {
+    get(backbone_name, envir = .taxify_cache, inherits = FALSE)
   } else {
     NULL
   }
@@ -19,16 +19,16 @@ get_backbone_path <- function(backend_name) {
 
 #' Store a backbone path in the cache
 #'
-#' @param backend_name Character string.
+#' @param backbone_name Character string.
 #' @param path Character. Path to the .vtr file, or `NULL` to remove from cache.
 #' @noRd
-set_backbone_path <- function(backend_name, path) {
+set_backbone_path <- function(backbone_name, path) {
   if (is.null(path)) {
-    if (exists(backend_name, envir = .taxify_cache, inherits = FALSE)) {
-      rm(list = backend_name, envir = .taxify_cache)
+    if (exists(backbone_name, envir = .taxify_cache, inherits = FALSE)) {
+      rm(list = backbone_name, envir = .taxify_cache)
     }
   } else {
-    assign(backend_name, path, envir = .taxify_cache)
+    assign(backbone_name, path, envir = .taxify_cache)
   }
 }
 
@@ -73,13 +73,13 @@ read_backbone_meta <- function(vtr_path) {
 #' name, version, and download date from the `.meta` sidecar.
 #'
 #' @param vtr_path Character. Path to the `.vtr` file.
-#' @param backend_name Character. Fallback backend name if no meta file.
+#' @param backbone_name Character. Fallback backend name if no meta file.
 #' @param version Character. Fallback version if no meta file.
 #' @return A character string.
 #' @noRd
-format_backbone_version <- function(vtr_path, backend_name, version) {
+format_backbone_version <- function(vtr_path, backbone_name, version) {
   meta <- read_backbone_meta(vtr_path)
-  be  <- (meta$backend %||% backend_name)
+  be  <- (meta$backend %||% backbone_name)
   ver <- meta$version
   dt  <- meta$download_date
 
@@ -220,34 +220,34 @@ installed_backbones <- function() {
 #' @return Character. Path to the .vtr file.
 #' @noRd
 ensure_backbone <- function(backend, version = "latest", verbose = TRUE) {
-  be_name <- backend$name
+  bb_name <- backend$name
 
   # 1. In-session cache hit (set_backbone_path only stores verified paths)
-  cached <- get_backbone_path(be_name)
+  cached <- get_backbone_path(bb_name)
   if (!is.null(cached) && file.exists(cached)) return(cached)
 
   # 2. Versioned layout: <data_dir>/<backend>/<version>/<backend>.vtr
-  versioned_path <- versioned_vtr_path(be_name, version)
+  versioned_path <- versioned_vtr_path(bb_name, version)
   if (file.exists(versioned_path) && is_compiled_backbone(versioned_path)) {
-    set_backbone_path(be_name, versioned_path)
+    set_backbone_path(bb_name, versioned_path)
     return(versioned_path)
   }
 
   # 3. Auto-download (pre-built .vtr from Zenodo via manifest)
   path <- tryCatch(
-    download_backbone(be_name, version = version, verbose = verbose),
+    download_backbone(bb_name, version = version, verbose = verbose),
     error = function(e) {
       # If pre-built download fails, fall back to build-from-source
       if (verbose) {
         message(sprintf(
           "Pre-built .vtr not available for '%s'. Building from source...",
-          be_name
+          bb_name
         ))
       }
       taxify_build(backend, verbose = verbose)
     }
   )
 
-  set_backbone_path(be_name, path)
+  set_backbone_path(bb_name, path)
   path
 }

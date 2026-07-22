@@ -28,7 +28,7 @@ Source: SHELD (Hopper et al. 2023, Scientific Data, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Lampsilis cardium", backend = "gbif") |>
+taxify("Lampsilis cardium", backbone = "gbif") |>
   add_sheld()
 }
 

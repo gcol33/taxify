@@ -7,7 +7,7 @@
 add_gbif_info(x)
 }
 \arguments{
-\item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}} with \code{backend == "gbif"}.}
+\item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}} with \code{backbone == "gbif"}.}
 }
 \value{
 The same data.frame with additional columns:
@@ -26,13 +26,13 @@ The same data.frame with additional columns:
 \description{
 Joins extra GBIF backbone columns to a \code{\link[=taxify]{taxify()}} result by
 looking up \code{taxon_id} in the GBIF backbone. Only enriches rows where
-\code{backend == "gbif"}.
+\code{backbone == "gbif"}.
 }
 \examples{
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Quercus robur", backend = "gbif") |>
+taxify("Quercus robur", backbone = "gbif") |>
   add_gbif_info()
 
 options(old)

@@ -6,26 +6,26 @@
 # family. All three query the backbone .vtr directly through vectra.
 
 
-#' Resolve a backend to its ready `.vtr` path
+#' Resolve a backbone to its ready `.vtr` path
 #'
 #' Version-checks and downloads exactly as [taxify()] does, then returns the
 #' local backbone path.
 #'
-#' @param backend A backend name or a `taxify_backend` object.
+#' @param backbone A backbone name or a `taxify_backend` object.
 #' @param verbose Logical.
 #' @return Character path to the backbone `.vtr`.
 #' @noRd
-backbone_path <- function(backend, verbose = TRUE) {
-  if (inherits(backend, "taxify_backend")) {
-    ensure_backends_current(backend$name, verbose = verbose)
-    return(ensure_backbone(backend, verbose = verbose))
+backbone_path <- function(backbone, verbose = TRUE) {
+  if (inherits(backbone, "taxify_backend")) {
+    ensure_backbones_current(backbone$name, verbose = verbose)
+    return(ensure_backbone(backbone, verbose = verbose))
   }
-  if (!is.character(backend) || length(backend) != 1L) {
-    stop("backend must be a single backend name or a taxify_backend object.",
+  if (!is.character(backbone) || length(backbone) != 1L) {
+    stop("backbone must be a single backbone name or a taxify_backend object.",
          call. = FALSE)
   }
-  ensure_backends_current(backend, verbose = verbose)
-  ensure_backbone(resolve_backend(backend), verbose = verbose)
+  ensure_backbones_current(backbone, verbose = verbose)
+  ensure_backbone(resolve_backend(backbone), verbose = verbose)
 }
 
 
@@ -68,17 +68,17 @@ backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
 }
 
 
-#' Attach backbone columns to a taxify result (backend-info doors)
+#' Attach backbone columns to a taxify result (backbone-info doors)
 #'
 #' Shared engine behind [add_wfo_info()], [add_gbif_info()] and [add_col_info()]:
-#' for the rows a given backend matched, look up their `taxon_id` in that
+#' for the rows a given backbone matched, look up their `taxon_id` in that
 #' backbone and attach extra columns through [backbone_join()] plus a vectorized
 #' `match()` fill (the documented join strategy). An optional `extra_vtr`
 #' describes a second join against a sidecar `.vtr` (COL's SpeciesProfile), whose
 #' values are passed through a transform.
 #'
 #' @param x A [taxify()] result.
-#' @param backend A `taxify_backend` object.
+#' @param backbone A `taxify_backend` object.
 #' @param col_map Named character vector: output column -> backbone source
 #'   column. Output columns are attached as character.
 #' @param enrichment_name,label Identifiers passed to `register_enrichment()`.
@@ -89,19 +89,19 @@ backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
 #'   `transform` (applied to each filled value vector).
 #' @return `x` with the attached columns and the enrichment registered.
 #' @noRd
-enrich_from_backbone <- function(x, backend, col_map, enrichment_name, label,
+enrich_from_backbone <- function(x, backbone, col_map, enrichment_name, label,
                                  probe_cols, extra_vtr = NULL) {
   if (!"taxon_id" %in% names(x)) {
     stop("x must be a data.frame with a 'taxon_id' column (from taxify())",
          call. = FALSE)
   }
 
-  be <- backend
-  bb_path <- get_backbone_path(be$name)
-  if (is.null(bb_path)) {
-    bb_path <- tryCatch(taxify_load(be), error = function(e) NULL)
+  be <- backbone
+  vtr_path <- get_backbone_path(be$name)
+  if (is.null(vtr_path)) {
+    vtr_path <- tryCatch(taxify_load(be), error = function(e) NULL)
   }
-  if (is.null(bb_path) || !file.exists(bb_path)) {
+  if (is.null(vtr_path) || !file.exists(vtr_path)) {
     stop(sprintf("%s backbone not found. Run taxify_download('%s') first.",
                  label, be$name), call. = FALSE)
   }
@@ -113,14 +113,14 @@ enrich_from_backbone <- function(x, backend, col_map, enrichment_name, label,
   }
 
   rows <- which(!is.na(x$taxon_id) &
-                (!is.na(x$backend) & x$backend == be$name))
+                (!is.na(x$backbone) & x$backbone == be$name))
 
   # Main join: attach the backbone columns present in the schema.
   if (length(rows) > 0L) {
-    schema <- names(vectra::collect(utils::head(vectra::tbl(bb_path), 1L)))
+    schema <- names(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L)))
     avail  <- intersect(unname(col_map), schema)
     if (length(avail) > 0L) {
-      joined <- backbone_join(bb_path, x$taxon_id[rows], bb_key = "taxon_id",
+      joined <- backbone_join(vtr_path, x$taxon_id[rows], bb_key = "taxon_id",
                               select_cols = c("taxon_id", avail))
       if (!is.null(joined) && nrow(joined) > 0L) {
         joined <- joined[!duplicated(joined$lookup), , drop = FALSE]
@@ -138,7 +138,7 @@ enrich_from_backbone <- function(x, backend, col_map, enrichment_name, label,
 
   # Sidecar join (COL SpeciesProfile): keyed on taxon_id, values transformed.
   if (!is.null(extra_vtr) && length(rows) > 0L) {
-    sp_path <- sub("\\.vtr$", extra_vtr$suffix, bb_path)
+    sp_path <- sub("\\.vtr$", extra_vtr$suffix, vtr_path)
     if (file.exists(sp_path)) {
       sp_schema <- tryCatch(
         names(vectra::collect(utils::head(vectra::tbl(sp_path), 1L))),
@@ -164,7 +164,7 @@ enrich_from_backbone <- function(x, backend, col_map, enrichment_name, label,
     }
   }
 
-  bb_meta <- read_backbone_meta(bb_path)
+  bb_meta <- read_backbone_meta(vtr_path)
   ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
   n_enriched <- sum(rowSums(!is.na(x[, probe_cols, drop = FALSE])) > 0L)
   register_enrichment(x, enrichment_name, label, ver, n_enriched)
@@ -180,7 +180,7 @@ enrich_from_backbone <- function(x, backend, col_map, enrichment_name, label,
 #'
 #' @param x Character vector of names (accepted names or synonyms; each is
 #'   resolved to its accepted taxon first).
-#' @param backend A single backend name (e.g. `"wfo"`) or a `taxify_backend`
+#' @param backbone A single backbone name (e.g. `"wfo"`) or a `taxify_backend`
 #'   object. `NULL` (default) uses the highest-priority installed backbone.
 #' @param verbose Logical. Default `TRUE`.
 #'
@@ -192,7 +192,7 @@ enrich_from_backbone <- function(x, backend, col_map, enrichment_name, label,
 #'   \item{authorship}{Authorship of the synonym.}
 #'   \item{rank}{Rank of the synonym.}
 #'   \item{taxon_id}{Backend ID of the synonym.}
-#'   \item{backend}{Backend used.}
+#'   \item{backbone}{Backend used.}
 #' }
 #' Names that resolve to an accepted taxon with no synonyms contribute no rows.
 #'
@@ -204,25 +204,25 @@ enrich_from_backbone <- function(x, backend, col_map, enrichment_name, label,
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
 #' # Amphibolurus vitticeps is a synonym of Pogona vitticeps
-#' synonyms("Pogona vitticeps", backend = "reptiledb")
+#' synonyms("Pogona vitticeps", backbone = "reptiledb")
 #'
 #' options(old)
 #'
 #' @export
-synonyms <- function(x, backend = NULL, verbose = TRUE) {
+synonyms <- function(x, backbone = NULL, verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {
     stop("x must be a non-empty character vector.", call. = FALSE)
   }
-  backend <- resolve_single_backend(backend, verbose = verbose)
-  be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
-  bb <- backbone_path(backend, verbose = verbose)
+  backbone <- resolve_single_backend(backbone, verbose = verbose)
+  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+  bb <- backbone_path(backbone, verbose = verbose)
 
-  res <- taxify(x, backend = backend, fuzzy = TRUE, verbose = FALSE)
+  res <- taxify(x, backbone = backbone, fuzzy = TRUE, verbose = FALSE)
   keep <- !is.na(res$accepted_id)
   empty <- data.frame(
     input_name = character(0L), accepted_name = character(0L),
     synonym = character(0L), authorship = character(0L),
-    rank = character(0L), taxon_id = character(0L), backend = character(0L),
+    rank = character(0L), taxon_id = character(0L), backbone = character(0L),
     stringsAsFactors = FALSE
   )
   if (!any(keep)) return(empty)
@@ -252,7 +252,7 @@ synonyms <- function(x, backend = NULL, verbose = TRUE) {
     authorship    = out$authorship,
     rank          = out$taxon_rank,
     taxon_id      = out$taxon_id,
-    backend       = be_name,
+    backbone       = bb_name,
     stringsAsFactors = FALSE
   )
   out <- out[order(out$input_name, out$synonym), , drop = FALSE]
@@ -267,7 +267,7 @@ synonyms <- function(x, backend = NULL, verbose = TRUE) {
 #' [taxify()] result by joining each matched row back to its backbone. The core
 #' `taxify()` output already carries `family` and `genus`; this fills the ranks
 #' above them, for whichever ranks the matched backbone stores. Rows matched by
-#' different backends are each joined against their own backbone.
+#' different backbones are each joined against their own backbone.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param ranks Character vector of ranks to attach. Default
@@ -277,13 +277,13 @@ synonyms <- function(x, backend = NULL, verbose = TRUE) {
 #' @return `x` with the requested rank columns added. A rank a backbone does not
 #'   store is left `NA` (WFO, for example, carries no ranks above family).
 #'
-#' @seealso [add_col_info()], [add_gbif_info()] for backend-specific extras.
+#' @seealso [add_col_info()], [add_gbif_info()] for backbone-specific extras.
 #'
 #' @examples
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Naja naja", backend = "reptiledb") |>
+#' taxify("Naja naja", backbone = "reptiledb") |>
 #'   add_classification()
 #'
 #' options(old)
@@ -298,14 +298,14 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
   ranks <- as.character(ranks)
   for (r in ranks) if (!r %in% names(x)) x[[r]] <- NA_character_
 
-  if (!"backend" %in% names(x)) return(x)
-  bes <- unique(x$backend[!is.na(x$backend)])
+  if (!"backbone" %in% names(x)) return(x)
+  bes <- unique(x$backbone[!is.na(x$backbone)])
   filled_any <- FALSE
 
-  for (be_name in bes) {
-    rows <- which(x$backend == be_name & !is.na(x$accepted_id))
+  for (bb_name in bes) {
+    rows <- which(x$backbone == bb_name & !is.na(x$accepted_id))
     if (length(rows) == 0L) next
-    bb <- tryCatch(backbone_path(be_name, verbose = verbose),
+    bb <- tryCatch(backbone_path(bb_name, verbose = verbose),
                    error = function(e) NULL)
     if (is.null(bb)) next
     schema <- names(vectra::collect(utils::head(vectra::tbl(bb), 1L)))
@@ -355,7 +355,7 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 #'   \item{family}{Family of the candidate.}
 #'   \item{genus}{Genus of the candidate.}
 #'   \item{taxon_id}{Backend ID of the candidate.}
-#'   \item{backend}{Backend used.}
+#'   \item{backbone}{Backend used.}
 #' }
 #' Empty when no rows were ambiguous.
 #'
@@ -373,7 +373,7 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 #'
 #' @export
 taxify_candidates <- function(x, verbose = TRUE) {
-  req <- c("ambiguous_targets", "is_ambiguous", "backend", "accepted_id",
+  req <- c("ambiguous_targets", "is_ambiguous", "backbone", "accepted_id",
            "input_name", "accepted_name")
   if (!is.data.frame(x) || !all(req %in% names(x))) {
     stop("x must be a taxify() result with ambiguity columns.", call. = FALSE)
@@ -381,7 +381,7 @@ taxify_candidates <- function(x, verbose = TRUE) {
   empty <- data.frame(
     input_name = character(0L), chosen = character(0L), candidate = character(0L),
     authorship = character(0L), rank = character(0L), family = character(0L),
-    genus = character(0L), taxon_id = character(0L), backend = character(0L),
+    genus = character(0L), taxon_id = character(0L), backbone = character(0L),
     stringsAsFactors = FALSE
   )
   amb <- which(!is.na(x$is_ambiguous) & x$is_ambiguous &
@@ -402,11 +402,11 @@ taxify_candidates <- function(x, verbose = TRUE) {
   if (is.null(long) || nrow(long) == 0L) return(empty)
 
   out <- list()
-  for (be_name in unique(x$backend[long$row])) {
-    if (is.na(be_name)) next
-    sub <- long[!is.na(x$backend[long$row]) & x$backend[long$row] == be_name, ,
+  for (bb_name in unique(x$backbone[long$row])) {
+    if (is.na(bb_name)) next
+    sub <- long[!is.na(x$backbone[long$row]) & x$backbone[long$row] == bb_name, ,
                 drop = FALSE]
-    bb <- tryCatch(backbone_path(be_name, verbose = verbose),
+    bb <- tryCatch(backbone_path(bb_name, verbose = verbose),
                    error = function(e) NULL)
     if (is.null(bb)) next
     joined <- backbone_join(
@@ -429,7 +429,7 @@ taxify_candidates <- function(x, verbose = TRUE) {
       family     = joined$family[idx],
       genus      = joined$genus[idx],
       taxon_id   = sub$cand_id,
-      backend    = be_name,
+      backbone    = bb_name,
       stringsAsFactors = FALSE
     )
   }
@@ -448,7 +448,7 @@ taxify_candidates <- function(x, verbose = TRUE) {
 #' parent is auto-detected: a genus is tried first, then a family.
 #'
 #' @param taxon A single genus or family name.
-#' @param backend A single backend name (e.g. `"wfo"`) or a `taxify_backend`
+#' @param backbone A single backbone name (e.g. `"wfo"`) or a `taxify_backend`
 #'   object. `NULL` (default) uses the highest-priority installed backbone.
 #' @param rank Rank of the children to return (`"species"` by default), or
 #'   `"any"` for every rank below the parent.
@@ -456,7 +456,7 @@ taxify_candidates <- function(x, verbose = TRUE) {
 #'
 #' @return A data.frame of accepted taxa, columns: `name`, `authorship`, `rank`,
 #'   `family`, `genus`, `taxon_id`, `parent_rank` (`"genus"` or `"family"`),
-#'   `backend`. Empty if the parent is not found.
+#'   `backbone`. Empty if the parent is not found.
 #'
 #' @seealso [synonyms()], [taxify()].
 #'
@@ -464,19 +464,19 @@ taxify_candidates <- function(x, verbose = TRUE) {
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' children("Quercus", backend = "wfo")
+#' children("Quercus", backbone = "wfo")
 #'
 #' options(old)
 #'
 #' @export
-children <- function(taxon, backend = NULL, rank = "species", verbose = TRUE) {
+children <- function(taxon, backbone = NULL, rank = "species", verbose = TRUE) {
   if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||
       !nzchar(trimws(taxon))) {
     stop("taxon must be a single non-empty name.", call. = FALSE)
   }
-  backend <- resolve_single_backend(backend, verbose = verbose)
-  be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
-  bb <- backbone_path(backend, verbose = verbose)
+  backbone <- resolve_single_backend(backbone, verbose = verbose)
+  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+  bb <- backbone_path(backbone, verbose = verbose)
   taxon <- title_case_taxon(taxon)
 
   parent <- taxon
@@ -498,7 +498,7 @@ children <- function(taxon, backend = NULL, rank = "species", verbose = TRUE) {
   empty <- data.frame(
     name = character(0L), authorship = character(0L), rank = character(0L),
     family = character(0L), genus = character(0L), taxon_id = character(0L),
-    parent_rank = character(0L), backend = character(0L),
+    parent_rank = character(0L), backbone = character(0L),
     stringsAsFactors = FALSE
   )
   if (nrow(hits) == 0L) return(empty)
@@ -517,7 +517,7 @@ children <- function(taxon, backend = NULL, rank = "species", verbose = TRUE) {
     genus       = hits$genus,
     taxon_id    = hits$taxon_id,
     parent_rank = parent_rank,
-    backend     = be_name,
+    backbone     = bb_name,
     stringsAsFactors = FALSE
   )
   out <- out[order(out$name), , drop = FALSE]

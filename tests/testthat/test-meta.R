@@ -11,7 +11,7 @@ test_that("read_backbone_meta normalizes build_date-format sidecars", {
   meta <- paste0(tools::file_path_sans_ext(vtr), ".meta")
   on.exit(unlink(meta), add = TRUE)
 
-  writeLines(c("backend=worms", "version=2026.05",
+  writeLines(c("backbone=worms", "version=2026.05",
                "build_date=2026-05-14",
                "build_timestamp=2026-05-14T10:00:00+0200",
                "source_url=https://example.org/worms.zip",
@@ -28,19 +28,19 @@ test_that("format_backbone_version handles build_date, download_date, neither", 
   on.exit(unlink(meta), add = TRUE)
 
   # New build_date format.
-  writeLines(c("backend=worms", "version=2026.05",
+  writeLines(c("backbone=worms", "version=2026.05",
                "build_date=2026-05-14"), meta)
   expect_equal(format_backbone_version(vtr, "worms", "x"),
                "worms:2026.05 (2026-05-14)")
 
   # Legacy download_date format.
-  writeLines(c("backend=wfo", "version=2024-12",
+  writeLines(c("backbone=wfo", "version=2024-12",
                "download_date=2026-05-02"), meta)
   expect_equal(format_backbone_version(vtr, "wfo", "x"),
                "wfo:2024-12 (2026-05-02)")
 
   # No date present: single, non-empty fallback string (no zero-length crash).
-  writeLines(c("backend=col", "version=2025"), meta)
+  writeLines(c("backbone=col", "version=2025"), meta)
   v <- format_backbone_version(vtr, "col", "fallback")
   expect_equal(v, "col:2025")
   expect_length(v, 1L)
@@ -86,7 +86,7 @@ test_that("download_backbone clears a stale build .meta so meta.json wins", {
   dir.create(slot, recursive = TRUE)
   writeLines("old-built-bytes", file.path(slot, "euromed.vtr"))
   stale_meta <- file.path(slot, "euromed.meta")
-  writeLines(c("backend=euromed", "version=2020.1", "build_date=2026-06-25"),
+  writeLines(c("backbone=euromed", "version=2020.1", "build_date=2026-06-25"),
              stale_meta)
 
   orig_manifest <- .taxify_env$manifest

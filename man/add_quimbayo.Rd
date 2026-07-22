@@ -30,7 +30,7 @@ paper; Zenodo, open).
 }
 \examples{
 \dontrun{
-taxify("Thalassoma bifasciatum", backend = "gbif") |>
+taxify("Thalassoma bifasciatum", backbone = "gbif") |>
   add_quimbayo()
 }
 

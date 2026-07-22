@@ -44,7 +44,7 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Salmo trutta", backend = "gbif") |>
+#' taxify("Salmo trutta", backbone = "gbif") |>
 #'   add_fishmorph()
 #'
 #' options(old)

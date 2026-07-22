@@ -30,7 +30,7 @@ Source: Pottier et al. (2022) amphibian heat tolerance database
 }
 \examples{
 \dontrun{
-taxify("Rana temporaria", backend = "gbif") |>
+taxify("Rana temporaria", backbone = "gbif") |>
   add_pottier()
 }
 

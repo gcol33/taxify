@@ -30,7 +30,7 @@ Source: NestTrait v2 (Chia et al. 2023, Scientific Data, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Turdus merula", backend = "gbif") |>
+taxify("Turdus merula", backbone = "gbif") |>
   add_nesttrait()
 }
 

@@ -7,14 +7,17 @@
 #'
 #' @param result A taxify_result data.frame.
 #' @param name Character. Short label for the enrichment (e.g., "wfo_info").
-#' @param source Character. Data source description (e.g., "WFO 2024-12").
+#' @param source_label Character. Human-readable description of the source
+#'   (e.g., "WFO 2024-12"). The enrichment *key* is `name`; this is the text
+#'   `summary()` and `cite()` display.
 #' @param version Character. Version string, or NA if unknown.
 #' @param n_matched Integer. Number of rows that received non-NA values.
 #' @param license Character. License string (e.g., `"CC0"`, `"CC BY 4.0"`),
 #'   or `NA_character_` if unknown or not applicable.
 #' @return The modified result with updated taxify_meta attribute.
 #' @noRd
-register_enrichment <- function(result, name, source, version, n_matched,
+register_enrichment <- function(result, name, source_label, version,
+                                n_matched,
                                 license = NA_character_) {
   meta <- attr(result, "taxify_meta")
   if (is.null(meta)) meta <- list()
@@ -24,7 +27,7 @@ register_enrichment <- function(result, name, source, version, n_matched,
 
   meta$enrichments <- c(meta$enrichments, list(list(
     name      = name,
-    source    = source,
+    source    = source_label,
     version   = version,
     license   = license,
     n_matched = as.integer(n_matched),

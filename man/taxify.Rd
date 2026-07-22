@@ -6,7 +6,7 @@
 \usage{
 taxify(
   x,
-  backend = NULL,
+  backbone = NULL,
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
   fuzzy_method = c("dl", "levenshtein", "jw"),
@@ -22,7 +22,7 @@ taxify(
 \arguments{
 \item{x}{Character vector of taxonomic names.}
 
-\item{backend}{Character vector of backend names (e.g., \code{"wfo"}, \code{"col"},
+\item{backbone}{Character vector of backbone names (e.g., \code{"wfo"}, \code{"col"},
 \code{"gbif"}) or a single \code{taxify_backend} object. Several are tried in order
 as a fallback chain. \code{NULL} (default) uses every installed backbone in
 priority order, installing the default set (COL, GBIF, ITIS) on first use;
@@ -101,15 +101,15 @@ constraint. Accepts a kingdom name or a common alias, case-insensitively:
 \code{"animals"}/\code{"Animalia"}/\code{"Metazoa"}, \code{"plants"}/\code{"Plantae"},
 \code{"fungi"}, \code{"bacteria"}, \code{"archaea"}, \code{"chromista"}, \code{"protozoa"},
 \code{"viruses"}. A matched taxon is kept only when its kingdom is the requested
-one (or is unknown, which is never rejected); with the default multi-backend
+one (or is unknown, which is never rejected); with the default multi-backbone
 fallback, a name a backbone resolves into the wrong kingdom is passed on to
 the next backbone, so the in-kingdom treatment wins. The kingdom is read
 from the backbone where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a
 backbone that does not (WFO, GBIF), it falls back to the genus register's
 kingdom, which cannot split a genus that is itself homonymous across
-kingdoms -- name a kingdom-appropriate \code{backend} for those.}
+kingdoms -- name a kingdom-appropriate \code{backbone} for those.}
 
-\item{mode}{Character. How to combine results when \code{backend} names more than
+\item{mode}{Character. How to combine results when \code{backbone} names more than
 one backbone. \code{"fallback"} (default) is the fallback chain described above:
 one answer per name, from the first backbone that matched. \code{"wide"} and
 \code{"agreement"} instead consult \strong{every} backbone for every name and report
@@ -187,7 +187,7 @@ priority tier (homonym ambiguity). Disambiguated via
 for irreducible ambiguity, the scalar columns hold one candidate.}
 \item{ambiguous_targets}{Character. \code{|}-joined list of conflicting
 accepted taxon IDs when \code{is_ambiguous = TRUE}; \code{NA} otherwise.}
-\item{backend}{Which backend was used (e.g., \code{"wfo"}, \code{"col"},
+\item{backbone}{Which backbone was used (e.g., \code{"wfo"}, \code{"col"},
 \code{"gbif"}).}
 \item{backbone_version}{Backend name, version, and download date
 (e.g., \code{"wfo:2024-12 (2026-04-01)"}). Useful for reproducibility.}
@@ -213,27 +213,27 @@ priority order as a fallback chain: a name is resolved by the first backbone
 it, and names matched earlier are not re-matched later. On a fresh setup with
 nothing installed yet, the first call downloads a default set (COL, GBIF,
 ITIS) once; pre-install a different set with \code{\link[=install_backbones]{install_backbones()}}. Name a
-backend (or several) explicitly to match only against that one, or those in
+backbone (or several) explicitly to match only against that one, or those in
 that order.
 }
 \section{Backbone-specific accepted names}{
 
-Each backend is an independent taxonomy, and they can legitimately disagree
+Each backbone is an independent taxonomy, and they can legitimately disagree
 on which name is accepted and which is a synonym. \code{taxify()} returns the
-matched backend's own current treatment; it does not reconcile backends
+matched backbone's own current treatment; it does not reconcile backbones
 against each other by voting (a consensus would regress toward the most
 conservative treatment across backbones that copy one another). With the
-default multi-backend fallback, \code{accepted_name} is the pick of the
+default multi-backbone fallback, \code{accepted_name} is the pick of the
 highest-priority backbone that matched. To see where backbones disagree, pass
 \code{mode = "wide"} (or \code{"agreement"}) for each backbone's \code{accepted_name} side by
-side; to follow one authority, name a single \code{backend}.
+side; to follow one authority, name a single \code{backbone}.
 
 For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 accepts \verb{Macropus rufus} and \verb{Macropus parma}, treating \verb{Osphranter rufus}
 and \verb{Notamacropus parma} as synonyms of them, so
-\code{taxify("Osphranter rufus", backend = "gbif")} resolves to \verb{Macropus rufus}.
+\code{taxify("Osphranter rufus", backbone = "gbif")} resolves to \verb{Macropus rufus}.
 The Catalogue of Life splits the genus and does the reverse, so
-\code{taxify("Macropus rufus", backend = "col")} resolves to \verb{Osphranter rufus}.
+\code{taxify("Macropus rufus", backbone = "col")} resolves to \verb{Osphranter rufus}.
 Both are faithful to their source; the difference is in the backbones, not in
 the matching.
 }
@@ -260,11 +260,11 @@ taxify("Quercus robus", coords = c(4.35, 50.85))
 
 # Fallback chain: try WFO first, then COL for unmatched
 taxify(c("Quercus robur", "Panthera leo"),
-       backend = c("wfo", "col"))
+       backbone = c("wfo", "col"))
 
 # Compare how two backbones resolve the same names, side by side
 taxify(c("Quercus robur", "Pinus sylvestris"),
-       backend = c("wfo", "col"), mode = "wide")
+       backbone = c("wfo", "col"), mode = "wide")
 
 options(old)
 

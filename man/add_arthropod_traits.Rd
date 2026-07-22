@@ -41,7 +41,7 @@ Orthoptera, Araneae, Diptera, Hymenoptera, Lepidoptera, etc.).
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Abax parallelepipedus", backend = "gbif") |>
+taxify("Abax parallelepipedus", backbone = "gbif") |>
   add_arthropod_traits()
 
 options(old)

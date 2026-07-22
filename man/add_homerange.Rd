@@ -27,7 +27,7 @@ Per-individual records are reduced to species medians.
 }
 \examples{
 \dontrun{
-taxify("Panthera leo", backend = "gbif") |>
+taxify("Panthera leo", backbone = "gbif") |>
   add_homerange()
 }
 

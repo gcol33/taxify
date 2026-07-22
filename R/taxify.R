@@ -11,11 +11,11 @@
 #' it, and names matched earlier are not re-matched later. On a fresh setup with
 #' nothing installed yet, the first call downloads a default set (COL, GBIF,
 #' ITIS) once; pre-install a different set with [install_backbones()]. Name a
-#' backend (or several) explicitly to match only against that one, or those in
+#' backbone (or several) explicitly to match only against that one, or those in
 #' that order.
 #'
 #' @param x Character vector of taxonomic names.
-#' @param backend Character vector of backend names (e.g., `"wfo"`, `"col"`,
+#' @param backbone Character vector of backbone names (e.g., `"wfo"`, `"col"`,
 #'   `"gbif"`) or a single `taxify_backend` object. Several are tried in order
 #'   as a fallback chain. `NULL` (default) uses every installed backbone in
 #'   priority order, installing the default set (COL, GBIF, ITIS) on first use;
@@ -84,14 +84,14 @@
 #'   `"animals"`/`"Animalia"`/`"Metazoa"`, `"plants"`/`"Plantae"`,
 #'   `"fungi"`, `"bacteria"`, `"archaea"`, `"chromista"`, `"protozoa"`,
 #'   `"viruses"`. A matched taxon is kept only when its kingdom is the requested
-#'   one (or is unknown, which is never rejected); with the default multi-backend
+#'   one (or is unknown, which is never rejected); with the default multi-backbone
 #'   fallback, a name a backbone resolves into the wrong kingdom is passed on to
 #'   the next backbone, so the in-kingdom treatment wins. The kingdom is read
 #'   from the backbone where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a
 #'   backbone that does not (WFO, GBIF), it falls back to the genus register's
 #'   kingdom, which cannot split a genus that is itself homonymous across
-#'   kingdoms -- name a kingdom-appropriate `backend` for those.
-#' @param mode Character. How to combine results when `backend` names more than
+#'   kingdoms -- name a kingdom-appropriate `backbone` for those.
+#' @param mode Character. How to combine results when `backbone` names more than
 #'   one backbone. `"fallback"` (default) is the fallback chain described above:
 #'   one answer per name, from the first backbone that matched. `"wide"` and
 #'   `"agreement"` instead consult **every** backbone for every name and report
@@ -167,7 +167,7 @@
 #'     for irreducible ambiguity, the scalar columns hold one candidate.}
 #'   \item{ambiguous_targets}{Character. `|`-joined list of conflicting
 #'     accepted taxon IDs when `is_ambiguous = TRUE`; `NA` otherwise.}
-#'   \item{backend}{Which backend was used (e.g., `"wfo"`, `"col"`,
+#'   \item{backbone}{Which backbone was used (e.g., `"wfo"`, `"col"`,
 #'     `"gbif"`).}
 #'   \item{backbone_version}{Backend name, version, and download date
 #'     (e.g., `"wfo:2024-12 (2026-04-01)"`). Useful for reproducibility.}
@@ -181,22 +181,22 @@
 #' }
 #'
 #' @section Backbone-specific accepted names:
-#' Each backend is an independent taxonomy, and they can legitimately disagree
+#' Each backbone is an independent taxonomy, and they can legitimately disagree
 #' on which name is accepted and which is a synonym. `taxify()` returns the
-#' matched backend's own current treatment; it does not reconcile backends
+#' matched backbone's own current treatment; it does not reconcile backbones
 #' against each other by voting (a consensus would regress toward the most
 #' conservative treatment across backbones that copy one another). With the
-#' default multi-backend fallback, `accepted_name` is the pick of the
+#' default multi-backbone fallback, `accepted_name` is the pick of the
 #' highest-priority backbone that matched. To see where backbones disagree, pass
 #' `mode = "wide"` (or `"agreement"`) for each backbone's `accepted_name` side by
-#' side; to follow one authority, name a single `backend`.
+#' side; to follow one authority, name a single `backbone`.
 #'
 #' For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 #' accepts `Macropus rufus` and `Macropus parma`, treating `Osphranter rufus`
 #' and `Notamacropus parma` as synonyms of them, so
-#' `taxify("Osphranter rufus", backend = "gbif")` resolves to `Macropus rufus`.
+#' `taxify("Osphranter rufus", backbone = "gbif")` resolves to `Macropus rufus`.
 #' The Catalogue of Life splits the genus and does the reverse, so
-#' `taxify("Macropus rufus", backend = "col")` resolves to `Osphranter rufus`.
+#' `taxify("Macropus rufus", backbone = "col")` resolves to `Osphranter rufus`.
 #' Both are faithful to their source; the difference is in the backbones, not in
 #' the matching.
 #'
@@ -222,17 +222,17 @@
 #'
 #' # Fallback chain: try WFO first, then COL for unmatched
 #' taxify(c("Quercus robur", "Panthera leo"),
-#'        backend = c("wfo", "col"))
+#'        backbone = c("wfo", "col"))
 #'
 #' # Compare how two backbones resolve the same names, side by side
 #' taxify(c("Quercus robur", "Pinus sylvestris"),
-#'        backend = c("wfo", "col"), mode = "wide")
+#'        backbone = c("wfo", "col"), mode = "wide")
 #'
 #' options(old)
 #'
 #' @export
 taxify <- function(x,
-                   backend = NULL,
+                   backbone = NULL,
                    fuzzy = TRUE,
                    fuzzy_threshold = 0.2,
                    fuzzy_method = c("dl", "levenshtein", "jw"),
@@ -269,120 +269,120 @@ taxify <- function(x,
     stop("x must have at least one element", call. = FALSE)
   }
 
-  # Default backend = every installed backbone, in priority order (first-match
+  # Default backbone = every installed backbone, in priority order (first-match
   # fallback). On a fresh setup this downloads the default set once.
-  if (is.null(backend)) {
-    backend <- resolve_default_backend(verbose = verbose)
+  if (is.null(backbone)) {
+    backbone <- resolve_default_backend(verbose = verbose)
   }
 
   # Comparison modes consult every backbone for every name. They need >= 2
   # named backbones; with fewer there is nothing to compare, so fall through to
   # the normal single-answer result.
   if (mode != "fallback") {
-    be_names <- if (inherits(backend, "taxify_backend")) backend$name else backend
-    if (!is.character(be_names) || length(be_names) < 2L) {
+    bb_names <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+    if (!is.character(bb_names) || length(bb_names) < 2L) {
       if (verbose) message(sprintf(
-        "mode = \"%s\" needs >= 2 backends; returning the standard result.",
+        "mode = \"%s\" needs >= 2 backbones; returning the standard result.",
         mode))
     } else {
-      ensure_backends_current(be_names, verbose = verbose)
-      return(taxify_compare(x, be_names, mode, fuzzy, fuzzy_threshold,
+      ensure_backbones_current(bb_names, verbose = verbose)
+      return(taxify_compare(x, bb_names, mode, fuzzy, fuzzy_threshold,
                             fuzzy_method, aggregates, region, range, kingdom,
                             verbose))
     }
   }
 
-  # Handle single backend object
-  if (inherits(backend, "taxify_backend")) {
-    ensure_backends_current(backend$name, verbose = verbose)
-    return(taxify_single(x, backend, fuzzy, fuzzy_threshold, fuzzy_method,
+  # Handle a single backend object
+  if (inherits(backbone, "taxify_backend")) {
+    ensure_backbones_current(backbone$name, verbose = verbose)
+    return(taxify_single(x, backbone, fuzzy, fuzzy_threshold, fuzzy_method,
                          aggregates, region = region, range_mode = range,
                          kingdom = kingdom, verbose = verbose))
   }
 
-  if (!is.character(backend) || length(backend) == 0L) {
-    stop("backend must be a character vector or taxify_backend object",
+  if (!is.character(backbone) || length(backbone) == 0L) {
+    stop("backbone must be a character vector or taxify_backend object",
          call. = FALSE)
   }
 
-  ensure_backends_current(backend, verbose = verbose)
+  ensure_backbones_current(backbone, verbose = verbose)
 
-  if (length(backend) == 1L) {
-    be <- resolve_backend(backend)
+  if (length(backbone) == 1L) {
+    be <- resolve_backend(backbone)
     return(taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                          aggregates, region = region, range_mode = range,
                          kingdom = kingdom, verbose = verbose))
   }
 
-  # Multi-backend fallback chain
-  if (verbose) message(sprintf("Matching %d names against %d backends: %s",
-                                length(x), length(backend),
-                                paste(backend, collapse = " -> ")))
+  # Multi-backbone fallback chain
+  if (verbose) message(sprintf("Matching %d names against %d backbones: %s",
+                                length(x), length(backbone),
+                                paste(backbone, collapse = " -> ")))
 
   names_df <- attach_agg_key(clean_names(x), aggregates)
   result <- NULL
 
-  for (be_name in backend) {
-    be <- resolve_backend(be_name)
-    bb_path <- ensure_backbone(be, verbose = verbose)
+  for (bb_name in backbone) {
+    be <- resolve_backend(bb_name)
+    vtr_path <- ensure_backbone(be, verbose = verbose)
 
     if (is.null(result)) {
-      # First backend: match all names
+      # First backbone: match all names
       if (verbose) message(sprintf("  [%s] Matching %d names...",
-                                    be_name, nrow(names_df)))
+                                    bb_name, nrow(names_df)))
 
-      result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
+      result <- run_match_stages(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
                                  fuzzy_method, region = region,
                                  range_mode = range, verbose = verbose,
-                                 label = be_name, scope = backend)
-      result <- filter_result_by_kingdom(result, bb_path, kingdom, be$name)
+                                 label = bb_name, scope = backbone)
+      result <- filter_result_by_kingdom(result, vtr_path, kingdom, be$name)
 
       matched <- is_backbone_match(result$match_type)
-      result$backend <- ifelse(matched, be$name, NA_character_)
-      bb_ver <- format_backbone_version(bb_path, be$name, be$version)
+      result$backbone <- ifelse(matched, be$name, NA_character_)
+      bb_ver <- format_backbone_version(vtr_path, be$name, be$version)
       result$backbone_version[matched] <- bb_ver
     } else {
-      # Subsequent backends: only try unmatched names
+      # Subsequent backbones: only try unmatched names
       unmatched_idx <- which(is.na(result$match_type) &
                              !is.na(result$input_name))
       if (length(unmatched_idx) == 0L) {
         if (verbose) message(sprintf("  [%s] Skipped (all names matched)",
-                                      be_name))
+                                      bb_name))
         next
       }
 
       if (verbose) message(sprintf("  [%s] Matching %d remaining names...",
-                                    be_name, length(unmatched_idx)))
+                                    bb_name, length(unmatched_idx)))
 
       sub_names_df <- names_df[unmatched_idx, , drop = FALSE]
       rownames(sub_names_df) <- NULL
 
-      sub_result <- run_match_stages(be, sub_names_df, bb_path, fuzzy,
+      sub_result <- run_match_stages(be, sub_names_df, vtr_path, fuzzy,
                                      fuzzy_threshold, fuzzy_method,
                                      region = region, range_mode = range,
-                                     verbose = verbose, label = be_name,
-                                     scope = backend)
-      sub_result <- filter_result_by_kingdom(sub_result, bb_path, kingdom,
+                                     verbose = verbose, label = bb_name,
+                                     scope = backbone)
+      sub_result <- filter_result_by_kingdom(sub_result, vtr_path, kingdom,
                                              be$name)
 
       # Merge sub_result back into main result. Copy every match column the
       # sub-result carries (so a schema addition needs no edit here), including
-      # a verdict this backend reached without a lookup; backend and
+      # a verdict this backbone reached without a lookup; backbone and
       # backbone_version are stamped only on the rows a lookup did produce, and
       # input_name / the input-side qualifier columns are left untouched
       # (reassigned later).
       resolved_in_sub <- which(!is.na(sub_result$match_type))
       if (length(resolved_in_sub) > 0L) {
-        bb_ver <- format_backbone_version(bb_path, be$name, be$version)
+        bb_ver <- format_backbone_version(vtr_path, be$name, be$version)
         dst    <- unmatched_idx[resolved_in_sub]
         copy_cols <- setdiff(intersect(names(sub_result), names(result)),
-                             c("input_name", "backend", "backbone_version",
+                             c("input_name", "backbone", "backbone_version",
                                "qualifier", "qualifier_position"))
         for (col in copy_cols) {
           result[[col]][dst] <- sub_result[[col]][resolved_in_sub]
         }
         stamped <- dst[is_backbone_match(sub_result$match_type[resolved_in_sub])]
-        result$backend[stamped]          <- be$name
+        result$backbone[stamped]          <- be$name
         result$backbone_version[stamped] <- bb_ver
       }
     }
@@ -402,10 +402,10 @@ taxify <- function(x,
   result$qualifier_position <- names_df$qualifier_position
   result <- attach_aggregate_fallback(result, names_df)
 
-  result <- enrich_with_register(result, names_df, backend)
-  result <- finalize_hybrids(result, names_df, backend)
+  result <- enrich_with_register(result, names_df, backbone)
+  result <- finalize_hybrids(result, names_df, backbone)
   rownames(result) <- NULL
-  as_taxify_result(result, backend = backend)
+  as_taxify_result(result, backbone = backbone)
 }
 
 
@@ -414,7 +414,7 @@ taxify <- function(x,
 #' Backs `taxify(..., mode = "wide" | "agreement")`. Runs every backbone
 #' independently over the full name list (no fallback chaining), then assembles
 #' one result. The base columns are the fallback pick -- the first backbone in
-#' `backend` order that matched each name -- so a comparison result is a strict
+#' `backbone` order that matched each name -- so a comparison result is a strict
 #' superset of the standard `mode = "fallback"` output and still carries a single
 #' `accepted_name` that pipes into the `add_*()` enrichments. On top of the base:
 #'   * `"wide"` adds one `accepted_<backbone>` column per backbone plus a logical
@@ -425,23 +425,23 @@ taxify <- function(x,
 #' `NA` when fewer than two did.
 #'
 #' @param x Character vector of names.
-#' @param backend Character vector of >= 2 backbone names, in priority order.
+#' @param backbone Character vector of >= 2 backbone names, in priority order.
 #' @param mode `"wide"` or `"agreement"`.
 #' @param fuzzy,fuzzy_threshold,fuzzy_method,aggregates,region,range,verbose
 #'   Passed through to each per-backbone [taxify_single()] run.
 #' @return A `taxify_result` data.frame.
 #' @noRd
-taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
+taxify_compare <- function(x, backbone, mode, fuzzy, fuzzy_threshold,
                            fuzzy_method, aggregates, region, range,
                            kingdom = NULL, verbose) {
   if (verbose) message(sprintf(
     "Comparing %d names across %d backbones: %s",
-    length(x), length(backend), paste(backend, collapse = ", ")))
+    length(x), length(backbone), paste(backbone, collapse = ", ")))
 
   # One independent run per backbone over all names (no fallback chaining), so
   # every backbone reports its own treatment of every name.
-  per_be <- lapply(backend, function(be_name) {
-    be <- resolve_backend(be_name)
+  per_be <- lapply(backbone, function(bb_name) {
+    be <- resolve_backend(bb_name)
     r  <- taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                         aggregates, region = region, range_mode = range,
                         kingdom = kingdom, verbose = verbose)
@@ -449,7 +449,7 @@ taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
     class(r) <- "data.frame"
     r
   })
-  names(per_be) <- backend
+  names(per_be) <- backbone
 
   is_matched <- function(r) {
     !is.na(r$match_type) & !r$match_type %in% c("none", "out_of_scope")
@@ -458,7 +458,7 @@ taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
   # Base = fallback pick: first backbone (in order) that matched each name.
   base <- per_be[[1L]]
   base_matched <- is_matched(base)
-  for (k in seq_along(backend)[-1L]) {
+  for (k in seq_along(backbone)[-1L]) {
     r    <- per_be[[k]]
     fill <- which(!base_matched & is_matched(r))
     if (length(fill)) {
@@ -481,8 +481,8 @@ taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
   all_agree  <- ifelse(n_matched >= 2L, n_distinct <= 1L, NA)
 
   if (mode == "wide") {
-    for (k in seq_along(backend)) {
-      base[[paste0("accepted_", backend[k])]] <- per_be[[k]]$accepted_name
+    for (k in seq_along(backbone)) {
+      base[[paste0("accepted_", backbone[k])]] <- per_be[[k]]$accepted_name
     }
     base$all_agree <- all_agree
   } else { # "agreement"
@@ -492,7 +492,7 @@ taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
   }
 
   rownames(base) <- NULL
-  out  <- as_taxify_result(base, backend = backend)
+  out  <- as_taxify_result(base, backbone = backbone)
   meta <- attr(out, "taxify_meta")
   meta$mode <- mode
   attr(out, "taxify_meta") <- meta
@@ -500,7 +500,7 @@ taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
 }
 
 
-#' Run the full matching pipeline against a single backend
+#' Run the full matching pipeline against a single backbone
 #'
 #' @param x Character vector of names.
 #' @param be A taxify_backend object.
@@ -513,20 +513,20 @@ taxify_compare <- function(x, backend, mode, fuzzy, fuzzy_threshold,
 taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                           aggregates = "preserve", region = NULL,
                           range_mode = "present", kingdom = NULL, verbose) {
-  bb_path <- ensure_backbone(be, verbose = verbose)
+  vtr_path <- ensure_backbone(be, verbose = verbose)
 
   if (verbose) message(sprintf("Matching %d names...", length(x)))
   names_df <- attach_agg_key(clean_names(x), aggregates)
 
-  result <- run_match_stages(be, names_df, bb_path, fuzzy, fuzzy_threshold,
+  result <- run_match_stages(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
                              fuzzy_method, region = region,
                              range_mode = range_mode, verbose = verbose)
-  result <- filter_result_by_kingdom(result, bb_path, kingdom, be$name)
+  result <- filter_result_by_kingdom(result, vtr_path, kingdom, be$name)
 
   matched <- is_backbone_match(result$match_type)
-  result$backend <- ifelse(matched, be$name, NA_character_)
+  result$backbone <- ifelse(matched, be$name, NA_character_)
   result$backbone_version[matched] <- format_backbone_version(
-    bb_path, be$name, be$version
+    vtr_path, be$name, be$version
   )
   result$match_type[is.na(result$match_type) &
                     !is.na(result$input_name)] <- "none"
@@ -544,7 +544,7 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   result <- enrich_with_register(result, names_df, be$name)
   result <- finalize_hybrids(result, names_df, be)
   rownames(result) <- NULL
-  as_taxify_result(result, backend = be$name)
+  as_taxify_result(result, backbone = be$name)
 }
 
 
@@ -627,11 +627,11 @@ attach_aggregate_fallback <- function(result, names_df) {
 #'
 #' @param result The match result data.frame.
 #' @param names_df Data.frame from `clean_names()`; rows 1:1 with `result`.
-#' @param backend Backend name(s) or a `taxify_backend`, used to resolve the
+#' @param backbone Backbone name(s) or a `taxify_backend`, used to resolve the
 #'   parents of an unresolved formula.
 #' @return `result` with `hybrid_type` attached and unresolved formulas marked.
 #' @noRd
-finalize_hybrids <- function(result, names_df, backend) {
+finalize_hybrids <- function(result, names_df, backbone) {
   n <- nrow(result)
   ht <- names_df$hybrid_type %||% rep(NA_character_, n)
   result$hybrid_type <- ht
@@ -655,7 +655,7 @@ finalize_hybrids <- function(result, names_df, backend) {
   result$is_hybrid[form]  <- TRUE
 
   # No single backbone taxon matched, but the cross is named by its parents.
-  # When BOTH parents resolve against the backend, fill matched_name with the
+  # When BOTH parents resolve against the backbone, fill matched_name with the
   # input-parent cross and accepted_name with the accepted-parent cross (the two
   # differ only when a parent is itself a synonym, mirroring synonym rows).
   # When a parent does not resolve, both stay NA.
@@ -664,7 +664,7 @@ finalize_hybrids <- function(result, names_df, backend) {
     pf <- lapply(result$input_name[form], parse_hybrid_formula)
     p1 <- vapply(pf, function(z) z$parent_1 %||% NA_character_, character(1L))
     p2 <- vapply(pf, function(z) z$parent_2 %||% NA_character_, character(1L))
-    acc <- .resolve_parents_accepted(c(p1, p2), backend)
+    acc <- .resolve_parents_accepted(c(p1, p2), backbone)
     a1  <- unname(acc[p1]); a2 <- unname(acc[p2])
     both <- !is.na(a1) & !is.na(a2)
     if (any(both)) {
@@ -679,26 +679,26 @@ finalize_hybrids <- function(result, names_df, backend) {
 }
 
 
-#' Run the core matching stages against one backend
+#' Run the core matching stages against one backbone
 #'
-#' The shared sequence used by both the single-backend and multi-backend paths:
+#' The shared sequence used by both the single-backbone and multi-backbone paths:
 #' exact matching, the out-of-scope prefilter, abbreviated-genus resolution,
 #' then (optionally) fuzzy matching of whatever remains.
 #'
 #' @param be A taxify_backend object.
 #' @param names_df Data.frame from `clean_names()`.
-#' @param bb_path Path to the compiled backbone .vtr file.
+#' @param vtr_path Path to the compiled backbone .vtr file.
 #' @param fuzzy Logical. Enable the fuzzy pass.
 #' @param fuzzy_threshold Numeric. Fuzzy distance threshold.
 #' @param fuzzy_method Character. Fuzzy distance method.
 #' @param verbose Logical.
-#' @param label Optional backend label for verbose messages (NULL = no prefix).
-#' @param scope Character vector of every backend the calling query may consult,
+#' @param label Optional backbone label for verbose messages (NULL = no prefix).
+#' @param scope Character vector of every backbone the calling query may consult,
 #'   used to decide which out-of-scope marks to release. `NULL` means this
-#'   backend is the whole query.
+#'   backbone is the whole query.
 #' @return The match result data.frame.
 #' @noRd
-run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
+run_match_stages <- function(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
                              fuzzy_method, region = NULL,
                              range_mode = "present", verbose = FALSE,
                              label = NULL, scope = NULL) {
@@ -707,24 +707,24 @@ run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
     sum(is.na(res$match_type) & !is.na(names_df$cleaned))
   }
 
-  result <- match_exact(be, names_df, bb_path)
+  result <- match_exact(be, names_df, vtr_path)
   result <- prefilter_out_of_scope(result, names_df, be$name)
 
   if (n_unresolved(result) > 0L) {
-    result <- match_abbrev_genus(be, result, names_df, bb_path)
+    result <- match_abbrev_genus(be, result, names_df, vtr_path)
   }
 
   n_un <- n_unresolved(result)
   if (fuzzy && n_un > 0L) {
     if (verbose) message(sprintf("%sFuzzy matching %d unmatched...", pre, n_un))
-    result <- match_fuzzy(be, result, bb_path, method = fuzzy_method,
+    result <- match_fuzzy(be, result, vtr_path, method = fuzzy_method,
                           threshold = fuzzy_threshold, names_df = names_df,
                           region = region, range_mode = range_mode)
   }
 
   # Settle homonym ambiguity where the input carried an author (no-op when no
   # ambiguous row carries one).
-  result <- disambiguate_by_authorship(result, bb_path)
+  result <- disambiguate_by_authorship(result, vtr_path)
 
   release_out_of_scope(result, names_df, scope %||% be$name)
 }
@@ -854,7 +854,7 @@ resolve_kingdom_filter <- function(kingdom) {
 
 #' Did a backbone lookup produce this row?
 #'
-#' The `backend` and `backbone_version` columns name the backbone that resolved
+#' The `backbone` and `backbone_version` columns name the backbone that resolved
 #' a name, so only the match types a backbone lookup can produce may carry them.
 #' `"out_of_scope"`, `"hybrid_formula"` and `"none"` are verdicts reached without
 #' one, and `NA` is a name still in flight.
@@ -872,7 +872,7 @@ is_backbone_match <- function(match_type) {
 #'
 #' Used by the kingdom filter: an out-of-kingdom match is cleared so the
 #' fallback chain treats the name as still unresolved (a later backbone may
-#' supply an in-kingdom answer); a single-backend run then finalizes it to
+#' supply an in-kingdom answer); a single-backbone run then finalizes it to
 #' `"none"`.
 #'
 #' @param result The match result data.frame.
@@ -885,7 +885,7 @@ demote_match_rows <- function(result, rows) {
     c("matched_name", "accepted_name", "taxon_id", "accepted_id", "rank",
       "family", "genus", "epithet", "authorship", "accepted_authorship",
       "is_synonym", "fuzzy_dist", "is_ambiguous", "ambiguous_targets",
-      "aggregate_fallback", "backend", "backbone_version"),
+      "aggregate_fallback", "backbone", "backbone_version"),
     names(result))
   for (col in na_cols) result[[col]][rows] <- NA
   result$match_type[rows] <- NA_character_
@@ -901,12 +901,12 @@ demote_match_rows <- function(result, rows) {
 #' [demote_match_rows()]); an unknown kingdom is always kept.
 #'
 #' @param result The match result data.frame (post `run_match_stages()`).
-#' @param bb_path Path to the backbone `.vtr`.
+#' @param vtr_path Path to the backbone `.vtr`.
 #' @param kingdom_set `NULL` (no-op) or a coarse kingdom-group vector.
-#' @param be_name Backend name (unused directly; kept for symmetry / clarity).
+#' @param bb_name Backend name (unused directly; kept for symmetry / clarity).
 #' @return `result`, possibly with out-of-kingdom rows demoted.
 #' @noRd
-filter_result_by_kingdom <- function(result, bb_path, kingdom_set, be_name) {
+filter_result_by_kingdom <- function(result, vtr_path, kingdom_set, bb_name) {
   if (is.null(kingdom_set)) return(result)
   matched <- which(!is.na(result$match_type) &
                      !result$match_type %in%
@@ -917,11 +917,11 @@ filter_result_by_kingdom <- function(result, bb_path, kingdom_set, be_name) {
 
   # 1. Backbone kingdom column (COL/ITIS/NCBI/OTT/WoRMS store one).
   schema <- tryCatch(
-    names(vectra::collect(utils::head(vectra::tbl(bb_path), 1L))),
+    names(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L))),
     error = function(e) character(0L))
   if ("kingdom" %in% schema && "accepted_id" %in% names(result)) {
     j <- tryCatch(
-      backbone_join(bb_path, result$accepted_id[matched], bb_key = "taxon_id",
+      backbone_join(vtr_path, result$accepted_id[matched], bb_key = "taxon_id",
                     select_cols = c("taxon_id", "kingdom")),
       error = function(e) NULL)
     if (!is.null(j) && nrow(j) > 0L) {
@@ -966,24 +966,26 @@ load_register_or_null <- function() {
 }
 
 
-#' Union of genera covered by the given backend(s)
+#' Union of genera covered by the given backbone(s)
 #'
-#' Reads the backend-coverage table once per backend and memoizes each backend's
+#' Reads the backbone-coverage table once per backbone and memoizes each backbone's
 #' covered-genus vector in the package environment.
 #'
-#' @param backend Character vector of backend names, or a `taxify_backend`.
+#' @param backbone Character vector of backbone names, or a `taxify_backend`.
 #' @return A character vector of covered genera, or NULL when no coverage table
 #'   is installed / it fails to read.
 #' @noRd
-covered_genera_for <- function(backend) {
+covered_genera_for <- function(backbone) {
   tryCatch({
     cov_path <- ensure_coverage(verbose = FALSE)
     if (is.null(cov_path)) return(NULL)
-    be_names <- if (is.character(backend)) backend else backend$name
+    bb_names <- if (is.character(backbone)) backbone else backbone$name
     covered <- character(0)
-    for (be in be_names) {
+    for (be in bb_names) {
       cache_key <- paste0("coverage_", be)
       if (is.null(.taxify_env[[cache_key]])) {
+        # `backend` is the column name inside the published coverage .vtr,
+        # which taxifydb writes; taxify reads it and reports it as `backbone`.
         cov <- vectra::tbl(cov_path) |>
           vectra::filter(backend == be) |>
           vectra::collect()
@@ -1018,8 +1020,8 @@ input_genus_for_rows <- function(result, names_df, rows) {
 
 #' Pre-filter out-of-scope names before fuzzy matching
 #'
-#' Checks unmatched names against the genus register and backend coverage.
-#' Names whose genus is known but not covered by the requested backend are
+#' Checks unmatched names against the genus register and backbone coverage.
+#' Names whose genus is known but not covered by the requested backbone are
 #' marked `"out_of_scope"` immediately, so the abbreviated-genus and fuzzy
 #' stages skip them: fuzzy matching against a backbone that does not carry the
 #' genus is wasted work, and a spurious near-match there would outrank the exact
@@ -1030,15 +1032,15 @@ input_genus_for_rows <- function(result, names_df, rows) {
 #'
 #' @param result The match result data.frame after exact matching.
 #' @param names_df The cleaned names data.frame from `clean_names()`.
-#' @param backend Character scalar or vector of backend names being tried.
+#' @param backbone Character scalar or vector of backbone names being tried.
 #' @return The result data.frame, possibly with some NA match_type rows
 #'   promoted to `"out_of_scope"`.
 #' @noRd
-prefilter_out_of_scope <- function(result, names_df, backend) {
+prefilter_out_of_scope <- function(result, names_df, backbone) {
   reg <- load_register_or_null()
   if (is.null(reg) || nrow(reg) == 0L) return(result)
 
-  covered_genera <- covered_genera_for(backend)
+  covered_genera <- covered_genera_for(backbone)
   if (is.null(covered_genera)) return(result)
 
   reg_lookup <- stats::setNames(seq_len(nrow(reg)), reg$genus)
@@ -1071,7 +1073,7 @@ prefilter_out_of_scope <- function(result, names_df, backend) {
 #'
 #' @param result The match result data.frame.
 #' @param names_df The cleaned names data.frame from `clean_names()`.
-#' @param scope Character vector of every backend this call may consult.
+#' @param scope Character vector of every backbone this call may consult.
 #' @return The result data.frame, with releasable rows back at `NA` match_type.
 #' @noRd
 release_out_of_scope <- function(result, names_df, scope) {
@@ -1099,14 +1101,14 @@ release_out_of_scope <- function(result, names_df, scope) {
 #'
 #' @param result The match result data.frame.
 #' @param names_df The cleaned names data.frame from `clean_names()`.
-#' @param backend Character scalar or vector of backend names that were tried.
+#' @param backbone Character scalar or vector of backbone names that were tried.
 #' @return The result data.frame with life_form enrichment.
 #' @noRd
-enrich_with_register <- function(result, names_df, backend) {
+enrich_with_register <- function(result, names_df, backbone) {
   reg <- load_register_or_null()
   if (is.null(reg) || nrow(reg) == 0L) return(result)
 
-  covered_genera <- covered_genera_for(backend)
+  covered_genera <- covered_genera_for(backbone)
 
   # Ensure classification columns exist
   if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_
@@ -1174,10 +1176,10 @@ enrich_with_register <- function(result, names_df, backend) {
 #' Attach the taxify_result class and metadata attribute
 #'
 #' @param result A data.frame with the standard 16+ column schema.
-#' @param backend Character vector of backend name(s) that were tried.
+#' @param backbone Character vector of backbone name(s) that were tried.
 #' @return The same data.frame, classed as `c("taxify_result", "data.frame")`.
 #' @noRd
-as_taxify_result <- function(result, backend) {
+as_taxify_result <- function(result, backbone) {
   n_input <- nrow(result)
 
   mt <- result$match_type
@@ -1196,17 +1198,17 @@ as_taxify_result <- function(result, backend) {
   tg_col   <- if ("taxon_group" %in% names(oos_rows)) "taxon_group" else "life_form"
   if (nrow(oos_rows) > 0L && tg_col %in% names(oos_rows)) {
     oos_tg  <- oos_rows[[tg_col]]
-    oos_be  <- if ("backend" %in% names(oos_rows)) {
-      oos_rows$backend
+    oos_be  <- if ("backbone" %in% names(oos_rows)) {
+      oos_rows$backbone
     } else {
-      rep(backend[1L], nrow(oos_rows))
+      rep(backbone[1L], nrow(oos_rows))
     }
     oos_tg[is.na(oos_tg)] <- "unknown"
-    oos_be[is.na(oos_be)]  <- backend[1L]
-    oos_combo_df   <- data.frame(taxon_group = oos_tg, backend = oos_be,
+    oos_be[is.na(oos_be)]  <- backbone[1L]
+    oos_combo_df   <- data.frame(taxon_group = oos_tg, backbone = oos_be,
                                  stringsAsFactors = FALSE)
     oos_tally_df   <- aggregate(
-      rep(1L, nrow(oos_combo_df)) ~ taxon_group + backend,
+      rep(1L, nrow(oos_combo_df)) ~ taxon_group + backbone,
       data = oos_combo_df,
       FUN  = sum
     )
@@ -1217,7 +1219,7 @@ as_taxify_result <- function(result, backend) {
   } else {
     oos_tally_df <- data.frame(
       taxon_group = character(0L),
-      backend     = character(0L),
+      backbone     = character(0L),
       n           = integer(0L),
       stringsAsFactors = FALSE
     )
@@ -1267,7 +1269,7 @@ as_taxify_result <- function(result, backend) {
   }
 
   meta <- list(
-    backend                   = backend,
+    backbone                   = backbone,
     version                   = version,
     n_input                   = n_input,
     match_tally               = tally,

@@ -12,7 +12,7 @@ make_fake_result <- function() {
     is_synonym        = c(FALSE, FALSE, FALSE, FALSE, TRUE),
     is_ambiguous      = c(FALSE, FALSE, FALSE, TRUE, FALSE),
     ambiguous_targets = c(NA, NA, NA, "123|456", NA),
-    backend           = c("wfo", "wfo", NA, "col", "wfo"),
+    backbone           = c("wfo", "wfo", NA, "col", "wfo"),
     stringsAsFactors  = FALSE
   )
   class(res) <- c("taxify_result", "data.frame")
@@ -80,7 +80,7 @@ test_that("a fuzzy result row is a typo with the corrected name", {
     is_synonym    = c(FALSE, FALSE),
     is_ambiguous  = c(FALSE, FALSE),
     ambiguous_targets = c(NA, NA),
-    backend       = c("wfo", "wfo"),
+    backbone       = c("wfo", "wfo"),
     stringsAsFactors = FALSE
   )
   class(res) <- c("taxify_result", "data.frame")
@@ -191,13 +191,13 @@ test_that("backbones = TRUE matches against all installed backbones", {
   seen <- NULL
   with_mocked_bindings(
     installed_backbones = function() c("wfo", "col"),
-    taxify = function(x, ..., backend = NULL) {
-      seen <<- backend
+    taxify = function(x, ..., backbone = NULL) {
+      seen <<- backbone
       structure(
         data.frame(input_name = x, match_type = "exact", accepted_name = x,
                    matched_name = x, fuzzy_dist = NA, is_synonym = FALSE,
                    is_ambiguous = FALSE, ambiguous_targets = NA,
-                   backend = "wfo", stringsAsFactors = FALSE),
+                   backbone = "wfo", stringsAsFactors = FALSE),
         class = c("taxify_result", "data.frame")
       )
     },
@@ -317,7 +317,7 @@ test_that("inspecting a single name warns that list checks need a batch", {
     input_name = "Quercus robus", matched_name = "Quercus robur",
     accepted_name = "Quercus robur", match_type = "fuzzy", fuzzy_dist = 0.08,
     is_synonym = FALSE, is_ambiguous = FALSE, ambiguous_targets = NA,
-    backend = "wfo", stringsAsFactors = FALSE
+    backbone = "wfo", stringsAsFactors = FALSE
   )
   class(res) <- c("taxify_result", "data.frame")
 
@@ -345,7 +345,7 @@ test_that("outlier_group flags the lone kingdom among a coherent list", {
     is_ambiguous  = rep(FALSE, 7L),
     ambiguous_targets = rep(NA_character_, 7L),
     kingdom_group = c(rep("plantae", 6L), "animalia"),
-    backend       = rep("gbif", 7L),
+    backbone       = rep("gbif", 7L),
     stringsAsFactors = FALSE
   )
   class(res) <- c("taxify_result", "data.frame")
@@ -369,7 +369,7 @@ test_that("a genuinely mixed list raises no outlier_group flag", {
     is_ambiguous  = rep(FALSE, 8L),
     ambiguous_targets = rep(NA_character_, 8L),
     kingdom_group = rep(c("plantae", "animalia"), each = 4L),
-    backend       = rep("gbif", 8L),
+    backbone       = rep("gbif", 8L),
     stringsAsFactors = FALSE
   )
   class(res) <- c("taxify_result", "data.frame")
@@ -394,7 +394,7 @@ test_that("out_of_range flags a species off the list's main continents", {
     is_ambiguous  = rep(FALSE, 7L),
     ambiguous_targets = rep(NA_character_, 7L),
     kingdom_group = rep("plantae", 7L),
-    backend       = rep("gbif", 7L),
+    backbone       = rep("gbif", 7L),
     stringsAsFactors = FALSE
   )
   class(res) <- c("taxify_result", "data.frame")
@@ -421,7 +421,7 @@ test_that("a globally spread list raises no out_of_range flag", {
     match_type = rep("exact", 6L), fuzzy_dist = rep(NA_real_, 6L),
     is_synonym = rep(FALSE, 6L), is_ambiguous = rep(FALSE, 6L),
     ambiguous_targets = rep(NA_character_, 6L),
-    kingdom_group = rep("plantae", 6L), backend = rep("gbif", 6L),
+    kingdom_group = rep("plantae", 6L), backbone = rep("gbif", 6L),
     stringsAsFactors = FALSE
   )
   class(res) <- c("taxify_result", "data.frame")

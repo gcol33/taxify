@@ -33,7 +33,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Myotis myotis", backend = "gbif") |>
+#' taxify("Myotis myotis", backbone = "gbif") |>
 #'   add_eurobat()
 #' }
 #'

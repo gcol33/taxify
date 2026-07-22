@@ -32,7 +32,7 @@ the current downloads.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-res  <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+res  <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
 lock <- taxify_lock(res)
 taxify_restore(lock, verbose = FALSE)
 

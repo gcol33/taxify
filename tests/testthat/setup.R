@@ -10,7 +10,7 @@ options(taxify.offline = TRUE)
 
 # Hermetic test data directory.
 #
-# The default backend (backend = NULL) resolves to every *installed* backbone.
+# The default backbone (backbone = NULL) resolves to every *installed* backbone.
 # Point taxify at an empty temp dir -- never the machine's real ~/.../taxify
 # install, which may hold many downloaded backbones and make bare taxify()
 # calls non-reproducible -- and seed it with the standard wfo mock backbone on
@@ -18,7 +18,7 @@ options(taxify.offline = TRUE)
 # matching the pre-existing tests. Tests that need other backbones either set
 # taxify.data_dir to the example database (restoring to this value on exit), or
 # inject mocks into the session cache and call them via an explicit
-# backend = ... .
+# backbone = ... .
 #
 # Set with a bare options() so it holds for the entire run (a deferred restore
 # tied to teardown_env() can fire too early and re-expose the real data dir).

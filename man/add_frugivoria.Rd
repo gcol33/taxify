@@ -27,7 +27,7 @@ Source: Gerstner et al. (2023) Frugivoria (EDI, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Ramphastos toco", backend = "gbif") |>
+taxify("Ramphastos toco", backbone = "gbif") |>
   add_frugivoria()
 }
 

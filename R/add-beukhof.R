@@ -21,7 +21,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Gadus morhua", backend = "gbif") |>
+#' taxify("Gadus morhua", backbone = "gbif") |>
 #'   add_beukhof()
 #' }
 #'

@@ -39,7 +39,7 @@ Source: Sharkipedia (Mull et al. 2022, Scientific Data, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Carcharodon carcharias", backend = "gbif") |>
+taxify("Carcharodon carcharias", backbone = "gbif") |>
   add_sharkipedia()
 }
 

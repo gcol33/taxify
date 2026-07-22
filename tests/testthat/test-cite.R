@@ -1,7 +1,7 @@
 # Tests for cite() and citation helpers
 
 # Helper: build a minimal taxify_result with meta attribute
-mock_taxify_result <- function(backends = "wfo", version = "2024.12",
+mock_taxify_result <- function(backbones = "wfo", version = "2024.12",
                                enrichments = list()) {
   df <- data.frame(
     input_name     = "Quercus robur",
@@ -11,7 +11,7 @@ mock_taxify_result <- function(backends = "wfo", version = "2024.12",
     stringsAsFactors = FALSE
   )
   meta <- list(
-    backend     = backends,
+    backbone     = backbones,
     version     = version,
     n_input     = 1L,
     match_tally = list(exact = 1L, case_insensitive = 0L, fuzzy = 0L,
@@ -38,7 +38,7 @@ mock_enrichment <- function(name = "eive", source = "EIVE", version = "1.0",
 
 # ---- cite() ----
 
-test_that("cite() prints citations for backend-only result", {
+test_that("cite() prints citations for backbone-only result", {
   result <- mock_taxify_result()
   out <- capture.output(cite(result))
   # Should contain taxify and WFO
@@ -101,8 +101,8 @@ test_that("cite() errors on non-taxify input", {
   expect_error(cite(data.frame(x = 1)), "taxify_meta")
 })
 
-test_that("cite() handles multi-backend result", {
-  result <- mock_taxify_result(backends = c("wfo", "col"))
+test_that("cite() handles multi-backbone result", {
+  result <- mock_taxify_result(backbones = c("wfo", "col"))
   out <- capture.output(cite(result))
   expect_true(any(grepl("WFO|wfo|World Flora", out)))
   expect_true(any(grepl("COL|col", out)))

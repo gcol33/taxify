@@ -44,7 +44,7 @@ this door rather than the cross-source \code{\link[=add_trait]{add_trait()}} ver
 }
 \examples{
 \dontrun{
-taxify("Thalassiosira pseudonana", backend = "gbif") |>
+taxify("Thalassiosira pseudonana", backbone = "gbif") |>
   add_edwards_phyto()
 }
 

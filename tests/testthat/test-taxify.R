@@ -3,16 +3,16 @@
 
 setup_mock_backend <- function() {
   # Pin a per-test hermetic data dir holding only a wfo mock on disk, so the
-  # default backend (backend = NULL) resolves to exactly wfo regardless of any
+  # default backbone (backbone = NULL) resolves to exactly wfo regardless of any
   # data-dir state another test file leaves in the option. Scoped to the calling
   # test_that() block. The same mock is cached, which ensure_backbone() prefers.
-  bb_path <- mock_backbone_vtr()
+  vtr_path <- mock_backbone_vtr()
   dd <- tempfile("dd_taxify_")
   dir.create(file.path(dd, "wfo", "latest"), recursive = TRUE, showWarnings = FALSE)
-  file.copy(bb_path, file.path(dd, "wfo", "latest", "wfo.vtr"))
+  file.copy(vtr_path, file.path(dd, "wfo", "latest", "wfo.vtr"))
   withr::local_options(list(taxify.data_dir = dd), .local_envir = parent.frame())
   be <- wfo_backend()
-  set_backbone_path(be$name, bb_path)
+  set_backbone_path(be$name, vtr_path)
   be
 }
 
@@ -26,7 +26,7 @@ test_that("taxify returns correct schema", {
                      "taxon_id", "accepted_id", "rank", "family",
                      "genus", "epithet", "authorship", "accepted_authorship",
                      "is_synonym", "is_hybrid", "match_type", "fuzzy_dist",
-                     "backend", "backbone_version", "life_form")
+                     "backbone", "backbone_version", "life_form")
   expect_true(all(expected_cols %in% names(result)),
               info = paste("Missing cols:", paste(setdiff(expected_cols, names(result)),
                                                   collapse = ", ")))
@@ -39,7 +39,7 @@ test_that("taxify matches known species", {
   expect_equal(result$accepted_name, "Quercus robur")
   expect_equal(result$match_type, "exact")
   expect_false(result$is_synonym)
-  expect_equal(result$backend, "wfo")
+  expect_equal(result$backbone, "wfo")
 })
 
 test_that("taxify resolves synonyms", {
@@ -81,7 +81,7 @@ test_that("taxify handles unmatched names", {
   expect_equal(result$match_type, "none")
   expect_true(is.na(result$matched_name))
   expect_true(is.na(result$accepted_name))
-  expect_true(is.na(result$backend))
+  expect_true(is.na(result$backbone))
 })
 
 test_that("taxify handles multiple inputs", {
@@ -250,7 +250,7 @@ test_that("taxify() returns a taxify_result with taxify_meta attribute", {
   expect_s3_class(result, "taxify_result")
   meta <- attr(result, "taxify_meta")
   expect_type(meta, "list")
-  expect_true(all(c("backend", "n_input", "match_tally",
+  expect_true(all(c("backbone", "n_input", "match_tally",
                     "out_of_scope_tally", "life_form_tally") %in% names(meta)))
 })
 
@@ -284,7 +284,7 @@ test_that("summary.taxify_result() produces output and returns invisibly", {
   out <- capture.output(ret <- summary(result))
   # Should produce lines of output
   expect_true(length(out) > 0L)
-  # Should mention the backend
+  # Should mention the backbone
   expect_true(any(grepl("WFO", out, ignore.case = TRUE)))
   # The submitted count is read off its own line, so a wrong tally fails rather
   # than being satisfied by any stray digit elsewhere in the digest.
@@ -311,7 +311,7 @@ test_that("summary.taxify_result() shows out_of_scope line when present", {
 
   # WFO covers Quercus but not Boletus, so Boletus is out_of_scope. Mock the
   # coverage file so the test does not depend on a real coverage .vtr.
-  cov_path <- mock_coverage_vtr(genus = "Quercus", backend = "wfo")
+  cov_path <- mock_coverage_vtr(genus = "Quercus", backbone = "wfo")
   clear_coverage_cache()
   on.exit(clear_coverage_cache(), add = TRUE)
 

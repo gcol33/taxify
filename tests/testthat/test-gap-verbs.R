@@ -70,8 +70,8 @@ test_that("upstream() returns the lineage above a species", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("reptiledb"), "reptiledb example backbone missing")
 
-  u <- upstream("Naja naja", backend = "reptiledb", verbose = FALSE)
-  expect_true(all(c("query", "accepted_name", "rank", "name", "backend")
+  u <- upstream("Naja naja", backbone = "reptiledb", verbose = FALSE)
+  expect_true(all(c("input_name", "accepted_name", "rank", "name", "backbone")
                   %in% names(u)))
   expect_true("genus" %in% u$rank)
   expect_equal(u$name[u$rank == "genus"], "Naja")
@@ -88,7 +88,7 @@ test_that("upstream(to=) restricts to one rank", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("reptiledb"), "reptiledb example backbone missing")
 
-  u <- upstream("Naja naja", backend = "reptiledb", to = "family",
+  u <- upstream("Naja naja", backbone = "reptiledb", to = "family",
                 verbose = FALSE)
   expect_equal(nrow(u), 1L)
   expect_equal(u$rank, "family")
@@ -100,7 +100,7 @@ test_that("upstream() is empty for an unresolved taxon", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("reptiledb"), "reptiledb example backbone missing")
 
-  expect_equal(nrow(upstream("Notagenus imaginus", backend = "reptiledb",
+  expect_equal(nrow(upstream("Notagenus imaginus", backbone = "reptiledb",
                              verbose = FALSE)), 0L)
 })
 
@@ -116,7 +116,7 @@ test_that("sci2comm() returns the vernacular names of a scientific name", {
   r <- sci2comm("Quercus robur", resolve = FALSE, verbose = FALSE)
   expect_s3_class(r, "data.frame")
   expect_setequal(names(r),
-                  c("query", "scientific_name", "common_name", "lang"))
+                  c("input_name", "accepted_name", "common_name", "lang"))
   expect_true("example_common_name" %in% r$common_name)
   expect_setequal(r$lang, c("en", "de"))
 })
@@ -146,7 +146,7 @@ test_that("reconcile() classifies a checklist against current treatment", {
   # Amphibolurus vitticeps is a synonym of Pogona vitticeps in the example db.
   r <- reconcile(c("Pogona vitticeps", "Amphibolurus vitticeps",
                    "Pogona vitticep", "Notagenus imaginus"),
-                 backend = "reptiledb", verbose = FALSE)
+                 backbone = "reptiledb", verbose = FALSE)
   st <- stats::setNames(r$status, r$input_name)
   expect_equal(unname(st["Pogona vitticeps"]), "unchanged")
   expect_equal(unname(st["Amphibolurus vitticeps"]), "synonym")
@@ -168,7 +168,7 @@ test_that("reconcile() does not report a case variant as a merge (#11)", {
 
   # A name paired with its own upper-cased variant is one input, not a
   # many-to-one merge.
-  r <- reconcile(c("Quercus robur", "QUERCUS ROBUR"), backend = "wfo",
+  r <- reconcile(c("Quercus robur", "QUERCUS ROBUR"), backbone = "wfo",
                  verbose = FALSE)
   expect_false(any(r$merged))
   expect_true(all(r$status == "unchanged"))
@@ -177,18 +177,18 @@ test_that("reconcile() does not report a case variant as a merge (#11)", {
 
 # ---- taxify_lock() / taxify_restore() ----
 
-test_that("taxify_lock() captures the backends behind a result", {
+test_that("taxify_lock() captures the backbones behind a result", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  res  <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+  res  <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
   lock <- taxify_lock(res)
   expect_true(is.list(lock))
   expect_true(!is.null(lock$taxify_version))
-  be_names <- vapply(lock$backends, function(b) b$name, character(1L))
-  expect_true("wfo" %in% be_names)
+  bb_names <- vapply(lock$backbones, function(b) b$name, character(1L))
+  expect_true("wfo" %in% bb_names)
 })
 
 test_that("taxify_lock() round-trips through a file and restore() reports", {
@@ -197,7 +197,7 @@ test_that("taxify_lock() round-trips through a file and restore() reports", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  res  <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+  res  <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
   f    <- tempfile(fileext = ".json")
   on.exit(unlink(f), add = TRUE)
   taxify_lock(res, file = f, verbose = FALSE)
@@ -227,7 +227,7 @@ test_that("taxify_restore() reports content, version, and missing drift", {
   taxify_clear_cache()
 
   pin <- function(name, version, content_id) {
-    list(backends = list(list(name = name, version = version,
+    list(backbones = list(list(name = name, version = version,
                               content_id = content_id)),
          enrichments = list())
   }
@@ -286,7 +286,7 @@ test_that("summary() tolerates an enrichment entry with no version field", {
   res  <- data.frame(query = "x", accepted_name = "x", matched_name = "x",
                      stringsAsFactors = FALSE)
   meta <- list(
-    backend         = "wfo",
+    backbone         = "wfo",
     n_input         = 1L,
     match_tally     = list(exact = 1L),
     life_form_tally = data.frame(taxon_group = character(0L), n = integer(0L),

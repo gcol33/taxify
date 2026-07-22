@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Ramphastos toco", backend = "gbif") |>
+#' taxify("Ramphastos toco", backbone = "gbif") |>
 #'   add_frugivoria()
 #' }
 #'

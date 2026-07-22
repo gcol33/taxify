@@ -29,7 +29,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Lepomis gibbosus", backend = "gbif") |>
+#' taxify("Lepomis gibbosus", backbone = "gbif") |>
 #'   add_globtherm()
 #' }
 #'

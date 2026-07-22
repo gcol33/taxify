@@ -22,7 +22,7 @@ A data.frame with one row per (ambiguous input, candidate taxon):
 \item{family}{Family of the candidate.}
 \item{genus}{Genus of the candidate.}
 \item{taxon_id}{Backend ID of the candidate.}
-\item{backend}{Backend used.}
+\item{backbone}{Backend used.}
 }
 Empty when no rows were ambiguous.
 }

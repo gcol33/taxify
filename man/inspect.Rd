@@ -37,7 +37,7 @@ nothing matched to place, so they have no effect.}
 A \code{taxify_inspection} data.frame (one row per anomalous name, ordered
 most-notable first) with columns \code{input_name}, \code{suggestion} (the name to use
 instead, or \code{NA}), \code{anomalies} (\code{|}-joined labels), \code{tier} (ordered factor
-\code{note} < \code{review} < \code{unresolved}), \code{reason}, \code{fuzzy_dist}, and \code{backend}.
+\code{note} < \code{review} < \code{unresolved}), \code{reason}, \code{fuzzy_dist}, and \code{backbone}.
 Zero rows means nothing stood out.
 }
 \description{

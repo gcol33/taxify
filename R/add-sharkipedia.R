@@ -31,7 +31,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Carcharodon carcharias", backend = "gbif") |>
+#' taxify("Carcharodon carcharias", backbone = "gbif") |>
 #'   add_sharkipedia()
 #' }
 #'

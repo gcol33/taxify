@@ -44,7 +44,7 @@ work. North American freshwater fishes.
 \examples{
 \dontrun{
 # Downloads the enrichment on first use.
-taxify("Micropterus salmoides", backend = "gbif") |>
+taxify("Micropterus salmoides", backbone = "gbif") |>
   add_fishtraits()
 }
 

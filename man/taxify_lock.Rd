@@ -18,7 +18,7 @@ installed backbone.}
 }
 \value{
 A lock list (invisibly when \code{file} is written), with elements
-\code{taxify_version}, \code{created}, \code{r_version}, \code{backends}, and \code{enrichments}.
+\code{taxify_version}, \code{created}, \code{r_version}, \code{backbones}, and \code{enrichments}.
 }
 \description{
 Writes a machine-readable lockfile pinning which backbone and enrichment
@@ -32,9 +32,9 @@ install still matches.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-res  <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+res  <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
 lock <- taxify_lock(res)
-lock$backends[[1]]$name
+lock$backbones[[1]]$name
 
 options(old)
 

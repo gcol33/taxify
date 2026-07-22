@@ -40,7 +40,7 @@
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Quercus alba", backend = "gbif") |>
+#' taxify("Quercus alba", backbone = "gbif") |>
 #'   add_bien()
 #'
 #' options(old)

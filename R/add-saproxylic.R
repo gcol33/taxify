@@ -20,7 +20,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Rhysodes sulcatus", backend = "gbif") |>
+#' taxify("Rhysodes sulcatus", backbone = "gbif") |>
 #'   add_saproxylic()
 #' }
 #'

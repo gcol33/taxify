@@ -44,7 +44,7 @@ FUNGuild's genus-rank entries.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Amanita muscaria", backend = "gbif") |>
+taxify("Amanita muscaria", backbone = "gbif") |>
   add_funguild()
 
 options(old)

@@ -5,18 +5,18 @@
 \alias{taxify_download_vtr}
 \title{Download a pre-built taxify backbone}
 \usage{
-taxify_download(backend = "wfo", version = "latest", verbose = TRUE)
+taxify_download(backbone = "wfo", version = "latest", verbose = TRUE)
 
-taxify_download_vtr(backend = "wfo", version = "latest", verbose = TRUE)
+taxify_download_vtr(backbone = "wfo", version = "latest", verbose = TRUE)
 }
 \arguments{
-\item{backend}{Character. A backend name (e.g. \code{"wfo"}, \code{"col"}, \code{"gbif"},
-...; see the backends in \code{\link[=list_enrichments]{list_enrichments()}}'s companion manifest) or
-\code{"register"} for the genus register. Multiple backends can be given as a
+\item{backbone}{Character. A backbone name (e.g. \code{"wfo"}, \code{"col"}, \code{"gbif"},
+...; see the backbones in \code{\link[=list_enrichments]{list_enrichments()}}'s companion manifest) or
+\code{"register"} for the genus register. Multiple backbones can be given as a
 character vector.}
 
 \item{version}{Character. \code{"latest"} (default) downloads into
-\verb{<data_dir>/<backend>/latest/} and will be overwritten on future updates.
+\verb{<data_dir>/<backbone>/latest/} and will be overwritten on future updates.
 A specific version string (e.g., \code{"2024.01"}) downloads into a pinned
 folder that is never overwritten.}
 
@@ -33,7 +33,7 @@ pre-fetch backbones before an offline session. Progress is always shown; no
 prompts are shown, so calling this function is consent.
 }
 \details{
-If no pre-built \code{.vtr} is available for a backend, it falls back to building
+If no pre-built \code{.vtr} is available for a backbone, it falls back to building
 from source via \code{\link[=taxify_build]{taxify_build()}} (which requires \code{taxifydb}).
 }
 \seealso{

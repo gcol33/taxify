@@ -4,7 +4,7 @@
 \alias{sci2comm}
 \title{Resolve scientific names to common (vernacular) names}
 \usage{
-sci2comm(x, lang = NULL, resolve = TRUE, backend = NULL, verbose = TRUE)
+sci2comm(x, lang = NULL, resolve = TRUE, backbone = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{Character vector of scientific names.}
@@ -19,7 +19,7 @@ languages present with \code{enrichment_groups("common_names")}.}
 vernaculars. When \code{FALSE}, the input name is looked up verbatim (faster,
 offline; use when the names are already accepted).}
 
-\item{backend}{Passed to \code{\link[=taxify]{taxify()}} when \code{resolve = TRUE}; \code{NULL} (default)
+\item{backbone}{Passed to \code{\link[=taxify]{taxify()}} when \code{resolve = TRUE}; \code{NULL} (default)
 uses every installed backbone. Ignored when \code{resolve = FALSE}.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
@@ -27,9 +27,9 @@ uses every installed backbone. Ignored when \code{resolve = FALSE}.}
 \value{
 A data.frame with one row per (query, vernacular):
 \describe{
-\item{query}{The scientific name as supplied.}
-\item{scientific_name}{The accepted name looked up (equals \code{query} when
-\code{resolve = FALSE} or the query was already accepted).}
+\item{input_name}{The scientific name as supplied.}
+\item{accepted_name}{The accepted name looked up (equals \code{input_name} when
+\code{resolve = FALSE} or the input_name was already accepted).}
 \item{common_name}{A vernacular name.}
 \item{lang}{Language tag (\code{NA} for NCBI/Open Tree).}
 }

@@ -30,7 +30,7 @@ Source: Octocoral Trait Database v2.2 (Gomez-Gras et al., CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Gorgonia ventalina", backend = "gbif") |>
+taxify("Gorgonia ventalina", backbone = "gbif") |>
   add_octocoral()
 }
 

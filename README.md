@@ -54,7 +54,7 @@ backbone cascades to the next.
 # WFO first (plants), then GBIF for whatever WFO doesn't cover
 taxify(
   c("Quercus robur", "Panthera leo", "Amanita muscaria"),
-  backend = c("wfo", "gbif")
+  backbone = c("wfo", "gbif")
 )
 ```
 
@@ -139,14 +139,14 @@ these two can be measured against each other.
 names with their IDs and authorship, rank, family, genus, epithet, synonym / hybrid /
 ambiguity flags, any taxonomic qualifier, the match type (`exact`, `exact_ci`, `fuzzy`,
 `abbrev`, `hybrid_formula`, `out_of_scope`, or `none`), the fuzzy distance, a coarse kingdom / taxon-group
-label, the backend, and the backbone version used. `summary()` prints a compact digest of
+label, the backbone, and the backbone version used. `summary()` prints a compact digest of
 how the batch resolved.
 
 ```r
 result <- taxify(c("Quercus robur", "Pinus abies", "Quercus robus", "Taraxacum officinale"))
 summary(result)
 #> -- taxify results ----------------------------------------------------
-#>   backend: WFO  |  4 names submitted
+#>   backbone: WFO  |  4 names submitted
 #>
 #>   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2, abbrev: 0)
 #>   --------------------------------------------------------------
@@ -166,11 +166,11 @@ downstream("Fagaceae", downto = "genus")    # all genera under a family
 upstream("Quercus robur", to = "family")    # the family a species sits in
 ```
 
-Decompose a name without matching it, or go from a backend ID back to a name:
+Decompose a name without matching it, or go from a backbone ID back to a name:
 
 ```r
 parse_name("Quercus robur (L.) H.Karst.")   # genus / epithet / author / rank, no lookup
-id2name("2878688", backend = "gbif")        # GBIF usage key -> name + classification
+id2name("2878688", backbone = "gbif")        # GBIF usage key -> name + classification
 ```
 
 Cross the vernacular boundary in either direction, and shape a lineage into a tree:
@@ -204,7 +204,7 @@ taxify(plant_names) |>
   add_eive()                     # EIVE indicator values
 
 # fish
-taxify(fish_names, backend = "col") |>
+taxify(fish_names, backbone = "col") |>
   add_fishbase() |>              # FishBase morphology & ecology
   add_fishmorph()                # FISHMORPH functional traits
 
@@ -269,7 +269,7 @@ pak::pak("gcol33/taxify")          # vectra is installed automatically
 ## Documentation
 
 - [Getting started](https://gillescolling.com/taxify/articles/quickstart.html)
-- [Choosing and combining backends](https://gillescolling.com/taxify/articles/backends.html)
+- [Choosing and combining backbones](https://gillescolling.com/taxify/articles/backbones.html)
 - [Fuzzy matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
 - [Constraining matches to a region](https://gillescolling.com/taxify/articles/regions.html)
 - [Enrichments](https://gillescolling.com/taxify/articles/enrichments.html)

@@ -4,13 +4,13 @@
 \alias{downstream}
 \title{List all descendants of a taxon down to a target rank}
 \usage{
-downstream(taxon, backend = NULL, downto = "species", verbose = TRUE)
+downstream(taxon, backbone = NULL, downto = "species", verbose = TRUE)
 }
 \arguments{
 \item{taxon}{A single higher-taxon name (a genus, family, order, class,
 phylum, or kingdom).}
 
-\item{backend}{A single backend name or a \code{taxify_backend} object. \code{NULL}
+\item{backbone}{A single backbone name or a \code{taxify_backend} object. \code{NULL}
 (default) uses the highest-priority installed backbone; name one that
 stores the higher ranks (e.g. \code{"col"}) to reach above genus.}
 
@@ -22,7 +22,7 @@ rank.}
 }
 \value{
 A data.frame of accepted descendants, columns: \code{name}, \code{authorship},
-\code{rank}, \code{family}, \code{genus}, \code{taxon_id}, \code{parent}, \code{parent_rank}, \code{backend}.
+\code{rank}, \code{family}, \code{genus}, \code{taxon_id}, \code{parent}, \code{parent_rank}, \code{backbone}.
 Empty when \code{taxon} is not found, its rank is one the backbone does not store
 as a column (e.g. subfamily, tribe), or it has no descendants at \code{downto}.
 }
@@ -38,7 +38,7 @@ contents of a genus or family, \code{downstream()} reaches an arbitrary depth.
 old <- options(taxify.data_dir = taxify_example_data())
 
 # Every species the backbone places in the genus
-downstream("Quercus", backend = "col")
+downstream("Quercus", backbone = "col")
 
 options(old)
 

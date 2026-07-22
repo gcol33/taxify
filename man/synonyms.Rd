@@ -4,13 +4,13 @@
 \alias{synonyms}
 \title{List the synonyms of a name}
 \usage{
-synonyms(x, backend = NULL, verbose = TRUE)
+synonyms(x, backbone = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{Character vector of names (accepted names or synonyms; each is
 resolved to its accepted taxon first).}
 
-\item{backend}{A single backend name (e.g. \code{"wfo"}) or a \code{taxify_backend}
+\item{backbone}{A single backbone name (e.g. \code{"wfo"}) or a \code{taxify_backend}
 object. \code{NULL} (default) uses the highest-priority installed backbone.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
@@ -24,7 +24,7 @@ A data.frame with one row per synonym found, columns:
 \item{authorship}{Authorship of the synonym.}
 \item{rank}{Rank of the synonym.}
 \item{taxon_id}{Backend ID of the synonym.}
-\item{backend}{Backend used.}
+\item{backbone}{Backend used.}
 }
 Names that resolve to an accepted taxon with no synonyms contribute no rows.
 }
@@ -39,7 +39,7 @@ historical names collapse onto a current name.
 old <- options(taxify.data_dir = taxify_example_data())
 
 # Amphibolurus vitticeps is a synonym of Pogona vitticeps
-synonyms("Pogona vitticeps", backend = "reptiledb")
+synonyms("Pogona vitticeps", backbone = "reptiledb")
 
 options(old)
 

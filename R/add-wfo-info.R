@@ -3,7 +3,7 @@
 #' Joins extra World Flora Online columns to a [taxify()] result by
 #' looking up `taxon_id` in the WFO backbone.
 #'
-#' @param x A data.frame returned by [taxify()] with `backend == "wfo"`.
+#' @param x A data.frame returned by [taxify()] with `backbone == "wfo"`.
 #' @return The same data.frame with additional columns:
 #' \describe{
 #'   \item{scientificNameID}{WFO scientificNameID.}

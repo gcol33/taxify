@@ -39,7 +39,7 @@ CC BY 3.0.
 \examples{
 \dontrun{
 # Downloads the enrichment on first use.
-taxify("Calanus finmarchicus", backend = "gbif") |>
+taxify("Calanus finmarchicus", backbone = "gbif") |>
   add_copepod_traits()
 }
 

@@ -26,7 +26,7 @@ Biology, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Zebrasoma scopas", backend = "gbif") |>
+taxify("Zebrasoma scopas", backbone = "gbif") |>
   add_parravicini()
 }
 

@@ -48,7 +48,7 @@ Coverage: ~10k fungal genera. Genus-level only (not species-level).
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Amanita muscaria", backend = "gbif") |>
+taxify("Amanita muscaria", backbone = "gbif") |>
   add_fungal_traits()
 
 options(old)

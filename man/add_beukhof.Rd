@@ -29,7 +29,7 @@ CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Gadus morhua", backend = "gbif") |>
+taxify("Gadus morhua", backbone = "gbif") |>
   add_beukhof()
 }
 

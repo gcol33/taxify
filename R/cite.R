@@ -1,7 +1,7 @@
 # ---- Citation helpers ----
 #
 # cite() prints and optionally writes citations for all data sources used
-# in a taxify_result (backends + enrichments + taxify itself).
+# in a taxify_result (backbones + enrichments + taxify itself).
 
 
 #' Cite data sources used in a taxify result
@@ -17,7 +17,7 @@
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' result <- taxify("Quercus robur", backend = "wfo")
+#' result <- taxify("Quercus robur", backbone = "wfo")
 #' result |> cite()
 #' result |> cite(file = tempfile(fileext = ".bib"))
 #'
@@ -83,9 +83,9 @@ collect_citations <- function(meta) {
   manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
 
   # 2. Backends
-  backends <- meta$backend
-  if (!is.null(backends) && length(backends) > 0L) {
-    for (be in backends) {
+  backbones <- meta$backbone
+  if (!is.null(backbones) && length(backbones) > 0L) {
+    for (be in backbones) {
       cit <- extract_manifest_citation(manifest, "backends", be)
       if (!is.null(cit)) {
         citations <- c(citations, list(cit))
@@ -260,13 +260,13 @@ cite_footer <- function(meta) {
   parts <- character(0L)
 
   # Backends
-  backends <- meta$backend
-  if (!is.null(backends)) {
+  backbones <- meta$backbone
+  if (!is.null(backbones)) {
     version <- meta$version %||% ""
-    if (length(backends) == 1L && nzchar(version)) {
-      parts <- c(parts, sprintf("%s %s", toupper(backends), version))
+    if (length(backbones) == 1L && nzchar(version)) {
+      parts <- c(parts, sprintf("%s %s", toupper(backbones), version))
     } else {
-      parts <- c(parts, paste(toupper(backends), collapse = " + "))
+      parts <- c(parts, paste(toupper(backbones), collapse = " + "))
     }
   }
 

@@ -20,7 +20,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Asterionella formosa", backend = "gbif") |>
+#' taxify("Asterionella formosa", backbone = "gbif") |>
 #'   add_rimet_phyto()
 #' }
 #'

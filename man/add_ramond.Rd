@@ -43,7 +43,7 @@ median, categorical traits by mode.
 }
 \examples{
 \dontrun{
-taxify("Alexandrium", backend = "gbif") |>
+taxify("Alexandrium", backbone = "gbif") |>
   add_ramond()
 }
 

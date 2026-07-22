@@ -61,11 +61,11 @@ taxify_load <- function(backend, path = NULL, ...) {
 #'
 #' @param backend A taxify_backend object.
 #' @param names_df A data.frame with columns `original` and `cleaned`.
-#' @param backbone Path to the compiled backbone .vtr file.
+#' @param vtr_path Path to the compiled backbone .vtr file.
 #' @param ... Additional arguments passed to methods.
 #' @return A data.frame of matches.
 #' @noRd
-match_exact <- function(backend, names_df, backbone, ...) {
+match_exact <- function(backend, names_df, vtr_path, ...) {
   UseMethod("match_exact")
 }
 
@@ -74,7 +74,7 @@ match_exact <- function(backend, names_df, backbone, ...) {
 #'
 #' @param backend A taxify_backend object.
 #' @param unmatched_df A data.frame of names that failed exact matching.
-#' @param backbone Path to backbone .vtr file.
+#' @param vtr_path Path to the compiled backbone .vtr file.
 #' @param method Character. Distance algorithm.
 #' @param threshold Numeric. Maximum normalized distance.
 #' @param names_df Optional data.frame from `clean_names()` with pre-cleaned
@@ -82,7 +82,7 @@ match_exact <- function(backend, names_df, backbone, ...) {
 #' @param ... Additional arguments passed to methods.
 #' @return A data.frame of fuzzy matches.
 #' @noRd
-match_fuzzy <- function(backend, unmatched_df, backbone,
+match_fuzzy <- function(backend, unmatched_df, vtr_path,
                         method = "dl", threshold = 0.2,
                         names_df = NULL, region = NULL,
                         range_mode = "present", ...) {
@@ -91,7 +91,7 @@ match_fuzzy <- function(backend, unmatched_df, backbone,
 
 
 # ------------------------------------------------------------------
-# Default S3 methods — shared across all backends
+# Default S3 methods — shared across all backbones
 # ------------------------------------------------------------------
 
 #' @exportS3Method
@@ -109,23 +109,21 @@ taxify_load.taxify_backend <- function(backend, path = NULL, ...) {
 
 
 #' @exportS3Method
-match_exact.taxify_backend <- function(backend, names_df, backbone, ...) {
-  bb_path <- backbone
+match_exact.taxify_backend <- function(backend, names_df, vtr_path, ...) {
   n <- nrow(names_df)
   result <- empty_match_result(n)
   result$input_name <- names_df$original
   result$is_hybrid  <- names_df$is_hybrid
 
-  match_exact_compiled(result, names_df, bb_path, backend$col_map)
+  match_exact_compiled(result, names_df, vtr_path, backend$col_map)
 }
 
 
 #' @exportS3Method
-match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
+match_fuzzy.taxify_backend <- function(backend, unmatched_df, vtr_path,
                                        method = "dl", threshold = 0.2,
                                        names_df = NULL, region = NULL,
                                        range_mode = "present", ...) {
-  bb_path <- backbone
   result  <- unmatched_df
   col_map <- backend$col_map
 
@@ -133,7 +131,7 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
     stop("fuzzy_threshold must be < 1 for fuzzy_method = 'jw' (Jaro-Winkler range is 0-1)")
   }
 
-  result <- fuzzy_match_via_join(result, names_df, bb_path, method, threshold,
+  result <- fuzzy_match_via_join(result, names_df, vtr_path, method, threshold,
                                  col_map, region = region,
                                  range_mode = range_mode)
 
@@ -145,7 +143,7 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, backbone,
                                result$match_type == "fuzzy"]
     claimed <- unique(claimed[!is.na(claimed)])
 
-    result <- fuzzy_match_prefix_blocked(result, names_df, bb_path, method,
+    result <- fuzzy_match_prefix_blocked(result, names_df, vtr_path, method,
                                          threshold, col_map, region = region,
                                          range_mode = range_mode,
                                          taken = claimed)
@@ -299,17 +297,17 @@ precompute_keys <- function(df, name_col, genus_col, epithet_col) {
 
 #' Shared exact matching against a compiled backbone
 #'
-#' All backends delegate to this function. Uses inner_join with temp .vtr
+#' All backbones delegate to this function. Uses inner_join with temp .vtr
 #' query tables for index-accelerated matching. Accepted info is read
 #' directly from precomputed columns.
 #'
 #' @param result The match result data.frame (from `empty_match_result()`).
 #' @param names_df The cleaned names data.frame from `clean_names()`.
-#' @param bb_path Path to the compiled backbone .vtr.
+#' @param vtr_path Path to the compiled backbone .vtr.
 #' @param col_map Named list mapping logical roles to column names.
 #' @return The updated result data.frame.
 #' @noRd
-match_exact_compiled <- function(result, names_df, bb_path, col_map) {
+match_exact_compiled <- function(result, names_df, vtr_path, col_map) {
   cleaned     <- names_df$cleaned
   genus_only  <- names_df$genus_only
   has_name    <- !is.na(cleaned)
@@ -325,10 +323,10 @@ match_exact_compiled <- function(result, names_df, bb_path, col_map) {
   genus_col <- col_map$genus
 
   # --- Materialize backbone (cached per session) ---
-  cache_key <- paste0(".blk_", basename(bb_path))
+  cache_key <- paste0(".blk_", basename(vtr_path))
   blk <- .taxify_env[[cache_key]]
   if (is.null(blk)) {
-    blk <- vectra::materialize(vectra::tbl(bb_path))
+    blk <- vectra::materialize(vectra::tbl(vtr_path))
     .taxify_env[[cache_key]] <- blk
   }
 
@@ -545,19 +543,19 @@ fill_compiled_matches <- function(result, matches, match_type, col_map) {
 
 #' Run fuzzy matching using vectra's C-level fuzzy_join with OpenMP
 #'
-#' Shared implementation for all backends. Builds a query .vtr from unmatched
+#' Shared implementation for all backbones. Builds a query .vtr from unmatched
 #' rows, runs a genus-blocked fuzzy_join against the backbone, picks the best
 #' match per input name, and fills the result data.frame.
 #'
 #' @param result The match result data.frame (from match_exact).
 #' @param names_df Optional data.frame from `clean_names()`.
-#' @param bb_path Path to the compiled backbone .vtr file.
+#' @param vtr_path Path to the compiled backbone .vtr file.
 #' @param method Character. Distance algorithm.
 #' @param threshold Numeric. Maximum normalized distance.
 #' @param col_map Named list mapping logical roles to backbone column names.
 #' @return The updated result data.frame.
 #' @noRd
-fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
+fuzzy_match_via_join <- function(result, names_df, vtr_path, method, threshold,
                                  col_map, region = NULL,
                                  range_mode = "present") {
   unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
@@ -593,10 +591,10 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
   # materialization), use the already-materialized block to extract only
   # candidate rows for the relevant genera. This reduces the fuzzy_join
   # right side from millions of rows to thousands.
-  cache_key <- paste0(".blk_", basename(bb_path))
+  cache_key <- paste0(".blk_", basename(vtr_path))
   blk <- .taxify_env[[cache_key]]
   if (is.null(blk)) {
-    blk <- vectra::materialize(vectra::tbl(bb_path))
+    blk <- vectra::materialize(vectra::tbl(vtr_path))
     .taxify_env[[cache_key]] <- blk
   }
 
@@ -674,12 +672,12 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
 #' writes to a temp .vtr once per session. Sorted by genus for zone-map
 #' pruning. Much smaller than the full backbone -> faster fuzzy_join I/O.
 #'
-#' @param bb_path Path to the full backbone .vtr.
+#' @param vtr_path Path to the full backbone .vtr.
 #' @param col_map Named list mapping logical roles to column names.
 #' @return Path to the compact .vtr (cached per session).
 #' @noRd
-get_fuzzy_bb <- function(bb_path, col_map) {
-  cache_key <- paste0(".fuzzy_bb_", basename(bb_path))
+get_fuzzy_bb <- function(vtr_path, col_map) {
+  cache_key <- paste0(".fuzzy_bb_", basename(vtr_path))
   cached <- .taxify_env[[cache_key]]
   if (!is.null(cached) && file.exists(cached)) return(cached)
 
@@ -694,11 +692,11 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 
   # Drop any columns a pre-accepted_authorship backbone .vtr does not carry,
   # so selection stays valid against older downloads.
-  available <- names(vectra::collect(utils::head(vectra::tbl(bb_path), 1L)))
+  available <- names(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L)))
   keep_cols <- intersect(keep_cols, available)
 
   fuzzy_path <- tempfile(fileext = ".vtr")
-  vectra::tbl(bb_path) |>
+  vectra::tbl(vtr_path) |>
     vectra::select(!!!lapply(keep_cols, as.name)) |>
     vectra::write_vtr(fuzzy_path, batch_size = 50000L)
 
@@ -718,7 +716,7 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 #'
 #' @param result The match result data.frame.
 #' @param names_df Data.frame from `clean_names()`.
-#' @param bb_path Path to the compiled backbone .vtr file.
+#' @param vtr_path Path to the compiled backbone .vtr file.
 #' @param method Character. Distance algorithm.
 #' @param threshold Numeric. Maximum normalized distance.
 #' @param col_map Named list mapping logical roles to backbone column names.
@@ -726,7 +724,7 @@ get_fuzzy_bb <- function(bb_path, col_map) {
 #'   already claimed, so this pass cannot collapse a second query onto one.
 #' @return The updated result data.frame.
 #' @noRd
-fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
+fuzzy_match_prefix_blocked <- function(result, names_df, vtr_path, method,
                                        threshold, col_map, region = NULL,
                                        range_mode = "present",
                                        taken = character(0L)) {
@@ -765,7 +763,7 @@ fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
   by_vec <- stats::setNames(col_map$name, "cleaned_name")
   block_vec <- stats::setNames("key_prefix", "query_prefix")
 
-  fuzzy_bb <- get_fuzzy_bb(bb_path, col_map)
+  fuzzy_bb <- get_fuzzy_bb(vtr_path, col_map)
   prefix_expr <- substitute(
     tolower(substr(COL, 1L, 2L)),
     list(COL = as.name(col_map$name))
@@ -848,10 +846,10 @@ fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
 #' @param backend A taxify_backend object (supplies `col_map`).
 #' @param result The match result data.frame (from match_exact).
 #' @param names_df Data.frame from `clean_names()`, carrying `genus_abbrev`.
-#' @param backbone Path to the compiled backbone .vtr file.
+#' @param vtr_path Path to the compiled backbone .vtr file.
 #' @return The updated result data.frame.
 #' @noRd
-match_abbrev_genus <- function(backend, result, names_df, backbone) {
+match_abbrev_genus <- function(backend, result, names_df, vtr_path) {
   col_map <- backend$col_map
   if (is.null(names_df$genus_abbrev)) return(result)
 
@@ -870,10 +868,10 @@ match_abbrev_genus <- function(backend, result, names_df, backbone) {
                                !grepl(".", first_tok, fixed = TRUE)])
 
   # Materialized backbone (shared session cache with the exact/fuzzy passes).
-  cache_key <- paste0(".blk_", basename(backbone))
+  cache_key <- paste0(".blk_", basename(vtr_path))
   blk <- .taxify_env[[cache_key]]
   if (is.null(blk)) {
-    blk <- vectra::materialize(vectra::tbl(backbone))
+    blk <- vectra::materialize(vectra::tbl(vtr_path))
     .taxify_env[[cache_key]] <- blk
   }
 
@@ -926,18 +924,21 @@ match_abbrev_genus <- function(backend, result, names_df, backbone) {
 }
 
 
-#' Resolve a backend name to an S3 object
+#' Resolve a backbone name to its S3 backend object
 #'
 #' A registry lookup: any name in [.backbone_registry()] is constructed by the
 #' shared [make_backend()] factory. A `taxify_backend` object is returned
 #' unchanged.
 #'
-#' @param backend Character string or taxify_backend object.
+#' This is the one crossing point between the two: a backbone name goes in, a
+#' backend handle comes out. A `taxify_backend` is returned unchanged.
+#'
+#' @param backbone Character backbone name, or a taxify_backend object.
 #' @return A taxify_backend object.
 #' @noRd
-resolve_backend <- function(backend) {
-  if (inherits(backend, "taxify_backend")) return(backend)
-  make_backend(backend)
+resolve_backend <- function(backbone) {
+  if (inherits(backbone, "taxify_backend")) return(backbone)
+  make_backend(backbone)
 }
 
 
@@ -969,7 +970,7 @@ empty_match_result <- function(n) {
     fuzzy_dist        = NA_real_,
     is_ambiguous      = NA,
     ambiguous_targets = NA_character_,
-    backend           = NA_character_,
+    backbone          = NA_character_,
     backbone_version  = NA_character_,
     stringsAsFactors  = FALSE
   )

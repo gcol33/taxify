@@ -1,9 +1,9 @@
 # Tests for pipe extensions: add_hybrid_info, add_wfo_info; native qualifier cols
 
 setup_mock_backend <- function() {
-  bb_path <- mock_backbone_vtr()
+  vtr_path <- mock_backbone_vtr()
   be <- wfo_backend()
-  set_backbone_path(be$name, bb_path)
+  set_backbone_path(be$name, vtr_path)
   be
 }
 
@@ -75,7 +75,7 @@ test_that("add_wfo_info preserves original columns", {
 #
 # The info doors read their backbone through the path cache (get_backbone_path),
 # not by calling taxify(), so a mock injected with set_backbone_path is honoured
-# deterministically. A minimal taxify-like frame (mock taxon_ids + backend) drives
+# deterministically. A minimal taxify-like frame (mock taxon_ids + backbone) drives
 # the join directly, isolating the door from taxify()'s own session state. The
 # cache is saved and restored so the mock never leaks into later files.
 
@@ -90,7 +90,7 @@ test_that("add_gbif_info attaches GBIF columns and fills from the backbone", {
   x <- data.frame(
     input_name = "Quercus robur", matched_name = "Quercus robur",
     accepted_name = "Quercus robur", taxon_id = "2878688",
-    accepted_id = "2878688", backend = "gbif", stringsAsFactors = FALSE
+    accepted_id = "2878688", backbone = "gbif", stringsAsFactors = FALSE
   )
   result <- add_gbif_info(x)
 
@@ -107,7 +107,7 @@ test_that("add_gbif_info only enriches GBIF rows and keeps originals", {
     input_name = c("Quercus robur", "Panthera leo"),
     matched_name = c("Quercus robur", "Panthera leo"),
     taxon_id = c("2878688", "OTHER"),
-    backend  = c("gbif", "col"),   # row 2 was matched by another backend
+    backbone  = c("gbif", "col"),   # row 2 was matched by another backbone
     stringsAsFactors = FALSE
   )
   result <- add_gbif_info(x)
@@ -127,7 +127,7 @@ test_that("add_col_info attaches COL columns incl. the SpeciesProfile sidecar", 
   x <- data.frame(
     input_name = "Quercus robur", matched_name = "Quercus robur",
     accepted_name = "Quercus robur", taxon_id = "5T6MX",
-    accepted_id = "5T6MX", backend = "col", stringsAsFactors = FALSE
+    accepted_id = "5T6MX", backbone = "col", stringsAsFactors = FALSE
   )
   result <- add_col_info(x)
 

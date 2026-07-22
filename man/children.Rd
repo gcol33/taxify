@@ -4,12 +4,12 @@
 \alias{children}
 \title{List the accepted taxa within a genus or family}
 \usage{
-children(taxon, backend = NULL, rank = "species", verbose = TRUE)
+children(taxon, backbone = NULL, rank = "species", verbose = TRUE)
 }
 \arguments{
 \item{taxon}{A single genus or family name.}
 
-\item{backend}{A single backend name (e.g. \code{"wfo"}) or a \code{taxify_backend}
+\item{backbone}{A single backbone name (e.g. \code{"wfo"}) or a \code{taxify_backend}
 object. \code{NULL} (default) uses the highest-priority installed backbone.}
 
 \item{rank}{Rank of the children to return (\code{"species"} by default), or
@@ -20,7 +20,7 @@ object. \code{NULL} (default) uses the highest-priority installed backbone.}
 \value{
 A data.frame of accepted taxa, columns: \code{name}, \code{authorship}, \code{rank},
 \code{family}, \code{genus}, \code{taxon_id}, \code{parent_rank} (\code{"genus"} or \code{"family"}),
-\code{backend}. Empty if the parent is not found.
+\code{backbone}. Empty if the parent is not found.
 }
 \description{
 Returns the accepted taxa a backbone places inside a genus or family, so you
@@ -31,7 +31,7 @@ parent is auto-detected: a genus is tried first, then a family.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-children("Quercus", backend = "wfo")
+children("Quercus", backbone = "wfo")
 
 options(old)
 

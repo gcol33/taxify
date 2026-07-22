@@ -7,7 +7,7 @@
 add_col_info(x)
 }
 \arguments{
-\item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}} with \code{backend == "col"}.}
+\item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}} with \code{backbone == "col"}.}
 }
 \value{
 The same data.frame with additional columns:
@@ -33,13 +33,13 @@ SpeciesProfile, if available).}
 \description{
 Joins extra Catalogue of Life columns to a \code{\link[=taxify]{taxify()}} result by
 looking up \code{taxon_id} in the COL backbone. Only enriches rows where
-\code{backend == "col"}.
+\code{backbone == "col"}.
 }
 \examples{
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Quercus robur", backend = "col") |>
+taxify("Quercus robur", backbone = "col") |>
   add_col_info()
 
 options(old)

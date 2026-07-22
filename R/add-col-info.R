@@ -2,9 +2,9 @@
 #'
 #' Joins extra Catalogue of Life columns to a [taxify()] result by
 #' looking up `taxon_id` in the COL backbone. Only enriches rows where
-#' `backend == "col"`.
+#' `backbone == "col"`.
 #'
-#' @param x A data.frame returned by [taxify()] with `backend == "col"`.
+#' @param x A data.frame returned by [taxify()] with `backbone == "col"`.
 #' @return The same data.frame with additional columns:
 #' \describe{
 #'   \item{notho}{Hybrid type from COL: `"generic"`, `"specific"`,
@@ -29,7 +29,7 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Quercus robur", backend = "col") |>
+#' taxify("Quercus robur", backbone = "col") |>
 #'   add_col_info()
 #'
 #' options(old)

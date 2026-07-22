@@ -21,7 +21,7 @@
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Quercus coccifera", backend = "gbif") |>
+#' taxify("Quercus coccifera", backbone = "gbif") |>
 #'   add_brot()
 #'
 #' options(old)

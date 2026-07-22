@@ -20,17 +20,17 @@
 #' only rows that resolved to an accepted name.
 #'
 #' @param x Character vector of names, or a `taxify()` result.
-#' @param backend Backend passed to [taxify()] when `x` is raw names.
+#' @param backbone Backend passed to [taxify()] when `x` is raw names.
 #' @param verbose Logical.
 #' @return A data.frame with `input_name`, `species` (the accepted name), and
 #'   `genus`/`family`/`order`/`class`/`phylum`/`kingdom`. Rows with no accepted
 #'   name are dropped.
 #' @noRd
-resolve_classification_frame <- function(x, backend = NULL, verbose = TRUE) {
+resolve_classification_frame <- function(x, backbone = NULL, verbose = TRUE) {
   res <- if (is.data.frame(x) && "accepted_name" %in% names(x)) {
     x
   } else if (is.character(x)) {
-    taxify(x, backend = backend, verbose = verbose)
+    taxify(x, backbone = backbone, verbose = verbose)
   } else {
     stop("x must be a character vector of names or a taxify() result.",
          call. = FALSE)
@@ -67,7 +67,7 @@ resolve_classification_frame <- function(x, backend = NULL, verbose = TRUE) {
 #' kingdom (or nothing).
 #'
 #' @param x Character vector of names (two or more), or a [taxify()] result.
-#' @param backend Backend passed to [taxify()] when `x` is raw names. `NULL`
+#' @param backbone Backend passed to [taxify()] when `x` is raw names. `NULL`
 #'   (default) uses every installed backbone. Ignored when `x` is a result.
 #' @param verbose Logical. Default `TRUE`.
 #'
@@ -87,8 +87,8 @@ resolve_classification_frame <- function(x, backend = NULL, verbose = TRUE) {
 #' options(old)
 #'
 #' @export
-lowest_common <- function(x, backend = NULL, verbose = TRUE) {
-  cf <- resolve_classification_frame(x, backend = backend, verbose = verbose)
+lowest_common <- function(x, backbone = NULL, verbose = TRUE) {
+  cf <- resolve_classification_frame(x, backbone = backbone, verbose = verbose)
   out <- data.frame(rank = NA_character_, name = NA_character_,
                     n_taxa = nrow(cf), stringsAsFactors = FALSE)
   if (nrow(cf) < 2L) {
@@ -150,7 +150,7 @@ newick_from_paths <- function(paths) {
 #' `ape` `phylo` object is included too.
 #'
 #' @param x Character vector of names, or a [taxify()] result.
-#' @param backend Backend passed to [taxify()] when `x` is raw names. `NULL`
+#' @param backbone Backend passed to [taxify()] when `x` is raw names. `NULL`
 #'   (default) uses every installed backbone. Ignored when `x` is a result.
 #' @param verbose Logical. Default `TRUE`.
 #'
@@ -177,8 +177,8 @@ newick_from_paths <- function(paths) {
 #' options(old)
 #'
 #' @export
-class2tree <- function(x, backend = NULL, verbose = TRUE) {
-  cf <- resolve_classification_frame(x, backend = backend, verbose = verbose)
+class2tree <- function(x, backbone = NULL, verbose = TRUE) {
+  cf <- resolve_classification_frame(x, backbone = backbone, verbose = verbose)
   if (nrow(cf) == 0L) {
     stop("class2tree(): no names resolved to an accepted taxon.", call. = FALSE)
   }

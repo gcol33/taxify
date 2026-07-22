@@ -39,7 +39,7 @@ Coverage: ~37.5k species across plants, vertebrates and invertebrates.
 }
 \examples{
 \dontrun{
-taxify("Silene latifolia", backend = "gbif") |>
+taxify("Silene latifolia", backbone = "gbif") |>
   add_tree_of_sex()
 }
 

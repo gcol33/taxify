@@ -31,7 +31,7 @@
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Vulpes vulpes", backend = "gbif") |>
+#' taxify("Vulpes vulpes", backbone = "gbif") |>
 #'   add_pantheria()
 #'
 #' options(old)

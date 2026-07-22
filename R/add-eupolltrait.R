@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Bombus terrestris", backend = "gbif") |>
+#' taxify("Bombus terrestris", backbone = "gbif") |>
 #'   add_eupolltrait()
 #' }
 #'

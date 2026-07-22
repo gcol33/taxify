@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Macomona liliana", backend = "gbif") |>
+#' taxify("Macomona liliana", backbone = "gbif") |>
 #'   add_nztd()
 #' }
 #'

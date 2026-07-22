@@ -20,10 +20,10 @@
 #' where the author does not single out one target, are left as they were.
 #'
 #' @param result The match result data.frame (post `run_match_stages`).
-#' @param bb_path Path to the backbone `.vtr`.
+#' @param vtr_path Path to the backbone `.vtr`.
 #' @return `result`, with any author-resolved ambiguous rows rewritten.
 #' @noRd
-disambiguate_by_authorship <- function(result, bb_path) {
+disambiguate_by_authorship <- function(result, vtr_path) {
   if (is.null(result$is_ambiguous) || is.null(result$matched_name)) return(result)
   amb <- which(!is.na(result$is_ambiguous) & result$is_ambiguous &
                  !is.na(result$matched_name) & !is.na(result$input_name))
@@ -38,7 +38,7 @@ disambiguate_by_authorship <- function(result, bb_path) {
   names_to_look <- unique(result$matched_name[amb])
   joined <- tryCatch(
     backbone_join(
-      bb_path, names_to_look, bb_key = "canonical_name",
+      vtr_path, names_to_look, bb_key = "canonical_name",
       select_cols = c("canonical_name", "authorship", "taxon_id",
                       "accepted_taxon_id", "accepted_name", "is_synonym",
                       "taxon_rank", "accepted_family", "accepted_genus")),

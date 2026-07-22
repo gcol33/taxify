@@ -11,7 +11,7 @@ test_that("backbone registry lists all 15 supported backbones", {
   expect_false(any(is.na(reg$source)))
 })
 
-test_that("every registry name resolves to a matching backend (no drift)", {
+test_that("every registry name resolves to a matching backbone (no drift)", {
   for (nm in taxify:::backbone_names()) {
     be <- taxify:::resolve_backend(nm)
     expect_s3_class(be, "taxify_backend")
@@ -19,7 +19,7 @@ test_that("every registry name resolves to a matching backend (no drift)", {
   }
 })
 
-test_that("resolve_backend error lists the registry backends", {
+test_that("resolve_backend error lists the registry backbones", {
   err <- tryCatch(taxify:::resolve_backend("nope"), error = function(e) conditionMessage(e))
   for (nm in taxify:::backbone_names()) {
     expect_true(grepl(nm, err, fixed = TRUE))

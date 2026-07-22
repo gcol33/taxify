@@ -76,7 +76,7 @@ summary.taxify_result <- function(object, ...) {
   }
 
   tally   <- meta$match_tally
-  oos_df  <- meta$out_of_scope_tally   # data.frame: life_form, backend, n
+  oos_df  <- meta$out_of_scope_tally   # data.frame: life_form, backbone, n
   lf_df   <- meta$life_form_tally      # data.frame: life_form, n
 
   n_input   <- meta$n_input
@@ -89,7 +89,7 @@ summary.taxify_result <- function(object, ...) {
   n_hybform <- tally$hybrid_formula %||% 0L
 
   # Header
-  backend_str <- paste(toupper(meta$backend), collapse = " + ")
+  backend_str <- paste(toupper(meta$backbone), collapse = " + ")
   version_str <- if (!is.null(meta$version) && !is.na(meta$version)) {
     sprintf(" v%s", meta$version)
   } else {
@@ -98,7 +98,7 @@ summary.taxify_result <- function(object, ...) {
   rule <- strrep("\u2500", 60)
 
   cat(sprintf("\u2500\u2500 taxify results %s\n", rule))
-  cat(sprintf("  backend: %s%s  |  %d names submitted\n\n",
+  cat(sprintf("  backbone: %s%s  |  %d names submitted\n\n",
               backend_str, version_str, n_input))
 
   # Matched line
@@ -123,16 +123,16 @@ summary.taxify_result <- function(object, ...) {
         sprintf("%s: %d", oos_df[[lc]][i], oos_df$n[i])
       }, character(1L))
     }
-    oos_backends <- if (!is.null(oos_df) && nrow(oos_df) > 0L) {
-      unique(oos_df$backend)
+    oos_backbones <- if (!is.null(oos_df) && nrow(oos_df) > 0L) {
+      unique(oos_df$backbone)
     } else {
-      meta$backend
+      meta$backbone
     }
-    tip_backends <- setdiff(c("wfo", "col", "gbif"), oos_backends)
-    tip_str <- if (length(tip_backends) > 0L) {
-      sprintf(" \u2014 not in %s, try backend = \"%s\"",
-              paste(toupper(oos_backends), collapse = "/"),
-              paste(tip_backends, collapse = "\", \""))
+    tip_backbones <- setdiff(c("wfo", "col", "gbif"), oos_backbones)
+    tip_str <- if (length(tip_backbones) > 0L) {
+      sprintf(" \u2014 not in %s, try backbone = \"%s\"",
+              paste(toupper(oos_backbones), collapse = "/"),
+              paste(tip_backbones, collapse = "\", \""))
     } else {
       ""
     }

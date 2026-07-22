@@ -21,7 +21,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Rana temporaria", backend = "gbif") |>
+#' taxify("Rana temporaria", backbone = "gbif") |>
 #'   add_pottier()
 #' }
 #'

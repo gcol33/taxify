@@ -40,7 +40,7 @@
 #' @examples
 #' \dontrun{
 #' # Downloads the enrichment on first use.
-#' taxify("Zea mays", backend = "gbif") |>
+#' taxify("Zea mays", backbone = "gbif") |>
 #'   add_kew_cvalues()
 #' }
 #'

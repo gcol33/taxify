@@ -28,7 +28,7 @@ Source: EuPollTrait (Milicic et al. 2025, Zenodo, CC-BY 4.0).
 }
 \examples{
 \dontrun{
-taxify("Bombus terrestris", backend = "gbif") |>
+taxify("Bombus terrestris", backbone = "gbif") |>
   add_eupolltrait()
 }
 

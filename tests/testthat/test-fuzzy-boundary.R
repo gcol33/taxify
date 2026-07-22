@@ -68,14 +68,14 @@ fuzzy_fixture_vtr <- function() {
 # test_that() block exits.
 setup_fuzzy_backend <- function() {
   env <- parent.frame()
-  bb_path <- fuzzy_fixture_vtr()
+  vtr_path <- fuzzy_fixture_vtr()
   dd <- tempfile("dd_fuzzy_")
   dir.create(file.path(dd, "wfo", "latest"), recursive = TRUE,
              showWarnings = FALSE)
-  file.copy(bb_path, file.path(dd, "wfo", "latest", "wfo.vtr"))
+  file.copy(vtr_path, file.path(dd, "wfo", "latest", "wfo.vtr"))
   withr::local_options(list(taxify.data_dir = dd), .local_envir = env)
 
-  set_backbone_path("wfo", bb_path)
+  set_backbone_path("wfo", vtr_path)
   withr::defer(set_backbone_path("wfo", NULL), envir = env)
 
   prev_checked <- .taxify_env[[".version_checked.wfo"]]
@@ -85,7 +85,7 @@ setup_fuzzy_backend <- function() {
     envir = env
   )
 
-  bb_path
+  vtr_path
 }
 
 
@@ -219,7 +219,7 @@ test_that("the flip holds for a neighbour sitting exactly on 0.25", {
 # ---- One query per backbone row (dedup_fuzzy_targets) ----
 
 test_that("the genus-blocked fuzzy pass keeps only the closest query per target", {
-  bb_path <- setup_fuzzy_backend()
+  vtr_path <- setup_fuzzy_backend()
   be <- wfo_backend()
 
   # Four distinct queries all within threshold of the single backbone row
@@ -227,8 +227,8 @@ test_that("the genus-blocked fuzzy pass keeps only the closest query per target"
   qs <- c("Cherleria bisulcata", "Cherleria bisulcus", "Cherleria bisulcum",
           "Cherleria bisulcis")
   names_df <- clean_names(qs)
-  result <- match_exact(be, names_df, bb_path)
-  result <- fuzzy_match_via_join(result, names_df, bb_path, "dl", 0.2,
+  result <- match_exact(be, names_df, vtr_path)
+  result <- fuzzy_match_via_join(result, names_df, vtr_path, "dl", 0.2,
                                  be$col_map)
 
   expect_equal(result$match_type, c("fuzzy", NA, NA, NA))

@@ -44,7 +44,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Mammuthus primigenius", backend = "gbif") |>
+#' taxify("Mammuthus primigenius", backbone = "gbif") |>
 #'   add_phylacine()
 #' }
 #'

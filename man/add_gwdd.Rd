@@ -34,7 +34,7 @@ aggregated source and is not included.
 }
 \examples{
 \dontrun{
-taxify("Quercus robur", backend = "gbif") |>
+taxify("Quercus robur", backbone = "gbif") |>
   add_gwdd()
 }
 

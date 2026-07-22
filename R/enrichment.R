@@ -1005,19 +1005,19 @@ enrichment_groups <- function(source, verbose = TRUE) {
 }
 
 
-# Resolve a set of parent binomials to their accepted names against backend(s).
-# Memoized per (backend, parent-set) within a session so a chain of add_trait
+# Resolve a set of parent binomials to their accepted names against backbone(s).
+# Memoized per (backbone, parent-set) within a session so a chain of add_trait
 # sources over the same hybrids resolves the parents only once.
-.resolve_parents_accepted <- function(parents, backend) {
+.resolve_parents_accepted <- function(parents, backbone) {
   parents <- unique(parents[!is.na(parents) & nzchar(parents)])
   if (length(parents) == 0L) {
     return(stats::setNames(character(0L), character(0L)))
   }
-  be_key <- paste(as.character(backend), collapse = "+")
+  be_key <- paste(as.character(backbone), collapse = "+")
   key    <- paste0(".pacc_", be_key, "_", paste(sort(parents), collapse = "|"))
   cached <- .taxify_env[[key]]
   if (!is.null(cached)) return(cached)
-  pr  <- taxify(parents, backend = backend, verbose = FALSE)
+  pr  <- taxify(parents, backbone = backbone, verbose = FALSE)
   acc <- stats::setNames(pr$accepted_name, pr$input_name)
   .taxify_env[[key]] <- acc
   acc
@@ -1056,8 +1056,8 @@ enrichment_groups <- function(source, verbose = TRUE) {
   p2 <- vapply(pf, function(z) z$parent_2 %||% NA_character_, character(1L))
 
   meta    <- attr(x, "taxify_meta")
-  backend <- if (!is.null(meta$backend)) meta$backend else "wfo"
-  acc <- .resolve_parents_accepted(c(p1, p2), backend)
+  backbone <- if (!is.null(meta$backbone)) meta$backbone else "wfo"
+  acc <- .resolve_parents_accepted(c(p1, p2), backbone)
   a1  <- unname(acc[p1]); a2 <- unname(acc[p2])
 
   lk <- .enrichment_vtr_lookup(vtr_path, join_key, c(a1, a2), unname(col_map))

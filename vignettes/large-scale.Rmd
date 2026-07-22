@@ -25,7 +25,7 @@ scale.
 
 This vignette covers the performance-relevant internals, gives concrete
 timing guidance for different list sizes, and walks through four worked
-examples: exact vs. fuzzy matching, multi-backend fallback ordering, batch
+examples: exact vs. fuzzy matching, multi-backbone fallback ordering, batch
 processing of very large lists, and pre-downloading resources before a batch
 run.
 
@@ -111,7 +111,7 @@ fuzzy matching is the knob that controls how long a run takes.
 
 ## Backbone loading and the session cache
 
-The first time `taxify()` is called for a given backend, several things
+The first time `taxify()` is called for a given backbone, several things
 happen behind the scenes. The function resolves the backbone path through a
 four-step fallback: session cache, versioned directory on disk, legacy flat
 directory, and finally auto-download from Zenodo if no local copy exists.
@@ -123,7 +123,7 @@ subsequent `taxify()` call in the
 same R session reuses the materialized block. There is no repeated file I/O.
 
 Two caches operate in parallel. The path cache (`.taxify_cache`) maps
-backend names to `.vtr` file paths on disk. Once a path is resolved, it
+backbone names to `.vtr` file paths on disk. Once a path is resolved, it
 stays cached so that `ensure_backbone()` does not re-scan the file system.
 The data cache (`.taxify_env`) holds the materialized columnar block itself,
 keyed by file path. It also stores the session manifest, version-check
@@ -135,7 +135,7 @@ The first `taxify()` call in a session also triggers a version check. taxify
 fetches a manifest from GitHub (a small JSON file listing the latest version
 of each backbone) and compares it against the locally installed version. If
 a newer backbone is available, it is downloaded automatically. This check
-runs once per backend per session. Subsequent calls skip it entirely. If the
+runs once per backbone per session. Subsequent calls skip it entirely. If the
 network is unavailable, the check is skipped and the local copy is used
 as-is.
 
@@ -169,12 +169,12 @@ where names are already in standard binomial form. We time both modes:
 
 # Exact + fuzzy (default)
 t_fuzzy <- system.time(
-  result_fuzzy <- taxify(species_list, backend = "wfo", fuzzy = TRUE)
+  result_fuzzy <- taxify(species_list, backbone = "wfo", fuzzy = TRUE)
 )
 
 # Exact only
 t_exact <- system.time(
-  result_exact <- taxify(species_list, backend = "wfo", fuzzy = FALSE)
+  result_exact <- taxify(species_list, backbone = "wfo", fuzzy = FALSE)
 )
 
 t_fuzzy["elapsed"]
@@ -203,7 +203,7 @@ the unmatched names, and decide whether the fuzzy pass is worth the time.
 
 ```{r}
 # Pass 1: exact only
-result <- taxify(species_list, backend = "wfo", fuzzy = FALSE)
+result <- taxify(species_list, backbone = "wfo", fuzzy = FALSE)
 
 # How many names remain unmatched?
 n_unmatched <- sum(result$match_type == "none")
@@ -212,7 +212,7 @@ message(n_unmatched, " names unmatched after exact pass")
 # Pass 2: fuzzy only on the unmatched subset
 if (n_unmatched > 0) {
   unmatched_names <- result$input_name[result$match_type == "none"]
-  fuzzy_result <- taxify(unmatched_names, backend = "wfo", fuzzy = TRUE)
+  fuzzy_result <- taxify(unmatched_names, backbone = "wfo", fuzzy = TRUE)
 
   # Merge back
   matched_rows <- fuzzy_result$match_type != "none"
@@ -235,11 +235,11 @@ fuzzy-only pass starts immediately with the string-distance computation.
 There is no penalty for splitting the work into two calls.
 
 
-## Worked example: multi-backend fallback ordering
+## Worked example: multi-backbone fallback ordering
 
-When `taxify()` receives multiple backends, it processes them as a
-sequential fallback chain. Names matched by an earlier backend are excluded
-from later ones. The order matters for performance: the first backend sees
+When `taxify()` receives multiple backbones, it processes them as a
+sequential fallback chain. Names matched by an earlier backbone are excluded
+from later ones. The order matters for performance: the first backbone sees
 all names, the second sees only those that failed, and so on.
 
 Suppose we have a mixed-kingdom species list from a freshwater ecology
@@ -252,7 +252,7 @@ and only the animal names fall through to COL.
 # 8,000 names: ~6,000 plants, ~1,500 fish, ~500 invertebrates
 t_wfo_first <- system.time(
   result_a <- taxify(survey_names,
-                     backend = c("wfo", "col"),
+                     backbone = c("wfo", "col"),
                      fuzzy = TRUE)
 )
 t_wfo_first["elapsed"]
@@ -260,7 +260,7 @@ t_wfo_first["elapsed"]
 # Reversed order: COL first, WFO second
 t_col_first <- system.time(
   result_b <- taxify(survey_names,
-                     backend = c("col", "wfo"),
+                     backbone = c("col", "wfo"),
                      fuzzy = TRUE)
 )
 t_col_first["elapsed"]
@@ -276,13 +276,13 @@ number of unmatched names, resolving 6,000 names via WFO's fast exact pass
 eliminates the need for 6,000 fuzzy comparisons against COL's much larger
 genus blocks.
 
-Note that the `backend` column in the output records which backend resolved
+Note that the `backbone` column in the output records which backbone resolved
 each name. This is useful for quality control: if a name was resolved by the
-second backend in the chain, it means the first backend either did not
-contain it or matched it differently. Inspecting the `backend` column after
-a multi-backend run can reveal patterns in taxonomic coverage gaps.
+second backbone in the chain, it means the first backbone either did not
+contain it or matched it differently. Inspecting the `backbone` column after
+a multi-backbone run can reveal patterns in taxonomic coverage gaps.
 
-General guidelines for backend ordering:
+General guidelines for backbone ordering:
 
 - Plant-only lists: `"wfo"` alone is sufficient. WFO has the most complete
   plant synonym coverage and a compact backbone.
@@ -392,7 +392,7 @@ If memory is tight, three strategies help:
 
 ```{r}
 # Match names
-result <- taxify(species_list, backend = "gbif")
+result <- taxify(species_list, backbone = "gbif")
 
 # Save result
 saveRDS(result, "matched_names.rds")
@@ -435,7 +435,7 @@ chunks <- split(all_names,
 results <- lapply(seq_along(chunks), function(i) {
   message(sprintf("Chunk %d/%d (%d names)...",
                   i, length(chunks), length(chunks[[i]])))
-  taxify(chunks[[i]], backend = "wfo", fuzzy = TRUE, verbose = FALSE)
+  taxify(chunks[[i]], backbone = "wfo", fuzzy = TRUE, verbose = FALSE)
 })
 
 # Combine
@@ -459,7 +459,7 @@ dir.create(output_dir, showWarnings = FALSE)
 
 for (i in seq_along(chunks)) {
   message(sprintf("Chunk %d/%d", i, length(chunks)))
-  res <- taxify(chunks[[i]], backend = "wfo",
+  res <- taxify(chunks[[i]], backbone = "wfo",
                 fuzzy = TRUE, verbose = FALSE)
   saveRDS(res, file.path(output_dir,
                          sprintf("chunk_%04d.rds", i)))
@@ -481,7 +481,7 @@ for (i in seq_along(chunks)) {
   out_file <- file.path(output_dir, sprintf("chunk_%04d.rds", i))
   if (file.exists(out_file)) next
   message(sprintf("Chunk %d/%d", i, length(chunks)))
-  res <- taxify(chunks[[i]], backend = "wfo",
+  res <- taxify(chunks[[i]], backbone = "wfo",
                 fuzzy = TRUE, verbose = FALSE)
   saveRDS(res, out_file)
 }
@@ -600,7 +600,7 @@ taxify_clear_cache()
 ```
 
 Deleting a backbone directory is safe. The next `taxify()` call for that
-backend will re-download it from Zenodo if needed.
+backbone will re-download it from Zenodo if needed.
 
 
 ## Worked example: pre-downloading resources
@@ -631,7 +631,7 @@ taxify_download_enrichment(c(
 ))
 
 # Now the analysis can run fully offline
-result <- taxify(species_list, backend = c("wfo", "col"))
+result <- taxify(species_list, backbone = c("wfo", "col"))
 result <- add_iucn(result)
 result <- add_zanne(result)
 ```
@@ -678,7 +678,7 @@ cleanliness (how many names need fuzzy matching), backbone size (WFO vs.
 GBIF), and hardware (number of cores, available RAM, disk speed).
 
 **Under 1,000 names.** The defaults work well. `taxify(names)` with
-`fuzzy = TRUE` and a single backend completes in a few seconds. No tuning
+`fuzzy = TRUE` and a single backbone completes in a few seconds. No tuning
 is needed. This is the regime for most interactive analysis: a field survey,
 a thesis species list, a table extracted from a paper. Memory usage is
 negligible.
@@ -698,7 +698,7 @@ alone suffices. For mixed-kingdom lists, `c("wfo", "col")` resolves most
 names on the faster WFO pass. Consider the two-pass pattern (exact first,
 fuzzy on unmatched) if only a small fraction of names have quality issues.
 The GBIF backbone at 6.4 million rows is the most expensive for fuzzy
-matching; avoid it as the first backend unless the list is primarily
+matching; avoid it as the first backbone unless the list is primarily
 non-plant, non-marine taxa not covered by COL.
 
 **Over 500,000 names.** Batch in chunks of 50,000-100,000 names. The
@@ -712,7 +712,7 @@ accumulating the full result in memory and enriching after.
 ```{r}
 # Pattern for 500,000+ names with enrichments
 for (i in seq_along(chunks)) {
-  res <- taxify(chunks[[i]], backend = "wfo",
+  res <- taxify(chunks[[i]], backbone = "wfo",
                 fuzzy = TRUE, verbose = FALSE)
   res <- add_iucn(res, verbose = FALSE)
   res <- add_zanne(res, verbose = FALSE)
@@ -722,7 +722,7 @@ for (i in seq_along(chunks)) {
 
 **Backend selection cheat sheet:**
 
-| List composition | Recommended backend(s) |
+| List composition | Recommended backbone(s) |
 |-----------------|----------------------|
 | Plants only | `"wfo"` |
 | Plants + animals | `c("wfo", "col")` |
@@ -769,11 +769,11 @@ Jaro-Winkler method (`fuzzy_method = "jw"`).
 
 ```{r}
 # Tight threshold for clean input
-result <- taxify(clean_names, backend = "wfo",
+result <- taxify(clean_names, backbone = "wfo",
                  fuzzy = TRUE, fuzzy_threshold = 0.1)
 
 # Integer threshold: at most 2 edits, period
-result <- taxify(noisy_names, backend = "wfo",
+result <- taxify(noisy_names, backbone = "wfo",
                  fuzzy = TRUE, fuzzy_threshold = 2L)
 ```
 
@@ -783,7 +783,7 @@ result <- taxify(noisy_names, backend = "wfo",
 | Function | Purpose |
 |----------|---------|
 | `taxify(..., fuzzy = FALSE)` | Skip fuzzy matching for clean input |
-| `taxify(..., backend = c("wfo", "col"))` | Multi-backend fallback chain |
+| `taxify(..., backbone = c("wfo", "col"))` | Multi-backbone fallback chain |
 | `taxify_data_dir()` | Find where backbones are stored |
 | `taxify_download()` | Pre-download backbone `.vtr` files |
 | `taxify_download_enrichment()` | Pre-download enrichment `.vtr` files |

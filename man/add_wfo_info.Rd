@@ -7,7 +7,7 @@
 add_wfo_info(x)
 }
 \arguments{
-\item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}} with \code{backend == "wfo"}.}
+\item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}} with \code{backbone == "wfo"}.}
 }
 \value{
 The same data.frame with additional columns:

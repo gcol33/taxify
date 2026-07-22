@@ -4,7 +4,7 @@
 \alias{comm2sci}
 \title{Resolve common (vernacular) names to scientific names}
 \usage{
-comm2sci(x, lang = NULL, resolve = FALSE, backend = NULL, verbose = TRUE)
+comm2sci(x, lang = NULL, resolve = FALSE, backbone = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{Character vector of common names.}
@@ -20,7 +20,7 @@ names through \code{\link[=taxify]{taxify()}} and return a \code{taxify_result} 
 \code{query_common} column), so the result pipes straight into the \verb{add_*()}
 enrichments.}
 
-\item{backend}{Passed to \code{\link[=taxify]{taxify()}} when \code{resolve = TRUE}; \code{NULL} (default)
+\item{backbone}{Passed to \code{\link[=taxify]{taxify()}} when \code{resolve = TRUE}; \code{NULL} (default)
 uses every installed backbone. Ignored when \code{resolve = FALSE}.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
@@ -29,10 +29,10 @@ uses every installed backbone. Ignored when \code{resolve = FALSE}.}
 When \code{resolve = FALSE}, a data.frame with one row per
 (query, scientific match):
 \describe{
-\item{query}{The common name as supplied.}
+\item{input_name}{The common name as supplied.}
 \item{common_name}{The vernacular name as stored in the source (its
-casing, which may differ from \code{query}).}
-\item{scientific_name}{The accepted scientific name.}
+casing, which may differ from \code{input_name}).}
+\item{accepted_name}{The accepted scientific name.}
 \item{lang}{Language tag of the vernacular name (\code{NA} for NCBI/Open Tree).}
 }
 A query with no match contributes no rows. When \code{resolve = TRUE}, a
@@ -56,7 +56,7 @@ old <- options(taxify.data_dir = taxify_example_data())
 comm2sci("example_common_name")
 
 # Resolve straight to a taxify_result you can enrich
-comm2sci("example_common_name", resolve = TRUE, backend = "wfo")
+comm2sci("example_common_name", resolve = TRUE, backbone = "wfo")
 
 options(old)
 

@@ -17,7 +17,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Capreolus capreolus", backend = "gbif") |>
+#' taxify("Capreolus capreolus", backbone = "gbif") |>
 #'   add_tetradensity()
 #' }
 #'

@@ -49,7 +49,7 @@ none of the data. Cite Hill et al. (2004) when you use it.
 \examples{
 \dontrun{
 # Builds the enrichment on first use (needs taxifydb).
-taxify("Bellis perennis", backend = "gbif") |>
+taxify("Bellis perennis", backbone = "gbif") |>
   add_plantatt()
 }
 

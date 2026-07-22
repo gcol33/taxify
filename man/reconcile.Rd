@@ -4,12 +4,12 @@
 \alias{reconcile}
 \title{Reconcile a checklist against a backbone's current treatment}
 \usage{
-reconcile(x, backend = NULL, ..., verbose = TRUE)
+reconcile(x, backbone = NULL, ..., verbose = TRUE)
 }
 \arguments{
 \item{x}{Character vector of names (a checklist).}
 
-\item{backend}{Character vector of backend names or a \code{taxify_backend}
+\item{backbone}{Character vector of backbone names or a \code{taxify_backend}
 object, passed to \code{\link[=taxify]{taxify()}}. \code{NULL} (default) uses every installed
 backbone.}
 
@@ -36,7 +36,7 @@ A data.frame with one row per input name, columns:
 same accepted name (a many-to-one collapse).}
 \item{merged_with}{\code{|}-joined other input names sharing this accepted name,
 or \code{NA}.}
-\item{backend}{Backend that matched (\code{NA} if unresolved).}
+\item{backbone}{Backend that matched (\code{NA} if unresolved).}
 }
 }
 \description{
@@ -55,7 +55,7 @@ old <- options(taxify.data_dir = taxify_example_data())
 # misspelling of it; a bad name is unresolved.
 reconcile(c("Quercus robur", "Quercus pedunculata", "Quercus robus",
             "Notagenus imaginus"),
-          backend = "wfo", verbose = FALSE)
+          backbone = "wfo", verbose = FALSE)
 
 options(old)
 

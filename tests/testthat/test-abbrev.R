@@ -77,13 +77,13 @@ test_that("clean_names does not flag hybrids as abbreviations", {
 
 test_that("abbreviated genus resolves when unique", {
   be <- ott_backend()
-  backbone <- mock_abbrev_backbone_vtr()
+  vtr_path <- mock_abbrev_backbone_vtr()
   names_df <- clean_names("Q. petraea")
 
-  result <- match_exact(be, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
   expect_true(is.na(result$match_type[1L]))
 
-  result <- match_abbrev_genus(be, result, names_df, backbone)
+  result <- match_abbrev_genus(be, result, names_df, vtr_path)
   expect_equal(result$match_type[1L], "abbrev")
   expect_equal(result$accepted_name[1L], "Quercus petraea")
   expect_equal(result$genus[1L], "Quercus")
@@ -93,12 +93,12 @@ test_that("abbreviated genus resolves when unique", {
 
 test_that("abbreviated genus resolves when initial is shared but epithet unique", {
   be <- ott_backend()
-  backbone <- mock_abbrev_backbone_vtr()
+  vtr_path <- mock_abbrev_backbone_vtr()
   # Initial P covers Pinus and Picea, but only Pinus has "sylvestris".
   names_df <- clean_names("P. sylvestris")
 
-  result <- match_exact(be, names_df, backbone)
-  result <- match_abbrev_genus(be, result, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
+  result <- match_abbrev_genus(be, result, names_df, vtr_path)
 
   expect_equal(result$match_type[1L], "abbrev")
   expect_equal(result$accepted_name[1L], "Pinus sylvestris")
@@ -107,11 +107,11 @@ test_that("abbreviated genus resolves when initial is shared but epithet unique"
 
 test_that("abbreviated genus reaches a synonym and resolves accepted info", {
   be <- ott_backend()
-  backbone <- mock_abbrev_backbone_vtr()
+  vtr_path <- mock_abbrev_backbone_vtr()
   names_df <- clean_names("Q. pedunculata")
 
-  result <- match_exact(be, names_df, backbone)
-  result <- match_abbrev_genus(be, result, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
+  result <- match_abbrev_genus(be, result, names_df, vtr_path)
 
   expect_equal(result$match_type[1L], "abbrev")
   expect_true(result$is_synonym[1L])
@@ -124,12 +124,12 @@ test_that("abbreviated genus reaches a synonym and resolves accepted info", {
 
 test_that("abbreviated genus stays unmatched and flags ambiguity", {
   be <- ott_backend()
-  backbone <- mock_abbrev_backbone_vtr()
+  vtr_path <- mock_abbrev_backbone_vtr()
   # Initial A covers Abies alba and Acer alba: genuinely ambiguous.
   names_df <- clean_names("A. alba")
 
-  result <- match_exact(be, names_df, backbone)
-  result <- match_abbrev_genus(be, result, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
+  result <- match_abbrev_genus(be, result, names_df, vtr_path)
 
   expect_true(is.na(result$match_type[1L]))
   expect_true(result$is_ambiguous[1L])
@@ -142,12 +142,12 @@ test_that("abbreviated genus stays unmatched and flags ambiguity", {
 
 test_that("a genus spelled out in the batch disambiguates the abbreviation", {
   be <- ott_backend()
-  backbone <- mock_abbrev_backbone_vtr()
+  vtr_path <- mock_abbrev_backbone_vtr()
   # "Abies alba" spelled out makes "A. alba" resolve to Abies, not Acer.
   names_df <- clean_names(c("Abies alba", "A. alba"))
 
-  result <- match_exact(be, names_df, backbone)
-  result <- match_abbrev_genus(be, result, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
+  result <- match_abbrev_genus(be, result, names_df, vtr_path)
 
   expect_equal(result$match_type[2L], "abbrev")
   expect_equal(result$accepted_name[2L], "Abies alba")
@@ -160,11 +160,11 @@ test_that("a genus spelled out in the batch disambiguates the abbreviation", {
 
 test_that("abbreviated genus with no candidate epithet stays unmatched", {
   be <- ott_backend()
-  backbone <- mock_abbrev_backbone_vtr()
+  vtr_path <- mock_abbrev_backbone_vtr()
   names_df <- clean_names("Z. nonexistus")
 
-  result <- match_exact(be, names_df, backbone)
-  result <- match_abbrev_genus(be, result, names_df, backbone)
+  result <- match_exact(be, names_df, vtr_path)
+  result <- match_abbrev_genus(be, result, names_df, vtr_path)
 
   expect_true(is.na(result$match_type[1L]))
   expect_false(isTRUE(result$is_ambiguous[1L]))
@@ -175,10 +175,10 @@ test_that("abbreviated genus with no candidate epithet stays unmatched", {
 
 test_that("run_match_stages handles normal and abbreviated names together", {
   be <- ott_backend()
-  backbone <- mock_abbrev_backbone_vtr()
+  vtr_path <- mock_abbrev_backbone_vtr()
   names_df <- clean_names(c("Quercus robur", "Q. petraea", "A. alba"))
 
-  result <- run_match_stages(be, names_df, backbone,
+  result <- run_match_stages(be, names_df, vtr_path,
                              fuzzy = TRUE, fuzzy_threshold = 0.2,
                              fuzzy_method = "dl")
 

@@ -55,7 +55,7 @@ values.
 }
 \examples{
 \dontrun{
-taxify("Vulpes vulpes", backend = "gbif") |>
+taxify("Vulpes vulpes", backbone = "gbif") |>
   add_combine_reported()
 }
 

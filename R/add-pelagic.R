@@ -20,7 +20,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Thunnus albacares", backend = "gbif") |>
+#' taxify("Thunnus albacares", backbone = "gbif") |>
 #'   add_pelagic()
 #' }
 #'

@@ -28,7 +28,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Puccinia graminis", backend = "gbif") |>
+#' taxify("Puccinia graminis", backbone = "gbif") |>
 #'   add_usda_fungus_host()
 #' }
 #'

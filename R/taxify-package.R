@@ -28,9 +28,10 @@ utils::globalVariables(c(
   "accepted_taxon_id", "accepted_authorship", "is_synonym",
   # vectra string distance functions (used in NSE mutate expressions)
   "dl_dist_norm", "levenshtein_norm", "jaro_winkler",
-  # register column references
+  # register column references. `backend` is the column name inside the
+  # published backend_coverage.vtr, which taxifydb writes.
   "query_genus", "life_form", "kingdom_group", "taxon_group",
-  "kingdom", "phylum", "class", "order",
+  "kingdom", "phylum", "class", "order", "backend",
   # enrichment column references (used in vectra NSE select/join)
   "canonical_name", "conservation_status",
   "country_code", "invasive_status",

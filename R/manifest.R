@@ -2,7 +2,7 @@
 #
 # The manifest.json is shipped with the package (inst/manifest.json) and also
 # hosted at the GitHub raw URL below. It records the latest available version
-# and Zenodo download URL for each backend and the genus register.
+# and Zenodo download URL for each backbone and the genus register.
 #
 # fetch_manifest() is called once per R session; the result is cached in
 # .taxify_env$manifest so subsequent calls in the same session are free.
@@ -18,7 +18,7 @@
 #' bundled `inst/manifest.json`. Never throws — returns the fallback
 #' with a warning so callers can decide whether to proceed.
 #'
-#' @return A named list with one entry per backend (e.g., `$wfo$latest`,
+#' @return A named list with one entry per backbone (e.g., `$wfo$latest`,
 #'   `$wfo$url`).
 #' @noRd
 fetch_manifest <- function() {
@@ -95,19 +95,19 @@ read_json_bom <- function(path, ...) {
 
 #' Check whether a local backbone version is current
 #'
-#' Compares the version recorded in `<data_dir>/<backend>/latest/meta.json`
+#' Compares the version recorded in `<data_dir>/<backbone>/latest/meta.json`
 #' (if it exists) against the manifest. Returns `TRUE` if an update is needed.
 #'
-#' @param backend_name Character string (e.g., `"wfo"`).
+#' @param backbone_name Character string (e.g., `"wfo"`).
 #' @return Logical scalar. `TRUE` means a newer version is available (or no
 #'   local backbone exists yet).
 #' @noRd
-check_version <- function(backend_name) {
+check_version <- function(backbone_name) {
   # Never refresh against the read-only example database (offline fixtures).
   if (is_example_data_dir()) return(FALSE)
 
-  meta <- read_version_meta(backend_name, "latest")
-  vtr  <- versioned_vtr_path(backend_name, "latest")
+  meta <- read_version_meta(backbone_name, "latest")
+  vtr  <- versioned_vtr_path(backbone_name, "latest")
 
   # Frozen/bundled backbones (e.g. the example database) never phone home, but
   # a shipped content id still lets a same-tag republish refresh them offline
@@ -116,7 +116,7 @@ check_version <- function(backend_name) {
     # Only reconcile runtime-downloaded caches (downloaded_at present); the
     # bundled example database and staged mocks lack it and are left untouched.
     if (is.null(meta$downloaded_at)) return(FALSE)
-    entry <- tryCatch(resolve_manifest_entry(local_manifest(), backend_name),
+    entry <- tryCatch(resolve_manifest_entry(local_manifest(), backbone_name),
                       error = function(e) NULL)
     s <- reconcile_content_id(vtr, meta$content_id, entry$content_id,
                               adopt = function(cid) write_content_id_meta(vtr, cid))
@@ -124,8 +124,8 @@ check_version <- function(backend_name) {
   }
 
   manifest <- fetch_manifest()
-  entry <- resolve_manifest_entry(manifest, backend_name)
-  if (is.null(entry)) return(FALSE)  # Unknown backend — skip
+  entry <- resolve_manifest_entry(manifest, backbone_name)
+  if (is.null(entry)) return(FALSE)  # Unknown backbone — skip
 
   if (is.null(meta)) return(TRUE)   # No local copy at all
 
@@ -144,21 +144,21 @@ check_version <- function(backend_name) {
 }
 
 
-#' Resolve the download URL for a backend + version
+#' Resolve the download URL for a backbone + version
 #'
 #' For `version = "latest"` the URL comes from the manifest. For a pinned
 #' version the caller must supply an explicit URL (not yet supported via
 #' manifest — placeholder).
 #'
-#' @param backend_name Character.
+#' @param backbone_name Character.
 #' @param version Character. `"latest"` or a specific version string.
 #' @return Character URL.
 #' @noRd
-manifest_url <- function(backend_name, version = "latest") {
+manifest_url <- function(backbone_name, version = "latest") {
   manifest <- fetch_manifest()
-  entry <- resolve_manifest_entry(manifest, backend_name)
+  entry <- resolve_manifest_entry(manifest, backbone_name)
   if (is.null(entry)) {
-    stop(sprintf("Backend '%s' not found in manifest.", backend_name),
+    stop(sprintf("Backend '%s' not found in manifest.", backbone_name),
          call. = FALSE)
   }
   # v2 schema uses full_url; v1 uses url
@@ -167,8 +167,8 @@ manifest_url <- function(backend_name, version = "latest") {
     url
   } else {
     gsub(
-      paste0(backend_name, "_[^/]+\\.vtr"),
-      sprintf("%s_%s.vtr", backend_name, version),
+      paste0(backbone_name, "_[^/]+\\.vtr"),
+      sprintf("%s_%s.vtr", backbone_name, version),
       url
     )
   }
@@ -187,15 +187,15 @@ manifest_url <- function(backend_name, version = "latest") {
 #' makes a version bump reach an already-installed package.
 #'
 #' @param manifest The parsed manifest list.
-#' @param backend_name Character.
+#' @param backbone_name Character.
 #' @return The entry list, or NULL.
 #' @noRd
-resolve_manifest_entry <- function(manifest, backend_name) {
+resolve_manifest_entry <- function(manifest, backbone_name) {
   pick <- function(m) {
     if (!is.null(m$schema_version) && m$schema_version >= 2L) {
-      m$backends[[backend_name]]
+      m$backends[[backbone_name]]
     } else {
-      m[[backend_name]]
+      m[[backbone_name]]
     }
   }
   entry <- pick(manifest)
@@ -204,15 +204,15 @@ resolve_manifest_entry <- function(manifest, backend_name) {
 }
 
 
-#' Get the xdelta3 patch URL for a backend (if available)
+#' Get the xdelta3 patch URL for a backbone (if available)
 #'
-#' @param backend_name Character.
+#' @param backbone_name Character.
 #' @param version Character.
 #' @return Character URL or NULL if no delta available.
 #' @noRd
-manifest_delta_url <- function(backend_name, version = "latest") {
+manifest_delta_url <- function(backbone_name, version = "latest") {
   manifest <- fetch_manifest()
-  entry <- resolve_manifest_entry(manifest, backend_name)
+  entry <- resolve_manifest_entry(manifest, backbone_name)
   if (is.null(entry)) return(NULL)
   entry$delta_url  # NULL if not present in manifest
 }
@@ -234,7 +234,7 @@ taxify_refresh_manifest <- function() {
 
 #' Activate a local manifest for dev/testing
 #'
-#' Scans `taxify_data_dir()` for installed backends, reads their `meta.json`
+#' Scans `taxify_data_dir()` for installed backbones, reads their `meta.json`
 #' version files, and builds an in-memory manifest using `file://` URLs that
 #' point at the local `.vtr` files.  Injects the result into
 #' `.taxify_env$manifest`, overriding any network-fetched manifest for the
@@ -251,18 +251,18 @@ taxify_refresh_manifest <- function() {
 use_local_manifest <- function() {
   data_dir <- taxify_data_dir()
 
-  backends <- c("wfo", "col", "gbif", "itis",
+  backbones <- c("wfo", "col", "gbif", "itis",
                 .register_assets[["register"]], .register_assets[["coverage"]])
 
   manifest <- list()
   found <- character(0L)
   not_found <- character(0L)
 
-  for (be_name in backends) {
-    vtr_path <- file.path(data_dir, be_name, "latest", paste0(be_name, ".vtr"))
+  for (bb_name in backbones) {
+    vtr_path <- file.path(data_dir, bb_name, "latest", paste0(bb_name, ".vtr"))
 
     if (!file.exists(vtr_path)) {
-      not_found <- c(not_found, be_name)
+      not_found <- c(not_found, bb_name)
       next
     }
 
@@ -280,8 +280,8 @@ use_local_manifest <- function() {
     abs_path <- normalizePath(vtr_path, winslash = "/", mustWork = TRUE)
     file_url <- paste0("file:///", abs_path)
 
-    manifest[[be_name]] <- list(latest = version, url = file_url)
-    found <- c(found, sprintf("  %-10s v%-12s  ->  %s", be_name, version,
+    manifest[[bb_name]] <- list(latest = version, url = file_url)
+    found <- c(found, sprintf("  %-10s v%-12s  ->  %s", bb_name, version,
                               file_url))
   }
 
@@ -289,8 +289,8 @@ use_local_manifest <- function() {
   .taxify_env$manifest <- manifest
 
   # Clear version-check flags so taxify() re-evaluates against local manifest
-  for (be_name in backends) {
-    check_key <- paste0(".version_checked.", be_name)
+  for (bb_name in backbones) {
+    check_key <- paste0(".version_checked.", bb_name)
     .taxify_env[[check_key]] <- NULL
   }
 
@@ -303,7 +303,7 @@ use_local_manifest <- function() {
     message(sprintf("  (not installed: %s)", paste(not_found, collapse = ", ")))
   }
   if (length(found) == 0L) {
-    message("Local manifest active (no backends installed yet).")
+    message("Local manifest active (no backbones installed yet).")
   }
 
   invisible(manifest)

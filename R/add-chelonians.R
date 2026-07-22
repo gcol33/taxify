@@ -37,7 +37,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Chelonia mydas", backend = "gbif") |>
+#' taxify("Chelonia mydas", backbone = "gbif") |>
 #'   add_chelonians()
 #' }
 #'

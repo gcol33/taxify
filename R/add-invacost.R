@@ -35,7 +35,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Solenopsis invicta", backend = "gbif") |>
+#' taxify("Solenopsis invicta", backbone = "gbif") |>
 #'   add_invacost()
 #' }
 #'

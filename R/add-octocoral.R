@@ -20,7 +20,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Gorgonia ventalina", backend = "gbif") |>
+#' taxify("Gorgonia ventalina", backbone = "gbif") |>
 #'   add_octocoral()
 #' }
 #'

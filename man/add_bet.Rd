@@ -46,7 +46,7 @@ CC BY-SA 4.0). Coverage: ~1.8k bryophyte species.
 }
 \examples{
 \dontrun{
-taxify("Abietinella abietina", backend = "gbif") |>
+taxify("Abietinella abietina", backbone = "gbif") |>
   add_bet()
 }
 

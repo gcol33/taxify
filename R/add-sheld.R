@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Lampsilis cardium", backend = "gbif") |>
+#' taxify("Lampsilis cardium", backbone = "gbif") |>
 #'   add_sheld()
 #' }
 #'

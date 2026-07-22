@@ -1,6 +1,6 @@
-# End-to-end test: COL backend with real backbone
+# End-to-end test: COL backbone with real backbone
 
-cat("=== taxify end-to-end test: COL backend ===\n\n")
+cat("=== taxify end-to-end test: COL backbone ===\n\n")
 
 # --- 1. Download backbone ---
 cat("--- Step 1: Check COL backbone ---\n")
@@ -26,7 +26,7 @@ plant_names <- c(
   "Rosa canina"
 )
 
-res_plants <- taxify(plant_names, backend = "col", verbose = FALSE)
+res_plants <- taxify(plant_names, backbone = "col", verbose = FALSE)
 cat(sprintf("  Matched: %d / %d\n", sum(res_plants$match_type != "none"),
             length(plant_names)))
 for (i in seq_len(nrow(res_plants))) {
@@ -47,7 +47,7 @@ animal_names <- c(
   "Salmo trutta"           # brown trout
 )
 
-res_animals <- taxify(animal_names, backend = "col", verbose = FALSE)
+res_animals <- taxify(animal_names, backbone = "col", verbose = FALSE)
 cat(sprintf("  Matched: %d / %d\n", sum(res_animals$match_type != "none"),
             length(animal_names)))
 for (i in seq_len(nrow(res_animals))) {
@@ -68,7 +68,7 @@ synonym_names <- c(
   "Panthera leo"           # accepted (control)
 )
 
-res_syn <- taxify(synonym_names, backend = "col", verbose = FALSE)
+res_syn <- taxify(synonym_names, backbone = "col", verbose = FALSE)
 for (i in seq_len(nrow(res_syn))) {
   cat(sprintf("  %s -> %s (synonym=%s)\n",
               res_syn$input_name[i], res_syn$accepted_name[i],
@@ -85,7 +85,7 @@ fuzzy_names <- c(
   "Ursus arktos"      # typo
 )
 
-res_fuzzy <- taxify(fuzzy_names, backend = "col", verbose = FALSE)
+res_fuzzy <- taxify(fuzzy_names, backbone = "col", verbose = FALSE)
 for (i in seq_len(nrow(res_fuzzy))) {
   cat(sprintf("  %s -> %s (%s, dist=%.3f)\n",
               res_fuzzy$input_name[i],
@@ -100,13 +100,13 @@ cat("\n")
 
 # --- 6. add_col_info() extension ---
 cat("--- Step 6: add_col_info() ---\n")
-res_ext <- taxify(c("Quercus robur", "Panthera leo"), backend = "col",
+res_ext <- taxify(c("Quercus robur", "Panthera leo"), backbone = "col",
                   verbose = FALSE) |>
   add_col_info()
 expected_core <- c("input_name", "matched_name", "accepted_name", "taxon_id",
                    "accepted_id", "rank", "family", "genus", "epithet",
                    "authorship", "is_synonym", "is_hybrid", "match_type",
-                   "fuzzy_dist", "backend", "backbone_version")
+                   "fuzzy_dist", "backbone", "backbone_version")
 extra_cols <- setdiff(names(res_ext), expected_core)
 cat(sprintf("  Extra columns added: %s\n", paste(extra_cols, collapse = ", ")))
 cat("\n")
@@ -124,7 +124,7 @@ species_pool <- c(
 set.seed(42)
 bench_1k <- sample(species_pool, 1000, replace = TRUE)
 t1 <- Sys.time()
-res_1k <- taxify(bench_1k, backend = "col", fuzzy = FALSE, verbose = FALSE)
+res_1k <- taxify(bench_1k, backbone = "col", fuzzy = FALSE, verbose = FALSE)
 dt_1k <- difftime(Sys.time(), t1, units = "secs")
 cat(sprintf("  1,000 names (exact only): %.1f sec (%.0f names/sec)\n",
             dt_1k, 1000 / as.numeric(dt_1k)))

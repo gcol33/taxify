@@ -10,7 +10,7 @@ taxify_register_coverage(genus)
 \item{genus}{Character scalar. The genus name to query.}
 }
 \value{
-A data.frame with columns \code{genus}, \code{backend}, \code{version},
+A data.frame with columns \code{genus}, \code{backbone}, \code{version},
 \code{date_added}. Returns a zero-row data.frame if the genus is not found
 in any backbone.
 }

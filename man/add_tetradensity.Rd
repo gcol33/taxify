@@ -26,7 +26,7 @@ in other density units are excluded to avoid mixing.
 }
 \examples{
 \dontrun{
-taxify("Capreolus capreolus", backend = "gbif") |>
+taxify("Capreolus capreolus", backbone = "gbif") |>
   add_tetradensity()
 }
 

@@ -20,7 +20,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Bufo bufo", backend = "gbif") |>
+#' taxify("Bufo bufo", backbone = "gbif") |>
 #'   add_huang_amph()
 #' }
 #'

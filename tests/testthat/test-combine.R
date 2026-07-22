@@ -183,7 +183,7 @@ test_that("[.taxify_result carries taxify_meta and class through subsetting", {
   wfo_vtr <- file.path(taxify_example_data(), "wfo", "latest", "wfo.vtr")
   skip_if_not(file.exists(wfo_vtr), "wfo example backbone missing")
 
-  res <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+  res <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
   expect_s3_class(res, "taxify_result")
   expect_false(is.null(attr(res, "taxify_meta")))
 

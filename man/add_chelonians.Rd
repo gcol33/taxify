@@ -44,7 +44,7 @@ Coverage: 358 turtle and tortoise species. Numeric values reported as
 }
 \examples{
 \dontrun{
-taxify("Chelonia mydas", backend = "gbif") |>
+taxify("Chelonia mydas", backbone = "gbif") |>
   add_chelonians()
 }
 

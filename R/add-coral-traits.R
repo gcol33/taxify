@@ -35,7 +35,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Acropora millepora", backend = "gbif") |>
+#' taxify("Acropora millepora", backbone = "gbif") |>
 #'   add_coral_traits()
 #' }
 #'

@@ -2,16 +2,16 @@
 % Please edit documentation in R/id2name.R
 \name{id2name}
 \alias{id2name}
-\title{Resolve backend IDs to names}
+\title{Resolve backbone IDs to names}
 \usage{
-id2name(id, backend = NULL, verbose = TRUE)
+id2name(id, backbone = NULL, verbose = TRUE)
 }
 \arguments{
-\item{id}{A vector of backend IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
+\item{id}{A vector of backbone IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
 AphiaIDs). Coerced to character, matched against the backbone's \code{taxon_id}.
-IDs are backbone-specific, so name the \code{backend} they came from.}
+IDs are backbone-specific, so name the \code{backbone} they came from.}
 
-\item{backend}{A single backend name (e.g. \code{"col"}, \code{"gbif"}) or a
+\item{backbone}{A single backbone name (e.g. \code{"col"}, \code{"gbif"}) or a
 \code{taxify_backend} object. \code{NULL} (default) uses the highest-priority
 installed backbone.}
 
@@ -30,13 +30,13 @@ backbone).}
 when the ID is itself accepted).}
 \item{family}{Family.}
 \item{genus}{Genus.}
-\item{backend}{Backend used.}
+\item{backbone}{Backend used.}
 }
 IDs not found in the backbone yield a row with \code{NA} name columns, so the
 output stays aligned one-to-one with the input.
 }
 \description{
-Looks up one or more backend taxon IDs in a backbone and returns the name,
+Looks up one or more backbone taxon IDs in a backbone and returns the name,
 rank, classification, and accepted-name resolution for each. The inverse of
 the \code{taxon_id} / \code{accepted_id} columns \code{\link[=taxify]{taxify()}} emits.
 }
@@ -45,8 +45,8 @@ the \code{taxon_id} / \code{accepted_id} columns \code{\link[=taxify]{taxify()}}
 old <- options(taxify.data_dir = taxify_example_data())
 
 # Round-trip: resolve a name, then look its ID back up
-r <- taxify("Quercus robur", backend = "col")
-id2name(r$taxon_id, backend = "col")
+r <- taxify("Quercus robur", backbone = "col")
+id2name(r$taxon_id, backbone = "col")
 
 options(old)
 

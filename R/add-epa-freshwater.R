@@ -35,7 +35,7 @@
 #' @examples
 #' \dontrun{
 #' # Downloads the enrichment on first use.
-#' taxify("Baetis", backend = "gbif") |>
+#' taxify("Baetis", backbone = "gbif") |>
 #'   add_epa_freshwater()
 #' }
 #'

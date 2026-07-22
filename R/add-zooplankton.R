@@ -21,7 +21,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Calanus finmarchicus", backend = "gbif") |>
+#' taxify("Calanus finmarchicus", backbone = "gbif") |>
 #'   add_zooplankton()
 #' }
 #'

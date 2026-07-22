@@ -59,7 +59,7 @@ collect_by_ancestor <- function(bb, col, value, sel_cols) {
 #'
 #' @param taxon A single higher-taxon name (a genus, family, order, class,
 #'   phylum, or kingdom).
-#' @param backend A single backend name or a `taxify_backend` object. `NULL`
+#' @param backbone A single backbone name or a `taxify_backend` object. `NULL`
 #'   (default) uses the highest-priority installed backbone; name one that
 #'   stores the higher ranks (e.g. `"col"`) to reach above genus.
 #' @param downto Target rank of the descendants to return (`"species"` by
@@ -68,7 +68,7 @@ collect_by_ancestor <- function(bb, col, value, sel_cols) {
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame of accepted descendants, columns: `name`, `authorship`,
-#'   `rank`, `family`, `genus`, `taxon_id`, `parent`, `parent_rank`, `backend`.
+#'   `rank`, `family`, `genus`, `taxon_id`, `parent`, `parent_rank`, `backbone`.
 #'   Empty when `taxon` is not found, its rank is one the backbone does not store
 #'   as a column (e.g. subfamily, tribe), or it has no descendants at `downto`.
 #'
@@ -79,20 +79,20 @@ collect_by_ancestor <- function(bb, col, value, sel_cols) {
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
 #' # Every species the backbone places in the genus
-#' downstream("Quercus", backend = "col")
+#' downstream("Quercus", backbone = "col")
 #'
 #' options(old)
 #'
 #' @export
-downstream <- function(taxon, backend = NULL, downto = "species",
+downstream <- function(taxon, backbone = NULL, downto = "species",
                        verbose = TRUE) {
   if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||
       !nzchar(trimws(taxon))) {
     stop("taxon must be a single non-empty name.", call. = FALSE)
   }
-  backend <- resolve_single_backend(backend, verbose = verbose)
-  be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
-  bb <- backbone_path(backend, verbose = verbose)
+  backbone <- resolve_single_backend(backbone, verbose = verbose)
+  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+  bb <- backbone_path(backbone, verbose = verbose)
   taxon <- title_case_taxon(taxon)
   any_rank <- identical(downto, "any")
   downto_u <- toupper(downto)
@@ -105,7 +105,7 @@ downstream <- function(taxon, backend = NULL, downto = "species",
     name = character(0L), authorship = character(0L), rank = character(0L),
     family = character(0L), genus = character(0L), taxon_id = character(0L),
     parent = character(0L), parent_rank = character(0L),
-    backend = character(0L), stringsAsFactors = FALSE
+    backbone = character(0L), stringsAsFactors = FALSE
   )
 
   # 1. The taxon's own rank -> the column its descendants are filtered on.
@@ -142,8 +142,8 @@ downstream <- function(taxon, backend = NULL, downto = "species",
   }
   if (is.na(anc_col)) {
     if (verbose) message(sprintf(
-      "downstream(): '%s' not found beneath a rank stored by backend '%s'.",
-      taxon, be_name))
+      "downstream(): '%s' not found beneath a rank stored by backbone '%s'.",
+      taxon, bb_name))
     return(empty)
   }
 
@@ -173,7 +173,7 @@ downstream <- function(taxon, backend = NULL, downto = "species",
     taxon_id    = col("taxon_id"),
     parent      = taxon,
     parent_rank = tolower(parent_rank %||% NA_character_),
-    backend     = be_name,
+    backbone     = bb_name,
     stringsAsFactors = FALSE
   )
   out <- out[order(out$name), , drop = FALSE]

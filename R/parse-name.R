@@ -111,7 +111,7 @@ normalize_authorship <- function(x) {
 #'
 #' @return A data.frame with one row per input name and columns:
 #' \describe{
-#'   \item{input}{The original name as supplied.}
+#'   \item{input_name}{The original name as supplied.}
 #'   \item{genus}{The genus (first token), or a single-letter initial for an
 #'     abbreviated genus (`"Q. robur"`). `NA` for an unresolvable hybrid
 #'     formula.}
@@ -150,7 +150,7 @@ parse_name <- function(x) {
   }
   n <- length(x)
   empty <- data.frame(
-    input = character(0L), genus = character(0L),
+    input_name = character(0L), genus = character(0L),
     specific_epithet = character(0L), infrasp_rank = character(0L),
     infrasp_epithet = character(0L), authorship = character(0L),
     qualifier = character(0L), is_hybrid = logical(0L),
@@ -192,7 +192,7 @@ parse_name <- function(x) {
   rank[cl$genus_only] <- "genus"
 
   data.frame(
-    input            = x,
+    input_name            = x,
     genus            = genus,
     specific_epithet = specific_epithet,
     infrasp_rank     = infrasp_rank,

@@ -36,7 +36,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Accipiter badius", backend = "gbif") |>
+#' taxify("Accipiter badius", backbone = "gbif") |>
 #'   add_amniote()
 #' }
 #'

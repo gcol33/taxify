@@ -32,7 +32,7 @@
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' taxify("Quercus robur", backend = "gbif") |>
+#' taxify("Quercus robur", backbone = "gbif") |>
 #'   add_kew_sid()
 #'
 #' options(old)

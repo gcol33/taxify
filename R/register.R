@@ -56,7 +56,7 @@ ensure_register_asset <- function(asset, verbose = TRUE) {
 
   if (file.exists(path)) {
     # Once per session, pick up a newer published build.
-    ensure_backends_current(name, verbose = verbose)
+    ensure_backbones_current(name, verbose = verbose)
     return(path)
   }
 
@@ -181,7 +181,7 @@ lookup_genus <- function(genus) {
 #' given genus, along with the backbone version at time of indexing.
 #'
 #' @param genus Character scalar. The genus name to query.
-#' @return A data.frame with columns `genus`, `backend`, `version`,
+#' @return A data.frame with columns `genus`, `backbone`, `version`,
 #'   `date_added`. Returns a zero-row data.frame if the genus is not found
 #'   in any backbone.
 #' @export
@@ -214,13 +214,17 @@ taxify_register_coverage <- function(genus) {
   if (nrow(result) == 0L) {
     return(data.frame(
       genus      = character(0L),
-      backend    = character(0L),
+      backbone   = character(0L),
       version    = character(0L),
       date_added = character(0L),
       stringsAsFactors = FALSE
     ))
   }
 
-  result$genus <- result$query_genus
-  result[, c("genus", "backend", "version", "date_added"), drop = FALSE]
+  # The published .vtr stores the column as `backend`; taxifydb writes it and
+  # taxify only reads it, so the name it reports is renamed here rather than in
+  # the asset.
+  result$genus    <- result$query_genus
+  result$backbone <- result$backend
+  result[, c("genus", "backbone", "version", "date_added"), drop = FALSE]
 }

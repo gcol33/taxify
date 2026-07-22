@@ -37,7 +37,7 @@ databases.
 }
 \examples{
 \dontrun{
-taxify("Xanthoria parietina", backend = "gbif") |>
+taxify("Xanthoria parietina", backbone = "gbif") |>
   add_italic()
 }
 

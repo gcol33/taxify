@@ -39,7 +39,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Abietinella abietina", backend = "gbif") |>
+#' taxify("Abietinella abietina", backbone = "gbif") |>
 #'   add_bet()
 #' }
 #'

@@ -18,7 +18,7 @@
 #' single accepted taxon.
 #'
 #' @param x Character vector of names (a checklist).
-#' @param backend Character vector of backend names or a `taxify_backend`
+#' @param backbone Character vector of backbone names or a `taxify_backend`
 #'   object, passed to [taxify()]. `NULL` (default) uses every installed
 #'   backbone.
 #' @param ... Further arguments passed to [taxify()] (e.g. `fuzzy`,
@@ -42,7 +42,7 @@
 #'     same accepted name (a many-to-one collapse).}
 #'   \item{merged_with}{`|`-joined other input names sharing this accepted name,
 #'     or `NA`.}
-#'   \item{backend}{Backend that matched (`NA` if unresolved).}
+#'   \item{backbone}{Backend that matched (`NA` if unresolved).}
 #' }
 #'
 #' @seealso [taxify()], [taxify_candidates()] to expand the ambiguous rows,
@@ -56,16 +56,16 @@
 #' # misspelling of it; a bad name is unresolved.
 #' reconcile(c("Quercus robur", "Quercus pedunculata", "Quercus robus",
 #'             "Notagenus imaginus"),
-#'           backend = "wfo", verbose = FALSE)
+#'           backbone = "wfo", verbose = FALSE)
 #'
 #' options(old)
 #'
 #' @export
-reconcile <- function(x, backend = NULL, ..., verbose = TRUE) {
+reconcile <- function(x, backbone = NULL, ..., verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {
     stop("x must be a non-empty character vector.", call. = FALSE)
   }
-  res <- taxify(x, backend = backend, verbose = verbose, ...)
+  res <- taxify(x, backbone = backbone, verbose = verbose, ...)
 
   n  <- nrow(res)
   mt <- res$match_type
@@ -121,7 +121,7 @@ reconcile <- function(x, backend = NULL, ..., verbose = TRUE) {
     match_type    = mt,
     merged        = merged,
     merged_with   = merged_with,
-    backend       = if ("backend" %in% names(res)) res$backend else NA_character_,
+    backbone       = if ("backbone" %in% names(res)) res$backbone else NA_character_,
     stringsAsFactors = FALSE
   )
   rownames(out) <- NULL

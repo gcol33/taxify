@@ -4,10 +4,10 @@
 \alias{install_backbones}
 \title{Install taxonomic backbones for offline matching}
 \usage{
-install_backbones(backends = NULL, verbose = TRUE)
+install_backbones(backbones = NULL, verbose = TRUE)
 }
 \arguments{
-\item{backends}{Character vector of backbone names (see \code{\link[=list_backbones]{list_backbones()}}).
+\item{backbones}{Character vector of backbone names (see \code{\link[=list_backbones]{list_backbones()}}).
 \code{NULL} (default) installs taxify's first-run set: COL, GBIF, and ITIS.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}

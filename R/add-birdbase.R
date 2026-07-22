@@ -39,7 +39,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' taxify("Struthio camelus", backend = "gbif") |>
+#' taxify("Struthio camelus", backbone = "gbif") |>
 #'   add_birdbase()
 #' }
 #'
