@@ -71,6 +71,79 @@ test_that("add_wfo_info preserves original columns", {
   expect_true(all(names(result) %in% names(enriched)))
 })
 
+# -- add_gbif_info / add_col_info --
+#
+# The info doors read their backbone through the path cache (get_backbone_path),
+# not by calling taxify(), so a mock injected with set_backbone_path is honoured
+# deterministically. A minimal taxify-like frame (mock taxon_ids + backend) drives
+# the join directly, isolating the door from taxify()'s own session state. The
+# cache is saved and restored so the mock never leaks into later files.
+
+use_mock_cache <- function(name, path) {
+  old <- get_backbone_path(name)
+  withr::defer(set_backbone_path(name, old), envir = parent.frame())
+  set_backbone_path(name, path)
+}
+
+test_that("add_gbif_info attaches GBIF columns and fills from the backbone", {
+  use_mock_cache("gbif", mock_gbif_backbone_vtr())
+  x <- data.frame(
+    input_name = "Quercus robur", matched_name = "Quercus robur",
+    accepted_name = "Quercus robur", taxon_id = "2878688",
+    accepted_id = "2878688", backend = "gbif", stringsAsFactors = FALSE
+  )
+  result <- add_gbif_info(x)
+
+  expect_true(all(c("notho_type", "nom_status", "bracket_authorship",
+                    "bracket_year", "gbif_year", "name_published_in",
+                    "origin", "infra_specific_epithet") %in% names(result)))
+  expect_equal(result$origin[1L], "SOURCE")
+  expect_equal(result$gbif_year[1L], "1753")
+})
+
+test_that("add_gbif_info only enriches GBIF rows and keeps originals", {
+  use_mock_cache("gbif", mock_gbif_backbone_vtr())
+  x <- data.frame(
+    input_name = c("Quercus robur", "Panthera leo"),
+    matched_name = c("Quercus robur", "Panthera leo"),
+    taxon_id = c("2878688", "OTHER"),
+    backend  = c("gbif", "col"),   # row 2 was matched by another backend
+    stringsAsFactors = FALSE
+  )
+  result <- add_gbif_info(x)
+
+  expect_true(all(names(x) %in% names(result)))
+  expect_equal(result$origin[1L], "SOURCE")
+  expect_true(is.na(result$origin[2L]))
+})
+
+test_that("add_col_info attaches COL columns incl. the SpeciesProfile sidecar", {
+  bb <- mock_col_backbone_vtr()
+  # add_col_info derives the sidecar path from the backbone path, so place it beside.
+  side <- sub("\\.vtr$", "_species_profile.vtr", bb)
+  file.copy(mock_col_species_profile_vtr(), side, overwrite = TRUE)
+  withr::defer(unlink(side))
+  use_mock_cache("col", bb)
+  x <- data.frame(
+    input_name = "Quercus robur", matched_name = "Quercus robur",
+    accepted_name = "Quercus robur", taxon_id = "5T6MX",
+    accepted_id = "5T6MX", backend = "col", stringsAsFactors = FALSE
+  )
+  result <- add_col_info(x)
+
+  expect_true(all(c("notho", "nomenclaturalCode", "nomenclaturalStatus",
+                    "namePublishedIn", "kingdom", "phylum", "col_class",
+                    "order", "infraspecificEpithet", "is_extinct",
+                    "is_marine", "is_freshwater", "is_terrestrial") %in%
+                  names(result)))
+  expect_equal(result$kingdom[1L], "Plantae")
+  expect_equal(result$nomenclaturalCode[1L], "ICN")
+  # SpeciesProfile sidecar carries Quercus robur as non-extinct, terrestrial.
+  expect_type(result$is_extinct, "logical")
+  expect_false(result$is_extinct[1L])
+  expect_true(result$is_terrestrial[1L])
+})
+
 # -- native qualifier columns (from taxify() directly) --
 
 test_that("taxify() carries qualifier + qualifier_position natively", {

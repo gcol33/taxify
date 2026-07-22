@@ -66,6 +66,74 @@ test_that("add_data returns NA for unmatched rows", {
 })
 
 
+test_that("add_data keeps the source column type when nothing overlaps", {
+  setup_mock_backend()
+  # result species and data species both match the backbone but are disjoint,
+  # so the joined column is all-NA -- it must still be numeric, not logical.
+  result <- taxify("Pinus sylvestris", verbose = FALSE)
+
+  traits <- data.frame(
+    species = "Quercus robur",
+    height  = 30,
+    stringsAsFactors = FALSE
+  )
+
+  enriched <- add_data(result, traits, species_col = "species", verbose = FALSE)
+  expect_true("height" %in% names(enriched))
+  expect_type(enriched$height, "double")
+  expect_true(all(is.na(enriched$height)))
+})
+
+
+# ---- Grouped join ----
+
+test_that("add_data grouped join pivots on accepted_id", {
+  setup_mock_backend()
+  result <- taxify(c("Quercus robur", "Pinus sylvestris"), verbose = FALSE)
+
+  # Quercus pedunculata is a synonym of Quercus robur: the grouped join must
+  # resolve it to the same accepted_id as the accepted-name row in result.
+  traits <- data.frame(
+    species = c("Quercus pedunculata", "Pinus sylvestris"),
+    country = c("AT", "DE"),
+    status  = c("native", "invasive"),
+    stringsAsFactors = FALSE
+  )
+
+  enriched <- add_data(result, traits, species_col = "species",
+                       group_col = "country", verbose = FALSE)
+  expect_true(all(c("status_AT", "status_DE") %in% names(enriched)))
+  # Q. robur (row 1) enriched via the Q. pedunculata synonym, in AT.
+  expect_equal(enriched$status_AT[1L], "native")
+  expect_true(is.na(enriched$status_AT[2L]))
+  # Pinus sylvestris (row 2) in DE.
+  expect_equal(enriched$status_DE[2L], "invasive")
+  expect_true(is.na(enriched$status_DE[1L]))
+})
+
+
+test_that("add_data(group_col, groups = NA) does not error", {
+  setup_mock_backend()
+  result <- taxify(c("Quercus robur", "Pinus sylvestris"), verbose = FALSE)
+
+  traits <- data.frame(
+    species = c("Quercus robur", "Quercus robur", "Pinus sylvestris"),
+    country = c("AT", "DE", "AT"),
+    status  = c("native", "invasive", "native"),
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    enriched <- add_data(result, traits, species_col = "species",
+                         group_col = "country", groups = NA, verbose = FALSE),
+    NA
+  )
+  # groups = NA resolves no group, so the single status column is created and
+  # left NA rather than erroring.
+  expect_true("status" %in% names(enriched))
+})
+
+
 # ---- Column selection ----
 
 test_that("add_data respects cols argument", {

@@ -68,6 +68,109 @@ backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
 }
 
 
+#' Attach backbone columns to a taxify result (backend-info doors)
+#'
+#' Shared engine behind [add_wfo_info()], [add_gbif_info()] and [add_col_info()]:
+#' for the rows a given backend matched, look up their `taxon_id` in that
+#' backbone and attach extra columns through [backbone_join()] plus a vectorized
+#' `match()` fill (the documented join strategy). An optional `extra_vtr`
+#' describes a second join against a sidecar `.vtr` (COL's SpeciesProfile), whose
+#' values are passed through a transform.
+#'
+#' @param x A [taxify()] result.
+#' @param backend A `taxify_backend` object.
+#' @param col_map Named character vector: output column -> backbone source
+#'   column. Output columns are attached as character.
+#' @param enrichment_name,label Identifiers passed to `register_enrichment()`.
+#' @param probe_cols Output columns whose non-NA state counts as enriched.
+#' @param extra_vtr `NULL`, or a list with `suffix` (appended to the backbone
+#'   path in place of `.vtr`), `key` (join column in the sidecar), `col_map`
+#'   (output -> source), `na` (the sentinel the outputs are initialized to) and
+#'   `transform` (applied to each filled value vector).
+#' @return `x` with the attached columns and the enrichment registered.
+#' @noRd
+enrich_from_backbone <- function(x, backend, col_map, enrichment_name, label,
+                                 probe_cols, extra_vtr = NULL) {
+  if (!"taxon_id" %in% names(x)) {
+    stop("x must be a data.frame with a 'taxon_id' column (from taxify())",
+         call. = FALSE)
+  }
+
+  be <- backend
+  bb_path <- get_backbone_path(be$name)
+  if (is.null(bb_path)) {
+    bb_path <- tryCatch(taxify_load(be), error = function(e) NULL)
+  }
+  if (is.null(bb_path) || !file.exists(bb_path)) {
+    stop(sprintf("%s backbone not found. Run taxify_download('%s') first.",
+                 label, be$name), call. = FALSE)
+  }
+
+  # Typed NA init: character main columns, the sidecar's own sentinel for extras.
+  for (out_col in names(col_map)) x[[out_col]] <- NA_character_
+  if (!is.null(extra_vtr)) {
+    for (out_col in names(extra_vtr$col_map)) x[[out_col]] <- extra_vtr$na
+  }
+
+  rows <- which(!is.na(x$taxon_id) &
+                (!is.na(x$backend) & x$backend == be$name))
+
+  # Main join: attach the backbone columns present in the schema.
+  if (length(rows) > 0L) {
+    schema <- names(vectra::collect(utils::head(vectra::tbl(bb_path), 1L)))
+    avail  <- intersect(unname(col_map), schema)
+    if (length(avail) > 0L) {
+      joined <- backbone_join(bb_path, x$taxon_id[rows], bb_key = "taxon_id",
+                              select_cols = c("taxon_id", avail))
+      if (!is.null(joined) && nrow(joined) > 0L) {
+        joined <- joined[!duplicated(joined$lookup), , drop = FALSE]
+        idx <- match(x$taxon_id[rows], joined$lookup)
+        hit <- which(!is.na(idx))
+        for (out_col in names(col_map)) {
+          src <- col_map[[out_col]]
+          if (src %in% names(joined)) {
+            x[[out_col]][rows[hit]] <- joined[[src]][idx[hit]]
+          }
+        }
+      }
+    }
+  }
+
+  # Sidecar join (COL SpeciesProfile): keyed on taxon_id, values transformed.
+  if (!is.null(extra_vtr) && length(rows) > 0L) {
+    sp_path <- sub("\\.vtr$", extra_vtr$suffix, bb_path)
+    if (file.exists(sp_path)) {
+      sp_schema <- tryCatch(
+        names(vectra::collect(utils::head(vectra::tbl(sp_path), 1L))),
+        error = function(e) character(0L))
+      avail_ex <- intersect(unname(extra_vtr$col_map), sp_schema)
+      if (extra_vtr$key %in% sp_schema && length(avail_ex) > 0L) {
+        sp <- tryCatch(
+          backbone_join(sp_path, x$taxon_id[rows], bb_key = extra_vtr$key,
+                        select_cols = c(extra_vtr$key, avail_ex)),
+          error = function(e) NULL)
+        if (!is.null(sp) && nrow(sp) > 0L) {
+          sp <- sp[!duplicated(sp$lookup), , drop = FALSE]
+          idx <- match(x$taxon_id[rows], sp$lookup)
+          hit <- which(!is.na(idx))
+          for (out_col in names(extra_vtr$col_map)) {
+            src <- extra_vtr$col_map[[out_col]]
+            if (src %in% names(sp)) {
+              x[[out_col]][rows[hit]] <- extra_vtr$transform(sp[[src]][idx[hit]])
+            }
+          }
+        }
+      }
+    }
+  }
+
+  bb_meta <- read_backbone_meta(bb_path)
+  ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
+  n_enriched <- sum(rowSums(!is.na(x[, probe_cols, drop = FALSE])) > 0L)
+  register_enrichment(x, enrichment_name, label, ver, n_enriched)
+}
+
+
 #' List the synonyms of a name
 #'
 #' The reverse of the forward resolution [taxify()] does: each input name is

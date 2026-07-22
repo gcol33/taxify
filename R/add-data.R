@@ -217,15 +217,18 @@ add_data <- function(x, data,
            call. = FALSE)
     }
 
-    # Build a canonical_name-keyed data.frame for enrich_by_group machinery
+    # Build an accepted_id-keyed data.frame for the grouped fill. The join is on
+    # accepted_id (matching the flat path and the roxygen contract), so a synonym
+    # in either dataset resolves to the same key.
     grouped_df <- data.frame(
-      canonical_name = data_joinable$`.add_data_accepted_name`,
+      .add_data_accepted_id = data_joinable$`.add_data_accepted_id`,
       data_joinable[, c(group_col, cols), drop = FALSE],
-      stringsAsFactors = FALSE
+      stringsAsFactors = FALSE,
+      check.names = FALSE
     )
 
-    # Resolve groups
-    if (length(groups) == 1L && groups == "all") {
+    # Resolve groups (NA-safe: never compare NA against "all")
+    if (length(groups) == 1L && !anyNA(groups) && groups == "all") {
       groups <- sort(unique(grouped_df[[group_col]]))
       groups <- groups[!is.na(groups)]
     }
@@ -253,25 +256,28 @@ add_data <- function(x, data,
       .taxify_env[[".taxify_long_tip_shown"]] <- TRUE
     }
 
-    # Initialize output columns with NA
+    # Initialize output columns with a typed NA sentinel from the source column,
+    # so a zero-match group keeps the source type rather than collapsing to
+    # logical.
     out_cols <- character(0L)
     for (g in groups) {
       for (base_col in names(value_cols)) {
         out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
         out_cols <- c(out_cols, out_col)
-        x[[out_col]] <- NA
+        x[[out_col]] <- na_sentinel_for(grouped_df[[value_cols[[base_col]]]])
       }
     }
 
-    # Vectorized fill: one match() per group
+    # Vectorized fill: one match() per group, joined on accepted_id
     for (g in groups) {
       g_data <- grouped_df[
         !is.na(grouped_df[[group_col]]) & grouped_df[[group_col]] == g,
         , drop = FALSE
       ]
       if (nrow(g_data) == 0L) next
-      g_data <- g_data[!duplicated(g_data$canonical_name), , drop = FALSE]
-      idx <- match(x$accepted_name, g_data$canonical_name)
+      g_data <- g_data[!duplicated(g_data$`.add_data_accepted_id`), ,
+                       drop = FALSE]
+      idx <- match(x$accepted_id, g_data$`.add_data_accepted_id`)
       matched <- which(!is.na(idx))
       if (length(matched) == 0L) next
       for (base_col in names(value_cols)) {
@@ -392,20 +398,15 @@ add_data <- function(x, data,
   }
 
   # ---- Left join on accepted_id ----
-  join_lookup <- stats::setNames(
-    seq_len(nrow(trait_data)),
-    trait_data$`.add_data_accepted_id`
-  )
-
+  # Vectorized match(): each output column starts as a typed NA sentinel from its
+  # source column (a zero-match column keeps the source type, not logical), then
+  # the matched rows are filled in one assignment.
+  idx <- match(x$accepted_id, trait_data$`.add_data_accepted_id`)
+  matched <- which(!is.na(idx))
   for (col in cols) {
     out_name <- col_rename[col]
-    x[[out_name]] <- NA
-    for (i in which(!is.na(x$accepted_id))) {
-      idx <- join_lookup[x$accepted_id[i]]
-      if (!is.na(idx)) {
-        x[[out_name]][i] <- trait_data[[col]][idx]
-      }
-    }
+    x[[out_name]] <- na_sentinel_for(trait_data[[col]])
+    x[[out_name]][matched] <- trait_data[[col]][idx[matched]]
   }
 
   # ---- Summary ----
@@ -578,7 +579,6 @@ detect_xlsx_layout <- function(path, backend, sheet = NULL, start_row = NULL,
 
         rate <- sum(result$match_type != "none") / length(probe)
         if (rate > best$rate) {
-          sh_label <- if (is.numeric(sh)) sheet_names[sh] else sh
           best <- list(sheet = sh, start_row = sr,
                        species_col = col, rate = rate)
           if (rate >= 0.8) break  # good enough, stop early

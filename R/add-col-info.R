@@ -36,56 +36,9 @@
 #'
 #' @export
 add_col_info <- function(x) {
-  if (!"taxon_id" %in% names(x)) {
-    stop("x must be a data.frame with a 'taxon_id' column (from taxify())",
-         call. = FALSE)
-  }
-
-  be <- col_backend()
-  bb_path <- get_backbone_path(be$name)
-  if (is.null(bb_path)) {
-    bb_path <- tryCatch(taxify_load(be), error = function(e) NULL)
-  }
-  if (is.null(bb_path) || !file.exists(bb_path)) {
-    stop("COL backbone not found. Run taxify_download('col') first.",
-         call. = FALSE)
-  }
-
-  # Only enrich COL rows
-  col_rows <- which(!is.na(x$taxon_id) &
-                    (!is.na(x$backend) & x$backend == "col"))
-
-  # Initialize new columns
-  x$notho <- NA_character_
-  x$nomenclaturalCode <- NA_character_
-  x$nomenclaturalStatus <- NA_character_
-  x$namePublishedIn <- NA_character_
-  x$kingdom <- NA_character_
-  x$phylum <- NA_character_
-  x$col_class <- NA_character_
-  x$order <- NA_character_
-  x$infraspecificEpithet <- NA_character_
-  x$is_extinct <- NA
-  x$is_marine <- NA
-  x$is_freshwater <- NA
-  x$is_terrestrial <- NA
-
-  if (length(col_rows) == 0L) {
-    bb_meta <- read_backbone_meta(bb_path)
-    ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
-    return(register_enrichment(x, "col_info", "COL", ver, 0L))
-  }
-
-  # Join extra columns from main backbone
-  ids <- unique(x$taxon_id[col_rows])
-  id_df <- data.frame(lookup_id = ids, stringsAsFactors = FALSE)
-  tmp_ids <- tempfile(fileext = ".vtr")
-  on.exit(unlink(tmp_ids), add = TRUE)
-  vectra::write_vtr(id_df, tmp_ids)
-
-  # Output column (user-facing) -> source column in the .vtr. taxon_id is
-  # the unified-schema join key; infraspecific_epithet is the unified main-
-  # schema name renamed to infraspecificEpithet for stable output.
+  # Output column (user-facing) -> source column in the .vtr. taxon_id is the
+  # unified-schema join key; infraspecific_epithet is the unified main-schema
+  # name renamed to infraspecificEpithet for stable output.
   col_map <- c(
     notho                = "notho",
     nomenclaturalCode    = "nomenclaturalCode",
@@ -98,70 +51,25 @@ add_col_info <- function(x) {
     infraspecificEpithet = "infraspecific_epithet"
   )
 
-  bb_schema <- vectra::tbl(bb_path) |> utils::head(1L) |> vectra::collect()
-  available <- intersect(c("taxon_id", unname(col_map)), names(bb_schema))
+  # SpeciesProfile sidecar: extinct/marine/freshwater/terrestrial flags, stored
+  # as "true"/"false" strings, joined on taxonID and read as logicals.
+  extra_vtr <- list(
+    suffix  = "_species_profile.vtr",
+    key     = "taxonID",
+    col_map = c(
+      is_extinct     = "isExtinct",
+      is_marine      = "isMarine",
+      is_freshwater  = "isFreshwater",
+      is_terrestrial = "isTerrestrial"
+    ),
+    na        = NA,
+    transform = function(v) tolower(v) == "true"
+  )
 
-  if (length(available) > 1L) {
-    extra_info <- vectra::inner_join(
-      vectra::tbl(tmp_ids),
-      vectra::tbl(bb_path) |>
-        vectra::select(!!!lapply(available, as.name)),
-      by = c("lookup_id" = "taxon_id")
-    ) |> vectra::collect()
-
-    extra_lookup <- split(extra_info, extra_info$lookup_id)
-
-    for (i in col_rows) {
-      info <- extra_lookup[[x$taxon_id[i]]]
-      if (!is.null(info) && nrow(info) > 0L) {
-        for (out_col in names(col_map)) {
-          src_col <- col_map[[out_col]]
-          if (src_col %in% names(info)) {
-            x[[out_col]][i] <- info[[src_col]][1L]
-          }
-        }
-      }
-    }
-  }
-
-  # Join SpeciesProfile for extinct/marine/freshwater/terrestrial
-  sp_vtr <- sub("\\.vtr$", "_species_profile.vtr", bb_path)
-  if (file.exists(sp_vtr)) {
-    sp_info <- tryCatch({
-      vectra::inner_join(
-        vectra::tbl(tmp_ids),
-        vectra::tbl(sp_vtr),
-        by = c("lookup_id" = "taxonID")
-      ) |> vectra::collect()
-    }, error = function(e) data.frame())
-
-    if (nrow(sp_info) > 0L) {
-      sp_lookup <- split(sp_info, sp_info$lookup_id)
-      bool_map <- c(
-        is_extinct = "isExtinct",
-        is_marine = "isMarine",
-        is_freshwater = "isFreshwater",
-        is_terrestrial = "isTerrestrial"
-      )
-
-      for (i in col_rows) {
-        info <- sp_lookup[[x$taxon_id[i]]]
-        if (!is.null(info) && nrow(info) > 0L) {
-          for (out_col in names(bool_map)) {
-            src_col <- bool_map[[out_col]]
-            if (src_col %in% names(info)) {
-              val <- info[[src_col]][1L]
-              x[[out_col]][i] <- if (!is.na(val)) tolower(val) == "true" else NA
-            }
-          }
-        }
-      }
-    }
-  }
-
-  bb_meta <- read_backbone_meta(bb_path)
-  ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
-  n_enriched <- sum(!is.na(x$notho) | !is.na(x$nomenclaturalCode) |
-                    !is.na(x$kingdom) | !is.na(x$is_extinct))
-  register_enrichment(x, "col_info", "COL", ver, n_enriched)
+  enrich_from_backbone(
+    x, col_backend(), col_map,
+    enrichment_name = "col_info", label = "COL",
+    probe_cols = c("notho", "nomenclaturalCode", "kingdom", "is_extinct"),
+    extra_vtr = extra_vtr
+  )
 }
