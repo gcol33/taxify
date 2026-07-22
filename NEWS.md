@@ -38,6 +38,65 @@
   resolves to the highest-priority installed backbone, matching `taxify()`,
   `reconcile()` and `comm2sci()`.
 
+## inspect() no longer flags valid congeners as typos (issue #10)
+
+* `near_duplicate_targets()` measures the edit-distance and length gates on the
+  epithet, not the whole binomial, so `"Carex flava"` is no longer flagged as a
+  near-duplicate of `"Carex flacca"`. A genuine one-edit epithet typo still
+  fires.
+
+## enrich_simple() surfaces join and column gaps (issue #12)
+
+* An explicitly requested `join_col` absent from the `.vtr` now errors instead
+  of silently falling back to `canonical_name` (the mechanism behind past
+  all-NA doors), and a mapped column absent from the schema warns, naming the
+  enrichment and column, rather than attaching a silent all-NA column. The
+  diagnostic is gated off the bundled example database.
+
+## add_combine() preserves metadata and provenance (issue #13)
+
+* A new `[.taxify_result` method carries `taxify_meta` through subsetting, so
+  `add_combine()` (and any manual subset) no longer strips it. Reported columns
+  are selected by exact set, so an already-imputed value is never mislabelled as
+  a measurement.
+
+## Lockfile and summary robustness (issue #14)
+
+* `summary()` no longer errors on an enrichment entry without a version;
+  `taxify_restore()` reports a distinct `"unverified"` status when nothing could
+  be compared (instead of a false `"ok"`), and tolerates zero-length lockfile
+  fields.
+
+## Enrichment metadata and example-database safety (issue #16)
+
+* `download_enrichment()` copies `license`, `available_groups` and `citation`
+  into the installed `meta.json` (licence is no longer `NA` for downloaded
+  enrichments); `ensure_enrichment()` refuses to download an unbundled
+  enrichment into the example database.
+
+## Authorship tiebreak and fuzzy validation (issue #17)
+
+* The authorship homonym tiebreak writes the accepted taxon's genus/family, not
+  the rejected synonym's, so a disambiguated homonym carries a consistent
+  lineage and life-form. `fuzzy_join` errors now warn instead of silently
+  returning no matches, and `taxify()` validates `fuzzy` and `fuzzy_threshold`.
+
+## Internals: backend registry and shared enrichment join (issues #20, #22)
+
+* The 15 `backend-*.R` clones collapse into one registry-driven factory; adding
+  a backbone is now a registry row plus a manifest entry. The three
+  backend-info doors (`add_wfo_info()` / `add_gbif_info()` / `add_col_info()`)
+  share one `enrich_from_backbone()` helper, and `add_data()` uses a vectorized,
+  typed-NA join keyed on `accepted_id`.
+
+## Documentation (issues #18, #19)
+
+* Every `\donttest` example now runs offline against the example database or is
+  `\dontrun`, so `R CMD check --run-donttest` never triggers a download. UTF-8
+  BOMs removed from three R files and three vignettes; `taxify()`'s `@return`
+  documents all 26 columns; the FISHMORPH trait list matches the columns
+  `add_fishmorph()` emits.
+
 ## The fallback chain reaches every backbone again (issue #9)
 
 * A name whose genus the leading backbone did not cover was marked
