@@ -4,14 +4,15 @@
 \alias{upstream}
 \title{List the higher classification (ancestors) of a taxon}
 \usage{
-upstream(taxon, backend = "col", to = NULL, verbose = TRUE)
+upstream(taxon, backend = NULL, to = NULL, verbose = TRUE)
 }
 \arguments{
 \item{taxon}{A single taxonomic name (a species, genus, or higher taxon;
 synonyms and typos are resolved first).}
 
-\item{backend}{A single backend name or a \code{taxify_backend} object. Default
-\code{"col"} (broad, and it stores the higher ranks).}
+\item{backend}{A single backend name or a \code{taxify_backend} object. \code{NULL}
+(default) uses the highest-priority installed backbone; name one that
+stores the higher ranks (e.g. \code{"col"}) for a full lineage.}
 
 \item{to}{Optional rank (or ranks) to restrict the output to -- e.g.
 \code{to = "family"} answers "what family is this in?" with a single row.

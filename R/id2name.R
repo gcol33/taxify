@@ -15,8 +15,10 @@
 #'
 #' @param id A vector of backend IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
 #'   AphiaIDs). Coerced to character, matched against the backbone's `taxon_id`.
+#'   IDs are backbone-specific, so name the `backend` they came from.
 #' @param backend A single backend name (e.g. `"col"`, `"gbif"`) or a
-#'   `taxify_backend` object. Default `"col"`.
+#'   `taxify_backend` object. `NULL` (default) uses the highest-priority
+#'   installed backbone.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame with one row per input ID (in input order), columns:
@@ -49,10 +51,11 @@
 #' options(old)
 #'
 #' @export
-id2name <- function(id, backend = "col", verbose = TRUE) {
+id2name <- function(id, backend = NULL, verbose = TRUE) {
   if (length(id) == 0L) {
     stop("id must have at least one element.", call. = FALSE)
   }
+  backend <- resolve_single_backend(backend, verbose = verbose)
   be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
   bb <- backbone_path(backend, verbose = verbose)
 

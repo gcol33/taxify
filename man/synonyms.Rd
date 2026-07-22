@@ -4,14 +4,14 @@
 \alias{synonyms}
 \title{List the synonyms of a name}
 \usage{
-synonyms(x, backend = "wfo", verbose = TRUE)
+synonyms(x, backend = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{Character vector of names (accepted names or synonyms; each is
 resolved to its accepted taxon first).}
 
 \item{backend}{A single backend name (e.g. \code{"wfo"}) or a \code{taxify_backend}
-object. Default \code{"wfo"}.}
+object. \code{NULL} (default) uses the highest-priority installed backbone.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

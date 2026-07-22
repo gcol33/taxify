@@ -78,7 +78,7 @@ backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
 #' @param x Character vector of names (accepted names or synonyms; each is
 #'   resolved to its accepted taxon first).
 #' @param backend A single backend name (e.g. `"wfo"`) or a `taxify_backend`
-#'   object. Default `"wfo"`.
+#'   object. `NULL` (default) uses the highest-priority installed backbone.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame with one row per synonym found, columns:
@@ -106,10 +106,11 @@ backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
 #' options(old)
 #'
 #' @export
-synonyms <- function(x, backend = "wfo", verbose = TRUE) {
+synonyms <- function(x, backend = NULL, verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {
     stop("x must be a non-empty character vector.", call. = FALSE)
   }
+  backend <- resolve_single_backend(backend, verbose = verbose)
   be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
   bb <- backbone_path(backend, verbose = verbose)
 
@@ -345,7 +346,7 @@ taxify_candidates <- function(x, verbose = TRUE) {
 #'
 #' @param taxon A single genus or family name.
 #' @param backend A single backend name (e.g. `"wfo"`) or a `taxify_backend`
-#'   object. Default `"wfo"`.
+#'   object. `NULL` (default) uses the highest-priority installed backbone.
 #' @param rank Rank of the children to return (`"species"` by default), or
 #'   `"any"` for every rank below the parent.
 #' @param verbose Logical. Default `TRUE`.
@@ -360,16 +361,17 @@ taxify_candidates <- function(x, verbose = TRUE) {
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' children("Quercus")
+#' children("Quercus", backend = "wfo")
 #'
 #' options(old)
 #'
 #' @export
-children <- function(taxon, backend = "wfo", rank = "species", verbose = TRUE) {
+children <- function(taxon, backend = NULL, rank = "species", verbose = TRUE) {
   if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||
       !nzchar(trimws(taxon))) {
     stop("taxon must be a single non-empty name.", call. = FALSE)
   }
+  backend <- resolve_single_backend(backend, verbose = verbose)
   be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
   bb <- backbone_path(backend, verbose = verbose)
   taxon <- title_case_taxon(taxon)

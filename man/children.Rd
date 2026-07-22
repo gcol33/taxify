@@ -4,13 +4,13 @@
 \alias{children}
 \title{List the accepted taxa within a genus or family}
 \usage{
-children(taxon, backend = "wfo", rank = "species", verbose = TRUE)
+children(taxon, backend = NULL, rank = "species", verbose = TRUE)
 }
 \arguments{
 \item{taxon}{A single genus or family name.}
 
 \item{backend}{A single backend name (e.g. \code{"wfo"}) or a \code{taxify_backend}
-object. Default \code{"wfo"}.}
+object. \code{NULL} (default) uses the highest-priority installed backbone.}
 
 \item{rank}{Rank of the children to return (\code{"species"} by default), or
 \code{"any"} for every rank below the parent.}
@@ -31,7 +31,7 @@ parent is auto-detected: a genus is tried first, then a family.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-children("Quercus")
+children("Quercus", backend = "wfo")
 
 options(old)
 

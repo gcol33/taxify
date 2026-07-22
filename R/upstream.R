@@ -34,8 +34,9 @@
 #'
 #' @param taxon A single taxonomic name (a species, genus, or higher taxon;
 #'   synonyms and typos are resolved first).
-#' @param backend A single backend name or a `taxify_backend` object. Default
-#'   `"col"` (broad, and it stores the higher ranks).
+#' @param backend A single backend name or a `taxify_backend` object. `NULL`
+#'   (default) uses the highest-priority installed backbone; name one that
+#'   stores the higher ranks (e.g. `"col"`) for a full lineage.
 #' @param to Optional rank (or ranks) to restrict the output to -- e.g.
 #'   `to = "family"` answers "what family is this in?" with a single row.
 #'   `NULL` (default) returns the whole lineage.
@@ -62,11 +63,12 @@
 #' options(old)
 #'
 #' @export
-upstream <- function(taxon, backend = "col", to = NULL, verbose = TRUE) {
+upstream <- function(taxon, backend = NULL, to = NULL, verbose = TRUE) {
   if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||
       !nzchar(trimws(taxon))) {
     stop("taxon must be a single non-empty name.", call. = FALSE)
   }
+  backend <- resolve_single_backend(backend, verbose = verbose)
   be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
   bb <- backbone_path(backend, verbose = verbose)
 

@@ -59,8 +59,9 @@ collect_by_ancestor <- function(bb, col, value, sel_cols) {
 #'
 #' @param taxon A single higher-taxon name (a genus, family, order, class,
 #'   phylum, or kingdom).
-#' @param backend A single backend name or a `taxify_backend` object. Default
-#'   `"col"` (broad, and it stores the higher ranks needed here).
+#' @param backend A single backend name or a `taxify_backend` object. `NULL`
+#'   (default) uses the highest-priority installed backbone; name one that
+#'   stores the higher ranks (e.g. `"col"`) to reach above genus.
 #' @param downto Target rank of the descendants to return (`"species"` by
 #'   default), or `"any"` for every accepted taxon beneath `taxon` regardless of
 #'   rank.
@@ -83,12 +84,13 @@ collect_by_ancestor <- function(bb, col, value, sel_cols) {
 #' options(old)
 #'
 #' @export
-downstream <- function(taxon, backend = "col", downto = "species",
+downstream <- function(taxon, backend = NULL, downto = "species",
                        verbose = TRUE) {
   if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||
       !nzchar(trimws(taxon))) {
     stop("taxon must be a single non-empty name.", call. = FALSE)
   }
+  backend <- resolve_single_backend(backend, verbose = verbose)
   be_name <- if (inherits(backend, "taxify_backend")) backend$name else backend
   bb <- backbone_path(backend, verbose = verbose)
   taxon <- title_case_taxon(taxon)

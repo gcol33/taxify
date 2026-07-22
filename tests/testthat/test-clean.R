@@ -297,3 +297,40 @@ test_that("normalize_epithets handles NA, empty, and single-word input", {
   expect_equal(normalize_epithets(""), "")
   expect_equal(normalize_epithets("Festulolium"), "festulolium")
 })
+
+# ---- Title-Case / all-caps epithets vs authorship (#8) ----
+
+test_that("clean_names() keeps a Title-Case specific epithet (#8)", {
+  expect_equal(clean_names("Quercus Robur")$cleaned, "Quercus robur")
+  expect_equal(clean_names("Panthera Leo")$cleaned, "Panthera leo")
+  # A trailing real author is still removed off a Title-Case epithet.
+  expect_equal(clean_names("Quercus Robur L.")$cleaned, "Quercus robur")
+  # clean_one() (single-name path) agrees with the vectorized clean_names().
+  expect_equal(clean_one("Quercus Robur")$cleaned, "Quercus robur")
+})
+
+test_that("clean_names() keeps an all-caps legacy epithet (#8)", {
+  # An author-less all-caps binomial must not lose its epithet; the genus keeps
+  # its case (matching folds case) but the epithet survives, lowercased.
+  expect_equal(clean_names("QUERCUS ROBUR")$cleaned, "QUERCUS robur")
+  expect_equal(clean_names("ROSA CANINA DUMALIS")$cleaned, "ROSA canina dumalis")
+})
+
+test_that("clean_names() reduces a genus-plus-author to the bare genus (#8)", {
+  expect_equal(clean_names("Rosa L.")$cleaned, "Rosa")
+})
+
+test_that("clean_names() strips internal-capital author abbreviations (#8)", {
+  cases <- c("Picea abies (L.) H.Karst.", "Acer pseudoplatanus DC.",
+             "Solidago canadensis A.Gray", "Fagus sylvatica J.Presl",
+             "Erica carnea McClint.")
+  expected <- c("Picea abies", "Acer pseudoplatanus", "Solidago canadensis",
+                "Fagus sylvatica", "Erica carnea")
+  expect_equal(clean_names(cases)$cleaned, expected)
+})
+
+test_that("clean_names() keeps a lowercase infraspecific epithet, drops author (#8)", {
+  # dumalis (lowercase infra epithet) stays; Baker (trailing author) goes.
+  expect_equal(clean_names("Rosa canina dumalis Baker")$cleaned,
+               "Rosa canina dumalis")
+})

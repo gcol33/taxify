@@ -4,14 +4,16 @@
 \alias{id2name}
 \title{Resolve backend IDs to names}
 \usage{
-id2name(id, backend = "col", verbose = TRUE)
+id2name(id, backend = NULL, verbose = TRUE)
 }
 \arguments{
 \item{id}{A vector of backend IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
-AphiaIDs). Coerced to character, matched against the backbone's \code{taxon_id}.}
+AphiaIDs). Coerced to character, matched against the backbone's \code{taxon_id}.
+IDs are backbone-specific, so name the \code{backend} they came from.}
 
 \item{backend}{A single backend name (e.g. \code{"col"}, \code{"gbif"}) or a
-\code{taxify_backend} object. Default \code{"col"}.}
+\code{taxify_backend} object. \code{NULL} (default) uses the highest-priority
+installed backbone.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

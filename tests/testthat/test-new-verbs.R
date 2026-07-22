@@ -142,6 +142,23 @@ test_that("lowest_common() finds the shared genus of two congeners", {
   expect_equal(lc$n_taxa, 2L)
 })
 
+test_that("lowest_common() ignores an empty-string rank value (#15)", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  taxify_clear_cache()
+  skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
+
+  r <- taxify(c("Quercus robur", "Quercus petraea"), backend = "wfo",
+              verbose = FALSE)
+  # Some backbones store "" (not NA) for an unresolved rank; a blank must not be
+  # reported as the shared ancestor. With genus blanked, the MRCA falls through
+  # to the next real shared rank (family), never to "".
+  r$genus <- c("", "")
+  lc <- lowest_common(r, verbose = FALSE)
+  expect_false(identical(lc$name, ""))
+  expect_false(identical(lc$rank, "genus"))
+})
+
 test_that("class2tree() builds a Newick tree over resolved names", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)

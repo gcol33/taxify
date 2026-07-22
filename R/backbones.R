@@ -182,6 +182,25 @@ resolve_default_backend <- function(verbose = TRUE) {
 }
 
 
+#' Resolve a single default backbone for the reverse/browse verbs
+#'
+#' The browse and lookup verbs ([synonyms()], [children()], [downstream()],
+#' [upstream()], [id2name()]) read one backbone directly rather than running the
+#' whole fallback chain, so `backend = NULL` resolves to the highest-priority
+#' installed backbone -- installing the default set on a fresh machine exactly as
+#' [taxify()] does, never a specific backbone the user did not ask for. A name or
+#' a `taxify_backend` object is returned unchanged.
+#'
+#' @param backend `NULL`, a backend name, or a `taxify_backend` object.
+#' @param verbose Logical.
+#' @return A single backend name, or the `taxify_backend` object passed in.
+#' @noRd
+resolve_single_backend <- function(backend, verbose = TRUE) {
+  if (is.null(backend)) return(resolve_default_backend(verbose = verbose)[[1L]])
+  backend
+}
+
+
 #' Install taxonomic backbones for offline matching
 #'
 #' Downloads the pre-built `.vtr` for each named backbone into the taxify data

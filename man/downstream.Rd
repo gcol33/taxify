@@ -4,14 +4,15 @@
 \alias{downstream}
 \title{List all descendants of a taxon down to a target rank}
 \usage{
-downstream(taxon, backend = "col", downto = "species", verbose = TRUE)
+downstream(taxon, backend = NULL, downto = "species", verbose = TRUE)
 }
 \arguments{
 \item{taxon}{A single higher-taxon name (a genus, family, order, class,
 phylum, or kingdom).}
 
-\item{backend}{A single backend name or a \code{taxify_backend} object. Default
-\code{"col"} (broad, and it stores the higher ranks needed here).}
+\item{backend}{A single backend name or a \code{taxify_backend} object. \code{NULL}
+(default) uses the highest-priority installed backbone; name one that
+stores the higher ranks (e.g. \code{"col"}) to reach above genus.}
 
 \item{downto}{Target rank of the descendants to return (\code{"species"} by
 default), or \code{"any"} for every accepted taxon beneath \code{taxon} regardless of

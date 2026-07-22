@@ -27,14 +27,74 @@
 # Parenthesized authorship: (L.), (Aiton) etc.
 .author_parens_pattern <- "\\([A-Z][a-z\u00e9.&\\s]*\\)"
 
-# Trailing authorship: "L.", "Sm.", "ex DC.", "(Aiton) Sm." etc.
-# Capital letter followed by optional lowercase + period, possibly chained
-# with ex/in/&.
-.author_trailing_pattern <- paste0(
-  "\\s+[A-Z][a-z\u00e9.]*\\.?",
-  "(?:\\s+(?:ex|in|&)\\s+[A-Z][a-z\u00e9.]*\\.?)*",
-  "$"
-)
+# A plain Latin letter-word: an initial letter then one or more letters (either
+# case, Latin-1 accents) or a hyphen -- minimum length 2, and no period, "&",
+# bracket, digit, or lone initial. Case-agnostic, so a Title-Case or all-caps
+# legacy epithet ("Robur", "ROBUR") still qualifies. A token failing this
+# ("L.", "DC.", "H.Karst.", "A.Gray", a bare "L") is authorship, never an
+# epithet. Classes kept as \uXXXX to keep the source ASCII.
+.epithet_word_pattern <- "^[A-Za-z][A-Za-z\u00c0-\u00ff-]+$"
+# An all-lowercase word: reads the name's case regime and spots a Capitalized
+# trailing author in an otherwise-lowercase name.
+.lower_word_pattern <- "^[a-z\u00df-\u00ff-]+$"
+
+#' Strip trailing authorship from a cleaned name (token-based)
+#'
+#' The specific epithet is the token immediately after the genus and is kept
+#' whatever its case, so a Title-Case or all-caps legacy binomial ("Quercus
+#' Robur", "QUERCUS ROBUR", "Panthera Leo") is never mistaken for a genus plus
+#' author; a genus followed instead by an author-shaped token ("Rosa L.")
+#' reduces to the bare genus. From the third token on, further epithets
+#' (infraspecific) are kept and the author citation is dropped from the first
+#' token that begins it. The two are told apart by case regime: when the
+#' specific epithet is lowercase (standard formatting), a Capitalized later
+#' token is an author ("Rosa canina dumalis Baker" -> "Rosa canina dumalis");
+#' when the epithet is itself upper/Title-case (legacy all-caps data), case
+#' cannot separate them, so only a token carrying a period, "&", or a bracket
+#' ends the name. Parenthesized authorship is removed by the caller beforehand.
+#'
+#' @param s Character vector (already qualifier- and parenthesized-author-
+#'   stripped).
+#' @return `s` with trailing authorship removed.
+#' @noRd
+strip_trailing_authorship <- function(s) {
+  out <- s
+  # Trim so the split yields no leading/trailing empty tokens, then tokenize
+  # once. A basionym author that slipped past the parenthesized-author strip
+  # (internal capital, e.g. "(Siebold & Zucc.)") is caught here too.
+  toks_list <- strsplit(trimws(s), "\\s+", perl = TRUE)
+  lens <- lengths(toks_list)
+  multi <- which(lens >= 2L)
+  if (length(multi) == 0L) return(out)
+
+  # Two vectorized token tests over every token in the multi-token names.
+  flat    <- unlist(toks_list[multi], use.names = FALSE)
+  is_word  <- grepl(.epithet_word_pattern, flat, perl = TRUE)
+  is_lower <- grepl(.lower_word_pattern, flat, perl = TRUE)
+  ends   <- cumsum(lens[multi])
+  starts <- ends - lens[multi] + 1L
+
+  for (k in seq_along(multi)) {
+    i <- multi[k]
+    b <- starts[k]                       # flat index of this name's token 1
+    keep <- 1L
+    if (is_word[b + 1L]) {               # token 2 is the specific epithet
+      keep <- 2L
+      regime_lower <- is_lower[b + 1L]
+      if (lens[i] >= 3L) {
+        for (j in 3:lens[i]) {
+          tj <- b + j - 1L
+          author <- !is_word[tj] || (regime_lower && !is_lower[tj])
+          if (author) break else keep <- j
+        }
+      }
+    }
+    if (keep < lens[i]) {
+      out[i] <- paste(toks_list[[i]][seq_len(keep)], collapse = " ")
+    }
+  }
+  out
+}
 
 # ---- Qualifier canonicalization (single source of truth) ----
 #
@@ -253,8 +313,8 @@ clean_one <- function(name) {
   # Strip parenthesized authorship
   s <- gsub(.author_parens_pattern, " ", s, perl = TRUE)
 
-  # Strip trailing authorship
-  s <- gsub(.author_trailing_pattern, "", s, perl = TRUE)
+  # Strip trailing authorship (token-based; never consumes the epithet)
+  s <- strip_trailing_authorship(s)
 
   # Strip remaining brackets and numbers
   s <- gsub("\\([^)]*\\)", " ", s)
@@ -400,8 +460,8 @@ clean_names <- function(x) {
   # Strip parenthesized authorship
   s <- gsub(.author_parens_pattern, " ", s, perl = TRUE)
 
-  # Strip trailing authorship
-  s <- gsub(.author_trailing_pattern, "", s, perl = TRUE)
+  # Strip trailing authorship (token-based; never consumes the epithet)
+  s <- strip_trailing_authorship(s)
 
   # Strip remaining brackets and numbers
   s <- gsub("\\([^)]*\\)", " ", s)

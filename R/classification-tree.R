@@ -101,7 +101,9 @@ lowest_common <- function(x, backend = NULL, verbose = TRUE) {
   # non-NA value is the lowest common ancestor.
   for (r in .tree_ranks) {
     v <- cf[[r]]
-    if (anyNA(v)) next
+    # An empty string is an unresolved rank, not a shared ancestor: some
+    # backbones store "" rather than NA for a rank they do not place.
+    if (anyNA(v) || any(!nzchar(v))) next
     u <- unique(v)
     if (length(u) == 1L) {
       out$rank <- r

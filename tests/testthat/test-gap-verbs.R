@@ -160,6 +160,20 @@ test_that("reconcile() classifies a checklist against current treatment", {
   expect_false(unname(merged["Notagenus imaginus"]))
 })
 
+test_that("reconcile() does not report a case variant as a merge (#11)", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  taxify_clear_cache()
+  skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
+
+  # A name paired with its own upper-cased variant is one input, not a
+  # many-to-one merge.
+  r <- reconcile(c("Quercus robur", "QUERCUS ROBUR"), backend = "wfo",
+                 verbose = FALSE)
+  expect_false(any(r$merged))
+  expect_true(all(r$status == "unchanged"))
+})
+
 
 # ---- taxify_lock() / taxify_restore() ----
 

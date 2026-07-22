@@ -90,6 +90,10 @@ reconcile <- function(x, backend = NULL, ..., verbose = TRUE) {
   status[resolved & is_amb]  <- "ambiguous"
 
   # Many-to-one collapse: >= 2 distinct inputs sharing one accepted name.
+  # Distinctness is measured in the same normalized (case- and orthography-
+  # folded) space `status` uses, so a name paired with its own case/spelling
+  # variant counts as one input, not a spurious merge; `merged_with` still
+  # reports the raw input strings.
   acc <- res$accepted_name
   merged <- rep(FALSE, n)
   merged_with <- rep(NA_character_, n)
@@ -97,12 +101,13 @@ reconcile <- function(x, backend = NULL, ..., verbose = TRUE) {
   if (any(keyable)) {
     grp <- split(which(keyable), acc[keyable])
     for (rows in grp) {
-      inputs <- unique(res$input_name[rows])
-      if (length(inputs) >= 2L) {
+      if (length(unique(in_norm[rows])) >= 2L) {
         for (i in rows) {
           merged[i] <- TRUE
-          others <- setdiff(inputs, res$input_name[i])
-          merged_with[i] <- if (length(others)) paste(others, collapse = "|") else NA_character_
+          other_rows <- rows[in_norm[rows] != in_norm[i]]
+          others <- unique(res$input_name[other_rows])
+          merged_with[i] <- if (length(others))
+            paste(others, collapse = "|") else NA_character_
         }
       }
     }

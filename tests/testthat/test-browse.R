@@ -44,7 +44,7 @@ test_that("children() lists the accepted species of a genus", {
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  ch <- children("Quercus", verbose = FALSE)
+  ch <- children("Quercus", backend = "wfo", verbose = FALSE)
   expect_true(all(c("Quercus robur", "Quercus petraea", "Quercus pyrenaica")
                   %in% ch$name))
   expect_true(all(ch$genus == "Quercus"))
@@ -59,7 +59,7 @@ test_that("children() auto-detects a family parent", {
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  ch <- children("Fagaceae", rank = "any", verbose = FALSE)
+  ch <- children("Fagaceae", backend = "wfo", rank = "any", verbose = FALSE)
   expect_true(nrow(ch) >= 3L)
   expect_true(all(ch$parent_rank == "family"))
   expect_true(all(ch$family == "Fagaceae"))
@@ -71,9 +71,23 @@ test_that("children() input is case-insensitive and returns empty on no match", 
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  expect_equal(nrow(children("quercus", verbose = FALSE)),
-               nrow(children("Quercus", verbose = FALSE)))
-  expect_equal(nrow(children("Notagenus", verbose = FALSE)), 0L)
+  expect_equal(nrow(children("quercus", backend = "wfo", verbose = FALSE)),
+               nrow(children("Quercus", backend = "wfo", verbose = FALSE)))
+  expect_equal(nrow(children("Notagenus", backend = "wfo", verbose = FALSE)), 0L)
+})
+
+test_that("backend = NULL resolves to the top-priority installed backbone (#24)", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  taxify_clear_cache()
+  skip_if_not(backbone_ready("col"), "col example backbone missing")
+
+  # The browse verbs default backend = NULL. That must resolve to the highest-
+  # priority installed backbone (COL here), never a hardcoded WFO a fresh
+  # install would have to download.
+  expect_identical(resolve_single_backend(NULL, verbose = FALSE), "col")
+  # A named backend passes through untouched.
+  expect_identical(resolve_single_backend("wfo", verbose = FALSE), "wfo")
 })
 
 test_that("add_classification() fills the higher ranks the backbone stores", {

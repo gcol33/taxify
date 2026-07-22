@@ -1,5 +1,43 @@
 # taxify 0.3.21
 
+## Name cleaning keeps Title-Case and all-caps epithets (issue #8)
+
+* `clean_names()` stripped a capitalized specific epithet as if it were an
+  author, so `"Quercus Robur"` cleaned to `"Quercus"` and then matched the
+  genus rather than the species. Trailing authorship is now removed by token
+  position: the token after the genus is the specific epithet whatever its
+  case, so Title-Case (`"Quercus Robur"`) and all-caps legacy (`"QUERCUS
+  ROBUR"`) binomials keep their epithet, while a genus followed by an author
+  (`"Rosa L."`) still reduces to the bare genus. Internal-capital author
+  abbreviations (`"Picea abies (L.) H.Karst."`, `"Solidago canadensis
+  A.Gray"`), which the previous pattern left in the cleaned name, are removed
+  too.
+
+## reconcile() no longer reports case variants as merges (issue #11)
+
+* A name paired with its own case variant (`c("Quercus robur", "QUERCUS
+  ROBUR")`) was flagged as a many-to-one merge, because the merge detector
+  grouped on the raw input string while the status comparison used the
+  normalized form. Input distinctness is now measured in the same normalized
+  space, so a case- or spelling-only variant counts as one input; genuine
+  merges are unchanged.
+
+## lowest_common() ignores blank rank values (issue #15)
+
+* A backbone that stores `""` (rather than `NA`) for an unresolved rank could
+  make `lowest_common()` report the blank as the shared ancestor. Empty rank
+  values are now treated as unresolved, so the most recent common ancestor
+  falls through to the next rank every taxon actually shares.
+
+## Reverse verbs default to the installed backbone set (issue #24)
+
+* `synonyms()`, `children()`, `downstream()`, `upstream()` and `id2name()`
+  defaulted to a single hardcoded backbone (`"wfo"` or `"col"`), so on a fresh
+  install `synonyms("Quercus robur")` triggered a WFO download the default
+  backbone set does not include. They now default to `backend = NULL`, which
+  resolves to the highest-priority installed backbone, matching `taxify()`,
+  `reconcile()` and `comm2sci()`.
+
 ## The fallback chain reaches every backbone again (issue #9)
 
 * A name whose genus the leading backbone did not cover was marked
