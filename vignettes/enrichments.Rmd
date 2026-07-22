@@ -1154,7 +1154,7 @@ freshwater_fish <- taxify(c(
 ))
 
 freshwater_fish |> add_fishmorph()
-#>        input_name fish_body_elongation fish_eye_size fish_oral_gape_position fish_body_lateral_shape ...
+#>        input_name fish_body_elongation fish_relative_eye_size fish_oral_gape_position fish_body_lateral_shape ...
 #> 1    Salmo trutta                 0.22          0.08                    0.42                    0.18 ...
 #> 2    Esox lucius                  0.18          0.06                    0.50                    0.15 ...
 #> 3  Cyprinus carpio                0.35          0.05                    0.38                    0.25 ...
@@ -1168,10 +1168,14 @@ morphological ratios normalized by body length. The 10 traits are:
 - `fish_body_elongation`: body depth relative to standard length. High
   values indicate deep-bodied species (cyprinids), low values indicate
   elongated species (eels, pike).
-- `fish_eye_size`: eye diameter relative to head length. Large-eyed
+- `fish_relative_eye_size`: eye diameter relative to head depth. Large-eyed
   species tend to be visual predators in clear water.
+- `fish_vertical_eye_position`: the vertical position of the eye on the
+  head, from ventral to dorsal.
 - `fish_oral_gape_position`: the vertical position of the mouth, from
   ventral (benthic feeders) to dorsal (surface feeders).
+- `fish_relative_maxillary_length`: jaw (maxillary) length relative to head
+  length, associated with prey size and feeding mode.
 - `fish_body_lateral_shape`: the lateral compression of the body.
 
 - `fish_pectoral_fin_size`: pectoral fin area, associated with
@@ -1180,20 +1184,15 @@ morphological ratios normalized by body length. The 10 traits are:
   fin on the body.
 - `fish_caudal_peduncle_throttling`: the narrowing of the caudal
   peduncle, associated with sustained swimming efficiency.
-- `fish_caudal_fin_shape`: the aspect ratio of the caudal fin. High
-  values (forked tails) indicate cruising swimmers; low values (rounded
-  tails) indicate ambush predators or benthic species.
-- `fish_fin_surface_ratio`: total fin area relative to body area.
 
-- `fish_max_body_length_cm`: the maximum recorded standard length in
-  centimetres.
+- `fish_max_body_length`: the maximum recorded body length.
 
 These morphological ratios are ecomorphological indicators: they predict
 how a species interacts with its physical environment. Body elongation and
-caudal fin shape together separate benthic, slow-moving species from
-pelagic, fast-cruising species. Oral gape position separates surface
-feeders from bottom feeders. Eye size and pectoral fin size relate to
-sensory ecology and manoeuvrability, respectively. The combination of
+caudal peduncle throttling together separate benthic, slow-moving species
+from pelagic, fast-cruising species. Oral gape position separates surface
+feeders from bottom feeders. Relative eye size and pectoral fin size relate
+to sensory ecology and manoeuvrability, respectively. The combination of
 these traits places each species in morphological space, making FISHMORPH
 directly useful for functional diversity calculations (Rao's Q, functional
 richness, functional divergence) in freshwater fish community ecology.
