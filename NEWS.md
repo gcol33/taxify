@@ -73,6 +73,56 @@
   into the installed `meta.json` (licence is no longer `NA` for downloaded
   enrichments); `ensure_enrichment()` refuses to download an unbundled
   enrichment into the example database.
+* The bundled manifest now carries `group_col` for all seven grouped
+  enrichments (`griis`, `gidias`, `alien_first_records`, `wcvp`,
+  `marine_distribution`, `common_names`, `glonaf`), and
+  `enrichment_groups()` falls back to the manifest when the installed
+  `meta.json` lacks it. A grouped enrichment installed before the metadata was
+  copied reported itself as ungrouped with no way to recover, because
+  `available_groups` had a manifest fallback and `group_col` did not.
+
+## Fuzzy matching picks the closest candidate (issue #23)
+
+* Candidate ranking had no distance term: `score_candidates()` ordered by
+  status, rank, validity, epithet and then `taxonID`, so among several fuzzy
+  candidates the winner was decided by ID and a farther name could beat a
+  nearer one. `"Carex flavaa"` resolved to `Carex flacca` (distance 0.167)
+  while `Carex flava` (0.083) was in range, and the two were reported
+  ambiguous although one was strictly closer. Distance now sorts first, so the
+  nearest name wins and ambiguity is declared only among equidistant
+  candidates. Exact matching is unaffected.
+* `dedup_fuzzy_targets()` ran once per fuzzy pass, so a query dropped by the
+  genus-blocked pass competed again in the prefix-blocked fallback and claimed
+  the backbone row the first pass had already taken. The claimed rows are now
+  carried forward, so two queries can no longer collapse onto one row.
+* Measured over the full 34,589-name EVA-to-WFO corpus, fuzzy accepted-name
+  agreement rises from 0.9152 to 0.9172 and WFO-ID agreement from 0.8031 to
+  0.8050, against a 0.0009 fall in match rate.
+
+## An executable accuracy corpus (issue #23)
+
+* `tests/e2e/test-asaas-validation.R` asserted nothing: it printed its
+  agreement rates with `cat()`, so a matching regression reported a worse
+  number and passed, and it read from a hardcoded `J:/` path. It now locates
+  the corpus through `TAXIFY_ASAAS_CORPUS`, asserts floors on match rate and
+  on accepted-name, family, genus and WFO-ID agreement over the whole corpus,
+  and asserts both sides of the fuzzy trade so neither recall nor precision
+  can erode unnoticed. Divergence is split into backbone drift, the corpus
+  hybrid-formula convention, and genuine misses, and only the last is capped.
+  See `tests/e2e/README.md` for the baseline and how to read a disagreement.
+* Assertions that could not fail were replaced: the trait-registry vocabulary
+  check drove every crosswalk with `NA` only, `test-doors.R` accepted one
+  populated column out of twenty, `children()` case-insensitivity held at zero
+  rows, `summary()` was matched with `grepl("3", .)`, and the multi-backend
+  fallback test used fixtures that both carried the species. Self-fulfilling
+  comparisons in `test-default-backend.R`, `test-add-trait.R`, `test-region.R`,
+  `test-gap-verbs.R` and `test-new-verbs.R` now assert independent literals.
+* New coverage for ITIS (a member of the first-run backbone set that had no
+  test at all), `add_common_names()`, `add_wcvp(region=)`, `add_glonaf()`,
+  `add_alien_first_records()`, `install_backbones()`, and `taxify_restore()`'s
+  `version_drift` / `content_drift` / `missing` branches. Negative and
+  threshold-boundary fuzzy tests cover equidistant candidates, typos that must
+  not resolve to a close-but-wrong species, and the accept/reject flip.
 
 ## Authorship tiebreak and fuzzy validation (issue #17)
 
