@@ -25,10 +25,11 @@
 #' the `.vtr` from the original source on the user's own machine. taxify
 #' redistributes none of the data.
 #'
-#' ccdb has no door yet: its counts pool gametic and sporophytic records, so the
-#' column taxifydb names chromosome_number_2n predominantly carries n. Blocked on
-#' gcol33/taxifydb#12; the chromosome_number trait ships from kew_cvalues alone
-#' until then.
+#' None of them feeds the cross-source `add_trait()` registry, which admits only
+#' downloadable sources: a source reachable solely where taxifydb is installed
+#' would make the same code return a different number on two machines. `ccdb` is
+#' the one that costs something -- 65,051 species against `kew_cvalues`' 9,375 --
+#' and it is reached through `add_ccdb()` all the same.
 #'
 #' @return Character vector of enrichment identifiers.
 #' @noRd
@@ -83,8 +84,8 @@ content_id_of <- function(vtr_path) {
   unname(tools::md5sum(vtr_path))
 }
 
-# Adopt a content id into an existing cache's meta.json (idempotent metadata
-# upgrade for a legacy cache whose bytes already match the shipped asset), so
+# Adopt a content id into an existing cache's meta.json (idempotent, for a cache
+# that stores no id and whose bytes already match the shipped asset), so
 # later sessions compare the stored id instead of re-hashing the file. Works
 # for enrichments and backbones alike -- both keep a meta.json beside the .vtr.
 write_content_id_meta <- function(vtr_path, content_id) {
@@ -103,8 +104,8 @@ write_content_id_meta <- function(vtr_path, content_id) {
 
 # Shared refresh decision by content identity, used by both the enrichment and
 # backbone version checks. Returns TRUE/FALSE, or NA when no content id is
-# shipped (the caller then keeps its legacy behaviour). A legacy cache with no
-# stored id is hashed in place when `hash_missing = TRUE` and, if its bytes
+# shipped, leaving the caller to decide on the version string alone. A cache
+# with no stored id is hashed in place when `hash_missing = TRUE` and, if its bytes
 # already match the shipped id, the id is adopted via `adopt` so later sessions
 # skip the hash. Backbones pass `hash_missing = FALSE` to avoid rehashing a
 # multi-GB file: they compare only the id their downloaded meta already carries.
@@ -139,9 +140,9 @@ check_enrichment_version <- function(name) {
   # the cache stale forever. Reconcile against the bundled manifest's content
   # id (a hash of the built .vtr) entirely offline: a package update ships a
   # changed content id for any rebuilt asset, which forces a one-time refresh.
-  # A legacy cache with no stored id is hashed in place, so an unchanged asset
-  # is adopted without any download. When the bundled manifest carries no
-  # content id (older manifest), the historical "never update" behaviour holds.
+  # A cache with no stored id is hashed in place, so an unchanged asset is
+  # adopted without any download. A bundled manifest that carries no content id
+  # leaves a static enrichment unrefreshed, as its name implies.
   if (isTRUE(meta$static)) {
     # Only reconcile caches the runtime actually downloaded (downloaded_at is
     # written by download_enrichment). Bundled example data and staged test
