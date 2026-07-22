@@ -211,6 +211,52 @@ test_that("taxify_lock() round-trips through a file and restore() reports", {
   expect_true(all(rep$status[rep$component == "wfo"] == "ok"))
 })
 
+test_that(".restore_status() reports unverified and locked-vs-unknown drift", {
+  # Neither a version nor a content id on either side: installed but
+  # unverifiable, never a false "ok".
+  expect_equal(.restore_status(NA, NA, NA, NA, installed = TRUE), "unverified")
+
+  # A version was locked but the install exposes none: cannot be shown to
+  # match, so not "ok".
+  st <- .restore_status("1.0", NA, NA, NA, installed = TRUE)
+  expect_false(st == "ok")
+  expect_true(st %in% c("version_drift", "unverified"))
+
+  # Matching versions on both sides is still "ok"; not installed is "missing".
+  expect_equal(.restore_status("1.0", NA, "1.0", NA, installed = TRUE), "ok")
+  expect_equal(.restore_status("1.0", NA, "9.9", NA, installed = TRUE),
+               "version_drift")
+  expect_equal(.restore_status("1.0", NA, "1.0", NA, installed = FALSE),
+               "missing")
+})
+
+test_that(".restore_status() tolerates a zero-length lock field", {
+  # jsonlite emits a zero-length vector for an empty JSON field; it must not
+  # error, and must degrade to a reported status.
+  expect_error(.restore_status(character(0), NA, "1.0", NA, installed = TRUE), NA)
+  st <- .restore_status(character(0), NA, "1.0", NA, installed = TRUE)
+  expect_true(st %in% c("unverified", "version_drift"))
+})
+
+test_that("summary() tolerates an enrichment entry with no version field", {
+  res  <- data.frame(query = "x", accepted_name = "x", matched_name = "x",
+                     stringsAsFactors = FALSE)
+  meta <- list(
+    backend         = "wfo",
+    n_input         = 1L,
+    match_tally     = list(exact = 1L),
+    life_form_tally = data.frame(taxon_group = character(0L), n = integer(0L),
+                                 stringsAsFactors = FALSE),
+    enrichments     = list(list(
+      name = "demo", source = "Demo source", license = NA_character_,
+      n_matched = 1L, n_total = 1L   # deliberately no `version` field
+    ))
+  )
+  attr(res, "taxify_meta") <- meta
+  class(res) <- c("taxify_result", "data.frame")
+  expect_error(capture.output(summary(res)), NA)
+})
+
 
 # ---- authorship-aware homonym disambiguation ----
 

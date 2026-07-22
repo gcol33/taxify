@@ -27,6 +27,36 @@ print.taxify_result <- function(x, ...) {
 }
 
 
+#' Subset a taxify_result, preserving its metadata
+#'
+#' The default data.frame `[` method drops the `taxify_meta` attribute that the
+#' downstream doors ([add_data()], [cite()], [summary()], [taxify_lock()]) read.
+#' This method carries `taxify_meta` and the `taxify_result` class through
+#' row/column subsetting, so a subset (including one taken internally by a door
+#' that reorders columns) still exposes its provenance. A subset that collapses
+#' to a single column via `drop = TRUE` returns the bare vector, as it would for
+#' a plain data.frame.
+#'
+#' @param x A `taxify_result` object.
+#' @param ... Row/column indices passed to the data.frame `[` method.
+#' @return The subset: a `taxify_result` with `taxify_meta` preserved while it
+#'   remains a data.frame, otherwise the bare column.
+#' @method [ taxify_result
+#' @keywords internal
+#' @export
+`[.taxify_result` <- function(x, ...) {
+  meta <- attr(x, "taxify_meta")
+  out  <- NextMethod()
+  if (is.data.frame(out)) {
+    attr(out, "taxify_meta") <- meta
+    if (!inherits(out, "taxify_result")) {
+      class(out) <- c("taxify_result", setdiff(class(out), "taxify_result"))
+    }
+  }
+  out
+}
+
+
 #' Summarise a taxify_result
 #'
 #' Prints a compact digest of match quality and life-form scope to the console.
@@ -156,12 +186,18 @@ summary.taxify_result <- function(object, ...) {
   enrichments <- meta$enrichments
   if (!is.null(enrichments) && length(enrichments) > 0L) {
     cat("\n  enrichments:\n")
+    # version may be absent (NULL) or NA; guard both, as license is guarded.
+    src_of <- function(e) {
+      if (!is.null(e$version) && !is.na(e$version)) {
+        paste0(e$source, " ", e$version)
+      } else {
+        e$source
+      }
+    }
     max_name <- max(nchar(vapply(enrichments, `[[`, character(1L), "name")))
-    max_src  <- max(nchar(vapply(enrichments, function(e) {
-      if (is.na(e$version)) e$source else paste0(e$source, " ", e$version)
-    }, character(1L))))
+    max_src  <- max(nchar(vapply(enrichments, src_of, character(1L))))
     for (e in enrichments) {
-      src_str <- if (is.na(e$version)) e$source else paste0(e$source, " ", e$version)
+      src_str <- src_of(e)
       lic_str <- if (!is.null(e$license) && !is.na(e$license)) {
         sprintf(" [%s]", e$license)
       } else {

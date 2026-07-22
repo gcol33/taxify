@@ -63,6 +63,10 @@ add_combine_reported <- function(x, cols = NULL, verbose = TRUE) {
     col_map         = .combine_col_map(),
     source_label    = "COMBINE (reported)",
     cols            = cols,
+    # Namespace auto-exposed extras as combine_* too, so the whole reported
+    # output lives in one namespace and never collides with combine_imputed_*.
+    col_prefix      = "combine_",
+    out_prefix      = "combine_",
     verbose         = verbose
   )
 }
@@ -184,7 +188,16 @@ add_combine <- function(x, cols = NULL, verbose = TRUE) {
   # out and imp are both column-fills on the same x, so they share row order and
   # count; the imputed columns align to out row-for-row without a re-join.
 
-  val_cols <- grep("^combine_", names(out), value = TRUE)
+  # Coalesce only the reported door's own value columns: the curated combine_*
+  # col_map names plus any combine_-prefixed extras it auto-exposed. A
+  # combine_imputed_* column already on the input -- from an earlier
+  # add_combine_imputed() in the pipeline -- must never be swept in here, or its
+  # imputed value would be re-tagged "reported". Selecting by the known reported
+  # namespace (never a bare "^combine_" grep) keeps the imputed namespace out.
+  reported_names <- names(.combine_col_map())
+  extra_names    <- grep("^combine_(?!imputed_)", names(out),
+                         value = TRUE, perl = TRUE)
+  val_cols <- intersect(names(out), union(reported_names, extra_names))
   val_cols <- val_cols[!grepl("_src$", val_cols)]
   for (vcol in val_cols) {
     icol  <- paste0("combine_imputed_", sub("^combine_", "", vcol))

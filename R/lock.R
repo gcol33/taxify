@@ -8,6 +8,16 @@
 # and "am I still running against it?".
 
 
+#' Coalesce treating zero-length AND NULL as missing
+#'
+#' `%||%` only catches NULL, but jsonlite yields a zero-length vector for an
+#' empty JSON field (`{}` / `[]`). Lock fields read back from a lockfile may
+#' therefore be `character(0)`, which slips past `%||%` and then errors in
+#' `is.na()`/`if`. This treats both as missing.
+#' @noRd
+nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
+
+
 #' Build a lockfile entry for one installed backbone
 #' @noRd
 .backbone_lock_entry <- function(be_name) {
@@ -120,18 +130,38 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 
 
 #' Compare one locked entry against what is installed now
+#'
+#' Returns `"missing"` (not installed), `"content_drift"` / `"version_drift"`
+#' (a compared identity differs, or was locked but the install exposes no
+#' counterpart to compare it against), `"unverified"` (installed but neither a
+#' version nor a content id could be compared on either side), or `"ok"`.
 #' @noRd
 .restore_status <- function(locked_ver, locked_cid, cur_ver, cur_cid, installed) {
+  # Normalize zero-length lock fields (jsonlite emits them for empty JSON) so a
+  # malformed field degrades to a reported status rather than an exception.
+  locked_ver <- nz_or(locked_ver, NA_character_)
+  locked_cid <- nz_or(locked_cid, NA_character_)
+  cur_ver    <- nz_or(cur_ver, NA_character_)
+  cur_cid    <- nz_or(cur_cid, NA_character_)
+
   if (!isTRUE(installed)) return("missing")
+
   # Content id is the strongest signal (catches a same-version republish).
   if (!is.na(locked_cid) && !is.na(cur_cid)) {
     if (!identical(locked_cid, cur_cid)) return("content_drift")
     return("ok")
   }
-  if (!is.na(locked_ver) && !is.na(cur_ver) && !identical(locked_ver, cur_ver)) {
-    return("version_drift")
+  if (!is.na(locked_ver) && !is.na(cur_ver)) {
+    if (!identical(locked_ver, cur_ver)) return("version_drift")
+    return("ok")
   }
-  "ok"
+  # The lock pinned an identity (a version or content id) but the current
+  # install exposes no counterpart: the recorded run cannot be shown to match,
+  # so report drift rather than a false "ok".
+  if (!is.na(locked_ver) || !is.na(locked_cid)) return("version_drift")
+  # Nothing comparable on either side: installed, but unverifiable against the
+  # lock.
+  "unverified"
 }
 
 
@@ -152,7 +182,8 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #' @return A data.frame with one row per pinned asset, columns: `component`,
 #'   `type` (`"backbone"`/`"enrichment"`), `locked_version`, `installed_version`,
 #'   `locked_content_id` and `installed_content_id` (short), and `status`
-#'   (`"ok"`, `"version_drift"`, `"content_drift"`, or `"missing"`).
+#'   (`"ok"`, `"version_drift"`, `"content_drift"`, `"missing"`, or
+#'   `"unverified"` when neither a version nor a content id could be compared).
 #'
 #' @seealso [taxify_lock()].
 #'
@@ -178,7 +209,8 @@ taxify_restore <- function(file, verbose = TRUE) {
   }
 
   short <- function(cid) {
-    if (is.null(cid) || is.na(cid)) NA_character_ else substr(cid, 1L, 10L)
+    cid <- nz_or(cid, NA_character_)
+    if (is.na(cid)) NA_character_ else substr(cid, 1L, 10L)
   }
 
   rows <- list()
@@ -187,21 +219,23 @@ taxify_restore <- function(file, verbose = TRUE) {
     meta <- tryCatch(read_version_meta(b$name, "latest"), error = function(e) NULL)
     vtr  <- versioned_vtr_path(b$name, "latest")
     installed <- file.exists(vtr)
-    cur_ver <- meta$version %||% NA_character_
+    cur_ver <- nz_or(meta$version, NA_character_)
     if (is.na(cur_ver) && installed) {
-      cur_ver <- (tryCatch(read_backbone_meta(vtr), error = function(e) NULL))$version %||% NA_character_
+      cur_ver <- nz_or((tryCatch(read_backbone_meta(vtr),
+                                 error = function(e) NULL))$version, NA_character_)
     }
-    cur_cid <- meta$content_id %||% NA_character_
+    cur_cid <- nz_or(meta$content_id, NA_character_)
+    locked_ver <- nz_or(b$version, NA_character_)
+    locked_cid <- nz_or(b$content_id, NA_character_)
     rows[[length(rows) + 1L]] <- data.frame(
       component            = b$name,
       type                 = "backbone",
-      locked_version       = b$version %||% NA_character_,
+      locked_version       = locked_ver,
       installed_version    = cur_ver,
-      locked_content_id    = short(b$content_id),
+      locked_content_id    = short(locked_cid),
       installed_content_id = short(cur_cid),
-      status = .restore_status(b$version %||% NA_character_,
-                               b$content_id %||% NA_character_,
-                               cur_ver, cur_cid, installed),
+      status = .restore_status(locked_ver, locked_cid, cur_ver, cur_cid,
+                               installed),
       stringsAsFactors = FALSE
     )
   }
@@ -210,18 +244,19 @@ taxify_restore <- function(file, verbose = TRUE) {
     vtr  <- enrichment_vtr_path(e$name, "latest")
     meta <- tryCatch(read_enrichment_meta(vtr), error = function(e) NULL)
     installed <- file.exists(vtr)
-    cur_ver <- meta$version %||% NA_character_
-    cur_cid <- meta$content_id %||% NA_character_
+    cur_ver <- nz_or(meta$version, NA_character_)
+    cur_cid <- nz_or(meta$content_id, NA_character_)
+    locked_ver <- nz_or(e$version, NA_character_)
+    locked_cid <- nz_or(e$content_id, NA_character_)
     rows[[length(rows) + 1L]] <- data.frame(
       component            = e$name,
       type                 = "enrichment",
-      locked_version       = e$version %||% NA_character_,
+      locked_version       = locked_ver,
       installed_version    = cur_ver,
-      locked_content_id    = short(e$content_id),
+      locked_content_id    = short(locked_cid),
       installed_content_id = short(cur_cid),
-      status = .restore_status(e$version %||% NA_character_,
-                               e$content_id %||% NA_character_,
-                               cur_ver, cur_cid, installed),
+      status = .restore_status(locked_ver, locked_cid, cur_ver, cur_cid,
+                               installed),
       stringsAsFactors = FALSE
     )
   }
@@ -235,13 +270,17 @@ taxify_restore <- function(file, verbose = TRUE) {
   rownames(out) <- NULL
 
   if (verbose) {
-    n_drift <- sum(out$status != "ok")
-    if (n_drift == 0L) {
+    n_unver <- sum(out$status == "unverified")
+    n_drift <- sum(!out$status %in% c("ok", "unverified"))
+    if (n_drift == 0L && n_unver == 0L) {
       message("taxify_restore(): all pinned assets match the lockfile.")
     } else {
+      parts <- character(0L)
+      if (n_drift > 0L) parts <- c(parts, sprintf("%d differ", n_drift))
+      if (n_unver > 0L) parts <- c(parts, sprintf("%d unverifiable", n_unver))
       message(sprintf(
-        "taxify_restore(): %d of %d pinned assets differ from the lockfile (see 'status').",
-        n_drift, nrow(out)))
+        "taxify_restore(): %s (of %d pinned assets); see 'status'.",
+        paste(parts, collapse = ", "), nrow(out)))
     }
   }
   out

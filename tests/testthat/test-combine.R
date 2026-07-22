@@ -147,3 +147,56 @@ test_that("add_combine() coalesces reported over imputed and tags provenance", {
     expect_equal(nms[pos + 1L], paste0(vcol, "_src"))
   }
 })
+
+test_that("add_combine() after add_combine_imputed() never mislabels imputed columns", {
+  install_mock_enrichment("combine", combine_fixture(imputed = FALSE))
+  install_mock_enrichment("combine_imputed", combine_fixture(imputed = TRUE))
+
+  # The pipeline attaches the imputed table first, then the coalescing door. The
+  # already-present combine_imputed_* columns must not be swept into the
+  # reported-value coalesce (a prefix grep would have re-tagged them "reported").
+  r <- mk_res(c("Vulpes vulpes", "Panthera leo")) |>
+    add_combine_imputed(verbose = FALSE) |>
+    add_combine(verbose = FALSE)
+
+  fox  <- r$accepted_name == "Vulpes vulpes"
+  lion <- r$accepted_name == "Panthera leo"
+
+  # Pre-existing combine_imputed_* columns pass through untouched: not coalesced
+  # as reported values, and given no _src provenance tag.
+  expect_true("combine_imputed_adult_mass_g" %in% names(r))
+  expect_false("combine_imputed_adult_mass_g_src" %in% names(r))
+  expect_length(grep("^combine_imputed_.*_src$", names(r)), 0L)
+
+  # The coalesced reported column still tags provenance correctly.
+  expect_equal(r$combine_adult_mass_g_src[fox], "reported")
+  expect_equal(r$combine_adult_mass_g_src[lion], "imputed")
+})
+
+
+# ---- [.taxify_result subsetting preserves metadata ----
+
+test_that("[.taxify_result carries taxify_meta and class through subsetting", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  taxify_clear_cache()
+  wfo_vtr <- file.path(taxify_example_data(), "wfo", "latest", "wfo.vtr")
+  skip_if_not(file.exists(wfo_vtr), "wfo example backbone missing")
+
+  res <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+  expect_s3_class(res, "taxify_result")
+  expect_false(is.null(attr(res, "taxify_meta")))
+
+  # A no-op column subset (as add_combine() takes internally) keeps both.
+  sub <- res[, names(res)]
+  expect_s3_class(sub, "taxify_result")
+  expect_false(is.null(attr(sub, "taxify_meta")))
+
+  # A partial column subset likewise carries the attribute.
+  sub2 <- res[, c("input_name", "accepted_name"), drop = FALSE]
+  expect_s3_class(sub2, "taxify_result")
+  expect_false(is.null(attr(sub2, "taxify_meta")))
+
+  # Collapsing to a single column with drop = TRUE returns the bare vector.
+  expect_type(res[, "accepted_name"], "character")
+})
