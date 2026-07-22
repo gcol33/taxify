@@ -13,12 +13,12 @@ release. Already-current backbones are skipped.
 ## Usage
 
 ``` r
-install_backbones(backends = NULL, verbose = TRUE)
+install_backbones(backbones = NULL, verbose = TRUE)
 ```
 
 ## Arguments
 
-- backends:
+- backbones:
 
   Character vector of backbone names (see
   [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)).

@@ -49,8 +49,8 @@ Scientific Data.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Thunnus albacares", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Thunnus albacares", backbone = "gbif") |>
   add_pelagic()
-# }
+} # }
 ```

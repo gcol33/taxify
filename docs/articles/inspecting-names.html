@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -287,9 +287,9 @@ candidate typo, but it remains a kingdom-group outlier in a plant
 list.</p>
 <p>If you have already matched the list, inspect the result instead of
 asking <code><a href="../reference/inspect.html">inspect()</a></code> to match again. This reuses the exact
-backend, region, and options of your original call.</p>
+backbone, region, and options of your original call.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The two routes return the same kind of report. Pass
 <code>backbones = TRUE</code> when you want a quick standalone check;
@@ -369,7 +369,7 @@ the rest of the checks still run.</p>
 <p>Printing is a convenience. The object underneath is an ordinary
 data.frame with columns <code>input_name</code>,
 <code>suggestion</code>, <code>anomalies</code>, <code>tier</code>,
-<code>reason</code>, <code>fuzzy_dist</code>, and <code>backend</code>,
+<code>reason</code>, <code>fuzzy_dist</code>, and <code>backbone</code>,
 so the report drops straight into a cleaning script.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">names</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>

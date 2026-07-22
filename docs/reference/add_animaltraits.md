@@ -56,7 +56,7 @@ for body mass, metabolic rate and brain size. Scientific Data 9:265.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Drosophila melanogaster", backend = "gbif") |>
+taxify("Drosophila melanogaster", backbone = "gbif") |>
   add_animaltraits()
 
 options(old)

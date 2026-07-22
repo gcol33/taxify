@@ -57,8 +57,8 @@ History Museum, London. doi:10.5519/havt50xw
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Papilio machaon", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Papilio machaon", backbone = "gbif") |>
   add_hosts()
-# }
+} # }
 ```

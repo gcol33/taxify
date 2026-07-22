@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -185,7 +185,7 @@ route to its accepted name.</p>
 <span><span class="co">#&gt; 10 Taraxacum officinale Taraxacum officinale  Asteraceae      FALSE      exact         NA</span></span></code></pre>
 <p>Ten names, ten rows, every match readable. Each row also carries
 genus, authorship, taxon and accepted IDs, a hybrid flag and type, the
-backend, and the exact backbone version (the full table is wider, the
+backbone, and the exact backbone version (the full table is wider, the
 same shape for any input).</p>
 <p>Each name reaches its accepted name a different way. The animation
 below walks one name at a time through the pipeline: the clean step
@@ -316,18 +316,18 @@ whether a run went cleanly.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ── taxify results ──────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   backend: WFO v2024-12  |  10 names submitted</span></span>
+<span><span class="co">#&gt;   backbone: WFO v2024-12  |  10 names submitted</span></span>
 <span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt;   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   taxon groups: angiosperm: 8  gymnosperm: 1  unknown: 1</span></span></code></pre>
-<p>The digest reports the backend and version, the match-route breakdown
-(all ten resolved here, including the abbreviated
+<p>The digest reports the backbone and version, the match-route
+breakdown (all ten resolved here, including the abbreviated
 <code>Q. petraea</code>), and the taxon-group mix. When a name is out of
 scope (an animal in a plant-only backbone) or genuinely absent, the
-digest tallies it and suggests an alternative backend. The match types
-and the multi-backend fallback
-(<code>backend = c("wfo", "col", "gbif")</code>) are covered in the <a href="https://gillescolling.com/taxify/articles/backends.html">backends
+digest tallies it and suggests an alternative backbone. The match types
+and the multi-backbone fallback
+(<code>backbone = c("wfo", "col", "gbif")</code>) are covered in the <a href="https://gillescolling.com/taxify/articles/backbones.html">backbones
 vignette</a>.</p>
 </div>
 <div class="section level2">
@@ -343,7 +343,7 @@ compiled backbone, WorldFlora in R. On 1,000 plant names with fuzzy
 matching on (Windows, R 4.5.2):</p>
 <canvas id="sp-cv" width="760" height="330" style="max-width:100%"></canvas><script>
 (function(){
-var TAX=1.0,WFO=1862.0;
+var TAX=18.8,WFO=4192.4;
 
 var s=VA.setup('sp-cv'); if(!s)return; var x=s.ctx,W=s.w,H=s.h,C=VA.C;
 var BX=150,BW=W-150-150,b1=96,b2=190,bh=46;
@@ -373,11 +373,14 @@ function draw(tc){VA.bg(x,W,H);
 VA.run(draw,PERIOD,null,'sp','sp-cv');
 
 })();
-</script><p>Exact matching is close (0.1 s against 1.3 s); the gap opens on fuzzy
-matching, where the genus blocking keeps taxify near a second while the
-in-R scan grows with the list. The full benchmark and large-batch
-strategy are in the <a href="https://gillescolling.com/taxify/articles/large-scale.html">large-scale
-vignette</a>.</p>
+</script><p>On 1,000 names that all carry a one-character typo, taxify takes 18.8
+s and WorldFlora 4,192 s. Exact matching is closer, 2.2 s against 17.1
+s. The genus blocking is what opens the gap: a typo competes only
+against names in its own genus, so the work does not grow with the size
+of the backbone. <code>scripts/benchmark-worldflora.R</code> in the
+repository produces both figures, and the <a href="https://gillescolling.com/taxify/articles/large-scale.html">large-scale
+vignette</a> covers the batch strategy for lists above 100,000
+names.</p>
 </div>
 <div class="section level2">
 <h2 id="add-your-own-attributes">Add your own attributes<a class="anchor" aria-label="anchor" href="#add-your-own-attributes"></a>
@@ -547,8 +550,8 @@ attribute the package can attach.</p>
 <p>This vignette is the fast path. Each step has a dedicated vignette
 with the full detail:</p>
 <ul>
-<li><p><a href="https://gillescolling.com/taxify/articles/backends.html">Backends
-and multi-backend fallback</a></p></li>
+<li><p><a href="https://gillescolling.com/taxify/articles/backbones.html">Choosing
+and combining backbones</a></p></li>
 <li><p><a href="https://gillescolling.com/taxify/articles/fuzzy-matching.html">Fuzzy
 matching</a></p></li>
 <li><p><a href="https://gillescolling.com/taxify/articles/enrichments.html">Enrichments</a></p></li>

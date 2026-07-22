@@ -27,7 +27,7 @@ parse_name(x)
 
 A data.frame with one row per input name and columns:
 
-- input:
+- input_name:
 
   The original name as supplied.
 

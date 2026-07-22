@@ -48,8 +48,8 @@ Vienna. [doi:10.25365/phaidra.49](https://doi.org/10.25365/phaidra.49)
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Astarte borealis", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Astarte borealis", backbone = "gbif") |>
   add_arctic_traits()
-# }
+} # }
 ```

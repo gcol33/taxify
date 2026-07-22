@@ -63,8 +63,8 @@ Phytologist. [doi:10.1111/nph.70860](https://doi.org/10.1111/nph.70860)
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Quercus robur", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Quercus robur", backbone = "gbif") |>
   add_gwdd()
-# }
+} # }
 ```

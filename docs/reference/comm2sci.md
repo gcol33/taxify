@@ -12,7 +12,7 @@ query.
 ## Usage
 
 ``` r
-comm2sci(x, lang = NULL, resolve = FALSE, backend = NULL, verbose = TRUE)
+comm2sci(x, lang = NULL, resolve = FALSE, backbone = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -37,7 +37,7 @@ comm2sci(x, lang = NULL, resolve = FALSE, backend = NULL, verbose = TRUE)
   return a `taxify_result` (with a leading `query_common` column), so
   the result pipes straight into the `add_*()` enrichments.
 
-- backend:
+- backbone:
 
   Passed to
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
@@ -53,16 +53,16 @@ comm2sci(x, lang = NULL, resolve = FALSE, backend = NULL, verbose = TRUE)
 When `resolve = FALSE`, a data.frame with one row per (query, scientific
 match):
 
-- query:
+- input_name:
 
   The common name as supplied.
 
 - common_name:
 
   The vernacular name as stored in the source (its casing, which may
-  differ from `query`).
+  differ from `input_name`).
 
-- scientific_name:
+- accepted_name:
 
   The accepted scientific name.
 
@@ -91,7 +91,7 @@ old <- options(taxify.data_dir = taxify_example_data())
 comm2sci("example_common_name")
 
 # Resolve straight to a taxify_result you can enrich
-comm2sci("example_common_name", resolve = TRUE, backend = "wfo")
+comm2sci("example_common_name", resolve = TRUE, backbone = "wfo")
 
 options(old)
 ```

@@ -71,9 +71,9 @@ res[, c("input_name", "accepted_name", "family",
     #> 10 Taraxacum officinale Taraxacum officinale  Asteraceae      FALSE      exact         NA
 
 Ten names, ten rows, every match readable. Each row also carries genus,
-authorship, taxon and accepted IDs, a hybrid flag and type, the backend,
-and the exact backbone version (the full table is wider, the same shape
-for any input).
+authorship, taxon and accepted IDs, a hybrid flag and type, the
+backbone, and the exact backbone version (the full table is wider, the
+same shape for any input).
 
 Each name reaches its accepted name a different way. The animation below
 walks one name at a time through the pipeline: the clean step strips
@@ -116,19 +116,19 @@ summary(res)
 ```
 
     #> ── taxify results ──────────────────────────────────────────────────────────
-    #>   backend: WFO v2024-12  |  10 names submitted
+    #>   backbone: WFO v2024-12  |  10 names submitted
     #>
     #>   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)
     #>   ────────────────────────────────────────────────────────────
     #>   taxon groups: angiosperm: 8  gymnosperm: 1  unknown: 1
 
-The digest reports the backend and version, the match-route breakdown
+The digest reports the backbone and version, the match-route breakdown
 (all ten resolved here, including the abbreviated `Q. petraea`), and the
 taxon-group mix. When a name is out of scope (an animal in a plant-only
 backbone) or genuinely absent, the digest tallies it and suggests an
-alternative backend. The match types and the multi-backend fallback
-(`backend = c("wfo", "col", "gbif")`) are covered in the [backends
-vignette](https://gillescolling.com/taxify/articles/backends.html).
+alternative backbone. The match types and the multi-backbone fallback
+(`backbone = c("wfo", "col", "gbif")`) are covered in the [backbones
+vignette](https://gillescolling.com/taxify/articles/backbones.html).
 
 ## Offline, and how much faster
 
@@ -140,11 +140,14 @@ the same matches; the difference is where the matching happens. taxify
 scores names in C against the compiled backbone, WorldFlora in R. On
 1,000 plant names with fuzzy matching on (Windows, R 4.5.2):
 
-Exact matching is close (0.1 s against 1.3 s); the gap opens on fuzzy
-matching, where the genus blocking keeps taxify near a second while the
-in-R scan grows with the list. The full benchmark and large-batch
-strategy are in the [large-scale
-vignette](https://gillescolling.com/taxify/articles/large-scale.html).
+On 1,000 names that all carry a one-character typo, taxify takes 18.8 s
+and WorldFlora 4,192 s. Exact matching is closer, 2.2 s against 17.1 s.
+The genus blocking is what opens the gap: a typo competes only against
+names in its own genus, so the work does not grow with the size of the
+backbone. `scripts/benchmark-worldflora.R` in the repository produces
+both figures, and the [large-scale
+vignette](https://gillescolling.com/taxify/articles/large-scale.html)
+covers the batch strategy for lists above 100,000 names.
 
 ## Add your own attributes
 
@@ -286,8 +289,8 @@ attribute the package can attach.
 This vignette is the fast path. Each step has a dedicated vignette with
 the full detail:
 
-- [Backends and multi-backend
-  fallback](https://gillescolling.com/taxify/articles/backends.html)
+- [Choosing and combining
+  backbones](https://gillescolling.com/taxify/articles/backbones.html)
 
 - [Fuzzy
   matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)

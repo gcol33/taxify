@@ -100,8 +100,8 @@ Data 3:160017.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Acropora millepora", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Acropora millepora", backbone = "gbif") |>
   add_coral_traits()
-# }
+} # }
 ```

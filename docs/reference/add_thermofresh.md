@@ -66,8 +66,8 @@ Freshwater thermal-tolerance database. Zenodo.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Salmo trutta", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Salmo trutta", backbone = "gbif") |>
   add_thermofresh()
-# }
+} # }
 ```

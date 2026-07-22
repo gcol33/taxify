@@ -65,7 +65,7 @@ A `taxify_inspection` data.frame (one row per anomalous name, ordered
 most-notable first) with columns `input_name`, `suggestion` (the name to
 use instead, or `NA`), `anomalies` (`|`-joined labels), `tier` (ordered
 factor `note` \< `review` \< `unresolved`), `reason`, `fuzzy_dist`, and
-`backend`. Zero rows means nothing stood out.
+`backbone`. Zero rows means nothing stood out.
 
 ## Details
 

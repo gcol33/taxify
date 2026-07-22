@@ -38,7 +38,7 @@ for enrichments), `n_rows`, `version`, `installed`, `source`.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 taxify_databases()
-# }
+} # }
 ```

@@ -89,8 +89,8 @@ trait data. Scientific Data 7:170.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Escherichia coli", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Escherichia coli", backbone = "gbif") |>
   add_madin()
-# }
+} # }
 ```

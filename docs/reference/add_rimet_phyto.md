@@ -47,8 +47,8 @@ temperate lakes. Zenodo.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Asterionella formosa", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Asterionella formosa", backbone = "gbif") |>
   add_rimet_phyto()
-# }
+} # }
 ```

@@ -49,8 +49,8 @@ Huang et al. A global amphibian morphological trait dataset. figshare.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Bufo bufo", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Bufo bufo", backbone = "gbif") |>
   add_huang_amph()
-# }
+} # }
 ```

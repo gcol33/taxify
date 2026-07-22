@@ -78,8 +78,8 @@ standardized bacterial and archaeal data. Nucleic Acids Research
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Escherichia coli", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Escherichia coli", backbone = "gbif") |>
   add_bacdive()
-# }
+} # }
 ```

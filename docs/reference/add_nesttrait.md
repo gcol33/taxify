@@ -50,8 +50,8 @@ Data.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Turdus merula", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Turdus merula", backbone = "gbif") |>
   add_nesttrait()
-# }
+} # }
 ```

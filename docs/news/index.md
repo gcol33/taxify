@@ -1,5 +1,416 @@
 # Changelog
 
+## taxify 0.4.0
+
+### Breaking: `backend` is renamed to `backbone` throughout the API (issue [\#24](https://github.com/gcol33/taxify/issues/24))
+
+- Two real concepts had one name. A `backbone` is a data source and its
+  `.vtr` file; a `backend` is the `taxify_backend` S3 handle that knows
+  how to read one. The name-string layer conflated them –
+  `install_backbones(backends =)` and `backbone_path(backend)` collided
+  inside single lines. `backbone` now names the data source and its name
+  string everywhere, `backend` names the S3 handle only, and
+  `resolve_backend()` is the single crossing point between them.
+
+- **This breaks existing code, with no aliases.**
+  `taxify(backend = "wfo")` is now `taxify(backbone = "wfo")`, and the
+  same for
+  [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+  [`children()`](https://gillescolling.com/taxify/reference/children.md),
+  [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md),
+  [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
+  [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+  [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md),
+  [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+  [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md),
+  [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md),
+  [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md)
+  and
+  [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md).
+  `install_backbones(backends =)` becomes
+  `install_backbones(backbones =)`.
+
+- The `backend` output column is renamed to `backbone` in
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
+  [`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md),
+  [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md),
+  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+  and
+  [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md).
+  A lockfile’s `backends` key becomes `backbones`, so a lockfile written
+  before this release no longer loads.
+
+- Three other conflations went with it.
+  [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md)
+  and
+  [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+  returned the accepted name as `scientific_name`; it is
+  `accepted_name`, the name every other verb uses. Their `query` column
+  and
+  [`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md)’s
+  `input` and
+  [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)’s
+  `query` are all the caller’s input string, so they are all
+  `input_name` now. `register_enrichment()`’s `source` argument is the
+  human-readable description, which `enrich_simple()` already called
+  `source_label`; the key is `name`.
+
+- `bb_path` and `vtr_path` named the same value; it is `vtr_path`
+  everywhere.
+
+- Not renamed: the `backends` key inside `inst/manifest.json`, and the
+  `backend` column inside the published `backend_coverage.vtr`. Both are
+  serialized schemas that `taxifydb` writes and taxify only reads, so
+  renaming them is a coordinated release rather than a rename. The
+  runtime translates at the boundary, and
+  [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
+  reports `backbone`.
+
+### An example fixture was keyed at the wrong level
+
+- [`add_fungal_traits()`](https://gillescolling.com/taxify/reference/add_fungal_traits.md)
+  joins on `genus`, but the bundled example database shipped a
+  `fungal_traits.vtr` keyed on `canonical_name` with no `genus` column,
+  so its own documented example errored. The fixture is rebuilt from the
+  released asset at genus grain.
+
+### The performance and size figures are measured, and generated from the manifest (issue [\#19](https://github.com/gcol33/taxify/issues/19))
+
+- The README’s headline “1,862x faster than WorldFlora” had nothing in
+  the repository behind it, and neither did the memory figures in the
+  large-scale vignette. Both are now produced by committed scripts –
+  `scripts/benchmark-worldflora.R` and `scripts/benchmark-memory.R` –
+  which write their runs to JSON alongside package versions and the
+  backbone snapshot. On 1,000 names that each carry a one-character
+  typo, taxify takes 18.8 s against WorldFlora’s 4,192 s, both reading
+  the same Zenodo Darwin Core archive; exact matching is 2.2 s against
+  17.1 s.
+
+- The invented console output is gone from the large-scale vignette. The
+  timing chunks show how to measure rather than asserting a number that
+  was never run, and the memory section reports resident set size, which
+  is what a backbone actually costs –
+  [`gc()`](https://rdrr.io/r/base/gc.html) sees only a fraction of it,
+  since vectra reads the `.vtr` through the operating system. Opening a
+  backbone costs 1.8 to 2.2 times its `.vtr` size, and a 5,000-name
+  all-fuzzy pass adds 1.3 GB against WFO.
+
+- Backbone row counts, download sizes and the enrichment count are
+  generated from `inst/manifest.json` and taxify’s own backbone
+  registry, between HTML comment markers, by
+  `scripts/sync-readme-stats.R`. The hand-kept copies had drifted up to
+  4.1x (WFO listed at 400k names against 1.6M, its download at ~120 MB
+  against 797 MB). A `manifest-docs` workflow fails if a block goes
+  stale.
+
+- Smaller: the
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  match-type list in the README was missing `hybrid_formula`, and the
+  Euro+Med row count in the backends vignette still described the 2020
+  build.
+
+### The genus register is downloaded, not built locally (issue [\#21](https://github.com/gcol33/taxify/issues/21))
+
+- The register carries the `kingdom_group`, `taxon_group` and
+  `life_form` that
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  reports, and it was built on each machine from whichever backbones
+  that machine happened to have installed. Two users running identical
+  code therefore got different labels for the same name.
+  `genus_register.vtr` and `backend_coverage.vtr` are now built by
+  `taxifydb` over a fixed backbone set, published, and resolved through
+  the same chain as any other asset: disk, download, then a local build.
+  Every install reads the same 496,127 genera.
+
+- The build pipeline itself – the thirteen genus extractors, kingdom
+  normalization and inference, the GBIF hierarchy walk, and the family
+  life-form table – moved to `taxifydb` (about 1,900 lines).
+  [`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
+  remains as an escape hatch that delegates there, and
+  `taxify_download("register")` fetches the published pair.
+
+- The register now lives at `<data_dir>/genus_register/latest/` rather
+  than `<data_dir>/unified/latest/`, so it follows the same versioned
+  layout as every backbone and picks up a new release through the usual
+  version check.
+
+### Offline mode (`options(taxify.offline = TRUE)`)
+
+- Confines taxify to what is on disk plus the bundled manifest: no
+  version checks, no downloads, no build-from-source that would fetch a
+  raw dataset. A `file://` manifest URL still resolves. The test suite
+  runs under it, which is what makes a run independent of any release
+  published between two runs.
+
+### A new asset resolves against a manifest that predates it
+
+- The fetched manifest is served from the default branch, so it lags a
+  release that adds an asset. An entry the remote does not carry now
+  falls back to the copy bundled with the installed package instead of
+  failing to resolve. Where both carry a key the remote still wins, so a
+  version bump reaches an already-installed package as before.
+
+### Name cleaning keeps Title-Case and all-caps epithets (issue [\#8](https://github.com/gcol33/taxify/issues/8))
+
+- `clean_names()` stripped a capitalized specific epithet as if it were
+  an author, so `"Quercus Robur"` cleaned to `"Quercus"` and then
+  matched the genus rather than the species. Trailing authorship is now
+  removed by token position: the token after the genus is the specific
+  epithet whatever its case, so Title-Case (`"Quercus Robur"`) and
+  all-caps legacy (`"QUERCUS ROBUR"`) binomials keep their epithet,
+  while a genus followed by an author (`"Rosa L."`) still reduces to the
+  bare genus. Internal-capital author abbreviations
+  (`"Picea abies (L.) H.Karst."`, `"Solidago canadensis A.Gray"`), which
+  the previous pattern left in the cleaned name, are removed too.
+
+### reconcile() no longer reports case variants as merges (issue [\#11](https://github.com/gcol33/taxify/issues/11))
+
+- A name paired with its own case variant
+  (`c("Quercus robur", "QUERCUS ROBUR")`) was flagged as a many-to-one
+  merge, because the merge detector grouped on the raw input string
+  while the status comparison used the normalized form. Input
+  distinctness is now measured in the same normalized space, so a case-
+  or spelling-only variant counts as one input; genuine merges are
+  unchanged.
+
+### lowest_common() ignores blank rank values (issue [\#15](https://github.com/gcol33/taxify/issues/15))
+
+- A backbone that stores `""` (rather than `NA`) for an unresolved rank
+  could make
+  [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md)
+  report the blank as the shared ancestor. Empty rank values are now
+  treated as unresolved, so the most recent common ancestor falls
+  through to the next rank every taxon actually shares.
+
+### Reverse verbs default to the installed backbone set (issue [\#24](https://github.com/gcol33/taxify/issues/24))
+
+- [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+  [`children()`](https://gillescolling.com/taxify/reference/children.md),
+  [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
+  [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
+  and
+  [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md)
+  defaulted to a single hardcoded backbone (`"wfo"` or `"col"`), so on a
+  fresh install `synonyms("Quercus robur")` triggered a WFO download the
+  default backbone set does not include. They now default to
+  `backend = NULL`, which resolves to the highest-priority installed
+  backbone, matching
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
+  [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+  and
+  [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md).
+
+### inspect() no longer flags valid congeners as typos (issue [\#10](https://github.com/gcol33/taxify/issues/10))
+
+- `near_duplicate_targets()` measures the edit-distance and length gates
+  on the epithet, not the whole binomial, so `"Carex flava"` is no
+  longer flagged as a near-duplicate of `"Carex flacca"`. A genuine
+  one-edit epithet typo still fires.
+
+### enrich_simple() surfaces join and column gaps (issue [\#12](https://github.com/gcol33/taxify/issues/12))
+
+- An explicitly requested `join_col` absent from the `.vtr` now errors
+  instead of silently falling back to `canonical_name` (the mechanism
+  behind past all-NA doors), and a mapped column absent from the schema
+  warns, naming the enrichment and column, rather than attaching a
+  silent all-NA column. The diagnostic is gated off the bundled example
+  database.
+
+### add_combine() preserves metadata and provenance (issue [\#13](https://github.com/gcol33/taxify/issues/13))
+
+- A new `[.taxify_result` method carries `taxify_meta` through
+  subsetting, so
+  [`add_combine()`](https://gillescolling.com/taxify/reference/add_combine.md)
+  (and any manual subset) no longer strips it. Reported columns are
+  selected by exact set, so an already-imputed value is never
+  mislabelled as a measurement.
+
+### Lockfile and summary robustness (issue [\#14](https://github.com/gcol33/taxify/issues/14))
+
+- [`summary()`](https://rdrr.io/r/base/summary.html) no longer errors on
+  an enrichment entry without a version;
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+  reports a distinct `"unverified"` status when nothing could be
+  compared (instead of a false `"ok"`), and tolerates zero-length
+  lockfile fields.
+
+### Enrichment metadata and example-database safety (issue [\#16](https://github.com/gcol33/taxify/issues/16))
+
+- `download_enrichment()` copies `license`, `available_groups` and
+  `citation` into the installed `meta.json` (licence is no longer `NA`
+  for downloaded enrichments); `ensure_enrichment()` refuses to download
+  an unbundled enrichment into the example database.
+- The bundled manifest now carries `group_col` for all seven grouped
+  enrichments (`griis`, `gidias`, `alien_first_records`, `wcvp`,
+  `marine_distribution`, `common_names`, `glonaf`), and
+  [`enrichment_groups()`](https://gillescolling.com/taxify/reference/enrichment_groups.md)
+  falls back to the manifest when the installed `meta.json` lacks it. A
+  grouped enrichment installed before the metadata was copied reported
+  itself as ungrouped with no way to recover, because `available_groups`
+  had a manifest fallback and `group_col` did not.
+
+### Fuzzy matching picks the closest candidate (issue [\#23](https://github.com/gcol33/taxify/issues/23))
+
+- Candidate ranking had no distance term:
+  [`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md)
+  ordered by status, rank, validity, epithet and then `taxonID`, so
+  among several fuzzy candidates the winner was decided by ID and a
+  farther name could beat a nearer one. `"Carex flavaa"` resolved to
+  `Carex flacca` (distance 0.167) while `Carex flava` (0.083) was in
+  range, and the two were reported ambiguous although one was strictly
+  closer. Distance now sorts first, so the nearest name wins and
+  ambiguity is declared only among equidistant candidates. Exact
+  matching is unaffected.
+- `dedup_fuzzy_targets()` ran once per fuzzy pass, so a query dropped by
+  the genus-blocked pass competed again in the prefix-blocked fallback
+  and claimed the backbone row the first pass had already taken. The
+  claimed rows are now carried forward, so two queries can no longer
+  collapse onto one row.
+- Measured over the full 34,589-name EVA-to-WFO corpus, fuzzy
+  accepted-name agreement rises from 0.9152 to 0.9172 and WFO-ID
+  agreement from 0.8031 to 0.8050, against a 0.0009 fall in match rate.
+
+### An executable accuracy corpus (issue [\#23](https://github.com/gcol33/taxify/issues/23))
+
+- `tests/e2e/test-asaas-validation.R` asserted nothing: it printed its
+  agreement rates with [`cat()`](https://rdrr.io/r/base/cat.html), so a
+  matching regression reported a worse number and passed, and it read
+  from a hardcoded `J:/` path. It now locates the corpus through
+  `TAXIFY_ASAAS_CORPUS`, asserts floors on match rate and on
+  accepted-name, family, genus and WFO-ID agreement over the whole
+  corpus, and asserts both sides of the fuzzy trade so neither recall
+  nor precision can erode unnoticed. Divergence is split into backbone
+  drift, the corpus hybrid-formula convention, and genuine misses, and
+  only the last is capped. See `tests/e2e/README.md` for the baseline
+  and how to read a disagreement.
+- Assertions that could not fail were replaced: the trait-registry
+  vocabulary check drove every crosswalk with `NA` only, `test-doors.R`
+  accepted one populated column out of twenty,
+  [`children()`](https://gillescolling.com/taxify/reference/children.md)
+  case-insensitivity held at zero rows,
+  [`summary()`](https://rdrr.io/r/base/summary.html) was matched with
+  `grepl("3", .)`, and the multi-backend fallback test used fixtures
+  that both carried the species. Self-fulfilling comparisons in
+  `test-default-backend.R`, `test-add-trait.R`, `test-region.R`,
+  `test-gap-verbs.R` and `test-new-verbs.R` now assert independent
+  literals.
+- New coverage for ITIS (a member of the first-run backbone set that had
+  no test at all),
+  [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
+  `add_wcvp(region=)`,
+  [`add_glonaf()`](https://gillescolling.com/taxify/reference/add_glonaf.md),
+  [`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md),
+  [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md),
+  and
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)’s
+  `version_drift` / `content_drift` / `missing` branches. Negative and
+  threshold-boundary fuzzy tests cover equidistant candidates, typos
+  that must not resolve to a close-but-wrong species, and the
+  accept/reject flip.
+
+### Authorship tiebreak and fuzzy validation (issue [\#17](https://github.com/gcol33/taxify/issues/17))
+
+- The authorship homonym tiebreak writes the accepted taxon’s
+  genus/family, not the rejected synonym’s, so a disambiguated homonym
+  carries a consistent lineage and life-form. `fuzzy_join` errors now
+  warn instead of silently returning no matches, and
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  validates `fuzzy` and `fuzzy_threshold`.
+
+### Internals: backend registry and shared enrichment join (issues [\#20](https://github.com/gcol33/taxify/issues/20), [\#22](https://github.com/gcol33/taxify/issues/22))
+
+- The 15 `backend-*.R` clones collapse into one registry-driven factory;
+  adding a backbone is now a registry row plus a manifest entry. The
+  three backend-info doors
+  ([`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md)
+  /
+  [`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
+  /
+  [`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md))
+  share one `enrich_from_backbone()` helper, and
+  [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+  uses a vectorized, typed-NA join keyed on `accepted_id`.
+
+### Documentation (issues [\#18](https://github.com/gcol33/taxify/issues/18), [\#19](https://github.com/gcol33/taxify/issues/19))
+
+- Every `\donttest` example now runs offline against the example
+  database or is `\dontrun`, so `R CMD check --run-donttest` never
+  triggers a download. UTF-8 BOMs removed from three R files and three
+  vignettes;
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)’s
+  `@return` documents all 26 columns; the FISHMORPH trait list matches
+  the columns
+  [`add_fishmorph()`](https://gillescolling.com/taxify/reference/add_fishmorph.md)
+  emits.
+
+### The fallback chain reaches every backbone again (issue [\#9](https://github.com/gcol33/taxify/issues/9))
+
+- A name whose genus the leading backbone did not cover was marked
+  `"out_of_scope"` and then skipped by every backbone behind it, because
+  the fallback loop only retried rows whose `match_type` was `NA`. The
+  chain ended at whichever backbone happened to be first. The package’s
+  own documented example,
+  `taxify(c("Quercus robur", "Panthera leo"), backend = c("wfo", "gbif"))`,
+  returned *Panthera leo* as `out_of_scope` without ever consulting
+  GBIF.
+
+- The default `backend = NULL` path was hit hardest, since COL leads the
+  priority order: on a full install 41.4% of register genera (207,980 of
+  502,088) sit outside COL’s coverage, and every one of them is carried
+  by a backbone further down the chain. 14,354 of those are marine
+  genera that never reached WoRMS, so `region=` could not constrain a
+  marine name COL does not list. `taxify("Parvocaris samnitica")` now
+  resolves through WoRMS instead of returning `out_of_scope`.
+
+- `"out_of_scope"` means what the documentation always said it meant: no
+  backbone in the query covers the genus. The per-backbone mark still
+  runs, so the abbreviated-genus and fuzzy stages are still skipped for
+  a backbone that cannot carry the name (which also stops a spurious
+  fuzzy near-match there from outranking the exact match waiting further
+  down the chain), but it is released again for any name another
+  backbone in the chain still covers. A single-backend query is
+  unchanged.
+
+- `backend` and `backbone_version` now name only the rows a backbone
+  lookup actually resolved. They were stamped whenever `match_type` was
+  non-`NA`, which swept in the verdicts a backbone never produced: an
+  `out_of_scope` row read the leading backend’s name and its resolved
+  version even though no lookup found it there. Selecting
+  `result[result$backend == "wfo", ]` then counted those rows, so a
+  per-backbone hit rate over-reported every backbone in the chain.
+  `"exact"`, `"exact_ci"`, `"fuzzy"` and `"abbrev"` carry the two
+  columns; `"out_of_scope"`, `"hybrid_formula"` and `"none"` leave them
+  `NA`.
+
+### The marine region assets ship (issue [\#21](https://github.com/gcol33/taxify/issues/21))
+
+- 0.3.20 added the marine range providers but the data they read did not
+  exist yet, so the marine path stayed inert for everyone. Both assets
+  are now published and registered in the manifest, and `region=` /
+  `coords=` constrain marine matches out of the box.
+
+- New `meow` boundary entry: 196,807 polygon vertices across all 232
+  Marine Ecoregions of the World, resolved through `download_backbone()`
+  the way `wgsrpd` is. Reference geometry, so it does not join the
+  taxonomic backbone set that
+  [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
+  reports.
+
+- New `marine_distribution` enrichment entry: WoRMS distribution records
+  rolled up to MEOW ecoregions, keyed on `canonical_name` with a
+  `region_code` and a native/introduced status, the marine counterpart
+  of the WCVP range table.
+
+- [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
+  lists both vocabularies `region=` accepts, and gains a `scheme`
+  argument (`"all"`, `"wgsrpd"`, `"meow"`) and a `scheme` column. It
+  resolved marine names as soon as the asset was installed but only ever
+  listed the botanical crosswalk, and the warning for an unrecognised
+  region pointed users there. MEOW rows reuse the three name columns,
+  since the two schemes nest the same way: ecoregion as `name`, province
+  as `level2_name`, realm as `level1_name`. Marine rows appear only when
+  the asset is installed, which is also when they resolve.
+
 ## taxify 0.3.20
 
 ### Region filtering generalizes beyond plants (issue [\#21](https://github.com/gcol33/taxify/issues/21))
@@ -78,9 +489,10 @@
 ### Bug fixes
 
 - Resolved an `R CMD check` warning about an unresolvable
-  `taxifydb::build_meow` reference. The scheme’s boundary builder is now
-  looked up by name at run time, so the marine builder is used when
-  taxifydb provides it and skipped cleanly when it does not.
+  [`taxifydb::build_meow`](https://rdrr.io/pkg/taxifydb/man/build_meow.html)
+  reference. The scheme’s boundary builder is now looked up by name at
+  run time, so the marine builder is used when taxifydb provides it and
+  skipped cleanly when it does not.
 
 ## taxify 0.3.19
 

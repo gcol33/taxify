@@ -53,9 +53,7 @@ values.
 ## Examples
 
 ``` r
-# \donttest{
 old <- options(taxify.data_dir = taxify_example_data())
 enrichment_groups("griis")   # ISO country codes GRIIS covers
 options(old)
-# }
 ```

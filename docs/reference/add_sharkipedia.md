@@ -90,8 +90,8 @@ Data 9:559.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Carcharodon carcharias", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Carcharodon carcharias", backbone = "gbif") |>
   add_sharkipedia()
-# }
+} # }
 ```

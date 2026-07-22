@@ -80,8 +80,8 @@ systems. Scientific Data 1:140015.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Silene latifolia", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Silene latifolia", backbone = "gbif") |>
   add_tree_of_sex()
-# }
+} # }
 ```

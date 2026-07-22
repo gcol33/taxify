@@ -59,10 +59,10 @@ For a single-table view use
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Coverage-filled values with per-trait provenance:
-res <- taxify("Osphranter rufus", backend = "col") |>
+res <- taxify("Osphranter rufus", backbone = "col") |>
   add_combine()
 res[, c("combine_gestation_length_d", "combine_gestation_length_d_src")]
-# }
+} # }
 ```

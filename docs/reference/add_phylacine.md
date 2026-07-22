@@ -107,8 +107,8 @@ Macroecology. Ecology 99:2626.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Mammuthus primigenius", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Mammuthus primigenius", backbone = "gbif") |>
   add_phylacine()
-# }
+} # }
 ```

@@ -82,7 +82,7 @@ doi:10.5194/essd-15-2711-2023
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Fucus vesiculosus", backend = "gbif") |>
+taxify("Fucus vesiculosus", backbone = "gbif") |>
   add_algae_traits()
 
 options(old)

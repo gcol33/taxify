@@ -45,8 +45,8 @@ Waller JT et al. The Odonate Phenotypic Database. Dryad.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Calopteryx splendens", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Calopteryx splendens", backbone = "gbif") |>
   add_odonata()
-# }
+} # }
 ```

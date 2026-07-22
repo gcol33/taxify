@@ -3,7 +3,7 @@
 Joins extra Catalogue of Life columns to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result by looking up `taxon_id` in the COL backbone. Only enriches rows
-where `backend == "col"`.
+where `backbone == "col"`.
 
 ## Usage
 
@@ -17,7 +17,7 @@ add_col_info(x)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  with `backend == "col"`.
+  with `backbone == "col"`.
 
 ## Value
 
@@ -84,7 +84,7 @@ The same data.frame with additional columns:
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Quercus robur", backend = "col") |>
+taxify("Quercus robur", backbone = "col") |>
   add_col_info()
 
 options(old)

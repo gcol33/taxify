@@ -128,7 +128,7 @@ attributes of the world's birds and mammals. Ecology 95:2027.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Parus major", backend = "gbif") |>
+taxify("Parus major", backbone = "gbif") |>
   add_elton_traits()
 
 options(old)

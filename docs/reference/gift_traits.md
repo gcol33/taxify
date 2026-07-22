@@ -33,9 +33,7 @@ for the same listing on any enrichment.
 ## Examples
 
 ``` r
-# \donttest{
 old <- options(taxify.data_dir = taxify_example_data())
 gift_traits()
 options(old)
-# }
 ```

@@ -1,8 +1,8 @@
 # Load the unified genus register into memory
 
-Reads `genus_register.vtr` from disk and caches it as a data.frame in
-`.taxify_env$register`. Subsequent calls reuse the cached version unless
-`force = TRUE`.
+Reads `genus_register.vtr` and caches it as a data.frame in
+`.taxify_env$register`, downloading it on first use. Subsequent calls
+reuse the cached version unless `force = TRUE`.
 
 ## Usage
 
@@ -27,5 +27,6 @@ The register data.frame (invisibly).
 
 ## Details
 
-The register contains one row per genus with columns: `genus`,
-`kingdom`, `phylum`, `class`, `order`, `family`, `life_form`.
+The register contains one row per genus with columns `genus`, `kingdom`,
+`phylum`, `class`, `order`, `family`, `kingdom_group`, `taxon_group` and
+`life_form`.

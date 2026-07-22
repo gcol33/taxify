@@ -71,8 +71,10 @@ Royal Botanic Gardens Kew. Seed Information Database (SID).
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Quercus robur", backend = "gbif") |>
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Quercus robur", backbone = "gbif") |>
   add_kew_sid()
-# }
+
+options(old)
 ```

@@ -32,7 +32,7 @@ The same data.frame with additional columns:
 
 - hybrid_parent_1_accepted, hybrid_parent_2_accepted:
 
-  The accepted name each parent resolves to against the backend(s) used
+  The accepted name each parent resolves to against the backbone(s) used
   for `x` (from the result's metadata), or `NA` if the parent did not
   match.
 

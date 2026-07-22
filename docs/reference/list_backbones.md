@@ -36,7 +36,7 @@ manifest cannot be fetched offline.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 list_backbones()
-# }
+} # }
 ```

@@ -85,7 +85,7 @@ database.
 ``` r
 if (FALSE) { # \dontrun{
 # Downloads the enrichment on first use.
-taxify("Abra alba", backend = "gbif") |>
+taxify("Abra alba", backbone = "gbif") |>
   add_cefas_btrait()
 } # }
 ```

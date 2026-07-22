@@ -49,8 +49,8 @@ Zenodo.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Calanus finmarchicus", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Calanus finmarchicus", backbone = "gbif") |>
   add_zooplankton()
-# }
+} # }
 ```

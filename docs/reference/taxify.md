@@ -10,7 +10,7 @@ match quality information.
 ``` r
 taxify(
   x,
-  backend = NULL,
+  backbone = NULL,
   fuzzy = TRUE,
   fuzzy_threshold = 0.2,
   fuzzy_method = c("dl", "levenshtein", "jw"),
@@ -30,9 +30,9 @@ taxify(
 
   Character vector of taxonomic names.
 
-- backend:
+- backbone:
 
-  Character vector of backend names (e.g., `"wfo"`, `"col"`, `"gbif"`)
+  Character vector of backbone names (e.g., `"wfo"`, `"col"`, `"gbif"`)
   or a single `taxify_backend` object. Several are tried in order as a
   fallback chain. `NULL` (default) uses every installed backbone in
   priority order, installing the default set (COL, GBIF, ITIS) on first
@@ -91,13 +91,13 @@ taxify(
   / realm name (a province or realm expands to its member ecoregions).
   See
   [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
-  for the botanical list. When set, **fuzzy** candidates are restricted
-  to species with range records in the region(s); exact matches are
-  always kept. The filter only narrows genuinely ambiguous fuzzy
-  candidates: a candidate is dropped only when the same input name has
-  another candidate that is in-region or has no range data, so a match
-  in a group with no range coverage is never affected and a name whose
-  only candidate is out-of-region is still returned.
+  for both lists. When set, **fuzzy** candidates are restricted to
+  species with range records in the region(s); exact matches are always
+  kept. The filter only narrows genuinely ambiguous fuzzy candidates: a
+  candidate is dropped only when the same input name has another
+  candidate that is in-region or has no range data, so a match in a
+  group with no range coverage is never affected and a name whose only
+  candidate is out-of-region is still returned.
 
 - coords:
 
@@ -136,17 +136,17 @@ taxify(
   `"plants"`/`"Plantae"`, `"fungi"`, `"bacteria"`, `"archaea"`,
   `"chromista"`, `"protozoa"`, `"viruses"`. A matched taxon is kept only
   when its kingdom is the requested one (or is unknown, which is never
-  rejected); with the default multi-backend fallback, a name a backbone
+  rejected); with the default multi-backbone fallback, a name a backbone
   resolves into the wrong kingdom is passed on to the next backbone, so
   the in-kingdom treatment wins. The kingdom is read from the backbone
   where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a backbone that
   does not (WFO, GBIF), it falls back to the genus register's kingdom,
   which cannot split a genus that is itself homonymous across kingdoms –
-  name a kingdom-appropriate `backend` for those.
+  name a kingdom-appropriate `backbone` for those.
 
 - mode:
 
-  Character. How to combine results when `backend` names more than one
+  Character. How to combine results when `backbone` names more than one
   backbone. `"fallback"` (default) is the fallback chain described
   above: one answer per name, from the first backbone that matched.
   `"wide"` and `"agreement"` instead consult **every** backbone for
@@ -294,14 +294,30 @@ A data.frame with one row per input name and the following columns:
   Character. `|`-joined list of conflicting accepted taxon IDs when
   `is_ambiguous = TRUE`; `NA` otherwise.
 
-- backend:
+- backbone:
 
-  Which backend was used (e.g., `"wfo"`, `"col"`, `"gbif"`).
+  Which backbone was used (e.g., `"wfo"`, `"col"`, `"gbif"`).
 
 - backbone_version:
 
   Backend name, version, and download date (e.g.,
   `"wfo:2024-12 (2026-04-01)"`). Useful for reproducibility.
+
+- kingdom_group:
+
+  Coarse kingdom-level group of the matched genus, from the bundled
+  genus register (used for cross-kingdom disambiguation); `NA` when the
+  genus is not in the register.
+
+- taxon_group:
+
+  Broad taxonomic group of the matched genus, from the genus register;
+  `NA` when unavailable.
+
+- life_form:
+
+  Life-form classification of the matched genus, from the genus
+  register's family-based lookup; `NA` when unavailable.
 
 ## Details
 
@@ -313,28 +329,28 @@ re-matched later. On a fresh setup with nothing installed yet, the first
 call downloads a default set (COL, GBIF, ITIS) once; pre-install a
 different set with
 [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md).
-Name a backend (or several) explicitly to match only against that one,
+Name a backbone (or several) explicitly to match only against that one,
 or those in that order.
 
 ## Backbone-specific accepted names
 
-Each backend is an independent taxonomy, and they can legitimately
+Each backbone is an independent taxonomy, and they can legitimately
 disagree on which name is accepted and which is a synonym. `taxify()`
-returns the matched backend's own current treatment; it does not
-reconcile backends against each other by voting (a consensus would
+returns the matched backbone's own current treatment; it does not
+reconcile backbones against each other by voting (a consensus would
 regress toward the most conservative treatment across backbones that
-copy one another). With the default multi-backend fallback,
+copy one another). With the default multi-backbone fallback,
 `accepted_name` is the pick of the highest-priority backbone that
 matched. To see where backbones disagree, pass `mode = "wide"` (or
 `"agreement"`) for each backbone's `accepted_name` side by side; to
-follow one authority, name a single `backend`.
+follow one authority, name a single `backbone`.
 
 For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 accepts `Macropus rufus` and `Macropus parma`, treating
 `Osphranter rufus` and `Notamacropus parma` as synonyms of them, so
-`taxify("Osphranter rufus", backend = "gbif")` resolves to
+`taxify("Osphranter rufus", backbone = "gbif")` resolves to
 `Macropus rufus`. The Catalogue of Life splits the genus and does the
-reverse, so `taxify("Macropus rufus", backend = "col")` resolves to
+reverse, so `taxify("Macropus rufus", backbone = "col")` resolves to
 `Osphranter rufus`. Both are faithful to their source; the difference is
 in the backbones, not in the matching.
 
@@ -362,11 +378,11 @@ taxify("Quercus robus", coords = c(4.35, 50.85))
 
 # Fallback chain: try WFO first, then COL for unmatched
 taxify(c("Quercus robur", "Panthera leo"),
-       backend = c("wfo", "col"))
+       backbone = c("wfo", "col"))
 
 # Compare how two backbones resolve the same names, side by side
 taxify(c("Quercus robur", "Pinus sylvestris"),
-       backend = c("wfo", "col"), mode = "wide")
+       backbone = c("wfo", "col"), mode = "wide")
 
 options(old)
 ```

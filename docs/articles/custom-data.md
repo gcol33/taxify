@@ -41,7 +41,7 @@ species <- c(
   "Quercus robur", "Fagus sylvatica", "Picea abies",
   "Pinus sylvestris", "Betula pendula"
 )
-result <- taxify(species, backend = "wfo")
+result <- taxify(species, backbone = "wfo")
 
 # External trait data — note one synonym and one subspecies
 traits <- data.frame(
@@ -78,7 +78,7 @@ Tab-separated files (`.tsv`, `.tsv.gz`) are also supported.
 
 ``` r
 
-result <- taxify(species, backend = "wfo")
+result <- taxify(species, backbone = "wfo")
 result <- result |> add_data("path/to/leaf_traits.csv")
 ```
 
@@ -493,7 +493,7 @@ functions. Custom data and pre-built enrichments use the same
 
 ``` r
 
-result <- taxify(species, backend = "wfo") |>
+result <- taxify(species, backbone = "wfo") |>
   add_iucn() |>
   add_zanne() |>
   add_data(traits, species_col = "taxon")

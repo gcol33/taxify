@@ -49,8 +49,8 @@ Zenodo.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Apis mellifera", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Apis mellifera", backbone = "gbif") |>
   add_bee_ostwald()
-# }
+} # }
 ```

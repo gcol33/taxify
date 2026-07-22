@@ -50,8 +50,8 @@ Octocoral Trait Database v2.2. Zenodo.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Gorgonia ventalina", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Gorgonia ventalina", backbone = "gbif") |>
   add_octocoral()
-# }
+} # }
 ```

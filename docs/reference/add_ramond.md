@@ -86,8 +86,8 @@ protists. SEANOE. [doi:10.17882/51662](https://doi.org/10.17882/51662)
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Alexandrium", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Alexandrium", backbone = "gbif") |>
   add_ramond()
-# }
+} # }
 ```

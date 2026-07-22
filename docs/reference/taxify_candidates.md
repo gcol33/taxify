@@ -64,7 +64,7 @@ A data.frame with one row per (ambiguous input, candidate taxon):
 
   Backend ID of the candidate.
 
-- backend:
+- backbone:
 
   Backend used.
 

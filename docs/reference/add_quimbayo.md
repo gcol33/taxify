@@ -50,8 +50,8 @@ conservation aspects of reef fishes. Ecology.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Thalassoma bifasciatum", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Thalassoma bifasciatum", backbone = "gbif") |>
   add_quimbayo()
-# }
+} # }
 ```

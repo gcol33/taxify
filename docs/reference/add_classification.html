@@ -3,11 +3,11 @@
 taxify() result by joining each matched row back to its backbone. The core
 taxify() output already carries family and genus; this fills the ranks
 above them, for whichever ranks the matched backbone stores. Rows matched by
-different backends are each joined against their own backbone."><meta property="og:description" content="Attaches the Linnaean ranks above family (kingdom, phylum, class, order) to a
+different backbones are each joined against their own backbone."><meta property="og:description" content="Attaches the Linnaean ranks above family (kingdom, phylum, class, order) to a
 taxify() result by joining each matched row back to its backbone. The core
 taxify() output already carries family and genus; this fills the ranks
 above them, for whichever ranks the matched backbone stores. Rows matched by
-different backends are each joined against their own backbone."><script>
+different backbones are each joined against their own backbone."><script>
 (function () {
   var D = String.fromCharCode(36);
   window.MathJax = {
@@ -28,7 +28,7 @@ different backends are each joined against their own backbone."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@ different backends are each joined against their own backbone."><script>
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -86,7 +86,7 @@ different backends are each joined against their own backbone."><script>
 <code><a href="taxify.html">taxify()</a></code> result by joining each matched row back to its backbone. The core
 <code><a href="taxify.html">taxify()</a></code> output already carries <code>family</code> and <code>genus</code>; this fills the ranks
 above them, for whichever ranks the matched backbone stores. Rows matched by
-different backends are each joined against their own backbone.</p>
+different backbones are each joined against their own backbone.</p>
     </div>
 
     <div class="section level2">
@@ -122,7 +122,7 @@ store is left <code>NA</code> (WFO, for example, carries no ranks above family).
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="add_col_info.html">add_col_info()</a></code>, <code><a href="add_gbif_info.html">add_gbif_info()</a></code> for backend-specific extras.</p></div>
+    <div class="dont-index"><p><code><a href="add_col_info.html">add_col_info()</a></code>, <code><a href="add_gbif_info.html">add_gbif_info()</a></code> for backbone-specific extras.</p></div>
     </div>
 
     <div class="section level2">
@@ -130,7 +130,7 @@ store is left <code>NA</code> (WFO, for example, carries no ranks above family).
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
 <span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Naja naja"</span>, backend <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Naja naja"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">add_classification</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>

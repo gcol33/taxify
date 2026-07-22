@@ -77,7 +77,7 @@ The same data.frame with additional columns:
 ## Details
 
 Source: FISHMORPH (Brosse et al. 2021, Figshare, CC BY 4.0). Coverage:
-~8.3k freshwater fish species.
+~9k freshwater fish species.
 
 ## References
 
@@ -92,7 +92,7 @@ of freshwater fishes. Global Ecology and Biogeography 30:2330-2336.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Salmo trutta", backend = "gbif") |>
+taxify("Salmo trutta", backbone = "gbif") |>
   add_fishmorph()
 
 options(old)

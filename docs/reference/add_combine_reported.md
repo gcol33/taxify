@@ -126,8 +126,8 @@ for other mammal trait sources.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Vulpes vulpes", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Vulpes vulpes", backbone = "gbif") |>
   add_combine_reported()
-# }
+} # }
 ```

@@ -15,7 +15,7 @@ accepted taxon's.
 ## Usage
 
 ``` r
-upstream(taxon, backend = "col", to = NULL, verbose = TRUE)
+upstream(taxon, backbone = NULL, to = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -25,10 +25,11 @@ upstream(taxon, backend = "col", to = NULL, verbose = TRUE)
   A single taxonomic name (a species, genus, or higher taxon; synonyms
   and typos are resolved first).
 
-- backend:
+- backbone:
 
-  A single backend name or a `taxify_backend` object. Default `"col"`
-  (broad, and it stores the higher ranks).
+  A single backbone name or a `taxify_backend` object. `NULL` (default)
+  uses the highest-priority installed backbone; name one that stores the
+  higher ranks (e.g. `"col"`) for a full lineage.
 
 - to:
 
@@ -42,10 +43,10 @@ upstream(taxon, backend = "col", to = NULL, verbose = TRUE)
 
 ## Value
 
-A data.frame with one row per ancestor rank, columns: `query` (the name
-as supplied), `accepted_name` (what it resolved to), `rank`, `name`,
-`backend`, ordered kingdom -\> genus. Empty when `taxon` does not
-resolve or the backbone stores no ranks above it.
+A data.frame with one row per ancestor rank, columns: `input_name` (the
+name as supplied), `accepted_name` (what it resolved to), `rank`,
+`name`, `backbone`, ordered kingdom -\> genus. Empty when `taxon` does
+not resolve or the backbone stores no ranks above it.
 
 ## See also
 
@@ -64,10 +65,10 @@ result,
 old <- options(taxify.data_dir = taxify_example_data())
 
 # The lineage above a species (reptiledb carries the full higher hierarchy)
-upstream("Naja naja", backend = "reptiledb")
+upstream("Naja naja", backbone = "reptiledb")
 
 # Just the family
-upstream("Naja naja", backend = "reptiledb", to = "family")
+upstream("Naja naja", backbone = "reptiledb", to = "family")
 
 options(old)
 ```

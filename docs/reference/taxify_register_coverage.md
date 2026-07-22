@@ -1,6 +1,6 @@
-# Show backend coverage for a genus
+# Show backbone coverage for a genus
 
-Queries `backend_coverage.vtr` to determine which backends contain the
+Queries `backend_coverage.vtr` to determine which backbones contain the
 given genus, along with the backbone version at time of indexing.
 
 ## Usage
@@ -17,5 +17,5 @@ taxify_register_coverage(genus)
 
 ## Value
 
-A data.frame with columns `genus`, `backend`, `version`, `date_added`.
-Returns a zero-row data.frame if the genus is not found in any backend.
+A data.frame with columns `genus`, `backbone`, `version`, `date_added`.
+Returns a zero-row data.frame if the genus is not found in any backbone.

@@ -49,8 +49,8 @@ and hoverflies. Zenodo.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Bombus terrestris", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Bombus terrestris", backbone = "gbif") |>
   add_eupolltrait()
-# }
+} # }
 ```

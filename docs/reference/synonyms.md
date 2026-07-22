@@ -9,7 +9,7 @@ for auditing which historical names collapse onto a current name.
 ## Usage
 
 ``` r
-synonyms(x, backend = "wfo", verbose = TRUE)
+synonyms(x, backbone = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -19,10 +19,10 @@ synonyms(x, backend = "wfo", verbose = TRUE)
   Character vector of names (accepted names or synonyms; each is
   resolved to its accepted taxon first).
 
-- backend:
+- backbone:
 
-  A single backend name (e.g. `"wfo"`) or a `taxify_backend` object.
-  Default `"wfo"`.
+  A single backbone name (e.g. `"wfo"`) or a `taxify_backend` object.
+  `NULL` (default) uses the highest-priority installed backbone.
 
 - verbose:
 
@@ -56,7 +56,7 @@ A data.frame with one row per synonym found, columns:
 
   Backend ID of the synonym.
 
-- backend:
+- backbone:
 
   Backend used.
 
@@ -77,7 +77,7 @@ to list the accepted taxa within a genus or family.
 old <- options(taxify.data_dir = taxify_example_data())
 
 # Amphibolurus vitticeps is a synonym of Pogona vitticeps
-synonyms("Pogona vitticeps", backend = "reptiledb")
+synonyms("Pogona vitticeps", backbone = "reptiledb")
 
 options(old)
 ```

@@ -75,8 +75,8 @@ dataset of bats in Europe and beyond. Scientific Data. figshare
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Myotis myotis", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Myotis myotis", backbone = "gbif") |>
   add_eurobat()
-# }
+} # }
 ```

@@ -47,8 +47,8 @@ database. Dryad.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Camponotus pennsylvanicus", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Camponotus pennsylvanicus", backbone = "gbif") |>
   add_blanchard()
-# }
+} # }
 ```

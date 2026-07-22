@@ -1,6 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://gillescolling.com/taxify/404.html</loc></url>
-<url><loc>https://gillescolling.com/taxify/articles/backends.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/articles/backbones.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/custom-data.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/databases.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/enrichments.html</loc></url>
@@ -152,6 +152,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/region-filter.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/sci2comm.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/score_candidates.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/sub-.taxify_result.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/summary.taxify_result.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/synonyms.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify-package.html</loc></url>

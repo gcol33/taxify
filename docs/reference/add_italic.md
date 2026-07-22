@@ -66,8 +66,8 @@ Aggregation of Italian Lichen Data in ITALIC 7.0. Journal of Fungi
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Xanthoria parietina", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Xanthoria parietina", backbone = "gbif") |>
   add_italic()
-# }
+} # }
 ```

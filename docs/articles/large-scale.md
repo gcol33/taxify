@@ -10,7 +10,7 @@ speed, memory, or disk usage at scale.
 
 This vignette covers the performance-relevant internals, gives concrete
 timing guidance for different list sizes, and walks through four worked
-examples: exact vs. fuzzy matching, multi-backend fallback ordering,
+examples: exact vs. fuzzy matching, multi-backbone fallback ordering,
 batch processing of very large lists, and pre-downloading resources
 before a batch run.
 
@@ -84,13 +84,12 @@ backbone entries to a few hundred or thousand (the typical number of
 species per genus). The computation is parallelized across cores via
 OpenMP, using 4 threads by default.
 
-On a 4-core machine, fuzzy matching 5,000 names against WFO takes
-roughly 10-30 seconds depending on genus sizes. Large genera like
-*Carex* (~2,000 entries in WFO) or *Astragalus* (~3,000 entries) are
-more expensive per name than small genera. The cost grows with the
-number of names that fail exact matching and with the size of the
-backbone. Against GBIF’s 7 million rows, the same 5,000 names might take
-30-90 seconds because each genus block is proportionally larger.
+Fuzzy matching 5,000 names against WFO, where every name carries a typo,
+took 27 seconds in the repository’s benchmark run. Large genera such as
+*Carex* or *Astragalus* are more expensive per name than small ones, and
+the cost grows with the number of names that fail the exact pass and
+with the size of the backbone, so a larger backbone raises it
+proportionally.
 
 A secondary fuzzy pass handles misspelled genera. When the genus itself
 is wrong (e.g., *Qurecus* instead of *Quercus*), the genus-blocked join
@@ -106,20 +105,21 @@ fuzzy matching is the knob that controls how long a run takes.
 
 The first time
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) is
-called for a given backend, several things happen behind the scenes. The
-function resolves the backbone path through a four-step fallback:
+called for a given backbone, several things happen behind the scenes.
+The function resolves the backbone path through a four-step fallback:
 session cache, versioned directory on disk, legacy flat directory, and
 finally auto-download from Zenodo if no local copy exists. Once the path
 is known, vectra materializes the `.vtr` into an in-memory columnar
 block and builds hash indexes on the name and genus columns. This
-initialization step takes 1-3 seconds for WFO (~400,000 rows) and 5-10
-seconds for GBIF (~7 million rows). Every subsequent
+initialization step took about 5 seconds for WFO (1.6 million rows) in
+the repository’s benchmark run, and scales with backbone size from
+there. Every subsequent
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 in the same R session reuses the materialized block. There is no
 repeated file I/O.
 
 Two caches operate in parallel. The path cache (`.taxify_cache`) maps
-backend names to `.vtr` file paths on disk. Once a path is resolved, it
+backbone names to `.vtr` file paths on disk. Once a path is resolved, it
 stays cached so that `ensure_backbone()` does not re-scan the file
 system. The data cache (`.taxify_env`) holds the materialized columnar
 block itself, keyed by file path. It also stores the session manifest,
@@ -135,9 +135,9 @@ in a session also triggers a version check. taxify fetches a manifest
 from GitHub (a small JSON file listing the latest version of each
 backbone) and compares it against the locally installed version. If a
 newer backbone is available, it is downloaded automatically. This check
-runs once per backend per session. Subsequent calls skip it entirely. If
-the network is unavailable, the check is skipped and the local copy is
-used as-is.
+runs once per backbone per session. Subsequent calls skip it entirely.
+If the network is unavailable, the check is skipped and the local copy
+is used as-is.
 
 To see where backbones live on disk:
 
@@ -171,30 +171,29 @@ modes:
 
 # Exact + fuzzy (default)
 t_fuzzy <- system.time(
-  result_fuzzy <- taxify(species_list, backend = "wfo", fuzzy = TRUE)
+  result_fuzzy <- taxify(species_list, backbone = "wfo", fuzzy = TRUE)
 )
 
 # Exact only
 t_exact <- system.time(
-  result_exact <- taxify(species_list, backend = "wfo", fuzzy = FALSE)
+  result_exact <- taxify(species_list, backbone = "wfo", fuzzy = FALSE)
 )
 
 t_fuzzy["elapsed"]
-#> elapsed
-#>   18.4
-
 t_exact["elapsed"]
-#> elapsed
-#>    2.1
 ```
 
-The exact-only run is about an order of magnitude faster. The exact pass
-matches most names on the first try through its five-pass pipeline
-(case-sensitive, case-insensitive, Latin orthographic normalization,
-infraspecific fallback, and hybrid normalization). Fuzzy matching picks
-up the remaining names with minor misspellings, but at a cost that
-scales with the number of unmatched names times the average genus size
-in the backbone.
+The timings depend on your list and your machine, so run the pair on
+your own data rather than trusting a figure from here;
+`scripts/benchmark-worldflora.R` in the taxify repository is the
+measured reference. The shape is consistent: the exact-only run is
+roughly an order of magnitude faster. The exact pass matches most names
+on the first try through its five-pass pipeline (case-sensitive,
+case-insensitive, Latin orthographic normalization, infraspecific
+fallback, and hybrid normalization). Fuzzy matching picks up the
+remaining names with minor misspellings, but at a cost that scales with
+the number of unmatched names times the average genus size in the
+backbone.
 
 The ratio between the two modes depends on input quality. For a list of
 names extracted from a curated database (GBIF occurrence records, a
@@ -211,7 +210,7 @@ the time.
 ``` r
 
 # Pass 1: exact only
-result <- taxify(species_list, backend = "wfo", fuzzy = FALSE)
+result <- taxify(species_list, backbone = "wfo", fuzzy = FALSE)
 
 # How many names remain unmatched?
 n_unmatched <- sum(result$match_type == "none")
@@ -220,7 +219,7 @@ message(n_unmatched, " names unmatched after exact pass")
 # Pass 2: fuzzy only on the unmatched subset
 if (n_unmatched > 0) {
   unmatched_names <- result$input_name[result$match_type == "none"]
-  fuzzy_result <- taxify(unmatched_names, backend = "wfo", fuzzy = TRUE)
+  fuzzy_result <- taxify(unmatched_names, backbone = "wfo", fuzzy = TRUE)
 
   # Merge back
   matched_rows <- fuzzy_result$match_type != "none"
@@ -244,13 +243,13 @@ is still active, so the fuzzy-only pass starts immediately with the
 string-distance computation. There is no penalty for splitting the work
 into two calls.
 
-## Worked example: multi-backend fallback ordering
+## Worked example: multi-backbone fallback ordering
 
 When [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-receives multiple backends, it processes them as a sequential fallback
-chain. Names matched by an earlier backend are excluded from later ones.
-The order matters for performance: the first backend sees all names, the
-second sees only those that failed, and so on.
+receives multiple backbones, it processes them as a sequential fallback
+chain. Names matched by an earlier backbone are excluded from later
+ones. The order matters for performance: the first backbone sees all
+names, the second sees only those that failed, and so on.
 
 Suppose we have a mixed-kingdom species list from a freshwater ecology
 survey: mostly aquatic plants, some fish, a handful of invertebrates.
@@ -263,43 +262,39 @@ resolved quickly, and only the animal names fall through to COL.
 # 8,000 names: ~6,000 plants, ~1,500 fish, ~500 invertebrates
 t_wfo_first <- system.time(
   result_a <- taxify(survey_names,
-                     backend = c("wfo", "col"),
+                     backbone = c("wfo", "col"),
                      fuzzy = TRUE)
 )
 t_wfo_first["elapsed"]
-#> elapsed
-#>   25.3
 
 # Reversed order: COL first, WFO second
 t_col_first <- system.time(
   result_b <- taxify(survey_names,
-                     backend = c("col", "wfo"),
+                     backbone = c("col", "wfo"),
                      fuzzy = TRUE)
 )
 t_col_first["elapsed"]
-#> elapsed
-#>   41.7
 ```
 
-The results are identical in terms of name resolution (both backends
-ultimately resolve the same names to accepted names), but the WFO-first
-ordering is faster because WFO’s smaller backbone (~400,000 rows)
-resolves 75% of the list before COL’s larger backbone (~4.5 million
-rows) is ever touched. The saving comes from two sources: the exact pass
-against WFO is faster (smaller hash table), and the fuzzy pass against
-COL runs on 2,000 names instead of 8,000. Since fuzzy matching cost
-scales linearly with the number of unmatched names, resolving 6,000
-names via WFO’s fast exact pass eliminates the need for 6,000 fuzzy
-comparisons against COL’s much larger genus blocks.
+Name resolution is identical either way – both orders resolve the same
+names to the same accepted names – but WFO first is faster, because
+WFO’s smaller backbone (1.6 million rows) resolves most of the list
+before COL’s larger one (5.3 million rows) is ever touched. The saving
+comes from two sources: the exact pass against WFO is faster (smaller
+hash table), and the fuzzy pass against COL runs on 2,000 names instead
+of 8,000. Since fuzzy matching cost scales linearly with the number of
+unmatched names, resolving 6,000 names via WFO’s fast exact pass
+eliminates the need for 6,000 fuzzy comparisons against COL’s much
+larger genus blocks.
 
-Note that the `backend` column in the output records which backend
+Note that the `backbone` column in the output records which backbone
 resolved each name. This is useful for quality control: if a name was
-resolved by the second backend in the chain, it means the first backend
-either did not contain it or matched it differently. Inspecting the
-`backend` column after a multi-backend run can reveal patterns in
+resolved by the second backbone in the chain, it means the first
+backbone either did not contain it or matched it differently. Inspecting
+the `backbone` column after a multi-backbone run can reveal patterns in
 taxonomic coverage gaps.
 
-General guidelines for backend ordering:
+General guidelines for backbone ordering:
 
 - Plant-only lists: `"wfo"` alone is sufficient. WFO has the most
   complete plant synonym coverage and a compact backbone.
@@ -319,19 +314,28 @@ Each backbone’s `.vtr` file is a one-time download stored in
 [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
 The sizes below are approximate and depend on the backbone version.
 
-| Backend | Rows (approx.) | .vtr size on disk | Scope                          |
-|---------|----------------|-------------------|--------------------------------|
-| WFO     | 400,000        | 50-70 MB          | Plants (vascular + bryophytes) |
-| COL     | 4,500,000      | 250-350 MB        | All kingdoms                   |
-| GBIF    | 7,000,000      | 500-700 MB        | All kingdoms (largest)         |
-| ITIS    | 800,000        | 80-120 MB         | North American focus           |
-| NCBI    | 2,500,000      | 200-300 MB        | Molecular/genomic taxa         |
-| OTT     | 3,500,000      | 300-400 MB        | Synthetic tree (multi-source)  |
-| WoRMS   | 600,000        | 60-80 MB          | Marine taxa                    |
+| Backbone         | Names     | Download   | Version |
+|------------------|-----------|------------|---------|
+| WFO              | 1.6M      | 797 MB     | 2026.06 |
+| COL              | 5.3M      | 2.0 GB     | 2026.06 |
+| GBIF             | 6.4M      | 1.9 GB     | 2026.06 |
+| ITIS             | 992k      | 205 MB     | 2026.06 |
+| NCBI             | 2.8M      | 514 MB     | 2026.06 |
+| OTT              | 3.7M      | 727 MB     | 3.7.3   |
+| WoRMS            | 1.6M      | 347 MB     | 2026.07 |
+| Euro+Med         | 147k      | 35 MB      | 2026.07 |
+| Species Fungorum | 315k      | 71 MB      | 2026.06 |
+| AlgaeBase        | 172k      | 36 MB      | 2026.06 |
+| FishBase         | 103k      | 19 MB      | 2026.06 |
+| SeaLifeBase      | 134k      | 29 MB      | 2026.06 |
+| Reptile Database | 50k       | 10 MB      | 2026.07 |
+| LCVP             | 1.3M      | 252 MB     | 3.0.1   |
+| WCVP             | 1.4M      | 334 MB     | 2026.06 |
+| **All 15**       | **26.1M** | **7.2 GB** |         |
 
 A full installation of all fifteen backbones occupies several GB. Most
 workflows need only one or two. The WFO backbone alone covers the vast
-majority of plant taxonomy use cases at under 70 MB.
+majority of plant taxonomy use cases in under a gigabyte.
 
 The download sizes are comparable to the on-disk sizes since the `.vtr`
 format is already compressed. No additional decompression step runs
@@ -340,68 +344,68 @@ reads at query time.
 
 Enrichment files are much smaller. The largest enrichment is WCVP
 (native range data, ~2 million rows) at roughly 30-40 MB. Most
-enrichments are under 5 MB. A full set of 81 enrichments adds a few
+enrichments are under 5 MB. A full set of 90 enrichments adds a few
 hundred MB to disk usage.
 
 ## Memory footprint
 
-When a backbone is loaded for the first time in a session, vectra
-materializes it as an in-memory columnar block. The memory footprint is
-roughly 1.5-2x the `.vtr` file size because the columnar block includes
-hash indexes and decompressed string data. WFO occupies about 80-100 MB
-in memory, COL about 400-500 MB, and GBIF about 800 MB-1 GB. The block
-persists for the session and is reused by every
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call.
-Loading a second backbone (e.g., during a multi-backend fallback) adds
-its own block to memory. The two blocks coexist independently.
+`scripts/benchmark-memory.R` in the taxify repository measures this, and
+`scripts/benchmark-memory-results.json` records the run. It reports
+resident set size rather than the R heap: vectra reads a `.vtr` through
+the operating system instead of materializing it as R objects, so
+[`gc()`](https://rdrr.io/r/base/gc.html) sees only a fraction of what a
+backbone actually costs. Each stage runs in a fresh R process, because
+resident size never falls back after a peak.
 
-Fuzzy matching adds a transient memory cost on top of the backbone
-block. For each fuzzy pass, taxify writes a temporary `.vtr` containing
-the unmatched names and their genera, then passes it to vectra’s
-`fuzzy_join()` function. The join allocates a working buffer
-proportional to the number of unmatched names times the average genus
-block size. For 5,000 unmatched names against WFO, this working set is
-roughly 10-20 MB. For 50,000 unmatched names against GBIF, it can reach
-100-200 MB. The temporary files and working buffers are freed after each
-fuzzy pass.
+Matching 5,000 names on Windows 11, R 4.6.0, taxify 0.3.21, in megabytes
+above an idle R process:
 
-Enrichment `.vtr` files are loaded on demand. Calling
-[`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
-loads the iucn enrichment (~60,000 rows, a few MB). Calling
-[`add_elton_traits()`](https://gillescolling.com/taxify/reference/add_elton_traits.md)
-loads EltonTraits (~15,000 rows). Enrichment joins use a different
-mechanism than backbone matching: they build a temporary `.vtr` of
-unique accepted names, run an `inner_join()` against the enrichment
-`.vtr`, and fill the result via
-[`match()`](https://rdrr.io/r/base/match.html). The enrichment `.vtr`
-itself is not fully materialized into memory; only the joined subset is
-collected. The memory cost per enrichment join is proportional to the
-number of unique accepted names in the result, which is typically much
-smaller than the input list (synonyms collapse to shared accepted
-names).
+| Backbone | `.vtr` | After load | Exact, 5,000 | Fuzzy, 5,000 |
+|----------|--------|------------|--------------|--------------|
+| WFO      | 797    | 1,443      | 1,732        | 2,760        |
+| COL      | 1,958  | 3,751      | 4,544        | 6,128        |
+| GBIF     | 1,855  | 4,024      | 4,703        | 5,910        |
 
-For a typical session matching 50,000 plant names against WFO with two
-enrichments, expect about 150 MB of total memory usage from taxify’s
-caches. Matching the same names against GBIF with five enrichments
-brings that closer to 1.2 GB. On a machine with 8 GB of RAM, this leaves
-ample room for downstream analysis. On a shared server with 2-4 GB per
-process, the GBIF backbone might be tight.
+Opening a backbone costs about 1.8 to 2.2 times its `.vtr` size, because
+the columnar block carries hash indexes and decompressed string data
+alongside the stored columns. The block persists for the session and
+every [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+call reuses it. A second backbone – during a multi-backbone fallback,
+say – adds its own block; the two coexist independently.
+
+Fuzzy matching is what dominates the transient cost. For each fuzzy pass
+taxify writes a temporary `.vtr` of the unmatched names and their genera
+and hands it to vectra’s `fuzzy_join()`, which allocates a working
+buffer proportional to the number of unmatched names times the average
+genus block size. On the worst case above – 5,000 names that all need
+fuzzy resolution – that buffer reaches 1.3 GB against WFO and 2.4 GB
+against COL, several times what the same names cost on the exact path. A
+realistic list, where most names match exactly, pays a fraction of it:
+the buffer scales with the unmatched remainder, not the input. The
+temporary files and buffers are freed after each pass.
+
+Enrichment `.vtr` files are loaded on demand and are far smaller. An
+enrichment join builds a temporary `.vtr` of unique accepted names, runs
+an `inner_join()` against the enrichment `.vtr`, and fills the result
+via [`match()`](https://rdrr.io/r/base/match.html). The enrichment is
+never fully materialized; only the joined subset is collected, so the
+cost is proportional to the number of unique accepted names in the
+result – typically much smaller than the input list, since synonyms
+collapse onto shared accepted names.
 
 If memory is tight, three strategies help:
 
-1.  Use a smaller backbone. WFO at ~100 MB in memory is 8x lighter than
-    GBIF. For plant-only lists there is no coverage penalty.
-2.  Clear the cache between analysis phases. After matching is done and
-    the result is saved, release the backbone from memory before running
-    downstream models.
-3.  Process enrichments in the same loop as matching (the
-    chunk-and-write pattern shown below), rather than accumulating the
-    full result in memory and enriching after.
+1.  Use a smaller backbone. WFO costs roughly a third of what GBIF
+    costs, and for plant-only lists there is no coverage penalty.
+2.  Clear the cache between phases. Once matching is done and the result
+    is saved, release the backbone before running downstream models.
+3.  Enrich inside the matching loop (the chunk-and-write pattern below)
+    rather than accumulating the full result and enriching afterwards.
 
 ``` r
 
 # Match names
-result <- taxify(species_list, backend = "gbif")
+result <- taxify(species_list, backbone = "gbif")
 
 # Save result
 saveRDS(result, "matched_names.rds")
@@ -409,7 +413,6 @@ saveRDS(result, "matched_names.rds")
 # Free the backbone from memory
 taxify_clear_cache()
 
-# Now ~800 MB of RAM is available for downstream work
 gc()
 ```
 
@@ -449,7 +452,7 @@ chunks <- split(all_names,
 results <- lapply(seq_along(chunks), function(i) {
   message(sprintf("Chunk %d/%d (%d names)...",
                   i, length(chunks), length(chunks[[i]])))
-  taxify(chunks[[i]], backend = "wfo", fuzzy = TRUE, verbose = FALSE)
+  taxify(chunks[[i]], backbone = "wfo", fuzzy = TRUE, verbose = FALSE)
 })
 
 # Combine
@@ -474,7 +477,7 @@ dir.create(output_dir, showWarnings = FALSE)
 
 for (i in seq_along(chunks)) {
   message(sprintf("Chunk %d/%d", i, length(chunks)))
-  res <- taxify(chunks[[i]], backend = "wfo",
+  res <- taxify(chunks[[i]], backbone = "wfo",
                 fuzzy = TRUE, verbose = FALSE)
   saveRDS(res, file.path(output_dir,
                          sprintf("chunk_%04d.rds", i)))
@@ -497,7 +500,7 @@ for (i in seq_along(chunks)) {
   out_file <- file.path(output_dir, sprintf("chunk_%04d.rds", i))
   if (file.exists(out_file)) next
   message(sprintf("Chunk %d/%d", i, length(chunks)))
-  res <- taxify(chunks[[i]], backend = "wfo",
+  res <- taxify(chunks[[i]], backbone = "wfo",
                 fuzzy = TRUE, verbose = FALSE)
   saveRDS(res, out_file)
 }
@@ -629,7 +632,7 @@ taxify_clear_cache()
 
 Deleting a backbone directory is safe. The next
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
-for that backend will re-download it from Zenodo if needed.
+for that backbone will re-download it from Zenodo if needed.
 
 ## Worked example: pre-downloading resources
 
@@ -661,7 +664,7 @@ taxify_download_enrichment(c(
 ))
 
 # Now the analysis can run fully offline
-result <- taxify(species_list, backend = c("wfo", "col"))
+result <- taxify(species_list, backbone = c("wfo", "col"))
 result <- add_iucn(result)
 result <- add_zanne(result)
 ```
@@ -708,7 +711,7 @@ cleanliness (how many names need fuzzy matching), backbone size (WFO vs.
 GBIF), and hardware (number of cores, available RAM, disk speed).
 
 **Under 1,000 names.** The defaults work well. `taxify(names)` with
-`fuzzy = TRUE` and a single backend completes in a few seconds. No
+`fuzzy = TRUE` and a single backbone completes in a few seconds. No
 tuning is needed. This is the regime for most interactive analysis: a
 field survey, a thesis species list, a table extracted from a paper.
 Memory usage is negligible.
@@ -728,8 +731,8 @@ backbone that covers the dominant taxon group first. For a plant list,
 `"wfo"` alone suffices. For mixed-kingdom lists, `c("wfo", "col")`
 resolves most names on the faster WFO pass. Consider the two-pass
 pattern (exact first, fuzzy on unmatched) if only a small fraction of
-names have quality issues. The GBIF backbone at ~7 million rows is the
-most expensive for fuzzy matching; avoid it as the first backend unless
+names have quality issues. The GBIF backbone at 6.4 million rows is the
+most expensive for fuzzy matching; avoid it as the first backbone unless
 the list is primarily non-plant, non-marine taxa not covered by COL.
 
 **Over 500,000 names.** Batch in chunks of 50,000-100,000 names. The
@@ -745,7 +748,7 @@ enriching after.
 
 # Pattern for 500,000+ names with enrichments
 for (i in seq_along(chunks)) {
-  res <- taxify(chunks[[i]], backend = "wfo",
+  res <- taxify(chunks[[i]], backbone = "wfo",
                 fuzzy = TRUE, verbose = FALSE)
   res <- add_iucn(res, verbose = FALSE)
   res <- add_zanne(res, verbose = FALSE)
@@ -755,7 +758,7 @@ for (i in seq_along(chunks)) {
 
 **Backend selection cheat sheet:**
 
-| List composition               | Recommended backend(s)    |
+| List composition               | Recommended backbone(s)   |
 |--------------------------------|---------------------------|
 | Plants only                    | `"wfo"`                   |
 | Plants + animals               | `c("wfo", "col")`         |
@@ -803,11 +806,11 @@ thresholds are not supported with the Jaro-Winkler method
 ``` r
 
 # Tight threshold for clean input
-result <- taxify(clean_names, backend = "wfo",
+result <- taxify(clean_names, backbone = "wfo",
                  fuzzy = TRUE, fuzzy_threshold = 0.1)
 
 # Integer threshold: at most 2 edits, period
-result <- taxify(noisy_names, backend = "wfo",
+result <- taxify(noisy_names, backbone = "wfo",
                  fuzzy = TRUE, fuzzy_threshold = 2L)
 ```
 
@@ -816,7 +819,7 @@ result <- taxify(noisy_names, backend = "wfo",
 | Function | Purpose |
 |----|----|
 | `taxify(..., fuzzy = FALSE)` | Skip fuzzy matching for clean input |
-| `taxify(..., backend = c("wfo", "col"))` | Multi-backend fallback chain |
+| `taxify(..., backbone = c("wfo", "col"))` | Multi-backbone fallback chain |
 | [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md) | Find where backbones are stored |
 | [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md) | Pre-download backbone `.vtr` files |
 | [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md) | Pre-download enrichment `.vtr` files |

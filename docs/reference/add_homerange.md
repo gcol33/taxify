@@ -46,8 +46,8 @@ home ranges. Dryad.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Panthera leo", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Panthera leo", backbone = "gbif") |>
   add_homerange()
-# }
+} # }
 ```

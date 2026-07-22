@@ -77,8 +77,8 @@ Initiative.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Baetis", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Baetis", backbone = "gbif") |>
   add_freshwater_insects_conus()
-# }
+} # }
 ```

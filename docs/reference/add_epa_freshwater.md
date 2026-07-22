@@ -75,7 +75,7 @@ invertebrate traits for North America, USGS Data Series 187.
 ``` r
 if (FALSE) { # \dontrun{
 # Downloads the enrichment on first use.
-taxify("Baetis", backend = "gbif") |>
+taxify("Baetis", backbone = "gbif") |>
   add_epa_freshwater()
 } # }
 ```

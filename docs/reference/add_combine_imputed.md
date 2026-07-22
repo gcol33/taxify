@@ -69,10 +69,10 @@ for the two coalesced with per-trait provenance.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Compare reported vs imputed gestation length for a mammal:
-taxify("Vulpes vulpes", backend = "gbif") |>
+taxify("Vulpes vulpes", backbone = "gbif") |>
   add_combine_reported() |>
   add_combine_imputed()
-# }
+} # }
 ```

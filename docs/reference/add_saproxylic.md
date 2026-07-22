@@ -48,8 +48,8 @@ saproxylic beetles. Dryad.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Rhysodes sulcatus", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Rhysodes sulcatus", backbone = "gbif") |>
   add_saproxylic()
-# }
+} # }
 ```

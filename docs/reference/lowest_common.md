@@ -9,7 +9,7 @@ unrelated taxa share only a kingdom (or nothing).
 ## Usage
 
 ``` r
-lowest_common(x, backend = NULL, verbose = TRUE)
+lowest_common(x, backbone = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -20,7 +20,7 @@ lowest_common(x, backend = NULL, verbose = TRUE)
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   result.
 
-- backend:
+- backbone:
 
   Backend passed to
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)

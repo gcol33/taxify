@@ -111,8 +111,10 @@ the Australian flora. Scientific Data 8:254.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Eucalyptus globulus", backend = "gbif") |>
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Eucalyptus globulus", backbone = "gbif") |>
   add_austraits()
-# }
+
+options(old)
 ```

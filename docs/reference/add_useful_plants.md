@@ -90,8 +90,8 @@ Knowledge Network for Biocomplexity.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Acorus calamus", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Acorus calamus", backbone = "gbif") |>
   add_useful_plants()
-# }
+} # }
 ```

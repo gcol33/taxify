@@ -9,7 +9,10 @@ package is installed, an `ape` `phylo` object is included too.
 ## Usage
 
 ``` r
-class2tree(x, backend = NULL, verbose = TRUE)
+class2tree(x, backbone = NULL, verbose = TRUE)
+
+# S3 method for class 'taxify_tree'
+print(x, ...)
 ```
 
 ## Arguments
@@ -20,7 +23,7 @@ class2tree(x, backend = NULL, verbose = TRUE)
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   result.
 
-- backend:
+- backbone:
 
   Backend passed to
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
@@ -30,6 +33,10 @@ class2tree(x, backend = NULL, verbose = TRUE)
 - verbose:
 
   Logical. Default `TRUE`.
+
+- ...:
+
+  Ignored, present for S3 `print` method consistency.
 
 ## Value
 

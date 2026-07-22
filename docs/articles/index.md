@@ -15,7 +15,7 @@
 ### Core features
 
 - [Choosing and combining
-  backends](https://gillescolling.com/taxify/articles/backends.md):
+  backbones](https://gillescolling.com/taxify/articles/backbones.md):
 - [Fuzzy matching: methods, thresholds, and
   tuning](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
 - [Constraining matches to a geographic

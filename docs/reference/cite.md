@@ -27,9 +27,11 @@ cite(x, file = NULL)
 ## Examples
 
 ``` r
-# \donttest{
-result <- taxify("Quercus robur", backend = "wfo")
+old <- options(taxify.data_dir = taxify_example_data())
+
+result <- taxify("Quercus robur", backbone = "wfo")
 result |> cite()
 result |> cite(file = tempfile(fileext = ".bib"))
-# }
+
+options(old)
 ```

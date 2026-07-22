@@ -54,8 +54,8 @@ Data 7:386.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Baetis rhodani", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Baetis rhodani", backbone = "gbif") |>
   add_disperse()
-# }
+} # }
 ```

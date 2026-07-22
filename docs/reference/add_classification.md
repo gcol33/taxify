@@ -6,7 +6,7 @@ result by joining each matched row back to its backbone. The core
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 output already carries `family` and `genus`; this fills the ranks above
 them, for whichever ranks the matched backbone stores. Rows matched by
-different backends are each joined against their own backbone.
+different backbones are each joined against their own backbone.
 
 ## Usage
 
@@ -43,7 +43,7 @@ store is left `NA` (WFO, for example, carries no ranks above family).
 
 [`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md),
 [`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
-for backend-specific extras.
+for backbone-specific extras.
 
 ## Examples
 
@@ -51,7 +51,7 @@ for backend-specific extras.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Naja naja", backend = "reptiledb") |>
+taxify("Naja naja", backbone = "reptiledb") |>
   add_classification()
 
 options(old)

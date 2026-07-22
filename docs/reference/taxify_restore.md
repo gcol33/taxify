@@ -33,7 +33,9 @@ taxify_restore(file, verbose = TRUE)
 A data.frame with one row per pinned asset, columns: `component`, `type`
 (`"backbone"`/`"enrichment"`), `locked_version`, `installed_version`,
 `locked_content_id` and `installed_content_id` (short), and `status`
-(`"ok"`, `"version_drift"`, `"content_drift"`, or `"missing"`).
+(`"ok"`, `"version_drift"`, `"content_drift"`, `"missing"`, or
+`"unverified"` when neither a version nor a content id could be
+compared).
 
 ## See also
 
@@ -45,7 +47,7 @@ A data.frame with one row per pinned asset, columns: `component`, `type`
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-res  <- taxify("Quercus robur", backend = "wfo", verbose = FALSE)
+res  <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
 lock <- taxify_lock(res)
 taxify_restore(lock, verbose = FALSE)
 

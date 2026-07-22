@@ -48,8 +48,10 @@ Mediterranean Basin plants (BROT 2.0). Scientific Data 5:180135.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Quercus coccifera", backend = "gbif") |>
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Quercus coccifera", backbone = "gbif") |>
   add_brot()
-# }
+
+options(old)
 ```

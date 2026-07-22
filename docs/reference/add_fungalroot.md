@@ -63,9 +63,9 @@ plant mycorrhizal associations. New Phytologist 227:955-966.
 ## Examples
 
 ``` r
-# \donttest{
+if (FALSE) { # \dontrun{
 # Joins on genus, so any species in a covered genus is annotated.
 taxify(c("Quercus robur", "Trifolium pratense")) |>
   add_fungalroot()
-# }
+} # }
 ```

@@ -11,7 +11,7 @@ reaches an arbitrary depth.
 ## Usage
 
 ``` r
-downstream(taxon, backend = "col", downto = "species", verbose = TRUE)
+downstream(taxon, backbone = NULL, downto = "species", verbose = TRUE)
 ```
 
 ## Arguments
@@ -21,10 +21,11 @@ downstream(taxon, backend = "col", downto = "species", verbose = TRUE)
   A single higher-taxon name (a genus, family, order, class, phylum, or
   kingdom).
 
-- backend:
+- backbone:
 
-  A single backend name or a `taxify_backend` object. Default `"col"`
-  (broad, and it stores the higher ranks needed here).
+  A single backbone name or a `taxify_backend` object. `NULL` (default)
+  uses the highest-priority installed backbone; name one that stores the
+  higher ranks (e.g. `"col"`) to reach above genus.
 
 - downto:
 
@@ -39,9 +40,9 @@ downstream(taxon, backend = "col", downto = "species", verbose = TRUE)
 
 A data.frame of accepted descendants, columns: `name`, `authorship`,
 `rank`, `family`, `genus`, `taxon_id`, `parent`, `parent_rank`,
-`backend`. Empty when `taxon` is not found, its rank is one the backbone
-does not store as a column (e.g. subfamily, tribe), or it has no
-descendants at `downto`.
+`backbone`. Empty when `taxon` is not found, its rank is one the
+backbone does not store as a column (e.g. subfamily, tribe), or it has
+no descendants at `downto`.
 
 ## See also
 
@@ -57,7 +58,7 @@ for the immediate level,
 old <- options(taxify.data_dir = taxify_example_data())
 
 # Every species the backbone places in the genus
-downstream("Quercus", backend = "col")
+downstream("Quercus", backbone = "col")
 
 options(old)
 ```

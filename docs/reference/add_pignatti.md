@@ -63,11 +63,11 @@ and Evolution 6:347-350.
 ``` r
 old <- options(taxify.data_dir = taxify_example_data())
 
-# \donttest{
+if (FALSE) { # \dontrun{
 # add_pignatti() fetches Italian trait data on demand via the TR8 package.
 taxify("Abies alba") |>
   add_pignatti()
-# }
+} # }
 
 options(old)
 ```

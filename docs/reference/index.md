@@ -7,24 +7,36 @@ before you trust it.
 
 - [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) :
   Match taxonomic names against local backbone databases
+
 - [`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md)
   : Parse taxonomic names into their structural parts
+
 - [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md)
   : Resolve common (vernacular) names to scientific names
+
 - [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
   : Resolve scientific names to common (vernacular) names
+
 - [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md) :
-  Resolve backend IDs to names
+  Resolve backbone IDs to names
+
 - [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) :
   Inspect a name list for probable typos and other anomalies
+
 - [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
   : Reconcile a checklist against a backbone's current treatment
+
 - [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
-  : List TDWG botanical regions
+  :
+
+  List the regions accepted by `region=`
+
 - [`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
   : Reshape grouped enrichment columns to long format
+
 - [`export_data()`](https://gillescolling.com/taxify/reference/export_data.md)
   : Export a taxify result to file
+
 - [`cite()`](https://gillescolling.com/taxify/reference/cite.md) : Cite
   data sources used in a taxify result
 
@@ -45,6 +57,7 @@ tree.
 - [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md)
   : Add the full higher classification to a taxify result
 - [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md)
+  [`print(`*`<taxify_tree>`*`)`](https://gillescolling.com/taxify/reference/class2tree.md)
   : Build a taxonomy tree from resolved names
 - [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md)
   : Lowest common taxon of a set of names
@@ -72,11 +85,11 @@ register.
 - [`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md)
   : Invalidate the session manifest cache
 - [`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
-  : Build the unified genus register from installed backbones
+  : Build the genus register from source
 - [`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md)
   : Load the unified genus register into memory
 - [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
-  : Show backend coverage for a genus
+  : Show backbone coverage for a genus
 - [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
   : Look up a genus in the register
 - [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)

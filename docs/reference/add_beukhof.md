@@ -49,8 +49,8 @@ North Atlantic and Northeast Pacific continental shelf seas. PANGAEA.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Gadus morhua", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Gadus morhua", backbone = "gbif") |>
   add_beukhof()
-# }
+} # }
 ```

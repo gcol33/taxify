@@ -46,8 +46,8 @@ global gut content data synthesis and phylogeny. PLoS Biology
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Zebrasoma scopas", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Zebrasoma scopas", backbone = "gbif") |>
   add_parravicini()
-# }
+} # }
 ```

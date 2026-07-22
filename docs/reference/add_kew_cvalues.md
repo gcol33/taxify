@@ -78,7 +78,7 @@ comparative studies. New Phytologist 226:301-305.
 ``` r
 if (FALSE) { # \dontrun{
 # Downloads the enrichment on first use.
-taxify("Zea mays", backend = "gbif") |>
+taxify("Zea mays", backbone = "gbif") |>
   add_kew_cvalues()
 } # }
 ```

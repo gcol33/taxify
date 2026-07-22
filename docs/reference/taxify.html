@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ match quality information."><script>
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -90,7 +90,7 @@ match quality information.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">taxify</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  backend <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  backbone <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fuzzy <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  fuzzy_threshold <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  fuzzy_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dl"</span>, <span class="st">"levenshtein"</span>, <span class="st">"jw"</span><span class="op">)</span>,</span>
@@ -112,8 +112,8 @@ match quality information.</p>
 <dd><p>Character vector of taxonomic names.</p></dd>
 
 
-<dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
-<dd><p>Character vector of backend names (e.g., <code>"wfo"</code>, <code>"col"</code>,
+<dt id="arg-backbone">backbone<a class="anchor" aria-label="anchor" href="#arg-backbone"></a></dt>
+<dd><p>Character vector of backbone names (e.g., <code>"wfo"</code>, <code>"col"</code>,
 <code>"gbif"</code>) or a single <code>taxify_backend</code> object. Several are tried in order
 as a fallback chain. <code>NULL</code> (default) uses every installed backbone in
 priority order, installing the default set (COL, GBIF, ITIS) on first use;
@@ -163,7 +163,7 @@ Level 3 name (<code>"Belgium"</code>), a Level 2 region (<code>"Middle Europe"</
 1 continent (<code>"Europe"</code>, which expands to all its codes). Marine (only when
 the <code>marine_distribution</code> asset is installed): a MEOW ecoregion <code>ECO_CODE</code>,
 or an ecoregion / province / realm name (a province or realm expands to its
-member ecoregions). See <code><a href="taxify_regions.html">taxify_regions()</a></code> for the botanical list. When set,
+member ecoregions). See <code><a href="taxify_regions.html">taxify_regions()</a></code> for both lists. When set,
 <strong>fuzzy</strong> candidates are restricted to species with range records in the
 region(s); exact matches are always kept. The filter only narrows genuinely
 ambiguous fuzzy candidates: a candidate is dropped only when the same input
@@ -206,17 +206,17 @@ constraint. Accepts a kingdom name or a common alias, case-insensitively:
 <code>"animals"</code>/<code>"Animalia"</code>/<code>"Metazoa"</code>, <code>"plants"</code>/<code>"Plantae"</code>,
 <code>"fungi"</code>, <code>"bacteria"</code>, <code>"archaea"</code>, <code>"chromista"</code>, <code>"protozoa"</code>,
 <code>"viruses"</code>. A matched taxon is kept only when its kingdom is the requested
-one (or is unknown, which is never rejected); with the default multi-backend
+one (or is unknown, which is never rejected); with the default multi-backbone
 fallback, a name a backbone resolves into the wrong kingdom is passed on to
 the next backbone, so the in-kingdom treatment wins. The kingdom is read
 from the backbone where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a
 backbone that does not (WFO, GBIF), it falls back to the genus register's
 kingdom, which cannot split a genus that is itself homonymous across
-kingdoms – name a kingdom-appropriate <code>backend</code> for those.</p></dd>
+kingdoms – name a kingdom-appropriate <code>backbone</code> for those.</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p>Character. How to combine results when <code>backend</code> names more than
+<dd><p>Character. How to combine results when <code>backbone</code> names more than
 one backbone. <code>"fallback"</code> (default) is the fallback chain described above:
 one answer per name, from the first backbone that matched. <code>"wide"</code> and
 <code>"agreement"</code> instead consult <strong>every</strong> backbone for every name and report
@@ -335,13 +335,26 @@ for irreducible ambiguity, the scalar columns hold one candidate.</p></dd>
 <dd><p>Character. <code>|</code>-joined list of conflicting
 accepted taxon IDs when <code>is_ambiguous = TRUE</code>; <code>NA</code> otherwise.</p></dd>
 
-<dt>backend</dt>
-<dd><p>Which backend was used (e.g., <code>"wfo"</code>, <code>"col"</code>,
+<dt>backbone</dt>
+<dd><p>Which backbone was used (e.g., <code>"wfo"</code>, <code>"col"</code>,
 <code>"gbif"</code>).</p></dd>
 
 <dt>backbone_version</dt>
 <dd><p>Backend name, version, and download date
 (e.g., <code>"wfo:2024-12 (2026-04-01)"</code>). Useful for reproducibility.</p></dd>
+
+<dt>kingdom_group</dt>
+<dd><p>Coarse kingdom-level group of the matched genus, from
+the bundled genus register (used for cross-kingdom disambiguation); <code>NA</code>
+when the genus is not in the register.</p></dd>
+
+<dt>taxon_group</dt>
+<dd><p>Broad taxonomic group of the matched genus, from the
+genus register; <code>NA</code> when unavailable.</p></dd>
+
+<dt>life_form</dt>
+<dd><p>Life-form classification of the matched genus, from the
+genus register's family-based lookup; <code>NA</code> when unavailable.</p></dd>
 
 
 </dl></div>
@@ -353,28 +366,28 @@ priority order as a fallback chain: a name is resolved by the first backbone
 it, and names matched earlier are not re-matched later. On a fresh setup with
 nothing installed yet, the first call downloads a default set (COL, GBIF,
 ITIS) once; pre-install a different set with <code><a href="install_backbones.html">install_backbones()</a></code>. Name a
-backend (or several) explicitly to match only against that one, or those in
+backbone (or several) explicitly to match only against that one, or those in
 that order.</p>
     </div>
     <div class="section level2">
     <h2 id="backbone-specific-accepted-names">Backbone-specific accepted names<a class="anchor" aria-label="anchor" href="#backbone-specific-accepted-names"></a></h2>
 
 
-<p>Each backend is an independent taxonomy, and they can legitimately disagree
+<p>Each backbone is an independent taxonomy, and they can legitimately disagree
 on which name is accepted and which is a synonym. <code>taxify()</code> returns the
-matched backend's own current treatment; it does not reconcile backends
+matched backbone's own current treatment; it does not reconcile backbones
 against each other by voting (a consensus would regress toward the most
 conservative treatment across backbones that copy one another). With the
-default multi-backend fallback, <code>accepted_name</code> is the pick of the
+default multi-backbone fallback, <code>accepted_name</code> is the pick of the
 highest-priority backbone that matched. To see where backbones disagree, pass
 <code>mode = "wide"</code> (or <code>"agreement"</code>) for each backbone's <code>accepted_name</code> side by
-side; to follow one authority, name a single <code>backend</code>.</p>
+side; to follow one authority, name a single <code>backbone</code>.</p>
 <p>For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 accepts <code>Macropus rufus</code> and <code>Macropus parma</code>, treating <code>Osphranter rufus</code>
 and <code>Notamacropus parma</code> as synonyms of them, so
-<code>taxify("Osphranter rufus", backend = "gbif")</code> resolves to <code>Macropus rufus</code>.
+<code>taxify("Osphranter rufus", backbone = "gbif")</code> resolves to <code>Macropus rufus</code>.
 The Catalogue of Life splits the genus and does the reverse, so
-<code>taxify("Macropus rufus", backend = "col")</code> resolves to <code>Osphranter rufus</code>.
+<code>taxify("Macropus rufus", backbone = "col")</code> resolves to <code>Osphranter rufus</code>.
 Both are faithful to their source; the difference is in the backbones, not in
 the matching.</p>
     </div>
@@ -402,11 +415,11 @@ the matching.</p>
 <span></span>
 <span><span class="co"># Fallback chain: try WFO first, then COL for unmatched</span></span>
 <span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Panthera leo"</span><span class="op">)</span>,</span>
-<span>       backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
+<span>       backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compare how two backbones resolve the same names, side by side</span></span>
 <span><span class="fu">taxify</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span><span class="op">)</span>,</span>
-<span>       backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
+<span>       backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
 <span></span></code></pre></div>

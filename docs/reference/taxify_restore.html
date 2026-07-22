@@ -32,7 +32,7 @@ the current downloads."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,7 @@ the current downloads."><script>
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -118,7 +118,8 @@ it returned.</p></dd>
     <p>A data.frame with one row per pinned asset, columns: <code>component</code>,
 <code>type</code> (<code>"backbone"</code>/<code>"enrichment"</code>), <code>locked_version</code>, <code>installed_version</code>,
 <code>locked_content_id</code> and <code>installed_content_id</code> (short), and <code>status</code>
-(<code>"ok"</code>, <code>"version_drift"</code>, <code>"content_drift"</code>, or <code>"missing"</code>).</p>
+(<code>"ok"</code>, <code>"version_drift"</code>, <code>"content_drift"</code>, <code>"missing"</code>, or
+<code>"unverified"</code> when neither a version nor a content id could be compared).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -130,7 +131,7 @@ it returned.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
 <span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">res</span>  <span class="op">&lt;-</span> <span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backend <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">res</span>  <span class="op">&lt;-</span> <span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">lock</span> <span class="op">&lt;-</span> <span class="fu"><a href="taxify_lock.html">taxify_lock</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span><span class="fu">taxify_restore</span><span class="op">(</span><span class="va">lock</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>

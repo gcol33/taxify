@@ -32,7 +32,7 @@ lineage returned is the accepted taxon's."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,7 @@ lineage returned is the accepted taxon's."><script>
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -97,7 +97,7 @@ lineage returned is the accepted taxon's.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">upstream</span><span class="op">(</span><span class="va">taxon</span>, backend <span class="op">=</span> <span class="st">"col"</span>, to <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">upstream</span><span class="op">(</span><span class="va">taxon</span>, backbone <span class="op">=</span> <span class="cn">NULL</span>, to <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -109,9 +109,10 @@ lineage returned is the accepted taxon's.</p>
 synonyms and typos are resolved first).</p></dd>
 
 
-<dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
-<dd><p>A single backend name or a <code>taxify_backend</code> object. Default
-<code>"col"</code> (broad, and it stores the higher ranks).</p></dd>
+<dt id="arg-backbone">backbone<a class="anchor" aria-label="anchor" href="#arg-backbone"></a></dt>
+<dd><p>A single backbone name or a <code>taxify_backend</code> object. <code>NULL</code>
+(default) uses the highest-priority installed backbone; name one that
+stores the higher ranks (e.g. <code>"col"</code>) for a full lineage.</p></dd>
 
 
 <dt id="arg-to">to<a class="anchor" aria-label="anchor" href="#arg-to"></a></dt>
@@ -126,9 +127,9 @@ synonyms and typos are resolved first).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data.frame with one row per ancestor rank, columns: <code>query</code> (the
+    <p>A data.frame with one row per ancestor rank, columns: <code>input_name</code> (the
 name as supplied), <code>accepted_name</code> (what it resolved to), <code>rank</code>, <code>name</code>,
-<code>backend</code>, ordered kingdom -&gt; genus. Empty when <code>taxon</code> does not resolve or
+<code>backbone</code>, ordered kingdom -&gt; genus. Empty when <code>taxon</code> does not resolve or
 the backbone stores no ranks above it.</p>
     </div>
     <div class="section level2">
@@ -143,10 +144,10 @@ ranks to a <code><a href="taxify.html">taxify()</a></code> result, <code><a href
 <span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># The lineage above a species (reptiledb carries the full higher hierarchy)</span></span>
-<span><span class="fu">upstream</span><span class="op">(</span><span class="st">"Naja naja"</span>, backend <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span></span>
+<span><span class="fu">upstream</span><span class="op">(</span><span class="st">"Naja naja"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Just the family</span></span>
-<span><span class="fu">upstream</span><span class="op">(</span><span class="st">"Naja naja"</span>, backend <span class="op">=</span> <span class="st">"reptiledb"</span>, to <span class="op">=</span> <span class="st">"family"</span><span class="op">)</span></span>
+<span><span class="fu">upstream</span><span class="op">(</span><span class="st">"Naja naja"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span>, to <span class="op">=</span> <span class="st">"family"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
 <span></span></code></pre></div>

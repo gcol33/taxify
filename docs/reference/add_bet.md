@@ -117,8 +117,8 @@ fundamental dataset for European bryophyte ecology. EnviDat.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Abietinella abietina", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Abietinella abietina", backbone = "gbif") |>
   add_bet()
-# }
+} # }
 ```

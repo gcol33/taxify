@@ -7,7 +7,7 @@ one. The parent is auto-detected: a genus is tried first, then a family.
 ## Usage
 
 ``` r
-children(taxon, backend = "wfo", rank = "species", verbose = TRUE)
+children(taxon, backbone = NULL, rank = "species", verbose = TRUE)
 ```
 
 ## Arguments
@@ -16,10 +16,10 @@ children(taxon, backend = "wfo", rank = "species", verbose = TRUE)
 
   A single genus or family name.
 
-- backend:
+- backbone:
 
-  A single backend name (e.g. `"wfo"`) or a `taxify_backend` object.
-  Default `"wfo"`.
+  A single backbone name (e.g. `"wfo"`) or a `taxify_backend` object.
+  `NULL` (default) uses the highest-priority installed backbone.
 
 - rank:
 
@@ -34,7 +34,7 @@ children(taxon, backend = "wfo", rank = "species", verbose = TRUE)
 
 A data.frame of accepted taxa, columns: `name`, `authorship`, `rank`,
 `family`, `genus`, `taxon_id`, `parent_rank` (`"genus"` or `"family"`),
-`backend`. Empty if the parent is not found.
+`backbone`. Empty if the parent is not found.
 
 ## See also
 
@@ -47,7 +47,7 @@ A data.frame of accepted taxa, columns: `name`, `authorship`, `rank`,
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-children("Quercus")
+children("Quercus", backbone = "wfo")
 
 options(old)
 ```

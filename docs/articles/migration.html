@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -136,7 +136,7 @@ likely to overlap with a taxify workflow.</p>
 <td>All kingdoms</td>
 <td>Live API</td>
 <td>
-<code>taxify(backend = c(...))</code> with the relevant local
+<code>taxify(backbone = c(...))</code> with the relevant local
 backbone(s)</td>
 </tr>
 <tr class="even">
@@ -144,14 +144,14 @@ backbone(s)</td>
 <td>World Flora Online classification (<code>WFO.match</code>)</td>
 <td>Land plants (vascular + bryophytes)</td>
 <td>Local file</td>
-<td><code>taxify(backend = "wfo")</code></td>
+<td><code>taxify(backbone = "wfo")</code></td>
 </tr>
 <tr class="odd">
 <td><a href="https://github.com/idiv-biodiversity/lcvplants" class="external-link">lcvplants</a></td>
 <td>Leipzig Catalogue of Vascular Plants</td>
 <td>Vascular plants</td>
 <td>Bundled in package</td>
-<td><code>taxify(backend = "lcvp")</code></td>
+<td><code>taxify(backbone = "lcvp")</code></td>
 </tr>
 <tr class="even">
 <td><a href="https://matildabrown.github.io/rWCVP/" class="external-link">rWCVP</a></td>
@@ -159,7 +159,7 @@ backbone(s)</td>
 <td>Vascular plants</td>
 <td>Local snapshot</td>
 <td>
-<code>taxify(backend = "wcvp")</code> for names;
+<code>taxify(backbone = "wcvp")</code> for names;
 <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code> for native ranges</td>
 </tr>
 <tr class="odd">
@@ -167,7 +167,7 @@ backbone(s)</td>
 <td>GBIF, ITIS, COL, NCBI, OTT, WFO snapshots</td>
 <td>All kingdoms</td>
 <td>Local DuckDB / MonetDB</td>
-<td><code>taxify(backend = c(...))</code></td>
+<td><code>taxify(backbone = c(...))</code></td>
 </tr>
 <tr class="even">
 <td><a href="https://cran.r-project.org/package=Taxonstand" class="external-link">Taxonstand</a></td>
@@ -175,7 +175,7 @@ backbone(s)</td>
 WFO)</td>
 <td>Vascular plants</td>
 <td>Bundled in package</td>
-<td><code>taxify(backend = "wfo")</code></td>
+<td><code>taxify(backbone = "wfo")</code></td>
 </tr>
 <tr class="odd">
 <td><a href="https://github.com/ecoinfor/U.Taxonstand" class="external-link">U.Taxonstand</a></td>
@@ -183,7 +183,8 @@ WFO)</td>
 <td>Configurable</td>
 <td>Local</td>
 <td>
-<code>taxify(backend = ...)</code> plus <code><a href="../reference/add_data.html">add_data()</a></code>
+<code>taxify(backbone = ...)</code> plus
+<code><a href="../reference/add_data.html">add_data()</a></code>
 </td>
 </tr>
 <tr class="even">
@@ -201,7 +202,7 @@ biodiversity-cleaning workflow</td>
 <td>Plants</td>
 <td>Live API</td>
 <td>
-<code>taxify(backend = "wfo")</code> or similar</td>
+<code>taxify(backbone = "wfo")</code> or similar</td>
 </tr>
 <tr class="even">
 <td>
@@ -210,7 +211,7 @@ biodiversity-cleaning workflow</td>
 <td>GBIF / WoRMS / ITIS web APIs</td>
 <td>One backbone each</td>
 <td>Live API</td>
-<td><code>taxify(backend = "gbif" / "worms" / "itis")</code></td>
+<td><code>taxify(backbone = "gbif" / "worms" / "itis")</code></td>
 </tr>
 </tbody>
 </table>
@@ -221,7 +222,7 @@ there is no urgent reason to switch.</p>
 <li>
 <strong>Multiple backbones.</strong> taxify matches against fifteen
 backbones offline and can chain them in a single call:
-<code>taxify(names, backend = c("wfo", "col", "gbif"))</code>.</li>
+<code>taxify(names, backbone = c("wfo", "col", "gbif"))</code>.</li>
 <li>
 <strong>Speed at scale.</strong> The matching engine is written in C
 with genus-blocked fuzzy joins. Ten thousand names resolve in
@@ -259,7 +260,7 @@ closest taxify equivalent.</p>
 <tr class="odd">
 <td><code><a href="https://docs.ropensci.org/taxize/reference/gnr_resolve.html" class="external-link">gnr_resolve()</a></code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
-<td>Any backend; returns best match per name</td>
+<td>Any backbone; returns best match per name</td>
 </tr>
 <tr class="even">
 <td><code><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification()</a></code></td>
@@ -327,7 +328,7 @@ calls.</p>
 <tbody>
 <tr class="odd">
 <td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code></td>
-<td><code>taxify(backend = "wfo")</code></td>
+<td><code>taxify(backbone = "wfo")</code></td>
 <td>Both do exact + fuzzy in one call. <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code> returns
 several candidate rows per input name</td>
 </tr>
@@ -341,7 +342,7 @@ steps are one call</td>
 </tr>
 <tr class="odd">
 <td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html" class="external-link">WFO.match.fuzzyjoin()</a></code></td>
-<td><code>taxify(backend = "wfo")</code></td>
+<td><code>taxify(backbone = "wfo")</code></td>
 <td>Same matching as <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code>, faster
 <code>fuzzyjoin</code>-based engine; taxify is fast by default, so there
 is no separate call</td>
@@ -361,11 +362,11 @@ direct equivalent</td>
 (<code>scientificName</code>, <code>taxonID</code>,
 <code>taxonomicStatus</code>, <code>acceptedNameUsageID</code>, plus
 authorship and bibliographic fields). taxify normalizes these into a
-backend-agnostic schema: <code>matched_name</code>,
+backbone-agnostic schema: <code>matched_name</code>,
 <code>taxon_id</code>, <code>accepted_name</code>,
 <code>accepted_id</code>, and so on. The WFO-specific columns are still
 accessible via <code><a href="../reference/add_wfo_info.html">add_wfo_info()</a></code> when needed, but the default
-output is the same 26 columns whether the backend is WFO, COL, or
+output is the same 26 columns whether the backbone is WFO, COL, or
 GBIF.</p>
 <p>taxify also handles backbone management automatically: the first
 <code><a href="../reference/taxify.html">taxify()</a></code> call downloads the backbone, subsequent calls
@@ -393,7 +394,7 @@ as bundled data. The package centres on <code>LCVP()</code> and
 <tbody>
 <tr class="odd">
 <td><code>LCVP(splist)</code></td>
-<td><code>taxify(splist, backend = "lcvp")</code></td>
+<td><code>taxify(splist, backbone = "lcvp")</code></td>
 <td>Returns the standardized 26-column data.frame</td>
 </tr>
 <tr class="even">
@@ -419,8 +420,8 @@ an in-package data object</td>
 chain to arbitrate between the Leipzig and Kew vascular-plant
 authorities:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span>, backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wcvp"</span>, <span class="st">"lcvp"</span>, <span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backend"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wcvp"</span>, <span class="st">"lcvp"</span>, <span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="function-mapping-rwcvp-to-taxify">Function mapping: rWCVP to taxify<a class="anchor" aria-label="anchor" href="#function-mapping-rwcvp-to-taxify"></a>
@@ -444,12 +445,12 @@ side that taxify does not replace.</p>
 <tbody>
 <tr class="odd">
 <td><code>wcvp_match_names()</code></td>
-<td><code>taxify(backend = "wcvp")</code></td>
+<td><code>taxify(backbone = "wcvp")</code></td>
 <td>Exact + fuzzy in one call</td>
 </tr>
 <tr class="even">
 <td><code>wcvp_check_gbif()</code></td>
-<td><code>taxify(backend = c("wcvp", "gbif"))</code></td>
+<td><code>taxify(backbone = c("wcvp", "gbif"))</code></td>
 <td>Cascade WCVP first, GBIF as fallback</td>
 </tr>
 <tr class="odd">
@@ -469,7 +470,7 @@ the output</td>
 <td><code>get_wcvp()</code></td>
 <td>automatic</td>
 <td>The backbone downloads on first
-<code>taxify(backend = "wcvp")</code> call</td>
+<code>taxify(backbone = "wcvp")</code> call</td>
 </tr>
 </tbody>
 </table>
@@ -504,12 +505,12 @@ in.</p>
 <tr class="odd">
 <td><code>td_create("itis")</code></td>
 <td>automatic</td>
-<td>First <code>taxify(backend = "itis")</code> call downloads the
+<td>First <code>taxify(backbone = "itis")</code> call downloads the
 <code>.vtr</code> snapshot</td>
 </tr>
 <tr class="even">
 <td><code>filter_name(names, "itis")</code></td>
-<td><code>taxify(names, backend = "itis")</code></td>
+<td><code>taxify(names, backbone = "itis")</code></td>
 <td>Exact match against the local snapshot</td>
 </tr>
 <tr class="odd">
@@ -581,7 +582,7 @@ been updated since the retirement.</p>
 <tbody>
 <tr class="odd">
 <td><code>TPL(splist)</code></td>
-<td><code>taxify(splist, backend = c("wcvp", "wfo"))</code></td>
+<td><code>taxify(splist, backbone = c("wcvp", "wfo"))</code></td>
 <td>Replace TPL with its successors</td>
 </tr>
 <tr class="even">
@@ -591,9 +592,9 @@ been updated since the retirement.</p>
 </tr>
 </tbody>
 </table>
-<p>The simplest migration is to replace <code>backend = "tpl"</code>
-with <code>backend = c("wcvp", "wfo")</code> (or
-<code>backend = c("lcvp", "wcvp", "wfo")</code> for triple-arbitration
+<p>The simplest migration is to replace <code>backbone = "tpl"</code>
+with <code>backbone = c("wcvp", "wfo")</code> (or
+<code>backbone = c("lcvp", "wcvp", "wfo")</code> for triple-arbitration
 across the three large vascular-plant authorities).</p>
 </div>
 <div class="section level2">
@@ -622,7 +623,7 @@ IDs, <code><a href="https://docs.ropensci.org/taxize/reference/classification.ht
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span>,</span>
 <span>           <span class="st">"Panthera leo"</span>, <span class="st">"Salmo trutta"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backend <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">accepted_name</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">family</span></span>
@@ -658,7 +659,7 @@ happen in a single call:</p>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>,</span>
 <span>           <span class="st">"Pinus silvestris"</span>, <span class="st">"Rosa canina"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Misspellings are caught by fuzzy matching:</span></span>
 <span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"matched_name"</span>, <span class="st">"match_type"</span>, <span class="st">"fuzzy_dist"</span><span class="op">)</span><span class="op">]</span></span>
@@ -676,7 +677,7 @@ taxify handles both: the fuzzy matcher corrects the spelling to
 <code>Quercus robur</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="example-3-multi-backend-fallback-with-enrichments">Example 3: Multi-backend fallback with enrichments<a class="anchor" aria-label="anchor" href="#example-3-multi-backend-fallback-with-enrichments"></a>
+<h2 id="example-3-multi-backbone-fallback-with-enrichments">Example 3: Multi-backbone fallback with enrichments<a class="anchor" aria-label="anchor" href="#example-3-multi-backbone-fallback-with-enrichments"></a>
 </h2>
 <p>taxify can chain multiple backbones in a single call. Unmatched names
 cascade to the next backbone automatically.</p>
@@ -693,11 +694,11 @@ cascade to the next backbone automatically.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># WFO first (best for plants), GBIF as fallback (all kingdoms)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># The backend column shows which database matched each name:</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"backend"</span>, <span class="st">"family"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#   input_name            backend family</span></span>
+<span><span class="co"># The backbone column shows which database matched each name:</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"backbone"</span>, <span class="st">"family"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#   input_name            backbone family</span></span>
 <span><span class="co"># 1 Quercus robur         wfo     Fagaceae</span></span>
 <span><span class="co"># 2 Panthera leo          gbif    Felidae</span></span>
 <span><span class="co"># 3 Amanita muscaria      gbif    Amanitaceae</span></span>
@@ -723,11 +724,11 @@ cascade to the next backbone automatically.</p>
 <p><strong>Offline matching.</strong> taxify downloads backbone files
 once and matches locally. After the initial download (typically 50–300
 MB depending on the backbone), no internet connection is needed.</p>
-<p><strong>Multi-backend.</strong> taxify supports fifteen backbones
+<p><strong>Multi-backbone.</strong> taxify supports fifteen backbones
 through a single function, with optional fallback chains that cascade
 unmatched names automatically.</p>
 <p><strong>Output format.</strong> taxify always returns a data.frame
-with 26 standardized columns, regardless of the backend:</p>
+with 26 standardized columns, regardless of the backbone:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -830,9 +831,9 @@ or <code>"none"</code>
 </td>
 </tr>
 <tr class="even">
-<td><code>backend</code></td>
+<td><code>backbone</code></td>
 <td>character</td>
-<td>Which backend matched this name</td>
+<td>Which backbone matched this name</td>
 </tr>
 <tr class="odd">
 <td><code>backbone_version</code></td>
@@ -932,8 +933,8 @@ WCVP’s TDWG-region geography directly through
 most common native-range join through <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code>, but full
 geographic queries belong in rWCVP.</p></li>
 <li><p><strong>Live API access to upstream databases.</strong> taxize,
-rgbif, worrms, ritis, and TNRS query their backends in real time. If you
-need a name added to a backbone yesterday, or you want the latest
+rgbif, worrms, ritis, and TNRS query their backbones in real time. If
+you need a name added to a backbone yesterday, or you want the latest
 annotation for a single taxon, these packages return that immediately.
 taxify works against the snapshot on disk and only sees changes when the
 backbone is updated.</p></li>
@@ -987,7 +988,7 @@ verb gathers a single trait across every source that carries it.</p>
 </h2>
 <p>Migrating from taxize, WorldFlora, lcvplants, rWCVP, taxadb, or
 Taxonstand to taxify means replacing the package’s resolution call with
-<code>taxify(backend = ...)</code> and optional <code>add_*()</code>
+<code>taxify(backbone = ...)</code> and optional <code>add_*()</code>
 enrichment pipes. The output is a flat 26-column data.frame, not nested
 lists or long-format join tables, and matching runs offline against
 versioned backbone files so results do not change between sessions

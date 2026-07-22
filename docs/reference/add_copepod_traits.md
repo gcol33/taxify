@@ -72,7 +72,7 @@ Earth System Science Data 9:99-113.
 ``` r
 if (FALSE) { # \dontrun{
 # Downloads the enrichment on first use.
-taxify("Calanus finmarchicus", backend = "gbif") |>
+taxify("Calanus finmarchicus", backbone = "gbif") |>
   add_copepod_traits()
 } # }
 ```

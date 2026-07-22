@@ -105,8 +105,8 @@ comparative analyses with birds, mammals, and reptiles. Ecology 96:3109.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Accipiter badius", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Accipiter badius", backbone = "gbif") |>
   add_amniote()
-# }
+} # }
 ```

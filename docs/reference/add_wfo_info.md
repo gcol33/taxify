@@ -16,7 +16,7 @@ add_wfo_info(x)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  with `backend == "wfo"`.
+  with `backbone == "wfo"`.
 
 ## Value
 

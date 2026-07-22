@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -216,7 +216,7 @@ nothogenus, and a hybrid formula. We pass them all to
 <span>  <span class="st">"Platanus x hispanica"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
 <span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"is_hybrid"</span>, <span class="st">"hybrid_type"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <p>The expected output looks roughly like this:</p>
 <table class="table">
@@ -294,7 +294,7 @@ result.</p>
 <p><code>hybrid_type</code> is already in the <code><a href="../reference/taxify.html">taxify()</a></code>
 output. <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> goes further for <strong>hybrid
 formulas</strong>: it parses the <code>input_name</code> column for the
-two parents and resolves each against the same backend(s) used for the
+two parents and resolves each against the same backbone(s) used for the
 result. It adds four columns:</p>
 <ul>
 <li><p><code>hybrid_parent_1</code>: the first parent binomial (for
@@ -383,7 +383,7 @@ second genus.</p>
 <span>  <span class="st">"Rosa canina x R. gallica"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">formula_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">formulas</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="va">formula_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">formulas</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
 <span><span class="va">formula_result</span> <span class="op">&lt;-</span> <span class="va">formula_result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">formula_result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"hybrid_type"</span>,</span>
@@ -462,7 +462,7 @@ nothospecies). When that misses, the row is marked
 <code>match_type = "hybrid_formula"</code> with <code>NA</code> match
 columns – never collapsed to one parent. To work with the parents, use
 <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>, which resolves both against the same
-backend:</p>
+backbone:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">info</span> <span class="op">&lt;-</span> <span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">formula_rows</span> <span class="op">&lt;-</span> <span class="va">info</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">info</span><span class="op">$</span><span class="va">hybrid_type</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">info</span><span class="op">$</span><span class="va">hybrid_type</span> <span class="op">==</span> <span class="st">"formula"</span>, <span class="op">]</span></span>
@@ -494,7 +494,7 @@ carries the trait, its value is used.</li>
 <code><a href="../reference/add_trait.html">add_trait()</a></code>; no extra call is needed.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># A hybrid formula with no direct trait record inherits from its parents</span></span>
-<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Salix alba x Salix fragilis"</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Salix alba x Salix fragilis"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"plant_height"</span><span class="op">)</span></span></code></pre></div>
 <p>If the parents have first been materialized with
 <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>, the trait doors additionally expose each
@@ -560,10 +560,10 @@ an author string does not interfere with hybrid detection or
 matching.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Authorship is stripped; hybrid detection still works</span></span>
-<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Mentha x piperita L."</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Mentha x piperita L."</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Adding hybrid info resolves the parents.</strong>
 <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> parses the parents from the
-<code>input_name</code> column and resolves each against the backend(s)
+<code>input_name</code> column and resolves each against the backbone(s)
 used for the result, so it makes one backbone lookup for the set of
 unique parents (memoized within a session). The parse itself is pure
 string work; the parent resolution reuses the same matching engine as
@@ -631,7 +631,7 @@ falls back to its binomial and is flagged.</p>
 <span>  <span class="st">"Quercus robur"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">agg_names</span>, backend <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">agg_names</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
 <span><span class="va">res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"qualifier"</span>,</span>
 <span>        <span class="st">"aggregate_fallback"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <table class="table">

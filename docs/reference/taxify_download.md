@@ -11,25 +11,25 @@ calling this function is consent.
 ## Usage
 
 ``` r
-taxify_download(backend = "wfo", version = "latest", verbose = TRUE)
+taxify_download(backbone = "wfo", version = "latest", verbose = TRUE)
 
-taxify_download_vtr(backend = "wfo", version = "latest", verbose = TRUE)
+taxify_download_vtr(backbone = "wfo", version = "latest", verbose = TRUE)
 ```
 
 ## Arguments
 
-- backend:
+- backbone:
 
-  Character. A backend name (e.g. `"wfo"`, `"col"`, `"gbif"`, ...; see
-  the backends in
+  Character. A backbone name (e.g. `"wfo"`, `"col"`, `"gbif"`, ...; see
+  the backbones in
   [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)'s
   companion manifest) or `"register"` for the genus register. Multiple
-  backends can be given as a character vector.
+  backbones can be given as a character vector.
 
 - version:
 
   Character. `"latest"` (default) downloads into
-  `<data_dir>/<backend>/latest/` and will be overwritten on future
+  `<data_dir>/<backbone>/latest/` and will be overwritten on future
   updates. A specific version string (e.g., `"2024.01"`) downloads into
   a pinned folder that is never overwritten.
 
@@ -43,7 +43,7 @@ The path(s) to the downloaded `.vtr` file(s) (invisibly).
 
 ## Details
 
-If no pre-built `.vtr` is available for a backend, it falls back to
+If no pre-built `.vtr` is available for a backbone, it falls back to
 building from source via
 [`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md)
 (which requires `taxifydb`).

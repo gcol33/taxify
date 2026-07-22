@@ -113,8 +113,10 @@ Ecology and Evolution 9:373-379.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Quercus alba", backend = "gbif") |>
+old <- options(taxify.data_dir = taxify_example_data())
+
+taxify("Quercus alba", backbone = "gbif") |>
   add_bien()
-# }
+
+options(old)
 ```

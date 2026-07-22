@@ -112,6 +112,7 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | leda | 2026.07 | 14,191 | 25 | [source](https://uol.de/en/landeco/research/leda/data-files) |
 | leptraits | 2026.07 | 13,590 | 40 | [source](https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv) |
 | madin | 2026.07 | 16,746 | 76 | [source](https://raw.githubusercontent.com/bacteria-archaea-traits/bacteria-archaea-traits/master/output/condensed_species_NCBI.csv) |
+| marine_distribution | 2026.07 | 1,926,166 | 4 | [source](https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/worms_distributions.jsonl%20;%20https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/mrgid_meow.tsv) |
 | nesttrait | 2026.07 | 12,615 | 34 | [source](https://zenodo.org/records/10128906/files/NestTrait_v2.csv?download=1) |
 | nztd | 2026.07 | 314 | 18 | [source](https://api.figshare.com/v2/articles/21939647) |
 | octocoral | 2026.07 | 3,629 | 127 | [source](https://zenodo.org/records/14228404/files/OctocoralTraits_v2_2.zip?download=1) |

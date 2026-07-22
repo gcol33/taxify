@@ -11,7 +11,7 @@ unresolved – and flags names that merge onto a single accepted taxon.
 ## Usage
 
 ``` r
-reconcile(x, backend = NULL, ..., verbose = TRUE)
+reconcile(x, backbone = NULL, ..., verbose = TRUE)
 ```
 
 ## Arguments
@@ -20,10 +20,11 @@ reconcile(x, backend = NULL, ..., verbose = TRUE)
 
   Character vector of names (a checklist).
 
-- backend:
+- backbone:
 
-  Character vector of backend names or a `taxify_backend` object, passed
-  to [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+  Character vector of backbone names or a `taxify_backend` object,
+  passed to
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
   `NULL` (default) uses every installed backbone.
 
 - ...:
@@ -77,7 +78,7 @@ A data.frame with one row per input name, columns:
 
   `|`-joined other input names sharing this accepted name, or `NA`.
 
-- backend:
+- backbone:
 
   Backend that matched (`NA` if unresolved).
 
@@ -98,7 +99,7 @@ old <- options(taxify.data_dir = taxify_example_data())
 # misspelling of it; a bad name is unresolved.
 reconcile(c("Quercus robur", "Quercus pedunculata", "Quercus robus",
             "Notagenus imaginus"),
-          backend = "wfo", verbose = FALSE)
+          backbone = "wfo", verbose = FALSE)
 
 options(old)
 ```

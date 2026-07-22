@@ -28,7 +28,7 @@ contents of a genus or family, downstream() reaches an arbitrary depth."><script
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@ contents of a genus or family, downstream() reaches an arbitrary depth."><script
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -91,7 +91,7 @@ contents of a genus or family, <code>downstream()</code> reaches an arbitrary de
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">downstream</span><span class="op">(</span><span class="va">taxon</span>, backend <span class="op">=</span> <span class="st">"col"</span>, downto <span class="op">=</span> <span class="st">"species"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">downstream</span><span class="op">(</span><span class="va">taxon</span>, backbone <span class="op">=</span> <span class="cn">NULL</span>, downto <span class="op">=</span> <span class="st">"species"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -103,9 +103,10 @@ contents of a genus or family, <code>downstream()</code> reaches an arbitrary de
 phylum, or kingdom).</p></dd>
 
 
-<dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
-<dd><p>A single backend name or a <code>taxify_backend</code> object. Default
-<code>"col"</code> (broad, and it stores the higher ranks needed here).</p></dd>
+<dt id="arg-backbone">backbone<a class="anchor" aria-label="anchor" href="#arg-backbone"></a></dt>
+<dd><p>A single backbone name or a <code>taxify_backend</code> object. <code>NULL</code>
+(default) uses the highest-priority installed backbone; name one that
+stores the higher ranks (e.g. <code>"col"</code>) to reach above genus.</p></dd>
 
 
 <dt id="arg-downto">downto<a class="anchor" aria-label="anchor" href="#arg-downto"></a></dt>
@@ -121,7 +122,7 @@ rank.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data.frame of accepted descendants, columns: <code>name</code>, <code>authorship</code>,
-<code>rank</code>, <code>family</code>, <code>genus</code>, <code>taxon_id</code>, <code>parent</code>, <code>parent_rank</code>, <code>backend</code>.
+<code>rank</code>, <code>family</code>, <code>genus</code>, <code>taxon_id</code>, <code>parent</code>, <code>parent_rank</code>, <code>backbone</code>.
 Empty when <code>taxon</code> is not found, its rank is one the backbone does not store
 as a column (e.g. subfamily, tribe), or it has no descendants at <code>downto</code>.</p>
     </div>
@@ -136,7 +137,7 @@ as a column (e.g. subfamily, tribe), or it has no descendants at <code>downto</c
 <span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Every species the backbone places in the genus</span></span>
-<span><span class="fu">downstream</span><span class="op">(</span><span class="st">"Quercus"</span>, backend <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span></span>
+<span><span class="fu">downstream</span><span class="op">(</span><span class="st">"Quercus"</span>, backbone <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
 <span></span></code></pre></div>

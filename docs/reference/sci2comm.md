@@ -17,7 +17,7 @@ several rows.
 ## Usage
 
 ``` r
-sci2comm(x, lang = NULL, resolve = TRUE, backend = NULL, verbose = TRUE)
+sci2comm(x, lang = NULL, resolve = TRUE, backbone = NULL, verbose = TRUE)
 ```
 
 ## Arguments
@@ -41,7 +41,7 @@ sci2comm(x, lang = NULL, resolve = TRUE, backend = NULL, verbose = TRUE)
   vernaculars. When `FALSE`, the input name is looked up verbatim
   (faster, offline; use when the names are already accepted).
 
-- backend:
+- backbone:
 
   Passed to
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
@@ -56,14 +56,14 @@ sci2comm(x, lang = NULL, resolve = TRUE, backend = NULL, verbose = TRUE)
 
 A data.frame with one row per (query, vernacular):
 
-- query:
+- input_name:
 
   The scientific name as supplied.
 
-- scientific_name:
+- accepted_name:
 
-  The accepted name looked up (equals `query` when `resolve = FALSE` or
-  the query was already accepted).
+  The accepted name looked up (equals `input_name` when
+  `resolve = FALSE` or the input_name was already accepted).
 
 - common_name:
 

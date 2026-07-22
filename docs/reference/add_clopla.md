@@ -93,7 +93,7 @@ Ecology 98:1179.
 ``` r
 if (FALSE) { # \dontrun{
 # Builds the enrichment on first use (needs taxifydb).
-taxify("Trifolium repens", backend = "gbif") |>
+taxify("Trifolium repens", backbone = "gbif") |>
   add_clopla()
 } # }
 ```

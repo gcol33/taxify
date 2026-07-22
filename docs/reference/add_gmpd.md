@@ -76,7 +76,7 @@ Database version 2.0. Ecology 98:1476.
 ``` r
 if (FALSE) { # \dontrun{
 # Builds the enrichment on first use (needs taxifydb).
-taxify("Panthera leo", backend = "gbif") |>
+taxify("Panthera leo", backbone = "gbif") |>
   add_gmpd()
 } # }
 ```

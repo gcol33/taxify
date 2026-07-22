@@ -47,8 +47,8 @@ United States of America. Scientific Data 10:745.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Lampsilis cardium", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Lampsilis cardium", backbone = "gbif") |>
   add_sheld()
-# }
+} # }
 ```

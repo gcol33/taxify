@@ -97,8 +97,8 @@ species and community level. Ecology 96(9):2554-2564.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Thalassiosira pseudonana", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Thalassiosira pseudonana", backbone = "gbif") |>
   add_edwards_phyto()
-# }
+} # }
 ```

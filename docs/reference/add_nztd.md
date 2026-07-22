@@ -47,8 +47,8 @@ marine benthic invertebrates. figshare.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Macomona liliana", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Macomona liliana", backbone = "gbif") |>
   add_nztd()
-# }
+} # }
 ```

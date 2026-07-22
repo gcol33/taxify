@@ -48,8 +48,8 @@ tolerance. Scientific Data 9:600.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Rana temporaria", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Rana temporaria", backbone = "gbif") |>
   add_pottier()
-# }
+} # }
 ```

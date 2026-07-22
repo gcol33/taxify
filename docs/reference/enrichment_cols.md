@@ -36,9 +36,7 @@ A data.frame with one row per column: `column` (the name) and `type`
 ## Examples
 
 ``` r
-# \donttest{
 old <- options(taxify.data_dir = taxify_example_data())
 enrichment_cols("gift")
 options(old)
-# }
 ```

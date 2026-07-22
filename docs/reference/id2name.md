@@ -1,6 +1,6 @@
-# Resolve backend IDs to names
+# Resolve backbone IDs to names
 
-Looks up one or more backend taxon IDs in a backbone and returns the
+Looks up one or more backbone taxon IDs in a backbone and returns the
 name, rank, classification, and accepted-name resolution for each. The
 inverse of the `taxon_id` / `accepted_id` columns
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
@@ -9,20 +9,21 @@ emits.
 ## Usage
 
 ``` r
-id2name(id, backend = "col", verbose = TRUE)
+id2name(id, backbone = NULL, verbose = TRUE)
 ```
 
 ## Arguments
 
 - id:
 
-  A vector of backend IDs (e.g. GBIF keys, ITIS TSNs, WoRMS AphiaIDs).
-  Coerced to character, matched against the backbone's `taxon_id`.
+  A vector of backbone IDs (e.g. GBIF keys, ITIS TSNs, WoRMS AphiaIDs).
+  Coerced to character, matched against the backbone's `taxon_id`. IDs
+  are backbone-specific, so name the `backbone` they came from.
 
-- backend:
+- backbone:
 
-  A single backend name (e.g. `"col"`, `"gbif"`) or a `taxify_backend`
-  object. Default `"col"`.
+  A single backbone name (e.g. `"col"`, `"gbif"`) or a `taxify_backend`
+  object. `NULL` (default) uses the highest-priority installed backbone.
 
 - verbose:
 
@@ -65,7 +66,7 @@ A data.frame with one row per input ID (in input order), columns:
 
   Genus.
 
-- backend:
+- backbone:
 
   Backend used.
 
@@ -86,8 +87,8 @@ name -\> ID,
 old <- options(taxify.data_dir = taxify_example_data())
 
 # Round-trip: resolve a name, then look its ID back up
-r <- taxify("Quercus robur", backend = "col")
-id2name(r$taxon_id, backend = "col")
+r <- taxify("Quercus robur", backbone = "col")
+id2name(r$taxon_id, backbone = "col")
 
 options(old)
 ```

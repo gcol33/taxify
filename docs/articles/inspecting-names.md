@@ -141,12 +141,12 @@ outlier in a plant list.
 If you have already matched the list, inspect the result instead of
 asking
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) to
-match again. This reuses the exact backend, region, and options of your
+match again. This reuses the exact backbone, region, and options of your
 original call.
 
 ``` r
 
-taxify(names, backend = c("wfo", "gbif")) |>
+taxify(names, backbone = c("wfo", "gbif")) |>
   inspect()
 ```
 
@@ -237,8 +237,8 @@ still run.
 
 Printing is a convenience. The object underneath is an ordinary
 data.frame with columns `input_name`, `suggestion`, `anomalies`, `tier`,
-`reason`, `fuzzy_dist`, and `backend`, so the report drops straight into
-a cleaning script.
+`reason`, `fuzzy_dist`, and `backbone`, so the report drops straight
+into a cleaning script.
 
 ``` r
 

@@ -57,8 +57,8 @@ doi:10.15482/USDA.ADC/1524414
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Puccinia graminis", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Puccinia graminis", backbone = "gbif") |>
   add_usda_fungus_host()
-# }
+} # }
 ```

@@ -115,8 +115,8 @@ ecological and life-history traits. Scientific Data.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Struthio camelus", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Struthio camelus", backbone = "gbif") |>
   add_birdbase()
-# }
+} # }
 ```

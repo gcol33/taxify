@@ -70,8 +70,8 @@ for aquatic and terrestrial organisms. Scientific Data 5:180022.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Lepomis gibbosus", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Lepomis gibbosus", backbone = "gbif") |>
   add_globtherm()
-# }
+} # }
 ```

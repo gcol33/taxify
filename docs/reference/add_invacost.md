@@ -68,8 +68,8 @@ of biological invasions worldwide. Scientific Data 7:277.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Solenopsis invicta", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Solenopsis invicta", backbone = "gbif") |>
   add_invacost()
-# }
+} # }
 ```

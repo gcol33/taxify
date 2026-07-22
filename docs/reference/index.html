@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@
     <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Choosing and combining backends</a></li>
+    <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
@@ -114,7 +114,7 @@
           <code><a href="id2name.html">id2name()</a></code>
 
         </dt>
-        <dd>Resolve backend IDs to names</dd>
+        <dd>Resolve backbone IDs to names</dd>
 
         <dt>
 
@@ -135,7 +135,7 @@
           <code><a href="taxify_regions.html">taxify_regions()</a></code>
 
         </dt>
-        <dd>List TDWG botanical regions</dd>
+        <dd>List the regions accepted by <code>region=</code></dd>
 
         <dt>
 
@@ -204,7 +204,7 @@
 
         <dt>
 
-          <code><a href="class2tree.html">class2tree()</a></code>
+          <code><a href="class2tree.html">class2tree()</a></code> <code><a href="class2tree.html">print(<i>&lt;taxify_tree&gt;</i>)</a></code>
 
         </dt>
         <dd>Build a taxonomy tree from resolved names</dd>
@@ -286,7 +286,7 @@
           <code><a href="taxify_build_register.html">taxify_build_register()</a></code>
 
         </dt>
-        <dd>Build the unified genus register from installed backbones</dd>
+        <dd>Build the genus register from source</dd>
 
         <dt>
 
@@ -300,7 +300,7 @@
           <code><a href="taxify_register_coverage.html">taxify_register_coverage()</a></code>
 
         </dt>
-        <dd>Show backend coverage for a genus</dd>
+        <dd>Show backbone coverage for a genus</dd>
 
         <dt>
 

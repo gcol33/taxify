@@ -102,8 +102,8 @@ global turtles and tortoises. figshare.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Chelonia mydas", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Chelonia mydas", backbone = "gbif") |>
   add_chelonians()
-# }
+} # }
 ```

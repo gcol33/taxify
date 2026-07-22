@@ -3,7 +3,7 @@
 Joins extra GBIF backbone columns to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result by looking up `taxon_id` in the GBIF backbone. Only enriches rows
-where `backend == "gbif"`.
+where `backbone == "gbif"`.
 
 ## Usage
 
@@ -17,7 +17,7 @@ add_gbif_info(x)
 
   A data.frame returned by
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  with `backend == "gbif"`.
+  with `backbone == "gbif"`.
 
 ## Value
 
@@ -61,7 +61,7 @@ The same data.frame with additional columns:
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Quercus robur", backend = "gbif") |>
+taxify("Quercus robur", backbone = "gbif") |>
   add_gbif_info()
 
 options(old)

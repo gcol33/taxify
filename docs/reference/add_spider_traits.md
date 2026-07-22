@@ -94,8 +94,8 @@ global open repository for curated data on spider traits. Database
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Araneus diadematus", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Araneus diadematus", backbone = "gbif") |>
   add_spider_traits()
-# }
+} # }
 ```

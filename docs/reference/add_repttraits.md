@@ -124,7 +124,7 @@ dataset of ecological traits in reptiles. Scientific Data 11:243.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 
-taxify("Pogona vitticeps", backend = "reptiledb") |>
+taxify("Pogona vitticeps", backbone = "reptiledb") |>
   add_repttraits()
 
 options(old)

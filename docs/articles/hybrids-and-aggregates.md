@@ -118,7 +118,7 @@ names <- c(
   "Platanus x hispanica"
 )
 
-result <- taxify(names, backend = "wfo")
+result <- taxify(names, backbone = "wfo")
 result[, c("input_name", "accepted_name", "is_hybrid", "hybrid_type", "match_type")]
 ```
 
@@ -154,7 +154,7 @@ Both record a property of the input, not of the match result.
 output.
 [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
 goes further for **hybrid formulas**: it parses the `input_name` column
-for the two parents and resolves each against the same backend(s) used
+for the two parents and resolves each against the same backbone(s) used
 for the result. It adds four columns:
 
 - `hybrid_parent_1`: the first parent binomial (for formulas) or NA
@@ -203,7 +203,7 @@ formulas <- c(
   "Rosa canina x R. gallica"
 )
 
-formula_result <- taxify(formulas, backend = "wfo")
+formula_result <- taxify(formulas, backbone = "wfo")
 formula_result <- formula_result |> add_hybrid_info()
 
 formula_result[, c("input_name", "hybrid_type",
@@ -252,7 +252,7 @@ that misses, the row is marked `match_type = "hybrid_formula"` with `NA`
 match columns – never collapsed to one parent. To work with the parents,
 use
 [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md),
-which resolves both against the same backend:
+which resolves both against the same backbone:
 
 ``` r
 
@@ -283,7 +283,7 @@ no extra call is needed.
 ``` r
 
 # A hybrid formula with no direct trait record inherits from its parents
-taxify("Salix alba x Salix fragilis", backend = "wfo") |>
+taxify("Salix alba x Salix fragilis", backbone = "wfo") |>
   add_trait("plant_height")
 ```
 
@@ -354,13 +354,13 @@ interfere with hybrid detection or matching.
 ``` r
 
 # Authorship is stripped; hybrid detection still works
-taxify("Mentha x piperita L.", backend = "wfo")
+taxify("Mentha x piperita L.", backbone = "wfo")
 ```
 
 **Adding hybrid info resolves the parents.**
 [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
 parses the parents from the `input_name` column and resolves each
-against the backend(s) used for the result, so it makes one backbone
+against the backbone(s) used for the result, so it makes one backbone
 lookup for the set of unique parents (memoized within a session). The
 parse itself is pure string work; the parent resolution reuses the same
 matching engine as
@@ -424,7 +424,7 @@ agg_names <- c(
   "Quercus robur"
 )
 
-res <- taxify(agg_names, backend = "wfo")
+res <- taxify(agg_names, backbone = "wfo")
 res[, c("input_name", "accepted_name", "qualifier",
         "aggregate_fallback", "match_type")]
 ```

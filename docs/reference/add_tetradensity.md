@@ -45,8 +45,8 @@ estimates in terrestrial vertebrates. figshare.
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Capreolus capreolus", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Capreolus capreolus", backbone = "gbif") |>
   add_tetradensity()
-# }
+} # }
 ```

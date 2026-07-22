@@ -46,8 +46,8 @@ forests. EDI (edi.1220.5).
 ## Examples
 
 ``` r
-# \donttest{
-taxify("Ramphastos toco", backend = "gbif") |>
+if (FALSE) { # \dontrun{
+taxify("Ramphastos toco", backbone = "gbif") |>
   add_frugivoria()
-# }
+} # }
 ```
