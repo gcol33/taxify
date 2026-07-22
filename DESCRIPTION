@@ -32,7 +32,7 @@ Suggests:
     rmarkdown,
     RSQLite,
     sf,
-    taxifydb,
+    taxifydb (>= 0.1.19),
     terra,
     testthat (>= 3.0.0),
     TR8,
