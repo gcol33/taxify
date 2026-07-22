@@ -1,13 +1,20 @@
 ## Submission
 
-This is a feature update (version 0.3.4) of taxify, currently on CRAN at 0.2.12.
+This is a feature update (version 0.4.0) of taxify, currently on CRAN at 0.3.4.
 
-Since 0.2.12 the package gained a cross-source trait interface: `add_trait()`
-attaches one trait across every enrichment that carries it, harmonizing their
-vocabularies and units against the source values. `list_traits()` and
-`trait_info()` describe the registry. Several backbones and enrichment datasets
-were added, and the per-source `add_*()` doors were renamed to their source
-names (the trait name is reserved for `add_trait()`). See NEWS.md for details.
+The version jumps to 0.4.0 because one argument was renamed with no alias, which
+breaks existing code: `backend =` is now `backbone =` in `taxify()` and in every
+verb that names a data source. A backbone is a data source and its `.vtr` file;
+a backend is the S3 handle that reads one, and the two had shared a name. The
+rename is documented at the top of NEWS.md.
+
+Since 0.3.4 the package also gained region-constrained matching beyond plants
+(marine ecoregions alongside the WGSRPD plant scheme), nine name-resolution verbs
+(`parse_name()`, `id2name()`, `upstream()`, `downstream()`, `reconcile()`,
+`comm2sci()`, `sci2comm()`, `class2tree()`, `lowest_common()`), a reproducibility
+lockfile (`taxify_lock()`), authorship-aware homonym disambiguation, an offline mode
+(`options(taxify.offline = TRUE)`), and further backbones and enrichment
+datasets. See NEWS.md for details.
 
 taxify matches taxonomic names against locally stored Darwin Core backbone
 databases. The full backbone and enrichment data are downloaded on demand from

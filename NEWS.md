@@ -1,4 +1,4 @@
-# taxify 0.3.21
+# taxify 0.4.0
 
 ## Breaking: `backend` is renamed to `backbone` throughout the API (issue #24)
 
