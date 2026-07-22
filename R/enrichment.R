@@ -187,6 +187,7 @@ ensure_enrichment <- function(name, verbose = TRUE) {
 
   # 1. Version freshness check (once per session)
   check_key <- paste0(".enrichment_version_checked.", name)
+  if (taxify_offline()) .taxify_env[[check_key]] <- TRUE
   if (!isTRUE(.taxify_env[[check_key]])) {
     .taxify_env[[check_key]] <- TRUE
     tryCatch(
@@ -354,6 +355,11 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
 
   actual_version <- if (version == "latest") entry$latest else version
   url <- entry$full_url %||% entry$url
+
+  if (taxify_offline() && !startsWith(url, "file://")) {
+    stop(sprintf("taxify is in offline mode; not downloading enrichment '%s'.",
+                 name), call. = FALSE)
+  }
 
   if (verbose) {
     message(sprintf(

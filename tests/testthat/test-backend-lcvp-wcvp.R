@@ -56,31 +56,3 @@ test_that("lcvp and wcvp are reported among installed backbones", {
   expect_true("lcvp" %in% inst)
   expect_true("wcvp" %in% inst)
 })
-
-test_that(".extract_plant_genera stamps Plantae and unions genus + species rows", {
-  df <- data.frame(
-    canonical_name   = c("Betula", "Quercus robur", "Betula pendula",
-                         "Quercus badsyn"),
-    taxon_rank       = c("GENUS", "SPECIES", "SPECIES", "SPECIES"),
-    taxonomic_status = c("ACCEPTED", "ACCEPTED", "ACCEPTED", "SYNONYM"),
-    genus            = c("Betula", "Quercus", "Betula", "Quercus"),
-    family           = c("Betulaceae", "Fagaceae", "Betulaceae", "Fagaceae"),
-    order            = c("Fagales", "Fagales", "Fagales", "Fagales"),
-    stringsAsFactors = FALSE
-  )
-  tmp <- tempfile(fileext = ".vtr")
-  on.exit(unlink(tmp), add = TRUE)
-  vectra::write_vtr(df, tmp)
-
-  res <- taxify:::.extract_plant_genera(tmp)
-
-  # Betula (genus-rank + species) and Quercus (accepted species only); the
-  # SYNONYM Quercus row does not add a separate genus.
-  expect_setequal(res$genus, c("Betula", "Quercus"))
-  expect_true(all(res$kingdom == "Plantae"))
-  expect_true(all(is.na(res$phylum)))
-  expect_true(all(is.na(res$class)))
-  # Genus-rank row sorts first, so Betula keeps its genus-rank family/order.
-  expect_equal(res$family[res$genus == "Betula"], "Betulaceae")
-  expect_equal(res$order[res$genus == "Quercus"], "Fagales")
-})

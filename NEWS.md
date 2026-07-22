@@ -1,5 +1,40 @@
 # taxify 0.3.21
 
+## The genus register is downloaded, not built locally (issue #21)
+
+* The register carries the `kingdom_group`, `taxon_group` and `life_form` that
+  `taxify()` reports, and it was built on each machine from whichever backbones
+  that machine happened to have installed. Two users running identical code
+  therefore got different labels for the same name. `genus_register.vtr` and
+  `backend_coverage.vtr` are now built by `taxifydb` over a fixed backbone set,
+  published, and resolved through the same chain as any other asset: disk,
+  download, then a local build. Every install reads the same 496,127 genera.
+
+* The build pipeline itself -- the thirteen genus extractors, kingdom
+  normalization and inference, the GBIF hierarchy walk, and the family
+  life-form table -- moved to `taxifydb` (about 1,900 lines).
+  `taxify_build_register()` remains as an escape hatch that delegates there,
+  and `taxify_download("register")` fetches the published pair.
+
+* The register now lives at `<data_dir>/genus_register/latest/` rather than
+  `<data_dir>/unified/latest/`, so it follows the same versioned layout as
+  every backbone and picks up a new release through the usual version check.
+
+## Offline mode (`options(taxify.offline = TRUE)`)
+
+* Confines taxify to what is on disk plus the bundled manifest: no version
+  checks, no downloads, no build-from-source that would fetch a raw dataset. A
+  `file://` manifest URL still resolves. The test suite runs under it, which is
+  what makes a run independent of any release published between two runs.
+
+## A new asset resolves against a manifest that predates it
+
+* The fetched manifest is served from the default branch, so it lags a release
+  that adds an asset. An entry the remote does not carry now falls back to the
+  copy bundled with the installed package instead of failing to resolve. Where
+  both carry a key the remote still wins, so a version bump reaches an
+  already-installed package as before.
+
 ## Name cleaning keeps Title-Case and all-caps epithets (issue #8)
 
 * `clean_names()` stripped a capitalized specific epithet as if it were an

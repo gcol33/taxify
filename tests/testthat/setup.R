@@ -1,3 +1,13 @@
+# Offline for the whole run.
+#
+# A mock backbone injected into the cache carries no meta.json, so a version
+# check reads it as missing and downloads the real multi-gigabyte backbone
+# before the test ever reaches its fixture. Offline mode confines the suite to
+# what setup puts on disk, which is also what makes it hermetic: no test result
+# can depend on a release published between two runs. Tests that need a
+# resolvable URL inject a file:// manifest, which offline mode still honours.
+options(taxify.offline = TRUE)
+
 # Hermetic test data directory.
 #
 # The default backend (backend = NULL) resolves to every *installed* backbone.

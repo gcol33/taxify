@@ -17,8 +17,29 @@
 #       latest/col.vtr + meta.json
 #     gbif/
 #       latest/gbif.vtr + meta.json
-#     unified/
+#     genus_register/
 #       latest/genus_register.vtr + meta.json
+
+
+# ---- Offline mode ----
+
+#' Is taxify resolving assets without the network?
+#'
+#' Offline mode confines taxify to what is already on disk plus the bundled
+#' manifest: no version checks, no downloads, and no fallback to a
+#' build-from-source that would fetch a raw dataset. A `file://` manifest URL
+#' still resolves, because copying a local file is not a network operation.
+#'
+#' Set `options(taxify.offline = TRUE)` for a session, or the `TAXIFY_OFFLINE`
+#' environment variable for a whole process. The option wins when both are set.
+#'
+#' @return Logical scalar.
+#' @noRd
+taxify_offline <- function() {
+  opt <- getOption("taxify.offline", NULL)
+  if (!is.null(opt)) return(isTRUE(opt))
+  nzchar(Sys.getenv("TAXIFY_OFFLINE"))
+}
 
 
 # ---- Version meta.json (per versioned folder) ----
@@ -129,6 +150,13 @@ download_backbone <- function(backend_name,
   }
   actual_version <- if (version == "latest") entry$latest else version
   url <- manifest_url(backend_name, version)
+
+  if (taxify_offline() && !startsWith(url, "file://")) {
+    stop(sprintf(
+      "taxify is in offline mode; not downloading the %s backbone.",
+      backend_name
+    ), call. = FALSE)
+  }
 
   if (verbose) {
     local_ver <- if (!is.null(read_version_meta(backend_name, version)))
@@ -325,10 +353,15 @@ taxify_download <- function(backend = "wfo",
                             version = "latest",
                             verbose = TRUE) {
   paths <- vapply(backend, function(be) {
-    # The genus register is not a downloadable backbone; it is built locally
-    # from whichever backbones are installed.
+    # "register" is an alias for the published pair: the genus register and the
+    # backbone-coverage table that accompanies it.
     if (identical(be, "register")) {
-      return(taxify_build_register(verbose = verbose))
+      ensure_coverage(verbose = verbose)
+      reg <- ensure_register(verbose = verbose)
+      if (is.null(reg)) {
+        stop("Could not resolve the genus register.", call. = FALSE)
+      }
+      return(reg)
     }
     tryCatch(
       download_backbone(be, version = version, verbose = verbose),
@@ -368,6 +401,7 @@ taxify_download_vtr <- function(backend = "wfo",
 #' @param verbose Logical.
 #' @noRd
 ensure_backends_current <- function(backend_names, verbose = TRUE) {
+  if (taxify_offline()) return(invisible(NULL))
   for (be_name in backend_names) {
     # Skip if already checked this session
     check_key <- paste0(".version_checked.", be_name)

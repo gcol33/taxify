@@ -25,6 +25,12 @@ fetch_manifest <- function() {
   # Session cache hit
   if (!is.null(.taxify_env$manifest)) return(.taxify_env$manifest)
 
+  if (taxify_offline()) {
+    manifest <- local_manifest()
+    .taxify_env$manifest <- manifest
+    return(manifest)
+  }
+
   manifest <- tryCatch(
     {
       tmp <- tempfile(fileext = ".json")
@@ -174,16 +180,27 @@ manifest_url <- function(backend_name, version = "latest") {
 #' v1: flat structure `{ "wfo": { "latest": ..., "url": ... } }`
 #' v2: nested `{ "schema_version": 2, "backends": { "wfo": { ... } } }`
 #'
+#' An asset this package version knows about can be absent from the fetched
+#' manifest, which is hosted from the default branch and so lags a release that
+#' adds one. The bundled manifest is consulted for exactly that case: a key the
+#' remote does not carry. Where both carry a key the remote wins, which is what
+#' makes a version bump reach an already-installed package.
+#'
 #' @param manifest The parsed manifest list.
 #' @param backend_name Character.
 #' @return The entry list, or NULL.
 #' @noRd
 resolve_manifest_entry <- function(manifest, backend_name) {
-  if (!is.null(manifest$schema_version) && manifest$schema_version >= 2L) {
-    manifest$backends[[backend_name]]
-  } else {
-    manifest[[backend_name]]
+  pick <- function(m) {
+    if (!is.null(m$schema_version) && m$schema_version >= 2L) {
+      m$backends[[backend_name]]
+    } else {
+      m[[backend_name]]
+    }
   }
+  entry <- pick(manifest)
+  if (!is.null(entry)) return(entry)
+  tryCatch(pick(local_manifest()), error = function(e) NULL)
 }
 
 
@@ -234,27 +251,15 @@ taxify_refresh_manifest <- function() {
 use_local_manifest <- function() {
   data_dir <- taxify_data_dir()
 
-  # Backend name -> vtr filename inside <backend>/latest/
-  backends <- list(
-    wfo      = "wfo.vtr",
-    col      = "col.vtr",
-    gbif     = "gbif.vtr",
-    itis     = "itis.vtr",
-    register = "genus_register.vtr"
-  )
+  backends <- c("wfo", "col", "gbif", "itis",
+                .register_assets[["register"]], .register_assets[["coverage"]])
 
   manifest <- list()
   found <- character(0L)
   not_found <- character(0L)
 
-  for (be_name in names(backends)) {
-    vtr_file <- backends[[be_name]]
-    vtr_path <- file.path(data_dir, be_name, "latest", vtr_file)
-
-    # Special case: register lives under "unified/latest/"
-    if (be_name == "register") {
-      vtr_path <- file.path(data_dir, "unified", "latest", vtr_file)
-    }
+  for (be_name in backends) {
+    vtr_path <- file.path(data_dir, be_name, "latest", paste0(be_name, ".vtr"))
 
     if (!file.exists(vtr_path)) {
       not_found <- c(not_found, be_name)
@@ -284,7 +289,7 @@ use_local_manifest <- function() {
   .taxify_env$manifest <- manifest
 
   # Clear version-check flags so taxify() re-evaluates against local manifest
-  for (be_name in names(backends)) {
+  for (be_name in backends) {
     check_key <- paste0(".version_checked.", be_name)
     .taxify_env[[check_key]] <- NULL
   }

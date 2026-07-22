@@ -758,10 +758,58 @@ run_match_stages <- function(be, names_df, bb_path, fuzzy, fuzzy_threshold,
 )
 
 
+#' Normalize non-standard kingdom names to standard taxonomy
+#'
+#' NCBI uses clade-based names (Pseudomonadati, Bacillati, ...) and viral realm
+#' names (*virae); OTT uses names like Archaeplastida and Chloroplastida. Both
+#' reach `taxify()` through a backbone's `kingdom` column and through the
+#' `kingdom =` argument, so they fold here to the standard set: Plantae,
+#' Animalia, Fungi, Bacteria, Archaea, Chromista, Protozoa, Viruses.
+#'
+#' @param kingdom Character vector of kingdom names.
+#' @return Character vector with normalized kingdom names.
+#' @noRd
+normalize_kingdom_names <- function(kingdom) {
+  ncbi_map <- c(
+    Pseudomonadati    = "Bacteria",
+    Bacillati         = "Bacteria",
+    Fusobacteriati    = "Bacteria",
+    Nanobdellati      = "Bacteria",
+    Thermotogati      = "Bacteria",
+    Methanobacteriati = "Archaea",
+    Promethearchaeati = "Archaea",
+    Thermoproteati    = "Archaea",
+    Metazoa           = "Animalia",
+    Viridiplantae     = "Plantae"
+  )
+
+  ott_map <- c(
+    Archaeplastida = "Plantae",
+    Chloroplastida = "Plantae",
+    Fungi          = "Fungi",
+    Metazoa        = "Animalia"
+  )
+
+  is_virus <- !is.na(kingdom) & grepl("virae$", kingdom, ignore.case = TRUE)
+
+  m_ncbi   <- match(kingdom, names(ncbi_map))
+  hit_ncbi <- !is.na(m_ncbi)
+  kingdom[hit_ncbi] <- ncbi_map[m_ncbi[hit_ncbi]]
+
+  m_ott   <- match(kingdom, names(ott_map))
+  hit_ott <- !is.na(m_ott)
+  kingdom[hit_ott] <- ott_map[m_ott[hit_ott]]
+
+  kingdom[is_virus] <- "Viruses"
+
+  kingdom
+}
+
+
 #' Normalize a kingdom string to the coarse kingdom-group vocabulary
 #'
 #' Case-insensitive; also folds the NCBI clade / OTT names that
-#' [normalize_kingdom_names()] resolves. Unrecognised, empty, or explicitly
+#' `normalize_kingdom_names()` resolves. Unrecognised, empty, or explicitly
 #' unknown values return `NA` (never a rejection reason downstream).
 #'
 #' @param x Character vector.
@@ -898,16 +946,20 @@ filter_result_by_kingdom <- function(result, bb_path, kingdom_set, be_name) {
 }
 
 
-#' Load the genus register from cache or disk, or NULL if unavailable
+#' Load the genus register, or NULL if unavailable
 #'
-#' @return The register data.frame, or NULL if it is not installed / fails to
-#'   load.
+#' Resolves the register through `ensure_register()`, so a first call downloads
+#' it. Offline with no local copy, this returns `NULL` and the columns the
+#' register fills come back `NA`.
+#'
+#' @return The register data.frame, or NULL.
 #' @noRd
 load_register_or_null <- function() {
   tryCatch({
     if (is.null(.taxify_env$register)) {
-      path <- register_vtr_path()
-      if (file.exists(path)) taxify_load_register(verbose = FALSE)
+      if (!is.null(ensure_register(verbose = FALSE))) {
+        taxify_load_register(verbose = FALSE)
+      }
     }
     .taxify_env$register
   }, error = function(e) NULL)
@@ -925,8 +977,8 @@ load_register_or_null <- function() {
 #' @noRd
 covered_genera_for <- function(backend) {
   tryCatch({
-    cov_path <- coverage_vtr_path()
-    if (!file.exists(cov_path)) return(NULL)
+    cov_path <- ensure_coverage(verbose = FALSE)
+    if (is.null(cov_path)) return(NULL)
     be_names <- if (is.character(backend)) backend else backend$name
     covered <- character(0)
     for (be in be_names) {

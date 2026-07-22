@@ -158,8 +158,9 @@ bare_taxify_result <- function(x) {
 inspect_load_register <- function() {
   tryCatch({
     if (is.null(.taxify_env$register)) {
-      p <- register_vtr_path()
-      if (file.exists(p)) taxify_load_register(verbose = FALSE)
+      if (!is.null(ensure_register(verbose = FALSE))) {
+        taxify_load_register(verbose = FALSE)
+      }
     }
     .taxify_env$register
   }, error = function(e) NULL)

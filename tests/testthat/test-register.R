@@ -1,161 +1,7 @@
-test_that("assign_life_form() returns correct taxon_group for known families", {
-  chk <- function(fam, expected_tg) {
-    res <- assign_life_form(fam)
-    expect_equal(res$taxon_group, expected_tg,
-                 info = sprintf("family: %s", fam))
-  }
-
-  # Mosses
-  chk("Sphagnaceae",   "moss")
-  chk("Polytrichaceae", "moss")
-  chk("Bryaceae",       "moss")
-
-  # Liverworts
-  chk("Marchantiaceae",  "liverwort")
-  chk("Jungermanniaceae", "liverwort")
-
-  # Hornworts
-  chk("Anthocerotaceae", "hornwort")
-
-  # Lycophytes
-  chk("Lycopodiaceae",  "lycophyte")
-  chk("Selaginellaceae", "lycophyte")
-  chk("Isoetaceae",     "lycophyte")
-
-  # Ferns
-  chk("Polypodiaceae",  "fern")
-  chk("Dryopteridaceae", "fern")
-  chk("Cyatheaceae",    "fern")
-
-  # Gymnosperms
-  chk("Pinaceae",     "gymnosperm")
-  chk("Cupressaceae", "gymnosperm")
-  chk("Cycadaceae",   "gymnosperm")
-  chk("Ginkgoaceae",  "gymnosperm")
-
-  # Angiosperms
-  chk("Asteraceae", "angiosperm")
-  chk("Poaceae",    "angiosperm")
-  chk("Fabaceae",   "angiosperm")
-  chk("Rosaceae",   "angiosperm")
-  chk("Fagaceae",   "angiosperm")
-
-  # Lichens
-  chk("Parmeliaceae", "lichen")
-  chk("Cladoniaceae", "lichen")
-  chk("Physciaceae",  "lichen")
-
-  # Fungi (non-lichen)
-  chk("Agaricaceae", "fungus")
-  chk("Boletaceae",  "fungus")
-  chk("Amanitaceae", "fungus")
-
-  # Algae (differentiated)
-  chk("Characeae",    "green_alga")
-  chk("Fucaceae",     "brown_alga")
-  chk("Corallinaceae", "red_alga")
-
-  # Chromista
-  chk("Peronosporaceae", "oomycete")
-  chk("Bacillariaceae",  "diatom")
-
-  # Slime moulds
-  chk("Physaraceae", "slime_mould")
-})
-
-
-test_that("assign_life_form() returns correct kingdom_group for known families", {
-  chk_kg <- function(fam, expected_kg) {
-    res <- assign_life_form(fam)
-    expect_equal(res$kingdom_group, expected_kg,
-                 info = sprintf("family: %s", fam))
-  }
-
-  chk_kg("Asteraceae",     "plantae")
-  chk_kg("Pinaceae",       "plantae")
-  chk_kg("Sphagnaceae",    "plantae")
-  chk_kg("Characeae",      "plantae")   # green alga → plantae
-  chk_kg("Corallinaceae",  "plantae")   # red alga → plantae
-  chk_kg("Parmeliaceae",   "fungi")
-  chk_kg("Agaricaceae",    "fungi")
-  chk_kg("Fucaceae",       "chromista") # brown alga → chromista
-  chk_kg("Peronosporaceae", "chromista")
-  chk_kg("Bacillariaceae", "chromista")
-  chk_kg("Physaraceae",    "protozoa")
-})
-
-
-test_that("assign_life_form() life_form uses spaces not underscores", {
-  res <- assign_life_form("Fucaceae")
-  expect_equal(res$life_form, "brown alga")
-
-  res2 <- assign_life_form("Physaraceae")
-  expect_equal(res2$life_form, "slime mould")
-
-  res3 <- assign_life_form("Characeae")
-  expect_equal(res3$life_form, "green alga")
-})
-
-
-test_that("assign_life_form() uses kingdom fallback when family is NA or unknown", {
-  chk <- function(fam, kg, exp_tg, exp_kg) {
-    res <- assign_life_form(fam, kg)
-    expect_equal(res$taxon_group,   exp_tg,  info = sprintf("fam=%s kg=%s", fam, kg))
-    expect_equal(res$kingdom_group, exp_kg,  info = sprintf("fam=%s kg=%s", fam, kg))
-  }
-
-  chk(NA_character_, "Fungi",    "fungus",  "fungi")
-  chk(NA_character_, "Animalia", "animal",  "animalia")
-  chk(NA_character_, "Chromista", "unknown", "chromista")
-  chk(NA_character_, "Protozoa",  "unknown", "protozoa")
-  chk(NA_character_, "Bacteria",  "unknown", "bacteria")
-  chk(NA_character_, "Archaea",   "unknown", "archaea")
-  chk(NA_character_, "Plantae",   "unknown", "plantae")
-  chk(NA_character_, "Viruses",   "unknown", "viruses")
-})
-
-
-test_that("assign_life_form() returns 'unknown' when family and kingdom both miss", {
-  chk_unk <- function(fam, kg = NULL) {
-    res <- assign_life_form(fam, kg)
-    expect_equal(res$taxon_group,   "unknown")
-    expect_equal(res$kingdom_group, "unknown")
-    expect_equal(res$life_form,     "unknown")
-  }
-
-  chk_unk("Unknowniaceae")
-  chk_unk(NA_character_)
-  chk_unk(NA_character_, NA_character_)
-  chk_unk(NA_character_, "Unknownia")
-})
-
-
-test_that("assign_life_form() is vectorized and returns three equal-length vectors", {
-  family  <- c("Sphagnaceae", NA_character_, NA_character_, "Fucaceae")
-  kingdom <- c("Plantae",     "Fungi",       "Animalia",   "Chromista")
-  result  <- assign_life_form(family, kingdom)
-
-  expect_type(result, "list")
-  expect_named(result, c("kingdom_group", "taxon_group", "life_form"))
-  expect_equal(length(result$taxon_group),   4L)
-  expect_equal(length(result$kingdom_group), 4L)
-  expect_equal(length(result$life_form),     4L)
-
-  expect_equal(result$taxon_group,   c("moss",    "fungus", "animal", "brown_alga"))
-  expect_equal(result$kingdom_group, c("plantae", "fungi",  "animalia", "chromista"))
-  expect_equal(result$life_form,     c("moss",    "fungus", "animal", "brown alga"))
-})
-
-
-test_that("assign_life_form() family hit takes priority over kingdom", {
-  res <- assign_life_form("Parmeliaceae", "Fungi")
-  expect_equal(res$taxon_group,   "lichen")
-  expect_equal(res$kingdom_group, "fungi")
-
-  res2 <- assign_life_form("Pinaceae", "Plantae")
-  expect_equal(res2$taxon_group,   "gymnosperm")
-  expect_equal(res2$kingdom_group, "plantae")
-})
+# Runtime side of the genus register: resolving the published .vtr pair, the
+# in-memory lookups it backs, and the out-of-scope enrichment that reads the
+# backbone-coverage table. The build pipeline itself lives in taxifydb, and its
+# extractors, kingdom inference and life-form assignment are tested there.
 
 
 # ---- lookup_genus() tests using a mock register ----
@@ -249,7 +95,7 @@ test_that("taxify() sets match_type = 'out_of_scope' and life_form for genus-in-
   on.exit(clear_coverage_cache(), add = TRUE)
 
   result <- with_mocked_bindings(
-    coverage_vtr_path = function() cov_path,
+    ensure_coverage = function(verbose = TRUE) cov_path,
     taxify(
       c("Quercus robur", "Boletus edulis", "Xxxx yyyyy"),
       backend = "wfo",
@@ -360,7 +206,7 @@ test_that("taxify() returns a data.frame when the register exists but coverage d
   )
 
   result <- with_mocked_bindings(
-    coverage_vtr_path = function() file.path(tempdir(), "no_such_coverage.vtr"),
+    ensure_coverage = function(verbose = TRUE) NULL,
     taxify(c("Quercus robur", "Pinus sylvestris"), backend = "wfo",
            fuzzy = FALSE, verbose = FALSE)
   )
@@ -371,75 +217,68 @@ test_that("taxify() returns a data.frame when the register exists but coverage d
 })
 
 
-# ---- resolve_genus_classification() ----
+# ---- asset resolution ----
 
-test_that("resolve_genus_classification() prefers COL > GBIF > WFO", {
-  col_genera <- data.frame(
-    genus = "Quercus", kingdom = "Plantae", phylum = "Tracheophyta",
-    class = "Magnoliopsida", order = "Fagales", family = "Fagaceae",
-    stringsAsFactors = FALSE
-  )
-  wfo_genera <- data.frame(
-    genus = "Quercus", kingdom = NA_character_, phylum = NA_character_,
-    class = NA_character_, order = NA_character_, family = "Fagaceae",
-    stringsAsFactors = FALSE
-  )
-  gbif_genera <- data.frame(
-    genus = "Quercus", kingdom = NA_character_, phylum = NA_character_,
-    class = "Magnoliopsida_gbif", order = NA_character_, family = "Fagaceae",
-    stringsAsFactors = FALSE
-  )
+test_that("ensure_register_asset() returns an existing file without downloading", {
+  dd <- file.path(tempfile("taxify_reg_"), "")
+  reg_dir <- file.path(dd, "genus_register", "latest")
+  dir.create(reg_dir, recursive = TRUE)
+  p <- file.path(reg_dir, "genus_register.vtr")
+  writeLines("placeholder", p)
+  on.exit(unlink(dd, recursive = TRUE), add = TRUE)
 
-  resolved <- resolve_genus_classification(
-    list(col = col_genera, gbif = gbif_genera, wfo = wfo_genera)
-  )
-
-  expect_equal(nrow(resolved), 1L)
-  # COL class wins over GBIF class
-  expect_equal(resolved$class, "Magnoliopsida")
-  expect_equal(resolved$kingdom, "Plantae")
+  withr::with_options(list(taxify.data_dir = dd), {
+    called <- FALSE
+    out <- with_mocked_bindings(
+      download_backbone = function(...) { called <<- TRUE; NULL },
+      ensure_register(verbose = FALSE)
+    )
+    expect_equal(normalizePath(out), normalizePath(p))
+    expect_false(called)
+  })
 })
 
 
-test_that("resolve_genus_classification() uses GBIF when COL missing", {
-  gbif_genera <- data.frame(
-    genus = "Boletus", kingdom = "Fungi", phylum = "Basidiomycota",
-    class = "Agaricomycetes", order = "Boletales", family = "Boletaceae",
-    stringsAsFactors = FALSE
-  )
-  wfo_genera <- data.frame(
-    genus = "Boletus", kingdom = NA_character_, phylum = NA_character_,
-    class = NA_character_, order = NA_character_, family = "Boletaceae",
-    stringsAsFactors = FALSE
-  )
+test_that("ensure_register_asset() returns NULL when nothing resolves", {
+  dd <- tempfile("taxify_reg_empty_")
+  dir.create(dd, recursive = TRUE)
+  on.exit(unlink(dd, recursive = TRUE), add = TRUE)
 
-  resolved <- resolve_genus_classification(
-    list(col = NULL, gbif = gbif_genera, wfo = wfo_genera)
-  )
-
-  expect_equal(nrow(resolved), 1L)
-  expect_equal(resolved$kingdom, "Fungi")
-  expect_equal(resolved$class, "Agaricomycetes")
+  withr::with_options(list(taxify.data_dir = dd), {
+    out <- with_mocked_bindings(
+      download_backbone = function(...) stop("no network"),
+      ensure_register(verbose = FALSE)
+    )
+    expect_null(out)
+  })
 })
 
 
-test_that("resolve_genus_classification() unions genera across backends", {
-  col_genera <- data.frame(
-    genus = "Quercus", kingdom = "Plantae", phylum = NA_character_,
-    class = "Magnoliopsida", order = "Fagales", family = "Fagaceae",
-    stringsAsFactors = FALSE
-  )
-  gbif_genera <- data.frame(
-    genus = "Boletus", kingdom = "Fungi", phylum = NA_character_,
-    class = "Agaricomycetes", order = "Boletales", family = "Boletaceae",
-    stringsAsFactors = FALSE
-  )
+test_that("the register and coverage paths follow the standard versioned layout", {
+  dd <- tempfile("taxify_reg_paths_")
+  withr::with_options(list(taxify.data_dir = dd), {
+    expect_equal(basename(register_vtr_path()), "genus_register.vtr")
+    expect_equal(basename(dirname(register_vtr_path())), "latest")
+    expect_equal(basename(dirname(dirname(register_vtr_path()))), "genus_register")
+    expect_equal(basename(coverage_vtr_path()), "backend_coverage.vtr")
+    expect_equal(basename(dirname(dirname(coverage_vtr_path()))), "backend_coverage")
+  })
+})
 
-  resolved <- resolve_genus_classification(
-    list(col = col_genera, gbif = gbif_genera, wfo = NULL)
-  )
 
-  expect_equal(nrow(resolved), 2L)
-  expect_true("Quercus" %in% resolved$genus)
-  expect_true("Boletus" %in% resolved$genus)
+test_that("both register assets have a manifest entry", {
+  m <- local_manifest()
+  expect_true("genus_register" %in% names(m$backends))
+  expect_true("backend_coverage" %in% names(m$backends))
+  for (nm in c("genus_register", "backend_coverage")) {
+    expect_true(endsWith(m$backends[[nm]]$full_url, paste0(nm, ".vtr")))
+    expect_true(nzchar(m$backends[[nm]]$latest))
+  }
+})
+
+
+test_that("taxify_build_register() delegates to taxifydb", {
+  skip_if(requireNamespace("taxifydb", quietly = TRUE),
+          "taxifydb is installed, so the missing-dependency error cannot fire")
+  expect_error(taxify_build_register(verbose = FALSE), "taxifydb")
 })

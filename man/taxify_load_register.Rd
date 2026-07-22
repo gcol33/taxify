@@ -16,11 +16,12 @@ Default \code{FALSE}.}
 The register data.frame (invisibly).
 }
 \description{
-Reads \code{genus_register.vtr} from disk and caches it as a data.frame in
-\code{.taxify_env$register}. Subsequent calls reuse the cached version unless
-\code{force = TRUE}.
+Reads \code{genus_register.vtr} and caches it as a data.frame in
+\code{.taxify_env$register}, downloading it on first use. Subsequent calls reuse
+the cached version unless \code{force = TRUE}.
 }
 \details{
-The register contains one row per genus with columns: \code{genus}, \code{kingdom},
-\code{phylum}, \code{class}, \code{order}, \code{family}, \code{life_form}.
+The register contains one row per genus with columns \code{genus}, \code{kingdom},
+\code{phylum}, \code{class}, \code{order}, \code{family}, \code{kingdom_group}, \code{taxon_group} and
+\code{life_form}.
 }

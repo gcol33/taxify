@@ -316,7 +316,7 @@ test_that("summary.taxify_result() shows out_of_scope line when present", {
   on.exit(clear_coverage_cache(), add = TRUE)
 
   result <- with_mocked_bindings(
-    coverage_vtr_path = function() cov_path,
+    ensure_coverage = function(verbose = TRUE) cov_path,
     taxify(c("Quercus robur", "Boletus edulis"), fuzzy = FALSE, verbose = FALSE)
   )
 

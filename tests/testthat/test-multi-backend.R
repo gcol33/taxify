@@ -271,7 +271,7 @@ test_that("a genus the leading backbone lacks still reaches a later one", {
   cov_path <- set_oos_chain_fixture()
 
   result <- with_mocked_bindings(
-    coverage_vtr_path = function() cov_path,
+    ensure_coverage = function(verbose = TRUE) cov_path,
     taxify(c("Quercus robur", "Macropus rufus"), backend = c("wfo", "gbif"),
            fuzzy = FALSE, verbose = FALSE)
   )
@@ -296,7 +296,7 @@ test_that("out_of_scope survives when no backbone in the chain covers the genus"
   cov_path <- set_oos_chain_fixture(macropus_backends = character(0))
 
   result <- with_mocked_bindings(
-    coverage_vtr_path = function() cov_path,
+    ensure_coverage = function(verbose = TRUE) cov_path,
     taxify("Macropus rufus", backend = c("wfo", "gbif"), fuzzy = FALSE,
            verbose = FALSE)
   )
@@ -312,7 +312,7 @@ test_that("a single-backend query keeps its own out_of_scope verdict", {
   cov_path <- set_oos_chain_fixture()
 
   result <- with_mocked_bindings(
-    coverage_vtr_path = function() cov_path,
+    ensure_coverage = function(verbose = TRUE) cov_path,
     taxify("Macropus rufus", backend = "wfo", fuzzy = FALSE, verbose = FALSE)
   )
 
@@ -337,7 +337,7 @@ test_that("release_out_of_scope() lifts only the rows another backend covers", {
   )
 
   out <- with_mocked_bindings(
-    coverage_vtr_path = function() cov_path,
+    ensure_coverage = function(verbose = TRUE) cov_path,
     release_out_of_scope(result, names_df, c("wfo", "gbif"))
   )
 
@@ -358,7 +358,7 @@ test_that("release_out_of_scope() is a no-op without a coverage table", {
   names_df <- data.frame(cleaned = "Abies alba", stringsAsFactors = FALSE)
 
   out <- with_mocked_bindings(
-    coverage_vtr_path = function() tempfile(fileext = ".vtr"),
+    ensure_coverage = function(verbose = TRUE) NULL,
     release_out_of_scope(result, names_df, c("wfo", "gbif"))
   )
   expect_equal(out$match_type, "out_of_scope")
@@ -374,7 +374,7 @@ test_that("backend and backbone_version name only backbone-resolved rows (#9)", 
   cov_path <- set_oos_chain_fixture(macropus_backends = character(0))
 
   result <- with_mocked_bindings(
-    coverage_vtr_path = function() cov_path,
+    ensure_coverage = function(verbose = TRUE) cov_path,
     taxify(c("Quercus robur", "Macropus rufus",
              "Quercus robur x Quercus petraea", "Zzzyxia qqqnotarealname"),
            backend = c("wfo", "gbif"), fuzzy = FALSE, verbose = FALSE)

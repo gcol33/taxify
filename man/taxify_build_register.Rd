@@ -2,7 +2,7 @@
 % Please edit documentation in R/register.R
 \name{taxify_build_register}
 \alias{taxify_build_register}
-\title{Build the unified genus register from installed backbones}
+\title{Build the genus register from source}
 \usage{
 taxify_build_register(verbose = TRUE)
 }
@@ -13,24 +13,16 @@ taxify_build_register(verbose = TRUE)
 Path to \code{genus_register.vtr} (invisibly).
 }
 \description{
-The genus register is a cross-backbone index of every genus in the backbones
-you have installed, carrying each genus's higher classification and its
-\code{life_form} / \code{kingdom_group} / \code{taxon_group} labels. \code{\link[=taxify]{taxify()}} consults it
-to fill those columns in its output regardless of which backbone matched, and
-to flag out-of-scope names before fuzzy matching; \code{\link[=inspect]{inspect()}} uses it for the
-anomaly checks that need no backbone. Without a register, those features are
-silently skipped.
+Rebuilds \code{genus_register.vtr} and \code{backend_coverage.vtr} locally instead of
+downloading the published pair. The build itself lives in \code{taxifydb}, which
+resolves every backbone in the register's fixed backbone set and can take
+well over an hour; the download takes seconds and yields the same file, so
+this is an escape hatch rather than the normal route.
 }
 \details{
-The register is built locally from whichever backbones are installed (see
-\code{\link[=taxify_download]{taxify_download()}} and \code{\link[=install_backbones]{install_backbones()}}); it is not itself downloaded.
-Installing more backbones first yields a register with broader genus
-coverage. Building reads every installed backbone once and can take a few
-minutes.
-
-\code{taxify_download("register")} is a convenience alias for this function.
+\code{taxify_download("register")} fetches the published pair.
 }
 \seealso{
 \code{\link[=taxify_load_register]{taxify_load_register()}} to load it into memory,
-\code{\link[=taxify_register_coverage]{taxify_register_coverage()}} to query backend coverage for a genus.
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}} to query backbone coverage for a genus.
 }

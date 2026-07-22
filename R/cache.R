@@ -209,24 +209,6 @@ installed_backbones <- function() {
 }
 
 
-#' Resolve an installed backbone's .vtr path without downloading
-#'
-#' Unlike [ensure_backbone()], this never triggers a download or a
-#' build-from-source. It returns the path to the compiled `.vtr` for the given
-#' version if it is already present on disk, otherwise `NULL`. Used by the
-#' genus-register builder, which unions only the backbones the user has
-#' actually installed rather than pulling every known backbone.
-#'
-#' @param backend_name Character.
-#' @param version Character. `"latest"` or a specific version string.
-#' @return Character path, or `NULL` if not installed.
-#' @noRd
-installed_backbone_path <- function(backend_name, version = "latest") {
-  p <- versioned_vtr_path(backend_name, version)
-  if (file.exists(p) && is_compiled_backbone(p)) p else NULL
-}
-
-
 #' Ensure a backbone path is cached (from cache, disk, or download)
 #'
 #' Resolves the path for `version = "latest"` using the versioned directory
