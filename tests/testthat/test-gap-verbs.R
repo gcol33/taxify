@@ -211,6 +211,50 @@ test_that("taxify_lock() round-trips through a file and restore() reports", {
   expect_true(all(rep$status[rep$component == "wfo"] == "ok"))
 })
 
+test_that("taxify_restore() reports content, version, and missing drift", {
+  # A staged install with a known version and content id, so a lockfile can
+  # differ from it in exactly one field at a time.
+  dd <- tempfile("taxlock_")
+  dir.create(file.path(dd, "wfo", "latest"), recursive = TRUE)
+  vectra::write_vtr(data.frame(canonical_name = "Quercus robur",
+                               stringsAsFactors = FALSE),
+                    file.path(dd, "wfo", "latest", "wfo.vtr"))
+  jsonlite::write_json(list(version = "2026.06", content_id = "aaaaaaaaaa"),
+                       file.path(dd, "wfo", "latest", "meta.json"),
+                       pretty = TRUE, auto_unbox = TRUE)
+  old <- options(taxify.data_dir = dd)
+  on.exit({ options(old); unlink(dd, recursive = TRUE) }, add = TRUE)
+  taxify_clear_cache()
+
+  pin <- function(name, version, content_id) {
+    list(backends = list(list(name = name, version = version,
+                              content_id = content_id)),
+         enrichments = list())
+  }
+
+  # The lock matches the staged install on both identities.
+  ok <- taxify_restore(pin("wfo", "2026.06", "aaaaaaaaaa"), verbose = FALSE)
+  expect_equal(ok$component, "wfo")
+  expect_equal(ok$status, "ok")
+
+  # Same version, different bytes: a same-tag republish.
+  cd <- taxify_restore(pin("wfo", "2026.06", "bbbbbbbbbb"), verbose = FALSE)
+  expect_equal(cd$status, "content_drift")
+  expect_equal(cd$locked_content_id, "bbbbbbbbbb")
+  expect_equal(cd$installed_content_id, "aaaaaaaaaa")
+
+  # An older locked version with no content id to compare.
+  vd <- taxify_restore(pin("wfo", "2026.05", NA_character_), verbose = FALSE)
+  expect_equal(vd$status, "version_drift")
+  expect_equal(vd$locked_version, "2026.05")
+  expect_equal(vd$installed_version, "2026.06")
+
+  # A backbone the lock pins but this install does not carry.
+  ms <- taxify_restore(pin("worms", "2026.06", "aaaaaaaaaa"), verbose = FALSE)
+  expect_equal(ms$component, "worms")
+  expect_equal(ms$status, "missing")
+})
+
 test_that(".restore_status() reports unverified and locked-vs-unknown drift", {
   # Neither a version nor a content id on either side: installed but
   # unverifiable, never a false "ok".

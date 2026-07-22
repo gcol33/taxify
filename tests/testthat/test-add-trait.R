@@ -568,6 +568,8 @@ test_that("numeric sources are converted to the canonical unit", {
   expect_type(sm$seed_mass_gift, "double")
   expect_equal(sm$seed_mass_diaz, 62.007, tolerance = 1e-3)
   expect_equal(sm$seed_mass_gift, 73.9425, tolerance = 1e-3)   # 0.0739425 * 1000
+  expect_equal(sm$seed_mass_bien, 44.47, tolerance = 1e-3)
+  expect_equal(sm$seed_mass_brot, 52.63, tolerance = 1e-3)
 
   # SLA: LEDA mm2/mg; GIFT cm2/g x0.1 -> mm2/mg. Same species -> equal here.
   sl <- add_trait(mk("Abies alba"), "sla", mode = "wide", verbose = FALSE)
@@ -581,17 +583,12 @@ test_that("coalesce defaults to median for numeric traits", {
   skip_if_not(trait_ready(), "example enrichments not available")
 
   # Default numeric combine is median across all sources that carry the row.
-  w <- add_trait(mk("Abies alba"), "seed_mass", mode = "wide", verbose = FALSE)
-  src_cols  <- setdiff(grep("^seed_mass_", names(w), value = TRUE),
-                       c("seed_mass_unit", "seed_mass_caution"))
-  wide_vals <- unlist(w[1, src_cols], use.names = FALSE)
-  wide_vals <- wide_vals[!is.na(wide_vals)]
-
+  # Abies alba seed mass in the example database: Diaz 62.007, GIFT 73.9425,
+  # BIEN 44.47, BROT 52.63 mg -> median (52.63 + 62.007) / 2 = 57.3185.
   d <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce", verbose = FALSE)
   expect_true(all(c("seed_mass", "seed_mass_sources", "seed_mass_n") %in% names(d)))
-  expect_gte(d$seed_mass_n, 2L)
-  expect_equal(d$seed_mass_n, length(wide_vals))
-  expect_equal(d$seed_mass, stats::median(wide_vals), tolerance = 1e-6)
+  expect_equal(d$seed_mass_n, 4L)
+  expect_equal(d$seed_mass, 57.3185, tolerance = 1e-6)
   expect_match(d$seed_mass_sources, "diaz")
   expect_match(d$seed_mass_sources, "gift")
 })
@@ -602,20 +599,13 @@ test_that("numeric coalesce reports the spread as <trait>_min / <trait>_max", {
   skip_if_not(trait_ready(), "example enrichments not available")
 
   # No example seed-mass source stores a within-source range, so min/max are the
-  # extremes across the contributing sources and bracket the median headline.
-  # Derive the expected range from the same per-source (wide) values.
-  w <- add_trait(mk("Abies alba"), "seed_mass", mode = "wide", verbose = FALSE)
-  src_cols  <- setdiff(grep("^seed_mass_", names(w), value = TRUE),
-                       c("seed_mass_unit", "seed_mass_caution"))
-  wide_vals <- unlist(w[1, src_cols], use.names = FALSE)
-  wide_vals <- wide_vals[!is.na(wide_vals)]
-
+  # extremes across the four contributing sources: BIEN 44.47 mg up to GIFT
+  # 73.9425 mg, bracketing the 57.3185 mg median headline.
   d <- add_trait(mk("Abies alba"), "seed_mass", verbose = FALSE)
   expect_true(all(c("seed_mass_min", "seed_mass_max") %in% names(d)))
-  expect_equal(d$seed_mass_min, min(wide_vals), tolerance = 1e-6)
-  expect_equal(d$seed_mass_max, max(wide_vals), tolerance = 1e-6)
-  expect_gte(d$seed_mass, d$seed_mass_min)
-  expect_lte(d$seed_mass, d$seed_mass_max)
+  expect_equal(d$seed_mass_min, 44.47, tolerance = 1e-6)
+  expect_equal(d$seed_mass_max, 73.9425, tolerance = 1e-6)
+  expect_equal(d$seed_mass, 57.3185, tolerance = 1e-6)
 })
 
 test_that("categorical coalesce adds no min/max columns", {

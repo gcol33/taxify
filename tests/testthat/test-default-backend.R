@@ -61,17 +61,21 @@ test_that("taxify(backend = NULL) equals naming the resolved installed set", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("col"), "col example backbone missing")
 
+  # col leads the priority order and carries Quercus robur (col-ex-001) in the
+  # example database, so the default chain must land there.
   def <- taxify("Quercus robur", verbose = FALSE)
   expect_s3_class(def, "data.frame")
   expect_equal(nrow(def), 1L)
-  expect_true("backend" %in% names(def))
-  expect_true(def$backend %in% taxify:::installed_backbones())
+  expect_equal(def$backend, "col")
+  expect_equal(def$accepted_name, "Quercus robur")
+  expect_equal(def$taxon_id, "col-ex-001")
 
   expl <- taxify("Quercus robur",
                  backend = taxify:::resolve_default_backend(verbose = FALSE),
                  verbose = FALSE)
-  expect_identical(def$accepted_name, expl$accepted_name)
-  expect_identical(def$backend, expl$backend)
+  expect_equal(expl$backend, "col")
+  expect_equal(expl$accepted_name, "Quercus robur")
+  expect_equal(expl$taxon_id, "col-ex-001")
 })
 
 test_that("install_backbones() rejects unknown backbone names", {

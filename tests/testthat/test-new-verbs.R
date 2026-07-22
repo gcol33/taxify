@@ -71,18 +71,27 @@ test_that("comm2sci(resolve = TRUE) returns an enrichable taxify_result", {
 
 # ---- id2name() ----
 
-test_that("id2name() round-trips a taxon_id back to its name", {
+test_that("id2name() resolves a backbone ID to its name and classification", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()
   skip_if_not(backbone_ready("col"), "col example backbone missing")
 
-  r  <- taxify("Quercus robur", backend = "col", verbose = FALSE)
-  id <- id2name(r$taxon_id, backend = "col", verbose = FALSE)
+  # The col example backbone holds two accepted species: col-ex-001 is
+  # Quercus robur (Fagaceae) and col-ex-002 is Panthera leo (Felidae).
+  id <- id2name("col-ex-001", backend = "col", verbose = FALSE)
   expect_equal(id$name, "Quercus robur")
   expect_equal(id$accepted_name, "Quercus robur")
+  expect_equal(id$authorship, "L.")
+  expect_equal(toupper(id$rank), "SPECIES")
   expect_equal(id$genus, "Quercus")
+  expect_equal(id$family, "Fagaceae")
   expect_equal(id$backend, "col")
+
+  cat_id <- id2name("col-ex-002", backend = "col", verbose = FALSE)
+  expect_equal(cat_id$name, "Panthera leo")
+  expect_equal(cat_id$genus, "Panthera")
+  expect_equal(cat_id$family, "Felidae")
 })
 
 test_that("id2name() keeps unknown IDs as NA rows in input order", {
@@ -91,8 +100,7 @@ test_that("id2name() keeps unknown IDs as NA rows in input order", {
   taxify_clear_cache()
   skip_if_not(backbone_ready("col"), "col example backbone missing")
 
-  r  <- taxify("Quercus robur", backend = "col", verbose = FALSE)
-  id <- id2name(c("nope-999", r$taxon_id), backend = "col", verbose = FALSE)
+  id <- id2name(c("nope-999", "col-ex-001"), backend = "col", verbose = FALSE)
   expect_equal(nrow(id), 2L)
   expect_true(is.na(id$name[1]))
   expect_equal(id$name[2], "Quercus robur")
