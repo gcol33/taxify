@@ -41,7 +41,7 @@ disambiguate_by_authorship <- function(result, bb_path) {
       bb_path, names_to_look, bb_key = "canonical_name",
       select_cols = c("canonical_name", "authorship", "taxon_id",
                       "accepted_taxon_id", "accepted_name", "is_synonym",
-                      "taxon_rank", "family", "genus")),
+                      "taxon_rank", "accepted_family", "accepted_genus")),
     error = function(e) NULL)
   if (is.null(joined) || nrow(joined) == 0L ||
       !"authorship" %in% names(joined)) return(result)
@@ -78,10 +78,13 @@ disambiguate_by_authorship <- function(result, bb_path) {
     if (has_col("is_synonym"))     result$is_synonym[i]     <- cand$is_synonym[w]
     if (has_col("rank") && "taxon_rank" %in% names(cand))
       result$rank[i] <- tolower(cand$taxon_rank[w])
-    if (has_col("family") && "family" %in% names(cand))
-      result$family[i] <- cand$family[w]
-    if (has_col("genus") && "genus" %in% names(cand))
-      result$genus[i] <- cand$genus[w]
+    # Family/genus of the ACCEPTED taxon. `cand`/`w` is the matched synonym row,
+    # so its own family/genus belong to the rejected homonym; embed_accepted()
+    # carries the accepted taxon's classification on the accepted_* columns.
+    if (has_col("family") && "accepted_family" %in% names(cand))
+      result$family[i] <- cand$accepted_family[w]
+    if (has_col("genus") && "accepted_genus" %in% names(cand))
+      result$genus[i] <- cand$accepted_genus[w]
     result$is_ambiguous[i] <- FALSE
     if (has_col("ambiguous_targets")) result$ambiguous_targets[i] <- NA_character_
   }

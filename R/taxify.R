@@ -241,6 +241,17 @@ taxify <- function(x,
   aggregates   <- match.arg(aggregates)
   range        <- match.arg(range)
   mode         <- match.arg(mode)
+
+  if (!is.logical(fuzzy) || length(fuzzy) != 1L || is.na(fuzzy)) {
+    stop("fuzzy must be a single logical (TRUE or FALSE)", call. = FALSE)
+  }
+  if (!is.numeric(fuzzy_threshold) || length(fuzzy_threshold) != 1L ||
+      !is.finite(fuzzy_threshold) || fuzzy_threshold <= 0 ||
+      fuzzy_threshold > 1) {
+    stop("fuzzy_threshold must be a single finite number in (0, 1]",
+         call. = FALSE)
+  }
+
   region       <- resolve_region(region, coords, verbose = verbose)
   kingdom      <- resolve_kingdom_filter(kingdom)
 

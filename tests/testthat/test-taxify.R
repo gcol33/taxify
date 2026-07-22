@@ -210,6 +210,34 @@ test_that("taxify rejects empty input", {
   expect_error(taxify(character(0)), "at least one element")
 })
 
+test_that("taxify validates fuzzy and fuzzy_threshold", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+
+  # A non-numeric threshold used to slip through and silently return
+  # match_type "none"; it must error instead.
+  expect_error(
+    taxify("Quercus robus", fuzzy_threshold = "0.2", verbose = FALSE),
+    "fuzzy_threshold"
+  )
+  expect_error(
+    taxify("Quercus robus", fuzzy_threshold = 1.5, verbose = FALSE),
+    "fuzzy_threshold"
+  )
+  expect_error(
+    taxify("Quercus robus", fuzzy_threshold = c(0.1, 0.2), verbose = FALSE),
+    "fuzzy_threshold"
+  )
+  expect_error(
+    taxify("Quercus robus", fuzzy = "yes", verbose = FALSE),
+    "fuzzy"
+  )
+  expect_error(
+    taxify("Quercus robus", fuzzy = NA, verbose = FALSE),
+    "fuzzy"
+  )
+})
+
 
 # ---- taxify_result class and metadata ----
 

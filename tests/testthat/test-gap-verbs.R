@@ -279,6 +279,10 @@ test_that("authorship resolves a homonym the query names an author for", {
   expect_false(out2$is_ambiguous[1L])
   expect_equal(out2$accepted_id[1L], "wfo-0000019")
   expect_equal(out2$accepted_name[1L], "Picea polita")
+  # The genus/family must be the ACCEPTED taxon's (Picea polita), not the
+  # rejected synonym row's own (Pinus abies -> genus Pinus).
+  expect_equal(out2$genus[1L], "Picea")
+  expect_equal(out2$family[1L], "Pinaceae")
 })
 
 test_that("a bare homonym (no author) stays ambiguous", {

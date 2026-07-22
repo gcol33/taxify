@@ -608,6 +608,11 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
   by_vec <- stats::setNames(col_map$name, "cleaned_name")
   block_vec <- stats::setNames(col_map$genus, "query_genus")
 
+  # A fuzzy_join that finds no candidate within `threshold` returns 0 rows
+  # normally (no error), which is a legitimate "no fuzzy match" outcome. Only a
+  # genuine engine error (bad threshold type, missing column, OOM) reaches the
+  # handler, so surface it as a warning rather than silently degrading to an
+  # empty result.
   matches <- tryCatch(
     vectra::fuzzy_join(
       vectra::tbl(tmp_query),
@@ -618,7 +623,11 @@ fuzzy_match_via_join <- function(result, names_df, bb_path, method, threshold,
       block_by = block_vec,
       n_threads = 4L
     ) |> vectra::collect(),
-    error = function(e) data.frame()
+    error = function(e) {
+      warning(sprintf("fuzzy matching failed: %s", conditionMessage(e)),
+              call. = FALSE)
+      data.frame()
+    }
   )
 
   if (nrow(matches) > 0L) {
@@ -750,18 +759,32 @@ fuzzy_match_prefix_blocked <- function(result, names_df, bb_path, method,
     tolower(substr(COL, 1L, 2L)),
     list(COL = as.name(col_map$name))
   )
+  # vectra::mutate() captures its dots literally (substitute(alist(...))) and
+  # resolves bare names against the schema. Splice the prefix expression into
+  # the mutate() call and evaluate, so vectra receives the built key_prefix
+  # formula.
+  right_prefixed <- eval(bquote(
+    vectra::mutate(vectra::tbl(fuzzy_bb), key_prefix = .(prefix_expr))
+  ))
+
+  # As in fuzzy_match_via_join: an empty result from no candidate within
+  # `threshold` is a normal 0-row return, not an error. Surface a genuine engine
+  # error as a warning instead of masquerading it as "no fuzzy matches".
   matches <- tryCatch(
     vectra::fuzzy_join(
       vectra::tbl(tmp_query),
-      vectra::tbl(fuzzy_bb) |>
-        vectra::mutate(key_prefix = !!prefix_expr),
+      right_prefixed,
       by = by_vec,
       method = method,
       max_dist = threshold,
       block_by = block_vec,
       n_threads = 4L
     ) |> vectra::collect(),
-    error = function(e) data.frame()
+    error = function(e) {
+      warning(sprintf("fuzzy matching failed: %s", conditionMessage(e)),
+              call. = FALSE)
+      data.frame()
+    }
   )
 
   if (nrow(matches) > 0L) {
