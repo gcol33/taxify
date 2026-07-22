@@ -41,6 +41,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
+          extra-repositories: https://gcol33.r-universe.dev
           extra-packages: any::jsonlite, any::pkgload
 
       - name: Documentation figures match the manifest
