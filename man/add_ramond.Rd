@@ -42,7 +42,7 @@ marine protists. Traits are genus-level; numeric cell size is aggregated by
 median, categorical traits by mode.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Alexandrium", backend = "gbif") |>
   add_ramond()
 }

@@ -35,7 +35,7 @@ Collections Fungus-Host Dataset, Ag Data Commons (U.S. Public Domain).
 Fungi only; ~99k species with at least one recorded host.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Puccinia graminis", backend = "gbif") |>
   add_usda_fungus_host()
 }

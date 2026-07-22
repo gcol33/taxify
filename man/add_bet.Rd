@@ -45,7 +45,7 @@ Source: Bryophytes of Europe Traits (van Zuijlen et al. 2023, EnviDat,
 CC BY-SA 4.0). Coverage: ~1.8k bryophyte species.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Abietinella abietina", backend = "gbif") |>
   add_bet()
 }

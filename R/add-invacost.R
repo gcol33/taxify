@@ -34,7 +34,7 @@
 #' biological invasions worldwide. Scientific Data 7:277. \doi{10.1038/s41597-020-00586-z}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Solenopsis invicta", backend = "gbif") |>
 #'   add_invacost()
 #' }

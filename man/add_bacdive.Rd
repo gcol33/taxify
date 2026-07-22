@@ -40,7 +40,7 @@ Source: BacDive (Reimer et al.), DSMZ, CC BY 4.0. ~18.6k bacterial and
 archaeal species with at least one phenotypic trait.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Escherichia coli", backend = "gbif") |>
   add_bacdive()
 }

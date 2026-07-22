@@ -25,7 +25,7 @@
 #' Phytologist. \doi{10.1111/nph.70860}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Quercus robur", backend = "gbif") |>
 #'   add_gwdd()
 #' }

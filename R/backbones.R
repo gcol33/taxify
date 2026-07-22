@@ -298,7 +298,7 @@ install_backbones <- function(backends = NULL, verbose = TRUE) {
 #' @seealso [list_enrichments()], [list_traits()], [taxify_databases()].
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' list_backbones()
 #' }
 #'
@@ -352,7 +352,7 @@ list_backbones <- function(verbose = TRUE) {
 #' @seealso [list_backbones()], [list_enrichments()], [list_traits()].
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify_databases()
 #' }
 #'

@@ -38,7 +38,7 @@ Source: Madin et al. (2020, Scientific Data, CC BY 4.0).
 Coverage: ~14.9k bacterial and archaeal species.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Escherichia coli", backend = "gbif") |>
   add_madin()
 }

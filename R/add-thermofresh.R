@@ -26,7 +26,7 @@
 #' Freshwater thermal-tolerance database. Zenodo. \doi{10.5281/zenodo.14056760}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Salmo trutta", backend = "gbif") |>
 #'   add_thermofresh()
 #' }

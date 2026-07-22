@@ -51,7 +51,7 @@ gap-fills data-poor and extinct species); \code{phylacine_mass_method} /
 mass is not mistaken for a measurement where PHYLACINE is the only source.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Mammuthus primigenius", backend = "gbif") |>
   add_phylacine()
 }

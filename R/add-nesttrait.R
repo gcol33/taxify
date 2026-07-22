@@ -20,7 +20,7 @@
 #' \doi{10.1038/s41597-023-02837-1}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Turdus merula", backend = "gbif") |>
 #'   add_nesttrait()
 #' }

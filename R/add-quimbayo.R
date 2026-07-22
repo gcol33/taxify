@@ -20,7 +20,7 @@
 #' conservation aspects of reef fishes. Ecology. \doi{10.5281/zenodo.4455016}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Thalassoma bifasciatum", backend = "gbif") |>
 #'   add_quimbayo()
 #' }

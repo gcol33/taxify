@@ -38,7 +38,7 @@ European-calibration indicator values see \code{\link[=add_eive]{add_eive()}}.
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())
 
-\donttest{
+\dontrun{
 # add_pignatti() fetches Italian trait data on demand via the TR8 package.
 taxify("Abies alba") |>
   add_pignatti()

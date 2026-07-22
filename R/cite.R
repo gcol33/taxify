@@ -15,11 +15,13 @@
 #' @return `x`, invisibly (pipe-friendly).
 #'
 #' @examples
-#' \donttest{
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' result <- taxify("Quercus robur", backend = "wfo")
 #' result |> cite()
 #' result |> cite(file = tempfile(fileext = ".bib"))
-#' }
+#'
+#' options(old)
 #'
 #' @export
 cite <- function(x, file = NULL) {

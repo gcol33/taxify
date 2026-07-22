@@ -18,7 +18,7 @@
 #' hoverflies. Zenodo. \doi{10.5281/zenodo.18032357}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Bombus terrestris", backend = "gbif") |>
 #'   add_eupolltrait()
 #' }

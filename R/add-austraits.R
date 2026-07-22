@@ -37,10 +37,12 @@
 #' Australian flora. Scientific Data 8:254. \doi{10.1038/s41597-021-01006-6}
 #'
 #' @examples
-#' \donttest{
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Eucalyptus globulus", backend = "gbif") |>
 #'   add_austraits()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_austraits <- function(x, cols = NULL, verbose = TRUE) {

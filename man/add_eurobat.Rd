@@ -40,7 +40,7 @@ EuroBaTrait 1.0. Thematic measurement-or-fact tables are reduced to
 species-level values (numeric by median, categorical by mode).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Myotis myotis", backend = "gbif") |>
   add_eurobat()
 }

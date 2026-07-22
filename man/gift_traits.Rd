@@ -20,11 +20,9 @@ from the local \code{.vtr} (downloaded or built once); the first call may trigge
 that one-time download.
 }
 \examples{
-\donttest{
 old <- options(taxify.data_dir = taxify_example_data())
 gift_traits()
 options(old)
-}
 }
 \seealso{
 \code{\link[=add_gift]{add_gift()}}, \code{\link[=enrichment_cols]{enrichment_cols()}} for the same listing on any

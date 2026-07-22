@@ -40,7 +40,7 @@ Source: World Checklist of Useful Plant Species (Diazgranados et al. 2020,
 KNB, CC BY 4.0). Coverage: ~39k plant species.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Acorus calamus", backend = "gbif") |>
   add_useful_plants()
 }

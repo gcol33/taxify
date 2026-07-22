@@ -26,7 +26,7 @@
 #' Museum, London. doi:10.5519/havt50xw
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Papilio machaon", backend = "gbif") |>
 #'   add_hosts()
 #' }

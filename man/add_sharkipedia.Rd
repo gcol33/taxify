@@ -38,7 +38,7 @@ Joins Sharkipedia shark and ray life-history traits to a \code{\link[=taxify]{ta
 Source: Sharkipedia (Mull et al. 2022, Scientific Data, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Carcharodon carcharias", backend = "gbif") |>
   add_sharkipedia()
 }

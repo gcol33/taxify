@@ -27,11 +27,9 @@ region, or language code need not be guessed. Read offline from the local
 first call may trigger the one-time download.
 }
 \examples{
-\donttest{
 old <- options(taxify.data_dir = taxify_example_data())
 enrichment_groups("griis")   # ISO country codes GRIIS covers
 options(old)
-}
 }
 \seealso{
 \code{\link[=enrichment_cols]{enrichment_cols()}}, \code{\link[=list_enrichments]{list_enrichments()}}, \code{\link[=add_griis]{add_griis()}},

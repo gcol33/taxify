@@ -31,7 +31,7 @@
 #' doi:10.3390/jof9050556
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Xanthoria parietina", backend = "gbif") |>
 #'   add_italic()
 #' }

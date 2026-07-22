@@ -19,7 +19,7 @@
 #' lakes. Zenodo. \doi{10.5281/zenodo.1164834}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Asterionella formosa", backend = "gbif") |>
 #'   add_rimet_phyto()
 #' }

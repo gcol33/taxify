@@ -35,7 +35,7 @@
 #' Informatics 24:148-159. doi:10.1016/j.ecoinf.2014.08.005
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Apis mellifera", backend = "gbif") |>
 #'   add_globi()
 #' }

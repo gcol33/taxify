@@ -40,7 +40,7 @@ CC BY 4.0), the Freshwater Insects CONUS genus trait table. Traits are
 genus-level categorical modalities.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Baetis", backend = "gbif") |>
   add_freshwater_insects_conus()
 }

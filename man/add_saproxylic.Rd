@@ -28,7 +28,7 @@ Joins European deadwood-beetle body and appendage morphometrics to a
 Source: Hagge et al. (2021) saproxylic beetle morphology (Dryad, CC0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Rhysodes sulcatus", backend = "gbif") |>
   add_saproxylic()
 }

@@ -27,7 +27,7 @@ by \code{accepted_name}.
 Source: SHELD (Hopper et al. 2023, Scientific Data, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Lampsilis cardium", backend = "gbif") |>
   add_sheld()
 }

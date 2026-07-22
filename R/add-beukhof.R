@@ -20,7 +20,7 @@
 #' \doi{10.1594/PANGAEA.900866}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Gadus morhua", backend = "gbif") |>
 #'   add_beukhof()
 #' }

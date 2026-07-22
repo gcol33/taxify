@@ -28,7 +28,7 @@ Joins global bee morphological traits to a \code{\link[=taxify]{taxify()}} resul
 Source: Ostwald et al. global bee morphology (Zenodo, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Apis mellifera", backend = "gbif") |>
   add_bee_ostwald()
 }

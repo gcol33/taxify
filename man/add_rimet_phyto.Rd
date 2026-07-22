@@ -28,7 +28,7 @@ Source: Rimet & Druart (2018) phytoplankton metrics database
 (Zenodo, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Asterionella formosa", backend = "gbif") |>
   add_rimet_phyto()
 }

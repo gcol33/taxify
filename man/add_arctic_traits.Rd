@@ -28,7 +28,7 @@ Source: Arctic Traits Database (Degen & Faulwetter 2019, University
 of Vienna PHAIDRA, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Astarte borealis", backend = "gbif") |>
   add_arctic_traits()
 }

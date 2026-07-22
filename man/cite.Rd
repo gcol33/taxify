@@ -20,10 +20,12 @@ Prints formatted citations for the taxonomic backbone(s), enrichment
 layers, and the taxify package itself. Optionally writes a BibTeX file.
 }
 \examples{
-\donttest{
+old <- options(taxify.data_dir = taxify_example_data())
+
 result <- taxify("Quercus robur", backend = "wfo")
 result |> cite()
 result |> cite(file = tempfile(fileext = ".bib"))
-}
+
+options(old)
 
 }

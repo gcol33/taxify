@@ -50,7 +50,7 @@
 #'   [add_pantheria()], [add_anage()] for other mammal trait sources.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Vulpes vulpes", backend = "gbif") |>
 #'   add_combine_reported()
 #' }
@@ -106,7 +106,7 @@ add_combine_reported <- function(x, cols = NULL, verbose = TRUE) {
 #'   for the two coalesced with per-trait provenance.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Compare reported vs imputed gestation length for a mammal:
 #' taxify("Vulpes vulpes", backend = "gbif") |>
 #'   add_combine_reported() |>
@@ -158,7 +158,7 @@ add_combine_imputed <- function(x, cols = NULL, verbose = TRUE) {
 #'   every `_src` tag `"reported"` or `NA`.
 #' @seealso [add_combine_reported()], [add_combine_imputed()]
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Coverage-filled values with per-trait provenance:
 #' res <- taxify("Osphranter rufus", backend = "col") |>
 #'   add_combine()

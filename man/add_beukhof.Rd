@@ -28,7 +28,7 @@ Source: Beukhof et al. (2019) marine fish trait collection (PANGAEA,
 CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Gadus morhua", backend = "gbif") |>
   add_beukhof()
 }

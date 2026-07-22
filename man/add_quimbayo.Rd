@@ -29,7 +29,7 @@ Source: Quimbayo et al. (2021) reef-fish trait database (ESA data
 paper; Zenodo, open).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Thalassoma bifasciatum", backend = "gbif") |>
   add_quimbayo()
 }

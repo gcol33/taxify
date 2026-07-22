@@ -23,7 +23,7 @@ to know three separate discovery verbs. The cross-source trait vocabulary is
 summarised in the message footer; browse it with \code{\link[=list_traits]{list_traits()}}.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify_databases()
 }
 

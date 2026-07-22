@@ -25,7 +25,7 @@ Source: Santini et al. TetraDENSITY (figshare, CC-BY 4.0). Records
 in other density units are excluded to avoid mixing.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Capreolus capreolus", backend = "gbif") |>
   add_tetradensity()
 }

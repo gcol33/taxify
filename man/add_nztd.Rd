@@ -27,7 +27,7 @@ dominant modality.
 Source: NZTD (Lam-Gordillo et al. 2023, figshare, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Macomona liliana", backend = "gbif") |>
   add_nztd()
 }

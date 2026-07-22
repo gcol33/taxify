@@ -39,7 +39,7 @@ FungalRoot's own published per-genus assignment. Plant genera only. The
 \code{.vtr} is downloaded from the taxify release on first use and cached.
 }
 \examples{
-\donttest{
+\dontrun{
 # Joins on genus, so any species in a covered genus is annotated.
 taxify(c("Quercus robur", "Trifolium pratense")) |>
   add_fungalroot()

@@ -27,10 +27,12 @@ traits to a \code{\link[=taxify]{taxify()}} result by \code{accepted_name}.
 Source: BROT 2.0 (Tavsanoglu & Pausas 2018, Scientific Data, CC-BY 4.0).
 }
 \examples{
-\donttest{
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus coccifera", backend = "gbif") |>
   add_brot()
-}
+
+options(old)
 
 }
 \references{

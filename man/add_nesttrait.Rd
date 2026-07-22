@@ -29,7 +29,7 @@ species may carry several flags within a group.
 Source: NestTrait v2 (Chia et al. 2023, Scientific Data, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Turdus merula", backend = "gbif") |>
   add_nesttrait()
 }

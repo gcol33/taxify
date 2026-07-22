@@ -37,11 +37,9 @@
 #' @seealso [add_gift()], [enrichment_cols()] for the same listing on any
 #'   enrichment.
 #' @examples
-#' \donttest{
 #' old <- options(taxify.data_dir = taxify_example_data())
 #' gift_traits()
 #' options(old)
-#' }
 #' @export
 gift_traits <- function() {
   enrichment_cols("gift")

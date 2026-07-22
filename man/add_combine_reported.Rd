@@ -54,7 +54,7 @@ leaves a cell missing when no source measured that trait for a species; use
 values.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Vulpes vulpes", backend = "gbif") |>
   add_combine_reported()
 }

@@ -31,7 +31,7 @@ Source: DISPERSE (Sarremejane et al. 2020, Scientific Data, CC-BY
 4.0). Joins on genus because the database is genus-resolved.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Baetis rhodani", backend = "gbif") |>
   add_disperse()
 }

@@ -39,7 +39,7 @@ For a single-table view use \code{\link[=add_combine_reported]{add_combine_repor
 or \code{\link[=add_combine_imputed]{add_combine_imputed()}} (the imputed table on its own).
 }
 \examples{
-\donttest{
+\dontrun{
 # Coverage-filled values with per-trait provenance:
 res <- taxify("Osphranter rufus", backend = "col") |>
   add_combine()

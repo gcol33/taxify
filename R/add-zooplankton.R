@@ -20,7 +20,7 @@
 #' Zenodo. \doi{10.5281/zenodo.8102913}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Calanus finmarchicus", backend = "gbif") |>
 #'   add_zooplankton()
 #' }

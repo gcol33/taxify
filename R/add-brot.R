@@ -19,10 +19,12 @@
 #' \doi{10.6084/m9.figshare.c.3843841}
 #'
 #' @examples
-#' \donttest{
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Quercus coccifera", backend = "gbif") |>
 #'   add_brot()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_brot <- function(x, cols = NULL, verbose = TRUE) {

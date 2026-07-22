@@ -896,11 +896,9 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 #'   (`"numeric"` or `"character"`).
 #' @seealso [add_gift()], [add_floraweb()], [list_enrichments()]
 #' @examples
-#' \donttest{
 #' old <- options(taxify.data_dir = taxify_example_data())
 #' enrichment_cols("gift")
 #' options(old)
-#' }
 #' @export
 enrichment_cols <- function(source) {
   ac <- .enrichment_available_cols(source, verbose = FALSE)
@@ -933,11 +931,9 @@ enrichment_cols <- function(source) {
 #' @seealso [enrichment_cols()], [list_enrichments()], [add_griis()],
 #'   [add_wcvp()], [add_common_names()], [add_alien_first_records()]
 #' @examples
-#' \donttest{
 #' old <- options(taxify.data_dir = taxify_example_data())
 #' enrichment_groups("griis")   # ISO country codes GRIIS covers
 #' options(old)
-#' }
 #' @export
 enrichment_groups <- function(source, verbose = TRUE) {
   vtr_path <- ensure_enrichment(source, verbose = verbose)
@@ -1597,7 +1593,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 #'   `trait_cols` (comma-separated), and `source_url`.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' list_enrichments()
 #' }
 #'

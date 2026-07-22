@@ -38,10 +38,12 @@
 #' Evolution 9:373-379. \doi{10.1111/2041-210X.12861}
 #'
 #' @examples
-#' \donttest{
+#' old <- options(taxify.data_dir = taxify_example_data())
+#'
 #' taxify("Quercus alba", backend = "gbif") |>
 #'   add_bien()
-#' }
+#'
+#' options(old)
 #'
 #' @export
 add_bien <- function(x, cols = NULL, verbose = TRUE) {

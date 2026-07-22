@@ -45,10 +45,12 @@ Methods Ecol Evol, CC BY). Coverage: tens of thousands of vascular plant
 species.
 }
 \examples{
-\donttest{
+old <- options(taxify.data_dir = taxify_example_data())
+
 taxify("Quercus alba", backend = "gbif") |>
   add_bien()
-}
+
+options(old)
 
 }
 \references{

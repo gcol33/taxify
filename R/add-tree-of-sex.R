@@ -30,7 +30,7 @@
 #' Scientific Data 1:140015. \doi{10.1038/sdata.2014.15}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Silene latifolia", backend = "gbif") |>
 #'   add_tree_of_sex()
 #' }

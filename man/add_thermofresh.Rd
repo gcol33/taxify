@@ -36,7 +36,7 @@ contributors, Zenodo, CC BY 4.0). Each source record is one tolerance test;
 values are reduced to species-level medians per metric.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Salmo trutta", backend = "gbif") |>
   add_thermofresh()
 }

@@ -20,7 +20,7 @@
 #' Scientific Data 9:600. \doi{10.1038/s41597-022-01704-9}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Rana temporaria", backend = "gbif") |>
 #'   add_pottier()
 #' }

@@ -28,7 +28,7 @@
 #' \doi{10.1038/sdata.2018.22}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Lepomis gibbosus", backend = "gbif") |>
 #'   add_globtherm()
 #' }

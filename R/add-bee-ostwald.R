@@ -19,7 +19,7 @@
 #' Zenodo. \doi{10.5281/zenodo.13366989}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Apis mellifera", backend = "gbif") |>
 #'   add_bee_ostwald()
 #' }

@@ -43,7 +43,7 @@
 #' Macroecology. Ecology 99:2626. \doi{10.1002/ecy.2443}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Mammuthus primigenius", backend = "gbif") |>
 #'   add_phylacine()
 #' }

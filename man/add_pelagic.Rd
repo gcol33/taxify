@@ -28,7 +28,7 @@ Source: Gleiber et al. (2024) Pelagic Species Trait Database
 (Borealis, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Thunnus albacares", backend = "gbif") |>
   add_pelagic()
 }

@@ -32,7 +32,7 @@
 #' \doi{10.6073/pasta/8238ea9bc15840844b3a023b6b6ed158}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Baetis", backend = "gbif") |>
 #'   add_freshwater_insects_conus()
 #' }

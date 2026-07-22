@@ -30,7 +30,7 @@
 #' \doi{10.1038/s41597-022-01655-1}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Carcharodon carcharias", backend = "gbif") |>
 #'   add_sharkipedia()
 #' }

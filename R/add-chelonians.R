@@ -36,7 +36,7 @@
 #' \doi{10.6084/m9.figshare.28828241}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Chelonia mydas", backend = "gbif") |>
 #'   add_chelonians()
 #' }

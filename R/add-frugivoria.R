@@ -18,7 +18,7 @@
 #' (edi.1220.5).
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Ramphastos toco", backend = "gbif") |>
 #'   add_frugivoria()
 #' }

@@ -19,7 +19,7 @@
 #' \doi{10.6084/m9.figshare.21159229}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Bufo bufo", backend = "gbif") |>
 #'   add_huang_amph()
 #' }

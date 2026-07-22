@@ -29,7 +29,7 @@ Source: Pata & Hunt global marine zooplankton trait database
 (Zenodo, CC-BY-SA 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Calanus finmarchicus", backend = "gbif") |>
   add_zooplankton()
 }

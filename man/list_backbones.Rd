@@ -22,7 +22,7 @@ download size, and whether it is already installed locally. The counterpart to
 \code{\link[=list_enrichments]{list_enrichments()}} for the backbone side.
 }
 \examples{
-\donttest{
+\dontrun{
 list_backbones()
 }
 

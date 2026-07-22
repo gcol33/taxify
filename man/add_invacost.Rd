@@ -42,7 +42,7 @@ a rigorous cost analysis (temporal expansion, overlap handling, reliability
 filtering) use the \code{invacost} R package on the full database.
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Solenopsis invicta", backend = "gbif") |>
   add_invacost()
 }

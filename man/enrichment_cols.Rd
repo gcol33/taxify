@@ -20,11 +20,9 @@ as \code{\link[=add_gift]{add_gift()}} and \code{\link[=add_floraweb]{add_floraw
 the first call may trigger the one-time download.
 }
 \examples{
-\donttest{
 old <- options(taxify.data_dir = taxify_example_data())
 enrichment_cols("gift")
 options(old)
-}
 }
 \seealso{
 \code{\link[=add_gift]{add_gift()}}, \code{\link[=add_floraweb]{add_floraweb()}}, \code{\link[=list_enrichments]{list_enrichments()}}

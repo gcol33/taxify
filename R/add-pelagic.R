@@ -19,7 +19,7 @@
 #' Data. \doi{10.5683/SP3/0YFJED}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Thunnus albacares", backend = "gbif") |>
 #'   add_pelagic()
 #' }

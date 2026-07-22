@@ -35,7 +35,7 @@
 #' \doi{10.1890/15-0846R.1}
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' taxify("Accipiter badius", backend = "gbif") |>
 #'   add_amniote()
 #' }

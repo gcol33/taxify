@@ -28,7 +28,7 @@ Gymnophiona are carried; per-specimen values are reduced to species medians.
 Source: Huang amphibian morphological dataset (figshare, CC-BY 4.0).
 }
 \examples{
-\donttest{
+\dontrun{
 taxify("Bufo bufo", backend = "gbif") |>
   add_huang_amph()
 }
