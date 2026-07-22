@@ -220,6 +220,7 @@ class2tree <- function(x, backend = NULL, verbose = TRUE) {
 }
 
 
+#' @param ... Ignored, present for S3 `print` method consistency.
 #' @rdname class2tree
 #' @export
 print.taxify_tree <- function(x, ...) {

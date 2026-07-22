@@ -16,6 +16,8 @@ class2tree(x, backend = NULL, verbose = TRUE)
 (default) uses every installed backbone. Ignored when \code{x} is a result.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
+
+\item{...}{Ignored, present for S3 \code{print} method consistency.}
 }
 \value{
 An object of class \code{taxify_tree}: a list with
