@@ -224,6 +224,17 @@ ensure_enrichment <- function(name, verbose = TRUE) {
     return(vtr_path)
   }
 
+  # The example database is a read-only, offline fixture set living inside the
+  # package installation. An enrichment not already bundled there (which would
+  # have resolved at step 3) must never be downloaded or built into
+  # inst/exampledb: stop with a clear message rather than writing a released
+  # asset into the package source.
+  if (is_example_data_dir()) {
+    stop(sprintf(
+      "enrichment '%s' is not bundled with the example database.", name
+    ), call. = FALSE)
+  }
+
   # 4. Download from manifest (a build-only source publishes no asset, so this
   #    step is skipped rather than attempted and swallowed).
   if (!name %in% .build_only_enrichments()) {
@@ -276,6 +287,37 @@ ensure_enrichment <- function(name, verbose = TRUE) {
   # 6. Return NULL — caller (enrich_simple/enrich_by_group) handles
   #    emergency fallback or error
   NULL
+}
+
+
+#' Assemble the meta.json list an installed enrichment carries
+#'
+#' Records the version, static flag, pinned flag, content id (md5 of the file on
+#' disk, matching the manifest's content_id), and download date, then copies the
+#' describing fields the manifest entry holds -- `group_col`, `available_groups`,
+#' `license`, `citation` -- when present. Copying them makes an installed
+#' enrichment self-describing offline: `enrichment_groups()` reads
+#' `meta$group_col`, `cite()` reads `meta$license`, with no manifest round-trip.
+#'
+#' @param entry The resolved manifest enrichment entry.
+#' @param actual_version Character. The version being written.
+#' @param pinned Logical. Whether this is a pinned (non-latest) install.
+#' @param vtr_path Character. Path to the freshly written `.vtr`.
+#' @return A named list ready for `jsonlite::write_json()`.
+#' @noRd
+build_enrichment_meta <- function(entry, actual_version, pinned, vtr_path) {
+  meta <- list(
+    version       = actual_version,
+    static        = isTRUE(entry$static),
+    pinned        = isTRUE(pinned),
+    content_id    = content_id_of(vtr_path),
+    downloaded_at = format(Sys.Date(), "%Y-%m-%d")
+  )
+  if (!is.null(entry$group_col))        meta$group_col        <- entry$group_col
+  if (!is.null(entry$available_groups)) meta$available_groups <- entry$available_groups
+  if (!is.null(entry$license))          meta$license          <- entry$license
+  if (!is.null(entry$citation))         meta$citation         <- entry$citation
+  meta
 }
 
 
@@ -353,14 +395,11 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
 
   # Write meta.json. The content id is the md5 of the freshly downloaded file,
   # which matches the manifest's content_id and lets the static-cache gate
-  # detect a future same-tag republish offline.
-  meta <- list(
-    version       = actual_version,
-    static        = isTRUE(entry$static),
-    pinned        = (version != "latest"),
-    content_id    = content_id_of(vtr_path),
-    downloaded_at = format(Sys.Date(), "%Y-%m-%d")
-  )
+  # detect a future same-tag republish offline. build_enrichment_meta() also
+  # copies the manifest entry's describing fields (group_col, available_groups,
+  # license, citation) so the installed enrichment is self-describing.
+  meta <- build_enrichment_meta(entry, actual_version,
+                                pinned = version != "latest", vtr_path)
   jsonlite::write_json(
     meta, file.path(dest_dir, "meta.json"),
     pretty = TRUE, auto_unbox = TRUE
@@ -1150,7 +1189,28 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   has_formula <- join_col == "accepted_name" && "hybrid_type" %in% names(x) &&
     any(!is.na(x$hybrid_type) & x$hybrid_type == "formula")
 
-  available_src <- intersect(unname(col_map), names(schema))
+  mapped_src    <- unname(col_map)
+  available_src <- intersect(mapped_src, names(schema))
+
+  # A mapped source column absent from the .vtr schema attaches an all-NA output
+  # column, which is indistinguishable from a genuine registry/column typo. Name
+  # the gap instead of dropping it silently. Two absences are expected, not
+  # bugs, and are excluded: the trait verb's spread join maps optional
+  # within-source partners <col>_min / <col>_max alongside each value column
+  # <col> (the join falls back to the point value when they are absent), so a
+  # missing _min/_max whose base column is itself mapped is skipped; and
+  # auto-exposed extras are drawn from the schema, so they never appear here.
+  missing_src <- setdiff(mapped_src, names(schema))
+  spread_partner <- grepl("_(min|max)$", missing_src) &
+    sub("_(min|max)$", "", missing_src) %in% mapped_src
+  missing_src <- missing_src[!spread_partner]
+  if (length(missing_src) > 0L) {
+    warning(sprintf(
+      "Enrichment '%s': mapped column(s) not in the .vtr: %s. Attached as all-NA.",
+      enrichment_name, paste(sort(unique(missing_src)), collapse = ", ")
+    ), call. = FALSE)
+  }
+
   if (length(available_src) == 0L ||
       (length(valid_rows) == 0L && !has_formula)) {
     meta <- read_enrichment_meta(vtr_path)
@@ -1163,9 +1223,22 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   # Filter col_map to available columns
   col_map <- col_map[col_map %in% available_src]
 
-  # Determine join key in enrichment .vtr
-  # For genus-level enrichments, prefer the "genus" column when join_col is
-  # "genus". Otherwise fall back to canonical_name / accepted_name.
+  # Determine join key in enrichment .vtr. A genus-level enrichment sets
+  # join_col = "genus" and its .vtr carries a "genus" column; the species
+  # default ("accepted_name") resolves against canonical_name/accepted_name. A
+  # join_col the door set explicitly (anything but the accepted_name default)
+  # that the .vtr does not carry is a wiring bug: a genus join against a
+  # species-keyed asset would fall through to canonical_name and match "Amanita"
+  # against "Amanita muscaria", attaching an all-NA column, so it stops instead.
+  if (join_col != "accepted_name" && !(join_col %in% names(schema))) {
+    stop(sprintf(
+      paste0("Enrichment '%s' was joined on '%s', but its .vtr has no '%s' ",
+             "column (has: %s). A door requesting join_col = \"%s\" against an ",
+             "asset not keyed at that level is a wiring bug."),
+      enrichment_name, join_col, join_col,
+      paste(names(schema), collapse = ", "), join_col
+    ), call. = FALSE)
+  }
   join_key <- if (join_col == "genus" && "genus" %in% names(schema)) {
     "genus"
   } else if ("canonical_name" %in% names(schema)) {

@@ -69,9 +69,11 @@ test_that("add_epa_freshwater() falls back from species to genus-level rows", {
 })
 
 test_that("add_cefas_btrait() joins genus-level benthic traits on genus", {
-  # Genus-keyed source: the .vtr canonical_name column holds genus names.
+  # Genus-keyed source: the .vtr carries a genus-rank key column, as taxifydb
+  # builds it for every genus-level enrichment.
   install_mock_enrichment("cefas_btrait", data.frame(
-    canonical_name = "Abra", body_size = "11 to 20", morphology = "soft",
+    canonical_name = "Abra", genus = "Abra",
+    body_size = "11 to 20", morphology = "soft",
     lifespan = "1 to 3", living_habit = "burrower", feeding_mode = "Suspension",
     mobility = "low", bioturbation = "Diffusive mixing", stringsAsFactors = FALSE))
   r <- add_cefas_btrait(mk_res("Abra alba"), verbose = FALSE)
