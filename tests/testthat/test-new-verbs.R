@@ -173,6 +173,30 @@ test_that("class2tree() builds a Newick tree over resolved names", {
   expect_match(tr$newick, ";$")
 })
 
+test_that("class2tree() collapses inputs sharing one accepted name to one tip", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  taxify_clear_cache()
+  skip_if_not(backbone_ready("reptiledb"), "reptiledb example backbone missing")
+
+  # Amphibolurus vitticeps is a synonym of Pogona vitticeps: two inputs, one
+  # accepted name, so the tree carries one tip where there were two inputs.
+  tr <- class2tree(c("Pogona vitticeps", "Amphibolurus vitticeps"),
+                   backend = "reptiledb", verbose = FALSE)
+  expect_s3_class(tr, "taxify_tree")
+  expect_equal(length(tr$tip_labels), 1L)
+  expect_equal(anyDuplicated(tr$tip_labels), 0L)
+
+  # tip_labels tracks the tree: its length equals the count print() reports.
+  printed   <- utils::capture.output(print(tr))
+  n_printed <- as.integer(sub("^<taxify_tree> ([0-9]+) tip.*$", "\\1", printed[1]))
+  expect_equal(n_printed, length(tr$tip_labels))
+
+  # ...and equals the phylo tip count when ape is installed.
+  skip_if_not_installed("ape")
+  expect_equal(length(tr$tip_labels), ape::Ntip(tr$phylo))
+})
+
 
 # ---- taxify(kingdom = ) ----
 

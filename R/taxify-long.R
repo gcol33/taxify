@@ -56,6 +56,38 @@
 #'
 #' options(old)
 #'
+#' Escape regex metacharacters in a literal string
+#'
+#' Base column names are interpolated into a `^base_(.+)$` pattern; escape them
+#' so a name carrying a `.` (or other metacharacter) matches literally.
+#' @noRd
+escape_regex <- function(x) {
+  metachars <- c("\\", ".", "^", "$", "|", "(", ")", "[", "]", "{", "}",
+                 "*", "+", "?")
+  for (ch in metachars) x <- gsub(ch, paste0("\\", ch), x, fixed = TRUE)
+  x
+}
+
+
+#' Valid group values across grouped enrichments (manifest whitelist)
+#'
+#' Union of `available_groups` over every grouped enrichment in the manifest.
+#' Lets [taxify_long()] tell a real group suffix (a country / TDWG / language
+#' code) from a companion column an enrichment emits alongside grouped values
+#' (`<base>_sources`, `_unit`, `_n`, `_min`, `_max`, `_source`). Empty when the
+#' manifest is unavailable or lists no grouped enrichments.
+#' @noRd
+enrichment_group_vocabulary <- function() {
+  manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
+  if (is.null(manifest) || is.null(manifest$enrichments)) return(character(0L))
+  groups <- unlist(
+    lapply(manifest$enrichments, function(e) e$available_groups),
+    use.names = FALSE
+  )
+  unique(as.character(groups[!is.na(groups)]))
+}
+
+
 #' @export
 taxify_long <- function(x, cols = NULL, group_col = NULL, drop_na = FALSE) {
   if (!is.data.frame(x)) {
@@ -109,23 +141,33 @@ taxify_long <- function(x, cols = NULL, group_col = NULL, drop_na = FALSE) {
     }
   }
 
-  # Detect suffixed columns: match longest base first to avoid ambiguity
+  # Detect suffixed columns: match longest base first to avoid ambiguity. A
+  # suffix only counts as a group when it is a real group code (a country / TDWG
+  # / language code the manifest lists); companion columns an enrichment emits
+  # alongside grouped values (<base>_sources, _unit, _n, _min, _max, _source)
+  # are never groups. When the manifest is unavailable the companion suffixes
+  # are excluded directly instead, so a companion never becomes a group row.
+  valid_groups       <- enrichment_group_vocabulary()
+  companion_suffixes <- c("source", "sources", "unit", "n", "min", "max")
   bases_sorted <- cols[order(nchar(cols), decreasing = TRUE)]
   remaining <- all_names
   col_assignments <- list()  # base -> list of (suffix, full_col_name)
 
   for (base in bases_sorted) {
-    pattern <- paste0("^", base, "_(.+)$")
+    pattern <- paste0("^", escape_regex(base), "_(.+)$")
     matches <- grep(pattern, remaining, value = TRUE)
-    if (length(matches) > 0L) {
-      suffixes <- sub(pattern, "\\1", matches)
-      col_assignments[[base]] <- data.frame(
-        suffix   = suffixes,
-        full_col = matches,
-        stringsAsFactors = FALSE
-      )
-      remaining <- setdiff(remaining, matches)
-    }
+    if (length(matches) == 0L) next
+    suffixes <- sub(pattern, "\\1", matches)
+    keep     <- (suffixes %in% valid_groups) | !(suffixes %in% companion_suffixes)
+    matches  <- matches[keep]
+    suffixes <- suffixes[keep]
+    if (length(matches) == 0L) next
+    col_assignments[[base]] <- data.frame(
+      suffix   = suffixes,
+      full_col = matches,
+      stringsAsFactors = FALSE
+    )
+    remaining <- setdiff(remaining, matches)
   }
 
   if (length(col_assignments) == 0L) {

@@ -183,17 +183,19 @@ class2tree <- function(x, backend = NULL, verbose = TRUE) {
     stop("class2tree(): no names resolved to an accepted taxon.", call. = FALSE)
   }
 
-  # One lineage per tip, coarsest -> finest, dropping missing ranks so the path
-  # stays contiguous. Duplicate lineages (same species twice) collapse.
+  # One lineage per row, coarsest -> finest, dropping missing ranks so the path
+  # stays contiguous. Rows whose lineage is empty, and rows whose lineage repeats
+  # an earlier one (two inputs collapsing onto one accepted name), are dropped by
+  # a single mask that also filters cf, so tip_labels tracks the tips exactly.
   lin_ranks <- rev(.tree_ranks)            # kingdom .. species
-  paths <- lapply(seq_len(nrow(cf)), function(i) {
+  lineages <- lapply(seq_len(nrow(cf)), function(i) {
     v <- vapply(lin_ranks, function(r) cf[[r]][i], character(1L))
-    v <- v[!is.na(v) & nzchar(v)]
-    unname(v)
+    unname(v[!is.na(v) & nzchar(v)])
   })
-  paths <- paths[vapply(paths, length, integer(1L)) > 0L]
-  paths <- paths[!duplicated(vapply(paths, paste, character(1L),
-                                    collapse = "\r"))]
+  keep <- vapply(lineages, length, integer(1L)) > 0L &
+    !duplicated(vapply(lineages, paste, character(1L), collapse = "\r"))
+  cf    <- cf[keep, , drop = FALSE]
+  paths <- lineages[keep]
   if (length(paths) == 0L) {
     stop("class2tree(): resolved names carry no classification to build a tree.",
          call. = FALSE)

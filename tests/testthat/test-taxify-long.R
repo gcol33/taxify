@@ -21,6 +21,27 @@ test_that("taxify_long() reshapes explicit suffixed columns to long", {
   expect_true(is.na(a_de))
 })
 
+test_that("taxify_long() does not turn a companion column into a group row", {
+  # Grouped country columns alongside a companion <base>_source column: the
+  # companion must never be captured as a bogus group value (e.g. country =
+  # "source"). Real group codes come from the enrichment's group vocabulary.
+  x <- data.frame(
+    input_name             = c("a", "b"),
+    invasive_status_AT     = c("invasive", NA),
+    invasive_status_DE     = c(NA, "invasive"),
+    invasive_status_source = c("GRIIS", "GRIIS"),
+    stringsAsFactors = FALSE
+  )
+  long <- taxify_long(x, cols = "invasive_status", group_col = "country")
+
+  # The country values are a subset of the real groups; "source" is not one.
+  expect_true(all(long$country %in% c("AT", "DE")))
+  expect_false("source" %in% long$country)
+  expect_equal(nrow(long), 4L)                     # 2 species x 2 real groups
+  # The companion column is preserved (carried through, not reshaped).
+  expect_true("invasive_status_source" %in% names(long))
+})
+
 test_that("taxify_long(drop_na = TRUE) drops all-NA value rows", {
   x <- data.frame(
     input_name = c("a", "b"),
