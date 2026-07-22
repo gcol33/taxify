@@ -285,6 +285,31 @@ test_that("equal-frequency near twins give no near_duplicate", {
 })
 
 
+test_that("distinct congeners are not flagged as near-duplicates", {
+  x <- c(rep("Carex flacca", 4L), "Carex flava",
+         rep("Rosa canina", 3L), "Rosa rubiginosa")
+  out <- with_no_register(inspect(x, verbose = FALSE))
+
+  flava <- out[out$input_name == "Carex flava", ]
+  # No near_duplicate anomaly at all, and in particular none mapping
+  # Carex flava -> Carex flacca (2 edits over a 5-char epithet is not a typo).
+  expect_false(any(grepl("near_duplicate", flava$anomalies)))
+  expect_false(any(!is.na(flava$suggestion) &
+                     flava$suggestion == "Carex flacca"))
+  expect_false(any(grepl("near_duplicate", out$anomalies)))
+})
+
+
+test_that("a genuine 1-edit epithet typo within a genus still fires", {
+  x <- c(rep("Rosa canina", 5L), "Rosa canona")
+  out <- with_no_register(inspect(x, verbose = FALSE))
+  row <- out[out$input_name == "Rosa canona", ]
+  expect_match(row$anomalies, "near_duplicate")
+  expect_equal(row$suggestion, "Rosa canina")
+  expect_false("Rosa canina" %in% out$input_name)
+})
+
+
 # ---- single name ----
 
 test_that("inspecting a single name warns that list checks need a batch", {

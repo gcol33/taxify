@@ -375,10 +375,14 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
 #' Find, for each name, a more frequent near-identical name in the same list
 #'
 #' Clusters the input by Levenshtein distance (base [adist()], no dependency)
-#' on a case- and whitespace-folded key. A name is a near-duplicate when another
-#' name within a small edit distance occurs strictly more often, so the rarer
-#' spelling is the likely typo of the common one. Returns the common spelling to
-#' suggest. Frequency-gated: a lone pair (each seen once) gives no signal.
+#' on a case- and whitespace-folded key. Two names in the same genus are compared
+#' on the epithet alone, so a shared genus prefix does not inflate the length
+#' budget and let genuinely distinct congeners pass as typos; names in different
+#' genera keep the whole-string comparison. A name is a near-duplicate when
+#' another name within a small edit distance occurs strictly more often, so the
+#' rarer spelling is the likely typo of the common one. Returns the common
+#' spelling to suggest. A bare genus (no epithet) is never a near-duplicate of a
+#' congener. Frequency-gated: a lone pair (each seen once) gives no signal.
 #'
 #' @param x Character vector of input names.
 #' @return Character vector the length of `x`: the suggested spelling, or `NA`
@@ -400,14 +404,34 @@ near_duplicate_targets <- function(x) {
     names(sort(table(v), decreasing = TRUE))[1L]
   })
 
-  d   <- utils::adist(u)
-  nch <- nchar(u)
+  parts     <- strsplit(u, " ", fixed = TRUE)
+  genus_u   <- vapply(parts, `[`, character(1L), 1L)
+  epithet_u <- vapply(parts, function(p)
+    if (length(p) >= 2L) paste(p[-1L], collapse = " ") else NA_character_,
+    character(1L))
+  has_ep    <- !is.na(epithet_u)
+
+  d_full   <- utils::adist(u)
+  nch_full <- nchar(u)
+  d_ep     <- matrix(NA_integer_, length(u), length(u))
+  nch_ep   <- ifelse(has_ep, nchar(epithet_u), NA_integer_)
+  if (any(has_ep)) {
+    ep <- which(has_ep)
+    d_ep[ep, ep] <- utils::adist(epithet_u[ep])
+  }
+
   target_u <- rep(NA_character_, length(u))
   for (i in seq_along(u)) {
-    near <- which(d[i, ] >= 1L & d[i, ] <= 2L)
+    same_genus <- has_ep[i] & has_ep & genus_u == genus_u[i]
+    dij     <- d_full[i, ]
+    shorter <- pmin(nch_full[i], nch_full)
+    dij[same_genus]     <- d_ep[i, same_genus]
+    shorter[same_genus] <- pmin(nch_ep[i], nch_ep[same_genus])
+
+    near <- which(dij >= 1L & dij <= 2L)
     if (!length(near)) next
-    shorter <- pmin(nch[i], nch[near])
-    near <- near[d[i, near] / shorter <= 0.25 & shorter >= 5L]
+    sh   <- shorter[near]
+    near <- near[dij[near] / sh <= 0.25 & sh >= 5L]
     if (!length(near)) next
     ci   <- as.integer(cnt[u[i]])
     more <- near[as.integer(cnt[u[near]]) > ci]
