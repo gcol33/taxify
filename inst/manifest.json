@@ -523,7 +523,8 @@
         "doi": "10.1038/sdata.2017.202"
       },
       "license": "CC BY 4.0",
-      "source_doi": "10.15468/6jcu0q"
+      "source_doi": "10.15468/6jcu0q",
+      "group_col": "country_code"
     },
     "alien_first_records": {
       "latest": "2026.07",
@@ -813,7 +814,8 @@
         "doi": "10.1038/ncomms14435"
       },
       "license": "CC BY 4.0",
-      "source_doi": "10.5281/zenodo.10039630"
+      "source_doi": "10.5281/zenodo.10039630",
+      "group_col": "country_code"
     },
     "wcvp": {
       "latest": "2026.07",
@@ -1238,7 +1240,8 @@
         "doi": "10.1038/s41597-021-00997-6"
       },
       "license": "CC BY",
-      "source_doi": "10.1038/s41597-021-00997-6"
+      "source_doi": "10.1038/s41597-021-00997-6",
+      "group_col": "tdwg_code"
     },
     "eive": {
       "latest": "2026.07",
@@ -1742,7 +1745,8 @@
         "url": "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
       },
       "license": "CC0",
-      "source_doi": {}
+      "source_doi": {},
+      "group_col": "lang"
     },
     "zanne": {
       "latest": "2026.07",
@@ -2585,7 +2589,8 @@
         "doi": "10.1002/ecy.2542"
       },
       "license": "CC BY 4.0",
-      "source_doi": "10.1002/ecy.2542"
+      "source_doi": "10.1002/ecy.2542",
+      "group_col": "region_id"
     },
     "leptraits": {
       "latest": "2026.07",
@@ -4667,7 +4672,8 @@
         "Microbe",
         "Plant",
         "Vertebrate"
-      ]
+      ],
+      "group_col": "affected_taxon"
     },
     "phylacine": {
       "latest": "2026.07",
@@ -7876,7 +7882,8 @@
         "doi": "10.14284/170"
       },
       "license": "CC BY 4.0",
-      "source_doi": "10.14284/170"
+      "source_doi": "10.14284/170",
+      "group_col": "region_code"
     }
   }
 }

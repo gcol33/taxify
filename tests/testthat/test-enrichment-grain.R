@@ -111,3 +111,58 @@ test_that("build-only enrichments never report a version to download", {
     expect_false(taxify:::check_enrichment_version(nm))
   }
 })
+
+
+test_that("every grouped enrichment declares its group column in the manifest", {
+  # enrichment_groups() and the grouped join need the group column name. It is
+  # copied into meta.json at download time, so a manifest entry without it
+  # leaves a freshly downloaded enrichment unable to report its own groups.
+  # The set is taxifydb's build registry: the entries built with a group_col.
+  grouped <- c(
+    griis               = "country_code",
+    gidias              = "affected_taxon",
+    alien_first_records = "country_code",
+    wcvp                = "tdwg_code",
+    marine_distribution = "region_code",
+    common_names        = "lang",
+    glonaf              = "region_id"
+  )
+
+  mf <- jsonlite::read_json(
+    system.file("manifest.json", package = "taxify"), simplifyVector = TRUE
+  )
+  for (nm in names(grouped)) {
+    entry <- mf$enrichments[[nm]]
+    expect_false(is.null(entry),
+                 info = sprintf("grouped enrichment '%s' has no manifest entry", nm))
+    expect_identical(entry$group_col, unname(grouped[[nm]]),
+                     info = sprintf("manifest group_col for '%s'", nm))
+  }
+})
+
+
+test_that("enrichment_groups() recovers the group column from the manifest", {
+  # An enrichment installed before the describing fields were copied into
+  # meta.json has no local group_col. The manifest carries it, so the groups
+  # must still resolve rather than reporting the enrichment as ungrouped.
+  df <- data.frame(
+    canonical_name = c("Acacia dealbata", "Acacia dealbata", "Pinus radiata"),
+    country_code   = c("PT", "ZA", "PT"),
+    is_invasive    = c(TRUE, TRUE, FALSE),
+    stringsAsFactors = FALSE
+  )
+  install_mock_enrichment("griis", df)
+
+  # Seed the session manifest cache from the bundled copy so the fallback is
+  # exercised against known content rather than whatever GitHub is serving.
+  env  <- taxify:::.taxify_env
+  prev <- env$manifest
+  env$manifest <- taxify:::local_manifest()
+  withr::defer(env$manifest <- prev)
+
+  groups <- enrichment_groups("griis", verbose = FALSE)
+
+  expect_type(groups, "character")
+  expect_true(length(groups) > 0L)
+  expect_true(all(c("PT", "ZA") %in% groups))
+})

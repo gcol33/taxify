@@ -944,26 +944,42 @@ enrichment_groups <- function(source, verbose = TRUE) {
       source), call. = FALSE)
   }
 
-  meta      <- read_enrichment_meta(vtr_path)
+  meta <- read_enrichment_meta(vtr_path)
+
+  blank <- function(v) {
+    is.null(v) || length(v) == 0L || is.na(v[[1L]]) || !nzchar(v[[1L]])
+  }
+
+  # The describing fields are copied from the manifest entry into meta.json at
+  # download time. An enrichment installed before that copying existed has none
+  # of them locally, so the manifest is the fallback for both. Fetched at most
+  # once per call.
+  entry     <- NULL
+  fetched   <- FALSE
+  entry_for <- function() {
+    if (!fetched) {
+      manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
+      entry   <<- if (is.null(manifest)) NULL else
+        resolve_enrichment_entry(manifest, source)
+      fetched <<- TRUE
+    }
+    entry
+  }
+
   group_col <- meta$group_col
-  if (is.null(group_col) || length(group_col) == 0L ||
-      is.na(group_col) || !nzchar(group_col)) {
+  if (blank(group_col)) group_col <- entry_for()$group_col
+  if (blank(group_col)) {
     stop(sprintf(paste0(
       "enrichment_groups(): '%s' is not a grouped enrichment (no group ",
       "column). Use enrichment_cols(\"%s\") to see its columns."),
       source, source), call. = FALSE)
   }
+  group_col <- as.character(group_col)[[1L]]
 
   # Group values: local meta.json (O(1)) -> manifest -> distinct scan of the .vtr.
   groups <- meta$available_groups
   if (is.null(groups) || length(groups) == 0L) {
-    manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
-    entry <- if (!is.null(manifest)) {
-      resolve_enrichment_entry(manifest, source)
-    } else {
-      NULL
-    }
-    groups <- entry$available_groups
+    groups <- entry_for()$available_groups
     if (is.null(groups) || length(groups) == 0L) {
       grp <- vectra::tbl(vtr_path) |>
         vectra::select(!!as.name(group_col)) |>
