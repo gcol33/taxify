@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-07-22T14:16:49",
+  "script": "scripts/benchmark-worldflora.R",
+  "git_sha": "dc9aaa1",
+  "seed": 20260722,
+  "corpus": "accepted WFO binomials sampled from the backbone; the fuzzy corpus substitutes one character per epithet",
+  "snapshot": {
+    "source": "https://zenodo.org/records/14538251/files/_DwC_backbone_R.zip",
+    "taxify_backbone_version": "2026.06",
+    "worldflora_file": "classification.csv"
+  },
+  "platform": {
+    "os": "Windows 11 x64 (build 26200)",
+    "r": "4.6.0",
+    "taxify": "0.3.21",
+    "vectra": "0.11.7",
+    "worldflora": "1.14.5"
+  },
+  "results": {
+    "taxify_load": {
+      "elapsed": 4.86,
+      "peak_mb": 195.8
+    },
+    "taxify_exact": {
+      "n": 1000,
+      "elapsed": 2.2,
+      "peak_mb": 271.1,
+      "matched": 1000
+    },
+    "taxify_fuzzy": {
+      "n": 1000,
+      "elapsed": 18.77,
+      "peak_mb": 677.8,
+      "matched": 1000
+    },
+    "taxify_fuzzy_scale": {
+      "n": 5000,
+      "elapsed": 26.59,
+      "peak_mb": 1133.2,
+      "matched": 5000
+    },
+    "worldflora_load": {
+      "elapsed": 20.11,
+      "peak_mb": 1978.8,
+      "nrow": 1638552
+    },
+    "worldflora_exact": {
+      "n": 1000,
+      "elapsed": 17.14,
+      "peak_mb": 3656.9
+    },
+    "worldflora_fuzzy": {
+      "n": 1000,
+      "elapsed": 4192.39,
+      "peak_mb": 4027.3
+    }
+  }
+}

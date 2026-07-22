@@ -296,14 +296,17 @@ VA.run(draw,PERIOD,null,'sp','sp-cv');
 cat(paste0(
   "<canvas id='sp-cv' width='760' height='330' style='max-width:100%'></canvas>\n",
   "<script>\n(function(){\n",
-  "var TAX=1.0,WFO=1862.0;\n",
+  "var TAX=18.8,WFO=4192.4;\n",
   body, "\n})();\n</script>\n"))
 ```
 
-Exact matching is close (0.1 s against 1.3 s); the gap opens on fuzzy matching,
-where the genus blocking keeps taxify near a second while the in-R scan grows with
-the list. The full benchmark and large-batch strategy are in the
-[large-scale vignette](https://gillescolling.com/taxify/articles/large-scale.html).
+On 1,000 names that all carry a one-character typo, taxify takes 18.8 s and
+WorldFlora 4,192 s. Exact matching is closer, 2.2 s against 17.1 s. The genus
+blocking is what opens the gap: a typo competes only against names in its own
+genus, so the work does not grow with the size of the backbone.
+`scripts/benchmark-worldflora.R` in the repository produces both figures, and the
+[large-scale vignette](https://gillescolling.com/taxify/articles/large-scale.html)
+covers the batch strategy for lists above 100,000 names.
 
 ## Add your own attributes
 

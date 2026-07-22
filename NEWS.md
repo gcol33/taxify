@@ -1,5 +1,34 @@
 # taxify 0.3.21
 
+## The performance and size figures are measured, and generated from the manifest (issue #19)
+
+* The README's headline "1,862x faster than WorldFlora" had nothing in the
+  repository behind it, and neither did the memory figures in the large-scale
+  vignette. Both are now produced by committed scripts --
+  `scripts/benchmark-worldflora.R` and `scripts/benchmark-memory.R` -- which
+  write their runs to JSON alongside package versions and the backbone
+  snapshot. On 1,000 names that each carry a one-character typo, taxify takes
+  18.8 s against WorldFlora's 4,192 s, both reading the same Zenodo Darwin Core
+  archive; exact matching is 2.2 s against 17.1 s.
+
+* The invented console output is gone from the large-scale vignette. The timing
+  chunks show how to measure rather than asserting a number that was never run,
+  and the memory section reports resident set size, which is what a backbone
+  actually costs -- `gc()` sees only a fraction of it, since vectra reads the
+  `.vtr` through the operating system. Opening a backbone costs 1.8 to 2.2 times
+  its `.vtr` size, and a 5,000-name all-fuzzy pass adds 1.3 GB against WFO.
+
+* Backbone row counts, download sizes and the enrichment count are generated
+  from `inst/manifest.json` and taxify's own backbone registry, between HTML
+  comment markers, by `scripts/sync-readme-stats.R`. The hand-kept copies had
+  drifted up to 4.1x (WFO listed at 400k names against 1.6M, its download at
+  ~120 MB against 797 MB). A `manifest-docs` workflow fails if a block goes
+  stale.
+
+* Smaller: the `taxify()` match-type list in the README was missing
+  `hybrid_formula`, and the Euro+Med row count in the backends vignette still
+  described the 2020 build.
+
 ## The genus register is downloaded, not built locally (issue #21)
 
 * The register carries the `kingdom_group`, `taxon_group` and `life_form` that

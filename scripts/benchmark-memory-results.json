@@ -1,0 +1,87 @@
+{
+  "generated_at": "2026-07-22T16:00:53",
+  "script": "scripts/benchmark-memory.R",
+  "metric": "resident set size (WorkingSet64 on Windows), megabytes",
+  "n_names": 5000,
+  "seed": 20260722,
+  "platform": {
+    "os": "Windows 11 x64 (build 26200)",
+    "r": "4.6.0",
+    "taxify": "0.3.6",
+    "vectra": "0.11.7"
+  },
+  "stages": [
+    {
+      "backbone": "wfo",
+      "stage": "load",
+      "vtr_mb": 797.0723,
+      "baseline_mb": 105.0977,
+      "after_load_mb": 1548.4219,
+      "after_match_mb": "NA"
+    },
+    {
+      "backbone": "wfo",
+      "stage": "match",
+      "vtr_mb": 797.0723,
+      "baseline_mb": 103.2891,
+      "after_load_mb": 1543.9531,
+      "after_match_mb": 1837.0508
+    },
+    {
+      "backbone": "wfo",
+      "stage": "fuzzy",
+      "vtr_mb": 797.0723,
+      "baseline_mb": 103.1719,
+      "after_load_mb": 1549.4648,
+      "after_match_mb": 2863.168
+    },
+    {
+      "backbone": "col",
+      "stage": "load",
+      "vtr_mb": 1958.1526,
+      "baseline_mb": 103.0312,
+      "after_load_mb": 3854.4883,
+      "after_match_mb": "NA"
+    },
+    {
+      "backbone": "col",
+      "stage": "match",
+      "vtr_mb": 1958.1526,
+      "baseline_mb": 102.543,
+      "after_load_mb": 3854.6836,
+      "after_match_mb": 4646.9648
+    },
+    {
+      "backbone": "col",
+      "stage": "fuzzy",
+      "vtr_mb": 1958.1526,
+      "baseline_mb": 103.125,
+      "after_load_mb": 3857.4062,
+      "after_match_mb": 6230.9023
+    },
+    {
+      "backbone": "gbif",
+      "stage": "load",
+      "vtr_mb": 1854.5059,
+      "baseline_mb": 105.1758,
+      "after_load_mb": 4129.5977,
+      "after_match_mb": "NA"
+    },
+    {
+      "backbone": "gbif",
+      "stage": "match",
+      "vtr_mb": 1854.5059,
+      "baseline_mb": 102.5312,
+      "after_load_mb": 4131.1016,
+      "after_match_mb": 4806.3203
+    },
+    {
+      "backbone": "gbif",
+      "stage": "fuzzy",
+      "vtr_mb": 1854.5059,
+      "baseline_mb": 103.0352,
+      "after_load_mb": 4129.9766,
+      "after_match_mb": 6012.6328
+    }
+  ]
+}

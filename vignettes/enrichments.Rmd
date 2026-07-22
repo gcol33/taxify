@@ -159,7 +159,7 @@ This check adds negligible latency because the manifest itself is cached.
 If the pre-built `.vtr` download fails (network issues, mirror outage,
 transient server errors), taxify does not stop immediately. Instead, it
 attempts to build the enrichment from the original source data. Each of
-the 81 enrichments has a build recipe in an internal registry
+the <!-- manifest:enrichment-count -->90<!-- /manifest:enrichment-count --> enrichments has a build recipe in an internal registry
 (`.enrichment_build_registry`) that knows how to download the raw CSV, ZIP,
 or API response from the upstream source, parse it into a data.frame with
 a `canonical_name` column, and produce the `.vtr` file locally. This
@@ -203,7 +203,7 @@ directory (typically `~/.local/share/taxify` on Linux/macOS or
 `%LOCALAPPDATA%/taxify` on Windows). This directory is also where backbone
 `.vtr` files are stored, so a single `taxify_data_dir()` call reveals
 where all taxify data lives on the system. Enrichment files are modest in
-size: most are between 1 and 20 MB. The full set of 81 enrichments is
+size: most are between 1 and 20 MB. The full set of <!-- manifest:enrichment-count -->90<!-- /manifest:enrichment-count --> enrichments is
 correspondingly larger.
 
 
@@ -370,7 +370,7 @@ immediately without any network access.
 ## Simple enrichments
 
 Simple enrichments add one or more columns via a flat join on
-`accepted_name`. Seventy-six of the 81 enrichment layers use this
+`accepted_name`. Almost every enrichment layer uses this
 pattern. They differ only in which columns they add and which taxonomic
 groups they cover. We group them below by taxon focus, starting with plants
 (which have the most enrichment layers), then conservation status
@@ -2576,7 +2576,7 @@ A minimal methods paragraph citing enrichments might read:
 ## Summary
 
 taxify's enrichment system turns taxonomic name matching into a gateway to
-ecological trait data. The 81 built-in enrichments cover conservation status,
+ecological trait data. The <!-- manifest:enrichment-count -->90<!-- /manifest:enrichment-count --> built-in enrichments cover conservation status,
 growth form, ecological niches, functional traits, diet, morphology,
 life-history, geographic ranges, invasive status, and vernacular names
 across plants, birds, mammals, amphibians, vertebrates, butterflies,

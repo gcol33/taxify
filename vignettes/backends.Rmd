@@ -35,7 +35,7 @@ may have several synonym entries pointing to it.
 | `ncbi` | NCBI Taxonomy | All life incl. viruses | ~2.7M | Pipe-delimited .dmp files (taxdump) |
 | `ott` | Open Tree of Life | All life (synthetic) | ~3.7M | Pipe-delimited taxonomy.tsv + synonyms.tsv |
 | `worms` | World Register of Marine Species | Marine and brackish | ~1.6M | ChecklistBank DwC-A |
-| `euromed` | Euro+Med PlantBase | European/Mediterranean plants | ~132k | Semicolon-delimited CSV |
+| `euromed` | Euro+Med PlantBase | European/Mediterranean plants | ~147k | Semicolon-delimited CSV |
 | `fungorum` | Species Fungorum Plus | Fungi | ~315k | ChecklistBank DwC-A |
 | `algaebase` | AlgaeBase | Algae and cyanobacteria | ~170k | ChecklistBank DwC-A (CC BY-NC) |
 | `fishbase` | FishBase | Fishes | ~100k | rfishbase (load_taxa + synonyms) |
