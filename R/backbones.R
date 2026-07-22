@@ -10,8 +10,15 @@
 
 #' Canonical registry of supported backbones
 #'
-#' @return A data.frame with `name`, `scope`, and `source` (homepage), in
-#'   canonical display order.
+#' The single source of truth for the supported-backbone set. Alongside the
+#' display fields (`scope`, `source`) it carries the construction fields the
+#' backend factory reads: `label` (human name used in build/shim messages),
+#' `version` (the static default the runtime falls back to when neither a
+#' downloaded meta.json nor the manifest supplies one), and `prefix_fallback`
+#' (whether the prefix-blocked fuzzy pass runs for this backbone).
+#'
+#' @return A data.frame with `name`, `scope`, `source` (homepage), `label`,
+#'   `version`, and `prefix_fallback`, in canonical display order.
 #' @noRd
 .backbone_registry <- function() {
   data.frame(
@@ -44,6 +51,23 @@
       "https://github.com/idiv-biodiversity/LCVP",
       "https://powo.science.kew.org/"
     ),
+    label = c(
+      "the WFO backbone", "the COL backbone", "the GBIF backbone",
+      "the ITIS backbone", "the NCBI backbone", "the OTT backbone",
+      "the WoRMS backbone", "the Euro+Med backbone",
+      "the Species Fungorum backbone", "the AlgaeBase backbone",
+      "the FishBase backbone", "the SeaLifeBase backbone",
+      "the Reptile Database backbone", "the LCVP backbone", "the WCVP backbone"
+    ),
+    version = c(
+      "2024-12", "2025", "current", "2025.04", "2025.04", "3.7.3", "2025.04",
+      "2026.07", "2025.04", "2025.04", "2026.06", "2026.06", "2026.06",
+      "3.0.1", "2026.06"
+    ),
+    prefix_fallback = c(
+      TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+    ),
     stringsAsFactors = FALSE
   )
 }
@@ -53,6 +77,17 @@
 #' @noRd
 backbone_names <- function() {
   .backbone_registry()$name
+}
+
+
+#' Human label for a backbone, for build/shim messages
+#'
+#' @param name Backbone name.
+#' @return The registry `label` string (e.g. `"the WFO backbone"`).
+#' @noRd
+backbone_label <- function(name) {
+  reg <- .backbone_registry()
+  reg$label[match(name, reg$name)]
 }
 
 

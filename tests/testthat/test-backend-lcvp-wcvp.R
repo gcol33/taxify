@@ -10,8 +10,8 @@ test_that("lcvp and wcvp resolve to their backend objects", {
   expect_s3_class(wc, "taxify_wcvp")
   expect_equal(lc$name, "lcvp")
   expect_equal(wc$name, "wcvp")
-  expect_equal(lc$genus_col, "genus")
-  expect_equal(wc$genus_col, "genus")
+  expect_equal(lc$col_map$genus, "genus")
+  expect_equal(wc$col_map$genus, "genus")
 })
 
 test_that("resolve_backend error lists the new backends", {

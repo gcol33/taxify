@@ -917,31 +917,16 @@ match_abbrev_genus <- function(backend, result, names_df, backbone) {
 
 #' Resolve a backend name to an S3 object
 #'
+#' A registry lookup: any name in [.backbone_registry()] is constructed by the
+#' shared [make_backend()] factory. A `taxify_backend` object is returned
+#' unchanged.
+#'
 #' @param backend Character string or taxify_backend object.
 #' @return A taxify_backend object.
 #' @noRd
 resolve_backend <- function(backend) {
   if (inherits(backend, "taxify_backend")) return(backend)
-  switch(backend,
-    wfo = wfo_backend(),
-    col = col_backend(),
-    gbif = gbif_backend(),
-    itis = itis_backend(),
-    ncbi = ncbi_backend(),
-    ott = ott_backend(),
-    worms = worms_backend(),
-    fungorum = fungorum_backend(),
-    algaebase = algaebase_backend(),
-    euromed = euromed_backend(),
-    fishbase = fishbase_backend(),
-    sealifebase = sealifebase_backend(),
-    reptiledb = reptiledb_backend(),
-    lcvp = lcvp_backend(),
-    wcvp = wcvp_backend(),
-    stop(sprintf(
-      "Unknown backend '%s'. Available: %s",
-      backend, paste(backbone_names(), collapse = ", ")), call. = FALSE)
-  )
+  make_backend(backend)
 }
 
 
