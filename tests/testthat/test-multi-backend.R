@@ -40,17 +40,17 @@ test_that("multi-backend uses first backend when name is found there", {
 })
 
 test_that("multi-backend falls back to second backend for unmatched", {
-  # Both mock backbones have the same species, so we need a name
-
-  # that only exists in one. Since our mocks are identical in content,
-  # test the fallback mechanism by using a name in both — the first
-  # backend should win.
+  # Osphranter rufus is one of the kangaroos the COL mock carries and the WFO
+  # mock (vascular plants) does not, so the first backend cannot resolve it and
+  # the chain has to reach the second. Quercus robur is in both and pins that a
+  # name the leading backbone does resolve stays with it.
   setup_multi_backend()
-  result <- taxify(c("Quercus robur", "Pinus sylvestris"),
-                   backend = c("wfo", "col"), verbose = FALSE)
+  result <- taxify(c("Quercus robur", "Osphranter rufus"),
+                   backend = c("wfo", "col"), fuzzy = FALSE, verbose = FALSE)
   expect_equal(nrow(result), 2L)
-  # Both found in WFO (first backend), so both should be "wfo"
-  expect_equal(result$backend, c("wfo", "wfo"))
+  expect_equal(result$backend, c("wfo", "col"))
+  expect_equal(result$match_type, c("exact", "exact"))
+  expect_equal(result$accepted_name, c("Quercus robur", "Osphranter rufus"))
 })
 
 test_that("multi-backend unmatched names get 'none' and NA backend", {

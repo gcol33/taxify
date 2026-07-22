@@ -71,8 +71,12 @@ test_that("children() input is case-insensitive and returns empty on no match", 
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  expect_equal(nrow(children("quercus", backend = "wfo", verbose = FALSE)),
-               nrow(children("Quercus", backend = "wfo", verbose = FALSE)))
+  lower <- children("quercus", backend = "wfo", verbose = FALSE)
+  upper <- children("Quercus", backend = "wfo", verbose = FALSE)
+  # Matching row counts alone would also hold if children() found nothing at
+  # all, so pin that the genus resolves and that the two agree in content.
+  expect_gt(nrow(upper), 0L)
+  expect_identical(lower, upper)
   expect_equal(nrow(children("Notagenus", backend = "wfo", verbose = FALSE)), 0L)
 })
 

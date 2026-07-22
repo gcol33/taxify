@@ -285,8 +285,10 @@ test_that("summary.taxify_result() produces output and returns invisibly", {
   expect_true(length(out) > 0L)
   # Should mention the backend
   expect_true(any(grepl("WFO", out, ignore.case = TRUE)))
-  # Should mention name count
-  expect_true(any(grepl("3", out)))
+  # The submitted count is read off its own line, so a wrong tally fails rather
+  # than being satisfied by any stray digit elsewhere in the digest.
+  submitted_line <- grep("names submitted", out, value = TRUE)[1]
+  expect_match(submitted_line, "\\|\\s+3 names submitted")
   # Returns invisibly (same object)
   expect_identical(ret, result)
 })
