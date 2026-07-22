@@ -220,6 +220,7 @@ class2tree <- function(x, backend = NULL, verbose = TRUE) {
 }
 
 
+#' @rdname class2tree
 #' @export
 print.taxify_tree <- function(x, ...) {
   n_tip <- length(x$tip_labels)

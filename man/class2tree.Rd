@@ -2,9 +2,12 @@
 % Please edit documentation in R/classification-tree.R
 \name{class2tree}
 \alias{class2tree}
+\alias{print.taxify_tree}
 \title{Build a taxonomy tree from resolved names}
 \usage{
 class2tree(x, backend = NULL, verbose = TRUE)
+
+\method{print}{taxify_tree}(x, ...)
 }
 \arguments{
 \item{x}{Character vector of names, or a \code{\link[=taxify]{taxify()}} result.}

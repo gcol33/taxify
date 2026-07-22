@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Joining custom data with add_data()"
 output: rmarkdown::html_vignette
 vignette: >

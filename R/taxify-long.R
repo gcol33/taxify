@@ -1,4 +1,4 @@
-﻿#' Escape regex metacharacters in a literal string
+#' Escape regex metacharacters in a literal string
 #'
 #' Base column names are interpolated into a `^base_(.+)$` pattern; escape them
 #' so a name carrying a `.` (or other metacharacter) matches literally.

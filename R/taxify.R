@@ -171,6 +171,13 @@
 #'     `"gbif"`).}
 #'   \item{backbone_version}{Backend name, version, and download date
 #'     (e.g., `"wfo:2024-12 (2026-04-01)"`). Useful for reproducibility.}
+#'   \item{kingdom_group}{Coarse kingdom-level group of the matched genus, from
+#'     the bundled genus register (used for cross-kingdom disambiguation); `NA`
+#'     when the genus is not in the register.}
+#'   \item{taxon_group}{Broad taxonomic group of the matched genus, from the
+#'     genus register; `NA` when unavailable.}
+#'   \item{life_form}{Life-form classification of the matched genus, from the
+#'     genus register's family-based lookup; `NA` when unavailable.}
 #' }
 #'
 #' @section Backbone-specific accepted names:

@@ -191,6 +191,13 @@ accepted taxon IDs when \code{is_ambiguous = TRUE}; \code{NA} otherwise.}
 \code{"gbif"}).}
 \item{backbone_version}{Backend name, version, and download date
 (e.g., \code{"wfo:2024-12 (2026-04-01)"}). Useful for reproducibility.}
+\item{kingdom_group}{Coarse kingdom-level group of the matched genus, from
+the bundled genus register (used for cross-kingdom disambiguation); \code{NA}
+when the genus is not in the register.}
+\item{taxon_group}{Broad taxonomic group of the matched genus, from the
+genus register; \code{NA} when unavailable.}
+\item{life_form}{Life-form classification of the matched genus, from the
+genus register's family-based lookup; \code{NA} when unavailable.}
 }
 }
 \description{

@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Getting started with taxify"
 output: rmarkdown::html_vignette
 vignette: >

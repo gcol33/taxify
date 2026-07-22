@@ -1,4 +1,4 @@
-﻿#' Inspect a name list for probable typos and other anomalies
+#' Inspect a name list for probable typos and other anomalies
 #'
 #' A quality-control pass over a name list. By default `inspect()` does not match
 #' names against backbones: on a plain character vector it runs the checks that

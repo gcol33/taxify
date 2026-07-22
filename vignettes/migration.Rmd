@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Migrating from taxize, WorldFlora, and related tools"
 output: rmarkdown::html_vignette
 vignette: >
