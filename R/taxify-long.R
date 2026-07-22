@@ -1,4 +1,36 @@
-﻿#' Reshape grouped enrichment columns to long format
+﻿#' Escape regex metacharacters in a literal string
+#'
+#' Base column names are interpolated into a `^base_(.+)$` pattern; escape them
+#' so a name carrying a `.` (or other metacharacter) matches literally.
+#' @noRd
+escape_regex <- function(x) {
+  metachars <- c("\\", ".", "^", "$", "|", "(", ")", "[", "]", "{", "}",
+                 "*", "+", "?")
+  for (ch in metachars) x <- gsub(ch, paste0("\\", ch), x, fixed = TRUE)
+  x
+}
+
+
+#' Valid group values across grouped enrichments (manifest whitelist)
+#'
+#' Union of `available_groups` over every grouped enrichment in the manifest.
+#' Lets [taxify_long()] tell a real group suffix (a country / TDWG / language
+#' code) from a companion column an enrichment emits alongside grouped values
+#' (`<base>_sources`, `_unit`, `_n`, `_min`, `_max`, `_source`). Empty when the
+#' manifest is unavailable or lists no grouped enrichments.
+#' @noRd
+enrichment_group_vocabulary <- function() {
+  manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
+  if (is.null(manifest) || is.null(manifest$enrichments)) return(character(0L))
+  groups <- unlist(
+    lapply(manifest$enrichments, function(e) e$available_groups),
+    use.names = FALSE
+  )
+  unique(as.character(groups[!is.na(groups)]))
+}
+
+
+#' Reshape grouped enrichment columns to long format
 #'
 #' Converts wide-format columns produced by grouped enrichments (e.g.,
 #' `invasive_status_AT`, `invasive_status_DE`) back to long format with
@@ -56,38 +88,6 @@
 #'
 #' options(old)
 #'
-#' Escape regex metacharacters in a literal string
-#'
-#' Base column names are interpolated into a `^base_(.+)$` pattern; escape them
-#' so a name carrying a `.` (or other metacharacter) matches literally.
-#' @noRd
-escape_regex <- function(x) {
-  metachars <- c("\\", ".", "^", "$", "|", "(", ")", "[", "]", "{", "}",
-                 "*", "+", "?")
-  for (ch in metachars) x <- gsub(ch, paste0("\\", ch), x, fixed = TRUE)
-  x
-}
-
-
-#' Valid group values across grouped enrichments (manifest whitelist)
-#'
-#' Union of `available_groups` over every grouped enrichment in the manifest.
-#' Lets [taxify_long()] tell a real group suffix (a country / TDWG / language
-#' code) from a companion column an enrichment emits alongside grouped values
-#' (`<base>_sources`, `_unit`, `_n`, `_min`, `_max`, `_source`). Empty when the
-#' manifest is unavailable or lists no grouped enrichments.
-#' @noRd
-enrichment_group_vocabulary <- function() {
-  manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
-  if (is.null(manifest) || is.null(manifest$enrichments)) return(character(0L))
-  groups <- unlist(
-    lapply(manifest$enrichments, function(e) e$available_groups),
-    use.names = FALSE
-  )
-  unique(as.character(groups[!is.na(groups)]))
-}
-
-
 #' @export
 taxify_long <- function(x, cols = NULL, group_col = NULL, drop_na = FALSE) {
   if (!is.data.frame(x)) {

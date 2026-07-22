@@ -1200,11 +1200,14 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   # <col> (the join falls back to the point value when they are absent), so a
   # missing _min/_max whose base column is itself mapped is skipped; and
   # auto-exposed extras are drawn from the schema, so they never appear here.
+  # The bundled example database ships curated subset fixtures whose columns are
+  # a deliberate subset of the released .vtr, so the diagnostic is a production
+  # check and is suppressed there (mirroring the version/download gates).
   missing_src <- setdiff(mapped_src, names(schema))
   spread_partner <- grepl("_(min|max)$", missing_src) &
     sub("_(min|max)$", "", missing_src) %in% mapped_src
   missing_src <- missing_src[!spread_partner]
-  if (length(missing_src) > 0L) {
+  if (length(missing_src) > 0L && !is_example_data_dir()) {
     warning(sprintf(
       "Enrichment '%s': mapped column(s) not in the .vtr: %s. Attached as all-NA.",
       enrichment_name, paste(sort(unique(missing_src)), collapse = ", ")

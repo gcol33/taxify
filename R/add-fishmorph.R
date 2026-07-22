@@ -31,7 +31,7 @@
 #'
 #' @details
 #' Source: FISHMORPH (Brosse et al. 2021, Figshare, CC BY 4.0).
-#' Coverage: ~8.3k freshwater fish species.
+#' Coverage: ~9k freshwater fish species.
 #'
 #' @references
 #' Brosse S, Charpin N, Su G, Toussaint A, Herrera-R GA, Tedesco PA,

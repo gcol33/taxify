@@ -43,7 +43,7 @@ for the fish reference database FishBase see \code{\link[=add_fishbase]{add_fish
 }
 \details{
 Source: FISHMORPH (Brosse et al. 2021, Figshare, CC BY 4.0).
-Coverage: ~8.3k freshwater fish species.
+Coverage: ~9k freshwater fish species.
 }
 \examples{
 # Runs offline against the bundled example database.
