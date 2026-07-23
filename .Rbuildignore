@@ -21,6 +21,8 @@
 ^tools$
 ^\.run.*\.R$
 ^output_.*\.R$
+^output$
+^tests/testthat/output$
 ^data-raw$
 ^cran-comments\.md$
 ^codecov\.yml$
