@@ -66,7 +66,8 @@ hybrid marker was found in the original input; it is always present
 regardless of whether the name matched a backbone record. `hybrid_type`
 records the finer classification: `"nothogenus"`, `"nothospecies"`,
 `"formula"`, or `NA` for a non-hybrid. The parent binomials of a formula
-(and their resolved accepted names) are added on demand by
+(with their resolved accepted names and backbone ids) are added on
+demand by
 [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md),
 covered below.
 
@@ -155,7 +156,7 @@ output.
 [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
 goes further for **hybrid formulas**: it parses the `input_name` column
 for the two parents and resolves each against the same backbone(s) used
-for the result. It adds four columns:
+for the result. It adds these columns:
 
 - `hybrid_parent_1`: the first parent binomial (for formulas) or NA
 
@@ -164,6 +165,11 @@ for the result. It adds four columns:
 
 - `hybrid_parent_1_accepted`, `hybrid_parent_2_accepted`: the accepted
   name each parent resolves to, or NA if it did not match
+
+- `hybrid_parent_1_id`, `hybrid_parent_2_id`: the backbone `taxon_id` of
+  the accepted taxon each parent resolves to, ready for
+  [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+  or NA if it did not match
 
 For nothogenus and nothospecies names, the parent columns are NA because
 the input names only the hybrid itself, not its parents. The parent

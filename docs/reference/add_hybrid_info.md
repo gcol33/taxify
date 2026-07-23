@@ -36,6 +36,15 @@ The same data.frame with additional columns:
   for `x` (from the result's metadata), or `NA` if the parent did not
   match.
 
+- hybrid_parent_1_id, hybrid_parent_2_id:
+
+  The backbone `taxon_id` of the accepted taxon each parent resolves to,
+  usable directly with
+  [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+  or `NA` if the parent did not match. An unresolved hybrid formula
+  carries `NA` in the result's own `taxon_id` (it has no single backbone
+  record); these two columns are where the component IDs live.
+
 - hybrid_type:
 
   One of `"nothogenus"`, `"nothospecies"`, `"formula"`, or `NA` if not a

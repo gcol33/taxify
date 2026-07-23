@@ -13,6 +13,11 @@
 #'   \item{hybrid_parent_1_accepted, hybrid_parent_2_accepted}{The accepted
 #'     name each parent resolves to against the backbone(s) used for `x` (from
 #'     the result's metadata), or `NA` if the parent did not match.}
+#'   \item{hybrid_parent_1_id, hybrid_parent_2_id}{The backbone `taxon_id` of
+#'     the accepted taxon each parent resolves to, usable directly with
+#'     [id2name()], or `NA` if the parent did not match. An unresolved hybrid
+#'     formula carries `NA` in the result's own `taxon_id` (it has no single
+#'     backbone record); these two columns are where the component IDs live.}
 #'   \item{hybrid_type}{One of `"nothogenus"`, `"nothospecies"`,
 #'     `"formula"`, or `NA` if not a hybrid (same value as the `hybrid_type`
 #'     column already on a [taxify()] result).}
@@ -46,17 +51,23 @@ add_hybrid_info <- function(x) {
   x$hybrid_parent_2 <- vapply(parsed, `[[`, character(1L), "parent_2")
   x$hybrid_type     <- vapply(parsed, `[[`, character(1L), "hybrid_type")
 
-  # Resolve each parent to its accepted name against the backbone(s) used for x.
+  # Resolve each parent to its accepted name and backbone id against the
+  # backbone(s) used for x.
   x$hybrid_parent_1_accepted <- NA_character_
   x$hybrid_parent_2_accepted <- NA_character_
+  x$hybrid_parent_1_id <- NA_character_
+  x$hybrid_parent_2_id <- NA_character_
   parents <- unique(c(x$hybrid_parent_1, x$hybrid_parent_2))
   parents <- parents[!is.na(parents) & nzchar(parents)]
   if (length(parents) > 0L) {
     meta    <- attr(x, "taxify_meta")
     backbone <- if (!is.null(meta$backbone)) meta$backbone else "wfo"
     acc <- .resolve_parents_accepted(parents, backbone)
+    id  <- .resolve_parents_accepted_id(parents, backbone)
     x$hybrid_parent_1_accepted <- unname(acc[x$hybrid_parent_1])
     x$hybrid_parent_2_accepted <- unname(acc[x$hybrid_parent_2])
+    x$hybrid_parent_1_id <- unname(id[x$hybrid_parent_1])
+    x$hybrid_parent_2_id <- unname(id[x$hybrid_parent_2])
   }
 
   n_enriched <- sum(!is.na(x$hybrid_type))

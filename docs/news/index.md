@@ -1,5 +1,15 @@
 # Changelog
 
+## taxify 0.4.1
+
+- [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
+  gains `hybrid_parent_1_id` / `hybrid_parent_2_id`: the backbone
+  `taxon_id` of the accepted taxon each parent of a hybrid formula
+  resolves to. An unresolved hybrid formula has no single backbone
+  record, so the result’s own `taxon_id` is `NA`; the two component ids
+  now travel in these columns, each ready to pass straight to
+  [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md).
+
 ## taxify 0.4.0
 
 CRAN release: 2026-07-23

@@ -49,6 +49,15 @@ test_that("add_hybrid_info resolves formula parents to accepted names", {
   expect_equal(result$hybrid_parent_2, "Salix fragilis")
   expect_equal(result$hybrid_parent_1_accepted, "Salix alba")
   expect_equal(result$hybrid_parent_2_accepted, "Salix fragilis")
+  # each parent carries the accepted taxon's own backbone id (the result's own
+  # taxon_id is NA for an unresolved formula, so this is where the ids live)
+  expect_true(all(c("hybrid_parent_1_id", "hybrid_parent_2_id") %in% names(result)))
+  expect_false(is.na(result$hybrid_parent_1_id))
+  expect_false(is.na(result$hybrid_parent_2_id))
+  expect_equal(result$hybrid_parent_1_id,
+               taxify("Salix alba", verbose = FALSE)$accepted_id)
+  expect_equal(result$hybrid_parent_2_id,
+               taxify("Salix fragilis", verbose = FALSE)$accepted_id)
 })
 
 # -- add_wfo_info --

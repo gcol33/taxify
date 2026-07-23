@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/gcol33/taxify/blob/HEAD/DESCRIPTION)
 
 Colling G (2026). *taxify: Offline Taxonomic Name Matching Against
-Darwin Core Backbones*. R package version 0.4.0,
+Darwin Core Backbones*. R package version 0.4.1,
 <https://gillescolling.com/taxify/>.
 
     @Manual{,
       title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
       author = {Gilles Colling},
       year = {2026},
-      note = {R package version 0.4.0},
+      note = {R package version 0.4.1},
       url = {https://gillescolling.com/taxify/},
     }

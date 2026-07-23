@@ -19,6 +19,11 @@ genus expanded), \code{NA} if not a hybrid formula.}
 \item{hybrid_parent_1_accepted, hybrid_parent_2_accepted}{The accepted
 name each parent resolves to against the backbone(s) used for \code{x} (from
 the result's metadata), or \code{NA} if the parent did not match.}
+\item{hybrid_parent_1_id, hybrid_parent_2_id}{The backbone \code{taxon_id} of
+the accepted taxon each parent resolves to, usable directly with
+\code{\link[=id2name]{id2name()}}, or \code{NA} if the parent did not match. An unresolved hybrid
+formula carries \code{NA} in the result's own \code{taxon_id} (it has no single
+backbone record); these two columns are where the component IDs live.}
 \item{hybrid_type}{One of \code{"nothogenus"}, \code{"nothospecies"},
 \code{"formula"}, or \code{NA} if not a hybrid (same value as the \code{hybrid_type}
 column already on a \code{\link[=taxify]{taxify()}} result).}

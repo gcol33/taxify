@@ -22,7 +22,7 @@ hybrid parent names and classify the hybrid type."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,6 +107,13 @@ genus expanded), <code>NA</code> if not a hybrid formula.</p></dd>
 <dd><p>The accepted
 name each parent resolves to against the backbone(s) used for <code>x</code> (from
 the result's metadata), or <code>NA</code> if the parent did not match.</p></dd>
+
+<dt>hybrid_parent_1_id, hybrid_parent_2_id</dt>
+<dd><p>The backbone <code>taxon_id</code> of
+the accepted taxon each parent resolves to, usable directly with
+<code><a href="id2name.html">id2name()</a></code>, or <code>NA</code> if the parent did not match. An unresolved hybrid
+formula carries <code>NA</code> in the result's own <code>taxon_id</code> (it has no single
+backbone record); these two columns are where the component IDs live.</p></dd>
 
 <dt>hybrid_type</dt>
 <dd><p>One of <code>"nothogenus"</code>, <code>"nothospecies"</code>,

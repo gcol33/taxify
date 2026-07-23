@@ -1005,22 +1005,39 @@ enrichment_groups <- function(source, verbose = TRUE) {
 }
 
 
-# Resolve a set of parent binomials to their accepted names against backbone(s).
-# Memoized per (backbone, parent-set) within a session so a chain of add_trait
-# sources over the same hybrids resolves the parents only once.
-.resolve_parents_accepted <- function(parents, backbone) {
+# Resolve a set of parent binomials to their accepted name and accepted-taxon
+# backbone id against backbone(s). Memoized per (backbone, parent-set) within a
+# session so a chain of add_trait sources -- and the name / id lookups below --
+# over the same hybrids resolve the parents only once.
+.resolve_parents_resolved <- function(parents, backbone) {
+  empty <- data.frame(input_name = character(0L), accepted_name = character(0L),
+                      accepted_id = character(0L), stringsAsFactors = FALSE)
   parents <- unique(parents[!is.na(parents) & nzchar(parents)])
-  if (length(parents) == 0L) {
-    return(stats::setNames(character(0L), character(0L)))
-  }
+  if (length(parents) == 0L) return(empty)
   be_key <- paste(as.character(backbone), collapse = "+")
-  key    <- paste0(".pacc_", be_key, "_", paste(sort(parents), collapse = "|"))
+  key    <- paste0(".pres_", be_key, "_", paste(sort(parents), collapse = "|"))
   cached <- .taxify_env[[key]]
   if (!is.null(cached)) return(cached)
   pr  <- taxify(parents, backbone = backbone, verbose = FALSE)
-  acc <- stats::setNames(pr$accepted_name, pr$input_name)
-  .taxify_env[[key]] <- acc
-  acc
+  out <- data.frame(
+    input_name    = pr$input_name,
+    accepted_name = pr$accepted_name,
+    accepted_id   = pr$accepted_id %||% rep(NA_character_, nrow(pr)),
+    stringsAsFactors = FALSE)
+  .taxify_env[[key]] <- out
+  out
+}
+
+# Accepted name of each parent, keyed by input name (the shape callers expect).
+.resolve_parents_accepted <- function(parents, backbone) {
+  r <- .resolve_parents_resolved(parents, backbone)
+  stats::setNames(r$accepted_name, r$input_name)
+}
+
+# Accepted-taxon backbone id of each parent, keyed by input name.
+.resolve_parents_accepted_id <- function(parents, backbone) {
+  r <- .resolve_parents_resolved(parents, backbone)
+  stats::setNames(r$accepted_id, r$input_name)
 }
 
 # Look up a set of names in an enrichment .vtr, returning the joined rows.

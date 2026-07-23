@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -168,9 +168,9 @@ found in the original input; it is always present regardless of whether
 the name matched a backbone record. <code>hybrid_type</code> records the
 finer classification: <code>"nothogenus"</code>,
 <code>"nothospecies"</code>, <code>"formula"</code>, or <code>NA</code>
-for a non-hybrid. The parent binomials of a formula (and their resolved
-accepted names) are added on demand by <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>,
-covered below.</p>
+for a non-hybrid. The parent binomials of a formula (with their resolved
+accepted names and backbone ids) are added on demand by
+<code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>, covered below.</p>
 <p>After detection, the hybrid marker is handled by type. For a
 nothospecies like “Mentha ×piperita”, the cleaned form becomes “Mentha
 piperita”, and taxify also tries the sign-retained form “Mentha ×
@@ -295,7 +295,7 @@ result.</p>
 output. <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> goes further for <strong>hybrid
 formulas</strong>: it parses the <code>input_name</code> column for the
 two parents and resolves each against the same backbone(s) used for the
-result. It adds four columns:</p>
+result. It adds these columns:</p>
 <ul>
 <li><p><code>hybrid_parent_1</code>: the first parent binomial (for
 formulas) or NA</p></li>
@@ -304,6 +304,10 @@ formulas, with abbreviated or omitted genera expanded) or NA</p></li>
 <li><p><code>hybrid_parent_1_accepted</code>,
 <code>hybrid_parent_2_accepted</code>: the accepted name each parent
 resolves to, or NA if it did not match</p></li>
+<li><p><code>hybrid_parent_1_id</code>, <code>hybrid_parent_2_id</code>:
+the backbone <code>taxon_id</code> of the accepted taxon each parent
+resolves to, ready for <code><a href="../reference/id2name.html">id2name()</a></code>, or NA if it did not
+match</p></li>
 </ul>
 <p>For nothogenus and nothospecies names, the parent columns are NA
 because the input names only the hybrid itself, not its parents. The
