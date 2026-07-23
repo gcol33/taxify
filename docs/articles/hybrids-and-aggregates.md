@@ -1,16 +1,16 @@
 # Hybrids and aggregates
 
-Most names resolve to a single binomial. Two kinds do not, and both need
-handling in matching and again in trait resolution. A **hybrid** names a
-cross between two taxa, sometimes as a nothospecies (`Mentha ×piperita`)
-and sometimes as a formula that spells out both parents
-(`Salix alba × Salix fragilis`). An **aggregate** names a group of
-closely related microspecies under one label (`Rubus fruticosus agg.`,
-`Galium mollugo s.l.`), sitting one step above the binomial. taxify
-treats the two with a parallel fallback: where a hybrid formula has no
-record of its own, it resolves through its two parents; where an
-aggregate has no record of its own, it falls back to the nominal
-binomial. This vignette covers hybrids first, then aggregates.
+Hybrids and aggregates both need handling in matching and again in trait
+resolution. A **hybrid** names a cross between two taxa, sometimes as a
+nothospecies (`Mentha ×piperita`) and sometimes as a formula that spells
+out both parents (`Salix alba × Salix fragilis`). An **aggregate** names
+a group of closely related microspecies under one label
+(`Rubus fruticosus agg.`, `Galium mollugo s.l.`), sitting one step above
+the binomial. taxify treats the two with a parallel fallback: where a
+hybrid formula has no record of its own, it resolves through its two
+parents; where an aggregate has no record of its own, it falls back to
+the nominal binomial. This vignette covers hybrids first, then
+aggregates.
 
 ## Hybrid names in taxonomy
 

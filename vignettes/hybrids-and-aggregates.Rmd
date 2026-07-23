@@ -15,8 +15,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-Most names resolve to a single binomial. Two kinds do not, and both need
-handling in matching and again in trait resolution. A **hybrid** names a cross
+Hybrids and aggregates both need handling in matching and again in trait
+resolution. A **hybrid** names a cross
 between two taxa, sometimes as a nothospecies (`Mentha ×piperita`) and sometimes
 as a formula that spells out both parents (`Salix alba × Salix fragilis`). An
 **aggregate** names a group of closely related microspecies under one label
