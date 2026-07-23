@@ -157,10 +157,13 @@ accepted name's full citation.}
 \item{hybrid_type}{\code{"nothogenus"} (\code{"x Cupressocyparis leylandii"}),
 \code{"nothospecies"} (\code{"Quercus x hispanica"}), \code{"formula"}
 (\code{"Salix alba x Salix fragilis"}), or \code{NA} for a non-hybrid. Nothogenus
-and nothospecies resolve to a single backbone taxon in the usual columns;
-a formula does not (its match columns are \code{NA} and \code{match_type} is
-\code{"hybrid_formula"}). The parent binomials of a formula, and their accepted
-names, are added on demand by \code{\link[=add_hybrid_info]{add_hybrid_info()}}.}
+and nothospecies resolve to a single backbone taxon in the usual columns.
+A formula resolves that way only where the backbone stores the cross;
+otherwise \code{match_type} is \code{"hybrid_formula"}, the ID, rank and
+classification columns are \code{NA}, and \code{matched_name} / \code{accepted_name}
+name the cross by its parents when both parents resolve. The parent
+binomials, and their accepted names, are added on demand by
+\code{\link[=add_hybrid_info]{add_hybrid_info()}}.}
 \item{qualifier}{Canonical taxonomic qualifier found in the input name
 (\code{"cf."}, \code{"aff."}, \code{"agg."}, \code{"s.l."}, \code{"s.str."}, \code{"sp."}, ...), or
 \code{NA}. Spelling variants are folded to one token (\code{"aggr."}, \code{"agg"} and
@@ -176,9 +179,11 @@ back to the nominal binomial. \code{NA} for non-aggregate queries and under
 \code{aggregates = "collapse"}, where the collapse is explicit.}
 \item{match_type}{One of \code{"exact"}, \code{"exact_ci"}, \code{"fuzzy"}, \code{"abbrev"}
 (an abbreviated genus such as \code{"Q. robur"} resolved via genus initial
-plus epithet), \code{"hybrid_formula"} (a two-parent cross; the row's
-backbone-match columns are \code{NA} and the parents are resolved into the
-\verb{hybrid_parent_*} columns instead), or \code{"none"}.}
+plus epithet), \code{"hybrid_formula"} (a two-parent cross the backbone does
+not store; the ID, rank and classification columns are \code{NA},
+\code{matched_name} / \code{accepted_name} name the cross by its parents when both
+resolve, and \code{\link[=add_hybrid_info]{add_hybrid_info()}} materializes the parents into the
+\verb{hybrid_parent_*} columns), or \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
 \item{is_ambiguous}{Logical. \code{TRUE} when the matched scientificName had
 multiple synonym rows pointing to different accepted taxa at the same

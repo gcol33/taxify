@@ -242,9 +242,12 @@ A data.frame with one row per input name and the following columns:
   (`"Quercus x hispanica"`), `"formula"`
   (`"Salix alba x Salix fragilis"`), or `NA` for a non-hybrid.
   Nothogenus and nothospecies resolve to a single backbone taxon in the
-  usual columns; a formula does not (its match columns are `NA` and
-  `match_type` is `"hybrid_formula"`). The parent binomials of a
-  formula, and their accepted names, are added on demand by
+  usual columns. A formula resolves that way only where the backbone
+  stores the cross; otherwise `match_type` is `"hybrid_formula"`, the
+  ID, rank and classification columns are `NA`, and `matched_name` /
+  `accepted_name` name the cross by its parents when both parents
+  resolve. The parent binomials, and their accepted names, are added on
+  demand by
   [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md).
 
 - qualifier:
@@ -273,9 +276,12 @@ A data.frame with one row per input name and the following columns:
 
   One of `"exact"`, `"exact_ci"`, `"fuzzy"`, `"abbrev"` (an abbreviated
   genus such as `"Q. robur"` resolved via genus initial plus epithet),
-  `"hybrid_formula"` (a two-parent cross; the row's backbone-match
-  columns are `NA` and the parents are resolved into the
-  `hybrid_parent_*` columns instead), or `"none"`.
+  `"hybrid_formula"` (a two-parent cross the backbone does not store;
+  the ID, rank and classification columns are `NA`, `matched_name` /
+  `accepted_name` name the cross by its parents when both resolve, and
+  [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
+  materializes the parents into the `hybrid_parent_*` columns), or
+  `"none"`.
 
 - fuzzy_dist:
 

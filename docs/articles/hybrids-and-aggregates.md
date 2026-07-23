@@ -248,9 +248,10 @@ absent, the row has `match_type = "none"` and `accepted_name = NA`, with
 
 **Hybrid formulas** are tried against the backbone as a whole first
 (some backbones store the cross as a synonym of the nothospecies). When
-that misses, the row is marked `match_type = "hybrid_formula"` with `NA`
-match columns – never collapsed to one parent. To work with the parents,
-use
+that misses, the row is marked `match_type = "hybrid_formula"`, the ID,
+rank and classification columns stay `NA`, and the cross is named by its
+two parents in `matched_name` and `accepted_name` – never collapsed to
+one parent. To work with the parents, use
 [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md),
 which resolves both against the same backbone:
 

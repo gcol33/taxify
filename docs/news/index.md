@@ -2,6 +2,8 @@
 
 ## taxify 0.4.0
 
+CRAN release: 2026-07-23
+
 ### Breaking: `backend` is renamed to `backbone` throughout the API (issue [\#24](https://github.com/gcol33/taxify/issues/24))
 
 - Two real concepts had one name. A `backbone` is a data source and its
@@ -330,6 +332,15 @@
   share one `enrich_from_backbone()` helper, and
   [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
   uses a vectorized, typed-NA join keyed on `accepted_id`.
+
+### taxifydb is required at 0.1.19 or newer
+
+- The register fallback calls
+  [`taxifydb::build_register()`](https://rdrr.io/pkg/taxifydb/man/build_register.html),
+  which taxifydb added during 0.1.18 rather than at its start, so a
+  0.1.18 built before that point satisfied an unversioned dependency and
+  then failed the call. `Suggests` now names `taxifydb (>= 0.1.19)`, the
+  first version whose number identifies code that carries the function.
 
 ### Documentation (issues [\#18](https://github.com/gcol33/taxify/issues/18), [\#19](https://github.com/gcol33/taxify/issues/19))
 

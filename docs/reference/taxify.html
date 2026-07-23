@@ -290,10 +290,13 @@ accepted name's full citation.</p></dd>
 <dd><p><code>"nothogenus"</code> (<code>"x Cupressocyparis leylandii"</code>),
 <code>"nothospecies"</code> (<code>"Quercus x hispanica"</code>), <code>"formula"</code>
 (<code>"Salix alba x Salix fragilis"</code>), or <code>NA</code> for a non-hybrid. Nothogenus
-and nothospecies resolve to a single backbone taxon in the usual columns;
-a formula does not (its match columns are <code>NA</code> and <code>match_type</code> is
-<code>"hybrid_formula"</code>). The parent binomials of a formula, and their accepted
-names, are added on demand by <code><a href="add_hybrid_info.html">add_hybrid_info()</a></code>.</p></dd>
+and nothospecies resolve to a single backbone taxon in the usual columns.
+A formula resolves that way only where the backbone stores the cross;
+otherwise <code>match_type</code> is <code>"hybrid_formula"</code>, the ID, rank and
+classification columns are <code>NA</code>, and <code>matched_name</code> / <code>accepted_name</code>
+name the cross by its parents when both parents resolve. The parent
+binomials, and their accepted names, are added on demand by
+<code><a href="add_hybrid_info.html">add_hybrid_info()</a></code>.</p></dd>
 
 <dt>qualifier</dt>
 <dd><p>Canonical taxonomic qualifier found in the input name
@@ -317,9 +320,11 @@ back to the nominal binomial. <code>NA</code> for non-aggregate queries and unde
 <dt>match_type</dt>
 <dd><p>One of <code>"exact"</code>, <code>"exact_ci"</code>, <code>"fuzzy"</code>, <code>"abbrev"</code>
 (an abbreviated genus such as <code>"Q. robur"</code> resolved via genus initial
-plus epithet), <code>"hybrid_formula"</code> (a two-parent cross; the row's
-backbone-match columns are <code>NA</code> and the parents are resolved into the
-<code>hybrid_parent_*</code> columns instead), or <code>"none"</code>.</p></dd>
+plus epithet), <code>"hybrid_formula"</code> (a two-parent cross the backbone does
+not store; the ID, rank and classification columns are <code>NA</code>,
+<code>matched_name</code> / <code>accepted_name</code> name the cross by its parents when both
+resolve, and <code><a href="add_hybrid_info.html">add_hybrid_info()</a></code> materializes the parents into the
+<code>hybrid_parent_*</code> columns), or <code>"none"</code>.</p></dd>
 
 <dt>fuzzy_dist</dt>
 <dd><p>Normalized string distance (0–1), <code>NA</code> if exact.</p></dd>

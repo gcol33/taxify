@@ -73,7 +73,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.4.0" id="taxify-040">taxify 0.4.0<a class="anchor" aria-label="anchor" href="#taxify-040"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.4.0" id="taxify-040">taxify 0.4.0<a class="anchor" aria-label="anchor" href="#taxify-040"></a></h2><p class="text-muted">CRAN release: 2026-07-23</p>
 <div class="section level3">
 <h3 id="breaking-backend-is-renamed-to-backbone-throughout-the-api-issue-0-4-0">Breaking: <code>backend</code> is renamed to <code>backbone</code> throughout the API (issue <a href="https://github.com/gcol33/taxify/issues/24" class="external-link">#24</a>)<a class="anchor" aria-label="anchor" href="#breaking-backend-is-renamed-to-backbone-throughout-the-api-issue-0-4-0"></a></h3>
 <ul><li><p>Two real concepts had one name. A <code>backbone</code> is a data source and its <code>.vtr</code> file; a <code>backend</code> is the <code>taxify_backend</code> S3 handle that knows how to read one. The name-string layer conflated them – <code>install_backbones(backends =)</code> and <code>backbone_path(backend)</code> collided inside single lines. <code>backbone</code> now names the data source and its name string everywhere, <code>backend</code> names the S3 handle only, and <code>resolve_backend()</code> is the single crossing point between them.</p></li>
@@ -172,6 +172,10 @@
 <div class="section level3">
 <h3 id="internals-backend-registry-and-shared-enrichment-join-issues-0-4-0">Internals: backend registry and shared enrichment join (issues <a href="https://github.com/gcol33/taxify/issues/20" class="external-link">#20</a>, <a href="https://github.com/gcol33/taxify/issues/22" class="external-link">#22</a>)<a class="anchor" aria-label="anchor" href="#internals-backend-registry-and-shared-enrichment-join-issues-0-4-0"></a></h3>
 <ul><li>The 15 <code>backend-*.R</code> clones collapse into one registry-driven factory; adding a backbone is now a registry row plus a manifest entry. The three backend-info doors (<code><a href="../reference/add_wfo_info.html">add_wfo_info()</a></code> / <code><a href="../reference/add_gbif_info.html">add_gbif_info()</a></code> / <code><a href="../reference/add_col_info.html">add_col_info()</a></code>) share one <code>enrich_from_backbone()</code> helper, and <code><a href="../reference/add_data.html">add_data()</a></code> uses a vectorized, typed-NA join keyed on <code>accepted_id</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="taxifydb-is-required-at-or-newer-0-4-0">taxifydb is required at 0.1.19 or newer<a class="anchor" aria-label="anchor" href="#taxifydb-is-required-at-or-newer-0-4-0"></a></h3>
+<ul><li>The register fallback calls <code><a href="https://rdrr.io/pkg/taxifydb/man/build_register.html" class="external-link">taxifydb::build_register()</a></code>, which taxifydb added during 0.1.18 rather than at its start, so a 0.1.18 built before that point satisfied an unversioned dependency and then failed the call. <code>Suggests</code> now names <code>taxifydb (&gt;= 0.1.19)</code>, the first version whose number identifies code that carries the function.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="documentation-issues-0-4-0">Documentation (issues <a href="https://github.com/gcol33/taxify/issues/18" class="external-link">#18</a>, <a href="https://github.com/gcol33/taxify/issues/19" class="external-link">#19</a>)<a class="anchor" aria-label="anchor" href="#documentation-issues-0-4-0"></a></h3>
