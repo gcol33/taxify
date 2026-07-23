@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = FALSE
 )
+library(taxify)
 ```
 
 ## The problem
@@ -31,8 +32,6 @@ only ever changes which spelling correction wins, never a name that was already
 right.
 
 ```{r}
-library(taxify)
-
 # a small regional list, with a couple of misspellings to correct
 field_names <- c(
   "Gentiana acaulis", "Primula veris", "Pulsatilla vulgaris",

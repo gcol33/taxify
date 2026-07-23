@@ -18,11 +18,6 @@ first, each labelled with what stands out and, where known, the name to
 use instead. Clean names are dropped, so a short report means a clean
 list.
 
-``` r
-
-library(taxify)
-```
-
 ## A first look, without matching
 
 By default

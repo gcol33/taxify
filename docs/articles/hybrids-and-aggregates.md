@@ -43,11 +43,6 @@ detection logic distinguishes a standalone “x” used as a hybrid marker
 from an “x” that is part of a word (e.g., the genus *Saxifraga*) by
 requiring whitespace boundaries around the letter.
 
-``` r
-
-library(taxify)
-```
-
 ## How taxify detects hybrids
 
 Detection happens early in the pipeline, during name cleaning and before

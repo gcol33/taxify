@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = FALSE
 )
+library(taxify)
 ```
 
 taxify is designed for lists of a few hundred names and lists of a few
@@ -28,11 +29,6 @@ timing guidance for different list sizes, and walks through four worked
 examples: exact vs. fuzzy matching, multi-backbone fallback ordering, batch
 processing of very large lists, and pre-downloading resources before a batch
 run.
-
-```{r}
-library(taxify)
-```
-
 
 ## How taxify scales
 

@@ -14,11 +14,6 @@ examples: exact vs. fuzzy matching, multi-backbone fallback ordering,
 batch processing of very large lists, and pre-downloading resources
 before a batch run.
 
-``` r
-
-library(taxify)
-```
-
 ## How taxify scales
 
 ### The .vtr columnar format

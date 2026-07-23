@@ -21,11 +21,6 @@ IDs.
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 wraps that entire workflow into a single pipe step.
 
-``` r
-
-library(taxify)
-```
-
 ## Joining a data.frame
 
 The most common case: we have trait measurements in a data.frame sitting

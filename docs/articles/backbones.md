@@ -132,8 +132,6 @@ Docker image), use
 
 ``` r
 
-library(taxify)
-
 # Download one backbone
 taxify_download("wfo")
 
@@ -183,8 +181,6 @@ produce identical results regardless of when the analysis is re-run.
 The simplest use case: match plant names against WFO.
 
 ``` r
-
-library(taxify)
 
 plants <- c(
   "Quercus robur",

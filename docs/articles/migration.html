@@ -618,8 +618,6 @@ IDs, <code><a href="https://docs.ropensci.org/taxize/reference/classification.ht
 <p>With taxify, all of that is one call:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span>,</span>
 <span>           <span class="st">"Panthera leo"</span>, <span class="st">"Salmo trutta"</span><span class="op">)</span></span>
 <span></span>
@@ -654,8 +652,6 @@ best match per input.</p>
 happen in a single call:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>,</span>
 <span>           <span class="st">"Pinus silvestris"</span>, <span class="st">"Rosa canina"</span><span class="op">)</span></span>
 <span></span>
@@ -682,9 +678,7 @@ taxify handles both: the fuzzy matcher corrects the spelling to
 <p>taxify can chain multiple backbones in a single call. Unmatched names
 cascade to the next backbone automatically.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Mixed kingdom input: plants, animals, fungi</span></span>
+<code class="sourceCode R"><span><span class="co"># Mixed kingdom input: plants, animals, fungi</span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,         <span class="co"># plant (WFO primary)</span></span>
 <span>  <span class="st">"Panthera leo"</span>,          <span class="co"># animal (not in WFO, picked up by GBIF)</span></span>

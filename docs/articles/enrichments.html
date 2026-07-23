@@ -321,9 +321,7 @@ version-locked), <code>trait_cols</code> (comma-separated list of trait
 column names), and <code>source_url</code> (the upstream data
 source).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              name version   nrow static                              trait_cols ...</span></span>
 <span><span class="co">#&gt; 1 iucn  ...  166000   TRUE                   conservation_status ...</span></span>
 <span><span class="co">#&gt; 2               griis  ...   23000  FALSE                      invasive_status ...</span></span>
@@ -1961,9 +1959,7 @@ compose naturally with the pipe operator. A typical workflow chains
 <code><a href="../reference/taxify.html">taxify()</a></code> with several enrichment calls, building up the
 desired set of columns incrementally.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">plant_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">plant_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Picea abies"</span>,</span>
 <span>  <span class="st">"Arrhenatherum elatius"</span>, <span class="st">"Festuca rubra"</span>, <span class="st">"Plantago lanceolata"</span></span>
 <span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>

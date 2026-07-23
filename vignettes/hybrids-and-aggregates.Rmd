@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = FALSE
 )
+library(taxify)
 ```
 
 Hybrids and aggregates both need handling in matching and again in trait
@@ -56,10 +57,6 @@ forms (`×`, `x`, `X`) and normalizes them internally. The detection
 logic distinguishes a standalone "x" used as a hybrid marker from an "x"
 that is part of a word (e.g., the genus *Saxifraga*) by requiring
 whitespace boundaries around the letter.
-
-```{r}
-library(taxify)
-```
 
 ## How taxify detects hybrids
 

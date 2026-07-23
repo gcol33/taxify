@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = FALSE
 )
+library(taxify)
 ```
 
 ## The problem
@@ -30,10 +31,6 @@ Joining on raw species strings misses these cases: the rows do not
 match, and the merged data.frame has `NA`s where values should exist. The standard workaround is to run the external names
 through the backbone first, resolve them to accepted IDs, and then join on
 those IDs. `add_data()` wraps that entire workflow into a single pipe step.
-
-```{r}
-library(taxify)
-```
 
 ## Joining a data.frame
 

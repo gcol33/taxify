@@ -21,11 +21,6 @@ GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
 FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP), all queried
 offline.
 
-``` r
-
-library(taxify)
-```
-
 The first
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 downloads a backbone once (WFO is about 150 MB) and caches it under

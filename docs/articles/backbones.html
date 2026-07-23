@@ -329,9 +329,7 @@ access.</p>
 <p>To download a backbone ahead of time (useful on a shared server or in
 a Docker image), use <code><a href="../reference/taxify_download.html">taxify_download()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Download one backbone</span></span>
+<code class="sourceCode R"><span><span class="co"># Download one backbone</span></span>
 <span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Download several at once</span></span>
@@ -373,9 +371,7 @@ produce identical results regardless of when the analysis is re-run.</p>
 </h2>
 <p>The simplest use case: match plant names against WFO.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,</span>
 <span>  <span class="st">"Quercus petraea"</span>,</span>
 <span>  <span class="st">"Pinus sylvestris"</span>,</span>

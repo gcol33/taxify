@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = FALSE
 )
+library(taxify)
 ```
 
 ```{r va-engine, echo = FALSE, results = "asis", eval = TRUE}
@@ -56,10 +57,6 @@ engine, so there are no web services and no rate limits, and the same input give
 the same output on any machine. Fifteen Darwin Core backbones are available
 (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
 FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP), all queried offline.
-
-```{r}
-library(taxify)
-```
 
 The first `taxify()` call downloads a backbone once (WFO is about 150 MB) and
 caches it under `taxify_data_dir()`. After that, nothing touches the network.

@@ -225,8 +225,6 @@ With taxify, all of that is one call:
 ``` r
 
 # --- taxify ---
-library(taxify)
-
 names <- c("Quercus robur", "Pinus sylvestris", "Betula pendula",
            "Panthera leo", "Salmo trutta")
 
@@ -266,8 +264,6 @@ happen in a single call:
 ``` r
 
 # --- taxify ---
-library(taxify)
-
 names <- c("Quercus robur", "Quercus pedonculata",
            "Pinus silvestris", "Rosa canina")
 
@@ -296,8 +292,6 @@ taxify can chain multiple backbones in a single call. Unmatched names
 cascade to the next backbone automatically.
 
 ``` r
-
-library(taxify)
 
 # Mixed kingdom input: plants, animals, fungi
 names <- c(

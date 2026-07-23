@@ -225,8 +225,6 @@ names), and `source_url` (the upstream data source).
 
 ``` r
 
-library(taxify)
-
 list_enrichments()
 #>              name version   nrow static                              trait_cols ...
 #> 1 iucn  ...  166000   TRUE                   conservation_status ...
@@ -2011,8 +2009,6 @@ several enrichment calls, building up the desired set of columns
 incrementally.
 
 ``` r
-
-library(taxify)
 
 plant_result <- taxify(c(
   "Quercus robur", "Fagus sylvatica", "Picea abies",

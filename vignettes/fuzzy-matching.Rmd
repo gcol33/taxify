@@ -9,6 +9,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(eval = FALSE)
+library(taxify)
 ```
 
 ## What fuzzy matching does (and does not do)

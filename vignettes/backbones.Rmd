@@ -9,6 +9,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(eval = FALSE)
+library(taxify)
 ```
 
 taxify matches taxonomic names against locally stored Darwin Core backbone
@@ -131,8 +132,6 @@ To download a backbone ahead of time (useful on a shared server or in a
 Docker image), use `taxify_download()`:
 
 ```{r download-single}
-library(taxify)
-
 # Download one backbone
 taxify_download("wfo")
 
@@ -179,8 +178,6 @@ identical results regardless of when the analysis is re-run.
 The simplest use case: match plant names against WFO.
 
 ```{r single-wfo}
-library(taxify)
-
 plants <- c(
   "Quercus robur",
   "Quercus petraea",

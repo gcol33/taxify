@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = FALSE
 )
+library(taxify)
 ```
 
 Taxonomic name matching is rarely the end goal. Once `taxify()` has resolved
@@ -217,8 +218,6 @@ dataset is version-locked), `trait_cols` (comma-separated list of trait
 column names), and `source_url` (the upstream data source).
 
 ```{r list-enrichments}
-library(taxify)
-
 list_enrichments()
 #>              name version   nrow static                              trait_cols ...
 #> 1 iucn  ...  166000   TRUE                   conservation_status ...
@@ -1866,8 +1865,6 @@ typical workflow chains `taxify()` with several enrichment calls, building
 up the desired set of columns incrementally.
 
 ```{r stacking-plants}
-library(taxify)
-
 plant_result <- taxify(c(
   "Quercus robur", "Fagus sylvatica", "Picea abies",
   "Arrhenatherum elatius", "Festuca rubra", "Plantago lanceolata"
