@@ -84,6 +84,18 @@ crosswalk_tables <- function(f) {
   found
 }
 
+# A `covr:::count("<file>:<line>:...")` call, which covr inserts as a sibling of
+# every instrumented expression. Its key is a string literal that is not a source
+# value, so the call is skipped rather than read for literals.
+is_covr_count <- function(e) {
+  fn <- e[[1L]]
+  if (is.call(fn) && length(fn) == 3L && is.name(fn[[1L]]) &&
+      as.character(fn[[1L]]) %in% c("::", ":::")) {
+    fn <- fn[[3L]]
+  }
+  is.name(fn) && identical(as.character(fn), "count")
+}
+
 # Every character literal in a function body. For a map written out by hand
 # these are the source tokens it tests against.
 body_literals <- function(f) {
@@ -94,6 +106,7 @@ body_literals <- function(f) {
       return(invisible(NULL))
     }
     if (is.call(e) || is.pairlist(e)) {
+      if (is.call(e) && is_covr_count(e)) return(invisible(NULL))
       for (i in seq_along(e)) {
         el <- tryCatch(e[[i]], error = function(err) NULL)
         if (!is.null(el)) walk(el)
