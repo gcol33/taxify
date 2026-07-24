@@ -49,12 +49,13 @@ default), \code{"levenshtein"}, or \code{"jw"} (Jaro-Winkler).}
 \code{agg.} / \code{s.l.} qualifier). \code{"preserve"} (default) keeps the aggregate as
 its own concept: it matches the backbone's aggregate taxon
 (\code{"<binomial> aggr."}) where one exists, otherwise falls back to the
-binomial. When it falls back, the \code{aggregate_fallback} column is set \code{TRUE}
-so the aggregate-to-species collapse is visible rather than silent (only
-the aggregate-bearing backbones -- Euro+Med, WoRMS -- carry aggregate taxa,
-so preserve falls back for the others). \code{"collapse"} strips the marker and
-matches the binomial species, the way any non-aggregate name is matched.
-Either way the qualifier is recorded in the \code{qualifier} column.}
+binomial. The output's \code{aggregate_fallback} column records which happened
+for each aggregate: \code{TRUE} where it fell back to the binomial, \code{FALSE}
+where it resolved to the dedicated aggregate taxon. Only Euro+Med and WoRMS
+carry aggregate taxa, so preserve falls back for the other backbones.
+\code{"collapse"} strips the marker and matches the binomial species, the way
+any non-aggregate name is matched. Either way the qualifier is recorded in
+the \code{qualifier} column.}
 
 \item{region}{Region(s) to constrain fuzzy matching to, or \code{NULL} (default)
 for no geographic constraint. Botanical (WCVP, vascular plants): TDWG Level

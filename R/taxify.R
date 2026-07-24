@@ -36,12 +36,13 @@
 #'   `agg.` / `s.l.` qualifier). `"preserve"` (default) keeps the aggregate as
 #'   its own concept: it matches the backbone's aggregate taxon
 #'   (`"<binomial> aggr."`) where one exists, otherwise falls back to the
-#'   binomial. When it falls back, the `aggregate_fallback` column is set `TRUE`
-#'   so the aggregate-to-species collapse is visible rather than silent (only
-#'   the aggregate-bearing backbones -- Euro+Med, WoRMS -- carry aggregate taxa,
-#'   so preserve falls back for the others). `"collapse"` strips the marker and
-#'   matches the binomial species, the way any non-aggregate name is matched.
-#'   Either way the qualifier is recorded in the `qualifier` column.
+#'   binomial. The output's `aggregate_fallback` column records which happened
+#'   for each aggregate: `TRUE` where it fell back to the binomial, `FALSE`
+#'   where it resolved to the dedicated aggregate taxon. Only Euro+Med and WoRMS
+#'   carry aggregate taxa, so preserve falls back for the other backbones.
+#'   `"collapse"` strips the marker and matches the binomial species, the way
+#'   any non-aggregate name is matched. Either way the qualifier is recorded in
+#'   the `qualifier` column.
 #' @param region Region(s) to constrain fuzzy matching to, or `NULL` (default)
 #'   for no geographic constraint. Botanical (WCVP, vascular plants): TDWG Level
 #'   3 codes (`"BGM"`, `c("BGM", "GER")`) or region names at any level, matched
@@ -577,14 +578,13 @@ attach_agg_key <- function(names_df, aggregates = "preserve") {
 }
 
 
-#' Flag aggregate queries that silently collapsed to the binomial
+#' Flag aggregate queries that fell back to the binomial
 #'
 #' In preserve mode an aggregate input (`"<binomial> agg."`) should match the
 #' backbone's dedicated aggregate taxon (`"<binomial> aggr."`). Where the
 #' backbone carries no such taxon the match falls through to the nominal
-#' binomial, and without a signal that collapse is invisible. This records it in
-#' an `aggregate_fallback` column so a preserve query that could not honour the
-#' aggregate concept is visible rather than hidden:
+#' binomial. This records that in an `aggregate_fallback` column so a preserve
+#' query that could not honour the aggregate concept is marked in the result:
 #'   * `TRUE`  aggregate input resolved to the binomial (preserve fell back),
 #'   * `FALSE` aggregate input resolved to the dedicated aggregate taxon,
 #'   * `NA`    not an aggregate query (or one that matched nothing), or

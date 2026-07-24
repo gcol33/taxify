@@ -33,9 +33,9 @@ list.
 
 ## A first look, without matching
 
-By default `inspect()` does not match anything. On a plain character vector
-it runs the checks that need no backbone: it asks the genus register whether
-each genus is a real one, and it compares each name against the rest of the
+By default `inspect()` runs only the checks that need no backbone; it matches
+nothing unless you ask. On a plain character vector it asks the genus register
+whether each genus is a real one and compares each name against the rest of the
 batch. Both are fast and offline.
 
 ```{r}
@@ -64,16 +64,15 @@ inspect(names)
 #>   [review    ] Panthera leo      ->  ?               animalia outlier (list is mostly plantae)
 ```
 
-Three names surface. *Bogusia fakensis* uses a genus no backbone recognises,
-so it reads as not a real name. *Festuca rubraa* is one letter off a spelling
-that appears twice in the same list, the mark of a typo of it. *Panthera leo*
-is the lone animal in a list of plants, the pattern a cross-kingdom homonym
-typo leaves behind.
+Three names surface. *Bogusia fakensis* uses a genus no backbone recognises.
+*Festuca rubraa* is one letter off *Festuca rubra*, which appears twice in the
+same list, so it looks like a slip of that name. *Panthera leo* is the lone
+animal among plants, and a cross-kingdom homonym typo often shows up exactly
+this way.
 
-Two names slip past this first pass. *Quercus robber* needs a backbone to
-recognise as a typo of *Quercus robur*, and *Pinus abies* is a valid-looking
-binomial whose synonymy only a backbone knows. Those are the match-based
-checks, and they are opt-in.
+*Pinus abies* slips past this first pass. It is a well-formed binomial, and its
+synonymy with *Picea abies* surfaces only when a backbone is matched. That
+check is opt-in.
 
 ## The labels
 
@@ -112,8 +111,8 @@ how serious the problem is:
   `synonym` land here.
 
 An anomaly can be intended. A list may genuinely include one animal among
-plants, or deliberately keep a synonym. The tier is a triage hint, so read it
-as a place to start rather than a verdict.
+plants, or deliberately keep a synonym. The tier is a triage hint, so treat it
+as a starting point.
 
 ## Turning on matching
 
