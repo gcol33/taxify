@@ -310,9 +310,8 @@ loose[, c("input_name", "accepted_name", "fuzzy_dist")]
 ```
 
 At threshold 0.4, *Poa trialis* (10 characters) is allowed up to 4 edits. That
-is enough distance to reach not only *Poa trivialis* (the intended target, 2
-edits) but potentially other Poa species that happen to be closer in string
-distance. With 500+ Poa species in WFO, the risk of a false match is real.
+is enough distance to reach *Poa trivialis* (the intended target, 2 edits)
+and potentially other Poa species that happen to be closer in string distance. With 500+ Poa species in WFO, the risk of a false match is real.
 
 The fix is simple: tighten the threshold.
 

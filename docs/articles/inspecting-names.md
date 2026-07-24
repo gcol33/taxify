@@ -12,20 +12,19 @@ name, matched or not, so the problems are spread through a wide table.
 Before committing a list to analysis it helps to see only the names that
 look off, each with a short note on why.
 
-[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) is
-that pass. It returns one row per anomalous name, ordered most-notable
-first, each labelled with what stands out and, where known, the name to
-use instead. Clean names are dropped, so a short report means a clean
-list.
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+returns one row per anomalous name, ordered most-notable first, each
+labelled with what stands out and, where known, the name to use instead.
+Clean names are dropped, so a short report means a clean list.
 
 ## A first look, without matching
 
 By default
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-does not match anything. On a plain character vector it runs the checks
-that need no backbone: it asks the genus register whether each genus is
-a real one, and it compares each name against the rest of the batch.
-Both are fast and offline.
+runs only the checks that need no backbone; it matches nothing unless
+you ask. On a plain character vector it asks the genus register whether
+each genus is a real one and compares each name against the rest of the
+batch. Both are fast and offline.
 
 ``` r
 
@@ -53,15 +52,14 @@ inspect(names)
     #>   [review    ] Panthera leo      ->  ?               animalia outlier (list is mostly plantae)
 
 Three names surface. *Bogusia fakensis* uses a genus no backbone
-recognises, so it reads as not a real name. *Festuca rubraa* is one
-letter off a spelling that appears twice in the same list, the mark of a
-typo of it. *Panthera leo* is the lone animal in a list of plants, the
-pattern a cross-kingdom homonym typo leaves behind.
+recognises. *Festuca rubraa* is one letter off *Festuca rubra*, which
+appears twice in the same list, so it looks like a slip of that name.
+*Panthera leo* is the lone animal among plants, and a cross-kingdom
+homonym typo often shows up exactly this way.
 
-Two names slip past this first pass. *Quercus robber* needs a backbone
-to recognise as a typo of *Quercus robur*, and *Pinus abies* is a
-valid-looking binomial whose synonymy only a backbone knows. Those are
-the match-based checks, and they are opt-in.
+*Pinus abies* slips past this first pass. It is a well-formed binomial,
+and its synonymy with *Picea abies* surfaces only when a backbone is
+matched. That check is opt-in.
 
 ## The labels
 
@@ -89,8 +87,9 @@ result and only appear once matching has run:
 
 ## Tiers
 
-Every flagged row also gets a `tier`. The tier says what the name needs,
-not how serious the problem is:
+Every flagged row also gets a `tier`. A tier names the action a row
+needs before analysis, from a required decision down to optional
+cleanup:
 
 - `unresolved`: no usable name came back, so the row needs a decision
   before analysis. `unknown` lands here.
@@ -102,7 +101,7 @@ not how serious the problem is:
 
 An anomaly can be intended. A list may genuinely include one animal
 among plants, or deliberately keep a synonym. The tier is a triage hint,
-so read it as a place to start rather than a verdict.
+so treat it as a starting point.
 
 ## Turning on matching
 
@@ -130,8 +129,8 @@ inspect(names, backbones = TRUE)
 Now *Pinus abies* is recognised as a synonym and resolved to *Picea
 abies*, and *Festuca rubraa* carries both its list-context label and the
 fuzzy `typo` label that confirms it. *Panthera leo* now matches in GBIF,
-so it is no longer a candidate typo, but it remains a kingdom-group
-outlier in a plant list.
+so the candidate-typo label drops. It stays a kingdom-group outlier in a
+plant list.
 
 If you have already matched the list, inspect the result instead of
 asking

@@ -70,13 +70,13 @@ taxify(
   `s.l.` qualifier). `"preserve"` (default) keeps the aggregate as its
   own concept: it matches the backbone's aggregate taxon
   (`"<binomial> aggr."`) where one exists, otherwise falls back to the
-  binomial. When it falls back, the `aggregate_fallback` column is set
-  `TRUE` so the aggregate-to-species collapse is visible rather than
-  silent (only the aggregate-bearing backbones – Euro+Med, WoRMS – carry
-  aggregate taxa, so preserve falls back for the others). `"collapse"`
-  strips the marker and matches the binomial species, the way any
-  non-aggregate name is matched. Either way the qualifier is recorded in
-  the `qualifier` column.
+  binomial. The output's `aggregate_fallback` column records which
+  happened for each aggregate: `TRUE` where it fell back to the
+  binomial, `FALSE` where it resolved to the dedicated aggregate taxon.
+  Only Euro+Med and WoRMS carry aggregate taxa, so preserve falls back
+  for the other backbones. `"collapse"` strips the marker and matches
+  the binomial species, the way any non-aggregate name is matched.
+  Either way the qualifier is recorded in the `qualifier` column.
 
 - region:
 

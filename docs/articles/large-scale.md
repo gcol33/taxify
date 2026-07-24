@@ -28,7 +28,7 @@ binary layout.
 
 Backbones are distributed as pre-built `.vtr` files (hosted on Zenodo
 and GitHub Releases), so users download a single binary file that is
-ready to query immediately — no CSV parsing, no conversion step. The
+ready to query immediately, with no CSV parsing or conversion step. The
 `.vtr` files are typically 30-50% smaller than the original Darwin Core
 CSV because the columnar layout compresses string columns more
 efficiently than row-oriented text.

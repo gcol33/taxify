@@ -110,7 +110,7 @@
 <span>  <span class="st">"Taraxacum officinale"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="local-not-over-the-wire">Local, not over the wire<a class="anchor" aria-label="anchor" href="#local-not-over-the-wire"></a>
+<h2 id="local-on-disk">Local, on disk<a class="anchor" aria-label="anchor" href="#local-on-disk"></a>
 </h2>
 <p>The usual route for name resolution, <code>taxize</code>, calls out to around twenty web services (NCBI, ITIS, GBIF, EOL, IUCN, WoRMS, Tropicos, …). That covers everything, but it ties each run to network latency, service uptime, and rate limits, and the answer can change between runs as upstream services update. <code>taxify</code> ships the backbones as pre-built local snapshots and matches against them in C, so a list of thousands resolves in seconds and a result is reproducible from the recorded backbone version.</p>
 <p>The closest local analogue is <a href="https://docs.ropensci.org/taxadb/" class="external-link">taxadb</a>, which also stores backbone snapshots on disk; the <a href="https://gillescolling.com/taxify/articles/migration.html">migration vignette</a> walks through the differences in matching strategy, output schema, and enrichment.</p>
@@ -125,6 +125,7 @@
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Panthera leo"</span>, <span class="st">"Amanita muscaria"</span><span class="op">)</span>,</span>
 <span>  backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"gbif"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>Pass no <code>backbone</code> at all and <code><a href="reference/taxify.html">taxify()</a></code> uses every backbone you have installed as one fallback chain, in a fixed priority order: COL first, then the domain authorities (marine, plants, fungi, algae, fishes, reptiles), then the broad aggregators GBIF, ITIS, NCBI, and OTT. On a fresh install the first call downloads the default set, COL, GBIF, and ITIS (~4 GB, once).</p>
 <!-- manifest:backbone-table -->
 <table class="table">
 <colgroup>
@@ -237,15 +238,15 @@
 <div class="section level2">
 <h2 id="names-are-cleaned-before-matching">Names are cleaned before matching<a class="anchor" aria-label="anchor" href="#names-are-cleaned-before-matching"></a>
 </h2>
-<p>Input names are normalized first, so the fuzzy pass only runs on names that genuinely differ from the backbone rather than on names that just carry extra authorship or qualifiers:</p>
+<p>Input names are normalized first, so the fuzzy pass only runs on names that genuinely differ from the backbone, once extra authorship and qualifiers have been stripped:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="st">"Quercus robur L."</span>            <span class="op">-&gt;</span>  <span class="st">"Quercus robur"</span>        <span class="co"># authorship stripped</span></span>
 <span><span class="st">"Pinus cf. sylvestris"</span>        <span class="op">-&gt;</span>  <span class="st">"Pinus sylvestris"</span>     <span class="co"># qualifier removed</span></span>
 <span><span class="st">"Nothofagus x alpina"</span>         <span class="op">-&gt;</span>  <span class="st">"Nothofagus × alpina"</span>  <span class="co"># hybrid sign normalized (x -&gt; ×)</span></span>
 <span><span class="st">"Betula pendula (Roth) Doll"</span>  <span class="op">-&gt;</span>  <span class="st">"Betula pendula"</span>       <span class="co"># parenthesized author stripped</span></span></code></pre></div>
 <p>Fuzzy matching is configurable (Damerau-Levenshtein, Levenshtein, or Jaro-Winkler, with a distance threshold), and runs genus-blocked so a typo only competes against names in the same genus.</p>
-<p>Both packages can read the same WFO snapshot, so the comparison below is between the two matching implementations rather than between two versions of WFO. taxify queries the columnar <code>.vtr</code> taxifydb builds from the Zenodo Darwin Core archive; WorldFlora reads the classification table inside that same archive into RAM.</p>
-<p>The corpus is 1,000 accepted binomials drawn from the backbone with a fixed seed. The fuzzy corpus is those names with one substituted character in each epithet, so every name has to be resolved by distance – a deliberate worst case, not a mixed list where most names still match exactly.</p>
+<p>Both packages can read the same WFO snapshot, so the comparison below isolates the two matching implementations on identical data. taxify queries the columnar <code>.vtr</code> taxifydb builds from the Zenodo Darwin Core archive; WorldFlora reads the classification table inside that same archive into RAM.</p>
+<p>The corpus is 1,000 accepted binomials drawn from the backbone with a fixed seed. The fuzzy corpus is those names with one substituted character in each epithet, so every name has to be resolved by distance. This is a deliberate worst case: a realistic list resolves most names on the fast exact pass.</p>
 <table class="table">
 <thead><tr>
 <th></th>
@@ -282,7 +283,7 @@
 </table>
 <p><code>scripts/benchmark-worldflora.R</code> produces these numbers and <code>scripts/benchmark-worldflora-results.json</code> records the run, including package versions and the backbone snapshot. Both packages were measured back to back on one machine (Windows 11, R 4.6.0, taxify 0.3.21, WorldFlora 1.14.5) that was carrying other work at the time, so treat the ratios as the reliable figures and the absolute times as an upper bound.</p>
 <p>Where the gap comes from: taxify runs the fuzzy pass genus-blocked, so a typo competes only against names in the same genus, and the comparison itself runs in C. Scaling five times the names costs 1.4x the time, because the fixed cost of opening the backbone dominates.</p>
-<p>taxize is not in the table. It resolves names through the Global Names online resolver rather than a local backbone, so its time is network-bound and varies with service load; there is no way to measure it against a fixed snapshot the way these two can be measured against each other.</p>
+<p>taxize is not in the table. It resolves names through the Global Names online resolver, so its time is network-bound and varies with service load; there is no way to measure it against a fixed snapshot the way these two can be measured against each other.</p>
 </div>
 <div class="section level2">
 <h2 id="what-you-get-back">What you get back<a class="anchor" aria-label="anchor" href="#what-you-get-back"></a>
@@ -299,9 +300,9 @@
 <span><span class="co">#&gt;   taxon groups: vascular plant: 4</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="navigate-the-backbone-not-just-match-it">Navigate the backbone, not just match it<a class="anchor" aria-label="anchor" href="#navigate-the-backbone-not-just-match-it"></a>
+<h2 id="navigate-the-backbone">Navigate the backbone<a class="anchor" aria-label="anchor" href="#navigate-the-backbone"></a>
 </h2>
-<p><code><a href="reference/taxify.html">taxify()</a></code> resolves a name to its accepted name. The same local backbone file answers the related lookups too — synonyms, children, ancestors, descendants — with nothing else to download:</p>
+<p><code><a href="reference/taxify.html">taxify()</a></code> resolves a name to its accepted name. The same local backbone file answers the related lookups too (synonyms, children, ancestors, descendants) with nothing else to download:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/synonyms.html">synonyms</a></span><span class="op">(</span><span class="st">"Picea abies"</span><span class="op">)</span>                     <span class="co"># every synonym of an accepted name</span></span>
 <span><span class="fu"><a href="reference/children.html">children</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span>                         <span class="co"># accepted species in a genus</span></span>

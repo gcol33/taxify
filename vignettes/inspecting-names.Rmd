@@ -26,10 +26,9 @@ returns a row for every name, matched or not, so the problems are spread
 through a wide table. Before committing a list to analysis it helps to see
 only the names that look off, each with a short note on why.
 
-`inspect()` is that pass. It returns one row per anomalous name, ordered
-most-notable first, each labelled with what stands out and, where known, the
-name to use instead. Clean names are dropped, so a short report means a clean
-list.
+`inspect()` returns one row per anomalous name, ordered most-notable first,
+each labelled with what stands out and, where known, the name to use instead.
+Clean names are dropped, so a short report means a clean list.
 
 ## A first look, without matching
 
@@ -99,8 +98,8 @@ matching has run:
 
 ## Tiers
 
-Every flagged row also gets a `tier`. The tier says what the name needs, not
-how serious the problem is:
+Every flagged row also gets a `tier`. A tier names the action a row needs
+before analysis, from a required decision down to optional cleanup:
 
 - `unresolved`: no usable name came back, so the row needs a decision before
   analysis. `unknown` lands here.
@@ -138,8 +137,8 @@ inspect(names, backbones = TRUE)
 
 Now *Pinus abies* is recognised as a synonym and resolved to *Picea abies*,
 and *Festuca rubraa* carries both its list-context label and the fuzzy `typo`
-label that confirms it. *Panthera leo* now matches in GBIF, so it is no longer
-a candidate typo, but it remains a kingdom-group outlier in a plant list.
+label that confirms it. *Panthera leo* now matches in GBIF, so the candidate-typo label
+drops. It stays a kingdom-group outlier in a plant list.
 
 If you have already matched the list, inspect the result instead of asking
 `inspect()` to match again. This reuses the exact backbone, region, and options

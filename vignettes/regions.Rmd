@@ -21,9 +21,9 @@ library(taxify)
 Fuzzy matching corrects a typo by finding the nearest real name. Most of the
 time the nearest name is the one the recorder meant, but two species can sit a
 single edit apart while living on different continents. A recorder working in
-Belgium who writes a slightly misspelled name meant a Belgian plant, not its
-one-letter neighbour from New Zealand. The string distance alone cannot tell
-the two apart; the geography can.
+Belgium who writes a slightly misspelled name meant a Belgian plant, and its
+one-letter neighbour from New Zealand is a different species. The string
+distance alone cannot tell the two apart; the geography can.
 
 `taxify()` takes a `region` argument for exactly this. When you set it,
 `taxify()` prefers the fuzzy candidates that actually occur where you work and

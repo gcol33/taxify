@@ -1482,7 +1482,7 @@ classes.</p>
 <p>All columns use the <code>anage_</code> prefix for body mass and
 litter size to distinguish them from PanTHERIA equivalents. The
 <code>max_longevity_yr</code> column is the maximum recorded lifespan in
-years — the most widely used parameter for cross-species aging
+years, the most widely used parameter for cross-species aging
 comparisons.</p>
 <p>The dataset is compiled from the Human Ageing Genomic Resources
 (HAGR) and is freely available under CC BY. The reference is Tacutu et
@@ -1494,7 +1494,7 @@ al. (2018), <em>Nucleic Acids Research</em> 46:D1083-D1090.</p>
 <p>AnimalTraits is a curated database of body mass and metabolic rate
 measurements covering ~2,000 species across arthropods (~1,700 species),
 vertebrates, molluscs, and annelids. Unlike taxon-specific databases, it
-provides a unified framework for cross-taxon allometric comparisons —
+provides a unified framework for cross-taxon allometric comparisons,
 particularly valuable for arthropods, which are underrepresented in
 other trait databases.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
@@ -2304,16 +2304,16 @@ species level. If the taxify result contains subspecies or varieties
 (e.g., “Quercus robur subsp. robur”), the enrichment may not have a
 matching entry at that rank.</li>
 </ol>
-<p>It is worth noting that coverage is not the same as data quality. An
-enrichment might cover 95% of the species in a result, but the trait
-values for some of those species could be based on few measurements,
-extrapolated from congeners, or derived from captive rather than wild
-populations. The enrichment system does not expose confidence intervals
-or sample sizes for individual trait values; that level of detail lives
-in the original source databases. For analyses that require
-measurement-level metadata (sample size, measurement uncertainty,
-geographic origin of measurements), consult the original source cited on
-the <code>add_*()</code> help page.</p>
+<p>Coverage is not the same as data quality. An enrichment might cover
+95% of the species in a result, but the trait values for some of those
+species could be based on few measurements, extrapolated from congeners,
+or derived from captive rather than wild populations. The enrichment
+system does not expose confidence intervals or sample sizes for
+individual trait values; that level of detail lives in the original
+source databases. For analyses that require measurement-level metadata
+(sample size, measurement uncertainty, geographic origin of
+measurements), consult the original source cited on the
+<code>add_*()</code> help page.</p>
 <p>To check the overall enrichment rate for a result, the
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> output reports the number of matched rows per
 enrichment. We can also compute it directly:</p>

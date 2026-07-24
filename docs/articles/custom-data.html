@@ -140,7 +140,7 @@ leaf area (SLA) and maximum height for five European tree species.</p>
 <span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># External trait data — note one synonym and one subspecies</span></span>
+<span><span class="co"># External trait data: note one synonym and one subspecies</span></span>
 <span><span class="va">traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  taxon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Picea excelsa"</span>,</span>
@@ -150,7 +150,7 @@ leaf area (SLA) and maximum height for five European tree species.</p>
 <span>  max_height_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">35</span>, <span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">30</span>, <span class="fl">25</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Join — "Picea excelsa" resolves to "Picea abies" through the backbone</span></span>
+<span><span class="co"># Join: "Picea excelsa" resolves to "Picea abies" through the backbone</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/add_data.html">add_data()</a></code> takes the names from the <code>taxon</code>
 column, runs them through the same backbone(s) used in the original
@@ -218,7 +218,7 @@ explicitly:</p>
 <span><span class="co"># Known header row (e.g., rows 1-2 are title/notes)</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, start_row <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># All three specified — no scanning at all</span></span>
+<span><span class="co"># All three specified: no scanning at all</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="fl">1</span>, start_row <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>                   species_col <span class="op">=</span> <span class="st">"latin_name"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -232,7 +232,7 @@ RSQLite under the hood). Because a single <code>.sqlite</code> or
 argument is mandatory here. Omitting it raises an informative error
 rather than guessing.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># SQLite — requires DBI and RSQLite</span></span>
+<code class="sourceCode R"><span><span class="co"># SQLite: requires DBI and RSQLite</span></span>
 <span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span></span>
 <span>  <span class="st">"traits.sqlite"</span>,</span>
 <span>  table <span class="op">=</span> <span class="st">"plant_traits"</span>,</span>

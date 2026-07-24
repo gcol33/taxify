@@ -116,18 +116,18 @@ can and mark the rest, but it returns a row for every name, matched or
 not, so the problems are spread through a wide table. Before committing
 a list to analysis it helps to see only the names that look off, each
 with a short note on why.</p>
-<p><code><a href="../reference/inspect.html">inspect()</a></code> is that pass. It returns one row per anomalous
-name, ordered most-notable first, each labelled with what stands out
-and, where known, the name to use instead. Clean names are dropped, so a
-short report means a clean list.</p>
+<p><code><a href="../reference/inspect.html">inspect()</a></code> returns one row per anomalous name, ordered
+most-notable first, each labelled with what stands out and, where known,
+the name to use instead. Clean names are dropped, so a short report
+means a clean list.</p>
 </div>
 <div class="section level2">
 <h2 id="a-first-look-without-matching">A first look, without matching<a class="anchor" aria-label="anchor" href="#a-first-look-without-matching"></a>
 </h2>
-<p>By default <code><a href="../reference/inspect.html">inspect()</a></code> does not match anything. On a plain
-character vector it runs the checks that need no backbone: it asks the
-genus register whether each genus is a real one, and it compares each
-name against the rest of the batch. Both are fast and offline.</p>
+<p>By default <code><a href="../reference/inspect.html">inspect()</a></code> runs only the checks that need no
+backbone; it matches nothing unless you ask. On a plain character vector
+it asks the genus register whether each genus is a real one and compares
+each name against the rest of the batch. Both are fast and offline.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,</span>
@@ -150,15 +150,14 @@ name against the rest of the batch. Both are fast and offline.</p>
 <span><span class="co">#&gt;   [review    ] Festuca rubraa    -&gt;  Festuca rubra   near-duplicate of more frequent 'Festuca rubra'</span></span>
 <span><span class="co">#&gt;   [review    ] Panthera leo      -&gt;  ?               animalia outlier (list is mostly plantae)</span></span></code></pre>
 <p>Three names surface. <em>Bogusia fakensis</em> uses a genus no
-backbone recognises, so it reads as not a real name. <em>Festuca
-rubraa</em> is one letter off a spelling that appears twice in the same
-list, the mark of a typo of it. <em>Panthera leo</em> is the lone animal
-in a list of plants, the pattern a cross-kingdom homonym typo leaves
-behind.</p>
-<p>Two names slip past this first pass. <em>Quercus robber</em> needs a
-backbone to recognise as a typo of <em>Quercus robur</em>, and <em>Pinus
-abies</em> is a valid-looking binomial whose synonymy only a backbone
-knows. Those are the match-based checks, and they are opt-in.</p>
+backbone recognises. <em>Festuca rubraa</em> is one letter off
+<em>Festuca rubra</em>, which appears twice in the same list, so it
+looks like a slip of that name. <em>Panthera leo</em> is the lone animal
+among plants, and a cross-kingdom homonym typo often shows up exactly
+this way.</p>
+<p><em>Pinus abies</em> slips past this first pass. It is a well-formed
+binomial, and its synonymy with <em>Picea abies</em> surfaces only when
+a backbone is matched. That check is opt-in.</p>
 </div>
 <div class="section level2">
 <h2 id="the-labels">The labels<a class="anchor" aria-label="anchor" href="#the-labels"></a>
@@ -240,8 +239,9 @@ main continents.</td>
 <div class="section level2">
 <h2 id="tiers">Tiers<a class="anchor" aria-label="anchor" href="#tiers"></a>
 </h2>
-<p>Every flagged row also gets a <code>tier</code>. The tier says what
-the name needs, not how serious the problem is:</p>
+<p>Every flagged row also gets a <code>tier</code>. A tier names the
+action a row needs before analysis, from a required decision down to
+optional cleanup:</p>
 <ul>
 <li>
 <code>unresolved</code>: no usable name came back, so the row needs
@@ -257,7 +257,7 @@ cleanup. <code>case</code> and <code>synonym</code> land here.</li>
 </ul>
 <p>An anomaly can be intended. A list may genuinely include one animal
 among plants, or deliberately keep a synonym. The tier is a triage hint,
-so read it as a place to start rather than a verdict.</p>
+so treat it as a starting point.</p>
 </div>
 <div class="section level2">
 <h2 id="turning-on-matching">Turning on matching<a class="anchor" aria-label="anchor" href="#turning-on-matching"></a>
@@ -280,9 +280,8 @@ used in the report header.</p>
 <p>Now <em>Pinus abies</em> is recognised as a synonym and resolved to
 <em>Picea abies</em>, and <em>Festuca rubraa</em> carries both its
 list-context label and the fuzzy <code>typo</code> label that confirms
-it. <em>Panthera leo</em> now matches in GBIF, so it is no longer a
-candidate typo, but it remains a kingdom-group outlier in a plant
-list.</p>
+it. <em>Panthera leo</em> now matches in GBIF, so the candidate-typo
+label drops. It stays a kingdom-group outlier in a plant list.</p>
 <p>If you have already matched the list, inspect the result instead of
 asking <code><a href="../reference/inspect.html">inspect()</a></code> to match again. This reuses the exact
 backbone, region, and options of your original call.</p>

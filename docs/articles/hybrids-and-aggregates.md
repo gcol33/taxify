@@ -135,13 +135,14 @@ taxify tries the sign-retained forms, and WFO resolves the cross to its
 accepted genus (*Hesperotropsis*). The hybrid formula resolves through
 its two parents: WFO carries no single record for this cross, so
 `match_type` is `hybrid_formula`. Because both parents resolve against
-WFO, the cross is named by them – `accepted_name` is “Salix alba × Salix
+WFO, the cross is named by them: `accepted_name` is “Salix alba × Salix
 fragilis” (the accepted-parent cross) and `matched_name` the
 input-parent cross. When a parent cannot be matched, both stay `NA`.
 
 The `is_hybrid` column is TRUE for all four hybrid inputs and
 `hybrid_type` names the kind, regardless of whether the name matched.
-Both record a property of the input, not of the match result.
+Both describe the input itself, set during cleaning before any backbone
+match.
 
 ## Extracting hybrid details with add_hybrid_info()
 
@@ -167,10 +168,9 @@ for the result. It adds these columns:
   or NA if it did not match
 
 For nothogenus and nothospecies names, the parent columns are NA because
-the input names only the hybrid itself, not its parents. The parent
-species of Mentha ×piperita (Mentha aquatica and Mentha spicata) are not
-encoded in the name string. Only hybrid formulas carry both parent names
-explicitly.
+the input names only the hybrid itself. The parent species of Mentha
+×piperita (Mentha aquatica and Mentha spicata) are not encoded in the
+name string. Only hybrid formulas carry both parent names explicitly.
 
 ``` r
 
@@ -251,7 +251,7 @@ absent, the row has `match_type = "none"` and `accepted_name = NA`, with
 (some backbones store the cross as a synonym of the nothospecies). When
 that misses, the row is marked `match_type = "hybrid_formula"`, the ID,
 rank and classification columns stay `NA`, and the cross is named by its
-two parents in `matched_name` and `accepted_name` – never collapsed to
+two parents in `matched_name` and `accepted_name`, never collapsed to
 one parent. To work with the parents, use
 [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md),
 which resolves both against the same backbone:
@@ -269,13 +269,13 @@ formula_rows[, c("input_name", "hybrid_parent_1", "hybrid_parent_1_accepted",
 Trait enrichment is hybrid-aware. When you attach traits to a result
 that contains a hybrid formula, each trait is resolved with a ladder:
 
-1.  **the hybrid directly** – if the cross resolved to a nothospecies
-    and that name carries the trait, it is used as-is;
-2.  **the average of both parents** – otherwise the two parents are
+1.  **the hybrid directly**: if the cross resolved to a nothospecies and
+    that name carries the trait, it is used as-is;
+2.  **the average of both parents**: otherwise the two parents are
     resolved and their trait values combined: numeric traits are
     averaged, and a categorical trait is taken as the shared value, or
     reported as `"A x B"` (with a warning) when the parents disagree;
-3.  **the single available parent** – if only one parent carries the
+3.  **the single available parent**: if only one parent carries the
     trait, its value is used.
 
 This happens automatically inside every `add_<source>()` door and inside
@@ -314,8 +314,8 @@ function replaces every occurrence of U+00D7 with a space-padded “x” and
 then works with a uniform token stream, so the downstream logic only
 needs to handle one representation. The space-boundary requirement
 prevents false positives: “Saxifraga” does not trigger hybrid detection
-because the “x” sits within a word rather than standing alone between
-tokens.
+because the “x” sits inside the word, with no surrounding whitespace to
+mark it as a hybrid.
 
 A subtlety arises with mojibake. When UTF-8 text containing the ×
 character is read with a Latin-1 or Windows-1252 encoding, the two-byte
@@ -338,7 +338,7 @@ names that you supply. It does not scan the backbone for hybrid records.
 If a backbone stores “Mentha × piperita” as an accepted name, taxify
 will match your input against it, but the backbone record’s own hybrid
 status is not exposed as a separate field. The `is_hybrid` column
-reflects your input, not the backbone.
+reflects your input.
 
 **Formulas with infraspecific ranks.** The parser expects binomials
 (genus plus epithet) on both sides of the × marker. Formulas that
@@ -374,7 +374,7 @@ An aggregate groups several closely related microspecies under one name.
 Apomictic complexes are the usual reason: *Rubus fruticosus*, *Taraxacum
 officinale*, and *Hieracium* each cover hundreds of
 near-indistinguishable segregates, and field data routinely records the
-aggregate rather than commit to a microspecies. Two markers signal one:
+aggregate and leaves the microspecies open. Two markers signal one:
 
 > Rubus fruticosus agg.
 
@@ -384,29 +384,28 @@ narrow reading would split off:
 
 > Galium mollugo s.l.
 
-Both mean the same thing for matching: the name refers to the group, not
-to a single binomial. taxify folds the spelling variants a source might
-use – `agg.`, `aggr.`, `agg`, `-agg`, `coll. sp.`, `sensu lato` – to a
+Both mean the same thing for matching: the name refers to the whole
+group of microspecies. taxify folds the spelling variants a source might
+use (`agg.`, `aggr.`, `agg`, `-agg`, `coll. sp.`, `sensu lato`) to a
 canonical `agg.` or `s.l.` marker, recorded in the `qualifier` column.
 The opposite marker, *s.str.* (*sensu stricto*, “in the narrow sense”),
-is a qualifier but not an aggregate: it points at the core binomial, so
-it is recorded in `qualifier` and matched as an ordinary name.
+narrows a name to its core binomial, so it is recorded in `qualifier`
+and matched as an ordinary name.
 
 ## How taxify matches aggregates
 
 A backbone may or may not carry a dedicated taxon for the aggregate.
-Only the aggregate-bearing backbones – Euro+Med and WoRMS – store
+Only the aggregate-bearing backbones, Euro+Med and WoRMS, store
 `"<binomial> aggr."` as a concept of its own; the others record the
-binomial but not the group above it. The `aggregates` argument sets what
-happens in each case.
+binomial alone, without the group above it. The `aggregates` argument
+sets what happens in each case.
 
 `aggregates = "preserve"` (the default) keeps the aggregate as its own
 concept. It matches the backbone’s aggregate taxon where one exists, and
-otherwise falls back to the nominal binomial, setting
-`aggregate_fallback = TRUE` so the aggregate-to-species collapse is
-visible rather than silent. `aggregate_fallback` is `FALSE` when the
-dedicated aggregate taxon was found, `TRUE` when it fell back, and `NA`
-for non-aggregate names.
+otherwise falls back to the nominal binomial. The result carries an
+`aggregate_fallback` column recording which happened: `FALSE` when the
+dedicated aggregate taxon was found, `TRUE` when it fell back to the
+binomial, and `NA` for non-aggregate names.
 
 `aggregates = "collapse"` strips the marker up front and matches the
 binomial the way any name is matched. The qualifier is still recorded,
@@ -447,16 +446,15 @@ stored taxon, the same query would resolve to the aggregate itself with
 ## Traits for aggregates: the binomial fallback
 
 Trait enrichment is aggregate-aware, the same way it is hybrid-aware.
-The join resolves an aggregate along the taxonomic hierarchy rather than
-expecting an exact string hit:
+The join resolves an aggregate through the taxonomic hierarchy:
 
 - a **species** query takes its own value first, and inherits its
   aggregate’s value where the source records the trait only at the
   aggregate level;
 - an **aggregate** query takes the aggregate-level value first, and
   where the source carries none it falls back to the nominal binomial’s
-  value as a pragmatic stand-in – the species’ own measurement standing
-  in for the group, not an aggregate-level figure.
+  value as a pragmatic stand-in: the species’ own measurement stands in
+  for the group where no aggregate-level figure exists.
 
 This happens automatically inside every `add_<source>()` door and inside
 [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md).

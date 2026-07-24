@@ -38,7 +38,7 @@ taxify(c(
 ))
 ```
 
-## Local, not over the wire
+## Local, on disk
 
 The usual route for name resolution, `taxize`, calls out to around
 twenty web services (NCBI, ITIS, GBIF, EOL, IUCN, WoRMS, Tropicos, …).
@@ -73,6 +73,14 @@ taxify(
 )
 ```
 
+Pass no `backbone` at all and
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) uses
+every backbone you have installed as one fallback chain, in a fixed
+priority order: COL first, then the domain authorities (marine, plants,
+fungi, algae, fishes, reptiles), then the broad aggregators GBIF, ITIS,
+NCBI, and OTT. On a fresh install the first call downloads the default
+set, COL, GBIF, and ITIS (~4 GB, once).
+
 | Backbone | Scope | Names | Download |
 |----|----|----|----|
 | [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.6M | 797 MB |
@@ -99,8 +107,8 @@ adds the enrichment layers alongside it for the full picture.
 ## Names are cleaned before matching
 
 Input names are normalized first, so the fuzzy pass only runs on names
-that genuinely differ from the backbone rather than on names that just
-carry extra authorship or qualifiers:
+that genuinely differ from the backbone, once extra authorship and
+qualifiers have been stripped:
 
 ``` r
 
@@ -114,17 +122,17 @@ Fuzzy matching is configurable (Damerau-Levenshtein, Levenshtein, or
 Jaro-Winkler, with a distance threshold), and runs genus-blocked so a
 typo only competes against names in the same genus.
 
-Both packages can read the same WFO snapshot, so the comparison below is
-between the two matching implementations rather than between two
-versions of WFO. taxify queries the columnar `.vtr` taxifydb builds from
-the Zenodo Darwin Core archive; WorldFlora reads the classification
-table inside that same archive into RAM.
+Both packages can read the same WFO snapshot, so the comparison below
+isolates the two matching implementations on identical data. taxify
+queries the columnar `.vtr` taxifydb builds from the Zenodo Darwin Core
+archive; WorldFlora reads the classification table inside that same
+archive into RAM.
 
 The corpus is 1,000 accepted binomials drawn from the backbone with a
 fixed seed. The fuzzy corpus is those names with one substituted
-character in each epithet, so every name has to be resolved by distance
-– a deliberate worst case, not a mixed list where most names still match
-exactly.
+character in each epithet, so every name has to be resolved by distance.
+This is a deliberate worst case: a realistic list resolves most names on
+the fast exact pass.
 
 |                          | taxify | WorldFlora            |
 |--------------------------|--------|-----------------------|
@@ -148,10 +156,9 @@ itself runs in C. Scaling five times the names costs 1.4x the time,
 because the fixed cost of opening the backbone dominates.
 
 taxize is not in the table. It resolves names through the Global Names
-online resolver rather than a local backbone, so its time is
-network-bound and varies with service load; there is no way to measure
-it against a fixed snapshot the way these two can be measured against
-each other.
+online resolver, so its time is network-bound and varies with service
+load; there is no way to measure it against a fixed snapshot the way
+these two can be measured against each other.
 
 ## What you get back
 
@@ -177,12 +184,12 @@ summary(result)
 #>   taxon groups: vascular plant: 4
 ```
 
-## Navigate the backbone, not just match it
+## Navigate the backbone
 
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 resolves a name to its accepted name. The same local backbone file
-answers the related lookups too — synonyms, children, ancestors,
-descendants — with nothing else to download:
+answers the related lookups too (synonyms, children, ancestors,
+descendants) with nothing else to download:
 
 ``` r
 

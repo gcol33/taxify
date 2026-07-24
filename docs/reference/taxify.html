@@ -146,12 +146,13 @@ default), <code>"levenshtein"</code>, or <code>"jw"</code> (Jaro-Winkler).</p></
 <code>agg.</code> / <code>s.l.</code> qualifier). <code>"preserve"</code> (default) keeps the aggregate as
 its own concept: it matches the backbone's aggregate taxon
 (<code>"&lt;binomial&gt; aggr."</code>) where one exists, otherwise falls back to the
-binomial. When it falls back, the <code>aggregate_fallback</code> column is set <code>TRUE</code>
-so the aggregate-to-species collapse is visible rather than silent (only
-the aggregate-bearing backbones – Euro+Med, WoRMS – carry aggregate taxa,
-so preserve falls back for the others). <code>"collapse"</code> strips the marker and
-matches the binomial species, the way any non-aggregate name is matched.
-Either way the qualifier is recorded in the <code>qualifier</code> column.</p></dd>
+binomial. The output's <code>aggregate_fallback</code> column records which happened
+for each aggregate: <code>TRUE</code> where it fell back to the binomial, <code>FALSE</code>
+where it resolved to the dedicated aggregate taxon. Only Euro+Med and WoRMS
+carry aggregate taxa, so preserve falls back for the other backbones.
+<code>"collapse"</code> strips the marker and matches the binomial species, the way
+any non-aggregate name is matched. Either way the qualifier is recorded in
+the <code>qualifier</code> column.</p></dd>
 
 
 <dt id="arg-region">region<a class="anchor" aria-label="anchor" href="#arg-region"></a></dt>
