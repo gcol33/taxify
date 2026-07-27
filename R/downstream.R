@@ -20,7 +20,7 @@
 #'
 #' Uses an explicit bare-column filter per rank (the pattern [children()] uses),
 #' so no dynamic NSE injection is needed. `col` is one of the six columns in
-#' [.rank_to_column]; `value` is compared against it.
+#' `.rank_to_column`; `value` is compared against it.
 #'
 #' @param bb Backbone `.vtr` path.
 #' @param col Ancestor column name.

@@ -91,7 +91,6 @@ reference:
   contents:
   - install_backbones
   - taxify_download
-  - taxify_download_vtr
   - taxify_download_enrichment
   - taxify_data_dir
   - taxify_example_data

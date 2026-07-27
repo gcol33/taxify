@@ -379,16 +379,6 @@ taxify_download <- function(backbone = "wfo",
 }
 
 
-#' @rdname taxify_download
-#' @export
-taxify_download_vtr <- function(backbone = "wfo",
-                                version = "latest",
-                                verbose = TRUE) {
-  .Deprecated("taxify_download")
-  taxify_download(backbone = backbone, version = version, verbose = verbose)
-}
-
-
 # ---- Once-per-session version check ----
 
 #' Check all requested backbones and auto-download if outdated

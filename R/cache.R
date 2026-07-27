@@ -194,7 +194,7 @@ is_example_data_dir <- function() {
 #'
 #' A no-download check: returns the backend names whose `.vtr` exists in the
 #' current data directory, in canonical order. Used by the default-backend
-#' resolution ([resolve_default_backend()]) and by [inspect()] when
+#' resolution (`resolve_default_backend()`) and by [inspect()] when
 #' `backbones = TRUE` to match against every installed backbone.
 #'
 #' @return Character vector of installed backend names (possibly empty).

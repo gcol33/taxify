@@ -72,7 +72,7 @@ backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
 #'
 #' Shared engine behind [add_wfo_info()], [add_gbif_info()] and [add_col_info()]:
 #' for the rows a given backbone matched, look up their `taxon_id` in that
-#' backbone and attach extra columns through [backbone_join()] plus a vectorized
+#' backbone and attach extra columns through `backbone_join()` plus a vectorized
 #' `match()` fill (the documented join strategy). An optional `extra_vtr`
 #' describes a second join against a sidecar `.vtr` (COL's SpeciesProfile), whose
 #' values are passed through a transform.

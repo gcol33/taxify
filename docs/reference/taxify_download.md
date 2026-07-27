@@ -12,8 +12,6 @@ calling this function is consent.
 
 ``` r
 taxify_download(backbone = "wfo", version = "latest", verbose = TRUE)
-
-taxify_download_vtr(backbone = "wfo", version = "latest", verbose = TRUE)
 ```
 
 ## Arguments

@@ -2,12 +2,9 @@
 % Please edit documentation in R/download.R
 \name{taxify_download}
 \alias{taxify_download}
-\alias{taxify_download_vtr}
 \title{Download a pre-built taxify backbone}
 \usage{
 taxify_download(backbone = "wfo", version = "latest", verbose = TRUE)
-
-taxify_download_vtr(backbone = "wfo", version = "latest", verbose = TRUE)
 }
 \arguments{
 \item{backbone}{Character. A backbone name (e.g. \code{"wfo"}, \code{"col"}, \code{"gbif"},

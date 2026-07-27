@@ -72,7 +72,6 @@ register.
 - [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
   : Install taxonomic backbones for offline matching
 - [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
-  [`taxify_download_vtr()`](https://gillescolling.com/taxify/reference/taxify_download.md)
   : Download a pre-built taxify backbone
 - [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
   : Download one or more enrichment .vtr files

@@ -926,8 +926,8 @@ match_abbrev_genus <- function(backend, result, names_df, vtr_path) {
 
 #' Resolve a backbone name to its S3 backend object
 #'
-#' A registry lookup: any name in [.backbone_registry()] is constructed by the
-#' shared [make_backend()] factory. A `taxify_backend` object is returned
+#' A registry lookup: any name in `.backbone_registry()` is constructed by the
+#' shared `make_backend()` factory. A `taxify_backend` object is returned
 #' unchanged.
 #'
 #' This is the one crossing point between the two: a backbone name goes in, a

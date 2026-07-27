@@ -133,7 +133,7 @@ backbone_label <- function(name) {
 #' Order a set of backbone names by the fallback priority
 #'
 #' @param names Character vector of backbone names.
-#' @return `names`, reordered by [.backbone_priority()]. Unknown names sort last
+#' @return `names`, reordered by `.backbone_priority()`. Unknown names sort last
 #'   in their original order.
 #' @noRd
 order_by_priority <- function(names) {
@@ -186,7 +186,7 @@ default_set_size_note <- function(set) {
 #' Resolve the default backbone when `taxify(backbone = NULL)` is called
 #'
 #' Every installed backbone, in priority order. On a fresh setup with none
-#' installed, downloads the default set ([.default_backbone_set()]) first.
+#' installed, downloads the default set (`.default_backbone_set()`) first.
 #'
 #' @param verbose Logical.
 #' @return Character vector of backbone names in priority order.

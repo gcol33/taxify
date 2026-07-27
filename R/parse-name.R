@@ -19,7 +19,7 @@
 #'
 #' Returns the authorship string a name carries -- the part the cleaning
 #' pipeline strips before matching. Uses the same parenthesized- and
-#' trailing-author patterns as [clean_names()], so what this captures is exactly
+#' trailing-author patterns as `clean_names()`, so what this captures is exactly
 #' what matching discards. Qualifiers (including infraspecific rank markers) and
 #' hybrid signs are removed first so they are never mistaken for an author.
 #'

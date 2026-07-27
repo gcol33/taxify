@@ -127,11 +127,11 @@ marine_region_active <- function() {
 
 #' The distinct MEOW ecoregion / province / realm table
 #'
-#' The marine counterpart of [wgsrpd_table()]. There is no bundled MEOW
+#' The marine counterpart of `wgsrpd_table()`. There is no bundled MEOW
 #' crosswalk (the attribute table is gated like the geometry), so the table is
 #' derived from the installed `marine_distribution` enrichment itself, whose
 #' rows carry `region_code` (ECO_CODE) alongside the `ecoregion`, `province`,
-#' and `realm` names. Backs both [meow_alias_map()] and the marine rows of
+#' and `realm` names. Backs both `meow_alias_map()` and the marine rows of
 #' [taxify_regions()], and is cached for the session.
 #'
 #' @return A data.frame with `region_code`, `ecoregion`, `province`, and
@@ -161,8 +161,8 @@ meow_table <- function() {
 
 #' Build the folded-name to MEOW `ECO_CODE` alias map
 #'
-#' The marine counterpart of [region_alias_map()], built from the ecoregion,
-#' province, and realm names carried by [meow_table()]. An ecoregion name maps
+#' The marine counterpart of `region_alias_map()`, built from the ecoregion,
+#' province, and realm names carried by `meow_table()`. An ecoregion name maps
 #' to its own code; a province or realm name expands to every member ecoregion
 #' code, exactly as a WGSRPD Level 1/2 name expands to its member Level 3 codes.
 #'
@@ -608,7 +608,7 @@ boundary_vertices <- function(scheme, ensure_fn, verbose = FALSE) {
 
 #' Reassemble a boundary vertex table into per-feature polygon rings, per scheme
 #'
-#' Cached under `<scheme>_polygons`. See [assemble_polygons()] for the shape.
+#' Cached under `<scheme>_polygons`. See `assemble_polygons()` for the shape.
 #' @noRd
 boundary_polygons <- function(scheme, vertices_fn, verbose = FALSE) {
   key <- paste0(scheme, "_polygons")
@@ -691,7 +691,7 @@ points_in_ring <- function(px, py, ring) {
 #' Locate points within WGSRPD Level 3 features
 #'
 #' @param lon,lat Numeric vectors of coordinates (same length).
-#' @param feats Parsed features from [wgsrpd_polygons()].
+#' @param feats Parsed features from `wgsrpd_polygons()`.
 #' @return Character vector of Level 3 codes (`NA` where no feature contains the
 #'   point), one per input point.
 #' @noRd
@@ -743,7 +743,7 @@ region_pip_engine <- function() {
 #' Pure transform: terra and sf both parse WKT, so the boundary geometry is
 #' reconstructed once from a shared feature list and reused by either engine.
 #'
-#' @param feats Parsed features from [assemble_polygons()].
+#' @param feats Parsed features from `assemble_polygons()`.
 #' @return A named character vector (code -> WKT).
 #' @noRd
 feats_to_wkt <- function(feats) {
@@ -981,9 +981,9 @@ normalize_coords <- function(coords) {
 #' returns the union. A coastal point can fall in both a botanical region and a
 #' marine ecoregion; an inland point resolves only to TDWG, an open-ocean point
 #' only to MEOW. The two code spaces are disjoint (TDWG is alphabetic, ECO_CODE
-#' numeric), so [region_range_sets()] routes each to its provider.
+#' numeric), so `region_range_sets()` routes each to its provider.
 #'
-#' @param coords Coordinate input (see [normalize_coords()]).
+#' @param coords Coordinate input (see `normalize_coords()`).
 #' @param verbose Logical.
 #' @return Character vector of unique region codes (possibly empty), or `NULL`
 #'   if no boundary set is available.

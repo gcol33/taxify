@@ -36,7 +36,7 @@
 
 #' Construct a backend handle from its backbone's registry row
 #'
-#' @param name Backbone name (a row of [.backbone_registry()]).
+#' @param name Backbone name (a row of `.backbone_registry()`).
 #' @return A taxify_backend object of class `c("taxify_<name>", "taxify_backend")`.
 #' @noRd
 make_backend <- function(name) {

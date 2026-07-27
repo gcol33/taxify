@@ -1,5 +1,12 @@
 # Changelog
 
+## taxify 0.4.2
+
+- Removed `taxify_download_vtr()`, the deprecated alias of
+  [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md).
+  Use
+  [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md).
+
 ## taxify 0.4.1
 
 - [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)

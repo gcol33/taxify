@@ -434,7 +434,7 @@ taxify <- function(x,
 #' @param backbone Character vector of >= 2 backbone names, in priority order.
 #' @param mode `"wide"` or `"agreement"`.
 #' @param fuzzy,fuzzy_threshold,fuzzy_method,aggregates,region,range,verbose
-#'   Passed through to each per-backbone [taxify_single()] run.
+#'   Passed through to each per-backbone `taxify_single()` run.
 #' @return A `taxify_result` data.frame.
 #' @noRd
 taxify_compare <- function(x, backbone, mode, fuzzy, fuzzy_threshold,
@@ -904,7 +904,7 @@ demote_match_rows <- function(result, rows) {
 #' Reads each matched row's kingdom from the backbone's `kingdom` column where
 #' it stores one, falling back to the genus register's `kingdom_group`. A row
 #' whose resolved kingdom is known and outside `kingdom_set` is demoted (see
-#' [demote_match_rows()]); an unknown kingdom is always kept.
+#' `demote_match_rows()`); an unknown kingdom is always kept.
 #'
 #' @param result The match result data.frame (post `run_match_stages()`).
 #' @param vtr_path Path to the backbone `.vtr`.
@@ -1033,7 +1033,7 @@ input_genus_for_rows <- function(result, names_df, rows) {
 #' genus is wasted work, and a spurious near-match there would outrank the exact
 #' match waiting in a later backbone.
 #'
-#' The mark is scoped to this one backbone. [release_out_of_scope()] lifts it
+#' The mark is scoped to this one backbone. `release_out_of_scope()` lifts it
 #' again for any name the rest of the chain can still answer.
 #'
 #' @param result The match result data.frame after exact matching.
@@ -1072,7 +1072,7 @@ prefilter_out_of_scope <- function(result, names_df, backbone) {
 #' Release out-of-scope marks that a later backbone can still answer
 #'
 #' `"out_of_scope"` in a result means the query as a whole has no backbone for
-#' the name. [prefilter_out_of_scope()] writes it per backbone, to steer the
+#' the name. `prefilter_out_of_scope()` writes it per backbone, to steer the
 #' local stages, so on a fallback chain it has to be lifted again for every name
 #' another backbone in `scope` covers. Those rows return to `NA` and re-enter
 #' the chain; a name no backbone covers keeps the mark.

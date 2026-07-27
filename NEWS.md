@@ -1,3 +1,8 @@
+# taxify 0.4.2
+
+* Removed `taxify_download_vtr()`, the deprecated alias of `taxify_download()`.
+  Use `taxify_download()`.
+
 # taxify 0.4.1
 
 * `add_hybrid_info()` gains `hybrid_parent_1_id` / `hybrid_parent_2_id`: the
