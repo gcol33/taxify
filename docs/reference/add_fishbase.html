@@ -107,8 +107,9 @@ by looking up <code>accepted_name</code>.</p>
 <dd><p>Maximum body length in centimetres.</p></dd>
 
 <dt>fb_body_mass_g</dt>
-<dd><p>Body mass in grams (estimated from length-weight
-relationships where available).</p></dd>
+<dd><p>Maximum published weight in grams (FishBase
+<code>SPECIES.Weight</code>). This is a record maximum, not a typical or
+adult-mean mass.</p></dd>
 
 <dt>fb_trophic_level</dt>
 <dd><p>Trophic level.</p></dd>
@@ -128,12 +129,46 @@ relationships where available).</p></dd>
 <dt>fb_importance</dt>
 <dd><p>Commercial importance category.</p></dd>
 
+<dt>fb_lw_a</dt>
+<dd><p>Coefficient <code>a</code> of the length-weight relationship
+<code>W = a * L^b</code> (weight in g, length in cm of type <code>fb_lw_type</code>),
+from FishBase's POPLW table.</p></dd>
+
+<dt>fb_lw_b</dt>
+<dd><p>Exponent <code>b</code> of the length-weight relationship.</p></dd>
+
+<dt>fb_lw_type</dt>
+<dd><p>Length convention the coefficients were fitted against
+(<code>TL</code> total, <code>SL</code> standard, <code>FL</code> fork, <code>WD</code> width,
+...). Chosen to match the species' maximum-length type where recorded, so
+it applies to <code>fb_body_length_cm</code>. Applying a coefficient to a
+different length type is a silent error.</p></dd>
+
+<dt>fb_lw_method</dt>
+<dd><p>How the fit was obtained (e.g. "type I linear
+regression", "single L-W pair with b=3").</p></dd>
+
+<dt>fb_lw_sex</dt>
+<dd><p>Sex the fit applies to (unsexed, mixed, female, male,
+juvenile).</p></dd>
+
+<dt>fb_lw_n</dt>
+<dd><p>Sample size the fit was based on.</p></dd>
+
+<dt>fb_lw_r2</dt>
+<dd><p>Coefficient of determination (<code>r^2</code>) of the fit.</p></dd>
+
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Source: FishBase via rfishbase (Froese &amp; Pauly, CC BY-NC 4.0).
 Coverage: ~35k fish species. Fishes only.</p>
+<p>The <code>fb_lw_*</code> columns give one representative length-weight fit per
+species from the POPLW table, so a length can be converted to a mass where
+<code>fb_body_mass_g</code> (a record maximum) is not what you want. FishBase's
+Bayesian congeneric estimates are not included; <code>fb_lw_*</code> are measured
+fits.</p>
 <p>The build-from-source fallback requires the <span class="pkg">rfishbase</span> package
 (available on CRAN). Pre-built <code>.vtr</code> files do not require rfishbase.</p>
     </div>

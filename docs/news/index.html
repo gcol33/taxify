@@ -74,7 +74,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.2" id="taxify-042">taxify 0.4.2<a class="anchor" aria-label="anchor" href="#taxify-042"></a></h2>
-<ul><li>Removed <code>taxify_download_vtr()</code>, the deprecated alias of <code><a href="../reference/taxify_download.html">taxify_download()</a></code>. Use <code><a href="../reference/taxify_download.html">taxify_download()</a></code>.</li>
+<ul><li><p>Removed <code>taxify_download_vtr()</code>, the deprecated alias of <code><a href="../reference/taxify_download.html">taxify_download()</a></code>. Use <code><a href="../reference/taxify_download.html">taxify_download()</a></code>.</p></li>
+<li><p>Slimmed the bundled example database. The BIEN and AusTraits example <code>.vtr</code> fixtures were the full production tables (116k and 35k rows); they now carry only the few dozen species the offline examples and <code><a href="../reference/add_trait.html">add_trait()</a></code> tests use. Installed size drops from ~9.9 MB to ~3.2 MB. The offline examples and test coverage are unchanged.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.1" id="taxify-041">taxify 0.4.1<a class="anchor" aria-label="anchor" href="#taxify-041"></a></h2>

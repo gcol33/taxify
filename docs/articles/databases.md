@@ -23,8 +23,8 @@ they form a fallback chain.
 | Backbone | Scope | Names | MB | Version |  |
 |:---|:---|---:|---:|:---|:---|
 | wfo | Vascular plants | 1,638,552 | 760 | 2026.06 | [source](https://www.worldfloraonline.org/) |
-| col | All kingdoms | 5,302,873 | 1,869 | 2026.06 | [source](https://www.catalogueoflife.org/) |
-| gbif | All kingdoms | 6,404,001 | 1,769 | 2026.06 | [source](https://www.gbif.org/) |
+| col | All kingdoms | 5,302,873 | 1,875 | 2026.07 | [source](https://www.catalogueoflife.org/) |
+| gbif | All kingdoms | 6,404,001 | 1,779 | 2026.07 | [source](https://www.gbif.org/) |
 | itis | US focus, freshwater/marine | 991,868 | 195 | 2026.06 | [source](https://www.itis.gov) |
 | ncbi | All life | 2,759,103 | 490 | 2026.06 | [source](https://www.ncbi.nlm.nih.gov/taxonomy) |
 | ott | All life (synthetic) | 3,690,217 | 693 | 3.7.3 | [source](https://opentreeoflife.github.io/) |
@@ -84,7 +84,7 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | epa_freshwater | 2012.1 | 2,777 | 9 | [source](https://ofmpub.epa.gov/eims/eimscomm.getfile?p_download_id=526642) |
 | eupolltrait | 2026.07 | 3,275 | 39 | [source](https://zenodo.org/api/records/18032357) |
 | eurobat | 2026.07 | 52 | 62 | [source](https://doi.org/10.6084/m9.figshare.21777161) |
-| fishbase | 2026.07 | 37,805 | 239 | [source](https://www.fishbase.se) |
+| fishbase | 2026.07 | 37,819 | 239 | [source](https://fishbase.ropensci.org) |
 | fishmorph | 2026.07 | 9,043 | 15 | [source](https://ndownloader.figshare.com/files/28672242) |
 | fishtraits | 14.3 | 860 | 28 | [source](https://www.sciencebase.gov/catalog/file/get/5a7c6e8ce4b00f54eb2318c0?name=FishTraits_14.3.xls) |
 | floraweb | 2026.07 | 5,594 | 59 | [source](https://www.floraweb.de/) |
@@ -127,7 +127,7 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | repttraits | 2026.07 | 12,196 | 47 | [source](https://ndownloader.figshare.com/files/45408133) |
 | rimet_phyto | 2026.07 | 1,413 | 62 | [source](https://zenodo.org/records/1164834/files/Appendix-1-Phytoplankton%20metrics%20database-revised.xlsx?download=1) |
 | saproxylic | 2026.07 | 1,266 | 57 | [source](https://doi.org/10.5061/dryad.2fqz612p3) |
-| sealifebase | 2026.07 | 111,710 | 250 | [source](https://www.sealifebase.org) |
+| sealifebase | 2026.07 | 111,776 | 250 | [source](https://sealifebase.ropensci.org) |
 | sharkipedia | 2026.07 | 179 | 52 | [source](https://zenodo.org/records/6656525/files/Sharkipedia-Traits-v1.0-22-01-25.csv?download=1) |
 | sheld | 2026.07 | 313 | 105 | [source](https://api.figshare.com/v2/articles/24115998) |
 | spider_traits | 2026.07 | 9,346 | 11 | [source](https://spidertraits.sci.muni.cz/) |

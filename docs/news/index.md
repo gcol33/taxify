@@ -7,6 +7,13 @@
   Use
   [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md).
 
+- Slimmed the bundled example database. The BIEN and AusTraits example
+  `.vtr` fixtures were the full production tables (116k and 35k rows);
+  they now carry only the few dozen species the offline examples and
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  tests use. Installed size drops from ~9.9 MB to ~3.2 MB. The offline
+  examples and test coverage are unchanged.
+
 ## taxify 0.4.1
 
 - [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
