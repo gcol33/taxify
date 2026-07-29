@@ -3,6 +3,12 @@
 * Removed `taxify_download_vtr()`, the deprecated alias of `taxify_download()`.
   Use `taxify_download()`.
 
+* Slimmed the bundled example database. The BIEN and AusTraits example `.vtr`
+  fixtures were the full production tables (116k and 35k rows); they now carry
+  only the few dozen species the offline examples and `add_trait()` tests use.
+  Installed size drops from ~9.9 MB to ~3.2 MB. The offline examples and test
+  coverage are unchanged.
+
 # taxify 0.4.1
 
 * `add_hybrid_info()` gains `hybrid_parent_1_id` / `hybrid_parent_2_id`: the
