@@ -26,6 +26,21 @@ adult-mean mass.}
 \item{fb_vulnerability}{Vulnerability index (0--100).}
 \item{fb_habitat}{Habitat type (e.g. demersal, pelagic).}
 \item{fb_importance}{Commercial importance category.}
+\item{fb_lw_a}{Coefficient \code{a} of the length-weight relationship
+\code{W = a * L^b} (weight in g, length in cm of type \code{fb_lw_type}),
+from FishBase's POPLW table.}
+\item{fb_lw_b}{Exponent \code{b} of the length-weight relationship.}
+\item{fb_lw_type}{Length convention the coefficients were fitted against
+(\code{TL} total, \code{SL} standard, \code{FL} fork, \code{WD} width,
+...). Chosen to match the species' maximum-length type where recorded, so
+it applies to \code{fb_body_length_cm}. Applying a coefficient to a
+different length type is a silent error.}
+\item{fb_lw_method}{How the fit was obtained (e.g. "type I linear
+regression", "single L-W pair with b=3").}
+\item{fb_lw_sex}{Sex the fit applies to (unsexed, mixed, female, male,
+juvenile).}
+\item{fb_lw_n}{Sample size the fit was based on.}
+\item{fb_lw_r2}{Coefficient of determination (\code{r^2}) of the fit.}
 }
 }
 \description{
@@ -35,6 +50,12 @@ by looking up \code{accepted_name}.
 \details{
 Source: FishBase via rfishbase (Froese & Pauly, CC BY-NC 4.0).
 Coverage: ~35k fish species. Fishes only.
+
+The \code{fb_lw_*} columns give one representative length-weight fit per
+species from the POPLW table, so a length can be converted to a mass where
+\code{fb_body_mass_g} (a record maximum) is not what you want. FishBase's
+Bayesian congeneric estimates are not included; \code{fb_lw_*} are measured
+fits.
 
 The build-from-source fallback requires the \pkg{rfishbase} package
 (available on CRAN). Pre-built \code{.vtr} files do not require rfishbase.
