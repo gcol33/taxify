@@ -11,7 +11,9 @@
 #' @return The same data.frame with additional columns:
 #' \describe{
 #'   \item{sb_body_length_cm}{Maximum body length in centimetres.}
-#'   \item{sb_body_mass_g}{Body mass in grams where available.}
+#'   \item{sb_body_mass_g}{Maximum published weight in grams (SeaLifeBase
+#'     \code{SPECIES.Weight}). This is a record maximum, not a typical or
+#'     adult-mean mass.}
 #'   \item{sb_trophic_level}{Trophic level.}
 #'   \item{sb_depth_min_m}{Minimum depth in metres.}
 #'   \item{sb_depth_max_m}{Maximum depth in metres.}

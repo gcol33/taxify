@@ -17,8 +17,9 @@ add_fishbase(x, cols = NULL, verbose = TRUE)
 The same data.frame with additional columns:
 \describe{
 \item{fb_body_length_cm}{Maximum body length in centimetres.}
-\item{fb_body_mass_g}{Body mass in grams (estimated from length-weight
-relationships where available).}
+\item{fb_body_mass_g}{Maximum published weight in grams (FishBase
+\code{SPECIES.Weight}). This is a record maximum, not a typical or
+adult-mean mass.}
 \item{fb_trophic_level}{Trophic level.}
 \item{fb_depth_min_m}{Minimum depth in metres.}
 \item{fb_depth_max_m}{Maximum depth in metres.}
