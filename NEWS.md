@@ -1,3 +1,17 @@
+# taxify 0.4.3
+
+* Bundled enrichment data now resolves taxonomic names across all fifteen
+  backbones during the build, up from the seven broadest. An enrichment value
+  keyed to a name accepted only by a domain-specific backbone (Euro+Med,
+  Species Fungorum, AlgaeBase, FishBase, SeaLifeBase, Reptile Database, LCVP,
+  or WCVP) now joins a `taxify()` result that resolved through that backbone,
+  instead of falling through. The manifest points at the rebuilt enrichment
+  release.
+
+* Documentation: corrected references that presented WFO as the default
+  backbone. The default is COL, matched first in the fallback chain, and the
+  first `taxify()` call installs the default set COL, GBIF, and ITIS.
+
 # taxify 0.4.2
 
 * Removed `taxify_download_vtr()`, the deprecated alias of `taxify_download()`.

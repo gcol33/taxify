@@ -58,8 +58,8 @@ the same output on any machine. Fifteen Darwin Core backbones are available
 (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
 FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP), all queried offline.
 
-The first `taxify()` call downloads a backbone once (WFO is about 150 MB) and
-caches it under `taxify_data_dir()`. After that, nothing touches the network.
+The first `taxify()` call installs the default backbone set (COL, GBIF, and ITIS)
+once, about 4 GB, and caches it under `taxify_data_dir()`. After that, nothing touches the network.
 
 ## One call
 
@@ -238,7 +238,7 @@ summary(res)
 
 ```
 #> ── taxify results ──────────────────────────────────────────────────────────
-#>   backbone: WFO v2024-12  |  10 names submitted
+#>   backbone: COL v2026.07  |  10 names submitted
 #>
 #>   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)
 #>   ────────────────────────────────────────────────────────────
@@ -249,7 +249,7 @@ The digest reports the backbone and version, the match-route breakdown (all ten
 resolved here, including the abbreviated `Q. petraea`), and the taxon-group mix.
 When a name is out of scope (an animal in a plant-only backbone) or genuinely
 absent, the digest tallies it and suggests an alternative backbone. The match types and the multi-backbone fallback
-(`backbone = c("wfo", "col", "gbif")`) are covered in the
+(`backbone = c("col", "gbif", "itis")`) are covered in the
 [backbones vignette](https://gillescolling.com/taxify/articles/backbones.html).
 
 ## Offline, and how much faster

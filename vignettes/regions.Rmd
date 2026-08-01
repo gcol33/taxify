@@ -71,7 +71,7 @@ taxify("Gentiana acaulis", region = "Europe")
 
 ```
 #>         input_name    accepted_name       family match_type fuzzy_dist backbone
-#> 1 Gentiana acaulis Gentiana acaulis Gentianaceae      exact         NA     WFO
+#> 1 Gentiana acaulis Gentiana acaulis Gentianaceae      exact         NA     COL
 ```
 
 The exact match comes back unchanged, since the region never touches one. The
