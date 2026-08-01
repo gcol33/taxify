@@ -1,20 +1,24 @@
 ## Submission
 
-This is a feature update (version 0.4.0) of taxify, currently on CRAN at 0.3.4.
+This is a patch release (version 0.4.3) of taxify, currently on CRAN at 0.4.0
+(accepted 2026-07-23, 9 days before this submission). The short gap is because
+this release fixes two things discovered right after 0.4.0 shipped:
 
-The version jumps to 0.4.0 because one argument was renamed with no alias, which
-breaks existing code: `backend =` is now `backbone =` in `taxify()` and in every
-verb that names a data source. A backbone is a data source and its `.vtr` file;
-a backend is the S3 handle that reads one, and the two had shared a name. The
-rename is documented at the top of NEWS.md.
+* The bundled enrichment datasets are built by resolving each source name
+  against a subset of taxify's fifteen supported backbones, then joining that
+  union to a `taxify()` result. That subset only covered seven of the fifteen,
+  so an enrichment value keyed to a name accepted solely by one of the other
+  eight domain-specific backbones (Euro+Med, Species Fungorum, AlgaeBase,
+  FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP) could silently fail to
+  join even though the trait data existed. `inst/manifest.json` now points at
+  enrichment data rebuilt against all fifteen backbones.
+* Several vignettes and the README described WFO as the default backbone.
+  The actual default is a COL-first fallback chain (COL, GBIF, and ITIS are
+  installed on first use); the text has been corrected.
 
-Since 0.3.4 the package also gained region-constrained matching beyond plants
-(marine ecoregions alongside the WGSRPD plant scheme), nine name-resolution verbs
-(`parse_name()`, `id2name()`, `upstream()`, `downstream()`, `reconcile()`,
-`comm2sci()`, `sci2comm()`, `class2tree()`, `lowest_common()`), a reproducibility
-lockfile (`taxify_lock()`), authorship-aware homonym disambiguation, an offline mode
-(`options(taxify.offline = TRUE)`), and further backbones and enrichment
-datasets. See NEWS.md for details.
+No exported function signature or behavior changed; this is a documentation
+correction plus a data-pointer update in the manifest, not a code fix, so
+there is nothing to test beyond the R CMD check / win-builder cycle below.
 
 taxify matches taxonomic names against locally stored Darwin Core backbone
 databases. The full backbone and enrichment data are downloaded on demand from
@@ -41,28 +45,26 @@ repository declared in `Additional_repositories`
 
 * Local: Windows 11, R 4.6.0 (R CMD check --as-cran)
 * win-builder: R-devel
+* win-builder: R-release
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-The NOTE is:
+"Checking CRAN incoming feasibility" reports an INFO (not a NOTE) confirming
+taxifydb's availability via Additional_repositories
+("taxifydb   yes   https://gcol33.r-universe.dev"), as the policy requires.
+taxifydb is used strictly conditionally (guarded by requireNamespace()) and
+taxify is fully functional without it.
 
-* "Suggests or Enhances not in mainstream repositories: taxifydb". The check
-  confirms availability via the Additional_repositories specification
-  ("taxifydb   yes   https://gcol33.r-universe.dev"), as the policy requires.
-  taxifydb is used strictly conditionally (guarded by requireNamespace()) and
-  taxify is fully functional without it.
-
-The same NOTE lists two possibly invalid URLs, both of which are the official
-homepages of backbone data sources cited in the README and both of which
-returned 200 when checked directly while preparing this submission:
-
-* https://www.itis.gov (reported 404) is the Integrated Taxonomic Information
-  System homepage. The US government server intermittently returns 404 to the
-  automated request.
-* https://www.marinespecies.org/ (reported 503) is the World Register of
-  Marine Species homepage, which was briefly unavailable during the check.
+Two citation URLs in the README and in `add_fishbase()`/`add_sealifebase()`
+documentation (https://www.fishbase.org, https://www.sealifebase.org) sit
+behind a Cloudflare managed challenge that blocks automated tools (confirmed
+with curl, a browser-impersonating HTTP client, and a stealth headless
+browser -- all get the interstitial; a normal browser passes). Neither URL is
+fetched by any package code; FishBase/SeaLifeBase enrichment data is built
+via the rfishbase R package's API, not by downloading these pages. Both URLs
+are unchanged from 0.4.0, which CRAN accepted with them present.
 
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
