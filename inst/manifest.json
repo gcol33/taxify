@@ -6024,7 +6024,7 @@
     },
     "frugivoria": {
       "latest": "2026.07",
-      "content_id": "30ba5004ee7e1c5199bea75a63cbcd0c",
+      "content_id": "e0b9d4648aacfc1a8fcbd54915fc4693",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/frugivoria.vtr",
       "nrow": 1932,
       "source_url": "https://pasta.lternet.edu/package/data/eml/edi/1220/5/",
@@ -7365,10 +7365,10 @@
     "freshwater_insects_conus": {
       "static": true,
       "latest": "2026.07",
-      "content_id": "aad00e742e09bfb2052e37bf950056ee",
+      "content_id": "75e232a5f88a10de79ce94e35cedfc2e",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/freshwater_insects_conus.vtr",
-      "nrow": 1030,
-      "source_url": "https://portal.edirepository.org/nis/mapbrowse?packageid=edi.481.5",
+      "nrow": 1033,
+      "source_url": "https://pasta.lternet.edu/package/data/eml/edi/481/5/3a88bfdfefcfe6dcafb27afd3ce4e90c",
       "source_format": "csv",
       "source_version": "2021.1",
       "trait_cols": [
@@ -7387,7 +7387,10 @@
         "thermal_pref",
         "voltinism_abbrev"
       ],
-      "species_col": "genus"
+      "species_col": "genus",
+      "source_doi": "10.6073/pasta/8238ea9bc15840844b3a023b6b6ed158",
+      "license": "CC BY 4.0",
+      "citation": "Twardochleb LA et al. (2021) Freshwater insect occurrences and traits for the contiguous United States, 2001-2018. Environmental Data Initiative (doi:10.6073/pasta/8238ea9bc15840844b3a023b6b6ed158), CC BY 4.0. Genus-level ecological and life-history trait modalities (source abbreviation codes kept verbatim)."
     },
     "eurobat": {
       "static": true,
