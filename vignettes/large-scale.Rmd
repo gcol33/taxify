@@ -303,8 +303,8 @@ backbone version.
 | Backbone | Names | Download | Version |
 |---|---|---|---|
 | WFO | 1.6M | 797 MB | 2026.06 |
-| COL | 5.3M | 2.0 GB | 2026.06 |
-| GBIF | 6.4M | 1.9 GB | 2026.06 |
+| COL | 5.3M | 2.0 GB | 2026.07 |
+| GBIF | 6.4M | 1.9 GB | 2026.07 |
 | ITIS | 992k | 205 MB | 2026.06 |
 | NCBI | 2.8M | 514 MB | 2026.06 |
 | OTT | 3.7M | 727 MB | 3.7.3 |
