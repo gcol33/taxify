@@ -49,13 +49,20 @@ repository declared in `Additional_repositories`
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+* Local (--as-cran): 0 errors | 0 warnings | 0 notes
+* win-builder (R-devel and R-release): 0 errors | 0 warnings | 1 note
 
-"Checking CRAN incoming feasibility" reports an INFO (not a NOTE) confirming
-taxifydb's availability via Additional_repositories
-("taxifydb   yes   https://gcol33.r-universe.dev"), as the policy requires.
-taxifydb is used strictly conditionally (guarded by requireNamespace()) and
-taxify is fully functional without it.
+The win-builder NOTE has two parts:
+
+* "Suggests or Enhances not in mainstream repositories: taxifydb", confirmed
+  available via Additional_repositories ("taxifydb   yes
+  https://gcol33.r-universe.dev"). taxifydb is used strictly conditionally
+  (guarded by requireNamespace()) and taxify is fully functional without it.
+* https://www.itis.gov (README.md) returned 404 to win-builder's check. This
+  is the Integrated Taxonomic Information System homepage; the US government
+  server intermittently 404s to automated checks (it returns 200 in a normal
+  browser). The same URL, unchanged, was present in 0.4.0 and did not block
+  acceptance.
 
 Two citation URLs in the README and in `add_fishbase()`/`add_sealifebase()`
 documentation (https://www.fishbase.org, https://www.sealifebase.org) sit
