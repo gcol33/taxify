@@ -5055,9 +5055,9 @@
     },
     "useful_plants": {
       "latest": "2026.07",
-      "content_id": "8c4f9829a2f67fc95ef51c44456ecd62",
+      "content_id": "726cf32f8b2d920e2258fcd072beeeb3",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.07/useful_plants.vtr",
-      "nrow": 42217,
+      "nrow": 43749,
       "source_url": "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn:uuid:e576e4b7-845a-422a-8472-b5eb078e08eb",
       "source_format": "pdf",
       "source_version": "2020.1",
