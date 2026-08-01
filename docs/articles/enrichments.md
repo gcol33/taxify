@@ -110,31 +110,34 @@ covers aggregate matching and this fallback in full.
 ### Cross-backbone name resolution
 
 A subtle but important design decision underlies the enrichment `.vtr`
-files: they are built to work with any of taxify’s seven backbones (WFO,
-COL, GBIF, ITIS, NCBI, OTT, WoRMS). Different backbones sometimes accept
-different names for the same taxon. WFO might accept “Senecio jacobaea”
-while COL accepts “Jacobaea vulgaris” for the same species. If the
-enrichment `.vtr` only contained one of these names, it would fail to
-match results from the other backbone.
+files. Different backbones sometimes accept different names for the same
+taxon: COL accepts “Jacobaea vulgaris” where WFO still recognises
+“Senecio jacobaea” for the same species. If an enrichment `.vtr` only
+contained one of these names, it would fail to match a result that
+resolved through the other backbone.
 
-The taxifydb build pipeline solves this by resolving every source
-species name against each of the seven backbones separately (not as a
-fallback chain, which would only return the first match). The union of
-all unique `accepted_name` values is collected per source species. Each
-source row is then expanded: one enrichment row per distinct accepted
-name, with the trait data duplicated. The final `.vtr` is then
-deduplicated by `canonical_name` (plus any group column for grouped
-enrichments).
+The taxifydb build pipeline resolves every source species name across
+all fifteen backbones, each queried separately rather than as a fallback
+chain, which would only return the first match. The union of all unique
+`accepted_name` values is collected per source species. Each source row
+is then expanded to one enrichment row per distinct accepted name, with
+the trait data duplicated, and the final `.vtr` is deduplicated by
+`canonical_name` (plus any group column for grouped enrichments). A name
+accepted only by one of the more specialised backbones (Euro+Med,
+Species Fungorum, AlgaeBase, FishBase, SeaLifeBase, Reptile Database,
+LCVP, or WCVP) is covered by this union just as a broadly-recognised
+name is, so an enrichment join no longer depends on which backbone the
+upstream
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
+happened to resolve through.
 
 In practice, backbones agree on more than 90% of names, so this
-expansion is modest (typically 1.1–1.5x the original row count). The
-result is that
+expansion is modest (typically 1.1–1.5x the original row count).
 [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
 works identically whether the upstream
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
-used WFO, COL, or GBIF. We do not have to pick enrichments based on
-which backbone we used, and we do not have to worry about
-backbone-specific name variants falling through the cracks.
+resolved through COL, GBIF, WFO, or any of the other twelve backbones,
+and backbone-specific name variants do not fall through the cracks.
 
 ### Automatic download and caching
 
@@ -2290,7 +2293,7 @@ result <- taxify(c("Quercus robur", "Fagus sylvatica", "Pinus sylvestris")) |>
 
 summary(result)
 #> -- taxify results --------------------------------------------------------
-#>   backbone: WFO v2024.12  |  3 names submitted
+#>   backbone: COL v2026.07  |  3 names submitted
 #>
 #>   matched       3  (exact: 3, case-insensitive: 0, fuzzy: 0)
 #>   --------------------------------------------------------
@@ -2781,10 +2784,11 @@ compose freely with the pipe operator.
 
 The cross-backbone name resolution built into the `.vtr` files means we
 do not have to worry about which backbone we used: enrichments work
-identically with WFO, COL, GBIF, ITIS, NCBI, OTT, or WoRMS results. The
-[`summary()`](https://rdrr.io/r/base/summary.html) method tracks which
-enrichments have been applied, their source versions, and their coverage
-rates, supporting both exploratory analysis and reproducible reporting.
+identically regardless of which of taxify’s fifteen backbones produced
+the result. The [`summary()`](https://rdrr.io/r/base/summary.html)
+method tracks which enrichments have been applied, their source
+versions, and their coverage rates, supporting both exploratory analysis
+and reproducible reporting.
 
 For taxa or traits not covered by the built-in layers,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)

@@ -11,7 +11,7 @@ never use the same names as your backbone. A CSV of leaf trait
 measurements might record *Pinus nigra* subsp. *laricio*, while the
 backbone stores the accepted name as *Pinus nigra*. A colleague’s
 spreadsheet might list *Picea excelsa* (a synonym retired decades ago),
-while WFO recognises *Picea abies*.
+while COL recognises *Picea abies*.
 
 Joining on raw species strings misses these cases: the rows do not
 match, and the merged data.frame has `NA`s where values should exist.
@@ -36,7 +36,7 @@ species <- c(
   "Quercus robur", "Fagus sylvatica", "Picea abies",
   "Pinus sylvestris", "Betula pendula"
 )
-result <- taxify(species, backbone = "wfo")
+result <- taxify(species, backbone = "col")
 
 # External trait data: note one synonym and one subspecies
 traits <- data.frame(
@@ -57,7 +57,7 @@ takes the names from the `taxon` column, runs them through the same
 backbone(s) used in the original
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call,
 resolves each to an `accepted_id`, and left-joins on that ID. *Picea
-excelsa* is a synonym of *Picea abies* in WFO, so the SLA and height
+excelsa* is a synonym of *Picea abies* in COL, so the SLA and height
 values land on the correct row even though the literal strings differ.
 The output has two new columns, `sla` and `max_height_m`, appended to
 the existing result.
@@ -73,7 +73,7 @@ Tab-separated files (`.tsv`, `.tsv.gz`) are also supported.
 
 ``` r
 
-result <- taxify(species, backbone = "wfo")
+result <- taxify(species, backbone = "col")
 result <- result |> add_data("path/to/leaf_traits.csv")
 ```
 
@@ -488,7 +488,7 @@ functions. Custom data and pre-built enrichments use the same
 
 ``` r
 
-result <- taxify(species, backbone = "wfo") |>
+result <- taxify(species, backbone = "col") |>
   add_iucn() |>
   add_zanne() |>
   add_data(traits, species_col = "taxon")

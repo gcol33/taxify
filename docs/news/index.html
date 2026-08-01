@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,6 +72,11 @@
       <small>Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.3" id="taxify-043">taxify 0.4.3<a class="anchor" aria-label="anchor" href="#taxify-043"></a></h2>
+<ul><li><p>Bundled enrichment data now resolves taxonomic names across all fifteen backbones during the build, up from the seven broadest. An enrichment value keyed to a name accepted only by a domain-specific backbone (Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase, Reptile Database, LCVP, or WCVP) now joins a <code><a href="../reference/taxify.html">taxify()</a></code> result that resolved through that backbone, instead of falling through. The manifest points at the rebuilt enrichment release.</p></li>
+<li><p>Documentation: corrected references that presented WFO as the default backbone. The default is COL, matched first in the fallback chain, and the first <code><a href="../reference/taxify.html">taxify()</a></code> call installs the default set COL, GBIF, and ITIS.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.2" id="taxify-042">taxify 0.4.2<a class="anchor" aria-label="anchor" href="#taxify-042"></a></h2>
 <ul><li><p>Removed <code>taxify_download_vtr()</code>, the deprecated alias of <code><a href="../reference/taxify_download.html">taxify_download()</a></code>. Use <code><a href="../reference/taxify_download.html">taxify_download()</a></code>.</p></li>

@@ -316,8 +316,8 @@ loose[, c("input_name", "accepted_name", "fuzzy_dist")]
 At threshold 0.4, *Poa trialis* (10 characters) is allowed up to 4
 edits. That is enough distance to reach *Poa trivialis* (the intended
 target, 2 edits) and potentially other Poa species that happen to be
-closer in string distance. With 500+ Poa species in WFO, the risk of a
-false match is real.
+closer in string distance. With 500+ Poa species in the backbone, the
+risk of a false match is real.
 
 The fix is simple: tighten the threshold.
 
@@ -337,12 +337,12 @@ downstream analyses.
 
 This example also illustrates why short names in large genera are the
 hardest case for fuzzy matching. The genus *Poa* has over 500 accepted
-species in WFO, many with epithets that differ by only 2-3 characters
-(*pratensis* vs *palustris*, *trivialis* vs *trivialis*). The shorter
-the name, the fewer edits it takes to reach the threshold, and the more
-candidate species fall within range. For genera like Carex (2,000+
-species), Astragalus (3,000+), or Euphorbia (2,000+), the same problem
-applies. When working with species-dense genera, tightening the
+species in the backbone, many with epithets that differ by only 2-3
+characters (*pratensis* vs *palustris*, *trivialis* vs *trivialis*). The
+shorter the name, the fewer edits it takes to reach the threshold, and
+the more candidate species fall within range. For genera like Carex
+(2,000+ species), Astragalus (3,000+), or Euphorbia (2,000+), the same
+problem applies. When working with species-dense genera, tightening the
 threshold to 0.1-0.15 is almost always the right move.
 
 ## Worked example 4: comparing all three methods

@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -222,7 +222,7 @@ there is no urgent reason to switch.</p>
 <li>
 <strong>Multiple backbones.</strong> taxify matches against fifteen
 backbones offline and can chain them in a single call:
-<code>taxify(names, backbone = c("wfo", "col", "gbif"))</code>.</li>
+<code>taxify(names, backbone = c("col", "gbif", "itis"))</code>.</li>
 <li>
 <strong>Speed at scale.</strong> The matching engine is written in C
 with genus-blocked fuzzy joins. Ten thousand names resolve in
@@ -680,7 +680,7 @@ cascade to the next backbone automatically.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mixed kingdom input: plants, animals, fungi</span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus robur"</span>,         <span class="co"># plant (WFO primary)</span></span>
+<span>  <span class="st">"Quercus robur"</span>,         <span class="co"># plant (matched by WFO)</span></span>
 <span>  <span class="st">"Panthera leo"</span>,          <span class="co"># animal (not in WFO, picked up by GBIF)</span></span>
 <span>  <span class="st">"Amanita muscaria"</span>,      <span class="co"># fungus (not in WFO, picked up by GBIF)</span></span>
 <span>  <span class="st">"Salmo trutta"</span>,          <span class="co"># fish (not in WFO, picked up by GBIF)</span></span>
@@ -880,7 +880,7 @@ names per second.</p>
 locally and records the version string in the
 <code>backbone_version</code> column of every result. The same backbone
 file produces the same output indefinitely. Version pinning is also
-available: <code>taxify_download("wfo", version = "2024.06")</code>
+available: <code>taxify_download("col", version = "2024.06")</code>
 downloads a specific release.</p>
 </div>
 <div class="section level2">

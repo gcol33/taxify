@@ -118,7 +118,7 @@ inspect(names, backbones = TRUE)
 
     #> ── taxify inspection ──────────────────────────────────────
     #>   8 names inspected  |  4 with anomalies
-    #>   backbones: WFO, GBIF
+    #>   backbones: COL, GBIF, ITIS
     #>   unresolved: 1   review: 2   note: 1
     #>   ────────────────────────────────────────────────────────────
     #>   [unresolved] Bogusia fakensis  ->  ?              genus 'Bogusia' is not in the taxonomic register
@@ -140,7 +140,7 @@ original call.
 
 ``` r
 
-taxify(names, backbone = c("wfo", "gbif")) |>
+taxify(names, backbone = c("col", "gbif")) |>
   inspect()
 ```
 
@@ -163,7 +163,7 @@ alpine <- taxify(c("Gentiana lutea", "Primula veris", "Banksia serrata")) |>
 
     #> ── taxify inspection ──────────────────────────────────────
     #>   3 names inspected  |  1 with anomalies
-    #>   backbones: WFO
+    #>   backbones: COL
     #>   review: 1
     #>   ────────────────────────────────────────────────────────────
     #>   [review] Banksia serrata  ->  Banksia serrata  outside region per WCVP
@@ -197,7 +197,7 @@ inspect(names, backbones = TRUE, min_tier = "review")
 
     #> ── taxify inspection ──────────────────────────────────────
     #>   8 names inspected  |  3 with anomalies
-    #>   backbones: WFO, GBIF
+    #>   backbones: COL, GBIF, ITIS
     #>   unresolved: 1   review: 2
     #>   ────────────────────────────────────────────────────────────
     #>   [unresolved] Bogusia fakensis  ->  ?              genus 'Bogusia' is not in the taxonomic register

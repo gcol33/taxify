@@ -298,7 +298,7 @@ General guidelines for backbone ordering:
 - Mixed-kingdom lists: put the backbone that covers the dominant kingdom
   first. For a list that is 80% plants and 20% animals,
   `c("wfo", "col")` is faster than `c("col", "wfo")`.
-- Maximizing coverage: `c("wfo", "col", "gbif")` casts the widest net
+- Maximizing coverage: `c("col", "gbif", "wfo")` casts the widest net
   but involves three backbone loads. For lists under 10,000 names the
   extra loading time is negligible. For 100,000+ names, the extra fuzzy
   passes add up.
@@ -648,7 +648,7 @@ already exists and the version is current, they return immediately.
 # with conservation status and trait enrichments
 
 # Backbones
-taxify_download(c("wfo", "col"))
+taxify_download(c("col", "wfo"))
 
 # Enrichments
 taxify_download_enrichment(c(
@@ -659,7 +659,7 @@ taxify_download_enrichment(c(
 ))
 
 # Now the analysis can run fully offline
-result <- taxify(species_list, backbone = c("wfo", "col"))
+result <- taxify(species_list, backbone = c("col", "wfo"))
 result <- add_iucn(result)
 result <- add_zanne(result)
 ```
@@ -760,7 +760,7 @@ for (i in seq_along(chunks)) {
 | Marine taxa                    | `c("worms", "col")`       |
 | Fungi                          | `c("fungorum", "col")`    |
 | Algae                          | `c("algaebase", "col")`   |
-| All kingdoms, maximum coverage | `c("wfo", "col", "gbif")` |
+| All kingdoms, maximum coverage | `c("col", "gbif", "wfo")` |
 | Molecular/genomic taxa         | `c("ncbi", "col")`        |
 | North American biodiversity    | `c("itis", "col")`        |
 
@@ -801,11 +801,11 @@ thresholds are not supported with the Jaro-Winkler method
 ``` r
 
 # Tight threshold for clean input
-result <- taxify(clean_names, backbone = "wfo",
+result <- taxify(clean_names, backbone = "col",
                  fuzzy = TRUE, fuzzy_threshold = 0.1)
 
 # Integer threshold: at most 2 edits, period
-result <- taxify(noisy_names, backbone = "wfo",
+result <- taxify(noisy_names, backbone = "col",
                  fuzzy = TRUE, fuzzy_threshold = 2L)
 ```
 
@@ -814,7 +814,7 @@ result <- taxify(noisy_names, backbone = "wfo",
 | Function | Purpose |
 |----|----|
 | `taxify(..., fuzzy = FALSE)` | Skip fuzzy matching for clean input |
-| `taxify(..., backbone = c("wfo", "col"))` | Multi-backbone fallback chain |
+| `taxify(..., backbone = c("col", "wfo"))` | Multi-backbone fallback chain |
 | [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md) | Find where backbones are stored |
 | [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md) | Pre-download backbone `.vtr` files |
 | [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md) | Pre-download enrichment `.vtr` files |

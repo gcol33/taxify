@@ -37,7 +37,7 @@
 
     <a class="navbar-brand me-2" href="index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,10 +120,10 @@
 </h2>
 <p><code>taxify</code> ships fifteen backbones as compressed <code>.vtr</code> files, pre-built by the companion <a href="https://github.com/gcol33/taxifydb" class="external-link">taxifydb</a> package, downloaded once, and matched locally. Pass several and they form a fallback chain: a name unmatched by the first backbone cascades to the next.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># WFO first (plants), then GBIF for whatever WFO doesn't cover</span></span>
+<code class="sourceCode R"><span><span class="co"># COL first (all kingdoms), then GBIF for whatever COL doesn't cover</span></span>
 <span><span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Panthera leo"</span>, <span class="st">"Amanita muscaria"</span><span class="op">)</span>,</span>
-<span>  backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"gbif"</span><span class="op">)</span></span>
+<span>  backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Pass no <code>backbone</code> at all and <code><a href="reference/taxify.html">taxify()</a></code> uses every backbone you have installed as one fallback chain, in a fixed priority order: COL first, then the domain authorities (marine, plants, fungi, algae, fishes, reptiles), then the broad aggregators GBIF, ITIS, NCBI, and OTT. On a fresh install the first call downloads the default set, COL, GBIF, and ITIS (~4 GB, once).</p>
 <!-- manifest:backbone-table -->
@@ -293,7 +293,7 @@
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus abies"</span>, <span class="st">"Quercus robus"</span>, <span class="st">"Taraxacum officinale"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="co">#&gt; -- taxify results ----------------------------------------------------</span></span>
-<span><span class="co">#&gt;   backbone: WFO  |  4 names submitted</span></span>
+<span><span class="co">#&gt;   backbone: COL  |  4 names submitted</span></span>
 <span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt;   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2, abbrev: 0)</span></span>
 <span><span class="co">#&gt;   --------------------------------------------------------------</span></span>

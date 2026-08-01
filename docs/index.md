@@ -66,10 +66,10 @@ next.
 
 ``` r
 
-# WFO first (plants), then GBIF for whatever WFO doesn't cover
+# COL first (all kingdoms), then GBIF for whatever COL doesn't cover
 taxify(
   c("Quercus robur", "Panthera leo", "Amanita muscaria"),
-  backbone = c("wfo", "gbif")
+  backbone = c("col", "gbif")
 )
 ```
 
@@ -177,7 +177,7 @@ a compact digest of how the batch resolved.
 result <- taxify(c("Quercus robur", "Pinus abies", "Quercus robus", "Taraxacum officinale"))
 summary(result)
 #> -- taxify results ----------------------------------------------------
-#>   backbone: WFO  |  4 names submitted
+#>   backbone: COL  |  4 names submitted
 #>
 #>   matched         4  (exact: 2, case-insensitive: 0, fuzzy: 2, abbrev: 0)
 #>   --------------------------------------------------------------

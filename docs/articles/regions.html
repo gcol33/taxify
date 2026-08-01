@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -159,7 +159,7 @@ region, or a continent all work, case- and accent-insensitively.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Gentiana acaulis"</span>, region <span class="op">=</span> <span class="st">"Europe"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;         input_name    accepted_name       family match_type fuzzy_dist backbone</span></span>
-<span><span class="co">#&gt; 1 Gentiana acaulis Gentiana acaulis Gentianaceae      exact         NA     WFO</span></span></code></pre>
+<span><span class="co">#&gt; 1 Gentiana acaulis Gentiana acaulis Gentianaceae      exact         NA     COL</span></span></code></pre>
 <p>The exact match comes back unchanged, since the region never touches
 one. The constraint earns its keep on the fuzzy names in the same call:
 when a typo has two corrections a single edit apart and only one of them

@@ -23,7 +23,8 @@ offline.
 
 The first
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
-downloads a backbone once (WFO is about 150 MB) and caches it under
+installs the default backbone set (COL, GBIF, and ITIS) once, about 4
+GB, and caches it under
 [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
 After that, nothing touches the network.
 
@@ -111,7 +112,7 @@ summary(res)
 ```
 
     #> ── taxify results ──────────────────────────────────────────────────────────
-    #>   backbone: WFO v2024-12  |  10 names submitted
+    #>   backbone: COL v2026.07  |  10 names submitted
     #>
     #>   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)
     #>   ────────────────────────────────────────────────────────────
@@ -122,7 +123,7 @@ The digest reports the backbone and version, the match-route breakdown
 taxon-group mix. When a name is out of scope (an animal in a plant-only
 backbone) or genuinely absent, the digest tallies it and suggests an
 alternative backbone. The match types and the multi-backbone fallback
-(`backbone = c("wfo", "col", "gbif")`) are covered in the [backbones
+(`backbone = c("col", "gbif", "itis")`) are covered in the [backbones
 vignette](https://gillescolling.com/taxify/articles/backbones.html).
 
 ## Offline, and how much faster

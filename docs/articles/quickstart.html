@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,9 +143,10 @@ input gives the same output on any machine. Fifteen Darwin Core
 backbones are available (WFO, COL, GBIF, ITIS, NCBI, OTT, WoRMS,
 Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase, Reptile
 Database, LCVP, WCVP), all queried offline.</p>
-<p>The first <code><a href="../reference/taxify.html">taxify()</a></code> call downloads a backbone once (WFO
-is about 150 MB) and caches it under <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>.
-After that, nothing touches the network.</p>
+<p>The first <code><a href="../reference/taxify.html">taxify()</a></code> call installs the default backbone
+set (COL, GBIF, and ITIS) once, about 4 GB, and caches it under
+<code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>. After that, nothing touches the
+network.</p>
 </div>
 <div class="section level2">
 <h2 id="one-call">One call<a class="anchor" aria-label="anchor" href="#one-call"></a>
@@ -314,7 +315,7 @@ whether a run went cleanly.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ── taxify results ──────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   backbone: WFO v2024-12  |  10 names submitted</span></span>
+<span><span class="co">#&gt;   backbone: COL v2026.07  |  10 names submitted</span></span>
 <span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt;   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
@@ -325,7 +326,7 @@ breakdown (all ten resolved here, including the abbreviated
 scope (an animal in a plant-only backbone) or genuinely absent, the
 digest tallies it and suggests an alternative backbone. The match types
 and the multi-backbone fallback
-(<code>backbone = c("wfo", "col", "gbif")</code>) are covered in the <a href="https://gillescolling.com/taxify/articles/backbones.html">backbones
+(<code>backbone = c("col", "gbif", "itis")</code>) are covered in the <a href="https://gillescolling.com/taxify/articles/backbones.html">backbones
 vignette</a>.</p>
 </div>
 <div class="section level2">

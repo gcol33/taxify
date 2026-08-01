@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -270,7 +270,7 @@ used in the report header.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">names</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   8 names inspected  |  4 with anomalies</span></span>
-<span><span class="co">#&gt;   backbones: WFO, GBIF</span></span>
+<span><span class="co">#&gt;   backbones: COL, GBIF, ITIS</span></span>
 <span><span class="co">#&gt;   unresolved: 1   review: 2   note: 1</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   [unresolved] Bogusia fakensis  -&gt;  ?              genus 'Bogusia' is not in the taxonomic register</span></span>
@@ -286,7 +286,7 @@ label drops. It stays a kingdom-group outlier in a plant list.</p>
 asking <code><a href="../reference/inspect.html">inspect()</a></code> to match again. This reuses the exact
 backbone, region, and options of your original call.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The two routes return the same kind of report. Pass
 <code>backbones = TRUE</code> when you want a quick standalone check;
@@ -304,7 +304,7 @@ there.</p>
 <span>  <span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span>region <span class="op">=</span> <span class="st">"Europe"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   3 names inspected  |  1 with anomalies</span></span>
-<span><span class="co">#&gt;   backbones: WFO</span></span>
+<span><span class="co">#&gt;   backbones: COL</span></span>
 <span><span class="co">#&gt;   review: 1</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   [review] Banksia serrata  -&gt;  Banksia serrata  outside region per WCVP</span></span></code></pre>
@@ -333,7 +333,7 @@ needs action.</p>
 <span><span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">names</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span>, min_tier <span class="op">=</span> <span class="st">"review"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   8 names inspected  |  3 with anomalies</span></span>
-<span><span class="co">#&gt;   backbones: WFO, GBIF</span></span>
+<span><span class="co">#&gt;   backbones: COL, GBIF, ITIS</span></span>
 <span><span class="co">#&gt;   unresolved: 1   review: 2</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   [unresolved] Bogusia fakensis  -&gt;  ?              genus 'Bogusia' is not in the taxonomic register</span></span>
