@@ -1299,7 +1299,15 @@
                                  "with only 7.1% exactly equal. A whole-body length despite",
                                  "the terse column name -- elytra would sit near 0.6 of these",
                                  "values, and Cychrus caraboides reads 16.9 mm against a",
-                                 "published 14-19."))
+                                 "published 14-19.")),
+        alpine_carabids = nsrc("alpine_carabids", "body_length_mm",
+                           "Chamberlain et al. 2020 (Alpine carabids)",
+                           paste("185 species of the Italian Alps, the fauna the lowland",
+                                 "compilations miss. Runs 1.03 against chowdhury over 92",
+                                 "shared species and against arthropod_traits over 91 --",
+                                 "the same quantity, and far enough from 1.000 not to be the",
+                                 "verbatim copy eberswalde is, though it shares their",
+                                 "carabids.org ancestry."))
       )
     ),
     elytra_width = list(
@@ -1907,6 +1915,15 @@
                                        "Listed second so it only fills species chowdhury misses,",
                                        "where a caught-population morph is the only reading",
                                        "available."),
+                          map = function(v) .xw_cat(v, wing_lookup)),
+        alpine_carabids = list(enrichment = "alpine_carabids", col = "wing_morph",
+                          citation = "Chamberlain et al. 2020 (Alpine carabids)",
+                          note = paste("185 Alpine species. The source ships bare letters with",
+                                       "no legend, so the codes were decoded against",
+                                       "chowdhury's words rather than assumed: b short-winged",
+                                       "(16 of 18 shared), m long-winged (50 of 55), d",
+                                       "dimorphic (18 of 19) -- brachypterous, macropterous,",
+                                       "dimorphic."),
                           map = function(v) .xw_cat(v, wing_lookup))
       )
     ),

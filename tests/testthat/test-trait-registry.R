@@ -339,3 +339,32 @@ test_that("the NEON elytra measurements are millimetres of the elytron", {
   expect_true(all(c("saproxylic", "imageomics_neon") %in%
                     names(reg$elytra_length$sources)))
 })
+
+
+test_that("the Alpine wing states reach the same three values", {
+  reg <- taxify:::.trait_registry()
+  m <- reg$wing_morph$sources$alpine_carabids$map
+
+  # The source ships bare letters with no legend, decoded against chowdhury's
+  # words over the shared species (b short 16/18, m long 50/55, d dimorphic
+  # 18/19) rather than assumed from the abbreviations. That decoding happens in
+  # taxifydb's parse_alpine_carabids(), so the .vtr already holds words and the
+  # registry map sees the same vocabulary every other wing source uses.
+  expect_equal(m(c("Short-winged", "Long-winged", "Dimorphic")),
+               c("short-winged", "long-winged", "dimorphic"))
+  expect_true(is.na(m("b")))
+  expect_true(is.na(m(NA_character_)))
+
+  # Priority runs species-level statement, then caught population, then Alps.
+  wm <- names(reg$wing_morph$sources)
+  expect_equal(wm, c("chowdhury", "finand", "alpine_carabids"))
+})
+
+test_that("every carabid body-length source is registered but eberswalde", {
+  reg <- taxify:::.trait_registry()
+  bl <- names(reg$body_length$sources)
+  expect_true(all(c("chowdhury", "finand", "alpine_carabids") %in% bl))
+  # Eberswalde is a verbatim carabids.org copy; registering it would
+  # double-count the lineage chowdhury and alpine_carabids already carry.
+  expect_false("eberswalde" %in% bl)
+})
