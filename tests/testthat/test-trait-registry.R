@@ -173,3 +173,55 @@ test_that("categorical crosswalk outputs stay within the declared vocabulary", {
     }
   }
 })
+
+
+# ---- mappers whose logic is more than a lookup -------------------------------
+# The generic invariants above cannot catch a decoder that is well-formed but
+# wrong. These two carry real logic, so they are pinned against hand-worked
+# cases.
+
+test_that(".austraits_flower_window() reads a flowering season circularly", {
+  w <- taxify:::.austraits_flower_window(c(
+    "nnnnnnnnyyyn",  # September to November, no wrap
+    "yynnnnnnnnny",  # December to February, wraps the year boundary
+    "yyyyyyyyyyyy",  # flowers year round
+    "nnnnnnnnnnnn",  # never flowers: no window to report
+    "nynynynynyny",  # alternating, so every run is one month long
+    NA_character_,
+    "not-a-pattern"))
+
+  expect_equal(w[1, ], c(9, 11))
+  # The wrap is the whole point: read left to right this would be January to
+  # December, which is the entire year rather than a three-month summer.
+  expect_equal(w[2, ], c(12, 2))
+  expect_equal(w[3, ], c(1, 12))
+  expect_true(all(is.na(w[4, ])))
+  # Ties pick the first maximal run; the contract is only that it stays inside
+  # the calendar and spans one month.
+  expect_equal(w[5, 1], w[5, 2])
+  expect_true(all(is.na(w[6, ])))
+  expect_true(all(is.na(w[7, ])))
+
+  # Both trait slots read the same source column, so they must not disagree
+  # about which string they are decoding.
+  reg <- taxify:::.trait_registry()
+  expect_equal(reg$flowering_start$sources$austraits$col, "flowering_time")
+  expect_equal(reg$flowering_end$sources$austraits$col, "flowering_time")
+  expect_equal(reg$flowering_start$sources$austraits$map("yynnnnnnnnny"), 12)
+  expect_equal(reg$flowering_end$sources$austraits$map("yynnnnnnnnny"), 2)
+})
+
+test_that("the BROT resprouting mapper reads all three of its encodings", {
+  m <- taxify:::.trait_registry()$resprouting$sources$brot$map
+
+  # resp_fire mixes yes/no, an ordinal, and the percentage of individuals
+  # resprouting in one column. The numeric arm must not fall through to the
+  # regex arm, where "0" and "100" would both come back NA.
+  expect_equal(m(c("no", "yes", "high")),
+               c("non_resprouter", "resprouter", "resprouter"))
+  expect_equal(m(c("low", "variable")), c("partial", "partial"))
+  expect_equal(m(c("0", "40", "100")),
+               c("non_resprouter", "resprouter", "resprouter"))
+  expect_true(is.na(m(NA_character_)))
+  expect_true(is.na(m("")))
+})

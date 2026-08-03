@@ -42,6 +42,10 @@
 #'   when `mode = "coalesce"`; defaults to the registered order for the trait
 #'   (see [trait_info()]).
 #' @param verbose Logical. Default `TRUE`.
+#' @param aggregate_trait_fallback Logical. When an aggregate or hybrid name has
+#'   no trait record of its own, fall back to the underlying binomial. Defaults
+#'   to `getOption("taxify.aggregate_trait_fallback", TRUE)`, so it can be set
+#'   per call or for the session. Grain-pinned sources are unaffected.
 #' @return The same data.frame with added columns.
 #'   \describe{
 #'     \item{`mode = "coalesce"`}{`<trait>` (the reduced value); `<trait>_unit`
@@ -102,7 +106,9 @@
 #' @export
 add_trait <- function(x, trait, sources = "all",
                       mode = c("coalesce", "wide"),
-                      combine = NULL, priority = NULL, verbose = TRUE) {
+                      combine = NULL, priority = NULL, verbose = TRUE,
+                      aggregate_trait_fallback =
+                        getOption("taxify.aggregate_trait_fallback", TRUE)) {
   if (!is.data.frame(x) || !"accepted_name" %in% names(x)) {
     stop("Input must be a taxify() result with an 'accepted_name' column.",
          call. = FALSE)
@@ -144,7 +150,8 @@ add_trait <- function(x, trait, sources = "all",
       # stores them (built by taxifydb where a source has several records per
       # species); where it does not, min = max = value, so the spread reduces to
       # the cross-source range.
-      tr <- .trait_join_spread(x, sp$enrichment, sp$col, jc, sp$map, verbose)
+      tr <- .trait_join_spread(x, sp$enrichment, sp$col, jc, sp$map, verbose,
+                               aggregate_trait_fallback = aggregate_trait_fallback)
       if (is.null(tr)) {
         na <- rep(NA_real_, nrow(x))
         per_src[[s]] <- na; per_min[[s]] <- na; per_max[[s]] <- na
@@ -154,7 +161,8 @@ add_trait <- function(x, trait, sources = "all",
     } else {
       raw <- .trait_join_one(x, sp$enrichment, sp$col, spec$kind,
                              join_col = jc, group = sp$group,
-                             verbose = verbose)
+                             verbose = verbose,
+                             aggregate_trait_fallback = aggregate_trait_fallback)
       per_src[[s]] <- if (is.null(raw)) rep(na_scalar, nrow(x)) else sp$map(raw)
     }
   }
@@ -180,7 +188,8 @@ add_trait <- function(x, trait, sources = "all",
     if (!is_perrec(sp)) next
     jc   <- sp$join_col %||% "accepted_name"
     comp <- .trait_join_one(x, sp$enrichment, sp$caution_col, "categorical",
-                            join_col = jc, group = sp$group, verbose = FALSE)
+                            join_col = jc, group = sp$group, verbose = FALSE,
+                            aggregate_trait_fallback = aggregate_trait_fallback)
     if (is.null(comp)) next
     ctext <- sp$caution_fn(comp)
     ctext[is.na(per_src[[s]])] <- NA_character_   # only where the source has a value

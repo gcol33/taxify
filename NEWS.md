@@ -1,3 +1,59 @@
+# taxify 0.4.5
+
+* `add_trait()` gains seventeen traits and widens four, all from enrichment
+  data already bundled: the registry now covers 204 traits across 456 source
+  slots. Nothing needs re-downloading.
+
+* Fire ecology and regeneration are now reachable. `resprouting` (AusTraits and
+  BROT) is the post-fire resprouter / partial / non-resprouter call, `serotiny`
+  the canopy seed-storage call, and `soil_seed_bank` the persistence class.
+  Worked examples: *Quercus suber* and *Arbutus unedo* come back resprouters,
+  *Pinus halepensis* and *Cistus albidus* obligate seeders, *Banksia serrata*
+  serotinous.
+
+* Plant hydraulics, the drought-mortality axis, is now registered from AusTraits
+  and BROT: `p50` (xylem embolism resistance, MPa), `turgor_loss_point`,
+  `sapwood_conductivity`, `huber_value`, plus `bark_thickness`. Coverage is thin
+  (123 species for `p50`) and the trait documents that.
+
+* Bryophytes enter the trait verb for the first time, from Bryophytes of Europe
+  Traits: `bryophyte_life_form` (During's turf / mat / cushion / weft scheme,
+  kept separate from the vascular-plant `life_form` for the same reason
+  `lichen_growth_form` is), `shoot_length` and `spore_diameter`.
+
+* New from the coral and bird sources: `larval_development_mode` (spawner or
+  brooder), `substrate_attachment`, `linear_extension_rate`,
+  `polyp_retractability`, and `primary_habitat` (BIRDBASE's 14-term vocabulary
+  over 13,067 species). Also `self_compatibility` from Tree of Sex.
+
+* `sexual_system` roughly doubles its plant coverage with AusTraits `sex_type`
+  (87% agreement with Tree of Sex across 572 shared species) and gains
+  bryophytes from BET. `flowering_start` and `flowering_end` are no longer
+  Europe-only: AusTraits' 12-character monthly string now feeds them, read as
+  the longest *circular* run so a southern-hemisphere season that wraps the year
+  boundary comes back as December to February rather than January to December.
+  `diet_guild` gains BIRDBASE, listed last so it fills the birds AVONET and
+  EltonTraits miss.
+
+* `soil_seed_bank` is the first trait to ship a documented disagreement. BROT
+  and AusTraits classify persistence by different operational definitions and
+  agree on only 67% of their 48 shared species, so the pair carries a `caution`:
+  the default coalesce reports the most complete source rather than blending
+  them, and explains itself in `soil_seed_bank_caution`.
+
+* `add_trait()` gains `aggregate_trait_fallback`, which the `hybrids-and-aggregates`
+  vignette has been documenting as a per-call argument since it was written
+  ("turn it off, per call or globally"). Only the global option existed, so the
+  documented call errored with `unused argument`. The argument now threads
+  through to `enrich_simple()` and defaults to the same option, so existing
+  behaviour is unchanged. Grain-pinned sources go through `enrich_by_group()`,
+  which has no aggregate fallback, and are unaffected either way.
+
+* Rejections are documented in the registry header rather than left to be
+  rediscovered, including three octocoral columns that carry no information at
+  all -- `tentacles_per_polyp` is 8 for every one of 3,606 species, because
+  eight tentacles is the defining character of Octocorallia.
+
 # taxify 0.4.3
 
 * Bundled enrichment data now resolves taxonomic names across all fifteen

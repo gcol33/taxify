@@ -95,6 +95,21 @@
 # globtherm (135 and 16 shared); longevity and clutch_litter_size from eurobat,
 # fishtraits and chelonians; incubation_period (amniote / chelonians, 1.05).
 #
+# Categorical sources joined on agreement across shared species rather than a
+# ratio: AusTraits sex_type against tree_of_sex sexual_system, 87% of 572 shared
+# (hermaphrodite 250, dioecious 141, monoecious 105), which roughly doubles that
+# trait's plant coverage; AusTraits resprouting_capacity against BROT resp_fire,
+# 86% of 113; BIRDBASE primary_diet against AVONET trophic_niche, 77% of 12,294,
+# where the residual is a scheme difference (aquatic predator against
+# invertebrate) rather than the near-exact match a shared lineage would produce.
+#
+# Two sources of one trait registered with no shared species at all, where the
+# quantity is pinned by definition and the medians are the only cross-check:
+# p50 (AusTraits -3.41 MPa over 77 species, BROT -3.46 over 46; Australian
+# against Mediterranean floras). This is the climatic_temp_mean situation, not
+# the salinity one -- water potential at 50% loss of stem conductivity is a
+# standardized measurement, so an empty overlap leaves the unit unambiguous.
+#
 # Sources joined at a ratio that is a real offset rather than a unit error:
 # von_bertalanffy_k (beukhof / sharkipedia, 0.88); von_bertalanffy_linf
 # (beukhof / sharkipedia, 1.13, thin overlap because sharks skew large);
@@ -380,6 +395,31 @@
 #     quantity the body-size traits measure.
 #   - odonata habitat_openness: an odonate-jargon habitat descriptor, not a
 #     distinct behavioural axis.
+#   - octocoral tentacles_per_polyp: constant. Its minimum, median and maximum
+#     are all 8 across 3,606 species, because eight tentacles is the defining
+#     character of Octocorallia. A column with one value carries no information.
+#   - octocoral feeding_mechanism: effectively constant, 3,603 of 3,604 records
+#     "suspension feeder".
+#   - octocoral type_of_skeleton: 21 free-text morphological descriptions ("No
+#     axis, unconsolidated sclerites embedded in tissue"), not a vocabulary.
+#     Collapsing them is curation that belongs upstream, in the parser.
+#   - octocoral colony_height / colony_width: unlabelled unit, and a different
+#     dimension from the coral colony_diameter already registered.
+#   - bet life_strategy: single-letter codes (c, p, l, s, a, f) with no legend
+#     in the .vtr. During's bryophyte life strategies are a known scheme, but
+#     decoding the letters from domain memory is the column-header rung of the
+#     evidence ladder, which is never enough on its own. Same call as nest_type
+#     before its codebook was found.
+#   - bet substrate_soil / substrate_rock / substrate_bark / substrate_deadwood:
+#     four one-hot flags over the same vocabulary the substrate trait already
+#     uses. A registry map sees one column at a time, so collapsing them to a
+#     primary substrate is a build-time change in taxifydb, the way NestTrait's
+#     one-hot nest flags were collapsed.
+#   - coral_traits skeletal_density_g_cm3: 55 species, and not comparable to the
+#     wood_density it superficially resembles.
+#   - brot barkthick: mixes a thin/thick call with numeric ranges written as
+#     "10.0|19.3" in one column over 91 species; the encodings cannot be
+#     separated by unit, so AusTraits carries bark_thickness alone.
 #
 # Build-only sources feed no trait, and the reason is reproducibility rather
 # than quality. Every source in this registry is a downloadable .vtr; a source
@@ -453,6 +493,37 @@
 }
 
 
+# AusTraits records flowering as a 12-character y/n string, one character per
+# month starting at January ("nnnnnnnnyyyn" is September to November). A
+# southern-hemisphere season wraps the year boundary, so "yynnnnnnnnny" is
+# December to February, not January to December: the flowering window is the
+# longest CIRCULAR run of "y", read off two concatenated years. Returns a
+# two-column matrix of start and end month; the trait slots take one column
+# each. Computed over distinct values and matched back, because a handful of
+# strings cover tens of thousands of rows.
+.austraits_flower_window <- function(v) {
+  s <- tolower(trimws(as.character(v)))
+  s[!is.na(s) & !nzchar(s)] <- NA_character_
+  u <- unique(s[!is.na(s)])
+  lut <- matrix(NA_real_, nrow = length(u), ncol = 2L)
+  for (k in seq_along(u)) {
+    if (!grepl("^[yn]{12}$", u[k])) next
+    m <- strsplit(u[k], "", fixed = TRUE)[[1]] == "y"
+    if (!any(m)) next
+    if (all(m)) { lut[k, ] <- c(1, 12); next }
+    r   <- rle(rep(m, 2L))
+    idx <- which(r$values)
+    len <- pmin(r$lengths[idx], 12L)
+    b   <- idx[which.max(len)]
+    run <- min(r$lengths[b], 12L)
+    st0 <- if (b == 1L) 1L else sum(r$lengths[seq_len(b - 1L)]) + 1L
+    lut[k, ] <- c(((st0 - 1L) %% 12L) + 1L, ((st0 + run - 2L) %% 12L) + 1L)
+  }
+  i <- match(s, u)
+  cbind(lut[i, 1L], lut[i, 2L])
+}
+
+
 # The registry. Sources are listed in default coalesce-priority order.
 .trait_registry <- function() {
 
@@ -513,6 +584,79 @@
   # NestTrait columns, whose values are already pipe-delimited multi-modal tokens
   # (e.g. "tree|cliff_bank") that must be preserved, not collapsed to one token.
   chr_verbatim <- function(v) { s <- trimws(as.character(v)); s[!nzchar(s)] <- NA_character_; s }
+
+  # AusTraits flowering window, one column of .austraits_flower_window() each.
+  aus_flr_start <- function(v) .austraits_flower_window(v)[, 1L]
+  aus_flr_end   <- function(v) .austraits_flower_window(v)[, 2L]
+
+  # Resprouting after fire. AusTraits is a clean token set; a record listing
+  # both states ("fire_killed resprouts") is a species observed either way, so
+  # it reads as partial and the combined patterns are tested first. BROT's
+  # resp_fire mixes three encodings in one column -- yes/no, an ordinal
+  # high/low/variable, and the percentage of individuals resprouting -- so the
+  # numeric arm is handled before the regex arm rather than through it.
+  resprout_patterns <- c(
+    "partial"                                   = "partial",
+    "fire_killed.*resprouts|resprouts.*fire_killed" = "partial",
+    "resprout"                                  = "resprouter",
+    "fire_killed"                               = "non_resprouter")
+  brot_resprout <- function(v) {
+    s   <- tolower(trimws(as.character(v)))
+    n   <- suppressWarnings(as.numeric(s))
+    out <- rep(NA_character_, length(s))
+    # The percentage arm: 0 is no resprouting, anything above it resprouts.
+    out[!is.na(n) & n <= 0] <- "non_resprouter"
+    out[!is.na(n) & n >  0] <- "resprouter"
+    out[is.na(n)] <- .xw_grep(s[is.na(n)], c(
+      "^no$"             = "non_resprouter",
+      "variable|^low$"   = "partial",
+      "^yes$|^high$"     = "resprouter"))
+    out
+  }
+
+  # Soil seed-bank persistence. BROT stores "persistence|method", so only the
+  # first token is the class; AusTraits' "widely_dispersed" is a dispersal
+  # statement rather than a persistence class and falls through to NA.
+  seedbank_patterns <- c(
+    "long.?persistent"  = "long_persistent",
+    "short.?persistent" = "short_persistent",
+    "mid.?persistent"   = "persistent",
+    "persistent"        = "persistent",
+    "transient"         = "transient")
+
+  # Bryophyte growth architecture (During's life-form scheme). Kept apart from
+  # the vascular-plant life_form and growth_form traits for the same reason
+  # lichen_growth_form is: it is a different scheme over a different structure,
+  # and merging the vocabularies would make "turf" and "hemicryptophyte"
+  # comparable terms.
+  # The seven values BET actually carries. During's published scheme has more
+  # (fan, pendant, tail), but a vocabulary term the source never emits is a
+  # guess about the data rather than a reading of it.
+  bryoform_patterns <- c(
+    "turf" = "turf", "cushion" = "cushion", "weft" = "weft",
+    "dendroid" = "dendroid", "rosette" = "rosette", "annual" = "annual",
+    "mat" = "mat")
+
+  # Bird primary habitat (BIRDBASE's own 14-term vocabulary, taken verbatim
+  # in lower case).
+  # All fourteen values BIRDBASE carries, lower-cased and otherwise untouched --
+  # including "artificial", its own term for human-modified habitat, which is
+  # kept rather than renamed to a tidier "urban" the source never says.
+  birdhab_patterns <- c(
+    "forest" = "forest", "woodland" = "woodland", "shrub" = "shrub",
+    "grassland" = "grassland", "savanna" = "savanna", "wetland" = "wetland",
+    "riparian" = "riparian", "coastal" = "coastal", "sea" = "sea",
+    "rocky" = "rocky", "plains" = "plains", "artificial" = "artificial",
+    "desert" = "desert", "bamboo" = "bamboo")
+
+  # BIRDBASE primary diet onto the shared diet_guild vocabulary. Fish maps to
+  # carnivore because the vocabulary has no piscivore term, the same call the
+  # parravicini P code already takes.
+  birddiet_lookup <- c(
+    "invertebrate" = "invertivore", "fruit" = "frugivore", "seed" = "granivore",
+    "nectar" = "nectarivore", "omnivore" = "omnivore", "herbivore" = "herbivore",
+    "plant" = "herbivore", "vertebrate" = "carnivore", "fish" = "carnivore",
+    "carnivore" = "carnivore", "scavenger" = "scavenger")
 
   # Categorical crosswalks for the added traits (grounded on the sources'
   # distinct values). Flower colour takes the first colour word of a possibly
@@ -1171,15 +1315,135 @@
     flowering_start = list(
       label = "Flowering start (month)", kind = "numeric", unit = "month (1-12)", vocab = NULL,
       sources = list(
-        baseflor = nsrc("baseflor", "flower_begin_month", "Baseflor (Julve, Catminat)", "Month 1-12."),
-        ecoflora = nsrc("ecoflora", "flower_begin_month_uk", "Ecoflora (Fitter & Peat 1994)", "Month 1-12.")
+        baseflor  = nsrc("baseflor", "flower_begin_month", "Baseflor (Julve, Catminat)", "Month 1-12."),
+        ecoflora  = nsrc("ecoflora", "flower_begin_month_uk", "Ecoflora (Fitter & Peat 1994)", "Month 1-12."),
+        austraits = nsrc("austraits", "flowering_time", "AusTraits (Falster et al. 2021)",
+                         "First month of the longest circular run of flowering months in AusTraits' 12-character y/n string. Circular because a southern-hemisphere season wraps December to February.",
+                         map = aus_flr_start)
       )
     ),
     flowering_end = list(
       label = "Flowering end (month)", kind = "numeric", unit = "month (1-12)", vocab = NULL,
       sources = list(
-        baseflor = nsrc("baseflor", "flower_end_month", "Baseflor (Julve, Catminat)", "Month 1-12."),
-        ecoflora = nsrc("ecoflora", "flower_end_month_uk", "Ecoflora (Fitter & Peat 1994)", "Month 1-12.")
+        baseflor  = nsrc("baseflor", "flower_end_month", "Baseflor (Julve, Catminat)", "Month 1-12."),
+        ecoflora  = nsrc("ecoflora", "flower_end_month_uk", "Ecoflora (Fitter & Peat 1994)", "Month 1-12."),
+        austraits = nsrc("austraits", "flowering_time", "AusTraits (Falster et al. 2021)",
+                         "Last month of the longest circular run of flowering months in AusTraits' 12-character y/n string.",
+                         map = aus_flr_end)
+      )
+    ),
+
+    ## ---- fire response and regeneration -----------------------------------
+    resprouting = list(
+      label = "Resprouting after fire", kind = "categorical", unit = NA_character_,
+      vocab = c("resprouter", "partial", "non_resprouter"),
+      sources = list(
+        austraits = list(enrichment = "austraits", col = "resprouting_capacity",
+                     citation = "AusTraits (Falster et al. 2021)",
+                     note = "resprouts / fire_killed / partial_resprouting; a record listing both states is read as partial.",
+                     map = function(v) .xw_grep(v, resprout_patterns)),
+        brot      = list(enrichment = "brot", col = "resp_fire",
+                     citation = "BROT 2.0 (Tavsanoglu & Pausas 2018)",
+                     note = paste("Three encodings in one column: yes/no, an ordinal high/low/variable,",
+                                  "and the percentage of individuals resprouting. The numeric arm is",
+                                  "read first (0 non-resprouter, above 0 resprouter). Agrees with",
+                                  "AusTraits on 86% of 113 shared species."),
+                     map = brot_resprout)
+      )
+    ),
+    serotiny = list(
+      label = "Serotiny", kind = "categorical", unit = NA_character_,
+      vocab = c("serotinous", "non_serotinous"),
+      sources = list(
+        austraits = list(enrichment = "austraits", col = "serotiny",
+                     citation = "AusTraits (Falster et al. 2021)",
+                     note = "Canopy seed storage; the graded serotiny_low/moderate/high records all read as serotinous.",
+                     map = function(v) .xw_grep(v, c(
+                       "not_serotinous"        = "non_serotinous",
+                       "serotin"               = "serotinous")))
+        # BROT serotinylevel (8 species) and canopyseedbank (11) are too thin to
+        # register, and BROT's own values are a 0-49 percentage rather than the
+        # presence call AusTraits makes.
+      )
+    ),
+    soil_seed_bank = list(
+      label = "Soil seed-bank persistence", kind = "categorical", unit = NA_character_,
+      vocab = c("transient", "short_persistent", "persistent", "long_persistent"),
+      sources = list(
+        austraits = list(enrichment = "austraits", col = "seedbank_longevity_class",
+                     citation = "AusTraits (Falster et al. 2021)",
+                     note = "Persistence class; widely_dispersed is a dispersal statement rather than a persistence class and falls through to NA.",
+                     map = function(v) .xw_grep(v, seedbank_patterns)),
+        brot      = list(enrichment = "brot", col = "soil_seed_bank",
+                     citation = "BROT 2.0 (Tavsanoglu & Pausas 2018)",
+                     note = "Stored as persistence|method; only the first token is the class, and BROT's mid-persistent folds into persistent.",
+                     caution = paste("BROT and AusTraits classify seed-bank persistence by different",
+                                     "operational definitions -- burial depth and trial duration differ",
+                                     "between the compilations -- and agree on only 67% of 48 shared",
+                                     "species once both are collapsed to persistent against transient.",
+                                     "The two are reported separately rather than blended."),
+                     map = function(v) .xw_grep(v, seedbank_patterns))
+      )
+    ),
+
+    ## ---- plant hydraulics --------------------------------------------------
+    ## The drought-mortality axis. Both P50 sources are megapascals by
+    ## definition (water potential at 50% loss of stem conductivity) and the
+    ## overlap is empty -- BROT is Mediterranean, AusTraits Australian -- so the
+    ## unit rests on the definition plus the two medians landing together at
+    ## -3.4 MPa, the way the disjoint climatic_temp_mean sources do. Coverage is
+    ## thin (123 species across both) and the trait is registered on that basis.
+    p50 = list(
+      label = "Xylem embolism resistance (P50)", kind = "numeric", unit = "MPa", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "stem_water_potential_50percent_lost_conductivity",
+                     "AusTraits (Falster et al. 2021)",
+                     "Stem water potential at 50% loss of hydraulic conductivity, MPa (negative). Median -3.41 over 77 species."),
+        brot      = nsrc("brot", "p50", "BROT 2.0 (Tavsanoglu & Pausas 2018)",
+                     "MPa (negative). Median -3.46 over 46 species; no species shared with AusTraits, so the two medians are the only cross-check.")
+      )
+    ),
+    turgor_loss_point = list(
+      label = "Leaf turgor loss point", kind = "numeric", unit = "MPa", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "leaf_turgor_loss_point", "AusTraits (Falster et al. 2021)",
+                     "Leaf water potential at turgor loss, MPa (negative).")
+      )
+    ),
+    sapwood_conductivity = list(
+      label = "Sapwood specific hydraulic conductivity", kind = "numeric",
+      unit = "kg m-1 s-1 MPa-1", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "sapwood_specific_hydraulic_conductivity",
+                     "AusTraits (Falster et al. 2021)", "Sapwood-area-specific conductivity.")
+      )
+    ),
+    huber_value = list(
+      label = "Huber value", kind = "numeric", unit = "index (m2/m2)", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "huber_value", "AusTraits (Falster et al. 2021)",
+                     "Sapwood area per unit leaf area, dimensionless.")
+      )
+    ),
+    bark_thickness = list(
+      label = "Bark thickness", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        austraits = nsrc("austraits", "bark_thickness", "AusTraits (Falster et al. 2021)", "Millimetres.")
+        # BROT barkthick is not a second source: it mixes a thin/thick call with
+        # numeric ranges written as "10.0|19.3" in the same column, over 91
+        # species, and the two encodings cannot be separated by unit.
+      )
+    ),
+    self_compatibility = list(
+      label = "Self-compatibility", kind = "categorical", unit = NA_character_,
+      vocab = c("self_compatible", "self_incompatible"),
+      sources = list(
+        tree_of_sex = list(enrichment = "tree_of_sex", col = "selfing",
+                       citation = "Tree of Sex Consortium 2014",
+                       note = "Breeding-system compatibility, distinct from the sexual_system trait; records carrying both states fall through to NA.",
+                       map = function(v) .xw_cat(v, c(
+                         "self compatible"   = "self_compatible",
+                         "self incompatible" = "self_incompatible")))
       )
     ),
 
@@ -1501,7 +1765,16 @@
                           map = function(v) .xw_grep(v, diet_patterns)),
         zooplankton  = list(enrichment = "zooplankton", col = "trophic_group",
                           citation = "Global Zooplankton Trait DB (Pata & Hunt 2025)", note = "Marine zooplankton; primary token of a compound value (carnivore/omnivore/herbivore/detritivore/planktivore); suspension-feeder and parasite -> NA.",
-                          map = function(v) .xw_grep(v, diet_patterns))
+                          map = function(v) .xw_grep(v, diet_patterns)),
+        birdbase     = list(enrichment = "birdbase", col = "primary_diet",
+                          citation = "Sekercioglu et al. 2025 (BIRDBASE)",
+                          note = paste("An independent bird diet classification, not a copy of an",
+                                       "incumbent: it agrees with AVONET's trophic niche on 77% of",
+                                       "12,294 shared species, and the disagreements are scheme",
+                                       "differences (aquatic predator against invertebrate) rather",
+                                       "than the exact match a shared lineage would give. Listed last,",
+                                       "so it fills the birds AVONET and EltonTraits miss."),
+                          map = function(v) .xw_cat(v, birddiet_lookup))
       )
     ),
     activity_time = list(
@@ -2242,6 +2515,20 @@
         tree_of_sex  = list(enrichment = "tree_of_sex", col = "sexual_system",
                         citation = "Tree of Sex Consortium 2014", note = "Plant and animal sexual systems.",
                         map = function(v) .xw_grep(v, sexsys_patterns)),
+        austraits    = list(enrichment = "austraits", col = "sex_type",
+                        citation = "AusTraits (Falster et al. 2021)",
+                        note = paste("Plant sexual system through the shared crosswalk. Agrees with",
+                                     "tree_of_sex on 87% of 572 shared species (hermaphrodite 250,",
+                                     "dioecious 141, monoecious 105), and roughly doubles the trait's",
+                                     "plant coverage."),
+                        map = function(v) .xw_grep(v, sexsys_patterns)),
+        bet          = list(enrichment = "bet", col = "sexual_condition",
+                        citation = "Bryophytes of Europe Traits (Hodgetts et al. 2020)",
+                        note = paste("Bryophyte sexual condition, D and M read as dioicous and",
+                                     "monoicous, the standard coding for the group; M/D records carry",
+                                     "both and fall through to NA. Read off the column's three distinct",
+                                     "values, not confirmed against a BET data dictionary."),
+                        map = function(v) .xw_cat(v, c("d" = "dioecious", "m" = "monoecious"))),
         coral_traits = list(enrichment = "coral_traits", col = "sexual_system",
                         citation = "Coral Trait DB (Madin et al. 2016)", note = "Coral sexual system.",
                         map = function(v) .xw_grep(v, sexsys_patterns)),
@@ -2677,6 +2964,89 @@
                           citation = "FungalRoot (Soudzilovskaia et al. 2020)", note = "Genus-level majority-consensus mycorrhizal type (AM arbuscular, EcM ecto, ErM ericoid, OM orchid, NM non-mycorrhizal, plus dual types); joined on genus. Verbatim source code.",
                           map = chr_verbatim)
       )
+    ),
+
+    ## ---- bryophytes --------------------------------------------------------
+    ## BET is the only registry-eligible bryophyte source (BRYOATT is
+    ## build-only), so every slot here is single-source and grounded on
+    ## distribution sanity plus the source's own vocabulary.
+    bryophyte_life_form = list(
+      label = "Bryophyte life form", kind = "categorical", unit = NA_character_,
+      vocab = c("turf", "mat", "cushion", "weft", "dendroid", "rosette", "annual"),
+      sources = list(
+        bet = list(enrichment = "bet", col = "life_form",
+               citation = "Bryophytes of Europe Traits (Hodgetts et al. 2020)",
+               note = "During's bryophyte growth architecture. Kept apart from the vascular-plant life_form and growth_form traits: a different scheme over a different structure.",
+               map = function(v) .xw_grep(v, bryoform_patterns))
+      )
+    ),
+    shoot_length = list(
+      label = "Shoot length", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        bet = nsrc("bet", "shoot_size_mm", "Bryophytes of Europe Traits (Hodgetts et al. 2020)",
+               "Millimetres, median 28 over 1,891 species. Not folded into plant_height: bryophytes in mats and turfs grow prostrate, so shoot length is not a height.")
+      )
+    ),
+    spore_diameter = list(
+      label = "Spore diameter", kind = "numeric", unit = "um", vocab = NULL,
+      sources = list(
+        bet = nsrc("bet", "spore_diameter_um", "Bryophytes of Europe Traits (Hodgetts et al. 2020)",
+               "Micrometres, median 16 over 1,727 species.")
+      )
+    ),
+
+    ## ---- corals ------------------------------------------------------------
+    larval_development_mode = list(
+      label = "Larval development mode", kind = "categorical", unit = NA_character_,
+      vocab = c("spawner", "brooder"),
+      sources = list(
+        coral_traits = list(enrichment = "coral_traits", col = "larval_development_mode",
+                        citation = "Coral Trait DB (Madin et al. 2016)",
+                        note = "Broadcast spawning against brooding. Kept apart from reproductive_mode, whose vocabulary is the oviparous/viviparous parity axis and shares no term with this one.",
+                        map = function(v) .xw_grep(v, c("brood" = "brooder", "spawn" = "spawner")))
+      )
+    ),
+    substrate_attachment = list(
+      label = "Substrate attachment", kind = "categorical", unit = NA_character_,
+      vocab = c("attached", "unattached", "both"),
+      sources = list(
+        coral_traits = list(enrichment = "coral_traits", col = "substrate_attachment",
+                        citation = "Coral Trait DB (Madin et al. 2016)",
+                        note = "Whether the colony is fixed to the substrate.",
+                        map = function(v) .xw_grep(v, c(
+                          "both" = "both", "unattached" = "unattached", "attached" = "attached")))
+      )
+    ),
+    linear_extension_rate = list(
+      label = "Coral linear extension rate", kind = "numeric", unit = "mm/yr", vocab = NULL,
+      sources = list(
+        coral_traits = nsrc("coral_traits", "growth_rate_mm_yr", "Coral Trait DB (Madin et al. 2016)",
+                        "Skeletal linear extension, mm/yr. Deliberately NOT registered as growth_rate: the registry rejects that trait because coral extension, zooplankton per-day growth and AnAge's Gompertz constant are physically different rates, so this carries the coral-specific name instead of widening a trait that cannot hold it.")
+      )
+    ),
+    polyp_retractability = list(
+      label = "Polyp retractability", kind = "categorical", unit = NA_character_,
+      vocab = c("retractable", "non_retractable"),
+      sources = list(
+        octocoral = list(enrichment = "octocoral", col = "polyp_retractability",
+                     citation = "Gomez-Gras et al. 2024",
+                     note = "Stored as 1/0 over 3,539 species.",
+                     map = function(v) .xw_cat(v, c("1" = "retractable", "0" = "non_retractable")))
+      )
+    ),
+
+    ## ---- birds -------------------------------------------------------------
+    primary_habitat = list(
+      label = "Primary habitat", kind = "categorical", unit = NA_character_,
+      vocab = c("forest", "woodland", "shrub", "grassland", "savanna", "wetland",
+                "riparian", "coastal", "sea", "rocky", "plains", "artificial",
+                "desert", "bamboo"),
+      sources = list(
+        birdbase = list(enrichment = "birdbase", col = "primary_habitat",
+                    citation = "Sekercioglu et al. 2025 (BIRDBASE)",
+                    note = "BIRDBASE's own 14-term habitat vocabulary over 13,067 species, taken verbatim in lower case. Distinct from the numeric habitat_breadth already registered from the same source.",
+                    map = function(v) .xw_grep(v, birdhab_patterns))
+      )
     )
   )
 }
@@ -2725,7 +3095,9 @@
 # source that is unavailable (not installed, no download, no build) is skipped
 # with a warning and returns NULL, so add_trait() still works from the rest.
 .trait_join_one <- function(x, enrichment, col, kind, join_col = "accepted_name",
-                            group = NULL, verbose = TRUE) {
+                            group = NULL, verbose = TRUE,
+                            aggregate_trait_fallback =
+                              getOption("taxify.aggregate_trait_fallback", TRUE)) {
   tmp  <- ".__taxify_trait_raw__"
   na_t <- stats::setNames(
     list(if (kind == "numeric") NA_real_ else NA_character_), tmp)
@@ -2738,9 +3110,12 @@
         na_types     = na_t,
         join_col     = join_col,
         expose_all   = FALSE,
-        verbose      = FALSE
+        verbose      = FALSE,
+        aggregate_trait_fallback = aggregate_trait_fallback
       )
     } else {
+      # enrich_by_group() has no aggregate fallback, so a grain-pinned source
+      # ignores this setting -- as it already ignores the global option.
       # A grain-pinned source (see nsrc's `group`): one group, so the value
       # lands in an unsuffixed `tmp` exactly as the ungrouped path leaves it.
       enrich_by_group(
@@ -2776,7 +3151,9 @@
 # the same code path deepens automatically once a rebuilt .vtr carries the
 # stored spread. pmin/pmax guard against a non-monotonic map swapping the bounds.
 .trait_join_spread <- function(x, enrichment, col, join_col = "accepted_name",
-                               map = identity, verbose = TRUE) {
+                               map = identity, verbose = TRUE,
+                               aggregate_trait_fallback =
+                                 getOption("taxify.aggregate_trait_fallback", TRUE)) {
   cm   <- c(.v = col, .lo = paste0(col, "_min"), .hi = paste0(col, "_max"))
   na_t <- list(.v = NA_real_, .lo = NA_real_, .hi = NA_real_)
   res <- tryCatch(
@@ -2784,7 +3161,8 @@
       x, enrichment_name = enrichment,
       col_map = cm, source_label = enrichment,
       na_types = na_t, join_col = join_col,
-      expose_all = FALSE, verbose = FALSE
+      expose_all = FALSE, verbose = FALSE,
+      aggregate_trait_fallback = aggregate_trait_fallback
     ),
     error = function(e) {
       if (verbose) {

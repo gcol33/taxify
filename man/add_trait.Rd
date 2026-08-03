@@ -11,7 +11,8 @@ add_trait(
   mode = c("coalesce", "wide"),
   combine = NULL,
   priority = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  aggregate_trait_fallback = getOption("taxify.aggregate_trait_fallback", TRUE)
 )
 }
 \arguments{
@@ -50,6 +51,11 @@ when \code{mode = "coalesce"}; defaults to the registered order for the trait
 (see \code{\link[=trait_info]{trait_info()}}).}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
+
+\item{aggregate_trait_fallback}{Logical. When an aggregate or hybrid name has
+no trait record of its own, fall back to the underlying binomial. Defaults
+to \code{getOption("taxify.aggregate_trait_fallback", TRUE)}, so it can be set
+per call or for the session. Grain-pinned sources are unaffected.}
 }
 \value{
 The same data.frame with added columns.
