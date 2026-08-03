@@ -459,11 +459,9 @@
 #     decoding the letters from domain memory is the column-header rung of the
 #     evidence ladder, which is never enough on its own. Same call as nest_type
 #     before its codebook was found.
-#   - bet substrate_soil / substrate_rock / substrate_bark / substrate_deadwood:
-#     four one-hot flags over the same vocabulary the substrate trait already
-#     uses. A registry map sees one column at a time, so collapsing them to a
-#     primary substrate is a build-time change in taxifydb, the way NestTrait's
-#     one-hot nest flags were collapsed.
+#     (bet's four one-hot substrate flags were on this list until taxifydb
+#     collapsed them to a primary `substrate` column at build time, the way
+#     NestTrait's one-hot nest flags were; bet is now a substrate source.)
 #   - coral_traits skeletal_density_g_cm3: 55 species, and not comparable to the
 #     wood_density it superficially resembles.
 #   - brot barkthick: mixes a thin/thick call with numeric ranges written as
@@ -2788,7 +2786,10 @@
       sources = list(
         italic = list(enrichment = "italic", col = "substrata",
                       citation = "ITALIC 8.0 (Nimis; Italian lichens)", note = "Primary substrate of a possibly multi-substrate record (priority rock > bark > wood > soil > leaves).",
-                      map = function(v) .xw_grep(v, lichen_substrate_patterns))
+                      map = function(v) .xw_grep(v, lichen_substrate_patterns)),
+        bet    = list(enrichment = "bet", col = "substrate",
+                      citation = "Bryophytes of Europe Traits (Hodgetts et al.)", note = "Primary substrate derived at build time from four one-hot flags, by the same priority ITALIC's multi-substrate records use. 58.8% of BET species carrying any flag carry several, so the reduction is real rather than incidental; BET's deadwood is ITALIC's lignum.",
+                      map = chr_verbatim)
       )
     ),
     photobiont = list(
