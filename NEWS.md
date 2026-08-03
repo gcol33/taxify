@@ -1,5 +1,23 @@
 # taxify 0.4.5
 
+* Three more ground-beetle sources join `add_chowdhury()`. `add_finand()` brings
+  34 Helsinki species whose body lengths were measured from the specimens the
+  authors caught — small, and carried because it is the only carabid source
+  independent of carabids.org, which every other reachable table inherits its
+  sizes and wing classes from. `add_imageomics_neon()` brings the first North
+  American ground beetles, 75 species measured from images of pinned NEON
+  specimens, feeding `elytra_length` and a new `elytra_width`.
+  `add_eberswalde()` brings a 24-year monitoring record from 13 forest plots:
+  abundance trend, sensitivity to the 72-month SPEI drought index, a feeding
+  guild refined by field observation to name the prey, and Sustek's humidity
+  scale.
+
+* Eberswalde's size, wing class and latitude are surfaced on its door but feed
+  no trait. The deposit's own README says they are carabids.org verbatim, and
+  the data agree exactly: over the 19 species shared with `add_chowdhury()`
+  every size is identical and every wing class matches. Registering them would
+  double-count one lineage.
+
 * Ground beetles are now covered. `add_chowdhury()` attaches traits and national
   occupancy trends for 382 German carabids from Chowdhury et al. (2025): body
   length, wing morphology, trophic level, habitat preference, both Red List

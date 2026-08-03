@@ -372,6 +372,17 @@
 #     all. National and global extinction risk are different quantities -- a
 #     species can be critically endangered at its German range edge and of least
 #     concern across its range -- so both columns stay with add_chowdhury().
+#   - eberswalde contributes nothing to the verb, though its door carries eight
+#     columns. Its size, wing class and range-centre latitude are carabids.org
+#     verbatim -- the deposit's README says so ("size = mean size (body length,
+#     mm) ... Source: Homburg et al. (2014) / carabids.org", likewise wings and
+#     latitude) and the data agree exactly: over the 19 species shared with
+#     chowdhury all 19 sizes are identical and all 19 wing classes match, with
+#     no off-diagonal cell. That is the same-data trap with the source's own
+#     documentation as the evidence rather than a ratio. What is left is a
+#     24-year abundance trend on 13 plots, a drought sensitivity and Sustek's
+#     humidity code -- single-source local results over 27 species, which is
+#     what a door is for.
 #   - arthropod_traits body_size_mm is not body_length, because the column
 #     changes definition by taxon and nothing in the .vtr says which. For
 #     spiders it is a true body length (ratio 1.000 against spider_traits over
@@ -1280,7 +1291,27 @@
                                  "shared species, and those are themselves 1.000 against",
                                  "spider_traits' measured body lengths over 437. Recorded on a",
                                  "0.5 mm grid, so it is coarser than the sources around it --",
-                                 "a precision limit, not a different measurement."))
+                                 "a precision limit, not a different measurement.")),
+        finand      = nsrc("finand", "body_length_mm", "Finand & Kotze 2025 (Helsinki carabids)",
+                           paste("34 Helsinki species, and the one carabid source measured",
+                                 "from specimens rather than compiled: 0.9946 against",
+                                 "arthropod_traits over 28 shared species (IQR 0.985-1.008)",
+                                 "with only 7.1% exactly equal. A whole-body length despite",
+                                 "the terse column name -- elytra would sit near 0.6 of these",
+                                 "values, and Cychrus caraboides reads 16.9 mm against a",
+                                 "published 14-19."))
+      )
+    ),
+    elytra_width = list(
+      label = "Elytra width", kind = "numeric", unit = "mm", vocab = NULL,
+      sources = list(
+        imageomics_neon = nsrc("imageomics_neon", "elytra_width_mm",
+                           "Imageomics 2018-NEON-beetles",
+                           paste("Maximum elytra width of North American ground beetles, cm",
+                                 "converted to mm. Single-source: saproxylic carries a body",
+                                 "width but no elytra width. Grounded on the ratio to its own",
+                                 "elytra length, median 1.79 across species (range",
+                                 "1.34-2.25), the shape of a carabid elytron."))
       )
     ),
     metabolic_rate = list(
@@ -1845,6 +1876,10 @@
                                        "classification rather than a copy, which would agree",
                                        "near-exactly. Listed after it, so it fills the carabids",
                                        "that compilation misses."),
+                          map = function(v) .xw_grep(v, diet_patterns)),
+        finand       = list(enrichment = "finand", col = "feeding_type",
+                          citation = "Finand & Kotze 2025 (Helsinki carabids)",
+                          note = "Carnivore or omnivore for 34 Helsinki ground beetles.",
                           map = function(v) .xw_grep(v, diet_patterns))
       )
     ),
@@ -1861,6 +1896,17 @@
                                        "what carabid dispersal ecology measures. Distinct from",
                                        "the bird trait flightless, which asks whether a species",
                                        "can fly at all."),
+                          map = function(v) .xw_cat(v, wing_lookup)),
+        finand    = list(enrichment = "finand", col = "wing_morph",
+                          citation = "Finand & Kotze 2025 (Helsinki carabids)",
+                          note = paste("The morph of the beetles actually caught in Helsinki,",
+                                       "against chowdhury's statement of what the species can",
+                                       "produce. On their 25 shared species there is no",
+                                       "long-versus-short disagreement at all, but seven that",
+                                       "chowdhury calls dimorphic get a definite morph here.",
+                                       "Listed second so it only fills species chowdhury misses,",
+                                       "where a caught-population morph is the only reading",
+                                       "available."),
                           map = function(v) .xw_cat(v, wing_lookup))
       )
     ),
@@ -2391,7 +2437,17 @@
     elytra_length = list(
       label = "Elytra length", kind = "numeric", unit = "mm", vocab = NULL,
       sources = list(
-        saproxylic = nsrc("saproxylic", "elytra_length_mm", "Saproxylic beetle traits", "Beetle elytra length, mm.")
+        saproxylic = nsrc("saproxylic", "elytra_length_mm", "Saproxylic beetle traits", "Beetle elytra length, mm."),
+        imageomics_neon = nsrc("imageomics_neon", "elytra_length_mm",
+                           "Imageomics 2018-NEON-beetles",
+                           paste("Median maximum elytra length of 75 North American ground",
+                                 "beetle species, measured from images of pinned NEON",
+                                 "specimens, cm converted to mm. Disjoint from the European",
+                                 "saproxylic beetles, and the same quantity in the same unit,",
+                                 "so the two never blend for one species. Angled specimens",
+                                 "(lying_flat No) are excluded because a projected length is",
+                                 "foreshortened. Carabus nemoralis reads 14.87 mm against the",
+                                 "23.4 mm body length finand measured, a ratio of 0.64."))
       )
     ),
     antenna_length = list(
@@ -3141,6 +3197,12 @@
                                  "species. Eurytopic (16) states niche breadth rather than a",
                                  "habitat and 'Special habitats' (10) is a residual bin, so both",
                                  "stay NA; the other 356 map."),
+                    map = function(v) .xw_cat(v, carabhab_lookup)),
+        finand    = list(enrichment = "finand", col = "habitat_pref",
+                    citation = "Finand & Kotze 2025 (Helsinki carabids)",
+                    note = paste("Helsinki ground beetles, reading forest and open onto the",
+                                 "same terms chowdhury uses. Generalist states niche breadth",
+                                 "rather than a habitat, so it stays NA, as Eurytopic does."),
                     map = function(v) .xw_cat(v, carabhab_lookup))
       )
     )

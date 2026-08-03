@@ -288,3 +288,54 @@ test_that("arthropod_traits contributes its guild but not its body size", {
   # adults that do not feed. Neither has a counterpart in the vocabulary.
   expect_true(all(is.na(m(c("pollinator", "non-eating")))))
 })
+
+
+test_that("the Helsinki specimen source reaches the traits it grounds", {
+  reg <- taxify:::.trait_registry()
+
+  # Finand is the only carabid source measured from specimens rather than
+  # compiled from carabids.org, so it is what keeps body_length honest.
+  expect_true("finand" %in% names(reg$body_length$sources))
+  expect_equal(reg$body_length$sources$finand$col, "body_length_mm")
+
+  # Its wing column is the caught-population morph, so it is listed AFTER
+  # chowdhury's species-level statement and only fills what chowdhury lacks.
+  wm <- names(reg$wing_morph$sources)
+  expect_true(all(c("chowdhury", "finand") %in% wm))
+  expect_lt(match("chowdhury", wm), match("finand", wm))
+
+  m <- reg$wing_morph$sources$finand$map
+  expect_equal(m(c("Long-winged", "Short-winged", "Dimorphic")),
+               c("long-winged", "short-winged", "dimorphic"))
+
+  # "Generalist" states niche breadth, not a habitat, exactly as Eurytopic does.
+  h <- reg$primary_habitat$sources$finand$map
+  expect_equal(h(c("Forest", "Open")), c("forest", "open"))
+  expect_true(is.na(h("Generalist")))
+})
+
+test_that("Eberswalde stays out of the cross-source verb", {
+  reg <- taxify:::.trait_registry()
+  # Its size, wings and latitude are carabids.org verbatim -- the deposit's own
+  # README says so, and all 19 sizes shared with chowdhury are exactly equal.
+  # Registering any of it would double-count one lineage.
+  fed <- names(reg)[vapply(reg, function(t) "eberswalde" %in% names(t$sources),
+                           logical(1))]
+  expect_equal(fed, character(0))
+})
+
+test_that("the NEON elytra measurements are millimetres of the elytron", {
+  reg <- taxify:::.trait_registry()
+  for (tr in c("elytra_length", "elytra_width")) {
+    expect_true("imageomics_neon" %in% names(reg[[tr]]$sources), info = tr)
+    expect_equal(reg[[tr]]$unit, "mm", info = tr)
+  }
+  # elytra_width has no second source: saproxylic carries a body width but no
+  # elytra width, so nothing would surface a unit error except the length/width
+  # ratio within the source itself.
+  expect_equal(names(reg$elytra_width$sources), "imageomics_neon")
+  # elytra_length pairs it with the European saproxylic beetles, a disjoint
+  # fauna measured the same way in the same unit.
+  expect_true(all(c("saproxylic", "imageomics_neon") %in%
+                    names(reg$elytra_length$sources)))
+})
