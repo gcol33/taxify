@@ -58,8 +58,19 @@
   Chiroptera. All 93 resolve, and the tiebreak applies only within a source, so
   a higher-priority backbone still outranks a lower one.
 
-* `mdd`, `avilist` and `lpsn` are in the manifest. All three were in the
-  backbone registry without an entry, so nothing could resolve them.
+* Three backbones join the default fallback chain, giving birds, mammals and
+  prokaryotes a domain authority for the first time: AviList (40,572 rows), the
+  Mammal Diversity Database (61,862) and LPSN (44,885). Every other major group
+  already had one, and the cost of the gap was specific to taxify's design --
+  the default is a first-match chain, deliberately not a consensus vote, so
+  with no authority in the domain band the answer for these groups was whichever
+  aggregator ranked highest.
+
+  All three sit in the domain-authority band, ahead of GBIF, ITIS, NCBI and OTT.
+  **This changes what `taxify()` returns by default for bird, mammal and
+  prokaryote names**, which is the intended effect. They were in the backbone
+  registry without a manifest entry, so until now nothing could resolve them at
+  all.
 
 * Three more ground-beetle sources join `add_chowdhury()`. `add_finand()` brings
   34 Helsinki species whose body lengths were measured from the specimens the
