@@ -25,14 +25,14 @@
     name = c(
       "wfo", "col", "gbif", "itis", "ncbi", "ott", "worms", "euromed",
       "fungorum", "algaebase", "fishbase", "sealifebase", "reptiledb",
-      "lcvp", "wcvp"
+      "lcvp", "wcvp", "mdd", "avilist"
     ),
     scope = c(
       "Vascular plants", "All kingdoms", "All kingdoms",
       "US focus, freshwater/marine", "All life", "All life (synthetic)",
       "Marine/aquatic", "European/Mediterranean plants", "Fungi", "Algae",
       "Fishes", "Non-fish marine/aquatic", "Reptiles",
-      "Vascular plants", "Vascular plants"
+      "Vascular plants", "Vascular plants", "Mammals", "Birds"
     ),
     source = c(
       "https://www.worldfloraonline.org/",
@@ -49,7 +49,9 @@
       "https://www.sealifebase.org/",
       "http://www.reptile-database.org/",
       "https://github.com/idiv-biodiversity/LCVP",
-      "https://powo.science.kew.org/"
+      "https://powo.science.kew.org/",
+      "https://www.mammaldiversity.org/",
+      "https://www.avilist.org/"
     ),
     label = c(
       "the WFO backbone", "the COL backbone", "the GBIF backbone",
@@ -57,16 +59,17 @@
       "the WoRMS backbone", "the Euro+Med backbone",
       "the Species Fungorum backbone", "the AlgaeBase backbone",
       "the FishBase backbone", "the SeaLifeBase backbone",
-      "the Reptile Database backbone", "the LCVP backbone", "the WCVP backbone"
+      "the Reptile Database backbone", "the LCVP backbone", "the WCVP backbone",
+      "the Mammal Diversity Database backbone", "the AviList backbone"
     ),
     version = c(
       "2024-12", "2025", "current", "2025.04", "2025.04", "3.7.3", "2025.04",
       "2026.07", "2025.04", "2025.04", "2026.06", "2026.06", "2026.06",
-      "3.0.1", "2026.06"
+      "3.0.1", "2026.06", "2.5", "2025b"
     ),
     prefix_fallback = c(
       TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
-      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
+      FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE
     ),
     stringsAsFactors = FALSE
   )
@@ -115,7 +118,7 @@ backbone_label <- function(name) {
 .backbone_priority <- function() {
   default <- c(
     "col", "worms", "wcvp", "euromed", "lcvp", "wfo",
-    "fungorum", "algaebase", "fishbase", "sealifebase", "reptiledb",
+    "fungorum", "algaebase", "fishbase", "sealifebase", "reptiledb", "mdd", "avilist",
     "gbif", "itis", "ncbi", "ott"
   )
   known <- backbone_names()

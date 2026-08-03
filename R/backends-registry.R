@@ -75,6 +75,8 @@ sealifebase_backend <- function() make_backend("sealifebase")
 reptiledb_backend   <- function() make_backend("reptiledb")
 lcvp_backend        <- function() make_backend("lcvp")
 wcvp_backend        <- function() make_backend("wcvp")
+mdd_backend         <- function() make_backend("mdd")
+avilist_backend     <- function() make_backend("avilist")
 
 
 # Default build method for every backbone: delegates to taxifydb::build_<name>(),
