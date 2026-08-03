@@ -1,5 +1,66 @@
 # taxify 0.4.5
 
+* Five sources open, each reaching something the bundled set did not.
+  `add_hydraulics()` brings the drought-mortality axis for 2,024 seed plants
+  (Sanchez-Martinez et al. 2020). `add_noddb()` brings root-nodule nitrogen
+  fixation for 824 plant genera, joined on genus, which makes it the
+  counterpart to `add_fungalroot()`'s mycorrhizal type: together they are the
+  belowground symbiosis pair. `add_faprotax()` brings 92 metabolic and
+  ecological function groups over 4,470 prokaryotic taxa. `add_virion()` brings
+  host-virus association breadth for 4,223 vertebrates, and `add_sworm()` the
+  ecological group of 171 earthworms, a taxon with no coverage before.
+
+* `p50` gains a third source and, with it, its first empirical confirmation.
+  AusTraits and BROT share no species, so the trait rested on their two medians
+  landing together at -3.4 MPa. The Sanchez-Martinez compilation overlaps both
+  and agrees with each at ratio 1.00, while taking coverage from 123 species to
+  894. The registry records that this is not corroboration: all three are
+  literature compilations over the same primary studies, and 63% of the values
+  shared with AusTraits are identical to the last digit. It is registered
+  because the duplication is confined to 74 of its 894 species, where the
+  sources rejected on these grounds duplicated nearly everything they carried.
+
+* The same overlap measures a unit rather than assuming one. 79 of the 208
+  species the compilation shares with AusTraits match exactly once multiplied
+  by 1e-4, which establishes that its Huber values are square centimetres of
+  sapwood per square metre of leaf.
+
+* New traits: `leaf_specific_conductivity`, `min_water_potential`,
+  `hydraulic_safety_margin`, `nitrogen_fixation` and
+  `earthworm_ecological_group`. `climatic_temp_mean` gains its first plant
+  source. `min_water_potential` is kept apart from `turgor_loss_point`: the two
+  share 39 species and agree on none of them, a field water potential and a
+  pressure-volume threshold being different quantities. `sapwood_conductivity`
+  and `huber_value` gain a second source each.
+
+* `virus_richness` and the FAPROTAX function sets stay on their doors rather
+  than entering `add_trait()`. Virus richness tracks how much a host has been
+  studied as much as what infects it, with *Homo sapiens* at 936 viruses over
+  633,053 records, so `virus_record_count` ships beside it to keep that visible.
+
+* GlobalAnts is documented as unusable rather than left as an open question.
+  Its guidelines gate access behind a per-project application, let a
+  contributor require co-authorship, and state that redistribution is not
+  allowed without each contributor's permission.
+
+* The genus register is rebuilt over all eighteen backbones. The published
+  build covered thirteen, so mammals, birds, prokaryotes, algae and fungi
+  reached it only through the general aggregators: 496,127 genera become
+  496,281, coverage rows 1,421,182 become 1,451,183, and the share carrying a
+  kingdom rises from 75.55% to 83.45%.
+
+* A genus filed under two kingdoms by one backbone is now read by that
+  backbone's own majority. Ordering by source priority alone left the winner to
+  whichever row happened to sort first, which gave 93 genera their source's
+  minority reading and, because a row recording no kingdom stays eligible to
+  fill the ranks below, produced classifications no source holds: *Pteropus*,
+  66 species of flying fox, was indexed as a fungus carrying the order
+  Chiroptera. All 93 resolve, and the tiebreak applies only within a source, so
+  a higher-priority backbone still outranks a lower one.
+
+* `mdd`, `avilist` and `lpsn` are in the manifest. All three were in the
+  backbone registry without an entry, so nothing could resolve them.
+
 * Three more ground-beetle sources join `add_chowdhury()`. `add_finand()` brings
   34 Helsinki species whose body lengths were measured from the specimens the
   authors caught — small, and carried because it is the only carabid source
