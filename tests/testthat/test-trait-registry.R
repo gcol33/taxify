@@ -225,3 +225,66 @@ test_that("the BROT resprouting mapper reads all three of its encodings", {
   expect_true(is.na(m(NA_character_)))
   expect_true(is.na(m("")))
 })
+
+
+test_that("wing morphology keeps its three states", {
+  reg <- taxify:::.trait_registry()
+  m   <- reg$wing_morph$sources$chowdhury$map
+
+  # Dimorphic species produce both a long-winged and a short-winged form. It is
+  # the state carabid dispersal ecology cares about, so it must survive as its
+  # own value rather than collapsing into either wing type or into NA.
+  expect_equal(m(c("Long-winged", "Short-winged", "Dimorphic")),
+               c("long-winged", "short-winged", "dimorphic"))
+  expect_setequal(reg$wing_morph$vocab,
+                  c("long-winged", "short-winged", "dimorphic"))
+  # The entomological synonyms read the same way.
+  expect_equal(m(c("macropterous", "brachypterous")),
+               c("long-winged", "short-winged"))
+  expect_true(is.na(m(NA_character_)))
+
+  # flightless asks a different question (can it fly at all) and stays separate.
+  expect_false("chowdhury" %in% names(reg$flightless$sources))
+  expect_false(any(reg$flightless$vocab %in% reg$wing_morph$vocab))
+})
+
+test_that("the carabid habitat mapper drops the two non-habitat classes", {
+  m <- taxify:::.trait_registry()$primary_habitat$sources$chowdhury$map
+
+  expect_equal(m(c("Coastal", "Forest", "Open", "Riparian", "Wetland")),
+               c("coastal", "forest", "open", "riparian", "wetland"))
+  # Eurytopic states niche breadth, and "Special habitats" is a residual bin.
+  # Neither names a habitat, so neither may be coerced into one.
+  expect_true(all(is.na(m(c("Eurytopic", "Special habitats")))))
+})
+
+test_that("the German national Red List stays out of conservation_status", {
+  reg <- taxify:::.trait_registry()
+  # chowdhury red_list_iucn restates the German national assessment in IUCN
+  # letters -- it is perfectly diagonal against red_list_germany over all 382
+  # species -- and national risk is not global risk. It belongs to the door.
+  expect_false("chowdhury" %in% names(reg$conservation_status$sources))
+  used <- vapply(reg, function(t) {
+    s <- t$sources$chowdhury
+    if (is.null(s)) "" else s$col
+  }, character(1L))
+  expect_false(any(used %in% c("red_list_iucn", "red_list_germany",
+                               "threat_status", "occupancy_trend")))
+})
+
+test_that("arthropod_traits contributes its guild but not its body size", {
+  reg <- taxify:::.trait_registry()
+  # body_size_mm is a true body length for spiders (1.000 against spider_traits)
+  # and beetles (1.014 against chowdhury) but forewing length for Lepidoptera
+  # (0.515 of the leptraits wingspan), and the .vtr carries no taxon column to
+  # separate them -- gcol33/taxifydb#40.
+  expect_false("arthropod_traits" %in% names(reg$body_length$sources))
+  expect_true("arthropod_traits" %in% names(reg$diet_guild$sources))
+
+  m <- reg$diet_guild$sources$arthropod_traits$map
+  expect_equal(m(c("herbivore", "carnivore", "omnivore", "detritivore", "fungivore")),
+               c("herbivore", "carnivore", "omnivore", "detritivore", "fungivore"))
+  # "pollinator" names a function rather than a diet, and "non-eating" marks
+  # adults that do not feed. Neither has a counterpart in the vocabulary.
+  expect_true(all(is.na(m(c("pollinator", "non-eating")))))
+})

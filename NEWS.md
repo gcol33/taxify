@@ -1,5 +1,35 @@
 # taxify 0.4.5
 
+* Ground beetles are now covered. `add_chowdhury()` attaches traits and national
+  occupancy trends for 382 German carabids from Chowdhury et al. (2025): body
+  length, wing morphology, trophic level, habitat preference, both Red List
+  codes, and the paper's own modelled two-year occupancy trend. Carabids are one
+  of the most intensively sampled insect groups in ecology, and taxify's only
+  beetle source until now was `saproxylic`, restricted to the deadwood guild.
+
+* `add_trait()` gains `wing_morph`, three-state on purpose. A wing-dimorphic
+  carabid produces both a long-winged and a short-winged form, and which one
+  dominates is the question carabid dispersal ecology asks, so `dimorphic` (83
+  of 382 species) is a value of its own rather than a midpoint or a gap. It is
+  kept separate from the bird trait `flightless`, which asks whether a species
+  can fly at all. `body_length`, `diet_guild` and `primary_habitat` gain the
+  same source; `primary_habitat` gains the vocabulary term `open`, the modal
+  class for German carabids, in preference to narrowing it to `grassland`.
+
+* `diet_guild` also gains the NW European arthropod compilation (Logghe et al.
+  2025), 3,800 species and the first broad arthropod coverage the trait has had,
+  along with the vocabulary term `fungivore`. It agrees with the German carabid
+  classification on 86.6% of their 292 shared species.
+
+* Two columns were deliberately left out of the cross-source verb, both
+  documented in `R/trait-registry.R` so the decisions are not relitigated. The
+  German `red_list_iucn` restates a *national* assessment in IUCN letters
+  (perfectly diagonal against the German code over all 382 species) and is not a
+  global one, so it stays on the door. And `arthropod_traits` `body_size_mm` is
+  a true body length for spiders and beetles but forewing length for Lepidoptera
+  (0.515 of the wingspan across 50 species), with no taxon column to separate
+  them — see gcol33/taxifydb#40.
+
 * `add_trait()` gains seventeen traits and widens four, all from enrichment
   data already bundled: the registry now covers 204 traits across 456 source
   slots. Nothing needs re-downloading.

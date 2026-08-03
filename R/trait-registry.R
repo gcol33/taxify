@@ -233,6 +233,11 @@
 #   - reproductive_strategy (lichen sexual/asexual) / reproductive_mode (animal
 #     oviparous/viviparous).
 #   - diel_vertical_migration (daily, zooplankton) / migration (seasonal, birds).
+#   - wing_morph / flightless: wing morphology is three-state, and its middle
+#     state is the informative one -- a wing-dimorphic carabid produces both a
+#     long-winged and a short-winged form, so it is neither flighted nor
+#     flightless. flightless asks a bird whether it can fly at all, which
+#     admits a yes/no/partial answer to a different question.
 #   - eive_* / ellenberg_*: EIVE is a statistical consensus (Dengler et al.
 #     2023) built from ~30 regional indicator systems, including the Ellenberg
 #     (FloraWeb) and Hill (Ecoflora) values that ellenberg_* already coalesces,
@@ -358,6 +363,28 @@
 #     its vertebrate records stay NA.
 #   - fishtraits repro_guild (Balon codes A_1_1, A_1_2, ...) ships no legend, so
 #     decoding it would be a column-header guess.
+#   - chowdhury red_list_iucn is not conservation_status. It restates the German
+#     national Red List in IUCN letters rather than reporting a global
+#     assessment: crossed against red_list_germany over all 382 species it is
+#     perfectly diagonal, * to LC (222), 1 to CR (12), 2 to EN (35), 3 to VU
+#     (56), V to NT (49), with no off-diagonal cell and two values (R to "rare",
+#     G to "Threatened to an unknown extend") that are not IUCN categories at
+#     all. National and global extinction risk are different quantities -- a
+#     species can be critically endangered at its German range edge and of least
+#     concern across its range -- so both columns stay with add_chowdhury().
+#   - arthropod_traits body_size_mm is not body_length, because the column
+#     changes definition by taxon and nothing in the .vtr says which. For
+#     spiders it is a true body length (ratio 1.000 against spider_traits over
+#     437 shared species) and for carabids likewise (1.014 against chowdhury
+#     over 333), but for Lepidoptera it is forewing length: across 50 species
+#     shared with leptraits it is 0.515 of the wingspan (IQR 0.47-0.54), where a
+#     butterfly's body is nearer a third of its span. Vanessa atalanta reads
+#     29.0 mm against a 55 mm span, its forewing. A registry map sees one column
+#     and cannot separate the taxa, and the .vtr carries no order or class, so
+#     splitting or per-record cautioning the Lepidoptera rows is a taxifydb
+#     build-time change (gcol33/taxifydb#40). Until then the column stays with
+#     add_arthropod_traits(). Its feeding_guild, which is taxon-independent, is
+#     registered.
 #
 # Too thin, empty, or an uncatchable error:
 #
@@ -706,7 +733,25 @@
     "frugivor"                    = "frugivore",
     "granivor"                    = "granivore",
     "nectarivor"                  = "nectarivore",
-    "scaveng"                     = "scavenger")
+    "scaveng"                     = "scavenger",
+    "fungivor"                    = "fungivore")
+  # Wing morphology, three-state. Dimorphic species produce both a long-winged
+  # and a short-winged form, and which form dominates is the question carabid
+  # dispersal ecology asks, so it is a class of its own rather than a midpoint
+  # or a missing value. Kept in the source's plain terms; macropterous and
+  # brachypterous are the entomological synonyms.
+  wing_lookup <- c("long-winged" = "long-winged", "macropterous" = "long-winged",
+                   "short-winged" = "short-winged", "brachypterous" = "short-winged",
+                   "dimorphic" = "dimorphic", "wing-dimorphic" = "dimorphic")
+  # Chowdhury's seven German carabid habitat classes onto primary_habitat. Five
+  # are the vocabulary's own terms. "open" is added to it: open habitat
+  # (Offenland -- arable, grassland, heath, sand) is the modal class at 142 of
+  # 382 species, and narrowing it to "grassland" would assert a vegetation type
+  # the source does not. Eurytopic states niche breadth rather than a habitat,
+  # and "Special habitats" is a residual bin, so both stay NA.
+  carabhab_lookup <- c("coastal" = "coastal", "forest" = "forest",
+                       "open" = "open", "riparian" = "riparian",
+                       "wetland" = "wetland")
   # Parravicini reef-fish trophic guild codes. The source ships no legend, so
   # the P/PK pair was disambiguated empirically against known species (Chromis /
   # Dascyllus / Pseudanthias all PK = planktivores; Cephalopholis / Epinephelus /
@@ -1227,7 +1272,15 @@
         pottier     = nsrc("pottier", "svl_mm", "Pottier et al. 2022", "Snout-vent length, mm."),
         spider_traits = nsrc("spider_traits", "body_length_mm", "World Spider Trait DB (Pekar et al. 2021)", "Total body length, mm (across-record median, not split by sex; distribution-sanity grounded, disjoint taxon)."),
         zooplankton = nsrc("zooplankton", "body_length_max_mm", "Global Zooplankton Trait DB (Pata & Hunt 2025)", "Maximum body length, mm (gelatinous colonial chains reach ~1 m)."),
-        sheld       = nsrc("sheld", "max_length_mm", "Freshwater Mussel Traits (Hopper et al. 2023)", "Maximum shell length, mm (freshwater mussels).")
+        sheld       = nsrc("sheld", "max_length_mm", "Freshwater Mussel Traits (Hopper et al. 2023)", "Maximum shell length, mm (freshwater mussels)."),
+        chowdhury   = nsrc("chowdhury", "body_length_mm", "Chowdhury et al. 2025 (German carabids)",
+                           paste("Mean body length of 382 German ground beetles, the only",
+                                 "beetle source the verb carries. Grounded transitively: it",
+                                 "runs 1.014 against arthropod_traits' beetle values over 333",
+                                 "shared species, and those are themselves 1.000 against",
+                                 "spider_traits' measured body lengths over 437. Recorded on a",
+                                 "0.5 mm grid, so it is coarser than the sources around it --",
+                                 "a precision limit, not a different measurement."))
       )
     ),
     metabolic_rate = list(
@@ -1740,7 +1793,7 @@
       label = "Diet guild", kind = "categorical", unit = NA_character_,
       vocab = c("carnivore", "herbivore", "omnivore", "invertivore",
                 "planktivore", "detritivore", "frugivore", "granivore",
-                "nectarivore", "scavenger"),
+                "nectarivore", "scavenger", "fungivore"),
       sources = list(
         avonet       = list(enrichment = "avonet", col = "trophic_niche",
                           citation = "AVONET (Tobias et al. 2022)", note = "Trophic niche; vertivore and aquatic predator -> carnivore, herbivore terrestrial/aquatic -> herbivore.",
@@ -1774,7 +1827,41 @@
                                        "differences (aquatic predator against invertebrate) rather",
                                        "than the exact match a shared lineage would give. Listed last,",
                                        "so it fills the birds AVONET and EltonTraits miss."),
-                          map = function(v) .xw_cat(v, birddiet_lookup))
+                          map = function(v) .xw_cat(v, birddiet_lookup)),
+        arthropod_traits = list(enrichment = "arthropod_traits", col = "feeding_guild",
+                          citation = "Logghe et al. 2025 (NW European arthropod traits)",
+                          note = paste("3,800 NW European arthropods, the guild vocabulary",
+                                       "mapping straight across (herbivore, carnivore,",
+                                       "omnivore, detritivore, fungivore). Its 'pollinator'",
+                                       "names a function rather than a diet and has no",
+                                       "counterpart in the vocabulary, and 'non-eating'",
+                                       "marks adults that do not feed; both stay NA."),
+                          map = function(v) .xw_grep(v, diet_patterns)),
+        chowdhury    = list(enrichment = "chowdhury", col = "trophic_level",
+                          citation = "Chowdhury et al. 2025 (German carabids)",
+                          note = paste("Predator, herbivore and omnivore for 382 German ground",
+                                       "beetles. It agrees with arthropod_traits' independent",
+                                       "guild on 86.6% of 292 shared species -- a second",
+                                       "classification rather than a copy, which would agree",
+                                       "near-exactly. Listed after it, so it fills the carabids",
+                                       "that compilation misses."),
+                          map = function(v) .xw_grep(v, diet_patterns))
+      )
+    ),
+    wing_morph = list(
+      label = "Wing morphology", kind = "categorical", unit = NA_character_,
+      vocab = c("long-winged", "short-winged", "dimorphic"),
+      sources = list(
+        chowdhury = list(enrichment = "chowdhury", col = "wing_morph",
+                          citation = "Chowdhury et al. 2025 (German carabids)",
+                          note = paste("Long-winged (257), short-winged (42) and wing-dimorphic",
+                                       "(83) German ground beetles. Dimorphism is a third",
+                                       "state, not a missing value: a dimorphic species",
+                                       "produces both forms, and the balance between them is",
+                                       "what carabid dispersal ecology measures. Distinct from",
+                                       "the bird trait flightless, which asks whether a species",
+                                       "can fly at all."),
+                          map = function(v) .xw_cat(v, wing_lookup))
       )
     ),
     activity_time = list(
@@ -3035,17 +3122,26 @@
       )
     ),
 
-    ## ---- birds -------------------------------------------------------------
+    ## ---- habitat -----------------------------------------------------------
     primary_habitat = list(
       label = "Primary habitat", kind = "categorical", unit = NA_character_,
       vocab = c("forest", "woodland", "shrub", "grassland", "savanna", "wetland",
                 "riparian", "coastal", "sea", "rocky", "plains", "artificial",
-                "desert", "bamboo"),
+                "desert", "bamboo", "open"),
       sources = list(
         birdbase = list(enrichment = "birdbase", col = "primary_habitat",
                     citation = "Sekercioglu et al. 2025 (BIRDBASE)",
                     note = "BIRDBASE's own 14-term habitat vocabulary over 13,067 species, taken verbatim in lower case. Distinct from the numeric habitat_breadth already registered from the same source.",
-                    map = function(v) .xw_grep(v, birdhab_patterns))
+                    map = function(v) .xw_grep(v, birdhab_patterns)),
+        chowdhury = list(enrichment = "chowdhury", col = "habitat_pref",
+                    citation = "Chowdhury et al. 2025 (German carabids)",
+                    note = paste("German ground beetles, sharing coastal, forest, riparian and",
+                                 "wetland with the bird vocabulary and adding open. The taxa are",
+                                 "disjoint, so the two vocabularies are never blended for one",
+                                 "species. Eurytopic (16) states niche breadth rather than a",
+                                 "habitat and 'Special habitats' (10) is a residual bin, so both",
+                                 "stay NA; the other 356 map."),
+                    map = function(v) .xw_cat(v, carabhab_lookup))
       )
     )
   )
