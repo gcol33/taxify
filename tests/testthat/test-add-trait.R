@@ -346,7 +346,8 @@ test_that("the climatic niche stays separate from organismal thermal tolerance",
   # can survive. fishtraits' warmest-month value is 0.88x the CTmax thermofresh
   # measures on the same species.
   cmean <- suppressMessages(trait_info("climatic_temp_mean"))
-  expect_setequal(cmean$source, c("arthropod_traits", "repttraits"))
+  expect_setequal(cmean$source,
+                  c("arthropod_traits", "repttraits", "hydraulics"))
   lt <- list_traits()
   expect_equal(lt$unit[lt$trait == "climatic_temp_mean"], "deg C")
 

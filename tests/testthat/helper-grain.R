@@ -11,11 +11,13 @@ genus_keyed_enrichments <- function() {
     "blanchard",                # ant traits, genus-level
     "disperse",                 # European freshwater-invert dispersal, genus-level
     "freshwater_insects_conus", # CONUS freshwater-insect genus traits
-    "ramond")                   # marine protist traits, lineage/genus-level
+    "ramond",                   # marine protist traits, lineage/genus-level
+    "noddb")                    # NodDB nodulation, recorded per plant genus
 }
 
 # Enrichments recorded at both species and genus level: matched on species
 # first, with each still-empty trait cell filled from the genus row.
 mixed_grain_enrichments <- function() {
-  c("epa_freshwater")           # USEPA freshwater biological traits
+  c("epa_freshwater",           # USEPA freshwater biological traits
+    "faprotax")                 # annotated at whatever rank the evidence allows
 }

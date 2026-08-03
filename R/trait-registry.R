@@ -284,6 +284,17 @@
 #
 # Kept here so the decisions are not silently relitigated.
 #
+# Licence, not data quality:
+#
+#   - GlobalAnts (GLAD; Parr et al. 2017, 9056 ant species over 4416 sites) is
+#     the obvious ant trait source and cannot be bundled. Its Intellectual
+#     Property Guidelines, modelled on TRY, gate access behind a per-project
+#     application, let a contributor require co-authorship on anything using
+#     their rows, and state in section 4: "Redistribution of trait data received
+#     via GLAD is not allowed, unless expressly permitted by the respective data
+#     contributor(s)." Nothing here is arguable at the margin, so no door and no
+#     .vtr; ants stay covered only where the cross-taxon sources reach them.
+#
 # Wrong quantity behind a matching column name:
 #
 #   - arthropod_traits thermal_maximum / thermal_minimum are not thermal_max /
@@ -618,6 +629,10 @@
   cm2mm_p <- function(v) num_pos(v) * 10                            # cm -> mm, negatives dropped
   d2y     <- function(v) num_pos(v) / 365.25                        # days -> years, negatives dropped
   mgcm2g  <- function(v) num(v) / 1000       # mg/cm^3 -> g/cm^3 (stem specific density)
+  # Huber value: cm^2 sapwood per m^2 leaf -> dimensionless m^2/m^2. Measured,
+  # not assumed: 79 of the 208 species the hydraulics compilation shares with
+  # AusTraits are equal to the last digit once converted.
+  cm2m2   <- function(v) num(v) * 1e-4
   # A categorical source used verbatim: trim, empty string -> NA. Used for the
   # NestTrait columns, whose values are already pipe-delimited multi-modal tokens
   # (e.g. "tree|cliff_bank") that must be preserved, not collapsed to one token.
@@ -1479,20 +1494,32 @@
     ),
 
     ## ---- plant hydraulics --------------------------------------------------
-    ## The drought-mortality axis. Both P50 sources are megapascals by
-    ## definition (water potential at 50% loss of stem conductivity) and the
-    ## overlap is empty -- BROT is Mediterranean, AusTraits Australian -- so the
-    ## unit rests on the definition plus the two medians landing together at
-    ## -3.4 MPa, the way the disjoint climatic_temp_mean sources do. Coverage is
-    ## thin (123 species across both) and the trait is registered on that basis.
+    ## The drought-mortality axis. All three P50 sources are megapascals by
+    ## definition (water potential at 50% loss of stem conductivity). AusTraits
+    ## and BROT share no species, so between them the unit rested on the
+    ## definition plus their two medians landing together at -3.4 MPa. The
+    ## Sanchez-Martinez compilation now bridges them, overlapping both, and lands
+    ## at ratio 1.00 against each -- the first empirical confirmation this trait
+    ## has had -- while taking coverage from 123 species to 894.
+    ##
+    ## That bridge is also a genealogy warning. All three are literature
+    ## compilations drawing on the same primary studies: 63% of the P50 values
+    ## the new source shares with AusTraits and 42% of those it shares with BROT
+    ## are equal to the last digit. Agreement among them is not independent
+    ## corroboration. It is registered rather than rejected as a same-data
+    ## duplicate (the FISHMORPH max-body-length case) because the duplication is
+    ## partial and confined to the overlap: 74 of its 894 species appear in
+    ## either incumbent, so it is overwhelmingly new coverage.
     p50 = list(
       label = "Xylem embolism resistance (P50)", kind = "numeric", unit = "MPa", vocab = NULL,
       sources = list(
+        hydraulics = nsrc("hydraulics", "p50_mpa", "Sanchez-Martinez et al. 2020 (Ecology Letters 23:1599)",
+                     "MPa (negative). Median -2.42 over 894 species, the widest coverage of the three. Ratio 1.00 against both AusTraits (38 shared) and BROT (36 shared), but it shares primary records with each -- 63% and 42% of those values are identical to the last digit -- so it corroborates neither."),
         austraits = nsrc("austraits", "stem_water_potential_50percent_lost_conductivity",
                      "AusTraits (Falster et al. 2021)",
                      "Stem water potential at 50% loss of hydraulic conductivity, MPa (negative). Median -3.41 over 77 species."),
         brot      = nsrc("brot", "p50", "BROT 2.0 (Tavsanoglu & Pausas 2018)",
-                     "MPa (negative). Median -3.46 over 46 species; no species shared with AusTraits, so the two medians are the only cross-check.")
+                     "MPa (negative). Median -3.46 over 46 species; shares no species with AusTraits.")
       )
     ),
     turgor_loss_point = list(
@@ -1506,15 +1533,47 @@
       label = "Sapwood specific hydraulic conductivity", kind = "numeric",
       unit = "kg m-1 s-1 MPa-1", vocab = NULL,
       sources = list(
+        hydraulics = nsrc("hydraulics", "sapwood_conductivity",
+                     "Sanchez-Martinez et al. 2020 (Ecology Letters 23:1599)",
+                     "Ks, sapwood-area-specific conductivity. Median 1.41 over 1051 species, ratio 1.00 against AusTraits on 133 shared -- of which 65% are equal to the last digit, the two compilations sharing primary records rather than agreeing independently."),
         austraits = nsrc("austraits", "sapwood_specific_hydraulic_conductivity",
                      "AusTraits (Falster et al. 2021)", "Sapwood-area-specific conductivity.")
+      )
+    ),
+    leaf_specific_conductivity = list(
+      label = "Leaf specific hydraulic conductivity", kind = "numeric",
+      unit = "kg m-1 s-1 MPa-1", vocab = NULL,
+      sources = list(
+        hydraulics = nsrc("hydraulics", "leaf_conductivity",
+                     "Sanchez-Martinez et al. 2020 (Ecology Letters 23:1599)",
+                     "Kl, conductivity per unit leaf area rather than sapwood area, so it is roughly the Huber value times Ks and runs four orders of magnitude below it. Median 3.35e-4 over 845 species. Kept apart from sapwood_conductivity: same dimensions, different reference area.")
       )
     ),
     huber_value = list(
       label = "Huber value", kind = "numeric", unit = "index (m2/m2)", vocab = NULL,
       sources = list(
+        hydraulics = nsrc("hydraulics", "huber_value_cm2_m2",
+                     "Sanchez-Martinez et al. 2020 (Ecology Letters 23:1599)",
+                     "cm2 sapwood per m2 leaf converted to m2/m2 (x1e-4). The factor is measured, not read off the header: 79 of the 208 species shared with AusTraits are equal to the last digit once converted. 1298 species.",
+                     map = cm2m2),
         austraits = nsrc("austraits", "huber_value", "AusTraits (Falster et al. 2021)",
                      "Sapwood area per unit leaf area, dimensionless.")
+      )
+    ),
+    min_water_potential = list(
+      label = "Minimum midday water potential", kind = "numeric", unit = "MPa", vocab = NULL,
+      sources = list(
+        hydraulics = nsrc("hydraulics", "min_water_potential_mpa",
+                     "Sanchez-Martinez et al. 2020 (Ecology Letters 23:1599)",
+                     "psi_min, the lowest midday xylem water potential a species is observed to reach, MPa (negative). The paper's measure of drought exposure. Median -2.16 over 553 species. Deliberately NOT folded into turgor_loss_point: the two share 39 species and agree on none of them (0% within 0.1%, ratios spanning 0.36 to 26), because a field water potential and a pressure-volume threshold are different quantities.")
+      )
+    ),
+    hydraulic_safety_margin = list(
+      label = "Hydraulic safety margin", kind = "numeric", unit = "MPa", vocab = NULL,
+      sources = list(
+        hydraulics = nsrc("hydraulics", "hydraulic_safety_margin_mpa",
+                     "Sanchez-Martinez et al. 2020 (Ecology Letters 23:1599)",
+                     "psi_min minus P50: how far a species operates from 50% loss of conductivity, MPa. Negative where the observed minimum already passes P50. Derived by the source from its own two columns, so it is reported rather than recomputed. 336 species.")
       )
     ),
     bark_thickness = list(
@@ -2915,7 +2974,34 @@
       label = "Mean annual temperature of range", kind = "numeric", unit = "deg C", vocab = NULL,
       sources = list(
         arthropod_traits = nsrc("arthropod_traits", "thermal_mean", "Logghe et al. 2025 (NW European arthropod traits)", "Mean annual temperature (WorldClim BIO1) averaged over 0.2-degree buffers around the species' occurrences, degrees C. The source calls this a realised thermal niche and warns it is not a thermal limit."),
-        repttraits       = nsrc("repttraits", "mean_annual_temp_c", "ReptTraits (Oskyrko et al. 2024)", "Mean annual temperature over the species' range, degrees C, from CHELSA (Karger et al. 2017) on the GARD ranges (Roll et al. 2017) per the source's own trait-source sheet.")
+        repttraits       = nsrc("repttraits", "mean_annual_temp_c", "ReptTraits (Oskyrko et al. 2024)", "Mean annual temperature over the species' range, degrees C, from CHELSA (Karger et al. 2017) on the GARD ranges (Roll et al. 2017) per the source's own trait-source sheet."),
+        hydraulics       = nsrc("hydraulics", "mean_annual_temp_c", "Sanchez-Martinez et al. 2020 (Ecology Letters 23:1599)", "Mean annual temperature over the species' occurrences, degrees C, from WorldClim. 1937 seed-plant species, median 20.27 -- a woody flora weighted to the tropics, so the median sits well above the NW-European arthropod one and neither shares a species with the other two sources.")
+      )
+    ),
+    ## Root-nodule symbiosis, recorded per plant genus, so this source joins on
+    ## genus the way FungalRoot's mycorrhizal_type does. The two are the
+    ## belowground symbiosis pair: which fungus colonises the root, and which
+    ## bacterium nodulates it.
+    nitrogen_fixation = list(
+      label = "Root-nodule nitrogen fixation", kind = "categorical", unit = NULL,
+      vocab = c("rhizobia", "frankia", "nostocaceae", "present", "none"),
+      sources = list(
+        noddb = nsrc("noddb", "nodulation_type", "NodDB (Tedersoo et al. 2018)",
+                 "Nodulating symbiont per plant genus. The source vocabulary is collapsed by exact lookup rather than pattern match, because Rhizobia, likely_Rhizobia and unlikely_Rhizobia each contain the one before it and an ordered regex would read every negative verdict as a positive one. Both unlikely_ verdicts are the authors' judgement that the genus does not nodulate and read as none. 824 genera.",
+                 map = chr_verbatim, join_col = "genus")
+      )
+    ),
+    ## Bouche's earthworm classes. Kept its own trait rather than folded into
+    ## life_form or primary_habitat for the reason lichen_growth_form and
+    ## bryophyte_life_form are: the vocabulary describes one taxon's way of
+    ## living and means nothing outside it.
+    earthworm_ecological_group = list(
+      label = "Earthworm ecological group", kind = "categorical", unit = NULL,
+      vocab = c("epigeic", "endogeic", "anecic", "epi-endogeic"),
+      sources = list(
+        sworm = nsrc("sworm", "ecological_group", "sWorm (Phillips et al. 2021)",
+                 "Bouche's classes from feeding and burrowing behaviour: epigeic litter dwellers, endogeic soil feeders, anecic deep burrowers, and the intermediate epi-endogeic. Constant within a species across the compilation. 171 species, the only earthworm source bundled.",
+                 map = chr_verbatim)
       )
     ),
     climatic_temp_min = list(
