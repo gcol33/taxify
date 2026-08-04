@@ -233,7 +233,7 @@ ensure_backbone <- function(backend, version = "latest", verbose = TRUE) {
     return(versioned_path)
   }
 
-  # 3. Auto-download (pre-built .vtr from Zenodo via manifest)
+  # 3. Auto-download (pre-built .vtr via manifest)
   path <- tryCatch(
     download_backbone(bb_name, version = version, verbose = verbose),
     error = function(e) {

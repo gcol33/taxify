@@ -2,7 +2,7 @@
 #
 # The manifest.json is shipped with the package (inst/manifest.json) and also
 # hosted at the GitHub raw URL below. It records the latest available version
-# and Zenodo download URL for each backbone and the genus register.
+# and download URL for each backbone and the genus register.
 #
 # fetch_manifest() is called once per R session; the result is cached in
 # .taxify_env$manifest so subsequent calls in the same session are free.
