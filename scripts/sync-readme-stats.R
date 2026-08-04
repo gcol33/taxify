@@ -31,8 +31,9 @@ blocks <- list(
 )
 
 targets <- c("README.md",
-             file.path("vignettes", c("backends.Rmd", "large-scale.Rmd",
-                                      "enrichments.Rmd", "quickstart.Rmd")))
+             file.path("vignettes", c("backbones.Rmd", "large-scale.Rmd",
+                                      "enrichments.Rmd", "quickstart.Rmd",
+                                      "migration.Rmd")))
 
 # Scalars appear mid-sentence, so they are replaced inline; tables get their own
 # lines. Both use the same marker pair, and an HTML comment renders invisibly in

@@ -13,7 +13,7 @@ library(taxify)
 ```
 
 taxify matches taxonomic names against locally stored Darwin Core backbone
-databases. Fifteen backbones are available, each compiled from a different
+databases. <!-- manifest:backbone-count -->18<!-- /manifest:backbone-count --> backbones are available, each compiled from a different
 authoritative source. The backbone we choose determines which names can be
 matched, what taxonomic opinion governs synonym resolution, and which extra
 metadata columns are available downstream. This vignette walks through the
@@ -22,7 +22,7 @@ practical guidance on which combination to pick for a given project.
 
 ## Backend overview
 
-The table below summarizes the fifteen backbones. "Approx. names" is the total
+The table below summarizes all <!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->. "Approx. names" is the total
 number of name strings in the compiled backbone (accepted names plus
 synonyms); the actual species count is lower because each accepted species
 may have several synonym entries pointing to it.
@@ -44,11 +44,14 @@ may have several synonym entries pointing to it.
 | `reptiledb` | Reptile Database | Reptiles | ~50k | reptarium taxa.csv + synonym/checklist XLSX |
 | `lcvp` | Leipzig Catalogue of Vascular Plants | Vascular plants | ~1.3M | idiv-biodiversity tab_lcvp.rda (R data package) |
 | `wcvp` | World Checklist of Vascular Plants (Kew) | Vascular plants | ~1.4M | Kew wcvp.zip (wcvp_names.csv) |
+| `mdd` | Mammal Diversity Database | Mammals | ~62k | MDD.zip of CSVs (species + synonyms) |
+| `avilist` | AviList (Global Avian Checklist) | Birds | ~41k | AviList extended .xlsx |
+| `lpsn` | List of Prokaryotic names with Standing in Nomenclature | Bacteria and archaea | ~45k | ChecklistBank ColDP (NameUsage.tsv) |
 
-A few things stand out. WFO is the standard reference for plant taxonomy and
-the default backbone in taxify. It is maintained by the World Flora Online
-consortium and receives regular updates. The backbone includes all taxonomic
-ranks from kingdom down to form, with full synonym resolution and authorship.
+A few things stand out. WFO is the standard reference for plant taxonomy,
+maintained by the World Flora Online consortium and updated regularly. The
+backbone includes all taxonomic ranks from kingdom down to form, with full
+synonym resolution and authorship.
 
 COL and GBIF both cover all kingdoms, but they differ in curation strategy.
 COL is an expert-curated checklist assembled from over 160 sector databases,
@@ -119,11 +122,30 @@ synonym snapshot, and the family-to-order checklist. The source carries no
 kingdom or class field, so the backbone stamps Animalia / Chordata / Reptilia on
 every row. The data is CC BY 4.0.
 
+The Mammal Diversity Database is the American Society of Mammalogists'
+reference mammal taxonomy, distributed as a zip of CSVs holding the accepted
+species with their full higher classification and every name ever applied to
+them. The data is MIT-licensed.
+
+AviList is the global bird checklist that merged the long-standing IOC,
+Clements, and BirdLife split, shipped as one Excel workbook covering order
+through subspecies. It publishes no synonym table, so the backbone derives
+homotypic synonyms from the `Protonym` column: where a species has since moved
+genus, its original combination is a synonym of the current name
+(`Parus caeruleus` -> `Cyanistes caeruleus`). The data is CC BY 4.0.
+
+LPSN is the nomenclatural authority for prokaryotes, hosted by DSMZ, and it
+answers a question NCBI, GBIF, and OTT leave open: whether a bacterial or
+archaeal name is validly published. LPSN's own download route sits behind a
+free DSMZ account, so the backbone is built from the open ColDP mirror on GBIF
+ChecklistBank. The data is CC BY-SA 4.0.
+
 ## Downloading backbones
 
 taxify auto-downloads backbones on first use. When we call `taxify(names,
 backbone = "wfo")` and no local WFO backbone exists, taxify fetches the
-pre-built `.vtr` file from Zenodo, writes it to `taxify_data_dir()`, and
+pre-built `.vtr` file from the taxifydb release it is published under, writes
+it to `taxify_data_dir()`, and
 caches the path for the remainder of the R session. Subsequent calls, whether
 in the same session or future sessions, reuse the local copy without any
 network access.
@@ -139,8 +161,10 @@ taxify_download("wfo")
 taxify_download(c("wfo", "col", "worms"))
 ```
 
-Pre-built `.vtr` files are hosted on Zenodo and typically range from 50 MB
-(AlgaeBase) to 400 MB (GBIF), depending on the backbone. The files are
+Pre-built `.vtr` files are published as GitHub Releases on
+[taxifydb](https://github.com/gcol33/taxifydb), one tag per backbone
+(`gbif-2026.06`, `algaebase-2026.06`), and range from 8 MB (AviList) to 2.0 GB
+(COL), depending on the backbone. The files are
 compiled from the raw Darwin Core sources with precomputed matching keys,
 embedded synonym resolution, and genus-level indexes, so they are ready for
 querying the moment the download completes.
@@ -233,7 +257,7 @@ beginnings). The default `"dl"` (Damerau-Levenshtein) is a good all-rounder.
 
 ## Backend-specific output differences
 
-All fifteen backbones produce the same 26-column output schema. This is a
+All <!-- manifest:backbone-count -->18<!-- /manifest:backbone-count --> backbones produce the same 26-column output schema. This is a
 deliberate design choice: downstream code does not need to know which backbone
 produced a match. That said, the content of those columns varies in ways
 worth knowing about.
@@ -669,18 +693,27 @@ that the standard output does not include.
 
 ## The genus register
 
-taxify builds a unified genus register from the union of genera across the
-backbones you have installed (up to all fifteen: WFO, COL, GBIF, ITIS, NCBI,
-OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase,
-Reptile Database, LCVP, and WCVP). Build it with `taxify_build_register()`
-(equivalently `taxify_download("register")`); it reads each installed backbone
-once and stores the result under the data directory. With all fifteen
-installed the register holds ~500k genera, each with its family, higher
-classification (kingdom through order, where available), and a `life_form`
-label (e.g., `"vascular plant"`, `"animal"`, `"fungus"`). The classification
-is resolved by priority: WoRMS > COL > GBIF > Euro+Med > ITIS > NCBI > OTT
-> WFO. If COL and WFO disagree about which family a genus belongs to, COL's
-assignment wins.
+The genus register is a unified index of the genera across every supported
+backbone. It holds 496,281 genera, each with its family, higher classification
+(kingdom through order, where available), and a `life_form` label (e.g.,
+`"vascular plant"`, `"animal"`, `"fungus"`). Where two backbones disagree
+about which family a genus belongs to, the classification is resolved by
+priority: WoRMS, COL, WCVP, Reptile Database, MDD, AviList, LPSN, GBIF,
+Euro+Med, LCVP, ITIS, NCBI, OTT, WFO, FishBase, SeaLifeBase, Species Fungorum,
+AlgaeBase. If COL and WFO disagree, COL's assignment wins.
+
+The register is built by taxifydb over that fixed backbone set and published
+as a versioned asset, the same way each backbone is, so it arrives by download
+rather than by a local build. taxify resolves it on first use: local disk, then
+the manifest download, then a local build through
+`taxify_build_register()` (equivalently `taxify_download("register")`) if
+taxifydb is installed. Building it from whichever backbones a given machine
+happened to have installed is what the published asset replaced, because it
+made the same code report different `kingdom_group` and `life_form` labels on
+two machines.
+
+A `backend_coverage` asset ships alongside it, one row per genus and backbone,
+which is what `taxify_register_coverage()` reads.
 
 The register serves two purposes in taxify's matching pipeline. First, it
 provides `life_form`, `kingdom_group`, and `taxon_group` columns in taxify

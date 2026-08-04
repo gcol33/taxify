@@ -40,8 +40,8 @@ column contiguously on disk with lightweight compression. taxify never parses
 text at query time. There is no `read.csv()` step, no string splitting, no
 quote escaping. The backbone is already in a query-ready binary layout.
 
-Backbones are distributed as pre-built `.vtr` files (hosted on Zenodo and
-GitHub Releases), so users download a single binary file that is ready to
+Backbones are distributed as pre-built `.vtr` files (published as GitHub
+Releases on taxifydb), so users download a single binary file that is ready to
 query immediately, with no CSV parsing or conversion step. The `.vtr` files are
 typically 30-50% smaller than the original Darwin Core CSV because the
 columnar layout compresses string columns more efficiently than row-oriented
@@ -110,7 +110,7 @@ fuzzy matching is the knob that controls how long a run takes.
 The first time `taxify()` is called for a given backbone, several things
 happen behind the scenes. The function resolves the backbone path through a
 four-step fallback: session cache, versioned directory on disk, legacy flat
-directory, and finally auto-download from Zenodo if no local copy exists.
+directory, and finally auto-download from the manifest if no local copy exists.
 Once the path is known, vectra materializes the `.vtr` into an in-memory
 columnar block and builds hash indexes on the name and genus columns. This
 initialization step took about 5 seconds for WFO (1.6 million rows) in the
@@ -323,7 +323,7 @@ backbone version.
 | **All 18** | **26.2M** | **7.2 GB** | |
 <!-- /manifest:backbone-sizes -->
 
-A full installation of all fifteen backbones occupies several GB. Most
+A full installation of all <!-- manifest:backbone-count -->18<!-- /manifest:backbone-count --> backbones occupies several GB. Most
 workflows need only one or two. The WFO backbone alone covers the vast
 majority of plant taxonomy use cases in under a gigabyte.
 
@@ -599,7 +599,7 @@ taxify_clear_cache()
 ```
 
 Deleting a backbone directory is safe. The next `taxify()` call for that
-backbone will re-download it from Zenodo if needed.
+backbone will re-download it if needed.
 
 
 ## Worked example: pre-downloading resources
