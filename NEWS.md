@@ -43,6 +43,13 @@
   contributor require co-authorship, and state that redistribution is not
   allowed without each contributor's permission.
 
+* Four genus-keyed doors return data rather than failing. `add_blanchard()`,
+  `add_cefas_btrait()`, `add_disperse()` and `add_freshwater_insects_conus()`
+  join on `genus`, but their assets were written with the genus names in
+  `canonical_name` and no `genus` column for the join to reach. The build now
+  materializes that column from the registry's own grain declaration, so a
+  source declared at genus rank is written joinable at genus rank.
+
 * The genus register is rebuilt over all eighteen backbones. The published
   build covered thirteen, so mammals, birds, prokaryotes, algae and fungi
   reached it only through the general aggregators: 496,127 genera become
