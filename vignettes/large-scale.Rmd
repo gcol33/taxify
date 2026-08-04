@@ -303,7 +303,7 @@ backbone version.
 | Backbone | Names | Download | Version |
 |---|---|---|---|
 | WFO | 1.6M | 797 MB | 2026.06 |
-| COL | 5.3M | 2.0 GB | 2026.07 |
+| COL | 5.3M | 2.0 GB | 2026.08 |
 | GBIF | 6.4M | 1.9 GB | 2026.07 |
 | ITIS | 992k | 205 MB | 2026.06 |
 | NCBI | 2.8M | 514 MB | 2026.06 |
@@ -317,7 +317,10 @@ backbone version.
 | Reptile Database | 50k | 10 MB | 2026.07 |
 | LCVP | 1.3M | 252 MB | 3.0.1 |
 | WCVP | 1.4M | 334 MB | 2026.06 |
-| **All 15** | **26.1M** | **7.2 GB** | |
+| Mammal Diversity Database | 62k | 11 MB | 2026.08 |
+| AviList | 41k | 8 MB | 2026.08 |
+| LPSN | 45k | 12 MB | 2026.08 |
+| **All 18** | **26.2M** | **7.2 GB** | |
 <!-- /manifest:backbone-sizes -->
 
 A full installation of all fifteen backbones occupies several GB. Most
@@ -331,7 +334,7 @@ query time.
 
 Enrichment files are much smaller. The largest enrichment is WCVP (native
 range data, ~2 million rows) at roughly 30-40 MB. Most enrichments are
-under 5 MB. A full set of <!-- manifest:enrichment-count -->90<!-- /manifest:enrichment-count --> enrichments adds a few hundred MB to disk
+under 5 MB. A full set of <!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count --> enrichments adds a few hundred MB to disk
 usage.
 
 
