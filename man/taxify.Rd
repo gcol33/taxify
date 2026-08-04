@@ -214,13 +214,17 @@ match quality information.
 }
 \details{
 By default \code{taxify()} matches against \strong{every installed backbone}, tried in
-priority order as a fallback chain: a name is resolved by the first backbone
-(COL, then the domain authorities, then the broad aggregators) that matches
-it, and names matched earlier are not re-matched later. On a fresh setup with
-nothing installed yet, the first call downloads a default set (COL, GBIF,
-ITIS) once; pre-install a different set with \code{\link[=install_backbones]{install_backbones()}}. Name a
-backbone (or several) explicitly to match only against that one, or those in
-that order.
+priority order as a fallback chain (COL, then the domain authorities, then
+the broad aggregators). The chain is staged by match quality: every backbone
+is asked for an exact match first, and only the names still unresolved go
+round again for a fuzzy one. A name is therefore resolved by the
+highest-priority backbone that matches it \emph{at the best quality any backbone
+reaches}, so a near neighbour in an early backbone does not settle a name a
+later backbone holds exactly. Names matched earlier are not re-matched later.
+On a fresh setup with nothing installed yet, the first call downloads a
+default set (COL, GBIF, ITIS) once; pre-install a different set with
+\code{\link[=install_backbones]{install_backbones()}}. Name a backbone (or several) explicitly to match only
+against that one, or those in that order.
 }
 \section{Backbone-specific accepted names}{
 
@@ -230,7 +234,8 @@ matched backbone's own current treatment; it does not reconcile backbones
 against each other by voting (a consensus would regress toward the most
 conservative treatment across backbones that copy one another). With the
 default multi-backbone fallback, \code{accepted_name} is the pick of the
-highest-priority backbone that matched. To see where backbones disagree, pass
+highest-priority backbone that matched at the best quality reached. To see
+where backbones disagree, pass
 \code{mode = "wide"} (or \code{"agreement"}) for each backbone's \code{accepted_name} side by
 side; to follow one authority, name a single \code{backbone}.
 

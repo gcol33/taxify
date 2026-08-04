@@ -1,5 +1,26 @@
 # taxify 0.4.5
 
+* The multi-backbone fallback chain is staged by match quality. Every backbone
+  is asked for an exact match before any backbone is asked for a fuzzy one, so
+  a name absent from an early backbone but present in a later one now resolves
+  to the later backbone's exact record. Previously the chain stopped at the
+  first backbone returning any match at all, and a near neighbour in an early
+  backbone settled the name: `taxify("Acilius sulcatus", backbone = c("col",
+  "gbif"))` returned the weevil `Acalles sulcatus` from COL, where GBIF holds
+  the diving beetle under the queried name itself. Backbone priority still
+  decides between two matches of the same quality. Over 481 names spanning
+  eighteen backbones, 15 results change, every one of them a fuzzy match in COL
+  becoming an exact match elsewhere, and three of those land in a different
+  family. Runs that name a single backbone are unaffected. `mode = "wide"` and
+  `mode = "agreement"` stage their base `accepted_name` the same way, so it
+  keeps agreeing with `mode = "fallback"`; their per-backbone columns report
+  each backbone's own treatment as before.
+
+* The covered-genus union behind the out-of-scope filter is cached per coverage
+  file and backbone set. It was rebuilt on every matching stage, over roughly
+  half a million genera, which made it the largest single cost of a multi-name
+  run. The same 481 names now take 79 seconds where they took 114.
+
 * Five sources open, each reaching something the bundled set did not.
   `add_hydraulics()` brings the drought-mortality axis for 2,024 seed plants
   (Sanchez-Martinez et al. 2020). `add_noddb()` brings root-nodule nitrogen

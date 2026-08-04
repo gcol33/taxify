@@ -6,13 +6,17 @@
 #' match quality information.
 #'
 #' By default `taxify()` matches against **every installed backbone**, tried in
-#' priority order as a fallback chain: a name is resolved by the first backbone
-#' (COL, then the domain authorities, then the broad aggregators) that matches
-#' it, and names matched earlier are not re-matched later. On a fresh setup with
-#' nothing installed yet, the first call downloads a default set (COL, GBIF,
-#' ITIS) once; pre-install a different set with [install_backbones()]. Name a
-#' backbone (or several) explicitly to match only against that one, or those in
-#' that order.
+#' priority order as a fallback chain (COL, then the domain authorities, then
+#' the broad aggregators). The chain is staged by match quality: every backbone
+#' is asked for an exact match first, and only the names still unresolved go
+#' round again for a fuzzy one. A name is therefore resolved by the
+#' highest-priority backbone that matches it *at the best quality any backbone
+#' reaches*, so a near neighbour in an early backbone does not settle a name a
+#' later backbone holds exactly. Names matched earlier are not re-matched later.
+#' On a fresh setup with nothing installed yet, the first call downloads a
+#' default set (COL, GBIF, ITIS) once; pre-install a different set with
+#' [install_backbones()]. Name a backbone (or several) explicitly to match only
+#' against that one, or those in that order.
 #'
 #' @param x Character vector of taxonomic names.
 #' @param backbone Character vector of backbone names (e.g., `"wfo"`, `"col"`,
@@ -193,7 +197,8 @@
 #' against each other by voting (a consensus would regress toward the most
 #' conservative treatment across backbones that copy one another). With the
 #' default multi-backbone fallback, `accepted_name` is the pick of the
-#' highest-priority backbone that matched. To see where backbones disagree, pass
+#' highest-priority backbone that matched at the best quality reached. To see
+#' where backbones disagree, pass
 #' `mode = "wide"` (or `"agreement"`) for each backbone's `accepted_name` side by
 #' side; to follow one authority, name a single `backbone`.
 #'
@@ -326,72 +331,22 @@ taxify <- function(x,
                                 paste(backbone, collapse = " -> ")))
 
   names_df <- attach_agg_key(clean_names(x), aggregates)
-  result <- NULL
 
-  for (bb_name in backbone) {
-    be <- resolve_backend(bb_name)
-    vtr_path <- ensure_backbone(be, verbose = verbose)
+  # Two sweeps, staged by match quality rather than by backbone: every backbone
+  # is asked for an exact (or abbreviated-genus) match before any backbone is
+  # asked for a fuzzy one. An exact match is stronger evidence than a fuzzy
+  # match whichever backbone supplies it, so a near neighbour in an early
+  # backbone no longer pre-empts the exact hit a later backbone holds. Backbone
+  # priority still decides between two matches of the same quality, which is
+  # what it is for.
+  result <- run_fallback_sweep(NULL, names_df, backbone, fuzzy = FALSE,
+                               fuzzy_threshold, fuzzy_method, region, range,
+                               kingdom, verbose)
 
-    if (is.null(result)) {
-      # First backbone: match all names
-      if (verbose) message(sprintf("  [%s] Matching %d names...",
-                                    bb_name, nrow(names_df)))
-
-      result <- run_match_stages(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
-                                 fuzzy_method, region = region,
-                                 range_mode = range, verbose = verbose,
-                                 label = bb_name, scope = backbone)
-      result <- filter_result_by_kingdom(result, vtr_path, kingdom, be$name)
-
-      matched <- is_backbone_match(result$match_type)
-      result$backbone <- ifelse(matched, be$name, NA_character_)
-      bb_ver <- format_backbone_version(vtr_path, be$name, be$version)
-      result$backbone_version[matched] <- bb_ver
-    } else {
-      # Subsequent backbones: only try unmatched names
-      unmatched_idx <- which(is.na(result$match_type) &
-                             !is.na(result$input_name))
-      if (length(unmatched_idx) == 0L) {
-        if (verbose) message(sprintf("  [%s] Skipped (all names matched)",
-                                      bb_name))
-        next
-      }
-
-      if (verbose) message(sprintf("  [%s] Matching %d remaining names...",
-                                    bb_name, length(unmatched_idx)))
-
-      sub_names_df <- names_df[unmatched_idx, , drop = FALSE]
-      rownames(sub_names_df) <- NULL
-
-      sub_result <- run_match_stages(be, sub_names_df, vtr_path, fuzzy,
-                                     fuzzy_threshold, fuzzy_method,
-                                     region = region, range_mode = range,
-                                     verbose = verbose, label = bb_name,
-                                     scope = backbone)
-      sub_result <- filter_result_by_kingdom(sub_result, vtr_path, kingdom,
-                                             be$name)
-
-      # Merge sub_result back into main result. Copy every match column the
-      # sub-result carries (so a schema addition needs no edit here), including
-      # a verdict this backbone reached without a lookup; backbone and
-      # backbone_version are stamped only on the rows a lookup did produce, and
-      # input_name / the input-side qualifier columns are left untouched
-      # (reassigned later).
-      resolved_in_sub <- which(!is.na(sub_result$match_type))
-      if (length(resolved_in_sub) > 0L) {
-        bb_ver <- format_backbone_version(vtr_path, be$name, be$version)
-        dst    <- unmatched_idx[resolved_in_sub]
-        copy_cols <- setdiff(intersect(names(sub_result), names(result)),
-                             c("input_name", "backbone", "backbone_version",
-                               "qualifier", "qualifier_position"))
-        for (col in copy_cols) {
-          result[[col]][dst] <- sub_result[[col]][resolved_in_sub]
-        }
-        stamped <- dst[is_backbone_match(sub_result$match_type[resolved_in_sub])]
-        result$backbone[stamped]          <- be$name
-        result$backbone_version[stamped] <- bb_ver
-      }
-    }
+  if (fuzzy && any(is.na(result$match_type) & !is.na(result$input_name))) {
+    result <- run_fallback_sweep(result, names_df, backbone, fuzzy = TRUE,
+                                 fuzzy_threshold, fuzzy_method, region, range,
+                                 kingdom, verbose)
   }
 
   # Set match_type = "none" for still-unmatched
@@ -419,8 +374,10 @@ taxify <- function(x,
 #'
 #' Backs `taxify(..., mode = "wide" | "agreement")`. Runs every backbone
 #' independently over the full name list (no fallback chaining), then assembles
-#' one result. The base columns are the fallback pick -- the first backbone in
-#' `backbone` order that matched each name -- so a comparison result is a strict
+#' one result. The base columns are the fallback pick -- staged by match quality
+#' as the fallback chain stages it, so every backbone is considered for an exact
+#' match before any is considered for a fuzzy one, and the first backbone in
+#' `backbone` order wins within a tier -- so a comparison result is a strict
 #' superset of the standard `mode = "fallback"` output and still carries a single
 #' `accepted_name` that pipes into the `add_*()` enrichments. On top of the base:
 #'   * `"wide"` adds one `accepted_<backbone>` column per backbone plus a logical
@@ -461,17 +418,25 @@ taxify_compare <- function(x, backbone, mode, fuzzy, fuzzy_threshold,
     !is.na(r$match_type) & !r$match_type %in% c("none", "out_of_scope")
   }
 
-  # Base = fallback pick: first backbone (in order) that matched each name.
+  # Base = fallback pick, staged by match quality the same way the fallback
+  # chain stages it: every backbone is considered for an exact match before any
+  # backbone is considered for a fuzzy one, so the base column agrees with
+  # `mode = "fallback"` on the same input. Within a quality tier the first
+  # backbone in `backbone` order wins.
   base <- per_be[[1L]]
-  base_matched <- is_matched(base)
-  for (k in seq_along(backbone)[-1L]) {
-    r    <- per_be[[k]]
-    fill <- which(!base_matched & is_matched(r))
-    if (length(fill)) {
-      for (col in intersect(names(base), names(r))) {
-        base[[col]][fill] <- r[[col]][fill]
+  base_matched <- logical(nrow(base))
+  for (want_exact in c(TRUE, FALSE)) {
+    for (k in seq_along(backbone)) {
+      r <- per_be[[k]]
+      take <- if (want_exact) is_matched(r) & r$match_type != "fuzzy" else
+                              is_matched(r)
+      fill <- which(!base_matched & take)
+      if (length(fill)) {
+        for (col in intersect(names(base), names(r))) {
+          base[[col]][fill] <- r[[col]][fill]
+        }
+        base_matched[fill] <- TRUE
       }
-      base_matched[fill] <- TRUE
     }
   }
 
@@ -681,6 +646,113 @@ finalize_hybrids <- function(result, names_df, backbone) {
       }
     }
   }
+  result
+}
+
+
+#' One sweep of the fallback chain across every backbone
+#'
+#' Walks `backbone` in priority order, asking each one for the names still
+#' unresolved, and merges what it returns into `result`. Called twice by
+#' `taxify()`: once with `fuzzy = FALSE`, which runs exact matching and
+#' abbreviated-genus resolution against every backbone, then once with
+#' `fuzzy = TRUE` over whatever is still unmatched. The two stages are
+#' separated because match quality outranks backbone priority: a fuzzy hit in
+#' an early backbone must not settle a name that a later backbone holds
+#' exactly.
+#'
+#' Abbreviated-genus resolution rides in the first sweep rather than in a third
+#' stage of its own. It only ever touches rows `clean_names()` flagged as
+#' abbreviated (`"Q. robur"`), and no backbone stores a name whose genus is a
+#' single initial, so those rows can never take an exact match in any backbone
+#' and the two stages are disjoint by construction.
+#'
+#' `NULL` for `result` starts a fresh chain (the first backbone matches every
+#' name and builds the frame); a frame carries on from where the previous sweep
+#' stopped.
+#'
+#' @param result The match result data.frame so far, or `NULL` to start one.
+#' @param names_df Data.frame from `attach_agg_key()`, one row per input name.
+#' @param backbone Character vector of backbone names, in priority order.
+#' @param fuzzy Logical. Whether this sweep runs the fuzzy stage.
+#' @param fuzzy_threshold,fuzzy_method,region,range_mode,kingdom,verbose Passed
+#'   through to `run_match_stages()` and `filter_result_by_kingdom()`.
+#' @return The match result data.frame.
+#' @noRd
+run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
+                               fuzzy_threshold, fuzzy_method, region,
+                               range_mode, kingdom, verbose) {
+  for (bb_name in backbone) {
+    be <- resolve_backend(bb_name)
+    vtr_path <- ensure_backbone(be, verbose = verbose)
+
+    if (is.null(result)) {
+      # First backbone of a fresh chain: match all names
+      if (verbose) message(sprintf("  [%s] Matching %d names...",
+                                    bb_name, nrow(names_df)))
+
+      result <- run_match_stages(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
+                                 fuzzy_method, region = region,
+                                 range_mode = range_mode, verbose = verbose,
+                                 label = bb_name, scope = backbone)
+      result <- filter_result_by_kingdom(result, vtr_path, kingdom, be$name)
+
+      matched <- is_backbone_match(result$match_type)
+      result$backbone <- ifelse(matched, be$name, NA_character_)
+      bb_ver <- format_backbone_version(vtr_path, be$name, be$version)
+      result$backbone_version[matched] <- bb_ver
+      next
+    }
+
+    # Only try names still unresolved. An `"out_of_scope"` mark that survived
+    # `release_out_of_scope()` names a genus no backbone in the chain carries,
+    # so it is settled and stays out of this count.
+    unmatched_idx <- which(is.na(result$match_type) &
+                           !is.na(result$input_name))
+    if (length(unmatched_idx) == 0L) {
+      if (verbose) message(sprintf("  [%s] Skipped (all names matched)",
+                                    bb_name))
+      next
+    }
+
+    # In the fuzzy sweep the per-backbone line comes from `run_match_stages()`,
+    # which reports the count that actually reaches the fuzzy pass.
+    if (verbose && !fuzzy) message(sprintf("  [%s] Matching %d remaining names...",
+                                            bb_name, length(unmatched_idx)))
+
+    sub_names_df <- names_df[unmatched_idx, , drop = FALSE]
+    rownames(sub_names_df) <- NULL
+
+    sub_result <- run_match_stages(be, sub_names_df, vtr_path, fuzzy,
+                                   fuzzy_threshold, fuzzy_method,
+                                   region = region, range_mode = range_mode,
+                                   verbose = verbose, label = bb_name,
+                                   scope = backbone)
+    sub_result <- filter_result_by_kingdom(sub_result, vtr_path, kingdom,
+                                           be$name)
+
+    # Merge sub_result back into main result. Copy every match column the
+    # sub-result carries (so a schema addition needs no edit here), including
+    # a verdict this backbone reached without a lookup; backbone and
+    # backbone_version are stamped only on the rows a lookup did produce, and
+    # input_name / the input-side qualifier columns are left untouched
+    # (reassigned later).
+    resolved_in_sub <- which(!is.na(sub_result$match_type))
+    if (length(resolved_in_sub) > 0L) {
+      bb_ver <- format_backbone_version(vtr_path, be$name, be$version)
+      dst    <- unmatched_idx[resolved_in_sub]
+      copy_cols <- setdiff(intersect(names(sub_result), names(result)),
+                           c("input_name", "backbone", "backbone_version",
+                             "qualifier", "qualifier_position"))
+      for (col in copy_cols) {
+        result[[col]][dst] <- sub_result[[col]][resolved_in_sub]
+      }
+      stamped <- dst[is_backbone_match(sub_result$match_type[resolved_in_sub])]
+      result$backbone[stamped]         <- be$name
+      result$backbone_version[stamped] <- bb_ver
+    }
+  }
+
   result
 }
 
@@ -975,7 +1047,12 @@ load_register_or_null <- function() {
 #' Union of genera covered by the given backbone(s)
 #'
 #' Reads the backbone-coverage table once per backbone and memoizes each backbone's
-#' covered-genus vector in the package environment.
+#' covered-genus vector in the package environment. The union itself is memoized
+#' too, keyed on the coverage file and the backbone set: the register runs to
+#' roughly half a million genera, and every matching stage asks for the union
+#' over the whole chain, so rebuilding it per call dominates the run. No coverage
+#' table means no answer rather than a remembered one, so the out-of-scope
+#' filter stays disabled wherever coverage is unavailable.
 #'
 #' @param backbone Character vector of backbone names, or a `taxify_backend`.
 #' @return A character vector of covered genera, or NULL when no coverage table
@@ -985,7 +1062,14 @@ covered_genera_for <- function(backbone) {
   tryCatch({
     cov_path <- ensure_coverage(verbose = FALSE)
     if (is.null(cov_path)) return(NULL)
-    bb_names <- if (is.character(backbone)) backbone else backbone$name
+
+    bb_names  <- if (is.character(backbone)) backbone else backbone$name
+    bb_names  <- sort(unique(bb_names))
+    union_key <- paste0("coverage_union_", cov_path, "|",
+                        paste(bb_names, collapse = "+"))
+    hit <- .taxify_env[[union_key]]
+    if (!is.null(hit)) return(hit)
+
     covered <- character(0)
     for (be in bb_names) {
       cache_key <- paste0("coverage_", be)
@@ -999,6 +1083,7 @@ covered_genera_for <- function(backbone) {
       }
       covered <- union(covered, .taxify_env[[cache_key]])
     }
+    .taxify_env[[union_key]] <- covered
     covered
   }, error = function(e) NULL)
 }
