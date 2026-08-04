@@ -16,10 +16,10 @@ cleaned, matched against a backbone you keep on disk, synonyms resolved
 to the accepted name. Matching runs in C through the
 [vectra](https://github.com/gcol33/vectra) engine, so there are no web
 services and no rate limits, and the same input gives the same output on
-any machine. Fifteen Darwin Core backbones are available (WFO, COL,
-GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
-FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP), all queried
-offline.
+any machine. 18 Darwin Core backbones are available (WFO, COL, GBIF,
+ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase,
+SeaLifeBase, Reptile Database, LCVP, WCVP, MDD, AviList, LPSN), all
+queried offline.
 
 The first
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call

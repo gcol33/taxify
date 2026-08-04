@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -213,18 +213,19 @@ still recognises “Senecio jacobaea” for the same species. If an
 enrichment <code>.vtr</code> only contained one of these names, it would
 fail to match a result that resolved through the other backbone.</p>
 <p>The taxifydb build pipeline resolves every source species name across
-all fifteen backbones, each queried separately rather than as a fallback
-chain, which would only return the first match. The union of all unique
+all <!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+backbones, each queried separately rather than as a fallback chain,
+which would only return the first match. The union of all unique
 <code>accepted_name</code> values is collected per source species. Each
 source row is then expanded to one enrichment row per distinct accepted
 name, with the trait data duplicated, and the final <code>.vtr</code> is
 deduplicated by <code>canonical_name</code> (plus any group column for
 grouped enrichments). A name accepted only by one of the more
 specialised backbones (Euro+Med, Species Fungorum, AlgaeBase, FishBase,
-SeaLifeBase, Reptile Database, LCVP, or WCVP) is covered by this union
-just as a broadly-recognised name is, so an enrichment join no longer
-depends on which backbone the upstream <code><a href="../reference/taxify.html">taxify()</a></code> call
-happened to resolve through.</p>
+SeaLifeBase, Reptile Database, LCVP, WCVP, MDD, AviList, or LPSN) is
+covered by this union just as a broadly-recognised name is, so an
+enrichment join no longer depends on which backbone the upstream
+<code><a href="../reference/taxify.html">taxify()</a></code> call happened to resolve through.</p>
 <p>In practice, backbones agree on more than 90% of names, so this
 expansion is modest (typically 1.1–1.5x the original row count).
 <code><a href="../reference/add_iucn.html">add_iucn()</a></code> works identically whether the upstream
@@ -262,7 +263,7 @@ check adds negligible latency because the manifest itself is cached.</p>
 mirror outage, transient server errors), taxify does not stop
 immediately. Instead, it attempts to build the enrichment from the
 original source data. Each of the
-<!-- manifest:enrichment-count -->90<!-- /manifest:enrichment-count -->
+<!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count -->
 enrichments has a build recipe in an internal registry
 (<code>.enrichment_build_registry</code>) that knows how to download the
 raw CSV, ZIP, or API response from the upstream source, parse it into a
@@ -308,7 +309,7 @@ where backbone <code>.vtr</code> files are stored, so a single
 <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code> call reveals where all taxify data lives
 on the system. Enrichment files are modest in size: most are between 1
 and 20 MB. The full set of
-<!-- manifest:enrichment-count -->90<!-- /manifest:enrichment-count -->
+<!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count -->
 enrichments is correspondingly larger.</p>
 </div>
 </div>
@@ -2760,7 +2761,7 @@ recorded in the taxify result metadata and available via
 </h2>
 <p>taxify’s enrichment system turns taxonomic name matching into a
 gateway to ecological trait data. The
-<!-- manifest:enrichment-count -->90<!-- /manifest:enrichment-count -->
+<!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count -->
 built-in enrichments cover conservation status, growth form, ecological
 niches, functional traits, diet, morphology, life-history, geographic
 ranges, invasive status, and vernacular names across plants, birds,
@@ -2770,7 +2771,8 @@ mechanics, download automatically on first use, cache locally for
 subsequent sessions, and compose freely with the pipe operator.</p>
 <p>The cross-backbone name resolution built into the <code>.vtr</code>
 files means we do not have to worry about which backbone we used:
-enrichments work identically regardless of which of taxify’s fifteen
+enrichments work identically regardless of which of taxify’s
+<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
 backbones produced the result. The <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method tracks
 which enrichments have been applied, their source versions, and their
 coverage rates, supporting both exploratory analysis and reproducible

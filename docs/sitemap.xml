@@ -21,6 +21,7 @@
 <url><loc>https://gillescolling.com/taxify/news/index.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_algae_traits.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_alien_first_records.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_alpine_carabids.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_amniote.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_amphibio.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_anage.html</loc></url>
@@ -42,6 +43,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_ccdb.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_cefas_btrait.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_chelonians.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_chowdhury.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_classification.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_clopla.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_col_info.html</loc></url>
@@ -54,6 +56,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_data.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_diaz_traits.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_disperse.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_eberswalde.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_ecoflora.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_edwards_phyto.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_eive.html</loc></url>
@@ -61,6 +64,8 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_epa_freshwater.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_eupolltrait.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_eurobat.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_faprotax.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_finand.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_fishbase.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_fishmorph.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_fishtraits.html</loc></url>
@@ -84,6 +89,8 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_hosts.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_huang_amph.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_hybrid_info.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_hydraulics.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_imageomics_neon.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_invacost.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_italic.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_iucn.html</loc></url>
@@ -93,6 +100,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_leptraits.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_madin.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_nesttrait.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_noddb.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_nztd.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_octocoral.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_odonata.html</loc></url>
@@ -112,12 +120,14 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_sharkipedia.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_sheld.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_spider_traits.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_sworm.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_tetradensity.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_thermofresh.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_trait.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_tree_of_sex.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_usda_fungus_host.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_useful_plants.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_virion.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_wcvp.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_wfo_info.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_zanne.html</loc></url>

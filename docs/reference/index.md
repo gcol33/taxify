@@ -172,6 +172,10 @@ own table.
   : Add plant traits from LEDA Traitbase
 - [`add_groot()`](https://gillescolling.com/taxify/reference/add_groot.md)
   : Add root traits (GRooT)
+- [`add_hydraulics()`](https://gillescolling.com/taxify/reference/add_hydraulics.md)
+  : Add plant hydraulic traits (Sanchez-Martinez et al.)
+- [`add_noddb()`](https://gillescolling.com/taxify/reference/add_noddb.md)
+  : Add root-nodule nitrogen fixation (NodDB)
 - [`add_baseflor()`](https://gillescolling.com/taxify/reference/add_baseflor.md)
   : Add plant traits from Baseflor (Catminat / Julve)
 - [`add_ecoflora()`](https://gillescolling.com/taxify/reference/add_ecoflora.md)
@@ -227,6 +231,8 @@ own table.
   : Add bacterial and archaeal strain phenotypes (BacDive)
 - [`add_madin()`](https://gillescolling.com/taxify/reference/add_madin.md)
   : Add bacterial and archaeal traits (Madin et al.)
+- [`add_faprotax()`](https://gillescolling.com/taxify/reference/add_faprotax.md)
+  : Add prokaryote metabolic and ecological functions (FAPROTAX)
 - [`add_rimet_phyto()`](https://gillescolling.com/taxify/reference/add_rimet_phyto.md)
   : Add phytoplankton cell metrics (Rimet & Druart)
 - [`add_edwards_phyto()`](https://gillescolling.com/taxify/reference/add_edwards_phyto.md)
@@ -310,6 +316,20 @@ own table.
   : Add odonate behavioural/ecological traits (OPD)
 - [`add_saproxylic()`](https://gillescolling.com/taxify/reference/add_saproxylic.md)
   : Add saproxylic beetle morphology (Hagge)
+- [`add_chowdhury()`](https://gillescolling.com/taxify/reference/add_chowdhury.md)
+  : Add German ground-beetle traits and occupancy trends (Chowdhury et
+  al. 2025)
+- [`add_finand()`](https://gillescolling.com/taxify/reference/add_finand.md)
+  : Add Helsinki urban-forest carabid traits (Finand & Kotze)
+- [`add_eberswalde()`](https://gillescolling.com/taxify/reference/add_eberswalde.md)
+  : Add Eberswalde long-term carabid monitoring traits and trends
+- [`add_alpine_carabids()`](https://gillescolling.com/taxify/reference/add_alpine_carabids.md)
+  : Add Alpine ground-beetle traits (Chamberlain et al.)
+- [`add_imageomics_neon()`](https://gillescolling.com/taxify/reference/add_imageomics_neon.md)
+  : Add North American ground-beetle elytra measurements (Imageomics /
+  NEON)
+- [`add_sworm()`](https://gillescolling.com/taxify/reference/add_sworm.md)
+  : Add earthworm ecological groups (sWorm)
 - [`add_hosts()`](https://gillescolling.com/taxify/reference/add_hosts.md)
   : Add Lepidoptera hostplant breadth (NHM HOSTS)
 - [`add_blanchard()`](https://gillescolling.com/taxify/reference/add_blanchard.md)
@@ -353,6 +373,8 @@ own table.
   : Add thermal tolerance limits (GlobTherm)
 - [`add_tree_of_sex()`](https://gillescolling.com/taxify/reference/add_tree_of_sex.md)
   : Add sex-determination traits (Tree of Sex)
+- [`add_virion()`](https://gillescolling.com/taxify/reference/add_virion.md)
+  : Add host-virus association breadth (VIRION)
 
 ## Low-level building blocks
 

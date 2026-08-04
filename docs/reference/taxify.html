@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -367,13 +367,17 @@ genus register's family-based lookup; <code>NA</code> when unavailable.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>By default <code>taxify()</code> matches against <strong>every installed backbone</strong>, tried in
-priority order as a fallback chain: a name is resolved by the first backbone
-(COL, then the domain authorities, then the broad aggregators) that matches
-it, and names matched earlier are not re-matched later. On a fresh setup with
-nothing installed yet, the first call downloads a default set (COL, GBIF,
-ITIS) once; pre-install a different set with <code><a href="install_backbones.html">install_backbones()</a></code>. Name a
-backbone (or several) explicitly to match only against that one, or those in
-that order.</p>
+priority order as a fallback chain (COL, then the domain authorities, then
+the broad aggregators). The chain is staged by match quality: every backbone
+is asked for an exact match first, and only the names still unresolved go
+round again for a fuzzy one. A name is therefore resolved by the
+highest-priority backbone that matches it <em>at the best quality any backbone
+reaches</em>, so a near neighbour in an early backbone does not settle a name a
+later backbone holds exactly. Names matched earlier are not re-matched later.
+On a fresh setup with nothing installed yet, the first call downloads a
+default set (COL, GBIF, ITIS) once; pre-install a different set with
+<code><a href="install_backbones.html">install_backbones()</a></code>. Name a backbone (or several) explicitly to match only
+against that one, or those in that order.</p>
     </div>
     <div class="section level2">
     <h2 id="backbone-specific-accepted-names">Backbone-specific accepted names<a class="anchor" aria-label="anchor" href="#backbone-specific-accepted-names"></a></h2>
@@ -385,7 +389,8 @@ matched backbone's own current treatment; it does not reconcile backbones
 against each other by voting (a consensus would regress toward the most
 conservative treatment across backbones that copy one another). With the
 default multi-backbone fallback, <code>accepted_name</code> is the pick of the
-highest-priority backbone that matched. To see where backbones disagree, pass
+highest-priority backbone that matched at the best quality reached. To see
+where backbones disagree, pass
 <code>mode = "wide"</code> (or <code>"agreement"</code>) for each backbone's <code>accepted_name</code> side by
 side; to follow one authority, name a single <code>backbone</code>.</p>
 <p>For example, the red and parma kangaroos: the GBIF Backbone Taxonomy

@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -106,20 +106,24 @@
     
     
 <p>taxify matches taxonomic names against locally stored Darwin Core
-backbone databases. Fifteen backbones are available, each compiled from
-a different authoritative source. The backbone we choose determines
-which names can be matched, what taxonomic opinion governs synonym
-resolution, and which extra metadata columns are available downstream.
-This vignette walks through the backbones, explains how to combine them
-in fallback chains, and offers practical guidance on which combination
-to pick for a given project.</p>
+backbone databases.
+<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+backbones are available, each compiled from a different authoritative
+source. The backbone we choose determines which names can be matched,
+what taxonomic opinion governs synonym resolution, and which extra
+metadata columns are available downstream. This vignette walks through
+the backbones, explains how to combine them in fallback chains, and
+offers practical guidance on which combination to pick for a given
+project.</p>
 <div class="section level2">
 <h2 id="backend-overview">Backend overview<a class="anchor" aria-label="anchor" href="#backend-overview"></a>
 </h2>
-<p>The table below summarizes the fifteen backbones. “Approx. names” is
-the total number of name strings in the compiled backbone (accepted
-names plus synonyms); the actual species count is lower because each
-accepted species may have several synonym entries pointing to it.</p>
+<p>The table below summarizes all
+<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->.
+“Approx. names” is the total number of name strings in the compiled
+backbone (accepted names plus synonyms); the actual species count is
+lower because each accepted species may have several synonym entries
+pointing to it.</p>
 <table class="table">
 <colgroup>
 <col width="15%">
@@ -241,13 +245,34 @@ accepted species may have several synonym entries pointing to it.</p>
 <td align="left">~1.4M</td>
 <td align="left">Kew wcvp.zip (wcvp_names.csv)</td>
 </tr>
+<tr class="even">
+<td align="left"><code>mdd</code></td>
+<td align="left">Mammal Diversity Database</td>
+<td align="left">Mammals</td>
+<td align="left">~62k</td>
+<td align="left">MDD.zip of CSVs (species + synonyms)</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>avilist</code></td>
+<td align="left">AviList (Global Avian Checklist)</td>
+<td align="left">Birds</td>
+<td align="left">~41k</td>
+<td align="left">AviList extended .xlsx</td>
+</tr>
+<tr class="even">
+<td align="left"><code>lpsn</code></td>
+<td align="left">List of Prokaryotic names with Standing in
+Nomenclature</td>
+<td align="left">Bacteria and archaea</td>
+<td align="left">~45k</td>
+<td align="left">ChecklistBank ColDP (NameUsage.tsv)</td>
+</tr>
 </tbody>
 </table>
 <p>A few things stand out. WFO is the standard reference for plant
-taxonomy and the default backbone in taxify. It is maintained by the
-World Flora Online consortium and receives regular updates. The backbone
-includes all taxonomic ranks from kingdom down to form, with full
-synonym resolution and authorship.</p>
+taxonomy, maintained by the World Flora Online consortium and updated
+regularly. The backbone includes all taxonomic ranks from kingdom down
+to form, with full synonym resolution and authorship.</p>
 <p>COL and GBIF both cover all kingdoms, but they differ in curation
 strategy. COL is an expert-curated checklist assembled from over 160
 sector databases, each maintained by a taxonomic authority for its
@@ -315,17 +340,33 @@ accepted-species list, the periodic synonym snapshot, and the
 family-to-order checklist. The source carries no kingdom or class field,
 so the backbone stamps Animalia / Chordata / Reptilia on every row. The
 data is CC BY 4.0.</p>
+<p>The Mammal Diversity Database is the American Society of
+Mammalogists’ reference mammal taxonomy, distributed as a zip of CSVs
+holding the accepted species with their full higher classification and
+every name ever applied to them. The data is MIT-licensed.</p>
+<p>AviList is the global bird checklist that merged the long-standing
+IOC, Clements, and BirdLife split, shipped as one Excel workbook
+covering order through subspecies. It publishes no synonym table, so the
+backbone derives homotypic synonyms from the <code>Protonym</code>
+column: where a species has since moved genus, its original combination
+is a synonym of the current name (<code>Parus caeruleus</code> -&gt;
+<code>Cyanistes caeruleus</code>). The data is CC BY 4.0.</p>
+<p>LPSN is the nomenclatural authority for prokaryotes, hosted by DSMZ,
+and it answers a question NCBI, GBIF, and OTT leave open: whether a
+bacterial or archaeal name is validly published. LPSN’s own download
+route sits behind a free DSMZ account, so the backbone is built from the
+open ColDP mirror on GBIF ChecklistBank. The data is CC BY-SA 4.0.</p>
 </div>
 <div class="section level2">
 <h2 id="downloading-backbones">Downloading backbones<a class="anchor" aria-label="anchor" href="#downloading-backbones"></a>
 </h2>
 <p>taxify auto-downloads backbones on first use. When we call
 <code>taxify(names, backbone = "wfo")</code> and no local WFO backbone
-exists, taxify fetches the pre-built <code>.vtr</code> file from Zenodo,
-writes it to <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>, and caches the path for the
-remainder of the R session. Subsequent calls, whether in the same
-session or future sessions, reuse the local copy without any network
-access.</p>
+exists, taxify fetches the pre-built <code>.vtr</code> file from the
+taxifydb release it is published under, writes it to
+<code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>, and caches the path for the remainder of
+the R session. Subsequent calls, whether in the same session or future
+sessions, reuse the local copy without any network access.</p>
 <p>To download a backbone ahead of time (useful on a shared server or in
 a Docker image), use <code><a href="../reference/taxify_download.html">taxify_download()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -334,8 +375,10 @@ a Docker image), use <code><a href="../reference/taxify_download.html">taxify_do
 <span></span>
 <span><span class="co"># Download several at once</span></span>
 <span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"worms"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Pre-built <code>.vtr</code> files are hosted on Zenodo and typically
-range from 50 MB (AlgaeBase) to 400 MB (GBIF), depending on the
+<p>Pre-built <code>.vtr</code> files are published as GitHub Releases on
+<a href="https://github.com/gcol33/taxifydb" class="external-link">taxifydb</a>, one tag per
+backbone (<code>gbif-2026.06</code>, <code>algaebase-2026.06</code>),
+and range from 8 MB (AviList) to 2.0 GB (COL), depending on the
 backbone. The files are compiled from the raw Darwin Core sources with
 precomputed matching keys, embedded synonym resolution, and genus-level
 indexes, so they are ready for querying the moment the download
@@ -427,10 +470,12 @@ all-rounder.</p>
 <div class="section level2">
 <h2 id="backend-specific-output-differences">Backend-specific output differences<a class="anchor" aria-label="anchor" href="#backend-specific-output-differences"></a>
 </h2>
-<p>All fifteen backbones produce the same 26-column output schema. This
-is a deliberate design choice: downstream code does not need to know
-which backbone produced a match. That said, the content of those columns
-varies in ways worth knowing about.</p>
+<p>All
+<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+backbones produce the same 26-column output schema. This is a deliberate
+design choice: downstream code does not need to know which backbone
+produced a match. That said, the content of those columns varies in ways
+worth knowing about.</p>
 <p><strong>Authorship.</strong> WFO’s <code>scientificName</code> is
 already canonical (no authorship appended), so the
 <code>authorship</code> column comes from a separate
@@ -849,20 +894,29 @@ output does not include.</p>
 <div class="section level2">
 <h2 id="the-genus-register">The genus register<a class="anchor" aria-label="anchor" href="#the-genus-register"></a>
 </h2>
-<p>taxify builds a unified genus register from the union of genera
-across the backbones you have installed (up to all fifteen: WFO, COL,
-GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
-FishBase, SeaLifeBase, Reptile Database, LCVP, and WCVP). Build it with
-<code><a href="../reference/taxify_build_register.html">taxify_build_register()</a></code> (equivalently
-<code>taxify_download("register")</code>); it reads each installed
-backbone once and stores the result under the data directory. With all
-fifteen installed the register holds ~500k genera, each with its family,
+<p>The genus register is a unified index of the genera across every
+supported backbone. It holds 496,281 genera, each with its family,
 higher classification (kingdom through order, where available), and a
 <code>life_form</code> label (e.g., <code>"vascular plant"</code>,
-<code>"animal"</code>, <code>"fungus"</code>). The classification is
-resolved by priority: WoRMS &gt; COL &gt; GBIF &gt; Euro+Med &gt; ITIS
-&gt; NCBI &gt; OTT &gt; WFO. If COL and WFO disagree about which family
-a genus belongs to, COL’s assignment wins.</p>
+<code>"animal"</code>, <code>"fungus"</code>). Where two backbones
+disagree about which family a genus belongs to, the classification is
+resolved by priority: WoRMS, COL, WCVP, Reptile Database, MDD, AviList,
+LPSN, GBIF, Euro+Med, LCVP, ITIS, NCBI, OTT, WFO, FishBase, SeaLifeBase,
+Species Fungorum, AlgaeBase. If COL and WFO disagree, COL’s assignment
+wins.</p>
+<p>The register is built by taxifydb over that fixed backbone set and
+published as a versioned asset, the same way each backbone is, so it
+arrives by download rather than by a local build. taxify resolves it on
+first use: local disk, then the manifest download, then a local build
+through <code><a href="../reference/taxify_build_register.html">taxify_build_register()</a></code> (equivalently
+<code>taxify_download("register")</code>) if taxifydb is installed.
+Building it from whichever backbones a given machine happened to have
+installed is what the published asset replaced, because it made the same
+code report different <code>kingdom_group</code> and
+<code>life_form</code> labels on two machines.</p>
+<p>A <code>backend_coverage</code> asset ships alongside it, one row per
+genus and backbone, which is what
+<code><a href="../reference/taxify_register_coverage.html">taxify_register_coverage()</a></code> reads.</p>
 <p>The register serves two purposes in taxify’s matching pipeline.
 First, it provides <code>life_form</code>, <code>kingdom_group</code>,
 and <code>taxon_group</code> columns in taxify output for every matched

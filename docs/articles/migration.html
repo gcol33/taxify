@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -220,7 +220,8 @@ there is no urgent reason to switch.</p>
 <p>That said, there are situations where taxify offers a better fit:</p>
 <ul>
 <li>
-<strong>Multiple backbones.</strong> taxify matches against fifteen
+<strong>Multiple backbones.</strong> taxify matches against
+<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
 backbones offline and can chain them in a single call:
 <code>taxify(names, backbone = c("col", "gbif", "itis"))</code>.</li>
 <li>
@@ -718,9 +719,10 @@ cascade to the next backbone automatically.</p>
 <p><strong>Offline matching.</strong> taxify downloads backbone files
 once and matches locally. After the initial download (typically 50–300
 MB depending on the backbone), no internet connection is needed.</p>
-<p><strong>Multi-backbone.</strong> taxify supports fifteen backbones
-through a single function, with optional fallback chains that cascade
-unmatched names automatically.</p>
+<p><strong>Multi-backbone.</strong> taxify supports
+<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+backbones through a single function, with optional fallback chains that
+cascade unmatched names automatically.</p>
 <p><strong>Output format.</strong> taxify always returns a data.frame
 with 26 standardized columns, regardless of the backbone:</p>
 <table class="table">

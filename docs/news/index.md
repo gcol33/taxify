@@ -1,5 +1,257 @@
 # Changelog
 
+## taxify 0.4.5
+
+- The multi-backbone fallback chain is staged by match quality. Every
+  backbone is asked for an exact match before any backbone is asked for
+  a fuzzy one, so a name absent from an early backbone but present in a
+  later one now resolves to the later backbone’s exact record.
+  Previously the chain stopped at the first backbone returning any match
+  at all, and a near neighbour in an early backbone settled the name:
+  `taxify("Acilius sulcatus", backbone = c("col", "gbif"))` returned the
+  weevil `Acalles sulcatus` from COL, where GBIF holds the diving beetle
+  under the queried name itself. Backbone priority still decides between
+  two matches of the same quality. Over 481 names spanning eighteen
+  backbones, 15 results change, every one of them a fuzzy match in COL
+  becoming an exact match elsewhere, and three of those land in a
+  different family. Runs that name a single backbone are unaffected.
+  `mode = "wide"` and `mode = "agreement"` stage their base
+  `accepted_name` the same way, so it keeps agreeing with
+  `mode = "fallback"`; their per-backbone columns report each backbone’s
+  own treatment as before.
+
+- The covered-genus union behind the out-of-scope filter is cached per
+  coverage file and backbone set. It was rebuilt on every matching
+  stage, over roughly half a million genera, which made it the largest
+  single cost of a multi-name run. The same 481 names now take 79
+  seconds where they took 114.
+
+- Five sources open, each reaching something the bundled set did not.
+  [`add_hydraulics()`](https://gillescolling.com/taxify/reference/add_hydraulics.md)
+  brings the drought-mortality axis for 2,024 seed plants
+  (Sanchez-Martinez et al. 2020).
+  [`add_noddb()`](https://gillescolling.com/taxify/reference/add_noddb.md)
+  brings root-nodule nitrogen fixation for 824 plant genera, joined on
+  genus, which makes it the counterpart to
+  [`add_fungalroot()`](https://gillescolling.com/taxify/reference/add_fungalroot.md)’s
+  mycorrhizal type: together they are the belowground symbiosis pair.
+  [`add_faprotax()`](https://gillescolling.com/taxify/reference/add_faprotax.md)
+  brings 92 metabolic and ecological function groups over 4,470
+  prokaryotic taxa.
+  [`add_virion()`](https://gillescolling.com/taxify/reference/add_virion.md)
+  brings host-virus association breadth for 4,223 vertebrates, and
+  [`add_sworm()`](https://gillescolling.com/taxify/reference/add_sworm.md)
+  the ecological group of 171 earthworms, a taxon with no coverage
+  before.
+
+- `p50` gains a third source and, with it, its first empirical
+  confirmation. AusTraits and BROT share no species, so the trait rested
+  on their two medians landing together at -3.4 MPa. The
+  Sanchez-Martinez compilation overlaps both and agrees with each at
+  ratio 1.00, while taking coverage from 123 species to
+
+  894. The registry records that this is not corroboration: all three
+       are literature compilations over the same primary studies, and
+       63% of the values shared with AusTraits are identical to the last
+       digit. It is registered because the duplication is confined to 74
+       of its 894 species, where the sources rejected on these grounds
+       duplicated nearly everything they carried.
+
+- The same overlap measures a unit rather than assuming one. 79 of the
+  208 species the compilation shares with AusTraits match exactly once
+  multiplied by 1e-4, which establishes that its Huber values are square
+  centimetres of sapwood per square metre of leaf.
+
+- New traits: `leaf_specific_conductivity`, `min_water_potential`,
+  `hydraulic_safety_margin`, `nitrogen_fixation` and
+  `earthworm_ecological_group`. `climatic_temp_mean` gains its first
+  plant source. `min_water_potential` is kept apart from
+  `turgor_loss_point`: the two share 39 species and agree on none of
+  them, a field water potential and a pressure-volume threshold being
+  different quantities. `sapwood_conductivity` and `huber_value` gain a
+  second source each.
+
+- `virus_richness` and the FAPROTAX function sets stay on their doors
+  rather than entering
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md).
+  Virus richness tracks how much a host has been studied as much as what
+  infects it, with *Homo sapiens* at 936 viruses over 633,053 records,
+  so `virus_record_count` ships beside it to keep that visible.
+
+- GlobalAnts is documented as unusable rather than left as an open
+  question. Its guidelines gate access behind a per-project application,
+  let a contributor require co-authorship, and state that redistribution
+  is not allowed without each contributor’s permission.
+
+- Four genus-keyed doors return data rather than failing.
+  [`add_blanchard()`](https://gillescolling.com/taxify/reference/add_blanchard.md),
+  [`add_cefas_btrait()`](https://gillescolling.com/taxify/reference/add_cefas_btrait.md),
+  [`add_disperse()`](https://gillescolling.com/taxify/reference/add_disperse.md)
+  and
+  [`add_freshwater_insects_conus()`](https://gillescolling.com/taxify/reference/add_freshwater_insects_conus.md)
+  join on `genus`, but their assets were written with the genus names in
+  `canonical_name` and no `genus` column for the join to reach. The
+  build now materializes that column from the registry’s own grain
+  declaration, so a source declared at genus rank is written joinable at
+  genus rank.
+
+- The genus register is rebuilt over all eighteen backbones. The
+  published build covered thirteen, so mammals, birds, prokaryotes,
+  algae and fungi reached it only through the general aggregators:
+  496,127 genera become 496,281, coverage rows 1,421,182 become
+  1,451,183, and the share carrying a kingdom rises from 75.55% to
+  83.45%.
+
+- A genus filed under two kingdoms by one backbone is now read by that
+  backbone’s own majority. Ordering by source priority alone left the
+  winner to whichever row happened to sort first, which gave 93 genera
+  their source’s minority reading and, because a row recording no
+  kingdom stays eligible to fill the ranks below, produced
+  classifications no source holds: *Pteropus*, 66 species of flying fox,
+  was indexed as a fungus carrying the order Chiroptera. All 93 resolve,
+  and the tiebreak applies only within a source, so a higher-priority
+  backbone still outranks a lower one.
+
+- Three backbones join the default fallback chain, giving birds, mammals
+  and prokaryotes a domain authority for the first time: AviList (40,572
+  rows), the Mammal Diversity Database (61,862) and LPSN (44,885). Every
+  other major group already had one, and the cost of the gap was
+  specific to taxify’s design – the default is a first-match chain,
+  deliberately not a consensus vote, so with no authority in the domain
+  band the answer for these groups was whichever aggregator ranked
+  highest.
+
+  All three sit in the domain-authority band, ahead of GBIF, ITIS, NCBI
+  and OTT. **This changes what
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  returns by default for bird, mammal and prokaryote names**, which is
+  the intended effect. They were in the backbone registry without a
+  manifest entry, so until now nothing could resolve them at all.
+
+- Three more ground-beetle sources join
+  [`add_chowdhury()`](https://gillescolling.com/taxify/reference/add_chowdhury.md).
+  [`add_finand()`](https://gillescolling.com/taxify/reference/add_finand.md)
+  brings 34 Helsinki species whose body lengths were measured from the
+  specimens the authors caught — small, and carried because it is the
+  only carabid source independent of carabids.org, which every other
+  reachable table inherits its sizes and wing classes from.
+  [`add_imageomics_neon()`](https://gillescolling.com/taxify/reference/add_imageomics_neon.md)
+  brings the first North American ground beetles, 75 species measured
+  from images of pinned NEON specimens, feeding `elytra_length` and a
+  new `elytra_width`.
+  [`add_eberswalde()`](https://gillescolling.com/taxify/reference/add_eberswalde.md)
+  brings a 24-year monitoring record from 13 forest plots: abundance
+  trend, sensitivity to the 72-month SPEI drought index, a feeding guild
+  refined by field observation to name the prey, and Sustek’s humidity
+  scale.
+
+- Eberswalde’s size, wing class and latitude are surfaced on its door
+  but feed no trait. The deposit’s own README says they are carabids.org
+  verbatim, and the data agree exactly: over the 19 species shared with
+  [`add_chowdhury()`](https://gillescolling.com/taxify/reference/add_chowdhury.md)
+  every size is identical and every wing class matches. Registering them
+  would double-count one lineage.
+
+- Ground beetles are now covered.
+  [`add_chowdhury()`](https://gillescolling.com/taxify/reference/add_chowdhury.md)
+  attaches traits and national occupancy trends for 382 German carabids
+  from Chowdhury et al. (2025): body length, wing morphology, trophic
+  level, habitat preference, both Red List codes, and the paper’s own
+  modelled two-year occupancy trend. Carabids are one of the most
+  intensively sampled insect groups in ecology, and taxify’s only beetle
+  source until now was `saproxylic`, restricted to the deadwood guild.
+
+- [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  gains `wing_morph`, three-state on purpose. A wing-dimorphic carabid
+  produces both a long-winged and a short-winged form, and which one
+  dominates is the question carabid dispersal ecology asks, so
+  `dimorphic` (83 of 382 species) is a value of its own rather than a
+  midpoint or a gap. It is kept separate from the bird trait
+  `flightless`, which asks whether a species can fly at all.
+  `body_length`, `diet_guild` and `primary_habitat` gain the same
+  source; `primary_habitat` gains the vocabulary term `open`, the modal
+  class for German carabids, in preference to narrowing it to
+  `grassland`.
+
+- `diet_guild` also gains the NW European arthropod compilation (Logghe
+  et al. 2025), 3,800 species and the first broad arthropod coverage the
+  trait has had, along with the vocabulary term `fungivore`. It agrees
+  with the German carabid classification on 86.6% of their 292 shared
+  species.
+
+- Two columns were deliberately left out of the cross-source verb, both
+  documented in `R/trait-registry.R` so the decisions are not
+  relitigated. The German `red_list_iucn` restates a *national*
+  assessment in IUCN letters (perfectly diagonal against the German code
+  over all 382 species) and is not a global one, so it stays on the
+  door. And `arthropod_traits` `body_size_mm` is a true body length for
+  spiders and beetles but forewing length for Lepidoptera (0.515 of the
+  wingspan across 50 species), with no taxon column to separate them —
+  see gcol33/taxifydb#40.
+
+- [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  gains seventeen traits and widens four, all from enrichment data
+  already bundled: the registry now covers 204 traits across 456 source
+  slots. Nothing needs re-downloading.
+
+- Fire ecology and regeneration are now reachable. `resprouting`
+  (AusTraits and BROT) is the post-fire resprouter / partial /
+  non-resprouter call, `serotiny` the canopy seed-storage call, and
+  `soil_seed_bank` the persistence class. Worked examples: *Quercus
+  suber* and *Arbutus unedo* come back resprouters, *Pinus halepensis*
+  and *Cistus albidus* obligate seeders, *Banksia serrata* serotinous.
+
+- Plant hydraulics, the drought-mortality axis, is now registered from
+  AusTraits and BROT: `p50` (xylem embolism resistance, MPa),
+  `turgor_loss_point`, `sapwood_conductivity`, `huber_value`, plus
+  `bark_thickness`. Coverage is thin (123 species for `p50`) and the
+  trait documents that.
+
+- Bryophytes enter the trait verb for the first time, from Bryophytes of
+  Europe Traits: `bryophyte_life_form` (During’s turf / mat / cushion /
+  weft scheme, kept separate from the vascular-plant `life_form` for the
+  same reason `lichen_growth_form` is), `shoot_length` and
+  `spore_diameter`.
+
+- New from the coral and bird sources: `larval_development_mode`
+  (spawner or brooder), `substrate_attachment`, `linear_extension_rate`,
+  `polyp_retractability`, and `primary_habitat` (BIRDBASE’s 14-term
+  vocabulary over 13,067 species). Also `self_compatibility` from Tree
+  of Sex.
+
+- `sexual_system` roughly doubles its plant coverage with AusTraits
+  `sex_type` (87% agreement with Tree of Sex across 572 shared species)
+  and gains bryophytes from BET. `flowering_start` and `flowering_end`
+  are no longer Europe-only: AusTraits’ 12-character monthly string now
+  feeds them, read as the longest *circular* run so a
+  southern-hemisphere season that wraps the year boundary comes back as
+  December to February rather than January to December. `diet_guild`
+  gains BIRDBASE, listed last so it fills the birds AVONET and
+  EltonTraits miss.
+
+- `soil_seed_bank` is the first trait to ship a documented disagreement.
+  BROT and AusTraits classify persistence by different operational
+  definitions and agree on only 67% of their 48 shared species, so the
+  pair carries a `caution`: the default coalesce reports the most
+  complete source rather than blending them, and explains itself in
+  `soil_seed_bank_caution`.
+
+- [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  gains `aggregate_trait_fallback`, which the `hybrids-and-aggregates`
+  vignette has been documenting as a per-call argument since it was
+  written (“turn it off, per call or globally”). Only the global option
+  existed, so the documented call errored with `unused argument`. The
+  argument now threads through to `enrich_simple()` and defaults to the
+  same option, so existing behaviour is unchanged. Grain-pinned sources
+  go through `enrich_by_group()`, which has no aggregate fallback, and
+  are unaffected either way.
+
+- Rejections are documented in the registry header rather than left to
+  be rediscovered, including three octocoral columns that carry no
+  information at all – `tentacles_per_polyp` is 8 for every one of 3,606
+  species, because eight tentacles is the defining character of
+  Octocorallia.
+
 ## taxify 0.4.3
 
 - Bundled enrichment data now resolves taxonomic names across all

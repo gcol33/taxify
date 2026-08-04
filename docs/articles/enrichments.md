@@ -117,7 +117,7 @@ contained one of these names, it would fail to match a result that
 resolved through the other backbone.
 
 The taxifydb build pipeline resolves every source species name across
-all fifteen backbones, each queried separately rather than as a fallback
+all 18 backbones, each queried separately rather than as a fallback
 chain, which would only return the first match. The union of all unique
 `accepted_name` values is collected per source species. Each source row
 is then expanded to one enrichment row per distinct accepted name, with
@@ -125,9 +125,9 @@ the trait data duplicated, and the final `.vtr` is deduplicated by
 `canonical_name` (plus any group column for grouped enrichments). A name
 accepted only by one of the more specialised backbones (Euro+Med,
 Species Fungorum, AlgaeBase, FishBase, SeaLifeBase, Reptile Database,
-LCVP, or WCVP) is covered by this union just as a broadly-recognised
-name is, so an enrichment join no longer depends on which backbone the
-upstream
+LCVP, WCVP, MDD, AviList, or LPSN) is covered by this union just as a
+broadly-recognised name is, so an enrichment join no longer depends on
+which backbone the upstream
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 happened to resolve through.
 
@@ -166,7 +166,7 @@ negligible latency because the manifest itself is cached.
 If the pre-built `.vtr` download fails (network issues, mirror outage,
 transient server errors), taxify does not stop immediately. Instead, it
 attempts to build the enrichment from the original source data. Each of
-the 90 enrichments has a build recipe in an internal registry
+the 100 enrichments has a build recipe in an internal registry
 (`.enrichment_build_registry`) that knows how to download the raw CSV,
 ZIP, or API response from the upstream source, parse it into a
 data.frame with a `canonical_name` column, and produce the `.vtr` file
@@ -213,7 +213,7 @@ Windows). This directory is also where backbone `.vtr` files are stored,
 so a single
 [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
 call reveals where all taxify data lives on the system. Enrichment files
-are modest in size: most are between 1 and 20 MB. The full set of 90
+are modest in size: most are between 1 and 20 MB. The full set of 100
 enrichments is correspondingly larger.
 
 ## Discovering enrichments
@@ -2773,9 +2773,9 @@ A minimal methods paragraph citing enrichments might read:
 ## Summary
 
 taxify’s enrichment system turns taxonomic name matching into a gateway
-to ecological trait data. The 90 built-in enrichments cover conservation
-status, growth form, ecological niches, functional traits, diet,
-morphology, life-history, geographic ranges, invasive status, and
+to ecological trait data. The 100 built-in enrichments cover
+conservation status, growth form, ecological niches, functional traits,
+diet, morphology, life-history, geographic ranges, invasive status, and
 vernacular names across plants, birds, mammals, amphibians, vertebrates,
 butterflies, arthropods, fungi, algae, fish, and reptiles. All
 enrichments share the same underlying join mechanics, download
@@ -2784,11 +2784,11 @@ compose freely with the pipe operator.
 
 The cross-backbone name resolution built into the `.vtr` files means we
 do not have to worry about which backbone we used: enrichments work
-identically regardless of which of taxify’s fifteen backbones produced
-the result. The [`summary()`](https://rdrr.io/r/base/summary.html)
-method tracks which enrichments have been applied, their source
-versions, and their coverage rates, supporting both exploratory analysis
-and reproducible reporting.
+identically regardless of which of taxify’s 18 backbones produced the
+result. The [`summary()`](https://rdrr.io/r/base/summary.html) method
+tracks which enrichments have been applied, their source versions, and
+their coverage rates, supporting both exploratory analysis and
+reproducible reporting.
 
 For taxa or traits not covered by the built-in layers,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)

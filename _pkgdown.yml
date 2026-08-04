@@ -142,6 +142,8 @@ reference:
   - add_diaz_traits
   - add_leda
   - add_groot
+  - add_hydraulics
+  - add_noddb
   - add_baseflor
   - add_ecoflora
   - add_floraweb
@@ -170,6 +172,7 @@ reference:
   - add_algae_traits
   - add_bacdive
   - add_madin
+  - add_faprotax
   - add_rimet_phyto
   - add_edwards_phyto
   - add_ramond
@@ -213,6 +216,12 @@ reference:
   - add_leptraits
   - add_odonata
   - add_saproxylic
+  - add_chowdhury
+  - add_finand
+  - add_eberswalde
+  - add_alpine_carabids
+  - add_imageomics_neon
+  - add_sworm
   - add_hosts
   - add_blanchard
   - add_coral_traits
@@ -235,6 +244,7 @@ reference:
   - add_animaltraits
   - add_globtherm
   - add_tree_of_sex
+  - add_virion
 - title: Low-level building blocks
   desc: Exported internals for power users and custom pipelines.
   contents:

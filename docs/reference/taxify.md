@@ -328,12 +328,16 @@ A data.frame with one row per input name and the following columns:
 ## Details
 
 By default `taxify()` matches against **every installed backbone**,
-tried in priority order as a fallback chain: a name is resolved by the
-first backbone (COL, then the domain authorities, then the broad
-aggregators) that matches it, and names matched earlier are not
-re-matched later. On a fresh setup with nothing installed yet, the first
-call downloads a default set (COL, GBIF, ITIS) once; pre-install a
-different set with
+tried in priority order as a fallback chain (COL, then the domain
+authorities, then the broad aggregators). The chain is staged by match
+quality: every backbone is asked for an exact match first, and only the
+names still unresolved go round again for a fuzzy one. A name is
+therefore resolved by the highest-priority backbone that matches it *at
+the best quality any backbone reaches*, so a near neighbour in an early
+backbone does not settle a name a later backbone holds exactly. Names
+matched earlier are not re-matched later. On a fresh setup with nothing
+installed yet, the first call downloads a default set (COL, GBIF, ITIS)
+once; pre-install a different set with
 [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md).
 Name a backbone (or several) explicitly to match only against that one,
 or those in that order.
@@ -347,9 +351,10 @@ reconcile backbones against each other by voting (a consensus would
 regress toward the most conservative treatment across backbones that
 copy one another). With the default multi-backbone fallback,
 `accepted_name` is the pick of the highest-priority backbone that
-matched. To see where backbones disagree, pass `mode = "wide"` (or
-`"agreement"`) for each backbone's `accepted_name` side by side; to
-follow one authority, name a single `backbone`.
+matched at the best quality reached. To see where backbones disagree,
+pass `mode = "wide"` (or `"agreement"`) for each backbone's
+`accepted_name` side by side; to follow one authority, name a single
+`backbone`.
 
 For example, the red and parma kangaroos: the GBIF Backbone Taxonomy
 accepts `Macropus rufus` and `Macropus parma`, treating

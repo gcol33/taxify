@@ -26,8 +26,8 @@ never parses text at query time. There is no
 splitting, no quote escaping. The backbone is already in a query-ready
 binary layout.
 
-Backbones are distributed as pre-built `.vtr` files (hosted on Zenodo
-and GitHub Releases), so users download a single binary file that is
+Backbones are distributed as pre-built `.vtr` files (published as GitHub
+Releases on taxifydb), so users download a single binary file that is
 ready to query immediately, with no CSV parsing or conversion step. The
 `.vtr` files are typically 30-50% smaller than the original Darwin Core
 CSV because the columnar layout compresses string columns more
@@ -103,11 +103,11 @@ The first time
 called for a given backbone, several things happen behind the scenes.
 The function resolves the backbone path through a four-step fallback:
 session cache, versioned directory on disk, legacy flat directory, and
-finally auto-download from Zenodo if no local copy exists. Once the path
-is known, vectra materializes the `.vtr` into an in-memory columnar
-block and builds hash indexes on the name and genus columns. This
-initialization step took about 5 seconds for WFO (1.6 million rows) in
-the repository’s benchmark run, and scales with backbone size from
+finally auto-download from the manifest if no local copy exists. Once
+the path is known, vectra materializes the `.vtr` into an in-memory
+columnar block and builds hash indexes on the name and genus columns.
+This initialization step took about 5 seconds for WFO (1.6 million rows)
+in the repository’s benchmark run, and scales with backbone size from
 there. Every subsequent
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 in the same R session reuses the materialized block. There is no
@@ -309,26 +309,29 @@ Each backbone’s `.vtr` file is a one-time download stored in
 [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
 The sizes below are approximate and depend on the backbone version.
 
-| Backbone         | Names     | Download   | Version |
-|------------------|-----------|------------|---------|
-| WFO              | 1.6M      | 797 MB     | 2026.06 |
-| COL              | 5.3M      | 2.0 GB     | 2026.06 |
-| GBIF             | 6.4M      | 1.9 GB     | 2026.06 |
-| ITIS             | 992k      | 205 MB     | 2026.06 |
-| NCBI             | 2.8M      | 514 MB     | 2026.06 |
-| OTT              | 3.7M      | 727 MB     | 3.7.3   |
-| WoRMS            | 1.6M      | 347 MB     | 2026.07 |
-| Euro+Med         | 147k      | 35 MB      | 2026.07 |
-| Species Fungorum | 315k      | 71 MB      | 2026.06 |
-| AlgaeBase        | 172k      | 36 MB      | 2026.06 |
-| FishBase         | 103k      | 19 MB      | 2026.06 |
-| SeaLifeBase      | 134k      | 29 MB      | 2026.06 |
-| Reptile Database | 50k       | 10 MB      | 2026.07 |
-| LCVP             | 1.3M      | 252 MB     | 3.0.1   |
-| WCVP             | 1.4M      | 334 MB     | 2026.06 |
-| **All 15**       | **26.1M** | **7.2 GB** |         |
+| Backbone                  | Names     | Download   | Version |
+|---------------------------|-----------|------------|---------|
+| WFO                       | 1.6M      | 797 MB     | 2026.06 |
+| COL                       | 5.3M      | 2.0 GB     | 2026.08 |
+| GBIF                      | 6.4M      | 1.9 GB     | 2026.07 |
+| ITIS                      | 992k      | 205 MB     | 2026.06 |
+| NCBI                      | 2.8M      | 514 MB     | 2026.06 |
+| OTT                       | 3.7M      | 727 MB     | 3.7.3   |
+| WoRMS                     | 1.6M      | 347 MB     | 2026.07 |
+| Euro+Med                  | 147k      | 35 MB      | 2026.07 |
+| Species Fungorum          | 315k      | 71 MB      | 2026.06 |
+| AlgaeBase                 | 172k      | 36 MB      | 2026.06 |
+| FishBase                  | 103k      | 19 MB      | 2026.06 |
+| SeaLifeBase               | 134k      | 29 MB      | 2026.06 |
+| Reptile Database          | 50k       | 10 MB      | 2026.07 |
+| LCVP                      | 1.3M      | 252 MB     | 3.0.1   |
+| WCVP                      | 1.4M      | 334 MB     | 2026.06 |
+| Mammal Diversity Database | 62k       | 11 MB      | 2026.08 |
+| AviList                   | 41k       | 8 MB       | 2026.08 |
+| LPSN                      | 45k       | 12 MB      | 2026.08 |
+| **All 18**                | **26.2M** | **7.2 GB** |         |
 
-A full installation of all fifteen backbones occupies several GB. Most
+A full installation of all 18 backbones occupies several GB. Most
 workflows need only one or two. The WFO backbone alone covers the vast
 majority of plant taxonomy use cases in under a gigabyte.
 
@@ -339,7 +342,7 @@ reads at query time.
 
 Enrichment files are much smaller. The largest enrichment is WCVP
 (native range data, ~2 million rows) at roughly 30-40 MB. Most
-enrichments are under 5 MB. A full set of 90 enrichments adds a few
+enrichments are under 5 MB. A full set of 100 enrichments adds a few
 hundred MB to disk usage.
 
 ## Memory footprint
@@ -627,7 +630,7 @@ taxify_clear_cache()
 
 Deleting a backbone directory is safe. The next
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
-for that backbone will re-download it from Zenodo if needed.
+for that backbone will re-download it if needed.
 
 ## Worked example: pre-downloading resources
 

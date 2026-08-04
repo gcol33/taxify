@@ -28,7 +28,7 @@ verb: you name the trait, it gathers the sources."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +98,8 @@ verb: you name the trait, it gathers the sources.</p>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coalesce"</span>, <span class="st">"wide"</span><span class="op">)</span>,</span>
 <span>  combine <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  priority <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  aggregate_trait_fallback <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"taxify.aggregate_trait_fallback"</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -154,6 +155,13 @@ when <code>mode = "coalesce"</code>; defaults to the registered order for the tr
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. Default <code>TRUE</code>.</p></dd>
+
+
+<dt id="arg-aggregate-trait-fallback">aggregate_trait_fallback<a class="anchor" aria-label="anchor" href="#arg-aggregate-trait-fallback"></a></dt>
+<dd><p>Logical. When an aggregate or hybrid name has
+no trait record of its own, fall back to the underlying binomial. Defaults
+to <code>getOption("taxify.aggregate_trait_fallback", TRUE)</code>, so it can be set
+per call or for the session. Grain-pinned sources are unaffected.</p></dd>
 
 </dl></div>
     <div class="section level2">

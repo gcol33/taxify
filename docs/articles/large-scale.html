@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -130,7 +130,7 @@ lightweight compression. taxify never parses text at query time. There
 is no <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> step, no string splitting, no quote
 escaping. The backbone is already in a query-ready binary layout.</p>
 <p>Backbones are distributed as pre-built <code>.vtr</code> files
-(hosted on Zenodo and GitHub Releases), so users download a single
+(published as GitHub Releases on taxifydb), so users download a single
 binary file that is ready to query immediately, with no CSV parsing or
 conversion step. The <code>.vtr</code> files are typically 30-50%
 smaller than the original Darwin Core CSV because the columnar layout
@@ -203,7 +203,7 @@ and fuzzy matching is the knob that controls how long a run takes.</p>
 several things happen behind the scenes. The function resolves the
 backbone path through a four-step fallback: session cache, versioned
 directory on disk, legacy flat directory, and finally auto-download from
-Zenodo if no local copy exists. Once the path is known, vectra
+the manifest if no local copy exists. Once the path is known, vectra
 materializes the <code>.vtr</code> into an in-memory columnar block and
 builds hash indexes on the name and genus columns. This initialization
 step took about 5 seconds for WFO (1.6 million rows) in the repository’s
@@ -405,13 +405,13 @@ depend on the backbone version.</p>
 <td>COL</td>
 <td>5.3M</td>
 <td>2.0 GB</td>
-<td>2026.06</td>
+<td>2026.08</td>
 </tr>
 <tr class="odd">
 <td>GBIF</td>
 <td>6.4M</td>
 <td>1.9 GB</td>
-<td>2026.06</td>
+<td>2026.07</td>
 </tr>
 <tr class="even">
 <td>ITIS</td>
@@ -486,16 +486,36 @@ depend on the backbone version.</p>
 <td>2026.06</td>
 </tr>
 <tr class="even">
-<td><strong>All 15</strong></td>
-<td><strong>26.1M</strong></td>
+<td>Mammal Diversity Database</td>
+<td>62k</td>
+<td>11 MB</td>
+<td>2026.08</td>
+</tr>
+<tr class="odd">
+<td>AviList</td>
+<td>41k</td>
+<td>8 MB</td>
+<td>2026.08</td>
+</tr>
+<tr class="even">
+<td>LPSN</td>
+<td>45k</td>
+<td>12 MB</td>
+<td>2026.08</td>
+</tr>
+<tr class="odd">
+<td><strong>All 18</strong></td>
+<td><strong>26.2M</strong></td>
 <td><strong>7.2 GB</strong></td>
 <td></td>
 </tr>
 </tbody>
 </table>
-<!-- /manifest:backbone-sizes --><p>A full installation of all fifteen backbones occupies several GB.
-Most workflows need only one or two. The WFO backbone alone covers the
-vast majority of plant taxonomy use cases in under a gigabyte.</p>
+<!-- /manifest:backbone-sizes --><p>A full installation of all
+<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+backbones occupies several GB. Most workflows need only one or two. The
+WFO backbone alone covers the vast majority of plant taxonomy use cases
+in under a gigabyte.</p>
 <p>The download sizes are comparable to the on-disk sizes since the
 <code>.vtr</code> format is already compressed. No additional
 decompression step runs after download. The file that arrives on disk is
@@ -503,7 +523,7 @@ the file that vectra reads at query time.</p>
 <p>Enrichment files are much smaller. The largest enrichment is WCVP
 (native range data, ~2 million rows) at roughly 30-40 MB. Most
 enrichments are under 5 MB. A full set of
-<!-- manifest:enrichment-count -->90<!-- /manifest:enrichment-count -->
+<!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count -->
 enrichments adds a few hundred MB to disk usage.</p>
 </div>
 <div class="section level2">
@@ -771,7 +791,7 @@ that needed it), delete its directory:</p>
 <span><span class="co"># Clear the session cache so taxify() doesn't try to use the old path</span></span>
 <span><span class="fu"><a href="../reference/taxify_clear_cache.html">taxify_clear_cache</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Deleting a backbone directory is safe. The next <code><a href="../reference/taxify.html">taxify()</a></code>
-call for that backbone will re-download it from Zenodo if needed.</p>
+call for that backbone will re-download it if needed.</p>
 </div>
 <div class="section level2">
 <h2 id="worked-example-pre-downloading-resources">Worked example: pre-downloading resources<a class="anchor" aria-label="anchor" href="#worked-example-pre-downloading-resources"></a>
