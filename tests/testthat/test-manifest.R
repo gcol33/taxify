@@ -146,6 +146,27 @@ test_that("clear_local_manifest() resets manifest and version-check flags", {
 })
 
 
+test_that("every bundled entry points at a resolvable source", {
+  # source_url is the link cite() and the docs follow back to the original
+  # data. A host with no dot in it cannot resolve, so it reads as provenance
+  # while pointing nowhere.
+  manifest <- local_manifest()
+  entries <- c(manifest$backends, manifest$enrichments)
+
+  bad <- character(0L)
+  for (name in names(entries)) {
+    url <- entries[[name]]$source_url
+    if (is.null(url) || !nzchar(url)) next
+    parts <- trimws(strsplit(url, ";", fixed = TRUE)[[1L]])
+    urls  <- parts[grepl("^https?://", parts)]
+    hosts <- sub("[/?#].*$", "", sub("^https?://", "", urls))
+    if (any(!grepl(".\\..", hosts))) bad <- c(bad, name)
+  }
+
+  expect_identical(bad, character(0L))
+})
+
+
 test_that("use_local_manifest() falls back to 'unknown' when meta.json is absent", {
   tmp_dir <- tempfile("taxify_test_")
   dir.create(tmp_dir, recursive = TRUE)
