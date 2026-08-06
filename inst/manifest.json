@@ -8339,6 +8339,98 @@
       ],
       "static": true,
       "citation": "Joimel S, Chassain C, Artige E, Barda L, Balvay S, Belnou T, Bur T, Cortet J, Coussin-Grellier S, Hedde M et al. Collembola functional traits. Two code-keyed Data INRAE deposits: land-use survey (doi:10.15454/UU2FQT, 129 species) and the ANDRA gradient (doi:10.15454/UCYSLH, 100 species), the datasets behind Joimel et al. (2021) Collembola are among the most flexible soil fauna: a comparison across land uses. Frontiers in Ecology and Evolution 9:630919. Fuzzy-coded functional traits the authors compiled from BETSI (Biological and Ecological Traits of Soil Invertebrates; Pey et al. 2014, portail.betsi.cnrs.fr, live portal offline). The seven traits the two deposits share are kept -- number of ocelli, furca, post-antennal organ, pigmentation, body shape, scales and reproduction -- each fuzzy-coded so its per-species affinity vector sums to 100. The deposits' species codes carry no legend; each is decoded to a binomial against a Collembola reference pool with the verified genus-abbreviation dictionary (inst/extdata/betsi/inrae_genus_abbr.csv), and codes the decoder cannot resolve are dropped, never guessed. UU2FQT is primary and UCYSLH fills its gaps; where the two deposits bin a trait differently (furca long/short) the shared presence/absence axis is kept. Body length (the two deposits' bin schemes differ and four dedicated length assets cover it), trichobothria (one deposit only) and ecomorphosis (its own asset) are not carried. provenance_tier = betsi_derived. Ocelli, furca, post-antennal organ, body shape, scales and reproduction are crosswalked to the T-SITA thesaurus; pigmentation, which T-SITA does not cover, keeps its own column names. See gcol33/taxifydb#42."
+    },
+    "betsi_collembola_body_length": {
+      "latest": "2026.08",
+      "source_version": "2018.1",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/betsi_collembola_body_length.vtr",
+      "nrow": 1374,
+      "content_id": "12f8947e43497a3c62e2faa7ce92f594",
+      "source_url": "https://zenodo.org/api/records/1292461/files/BETSI_Trait%20data%20request_Collembola_Body%20length_01062017.xlsx/content",
+      "source_doi": "10.5281/zenodo.1292461",
+      "license": "CC BY-NC 4.0",
+      "trait_cols": [
+        "betsi_body_length_mm",
+        "betsi_body_length_min_mm",
+        "betsi_body_length_max_mm",
+        "betsi_body_length_n",
+        "betsi_body_length_sources"
+      ],
+      "static": true,
+      "citation": "Bonfanti J (2018) Body length trait values from the BETSI database, on all Collembola species, all literature sources, requested on 2017-06-01 (Zenodo doi:10.5281/zenodo.1292461), CC BY-NC 4.0. BETSI (Biological and Ecological Traits of Soil Invertebrates; Hedde et al., portail.betsi.cnrs.fr) live portal is offline, so this is built from the openly-licensed public export. Per-species body length (mm) aggregated by taxifydb from the 3,581 per-source measurements: median, with min/max and the measurement and source counts. Body-length slice of BETSI's Collembola coverage; the multi-trait INRAE matrices (doi:10.15454/UU2FQT, /UCYSLH) are not merged, having no published species-code legend (see gcol33/taxifydb#42)."
+    },
+    "plazi_collembola_body_length": {
+      "latest": "2026.08",
+      "source_version": "2026.08",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/plazi_collembola_body_length.vtr",
+      "nrow": 1049,
+      "content_id": "4121f9834e4ae37630e88b459da3a051",
+      "source_url": "https://api.gbif.org/v1/dataset/search?publishingOrg=7ce8aef0-9e92-11dc-8738-b8a03c50a862&taxonKey=10713444",
+      "license": "CC0 1.0",
+      "trait_cols": [
+        "plazi_body_length_mm",
+        "plazi_body_length_min_mm",
+        "plazi_body_length_max_mm",
+        "plazi_body_length_n",
+        "plazi_body_length_sources"
+      ],
+      "static": true,
+      "citation": "Plazi TreatmentBank (plazi.org), taxonomic treatments republished as Darwin Core Archives through GBIF (publisher 7ce8aef0-9e92-11dc-8738-b8a03c50a862). Harvested 2026-08-05: 508 checklist datasets covering class Collembola, of which 405 carry a usable measurement, every one released CC0 1.0. Body length (mm) is mined by taxifydb from the treatment prose and aggregated per species: median, with min/max and the measurement and treatment-paper counts. Cite the individual treatments through their datasets for any species-level use. 998 species from 1,117 measurements. Complements `betsi_collembola_body_length`, a fixed 2017 export of the European compendia: the two share only 35 species, so this adds 963 species BETSI does not cover and takes taxifydb's Collembola body-length coverage from 1,258 to 2,221. On the 35 shared species the mined values track BETSI at Pearson r = 0.906 (Spearman 0.955), median difference -0.050 mm, median absolute difference 0.150 mm."
+    },
+    "monograph_collembola_body_length": {
+      "latest": "2026.08",
+      "source_version": "2026.08",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/monograph_collembola_body_length.vtr",
+      "nrow": 534,
+      "content_id": "2af581fb950bc496a7a6a222b556d1e5",
+      "source_url": "https://github.com/gcol33/taxifydb/releases/download/monograph-snapshots-2026.08/collembola_monograph_bodylength_2026-08-05.csv",
+      "license": "Extracted measurements (facts); source monographs copyright their publishers, served for non-commercial scientific reuse (informed-risk, #42)",
+      "trait_cols": [
+        "monograph_body_length_mm",
+        "monograph_body_length_min_mm",
+        "monograph_body_length_max_mm",
+        "monograph_body_length_n",
+        "monograph_body_length_sources"
+      ],
+      "static": true,
+      "citation": "Body length (mm) mined by taxifydb from three primary Collembola monographs and aggregated per species (median of the per-monograph medians, with min/max and the measurement and monograph counts): Stach J (1957) The Apterygotan Fauna of Poland in Relation to the World Fauna of this Group of Insects. Neelidae, Dicyrtomidae. Panstwowe Wydawnictwo Naukowe, Krakow; Hopkin SP (2007) A Key to the Collembola (Springtails) of Britain and Ireland. FSC Publications, Shrewsbury; Bretfeld G (1999) Synopses on Palaearctic Collembola, Volume 2: Symphypleona. Abhandlungen und Berichte des Naturkundemuseums Goerlitz 71(1). The source monographs are copyright their publishers; only the extracted measurements are redistributed, for non-commercial scientific use (informed-risk, see gcol33/taxifydb#42). 481 species from 679 measurements. Complements betsi_collembola_body_length: BETSI's fixed 2017 export drew body lengths from the same European compendia, but none of BETSI's data is used here -- this is taxifydb's own re-extraction, more complete on the shared books (210 vs 145 species mined from Bretfeld 1999) and Stach's Neelidae and Dicyrtomidae fall outside BETSI's Collembola coverage entirely."
+    },
+    "ellers_collembola": {
+      "latest": "2026.08",
+      "source_version": "2019.04",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/ellers_collembola.vtr",
+      "nrow": 314,
+      "content_id": "68c8b27e7834d3ce65d22dfea610e24a",
+      "source_url": "https://zenodo.org/api/records/4934993/files/Collembola_trait_data.csv/content",
+      "source_doi": "10.5061/dryad.m6dn0g8",
+      "license": "CC0 1.0",
+      "trait_cols": [
+        "ellers_vertical_distribution",
+        "ellers_body_size_mm",
+        "ellers_reproduction",
+        "ellers_moisture_pref",
+        "ellers_temperature_pref",
+        "ellers_thermal_niche_breadth"
+      ],
+      "static": true,
+      "citation": "Ellers J, Berg MP, Dias ATC, Fontana S, Ooms A, Moretti M (2018) Diversity in form and function: vertical distribution of soil fauna mediates multidimensional trait variation. Journal of Animal Ecology 87:933-944, doi:10.1111/1365-2656.12838. Collembola trait table from the Dryad deposit doi:10.5061/dryad.m6dn0g8 (CC0), 278 European Collembola species: vertical stratification, body size, reproduction mode and climatic preferences. Taxonomy follows the Checklist of the Collembola of the World. The openly-licensed analogue of BETSI's legend-locked multi-trait matrices; its body size agrees with the taxifydb BETSI body-length floor at Pearson r = 0.96 over 262 shared species (see gcol33/taxifydb#42)."
+    },
+    "ecomorphosis": {
+      "latest": "2026.08",
+      "source_version": "2022.10",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/ecomorphosis.vtr",
+      "nrow": 49,
+      "content_id": "710b0a17250edfa1aa2062eb10aecd21",
+      "source_url": "https://zenodo.org/api/records/7194559/files/Annex_ASE_Online_db.xlsx/content",
+      "source_doi": "10.5281/zenodo.7194559",
+      "license": "CC BY 4.0",
+      "trait_cols": [
+        "ecomorphosis",
+        "ecomorphosis_area",
+        "ecomorphosis_reference"
+      ],
+      "static": true,
+      "citation": "Bonfanti J (2022) Species list of Collembola known to display ecomorphosis (extended). Zenodo, doi:10.5281/zenodo.7194559, CC BY 4.0. Curated presence list accompanying Bonfanti J, Krogh PH, Hedde M, Cortet J (2022) Ecomorphosis in European Collembola: a review in the context of trait-based ecology. Applied Soil Ecology, doi:10.1016/j.apsoil.2022.104692. Each of the 43 species carries the literature record establishing its ecomorphic form. See gcol33/taxifydb#42."
     }
   }
 }
