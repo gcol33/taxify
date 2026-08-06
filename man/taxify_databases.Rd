@@ -13,7 +13,9 @@ backbones, enrichments, and registered traits.}
 \value{
 A data.frame with columns: \code{type} (\code{"backbone"} or \code{"enrichment"}),
 \code{name}, \code{scope} (taxonomic scope for backbones; provided trait columns for
-enrichments), \code{n_rows}, \code{version}, \code{installed}, \code{source}.
+enrichments), \code{n_rows}, \code{version}, \code{source_date} (the date of the upstream
+data, where recorded, which can be much earlier than the release \code{version}
+that packaged it), \code{installed}, \code{source}.
 }
 \description{
 Stacks the taxonomic backbones (from \code{\link[=list_backbones]{list_backbones()}}) and the trait/status

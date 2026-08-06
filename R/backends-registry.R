@@ -62,6 +62,7 @@ make_backend <- function(name) {
 # call. Each fixes its registry name; make_backend() supplies the object.
 wfo_backend         <- function() make_backend("wfo")
 col_backend         <- function() make_backend("col")
+colxr_backend       <- function() make_backend("colxr")
 gbif_backend        <- function() make_backend("gbif")
 itis_backend        <- function() make_backend("itis")
 ncbi_backend        <- function() make_backend("ncbi")

@@ -11,9 +11,16 @@ list_backbones(verbose = TRUE)
 }
 \value{
 A data.frame with columns: \code{name}, \code{scope}, \code{n_names}, \code{size_mb},
-\code{version}, \code{installed}, \code{source}. \code{n_names}, \code{size_mb}, and \code{version} are
-\code{NA} for any backbone the manifest does not yet describe or when the manifest
-cannot be fetched offline.
+\code{version}, \code{source_date}, \code{installed}, \code{source}. \code{n_names}, \code{size_mb}, and
+\code{version} are \code{NA} for any backbone the manifest does not yet describe or
+when the manifest cannot be fetched offline.
+
+\code{version} is the release that packaged the backbone; \code{source_date} is the
+date of the upstream data, which can be much earlier. The GBIF backbone is
+the case that matters: GBIF froze it at 2023-08-28 and has said it will not
+be updated again, so a current release tag there carries a treatment three
+years older than the tag suggests. \code{source_date} is \code{NA} for a backbone
+whose upstream date has not been recorded.
 }
 \description{
 Returns every taxonomic backbone \code{taxify()} can match against, its taxonomic

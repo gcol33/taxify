@@ -7,7 +7,9 @@ test_that("gbif_backend creates correct object", {
   expect_s3_class(be, "taxify_gbif")
   expect_s3_class(be, "taxify_backend")
   expect_equal(be$name, "gbif")
-  expect_equal(be$version, "current")
+  # The date of the data, not the "current" path segment the download URL uses:
+  # GBIF froze the backbone on this date and has said it will not be updated.
+  expect_equal(be$version, "2023-08-28")
 })
 
 

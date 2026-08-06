@@ -1,9 +1,9 @@
-test_that("backbone registry lists all 18 supported backbones", {
+test_that("backbone registry lists all 19 supported backbones", {
   reg <- taxify:::.backbone_registry()
-  expect_equal(nrow(reg), 18L)
+  expect_equal(nrow(reg), 19L)
   expect_setequal(
     reg$name,
-    c("wfo", "col", "gbif", "itis", "ncbi", "ott", "worms", "euromed",
+    c("wfo", "col", "colxr", "gbif", "itis", "ncbi", "ott", "worms", "euromed",
       "fungorum", "algaebase", "fishbase", "sealifebase", "reptiledb",
       "lcvp", "wcvp", "mdd", "avilist", "lpsn")
   )
@@ -28,9 +28,9 @@ test_that("resolve_backend error lists the registry backbones", {
 
 test_that("list_backbones returns one row per backbone with scope and installed flag", {
   bb <- list_backbones(verbose = FALSE)
-  expect_equal(nrow(bb), 18L)
+  expect_equal(nrow(bb), 19L)
   expect_true(all(c("name", "scope", "n_names", "size_mb", "version",
-                    "installed", "source") %in% names(bb)))
+                    "source_date", "installed", "source") %in% names(bb)))
   expect_type(bb$installed, "logical")
   expect_false(any(is.na(bb$installed)))
   expect_setequal(bb$name, taxify:::backbone_names())
@@ -39,7 +39,7 @@ test_that("list_backbones returns one row per backbone with scope and installed 
 test_that("taxify_databases stacks backbones and enrichments under a type column", {
   db <- taxify_databases(verbose = FALSE)
   expect_true(all(c("type", "name", "scope", "n_rows", "version",
-                    "installed", "source") %in% names(db)))
+                    "source_date", "installed", "source") %in% names(db)))
   expect_setequal(unique(db$type), c("backbone", "enrichment"))
-  expect_equal(sum(db$type == "backbone"), 18L)
+  expect_equal(sum(db$type == "backbone"), 19L)
 })

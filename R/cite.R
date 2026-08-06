@@ -147,7 +147,19 @@ extract_manifest_citation <- function(manifest, section, name) {
   if (is.null(manifest)) return(NULL)
   entry <- manifest[[section]][[name]]
   if (is.null(entry) || is.null(entry$citation)) return(NULL)
-  clean_citation(entry$citation)
+  cit <- clean_citation(entry$citation)
+  if (is.null(cit)) return(NULL)
+
+  # A citation year is the year of the work; a frozen source can be packaged
+  # under a much later release, so the date of the data itself is carried in
+  # the note where a reader of the methods section will see it.
+  src_date <- entry$source_date
+  if (!is.null(src_date) && length(src_date) == 1L && is.atomic(src_date) &&
+      !is.na(src_date) && nzchar(as.character(src_date))) {
+    note <- sprintf("Data version %s", as.character(src_date))
+    cit$note <- if (is.null(cit$note)) note else paste(cit$note, note, sep = "; ")
+  }
+  cit
 }
 
 

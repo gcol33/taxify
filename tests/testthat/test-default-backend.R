@@ -10,7 +10,11 @@ backbone_ready <- function(be) {
 test_that(".backbone_priority() is total, COL first, GBIF before ITIS", {
   pr <- taxify:::.backbone_priority()
   expect_setequal(pr, taxify:::backbone_names())   # covers every backbone once
-  expect_identical(pr[1], "col")
+  # The Extended Release leads: it is the treatment GBIF.org serves, and it is
+  # published monthly against the Base Release's annual cycle. The Base Release
+  # follows it, ahead of everything else.
+  expect_identical(pr[1], "colxr")
+  expect_identical(pr[2], "col")
   expect_lt(match("gbif", pr), match("itis", pr))  # COL > GBIF > ITIS
   # domain authorities outrank the broad aggregators
   expect_lt(match("worms", pr), match("gbif", pr))
