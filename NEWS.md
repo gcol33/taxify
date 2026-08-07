@@ -1,5 +1,16 @@
 # taxify 0.4.5
 
+* A backbone whose content is unchanged is no longer re-downloaded when its
+  version string moves. `check_version()` compared the version label first and
+  only consulted the content id when the labels matched, so it could not see
+  that a bumped version carried bytes already on disk. Content decides now, and
+  the label is the fallback for a cache or manifest entry carrying no id. This
+  matters because a build stamps `date +%Y.%m`: a backbone reading a pinned
+  source (Euro+Med from a frozen snapshot, WFO from a fixed Zenodo record)
+  rebuilds to identical bytes under a new version, which used to cost every
+  user a full refetch -- 740 MB for WFO. A genuine change is still caught by
+  the same comparison, as is a same-tag republish that leaves the label alone.
+
 * The multi-backbone fallback chain is staged by match quality. Every backbone
   is asked for an exact match before any backbone is asked for a fuzzy one, so
   a name absent from an early backbone but present in a later one now resolves

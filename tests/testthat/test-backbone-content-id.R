@@ -64,12 +64,43 @@ test_that("same version + changed content id forces a refresh (republish)", {
                 expect_true(taxify:::check_version("demo")))
 })
 
-test_that("a version bump still forces a refresh", {
+test_that("a version bump with changed content forces a refresh", {
+  dd <- tempfile("bb_"); dir.create(dd)
+  old <- options(taxify.data_dir = dd); on.exit(options(old), add = TRUE)
+  s <- stage_backend(dd, "demo", df, version = "2026.06",
+                     meta_extra = list(content_id = "old_md5"))
+  with_manifest(manifest_with("demo", version = "2026.07", cid = "new_md5"),
+                expect_true(taxify:::check_version("demo")))
+})
+
+# The version a build stamps is `date +%Y.%m`, so it records when the build ran
+# rather than what it read. A backbone reading a pinned source (Euro+Med from a
+# frozen snapshot, WFO from a fixed Zenodo record) rebuilds to identical bytes
+# under a new version, and comparing labels first made every user refetch a file
+# they already held. Content decides; the label is the fallback.
+test_that("a version bump with identical content needs no refresh", {
+  dd <- tempfile("bb_"); dir.create(dd)
+  old <- options(taxify.data_dir = dd); on.exit(options(old), add = TRUE)
+  s <- stage_backend(dd, "demo", df, version = "2026.07",
+                     meta_extra = list(content_id = "same_md5"))
+  with_manifest(manifest_with("demo", version = "2026.08", cid = "same_md5"),
+                expect_false(taxify:::check_version("demo")))
+})
+
+test_that("a version bump on a legacy cache (no stored id) still refreshes", {
+  dd <- tempfile("bb_"); dir.create(dd)
+  old <- options(taxify.data_dir = dd); on.exit(options(old), add = TRUE)
+  s <- stage_backend(dd, "demo", df, version = "2026.06")   # meta has NO id
+  with_manifest(manifest_with("demo", version = "2026.07", cid = "some_md5"),
+                expect_true(taxify:::check_version("demo")))
+})
+
+test_that("a manifest entry with no content id falls back to the version", {
   dd <- tempfile("bb_"); dir.create(dd)
   old <- options(taxify.data_dir = dd); on.exit(options(old), add = TRUE)
   s <- stage_backend(dd, "demo", df, version = "2026.06",
                      meta_extra = list(content_id = "whatever"))
-  with_manifest(manifest_with("demo", version = "2026.07", cid = "whatever"),
+  with_manifest(manifest_with("demo", version = "2026.07"),   # no cid shipped
                 expect_true(taxify:::check_version("demo")))
 })
 

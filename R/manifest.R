@@ -129,18 +129,25 @@ check_version <- function(backbone_name) {
 
   if (is.null(meta)) return(TRUE)   # No local copy at all
 
-  # A version bump (simple string comparison for "YYYY.MM") is the usual signal.
-  if (isTRUE(meta$version != entry$latest)) return(TRUE)
+  # Content identity decides, and the version string is the fallback. A version
+  # records when a build ran, not what it read: a backbone whose source is
+  # pinned (Euro+Med reads a frozen snapshot, WFO a fixed Zenodo record)
+  # rebuilds to the same bytes under a new `YYYY.MM`, and comparing labels first
+  # would refetch a file the user already holds -- 740 MB of it, for WFO. The
+  # same comparison also catches the opposite case, a same-tag republish that
+  # leaves the label unchanged.
+  #
+  # Only for runtime-downloaded caches (downloaded_at); hash_missing = FALSE
+  # avoids rehashing a multi-GB backbone, so a cache downloaded with a content
+  # id in its meta is compared and an older cache without one falls through.
+  if (!is.null(meta$downloaded_at)) {
+    s <- reconcile_content_id(vtr, meta$content_id, entry$content_id,
+                              hash_missing = FALSE)
+    if (!is.na(s)) return(s)
+  }
 
-  # Same version: the content id catches a same-tag republish that a version
-  # string alone would miss. Only for runtime-downloaded caches (downloaded_at);
-  # hash_missing = FALSE avoids rehashing a multi-GB backbone -- a cache
-  # downloaded with a content id in its meta is compared, older caches (no
-  # stored id) fall through to the historical no-update path.
-  if (is.null(meta$downloaded_at)) return(FALSE)
-  s <- reconcile_content_id(vtr, meta$content_id, entry$content_id,
-                            hash_missing = FALSE)
-  if (is.na(s)) FALSE else s
+  # Neither side carries a content id: the version string is all there is.
+  isTRUE(meta$version != entry$latest)
 }
 
 
