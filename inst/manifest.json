@@ -171,13 +171,16 @@
       "content_id": "458bd9efe742ec9498e902e80e468762"
     },
     "sealifebase": {
-      "latest": "2026.06",
-      "full_url": "https://github.com/gcol33/taxifydb/releases/download/sealifebase-2026.06/sealifebase.vtr",
+      "latest": "2026.08",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/sealifebase-2026.08/sealifebase.vtr",
       "nrow": 134031,
-      "source_url": "https://www.sealifebase.org",
-      "full_size": 28922945,
-      "full_sha256": "db74b3e49aa84fb10149dbda301bffb72ffee53751de6bda6a9774a96766d7c4",
-      "content_id": "1db8ce1032b98f16dae9619ff03242d2"
+      "source_url": "https://sealifebase.ropensci.org",
+      "full_size": 28834975,
+      "full_sha256": "4626a9d021f38010c7d7666851b493938d11f31610288df0094ecee07c76f42a",
+      "content_id": "b802345151fb72a4aa81e7e192d8efb5",
+      "delta_from": "2026.06",
+      "delta_url": "https://github.com/gcol33/taxifydb/releases/download/sealifebase-2026.08/sealifebase.xdelta",
+      "delta_size": 483510
     },
     "lcvp": {
       "latest": "3.0.1",
