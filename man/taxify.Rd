@@ -214,8 +214,9 @@ match quality information.
 }
 \details{
 By default \code{taxify()} matches against \strong{every installed backbone}, tried in
-priority order as a fallback chain (COL, then the domain authorities, then
-the broad aggregators). The chain is staged by match quality: every backbone
+priority order as a fallback chain (the COL syntheses, then the domain
+authorities, then the broad aggregators). The chain is staged by match
+quality: every backbone
 is asked for an exact match first, and only the names still unresolved go
 round again for a fuzzy one. A name is therefore resolved by the
 highest-priority backbone that matches it \emph{at the best quality any backbone

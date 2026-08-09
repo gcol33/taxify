@@ -114,9 +114,10 @@ backbone_label <- function(name) {
 
 #' Backbone priority order for the first-match fallback pick
 #'
-#' The modern multi-kingdom synthesis (COL) first, then the domain authorities
-#' (marine, vascular plants, fungi, algae, fishes, reptiles), then the broad but
-#' more conservative aggregators (GBIF, ITIS, NCBI, OTT). Override with
+#' The modern multi-kingdom syntheses (COL Extended Release, then COL) first,
+#' then the domain authorities (marine, vascular plants, fungi, algae, fishes,
+#' reptiles, mammals, birds, prokaryotes), then the broad but more conservative
+#' aggregators (GBIF, ITIS, NCBI, OTT). Override with
 #' `options(taxify.backbone_priority = c(...))`; any omitted known backbone is
 #' appended so the order stays total over the registry.
 #'

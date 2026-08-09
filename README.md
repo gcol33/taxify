@@ -63,10 +63,13 @@ summary(result)
 
 ## Backbones
 
-taxify ships <!-- manifest:backbone-count -->18<!-- /manifest:backbone-count --> backbones
+taxify ships <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones
 as compressed `.vtr` files, pre-built by the companion
 [taxifydb](https://github.com/gcol33/taxifydb) package and downloaded once. Pass several
 and they form a fallback chain, where a name unmatched by the first cascades to the next.
+The chain is staged by match quality: every backbone is asked for an exact match before
+any backbone is asked for a fuzzy one, so a near neighbour in an early backbone does not
+settle a name a later backbone holds exactly.
 
 ```r
 # COL first (all kingdoms), then GBIF for whatever COL leaves open
@@ -74,19 +77,21 @@ taxify(c("Quercus robur", "Panthera leo", "Amanita muscaria"), backbone = c("col
 ```
 
 Pass no `backbone` and every installed backbone forms one chain in a fixed priority
-order: COL, then the domain authorities (marine, plants, fungi, algae, fishes, reptiles,
-mammals, birds, prokaryotes), then the broad aggregators GBIF, ITIS, NCBI, and OTT.
+order: the COL syntheses (COL Extended Release, then COL), then the domain authorities
+(marine, plants, fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the
+broad aggregators GBIF, ITIS, NCBI, and OTT.
 
 <!-- manifest:backbone-table -->
 | Backbone | Scope | Names | Download |
 |---|---|---|---|
-| [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.6M | 797 MB |
+| [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.6M | 761 MB |
 | [COL](https://www.catalogueoflife.org/) | All kingdoms | 5.3M | 2.0 GB |
-| [GBIF](https://www.gbif.org/) | All kingdoms | 6.4M | 1.9 GB |
-| [ITIS](https://www.itis.gov) | US focus, freshwater/marine | 992k | 205 MB |
-| [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | 2.8M | 514 MB |
-| [OTT](https://opentreeoflife.github.io/) | All life (synthetic) | 3.7M | 727 MB |
-| [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | 1.6M | 347 MB |
+| [COL Extended Release](https://www.catalogueoflife.org/) | All kingdoms | 7.9M | 1.6 GB |
+| [GBIF](https://www.gbif.org/) | All kingdoms | 6.4M | 1.6 GB |
+| [ITIS](https://www.itis.gov) | US focus, freshwater/marine | 993k | 205 MB |
+| [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | 2.8M | 531 MB |
+| [OTT](https://opentreeoflife.github.io/) | All life (synthetic) | 3.7M | 763 MB |
+| [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | 1.6M | 312 MB |
 | [Euro+Med](https://europlusmed.org/) | European/Mediterranean plants | 147k | 35 MB |
 | [Species Fungorum](https://www.speciesfungorum.org/) | Fungi | 315k | 71 MB |
 | [AlgaeBase](https://www.algaebase.org/) | Algae | 172k | 36 MB |
@@ -94,7 +99,7 @@ mammals, birds, prokaryotes), then the broad aggregators GBIF, ITIS, NCBI, and O
 | [SeaLifeBase](https://www.sealifebase.org/) | Non-fish marine/aquatic | 134k | 29 MB |
 | [Reptile Database](http://www.reptile-database.org/) | Reptiles | 50k | 10 MB |
 | [LCVP](https://github.com/idiv-biodiversity/LCVP) | Vascular plants | 1.3M | 252 MB |
-| [WCVP](https://powo.science.kew.org/) | Vascular plants | 1.4M | 334 MB |
+| [WCVP](https://powo.science.kew.org/) | Vascular plants | 1.4M | 309 MB |
 | [Mammal Diversity Database](https://www.mammaldiversity.org/) | Mammals | 62k | 11 MB |
 | [AviList](https://www.avilist.org/) | Birds | 41k | 8 MB |
 | [LPSN](https://lpsn.dsmz.de) | Prokaryotes (Bacteria/Archaea) | 45k | 12 MB |
@@ -161,7 +166,7 @@ cite(result)                                # citations for every source used
 
 ## Traits and status
 
-<!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count --> enrichment layers
+<!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count --> enrichment layers
 join published trait and status data to a result through the backbone-resolved accepted
 name, so synonyms in either dataset land on the same key.
 

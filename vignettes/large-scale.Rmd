@@ -302,28 +302,29 @@ backbone version.
 <!-- manifest:backbone-sizes -->
 | Backbone | Names | Download | Version |
 |---|---|---|---|
-| WFO | 1.6M | 797 MB | 2026.06 |
+| WFO | 1.6M | 761 MB | 2026.08 |
 | COL | 5.3M | 2.0 GB | 2026.08 |
-| GBIF | 6.4M | 1.9 GB | 2026.07 |
-| ITIS | 992k | 205 MB | 2026.06 |
-| NCBI | 2.8M | 514 MB | 2026.06 |
-| OTT | 3.7M | 727 MB | 3.7.3 |
-| WoRMS | 1.6M | 347 MB | 2026.07 |
-| Euro+Med | 147k | 35 MB | 2026.07 |
-| Species Fungorum | 315k | 71 MB | 2026.06 |
-| AlgaeBase | 172k | 36 MB | 2026.06 |
-| FishBase | 103k | 19 MB | 2026.06 |
-| SeaLifeBase | 134k | 29 MB | 2026.06 |
+| COL Extended Release | 7.9M | 1.6 GB | 2026.08 |
+| GBIF | 6.4M | 1.6 GB | 2026.08 |
+| ITIS | 993k | 205 MB | 2026.08 |
+| NCBI | 2.8M | 531 MB | 2026.08 |
+| OTT | 3.7M | 763 MB | 2026.08 |
+| WoRMS | 1.6M | 312 MB | 2026.08 |
+| Euro+Med | 147k | 35 MB | 2026.08 |
+| Species Fungorum | 315k | 71 MB | 2026.08 |
+| AlgaeBase | 172k | 36 MB | 2026.08 |
+| FishBase | 103k | 19 MB | 2026.08 |
+| SeaLifeBase | 134k | 29 MB | 2026.08 |
 | Reptile Database | 50k | 10 MB | 2026.07 |
-| LCVP | 1.3M | 252 MB | 3.0.1 |
-| WCVP | 1.4M | 334 MB | 2026.06 |
+| LCVP | 1.3M | 252 MB | 2026.08 |
+| WCVP | 1.4M | 309 MB | 2026.08 |
 | Mammal Diversity Database | 62k | 11 MB | 2026.08 |
 | AviList | 41k | 8 MB | 2026.08 |
 | LPSN | 45k | 12 MB | 2026.08 |
-| **All 18** | **26.2M** | **7.2 GB** | |
+| **All 19** | **34.2M** | **8.5 GB** | |
 <!-- /manifest:backbone-sizes -->
 
-A full installation of all <!-- manifest:backbone-count -->18<!-- /manifest:backbone-count --> backbones occupies several GB. Most
+A full installation of all <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones occupies several GB. Most
 workflows need only one or two. The WFO backbone alone covers the vast
 majority of plant taxonomy use cases in under a gigabyte.
 
@@ -334,7 +335,7 @@ query time.
 
 Enrichment files are much smaller. The largest enrichment is WCVP (native
 range data, ~2 million rows) at roughly 30-40 MB. Most enrichments are
-under 5 MB. A full set of <!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count --> enrichments adds a few hundred MB to disk
+under 5 MB. A full set of <!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count --> enrichments adds a few hundred MB to disk
 usage.
 
 

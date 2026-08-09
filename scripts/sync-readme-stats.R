@@ -67,7 +67,16 @@ for (f in targets) {
   }
   if (!identical(out, txt)) {
     stale <- c(stale, f)
-    if (!check_only) writeLines(out, path)
+    if (!check_only) {
+      # Binary, so the line endings are LF on every platform. A text-mode
+      # connection writes CRLF on Windows, which rewrites every line of every
+      # target and buries the handful of changed figures in a whole-file diff.
+      con <- file(path, open = "wb")
+      on.exit(close(con), add = TRUE)
+      writeLines(out, con)
+      close(con)
+      on.exit()
+    }
   }
 }
 
