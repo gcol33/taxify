@@ -75,10 +75,13 @@ summary(result)
 
 ## Backbones
 
-taxify ships 18 backbones as compressed `.vtr` files, pre-built by the
+taxify ships 19 backbones as compressed `.vtr` files, pre-built by the
 companion [taxifydb](https://github.com/gcol33/taxifydb) package and
 downloaded once. Pass several and they form a fallback chain, where a
-name unmatched by the first cascades to the next.
+name unmatched by the first cascades to the next. The chain is staged by
+match quality: every backbone is asked for an exact match before any
+backbone is asked for a fuzzy one, so a near neighbour in an early
+backbone does not settle a name a later backbone holds exactly.
 
 ``` r
 
@@ -87,19 +90,21 @@ taxify(c("Quercus robur", "Panthera leo", "Amanita muscaria"), backbone = c("col
 ```
 
 Pass no `backbone` and every installed backbone forms one chain in a
-fixed priority order: COL, then the domain authorities (marine, plants,
-fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the
-broad aggregators GBIF, ITIS, NCBI, and OTT.
+fixed priority order: the COL syntheses (COL Extended Release, then
+COL), then the domain authorities (marine, plants, fungi, algae, fishes,
+reptiles, mammals, birds, prokaryotes), then the broad aggregators GBIF,
+ITIS, NCBI, and OTT.
 
 | Backbone | Scope | Names | Download |
 |----|----|----|----|
-| [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.6M | 797 MB |
+| [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.6M | 761 MB |
 | [COL](https://www.catalogueoflife.org/) | All kingdoms | 5.3M | 2.0 GB |
-| [GBIF](https://www.gbif.org/) | All kingdoms | 6.4M | 1.9 GB |
-| [ITIS](https://www.itis.gov) | US focus, freshwater/marine | 992k | 205 MB |
-| [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | 2.8M | 514 MB |
-| [OTT](https://opentreeoflife.github.io/) | All life (synthetic) | 3.7M | 727 MB |
-| [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | 1.6M | 347 MB |
+| [COL Extended Release](https://www.catalogueoflife.org/) | All kingdoms | 7.9M | 1.6 GB |
+| [GBIF](https://www.gbif.org/) | All kingdoms | 6.4M | 1.6 GB |
+| [ITIS](https://www.itis.gov) | US focus, freshwater/marine | 993k | 205 MB |
+| [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | 2.8M | 531 MB |
+| [OTT](https://opentreeoflife.github.io/) | All life (synthetic) | 3.7M | 763 MB |
+| [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | 1.6M | 312 MB |
 | [Euro+Med](https://europlusmed.org/) | European/Mediterranean plants | 147k | 35 MB |
 | [Species Fungorum](https://www.speciesfungorum.org/) | Fungi | 315k | 71 MB |
 | [AlgaeBase](https://www.algaebase.org/) | Algae | 172k | 36 MB |
@@ -107,7 +112,7 @@ broad aggregators GBIF, ITIS, NCBI, and OTT.
 | [SeaLifeBase](https://www.sealifebase.org/) | Non-fish marine/aquatic | 134k | 29 MB |
 | [Reptile Database](http://www.reptile-database.org/) | Reptiles | 50k | 10 MB |
 | [LCVP](https://github.com/idiv-biodiversity/LCVP) | Vascular plants | 1.3M | 252 MB |
-| [WCVP](https://powo.science.kew.org/) | Vascular plants | 1.4M | 334 MB |
+| [WCVP](https://powo.science.kew.org/) | Vascular plants | 1.4M | 309 MB |
 | [Mammal Diversity Database](https://www.mammaldiversity.org/) | Mammals | 62k | 11 MB |
 | [AviList](https://www.avilist.org/) | Birds | 41k | 8 MB |
 | [LPSN](https://lpsn.dsmz.de) | Prokaryotes (Bacteria/Archaea) | 45k | 12 MB |
@@ -181,7 +186,7 @@ cite(result)                                # citations for every source used
 
 ## Traits and status
 
-100 enrichment layers join published trait and status data to a result
+108 enrichment layers join published trait and status data to a result
 through the backbone-resolved accepted name, so synonyms in either
 dataset land on the same key.
 
@@ -642,6 +647,22 @@ own table.
   NEON)
 - [`add_sworm()`](https://gillescolling.com/taxify/reference/add_sworm.md)
   : Add earthworm ecological groups (sWorm)
+- [`add_betsi_earthworm_traits()`](https://gillescolling.com/taxify/reference/add_betsi_earthworm_traits.md)
+  : Add earthworm traits (Pelosi et al. 2014)
+- [`add_betsi_collembola_traits()`](https://gillescolling.com/taxify/reference/add_betsi_collembola_traits.md)
+  : Add Collembola traits (Lu et al. 2025)
+- [`add_ellers_collembola()`](https://gillescolling.com/taxify/reference/add_ellers_collembola.md)
+  : Add Collembola traits (Ellers et al. 2018)
+- [`add_inrae_collembola_traits()`](https://gillescolling.com/taxify/reference/add_inrae_collembola_traits.md)
+  : Add Collembola traits (Data INRAE deposits)
+- [`add_ecomorphosis()`](https://gillescolling.com/taxify/reference/add_ecomorphosis.md)
+  : Add Collembola ecomorphosis (Bonfanti et al. 2022)
+- [`add_betsi_collembola_body_length()`](https://gillescolling.com/taxify/reference/add_betsi_collembola_body_length.md)
+  : Add Collembola body length (BETSI export)
+- [`add_monograph_collembola_body_length()`](https://gillescolling.com/taxify/reference/add_monograph_collembola_body_length.md)
+  : Add Collembola body length (monographs)
+- [`add_plazi_collembola_body_length()`](https://gillescolling.com/taxify/reference/add_plazi_collembola_body_length.md)
+  : Add Collembola body length (Plazi treatments)
 - [`add_hosts()`](https://gillescolling.com/taxify/reference/add_hosts.md)
   : Add Lepidoptera hostplant breadth (NHM HOSTS)
 - [`add_blanchard()`](https://gillescolling.com/taxify/reference/add_blanchard.md)

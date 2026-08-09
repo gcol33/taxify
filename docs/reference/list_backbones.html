@@ -102,9 +102,15 @@ download size, and whether it is already installed locally. The counterpart to
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data.frame with columns: <code>name</code>, <code>scope</code>, <code>n_names</code>, <code>size_mb</code>,
-<code>version</code>, <code>installed</code>, <code>source</code>. <code>n_names</code>, <code>size_mb</code>, and <code>version</code> are
-<code>NA</code> for any backbone the manifest does not yet describe or when the manifest
-cannot be fetched offline.</p>
+<code>version</code>, <code>source_date</code>, <code>installed</code>, <code>source</code>. <code>n_names</code>, <code>size_mb</code>, and
+<code>version</code> are <code>NA</code> for any backbone the manifest does not yet describe or
+when the manifest cannot be fetched offline.</p>
+<p><code>version</code> is the release that packaged the backbone; <code>source_date</code> is the
+date of the upstream data, which can be much earlier. The GBIF backbone is
+the case that matters: GBIF froze it at 2023-08-28 and has said it will not
+be updated again, so a current release tag there carries a treatment three
+years older than the tag suggests. <code>source_date</code> is <code>NA</code> for a backbone
+whose upstream date has not been recorded.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

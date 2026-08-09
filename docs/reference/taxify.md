@@ -328,16 +328,16 @@ A data.frame with one row per input name and the following columns:
 ## Details
 
 By default `taxify()` matches against **every installed backbone**,
-tried in priority order as a fallback chain (COL, then the domain
-authorities, then the broad aggregators). The chain is staged by match
-quality: every backbone is asked for an exact match first, and only the
-names still unresolved go round again for a fuzzy one. A name is
-therefore resolved by the highest-priority backbone that matches it *at
-the best quality any backbone reaches*, so a near neighbour in an early
-backbone does not settle a name a later backbone holds exactly. Names
-matched earlier are not re-matched later. On a fresh setup with nothing
-installed yet, the first call downloads a default set (COL, GBIF, ITIS)
-once; pre-install a different set with
+tried in priority order as a fallback chain (the COL syntheses, then the
+domain authorities, then the broad aggregators). The chain is staged by
+match quality: every backbone is asked for an exact match first, and
+only the names still unresolved go round again for a fuzzy one. A name
+is therefore resolved by the highest-priority backbone that matches it
+*at the best quality any backbone reaches*, so a near neighbour in an
+early backbone does not settle a name a later backbone holds exactly.
+Names matched earlier are not re-matched later. On a fresh setup with
+nothing installed yet, the first call downloads a default set (COL,
+GBIF, ITIS) once; pre-install a different set with
 [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md).
 Name a backbone (or several) explicitly to match only against that one,
 or those in that order.

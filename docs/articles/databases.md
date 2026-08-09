@@ -22,21 +22,22 @@ they form a fallback chain.
 
 | Backbone | Scope | Names | MB | Version |  |
 |:---|:---|---:|---:|:---|:---|
-| wfo | Vascular plants | 1,638,552 | 760 | 2026.06 | [source](https://www.worldfloraonline.org/) |
+| wfo | Vascular plants | 1,638,552 | 726 | 2026.08 | [source](https://www.worldfloraonline.org/) |
 | col | All kingdoms | 5,302,873 | 1,875 | 2026.08 | [source](https://www.catalogueoflife.org/) |
-| gbif | All kingdoms | 6,404,001 | 1,779 | 2026.07 | [source](https://www.gbif.org/) |
-| itis | US focus, freshwater/marine | 991,868 | 195 | 2026.06 | [source](https://www.itis.gov) |
-| ncbi | All life | 2,759,103 | 490 | 2026.06 | [source](https://www.ncbi.nlm.nih.gov/taxonomy) |
-| ott | All life (synthetic) | 3,690,217 | 693 | 3.7.3 | [source](https://opentreeoflife.github.io/) |
-| worms | Marine/aquatic | 1,557,860 | 330 | 2026.07 | [source](https://www.marinespecies.org/) |
-| euromed | European/Mediterranean plants | 146,922 | 33 | 2026.07 | [source](https://europlusmed.org/) |
-| fungorum | Fungi | 315,037 | 68 | 2026.06 | [source](https://www.speciesfungorum.org/) |
-| algaebase | Algae | 172,351 | 35 | 2026.06 | [source](https://www.algaebase.org/) |
-| fishbase | Fishes | 102,703 | 18 | 2026.06 | [source](https://www.fishbase.org/) |
-| sealifebase | Non-fish marine/aquatic | 134,031 | 28 | 2026.06 | [source](https://www.sealifebase.org/) |
+| colxr | All kingdoms | 7,871,065 | 1,491 | 2026.08 | [source](https://www.catalogueoflife.org/) |
+| gbif | All kingdoms | 6,404,001 | 1,555 | 2026.08 | [source](https://www.gbif.org/) |
+| itis | US focus, freshwater/marine | 993,346 | 195 | 2026.08 | [source](https://www.itis.gov) |
+| ncbi | All life | 2,848,102 | 506 | 2026.08 | [source](https://www.ncbi.nlm.nih.gov/taxonomy) |
+| ott | All life (synthetic) | 3,690,217 | 728 | 2026.08 | [source](https://opentreeoflife.github.io/) |
+| worms | Marine/aquatic | 1,562,065 | 298 | 2026.08 | [source](https://www.marinespecies.org/) |
+| euromed | European/Mediterranean plants | 146,922 | 33 | 2026.08 | [source](https://europlusmed.org/) |
+| fungorum | Fungi | 315,037 | 68 | 2026.08 | [source](https://www.speciesfungorum.org/) |
+| algaebase | Algae | 172,351 | 34 | 2026.08 | [source](https://www.algaebase.org/) |
+| fishbase | Fishes | 102,703 | 18 | 2026.08 | [source](https://www.fishbase.org/) |
+| sealifebase | Non-fish marine/aquatic | 134,031 | 27 | 2026.08 | [source](https://www.sealifebase.org/) |
 | reptiledb | Reptiles | 50,043 | 9 | 2026.07 | [source](http://www.reptile-database.org/) |
-| lcvp | Vascular plants | 1,337,891 | 241 | 3.0.1 | [source](https://github.com/idiv-biodiversity/LCVP) |
-| wcvp | Vascular plants | 1,448,984 | 318 | 2026.06 | [source](https://powo.science.kew.org/) |
+| lcvp | Vascular plants | 1,337,891 | 241 | 2026.08 | [source](https://github.com/idiv-biodiversity/LCVP) |
+| wcvp | Vascular plants | 1,448,984 | 295 | 2026.08 | [source](https://powo.science.kew.org/) |
 | mdd | Mammals | 61,862 | 10 | 2026.08 | [source](https://www.mammaldiversity.org/) |
 | avilist | Birds | 40,572 | 8 | 2026.08 | [source](https://www.avilist.org/) |
 | lpsn | Prokaryotes (Bacteria/Archaea) | 44,885 | 12 | 2026.08 | [source](https://lpsn.dsmz.de) |
@@ -67,6 +68,9 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | baseflor | 2026.08 | 9,021 | 55 | [source](http://web.archive.org/web/20231002005253id_/https://philippe.julve.pagesperso-orange.fr/baseflor.xlsx) |
 | bee_ostwald | 2026.08 | 2,053 | 14 | [source](https://zenodo.org/records/13366989/files/Sup%20Table%204%20Morphological%20Dataset%20Revised.csv?download=1) |
 | bet | 2026.08 | 2,045 | 97 | [source](https://www.envidat.ch/dataset/4865a082-169d-40d1-920b-fc20ad0acad2/resource/d2d2f958-051c-4638-a808-88547cc64d92/download/betdata.txt) |
+| betsi_collembola_body_length | 2026.08 | 1,374 | 5 | [source](https://zenodo.org/api/records/1292461/files/BETSI_Trait%20data%20request_Collembola_Body%20length_01062017.xlsx/content) |
+| betsi_collembola_traits | 2026.08 | 34 | 9 | [source](https://doi.org/10.1002/eap.70034) |
+| betsi_earthworm_traits | 2026.08 | 13 | 22 | [source](https://doi.org/10.1016/j.apsoil.2013.10.005) |
 | beukhof | 2026.08 | 1,796 | 37 | [source](https://doi.pangaea.de/10.1594/PANGAEA.900866?format=textfile) |
 | bien | 2026.08 | 122,749 | 52 | [source](https://bien.nceas.ucsb.edu) |
 | birdbase | 2026.08 | 13,174 | 95 | [source](https://ndownloader.figshare.com/files/55634729) |
@@ -84,8 +88,10 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | disperse | 2026.08 | 465 | 12 | [source](https://api.figshare.com/v2/articles/12417251) |
 | eberswalde | 2026.08 | 30 | 8 | [source](https://pubdata.leuphana.de/server/api/core/bitstreams/1abc1f9b-d416-4ec8-8139-a3730724e77c/content) |
 | ecoflora | 2026.08 | 3,243 | 18 | [source](https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/ecoflora_raw_2026-06-23.csv) |
+| ecomorphosis | 2026.08 | 49 | 3 | [source](https://zenodo.org/api/records/7194559/files/Annex_ASE_Online_db.xlsx/content) |
 | edwards_phyto | 2026.08 | 177 | 33 | [source](https://esapubs.org/archive/ecol/E096/202/) |
 | eive | 2026.08 | 17,876 | 18 | [source](https://zenodo.org/records/7534792/files/EIVE_Paper_1.0_SM_08.xlsx?download=1) |
+| ellers_collembola | 2026.08 | 314 | 6 | [source](https://zenodo.org/api/records/4934993/files/Collembola_trait_data.csv/content) |
 | elton_traits | 2026.08 | 17,839 | 48 | [source](https://ndownloader.figshare.com/files/5631081) |
 | epa_freshwater | 2026.08 | 2,782 | 9 | [source](https://ofmpub.epa.gov/eims/eimscomm.getfile?p_download_id=526642) |
 | eupolltrait | 2026.08 | 3,271 | 39 | [source](https://zenodo.org/api/records/18032357) |
@@ -114,6 +120,7 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | huang_amph | 2026.08 | 4,776 | 85 | [source](https://api.figshare.com/v2/articles/21159229) |
 | hydraulics | 2026.08 | 2,318 | 7 | [source](https://ndownloader.figshare.com/files/23745155) |
 | imageomics_neon | 2026.08 | 79 | 3 | [source](https://huggingface.co/datasets/imageomics/2018-NEON-beetles/resolve/main/BeetleMeasurements.csv) |
+| inrae_collembola_traits | 2026.08 | 160 | 16 | [source](https://doi.org/10.15454/UU2FQT%20;%20https://doi.org/10.15454/UCYSLH) |
 | invacost | 2026.08 | 927 | 3 | [source](https://ndownloader.figshare.com/files/33669518) |
 | italic | 2026.08 | 3,580 | 4 | [source](https://github.com/gcol33/taxifydb/releases/download/crawl-snapshots-2026.07/italic.jsonl) |
 | iucn | 2026.08 | 192,708 | 1 | [source](https://hosted-datasets.gbif.org/datasets/iucn/iucn-latest.zip) |
@@ -123,6 +130,7 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | leptraits | 2026.08 | 13,594 | 40 | [source](https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv) |
 | madin | 2026.08 | 16,771 | 76 | [source](https://raw.githubusercontent.com/bacteria-archaea-traits/bacteria-archaea-traits/master/output/condensed_species_NCBI.csv) |
 | marine_distribution | 2026.08 | 1,941,227 | 4 | [source](https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/worms_distributions.jsonl%20;%20https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/mrgid_meow.tsv) |
+| monograph_collembola_body_length | 2026.08 | 534 | 5 | [source](https://github.com/gcol33/taxifydb/releases/download/monograph-snapshots-2026.08/collembola_monograph_bodylength_2026-08-05.csv) |
 | nesttrait | 2026.08 | 12,721 | 34 | [source](https://zenodo.org/records/10128906/files/NestTrait_v2.csv?download=1) |
 | noddb | 2026.08 | 852 | 9 | [source](https://s3.hpc.ut.ee/plutof-public/original/3094fbed-e384-457d-af3f-694ef97e8df8.xlsx) |
 | nztd | 2026.08 | 321 | 18 | [source](https://api.figshare.com/v2/articles/21939647) |
@@ -132,6 +140,7 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | parravicini | 2026.08 | 6,934 | 34 | [source](https://raw.githubusercontent.com/valerianoparravicini/Trophic_Fish_2020/master/data/converted_experts_classification.csv) |
 | pelagic | 2026.08 | 592 | 57 | [source](https://borealisdata.ca/api/datasets/:persistentId?persistentId=doi:10.5683/SP3/0YFJED) |
 | phylacine | 2026.08 | 6,603 | 24 | [source](https://raw.githubusercontent.com/MegaPast2Future/PHYLACINE_1.2/master/Data/Traits/Trait_data.csv) |
+| plazi_collembola_body_length | 2026.08 | 1,049 | 5 | [source](https://api.gbif.org/v1/dataset/search?publishingOrg=7ce8aef0-9e92-11dc-8738-b8a03c50a862&taxonKey=10713444) |
 | pottier | 2026.08 | 667 | 77 | [source](https://zenodo.org/api/records/6565454) |
 | quimbayo | 2026.08 | 2,297 | 60 | [source](https://zenodo.org/api/records/4455016) |
 | ramond | 2026.08 | 1,217 | 32 | [source](https://www.seanoe.org/data/00405/51662/) |
@@ -177,7 +186,7 @@ finds and harmonizes it from the sources below.
 | bioturbation | Bioturbation mode (benthic invertebrate) | categorical | NA | 2 | arctic_traits, nztd |
 | body_elongation | Body elongation (fish) | numeric | index | 1 | fishmorph |
 | body_lateral_shape | Body lateral shape (fish) | numeric | index | 1 | fishmorph |
-| body_length | Body length | numeric | mm | 14 | combine, amniote, repttraits, amphibio, fishbase, sealifebase, huang_amph, pottier, spider_traits, zooplankton, sheld, chowdhury, finand, alpine_carabids |
+| body_length | Body length | numeric | mm | 19 | combine, amniote, repttraits, amphibio, fishbase, sealifebase, huang_amph, pottier, spider_traits, zooplankton, sheld, chowdhury, finand, alpine_carabids, betsi_collembola_body_length, plazi_collembola_body_length, monograph_collembola_body_length, ellers_collembola, betsi_collembola_traits |
 | body_mass | Body mass | numeric | g | 15 | combine, amniote, pantheria, elton_traits, avonet, anage, phylacine, repttraits, fishbase, sealifebase, frugivoria, pottier, animaltraits, homerange, eurobat |
 | body_shape | Body shape (fish) | categorical | NA | 3 | beukhof, quimbayo, pelagic |
 | brain_mass | Brain mass | numeric | g | 2 | combine, animaltraits |

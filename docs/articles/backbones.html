@@ -107,7 +107,7 @@
     
 <p>taxify matches taxonomic names against locally stored Darwin Core
 backbone databases.
-<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
 backbones are available, each compiled from a different authoritative
 source. The backbone we choose determines which names can be matched,
 what taxonomic opinion governs synonym resolution, and which extra
@@ -119,7 +119,7 @@ project.</p>
 <h2 id="backend-overview">Backend overview<a class="anchor" aria-label="anchor" href="#backend-overview"></a>
 </h2>
 <p>The table below summarizes all
-<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->.
+<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->.
 “Approx. names” is the total number of name strings in the compiled
 backbone (accepted names plus synonyms); the actual species count is
 lower because each accepted species may have several synonym entries
@@ -155,111 +155,118 @@ pointing to it.</p>
 <td align="left">ChecklistBank DwC-A (Taxon.tsv)</td>
 </tr>
 <tr class="odd">
+<td align="left"><code>colxr</code></td>
+<td align="left">Catalogue of Life Extended Release</td>
+<td align="left">All kingdoms</td>
+<td align="left">~7.9M</td>
+<td align="left">ChecklistBank DwC-A export of the XR dataset</td>
+</tr>
+<tr class="even">
 <td align="left"><code>gbif</code></td>
 <td align="left">GBIF Backbone Taxonomy</td>
 <td align="left">All kingdoms</td>
 <td align="left">~6.4M</td>
 <td align="left">GBIF simple.txt.gz (30 positional cols)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>itis</code></td>
 <td align="left">Integrated Taxonomic Information System</td>
 <td align="left">All kingdoms, US focus</td>
 <td align="left">~990k</td>
 <td align="left">SQLite dump from itis.gov</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>ncbi</code></td>
 <td align="left">NCBI Taxonomy</td>
 <td align="left">All life incl. viruses</td>
 <td align="left">~2.7M</td>
 <td align="left">Pipe-delimited .dmp files (taxdump)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>ott</code></td>
 <td align="left">Open Tree of Life</td>
 <td align="left">All life (synthetic)</td>
 <td align="left">~3.7M</td>
 <td align="left">Pipe-delimited taxonomy.tsv + synonyms.tsv</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>worms</code></td>
 <td align="left">World Register of Marine Species</td>
 <td align="left">Marine and brackish</td>
 <td align="left">~1.6M</td>
 <td align="left">ChecklistBank DwC-A</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>euromed</code></td>
 <td align="left">Euro+Med PlantBase</td>
 <td align="left">European/Mediterranean plants</td>
 <td align="left">~147k</td>
 <td align="left">Semicolon-delimited CSV</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>fungorum</code></td>
 <td align="left">Species Fungorum Plus</td>
 <td align="left">Fungi</td>
 <td align="left">~315k</td>
 <td align="left">ChecklistBank DwC-A</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>algaebase</code></td>
 <td align="left">AlgaeBase</td>
 <td align="left">Algae and cyanobacteria</td>
 <td align="left">~170k</td>
 <td align="left">ChecklistBank DwC-A (CC BY-NC)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>fishbase</code></td>
 <td align="left">FishBase</td>
 <td align="left">Fishes</td>
 <td align="left">~100k</td>
 <td align="left">rfishbase (load_taxa + synonyms)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>sealifebase</code></td>
 <td align="left">SeaLifeBase</td>
 <td align="left">Non-fish marine and aquatic</td>
 <td align="left">~134k</td>
 <td align="left">rfishbase (load_taxa + synonyms)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>reptiledb</code></td>
 <td align="left">Reptile Database</td>
 <td align="left">Reptiles</td>
 <td align="left">~50k</td>
 <td align="left">reptarium taxa.csv + synonym/checklist XLSX</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>lcvp</code></td>
 <td align="left">Leipzig Catalogue of Vascular Plants</td>
 <td align="left">Vascular plants</td>
 <td align="left">~1.3M</td>
 <td align="left">idiv-biodiversity tab_lcvp.rda (R data package)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>wcvp</code></td>
 <td align="left">World Checklist of Vascular Plants (Kew)</td>
 <td align="left">Vascular plants</td>
 <td align="left">~1.4M</td>
 <td align="left">Kew wcvp.zip (wcvp_names.csv)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>mdd</code></td>
 <td align="left">Mammal Diversity Database</td>
 <td align="left">Mammals</td>
 <td align="left">~62k</td>
 <td align="left">MDD.zip of CSVs (species + synonyms)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>avilist</code></td>
 <td align="left">AviList (Global Avian Checklist)</td>
 <td align="left">Birds</td>
 <td align="left">~41k</td>
 <td align="left">AviList extended .xlsx</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>lpsn</code></td>
 <td align="left">List of Prokaryotic names with Standing in
 Nomenclature</td>
@@ -471,7 +478,7 @@ all-rounder.</p>
 <h2 id="backend-specific-output-differences">Backend-specific output differences<a class="anchor" aria-label="anchor" href="#backend-specific-output-differences"></a>
 </h2>
 <p>All
-<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
 backbones produce the same 26-column output schema. This is a deliberate
 design choice: downstream code does not need to know which backbone
 produced a match. That said, the content of those columns varies in ways
@@ -895,15 +902,15 @@ output does not include.</p>
 <h2 id="the-genus-register">The genus register<a class="anchor" aria-label="anchor" href="#the-genus-register"></a>
 </h2>
 <p>The genus register is a unified index of the genera across every
-supported backbone. It holds 496,281 genera, each with its family,
+supported backbone. It holds 503,262 genera, each with its family,
 higher classification (kingdom through order, where available), and a
 <code>life_form</code> label (e.g., <code>"vascular plant"</code>,
 <code>"animal"</code>, <code>"fungus"</code>). Where two backbones
 disagree about which family a genus belongs to, the classification is
-resolved by priority: WoRMS, COL, WCVP, Reptile Database, MDD, AviList,
-LPSN, GBIF, Euro+Med, LCVP, ITIS, NCBI, OTT, WFO, FishBase, SeaLifeBase,
-Species Fungorum, AlgaeBase. If COL and WFO disagree, COL’s assignment
-wins.</p>
+resolved by priority: WoRMS, COL Extended Release, COL, WCVP, Reptile
+Database, MDD, AviList, LPSN, GBIF, Euro+Med, LCVP, ITIS, NCBI, OTT,
+WFO, FishBase, SeaLifeBase, Species Fungorum, AlgaeBase. If COL and WFO
+disagree, COL’s assignment wins.</p>
 <p>The register is built by taxifydb over that fixed backbone set and
 published as a versioned asset, the same way each backbone is, so it
 arrives by download rather than by a local build. taxify resolves it on

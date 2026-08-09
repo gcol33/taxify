@@ -1,0 +1,47 @@
+name: docs-index
+
+# pkgdown builds its reference index from the `reference:` block of
+# _pkgdown.yml, and a documented topic missing from that block aborts the whole
+# site build. Nothing else notices: R CMD check does not read _pkgdown.yml, so a
+# new exported function documents and tests clean and only fails whenever the
+# site is next built by hand. That has happened twice, at ten and eight missing
+# enrichment doors.
+#
+# Fix a failure by adding the reported topics to _pkgdown.yml under the section
+# they belong to, or by marking them @keywords internal.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '_pkgdown.yml'
+      - 'man/**'
+      - 'NAMESPACE'
+      - 'scripts/check-pkgdown-index.R'
+  pull_request:
+    paths:
+      - '_pkgdown.yml'
+      - 'man/**'
+      - 'NAMESPACE'
+      - 'scripts/check-pkgdown-index.R'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+          extra-repositories: https://gcol33.r-universe.dev
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown
+
+      - name: Every documented topic is in the reference index
+        run: Rscript scripts/check-pkgdown-index.R

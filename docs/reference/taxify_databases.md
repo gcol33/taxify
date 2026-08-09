@@ -27,7 +27,9 @@ taxify_databases(verbose = TRUE)
 
 A data.frame with columns: `type` (`"backbone"` or `"enrichment"`),
 `name`, `scope` (taxonomic scope for backbones; provided trait columns
-for enrichments), `n_rows`, `version`, `installed`, `source`.
+for enrichments), `n_rows`, `version`, `source_date` (the date of the
+upstream data, where recorded, which can be much earlier than the
+release `version` that packaged it), `installed`, `source`.
 
 ## See also
 

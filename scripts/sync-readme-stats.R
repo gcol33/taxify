@@ -9,7 +9,8 @@
 #   <!-- /manifest:backbone-table -->
 #
 # Everything outside the markers is left byte-identical. Run after a manifest
-# sync; tests/testthat/test-readme-stats.R fails if a block is stale.
+# sync; the manifest-docs workflow regenerates on a push to the default branch
+# and reports drift on a pull request.
 #
 # Usage (from the repository root):
 #   Rscript scripts/sync-readme-stats.R          # rewrite in place

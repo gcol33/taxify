@@ -222,6 +222,14 @@ reference:
   - add_alpine_carabids
   - add_imageomics_neon
   - add_sworm
+  - add_betsi_earthworm_traits
+  - add_betsi_collembola_traits
+  - add_ellers_collembola
+  - add_inrae_collembola_traits
+  - add_ecomorphosis
+  - add_betsi_collembola_body_length
+  - add_monograph_collembola_body_length
+  - add_plazi_collembola_body_length
   - add_hosts
   - add_blanchard
   - add_coral_traits

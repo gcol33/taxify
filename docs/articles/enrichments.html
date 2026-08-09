@@ -213,7 +213,7 @@ still recognises “Senecio jacobaea” for the same species. If an
 enrichment <code>.vtr</code> only contained one of these names, it would
 fail to match a result that resolved through the other backbone.</p>
 <p>The taxifydb build pipeline resolves every source species name across
-all <!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+all <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
 backbones, each queried separately rather than as a fallback chain,
 which would only return the first match. The union of all unique
 <code>accepted_name</code> values is collected per source species. Each
@@ -263,7 +263,7 @@ check adds negligible latency because the manifest itself is cached.</p>
 mirror outage, transient server errors), taxify does not stop
 immediately. Instead, it attempts to build the enrichment from the
 original source data. Each of the
-<!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count -->
+<!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count -->
 enrichments has a build recipe in an internal registry
 (<code>.enrichment_build_registry</code>) that knows how to download the
 raw CSV, ZIP, or API response from the upstream source, parse it into a
@@ -309,7 +309,7 @@ where backbone <code>.vtr</code> files are stored, so a single
 <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code> call reveals where all taxify data lives
 on the system. Enrichment files are modest in size: most are between 1
 and 20 MB. The full set of
-<!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count -->
+<!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count -->
 enrichments is correspondingly larger.</p>
 </div>
 </div>
@@ -2761,7 +2761,7 @@ recorded in the taxify result metadata and available via
 </h2>
 <p>taxify’s enrichment system turns taxonomic name matching into a
 gateway to ecological trait data. The
-<!-- manifest:enrichment-count -->100<!-- /manifest:enrichment-count -->
+<!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count -->
 built-in enrichments cover conservation status, growth form, ecological
 niches, functional traits, diet, morphology, life-history, geographic
 ranges, invasive status, and vernacular names across plants, birds,
@@ -2772,7 +2772,7 @@ subsequent sessions, and compose freely with the pipe operator.</p>
 <p>The cross-backbone name resolution built into the <code>.vtr</code>
 files means we do not have to worry about which backbone we used:
 enrichments work identically regardless of which of taxify’s
-<!-- manifest:backbone-count -->18<!-- /manifest:backbone-count -->
+<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
 backbones produced the result. The <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> method tracks
 which enrichments have been applied, their source versions, and their
 coverage rates, supporting both exploratory analysis and reproducible

@@ -23,9 +23,17 @@ list_backbones(verbose = TRUE)
 ## Value
 
 A data.frame with columns: `name`, `scope`, `n_names`, `size_mb`,
-`version`, `installed`, `source`. `n_names`, `size_mb`, and `version`
-are `NA` for any backbone the manifest does not yet describe or when the
-manifest cannot be fetched offline.
+`version`, `source_date`, `installed`, `source`. `n_names`, `size_mb`,
+and `version` are `NA` for any backbone the manifest does not yet
+describe or when the manifest cannot be fetched offline.
+
+`version` is the release that packaged the backbone; `source_date` is
+the date of the upstream data, which can be much earlier. The GBIF
+backbone is the case that matters: GBIF froze it at 2023-08-28 and has
+said it will not be updated again, so a current release tag there
+carries a treatment three years older than the tag suggests.
+`source_date` is `NA` for a backbone whose upstream date has not been
+recorded.
 
 ## See also
 

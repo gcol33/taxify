@@ -1,7 +1,7 @@
 # Choosing and combining backbones
 
 taxify matches taxonomic names against locally stored Darwin Core
-backbone databases. 18 backbones are available, each compiled from a
+backbone databases. 19 backbones are available, each compiled from a
 different authoritative source. The backbone we choose determines which
 names can be matched, what taxonomic opinion governs synonym resolution,
 and which extra metadata columns are available downstream. This vignette
@@ -11,7 +11,7 @@ given project.
 
 ## Backend overview
 
-The table below summarizes all 18. “Approx. names” is the total number
+The table below summarizes all 19. “Approx. names” is the total number
 of name strings in the compiled backbone (accepted names plus synonyms);
 the actual species count is lower because each accepted species may have
 several synonym entries pointing to it.
@@ -20,6 +20,7 @@ several synonym entries pointing to it.
 |:---|:---|:---|:---|:---|
 | `wfo` | World Flora Online | Vascular plants, bryophytes | ~1.6M | Zenodo ZIP (classification.txt) |
 | `col` | Catalogue of Life | All kingdoms | ~5.3M | ChecklistBank DwC-A (Taxon.tsv) |
+| `colxr` | Catalogue of Life Extended Release | All kingdoms | ~7.9M | ChecklistBank DwC-A export of the XR dataset |
 | `gbif` | GBIF Backbone Taxonomy | All kingdoms | ~6.4M | GBIF simple.txt.gz (30 positional cols) |
 | `itis` | Integrated Taxonomic Information System | All kingdoms, US focus | ~990k | SQLite dump from itis.gov |
 | `ncbi` | NCBI Taxonomy | All life incl. viruses | ~2.7M | Pipe-delimited .dmp files (taxdump) |
@@ -266,7 +267,7 @@ all-rounder.
 
 ## Backend-specific output differences
 
-All 18 backbones produce the same 26-column output schema. This is a
+All 19 backbones produce the same 26-column output schema. This is a
 deliberate design choice: downstream code does not need to know which
 backbone produced a match. That said, the content of those columns
 varies in ways worth knowing about.
@@ -731,14 +732,14 @@ include.
 ## The genus register
 
 The genus register is a unified index of the genera across every
-supported backbone. It holds 496,281 genera, each with its family,
+supported backbone. It holds 503,262 genera, each with its family,
 higher classification (kingdom through order, where available), and a
 `life_form` label (e.g., `"vascular plant"`, `"animal"`, `"fungus"`).
 Where two backbones disagree about which family a genus belongs to, the
-classification is resolved by priority: WoRMS, COL, WCVP, Reptile
-Database, MDD, AviList, LPSN, GBIF, Euro+Med, LCVP, ITIS, NCBI, OTT,
-WFO, FishBase, SeaLifeBase, Species Fungorum, AlgaeBase. If COL and WFO
-disagree, COL’s assignment wins.
+classification is resolved by priority: WoRMS, COL Extended Release,
+COL, WCVP, Reptile Database, MDD, AviList, LPSN, GBIF, Euro+Med, LCVP,
+ITIS, NCBI, OTT, WFO, FishBase, SeaLifeBase, Species Fungorum,
+AlgaeBase. If COL and WFO disagree, COL’s assignment wins.
 
 The register is built by taxifydb over that fixed backbone set and
 published as a versioned asset, the same way each backbone is, so it

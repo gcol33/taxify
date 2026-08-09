@@ -367,8 +367,9 @@ genus register's family-based lookup; <code>NA</code> when unavailable.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>By default <code>taxify()</code> matches against <strong>every installed backbone</strong>, tried in
-priority order as a fallback chain (COL, then the domain authorities, then
-the broad aggregators). The chain is staged by match quality: every backbone
+priority order as a fallback chain (the COL syntheses, then the domain
+authorities, then the broad aggregators). The chain is staged by match
+quality: every backbone
 is asked for an exact match first, and only the names still unresolved go
 round again for a fuzzy one. A name is therefore resolved by the
 highest-priority backbone that matches it <em>at the best quality any backbone
