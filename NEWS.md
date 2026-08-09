@@ -82,11 +82,25 @@
   materializes that column from the registry's own grain declaration, so a
   source declared at genus rank is written joinable at genus rank.
 
-* The genus register is rebuilt over all eighteen backbones. The published
-  build covered thirteen, so mammals, birds, prokaryotes, algae and fungi
-  reached it only through the general aggregators: 496,127 genera become
-  496,281, coverage rows 1,421,182 become 1,451,183, and the share carrying a
-  kingdom rises from 75.55% to 83.45%.
+* The genus register is rebuilt over all nineteen backbones. Two rebuilds are
+  folded together here. The first took it from the thirteen the published build
+  covered to eighteen, so mammals, birds, prokaryotes, algae and fungi reached
+  it through more than the general aggregators; the second adds COL XR, which
+  was wired after that build ran. 496,127 genera become 503,262, coverage rows
+  1,421,182 become 1,871,955, and the share carrying a kingdom rises from 75.55%
+  to 91.88%.
+
+* A backbone the coverage table does not carry no longer has every name in it
+  called out of scope. `covered_genera_for()` returned an empty vector for such
+  a backbone where the caller guarded on `NULL`, so "I have no coverage for this
+  backbone" was read as "this backbone covers no genus": every unmatched name
+  was stamped `out_of_scope`, and the abbreviated-genus and fuzzy stages were
+  skipped for all of them. COL XR sat in exactly that position between being
+  wired and the register being rebuilt, and it heads the default priority order.
+  The empty case now takes the path a missing coverage file already took, which
+  is to disable the filter and warn once per session. A set of backbones is only
+  as answerable as its least-covered member, so one uncovered backbone disables
+  the filter for the whole set rather than falling back to the others' union.
 
 * A genus filed under two kingdoms by one backbone is now read by that
   backbone's own majority. Ordering by source priority alone left the winner to
