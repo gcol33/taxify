@@ -217,6 +217,68 @@ test_that("taxify() returns a data.frame when the register exists but coverage d
 })
 
 
+test_that("a backbone absent from the coverage table disables the filter", {
+  # The published coverage is built over a fixed backbone set, so a backbone
+  # added to the registry before the register is rebuilt has no rows in it at
+  # all. Reading that as "covers no genera" makes every genus not-covered, and
+  # the out-of-scope prefilter then marks every unmatched name and skips the
+  # abbreviated-genus and fuzzy stages for all of them. COL XR shipped in
+  # exactly that state.
+  cov_path <- mock_coverage_vtr(genus = c("Quercus", "Pinus"), backbone = "col")
+  clear_coverage_cache()
+  on.exit(clear_coverage_cache(), add = TRUE)
+
+  with_mocked_bindings(
+    ensure_coverage = function(verbose = TRUE) cov_path,
+    {
+      # Absent backbone: unanswerable, so no answer -- and say so, once.
+      expect_warning(expect_null(covered_genera_for("colxr")), "colxr")
+      expect_silent(expect_null(covered_genera_for("colxr")))
+
+      # A set is only as answerable as its least-covered member: falling back to
+      # col's genera alone would exclude every genus only colxr carries.
+      expect_null(suppressWarnings(covered_genera_for(c("col", "colxr"))))
+
+      # A covered backbone is unaffected.
+      expect_setequal(covered_genera_for("col"), c("Quercus", "Pinus"))
+    }
+  )
+})
+
+
+test_that("taxify() still fuzzy-matches against a backbone missing from coverage", {
+  # The consequence of the above, at the level a user sees it: with coverage
+  # that knows nothing about the queried backbone, a register genus must not be
+  # written off as out_of_scope before fuzzy matching has run.
+  vtr_path <- mock_backbone_vtr()
+  set_backbone_path("wfo", vtr_path)
+  on.exit({
+    set_backbone_path("wfo", NULL)
+    .taxify_env$register <- NULL
+    clear_coverage_cache()
+  }, add = TRUE)
+
+  .taxify_env$register <- data.frame(
+    genus = "Quercus", kingdom = "Plantae", family = "Fagaceae",
+    kingdom_group = "plantae", taxon_group = "angiosperm",
+    life_form = "angiosperm", stringsAsFactors = FALSE
+  )
+
+  # Coverage exists but names only `col`; the query runs against `wfo`.
+  cov_path <- mock_coverage_vtr(genus = "Quercus", backbone = "col")
+  clear_coverage_cache()
+
+  result <- suppressWarnings(with_mocked_bindings(
+    ensure_coverage = function(verbose = TRUE) cov_path,
+    taxify("Quercuss robur", backbone = "wfo", fuzzy = TRUE, verbose = FALSE)
+  ))
+
+  expect_equal(nrow(result), 1L)
+  expect_false(identical(result$match_type[1], "out_of_scope"))
+  expect_equal(result$match_type[1], "fuzzy")
+})
+
+
 # ---- asset resolution ----
 
 test_that("ensure_register_asset() returns an existing file without downloading", {

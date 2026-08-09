@@ -29,8 +29,15 @@ mock_coverage_vtr <- function(genus, backbone = "wfo") {
 #' Clear every one so a freshly mocked coverage file is read instead of a value
 #' left over from another test (or the real install). The union keys are named
 #' after arbitrary backbone sets, so this drops by prefix rather than by list.
+#'
+#' The once-per-session flags behind the uncovered-backbone warning
+#' (`.uncovered_warned_<name>`) are cleared too: they are part of the same
+#' cached state, and a test expecting the warning would otherwise see nothing
+#' because an earlier test already spent it.
 #' @param backbones Ignored. Every coverage key is cleared.
 clear_coverage_cache <- function(backbones = NULL) {
   keys <- ls(.taxify_env, all.names = TRUE)
-  for (k in keys[startsWith(keys, "coverage_")]) .taxify_env[[k]] <- NULL
+  drop <- startsWith(keys, "coverage_") |
+          startsWith(keys, ".uncovered_warned_")
+  for (k in keys[drop]) .taxify_env[[k]] <- NULL
 }

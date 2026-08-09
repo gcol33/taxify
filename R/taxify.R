@@ -1054,9 +1054,21 @@ load_register_or_null <- function() {
 #' table means no answer rather than a remembered one, so the out-of-scope
 #' filter stays disabled wherever coverage is unavailable.
 #'
+#' A backbone the coverage table says nothing about is unanswerable, not empty.
+#' The published coverage is built over a fixed backbone set, so a backbone
+#' added to the registry before the register is rebuilt has no rows there at
+#' all. Reading that as "covers no genera" would be the strongest possible
+#' claim drawn from the weakest possible evidence: every genus would read as
+#' not-covered, the out-of-scope prefilter would mark every unmatched name, and
+#' the abbreviated-genus and fuzzy stages would be skipped for all of them --
+#' silently, since nothing errors and no version moves. So an uncovered backbone
+#' disables the filter for the whole set, exactly as a missing coverage table
+#' does.
+#'
 #' @param backbone Character vector of backbone names, or a `taxify_backend`.
 #' @return A character vector of covered genera, or NULL when no coverage table
-#'   is installed / it fails to read.
+#'   is installed, it fails to read, or it carries no rows for one of the
+#'   requested backbones.
 #' @noRd
 covered_genera_for <- function(backbone) {
   tryCatch({
@@ -1079,13 +1091,40 @@ covered_genera_for <- function(backbone) {
         cov <- vectra::tbl(cov_path) |>
           vectra::filter(backend == be) |>
           vectra::collect()
-        .taxify_env[[cache_key]] <- cov$genus
+        .taxify_env[[cache_key]] <- as.character(cov$genus)
+      }
+      if (length(.taxify_env[[cache_key]]) == 0L) {
+        warn_uncovered_backbone(be)
+        return(NULL)
       }
       covered <- union(covered, .taxify_env[[cache_key]])
     }
     .taxify_env[[union_key]] <- covered
     covered
   }, error = function(e) NULL)
+}
+
+
+#' Warn once per session that a backbone is absent from the coverage table
+#'
+#' Worth surfacing rather than silently failing open: it means the installed
+#' backbone-coverage table predates the backbone, so the genus register cannot
+#' supply `kingdom_group` / `taxon_group` / `life_form` for anything only that
+#' backbone carries.
+#'
+#' @param be Backbone name.
+#' @noRd
+warn_uncovered_backbone <- function(be) {
+  flag <- paste0(".uncovered_warned_", be)
+  if (isTRUE(.taxify_env[[flag]])) return(invisible(NULL))
+  .taxify_env[[flag]] <- TRUE
+  warning(sprintf(paste0(
+    "The installed backbone-coverage table has no rows for '%s', so it ",
+    "predates that backbone. Out-of-scope prefiltering is disabled for this ",
+    "query and register-derived columns (kingdom_group, taxon_group, ",
+    "life_form) may be NA for genera only '%s' carries."), be, be),
+    call. = FALSE)
+  invisible(NULL)
 }
 
 
