@@ -7402,12 +7402,12 @@
     "thermofresh": {
       "static": true,
       "latest": "2026.08",
-      "content_id": "9237c75747c66aaebcf3ebe026f1c26b",
+      "content_id": "5d9013a32735241b41d970a83809dca6",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/thermofresh.vtr",
-      "nrow": 750,
-      "source_url": "https://zenodo.org/api/records/14056760/files/hsbayat%2FFreshwater_thermtol_db-data.zip/content",
+      "nrow": 860,
+      "source_url": "https://zenodo.org/api/records/16959762/files/hsbayat%2FThermoFresh-v1.0.zip/content",
       "source_format": "zip",
-      "source_version": "2024.1",
+      "source_version": "2025.1",
       "trait_cols": [
         "ctmax",
         "ctmin",
@@ -7415,9 +7415,10 @@
         "ltmax",
         "ltmin"
       ],
-      "source_doi": "10.5281/zenodo.14056760",
+      "source_doi": "10.5281/zenodo.16959762",
       "license": "CC BY 4.0",
-      "citation": "Freshwater thermal-tolerance database (Helena Bayat and contributors). Zenodo (doi:10.5281/zenodo.14056760), CC BY 4.0; source repository hsbayat/Freshwater_thermtol_db. Per-test critical thermal limits (ctmax, ctmin, lt50, ltmax, ltmin, in degrees C) for freshwater fish, invertebrates and amphibians, reduced to species-level medians by taxifydb."
+      "upstream_id": "16959762",
+      "citation": "ThermoFresh v1.0 (Helena Bayat and contributors). Zenodo (doi:10.5281/zenodo.16959762), CC BY 4.0; source repository hsbayat/ThermoFresh. Described in Bayat et al. (2025) Global thermal tolerance compilation for freshwater invertebrates and fish, Scientific Data 12 (doi:10.1038/s41597-025-05832-w). Per-test critical thermal limits (ctmax, ctmin, lt50, ltmax, ltmin, in degrees C) for freshwater fish, invertebrates and amphibians, reduced to species-level medians by taxifydb."
     },
     "ramond": {
       "static": true,
