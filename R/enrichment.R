@@ -1427,16 +1427,98 @@ enrichment_authorship_col <- function(schema_names) {
 }
 
 
+#' Normalized parts of an authorship string, for comparison
+#'
+#' Backbones and enrichment sources spell one authorship several ways -- `et`
+#' or `&`, with or without the periods after an abbreviation, and occasionally
+#' a plain misspelling (WFO records *Calluna vulgaris* as `(L.) Hill` where
+#' every other source says `(L.) Hull`). A raw string comparison therefore
+#' reads a spelling difference as a different taxonomic concept (#51). This
+#' splits an authorship into its basionym author (the parenthetical part,
+#' empty when there is none) and its combining author, and reduces each to
+#' lowercase letters with `&` as the only separator kept.
+#'
+#' @param x Character vector of authorship strings.
+#' @return List of three character vectors, each the length of `x`: `paren`,
+#'   `terminal`, and `key` (the two joined, the full comparison key). `NA` or
+#'   empty input gives `NA` in all three.
+#' @noRd
+author_key_parts <- function(x) {
+  x <- trimws(x)
+  x[!is.na(x) & !nzchar(x)] <- NA_character_
+  na <- is.na(x)
+
+  paren <- rep("", length(x))
+  rest <- x
+  wrapped <- !na & startsWith(x, "(")
+  if (any(wrapped)) {
+    paren[wrapped] <- sub("^[(]([^)]*)[)].*$", "\\1", x[wrapped])
+    rest[wrapped] <- sub("^[(][^)]*[)]", "", x[wrapped])
+  }
+
+  norm <- function(s) {
+    s <- tolower(s)
+    s <- gsub("&", " and ", s, fixed = TRUE)
+    s <- gsub("(^| )et( |$)", " and ", s)
+    s <- gsub("[^a-z]+", " ", s)
+    s <- gsub("(^| )and( |$)", " & ", s)
+    trimws(gsub(" +", " ", s))
+  }
+  paren <- norm(paren)
+  terminal <- norm(rest)
+  key <- ifelse(nzchar(paren), paste0("(", paren, ") ", terminal), terminal)
+
+  paren[na] <- NA_character_
+  terminal[na] <- NA_character_
+  key[na] <- NA_character_
+  list(paren = paren, terminal = terminal, key = key)
+}
+
+
+#' Is one normalized authorship a spelling variant of another?
+#'
+#' Applied only after exact comparison on the normalized key has failed, to
+#' tell a source that spells the author differently from one that names a
+#' genuinely different author. Both sides must agree exactly on the basionym
+#' author, and the combining author must be either one edit apart or a
+#' truncated abbreviation of the other (`schischk` of `schischkin`, the
+#' continuation letter required so `hook` does not swallow `hook f`). The
+#' four-character floor keeps the one- and two-letter abbreviations that
+#' actually distinguish authors (`L.` vs `L.f.`) out of the comparison.
+#'
+#' @param q,cand Lists with `paren` and `terminal`, from `author_key_parts()`.
+#' @return `TRUE` when the two are the same author spelled differently.
+#' @noRd
+author_key_near <- function(q, cand) {
+  if (is.na(q$terminal) || is.na(cand$terminal)) return(FALSE)
+  if (!identical(q$paren, cand$paren)) return(FALSE)
+  a <- q$terminal
+  b <- cand$terminal
+  if (nchar(a) < 4L || nchar(b) < 4L) return(FALSE)
+  if (as.integer(utils::adist(a, b)) <= 1L) return(TRUE)
+  short <- if (nchar(a) <= nchar(b)) a else b
+  long <- if (nchar(a) <= nchar(b)) b else a
+  startsWith(long, short) &&
+    grepl("^[a-z]$", substr(long, nchar(short) + 1L, nchar(short) + 1L))
+}
+
+
 #' Drop the wrong side of a name-level homonym collision from a group join
 #'
 #' `enrich_by_group()` joins on a bare accepted-name string, so a name that
 #' resolves to more than one distinct concept in the source (different
 #' authorship) would otherwise keep whichever row happens to survive the
 #' later per-group `!duplicated()` dedup -- silently, and not necessarily the
-#' concept `x` actually resolved to (#50). For each such name, this keeps only
-#' the source rows whose authorship exactly matches `x$accepted_authorship`
-#' when that uniquely picks one concept, and drops every row for the name
-#' otherwise (left NA rather than guessing), warning once with a count.
+#' concept `x` actually resolved to (#50).
+#'
+#' Concepts are counted on the normalized authorship key, and the concept `x`
+#' resolved to is picked by that key, then by a spelling-variant test, then by
+#' a shared basionym author (#51). Exact string equality alone is not enough:
+#' the sources disagree over how an author is written and over who is credited
+#' with a recombination, so on its own it discards the data of names that are
+#' not homonyms at all. When no pass picks exactly one concept, every row for
+#' the name is dropped -- left NA rather than guessing -- and a single warning
+#' reports the count.
 #'
 #' @param joined The `join_key`-on-`lookup_name` join result, before group
 #'   filtering. Must carry `lookup_name` and `authorship_col`.
@@ -1447,31 +1529,66 @@ enrichment_authorship_col <- function(schema_names) {
 #' @noRd
 disambiguate_by_name_authorship <- function(joined, x, authorship_col,
                                             enrichment_name) {
-  auth <- trimws(joined[[authorship_col]])
-  auth[!is.na(auth) & !nzchar(auth)] <- NA_character_
-  n_concepts <- stats::ave(auth, joined$lookup_name,
-                           FUN = function(a) length(unique(a[!is.na(a)])))
-  ambiguous_names <- unique(joined$lookup_name[!is.na(n_concepts) & n_concepts > 1L])
+  parts <- author_key_parts(joined[[authorship_col]])
+  key <- parts$key
+  known <- !is.na(key)
+  if (!any(known)) return(joined)
+
+  pairs <- unique(data.frame(nm = joined$lookup_name[known], k = key[known],
+                             stringsAsFactors = FALSE))
+  counts <- table(pairs$nm)
+  ambiguous_names <- names(counts)[counts > 1L]
   if (length(ambiguous_names) == 0L) return(joined)
 
-  query_auth <- stats::setNames(trimws(x$accepted_authorship), x$accepted_name)
-  query_auth <- query_auth[!duplicated(names(query_auth))]
+  qparts <- author_key_parts(x$accepted_authorship)
+  first <- !duplicated(x$accepted_name)
+  qname <- x$accepted_name[first]
+  qkey <- stats::setNames(qparts$key[first], qname)
+  qparen <- stats::setNames(qparts$paren[first], qname)
+  qterm <- stats::setNames(qparts$terminal[first], qname)
 
-  unresolved <- character(0L)
+  rows_by_name <- split(seq_len(nrow(joined)), joined$lookup_name)
   keep <- rep(TRUE, nrow(joined))
+  unresolved <- character(0L)
+
   for (nm in ambiguous_names) {
-    rows <- which(joined$lookup_name == nm)
-    want <- query_auth[[nm]]
-    hit <- if (!is.na(want) && nzchar(want)) {
-      rows[!is.na(auth[rows]) & auth[rows] == want]
-    } else {
-      integer(0L)
+    rows <- rows_by_name[[nm]]
+    k <- key[rows]
+    concepts <- unique(k[!is.na(k)])
+    want <- if (nm %in% qname) qkey[[nm]] else NA_character_
+    sel <- NA_character_
+    if (!is.na(want)) {
+      rep_row <- rows[match(concepts, k)]
+      if (want %in% concepts) {
+        sel <- want
+      } else {
+        q <- list(paren = qparen[[nm]], terminal = qterm[[nm]])
+        near <- concepts[vapply(rep_row, function(i) {
+          author_key_near(q, list(paren = parts$paren[i],
+                                  terminal = parts$terminal[i]))
+        }, logical(1L))]
+        if (length(near) == 1L) sel <- near
+      }
+      # Sources also disagree over who is credited with a recombination while
+      # naming the same basionym author -- Glaucium corniculatum is (L.) Curtis
+      # in WFO and (L.) Rudolph in WCVP. Epithet plus basionym author pins the
+      # basionym, and with it the type, so a concept that is the only candidate
+      # carrying the query's basionym author is the same taxon whoever made the
+      # combination. Two candidates sharing it are not separable this way and
+      # fall through to the drop below, which is what keeps a homonym pair with
+      # no basionym author at all (Erigeron pulchellus Michx. vs Hoppe &
+      # Hornsch., #50) out of this branch entirely.
+      qp <- qparen[[nm]]
+      if (is.na(sel) && !is.na(qp) && nzchar(qp)) {
+        same_basionym <- concepts[parts$paren[rep_row] == qp]
+        if (length(same_basionym) == 1L) sel <- same_basionym
+      }
     }
-    if (length(unique(auth[hit])) == 1L) {
-      keep[rows] <- !is.na(auth[rows]) & auth[rows] == auth[hit[1L]]
-    } else {
+    if (is.na(sel)) {
       keep[rows] <- FALSE
       unresolved <- c(unresolved, nm)
+    } else {
+      keep[rows] <- !is.na(k) & k == sel
     }
   }
 

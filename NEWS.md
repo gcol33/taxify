@@ -1,3 +1,22 @@
+# taxify 0.4.7
+
+* Grouped enrichment joins no longer discard a name's data when the routing
+  backbone and the enrichment source spell its authorship differently. The
+  homonym resolution added in 0.4.6 compared author strings exactly, and the
+  sources genuinely disagree: WFO records *Calluna vulgaris* as `(L.) Hill`
+  where WCVP, COL and Euro+Med all say `(L.) Hull`, so one of the commonest
+  plants in Europe came back with no `add_wcvp()` range at all when matched
+  through WFO. Authorship is now compared on a normalised key (case,
+  punctuation, `et` vs `&`), then as a spelling variant of the same author
+  (one edit apart, or an abbreviation of the same surname), then on a shared
+  basionym author -- sources also credit different people with the same
+  recombination (*Glaucium corniculatum* is `(L.) Curtis` in WFO, `(L.)
+  Rudolph` in WCVP), and epithet plus basionym author pins the same type
+  whoever made the combination. A name that no pass resolves to exactly one
+  concept is still left `NA` with a warning, and a genuine homonym pair with
+  no basionym author -- 0.4.6's *Erigeron pulchellus* Michx. vs Hoppe &
+  Hornsch. -- is untouched by the two new passes (#51).
+
 # taxify 0.4.6
 
 * Grouped enrichment joins (`enrich_by_group()`, behind `add_wcvp()`,

@@ -17,18 +17,20 @@ setup_mock_wfo <- function() {
 # concept -- a different taxon that just happens to share the bare name --
 # has its own native record in GER. Pre-fix, a GER lookup would have kept
 # whichever row survived the per-group dedup regardless of concept.
-setup_mock_wcvp <- function() {
+setup_mock_wcvp <- function(wcvp = NULL) {
   data_dir <- tempfile("taxify_wcvp_auth_")
   latest <- file.path(data_dir, "enrichment", "wcvp", "latest")
   dir.create(latest, recursive = TRUE)
 
-  wcvp <- data.frame(
-    canonical_name = c("Quercus robur", "Quercus robur", "Quercus robur"),
-    tdwg_code      = c("EUR", "NAM", "GER"),
-    native_status  = c("native", "introduced", "native"),
-    taxon_authors  = c("L.", "L.", "Mill."),
-    stringsAsFactors = FALSE
-  )
+  if (is.null(wcvp)) {
+    wcvp <- data.frame(
+      canonical_name = c("Quercus robur", "Quercus robur", "Quercus robur"),
+      tdwg_code      = c("EUR", "NAM", "GER"),
+      native_status  = c("native", "introduced", "native"),
+      taxon_authors  = c("L.", "L.", "Mill."),
+      stringsAsFactors = FALSE
+    )
+  }
   vectra::write_vtr(wcvp, file.path(latest, "wcvp.vtr"))
   jsonlite::write_json(
     list(version = "2026.06", static = TRUE, license = "CC BY 4.0"),
@@ -96,4 +98,86 @@ test_that("a single-concept name is unaffected by the authorship check", {
   r <- taxify("Quercus petraea", backbone = "wfo", verbose = FALSE)
   # Not in the fixture at all: normal "no data for this name" path, no warning.
   expect_no_warning(add_wcvp(r, region = "EUR", verbose = FALSE))
+})
+
+
+# Regression tests for #51: the #50 check compared authorship strings exactly,
+# but the sources disagree over how an author is written (WFO records *Calluna
+# vulgaris* as (L.) Hill where every other source says (L.) Hull) and over who
+# is credited with a recombination (*Glaucium corniculatum* is (L.) Curtis in
+# WFO, (L.) Rudolph in WCVP). Both read as a homonym collision, so a name that
+# is not a homonym at all lost its enrichment entirely.
+
+# Two concepts under one name, where the second concept's authorship is a
+# spelling variant of the query's rather than a different author.
+wcvp_variant_df <- function(second) {
+  data.frame(
+    canonical_name = rep("Quercus robur", 3L),
+    tdwg_code      = c("EUR", "NAM", "GER"),
+    native_status  = c("native", "introduced", "native"),
+    taxon_authors  = c(second, second, "Mill."),
+    stringsAsFactors = FALSE
+  )
+}
+
+enrich_with <- function(authorship, wcvp) {
+  setup_mock_wfo()
+  data_dir <- setup_mock_wcvp(wcvp)
+  old <- options(taxify.data_dir = data_dir)
+  on.exit(options(old), add = TRUE)
+  r <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
+  r$accepted_authorship <- authorship
+  add_wcvp(r, region = c("EUR", "NAM"), verbose = FALSE)
+}
+
+
+test_that("a spelling variant of the resolved authorship still matches", {
+  # "(L.) Hill" vs "(L.) Hull": one edit apart on a four-letter surname, same
+  # basionym author. Pre-fix this dropped every row and returned NA.
+  out <- expect_no_warning(
+    enrich_with("(L.) Hill", wcvp_variant_df("(L.) Hull")))
+  expect_equal(out$native_status_EUR, "native")
+  expect_equal(out$native_status_NAM, "introduced")
+
+  # Abbreviated to full: "Schischk." of "Schischkin".
+  out <- expect_no_warning(
+    enrich_with("(Vill.) Schischk.", wcvp_variant_df("(Vill.) Schischkin")))
+  expect_equal(out$native_status_EUR, "native")
+
+  # "et" and "&" are the same separator.
+  out <- expect_no_warning(
+    enrich_with("Hoppe et Hornsch.", wcvp_variant_df("Hoppe & Hornsch.")))
+  expect_equal(out$native_status_EUR, "native")
+})
+
+test_that("a shared basionym author resolves a recombination disagreement", {
+  # Same basionym, different combining author: the same taxon whoever made the
+  # combination, and the only candidate carrying the query's basionym author.
+  out <- expect_no_warning(
+    enrich_with("(L.) Curtis", wcvp_variant_df("(L.) Rudolph")))
+  expect_equal(out$native_status_EUR, "native")
+  expect_equal(out$native_status_NAM, "introduced")
+})
+
+test_that("the basionym pass needs a unique candidate and a real basionym", {
+  # Two candidates share the query's basionym author, so it does not separate
+  # them: unresolved rather than a guess.
+  two <- data.frame(
+    canonical_name = rep("Quercus robur", 3L),
+    tdwg_code      = c("EUR", "NAM", "GER"),
+    native_status  = c("native", "introduced", "native"),
+    taxon_authors  = c("(L.) Rudolph", "(L.) Mory", "Mill."),
+    stringsAsFactors = FALSE
+  )
+  expect_warning(enrich_with("(L.) Curtis", two), "more than one concept")
+  out <- suppressWarnings(enrich_with("(L.) Curtis", two))
+  expect_true(is.na(out$native_status_EUR))
+
+  # No basionym author on either side: two original publications of one
+  # binomial are genuine homonyms (#50's Erigeron pulchellus), and an author
+  # this short is never read as a spelling variant either.
+  expect_warning(enrich_with("L.f.", wcvp_variant_df("L.")),
+                 "more than one concept")
+  out <- suppressWarnings(enrich_with("L.f.", wcvp_variant_df("L.")))
+  expect_true(is.na(out$native_status_EUR))
 })
