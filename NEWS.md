@@ -1,3 +1,58 @@
+# taxify 0.4.6
+
+* Grouped enrichment joins (`enrich_by_group()`, behind `add_wcvp()`,
+  `add_griis()` and others) now resolve name-level homonyms instead of
+  guessing. The join key is a bare accepted-name string, so a name covering
+  two distinct concepts in the source -- told apart only by authorship --
+  collapsed onto whichever row happened to survive the per-group dedup,
+  regardless of which concept `taxify()` had actually matched:
+  `add_wcvp()` reported *Erigeron pulchellus* Michx. (eastern North
+  America) as native in Germany, when the matched concept was *Erigeron
+  pulchellus* Hoppe & Hornsch. ex Bluff & Fingerh., a European native. When
+  the enrichment carries an authorship-like column, a name whose rows
+  disagree on authorship is now resolved against `accepted_authorship`:
+  the uniquely picked concept's rows are kept, or, when the ambiguity can't
+  be resolved, every row for that name is dropped (left `NA` rather than
+  guessed) and a single warning reports the count.
+
+* `kingdom =` now trusts a single-kingdom backbone's own scope ahead of the
+  genus register. WCVP, LCVP, WFO, Euro+Med and Species Fungorum carry no
+  `kingdom` column of their own, so a query against one of them fell
+  straight to the genus register -- a single cross-backbone genus index --
+  which can record a different kingdom for the same genus string as used
+  elsewhere (the botanical and zoological codes are independent, so genus
+  homonyms across kingdoms are not rare). `taxify(x, backbone = "wcvp",
+  kingdom = "plants")` could report `kingdom_group` `"animalia"` for a
+  genuinely plant-only match. A new `fixed_kingdom` registry field pins the
+  backbones whose scope is genuinely unambiguous, and is now consulted
+  ahead of both the backbone's own kingdom column and the register
+  fallback. AlgaeBase and SeaLifeBase are deliberately left unfixed, since
+  each spans more than one kingdom.
+
+* `fuzzy_threshold` now accepts the integer raw-edit-count mode its own
+  documentation describes. Any value greater than 1 was rejected outright,
+  because `vectra::fuzzy_join()` itself only accepts a normalized distance
+  in (0, 1] -- the mode was documented but never implemented end to end.
+  A whole number `>= 1` now runs the join at the loosest normalized bound
+  and reconstructs the raw edit count from the reported `fuzzy_dist`
+  (exactly `raw_edits / max(len_a, len_b)`) to filter matches.
+
+* `alien_first_records` is rebuilt from Seebens et al.'s restructured
+  Darwin Core-style release (record 18759840, source version 4.0), 93,350
+  rows over 245 countries against 82,684 over 233 before. Every column was
+  renamed upstream, so `trait_cols` is rewritten rather than preserved; a
+  new `alien_first_record_status` column carries the occurrence status of
+  the record each row's year was taken from.
+
+* `glonaf` is rebuilt after a wrong join key left it holding 10,238 rows
+  over 84 regions, some names paired with other taxa's families. Rebuilt
+  from GloNAF v2.02 (Zenodo record 17105725) at 300,094 rows over all 1,343
+  regions.
+
+* `thermofresh`'s citation now points at the peer-reviewed release (record
+  16959762, ThermoFresh v1.0) rather than the pre-review deposit the build
+  had been reading since taxifydb bumped the source.
+
 # taxify 0.4.5
 
 * A backbone whose content is unchanged is no longer re-downloaded when its
