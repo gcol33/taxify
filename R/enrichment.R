@@ -1406,6 +1406,89 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
 }
 
 
+#' Authorship-like column in an enrichment .vtr schema, if any
+#'
+#' Grouped enrichments join on a bare accepted-name string (see
+#' `enrich_by_group()`), which collapses distinct homonymous concepts that
+#' happen to share a name. An authorship column is the only signal available
+#' to tell them apart; this picks the first alias present, in order of how
+#' likely it is to be the taxon's own authorship rather than something else.
+#'
+#' @param schema_names Character vector of column names in the enrichment
+#'   `.vtr`.
+#' @return The matching column name, or `NULL` if none of the aliases is
+#'   present.
+#' @noRd
+enrichment_authorship_col <- function(schema_names) {
+  aliases <- c("taxon_authors", "scientificNameAuthorship", "authorship",
+              "author")
+  hit <- aliases[aliases %in% schema_names]
+  if (length(hit) == 0L) NULL else hit[1L]
+}
+
+
+#' Drop the wrong side of a name-level homonym collision from a group join
+#'
+#' `enrich_by_group()` joins on a bare accepted-name string, so a name that
+#' resolves to more than one distinct concept in the source (different
+#' authorship) would otherwise keep whichever row happens to survive the
+#' later per-group `!duplicated()` dedup -- silently, and not necessarily the
+#' concept `x` actually resolved to (#50). For each such name, this keeps only
+#' the source rows whose authorship exactly matches `x$accepted_authorship`
+#' when that uniquely picks one concept, and drops every row for the name
+#' otherwise (left NA rather than guessing), warning once with a count.
+#'
+#' @param joined The `join_key`-on-`lookup_name` join result, before group
+#'   filtering. Must carry `lookup_name` and `authorship_col`.
+#' @param x The taxify_result being enriched, for `accepted_authorship`.
+#' @param authorship_col Name of the authorship-like column in `joined`.
+#' @param enrichment_name Character, for the warning message.
+#' @return `joined`, row-filtered to drop the losing side of any collision.
+#' @noRd
+disambiguate_by_name_authorship <- function(joined, x, authorship_col,
+                                            enrichment_name) {
+  auth <- trimws(joined[[authorship_col]])
+  auth[!is.na(auth) & !nzchar(auth)] <- NA_character_
+  n_concepts <- stats::ave(auth, joined$lookup_name,
+                           FUN = function(a) length(unique(a[!is.na(a)])))
+  ambiguous_names <- unique(joined$lookup_name[!is.na(n_concepts) & n_concepts > 1L])
+  if (length(ambiguous_names) == 0L) return(joined)
+
+  query_auth <- stats::setNames(trimws(x$accepted_authorship), x$accepted_name)
+  query_auth <- query_auth[!duplicated(names(query_auth))]
+
+  unresolved <- character(0L)
+  keep <- rep(TRUE, nrow(joined))
+  for (nm in ambiguous_names) {
+    rows <- which(joined$lookup_name == nm)
+    want <- query_auth[[nm]]
+    hit <- if (!is.na(want) && nzchar(want)) {
+      rows[!is.na(auth[rows]) & auth[rows] == want]
+    } else {
+      integer(0L)
+    }
+    if (length(unique(auth[hit])) == 1L) {
+      keep[rows] <- !is.na(auth[rows]) & auth[rows] == auth[hit[1L]]
+    } else {
+      keep[rows] <- FALSE
+      unresolved <- c(unresolved, nm)
+    }
+  }
+
+  if (length(unresolved) > 0L) {
+    warning(sprintf(
+      paste0("Enrichment '%s': %d name(s) match more than one concept ",
+             "(differing authorship) and could not be resolved to the one ",
+             "%s() actually matched; left NA rather than guessing: %s"),
+      enrichment_name, length(unresolved), "taxify",
+      paste(utils::head(unresolved, 5L), collapse = "; ")
+    ), call. = FALSE)
+  }
+
+  joined[keep, , drop = FALSE]
+}
+
+
 #' Group-based enrichment join (country/region/language filtering + pivot)
 #'
 #' Joins an enrichment .vtr on accepted_name, filters by a grouping column
@@ -1550,8 +1633,12 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   on.exit(unlink(tmp), add = TRUE)
   vectra::write_vtr(names_df, tmp)
 
-  # Select needed columns
-  select_cols <- unique(c(join_key, group_col, unname(value_cols)))
+  # Select needed columns. The authorship-like column (when the source carries
+  # one) is pulled in too, even if not requested as output: it is the only
+  # signal available for disambiguate_by_name_authorship() below.
+  authorship_col <- enrichment_authorship_col(names(schema))
+  select_cols <- unique(c(join_key, group_col, unname(value_cols),
+                          authorship_col))
   select_cols <- intersect(select_cols, names(schema))
 
   joined <- vectra::inner_join(
@@ -1561,6 +1648,26 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     by = stats::setNames(join_key, "lookup_name")
   ) |> vectra::collect()
 
+  if (nrow(joined) == 0L) {
+    meta <- read_enrichment_meta(vtr_path)
+    ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
+    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
+    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
+                               license = lic))
+  }
+
+  # A name the join_key resolves to more than one row that disagree on
+  # authorship is a homonym collision: the same accepted-name string covers
+  # two distinct taxonomic concepts in the source (#50 -- add_wcvp() joining
+  # Erigeron pulchellus Michx. onto Erigeron pulchellus Hoppe & Hornsch. ex
+  # Bluff & Fingerh.'s European range because both share the bare name).
+  # Resolve against x's own accepted_authorship where it uniquely picks one
+  # concept; otherwise drop every row for that name so its output cells stay
+  # NA rather than silently keeping an arbitrary one.
+  if (!is.null(authorship_col) && "accepted_authorship" %in% names(x)) {
+    joined <- disambiguate_by_name_authorship(
+      joined, x, authorship_col, enrichment_name)
+  }
   if (nrow(joined) == 0L) {
     meta <- read_enrichment_meta(vtr_path)
     ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
