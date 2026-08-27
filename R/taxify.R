@@ -975,15 +975,17 @@ demote_match_rows <- function(result, rows) {
 
 #' Drop matched rows whose kingdom is not among the requested set
 #'
-#' Reads each matched row's kingdom from the backbone's `kingdom` column where
-#' it stores one, falling back to the genus register's `kingdom_group`. A row
-#' whose resolved kingdom is known and outside `kingdom_set` is demoted (see
-#' `demote_match_rows()`); an unknown kingdom is always kept.
+#' Resolves each matched row's kingdom in priority order: the backbone's fixed
+#' scope (`backbone_fixed_kingdom()`, for a single-kingdom backbone with no
+#' `kingdom` column of its own), then the backbone's own `kingdom` column
+#' where it stores one, then the genus register's `kingdom_group` as a last
+#' resort. A row whose resolved kingdom is known and outside `kingdom_set` is
+#' demoted (see `demote_match_rows()`); an unknown kingdom is always kept.
 #'
 #' @param result The match result data.frame (post `run_match_stages()`).
 #' @param vtr_path Path to the backbone `.vtr`.
 #' @param kingdom_set `NULL` (no-op) or a coarse kingdom-group vector.
-#' @param bb_name Backend name (unused directly; kept for symmetry / clarity).
+#' @param bb_name Backend name, used to look up a fixed scope.
 #' @return `result`, possibly with out-of-kingdom rows demoted.
 #' @noRd
 filter_result_by_kingdom <- function(result, vtr_path, kingdom_set, bb_name) {
@@ -995,7 +997,21 @@ filter_result_by_kingdom <- function(result, vtr_path, kingdom_set, bb_name) {
 
   kg <- rep(NA_character_, nrow(result))
 
-  # 1. Backbone kingdom column (COL/ITIS/NCBI/OTT/WoRMS store one).
+  # 1. A backbone scoped to a single, unambiguous kingdom (WCVP, LCVP, WFO,
+  # Euro+Med, Species Fungorum) carries no `kingdom` column of its own to read
+  # in step 2 below, so it would otherwise fall to the genus-register fallback
+  # in step 3 -- a single cross-backbone genus index that can hand back a
+  # different kingdom for a genus name that is a homonym elsewhere. The
+  # backbone's own scope is the more authoritative answer here, so it wins
+  # outright rather than being treated as just another vote.
+  fixed <- backbone_fixed_kingdom(bb_name)
+  if (!is.na(fixed)) {
+    kg[matched] <- fixed
+    bad <- matched[!(kg[matched] %in% kingdom_set)]
+    return(demote_match_rows(result, bad))
+  }
+
+  # 2. Backbone kingdom column (COL/ITIS/NCBI/OTT/WoRMS store one).
   schema <- tryCatch(
     names(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L))),
     error = function(e) character(0L))
@@ -1011,7 +1027,7 @@ filter_result_by_kingdom <- function(result, vtr_path, kingdom_set, bb_name) {
     }
   }
 
-  # 2. Genus register fallback for rows the backbone left unknown.
+  # 3. Genus register fallback for rows the backbone left unknown.
   need <- matched[is.na(kg[matched])]
   if (length(need) > 0L && "genus" %in% names(result)) {
     reg <- load_register_or_null()

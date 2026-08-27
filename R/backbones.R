@@ -18,7 +18,8 @@
 #' (whether the prefix-blocked fuzzy pass runs for this backbone).
 #'
 #' @return A data.frame with `name`, `scope`, `source` (homepage), `label`,
-#'   `version`, and `prefix_fallback`, in canonical display order.
+#'   `version`, `prefix_fallback`, and `fixed_kingdom`, in canonical display
+#'   order.
 #' @noRd
 .backbone_registry <- function() {
   data.frame(
@@ -78,6 +79,23 @@
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
       FALSE
     ),
+    # The kingdom a backbone's rows always belong to, for the handful of
+    # backbones whose .vtr carries no `kingdom` column of its own (single-
+    # kingdom source, so nothing to denormalize) *and* whose scope is
+    # unambiguous. Read by filter_result_by_kingdom() ahead of the genus
+    # register fallback: the register is a single cross-backbone genus index,
+    # so a genus name that is a homonym across kingdoms (not rare -- botanical
+    # and zoological nomenclature are independent codes) resolves to whichever
+    # kingdom happens to be recorded for that genus string globally, which can
+    # contradict a backbone that is scoped to one kingdom by construction.
+    # AlgaeBase and SeaLifeBase are deliberately left NA: "algae" and "non-fish
+    # marine/aquatic" each span more than one kingdom, so there is no single
+    # correct fixed value.
+    fixed_kingdom = c(
+      "plantae", NA, NA, NA, NA, NA, NA, NA, "plantae",
+      "fungi", NA, NA, NA, NA, "plantae", "plantae", NA, NA,
+      NA
+    ),
     stringsAsFactors = FALSE
   )
 }
@@ -87,6 +105,18 @@
 #' @noRd
 backbone_names <- function() {
   .backbone_registry()$name
+}
+
+
+#' The single kingdom a backbone's rows always belong to, or NA
+#'
+#' @param name Backbone name.
+#' @return A coarse kingdom-group string (e.g. `"plantae"`), or `NA` when the
+#'   backbone spans more than one kingdom or carries its own `kingdom` column.
+#' @noRd
+backbone_fixed_kingdom <- function(name) {
+  reg <- .backbone_registry()
+  reg$fixed_kingdom[match(name, reg$name)]
 }
 
 

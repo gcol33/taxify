@@ -231,3 +231,65 @@ test_that("kingdom = errors on an unrecognisable kingdom", {
   expect_equal(resolve_kingdom_filter("Animalia"), "animalia")
   expect_equal(resolve_kingdom_filter("plants"), "plantae")
 })
+
+test_that("kingdom = trusts a single-kingdom backbone's scope over a colliding register entry", {
+  # WCVP carries no `kingdom` column of its own (vascular plants only), so
+  # taxify() falls back to the genus register. Simulate a genus name that is
+  # a homonym in another kingdom elsewhere in that cross-backbone register --
+  # the register would say "animalia" for this genus, which must not override
+  # what WCVP itself is scoped to (#48).
+  df <- data.frame(
+    taxon_id = "wcvp-h0001",
+    canonical_name = "Homonymus testicus",
+    taxon_rank = "SPECIES",
+    taxonomic_status = "ACCEPTED",
+    accepted_name_usage_id = NA_character_,
+    family = "Testaceae",
+    genus = "Homonymus",
+    specific_epithet = "testicus",
+    authorship = "L.",
+    infraspecific_epithet = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
+  df <- embed_accepted(
+    df,
+    id_col         = "taxon_id",
+    acc_id_col     = "accepted_name_usage_id",
+    name_col       = "canonical_name",
+    family_col     = "family",
+    genus_col      = "genus",
+    status_col     = "taxonomic_status",
+    authorship_col = "authorship"
+  )
+  vtr_path <- tempfile(fileext = ".vtr")
+  vectra::write_vtr(df, vtr_path, batch_size = 50000L)
+  on.exit(unlink(vtr_path), add = TRUE)
+
+  set_backbone_path("wcvp", vtr_path)
+  on.exit(set_backbone_path("wcvp", NULL), add = TRUE)
+
+  prev_checked <- .taxify_env[[".version_checked.wcvp"]]
+  .taxify_env[[".version_checked.wcvp"]] <- TRUE
+  on.exit(assign(".version_checked.wcvp", prev_checked, envir = .taxify_env),
+          add = TRUE)
+
+  prev_reg <- .taxify_env$register
+  .taxify_env$register <- data.frame(
+    genus = "Homonymus", kingdom = "Animalia", phylum = NA_character_,
+    class = NA_character_, order = NA_character_, family = NA_character_,
+    kingdom_group = "animalia", taxon_group = NA_character_,
+    life_form = NA_character_, stringsAsFactors = FALSE
+  )
+  on.exit(.taxify_env$register <- prev_reg, add = TRUE)
+
+  kept <- taxify("Homonymus testicus", backbone = "wcvp", fuzzy = FALSE,
+                 kingdom = "plants", verbose = FALSE)
+  expect_equal(kept$match_type, "exact")
+  expect_equal(kept$accepted_name, "Homonymus testicus")
+
+  dropped <- taxify("Homonymus testicus", backbone = "wcvp", fuzzy = FALSE,
+                    kingdom = "animals", verbose = FALSE)
+  expect_equal(dropped$match_type, "none")
+  expect_true(is.na(dropped$accepted_name))
+})
