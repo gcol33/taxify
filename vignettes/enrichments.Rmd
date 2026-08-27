@@ -134,8 +134,51 @@ enrichment join no longer depends on which backbone the upstream
 In practice, backbones agree on more than 90% of names, so this expansion
 is modest (typically 1.1–1.5x the original row count). `add_iucn()` works
 identically whether the upstream `taxify()` call resolved through COL,
-GBIF, WFO, or any of the other twelve backbones, and backbone-specific
-name variants do not fall through the cracks.
+GBIF, WFO, or any of the other backbones.
+
+### When the expansion misses
+
+The expansion is not complete. Sampling names from an enrichment's own
+`.vtr` and re-resolving them through every installed backbone finds, in
+4.5% to 22.5% of them depending on the enrichment, at least one backbone
+whose accepted name has no row while another backbone's does. *Minuartia
+hybrida* is a worked case: WFO keeps the name, WCVP, COL and Euro+Med have
+all moved it to *Sabulina*, and the `wcvp` enrichment holds range records
+under the *Sabulina* names and none under the *Minuartia* one.
+
+The join then finds nothing along the same code path, and with the same
+empty output, as a name the source genuinely does not cover. So taxify runs
+the same expansion a second time at join time: names left empty by the
+direct join are re-resolved through the other installed backbones, exact
+matching only, and the join is retried under their accepted names.
+
+```r
+taxify("Minuartia hybrida", backbone = "wfo") |>
+  add_wcvp(region = "all")
+#> add_wcvp(): 1 name(s) had no row under the accepted name they were
+#> matched to; recovered via wcvp.
+```
+
+Recovery reports once per call rather than once per name. A name absent
+from a source is the normal case for any query set wider than the source's
+scope, so the reportable signal is that another backbone's treatment of the
+same concept does have a row. `summary()` on the result repeats the count,
+and it is in the `taxify_meta` attribute as `n_recovered`.
+
+Backbones also disagree about where a moved name went: COL puts *Minuartia
+hybrida* at *Sabulina tenuifolia* subsp. *hybrida* and WCVP at subsp.
+*tenuifolia*, two taxa WCVP gives different ranges. Recovery picks one the
+way the fallback chain picks `accepted_name`, by first match in backbone
+priority order rather than by vote, with one departure: a source taxify
+also carries as a backbone goes first, since the `.vtr` rows are keyed on
+that source's own accepted names and the other backbones' names are what
+the expansion added on top.
+
+Only unmatched rows pay for the pass, a backbone scoped to a kingdom none
+of those rows belong to is skipped, and the resolved names are cached for
+the session, so a chain of `add_*()` calls over one result resolves them
+once. Turn it off with
+`options(taxify.cross_backbone_recovery = FALSE)`.
 
 ### Automatic download and caching
 

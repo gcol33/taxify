@@ -695,7 +695,7 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
   out_cols <- character(0L)
   for (g in groups) {
     for (base_col in names(value_cols)) {
-      out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+      out_col <- .group_out_col(base_col, g, groups)
       out_cols <- c(out_cols, out_col)
       x[[out_col]] <- na_types[[base_col]]
     }
@@ -1056,6 +1056,174 @@ enrichment_groups <- function(source, verbose = TRUE) {
   ) |> vectra::collect()
 }
 
+
+# ---- Cross-backbone name recovery ---------------------------------------
+#
+# An enrichment .vtr is keyed on its source's own accepted names, expanded at
+# build time onto every backbone's treatment of the same concept
+# (taxifydb::resolve_enrichment_names()). Where that expansion missed a
+# backbone, the join finds nothing under the name that backbone routed the
+# query to, along the same code path and with the same empty output as a name
+# the source genuinely does not cover. Minuartia hybrida is the worked case:
+# WFO keeps the name, WCVP, COL and Euro+Med have all moved it to Sabulina, and
+# the wcvp enrichment holds 49 regions under the Sabulina name and none under
+# the Minuartia one.
+#
+# Recovery runs the same expansion late instead of early: names left empty by
+# the direct join are re-resolved through the other installed backbones and the
+# join is retried under their accepted names. Only unmatched rows pay for it,
+# matching is exact-only, and the pass is skipped when fewer than two backbones
+# are installed. Disable with options(taxify.cross_backbone_recovery = FALSE).
+
+# Accepted name, authorship and genus that one set of query names carries in
+# each installed backbone, long format, in backbone priority order. Memoized
+# per name set for the session, so a chain of add_*() calls over the same
+# result resolves them once.
+.cross_backbone_alternatives <- function(names_in, kingdoms = NULL) {
+  empty <- data.frame(input_name = character(0L), backbone = character(0L),
+                      alt_name = character(0L), alt_authorship = character(0L),
+                      alt_genus = character(0L), stringsAsFactors = FALSE)
+  q <- unique(names_in[!is.na(names_in) & nzchar(names_in)])
+  if (length(q) == 0L) return(empty)
+  bbs <- tryCatch(installed_backbones(), error = function(e) character(0L))
+  if (length(bbs) < 2L) return(empty)
+  bbs <- order_by_priority(bbs)
+
+  # A backbone scoped to a single kingdom by construction cannot hold the
+  # synonymy of a taxon from another one, so it is not worth opening for it --
+  # the pass costs about a second per backbone, most of it in opening the .vtr.
+  # Backbones with no fixed kingdom (the multi-kingdom syntheses and the
+  # aggregators) are always consulted, and so is every backbone when any
+  # queried kingdom is unknown.
+  if (length(kingdoms) > 0L) {
+    reg   <- .backbone_registry()
+    fixed <- stats::setNames(reg$fixed_kingdom, reg$name)[bbs]
+    bbs   <- bbs[is.na(fixed) | fixed %in% kingdoms]
+    if (length(bbs) < 2L) return(empty)
+  }
+
+  key <- paste0(".xbb_", paste(bbs, collapse = "+"), "_",
+                paste(sort(q), collapse = "|"))
+  cached <- .taxify_env[[key]]
+  if (!is.null(cached)) return(cached)
+
+  per_be <- lapply(bbs, function(bb) {
+    r <- tryCatch(taxify(q, backbone = bb, fuzzy = FALSE, verbose = FALSE),
+                  error = function(e) NULL)
+    if (is.null(r) || nrow(r) == 0L) return(empty)
+    data.frame(
+      input_name     = r$input_name,
+      backbone       = bb,
+      alt_name       = r$accepted_name,
+      alt_authorship = r$accepted_authorship %||% NA_character_,
+      alt_genus      = r$genus %||% NA_character_,
+      stringsAsFactors = FALSE
+    )
+  })
+  out <- do.call(rbind, per_be)
+  out <- out[!is.na(out$alt_name), , drop = FALSE]
+  rownames(out) <- NULL
+  .taxify_env[[key]] <- out
+  out
+}
+
+# For the rows of `x` a direct join left empty, the highest-priority
+# alternative accepted name (or genus, for a genus-keyed asset) that the
+# enrichment .vtr does hold. Returns NULL when nothing is recoverable, else a
+# list with the per-row alternative, the backbone whose treatment supplied it,
+# that backbone's authorship for it, and the joined source rows.
+.cross_backbone_recover <- function(x, rows, vtr_path, join_key, join_col,
+                                    src_cols, enrichment_name = NULL) {
+  if (length(rows) == 0L) return(NULL)
+  if (!isTRUE(getOption("taxify.cross_backbone_recovery", TRUE))) return(NULL)
+  if (!"accepted_name" %in% names(x)) return(NULL)
+
+  own     <- x$accepted_name[rows]
+  own_key <- x[[join_col]][rows]
+  keep    <- !is.na(own) & nzchar(own)
+  rows    <- rows[keep]; own <- own[keep]; own_key <- own_key[keep]
+  if (length(rows) == 0L) return(NULL)
+
+  kingdoms <- if ("kingdom_group" %in% names(x)) {
+    k <- unique(x$kingdom_group[rows])
+    if (anyNA(k)) NULL else k
+  } else {
+    NULL
+  }
+  alts <- .cross_backbone_alternatives(own, kingdoms)
+  if (nrow(alts) == 0L) return(NULL)
+
+  by_name <- split(seq_len(nrow(alts)), alts$input_name)
+  hit     <- by_name[own]
+  reps    <- lengths(hit)
+  if (sum(reps) == 0L) return(NULL)
+  a <- alts[unlist(hit, use.names = FALSE), , drop = FALSE]
+
+  cand <- data.frame(
+    row        = rep(rows, reps),
+    own_key    = rep(own_key, reps),
+    backbone   = a$backbone,
+    alt        = if (join_col == "genus") a$alt_genus else a$alt_name,
+    authorship = a$alt_authorship,
+    stringsAsFactors = FALSE
+  )
+  cand <- cand[!is.na(cand$alt) &
+                 (is.na(cand$own_key) | cand$alt != cand$own_key), ,
+               drop = FALSE]
+  if (nrow(cand) == 0L) return(NULL)
+
+  joined <- .enrichment_vtr_lookup(vtr_path, join_key, cand$alt, src_cols)
+  if (is.null(joined) || nrow(joined) == 0L) return(NULL)
+  cand <- cand[cand$alt %in% joined$lookup_name, , drop = FALSE]
+  if (nrow(cand) == 0L) return(NULL)
+
+  # Backbones disagree about where a moved name went (Minuartia hybrida is
+  # Sabulina tenuifolia subsp. tenuifolia in WCVP and subsp. hybrida in COL,
+  # two taxa the source gives different ranges), so recovery picks one the same
+  # way the fallback chain picks accepted_name: first match in backbone
+  # priority order, not a vote. The one departure is that a source taxify also
+  # carries as a backbone goes first -- the .vtr's rows are keyed on that
+  # source's own accepted names, and the other backbones' names are what the
+  # build-time expansion added on top, so its treatment is the source's own.
+  pref <- order_by_priority(unique(cand$backbone))
+  if (!is.null(enrichment_name) && enrichment_name %in% pref) {
+    pref <- c(enrichment_name, setdiff(pref, enrichment_name))
+  }
+  cand <- cand[order(cand$row, match(cand$backbone, pref)), , drop = FALSE]
+  cand <- cand[!duplicated(cand$row), , drop = FALSE]
+
+  fill_vec <- function(v) {
+    out <- rep(NA_character_, nrow(x))
+    out[cand$row] <- v
+    out
+  }
+  list(alt        = fill_vec(cand$alt),
+       via        = fill_vec(cand$backbone),
+       authorship = fill_vec(cand$authorship),
+       joined     = joined)
+}
+
+# Which rows are still completely empty for this enrichment's output columns.
+.enrichment_gap_rows <- function(x, out_cols, join_col) {
+  which(!is.na(x[[join_col]]) &
+          rowSums(!is.na(x[, out_cols, drop = FALSE])) == 0L)
+}
+
+# One message per enrichment call, never one per name: a name absent from a
+# source is the normal case for any query set wider than the source's scope, so
+# the reportable signal is that another backbone's treatment of the same concept
+# does have a row, not that this name has no data.
+.report_cross_backbone_recovery <- function(enrichment_name, via, verbose) {
+  n <- sum(!is.na(via))
+  if (n == 0L || !isTRUE(verbose)) return(invisible(NULL))
+  message(sprintf(
+    paste0("add_%s(): %d name(s) had no row under the accepted name they were ",
+           "matched to; recovered via %s."),
+    enrichment_name, n, paste(sort(unique(via[!is.na(via)])), collapse = ", ")
+  ))
+  invisible(NULL)
+}
+
 # Hybrid trait ladder: for a formula-hybrid row whose trait is still missing
 # after the direct join, fill it from the two parents -- numeric averaged, a
 # categorical taken as the shared value or "A x B" on disagreement (with a
@@ -1309,20 +1477,10 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
       lookup_pool <- unique(x[[join_col]][valid_rows])
     }
 
-    names_df <- data.frame(lookup_name = lookup_pool, stringsAsFactors = FALSE)
-    tmp <- tempfile(fileext = ".vtr")
-    on.exit(unlink(tmp), add = TRUE)
-    vectra::write_vtr(names_df, tmp)
+    joined <- .enrichment_vtr_lookup(vtr_path, join_key, lookup_pool,
+                                     unname(col_map))
 
-    select_cols <- unique(c(join_key, unname(col_map)))
-    joined <- vectra::inner_join(
-      vectra::tbl(tmp),
-      vectra::tbl(vtr_path) |>
-        vectra::select(!!!lapply(select_cols, as.name)),
-      by = stats::setNames(join_key, "lookup_name")
-    ) |> vectra::collect()
-
-    if (nrow(joined) > 0L) {
+    if (!is.null(joined) && nrow(joined) > 0L) {
       if (agg_aware) {
         enr_key <- canon_agg_marker(joined$lookup_name)
         keep    <- !duplicated(enr_key)
@@ -1363,18 +1521,9 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
     )
     if (length(gap_rows) > 0L) {
       gpool <- unique(x[["genus"]][gap_rows])
-      gnames <- data.frame(lookup_name = gpool, stringsAsFactors = FALSE)
-      gtmp <- tempfile(fileext = ".vtr")
-      on.exit(unlink(gtmp), add = TRUE)
-      vectra::write_vtr(gnames, gtmp)
-      select_cols <- unique(c(join_key, unname(col_map)))
-      gjoin <- vectra::inner_join(
-        vectra::tbl(gtmp),
-        vectra::tbl(vtr_path) |>
-          vectra::select(!!!lapply(select_cols, as.name)),
-        by = stats::setNames(join_key, "lookup_name")
-      ) |> vectra::collect()
-      if (nrow(gjoin) > 0L) {
+      gjoin <- .enrichment_vtr_lookup(vtr_path, join_key, gpool,
+                                      unname(col_map))
+      if (!is.null(gjoin) && nrow(gjoin) > 0L) {
         gjoin <- gjoin[!duplicated(gjoin$lookup_name), , drop = FALSE]
         gidx  <- match(x[["genus"]], gjoin$lookup_name)
         for (out_col in names(col_map)) {
@@ -1386,6 +1535,27 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
         }
       }
     }
+  }
+
+  # Cross-backbone recovery: a row still empty here may be one the source does
+  # cover, under the accepted name a different backbone gives the same concept.
+  recovered <- rep(NA_character_, nrow(x))
+  rec <- .cross_backbone_recover(
+    x, .enrichment_gap_rows(x, names(col_map), join_col),
+    vtr_path, join_key, join_col, unname(col_map), enrichment_name)
+  if (!is.null(rec)) {
+    before <- rowSums(!is.na(x[, names(col_map), drop = FALSE])) > 0L
+    lk  <- rec$joined[!duplicated(rec$joined$lookup_name), , drop = FALSE]
+    idx <- match(rec$alt, lk$lookup_name)
+    for (out_col in names(col_map)) {
+      src_col <- col_map[[out_col]]
+      if (!src_col %in% names(lk)) next
+      fill <- which(is.na(x[[out_col]]) & !is.na(idx))
+      x[[out_col]][fill] <- lk[[src_col]][idx[fill]]
+    }
+    got <- rowSums(!is.na(x[, names(col_map), drop = FALSE])) > 0L & !before
+    recovered[got] <- rec$via[got]
+    .report_cross_backbone_recovery(enrichment_name, recovered, verbose)
   }
 
   # Hybrid ladder: a formula whose trait is still missing after the direct join
@@ -1402,7 +1572,8 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
     rowSums(!is.na(x[, names(col_map), drop = FALSE])) > 0L
   )
   register_enrichment(x, enrichment_name, source_label, ver, n_enriched,
-                      license = lic)
+                      license = lic,
+                      n_recovered = sum(!is.na(recovered)))
 }
 
 
@@ -1606,6 +1777,41 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
 }
 
 
+# Output column a (base column, group) pair pivots into. A single group keeps
+# the base name; several suffix it, so the caller and the fill agree on one rule.
+.group_out_col <- function(base_col, g, groups) {
+  if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+}
+
+# Fill the pivoted output columns from a joined source frame, one match() per
+# group, matching `lookup` (one name per row of x) against the join key. Only
+# empty cells are written, so a second pass over the same frame -- the
+# cross-backbone recovery below -- never overwrites a direct hit.
+.enrich_group_fill <- function(x, joined, lookup, groups, value_cols,
+                               group_col) {
+  for (g in groups) {
+    g_data <- if (is.na(g)) {
+      joined[is.na(joined[[group_col]]), , drop = FALSE]
+    } else {
+      joined[!is.na(joined[[group_col]]) & joined[[group_col]] == g, ,
+             drop = FALSE]
+    }
+    if (nrow(g_data) == 0L) next
+    g_data <- g_data[!duplicated(g_data$lookup_name), , drop = FALSE]
+    idx <- match(lookup, g_data$lookup_name)
+    if (!any(!is.na(idx))) next
+    for (base_col in names(value_cols)) {
+      src_col <- value_cols[[base_col]]
+      if (!src_col %in% names(g_data)) next
+      out_col <- .group_out_col(base_col, g, groups)
+      fill <- which(!is.na(idx) & is.na(x[[out_col]]))
+      x[[out_col]][fill] <- g_data[[src_col]][idx[fill]]
+    }
+  }
+  x
+}
+
+
 #' Group-based enrichment join (country/region/language filtering + pivot)
 #'
 #' Joins an enrichment .vtr on accepted_name, filters by a grouping column
@@ -1728,7 +1934,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   out_cols <- character(0L)
   for (g in groups) {
     for (base_col in names(value_cols)) {
-      out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+      out_col <- .group_out_col(base_col, g, groups)
       out_cols <- c(out_cols, out_col)
       x[[out_col]] <- na_types[[base_col]]
     }
@@ -1743,88 +1949,70 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
                                license = lic))
   }
 
-  # Build temp .vtr with unique accepted names
-  names_unique <- unique(x$accepted_name[valid_rows])
-  names_df <- data.frame(lookup_name = names_unique, stringsAsFactors = FALSE)
-  tmp <- tempfile(fileext = ".vtr")
-  on.exit(unlink(tmp), add = TRUE)
-  vectra::write_vtr(names_df, tmp)
-
   # Select needed columns. The authorship-like column (when the source carries
   # one) is pulled in too, even if not requested as output: it is the only
   # signal available for disambiguate_by_name_authorship() below.
   authorship_col <- enrichment_authorship_col(names(schema))
-  select_cols <- unique(c(join_key, group_col, unname(value_cols),
-                          authorship_col))
+  select_cols <- unique(c(group_col, unname(value_cols), authorship_col))
   select_cols <- intersect(select_cols, names(schema))
 
-  joined <- vectra::inner_join(
-    vectra::tbl(tmp),
-    vectra::tbl(vtr_path) |>
-      vectra::select(!!!lapply(select_cols, as.name)),
-    by = stats::setNames(join_key, "lookup_name")
-  ) |> vectra::collect()
+  has_na_group <- anyNA(groups)
 
-  if (nrow(joined) == 0L) {
-    meta <- read_enrichment_meta(vtr_path)
-    ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
-                               license = lic))
-  }
-
+  # One pass over a set of looked-up rows: resolve homonyms against the
+  # authorship the caller matched, then narrow to the requested groups. Shared
+  # by the direct join and the cross-backbone recovery below, which differ only
+  # in the name each row is looked up under.
+  #
   # A name the join_key resolves to more than one row that disagree on
   # authorship is a homonym collision: the same accepted-name string covers
   # two distinct taxonomic concepts in the source (#50 -- add_wcvp() joining
   # Erigeron pulchellus Michx. onto Erigeron pulchellus Hoppe & Hornsch. ex
   # Bluff & Fingerh.'s European range because both share the bare name).
-  # Resolve against x's own accepted_authorship where it uniquely picks one
-  # concept; otherwise drop every row for that name so its output cells stay
-  # NA rather than silently keeping an arbitrary one.
-  if (!is.null(authorship_col) && "accepted_authorship" %in% names(x)) {
-    joined <- disambiguate_by_name_authorship(
-      joined, x, authorship_col, enrichment_name)
-  }
-  if (nrow(joined) == 0L) {
-    meta <- read_enrichment_meta(vtr_path)
-    ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
-                               license = lic))
-  }
-
-  # Filter to requested groups (NA-safe: %in% drops NA, so handle explicitly)
-  has_na_group <- anyNA(groups)
-  joined <- joined[
-    joined[[group_col]] %in% groups |
-      (has_na_group & is.na(joined[[group_col]])),
-    , drop = FALSE
-  ]
-  if (nrow(joined) == 0L) {
-    meta <- read_enrichment_meta(vtr_path)
-    ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
-    lic <- if (!is.null(meta)) meta$license %||% NA_character_ else NA_character_
-    return(register_enrichment(x, enrichment_name, source_label, ver, 0L,
-                               license = lic))
-  }
-
-  # Vectorized fill: one match() per group
-  for (g in groups) {
-    g_data <- if (is.na(g)) {
-      joined[is.na(joined[[group_col]]), , drop = FALSE]
-    } else {
-      joined[!is.na(joined[[group_col]]) & joined[[group_col]] == g, , drop = FALSE]
+  # Resolve against the caller's own accepted_authorship where it uniquely
+  # picks one concept; otherwise drop every row for that name so its output
+  # cells stay NA rather than silently keeping an arbitrary one.
+  prepare <- function(joined, xa) {
+    if (is.null(joined) || nrow(joined) == 0L) return(NULL)
+    if (!is.null(authorship_col) && "accepted_authorship" %in% names(xa)) {
+      joined <- disambiguate_by_name_authorship(
+        joined, xa, authorship_col, enrichment_name)
     }
-    if (nrow(g_data) == 0L) next
-    g_data <- g_data[!duplicated(g_data$lookup_name), , drop = FALSE]
-    idx <- match(x$accepted_name, g_data$lookup_name)
-    matched <- which(!is.na(idx))
-    if (length(matched) == 0L) next
-    for (base_col in names(value_cols)) {
-      src_col <- value_cols[[base_col]]
-      if (!src_col %in% names(g_data)) next
-      out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
-      x[[out_col]][matched] <- g_data[[src_col]][idx[matched]]
+    joined <- joined[
+      joined[[group_col]] %in% groups |
+        (has_na_group & is.na(joined[[group_col]])),
+      , drop = FALSE
+    ]
+    if (nrow(joined) == 0L) NULL else joined
+  }
+
+  direct <- prepare(
+    .enrichment_vtr_lookup(vtr_path, join_key, x$accepted_name[valid_rows],
+                           select_cols),
+    x)
+  if (!is.null(direct)) {
+    x <- .enrich_group_fill(x, direct, x$accepted_name, groups, value_cols,
+                            group_col)
+  }
+
+  # Cross-backbone recovery: a row still empty here may be one the source does
+  # cover, under the accepted name a different backbone gives the same concept.
+  # The alternative carries that backbone's own authorship, so the homonym
+  # guard above applies to it on the same terms.
+  recovered <- rep(NA_character_, nrow(x))
+  rec <- .cross_backbone_recover(
+    x, .enrichment_gap_rows(x, out_cols, "accepted_name"),
+    vtr_path, join_key, "accepted_name", select_cols, enrichment_name)
+  if (!is.null(rec)) {
+    xa <- x
+    xa$accepted_name       <- rec$alt
+    xa$accepted_authorship <- rec$authorship
+    alt <- prepare(rec$joined, xa)
+    if (!is.null(alt)) {
+      before <- rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
+      x <- .enrich_group_fill(x, alt, rec$alt, groups, value_cols, group_col)
+      got <- rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L & !before
+      recovered[got] <- rec$via[got]
+      .report_cross_backbone_recovery(enrichment_name, recovered, verbose)
     }
   }
 
@@ -1835,7 +2023,8 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
   )
   x <- register_enrichment(x, enrichment_name, source_label, ver, n_enriched,
-                            license = lic)
+                            license = lic,
+                            n_recovered = sum(!is.na(recovered)))
 
   # Stamp reshape metadata so taxify_long() can auto-detect
   reshape_entry <- list(cols = names(value_cols), group_col = group_col)

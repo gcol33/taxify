@@ -203,12 +203,18 @@ summary.taxify_result <- function(object, ...) {
       } else {
         ""
       }
-      cat(sprintf("    %-*s  (%s)%s \u2014 %d of %d matched%s\n",
+      n_rec <- e$n_recovered %||% 0L
+      rec_str <- if (!is.na(n_rec) && n_rec > 0L) {
+        sprintf(" (%d via another backbone's accepted name)", n_rec)
+      } else {
+        ""
+      }
+      cat(sprintf("    %-*s  (%s)%s \u2014 %d of %d matched%s%s\n",
                   max_name, e$name,
                   src_str,
                   strrep(" ", max_src - nchar(src_str)),
                   e$n_matched, e$n_total,
-                  lic_str))
+                  rec_str, lic_str))
     }
   }
 

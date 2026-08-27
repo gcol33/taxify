@@ -1,5 +1,29 @@
 # taxify 0.4.7
 
+* Enrichment joins now recover a name the source covers under a different
+  backbone's accepted name. An enrichment `.vtr` is keyed on its source's own
+  accepted names, expanded at build time onto every backbone's treatment of the
+  same concept, and where that expansion missed one the join found nothing
+  along the same code path, and with the same empty output, as a name the
+  source genuinely does not cover. *Minuartia hybrida* was the reported case:
+  WFO keeps the name, WCVP, COL and Euro+Med have all moved it to *Sabulina*,
+  and `add_wcvp()` returned no range at all when matched through WFO. Sampling
+  names from an enrichment's own `.vtr` puts the gap at 4.5% to 22.5% of names
+  depending on the enrichment. Names left empty by the direct join are now
+  re-resolved through the other installed backbones, exact matching only, and
+  the join retried under their accepted names, so the WFO route returns the 49
+  regions the WCVP route does. Where backbones disagree about where a moved
+  name went (COL puts it at *Sabulina tenuifolia* subsp. *hybrida*, WCVP at
+  subsp. *tenuifolia*, and WCVP gives the two different ranges) the pick
+  follows backbone priority rather than a vote, the way `accepted_name` itself
+  is picked, except that a source taxify also carries as a backbone goes first.
+  Recovery reports once per call, never once per name, since a name absent from
+  a source is the normal case for any query set wider than the source's scope;
+  `summary()` and the `taxify_meta` attribute (`n_recovered`) carry the count.
+  Only unmatched rows pay for the pass and backbones scoped to a kingdom none
+  of them belong to are skipped; disable it with
+  `options(taxify.cross_backbone_recovery = FALSE)` (#52).
+
 * Grouped enrichment joins no longer discard a name's data when the routing
   backbone and the enrichment source spell its authorship differently. The
   homonym resolution added in 0.4.6 compared author strings exactly, and the
