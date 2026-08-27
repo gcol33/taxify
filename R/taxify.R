@@ -266,9 +266,10 @@ taxify <- function(x,
   }
   if (!is.numeric(fuzzy_threshold) || length(fuzzy_threshold) != 1L ||
       !is.finite(fuzzy_threshold) || fuzzy_threshold <= 0 ||
-      fuzzy_threshold > 1) {
-    stop("fuzzy_threshold must be a single finite number in (0, 1]",
-         call. = FALSE)
+      (fuzzy_threshold >= 1 && fuzzy_threshold != round(fuzzy_threshold))) {
+    stop("fuzzy_threshold must be a single finite number > 0 ",
+         "(fractional in (0, 1) for a normalized distance, or a whole ",
+         "number >= 1 for a raw edit count)", call. = FALSE)
   }
 
   region       <- resolve_region(region, coords, verbose = verbose)

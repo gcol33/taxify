@@ -541,6 +541,46 @@ fill_compiled_matches <- function(result, matches, match_type, col_map) {
 # Shared fuzzy matching via vectra::fuzzy_join()
 # ------------------------------------------------------------------
 
+#' Whether a fuzzy_threshold requests integer (raw edit count) mode
+#' @noRd
+is_integer_fuzzy_threshold <- function(threshold) threshold >= 1
+
+#' Normalized max_dist to pass to vectra::fuzzy_join()
+#'
+#' vectra's `fuzzy_join()` only accepts a normalized distance in (0, 1].
+#' Integer (raw edit count) mode -- documented on `taxify()`'s
+#' `fuzzy_threshold` but not something the C engine implements -- is built on
+#' top of it here: the join runs at the loosest normalized bound (1, every
+#' genus-blocked candidate), and `filter_by_raw_edits()` below turns the
+#' reported normalized `fuzzy_dist` back into a raw edit count for filtering.
+#' @noRd
+vectra_max_dist <- function(threshold) {
+  if (is_integer_fuzzy_threshold(threshold)) 1 else threshold
+}
+
+#' Filter fuzzy_join() matches by raw edit count in integer mode
+#'
+#' `fuzzy_dist` is exactly `raw_edits / max(len_a, len_b)` (see vectra's
+#' `compute_dist()`), so multiplying back by the longer of the two matched
+#' strings recovers the raw edit count exactly.
+#'
+#' @param matches Collected `fuzzy_join()` output with a `fuzzy_dist` column.
+#' @param threshold The `fuzzy_threshold` value passed to `taxify()`.
+#' @param probe_col,build_col Names of the matched name columns on the probe
+#'   and build side.
+#' @return `matches`, unchanged in fractional mode; row-filtered in integer
+#'   mode.
+#' @noRd
+filter_by_raw_edits <- function(matches, threshold, probe_col, build_col) {
+  if (nrow(matches) == 0L || !is_integer_fuzzy_threshold(threshold)) {
+    return(matches)
+  }
+  max_len <- pmax(nchar(matches[[probe_col]]), nchar(matches[[build_col]]))
+  raw_edits <- round(matches$fuzzy_dist * max_len)
+  matches[raw_edits <= threshold, , drop = FALSE]
+}
+
+
 #' Run fuzzy matching using vectra's C-level fuzzy_join with OpenMP
 #'
 #' Shared implementation for all backbones. Builds a query .vtr from unmatched
@@ -625,7 +665,7 @@ fuzzy_match_via_join <- function(result, names_df, vtr_path, method, threshold,
       vectra::tbl(tmp_candidates),
       by = by_vec,
       method = method,
-      max_dist = threshold,
+      max_dist = vectra_max_dist(threshold),
       block_by = block_vec,
       n_threads = 4L
     ) |> vectra::collect(),
@@ -635,6 +675,8 @@ fuzzy_match_via_join <- function(result, names_df, vtr_path, method, threshold,
       data.frame()
     }
   )
+
+  matches <- filter_by_raw_edits(matches, threshold, "cleaned_name", col_map$name)
 
   if (nrow(matches) > 0L) {
     matches <- standardize_pick_cols(matches, col_map)
@@ -785,7 +827,7 @@ fuzzy_match_prefix_blocked <- function(result, names_df, vtr_path, method,
       right_prefixed,
       by = by_vec,
       method = method,
-      max_dist = threshold,
+      max_dist = vectra_max_dist(threshold),
       block_by = block_vec,
       n_threads = 4L
     ) |> vectra::collect(),
@@ -795,6 +837,8 @@ fuzzy_match_prefix_blocked <- function(result, names_df, vtr_path, method,
       data.frame()
     }
   )
+
+  matches <- filter_by_raw_edits(matches, threshold, "cleaned_name", col_map$name)
 
   if (nrow(matches) > 0L) {
     matches <- standardize_pick_cols(matches, col_map)

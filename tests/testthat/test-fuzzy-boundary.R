@@ -275,6 +275,23 @@ test_that("the prefix fallback cannot re-claim a row the join pass took", {
 })
 
 
+# ---- Integer (raw edit count) mode ----
+
+test_that("an integer fuzzy_threshold is accepted and matches on raw edit count", {
+  setup_fuzzy_backend()
+
+  # 'Quercus rubra' is 3 raw edits from 'Quercus robur'. A threshold of 2L
+  # (2 edits) must reject it; 3L must admit it.
+  rejected <- taxify("Quercus rubra", fuzzy_threshold = 2L, verbose = FALSE)
+  expect_equal(rejected$match_type, "none")
+  expect_true(is.na(rejected$accepted_name))
+
+  admitted <- taxify("Quercus rubra", fuzzy_threshold = 3L, verbose = FALSE)
+  expect_equal(admitted$match_type, "fuzzy")
+  expect_equal(admitted$accepted_name, "Quercus robur")
+})
+
+
 test_that("the closer of two fuzzy candidates wins regardless of taxon_id", {
   setup_fuzzy_backend()
 
