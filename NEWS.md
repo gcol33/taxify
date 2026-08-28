@@ -1,5 +1,24 @@
 # taxify 0.4.7
 
+* Enrichment joins now recover an infraspecific name across GBIF's dropped rank
+  marker. GBIF's backbone renders an infraspecific accepted name without its
+  rank connecting term -- *Erica tenella* var. *tenella* comes out `Erica
+  tenella tenella` -- where every other backbone and every botanical source
+  keeps the marker, so a join keyed on the rendered name missed in either
+  direction. `taxifydb` reinstates the marker at build time
+  (`gcol33/taxifydb#45`), but a user still on an older `gbif.vtr` holds the
+  marker-less form, so the runtime now retries the rows a direct (and
+  cross-backbone) join left empty under the name's alternative rank-marker
+  renderings -- the bare trinomial and each canonical marker -- and matches when
+  the marker is the sole difference. A rank-insensitive comparison can collide
+  distinct taxa (*Aus bus* var. *cus* and *Aus bus* subsp. *cus* are different
+  names), so a row whose alternatives reach more than one accepted name in the
+  source is left `NA` rather than resolved to a guess. Zoological trinomials
+  (*Panthera leo persica*) are correctly marker-less and match directly, so they
+  never reach the fallback. Only still-empty rows pay for the pass; disable it
+  with `options(taxify.infra_marker_recovery = FALSE)`
+  (`gcol33/taxifydb#45`).
+
 * Enrichment joins now recover a name the source covers under a different
   backbone's accepted name. An enrichment `.vtr` is keyed on its source's own
   accepted names, expanded at build time onto every backbone's treatment of the

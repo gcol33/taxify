@@ -14,6 +14,57 @@
 .infra_rank_markers <- c("subsp.", "var.", "f.", "subvar.", "subf.",
                          "convar.", "cv.", "pv.", "f.sp.")
 
+# Raw source spellings of the infraspecific rank markers, drawn from the same
+# qualifier vocabulary clean_names() folds (the map keys whose canonical form is
+# a below-species rank in .infra_rank_markers). Longest-first so an alternation
+# prefers "subspecies" over "subsp". These are the tokens a rank-insensitive key
+# drops.
+.infra_marker_spellings <- local({
+  raw <- names(.qualifier_canon_map)[.qualifier_canon_map %in% .infra_rank_markers]
+  raw[order(-nchar(raw))]
+})
+
+# A rank marker sitting between the specific and infraspecific epithets: one of
+# the spellings (plus the spaced "f. sp." forma-specialis form) then an optional
+# trailing period and the whitespace before the next epithet. The `(?<=\s)`
+# lookbehind anchors it after a preceding space, so the genus (the leading
+# token) is never touched.
+.infra_marker_mid_pattern <- paste0(
+  "(?<=\\s)(",
+  paste(c(.infra_marker_spellings, "f\\.?\\s*sp"), collapse = "|"),
+  ")\\.?\\s+"
+)
+
+#' Alternative rank-marker renderings of an infraspecific name
+#'
+#' GBIF's backbone renders an infraspecific taxon's accepted name without its
+#' rank connecting term (`Erica tenella var. tenella` becomes
+#' `Erica tenella tenella`), where every other backbone and botanical source
+#' keeps the marker. To reach the same taxon across that mismatch, this drops
+#' the marker to the bare trinomial and re-inserts each canonical marker before
+#' the infraspecific epithet, so two names that differ only by their rank marker
+#' (or by one having dropped it) are reachable from either side. The original
+#' name is excluded -- it is the form a direct join already tried. A name with
+#' no infraspecific structure (fewer than three tokens once the marker is
+#' removed, i.e. a bare genus or binomial) yields none.
+#'
+#' @param nm Character scalar. One canonical name.
+#' @return Character vector of alternative renderings (possibly empty).
+#' @noRd
+.infra_marker_variants <- function(nm) {
+  if (is.na(nm) || !nzchar(nm)) return(character(0L))
+  base <- gsub(.infra_marker_mid_pattern, "", nm, perl = TRUE, ignore.case = TRUE)
+  base <- trimws(gsub("\\s+", " ", base))
+  toks <- strsplit(base, " ", fixed = TRUE)[[1L]]
+  if (length(toks) < 3L) return(character(0L))
+  head_toks <- toks[-length(toks)]
+  infra     <- toks[length(toks)]
+  markerful <- vapply(.infra_rank_markers, function(m)
+    paste(c(head_toks, m, infra), collapse = " "), character(1L),
+    USE.NAMES = FALSE)
+  setdiff(unique(c(base, markerful)), nm)
+}
+
 
 #' Capture the authorship of a taxonomic name (vectorized)
 #'

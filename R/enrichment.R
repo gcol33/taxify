@@ -1240,6 +1240,76 @@ enrichment_groups <- function(source, verbose = TRUE) {
   invisible(NULL)
 }
 
+
+# ---- Infraspecific rank-marker recovery ---------------------------------
+#
+# The runtime counterpart of the taxifydb build-side fix (gcol33/taxifydb#45).
+# GBIF's backbone renders an infraspecific taxon's accepted name without its
+# rank connecting term -- "Erica tenella var. tenella" comes out
+# "Erica tenella tenella" -- where every other backbone and every botanical
+# source keeps the marker. taxifydb reinstates it at build time from the
+# verbatim scientific name, but a user still on an older gbif.vtr holds the
+# marker-less form, so a join keyed on the rendered name misses in either
+# direction: an enrichment key that carries the marker against a stale
+# marker-less backbone name, or a marker-less enrichment key against a backbone
+# name that kept it.
+#
+# For rows a direct (and cross-backbone) join left empty, recovery retries the
+# join under the name's alternative marker renderings -- the bare trinomial and
+# each canonical marker (.infra_marker_variants) -- so a match lands only when
+# the rank marker is the sole difference. A rank-insensitive comparison can
+# collide DISTINCT taxa: "Aus bus var. cus" and "Aus bus subsp. cus" are
+# different names, not one taxon spelled two ways. So when a row's alternatives
+# reach more than one distinct enrichment name the row is left unmatched rather
+# than resolved to a guess. Zoological trinomials ("Panthera leo persica") are
+# correctly marker-less and match directly, so they never reach this fallback;
+# one that does (absent from the source) finds no marker-ful form and stays
+# unmatched. Runs only on still-empty rows and is exact under the marker
+# normalization. Disable with options(taxify.infra_marker_recovery = FALSE).
+
+# For the still-empty `rows` of `x`, the single enrichment key each row's
+# alternative marker renderings reach -- when they reach exactly one. Returns
+# NULL when nothing is recoverable, else a list with the per-row key
+# (`alt`, one entry per row of `x`, NA where none or ambiguous) and the joined
+# source rows for filling.
+.infra_marker_recover <- function(x, rows, vtr_path, join_key, join_col,
+                                  src_cols) {
+  if (length(rows) == 0L) return(NULL)
+  if (!isTRUE(getOption("taxify.infra_marker_recovery", TRUE))) return(NULL)
+
+  own  <- x[[join_col]][rows]
+  keep <- !is.na(own) & nzchar(own)
+  rows <- rows[keep]; own <- own[keep]
+  if (length(rows) == 0L) return(NULL)
+
+  vars <- lapply(own, .infra_marker_variants)
+  reps <- lengths(vars)
+  if (sum(reps) == 0L) return(NULL)
+  cand <- data.frame(
+    row = rep(rows, reps),
+    alt = unlist(vars, use.names = FALSE),
+    stringsAsFactors = FALSE
+  )
+
+  joined <- .enrichment_vtr_lookup(vtr_path, join_key, cand$alt, src_cols)
+  if (is.null(joined) || nrow(joined) == 0L) return(NULL)
+  cand <- unique(cand[cand$alt %in% joined$lookup_name, , drop = FALSE])
+  if (nrow(cand) == 0L) return(NULL)
+
+  # A rank-insensitive key can name more than one real taxon. Where a row's
+  # alternatives reach two or more distinct enrichment names, the marker is not
+  # the only difference between real names, so the row is left unmatched rather
+  # than resolved to an arbitrary one.
+  n_by_row <- table(cand$row)
+  ok_rows  <- as.integer(names(n_by_row))[n_by_row == 1L]
+  cand     <- cand[cand$row %in% ok_rows, , drop = FALSE]
+  if (nrow(cand) == 0L) return(NULL)
+
+  alt <- rep(NA_character_, nrow(x))
+  alt[cand$row] <- cand$alt
+  list(alt = alt, joined = joined)
+}
+
 # Hybrid trait ladder: for a formula-hybrid row whose trait is still missing
 # after the direct join, fill it from the two parents -- numeric averaged, a
 # categorical taken as the shared value or "A x B" on disagreement (with a
@@ -1572,6 +1642,23 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
     got <- rowSums(!is.na(x[, names(col_map), drop = FALSE])) > 0L & !before
     recovered[got] <- rec$via[got]
     .report_cross_backbone_recovery(enrichment_name, recovered, verbose)
+  }
+
+  # Infraspecific rank-marker recovery: a row still empty may match an
+  # enrichment key that renders the same taxon with a different (or, for a stale
+  # GBIF backbone name, a dropped) infraspecific rank marker.
+  rec2 <- .infra_marker_recover(
+    x, .enrichment_gap_rows(x, names(col_map), join_col),
+    vtr_path, join_key, join_col, unname(col_map))
+  if (!is.null(rec2)) {
+    lk  <- rec2$joined[!duplicated(rec2$joined$lookup_name), , drop = FALSE]
+    idx <- match(rec2$alt, lk$lookup_name)
+    for (out_col in names(col_map)) {
+      src_col <- col_map[[out_col]]
+      if (!src_col %in% names(lk)) next
+      fill <- which(is.na(x[[out_col]]) & !is.na(idx))
+      x[[out_col]][fill] <- lk[[src_col]][idx[fill]]
+    }
   }
 
   # Hybrid ladder: a formula whose trait is still missing after the direct join
@@ -2029,6 +2116,22 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
       got <- rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L & !before
       recovered[got] <- rec$via[got]
       .report_cross_backbone_recovery(enrichment_name, recovered, verbose)
+    }
+  }
+
+  # Infraspecific rank-marker recovery (see enrich_simple): retry still-empty
+  # rows under the name's alternative marker renderings. The recovered concept
+  # keeps x's own authorship, so the homonym guard in prepare() applies to it on
+  # the same terms as a direct hit.
+  rec2 <- .infra_marker_recover(
+    x, .enrichment_gap_rows(x, out_cols, "accepted_name"),
+    vtr_path, join_key, "accepted_name", select_cols)
+  if (!is.null(rec2)) {
+    xa <- x
+    xa$accepted_name <- rec2$alt
+    alt2 <- prepare(rec2$joined, xa)
+    if (!is.null(alt2)) {
+      x <- .enrich_group_fill(x, alt2, rec2$alt, groups, value_cols, group_col)
     }
   }
 
