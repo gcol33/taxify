@@ -162,6 +162,22 @@ check_enrichment_version <- function(name) {
   entry <- resolve_enrichment_entry(manifest, name)
   if (is.null(entry)) return(FALSE)
 
+  # Content identity decides, and the version string is the fallback -- the
+  # same order the backbone gate uses. A version records when a build ran, not
+  # what it read, so a rebuild republished under the tag it already carries
+  # leaves the label untouched while the columns change underneath it: GRIIS
+  # 2026.08 was rebuilt after its GBIF source stopped returning `recordid`, and
+  # a label comparison holds the pre-rebuild .vtr forever.
+  #
+  # Only for runtime-downloaded caches (downloaded_at); hash_missing = FALSE
+  # leaves a cache predating content ids to the version comparison rather than
+  # rehashing it on every session.
+  if (!is.null(meta$downloaded_at)) {
+    s <- reconcile_content_id(vtr_path, meta$content_id, entry$content_id,
+                              hash_missing = FALSE)
+    if (!is.na(s)) return(s)
+  }
+
   isTRUE(meta$version != entry$latest)
 }
 
