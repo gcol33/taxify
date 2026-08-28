@@ -1,4 +1,4 @@
-# taxify 0.4.7
+# taxify 0.4.8
 
 * Enrichment joins now recover an infraspecific name across GBIF's dropped rank
   marker. GBIF's backbone renders an infraspecific accepted name without its
@@ -42,6 +42,31 @@
   Only unmatched rows pay for the pass and backbones scoped to a kingdom none
   of them belong to are skipped; disable it with
   `options(taxify.cross_backbone_recovery = FALSE)` (#52).
+
+* A rebuilt enrichment asset republished under the release tag it already
+  carries now refreshes the local cache. `check_enrichment_version()`
+  reconciled content ids only for a static enrichment; a versioned one compared
+  its recorded version against the manifest's latest, and a same-tag republish
+  leaves that label untouched while the bytes change underneath it. GRIIS
+  2026.08 was rebuilt after its GBIF-backed source stopped returning `recordid`
+  and republished under the tag it already held, so the pre-rebuild `.vtr`
+  stayed in place indefinitely and `add_griis(cols = "recordid")` went on
+  resolving a column the source no longer carries instead of raising the
+  unknown-column error. Content identity now decides and the version string is
+  the fallback, the order the backbone gate already used; a cache predating
+  content ids is still left to the label rather than rehashed every session.
+
+* The bundled manifest points at the rebuilt `enrichment-2026.08` assets and
+  the republished `gbif-2026.08` backbone. Every enrichment asset was rebuilt
+  with the build-side reverse hop behind the recovery pass above and carries a
+  `resolved_backbones` field naming the backbones it was expanded against;
+  downloads grow with the wider key sets, 1.96x over the assets with a shipped
+  counterpart (`wcvp` 69 to 141 MB, `gift` 20 to 40 MB). `avonet` and `glonaf`
+  each drop a `trait_cols` entry naming a column their `.vtr` never carried,
+  and `griis` drops `recordid`, which its upstream source stopped returning
+  (`gcol33/taxifydb#44`).
+
+# taxify 0.4.7
 
 * Grouped enrichment joins no longer discard a name's data when the routing
   backbone and the enrichment source spell its authorship differently. The
