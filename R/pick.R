@@ -2,28 +2,94 @@
 #
 # When multiple backbone rows match a single input name, pick the best one.
 #
-# Priority (smaller score = better):
+# Two kinds of criterion, and the split matters:
+#
+# CONCEPT SCORES say which taxonomic concept the name denotes. Together they
+# form the `tier` signature (smaller = better):
 #   0. smallest fuzzy distance      (fuzzy matches only; decides which backbone
-#                                    name the input meant, before the tiebreaks
+#                                    name the input meant, before the scores
 #                                    below decide which row of that name to take)
-#   1. ACCEPTED > SYNONYM           (case-tolerant: works for "Accepted"/"ACCEPTED")
+#   1. status                       (accepted > unreviewed > synonym >
+#                                    misapplied; see `.status_rank`)
 #   2. SPECIES  > higher ranks      (case-tolerant)
-#   3. nomenclaturalStatus = Valid  (when the column is present in the .vtr)
-#   4. epithet-preserving accepted  (the candidate whose accepted name keeps the
+#   3. epithet-preserving accepted  (the candidate whose accepted name keeps the
 #                                    matched name's specific epithet — the
 #                                    homotypic basionym among same-name homonym
 #                                    synonyms, e.g. `Pinus abies` L. -> `Picea
 #                                    abies` rather than the later homonyms
 #                                    `Pinus abies` Thunb. -> `Picea polita` etc.)
-#   5. lowest taxonID               (deterministic tiebreaker)
 #
-# When multiple rows share the same top tier (same status_score + rank_score +
-# valid_score + epithet_score within a group) AND disagree on
-# `accepted_taxon_id`, the pick is genuinely ambiguous: we set
-# `is_ambiguous = TRUE` and report the conflicting accepted IDs in
-# `ambiguous_targets` so callers can detect the case. Because the epithet score
-# enters the tier signature, a single epithet-preserving candidate resolves the
-# group cleanly (`is_ambiguous = FALSE`).
+# ORDERING TIEBREAKS then choose one row inside the best tier, deterministically:
+#   4. nomenclaturalStatus = Valid  (when the column is present in the .vtr)
+#   5. lowest taxonID
+#
+# When multiple rows share the best `tier` AND disagree on `accepted_taxon_id`,
+# the pick is genuinely ambiguous: we set `is_ambiguous = TRUE` and report the
+# conflicting accepted IDs in `ambiguous_targets` so callers can detect the case.
+# The ordering tiebreaks stay out of that signature on purpose: nomenclatural
+# validity is a statement about how a name was published, not about which taxon
+# it denotes, so it may order the pick but must never make a conflict between
+# two different accepted taxa disappear. `Rubus laciniatus` in WFO is the case —
+# a Valid record sinking it into `Rubus ulmifolius` and an Illegitimate one into
+# `Rubus nemoralis` — where letting validity settle the tier returned a different
+# species with `is_ambiguous = FALSE` (#53).
+#
+# One tier gap does not settle a conflict either: a best row that is only
+# *unplaced* is a non-decision by the backbone, so a lower-tier record that does
+# place the name elsewhere still counts. See `in_conflict_scope()`.
+
+
+# Ordered vocabulary for `taxonomicStatus`, smaller = better. Backbones spell
+# their status differently and several ship values on neither side of the
+# accepted/synonym split: WFO writes `UNCHECKED` for a name it has not reviewed,
+# COL `PROVISIONALLY ACCEPTED`, and both keep the name as its own accepted
+# concept. Scoring those with the synonyms let a synonym of a *different* species
+# outrank the record that keeps the name (#53). A misapplied or ambiguous
+# synonym ranks below a plain one: it is a wrong usage, not a nomenclatural act.
+# Unlisted spellings fall through to `is_synonym`, so a new backbone vocabulary
+# still lands on the right side of the split without an entry here.
+.status_rank <- c(
+  "ACCEPTED"               = 0L,
+  "VALID"                  = 0L,
+  "PROVISIONALLY ACCEPTED" = 1L,
+  "UNCHECKED"              = 1L,
+  "DOUBTFUL"               = 1L,
+  "SYNONYM"                = 2L,
+  "HOMOTYPIC SYNONYM"      = 2L,
+  "HETEROTYPIC SYNONYM"    = 2L,
+  "AMBIGUOUS SYNONYM"      = 3L,
+  "MISAPPLIED"             = 3L
+)
+
+#' Score a taxonomic status string against the ordered status vocabulary
+#'
+#' Looks each status up in `.status_rank`, then lets the backbone's own
+#' normalized `is_synonym` flag clamp the result: a row flagged a synonym can
+#' never score better than synonym grade, and a row that is its own accepted
+#' concept can never score worse than the unreviewed grade. An unrecognized
+#' status is decided by `is_synonym` alone.
+#'
+#' @param status Character vector of `taxonomicStatus` values.
+#' @param is_synonym Logical vector, or `NULL` when the column is absent.
+#' @return Integer vector of status scores (smaller is better).
+#' @noRd
+status_score_vec <- function(status, is_synonym = NULL) {
+  key <- toupper(trimws(as.character(status)))
+  key <- gsub("[_-]+", " ", key)
+  key <- gsub("\\s+", " ", key)
+  score <- unname(.status_rank[key])
+
+  if (!is.null(is_synonym)) {
+    syn      <- as.logical(is_synonym)
+    known    <- !is.na(syn)
+    unlisted <- is.na(score) & known
+    score[unlisted] <- ifelse(syn[unlisted], 2L, 1L)
+    score[known & syn]  <- pmax(score[known & syn],  2L)
+    score[known & !syn] <- pmin(score[known & !syn], 1L)
+  }
+  score[is.na(score)] <- 1L
+  as.integer(score)
+}
 
 
 #' Extract the normalized specific epithet from a binomial name
@@ -48,11 +114,12 @@ epithet_key <- function(names) {
 #'
 #' Computes the per-row priority scores used to rank backbone candidates for a
 #' name (smaller is better): smallest fuzzy distance (`dist_score`), then
-#' ACCEPTED over SYNONYM (`status_score`), SPECIES over higher ranks
-#' (`rank_score`), nomenclaturally Valid (`valid_score`), and
-#' epithet-preserving accepted target (`epithet_score`, the homotypic
-#' basionym among same-name homonym synonyms, e.g. `Pinus abies` ->
-#' `Picea abies`). Used by the matching engine's best-match selection and, in
+#' taxonomic status (`status_score`: accepted, then a name the backbone keeps
+#' but has not reviewed, then a synonym, then a misapplication), SPECIES over
+#' higher ranks (`rank_score`), the epithet-preserving accepted target
+#' (`epithet_score`, the homotypic basionym among same-name homonym synonyms,
+#' e.g. `Pinus abies` -> `Picea abies`), and finally nomenclatural validity
+#' (`valid_score`). Used by the matching engine's best-match selection and, in
 #' the `taxifydb` build pipeline, to collapse each backbone key to the single
 #' accepted name `taxify()` resolves it to.
 #'
@@ -61,19 +128,25 @@ epithet_key <- function(names) {
 #' remaining scores then choose among the rows carrying that name. It is 0
 #' throughout when `fuzzy_dist` is absent, which is every exact-match path.
 #'
+#' The returned `tier` covers the four concept scores only. `valid_score` orders
+#' the pick but stays out of the tier: a nomenclaturally valid name can be a
+#' synonym of a different species than an illegitimate one carrying the same
+#' string, so validity must not make that conflict look resolved. Sort with
+#' [candidate_order()] rather than re-listing the columns.
+#'
 #' @param candidates A data.frame with `taxonomicStatus` and `taxonRank`, and
-#'   optionally `fuzzy_dist` (fuzzy proximity), `nomenclaturalStatus`
-#'   (validity), plus `matched_name_std` and `accepted_name` (epithet
-#'   preservation).
+#'   optionally `is_synonym` (the backbone's normalized synonym flag),
+#'   `fuzzy_dist` (fuzzy proximity), `nomenclaturalStatus` (validity), plus
+#'   `matched_name_std` and `accepted_name` (epithet preservation).
 #' @return A list with the numeric vector `dist_score`, integer vectors
 #'   `status_score`, `rank_score`, `valid_score`, `epithet_score`, and the
-#'   character `tier` signature (`"dist/status/rank/valid/epithet"`) per row,
-#'   in input order.
+#'   character `tier` signature (`"dist/status/rank/epithet"`) per row, in input
+#'   order.
 #' @keywords internal
 #' @export
 score_candidates <- function(candidates) {
-  status_score <- ifelse(toupper(candidates$taxonomicStatus) == "ACCEPTED",
-                          0L, 1L)
+  status_score <- status_score_vec(candidates$taxonomicStatus,
+                                   candidates$is_synonym)
   rank_score   <- ifelse(toupper(candidates$taxonRank) == "SPECIES",
                           0L, 1L)
 
@@ -115,14 +188,66 @@ score_candidates <- function(candidates) {
     dist_score <- numeric(nrow(candidates))
   }
 
-  tier <- paste(dist_score, status_score, rank_score, valid_score, epithet_score,
-                sep = "/")
+  tier <- paste(dist_score, status_score, rank_score, epithet_score, sep = "/")
   list(dist_score    = dist_score,
        status_score  = status_score,
        rank_score    = rank_score,
        valid_score   = valid_score,
        epithet_score = epithet_score,
        tier          = tier)
+}
+
+
+#' Order match candidates by resolution priority
+#'
+#' The single source of truth for the candidate sort: the four concept scores of
+#' [score_candidates()] in tier order, then the nomenclatural-validity tiebreak,
+#' then the lowest `taxonID`. Pass `group_col` to sort within groups first, so
+#' the first row of each group is that group's best candidate.
+#'
+#' @param candidates A data.frame accepted by [score_candidates()], carrying a
+#'   `taxonID` column and, when `group_col` is given, that column too.
+#' @param scores The [score_candidates()] output for `candidates`, when it has
+#'   already been computed; recomputed when `NULL`.
+#' @param group_col Character or `NULL`. Column to sort by ahead of the scores.
+#' @return An integer permutation of `seq_len(nrow(candidates))`.
+#' @keywords internal
+#' @export
+candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
+  s <- scores %||% score_candidates(candidates)
+  keys <- list(s$dist_score, s$status_score, s$rank_score, s$epithet_score,
+               s$valid_score, candidates$taxonID)
+  if (!is.null(group_col)) keys <- c(list(candidates[[group_col]]), keys)
+  do.call(order, keys)
+}
+
+
+# Status grade of a name the backbone keeps as its own concept but has not
+# placed: WFO's `UNCHECKED`, COL's `PROVISIONALLY ACCEPTED`.
+.status_unplaced <- 1L
+
+#' Which candidates count when looking for a conflicting accepted target
+#'
+#' Normally the rows sharing the best row's `tier`: below that tier the backbone
+#' has ranked the candidate lower and the pick is settled.
+#'
+#' The exception is a best row that is only *unplaced* -- a name the backbone
+#' lists but has not placed in its taxonomy. That is a non-decision, not a
+#' resolution, so a lower-tier record that does place the name somewhere else is
+#' a real disagreement and the whole candidate set counts. `Abies douglasii` var.
+#' `taxifolia` in WFO is the case: an unplaced record keeping the name and a
+#' synonym record sinking it into `Pseudotsuga menziesii`. Preferring the
+#' unplaced record keeps the queried plant's name, but the synonymy is the only
+#' actual placement on offer, so the caller has to be told it exists (#53).
+#'
+#' @param tier Character tier signature per row, from [score_candidates()].
+#' @param status_score Integer status score per row, from [score_candidates()].
+#' @param best_idx Integer position of the best row.
+#' @return Logical vector along `tier`.
+#' @noRd
+in_conflict_scope <- function(tier, status_score, best_idx) {
+  if (status_score[best_idx] == .status_unplaced) return(rep(TRUE, length(tier)))
+  tier == tier[best_idx]
 }
 
 
@@ -149,15 +274,14 @@ pick_best <- function(candidates) {
   }
 
   s <- score_candidates(candidates)
-  ord <- order(s$dist_score, s$status_score, s$rank_score, s$valid_score,
-               s$epithet_score, candidates$taxonID)
-  best_idx <- ord[1L]
+  best_idx <- candidate_order(candidates, s)[1L]
 
   # Tier-level ambiguity: rows in the same tier as the best, disagreeing on
-  # accepted_taxon_id.
+  # accepted_taxon_id. Widened to the whole candidate set when the best row is
+  # only unplaced (see `in_conflict_scope`).
   ambig_targets <- NA_character_
   if ("accepted_taxon_id" %in% names(candidates)) {
-    same_tier <- s$tier == s$tier[best_idx]
+    same_tier <- in_conflict_scope(s$tier, s$status_score, best_idx)
     ids <- unique(candidates$accepted_taxon_id[same_tier])
     ids <- ids[!is.na(ids)]
     if (length(ids) >= 2L) {
@@ -176,9 +300,9 @@ pick_best <- function(candidates) {
 #'
 #' Replaces the per-group loop with a single sort + dedup. Honours the same
 #' priority as `pick_best()` and reports tier-level ambiguity per group:
-#' ACCEPTED > SYNONYM, SPECIES > higher ranks, nomenclaturally Valid, then the
-#' epithet-preserving accepted target (homotypic basionym), then lowest
-#' `taxonID`.
+#' accepted before unreviewed before synonym, SPECIES > higher ranks, then the
+#' epithet-preserving accepted target (homotypic basionym), then the
+#' nomenclatural-validity and lowest-`taxonID` tiebreaks.
 #'
 #' @param matches A data.frame with at least `taxonomicStatus`, `taxonRank`,
 #'   `taxonID`, and the grouping column. May optionally include
@@ -203,10 +327,10 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
   }
 
   s <- score_candidates(matches)
-  ord <- order(matches[[group_col]], s$dist_score, s$status_score, s$rank_score,
-               s$valid_score, s$epithet_score, matches$taxonID)
+  ord <- candidate_order(matches, s, group_col = group_col)
   sorted <- matches[ord, , drop = FALSE]
-  sorted_tier <- s$tier[ord]
+  sorted_tier   <- s$tier[ord]
+  sorted_status <- s$status_score[ord]
 
   is_first <- !duplicated(sorted[[group_col]])
 
@@ -214,11 +338,14 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
   sorted$ambiguous_targets <- NA_character_
 
   if ("accepted_taxon_id" %in% names(sorted)) {
-    # Per-group best tier signature, broadcast to every row of the group.
+    # Per-group best tier signature, broadcast to every row of the group. Same
+    # scope rule as pick_best(), vectorized: a group whose best row is only
+    # unplaced puts its whole candidate set in scope.
     grp_vec   <- sorted[[group_col]]
     best_pos  <- which(is_first)
     grp_best  <- match(grp_vec, grp_vec[is_first])
-    same_tier <- sorted_tier == sorted_tier[best_pos][grp_best]
+    same_tier <- sorted_tier == sorted_tier[best_pos][grp_best] |
+      sorted_status[best_pos][grp_best] == .status_unplaced
 
     if (any(same_tier)) {
       tier_grp <- ifelse(same_tier, as.character(grp_vec), NA_character_)

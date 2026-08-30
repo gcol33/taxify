@@ -172,10 +172,12 @@
 #'     `hybrid_parent_*` columns), or `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
 #'   \item{is_ambiguous}{Logical. `TRUE` when the matched scientificName had
-#'     multiple synonym rows pointing to different accepted taxa at the same
-#'     priority tier (homonym ambiguity). Disambiguated via
-#'     `nomenclaturalStatus = "Valid"` when that column is in the backbone;
-#'     for irreducible ambiguity, the scalar columns hold one candidate.}
+#'     multiple rows pointing to different accepted taxa at the same priority
+#'     tier (homonym ambiguity). An authorship carried by the input resolves it
+#'     where it picks out one target; `nomenclaturalStatus = "Valid"` orders
+#'     which candidate the scalar columns hold, but does not clear the flag,
+#'     because a valid name and an illegitimate one can be synonyms of different
+#'     species. Expand the alternatives with [taxify_candidates()].}
 #'   \item{ambiguous_targets}{Character. `|`-joined list of conflicting
 #'     accepted taxon IDs when `is_ambiguous = TRUE`; `NA` otherwise.}
 #'   \item{backbone}{Which backbone was used (e.g., `"wfo"`, `"col"`,

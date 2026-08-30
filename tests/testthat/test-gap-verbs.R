@@ -337,3 +337,45 @@ test_that("a bare homonym (no author) stays ambiguous", {
   out <- disambiguate_by_authorship(res, bb)
   expect_true(out$is_ambiguous[1L])
 })
+
+test_that("authorship also settles a name the tiers already resolved", {
+  # The pass runs over every author-bearing input, not only the flagged ones:
+  # a name whose tiers pick one record unambiguously can still hold several
+  # backbone records, and an author the caller typed chooses among them (#53).
+  be <- wfo_backend()
+  bb <- mock_backbone_vtr()
+
+  bare <- match_exact(be, clean_names("Pinus abies Thunb."), bb)
+  # Force the row unambiguous so only the widened scope can move it.
+  bare$is_ambiguous[1L]      <- FALSE
+  bare$ambiguous_targets[1L] <- NA_character_
+  bare$accepted_id[1L]       <- "wfo-0000005"
+  bare$accepted_name[1L]     <- "Pinus sylvestris"
+
+  out <- disambiguate_by_authorship(bare, bb)
+  expect_equal(out$accepted_id[1L], "wfo-0000019")
+  expect_equal(out$accepted_name[1L], "Picea polita")
+})
+
+test_that("an author matching no backbone record leaves the row alone", {
+  be <- wfo_backend()
+  bb <- mock_backbone_vtr()
+  res <- match_exact(be, clean_names("Pinus abies Nobody"), bb)
+  out <- disambiguate_by_authorship(res, bb)
+  expect_true(out$is_ambiguous[1L])
+  expect_equal(out$accepted_id[1L], res$accepted_id[1L])
+})
+
+test_that("authorship_compatible matches tokens, not substrings", {
+  # An abbreviated citation read against a fuller one.
+  expect_true(authorship_compatible("L.", "(L.) H.Karst."))
+  expect_true(authorship_compatible("Mill.", "(Mill.) D.A.Webb"))
+  expect_true(authorship_compatible("(Mill.) D.A.Webb", "(Mill.) D.A.Webb"))
+  # A different author that merely contains the abbreviation must not match:
+  # the substring rule this replaced read "L." into every citation with an l.
+  expect_false(authorship_compatible("L.", "Lindl."))
+  expect_false(authorship_compatible("L.", "Tollard"))
+  expect_false(authorship_compatible("Willd.", "(Weston) Tollard"))
+  expect_false(authorship_compatible("L.", NA_character_))
+  expect_false(authorship_compatible(NA_character_, "L."))
+})

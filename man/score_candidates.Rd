@@ -8,24 +8,25 @@ score_candidates(candidates)
 }
 \arguments{
 \item{candidates}{A data.frame with \code{taxonomicStatus} and \code{taxonRank}, and
-optionally \code{fuzzy_dist} (fuzzy proximity), \code{nomenclaturalStatus}
-(validity), plus \code{matched_name_std} and \code{accepted_name} (epithet
-preservation).}
+optionally \code{is_synonym} (the backbone's normalized synonym flag),
+\code{fuzzy_dist} (fuzzy proximity), \code{nomenclaturalStatus} (validity), plus
+\code{matched_name_std} and \code{accepted_name} (epithet preservation).}
 }
 \value{
 A list with the numeric vector \code{dist_score}, integer vectors
 \code{status_score}, \code{rank_score}, \code{valid_score}, \code{epithet_score}, and the
-character \code{tier} signature (\code{"dist/status/rank/valid/epithet"}) per row,
-in input order.
+character \code{tier} signature (\code{"dist/status/rank/epithet"}) per row, in input
+order.
 }
 \description{
 Computes the per-row priority scores used to rank backbone candidates for a
 name (smaller is better): smallest fuzzy distance (\code{dist_score}), then
-ACCEPTED over SYNONYM (\code{status_score}), SPECIES over higher ranks
-(\code{rank_score}), nomenclaturally Valid (\code{valid_score}), and
-epithet-preserving accepted target (\code{epithet_score}, the homotypic
-basionym among same-name homonym synonyms, e.g. \verb{Pinus abies} ->
-\verb{Picea abies}). Used by the matching engine's best-match selection and, in
+taxonomic status (\code{status_score}: accepted, then a name the backbone keeps
+but has not reviewed, then a synonym, then a misapplication), SPECIES over
+higher ranks (\code{rank_score}), the epithet-preserving accepted target
+(\code{epithet_score}, the homotypic basionym among same-name homonym synonyms,
+e.g. \verb{Pinus abies} -> \verb{Picea abies}), and finally nomenclatural validity
+(\code{valid_score}). Used by the matching engine's best-match selection and, in
 the \code{taxifydb} build pipeline, to collapse each backbone key to the single
 accepted name \code{taxify()} resolves it to.
 }
@@ -34,5 +35,11 @@ accepted name \code{taxify()} resolves it to.
 backbone names: the closest one is the best reading of the input, and the
 remaining scores then choose among the rows carrying that name. It is 0
 throughout when \code{fuzzy_dist} is absent, which is every exact-match path.
+
+The returned \code{tier} covers the four concept scores only. \code{valid_score} orders
+the pick but stays out of the tier: a nomenclaturally valid name can be a
+synonym of a different species than an illegitimate one carrying the same
+string, so validity must not make that conflict look resolved. Sort with
+\code{\link[=candidate_order]{candidate_order()}} rather than re-listing the columns.
 }
 \keyword{internal}

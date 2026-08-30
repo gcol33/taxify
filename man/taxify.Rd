@@ -187,10 +187,12 @@ resolve, and \code{\link[=add_hybrid_info]{add_hybrid_info()}} materializes the 
 \verb{hybrid_parent_*} columns), or \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
 \item{is_ambiguous}{Logical. \code{TRUE} when the matched scientificName had
-multiple synonym rows pointing to different accepted taxa at the same
-priority tier (homonym ambiguity). Disambiguated via
-\code{nomenclaturalStatus = "Valid"} when that column is in the backbone;
-for irreducible ambiguity, the scalar columns hold one candidate.}
+multiple rows pointing to different accepted taxa at the same priority
+tier (homonym ambiguity). An authorship carried by the input resolves it
+where it picks out one target; \code{nomenclaturalStatus = "Valid"} orders
+which candidate the scalar columns hold, but does not clear the flag,
+because a valid name and an illegitimate one can be synonyms of different
+species. Expand the alternatives with \code{\link[=taxify_candidates]{taxify_candidates()}}.}
 \item{ambiguous_targets}{Character. \code{|}-joined list of conflicting
 accepted taxon IDs when \code{is_ambiguous = TRUE}; \code{NA} otherwise.}
 \item{backbone}{Which backbone was used (e.g., \code{"wfo"}, \code{"col"},

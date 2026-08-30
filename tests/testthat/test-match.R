@@ -161,8 +161,11 @@ test_that("pick_best_vec flags homonym synonyms as ambiguous (no Valid filter)",
                "wfo-0000005|wfo-0000019|wfo-0000022")
 })
 
-test_that("pick_best_vec uses Valid-filter to disambiguate homonyms", {
-  # Of three synonym rows, only one is nomenclaturally Valid — that one wins.
+test_that("Valid-filter orders the pick but does not clear ambiguity", {
+  # Of three synonym rows, only one is nomenclaturally Valid: it is the row the
+  # scalar columns hold. The three still point at three different accepted taxa,
+  # and validity is a statement about how a name was published, not about which
+  # taxon it denotes — so the conflict stays reported (#53).
   matches <- data.frame(
     row_idx             = c(1L, 1L, 1L),
     taxonID             = c("wfo-0000018", "wfo-0000020", "wfo-0000021"),
@@ -175,8 +178,9 @@ test_that("pick_best_vec uses Valid-filter to disambiguate homonyms", {
   best <- pick_best_vec(matches)
   expect_equal(best$taxonID, "wfo-0000020")
   expect_equal(best$accepted_taxon_id, "wfo-0000005")
-  expect_false(best$is_ambiguous)
-  expect_true(is.na(best$ambiguous_targets))
+  expect_true(best$is_ambiguous)
+  expect_equal(best$ambiguous_targets,
+               "wfo-0000005|wfo-0000019|wfo-0000022")
 })
 
 test_that("pick_best_vec keeps ambiguity flag when 2+ Valid rows disagree", {
@@ -192,8 +196,179 @@ test_that("pick_best_vec keeps ambiguity flag when 2+ Valid rows disagree", {
   )
   best <- pick_best_vec(matches)
   expect_true(best$is_ambiguous)
-  expect_equal(best$ambiguous_targets, "wfo-0000005|wfo-0000019")
+  expect_equal(best$ambiguous_targets,
+               "wfo-0000005|wfo-0000019|wfo-0000022")
 })
+
+# ---- Status vocabulary beyond ACCEPTED/SYNONYM (issue #53) ----
+
+test_that("an unreviewed name outranks a synonym of another species", {
+  # WFO's `Prunus dulcis`: the almond is UNCHECKED (its own accepted concept),
+  # while two same-string homonyms are synonyms of Prunus avium and
+  # Prunus amygdalus. Scoring UNCHECKED with the synonyms returned sweet cherry.
+  matches <- data.frame(
+    row_idx             = c(1L, 1L, 1L),
+    taxonID             = c("wfo-1200023992", "wfo-0001005398",
+                            "wfo-0000996162"),
+    taxonomicStatus     = c("SYNONYM", "SYNONYM", "UNCHECKED"),
+    taxonRank           = c("SPECIES", "SPECIES", "SPECIES"),
+    nomenclaturalStatus = c("Valid", "Illegitimate", NA_character_),
+    is_synonym          = c(TRUE, TRUE, FALSE),
+    matched_name_std    = rep("Prunus dulcis", 3L),
+    accepted_name       = c("Prunus avium", "Prunus amygdalus", "Prunus dulcis"),
+    accepted_taxon_id   = c("wfo-0001006607", "wfo-0001015846",
+                            "wfo-0000996162"),
+    stringsAsFactors    = FALSE
+  )
+  best <- pick_best_vec(matches)
+  expect_equal(best$taxonID, "wfo-0000996162")
+  expect_equal(best$accepted_name, "Prunus dulcis")
+  # UNCHECKED is the backbone declining to place the name, not a resolution, so
+  # the two records that do place it elsewhere are still reported.
+  expect_true(best$is_ambiguous)
+  expect_equal(best$ambiguous_targets,
+               "wfo-0000996162|wfo-0001006607|wfo-0001015846")
+})
+
+test_that("status_score_vec ranks the backbone status vocabularies", {
+  # Accepted, then a name the backbone keeps but has not placed, then a
+  # synonym, then a misapplication.
+  expect_equal(
+    status_score_vec(c("ACCEPTED", "Accepted", "PROVISIONALLY ACCEPTED",
+                       "UNCHECKED", "SYNONYM", "HETEROTYPIC_SYNONYM",
+                       "AMBIGUOUS SYNONYM", "MISAPPLIED")),
+    c(0L, 0L, 1L, 1L, 2L, 2L, 3L, 3L)
+  )
+  # An unrecognized status falls through to the backbone's own synonym flag.
+  expect_equal(status_score_vec(c("weird", "weird"), c(TRUE, FALSE)),
+               c(2L, 1L))
+  # The flag clamps a contradictory status either way.
+  expect_equal(status_score_vec(c("ACCEPTED", "SYNONYM"), c(TRUE, FALSE)),
+               c(2L, 1L))
+  # No flag column at all: the vocabulary alone decides.
+  expect_equal(status_score_vec("UNCHECKED", NULL), 1L)
+})
+
+test_that("two synonyms of different species stay ambiguous under a Valid split", {
+  # WFO's `Rubus laciniatus`: a Valid record sinking it into Rubus ulmifolius
+  # and an Illegitimate one into Rubus nemoralis. Neither keeps the epithet, so
+  # the concept tier ties and the conflict must be reported.
+  matches <- data.frame(
+    row_idx             = c(1L, 1L),
+    taxonID             = c("wfo-1000060367", "wfo-0000984132"),
+    taxonomicStatus     = c("SYNONYM", "SYNONYM"),
+    taxonRank           = c("SPECIES", "SPECIES"),
+    nomenclaturalStatus = c("Valid", "Illegitimate"),
+    is_synonym          = c(TRUE, TRUE),
+    matched_name_std    = rep("Rubus laciniatus", 2L),
+    accepted_name       = c("Rubus ulmifolius", "Rubus nemoralis"),
+    accepted_taxon_id   = c("wfo-0000985000", "wfo-0001012948"),
+    stringsAsFactors    = FALSE
+  )
+  best <- pick_best_vec(matches)
+  expect_equal(best$taxonID, "wfo-1000060367")
+  expect_true(best$is_ambiguous)
+  expect_equal(best$ambiguous_targets, "wfo-0000985000|wfo-0001012948")
+})
+
+#' Build a WFO-shaped .vtr holding the issue #53 rows
+#'
+#' Reproduces the real WFO records for `Prunus dulcis` (an UNCHECKED almond plus
+#' two homonym synonyms of other species) and `Rubus laciniatus` (two synonyms
+#' of different species split only by nomenclatural validity), so the regression
+#' runs offline.
+#' @noRd
+issue53_backbone_vtr <- function() {
+  df <- data.frame(
+    taxon_id = c("wfo-0000996162", "wfo-0001005398", "wfo-1200023992",
+                 "wfo-0001015846", "wfo-0001006607",
+                 "wfo-0000984132", "wfo-1000060367",
+                 "wfo-0001012948", "wfo-0000985000"),
+    canonical_name = c("Prunus dulcis", "Prunus dulcis", "Prunus dulcis",
+                       "Prunus amygdalus", "Prunus avium",
+                       "Rubus laciniatus", "Rubus laciniatus",
+                       "Rubus nemoralis", "Rubus ulmifolius"),
+    taxon_rank = rep("SPECIES", 9L),
+    taxonomic_status = c("UNCHECKED", "SYNONYM", "SYNONYM",
+                         "ACCEPTED", "ACCEPTED",
+                         "SYNONYM", "SYNONYM",
+                         "ACCEPTED", "ACCEPTED"),
+    accepted_name_usage_id = c(NA, "wfo-0001015846", "wfo-0001006607",
+                               NA, NA,
+                               "wfo-0001012948", "wfo-0000985000",
+                               NA, NA),
+    family = rep("Rosaceae", 9L),
+    genus = c(rep("Prunus", 5L), rep("Rubus", 4L)),
+    specific_epithet = c("dulcis", "dulcis", "dulcis", "amygdalus", "avium",
+                         "laciniatus", "laciniatus", "nemoralis", "ulmifolius"),
+    authorship = c("(Mill.) Rchb.", "(Mill.) D.A.Webb", "Rouchy",
+                   "Batsch", "L.",
+                   "Willd.", "(Weston) Tollard",
+                   "P.J.Mull.", "Schott"),
+    infraspecific_epithet = rep(NA_character_, 9L),
+    nomenclaturalStatus = c(NA, "Illegitimate", "Valid", NA, NA,
+                            "Illegitimate", "Valid", NA, NA),
+    stringsAsFactors = FALSE
+  )
+  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
+  df <- embed_accepted(df, id_col = "taxon_id",
+                       acc_id_col = "accepted_name_usage_id",
+                       name_col = "canonical_name", family_col = "family",
+                       genus_col = "genus", status_col = "taxonomic_status",
+                       authorship_col = "authorship")
+  df <- df[order(df$genus, na.last = TRUE), ]
+  rownames(df) <- NULL
+  tmp <- tempfile(fileext = ".vtr")
+  vectra::write_vtr(df, tmp, batch_size = 50000L)
+  tmp
+}
+
+test_that("an unreviewed accepted record wins over a synonym of another species", {
+  # #53: `Prunus dulcis` returned `Prunus avium` because WFO files the almond
+  # as UNCHECKED, which scored level with the two homonym synonyms, and the
+  # nomenclatural-validity tiebreak then picked the Valid one.
+  be  <- wfo_backend()
+  bb  <- issue53_backbone_vtr()
+  res <- match_exact(be, clean_names("Prunus dulcis"), bb)
+
+  expect_equal(res$taxon_id[1L], "wfo-0000996162")
+  expect_equal(res$accepted_name[1L], "Prunus dulcis")
+  expect_false(res$is_synonym[1L])
+  # The almond's own record wins, and the two homonyms that place the name on
+  # other species are reported rather than dropped.
+  expect_true(res$is_ambiguous[1L])
+  expect_equal(res$ambiguous_targets[1L],
+               "wfo-0000996162|wfo-0001006607|wfo-0001015846")
+})
+
+test_that("two synonyms of different species are reported, not silently picked", {
+  # #53: `Rubus laciniatus` returned `Rubus ulmifolius` with is_ambiguous FALSE.
+  be  <- wfo_backend()
+  bb  <- issue53_backbone_vtr()
+  res <- match_exact(be, clean_names("Rubus laciniatus"), bb)
+
+  expect_true(res$is_ambiguous[1L])
+  expect_equal(res$ambiguous_targets[1L], "wfo-0000985000|wfo-0001012948")
+})
+
+test_that("a query author picks the record it names", {
+  be <- wfo_backend()
+  bb <- issue53_backbone_vtr()
+  q  <- c("Prunus dulcis (Mill.) Rchb.", "Prunus dulcis (Mill.) D.A.Webb",
+          "Prunus dulcis Rouchy", "Rubus laciniatus Willd.",
+          "Rubus laciniatus (Weston) Tollard")
+  res <- disambiguate_by_authorship(
+    match_exact(be, clean_names(q), bb), bb)
+
+  expect_equal(res$taxon_id,
+               c("wfo-0000996162", "wfo-0001005398", "wfo-1200023992",
+                 "wfo-0000984132", "wfo-1000060367"))
+  expect_equal(res$accepted_name,
+               c("Prunus dulcis", "Prunus amygdalus", "Prunus avium",
+                 "Rubus nemoralis", "Rubus ulmifolius"))
+  expect_false(any(res$is_ambiguous))
+})
+
 
 # ---- Epithet-preservation tiebreak (basionym disambiguation, issue #2) ----
 

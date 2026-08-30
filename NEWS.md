@@ -1,3 +1,30 @@
+# taxify 0.4.9
+
+* `taxify()` no longer resolves a homonym to a synonym of a different species
+  without saying so. Two things drove it (#53). The status score read only
+  `ACCEPTED`, so WFO's `UNCHECKED` -- the status it gives a name it keeps as its
+  own concept but has not reviewed -- scored level with a synonym, and `Prunus
+  dulcis` came back as *Prunus avium*; status is now an ordered vocabulary
+  (accepted, then unreviewed or provisional, then synonym, then misapplied) that
+  also places COL's `PROVISIONALLY ACCEPTED`, `AMBIGUOUS SYNONYM` and
+  `MISAPPLIED`, and falls through to the backbone's own `is_synonym` flag for a
+  spelling it does not list. And the `nomenclaturalStatus = "Valid"` tiebreak was
+  settling the ambiguity tier, so `Rubus laciniatus` returned *Rubus ulmifolius*
+  with `is_ambiguous = FALSE`; validity now orders which candidate the scalar
+  columns hold but no longer clears the flag, because a valid name and an
+  illegitimate one carrying the same string can be synonyms of different species.
+  Both names now answer as they should, and `taxify_candidates()` expands the
+  conflict.
+
+* An authorship carried by the query now settles a homonym whether or not the
+  row was flagged ambiguous: an author the caller typed is a choice of record,
+  and a name unique in the backbone re-reads to what it already had. The
+  comparison also moved from substring containment to author tokens, so `L.` no
+  longer reads into `Lindl.`.
+
+* New `candidate_order()` gives the candidate sort a single source of truth,
+  shared with `taxifydb`'s name-lookup build.
+
 # taxify 0.4.8
 
 * Enrichment joins now recover an infraspecific name across GBIF's dropped rank
