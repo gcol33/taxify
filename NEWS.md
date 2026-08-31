@@ -25,6 +25,31 @@
 * New `candidate_order()` gives the candidate sort a single source of truth,
   shared with `taxifydb`'s name-lookup build.
 
+* A content id recorded by `taxify_lock()` now resolves back to bytes (#54).
+  `taxify_download_enrichment()` and `taxify_download()` take a `content_id=`,
+  fetch that exact build from the immutable copy published beside the rolling
+  asset -- reading the manifest's `content_url`, or deriving
+  `<tag>/<name>-<content_id>.vtr` when the manifest describes a later build --
+  verify the bytes hash back to the id asked for, and make it the active build.
+  A build the release has since re-cut is reachable again; one overwritten
+  before taxifydb began publishing immutable copies is not, and says so.
+
+* `taxify_restore(file, install = TRUE)` puts a whole lockfile back in one
+  call, fetching the pinned build of every asset that drifted. A restored build
+  is pinned, so the next session's version check does not refresh it away.
+
+* Enrichments now keep the build a refresh replaces, under a directory named
+  for its content id, instead of overwriting the only copy on disk. A re-cut
+  under an unchanged tag no longer destroys what a lockfile pinned. Backbones
+  use the same store but discard the superseded build by default, being
+  gigabytes; `taxify.keep_enrichment_versions` and
+  `taxify.keep_backbone_versions` set either policy. Restoring a pinned build
+  archives the build it displaces either way, so a restore is reversible.
+
+* New `taxify_store()` lists the builds on disk -- which are active, which are
+  pinned, and which content ids a lockfile could be restored to without a
+  download.
+
 # taxify 0.4.8
 
 * Enrichment joins now recover an infraspecific name across GBIF's dropped rank

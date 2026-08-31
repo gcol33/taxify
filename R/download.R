@@ -181,8 +181,13 @@ download_backbone <- function(backbone_name,
     }
   }
 
+  # The temp file lives one level up, in the asset's store root, so archiving
+  # the build being replaced (which moves everything out of the version
+  # directory) cannot sweep the download in progress along with it.
+  store_root <- asset_store_root(backbone_name, "backbone")
+  dir.create(store_root, recursive = TRUE, showWarnings = FALSE)
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
-  tmp_path <- tempfile(tmpdir = dest_dir, fileext = ".vtr.tmp")
+  tmp_path <- tempfile(tmpdir = store_root, fileext = ".vtr.tmp")
   on.exit(if (file.exists(tmp_path)) unlink(tmp_path), add = TRUE)
 
   # ---- Try xdelta3 patching first (if local .vtr exists + delta available) ----
@@ -193,7 +198,7 @@ download_backbone <- function(backbone_name,
       patched <- tryCatch(
         {
           if (verbose) message("  Trying xdelta3 patch...")
-          delta_tmp <- tempfile(tmpdir = dest_dir, fileext = ".xdelta")
+          delta_tmp <- tempfile(tmpdir = store_root, fileext = ".xdelta")
           on.exit(if (file.exists(delta_tmp)) unlink(delta_tmp), add = TRUE)
           curl::curl_download(delta_url, delta_tmp, quiet = !verbose)
           status <- system2("xdelta3", c("-d", "-s", vtr_path, delta_tmp,
@@ -218,31 +223,21 @@ download_backbone <- function(backbone_name,
 
   # ---- Full download (if patching didn't work) ----
   if (!patched) {
-    tryCatch(
-      {
-        if (startsWith(url, "file://")) {
-          local_src <- sub("^file:///", "/", url)
-          if (.Platform$OS.type == "windows" &&
-              grepl("^/[A-Za-z]:/", local_src)) {
-            local_src <- sub("^/", "", local_src)
-          }
-          if (!file.exists(local_src)) {
-            stop(sprintf("Local file not found: %s", local_src))
-          }
-          file.copy(local_src, tmp_path, overwrite = TRUE)
-        } else {
-          curl::curl_download(url, tmp_path, quiet = !verbose)
-        }
-      },
-      error = function(e) {
-        stop(sprintf("Failed to download %s backbone from:\n  %s\nError: %s",
-                     backbone_name, url, conditionMessage(e)),
-             call. = FALSE)
-      }
-    )
+    fetch_asset_file(url, tmp_path,
+                     sprintf("the %s backbone", backbone_name),
+                     verbose = verbose)
+  }
+
+  # Keep the build being replaced, when the store is configured to (off by
+  # default for backbones, which are gigabytes). This runs only once the new
+  # bytes are safely in the temp file, so a failed download leaves the
+  # installed backbone untouched.
+  if (version == "latest" && keep_superseded_builds("backbone")) {
+    archive_active_build(backbone_name, "backbone", verbose = verbose)
   }
 
   # Atomic rename
+  dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
   file.rename(tmp_path, vtr_path)
 
   # Clear any stale `.meta` sidecar. That file is a taxifydb build-from-source
@@ -255,44 +250,8 @@ download_backbone <- function(backbone_name,
   if (file.exists(stale_meta)) unlink(stale_meta)
 
   # Download sidecar extras (e.g., col_species_profile.vtr) into the same
-  # versioned directory. Each manifest entry under `extras` is
-  # {name, url, size, sha256}. Failures here are non-fatal \u2014 the main
-  # backbone is already in place; extras are optional enrichments.
-  extras <- entry$extras
-  if (!is.null(extras) && length(extras) > 0L) {
-    for (ex in extras) {
-      ex_name <- ex$name %||% basename(ex$url %||% "")
-      ex_url  <- ex$url
-      if (is.null(ex_name) || !nzchar(ex_name) || is.null(ex_url)) next
-      ex_path <- file.path(dest_dir, ex_name)
-      ex_tmp  <- tempfile(tmpdir = dest_dir, fileext = ".extra.tmp")
-      tryCatch(
-        {
-          if (verbose) message(sprintf("  Downloading sidecar: %s", ex_name))
-          if (startsWith(ex_url, "file://")) {
-            local_src <- sub("^file:///", "/", ex_url)
-            if (.Platform$OS.type == "windows" &&
-                grepl("^/[A-Za-z]:/", local_src)) {
-              local_src <- sub("^/", "", local_src)
-            }
-            if (!file.exists(local_src)) {
-              stop(sprintf("Local sidecar not found: %s", local_src))
-            }
-            file.copy(local_src, ex_tmp, overwrite = TRUE)
-          } else {
-            curl::curl_download(ex_url, ex_tmp, quiet = !verbose)
-          }
-          file.rename(ex_tmp, ex_path)
-        },
-        error = function(e) {
-          if (file.exists(ex_tmp)) unlink(ex_tmp)
-          warning(sprintf("Failed to download sidecar '%s': %s",
-                          ex_name, conditionMessage(e)),
-                  call. = FALSE)
-        }
-      )
-    }
-  }
+  # versioned directory.
+  download_asset_extras(entry, dest_dir, verbose = verbose)
 
   write_version_meta(dest_dir, backbone_name, actual_version,
                      pinned = (version != "latest"))
@@ -344,15 +303,29 @@ has_xdelta3 <- function() {
 #'   `<data_dir>/<backbone>/latest/` and will be overwritten on future updates.
 #'   A specific version string (e.g., `"2024.01"`) downloads into a pinned
 #'   folder that is never overwritten.
+#' @param content_id Character or `NULL` (default). The content id of one exact
+#'   build -- the md5 of its `.vtr`, as recorded by [taxify_lock()] and by the
+#'   manifest. Given one, taxify fetches that build from the immutable copy
+#'   published beside the rolling asset, verifies the bytes hash back to the id,
+#'   and makes it the active backbone; the build it replaces is kept under its
+#'   own content id. Pass one id per `backbone`, or one shared by all of them.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The path(s) to the downloaded `.vtr` file(s) (invisibly).
 #' @seealso [taxify_build()] to build a backbone from source via `taxifydb`,
-#'   [taxify_download_enrichment()] for enrichment layers.
+#'   [taxify_download_enrichment()] for enrichment layers, [taxify_store()] for
+#'   the builds already on disk.
 #' @export
 taxify_download <- function(backbone = "wfo",
                             version = "latest",
+                            content_id = NULL,
                             verbose = TRUE) {
-  paths <- vapply(backbone, function(be) {
+  content_id <- recycle_content_ids(content_id, backbone, "backbone")
+  paths <- vapply(seq_along(backbone), function(i) {
+    be <- backbone[[i]]
+    if (!is.null(content_id)) {
+      return(download_content_build(be, content_id[[i]], "backbone",
+                                    version = version, verbose = verbose))
+    }
     # "register" is an alias for the published pair: the genus register and the
     # backbone-coverage table that accompanies it.
     if (identical(be, "register")) {
@@ -375,7 +348,32 @@ taxify_download <- function(backbone = "wfo",
       }
     )
   }, character(1L))
+  names(paths) <- backbone
   invisible(paths)
+}
+
+
+#' Recycle a content_id argument over a vector of asset names
+#'
+#' A single id applies to a single asset, or to all of them when they are asked
+#' for together; otherwise one id per name is required. Anything else is a
+#' mistake worth stopping on -- silently pairing ids with the wrong assets would
+#' install a build under another asset's pin.
+#'
+#' @param content_id Character or `NULL`.
+#' @param names Character vector of asset names.
+#' @param kind Character, for the error wording.
+#' @return `NULL`, or a character vector the length of `names`.
+#' @noRd
+recycle_content_ids <- function(content_id, names, kind) {
+  if (is.null(content_id)) return(NULL)
+  content_id <- as.character(content_id)
+  if (length(content_id) == length(names)) return(content_id)
+  if (length(content_id) == 1L) return(rep(content_id, length(names)))
+  stop(sprintf(
+    "content_id must be one id, or one per %s (%d given for %d).",
+    kind, length(content_id), length(names)
+  ), call. = FALSE)
 }
 
 

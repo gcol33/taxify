@@ -4,7 +4,12 @@
 \alias{taxify_download}
 \title{Download a pre-built taxify backbone}
 \usage{
-taxify_download(backbone = "wfo", version = "latest", verbose = TRUE)
+taxify_download(
+  backbone = "wfo",
+  version = "latest",
+  content_id = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{backbone}{Character. A backbone name (e.g. \code{"wfo"}, \code{"col"}, \code{"gbif"},
@@ -16,6 +21,13 @@ character vector.}
 \verb{<data_dir>/<backbone>/latest/} and will be overwritten on future updates.
 A specific version string (e.g., \code{"2024.01"}) downloads into a pinned
 folder that is never overwritten.}
+
+\item{content_id}{Character or \code{NULL} (default). The content id of one exact
+build -- the md5 of its \code{.vtr}, as recorded by \code{\link[=taxify_lock]{taxify_lock()}} and by the
+manifest. Given one, taxify fetches that build from the immutable copy
+published beside the rolling asset, verifies the bytes hash back to the id,
+and makes it the active backbone; the build it replaces is kept under its
+own content id. Pass one id per \code{backbone}, or one shared by all of them.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
@@ -35,5 +47,6 @@ from source via \code{\link[=taxify_build]{taxify_build()}} (which requires \cod
 }
 \seealso{
 \code{\link[=taxify_build]{taxify_build()}} to build a backbone from source via \code{taxifydb},
-\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} for enrichment layers.
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} for enrichment layers, \code{\link[=taxify_store]{taxify_store()}} for
+the builds already on disk.
 }

@@ -2,13 +2,17 @@
 % Please edit documentation in R/lock.R
 \name{taxify_restore}
 \alias{taxify_restore}
-\title{Check an install against a lockfile}
+\title{Check an install against a lockfile, and optionally reinstall what drifted}
 \usage{
-taxify_restore(file, verbose = TRUE)
+taxify_restore(file, install = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{file}{Path to a lockfile written by \code{\link[=taxify_lock]{taxify_lock()}}, or the lock list
 it returned.}
+
+\item{install}{Logical. \code{FALSE} (default) verifies and reports only. \code{TRUE}
+downloads and activates the pinned build of every asset that does not
+already match.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
@@ -18,15 +22,25 @@ A data.frame with one row per pinned asset, columns: \code{component},
 \code{locked_content_id} and \code{installed_content_id} (short), and \code{status}
 (\code{"ok"}, \code{"version_drift"}, \code{"content_drift"}, \code{"missing"}, or
 \code{"unverified"} when neither a version nor a content id could be compared).
+With \code{install = TRUE} the statuses describe the install afterwards, and a
+\code{restored} column records which rows were fetched.
 }
 \description{
 Reads a lockfile written by \code{\link[=taxify_lock]{taxify_lock()}} and reports, for each backbone
 and enrichment it pins, whether the currently installed asset matches -- by
 version and byte-identity (content id) -- or has drifted, or is missing.
-taxify serves only the latest version of each asset, so \code{taxify_restore()}
-verifies and reports rather than force-installing a historical version; a
-drift row tells you the recorded run cannot be reproduced byte-for-byte with
-the current downloads.
+}
+\details{
+With \code{install = TRUE} it also fetches the exact build each row pins, from the
+immutable copy published beside the rolling asset, and makes it the active
+one: the recorded run is put back in place in a single call. The build each
+pinned build replaces is kept on disk under its own content id, so restoring
+a lockfile is reversible. A pinned build is not refreshed away by the next
+session's version check.
+
+A build published before taxifydb began uploading an immutable copy cannot be
+recovered -- the re-cut replaced it in place -- and its row keeps reporting
+drift after the install pass.
 }
 \examples{
 # Runs offline against the bundled example database.
@@ -40,5 +54,6 @@ options(old)
 
 }
 \seealso{
-\code{\link[=taxify_lock]{taxify_lock()}}.
+\code{\link[=taxify_lock]{taxify_lock()}}, \code{\link[=taxify_store]{taxify_store()}} for the builds on disk,
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} to fetch a single build by content id.
 }

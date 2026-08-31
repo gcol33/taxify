@@ -109,6 +109,10 @@ check_version <- function(backbone_name) {
   meta <- read_version_meta(backbone_name, "latest")
   vtr  <- versioned_vtr_path(backbone_name, "latest")
 
+  # A build the user pinned -- restored by content id -- stays put. Refreshing
+  # it to the current release would silently undo the pin at the next session.
+  if (!is.null(meta) && isTRUE(as.logical(meta$pinned))) return(FALSE)
+
   # Frozen/bundled backbones (e.g. the example database) never phone home, but
   # a shipped content id still lets a same-tag republish refresh them offline
   # (mirrors the static-enrichment gate; the example db is small to hash).

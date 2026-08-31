@@ -165,18 +165,126 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 }
 
 
-#' Check an install against a lockfile
+#' Compare one locked asset against the installed build
+#'
+#' One row of the `taxify_restore()` report, for either kind. Split out so the
+#' report can be built twice -- once to decide what to install, once to say what
+#' the install achieved -- from a single definition of what a row is.
+#'
+#' @param locked The lockfile entry.
+#' @param kind Character. `"backbone"` or `"enrichment"`.
+#' @return A one-row data.frame.
+#' @noRd
+.restore_row <- function(locked, kind) {
+  short <- function(cid) {
+    cid <- nz_or(cid, NA_character_)
+    if (is.na(cid)) NA_character_ else substr(cid, 1L, 10L)
+  }
+
+  if (kind == "backbone") {
+    vtr  <- versioned_vtr_path(locked$name, "latest")
+    meta <- tryCatch(read_version_meta(locked$name, "latest"),
+                     error = function(e) NULL)
+  } else {
+    vtr  <- enrichment_vtr_path(locked$name, "latest")
+    meta <- tryCatch(read_enrichment_meta(vtr), error = function(e) NULL)
+  }
+  installed <- file.exists(vtr)
+
+  cur_ver <- nz_or(meta$version, NA_character_)
+  if (kind == "backbone" && is.na(cur_ver) && installed) {
+    cur_ver <- nz_or((tryCatch(read_backbone_meta(vtr),
+                               error = function(e) NULL))$version,
+                     NA_character_)
+  }
+  cur_cid    <- nz_or(meta$content_id, NA_character_)
+  locked_ver <- nz_or(locked$version, NA_character_)
+  locked_cid <- nz_or(locked$content_id, NA_character_)
+
+  data.frame(
+    component            = locked$name,
+    type                 = kind,
+    locked_version       = locked_ver,
+    installed_version    = cur_ver,
+    locked_content_id    = short(locked_cid),
+    installed_content_id = short(cur_cid),
+    status = .restore_status(locked_ver, locked_cid, cur_ver, cur_cid,
+                             installed),
+    stringsAsFactors = FALSE
+  )
+}
+
+
+#' Empty restore report, for a lockfile pinning nothing
+#' @noRd
+.empty_restore_report <- function() {
+  data.frame(
+    component = character(0L), type = character(0L),
+    locked_version = character(0L), installed_version = character(0L),
+    locked_content_id = character(0L), installed_content_id = character(0L),
+    status = character(0L), stringsAsFactors = FALSE
+  )
+}
+
+
+#' Install the exact build one lockfile entry pins
+#'
+#' Fetches the build by its recorded content id and makes it the active one.
+#' Returns `TRUE` when the build is now installed. Never throws: a build that
+#' cannot be recovered leaves its row reporting drift, which is the honest
+#' outcome for an asset re-cut before its bytes were published immutably.
+#'
+#' @noRd
+.restore_install_one <- function(locked, kind, verbose = TRUE) {
+  cid <- nz_or(locked$content_id, NA_character_)
+  if (is.na(cid) || !is_content_key(cid)) {
+    if (verbose) {
+      message(sprintf(
+        "  '%s': the lockfile records no content id, so no exact build can be fetched.",
+        locked$name))
+    }
+    return(FALSE)
+  }
+  ok <- tryCatch(
+    {
+      download_content_build(locked$name, cid, kind,
+                             version = nz_or(locked$version, NULL),
+                             activate = TRUE, verbose = verbose)
+      TRUE
+    },
+    error = function(e) {
+      if (verbose) {
+        message(sprintf("  '%s': %s", locked$name, conditionMessage(e)))
+      }
+      FALSE
+    }
+  )
+  ok
+}
+
+
+#' Check an install against a lockfile, and optionally reinstall what drifted
 #'
 #' Reads a lockfile written by [taxify_lock()] and reports, for each backbone
 #' and enrichment it pins, whether the currently installed asset matches -- by
 #' version and byte-identity (content id) -- or has drifted, or is missing.
-#' taxify serves only the latest version of each asset, so `taxify_restore()`
-#' verifies and reports rather than force-installing a historical version; a
-#' drift row tells you the recorded run cannot be reproduced byte-for-byte with
-#' the current downloads.
+#'
+#' With `install = TRUE` it also fetches the exact build each row pins, from the
+#' immutable copy published beside the rolling asset, and makes it the active
+#' one: the recorded run is put back in place in a single call. The build each
+#' pinned build replaces is kept on disk under its own content id, so restoring
+#' a lockfile is reversible. A pinned build is not refreshed away by the next
+#' session's version check.
+#'
+#' A build published before taxifydb began uploading an immutable copy cannot be
+#' recovered -- the re-cut replaced it in place -- and its row keeps reporting
+#' drift after the install pass.
 #'
 #' @param file Path to a lockfile written by [taxify_lock()], or the lock list
 #'   it returned.
+#' @param install Logical. `FALSE` (default) verifies and reports only. `TRUE`
+#'   downloads and activates the pinned build of every asset that does not
+#'   already match.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame with one row per pinned asset, columns: `component`,
@@ -184,8 +292,11 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #'   `locked_content_id` and `installed_content_id` (short), and `status`
 #'   (`"ok"`, `"version_drift"`, `"content_drift"`, `"missing"`, or
 #'   `"unverified"` when neither a version nor a content id could be compared).
+#'   With `install = TRUE` the statuses describe the install afterwards, and a
+#'   `restored` column records which rows were fetched.
 #'
-#' @seealso [taxify_lock()].
+#' @seealso [taxify_lock()], [taxify_store()] for the builds on disk,
+#'   [taxify_download_enrichment()] to fetch a single build by content id.
 #'
 #' @examples
 #' # Runs offline against the bundled example database.
@@ -198,7 +309,7 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #' options(old)
 #'
 #' @export
-taxify_restore <- function(file, verbose = TRUE) {
+taxify_restore <- function(file, install = FALSE, verbose = TRUE) {
   lock <- if (is.list(file) && !is.null(file$backbones)) {
     file
   } else if (is.character(file) && length(file) == 1L && file.exists(file)) {
@@ -208,66 +319,37 @@ taxify_restore <- function(file, verbose = TRUE) {
          call. = FALSE)
   }
 
-  short <- function(cid) {
-    cid <- nz_or(cid, NA_character_)
-    if (is.na(cid)) NA_character_ else substr(cid, 1L, 10L)
-  }
-
-  rows <- list()
-
-  for (b in lock$backbones %||% list()) {
-    meta <- tryCatch(read_version_meta(b$name, "latest"), error = function(e) NULL)
-    vtr  <- versioned_vtr_path(b$name, "latest")
-    installed <- file.exists(vtr)
-    cur_ver <- nz_or(meta$version, NA_character_)
-    if (is.na(cur_ver) && installed) {
-      cur_ver <- nz_or((tryCatch(read_backbone_meta(vtr),
-                                 error = function(e) NULL))$version, NA_character_)
-    }
-    cur_cid <- nz_or(meta$content_id, NA_character_)
-    locked_ver <- nz_or(b$version, NA_character_)
-    locked_cid <- nz_or(b$content_id, NA_character_)
-    rows[[length(rows) + 1L]] <- data.frame(
-      component            = b$name,
-      type                 = "backbone",
-      locked_version       = locked_ver,
-      installed_version    = cur_ver,
-      locked_content_id    = short(locked_cid),
-      installed_content_id = short(cur_cid),
-      status = .restore_status(locked_ver, locked_cid, cur_ver, cur_cid,
-                               installed),
-      stringsAsFactors = FALSE
-    )
-  }
-
-  for (e in lock$enrichments %||% list()) {
-    vtr  <- enrichment_vtr_path(e$name, "latest")
-    meta <- tryCatch(read_enrichment_meta(vtr), error = function(e) NULL)
-    installed <- file.exists(vtr)
-    cur_ver <- nz_or(meta$version, NA_character_)
-    cur_cid <- nz_or(meta$content_id, NA_character_)
-    locked_ver <- nz_or(e$version, NA_character_)
-    locked_cid <- nz_or(e$content_id, NA_character_)
-    rows[[length(rows) + 1L]] <- data.frame(
-      component            = e$name,
-      type                 = "enrichment",
-      locked_version       = locked_ver,
-      installed_version    = cur_ver,
-      locked_content_id    = short(locked_cid),
-      installed_content_id = short(cur_cid),
-      status = .restore_status(locked_ver, locked_cid, cur_ver, cur_cid,
-                               installed),
-      stringsAsFactors = FALSE
-    )
-  }
-
-  out <- if (length(rows)) do.call(rbind, rows) else data.frame(
-    component = character(0L), type = character(0L),
-    locked_version = character(0L), installed_version = character(0L),
-    locked_content_id = character(0L), installed_content_id = character(0L),
-    status = character(0L), stringsAsFactors = FALSE
+  entries <- c(
+    lapply(lock$backbones %||% list(),   function(b) list(locked = b, kind = "backbone")),
+    lapply(lock$enrichments %||% list(), function(e) list(locked = e, kind = "enrichment"))
   )
-  rownames(out) <- NULL
+
+  report <- function() {
+    rows <- lapply(entries, function(x) .restore_row(x$locked, x$kind))
+    out <- if (length(rows)) do.call(rbind, rows) else .empty_restore_report()
+    rownames(out) <- NULL
+    out
+  }
+
+  out <- report()
+
+  if (isTRUE(install) && length(entries)) {
+    todo <- which(out$status != "ok")
+    restored <- rep(FALSE, nrow(out))
+    if (length(todo)) {
+      if (verbose) {
+        message(sprintf("taxify_restore(): fetching %d pinned build%s...",
+                        length(todo), if (length(todo) == 1L) "" else "s"))
+      }
+      for (i in todo) {
+        restored[i] <- .restore_install_one(entries[[i]]$locked,
+                                            entries[[i]]$kind,
+                                            verbose = verbose)
+      }
+      out <- report()
+    }
+    out$restored <- restored
+  }
 
   if (verbose) {
     n_unver <- sum(out$status == "unverified")
@@ -281,6 +363,9 @@ taxify_restore <- function(file, verbose = TRUE) {
       message(sprintf(
         "taxify_restore(): %s (of %d pinned assets); see 'status'.",
         paste(parts, collapse = ", "), nrow(out)))
+      if (!isTRUE(install) && n_drift > 0L) {
+        message("  taxify_restore(file, install = TRUE) fetches the pinned builds.")
+      }
     }
   }
   out

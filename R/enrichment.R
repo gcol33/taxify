@@ -136,6 +136,11 @@ check_enrichment_version <- function(name) {
 
   if (is.null(meta)) return(TRUE)  # No local copy
 
+  # A build the user pinned -- restored by content id -- stays put. Refreshing
+  # it to the current release would silently undo the pin at the next session,
+  # which is the opposite of what pinning a build is for.
+  if (isTRUE(as.logical(meta$pinned))) return(FALSE)
+
   # Static enrichments never phone home, but a same-tag republish would leave
   # the cache stale forever. Reconcile against the bundled manifest's content
   # id (a hash of the built .vtr) entirely offline: a package update ships a
@@ -384,36 +389,27 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
     ))
   }
 
+  # The temp file lives one level up, in the enrichment's store root, so
+  # archiving the build being replaced (which moves everything out of the
+  # version directory) cannot sweep the download in progress along with it.
+  store_root <- asset_store_root(name, "enrichment")
+  dir.create(store_root, recursive = TRUE, showWarnings = FALSE)
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
-  tmp_path <- tempfile(tmpdir = dest_dir, fileext = ".vtr.tmp")
+  tmp_path <- tempfile(tmpdir = store_root, fileext = ".vtr.tmp")
   on.exit(if (file.exists(tmp_path)) unlink(tmp_path), add = TRUE)
 
-  tryCatch(
-    {
-      if (startsWith(url, "file://")) {
-        local_src <- sub("^file:///", "/", url)
-        if (.Platform$OS.type == "windows" &&
-            grepl("^/[A-Za-z]:/", local_src)) {
-          local_src <- sub("^/", "", local_src)
-        }
-        if (!file.exists(local_src)) {
-          stop(sprintf("Local file not found: %s", local_src))
-        }
-        file.copy(local_src, tmp_path, overwrite = TRUE)
-      } else {
-        h <- curl::new_handle()
-        curl::handle_setheaders(h, "User-Agent" = "R/4.5 taxify")
-        curl::curl_download(url, tmp_path, handle = h, quiet = !verbose)
-      }
-    },
-    error = function(e) {
-      stop(sprintf(
-        "Failed to download enrichment '%s' from:\n  %s\nError: %s",
-        name, url, conditionMessage(e)
-      ), call. = FALSE)
-    }
-  )
+  fetch_asset_file(url, tmp_path, sprintf("enrichment '%s'", name),
+                   verbose = verbose)
 
+  # Keep the build being replaced, under its own content id, so a refetch adds
+  # a directory instead of destroying the only copy of what a lockfile pinned.
+  # Only once the new bytes are safely in the temp file: a failed download
+  # leaves the installed enrichment untouched.
+  if (version == "latest" && keep_superseded_builds("enrichment")) {
+    archive_active_build(name, "enrichment", verbose = verbose)
+  }
+
+  dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
   file.rename(tmp_path, vtr_path)
 
   # Write meta.json. The content id is the md5 of the freshly downloaded file,
@@ -464,6 +460,13 @@ resolve_enrichment_entry <- function(manifest, name) {
 #' @param enrichment Character. One or more enrichment names (e.g.,
 #'   `"iucn"`, `"griis"`, `"zanne"`).
 #' @param version Character. `"latest"` (default) or a specific version string.
+#' @param content_id Character or `NULL` (default). The content id of one exact
+#'   build -- the md5 of its `.vtr`, as recorded by [taxify_lock()] and by the
+#'   manifest. Given one, taxify fetches that build from the immutable copy
+#'   published beside the rolling asset, verifies the bytes hash back to the id,
+#'   and makes it the active build; the build it replaces is kept on disk under
+#'   its own content id. This is what turns a lockfile's recorded id back into
+#'   bytes. Pass one id per `enrichment`, or one shared by all of them.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The path(s) to the downloaded `.vtr` file(s) (invisibly).
 #'
@@ -484,13 +487,23 @@ resolve_enrichment_entry <- function(manifest, name) {
 #'   \item{leda}{LEDA Traitbase NW European plant traits (Kleyer et al. 2008)}
 #' }
 #'
+#' @seealso [taxify_store()] for the builds already on disk, [taxify_restore()]
+#'   to reinstall everything a lockfile pins.
 #' @export
 taxify_download_enrichment <- function(enrichment,
                                        version = "latest",
+                                       content_id = NULL,
                                        verbose = TRUE) {
-  paths <- vapply(enrichment, function(name) {
+  content_id <- recycle_content_ids(content_id, enrichment, "enrichment")
+  paths <- vapply(seq_along(enrichment), function(i) {
+    name <- enrichment[[i]]
+    if (!is.null(content_id)) {
+      return(download_content_build(name, content_id[[i]], "enrichment",
+                                    version = version, verbose = verbose))
+    }
     download_enrichment(name, version = version, verbose = verbose)
   }, character(1L))
+  names(paths) <- enrichment
   invisible(paths)
 }
 

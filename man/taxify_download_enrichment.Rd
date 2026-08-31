@@ -4,13 +4,26 @@
 \alias{taxify_download_enrichment}
 \title{Download one or more enrichment .vtr files}
 \usage{
-taxify_download_enrichment(enrichment, version = "latest", verbose = TRUE)
+taxify_download_enrichment(
+  enrichment,
+  version = "latest",
+  content_id = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{enrichment}{Character. One or more enrichment names (e.g.,
 \code{"iucn"}, \code{"griis"}, \code{"zanne"}).}
 
 \item{version}{Character. \code{"latest"} (default) or a specific version string.}
+
+\item{content_id}{Character or \code{NULL} (default). The content id of one exact
+build -- the md5 of its \code{.vtr}, as recorded by \code{\link[=taxify_lock]{taxify_lock()}} and by the
+manifest. Given one, taxify fetches that build from the immutable copy
+published beside the rolling asset, verifies the bytes hash back to the id,
+and makes it the active build; the build it replaces is kept on disk under
+its own content id. This is what turns a lockfile's recorded id back into
+bytes. Pass one id per \code{enrichment}, or one shared by all of them.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
@@ -36,4 +49,8 @@ Available enrichments:
 \item{amphibio}{AmphiBIO amphibian life-history and ecological traits}
 \item{leda}{LEDA Traitbase NW European plant traits (Kleyer et al. 2008)}
 }
+}
+\seealso{
+\code{\link[=taxify_store]{taxify_store()}} for the builds already on disk, \code{\link[=taxify_restore]{taxify_restore()}}
+to reinstall everything a lockfile pins.
 }
