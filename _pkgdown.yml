@@ -102,6 +102,7 @@ reference:
   - lookup_genus
   - taxify_lock
   - taxify_restore
+  - taxify_store
 - title: Backend-specific columns
   desc: Attach extra columns from the backbone that matched.
   contents:
