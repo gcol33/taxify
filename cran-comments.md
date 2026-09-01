@@ -55,13 +55,19 @@ repository declared in `Additional_repositories`
 ## R CMD check results
 
 * Local (--as-cran): 0 errors | 0 warnings | 1 note
-* win-builder (R-devel and R-release): pending
+* win-builder (R-release, 4.6.1): 0 errors | 0 warnings | 1 note
+* win-builder (R-devel): pending
 
 The note is "Suggests or Enhances not in mainstream repositories: taxifydb",
 confirmed available via Additional_repositories in the same check output
 ("taxifydb   yes   https://gcol33.r-universe.dev"). taxifydb is used strictly
 conditionally, guarded by `requireNamespace()`, and taxify is fully functional
 without it.
+
+win-builder additionally reported https://www.itis.gov (linked from README.md,
+the homepage of the ITIS backbone) as possibly invalid with status 404. The URL
+is correct and the site responds 200 to a plain request from here; ITIS
+intermittently refuses automated requests.
 
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
