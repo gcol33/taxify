@@ -56,7 +56,7 @@ repository declared in `Additional_repositories`
 
 * Local (--as-cran): 0 errors | 0 warnings | 1 note
 * win-builder (R-release, 4.6.1): 0 errors | 0 warnings | 1 note
-* win-builder (R-devel): pending
+* win-builder (R-devel, 2026-08-31 r90457): 0 errors | 0 warnings | 1 note
 
 The note is "Suggests or Enhances not in mainstream repositories: taxifydb",
 confirmed available via Additional_repositories in the same check output
@@ -64,10 +64,11 @@ confirmed available via Additional_repositories in the same check output
 conditionally, guarded by `requireNamespace()`, and taxify is fully functional
 without it.
 
-win-builder additionally reported https://www.itis.gov (linked from README.md,
-the homepage of the ITIS backbone) as possibly invalid with status 404. The URL
-is correct and the site responds 200 to a plain request from here; ITIS
-intermittently refuses automated requests.
+Both win-builder flavours report that same single note, and it additionally
+lists https://www.itis.gov (linked from README.md, the homepage of the ITIS
+backbone) as possibly invalid with status 404. The URL is correct and the site
+responds 200 to a plain request from here; ITIS intermittently refuses
+automated requests.
 
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
