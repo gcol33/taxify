@@ -29,7 +29,7 @@
 #' [add_trait()]`("body_length")`.
 #'
 #' @references
-#' Plazi TreatmentBank. \url{https://www.plazi.org}
+#' Plazi TreatmentBank. \url{https://plazi.org/}
 #'
 #' @examples
 #' \dontrun{

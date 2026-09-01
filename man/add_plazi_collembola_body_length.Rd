@@ -48,5 +48,5 @@ taxify("Isotoma viridis", backbone = "gbif") |>
 
 }
 \references{
-Plazi TreatmentBank. \url{https://www.plazi.org}
+Plazi TreatmentBank. \url{https://plazi.org/}
 }

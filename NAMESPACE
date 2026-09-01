@@ -180,5 +180,7 @@ export(trait_info)
 export(upstream)
 importFrom(rlang,"%||%")
 importFrom(stats,aggregate)
-importFrom(utils,read.csv)
-importFrom(utils,read.delim)
+importFrom(utils,
+  read.csv,
+  read.delim
+)
