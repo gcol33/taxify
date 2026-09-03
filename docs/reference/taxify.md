@@ -289,11 +289,14 @@ A data.frame with one row per input name and the following columns:
 
 - is_ambiguous:
 
-  Logical. `TRUE` when the matched scientificName had multiple synonym
-  rows pointing to different accepted taxa at the same priority tier
-  (homonym ambiguity). Disambiguated via `nomenclaturalStatus = "Valid"`
-  when that column is in the backbone; for irreducible ambiguity, the
-  scalar columns hold one candidate.
+  Logical. `TRUE` when the matched scientificName had multiple rows
+  pointing to different accepted taxa at the same priority tier (homonym
+  ambiguity). An authorship carried by the input resolves it where it
+  picks out one target; `nomenclaturalStatus = "Valid"` orders which
+  candidate the scalar columns hold, but does not clear the flag,
+  because a valid name and an illegitimate one can be synonyms of
+  different species. Expand the alternatives with
+  [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md).
 
 - ambiguous_targets:
 

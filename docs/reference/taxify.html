@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -332,10 +332,12 @@ resolve, and <code><a href="add_hybrid_info.html">add_hybrid_info()</a></code> m
 
 <dt>is_ambiguous</dt>
 <dd><p>Logical. <code>TRUE</code> when the matched scientificName had
-multiple synonym rows pointing to different accepted taxa at the same
-priority tier (homonym ambiguity). Disambiguated via
-<code>nomenclaturalStatus = "Valid"</code> when that column is in the backbone;
-for irreducible ambiguity, the scalar columns hold one candidate.</p></dd>
+multiple rows pointing to different accepted taxa at the same priority
+tier (homonym ambiguity). An authorship carried by the input resolves it
+where it picks out one target; <code>nomenclaturalStatus = "Valid"</code> orders
+which candidate the scalar columns hold, but does not clear the flag,
+because a valid name and an illegitimate one can be synonyms of different
+species. Expand the alternatives with <code><a href="taxify_candidates.html">taxify_candidates()</a></code>.</p></dd>
 
 <dt>ambiguous_targets</dt>
 <dd><p>Character. <code>|</code>-joined list of conflicting
@@ -445,7 +447,7 @@ the matching.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

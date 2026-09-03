@@ -11,7 +11,12 @@ calling this function is consent.
 ## Usage
 
 ``` r
-taxify_download(backbone = "wfo", version = "latest", verbose = TRUE)
+taxify_download(
+  backbone = "wfo",
+  version = "latest",
+  content_id = NULL,
+  verbose = TRUE
+)
 ```
 
 ## Arguments
@@ -30,6 +35,17 @@ taxify_download(backbone = "wfo", version = "latest", verbose = TRUE)
   `<data_dir>/<backbone>/latest/` and will be overwritten on future
   updates. A specific version string (e.g., `"2024.01"`) downloads into
   a pinned folder that is never overwritten.
+
+- content_id:
+
+  Character or `NULL` (default). The content id of one exact build – the
+  md5 of its `.vtr`, as recorded by
+  [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+  and by the manifest. Given one, taxify fetches that build from the
+  immutable copy published beside the rolling asset, verifies the bytes
+  hash back to the id, and makes it the active backbone; the build it
+  replaces is kept under its own content id. Pass one id per `backbone`,
+  or one shared by all of them.
 
 - verbose:
 
@@ -51,4 +67,6 @@ building from source via
 [`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md)
 to build a backbone from source via `taxifydb`,
 [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
-for enrichment layers.
+for enrichment layers,
+[`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
+for the builds already on disk.

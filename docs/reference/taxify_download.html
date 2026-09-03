@@ -28,7 +28,7 @@ prompts are shown, so calling this function is consent."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,12 @@ prompts are shown, so calling this function is consent.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">taxify_download</span><span class="op">(</span>backbone <span class="op">=</span> <span class="st">"wfo"</span>, version <span class="op">=</span> <span class="st">"latest"</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">taxify_download</span><span class="op">(</span></span>
+<span>  backbone <span class="op">=</span> <span class="st">"wfo"</span>,</span>
+<span>  version <span class="op">=</span> <span class="st">"latest"</span>,</span>
+<span>  content_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -112,6 +117,15 @@ A specific version string (e.g., <code>"2024.01"</code>) downloads into a pinned
 folder that is never overwritten.</p></dd>
 
 
+<dt id="arg-content-id">content_id<a class="anchor" aria-label="anchor" href="#arg-content-id"></a></dt>
+<dd><p>Character or <code>NULL</code> (default). The content id of one exact
+build – the md5 of its <code>.vtr</code>, as recorded by <code><a href="taxify_lock.html">taxify_lock()</a></code> and by the
+manifest. Given one, taxify fetches that build from the immutable copy
+published beside the rolling asset, verifies the bytes hash back to the id,
+and makes it the active backbone; the build it replaces is kept under its
+own content id. Pass one id per <code>backbone</code>, or one shared by all of them.</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. Default <code>TRUE</code>.</p></dd>
 
@@ -128,7 +142,8 @@ from source via <code><a href="taxify_build.html">taxify_build()</a></code> (whi
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="taxify_build.html">taxify_build()</a></code> to build a backbone from source via <code>taxifydb</code>,
-<code><a href="taxify_download_enrichment.html">taxify_download_enrichment()</a></code> for enrichment layers.</p></div>
+<code><a href="taxify_download_enrichment.html">taxify_download_enrichment()</a></code> for enrichment layers, <code><a href="taxify_store.html">taxify_store()</a></code> for
+the builds already on disk.</p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -140,7 +155,7 @@ from source via <code><a href="taxify_build.html">taxify_build()</a></code> (whi
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

@@ -1,5 +1,239 @@
 # Changelog
 
+## taxify 0.5.0
+
+- A content id recorded by
+  [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+  now resolves back to bytes
+  ([\#54](https://github.com/gcol33/taxify/issues/54)).
+  [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
+  and
+  [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
+  take a `content_id=`, fetch that exact build from the immutable copy
+  published beside the rolling asset – reading the manifest’s
+  `content_url`, or deriving `<tag>/<name>-<content_id>.vtr` when the
+  manifest describes a later build – verify the bytes hash back to the
+  id asked for, and make it the active build. A build the release has
+  since re-cut is reachable again; one overwritten before taxifydb began
+  publishing immutable copies is not, and says so.
+
+- `taxify_restore(file, install = TRUE)` puts a whole lockfile back in
+  one call, fetching the pinned build of every asset that drifted. A
+  restored build is pinned, so the next session’s version check does not
+  refresh it away.
+
+- Enrichments now keep the build a refresh replaces, under a directory
+  named for its content id, instead of overwriting the only copy on
+  disk. A re-cut under an unchanged tag no longer destroys what a
+  lockfile pinned. Backbones use the same store but discard the
+  superseded build by default, being gigabytes;
+  `taxify.keep_enrichment_versions` and `taxify.keep_backbone_versions`
+  set either policy. Restoring a pinned build archives the build it
+  displaces either way, so a restore is reversible.
+
+- New
+  [`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
+  lists the builds on disk – which are active, which are pinned, and
+  which content ids a lockfile could be restored to without a download.
+
+## taxify 0.4.9
+
+- [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) no
+  longer resolves a homonym to a synonym of a different species without
+  saying so. Two things drove it
+  ([\#53](https://github.com/gcol33/taxify/issues/53)). The status score
+  read only `ACCEPTED`, so WFO’s `UNCHECKED` – the status it gives a
+  name it keeps as its own concept but has not reviewed – scored level
+  with a synonym, and `Prunus dulcis` came back as *Prunus avium*;
+  status is now an ordered vocabulary (accepted, then unreviewed or
+  provisional, then synonym, then misapplied) that also places COL’s
+  `PROVISIONALLY ACCEPTED`, `AMBIGUOUS SYNONYM` and `MISAPPLIED`, and
+  falls through to the backbone’s own `is_synonym` flag for a spelling
+  it does not list. And the `nomenclaturalStatus = "Valid"` tiebreak was
+  settling the ambiguity tier, so `Rubus laciniatus` returned *Rubus
+  ulmifolius* with `is_ambiguous = FALSE`; validity now orders which
+  candidate the scalar columns hold but no longer clears the flag,
+  because a valid name and an illegitimate one carrying the same string
+  can be synonyms of different species. Both names now answer as they
+  should, and
+  [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)
+  expands the conflict.
+
+- An authorship carried by the query now settles a homonym whether or
+  not the row was flagged ambiguous: an author the caller typed is a
+  choice of record, and a name unique in the backbone re-reads to what
+  it already had. The comparison also moved from substring containment
+  to author tokens, so `L.` no longer reads into `Lindl.`.
+
+- New
+  [`candidate_order()`](https://gillescolling.com/taxify/reference/candidate_order.md)
+  gives the candidate sort a single source of truth, shared with
+  `taxifydb`’s name-lookup build.
+
+## taxify 0.4.8
+
+- Enrichment joins now recover an infraspecific name across GBIF’s
+  dropped rank marker. GBIF’s backbone renders an infraspecific accepted
+  name without its rank connecting term – *Erica tenella* var. *tenella*
+  comes out `Erica tenella tenella` – where every other backbone and
+  every botanical source keeps the marker, so a join keyed on the
+  rendered name missed in either direction. `taxifydb` reinstates the
+  marker at build time (`gcol33/taxifydb#45`), but a user still on an
+  older `gbif.vtr` holds the marker-less form, so the runtime now
+  retries the rows a direct (and cross-backbone) join left empty under
+  the name’s alternative rank-marker renderings – the bare trinomial and
+  each canonical marker – and matches when the marker is the sole
+  difference. A rank-insensitive comparison can collide distinct taxa
+  (*Aus bus* var. *cus* and *Aus bus* subsp. *cus* are different names),
+  so a row whose alternatives reach more than one accepted name in the
+  source is left `NA` rather than resolved to a guess. Zoological
+  trinomials (*Panthera leo persica*) are correctly marker-less and
+  match directly, so they never reach the fallback. Only still-empty
+  rows pay for the pass; disable it with
+  `options(taxify.infra_marker_recovery = FALSE)`
+  (`gcol33/taxifydb#45`).
+
+- Enrichment joins now recover a name the source covers under a
+  different backbone’s accepted name. An enrichment `.vtr` is keyed on
+  its source’s own accepted names, expanded at build time onto every
+  backbone’s treatment of the same concept, and where that expansion
+  missed one the join found nothing along the same code path, and with
+  the same empty output, as a name the source genuinely does not cover.
+  *Minuartia hybrida* was the reported case: WFO keeps the name, WCVP,
+  COL and Euro+Med have all moved it to *Sabulina*, and
+  [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
+  returned no range at all when matched through WFO. Sampling names from
+  an enrichment’s own `.vtr` puts the gap at 4.5% to 22.5% of names
+  depending on the enrichment. Names left empty by the direct join are
+  now re-resolved through the other installed backbones, exact matching
+  only, and the join retried under their accepted names, so the WFO
+  route returns the 49 regions the WCVP route does. Where backbones
+  disagree about where a moved name went (COL puts it at *Sabulina
+  tenuifolia* subsp. *hybrida*, WCVP at subsp. *tenuifolia*, and WCVP
+  gives the two different ranges) the pick follows backbone priority
+  rather than a vote, the way `accepted_name` itself is picked, except
+  that a source taxify also carries as a backbone goes first. Recovery
+  reports once per call, never once per name, since a name absent from a
+  source is the normal case for any query set wider than the source’s
+  scope; [`summary()`](https://rdrr.io/r/base/summary.html) and the
+  `taxify_meta` attribute (`n_recovered`) carry the count. Only
+  unmatched rows pay for the pass and backbones scoped to a kingdom none
+  of them belong to are skipped; disable it with
+  `options(taxify.cross_backbone_recovery = FALSE)`
+  ([\#52](https://github.com/gcol33/taxify/issues/52)).
+
+- A rebuilt enrichment asset republished under the release tag it
+  already carries now refreshes the local cache.
+  `check_enrichment_version()` reconciled content ids only for a static
+  enrichment; a versioned one compared its recorded version against the
+  manifest’s latest, and a same-tag republish leaves that label
+  untouched while the bytes change underneath it. GRIIS 2026.08 was
+  rebuilt after its GBIF-backed source stopped returning `recordid` and
+  republished under the tag it already held, so the pre-rebuild `.vtr`
+  stayed in place indefinitely and `add_griis(cols = "recordid")` went
+  on resolving a column the source no longer carries instead of raising
+  the unknown-column error. Content identity now decides and the version
+  string is the fallback, the order the backbone gate already used; a
+  cache predating content ids is still left to the label rather than
+  rehashed every session.
+
+- The bundled manifest points at the rebuilt `enrichment-2026.08` assets
+  and the republished `gbif-2026.08` backbone. Every enrichment asset
+  was rebuilt with the build-side reverse hop behind the recovery pass
+  above and carries a `resolved_backbones` field naming the backbones it
+  was expanded against; downloads grow with the wider key sets, 1.96x
+  over the assets with a shipped counterpart (`wcvp` 69 to 141 MB,
+  `gift` 20 to 40 MB). `avonet` and `glonaf` each drop a `trait_cols`
+  entry naming a column their `.vtr` never carried, and `griis` drops
+  `recordid`, which its upstream source stopped returning
+  (`gcol33/taxifydb#44`).
+
+## taxify 0.4.7
+
+- Grouped enrichment joins no longer discard a name’s data when the
+  routing backbone and the enrichment source spell its authorship
+  differently. The homonym resolution added in 0.4.6 compared author
+  strings exactly, and the sources genuinely disagree: WFO records
+  *Calluna vulgaris* as `(L.) Hill` where WCVP, COL and Euro+Med all say
+  `(L.) Hull`, so one of the commonest plants in Europe came back with
+  no
+  [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
+  range at all when matched through WFO. Authorship is now compared on a
+  normalised key (case, punctuation, `et` vs `&`), then as a spelling
+  variant of the same author (one edit apart, or an abbreviation of the
+  same surname), then on a shared basionym author – sources also credit
+  different people with the same recombination (*Glaucium corniculatum*
+  is `(L.) Curtis` in WFO, `(L.) Rudolph` in WCVP), and epithet plus
+  basionym author pins the same type whoever made the combination. A
+  name that no pass resolves to exactly one concept is still left `NA`
+  with a warning, and a genuine homonym pair with no basionym author –
+  0.4.6’s *Erigeron pulchellus* Michx. vs Hoppe & Hornsch. – is
+  untouched by the two new passes
+  ([\#51](https://github.com/gcol33/taxify/issues/51)).
+
+## taxify 0.4.6
+
+- Grouped enrichment joins (`enrich_by_group()`, behind
+  [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md),
+  [`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md)
+  and others) now resolve name-level homonyms instead of guessing. The
+  join key is a bare accepted-name string, so a name covering two
+  distinct concepts in the source – told apart only by authorship –
+  collapsed onto whichever row happened to survive the per-group dedup,
+  regardless of which concept
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) had
+  actually matched:
+  [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
+  reported *Erigeron pulchellus* Michx. (eastern North America) as
+  native in Germany, when the matched concept was *Erigeron pulchellus*
+  Hoppe & Hornsch. ex Bluff & Fingerh., a European native. When the
+  enrichment carries an authorship-like column, a name whose rows
+  disagree on authorship is now resolved against `accepted_authorship`:
+  the uniquely picked concept’s rows are kept, or, when the ambiguity
+  can’t be resolved, every row for that name is dropped (left `NA`
+  rather than guessed) and a single warning reports the count.
+
+- `kingdom =` now trusts a single-kingdom backbone’s own scope ahead of
+  the genus register. WCVP, LCVP, WFO, Euro+Med and Species Fungorum
+  carry no `kingdom` column of their own, so a query against one of them
+  fell straight to the genus register – a single cross-backbone genus
+  index – which can record a different kingdom for the same genus string
+  as used elsewhere (the botanical and zoological codes are independent,
+  so genus homonyms across kingdoms are not rare).
+  `taxify(x, backbone = "wcvp", kingdom = "plants")` could report
+  `kingdom_group` `"animalia"` for a genuinely plant-only match. A new
+  `fixed_kingdom` registry field pins the backbones whose scope is
+  genuinely unambiguous, and is now consulted ahead of both the
+  backbone’s own kingdom column and the register fallback. AlgaeBase and
+  SeaLifeBase are deliberately left unfixed, since each spans more than
+  one kingdom.
+
+- `fuzzy_threshold` now accepts the integer raw-edit-count mode its own
+  documentation describes. Any value greater than 1 was rejected
+  outright, because
+  [`vectra::fuzzy_join()`](https://gillescolling.com/vectra/reference/fuzzy_join.html)
+  itself only accepts a normalized distance in (0, 1\] – the mode was
+  documented but never implemented end to end. A whole number `>= 1` now
+  runs the join at the loosest normalized bound and reconstructs the raw
+  edit count from the reported `fuzzy_dist` (exactly
+  `raw_edits / max(len_a, len_b)`) to filter matches.
+
+- `alien_first_records` is rebuilt from Seebens et al.’s restructured
+  Darwin Core-style release (record 18759840, source version 4.0),
+  93,350 rows over 245 countries against 82,684 over 233 before. Every
+  column was renamed upstream, so `trait_cols` is rewritten rather than
+  preserved; a new `alien_first_record_status` column carries the
+  occurrence status of the record each row’s year was taken from.
+
+- `glonaf` is rebuilt after a wrong join key left it holding 10,238 rows
+  over 84 regions, some names paired with other taxa’s families. Rebuilt
+  from GloNAF v2.02 (Zenodo record 17105725) at 300,094 rows over all
+  1,343 regions.
+
+- `thermofresh`’s citation now points at the peer-reviewed release
+  (record 16959762, ThermoFresh v1.0) rather than the pre-review deposit
+  the build had been reading since taxifydb bumped the source.
+
 ## taxify 0.4.5
 
 - A backbone whose content is unchanged is no longer re-downloaded when

@@ -5,7 +5,12 @@ Downloads pre-built enrichment `.vtr` files from the taxify manifest.
 ## Usage
 
 ``` r
-taxify_download_enrichment(enrichment, version = "latest", verbose = TRUE)
+taxify_download_enrichment(
+  enrichment,
+  version = "latest",
+  content_id = NULL,
+  verbose = TRUE
+)
 ```
 
 ## Arguments
@@ -18,6 +23,18 @@ taxify_download_enrichment(enrichment, version = "latest", verbose = TRUE)
 - version:
 
   Character. `"latest"` (default) or a specific version string.
+
+- content_id:
+
+  Character or `NULL` (default). The content id of one exact build – the
+  md5 of its `.vtr`, as recorded by
+  [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+  and by the manifest. Given one, taxify fetches that build from the
+  immutable copy published beside the rolling asset, verifies the bytes
+  hash back to the id, and makes it the active build; the build it
+  replaces is kept on disk under its own content id. This is what turns
+  a lockfile's recorded id back into bytes. Pass one id per
+  `enrichment`, or one shared by all of them.
 
 - verbose:
 
@@ -78,3 +95,10 @@ Available enrichments:
 - leda:
 
   LEDA Traitbase NW European plant traits (Kleyer et al. 2008)
+
+## See also
+
+[`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
+for the builds already on disk,
+[`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+to reinstall everything a lockfile pins.

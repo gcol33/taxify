@@ -411,7 +411,10 @@ register.
 - [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
   : Record the exact backbone and enrichment versions behind a result
 - [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
-  : Check an install against a lockfile
+  : Check an install against a lockfile, and optionally reinstall what
+  drifted
+- [`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
+  : Builds of a taxify asset held on disk
 
 ## Backend-specific columns
 

@@ -66,7 +66,7 @@ also available through
 
 ## References
 
-Plazi TreatmentBank. <https://www.plazi.org>
+Plazi TreatmentBank. <https://plazi.org/>
 
 ## Examples
 
