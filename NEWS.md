@@ -1,3 +1,29 @@
+# taxify 0.5.2
+
+An audit for the #55 shape -- a failure returned as a plausible answer, with
+the only notice gated on `verbose` -- found it in three more places. The cause
+behind #55 itself, a cache key handed to an environment, exists nowhere else:
+every other session cache is keyed on a backbone name or a file basename.
+
+* `region =` and `coords =` now warn when the constraint could not be applied.
+  With no range data for the declared region, `region_range_sets()` returned
+  `NULL` and the fuzzy filter passed its candidates through unconstrained, so a
+  match the region would have excluded could win. This is the one that could
+  change which taxon a name resolved to, and the only notice was a message
+  gated on `verbose`.
+
+* `inspect()` names the checks it could not run, in the report header under
+  `not checked`. An anomaly-only report has no other way to separate a check
+  that ran clean from one that never ran: both contribute no rows, and the
+  report then prints "nothing stood out". The genus-recognition check without
+  the register, and both range checks without the WCVP range data, were skipped
+  that way. The skipped set travels on the result, so a saved report carries it.
+
+* Cross-backbone name recovery names a backbone it could not resolve against,
+  instead of silently contributing no alternatives for it. That pass runs over
+  the whole gap set at once, which is where a size-dependent failure like #55
+  would next hide.
+
 # taxify 0.5.1
 
 * `add_trait()` no longer returns `NA` for every source past a batch size

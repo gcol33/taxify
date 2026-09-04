@@ -230,3 +230,29 @@ test_that("region filtering runs end-to-end against the example database", {
   expect_equal(reg$accepted_name, "Quercus robur")
   expect_equal(reg$taxon_id, "col-ex-001")
 })
+
+
+test_that("a region constraint that cannot be applied warns", {
+  # The caller asked for a region and no provider can answer for it, so nothing
+  # is constrained. An unfiltered result is a plausible answer to a different
+  # question, and nothing else in the output records the constraint was dropped.
+  expect_warning(
+    sets <- testthat::with_mocked_bindings(
+      region_range_sets("Quercus robur", "GER", "present", verbose = FALSE),
+      provider_range_sets  = function(...) NULL,
+      marine_region_active = function(...) FALSE,
+      .package = "taxify"),
+    "not applied")
+  expect_null(sets)
+})
+
+test_that("a region constraint a provider can answer does not warn", {
+  expect_silent(
+    sets <- testthat::with_mocked_bindings(
+      region_range_sets("Quercus robur", "GER", "present", verbose = FALSE),
+      provider_range_sets = function(...) list(present = "Quercus robur",
+                                               has_data = "Quercus robur"),
+      marine_region_active = function(...) FALSE,
+      .package = "taxify"))
+  expect_equal(sets$present, "Quercus robur")
+})

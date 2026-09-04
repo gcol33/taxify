@@ -369,7 +369,14 @@ region_range_sets <- function(accepted_names, region, range_mode,
   }
 
   if (is.null(wcvp) && is.null(marine)) {
-    if (verbose) message("  Region filter skipped: no range data available.")
+    # The caller asked for a region and every provider that could answer for it
+    # is unavailable, so no candidate will be constrained. The unfiltered result
+    # is a plausible answer to a different question, and nothing else in the
+    # output records that the constraint was dropped.
+    warning(sprintf(
+      paste0("Region constraint (%s) was not applied: no range data available. ",
+             "Results are unfiltered by region."),
+      paste(region, collapse = ", ")), call. = FALSE)
     return(NULL)
   }
 

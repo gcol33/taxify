@@ -49,8 +49,9 @@
 #' judge a name against the rest of the batch, so they cannot apply to a single
 #' name: `inspect()` on one name warns and reports only the per-name labels. The
 #' register checks (`unknown`, and the register-derived `outlier_group`) need the
-#' genus register installed; without it they are skipped (with a message at
-#' `verbose`).
+#' genus register installed, and the range checks need the WCVP range data; a
+#' check that could not run is named in the report header under `not checked`,
+#' so an empty report is never mistaken for a clean one.
 #'
 #' @param x A character vector of names, or a `taxify_result` from [taxify()].
 #' @param backbones Logical. When `x` is a character vector, `TRUE` matches it
@@ -70,7 +71,8 @@
 #'   most-notable first) with columns `input_name`, `suggestion` (the name to use
 #'   instead, or `NA`), `anomalies` (`|`-joined labels), `tier` (ordered factor
 #'   `note` < `review` < `unresolved`), `reason`, `fuzzy_dist`, and `backbone`.
-#'   Zero rows means nothing stood out.
+#'   Zero rows means nothing stood out among the checks that ran; the header's
+#'   `not checked` line names any that could not.
 #'
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data())
@@ -197,6 +199,12 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
   dominance  <- getOption("taxify.inspect_dominance", 0.7)
   minor_frac <- getOption("taxify.inspect_minor_frac", 0.1)
 
+  # Checks that could not run, and why. An anomaly-only report has no way to
+  # show the difference between a check that ran clean and one that never ran:
+  # both contribute no rows, and the report then says "nothing stood out". The
+  # skipped set travels with the object so a printed or saved report carries it.
+  skipped <- character(0L)
+
   gtok <- sub(" .*", "", trimws(input))
   gtok[is.na(input) | !nzchar(trimws(input))] <- NA_character_
 
@@ -219,9 +227,8 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
       m_unknown[hit]      <- TRUE
       reason_unknown[hit] <- sprintf("genus '%s' is not in the taxonomic register",
                                      gtok[hit])
-    } else if (verbose) {
-      message("  inspect(): genus register not installed; ",
-              "skipping the genus-recognition check.")
+    } else {
+      skipped["unknown"] <- "genus register not installed"
     }
   }
 
@@ -274,6 +281,9 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
     rr <- range_outlier_rows(acc, matched, min_batch, verbose)
     m_range      <- rr$mask
     reason_range <- rr$reason
+    if (isTRUE(rr$skipped)) {
+      skipped["out_of_range"] <- "WCVP range data not installed"
+    }
   }
 
   # declared-region geographic outlier
@@ -286,9 +296,13 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
   if (!is.null(region_codes) && length(region_codes) > 0L && any(matched)) {
     sets <- tryCatch(
       region_range_sets(acc[matched], region_codes, range_mode, verbose = verbose),
-      error = function(e) NULL
+      error = function(e) structure(conditionMessage(e), class = "try_failed")
     )
-    if (!is.null(sets)) {
+    if (inherits(sets, "try_failed")) {
+      skipped["geographic"] <- sprintf("range lookup failed (%s)", sets)
+    } else if (is.null(sets)) {
+      skipped["geographic"] <- "no range data available for the declared region"
+    } else {
       m_geo <- matched & (acc %in% sets$has_data) & !(acc %in% sets$present)
     }
   }
@@ -366,7 +380,8 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
     n_input     = n_active,
     n_flagged   = length(keep),
     tier_counts = tier_counts,
-    backbones   = bk
+    backbones   = bk,
+    skipped     = skipped
   )
   class(out) <- c("taxify_inspection", "data.frame")
   out
@@ -465,11 +480,18 @@ near_duplicate_targets <- function(x) {
 #' @noRd
 range_outlier_rows <- function(acc, matched, min_batch, verbose = FALSE) {
   n     <- length(acc)
-  blank <- list(mask = rep(FALSE, n), reason = rep(NA_character_, n))
+  blank <- list(mask = rep(FALSE, n), reason = rep(NA_character_, n),
+                skipped = FALSE)
 
+  # No range data at all is "could not check", not "checked and found nothing":
+  # the two are the same empty mask, and only the caller can tell the report
+  # which one it got.
   cmap <- tryCatch(species_range_continents(acc[matched], verbose = verbose),
                    error = function(e) NULL)
-  if (is.null(cmap) || length(cmap) == 0L) return(blank)
+  if (is.null(cmap) || length(cmap) == 0L) {
+    blank$skipped <- TRUE
+    return(blank)
+  }
 
   conts  <- cmap[acc]                       # per row; NULL where no data
   placed <- matched & vapply(conts, function(z) !is.null(z) && length(z) > 0L,
@@ -541,6 +563,12 @@ print.taxify_inspection <- function(x, ...) {
       parts <- sprintf("%s: %d", names(tc), as.integer(tc))
       parts <- parts[as.integer(tc) > 0L]
       cat(sprintf("  %s\n", paste(rev(parts), collapse = "   ")))
+    }
+    sk <- meta$skipped
+    if (!is.null(sk) && length(sk) > 0L) {
+      cat(sprintf("  not checked: %s\n",
+                  paste(sprintf("%s (%s)", names(sk), unname(sk)),
+                        collapse = "; ")))
     }
   }
   cat(sprintf("  %s\n", rule))

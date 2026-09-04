@@ -38,7 +38,8 @@ A \code{taxify_inspection} data.frame (one row per anomalous name, ordered
 most-notable first) with columns \code{input_name}, \code{suggestion} (the name to use
 instead, or \code{NA}), \code{anomalies} (\code{|}-joined labels), \code{tier} (ordered factor
 \code{note} < \code{review} < \code{unresolved}), \code{reason}, \code{fuzzy_dist}, and \code{backbone}.
-Zero rows means nothing stood out.
+Zero rows means nothing stood out among the checks that ran; the header's
+\verb{not checked} line names any that could not.
 }
 \description{
 A quality-control pass over a name list. By default \code{inspect()} does not match
@@ -91,8 +92,9 @@ The list-context labels (\code{near_duplicate}, \code{out_of_range}, \code{outli
 judge a name against the rest of the batch, so they cannot apply to a single
 name: \code{inspect()} on one name warns and reports only the per-name labels. The
 register checks (\code{unknown}, and the register-derived \code{outlier_group}) need the
-genus register installed; without it they are skipped (with a message at
-\code{verbose}).
+genus register installed, and the range checks need the WCVP range data; a
+check that could not run is named in the report header under \verb{not checked},
+so an empty report is never mistaken for a clean one.
 }
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())

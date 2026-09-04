@@ -468,3 +468,36 @@ test_that("taxify() |> inspect() flags a fuzzy match as a typo", {
   expect_match(row$anomalies, "typo")
   expect_equal(row$suggestion, "Quercus robur")
 })
+
+
+# An anomaly-only report has no way to show the difference between a check that
+# ran clean and one that never ran: both contribute no rows, and the report then
+# says "nothing stood out". The skipped set is what separates them (#55 class).
+
+test_that("inspect() names a check it could not run", {
+  out <- testthat::with_mocked_bindings(
+    inspect(c("Quercus robur", "Bogusus fakus", "Carexus mysteriosa"),
+            verbose = FALSE),
+    inspect_load_register = function() NULL,
+    .package = "taxify"
+  )
+  sk <- attr(out, "taxify_inspection_meta")$skipped
+  expect_true("unknown" %in% names(sk))
+  expect_match(sk[["unknown"]], "register")
+  expect_output(print(out), "not checked: unknown")
+})
+
+test_that("inspect() records no skip for a check that could run", {
+  fake_reg <- data.frame(
+    genus         = c("Quercus", "Panthera", "Acer", "Carex"),
+    kingdom_group = c("plants", "animals", "plants", "plants"),
+    stringsAsFactors = FALSE)
+  out <- testthat::with_mocked_bindings(
+    inspect(c("Quercus robur", "Bogusus fakus", "Carexus mysteriosa"),
+            verbose = FALSE),
+    inspect_load_register = function() fake_reg,
+    .package = "taxify"
+  )
+  sk <- attr(out, "taxify_inspection_meta")$skipped
+  expect_false("unknown" %in% names(sk))
+})

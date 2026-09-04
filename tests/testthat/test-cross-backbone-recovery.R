@@ -230,3 +230,50 @@ test_that("a backbone fixed to another kingdom is not opened", {
   )
   expect_setequal(seen, c("col", "gbif"))
 })
+
+
+# The recovery pass resolves the gap names against every installed backbone. A
+# backbone that fails there contributes no alternatives, and the pass then
+# returns fewer recovered values along the same code path as a concept no
+# backbone moved -- the shape that hid #55 one level up.
+
+test_that("a backbone that fails to resolve is named, not silently dropped", {
+  w <- NULL
+  alts <- withCallingHandlers(
+    testthat::with_mocked_bindings(
+      .cross_backbone_alternatives("Aaa bbb"),
+      installed_backbones = function(...) c("wfo", "col"),
+      taxify = function(names_, backbone, ...) {
+        if (identical(backbone, "col")) stop("staged backbone failure")
+        data.frame(input_name = names_, accepted_name = paste0(names_, " acc"),
+                   accepted_authorship = NA_character_,
+                   genus = sub(" .*", "", names_), stringsAsFactors = FALSE)
+      },
+      .package = "taxify"
+    ),
+    warning = function(cond) {
+      w <<- c(w, conditionMessage(cond)); invokeRestart("muffleWarning")
+    }
+  )
+  expect_true(any(grepl("col (staged backbone failure)", w, fixed = TRUE)))
+  expect_equal(alts$backbone, "wfo")      # the one that worked still contributes
+  rm(list = intersect(".xbb", ls(.taxify_env, all.names = TRUE)),
+     envir = .taxify_env)
+})
+
+test_that("a failed backbone listing is loud; a single backbone is not", {
+  # Fewer than two backbones is a legitimate no-op and must stay quiet.
+  expect_silent(
+    testthat::with_mocked_bindings(
+      .cross_backbone_alternatives("Aaa bbb"),
+      installed_backbones = function(...) "wfo",
+      .package = "taxify"))
+
+  # A listing that failed is a different fact, and switches the pass off.
+  expect_warning(
+    testthat::with_mocked_bindings(
+      .cross_backbone_alternatives("Aaa bbb"),
+      installed_backbones = function(...) stop("staged listing failure"),
+      .package = "taxify"),
+    "could not be listed")
+})

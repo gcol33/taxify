@@ -1113,8 +1113,16 @@ enrichment_groups <- function(source, verbose = TRUE) {
                       alt_genus = character(0L), stringsAsFactors = FALSE)
   q <- unique(names_in[!is.na(names_in) & nzchar(names_in)])
   if (length(q) == 0L) return(empty)
-  bbs <- tryCatch(installed_backbones(), error = function(e) character(0L))
-  if (length(bbs) < 2L) return(empty)
+  # Fewer than two backbones is a legitimate no-op (nothing to cross-check
+  # against) and stays quiet; a listing that *failed* is not the same fact, and
+  # would otherwise switch the whole pass off with no signal.
+  bbs <- tryCatch(installed_backbones(), error = function(e) {
+    warning(sprintf(
+      "Cross-backbone recovery is off: the installed backbones could not be listed (%s).",
+      conditionMessage(e)), call. = FALSE)
+    NULL
+  })
+  if (is.null(bbs) || length(bbs) < 2L) return(empty)
   bbs <- order_by_priority(bbs)
 
   # A backbone scoped to a single kingdom by construction cannot hold the
@@ -1134,9 +1142,18 @@ enrichment_groups <- function(source, verbose = TRUE) {
   cached <- memo_get(".xbb", key)
   if (!is.null(cached)) return(cached)
 
+  # A backbone that fails to resolve the set contributes no alternatives, and
+  # the pass then returns fewer recovered values along the same code path as a
+  # concept no backbone moved. Naming it is what keeps a failure here from
+  # reading as a coverage result, one level below where #55 did exactly that.
+  failed <- character(0L)
   per_be <- lapply(bbs, function(bb) {
     r <- tryCatch(taxify(q, backbone = bb, fuzzy = FALSE, verbose = FALSE),
-                  error = function(e) NULL)
+                  error = function(e) {
+                    failed <<- c(failed, sprintf("%s (%s)", bb,
+                                                 conditionMessage(e)))
+                    NULL
+                  })
     if (is.null(r) || nrow(r) == 0L) return(empty)
     data.frame(
       input_name     = r$input_name,
@@ -1147,6 +1164,12 @@ enrichment_groups <- function(source, verbose = TRUE) {
       stringsAsFactors = FALSE
     )
   })
+  if (length(failed) > 0L) {
+    warning(sprintf(
+      paste0("Cross-backbone recovery could not resolve against %s. Any value ",
+             "those backbone(s) would have recovered is missing from this join."),
+      paste(failed, collapse = "; ")), call. = FALSE)
+  }
   out <- do.call(rbind, per_be)
   out <- out[!is.na(out$alt_name), , drop = FALSE]
   rownames(out) <- NULL
