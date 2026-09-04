@@ -3385,8 +3385,23 @@
 # (before crosswalk). Reuses enrich_simple() for the aggregate-aware join. A
 # source that is unavailable (not installed, no download, no build) is skipped
 # with a warning and returns NULL, so add_trait() still works from the rest.
+# Report a source that could not be joined. The all-NA column such a failure
+# leaves behind reads exactly like the source genuinely holding nothing for
+# these taxa, so the report is not gated on `verbose`: silence here turns a
+# failure into a coverage statement. `warn` exists only so a companion fetch
+# does not repeat what the same source's value join has already reported.
+.trait_join_failed <- function(e, enrichment, warn) {
+  if (isTRUE(warn)) {
+    warning(sprintf(
+      "add_trait(): source '%s' could not be joined (%s); its values are all NA.",
+      enrichment, conditionMessage(e)), call. = FALSE)
+  }
+  NULL
+}
+
+
 .trait_join_one <- function(x, enrichment, col, kind, join_col = "accepted_name",
-                            group = NULL, verbose = TRUE,
+                            group = NULL, warn = TRUE,
                             aggregate_trait_fallback =
                               getOption("taxify.aggregate_trait_fallback", TRUE)) {
   tmp  <- ".__taxify_trait_raw__"
@@ -3420,14 +3435,7 @@
         verbose      = FALSE
       )
     },
-    error = function(e) {
-      if (verbose) {
-        warning(sprintf(
-          "add_trait(): source '%s' unavailable (%s); skipping.",
-          enrichment, conditionMessage(e)), call. = FALSE)
-      }
-      NULL
-    }
+    error = function(e) .trait_join_failed(e, enrichment, warn)
   )
   if (is.null(res)) return(NULL)
   res[[tmp]]
@@ -3442,7 +3450,7 @@
 # the same code path deepens automatically once a rebuilt .vtr carries the
 # stored spread. pmin/pmax guard against a non-monotonic map swapping the bounds.
 .trait_join_spread <- function(x, enrichment, col, join_col = "accepted_name",
-                               map = identity, verbose = TRUE,
+                               map = identity, warn = TRUE,
                                aggregate_trait_fallback =
                                  getOption("taxify.aggregate_trait_fallback", TRUE)) {
   cm   <- c(.v = col, .lo = paste0(col, "_min"), .hi = paste0(col, "_max"))
@@ -3455,14 +3463,7 @@
       expose_all = FALSE, verbose = FALSE,
       aggregate_trait_fallback = aggregate_trait_fallback
     ),
-    error = function(e) {
-      if (verbose) {
-        warning(sprintf(
-          "add_trait(): source '%s' unavailable (%s); skipping.",
-          enrichment, conditionMessage(e)), call. = FALSE)
-      }
-      NULL
-    }
+    error = function(e) .trait_join_failed(e, enrichment, warn)
   )
   if (is.null(res)) return(NULL)
   v  <- map(res[[".v"]])

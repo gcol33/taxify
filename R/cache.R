@@ -251,3 +251,41 @@ ensure_backbone <- function(backend, version = "latest", verbose = TRUE) {
   set_backbone_path(bb_name, path)
   path
 }
+
+
+# ---- Session memo keyed on arbitrary-length text ----
+#
+# R caps the name of a variable in an environment at 10000 bytes, so a memo key
+# built by pasting a query set together stops working once the set is large
+# enough -- and it fails by raising, not by missing, so a caller that reads the
+# cache mid-computation loses the whole computation. A list element name carries
+# no such limit, so each bucket is one list held in the session environment
+# under a fixed short name and indexed by the full key.
+
+#' Read a memoized value from a session bucket
+#'
+#' @param bucket Character. Fixed short name of the bucket.
+#' @param key Character. The full cache key, of any length.
+#' @return The stored value, or `NULL` when the key is not present.
+#' @noRd
+memo_get <- function(bucket, key) {
+  store <- .taxify_env[[bucket]]
+  if (is.null(store)) return(NULL)
+  store[[key]]
+}
+
+
+#' Store a value in a session bucket, returning it
+#'
+#' @param bucket Character. Fixed short name of the bucket.
+#' @param key Character. The full cache key, of any length.
+#' @param value The value to store.
+#' @return `value`, invisibly to the caller's own return.
+#' @noRd
+memo_set <- function(bucket, key, value) {
+  store <- .taxify_env[[bucket]]
+  if (is.null(store)) store <- list()
+  store[[key]] <- value
+  .taxify_env[[bucket]] <- store
+  value
+}

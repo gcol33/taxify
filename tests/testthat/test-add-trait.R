@@ -726,7 +726,7 @@ test_that(".trait_join_spread surfaces a source's stored within-source min/max",
                    stringsAsFactors = FALSE)
   install_mock_enrichment("mockspread", df)
   x   <- data.frame(accepted_name = "Aaa bbb", stringsAsFactors = FALSE)
-  res <- .trait_join_spread(x, "mockspread", "myval", verbose = FALSE)
+  res <- .trait_join_spread(x, "mockspread", "myval")
   expect_equal(res$value, 50)
   expect_equal(res$min, 10)
   expect_equal(res$max, 100)
@@ -736,7 +736,7 @@ test_that(".trait_join_spread falls back to the value when no spread is stored",
   df <- data.frame(canonical_name = "Aaa bbb", myval = 50, stringsAsFactors = FALSE)
   install_mock_enrichment("mocknospread", df)
   x   <- data.frame(accepted_name = "Aaa bbb", stringsAsFactors = FALSE)
-  res <- .trait_join_spread(x, "mocknospread", "myval", verbose = FALSE)
+  res <- .trait_join_spread(x, "mocknospread", "myval")
   expect_equal(res$value, 50)
   expect_equal(res$min, 50)          # min/max collapse to the point value
   expect_equal(res$max, 50)
@@ -748,8 +748,7 @@ test_that(".trait_join_spread applies the unit map to the value and both bounds"
                    stringsAsFactors = FALSE)
   install_mock_enrichment("mockmap", df)
   x   <- data.frame(accepted_name = "Aaa bbb", stringsAsFactors = FALSE)
-  res <- .trait_join_spread(x, "mockmap", "myval", map = function(v) v * 1000,
-                            verbose = FALSE)
+  res <- .trait_join_spread(x, "mockmap", "myval", map = function(v) v * 1000)
   expect_equal(res$value, 5000)
   expect_equal(res$min, 1000)
   expect_equal(res$max, 10000)
@@ -771,4 +770,39 @@ test_that("add_zanne() is the source-named woodiness door", {
   r <- add_zanne(mk("Quercus robur"), verbose = FALSE)
   expect_true("woodiness" %in% names(r))
   expect_equal(r$woodiness, "woody")
+})
+
+
+# A source that cannot be joined leaves an all-NA column, which reads exactly
+# like the source genuinely holding nothing for these taxa. Reporting it is
+# therefore not a verbosity setting (#55).
+
+test_that("a source that cannot be joined is named, despite verbose = FALSE", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  skip_if_not(trait_ready(), "trait enrichments not available")
+
+  w <- NULL
+  r <- withCallingHandlers(
+    testthat::with_mocked_bindings(
+      add_trait(mk("Abies alba"), "woodiness", mode = "wide", verbose = FALSE),
+      enrich_simple = function(...) stop("staged join failure"),
+      .package = "taxify"
+    ),
+    warning = function(cond) {
+      w <<- c(w, conditionMessage(cond)); invokeRestart("muffleWarning")
+    }
+  )
+  expect_true(any(grepl("could not be joined", w, fixed = TRUE)))
+  expect_true(any(grepl("'zanne'", w, fixed = TRUE)))
+  expect_true(is.na(r$woodiness_zanne))
+})
+
+test_that("verbose reports what each source supplied", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  skip_if_not(trait_ready(), "trait enrichments not available")
+
+  expect_message(add_trait(mk("Abies alba"), "woodiness"),
+                 "add_trait\\('woodiness'\\).*zanne 1.*of 1 resolved name")
 })

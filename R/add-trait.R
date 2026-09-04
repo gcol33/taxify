@@ -150,7 +150,7 @@ add_trait <- function(x, trait, sources = "all",
       # stores them (built by taxifydb where a source has several records per
       # species); where it does not, min = max = value, so the spread reduces to
       # the cross-source range.
-      tr <- .trait_join_spread(x, sp$enrichment, sp$col, jc, sp$map, verbose,
+      tr <- .trait_join_spread(x, sp$enrichment, sp$col, jc, sp$map,
                                aggregate_trait_fallback = aggregate_trait_fallback)
       if (is.null(tr)) {
         na <- rep(NA_real_, nrow(x))
@@ -161,10 +161,22 @@ add_trait <- function(x, trait, sources = "all",
     } else {
       raw <- .trait_join_one(x, sp$enrichment, sp$col, spec$kind,
                              join_col = jc, group = sp$group,
-                             verbose = verbose,
                              aggregate_trait_fallback = aggregate_trait_fallback)
       per_src[[s]] <- if (is.null(raw)) rep(na_scalar, nrow(x)) else sp$map(raw)
     }
+  }
+
+  # What each source actually supplied, against the number of names the backbone
+  # resolved. A source is expected to answer for only part of a query set, so
+  # the count is the only thing that separates thin coverage from a source that
+  # returned nothing at all.
+  n_resolved <- sum(!is.na(x$accepted_name))
+  n_from <- vapply(ord, function(s) sum(!is.na(per_src[[s]])), integer(1L))
+  if (verbose) {
+    message(sprintf(
+      "add_trait('%s'): %s (of %d resolved name%s).",
+      trait, paste(sprintf("%s %d", ord, n_from), collapse = ", "),
+      n_resolved, if (n_resolved == 1L) "" else "s"))
   }
 
   # Two kinds of caution. Static per-source cautions (`cvec`) flag a whole source
@@ -187,8 +199,10 @@ add_trait <- function(x, trait, sources = "all",
     sp <- spec$sources[[s]]
     if (!is_perrec(sp)) next
     jc   <- sp$join_col %||% "accepted_name"
+    # warn = FALSE: this is the same source's companion column, so a failure
+    # here has already been reported by its value join above.
     comp <- .trait_join_one(x, sp$enrichment, sp$caution_col, "categorical",
-                            join_col = jc, group = sp$group, verbose = FALSE,
+                            join_col = jc, group = sp$group, warn = FALSE,
                             aggregate_trait_fallback = aggregate_trait_fallback)
     if (is.null(comp)) next
     ctext <- sp$caution_fn(comp)
@@ -198,7 +212,7 @@ add_trait <- function(x, trait, sources = "all",
   # Discordance is data-aware: it only matters when at least two sources actually
   # supply values here and one of them is cautioned. A single source that has
   # data is not a method conflict (its own caution is still surfaced per row).
-  has_data     <- vapply(ord, function(s) any(!is.na(per_src[[s]])), logical(1L))
+  has_data     <- n_from > 0L
   contributing <- ord[has_data]
   disc <- length(contributing) >= 2L && any(!is.na(cvec[contributing]))
   unit <- if (!is.null(spec$unit) && !is.na(spec$unit)) spec$unit else NULL
@@ -255,7 +269,7 @@ add_trait <- function(x, trait, sources = "all",
       name      = sp$enrichment,
       source_label = sp$citation %||% sp$enrichment,
       version   = NA_character_,
-      n_matched = sum(!is.na(per_src[[s]]))
+      n_matched = n_from[[s]]
     )
   }
   x

@@ -1,3 +1,26 @@
+# taxify 0.5.1
+
+* `add_trait()` no longer returns `NA` for every source past a batch size
+  (#55). The per-name-set memos behind hybrid-parent resolution and
+  cross-backbone name recovery were keyed on the query set itself, and R caps
+  the name of a variable in an environment at 10000 bytes -- so a large enough
+  batch pushed the key past the cap, where reading the cache raised rather than
+  missed and took the whole join down with it. Because the cap is on total
+  bytes, the batch size that tripped it moved with how many names the backbone
+  resolved and how long they were, which is why a large call could come back
+  with one source populated and the rest empty and read as a coverage result.
+  Both memos now use a session store that carries keys of any length.
+
+* A trait source that cannot be joined is named in a warning whether or not
+  `verbose = TRUE`. Such a source leaves an all-NA column, which reads exactly
+  like the source genuinely holding nothing for those taxa, so silence there
+  turns a failure into a coverage statement.
+
+* `add_trait(verbose = TRUE)` reports what each source supplied against the
+  number of names the backbone resolved (`gift 152, austraits 40, leda 281,
+  baseflor 336, brot 0 (of 2400 resolved names)`), which separates thin
+  coverage from a source that returned nothing.
+
 # taxify 0.5.0
 
 * A content id recorded by `taxify_lock()` now resolves back to bytes (#54).

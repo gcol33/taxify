@@ -1044,8 +1044,8 @@ enrichment_groups <- function(source, verbose = TRUE) {
   parents <- unique(parents[!is.na(parents) & nzchar(parents)])
   if (length(parents) == 0L) return(empty)
   be_key <- paste(as.character(backbone), collapse = "+")
-  key    <- paste0(".pres_", be_key, "_", paste(sort(parents), collapse = "|"))
-  cached <- .taxify_env[[key]]
+  key    <- paste0(be_key, "_", paste(sort(parents), collapse = "|"))
+  cached <- memo_get(".pres", key)
   if (!is.null(cached)) return(cached)
   pr  <- taxify(parents, backbone = backbone, verbose = FALSE)
   out <- data.frame(
@@ -1053,8 +1053,7 @@ enrichment_groups <- function(source, verbose = TRUE) {
     accepted_name = pr$accepted_name,
     accepted_id   = pr$accepted_id %||% rep(NA_character_, nrow(pr)),
     stringsAsFactors = FALSE)
-  .taxify_env[[key]] <- out
-  out
+  memo_set(".pres", key, out)
 }
 
 # Accepted name of each parent, keyed by input name (the shape callers expect).
@@ -1131,9 +1130,8 @@ enrichment_groups <- function(source, verbose = TRUE) {
     if (length(bbs) < 2L) return(empty)
   }
 
-  key <- paste0(".xbb_", paste(bbs, collapse = "+"), "_",
-                paste(sort(q), collapse = "|"))
-  cached <- .taxify_env[[key]]
+  key <- paste0(paste(bbs, collapse = "+"), "_", paste(sort(q), collapse = "|"))
+  cached <- memo_get(".xbb", key)
   if (!is.null(cached)) return(cached)
 
   per_be <- lapply(bbs, function(bb) {
@@ -1152,8 +1150,7 @@ enrichment_groups <- function(source, verbose = TRUE) {
   out <- do.call(rbind, per_be)
   out <- out[!is.na(out$alt_name), , drop = FALSE]
   rownames(out) <- NULL
-  .taxify_env[[key]] <- out
-  out
+  memo_set(".xbb", key, out)
 }
 
 # For the rows of `x` a direct join left empty, the highest-priority
