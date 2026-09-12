@@ -241,132 +241,6 @@ normalize_aggregate_name <- function(name, rank = NULL) {
   out
 }
 
-#' Clean a single taxonomic name for matching
-#'
-#' Strips qualifiers, authorship, brackets, numbers, and normalizes whitespace.
-#' Records hybrid status and qualifier information for downstream use.
-#'
-#' @param name Character string. A single taxonomic name.
-#' @return A list with elements:
-#'   - `cleaned`: the cleaned name ready for matching
-#'   - `is_hybrid`: logical, whether a hybrid marker was detected
-#'   - `qualifier`: character or NA, the qualifier found (e.g., "cf.")
-#'   - `genus_only`: logical, whether the name reduces to a bare genus
-#'     after stripping a sp/spp/species qualifier
-#' @noRd
-clean_one <- function(name) {
-  if (is.na(name) || !nzchar(trimws(name))) {
-    return(list(cleaned = NA_character_, is_hybrid = FALSE,
-                hybrid_type = NA_character_,
-                qualifier = NA_character_, qualifier_position = NA_character_,
-                is_aggregate = FALSE, genus_only = FALSE,
-                hybrid_name = NA_character_, genus_abbrev = FALSE))
-  }
-
-  s <- trimws(name)
-
-  # Normalize common mojibake: UTF-8 \u00d7 (U+00D7) misread as Latin-1/CP1252
-  s <- gsub("\u00c3\u0097", "\u00d7", s, fixed = TRUE)
-  s <- gsub("\u00c3\u2014", "\u00d7", s, fixed = TRUE)
-
-  qualifier <- NA_character_
-  qpos      <- NA_character_
-
-  # Leading determination prefix (cf./aff.) -> genus-level qualifier.
-  # \\b after the token guards real genera like "Affinis".
-  lead_m <- regexpr("^(cf|aff)\\b\\.?\\s+", s, perl = TRUE, ignore.case = TRUE)
-  if (lead_m != -1L) {
-    lead_tok  <- sub("\\s+$", "", regmatches(s, lead_m))
-    qualifier <- canon_qualifier(lead_tok)
-    qpos      <- "genus"
-    s <- sub("^(cf|aff)\\b\\.?\\s+", "", s, perl = TRUE, ignore.case = TRUE)
-  }
-
-  # Detect hybrid markers (before stripping anything else)
-  hybrid <- detect_hybrid(s)
-  is_hybrid <- hybrid$is_hybrid
-  hybrid_type <- hybrid$hybrid_type
-  s <- hybrid$stripped
-
-  # Multi-word / spaced concept markers (s.l., s.str., sensu lato/stricto)
-  if (is.na(qualifier)) {
-    for (mw in .concept_multiword) {
-      if (regexpr(mw$pat, s, perl = TRUE, ignore.case = TRUE) != -1L) {
-        qualifier <- mw$canon
-        qpos      <- "species"
-        s <- sub(mw$pat, "", s, perl = TRUE, ignore.case = TRUE)
-        break
-      }
-    }
-  }
-
-  # Single-token qualifiers (cf., aff., var., agg., sp., ...)
-  raw_q <- extract_qualifier(s)
-  if (is.na(qualifier) && !is.na(raw_q)) {
-    qualifier <- canon_qualifier(raw_q)
-    qpos      <- "species"
-  }
-  s <- strip_qualifier(s)
-
-  is_aggregate <- !is.na(qualifier) && qualifier %in% .aggregate_tokens
-
-  # Strip parenthesized authorship
-  s <- gsub(.author_parens_pattern, " ", s, perl = TRUE)
-
-  # Strip trailing authorship (token-based; never consumes the epithet)
-  s <- strip_trailing_authorship(s)
-
-  # Strip remaining brackets and numbers
-  s <- gsub("\\([^)]*\\)", " ", s)
-  s <- gsub("[0-9]+", " ", s)
-
-  # Collapse whitespace
-  s <- gsub("\\s+", " ", trimws(s))
-
-  # Lowercase everything except genus (first token)
-  parts <- strsplit(s, " ", fixed = TRUE)[[1L]]
-  if (length(parts) >= 2L) {
-    s <- paste(c(parts[1L], tolower(parts[-1L])), collapse = " ")
-  }
-
-  # If qualifier reduced the name to a bare genus, flag it
-  genus_only <- FALSE
-  if (!is.na(qualifier) &&
-      qualifier %in% c("sp.", "sect.", "agg.", "indet.") &&
-      length(strsplit(s, " ", fixed = TRUE)[[1L]]) == 1L) {
-    genus_only <- TRUE
-  }
-
-  # Backbone display form: nothospecies "Genus \u00d7 epithet", nothogenus
-  # "\u00d7 Genus ...". Matching tries this alongside the sign-stripped `cleaned`.
-  hybrid_name <- NA_character_
-  if (is_hybrid && identical(hybrid_type, "nothospecies")) {
-    parts_h <- strsplit(s, " ", fixed = TRUE)[[1L]]
-    if (length(parts_h) >= 2L) {
-      hybrid_name <- paste(parts_h[1L], "\u00d7", paste(parts_h[-1L], collapse = " "))
-    }
-  } else if (is_hybrid && identical(hybrid_type, "nothogenus") && nzchar(s)) {
-    hybrid_name <- paste("\u00d7", s)
-  }
-
-  # A formula is not a single backbone taxon; drop the cleaned name so the
-  # matcher skips it (parents resolve separately).
-  if (is_hybrid && identical(hybrid_type, "formula")) {
-    s <- NA_character_
-  }
-
-  # Flag an abbreviated genus (e.g. "Q. robur"): first token is a single letter
-  # (optionally with a trailing period) and an epithet follows. Hybrids excluded.
-  first_tok <- sub(" .*", "", s)
-  genus_abbrev <- !is_hybrid && grepl(" ", s, fixed = TRUE) &&
-    grepl("^[A-Za-z]\\.?$", first_tok)
-
-  list(cleaned = s, is_hybrid = is_hybrid, hybrid_type = hybrid_type,
-       qualifier = qualifier, qualifier_position = qpos,
-       is_aggregate = is_aggregate, genus_only = genus_only,
-       hybrid_name = hybrid_name, genus_abbrev = genus_abbrev)
-}
-
 
 #' Clean a vector of taxonomic names (vectorized)
 #'
@@ -550,8 +424,8 @@ clean_names <- function(x) {
 #' Handles two forms: an inline qualifier ("Pinus cf. sylvestris", caught by
 #' `.qualifier_pattern`) and a leading genus-level "Cf." prefix
 #' ("Cf. Pinus sylvestris"). The leading prefix is matched case-insensitively
-#' and normalized to "cf.", mirroring the prefix strip in `clean_one()` /
-#' `clean_names()` so the qualifier is recorded wherever the prefix is removed.
+#' and normalized to "cf.", mirroring the prefix strip in `clean_names()` so
+#' the qualifier is recorded wherever the prefix is removed.
 #'
 #' @param name Character string (length 1).
 #' @return A list with `qualifier` (character or NA) and `position` (integer

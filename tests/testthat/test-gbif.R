@@ -97,7 +97,7 @@ test_that("GBIF fuzzy matching catches typos", {
   result <- match_exact(be, names_df, vtr_path)
   expect_true(is.na(result$match_type[1L]))
 
-  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2, names_df = names_df)
   expect_equal(result$matched_name[1L], "Quercus robur")
   expect_equal(result$match_type[1L], "fuzzy")
   expect_true(!is.na(result$fuzzy_dist[1L]))
@@ -111,7 +111,7 @@ test_that("GBIF fuzzy matching respects threshold", {
 
   names_df <- clean_names("Zzzzzz xxxxxx")
   result <- match_exact(be, names_df, vtr_path)
-  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2, names_df = names_df)
   expect_true(is.na(result$match_type[1L]))
 })
 
@@ -179,7 +179,9 @@ test_that("GBIF resolves Osphranter rufus to accepted Macropus rufus", {
   be <- gbif_backend()
   vtr_path <- mock_gbif_backbone_vtr()
 
-  result <- match_exact(be, clean_names("Osphranter rufus"), vtr_path)
+  names_df <- clean_names("Osphranter rufus")
+
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Osphranter rufus")
   expect_true(result$is_synonym[1L])
   expect_equal(result$accepted_name[1L], "Macropus rufus")
@@ -190,7 +192,9 @@ test_that("GBIF resolves Notamacropus parma to accepted Macropus parma", {
   be <- gbif_backend()
   vtr_path <- mock_gbif_backbone_vtr()
 
-  result <- match_exact(be, clean_names("Notamacropus parma"), vtr_path)
+  names_df <- clean_names("Notamacropus parma")
+
+  result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$matched_name[1L], "Notamacropus parma")
   expect_true(result$is_synonym[1L])
   expect_equal(result$accepted_name[1L], "Macropus parma")

@@ -188,3 +188,85 @@ test_that("run_match_stages handles normal and abbreviated names together", {
   expect_true(is.na(result$match_type[3L]))
   expect_true(result$is_ambiguous[3L])
 })
+
+
+# -- Genus context is read off the whole query, not one backbone's share (#59) --
+
+# Two backbones that split the query: the first carries only "Abies grandis",
+# so it answers that name and hands the abbreviation on; the second holds the
+# ambiguity ("A. alba" could be Abies or Acer) and, on its own, sees no genus
+# written out anywhere.
+mock_abbrev_split_vtr <- function(which = c("spelled", "ambiguous")) {
+  which <- match.arg(which)
+  df <- if (which == "spelled") {
+    data.frame(
+      taxon_id = "10", canonical_name = "Abies grandis",
+      genus = "Abies", specific_epithet = "grandis", family = "Pinaceae",
+      stringsAsFactors = FALSE
+    )
+  } else {
+    data.frame(
+      taxon_id = c("11", "12"),
+      canonical_name = c("Abies alba", "Acer alba"),
+      genus = c("Abies", "Acer"),
+      specific_epithet = c("alba", "alba"),
+      family = c("Pinaceae", "Sapindaceae"),
+      stringsAsFactors = FALSE
+    )
+  }
+  df$taxon_rank <- "SPECIES"
+  df$taxonomic_status <- "ACCEPTED"
+  df$accepted_name_usage_id <- NA_character_
+  df$authorship <- NA_character_
+  df$infraspecific_epithet <- NA_character_
+
+  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
+  df <- embed_accepted(df,
+    id_col     = "taxon_id",
+    acc_id_col = "accepted_name_usage_id",
+    name_col   = "canonical_name",
+    family_col = "family",
+    genus_col  = "genus",
+    status_col = "taxonomic_status"
+  )
+  tmp <- tempfile(fileext = ".vtr")
+  vectra::write_vtr(df, tmp, batch_size = 50000L)
+  tmp
+}
+
+setup_abbrev_split <- function() {
+  set_backbone_path("ncbi", mock_abbrev_split_vtr("spelled"))
+  set_backbone_path("ott", mock_abbrev_split_vtr("ambiguous"))
+}
+
+test_that("a genus an earlier backbone answered still disambiguates later ones", {
+  setup_abbrev_split()
+  on.exit({
+    set_backbone_path("ncbi", NULL)
+    set_backbone_path("ott", NULL)
+  }, add = TRUE)
+
+  res <- taxify(c("Abies grandis", "A. alba"),
+                backbone = c("ncbi", "ott"), verbose = FALSE)
+
+  expect_equal(res$backbone[1L], "ncbi")   # NCBI took the spelled-out name
+  expect_equal(res$backbone[2L], "ott")
+  expect_equal(res$match_type[2L], "abbrev")
+  expect_equal(res$accepted_name[2L], "Abies alba")
+  expect_false(isTRUE(res$is_ambiguous[2L]))
+})
+
+test_that("the chained result agrees with mode = \"agreement\" on the abbreviation", {
+  setup_abbrev_split()
+  on.exit({
+    set_backbone_path("ncbi", NULL)
+    set_backbone_path("ott", NULL)
+  }, add = TRUE)
+
+  q <- c("Abies grandis", "A. alba")
+  chained <- taxify(q, backbone = c("ncbi", "ott"), verbose = FALSE)
+  agreed  <- taxify(q, backbone = c("ncbi", "ott"), mode = "agreement",
+                    verbose = FALSE)
+  expect_equal(chained$accepted_name[2L], agreed$accepted_name[2L])
+  expect_equal(chained$match_type[2L], agreed$match_type[2L])
+})

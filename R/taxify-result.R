@@ -88,18 +88,23 @@ summary.taxify_result <- function(object, ...) {
   n_none    <- tally$unmatched %||% 0L
   n_hybform <- tally$hybrid_formula %||% 0L
 
-  # Header
-  backend_str <- paste(toupper(meta$backbone), collapse = " + ")
-  version_str <- if (!is.null(meta$version) && !is.na(meta$version)) {
-    sprintf(" v%s", meta$version)
-  } else {
-    ""
-  }
+  # Header. Each backbone carries its own build version, so the version rides
+  # next to the backbone it belongs to rather than once after the whole list.
+  ver <- meta$version
+  labels <- vapply(meta$backbone, function(bb) {
+    v <- if (!is.null(ver) && bb %in% names(ver)) ver[[bb]] else NA_character_
+    if (!is.null(v) && length(v) == 1L && !is.na(v)) {
+      sprintf("%s v%s", toupper(bb), v)
+    } else {
+      toupper(bb)
+    }
+  }, character(1L), USE.NAMES = FALSE)
+  backend_str <- paste(labels, collapse = " + ")
   rule <- strrep("\u2500", 60)
 
   cat(sprintf("\u2500\u2500 taxify results %s\n", rule))
-  cat(sprintf("  backbone: %s%s  |  %d names submitted\n\n",
-              backend_str, version_str, n_input))
+  cat(sprintf("  backbone: %s  |  %d names submitted\n\n",
+              backend_str, n_input))
 
   # Matched line
   cat(sprintf("  matched     %5d  (exact: %d, case-insensitive: %d, fuzzy: %d, abbrev: %d)\n",

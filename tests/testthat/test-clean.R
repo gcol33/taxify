@@ -1,52 +1,52 @@
-test_that("clean_one strips trailing authorship", {
-  res <- clean_one("Quercus robur L.")
+test_that("clean_names strips trailing authorship", {
+  res <- clean_names("Quercus robur L.")
   expect_equal(res$cleaned, "Quercus robur")
   expect_false(res$is_hybrid)
   expect_true(is.na(res$qualifier))
 })
 
-test_that("clean_one strips parenthesized authorship", {
-  res <- clean_one("Rosa canina var. dumalis (Bechst.) Baker")
+test_that("clean_names strips parenthesized authorship", {
+  res <- clean_names("Rosa canina var. dumalis (Bechst.) Baker")
   # var. is stripped as qualifier, (Bechst.) as paren author, Baker as trailing
   expect_equal(res$cleaned, "Rosa canina dumalis")
   expect_equal(res$qualifier, "var.")
 })
 
-test_that("clean_one strips qualifiers", {
-  res <- clean_one("Pinus cf. sylvestris")
+test_that("clean_names strips qualifiers", {
+  res <- clean_names("Pinus cf. sylvestris")
   expect_equal(res$cleaned, "Pinus sylvestris")
   expect_equal(res$qualifier, "cf.")
 
-  res2 <- clean_one("Festuca aff. rubra")
+  res2 <- clean_names("Festuca aff. rubra")
   expect_equal(res2$cleaned, "Festuca rubra")
   expect_equal(res2$qualifier, "aff.")
 })
 
-test_that("clean_one strips s.l. and s.str. qualifiers", {
-  res <- clean_one("Ranunculus auricomus s.l.")
+test_that("clean_names strips s.l. and s.str. qualifiers", {
+  res <- clean_names("Ranunculus auricomus s.l.")
   expect_equal(res$cleaned, "Ranunculus auricomus")
   expect_equal(res$qualifier, "s.l.")
 
-  res2 <- clean_one("Ranunculus auricomus s.str.")
+  res2 <- clean_names("Ranunculus auricomus s.str.")
   expect_equal(res2$cleaned, "Ranunculus auricomus")
   expect_equal(res2$qualifier, "s.str.")
 })
 
-test_that("clean_one normalizes ssp./nssp. infra-rank markers to subsp.", {
-  res <- clean_one("Pinus mugo ssp. uncinata")
+test_that("clean_names normalizes ssp./nssp. infra-rank markers to subsp.", {
+  res <- clean_names("Pinus mugo ssp. uncinata")
   expect_equal(res$cleaned, "Pinus mugo uncinata")
   expect_equal(res$qualifier, "subsp.")
   expect_equal(res$qualifier_position, "species")
 
-  res2 <- clean_one("Festuca ovina nssp. hirtula")
+  res2 <- clean_names("Festuca ovina nssp. hirtula")
   expect_equal(res2$cleaned, "Festuca ovina hirtula")
   expect_equal(res2$qualifier, "subsp.")
 
   # the fully spelled marker is untouched
-  expect_equal(clean_one("Pinus mugo subsp. uncinata")$qualifier, "subsp.")
+  expect_equal(clean_names("Pinus mugo subsp. uncinata")$qualifier, "subsp.")
 
   # ssp is only a marker as a whole bounded token, not inside a genus/epithet
-  expect_true(is.na(clean_one("Sspiraea alba")$qualifier))
+  expect_true(is.na(clean_names("Sspiraea alba")$qualifier))
 })
 
 test_that("clean_names normalizes ssp./nssp. across a vector", {
@@ -57,17 +57,17 @@ test_that("clean_names normalizes ssp./nssp. across a vector", {
                c("Pinus mugo uncinata", "Festuca ovina hirtula", "Quercus robur"))
 })
 
-test_that("clean_one recognizes s.s. as sensu stricto (s.str.)", {
-  res <- clean_one("Quercus robur s.s.")
+test_that("clean_names recognizes s.s. as sensu stricto (s.str.)", {
+  res <- clean_names("Quercus robur s.s.")
   expect_equal(res$cleaned, "Quercus robur")
   expect_equal(res$qualifier, "s.str.")
   expect_false(res$is_aggregate)
 
   # spaced form too
-  expect_equal(clean_one("Quercus robur s. s.")$qualifier, "s.str.")
+  expect_equal(clean_names("Quercus robur s. s.")$qualifier, "s.str.")
 
   # s.str. and sensu stricto still resolve to the same token
-  expect_equal(clean_one("Quercus robur s.str.")$qualifier, "s.str.")
+  expect_equal(clean_names("Quercus robur s.str.")$qualifier, "s.str.")
 
   df <- clean_names(c("Quercus robur s.s.", "Quercus robur s.l."))
   expect_equal(df$qualifier, c("s.str.", "s.l."))
@@ -76,80 +76,80 @@ test_that("clean_one recognizes s.s. as sensu stricto (s.str.)", {
 
 test_that("infraspecific rank variants fold to their base rank token", {
   # forma spellings
-  expect_equal(clean_one("Carex flacca fo. serrulata")$qualifier, "f.")
-  expect_equal(clean_one("Carex flacca forma serrulata")$qualifier, "f.")
+  expect_equal(clean_names("Carex flacca fo. serrulata")$qualifier, "f.")
+  expect_equal(clean_names("Carex flacca forma serrulata")$qualifier, "f.")
   # additional ICN infraspecific ranks
-  expect_equal(clean_one("Carex flacca subvar. serrulata")$qualifier, "subvar.")
-  expect_equal(clean_one("Carex flacca subf. serrulata")$qualifier, "subf.")
-  expect_equal(clean_one("Carex flacca convar. serrulata")$qualifier, "convar.")
+  expect_equal(clean_names("Carex flacca subvar. serrulata")$qualifier, "subvar.")
+  expect_equal(clean_names("Carex flacca subf. serrulata")$qualifier, "subf.")
+  expect_equal(clean_names("Carex flacca convar. serrulata")$qualifier, "convar.")
   # notho- (hybrid) ranks fold to the base rank; the epithet is preserved
-  res <- clean_one("Carex flacca nothosubsp. serrulata")
+  res <- clean_names("Carex flacca nothosubsp. serrulata")
   expect_equal(res$cleaned, "Carex flacca serrulata")
   expect_equal(res$qualifier, "subsp.")
-  expect_equal(clean_one("Carex flacca nothovar. serrulata")$qualifier, "var.")
+  expect_equal(clean_names("Carex flacca nothovar. serrulata")$qualifier, "var.")
   # spelled-out subspecies
-  expect_equal(clean_one("Carex flacca subspecies serrulata")$qualifier, "subsp.")
+  expect_equal(clean_names("Carex flacca subspecies serrulata")$qualifier, "subsp.")
 })
 
 test_that("cultivar and pathogen infrasubspecific markers are recognized", {
-  expect_equal(clean_one("Malus domestica cv. Gala")$cleaned, "Malus domestica")
-  expect_equal(clean_one("Malus domestica cv. Gala")$qualifier, "cv.")
+  expect_equal(clean_names("Malus domestica cv. Gala")$cleaned, "Malus domestica")
+  expect_equal(clean_names("Malus domestica cv. Gala")$qualifier, "cv.")
   # forma specialis is one concept, not a bare forma + species
-  res <- clean_one("Fusarium oxysporum f. sp. lycopersici")
+  res <- clean_names("Fusarium oxysporum f. sp. lycopersici")
   expect_equal(res$cleaned, "Fusarium oxysporum lycopersici")
   expect_equal(res$qualifier, "f.sp.")
-  expect_equal(clean_one("Xanthomonas campestris pv. campestris")$qualifier, "pv.")
+  expect_equal(clean_names("Xanthomonas campestris pv. campestris")$qualifier, "pv.")
 })
 
 test_that("open-nomenclature and determination markers are recognized", {
-  expect_equal(clean_one("Carex nr. flacca")$cleaned, "Carex flacca")
-  expect_equal(clean_one("Carex nr. flacca")$qualifier, "nr.")
+  expect_equal(clean_names("Carex nr. flacca")$cleaned, "Carex flacca")
+  expect_equal(clean_names("Carex nr. flacca")$qualifier, "nr.")
 
   # indeterminate reduces to a genus-level concept
-  res <- clean_one("Carex indet.")
+  res <- clean_names("Carex indet.")
   expect_equal(res$cleaned, "Carex")
   expect_equal(res$qualifier, "indet.")
   expect_true(res$genus_only)
 
   # sp. nov.: the "nov." marker is stripped, sp. recorded
-  expect_equal(clean_one("Carex sp. nov.")$cleaned, "Carex")
-  expect_equal(clean_one("Carex sp. nov.")$qualifier, "sp.")
+  expect_equal(clean_names("Carex sp. nov.")$cleaned, "Carex")
+  expect_equal(clean_names("Carex sp. nov.")$qualifier, "sp.")
 })
 
 test_that("long/bare concept variants map like their short forms", {
-  expect_equal(clean_one("Quercus robur s. lat.")$qualifier, "s.l.")   # long s.l.
-  expect_equal(clean_one("Rubus fruticosus coll.")$qualifier, "s.l.")  # bare coll.
-  expect_true(clean_one("Rubus fruticosus coll.")$is_aggregate)
+  expect_equal(clean_names("Quercus robur s. lat.")$qualifier, "s.l.")   # long s.l.
+  expect_equal(clean_names("Rubus fruticosus coll.")$qualifier, "s.l.")  # bare coll.
+  expect_true(clean_names("Rubus fruticosus coll.")$is_aggregate)
 })
 
 test_that("species-group markers are recognized", {
-  expect_equal(clean_one("Anopheles gambiae group")$cleaned, "Anopheles gambiae")
-  expect_equal(clean_one("Anopheles gambiae group")$qualifier, "group")
-  expect_equal(clean_one("Anopheles gambiae gr.")$qualifier, "group")
+  expect_equal(clean_names("Anopheles gambiae group")$cleaned, "Anopheles gambiae")
+  expect_equal(clean_names("Anopheles gambiae group")$qualifier, "group")
+  expect_equal(clean_names("Anopheles gambiae gr.")$qualifier, "group")
 })
 
 test_that("added markers do not match inside a real epithet", {
   # the (?=\\s|$) anchor keeps tokens from matching mid-word
-  expect_true(is.na(clean_one("Carex novae-zelandiae")$qualifier))
-  expect_true(is.na(clean_one("Carex gracilis")$qualifier))
-  expect_true(is.na(clean_one("Convallaria majalis")$qualifier))
-  expect_equal(clean_one("Carex novae-zelandiae")$cleaned, "Carex novae-zelandiae")
+  expect_true(is.na(clean_names("Carex novae-zelandiae")$qualifier))
+  expect_true(is.na(clean_names("Carex gracilis")$qualifier))
+  expect_true(is.na(clean_names("Convallaria majalis")$qualifier))
+  expect_equal(clean_names("Carex novae-zelandiae")$cleaned, "Carex novae-zelandiae")
 })
 
-test_that("clean_one strips agg. qualifier", {
-  res <- clean_one("Rubus fruticosus agg.")
+test_that("clean_names strips agg. qualifier", {
+  res <- clean_names("Rubus fruticosus agg.")
   expect_equal(res$cleaned, "Rubus fruticosus")
   expect_equal(res$qualifier, "agg.")
 })
 
-test_that("clean_one records a stripped leading Cf. prefix as a qualifier", {
-  res <- clean_one("Cf. Pinus sylvestris")
+test_that("clean_names records a stripped leading Cf. prefix as a qualifier", {
+  res <- clean_names("Cf. Pinus sylvestris")
   expect_equal(res$cleaned, "Pinus sylvestris")
   expect_equal(res$qualifier, "cf.")
 
   # lowercase and no-period leading forms too
-  expect_equal(clean_one("cf. Pinus sylvestris")$qualifier, "cf.")
-  expect_equal(clean_one("Cf Pinus sylvestris")$qualifier, "cf.")
+  expect_equal(clean_names("cf. Pinus sylvestris")$qualifier, "cf.")
+  expect_equal(clean_names("Cf Pinus sylvestris")$qualifier, "cf.")
 })
 
 test_that("clean_names records a stripped leading Cf. prefix as a qualifier", {
@@ -160,20 +160,20 @@ test_that("clean_names records a stripped leading Cf. prefix as a qualifier", {
 })
 
 test_that("qualifier is canonicalized across spellings", {
-  expect_equal(clean_one("Rubus fruticosus aggr.")$qualifier, "agg.")
-  expect_equal(clean_one("Rubus fruticosus agg")$qualifier, "agg.")
-  expect_equal(clean_one("Taraxacum officinale sensu lato")$qualifier, "s.l.")
-  expect_equal(clean_one("Taraxacum officinale s. l.")$qualifier, "s.l.")
-  expect_equal(clean_one("Ranunculus auricomus sensu stricto")$qualifier, "s.str.")
-  expect_equal(clean_one("Taraxacum officinale sensu lato")$cleaned,
+  expect_equal(clean_names("Rubus fruticosus aggr.")$qualifier, "agg.")
+  expect_equal(clean_names("Rubus fruticosus agg")$qualifier, "agg.")
+  expect_equal(clean_names("Taraxacum officinale sensu lato")$qualifier, "s.l.")
+  expect_equal(clean_names("Taraxacum officinale s. l.")$qualifier, "s.l.")
+  expect_equal(clean_names("Ranunculus auricomus sensu stricto")$qualifier, "s.str.")
+  expect_equal(clean_names("Taraxacum officinale sensu lato")$cleaned,
                "Taraxacum officinale")
 })
 
 test_that("qualifier_position distinguishes genus vs species placement", {
-  expect_equal(clean_one("Cf. Pinus sylvestris")$qualifier_position, "genus")
-  expect_equal(clean_one("Pinus cf. sylvestris")$qualifier_position, "species")
-  expect_equal(clean_one("Rubus fruticosus agg.")$qualifier_position, "species")
-  expect_true(is.na(clean_one("Quercus robur")$qualifier_position))
+  expect_equal(clean_names("Cf. Pinus sylvestris")$qualifier_position, "genus")
+  expect_equal(clean_names("Pinus cf. sylvestris")$qualifier_position, "species")
+  expect_equal(clean_names("Rubus fruticosus agg.")$qualifier_position, "species")
+  expect_true(is.na(clean_names("Quercus robur")$qualifier_position))
 
   df <- clean_names(c("Cf. Pinus sylvestris", "Pinus cf. sylvestris",
                       "Quercus robur"))
@@ -181,39 +181,39 @@ test_that("qualifier_position distinguishes genus vs species placement", {
 })
 
 test_that("is_aggregate flags aggregate and sensu-lato concepts only", {
-  expect_true(clean_one("Rubus fruticosus agg.")$is_aggregate)
-  expect_true(clean_one("Taraxacum officinale s.l.")$is_aggregate)
-  expect_false(clean_one("Pinus cf. sylvestris")$is_aggregate)
-  expect_false(clean_one("Ranunculus auricomus s.str.")$is_aggregate)
-  expect_false(clean_one("Quercus robur")$is_aggregate)
+  expect_true(clean_names("Rubus fruticosus agg.")$is_aggregate)
+  expect_true(clean_names("Taraxacum officinale s.l.")$is_aggregate)
+  expect_false(clean_names("Pinus cf. sylvestris")$is_aggregate)
+  expect_false(clean_names("Ranunculus auricomus s.str.")$is_aggregate)
+  expect_false(clean_names("Quercus robur")$is_aggregate)
 
   df <- clean_names(c("Rubus fruticosus agg.", "Pinus cf. sylvestris"))
   expect_equal(df$is_aggregate, c(TRUE, FALSE))
 })
 
-test_that("clean_one lowercases epithet but keeps genus", {
-  res <- clean_one("QUERCUS ROBUR")
+test_that("clean_names lowercases epithet but keeps genus", {
+  res <- clean_names("QUERCUS ROBUR")
   expect_equal(res$cleaned, "QUERCUS robur")
 })
 
-test_that("clean_one handles NA and empty strings", {
-  res <- clean_one(NA_character_)
+test_that("clean_names handles NA and empty strings", {
+  res <- clean_names(NA_character_)
   expect_true(is.na(res$cleaned))
 
-  res2 <- clean_one("")
+  res2 <- clean_names("")
   expect_true(is.na(res2$cleaned))
 
-  res3 <- clean_one("   ")
+  res3 <- clean_names("   ")
   expect_true(is.na(res3$cleaned))
 })
 
-test_that("clean_one strips brackets and numbers", {
-  res <- clean_one("Quercus robur (123)")
+test_that("clean_names strips brackets and numbers", {
+  res <- clean_names("Quercus robur (123)")
   expect_equal(res$cleaned, "Quercus robur")
 })
 
-test_that("clean_one collapses whitespace", {
-  res <- clean_one("Quercus   robur")
+test_that("clean_names collapses whitespace", {
+  res <- clean_names("Quercus   robur")
   expect_equal(res$cleaned, "Quercus robur")
 })
 
@@ -231,14 +231,14 @@ test_that("clean_names returns correct data.frame", {
   expect_true(is.na(df$cleaned[3L]))
 })
 
-test_that("clean_one detects hybrid and strips marker", {
-  res <- clean_one("Quercus \u00d7 hispanica")
+test_that("clean_names detects hybrid and strips marker", {
+  res <- clean_names("Quercus \u00d7 hispanica")
   expect_true(res$is_hybrid)
   expect_equal(res$cleaned, "Quercus hispanica")
 })
 
-test_that("clean_one handles complex authorship chains", {
-  res <- clean_one("Festuca rubra L. ex Huds.")
+test_that("clean_names handles complex authorship chains", {
+  res <- clean_names("Festuca rubra L. ex Huds.")
   expect_equal(res$cleaned, "Festuca rubra")
 })
 
@@ -305,8 +305,6 @@ test_that("clean_names() keeps a Title-Case specific epithet (#8)", {
   expect_equal(clean_names("Panthera Leo")$cleaned, "Panthera leo")
   # A trailing real author is still removed off a Title-Case epithet.
   expect_equal(clean_names("Quercus Robur L.")$cleaned, "Quercus robur")
-  # clean_one() (single-name path) agrees with the vectorized clean_names().
-  expect_equal(clean_one("Quercus Robur")$cleaned, "Quercus robur")
 })
 
 test_that("clean_names() keeps an all-caps legacy epithet (#8)", {

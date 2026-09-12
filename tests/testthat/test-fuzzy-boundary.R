@@ -216,14 +216,18 @@ test_that("the flip holds for a neighbour sitting exactly on 0.25", {
 })
 
 
-# ---- One query per backbone row (dedup_fuzzy_targets) ----
+# ---- Several queries may share one backbone row (#56) ----
+#
+# Matching answers each query on its own. Two inputs landing on the same row is
+# the normal shape of a dirty checklist -- a repeated misspelling, or two
+# spellings of one name -- and rejecting the runner-up returned "none" for a
+# name that is within threshold of a backbone row, a silent false negative that
+# depended on how often the name happened to appear.
 
-test_that("the genus-blocked fuzzy pass keeps only the closest query per target", {
+test_that("every query within threshold of one row matches it", {
   vtr_path <- setup_fuzzy_backend()
   be <- wfo_backend()
 
-  # Four distinct queries all within threshold of the single backbone row
-  # 'Cherleria bisulca'; only 'Cherleria bisulcata' (0.1053) is closest.
   qs <- c("Cherleria bisulcata", "Cherleria bisulcus", "Cherleria bisulcum",
           "Cherleria bisulcis")
   names_df <- clean_names(qs)
@@ -231,47 +235,42 @@ test_that("the genus-blocked fuzzy pass keeps only the closest query per target"
   result <- fuzzy_match_via_join(result, names_df, vtr_path, "dl", 0.2,
                                  be$col_map)
 
-  expect_equal(result$match_type, c("fuzzy", NA, NA, NA))
-  expect_equal(result$matched_name[1L], "Cherleria bisulca")
+  expect_equal(result$match_type, rep("fuzzy", 4L))
+  expect_equal(result$matched_name, rep("Cherleria bisulca", 4L))
+  expect_equal(result$taxon_id, rep("wfo-f0005", 4L))
+  # Each keeps its own distance to the shared target.
   expect_equal(result$fuzzy_dist[1L], 2 / 19, tolerance = 1e-6)
-  expect_equal(sum(result$taxon_id %in% "wfo-f0005"), 1L)
+  expect_true(all(result$fuzzy_dist > 0))
 })
 
 
-test_that("taxify() leaves the farther queries of a collapsing group unresolved", {
+test_that("taxify() resolves a whole collapsing group, closest distance first", {
   setup_fuzzy_backend()
 
   qs <- c("Cherleria bisulcata", "Cherleria bisulcus", "Cherleria bisulcum",
           "Cherleria bisulcis")
   res <- taxify(qs, verbose = FALSE)
 
-  # The closest query owns the backbone row.
-  expect_equal(res$match_type[1L], "fuzzy")
-  expect_equal(res$accepted_name[1L], "Cherleria bisulca")
+  expect_equal(res$match_type, rep("fuzzy", 4L))
+  expect_equal(res$accepted_name, rep("Cherleria bisulca", 4L))
   expect_equal(res$fuzzy_dist[1L], 2 / 19, tolerance = 1e-6)
-
-  # The two farthest do not fabricate a match onto it.
-  expect_equal(res$match_type[3:4], c("none", "none"))
-  expect_true(all(is.na(res$accepted_name[3:4])))
-  expect_true(all(is.na(res$taxon_id[3:4])))
+  expect_equal(which.min(res$fuzzy_dist), 1L)
 })
 
 
-test_that("the prefix fallback cannot re-claim a row the join pass took", {
+test_that("a repeated misspelling gets the same answer every time", {
   setup_fuzzy_backend()
 
-  qs <- c("Cherleria bisulcata", "Cherleria bisulcus", "Cherleria bisulcum",
-          "Cherleria bisulcis")
-  res <- taxify(qs, verbose = FALSE)
+  res <- taxify(c("Cherleria bisulcata", "Cherleria bisulcata"),
+                verbose = FALSE)
+  expect_equal(res$match_type, c("fuzzy", "fuzzy"))
+  expect_equal(res$accepted_name[1L], res$accepted_name[2L])
+  expect_equal(res$taxon_id[1L], res$taxon_id[2L])
 
-  # Matching runs in passes and each deduplicates its own targets, so the
-  # claimed rows of the earlier pass have to be carried into the later one:
-  # otherwise a query the join pass dropped wins the same backbone row in the
-  # prefix-blocked pass, where it is the closest of what remains.
-  expect_equal(sum(res$taxon_id %in% "wfo-f0005"), 1L)
-  expect_equal(res$match_type[2L], "none")
-  expect_true(is.na(res$accepted_name[2L]))
-  expect_true(is.na(res$taxon_id[2L]))
+  # And the answer does not depend on how many times the name was submitted.
+  one <- taxify("Cherleria bisulcata", verbose = FALSE)
+  expect_equal(res$accepted_name[1L], one$accepted_name)
+  expect_equal(res$fuzzy_dist[1L], one$fuzzy_dist)
 })
 
 

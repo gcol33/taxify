@@ -327,6 +327,9 @@ test_that("authorship resolves a homonym the query names an author for", {
   # rejected synonym row's own (Pinus abies -> genus Pinus).
   expect_equal(out2$genus[1L], "Picea")
   expect_equal(out2$family[1L], "Pinaceae")
+  # accepted_name and accepted_authorship are one citation: the author must be
+  # Picea polita's, not that of the homonym the tiebreak rejected (#58).
+  expect_equal(out2$accepted_authorship[1L], "(Siebold & Zucc.) Carriere")
 })
 
 test_that("a bare homonym (no author) stays ambiguous", {

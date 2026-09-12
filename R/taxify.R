@@ -353,9 +353,9 @@ taxify <- function(x,
                                  kingdom, verbose)
   }
 
-  # Set match_type = "none" for still-unmatched
-  result$match_type[is.na(result$match_type) &
-                    !is.na(result$input_name)] <- "none"
+  # Set match_type = "none" for still-unmatched. An NA input is a query like
+  # any other and gets the same verdict as "" -- match_type is never NA.
+  result$match_type[is.na(result$match_type)] <- "none"
 
   # Ensure classification columns always exist
   if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_
@@ -503,8 +503,7 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   result$backbone_version[matched] <- format_backbone_version(
     vtr_path, be$name, be$version
   )
-  result$match_type[is.na(result$match_type) &
-                    !is.na(result$input_name)] <- "none"
+  result$match_type[is.na(result$match_type)] <- "none"
 
   # Ensure classification columns always exist
   if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_
@@ -686,6 +685,12 @@ finalize_hybrids <- function(result, names_df, backbone) {
 run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
                                fuzzy_threshold, fuzzy_method, region,
                                range_mode, kingdom, verbose) {
+  # Read the genus context off the whole query once. Each later backbone sees
+  # only the names still unmatched, so deriving it per backbone would make
+  # `"Q. petraea"` depend on which backbone happened to answer the name that
+  # spelled `Quercus` out (#59).
+  genus_context <- spelled_genera(names_df$cleaned)
+
   for (bb_name in backbone) {
     be <- resolve_backend(bb_name)
     vtr_path <- ensure_backbone(be, verbose = verbose)
@@ -698,7 +703,8 @@ run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
       result <- run_match_stages(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
                                  fuzzy_method, region = region,
                                  range_mode = range_mode, verbose = verbose,
-                                 label = bb_name, scope = backbone)
+                                 label = bb_name, scope = backbone,
+                                 genus_context = genus_context)
       result <- filter_result_by_kingdom(result, vtr_path, kingdom, be$name)
 
       matched <- is_backbone_match(result$match_type)
@@ -731,7 +737,8 @@ run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
                                    fuzzy_threshold, fuzzy_method,
                                    region = region, range_mode = range_mode,
                                    verbose = verbose, label = bb_name,
-                                   scope = backbone)
+                                   scope = backbone,
+                                   genus_context = genus_context)
     sub_result <- filter_result_by_kingdom(sub_result, vtr_path, kingdom,
                                            be$name)
 
@@ -778,12 +785,16 @@ run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
 #' @param scope Character vector of every backbone the calling query may consult,
 #'   used to decide which out-of-scope marks to release. `NULL` means this
 #'   backbone is the whole query.
+#' @param genus_context Genera spelled out in full anywhere in the whole query
+#'   (`spelled_genera()`), for abbreviated-genus resolution. `NULL` derives it
+#'   from `names_df`, which is the whole query only outside a fallback chain.
 #' @return The match result data.frame.
 #' @noRd
 run_match_stages <- function(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
                              fuzzy_method, region = NULL,
                              range_mode = "present", verbose = FALSE,
-                             label = NULL, scope = NULL) {
+                             label = NULL, scope = NULL,
+                             genus_context = NULL) {
   pre <- if (is.null(label)) "  " else sprintf("  [%s] ", label)
   n_unresolved <- function(res) {
     sum(is.na(res$match_type) & !is.na(names_df$cleaned))
@@ -793,7 +804,7 @@ run_match_stages <- function(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
   result <- prefilter_out_of_scope(result, names_df, be$name)
 
   if (n_unresolved(result) > 0L) {
-    result <- match_abbrev_genus(be, result, names_df, vtr_path)
+    result <- match_abbrev_genus(be, result, names_df, vtr_path, genus_context)
   }
 
   n_un <- n_unresolved(result)
@@ -1410,11 +1421,19 @@ as_taxify_result <- function(result, backbone) {
                stringsAsFactors = FALSE)
   }
 
-  version <- NA_character_
-  if ("backbone_version" %in% names(result)) {
-    bv <- result$backbone_version[!is.na(result$backbone_version)]
-    if (length(bv) > 0L) {
-      version <- sub("^[^:]+:([^ ]+).*$", "\\1", bv[1L])
+  # One version per backbone, named by backbone: a chained result carries a
+  # `backbone_version` per matched row, so reporting the first row's version
+  # against the whole chain labels every backbone with one backbone's build.
+  version <- stats::setNames(rep(NA_character_, length(backbone)), backbone)
+  if (all(c("backbone_version", "backbone") %in% names(result))) {
+    keep <- !is.na(result$backbone_version) & !is.na(result$backbone)
+    if (any(keep)) {
+      bb    <- result$backbone[keep]
+      ver   <- sub("^[^:]+:([^ ]+).*$", "\\1",
+                   result$backbone_version[keep])
+      first <- !duplicated(bb)
+      hit   <- match(names(version), bb[first])
+      version[!is.na(hit)] <- ver[first][hit[!is.na(hit)]]
     }
   }
 

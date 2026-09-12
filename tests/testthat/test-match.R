@@ -63,7 +63,7 @@ test_that("fuzzy matching catches typos", {
   expect_true(is.na(result$match_type[1L]))
 
   # Now fuzzy
-  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2, names_df = names_df)
   expect_equal(result$matched_name[1L], "Quercus robur")
   expect_equal(result$match_type[1L], "fuzzy")
   expect_true(!is.na(result$fuzzy_dist[1L]))
@@ -78,7 +78,7 @@ test_that("fuzzy matching respects threshold", {
   # Very different name — should not match at 0.2 threshold
   names_df <- clean_names("Zzzzzz xxxxxx")
   result <- match_exact(be, names_df, vtr_path)
-  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2, names_df = names_df)
   expect_true(is.na(result$match_type[1L]))
 })
 
@@ -502,44 +502,3 @@ test_that("vtr_path without nomenclaturalStatus still reports ambiguity", {
   expect_match(result$ambiguous_targets[1L], "\\|")
 })
 
-# ---- Fuzzy uniqueness: dedup_fuzzy_targets ----
-
-test_that("dedup_fuzzy_targets keeps only closest query per target", {
-  # Three distinct queries fuzzy-mapped to the same vtr_path row, the second
-  # being closest. Only the second should survive.
-  best <- data.frame(
-    row_idx    = c(1L, 2L, 3L),
-    taxonID    = c("wfo-x", "wfo-x", "wfo-x"),
-    fuzzy_dist = c(0.2, 0.1, 0.3),
-    stringsAsFactors = FALSE
-  )
-  out <- dedup_fuzzy_targets(best, id_col = "taxonID")
-  expect_equal(nrow(out), 1L)
-  expect_equal(out$row_idx, 2L)
-})
-
-test_that("dedup_fuzzy_targets preserves exact (distance = 0) hits", {
-  # Two queries hit the same target — one with distance 0 (exact synonym
-  # pointing to same accepted), one with distance 0.1 (fuzzy). The exact one
-  # is genuine and must be kept; the fuzzy one over the same target should be
-  # filtered as a spurious collapse.
-  best <- data.frame(
-    row_idx    = c(1L, 2L),
-    taxonID    = c("wfo-x", "wfo-x"),
-    fuzzy_dist = c(0.0, 0.1),
-    stringsAsFactors = FALSE
-  )
-  out <- dedup_fuzzy_targets(best, id_col = "taxonID")
-  expect_equal(nrow(out), 1L)
-  expect_equal(out$row_idx, 1L)
-})
-
-test_that("dedup_fuzzy_targets is a no-op for distinct targets", {
-  best <- data.frame(
-    row_idx    = c(1L, 2L, 3L),
-    taxonID    = c("wfo-a", "wfo-b", "wfo-c"),
-    fuzzy_dist = c(0.1, 0.2, 0.3),
-    stringsAsFactors = FALSE
-  )
-  expect_equal(dedup_fuzzy_targets(best, id_col = "taxonID"), best)
-})

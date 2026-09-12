@@ -25,11 +25,67 @@ get_backbone_path <- function(backbone_name) {
 set_backbone_path <- function(backbone_name, path) {
   if (is.null(path)) {
     if (exists(backbone_name, envir = .taxify_cache, inherits = FALSE)) {
+      old <- get(backbone_name, envir = .taxify_cache, inherits = FALSE)
       rm(list = backbone_name, envir = .taxify_cache)
+      if (is.character(old) && length(old) == 1L) clear_backbone_memo(old)
     }
   } else {
     assign(backbone_name, path, envir = .taxify_cache)
   }
+}
+
+
+# ---- Per-backbone session state ----
+#
+# Matching memoizes two heavy objects per backbone: the materialized backbone
+# (`.blk_`) and the compact fuzzy copy written beside it (`.fuzzy_bb_`). Both
+# describe one *build*, not one backbone name, so the key carries the resolved
+# path and the build's identity -- a restore, a data-dir switch or a mid-session
+# update all swap builds under the same basename, and a key that saw only the
+# basename kept answering from the build that was replaced.
+
+#' Session-memo key for a loaded backbone build
+#'
+#' @param prefix Key prefix (`".blk_"`, `".fuzzy_bb_"`).
+#' @param vtr_path Path to the backbone `.vtr`.
+#' @return A single character key identifying that build on disk.
+#' @noRd
+backbone_memo_key <- function(prefix, vtr_path) {
+  full <- tryCatch(normalizePath(vtr_path, winslash = "/", mustWork = FALSE),
+                   error = function(e) vtr_path)
+  info <- file.info(full)
+  paste0(prefix, full, "|", info$size, "|",
+         if (is.na(info$mtime)) NA else format(info$mtime, "%Y%m%d%H%M%S"))
+}
+
+
+#' Drop the memoized backbone objects for one build, or for every build
+#'
+#' The single owner of per-backbone session state: everything that invalidates
+#' a backbone path calls this, so the loaded copy can never outlive the path
+#' that resolved it. Temporary `.vtr` files written for the fuzzy copy are
+#' unlinked as they are dropped.
+#'
+#' @param vtr_path Path whose memos to drop, or `NULL` for all of them.
+#' @return No return value, called for side effects.
+#' @noRd
+clear_backbone_memo <- function(vtr_path = NULL) {
+  keys <- ls(.taxify_env, all.names = TRUE)
+  keys <- keys[startsWith(keys, ".blk_") | startsWith(keys, ".fuzzy_bb_")]
+  if (!is.null(vtr_path)) {
+    full <- tryCatch(normalizePath(vtr_path, winslash = "/", mustWork = FALSE),
+                     error = function(e) vtr_path)
+    keys <- keys[startsWith(sub("^\\.(blk|fuzzy_bb)_", "", keys), full)]
+  }
+  if (length(keys) == 0L) return(invisible(NULL))
+  for (k in keys) {
+    if (startsWith(k, ".fuzzy_bb_")) {
+      f <- .taxify_env[[k]]
+      if (is.character(f) && length(f) == 1L && file.exists(f)) unlink(f)
+    }
+  }
+  rm(list = keys, envir = .taxify_env)
+  invisible(NULL)
 }
 
 
@@ -116,6 +172,7 @@ format_backbone_version <- function(vtr_path, backbone_name, version) {
 #' @export
 taxify_clear_cache <- function() {
   rm(list = ls(.taxify_cache), envir = .taxify_cache)
+  clear_backbone_memo()
   invisible(NULL)
 }
 

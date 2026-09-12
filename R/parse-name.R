@@ -88,7 +88,7 @@ parse_authorship_vec <- function(x) {
   s <- trimws(as.character(x))
   na_in <- is.na(x) | !nzchar(s)
 
-  # Normalize the multiplication-sign mojibake clean_one() also handles, then
+  # Normalize the multiplication-sign mojibake clean_names() also handles, then
   # drop hybrid signs so a nothotaxon marker is never read as an author.
   s <- gsub("\u00c3\u0097", "\u00d7", s, fixed = TRUE)
   s <- gsub("\u00c3\u2014", "\u00d7", s, fixed = TRUE)

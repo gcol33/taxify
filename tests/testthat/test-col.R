@@ -81,7 +81,7 @@ test_that("COL fuzzy matching catches typos", {
   result <- match_exact(be, names_df, vtr_path)
   expect_true(is.na(result$match_type[1L]))
 
-  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2, names_df = names_df)
   expect_equal(result$matched_name[1L], "Quercus robur")
   expect_equal(result$match_type[1L], "fuzzy")
   expect_true(!is.na(result$fuzzy_dist[1L]))
@@ -95,7 +95,7 @@ test_that("COL fuzzy matching respects threshold", {
 
   names_df <- clean_names("Zzzzzz xxxxxx")
   result <- match_exact(be, names_df, vtr_path)
-  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, vtr_path, method = "dl", threshold = 0.2, names_df = names_df)
   expect_true(is.na(result$match_type[1L]))
 })
 

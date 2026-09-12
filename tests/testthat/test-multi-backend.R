@@ -405,3 +405,48 @@ test_that("is_backbone_match() covers the whole match_type vocabulary", {
   )
   expect_equal(is_backbone_match(character(0)), logical(0))
 })
+
+
+# ---- Per-backbone version in the summary metadata (#60) ----
+
+test_that("a chained result records one version per backbone", {
+  setup_multi_backend()
+  # COL leads and answers "Quercus robur"; "Picea polita" is only in the WFO
+  # mock, so both backbones answer and both get stamped.
+  res <- taxify(c("Quercus robur", "Picea polita"),
+                backbone = c("col", "wfo"), verbose = FALSE)
+  expect_equal(res$backbone, c("col", "wfo"))
+
+  meta <- attr(res, "taxify_meta")
+  expect_named(meta$version, c("col", "wfo"))
+
+  # Each entry is the version of its own backbone's stamp, not the first row's.
+  for (bb in c("col", "wfo")) {
+    rows <- which(res$backbone %in% bb)
+    expect_equal(unname(meta$version[[bb]]),
+                 sub("^[^:]+:([^ ]+).*$", "\\1", res$backbone_version[rows[1L]]))
+  }
+})
+
+test_that("summary() prints the version next to its own backbone", {
+  setup_multi_backend()
+  res <- taxify("Quercus robur", backbone = c("wfo", "col"), verbose = FALSE)
+  meta <- attr(res, "taxify_meta")
+  meta$version <- c(wfo = "2024.06", col = "2025.01")
+  attr(res, "taxify_meta") <- meta
+
+  line <- grep("backbone:", capture.output(summary(res)), value = TRUE)[1L]
+  expect_match(line, "WFO v2024.06 + COL v2025.01", fixed = TRUE)
+})
+
+test_that("summary() leaves a backbone with no recorded version unlabelled", {
+  setup_multi_backend()
+  res <- taxify("Quercus robur", backbone = c("wfo", "col"), verbose = FALSE)
+  meta <- attr(res, "taxify_meta")
+  meta$version <- c(wfo = "2024.06", col = NA_character_)
+  attr(res, "taxify_meta") <- meta
+
+  line <- grep("backbone:", capture.output(summary(res)), value = TRUE)[1L]
+  expect_match(line, "WFO v2024.06 + COL", fixed = TRUE)
+  expect_false(grepl("COL v", line, fixed = TRUE))
+})

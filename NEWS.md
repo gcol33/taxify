@@ -1,3 +1,48 @@
+# taxify 0.5.3
+
+Five fixes in the core matching path, all of them cases where a result depended
+on something other than the name being matched: how often it was submitted,
+which backbone happened to answer a neighbouring name, or which build was
+loaded earlier in the session.
+
+* Several queries may now resolve to the same backbone row (#56). Fuzzy
+  matching kept only the closest query per target and returned `match_type =
+  "none"` for the rest, to stop two different species collapsing onto one row.
+  But two inputs sharing a target is the normal shape of a dirty checklist: a
+  repeated misspelling, or two spellings of one name. The rejected input came
+  back as if the backbone held nothing near it, and which input was rejected
+  depended on how the batch was ordered. Every query within threshold now
+  matches its best target and carries its own `fuzzy_dist`.
+
+* The loaded backbone and its compact fuzzy copy are keyed on the build, not
+  on the file's basename (#57). Both were memoized under `.blk_<basename>`, so
+  a `taxify_restore(install = TRUE)`, a mid-session update and a data-dir
+  switch -- all of which swap builds under one basename -- left the rest of the
+  session matching against the replaced build while the metadata reported the
+  new one. `clear_backbone_memo()` now owns that state and runs wherever a
+  backbone path is invalidated, so the loaded copy cannot outlive the path that
+  resolved it.
+
+* The authorship tiebreak writes `accepted_authorship` (#58). Resolving a
+  homonym by the author the query carried rewrote `accepted_name` but left the
+  author of the candidate it had just rejected, so name and author named two
+  different taxa.
+
+* Abbreviated-genus resolution reads the genus context off the whole query
+  (#59). `"Q. petraea"` is disambiguated by a genus written out in full
+  elsewhere in the batch, but each backbone in a fallback chain sees only the
+  names still unmatched -- so a genus an earlier backbone had already answered
+  was invisible to the later ones, and `mode = "fallback"` disagreed with
+  `mode = "agreement"` on the same query.
+
+* Three smaller inconsistencies in the core path (#60). `clean_one()`, an
+  unreachable and drifted copy of `clean_names()`, is deleted and `names_df` is
+  now required, so `clean_names()` is the single cleaner. An `NA` input gets
+  `match_type = "none"` like `""`, which is what the documented vocabulary says
+  (`match_type` is never `NA`). And `summary()` prints each backbone's own
+  version next to it, rather than labelling a whole chain with the first
+  matched row's build.
+
 # taxify 0.5.2
 
 An audit for the #55 shape -- a failure returned as a plausible answer, with

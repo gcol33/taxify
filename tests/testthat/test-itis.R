@@ -68,7 +68,8 @@ test_that("ITIS is in the registry and in the first-run backbone set", {
 test_that("ITIS exact matching finds known species", {
   be <- itis_backend()
   backbone <- mock_itis_backbone_vtr()
-  result <- match_exact(be, clean_names("Ursus arctos"), backbone)
+  names_df <- clean_names("Ursus arctos")
+  result <- match_exact(be, names_df, backbone)
 
   expect_equal(result$matched_name[1L], "Ursus arctos")
   expect_equal(result$match_type[1L], "exact")
@@ -83,7 +84,8 @@ test_that("ITIS exact matching finds known species", {
 test_that("ITIS case-insensitive matching works", {
   be <- itis_backend()
   backbone <- mock_itis_backbone_vtr()
-  result <- match_exact(be, clean_names("ursus arctos"), backbone)
+  names_df <- clean_names("ursus arctos")
+  result <- match_exact(be, names_df, backbone)
 
   expect_equal(result$matched_name[1L], "Ursus arctos")
   expect_equal(result$match_type[1L], "exact_ci")
@@ -93,7 +95,8 @@ test_that("ITIS case-insensitive matching works", {
 test_that("ITIS unmatched names have NA match_type", {
   be <- itis_backend()
   backbone <- mock_itis_backbone_vtr()
-  result <- match_exact(be, clean_names("Nonexistus imaginus"), backbone)
+  names_df <- clean_names("Nonexistus imaginus")
+  result <- match_exact(be, names_df, backbone)
 
   expect_true(is.na(result$match_type[1L]))
   expect_true(is.na(result$matched_name[1L]))
@@ -105,7 +108,8 @@ test_that("ITIS unmatched names have NA match_type", {
 test_that("ITIS synonym resolves to its accepted TSN and name", {
   be <- itis_backend()
   backbone <- mock_itis_backbone_vtr()
-  result <- match_exact(be, clean_names("Ursus horribilis"), backbone)
+  names_df <- clean_names("Ursus horribilis")
+  result <- match_exact(be, names_df, backbone)
 
   expect_equal(result$matched_name[1L], "Ursus horribilis")
   expect_true(result$is_synonym[1L])
@@ -117,7 +121,8 @@ test_that("ITIS synonym resolves to its accepted TSN and name", {
 test_that("ITIS synonym across genera carries the accepted genus through", {
   be <- itis_backend()
   backbone <- mock_itis_backbone_vtr()
-  result <- match_exact(be, clean_names("Felis canadensis"), backbone)
+  names_df <- clean_names("Felis canadensis")
+  result <- match_exact(be, names_df, backbone)
 
   expect_equal(result$matched_name[1L], "Felis canadensis")
   expect_true(result$is_synonym[1L])
@@ -129,7 +134,8 @@ test_that("ITIS synonym across genera carries the accepted genus through", {
 test_that("ITIS accepted names resolve to themselves", {
   be <- itis_backend()
   backbone <- mock_itis_backbone_vtr()
-  result <- match_exact(be, clean_names("Salmo salar"), backbone)
+  names_df <- clean_names("Salmo salar")
+  result <- match_exact(be, names_df, backbone)
 
   expect_false(result$is_synonym[1L])
   expect_equal(result$accepted_name[1L], "Salmo salar")
@@ -143,10 +149,12 @@ test_that("ITIS fuzzy matching catches a typo", {
   be <- itis_backend()
   backbone <- mock_itis_backbone_vtr()
 
-  result <- match_exact(be, clean_names("Ursus arctus"), backbone)
+  names_df <- clean_names("Ursus arctus")
+
+  result <- match_exact(be, names_df, backbone)
   expect_true(is.na(result$match_type[1L]))
 
-  result <- match_fuzzy(be, result, backbone, method = "dl", threshold = 0.2)
+  result <- match_fuzzy(be, result, backbone, method = "dl", threshold = 0.2, names_df = names_df)
   expect_equal(result$matched_name[1L], "Ursus arctos")
   expect_equal(result$match_type[1L], "fuzzy")
   expect_equal(result$taxon_id[1L], "180543")
@@ -157,8 +165,10 @@ test_that("ITIS fuzzy matching respects the threshold", {
   be <- itis_backend()
   backbone <- mock_itis_backbone_vtr()
 
-  result <- match_exact(be, clean_names("Zzzzzz xxxxxx"), backbone)
-  result <- match_fuzzy(be, result, backbone, method = "dl", threshold = 0.2)
+  names_df <- clean_names("Zzzzzz xxxxxx")
+
+  result <- match_exact(be, names_df, backbone)
+  result <- match_fuzzy(be, result, backbone, method = "dl", threshold = 0.2, names_df = names_df)
   expect_true(is.na(result$match_type[1L]))
 })
 

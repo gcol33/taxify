@@ -192,8 +192,16 @@ test_that("taxify handles NA input", {
   result <- taxify(c("Quercus robur", NA), verbose = FALSE)
   expect_equal(nrow(result), 2L)
   expect_equal(result$match_type[1L], "exact")
-  expect_true(is.na(result$match_type[2L]))
+  # An NA input is a query that matched nothing, the same verdict "" gets;
+  # match_type is documented as never NA (#60).
+  expect_equal(result$match_type[2L], "none")
   expect_true(is.na(result$matched_name[2L]))
+})
+
+test_that("NA and empty-string inputs get the same match_type", {
+  setup_mock_backend()
+  result <- taxify(c(NA, "", "   "), verbose = FALSE)
+  expect_equal(result$match_type, rep("none", 3L))
 })
 
 test_that("taxify detects hybrids", {

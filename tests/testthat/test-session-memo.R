@@ -79,3 +79,86 @@ test_that(".resolve_parents_resolved resolves a parent set larger than the cap",
   keys <- ls(.taxify_env, all.names = TRUE)
   rm(list = intersect(".pres", keys), envir = .taxify_env)
 })
+
+
+# ---- Per-backbone session state is keyed on the build, not the basename (#57) ----
+
+test_that("the memo key separates two builds sharing a basename", {
+  dir_a <- file.path(tempfile("memo_a")); dir.create(dir_a)
+  dir_b <- file.path(tempfile("memo_b")); dir.create(dir_b)
+  on.exit(unlink(c(dir_a, dir_b), recursive = TRUE), add = TRUE)
+
+  a <- file.path(dir_a, "wfo.vtr")
+  b <- file.path(dir_b, "wfo.vtr")
+  writeLines("a", a)
+  writeLines(c("b", "b"), b)
+
+  expect_false(identical(backbone_memo_key(".blk_", a),
+                         backbone_memo_key(".blk_", b)))
+  # Same file, same key: the memo still hits within one build.
+  expect_identical(backbone_memo_key(".blk_", a), backbone_memo_key(".blk_", a))
+  # And a build replaced in place under the same path keys differently.
+  before <- backbone_memo_key(".blk_", a)
+  writeLines(c("a", "a", "a"), a)
+  expect_false(identical(before, backbone_memo_key(".blk_", a)))
+})
+
+# Other test files leave their own backbones loaded, so count only the keys
+# belonging to the build under test.
+memo_keys_for <- function(vtr) {
+  full <- normalizePath(vtr, winslash = "/", mustWork = FALSE)
+  k <- ls(.taxify_env, all.names = TRUE)
+  k <- k[startsWith(k, ".blk_") | startsWith(k, ".fuzzy_bb_")]
+  k[startsWith(sub("^\\.(blk|fuzzy_bb)_", "", k), full)]
+}
+
+test_that("clearing a backbone path drops the build loaded from it", {
+  vtr <- mock_backbone_vtr()
+  set_backbone_path("wfo", vtr)
+  taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
+  expect_gt(length(memo_keys_for(vtr)), 0L)
+
+  set_backbone_path("wfo", NULL)
+  expect_length(memo_keys_for(vtr), 0L)
+})
+
+test_that("taxify_clear_cache() clears the loaded backbones, not just the paths", {
+  vtr <- mock_backbone_vtr()
+  set_backbone_path("wfo", vtr)
+  taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
+  expect_gt(length(memo_keys_for(vtr)), 0L)
+
+  taxify_clear_cache()
+  # Every build, not only this one: the cache clears the whole session.
+  k <- ls(.taxify_env, all.names = TRUE)
+  expect_length(k[startsWith(k, ".blk_") | startsWith(k, ".fuzzy_bb_")], 0L)
+})
+
+test_that("a data-dir switch under one basename matches the new build", {
+  # Two backbones written to the same basename in different directories: the
+  # session must answer from whichever the path cache currently resolves.
+  first  <- mock_backbone_vtr()
+  second <- mock_col_backbone_vtr()
+
+  dir_a <- tempfile("build_a"); dir.create(dir_a)
+  dir_b <- tempfile("build_b"); dir.create(dir_b)
+  on.exit(unlink(c(dir_a, dir_b), recursive = TRUE), add = TRUE)
+  a <- file.path(dir_a, "wfo.vtr")
+  b <- file.path(dir_b, "wfo.vtr")
+  file.copy(first, a)
+  file.copy(second, b)
+
+  set_backbone_path("wfo", a)
+  # "Picea polita" is in the WFO mock only.
+  expect_equal(taxify("Picea polita", backbone = "wfo",
+                      verbose = FALSE)$match_type, "exact")
+
+  set_backbone_path("wfo", NULL)
+  set_backbone_path("wfo", b)
+  expect_equal(taxify("Picea polita", backbone = "wfo",
+                      verbose = FALSE)$match_type, "none")
+  # The second build is being read, not simply failing to read: a name it does
+  # carry still matches.
+  expect_equal(taxify("Quercus robur", backbone = "wfo",
+                      verbose = FALSE)$taxon_id, "5T6MX")
+})
