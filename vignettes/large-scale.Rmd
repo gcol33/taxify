@@ -303,7 +303,7 @@ backbone version.
 | Backbone | Names | Download | Version |
 |---|---|---|---|
 | WFO | 1.6M | 761 MB | 2026.08 |
-| COL | 5.3M | 2.0 GB | 2026.08 |
+| COL | 5.4M | 2.1 GB | 2026.09 |
 | COL Extended Release | 7.9M | 1.6 GB | 2026.08 |
 | GBIF | 6.4M | 1.6 GB | 2026.08 |
 | ITIS | 993k | 205 MB | 2026.08 |
@@ -321,7 +321,7 @@ backbone version.
 | Mammal Diversity Database | 62k | 11 MB | 2026.08 |
 | AviList | 41k | 8 MB | 2026.08 |
 | LPSN | 45k | 12 MB | 2026.08 |
-| **All 19** | **34.2M** | **8.5 GB** | |
+| **All 19** | **34.3M** | **8.7 GB** | |
 <!-- /manifest:backbone-sizes -->
 
 A full installation of all <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones occupies several GB. Most

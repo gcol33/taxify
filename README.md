@@ -85,7 +85,7 @@ broad aggregators GBIF, ITIS, NCBI, and OTT.
 | Backbone | Scope | Names | Download |
 |---|---|---|---|
 | [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.6M | 761 MB |
-| [COL](https://www.catalogueoflife.org/) | All kingdoms | 5.3M | 2.0 GB |
+| [COL](https://www.catalogueoflife.org/) | All kingdoms | 5.4M | 2.1 GB |
 | [COL Extended Release](https://www.catalogueoflife.org/) | All kingdoms | 7.9M | 1.6 GB |
 | [GBIF](https://www.gbif.org/) | All kingdoms | 6.4M | 1.6 GB |
 | [ITIS](https://www.itis.gov) | US focus, freshwater/marine | 993k | 205 MB |
