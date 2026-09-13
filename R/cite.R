@@ -110,8 +110,7 @@ collect_citations <- function(meta) {
   enrichments <- meta$enrichments
   if (!is.null(enrichments) && length(enrichments) > 0L) {
     for (e in enrichments) {
-      n_matched <- e$n_matched %||% NA_integer_
-      if (is.na(n_matched) || n_matched <= 0L) next
+      if (!enrichment_contributed(e)) next
       cit <- extract_manifest_citation(manifest, "enrichments", e$name)
       if (!is.null(cit)) {
         citations <- c(citations, list(cit))
@@ -288,8 +287,7 @@ cite_footer <- function(meta) {
   if (!is.null(enrichments) && length(enrichments) > 0L) {
     seen <- character(0L)
     for (e in enrichments) {
-      n_matched <- e$n_matched %||% NA_integer_
-      if (is.na(n_matched) || n_matched <= 0L) next
+      if (!enrichment_contributed(e)) next
       label <- e$source %||% e$name
       if (!is.null(e$version) && !is.na(e$version) && nzchar(e$version)) {
         label <- paste(label, e$version)

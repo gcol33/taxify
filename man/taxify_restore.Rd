@@ -21,7 +21,8 @@ A data.frame with one row per pinned asset, columns: \code{component},
 \code{type} (\code{"backbone"}/\code{"enrichment"}), \code{locked_version}, \code{installed_version},
 \code{locked_content_id} and \code{installed_content_id} (short), and \code{status}
 (\code{"ok"}, \code{"version_drift"}, \code{"content_drift"}, \code{"missing"}, or
-\code{"unverified"} when neither a version nor a content id could be compared).
+\code{"unverified"} when what the lock pinned cannot be compared against this
+install).
 With \code{install = TRUE} the statuses describe the install afterwards, and a
 \code{restored} column records which rows were fetched.
 }

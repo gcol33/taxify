@@ -225,3 +225,69 @@ summary.taxify_result <- function(object, ...) {
 
   invisible(object)
 }
+
+
+# ---- The zero-row result ----
+
+#' Column names and types of a taxify() result
+#'
+#' The output schema, as one prototype row. `empty_taxify_result()` is its only
+#' consumer; keeping the two apart lets a test compare this list against a real
+#' match's columns, which is what stops the two definitions from drifting.
+#'
+#' @noRd
+.taxify_result_proto <- function() {
+  list(
+    input_name          = NA_character_,
+    matched_name        = NA_character_,
+    accepted_name       = NA_character_,
+    taxon_id            = NA_character_,
+    accepted_id         = NA_character_,
+    rank                = NA_character_,
+    family              = NA_character_,
+    genus               = NA_character_,
+    epithet             = NA_character_,
+    authorship          = NA_character_,
+    accepted_authorship = NA_character_,
+    is_synonym          = NA,
+    is_hybrid           = NA,
+    match_type          = NA_character_,
+    fuzzy_dist          = NA_real_,
+    is_ambiguous        = NA,
+    ambiguous_targets   = NA_character_,
+    backbone            = NA_character_,
+    backbone_version    = NA_character_,
+    kingdom_group       = NA_character_,
+    taxon_group         = NA_character_,
+    life_form           = NA_character_,
+    qualifier           = NA_character_,
+    qualifier_position  = NA_character_,
+    aggregate_fallback  = NA,
+    hybrid_type         = NA_character_
+  )
+}
+
+
+#' A taxify() result with no rows
+#'
+#' What a verb returns when its query resolves to nothing: the full output
+#' schema at zero rows, classed and with `taxify_meta` attached, so it prints,
+#' summarises and pipes into the `add_*()` doors exactly like a result that
+#' matched. One constructor serves every verb, so an empty answer is the same
+#' object wherever it comes from.
+#'
+#' @param backbone Character vector of backbone name(s), a `taxify_backend`, or
+#'   `NULL`. Recorded in the metadata as the backbones the query was aimed at.
+#' @return A zero-row `taxify_result`.
+#' @noRd
+empty_taxify_result <- function(backbone = NULL) {
+  bb <- if (inherits(backbone, "taxify_backend")) {
+    backbone$name
+  } else {
+    as.character(backbone %||% character(0L))
+  }
+  proto <- .taxify_result_proto()
+  df <- as.data.frame(lapply(proto, function(v) v[0L]),
+                      stringsAsFactors = FALSE, check.names = FALSE)
+  as_taxify_result(df, bb)
+}

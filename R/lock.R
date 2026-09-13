@@ -42,18 +42,28 @@ nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
 
 
 #' Build a lockfile entry for one enrichment
+#'
+#' The version and content id come from what `register_enrichment()` recorded at
+#' join time -- the build the result was produced from. The installed build is
+#' only the fallback, for a result registered before those fields existed:
+#' reading it first would pin whatever a refresh or a restore left in place
+#' since.
 #' @noRd
 .enrichment_lock_entry <- function(e) {
   name <- e$name
   vtr  <- enrichment_vtr_path(name, "latest")
   meta <- tryCatch(read_enrichment_meta(vtr), error = function(e) NULL)
+  pick <- function(recorded, installed) {
+    recorded <- nz_or(recorded, NA_character_)
+    if (!is.na(recorded[[1L]])) recorded else nz_or(installed, NA_character_)
+  }
   list(
     name          = name,
-    source        = e$source %||% (meta$source %||% NA_character_),
-    version       = e$version %||% (meta$version %||% NA_character_),
-    license       = e$license %||% (meta$license %||% NA_character_),
-    content_id    = meta$content_id %||% NA_character_,
-    downloaded_at = meta$downloaded_at %||% NA_character_,
+    source        = pick(e$source, meta$source),
+    version       = pick(e$version, meta$version),
+    license       = pick(e$license, meta$license),
+    content_id    = pick(e$content_id, meta$content_id),
+    downloaded_at = nz_or(meta$downloaded_at, NA_character_),
     installed     = file.exists(vtr)
   )
 }
@@ -103,7 +113,11 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
       unique(x$backbone[!is.na(x$backbone)])
     } else character(0L)
     if (length(bb_names) == 0L) bb_names <- as.character(meta$backbone %||% character(0L))
-    enrich <- meta$enrichments %||% list()
+    # Only the sources that supplied a value: the same rule cite() applies, so a
+    # source consulted and matching nothing is neither credited nor pinned, and
+    # taxify_restore(install = TRUE) does not fetch an asset the result never
+    # used.
+    enrich <- Filter(enrichment_contributed, meta$enrichments %||% list())
   } else {
     bb_names <- installed_backbones()
     enrich <- list()
@@ -132,9 +146,9 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #' Compare one locked entry against what is installed now
 #'
 #' Returns `"missing"` (not installed), `"content_drift"` / `"version_drift"`
-#' (a compared identity differs, or was locked but the install exposes no
-#' counterpart to compare it against), `"unverified"` (installed but neither a
-#' version nor a content id could be compared on either side), or `"ok"`.
+#' (a compared identity differs), `"unverified"` (installed, but what the lock
+#' pinned cannot be compared -- the install exposes no counterpart, or neither
+#' side carries an identity at all), or `"ok"`.
 #' @noRd
 .restore_status <- function(locked_ver, locked_cid, cur_ver, cur_cid, installed) {
   # Normalize zero-length lock fields (jsonlite emits them for empty JSON) so a
@@ -147,7 +161,15 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
   if (!isTRUE(installed)) return("missing")
 
   # Content id is the strongest signal (catches a same-version republish).
-  if (!is.na(locked_cid) && !is.na(cur_cid)) {
+  if (!is.na(locked_cid)) {
+    if (is.na(cur_cid)) {
+      # The lock pinned bytes, and this install exposes none to compare them
+      # against (a pre-content-id cache, a local taxifydb build). Matching
+      # version labels prove nothing here -- a same-tag republish is exactly
+      # what the content id exists to catch -- so the row is unverified, not
+      # "ok".
+      return("unverified")
+    }
     if (!identical(locked_cid, cur_cid)) return("content_drift")
     return("ok")
   }
@@ -291,7 +313,8 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #'   `type` (`"backbone"`/`"enrichment"`), `locked_version`, `installed_version`,
 #'   `locked_content_id` and `installed_content_id` (short), and `status`
 #'   (`"ok"`, `"version_drift"`, `"content_drift"`, `"missing"`, or
-#'   `"unverified"` when neither a version nor a content id could be compared).
+#'   `"unverified"` when what the lock pinned cannot be compared against this
+#'   install).
 #'   With `install = TRUE` the statuses describe the install afterwards, and a
 #'   `restored` column records which rows were fetched.
 #'

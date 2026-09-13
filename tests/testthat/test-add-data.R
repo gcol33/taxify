@@ -421,3 +421,66 @@ test_that("add_data errors on empty data", {
     "0 rows"
   )
 })
+
+
+# ---- Backbone-qualified join key (#61) and grouped conflict rule (#64) ----
+
+# A result whose rows were matched by different backbones, without opening any.
+two_backbone_result <- function() {
+  df <- empty_taxify_result(c("itis", "gbif"))[0, ]
+  df <- df[rep(NA_integer_, 1L), ]
+  df$input_name    <- "Quercus robur"
+  df$matched_name  <- "Quercus robur"
+  df$accepted_name <- "Quercus robur"
+  df$accepted_id   <- "7"
+  df$backbone      <- "itis"
+  rownames(df) <- NULL
+  df
+}
+
+mock_data_match <- function(backbone, accepted_id, accepted_name) {
+  force(backbone); force(accepted_id); force(accepted_name)
+  function(x, ...) {
+    data.frame(input_name = x, backbone = backbone, accepted_id = accepted_id,
+               accepted_name = accepted_name, stringsAsFactors = FALSE)
+  }
+}
+
+test_that("add_data never joins equal ids issued by different backbones", {
+  x <- two_backbone_result()
+  traits <- data.frame(species = "Pinus sylvestris", height = 25)
+  local_mocked_bindings(
+    taxify = mock_data_match("gbif", "7", "Pinus sylvestris"))
+  out <- add_data(x, traits, species_col = "species", verbose = FALSE)
+  expect_true(is.na(out$height))
+})
+
+test_that("add_data joins a taxon matched by another backbone through its accepted name", {
+  x <- two_backbone_result()
+  traits <- data.frame(species = "Quercus pedunculata", height = 30)
+  local_mocked_bindings(
+    taxify = mock_data_match("gbif", "99", "Quercus robur"))
+  out <- add_data(x, traits, species_col = "species", verbose = FALSE)
+  expect_equal(out$height, 30)
+})
+
+test_that("grouped add_data refuses conflicting values within a group", {
+  x <- two_backbone_result()
+  grouped <- data.frame(species = c("Quercus robur", "Quercus robur"),
+                        region = c("AT", "AT"), status = c("native", "alien"))
+  local_mocked_bindings(taxify = mock_data_match("itis", "7", "Quercus robur"))
+  expect_error(
+    add_data(x, grouped, species_col = "species", cols = "status",
+             group_col = "region", verbose = FALSE),
+    "within one 'region' group")
+
+  agree <- data.frame(species = c("Quercus robur", "Quercus robur", "Quercus robur"),
+                      region = c("AT", "AT", "DE"),
+                      status = c("native", "native", "alien"))
+  expect_warning(
+    out <- add_data(x, agree, species_col = "species", cols = "status",
+                    group_col = "region", verbose = FALSE),
+    "1 duplicate rows")
+  expect_equal(out$status_AT, "native")
+  expect_equal(out$status_DE, "alien")
+})

@@ -375,6 +375,38 @@ fetch_asset_file <- function(url, tmp_path, label, verbose = TRUE) {
 }
 
 
+#' Is an asset published at this URL?
+#'
+#' A HEAD request, so a pinned version that was never released is caught before
+#' anything is written to the store. Any failure (offline, DNS, a proxy that
+#' rejects HEAD) reads as absent, which is also how the download itself would
+#' end.
+#'
+#' @param url Character.
+#' @return Logical.
+#' @noRd
+asset_url_exists <- function(url) {
+  if (is.null(url) || length(url) != 1L || is.na(url) || !nzchar(url)) {
+    return(FALSE)
+  }
+  if (startsWith(url, "file://")) {
+    local_src <- sub("^file:///", "/", url)
+    if (.Platform$OS.type == "windows" && grepl("^/[A-Za-z]:/", local_src)) {
+      local_src <- sub("^/", "", local_src)
+    }
+    return(file.exists(local_src))
+  }
+  tryCatch(
+    {
+      h <- curl::new_handle(nobody = TRUE)
+      curl::handle_setheaders(h, "User-Agent" = "R/4.5 taxify")
+      isTRUE(curl::curl_fetch_memory(url, handle = h)$status_code < 400L)
+    },
+    error = function(e) FALSE
+  )
+}
+
+
 #' Download the sidecar extras a manifest entry lists
 #'
 #' Each `extras` element is `{name, url, size, sha256}`. Failures are

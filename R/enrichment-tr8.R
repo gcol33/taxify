@@ -56,7 +56,7 @@ enrich_via_tr8 <- function(x, db, col_map, source_label, license,
       NA_character_
     }
   }
-  for (out_col in names(col_map)) x[[out_col]] <- na_for(out_col)
+  for (out_col in names(col_map)) x <- set_col_value(x, out_col, na_for(out_col))
 
   sp <- unique(x$accepted_name[!is.na(x$accepted_name)])
   if (length(sp) == 0L) {

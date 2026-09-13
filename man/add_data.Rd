@@ -67,14 +67,18 @@ Default \code{0.2}.}
 }
 \value{
 The input data.frame with additional columns from \code{data}, joined
-via backbone-resolved \code{accepted_id}. Columns from \code{data} that collide
+via the backbone-resolved accepted taxon. Columns from \code{data} that collide
 with existing columns in \code{x} are prefixed with \code{"data_"}.
 }
 \description{
 Joins an external data source (CSV file or data.frame) to a \code{\link[=taxify]{taxify()}}
 result. Species names in the external data are matched through the same
 backbone(s) used in the original \code{taxify()} call, and the join is performed
-on \code{accepted_id} --- so synonyms in either dataset resolve to the same key.
+on the accepted taxon --- so synonyms in either dataset resolve to the same
+key. The key is the \code{accepted_id} together with the backbone that issued it,
+falling back to \code{accepted_name} where the two sides were matched by different
+backbones: backend ids are bare integers in most backbones and mean nothing
+outside the one they came from.
 }
 \details{
 The workflow:
@@ -84,10 +88,10 @@ The workflow:
 \item Match species names through the same backbone(s) as the original
 \code{taxify()} call, obtaining \code{accepted_id} for each row.
 \item Check for conflicting duplicates: if multiple rows in \code{data} resolve
-to the same \code{accepted_id} with different values, an error is raised
-(unless \code{group_col} is set).
+to the same accepted name with different values, an error is raised --
+with \code{group_col} set, within each group.
 Exact duplicates produce a warning and are deduplicated.
-\item Left-join on \code{accepted_id}.
+\item Left-join on the accepted taxon.
 }
 \subsection{Grouped data}{
 

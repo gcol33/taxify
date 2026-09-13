@@ -43,6 +43,46 @@ loaded earlier in the session.
   version next to it, rather than labelling a whole chain with the first
   matched row's build.
 
+Five fixes in the side paths around matching: joining custom data, pinning and
+locking a build, the less common enrichment joins, and empty input.
+
+* `add_data()` joins on the accepted taxon, not a bare `accepted_id` (#61).
+  Backend ids are integers in most backbones and carry no namespace, so a name
+  matched by ITIS could join onto an unrelated taxon GBIF happened to number the
+  same, with no warning. The id is now qualified by the backbone that issued it,
+  and rows matched by different backbones on the two sides join through
+  `accepted_name`, which is what the synonym promise in the documentation needs.
+
+* A pinned version downloads that version (#62). `taxify_download(version = )`
+  and `taxify_download_enrichment(version = )` fetched the current release and
+  labelled it with the requested version, marked pinned, so the next session
+  never corrected it. The URL is now derived from the release tag
+  (`<name>-<version>/<name>.vtr`, `enrichment-<version>/<name>.vtr`), and a
+  version that was never published is an error.
+
+* `taxify_lock()` pins the builds a result was produced from (#63). Version and
+  content id are recorded when an enrichment is joined, not read from whatever
+  is installed when the lock is written, so a refresh or restore in between no
+  longer changes the pin. Sources that contributed no value are left out, as
+  `cite()` already did, and `add_trait()` sources carry their version instead
+  of `NA`. `taxify_restore()` reports a row as `"unverified"` when the lock
+  holds a content id and the install has none, rather than `"ok"` on matching
+  version labels.
+
+* Four enrichment join paths now follow the main one (#64). A mixed-grain
+  source (`genus_fallback`) fills from the genus row only after cross-backbone
+  recovery has looked for the species, so species resolution wins.
+  `groups = "all"` reads the groups of the installed build before the manifest,
+  so a pinned or restored build no longer gets columns for groups it lacks.
+  Grouped `add_data()` errors on conflicting values within a group, like the
+  flat join, and uses the shared group fill. The emergency grouped path keeps
+  the `NA` group, so `add_common_names(lang = NA)` returns names there too.
+
+* Empty input returns an empty result (#65). `comm2sci(resolve = TRUE)` with no
+  match, and `add_trait()` or any `add_*()` door on a zero-row result, errored
+  or warned once per source. They now return the full output schema at zero
+  rows, built by one constructor.
+
 # taxify 0.5.2
 
 An audit for the #55 shape -- a failure returned as a plausible answer, with

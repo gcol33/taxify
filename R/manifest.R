@@ -155,11 +155,72 @@ check_version <- function(backbone_name) {
 }
 
 
+#' Download URL of one published version of an asset
+#'
+#' Release assets live at `<...>/download/<tag>/<file>`, where the tag ends in
+#' the version it publishes: `wfo-2026.08/wfo.vtr` for a backbone,
+#' `enrichment-2026.08/iucn.vtr` for an enrichment. A pinned version is the same
+#' URL with that suffix swapped -- the derivation from the tag layout that
+#' `content_asset_url()` uses for a content id.
+#'
+#' Rewriting only the tag is what keeps both kinds on one rule: the file name
+#' identifies the asset and never carries the version.
+#'
+#' @param base_url Character. The `full_url` of the rolling (latest) asset.
+#' @param version Character. The version to point at.
+#' @return Character URL, or `NULL` when `base_url` has no such tag, so no
+#'   versioned copy can be named.
+#' @noRd
+versioned_asset_url <- function(base_url, version) {
+  if (is.null(base_url) || length(base_url) != 1L || is.na(base_url) ||
+      !nzchar(base_url)) {
+    return(NULL)
+  }
+  dir  <- sub("/[^/]+$", "", base_url)
+  file <- sub("^.*/", "", base_url)
+  tag  <- sub("^.*/", "", dir)
+  if (identical(dir, base_url) || !grepl("-", tag, fixed = TRUE)) return(NULL)
+  paste0(sub("/[^/]+$", "", dir), "/", sub("-[^-]+$", "", tag), "-", version,
+         "/", file)
+}
+
+
+#' The pinned-version URL, or an error naming what could not be pinned
+#'
+#' Shared by the backbone and the enrichment download path so both refuse the
+#' same way. Handing back the latest URL instead is what wrote current bytes
+#' into a directory named for an older version.
+#'
+#' @param base_url Character. The manifest entry's rolling URL.
+#' @param name Character. Asset name, for the message.
+#' @param version Character. The requested version.
+#' @param latest Character or `NULL`. The manifest's current version.
+#' @return Character URL.
+#' @noRd
+pinned_asset_url <- function(base_url, name, version, latest = NULL) {
+  url <- versioned_asset_url(base_url, version)
+  if (is.null(url)) {
+    stop(sprintf(
+      paste0("Cannot resolve version '%s' of '%s': its manifest URL (%s) is ",
+             "not a versioned release asset, so only the current build can be ",
+             "downloaded."),
+      version, name, base_url %||% "<none>"), call. = FALSE)
+  }
+  if (!asset_url_exists(url)) {
+    stop(sprintf(
+      paste0("Version '%s' of '%s' is not published.\n  Tried: %s\n",
+             "  The current release is '%s'."),
+      version, name, url, latest %||% "unknown"), call. = FALSE)
+  }
+  url
+}
+
+
 #' Resolve the download URL for a backbone + version
 #'
-#' For `version = "latest"` the URL comes from the manifest. For a pinned
-#' version the caller must supply an explicit URL (not yet supported via
-#' manifest — placeholder).
+#' For `version = "latest"` the URL comes from the manifest. A pinned version is
+#' derived from the release tag layout and checked for existence, so a version
+#' that was never published errors instead of resolving to the current build.
 #'
 #' @param backbone_name Character.
 #' @param version Character. `"latest"` or a specific version string.
@@ -174,15 +235,8 @@ manifest_url <- function(backbone_name, version = "latest") {
   }
   # v2 schema uses full_url; v1 uses url
   url <- entry$full_url %||% entry$url
-  if (version == "latest") {
-    url
-  } else {
-    gsub(
-      paste0(backbone_name, "_[^/]+\\.vtr"),
-      sprintf("%s_%s.vtr", backbone_name, version),
-      url
-    )
-  }
+  if (version == "latest") return(url)
+  pinned_asset_url(url, backbone_name, version, entry$latest)
 }
 
 

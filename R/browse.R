@@ -107,9 +107,11 @@ enrich_from_backbone <- function(x, backbone, col_map, enrichment_name, label,
   }
 
   # Typed NA init: character main columns, the sidecar's own sentinel for extras.
-  for (out_col in names(col_map)) x[[out_col]] <- NA_character_
+  for (out_col in names(col_map)) x <- set_col_value(x, out_col, NA_character_)
   if (!is.null(extra_vtr)) {
-    for (out_col in names(extra_vtr$col_map)) x[[out_col]] <- extra_vtr$na
+    for (out_col in names(extra_vtr$col_map)) {
+      x <- set_col_value(x, out_col, extra_vtr$na)
+    }
   }
 
   rows <- which(!is.na(x$taxon_id) &

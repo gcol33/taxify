@@ -3,7 +3,11 @@
 #' Joins an external data source (CSV file or data.frame) to a [taxify()]
 #' result. Species names in the external data are matched through the same
 #' backbone(s) used in the original `taxify()` call, and the join is performed
-#' on `accepted_id` --- so synonyms in either dataset resolve to the same key.
+#' on the accepted taxon --- so synonyms in either dataset resolve to the same
+#' key. The key is the `accepted_id` together with the backbone that issued it,
+#' falling back to `accepted_name` where the two sides were matched by different
+#' backbones: backend ids are bare integers in most backbones and mean nothing
+#' outside the one they came from.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param data One of:
@@ -38,7 +42,7 @@
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return The input data.frame with additional columns from `data`, joined
-#'   via backbone-resolved `accepted_id`. Columns from `data` that collide
+#'   via the backbone-resolved accepted taxon. Columns from `data` that collide
 #'   with existing columns in `x` are prefixed with `"data_"`.
 #'
 #' @details
@@ -48,10 +52,10 @@
 #' 3. Match species names through the same backbone(s) as the original
 #'    `taxify()` call, obtaining `accepted_id` for each row.
 #' 4. Check for conflicting duplicates: if multiple rows in `data` resolve
-#'    to the same `accepted_id` with different values, an error is raised
-#'    (unless `group_col` is set).
+#'    to the same accepted name with different values, an error is raised --
+#'    with `group_col` set, within each group.
 #'    Exact duplicates produce a warning and are deduplicated.
-#' 5. Left-join on `accepted_id`.
+#' 5. Left-join on the accepted taxon.
 #'
 #' ## Grouped data
 #' When your data has multiple rows per species (e.g., one row per species
@@ -195,12 +199,19 @@ add_data <- function(x, data,
                          fuzzy = fuzzy, fuzzy_threshold = fuzzy_threshold,
                          verbose = verbose)
 
-  data$`.add_data_accepted_id` <- data_matched$accepted_id
-  data$`.add_data_accepted_name` <- data_matched$accepted_name
+  # The join key carries the backbone that produced the id (#61). Backend ids
+  # are bare integers in most backbones (GBIF 3244182, ITIS 1227121, WCVP 4), so
+  # an id on its own joins a row matched by one backbone onto an unrelated taxon
+  # matched by another, and nothing warns. Where the two sides were matched by
+  # different backbones the ids are not comparable at all; the accepted name,
+  # which is what the two backbones agree on, carries those rows instead.
+  data$`.add_data_key`  <- .taxon_key(data_matched$backbone,
+                                      data_matched$accepted_id)
+  data$`.add_data_name` <- data_matched$accepted_name
 
   # ---- Drop rows that didn't match ----
-  n_data_unmatched <- sum(is.na(data$`.add_data_accepted_id`))
-  data_joinable <- data[!is.na(data$`.add_data_accepted_id`), , drop = FALSE]
+  n_data_unmatched <- sum(is.na(data$`.add_data_key`))
+  data_joinable <- data[!is.na(data$`.add_data_key`), , drop = FALSE]
 
   if (nrow(data_joinable) == 0L) {
     if (verbose) {
@@ -209,7 +220,10 @@ add_data <- function(x, data,
     return(register_enrichment(x, data_label, data_label, NA_character_, 0L))
   }
 
-  # ---- Grouped join (species x group → wide output) ----
+  # One lookup key per row of x, resolved once and used by both joins below.
+  lookup <- .add_data_lookup(x, data_joinable)
+
+  # ---- Grouped join (species x group -> wide output) ----
   if (!is.null(group_col)) {
     if (!group_col %in% names(data_joinable)) {
       stop(sprintf("group_col '%s' not found in data. Available: %s",
@@ -217,11 +231,11 @@ add_data <- function(x, data,
            call. = FALSE)
     }
 
-    # Build an accepted_id-keyed data.frame for the grouped fill. The join is on
-    # accepted_id (matching the flat path and the roxygen contract), so a synonym
-    # in either dataset resolves to the same key.
+    # The frame the shared group fill consumes: one row per (taxon, group),
+    # keyed by the same lookup the flat path uses.
     grouped_df <- data.frame(
-      .add_data_accepted_id = data_joinable$`.add_data_accepted_id`,
+      lookup_name    = data_joinable$`.add_data_key`,
+      .add_data_name = data_joinable$`.add_data_name`,
       data_joinable[, c(group_col, cols), drop = FALSE],
       stringsAsFactors = FALSE,
       check.names = FALSE
@@ -250,6 +264,21 @@ add_data <- function(x, data,
       }
     }
 
+    # Same conflict rule as the flat join, applied within each group: one row
+    # per species per group is the grouped contract, so two rows that disagree
+    # are as unresolvable here as they are there. Keeping the first silently
+    # picked one of two values.
+    reports <- lapply(groups, function(g) {
+      g_data <- if (is.na(g)) {
+        grouped_df[is.na(grouped_df[[group_col]]), , drop = FALSE]
+      } else {
+        grouped_df[!is.na(grouped_df[[group_col]]) &
+                     grouped_df[[group_col]] == g, , drop = FALSE]
+      }
+      .add_data_dup_report(g_data, cols, key = "lookup_name")
+    })
+    .add_data_report_dupes(reports, group_col = group_col)
+
     if (verbose && length(groups) > 1L &&
         is.null(.taxify_env[[".taxify_long_tip_shown"]])) {
       message("Tip: pipe into taxify_long() to reshape wide columns to long format.")
@@ -262,30 +291,16 @@ add_data <- function(x, data,
     out_cols <- character(0L)
     for (g in groups) {
       for (base_col in names(value_cols)) {
-        out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
+        out_col <- .group_out_col(base_col, g, groups)
         out_cols <- c(out_cols, out_col)
-        x[[out_col]] <- na_sentinel_for(grouped_df[[value_cols[[base_col]]]])
+        x <- set_col_value(x, out_col,
+                           na_sentinel_for(grouped_df[[value_cols[[base_col]]]]))
       }
     }
 
-    # Vectorized fill: one match() per group, joined on accepted_id
-    for (g in groups) {
-      g_data <- grouped_df[
-        !is.na(grouped_df[[group_col]]) & grouped_df[[group_col]] == g,
-        , drop = FALSE
-      ]
-      if (nrow(g_data) == 0L) next
-      g_data <- g_data[!duplicated(g_data$`.add_data_accepted_id`), ,
-                       drop = FALSE]
-      idx <- match(x$accepted_id, g_data$`.add_data_accepted_id`)
-      matched <- which(!is.na(idx))
-      if (length(matched) == 0L) next
-      for (base_col in names(value_cols)) {
-        src_col <- value_cols[[base_col]]
-        out_col <- if (length(groups) == 1L) base_col else paste0(base_col, "_", g)
-        x[[out_col]][matched] <- g_data[[src_col]][idx[matched]]
-      }
-    }
+    # The same fill the built-in grouped enrichments use.
+    x <- .enrich_group_fill(x, grouped_df, lookup, groups, value_cols,
+                            group_col)
 
     n_enriched <- sum(rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L)
 
@@ -310,78 +325,17 @@ add_data <- function(x, data,
   }
 
   # ---- Check for conflicting duplicates ----
-  trait_data <- data_joinable[, c(".add_data_accepted_id", cols), drop = FALSE]
-  dup_ids <- trait_data$`.add_data_accepted_id`[
-    duplicated(trait_data$`.add_data_accepted_id`)
-  ]
-  dup_ids <- unique(dup_ids)
-
-  if (length(dup_ids) > 0L) {
-    # Check each duplicate: are the trait values identical or conflicting?
-    conflicting <- character(0L)
-    for (did in dup_ids) {
-      rows <- trait_data[trait_data$`.add_data_accepted_id` == did, cols,
-                         drop = FALSE]
-      # Compare all rows to the first row
-      first_row <- rows[1L, , drop = FALSE]
-      is_identical <- vapply(seq_len(nrow(rows))[-1L], function(i) {
-        identical_row(first_row, rows[i, , drop = FALSE])
-      }, logical(1L))
-      if (!all(is_identical)) {
-        conflicting <- c(conflicting, did)
-      }
-    }
-
-    if (length(conflicting) > 0L) {
-      # Check if there's a plausible grouping column: character/factor,
-      # few unique values relative to row count (< 30% cardinality),
-      # and short values (median <= 5 chars, like country/region codes)
-      non_trait_cols <- setdiff(names(data_joinable),
-                                c(species_col, cols, ".add_data_accepted_id",
-                                  ".add_data_accepted_name"))
-      group_hint <- ""
-      for (candidate in non_trait_cols) {
-        vals <- data_joinable[[candidate]]
-        if (!is.character(vals) && !is.factor(vals)) next
-        vals <- vals[!is.na(vals)]
-        if (length(vals) == 0L) next
-        cardinality <- length(unique(vals)) / length(vals)
-        median_len <- stats::median(nchar(as.character(vals)))
-        if (cardinality < 0.3 && median_len <= 5) {
-          group_hint <- sprintf(
-            paste0("\n  This looks like grouped data (multiple rows per species). ",
-                   "Try:\n    add_data(..., group_col = \"%s\")"),
-            candidate
-          )
-          break
-        }
-      }
-
-      # Build informative error
-      examples <- utils::head(conflicting, 3L)
-      example_names <- vapply(examples, function(aid) {
-        idx <- which(data_matched$accepted_id == aid)[1L]
-        if (!is.na(idx)) data_matched$accepted_name[idx] else aid
-      }, character(1L))
-      stop(sprintf(
-        paste0("%d species in data resolved to the same accepted_id but ",
-               "have different trait values.\n",
-               "  Examples: %s%s"),
-        length(conflicting),
-        paste(sprintf("'%s' (%s)", example_names, examples), collapse = ", "),
-        group_hint
-      ), call. = FALSE)
-    }
-
-    # Exact duplicates: warn and deduplicate
-    n_dup_rows <- sum(duplicated(trait_data$`.add_data_accepted_id`))
-    warning(sprintf(
-      "%d duplicate rows in data (same accepted_id, identical values) -- deduplicated.",
-      n_dup_rows
-    ), call. = FALSE)
-    trait_data <- trait_data[!duplicated(trait_data$`.add_data_accepted_id`), ,
-                            drop = FALSE]
+  trait_data <- data_joinable[, c(".add_data_key", ".add_data_name", cols),
+                              drop = FALSE]
+  report <- .add_data_dup_report(trait_data, cols)
+  hint <- if (length(report$conflicting) > 0L) {
+    .add_data_group_hint(data_joinable, species_col, cols)
+  } else {
+    ""
   }
+  .add_data_report_dupes(list(report), hint = hint)
+  trait_data <- trait_data[!duplicated(trait_data$`.add_data_key`), ,
+                           drop = FALSE]
 
   # ---- Handle column name collisions ----
   existing_cols <- names(x)
@@ -397,21 +351,20 @@ add_data <- function(x, data,
     }
   }
 
-  # ---- Left join on accepted_id ----
+  # ---- Left join ----
   # Vectorized match(): each output column starts as a typed NA sentinel from its
   # source column (a zero-match column keeps the source type, not logical), then
   # the matched rows are filled in one assignment.
-  idx <- match(x$accepted_id, trait_data$`.add_data_accepted_id`)
+  idx <- match(lookup, trait_data$`.add_data_key`)
   matched <- which(!is.na(idx))
   for (col in cols) {
     out_name <- col_rename[col]
-    x[[out_name]] <- na_sentinel_for(trait_data[[col]])
+    x <- set_col_value(x, out_name, na_sentinel_for(trait_data[[col]]))
     x[[out_name]][matched] <- trait_data[[col]][idx[matched]]
   }
 
   # ---- Summary ----
-  n_joined <- sum(!is.na(x$accepted_id) &
-                    x$accepted_id %in% trait_data$`.add_data_accepted_id`)
+  n_joined <- length(matched)
 
   if (verbose) {
     n_x_valid <- sum(!is.na(x$accepted_id))
@@ -423,6 +376,139 @@ add_data <- function(x, data,
   }
 
   register_enrichment(x, data_label, data_label, NA_character_, n_joined)
+}
+
+
+#' A taxon join key that carries the backbone
+#'
+#' Backend ids are bare integers in most backbones -- GBIF `3244182`, ITIS
+#' `1227121`, WCVP `4` -- and carry no namespace, so two rows matched by
+#' different backbones can share one. Qualifying the id with the backbone that
+#' issued it is what makes an id comparison mean "the same taxon" (#61).
+#'
+#' @param backbone,id Character vectors of the same length.
+#' @return Character vector, `NA` wherever either side is missing.
+#' @noRd
+.taxon_key <- function(backbone, id) {
+  if (is.null(backbone) || is.null(id)) return(rep(NA_character_, length(id)))
+  key <- paste0(backbone, "\r", id)
+  key[is.na(backbone) | is.na(id)] <- NA_character_
+  key
+}
+
+
+#' The source key each row of a result joins to
+#'
+#' Two stages. The backbone-qualified id is exact, and is the only comparison
+#' that is safe within one backbone. Rows it does not reach fall back to the
+#' accepted name: `x` and `data` are matched independently, so a synonym in one
+#' and the accepted name in the other can be resolved by different backbones,
+#' which is exactly the case the roxygen promises resolves to the same key.
+#'
+#' @param x A `taxify()` result.
+#' @param src The matched `data`, carrying `.add_data_key` / `.add_data_name`.
+#' @return Character vector, one key (or `NA`) per row of `x`.
+#' @noRd
+.add_data_lookup <- function(x, src) {
+  bb  <- if ("backbone" %in% names(x)) x$backbone else NULL
+  idx <- match(.taxon_key(bb, x$accepted_id), src$`.add_data_key`)
+  gap <- which(is.na(idx) & !is.na(x$accepted_name))
+  if (length(gap) > 0L) {
+    idx[gap] <- match(x$accepted_name[gap], src$`.add_data_name`)
+  }
+  src$`.add_data_key`[idx]
+}
+
+
+#' Rows of `data` that resolve to the same taxon: do they agree?
+#'
+#' Grouped by accepted name rather than by the backbone-qualified id, because
+#' the same taxon reached through two backbones carries two ids and one name.
+#' Reports rather than acts, so the flat and grouped joins can word one error
+#' each while applying the same rule.
+#'
+#' @param df The matched rows, with `.add_data_name` and a key column.
+#' @param cols The trait columns being joined.
+#' @param key Character. The column holding the backbone-qualified key.
+#' @return A list with `conflicting` (accepted names whose rows disagree) and
+#'   `n_dup` (rows that duplicate a taxon already kept).
+#' @noRd
+.add_data_dup_report <- function(df, cols, key = ".add_data_key") {
+  nm  <- df$`.add_data_name`
+  dup <- unique(nm[duplicated(nm) & !is.na(nm)])
+  conflicting <- character(0L)
+  for (one in dup) {
+    rows  <- df[!is.na(nm) & nm == one, cols, drop = FALSE]
+    first <- rows[1L, , drop = FALSE]
+    same  <- vapply(seq_len(nrow(rows))[-1L], function(i) {
+      identical_row(first, rows[i, , drop = FALSE])
+    }, logical(1L))
+    if (!all(same)) conflicting <- c(conflicting, one)
+  }
+  list(conflicting = conflicting,
+       n_dup = sum(duplicated(df[[key]])))
+}
+
+
+#' The `group_col` a conflicting flat join was probably missing
+#'
+#' A character/factor column with few distinct values relative to its length
+#' (< 30% cardinality) and short entries (median <= 5 characters) looks like a
+#' country or region code, i.e. grouped data joined flat.
+#'
+#' @param df The matched rows of `data`.
+#' @param species_col,cols Columns that are not candidates.
+#' @return A sentence to append to the error, or `""`.
+#' @noRd
+.add_data_group_hint <- function(df, species_col, cols) {
+  candidates <- setdiff(names(df),
+                        c(species_col, cols, ".add_data_key", ".add_data_name"))
+  for (candidate in candidates) {
+    vals <- df[[candidate]]
+    if (!is.character(vals) && !is.factor(vals)) next
+    vals <- vals[!is.na(vals)]
+    if (length(vals) == 0L) next
+    if (length(unique(vals)) / length(vals) < 0.3 &&
+        stats::median(nchar(as.character(vals))) <= 5) {
+      return(sprintf(
+        paste0("\n  This looks like grouped data (multiple rows per species). ",
+               "Try:\n    add_data(..., group_col = \"%s\")"),
+        candidate))
+    }
+  }
+  ""
+}
+
+
+#' Raise the duplicate verdict from one or more `.add_data_dup_report()`s
+#'
+#' Disagreement is an error, agreement a single warning, whether the join is
+#' flat or grouped.
+#'
+#' @param reports List of reports (one per group, or one in total).
+#' @param hint Character appended to the error (the `group_col` suggestion).
+#' @param group_col Character or `NULL`; names the grouping in the error.
+#' @return `NULL`, invisibly.
+#' @noRd
+.add_data_report_dupes <- function(reports, hint = "", group_col = NULL) {
+  conflicting <- unique(unlist(lapply(reports, `[[`, "conflicting")))
+  if (length(conflicting) > 0L) {
+    where <- if (is.null(group_col)) "" else
+      sprintf(" within one '%s' group", group_col)
+    stop(sprintf(
+      paste0("%d species in data resolved to the same accepted name%s but ",
+             "have different trait values.\n  Examples: %s%s"),
+      length(conflicting), where,
+      paste(sprintf("'%s'", utils::head(conflicting, 3L)), collapse = ", "),
+      hint), call. = FALSE)
+  }
+  n_dup <- sum(vapply(reports, `[[`, integer(1L), "n_dup"))
+  if (n_dup > 0L) {
+    warning(sprintf(
+      "%d duplicate rows in data (same taxon, identical values) -- deduplicated.",
+      n_dup), call. = FALSE)
+  }
+  invisible(NULL)
 }
 
 

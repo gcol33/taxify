@@ -149,14 +149,19 @@ download_backbone <- function(backbone_name,
          call. = FALSE)
   }
   actual_version <- if (version == "latest") entry$latest else version
-  url <- manifest_url(backbone_name, version)
 
-  if (taxify_offline() && !startsWith(url, "file://")) {
+  # Offline is checked against the manifest's own URL before a pinned version is
+  # resolved: resolving one makes a HEAD request, which offline mode must not
+  # reach.
+  base_url <- entry$full_url %||% entry$url
+  if (taxify_offline() &&
+      !isTRUE(startsWith(base_url %||% "", "file://"))) {
     stop(sprintf(
       "taxify is in offline mode; not downloading the %s backbone.",
       backbone_name
     ), call. = FALSE)
   }
+  url <- manifest_url(backbone_name, version)
 
   if (verbose) {
     local_ver <- if (!is.null(read_version_meta(backbone_name, version)))

@@ -219,7 +219,7 @@ add_trait <- function(x, trait, sources = "all",
 
   if (mode == "wide") {
     for (s in ord) x[[paste0(trait, "_", s)]] <- per_src[[s]]
-    if (!is.null(unit)) x[[paste0(trait, "_unit")]] <- unit
+    if (!is.null(unit)) x <- set_col_value(x, paste0(trait, "_unit"), unit)
     cr <- .trait_wide_caution(per_src, cvec, nrow(x))
     cr <- .merge_perrec_caution(cr, perrec, NULL, nrow(x))
     if (!is.null(cr)) x[[paste0(trait, "_caution")]] <- cr
@@ -229,7 +229,7 @@ add_trait <- function(x, trait, sources = "all",
     use_combine <- if (auto && disc) "complete" else combine
     co <- .coalesce_sources(per_src[ord], ord, spec$kind, use_combine)
     x[[trait]] <- co$value
-    if (!is.null(unit)) x[[paste0(trait, "_unit")]] <- unit
+    if (!is.null(unit)) x <- set_col_value(x, paste0(trait, "_unit"), unit)
     x[[paste0(trait, "_sources")]] <- co$source
     x[[paste0(trait, "_n")]]       <- co$n
     # Numeric traits also report the spread: the smallest and largest observed

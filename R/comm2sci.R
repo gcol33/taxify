@@ -94,8 +94,8 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backbone = NULL,
     stringsAsFactors = FALSE
   )
   if (length(x_in) == 0L) {
-    if (resolve) return(taxify(character(0L), backbone = backbone,
-                               verbose = FALSE))
+    if (resolve) return(.with_query_common(empty_taxify_result(backbone),
+                                          character(0L)))
     return(empty)
   }
 
@@ -118,16 +118,16 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backbone = NULL,
     vtr_path, join_key = "common_name",
     keys = vmap$variant, src_cols = c("canonical_name", "lang"))
   if (is.null(hit) || nrow(hit) == 0L) {
-    if (resolve) return(taxify(character(0L), backbone = backbone,
-                               verbose = FALSE))
+    if (resolve) return(.with_query_common(empty_taxify_result(backbone),
+                                          character(0L)))
     return(empty)
   }
 
   # Map each matched vernacular (lookup_name == the variant) back to its input_name.
   out <- merge(vmap, hit, by.x = "variant", by.y = "lookup_name")
   if (nrow(out) == 0L) {
-    if (resolve) return(taxify(character(0L), backbone = backbone,
-                               verbose = FALSE))
+    if (resolve) return(.with_query_common(empty_taxify_result(backbone),
+                                          character(0L)))
     return(empty)
   }
 
@@ -139,8 +139,8 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backbone = NULL,
     }
   }
   if (nrow(out) == 0L) {
-    if (resolve) return(taxify(character(0L), backbone = backbone,
-                               verbose = FALSE))
+    if (resolve) return(.with_query_common(empty_taxify_result(backbone),
+                                          character(0L)))
     return(empty)
   }
 
@@ -164,14 +164,20 @@ comm2sci <- function(x, lang = NULL, resolve = FALSE, backbone = NULL,
   sci <- unique(tab$accepted_name)
   res <- taxify(sci, backbone = backbone, verbose = verbose)
   ridx <- match(tab$accepted_name, res$input_name)
-  resolved <- res[ridx, , drop = FALSE]
-  resolved <- cbind(query_common = tab$input_name, resolved,
-                    stringsAsFactors = FALSE)
-  rownames(resolved) <- NULL
-  meta <- attr(res, "taxify_meta")
-  attr(resolved, "taxify_meta") <- meta
-  class(resolved) <- c("taxify_result", "data.frame")
-  resolved
+  .with_query_common(res[ridx, , drop = FALSE], tab$input_name)
+}
+
+
+# Prepend the vernacular each row was found under. cbind() drops the class and
+# the metadata, so both are put back; the zero-row answer goes through the same
+# door as a resolved one, which is what keeps their columns identical.
+.with_query_common <- function(res, query) {
+  out <- cbind(query_common = query, as.data.frame(res),
+               stringsAsFactors = FALSE)
+  rownames(out) <- NULL
+  attr(out, "taxify_meta") <- attr(res, "taxify_meta")
+  class(out) <- c("taxify_result", "data.frame")
+  out
 }
 
 
