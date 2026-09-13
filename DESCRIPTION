@@ -27,7 +27,6 @@ Imports:
 Suggests:
     ape,
     DBI,
-    GIFT,
     knitr,
     openxlsx2,
     rmarkdown,
