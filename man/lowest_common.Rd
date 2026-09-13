@@ -4,13 +4,16 @@
 \alias{lowest_common}
 \title{Lowest common taxon of a set of names}
 \usage{
-lowest_common(x, backbone = NULL, verbose = TRUE)
+lowest_common(x, backbone = NULL, ..., verbose = TRUE)
 }
 \arguments{
 \item{x}{Character vector of names (two or more), or a \code{\link[=taxify]{taxify()}} result.}
 
 \item{backbone}{Backend passed to \code{\link[=taxify]{taxify()}} when \code{x} is raw names. \code{NULL}
 (default) uses every installed backbone. Ignored when \code{x} is a result.}
+
+\item{...}{Matching arguments passed to \code{\link[=taxify]{taxify()}} when \code{x} is raw names
+(e.g. \code{fuzzy}, \code{fuzzy_threshold}, \code{kingdom}, \code{region}). Must be named.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

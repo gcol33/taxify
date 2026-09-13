@@ -21,16 +21,18 @@
 #'
 #' @param x Character vector of names, or a `taxify()` result.
 #' @param backbone Backend passed to [taxify()] when `x` is raw names.
+#' @param ... Matching arguments passed to [taxify()] when `x` is raw names.
 #' @param verbose Logical.
 #' @return A data.frame with `input_name`, `species` (the accepted name), and
 #'   `genus`/`family`/`order`/`class`/`phylum`/`kingdom`. Rows with no accepted
 #'   name are dropped.
 #' @noRd
-resolve_classification_frame <- function(x, backbone = NULL, verbose = TRUE) {
+resolve_classification_frame <- function(x, backbone = NULL, ...,
+                                         verbose = TRUE) {
   res <- if (is.data.frame(x) && "accepted_name" %in% names(x)) {
     x
   } else if (is.character(x)) {
-    taxify(x, backbone = backbone, verbose = verbose)
+    taxify_input(x, backbone = backbone, ..., verbose = verbose)
   } else {
     stop("x must be a character vector of names or a taxify() result.",
          call. = FALSE)
@@ -69,6 +71,8 @@ resolve_classification_frame <- function(x, backbone = NULL, verbose = TRUE) {
 #' @param x Character vector of names (two or more), or a [taxify()] result.
 #' @param backbone Backend passed to [taxify()] when `x` is raw names. `NULL`
 #'   (default) uses every installed backbone. Ignored when `x` is a result.
+#' @param ... Matching arguments passed to [taxify()] when `x` is raw names
+#'   (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`, `region`). Must be named.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A one-row data.frame with columns `rank`, `name` (the shared taxon),
@@ -87,8 +91,9 @@ resolve_classification_frame <- function(x, backbone = NULL, verbose = TRUE) {
 #' options(old)
 #'
 #' @export
-lowest_common <- function(x, backbone = NULL, verbose = TRUE) {
-  cf <- resolve_classification_frame(x, backbone = backbone, verbose = verbose)
+lowest_common <- function(x, backbone = NULL, ..., verbose = TRUE) {
+  cf <- resolve_classification_frame(x, backbone = backbone, ...,
+                                     verbose = verbose)
   out <- data.frame(rank = NA_character_, name = NA_character_,
                     n_taxa = nrow(cf), stringsAsFactors = FALSE)
   if (nrow(cf) < 2L) {
@@ -115,26 +120,42 @@ lowest_common <- function(x, backbone = NULL, verbose = TRUE) {
 }
 
 
+#' Newick labels for a set of taxon names
+#'
+#' Replaces the characters Newick reserves with `_` and de-duplicates the
+#' result, so each name has exactly one label and a parsed tree's labels can be
+#' mapped back to the names.
+#'
+#' @param names Character vector of distinct names.
+#' @return Named character vector: label per name, named by the name.
+#' @noRd
+newick_labels <- function(names) {
+  stats::setNames(make.unique(gsub("[ (),;:'\"]", "_", names), sep = "_"),
+                  names)
+}
+
+
 #' Newick subtree from a set of root-to-tip lineages
 #'
 #' @param paths List of character vectors, each a lineage from the current level
 #'   down to a tip. Internal nodes are labelled by their rank value; tips are the
-#'   species names (with Newick-unsafe characters replaced by `_`).
+#'   species names.
+#' @param labels Named character vector from `newick_labels()` covering every
+#'   name in `paths`.
 #' @return A Newick string for the subtree (no trailing `;`).
 #' @noRd
-newick_from_paths <- function(paths) {
-  safe  <- function(s) gsub("[ (),;:'\"]", "_", s)
+newick_from_paths <- function(paths, labels) {
   heads <- vapply(paths, function(p) p[[1L]], character(1L))
   parts <- character(0L)
   for (h in unique(heads)) {
     grp   <- paths[heads == h]
     rests <- lapply(grp, function(p) p[-1L])
     rests <- rests[vapply(rests, length, integer(1L)) > 0L]
-    lab   <- safe(h)
+    lab   <- labels[[h]]
     if (length(rests) == 0L) {
-      parts <- c(parts, lab)                                   # leaf
+      parts <- c(parts, lab)                                           # leaf
     } else {
-      parts <- c(parts, paste0(newick_from_paths(rests), lab)) # internal node
+      parts <- c(parts, paste0(newick_from_paths(rests, labels), lab)) # node
     }
   }
   paste0("(", paste(parts, collapse = ","), ")")
@@ -152,17 +173,21 @@ newick_from_paths <- function(paths) {
 #' @param x Character vector of names, or a [taxify()] result.
 #' @param backbone Backend passed to [taxify()] when `x` is raw names. `NULL`
 #'   (default) uses every installed backbone. Ignored when `x` is a result.
+#' @param ... Matching arguments passed to [taxify()] when `x` is raw names
+#'   (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`, `region`). Must be named.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return An object of class `taxify_tree`: a list with
 #' \describe{
 #'   \item{newick}{The Newick string (internal nodes labelled by rank value,
-#'     tips by species name).}
+#'     tips by species name). Characters Newick reserves, the space among them,
+#'     are written as `_` (`Quercus_robur`).}
 #'   \item{classification}{The classification data.frame the tree was built
 #'     from.}
-#'   \item{tip_labels}{The species at the tips.}
+#'   \item{tip_labels}{The species at the tips, as named in `classification`.}
 #'   \item{phylo}{An \pkg{ape} `phylo` object, or `NULL` if \pkg{ape} is not
-#'     installed / the string could not be parsed.}
+#'     installed / the string could not be parsed. Its `tip.label` and
+#'     `node.label` carry the names themselves, as `tip_labels` does.}
 #' }
 #'
 #' @seealso [lowest_common()], [add_classification()], [taxify()].
@@ -177,8 +202,9 @@ newick_from_paths <- function(paths) {
 #' options(old)
 #'
 #' @export
-class2tree <- function(x, backbone = NULL, verbose = TRUE) {
-  cf <- resolve_classification_frame(x, backbone = backbone, verbose = verbose)
+class2tree <- function(x, backbone = NULL, ..., verbose = TRUE) {
+  cf <- resolve_classification_frame(x, backbone = backbone, ...,
+                                     verbose = verbose)
   if (nrow(cf) == 0L) {
     stop("class2tree(): no names resolved to an accepted taxon.", call. = FALSE)
   }
@@ -201,11 +227,21 @@ class2tree <- function(x, backbone = NULL, verbose = TRUE) {
          call. = FALSE)
   }
 
-  newick <- paste0(newick_from_paths(paths), "root;")
+  labels <- newick_labels(unique(unlist(paths, use.names = FALSE)))
+  newick <- paste0(newick_from_paths(paths, labels), "root;")
 
   phylo <- NULL
   if (requireNamespace("ape", quietly = TRUE)) {
     phylo <- tryCatch(ape::read.tree(text = newick), error = function(e) NULL)
+  }
+  if (!is.null(phylo)) {
+    name_of <- stats::setNames(names(labels), labels)
+    relabel <- function(lab) {
+      nm <- unname(name_of[lab])
+      ifelse(is.na(nm), lab, nm)
+    }
+    phylo$tip.label <- relabel(phylo$tip.label)
+    if (!is.null(phylo$node.label)) phylo$node.label <- relabel(phylo$node.label)
   }
 
   structure(

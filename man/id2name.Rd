@@ -8,8 +8,10 @@ id2name(id, backbone = NULL, verbose = TRUE)
 }
 \arguments{
 \item{id}{A vector of backbone IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
-AphiaIDs). Coerced to character, matched against the backbone's \code{taxon_id}.
-IDs are backbone-specific, so name the \code{backbone} they came from.}
+AphiaIDs), matched as text against the backbone's \code{taxon_id}. Numeric IDs
+(as read from a CSV) are written out in full, never in scientific notation,
+and must be whole numbers. IDs are backbone-specific, so name the
+\code{backbone} they came from.}
 
 \item{backbone}{A single backbone name (e.g. \code{"col"}, \code{"gbif"}) or a
 \code{taxify_backend} object. \code{NULL} (default) uses the highest-priority

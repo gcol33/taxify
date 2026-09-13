@@ -21,8 +21,8 @@
 #' @param backbone Character vector of backbone names or a `taxify_backend`
 #'   object, passed to [taxify()]. `NULL` (default) uses every installed
 #'   backbone.
-#' @param ... Further arguments passed to [taxify()] (e.g. `fuzzy`,
-#'   `fuzzy_threshold`, `kingdom`).
+#' @param ... Matching arguments passed to [taxify()] (e.g. `fuzzy`,
+#'   `fuzzy_threshold`, `kingdom`, `region`). Must be named.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame with one row per input name, columns:
@@ -65,7 +65,7 @@ reconcile <- function(x, backbone = NULL, ..., verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {
     stop("x must be a non-empty character vector.", call. = FALSE)
   }
-  res <- taxify(x, backbone = backbone, verbose = verbose, ...)
+  res <- taxify_input(x, backbone = backbone, ..., verbose = verbose)
 
   n  <- nrow(res)
   mt <- res$match_type

@@ -226,7 +226,7 @@
 #'
 #' # Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,
 #' # or a region name resolved via the bundled WGSRPD crosswalk
-#' taxify("Quercus robus", region = "EUR")
+#' taxify("Quercus robus", region = "BGM")
 #' taxify("Quercus robus", region = "Belgium")
 #'
 #' # Constrain by coordinates (downloads WGSRPD boundaries on first use)
@@ -294,7 +294,7 @@ taxify <- function(x,
   # named backbones; with fewer there is nothing to compare, so fall through to
   # the normal single-answer result.
   if (mode != "fallback") {
-    bb_names <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+    bb_names <- backbone_name_of(backbone)
     if (!is.character(bb_names) || length(bb_names) < 2L) {
       if (verbose) message(sprintf(
         "mode = \"%s\" needs >= 2 backbones; returning the standard result.",
@@ -986,14 +986,55 @@ demote_match_rows <- function(result, rows) {
 }
 
 
+#' Coarse kingdom group of backbone rows
+#'
+#' Resolves each row's kingdom in priority order: the backbone's fixed scope
+#' (`backbone_fixed_kingdom()`, for a single-kingdom backbone with no `kingdom`
+#' column of its own), then the backbone's own `kingdom` value where it stores
+#' one, then the genus register's `kingdom_group` as a last resort. Shared by
+#' the `kingdom =` filter of [taxify()] and by [children()] / [downstream()].
+#'
+#' @param bb_name Backbone name, used to look up a fixed scope.
+#' @param kingdom The rows' backbone `kingdom` values, or `NULL` when the
+#'   backbone stores none.
+#' @param genus The rows' genus, or `NULL`.
+#' @param n Number of rows.
+#' @return Character vector of length `n`: coarse kingdom groups, `NA` where
+#'   unknown.
+#' @noRd
+row_kingdom_groups <- function(bb_name, kingdom = NULL, genus = NULL, n) {
+  # A backbone scoped to a single, unambiguous kingdom (WCVP, LCVP, WFO,
+  # Euro+Med, Species Fungorum) carries no `kingdom` column of its own, so it
+  # would otherwise fall to the genus-register fallback -- a single
+  # cross-backbone genus index that can hand back a different kingdom for a
+  # genus name that is a homonym elsewhere. The backbone's own scope is the more
+  # authoritative answer, so it wins outright rather than being treated as just
+  # another vote.
+  fixed <- backbone_fixed_kingdom(bb_name)
+  if (!is.na(fixed)) return(rep(fixed, n))
+
+  kg <- if (is.null(kingdom)) rep(NA_character_, n) else
+    normalize_kingdom_group(kingdom)
+
+  need <- which(is.na(kg))
+  if (length(need) > 0L && !is.null(genus)) {
+    reg <- load_register_or_null()
+    if (!is.null(reg) && all(c("genus", "kingdom_group") %in% names(reg))) {
+      gk <- stats::setNames(reg$kingdom_group, reg$genus)
+      kg[need] <- normalize_kingdom_group(unname(gk[genus[need]]))
+    }
+  }
+  kg
+}
+
+
 #' Drop matched rows whose kingdom is not among the requested set
 #'
-#' Resolves each matched row's kingdom in priority order: the backbone's fixed
-#' scope (`backbone_fixed_kingdom()`, for a single-kingdom backbone with no
-#' `kingdom` column of its own), then the backbone's own `kingdom` column
-#' where it stores one, then the genus register's `kingdom_group` as a last
-#' resort. A row whose resolved kingdom is known and outside `kingdom_set` is
-#' demoted (see `demote_match_rows()`); an unknown kingdom is always kept.
+#' Resolves each matched row's kingdom with `row_kingdom_groups()`, reading the
+#' backbone's `kingdom` column for the matched accepted ids where it stores one
+#' (COL/ITIS/NCBI/OTT/WoRMS). A row whose resolved kingdom is known and outside
+#' `kingdom_set` is demoted (see `demote_match_rows()`); an unknown kingdom is
+#' always kept.
 #'
 #' @param result The match result data.frame (post `run_match_stages()`).
 #' @param vtr_path Path to the backbone `.vtr`.
@@ -1008,49 +1049,28 @@ filter_result_by_kingdom <- function(result, vtr_path, kingdom_set, bb_name) {
                        c("none", "out_of_scope", "hybrid_formula"))
   if (length(matched) == 0L) return(result)
 
-  kg <- rep(NA_character_, nrow(result))
-
-  # 1. A backbone scoped to a single, unambiguous kingdom (WCVP, LCVP, WFO,
-  # Euro+Med, Species Fungorum) carries no `kingdom` column of its own to read
-  # in step 2 below, so it would otherwise fall to the genus-register fallback
-  # in step 3 -- a single cross-backbone genus index that can hand back a
-  # different kingdom for a genus name that is a homonym elsewhere. The
-  # backbone's own scope is the more authoritative answer here, so it wins
-  # outright rather than being treated as just another vote.
-  fixed <- backbone_fixed_kingdom(bb_name)
-  if (!is.na(fixed)) {
-    kg[matched] <- fixed
-    bad <- matched[!(kg[matched] %in% kingdom_set)]
-    return(demote_match_rows(result, bad))
-  }
-
-  # 2. Backbone kingdom column (COL/ITIS/NCBI/OTT/WoRMS store one).
-  schema <- tryCatch(
-    names(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L))),
-    error = function(e) character(0L))
-  if ("kingdom" %in% schema && "accepted_id" %in% names(result)) {
-    j <- tryCatch(
-      backbone_join(vtr_path, result$accepted_id[matched], bb_key = "taxon_id",
-                    select_cols = c("taxon_id", "kingdom")),
-      error = function(e) NULL)
-    if (!is.null(j) && nrow(j) > 0L) {
-      j   <- j[!duplicated(j$lookup), , drop = FALSE]
-      idx <- match(result$accepted_id[matched], j$lookup)
-      kg[matched] <- normalize_kingdom_group(j$kingdom[idx])
+  bb_kingdom <- NULL
+  if (is.na(backbone_fixed_kingdom(bb_name))) {
+    schema <- tryCatch(vtr_schema(vtr_path), error = function(e) character(0L))
+    if ("kingdom" %in% schema && "accepted_id" %in% names(result)) {
+      j <- tryCatch(
+        backbone_join(vtr_path, result$accepted_id[matched],
+                      bb_key = "taxon_id",
+                      select_cols = c("taxon_id", "kingdom")),
+        error = function(e) NULL)
+      if (!is.null(j) && nrow(j) > 0L) {
+        j <- j[!duplicated(j$lookup), , drop = FALSE]
+        bb_kingdom <- j$kingdom[match(result$accepted_id[matched], j$lookup)]
+      }
     }
   }
 
-  # 3. Genus register fallback for rows the backbone left unknown.
-  need <- matched[is.na(kg[matched])]
-  if (length(need) > 0L && "genus" %in% names(result)) {
-    reg <- load_register_or_null()
-    if (!is.null(reg) && all(c("genus", "kingdom_group") %in% names(reg))) {
-      gk <- stats::setNames(reg$kingdom_group, reg$genus)
-      kg[need] <- normalize_kingdom_group(unname(gk[result$genus[need]]))
-    }
-  }
+  kg <- row_kingdom_groups(
+    bb_name, kingdom = bb_kingdom,
+    genus = if ("genus" %in% names(result)) result$genus[matched] else NULL,
+    n = length(matched))
 
-  bad <- matched[!is.na(kg[matched]) & !(kg[matched] %in% kingdom_set)]
+  bad <- matched[!is.na(kg) & !(kg %in% kingdom_set)]
   demote_match_rows(result, bad)
 }
 

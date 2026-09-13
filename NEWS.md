@@ -78,10 +78,63 @@ locking a build, the less common enrichment joins, and empty input.
   flat join, and uses the shared group fill. The emergency grouped path keeps
   the `NA` group, so `add_common_names(lang = NA)` returns names there too.
 
-* Empty input returns an empty result (#65). `comm2sci(resolve = TRUE)` with no
-  match, and `add_trait()` or any `add_*()` door on a zero-row result, errored
-  or warned once per source. They now return the full output schema at zero
-  rows, built by one constructor.
+* Empty input returns an empty result (#65). `comm2sci(output = "result")` with
+  no match, and `add_trait()` or any `add_*()` door on a zero-row result,
+  errored or warned once per source. They now return the full output schema at
+  zero rows, built by one constructor.
+
+Five fixes in the verbs around `taxify()`: browsing the backbone, inspecting a
+list, and the lookups between names, ids and common names.
+
+* No more indistinguishable duplicate rows (#66). `comm2sci(output = "result")`
+  returned one identical row per language a vernacular was stored in, because
+  it deduplicated on a key that included `lang` and then dropped `lang`; it now
+  has one row per (query, scientific name). `synonyms()` repeated every synonym
+  once per copy of a repeated input name; each distinct name is now reported
+  once.
+
+* `inspect()` no longer flags valid names or input (#67). The register check
+  read the genus as the raw, case-sensitive first word, so `"quercus robur"`
+  and `"cf. Quercus robur"` came back `unknown` / `unresolved`; the genus is now
+  taken from the cleaned name and looked up case-insensitively, as `taxify()`
+  does. A mistyped region code (`"GRE"` for Greece, which is `GRC`) was kept as
+  a region, and `inspect()` then flagged every plant with WCVP data as
+  `geographic`. `region =` now drops a code the WGSRPD crosswalk does not list,
+  with a warning, as it already did for an unrecognised name; `inspect()`
+  reports the geographic check under `not checked`. `region` and `coords` are
+  no longer resolved when nothing reads them (a character vector inspected
+  without matching), which could download the region boundaries.
+
+* Four input shapes in the secondary verbs (#68). `lookup_genus(NA)` returned
+  every register row filled with `NA`; it returns `NULL`. `id2name()` matched a
+  numeric id through `as.character()`, which writes `1e+05`, so a round GBIF
+  key or TSN read from a CSV found nothing; numeric ids are now written out in
+  full, and a fractional one is an error. `class2tree()`'s `$phylo` tip labels
+  read `Quercus_robur` where `$tip_labels` read `Quercus robur`; the `phylo`
+  now carries the names, and only the Newick string uses `_`. `taxify_long()`
+  stopped with "No suffixed columns found" on single-group input that carried a
+  companion column such as `<trait>_sources`, and matched base names as regular
+  expressions in one of its two checks; one literal predicate now decides both.
+
+* `children()` and `downstream()` are one query (#69). `children()` is
+  `downstream()` with the parent restricted to a genus or family, so the two no
+  longer disagree: under `rank = "any"` / `downto = "any"` neither returns the
+  parent itself. Both take `kingdom =`, as `taxify()` does, for a name used in
+  more than one kingdom: on COL or GBIF, `children("Morus")` returned mulberries
+  and gannets together, and `downstream()` chose the parent's rank by a vote
+  across the homonyms. Without `kingdom`, a result that mixes kingdoms now
+  warns. Both return the same columns, adding `kingdom_group`, and `children()`
+  gains `parent`.
+
+* The sibling verbs forward matching arguments the same way (#70). `synonyms()`,
+  `upstream()`, `sci2comm()`, `comm2sci()`, `reconcile()`, `lowest_common()`
+  and `class2tree()` pass named arguments in `...` on to `taxify()`, so
+  `fuzzy = FALSE`, `fuzzy_threshold`, `kingdom` or `region` reach the matcher
+  from each of them; `synonyms()`, `upstream()` and `sci2comm()` no longer set
+  `fuzzy = TRUE` regardless. `resolve =` now means one thing: run the input
+  through `taxify()` first, as in `sci2comm()`. `comm2sci()`'s argument, which
+  instead changed the return type, is renamed `output = c("lookup",
+  "result")`.
 
 # taxify 0.5.2
 

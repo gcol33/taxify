@@ -7,6 +7,27 @@
 # keys / TSNs / AphiaIDs and now needs the current names back.
 
 
+#' Backbone IDs as the text the backbone stores
+#'
+#' `as.character()` renders a double in scientific notation from 1e5 on
+#' (`"1e+05"`), which never equals a stored id. A numeric id is written out in
+#' full instead; a fractional one cannot be an id and is an error.
+#'
+#' @param id Vector of ids.
+#' @return Character vector, `NA` where `id` is `NA`.
+#' @noRd
+id_as_text <- function(id) {
+  if (!is.numeric(id)) return(as.character(id))
+  ok <- !is.na(id)
+  if (any(!is.finite(id[ok]) | id[ok] != round(id[ok]))) {
+    stop("id: numeric ids must be whole numbers.", call. = FALSE)
+  }
+  out <- rep(NA_character_, length(id))
+  out[ok] <- sprintf("%.0f", id[ok])
+  out
+}
+
+
 #' Resolve backbone IDs to names
 #'
 #' Looks up one or more backbone taxon IDs in a backbone and returns the name,
@@ -14,8 +35,10 @@
 #' the `taxon_id` / `accepted_id` columns [taxify()] emits.
 #'
 #' @param id A vector of backbone IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
-#'   AphiaIDs). Coerced to character, matched against the backbone's `taxon_id`.
-#'   IDs are backbone-specific, so name the `backbone` they came from.
+#'   AphiaIDs), matched as text against the backbone's `taxon_id`. Numeric IDs
+#'   (as read from a CSV) are written out in full, never in scientific notation,
+#'   and must be whole numbers. IDs are backbone-specific, so name the
+#'   `backbone` they came from.
 #' @param backbone A single backbone name (e.g. `"col"`, `"gbif"`) or a
 #'   `taxify_backend` object. `NULL` (default) uses the highest-priority
 #'   installed backbone.
@@ -55,17 +78,14 @@ id2name <- function(id, backbone = NULL, verbose = TRUE) {
   if (length(id) == 0L) {
     stop("id must have at least one element.", call. = FALSE)
   }
+  ids <- id_as_text(id)
   backbone <- resolve_single_backend(backbone, verbose = verbose)
-  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+  bb_name <- backbone_name_of(backbone)
   bb <- backbone_path(backbone, verbose = verbose)
-
-  ids <- as.character(id)
 
   base_cols <- c("taxon_id", "canonical_name", "authorship", "taxon_rank",
                  "family", "genus", "is_synonym", "accepted_taxon_id")
-  schema <- tryCatch(
-    names(vectra::collect(utils::head(vectra::tbl(bb), 1L))),
-    error = function(e) character(0L))
+  schema <- vtr_schema(bb)
   sel <- intersect(base_cols, schema)
 
   hit <- backbone_join(bb, ids, bb_key = "taxon_id", select_cols = sel)

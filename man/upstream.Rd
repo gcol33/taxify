@@ -4,7 +4,7 @@
 \alias{upstream}
 \title{List the higher classification (ancestors) of a taxon}
 \usage{
-upstream(taxon, backbone = NULL, to = NULL, verbose = TRUE)
+upstream(taxon, backbone = NULL, to = NULL, ..., verbose = TRUE)
 }
 \arguments{
 \item{taxon}{A single taxonomic name (a species, genus, or higher taxon;
@@ -17,6 +17,9 @@ stores the higher ranks (e.g. \code{"col"}) for a full lineage.}
 \item{to}{Optional rank (or ranks) to restrict the output to -- e.g.
 \code{to = "family"} answers "what family is this in?" with a single row.
 \code{NULL} (default) returns the whole lineage.}
+
+\item{...}{Matching arguments passed to \code{\link[=taxify]{taxify()}} when resolving \code{taxon}
+(e.g. \code{fuzzy}, \code{fuzzy_threshold}, \code{kingdom}, \code{region}). Must be named.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

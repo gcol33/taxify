@@ -4,7 +4,7 @@
 \alias{sci2comm}
 \title{Resolve scientific names to common (vernacular) names}
 \usage{
-sci2comm(x, lang = NULL, resolve = TRUE, backbone = NULL, verbose = TRUE)
+sci2comm(x, lang = NULL, resolve = TRUE, backbone = NULL, ..., verbose = TRUE)
 }
 \arguments{
 \item{x}{Character vector of scientific names.}
@@ -21,6 +21,9 @@ offline; use when the names are already accepted).}
 
 \item{backbone}{Passed to \code{\link[=taxify]{taxify()}} when \code{resolve = TRUE}; \code{NULL} (default)
 uses every installed backbone. Ignored when \code{resolve = FALSE}.}
+
+\item{...}{Matching arguments passed to \code{\link[=taxify]{taxify()}} when \code{resolve = TRUE}
+(e.g. \code{fuzzy}, \code{fuzzy_threshold}, \code{kingdom}, \code{region}). Must be named.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

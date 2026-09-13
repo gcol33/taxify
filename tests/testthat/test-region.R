@@ -1,7 +1,7 @@
 test_that("validate_region normalizes, de-dupes, and handles NULL/empty", {
   expect_null(validate_region(NULL))
   expect_null(validate_region(c("", NA, "  ")))
-  expect_equal(validate_region(c(" bel ", "GER", "ger")), c("BEL", "GER"))
+  expect_equal(validate_region(c(" bgm ", "GER", "ger")), c("BGM", "GER"))
   expect_error(validate_region(42), "character vector")
 })
 
@@ -94,10 +94,15 @@ test_that("validate_region folds accents in region names", {
   expect_equal(validate_region("Quebec"), "QUE")    # matches "Quebec"
 })
 
-test_that("validate_region warns on unresolvable tokens, keeps bare codes", {
+test_that("validate_region warns on unresolvable tokens and unknown codes", {
   expect_warning(r <- validate_region("Nowhereland"), "Unrecognized region")
   expect_null(r)
-  expect_equal(suppressWarnings(validate_region("ZZZ")), "ZZZ")
+  # A 3-letter token the crosswalk does not list is a typo (Greece is GRC),
+  # not a region: kept, it would be one no taxon occurs in.
+  expect_warning(r <- validate_region("GRE"), "Unrecognized region.*GRE")
+  expect_null(r)
+  expect_warning(r <- validate_region(c("GRC", "ZZZ")), "ZZZ")
+  expect_equal(r, "GRC")
 })
 
 test_that("taxify_regions lists and searches the WGSRPD crosswalk", {
@@ -220,11 +225,14 @@ test_that("region filtering runs end-to-end against the example database", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  reg <- taxify("Quercus robus", region = "EUR", verbose = FALSE)
+  # The example WCVP fixture records Quercus robur under NAM (a real Level 3
+  # code); its other code, EUR, is a placeholder validate_region() drops.
+  reg <- expect_no_warning(
+    taxify("Quercus robus", region = "NAM", verbose = FALSE))
 
   expect_s3_class(reg, "taxify_result")
   expect_equal(nrow(reg), 1L)
-  # Quercus robur is recorded in EUR, so the fuzzy match is retained: the
+  # Quercus robur is recorded in NAM, so the fuzzy match is retained: the
   # misspelling resolves to col-ex-001, the example database's Quercus robur.
   expect_equal(reg$match_type, "fuzzy")
   expect_equal(reg$accepted_name, "Quercus robur")

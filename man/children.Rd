@@ -4,7 +4,13 @@
 \alias{children}
 \title{List the accepted taxa within a genus or family}
 \usage{
-children(taxon, backbone = NULL, rank = "species", verbose = TRUE)
+children(
+  taxon,
+  backbone = NULL,
+  rank = "species",
+  kingdom = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{taxon}{A single genus or family name.}
@@ -13,19 +19,27 @@ children(taxon, backbone = NULL, rank = "species", verbose = TRUE)
 object. \code{NULL} (default) uses the highest-priority installed backbone.}
 
 \item{rank}{Rank of the children to return (\code{"species"} by default), or
-\code{"any"} for every rank below the parent.}
+\code{"any"} (or \code{NULL}) for every rank below the parent. The parent itself is
+never returned.}
+
+\item{kingdom}{Optional kingdom (or kingdoms) the parent belongs to, as in
+\code{\link[=taxify]{taxify()}} (\code{"plantae"}, \code{"animals"}, ...). A genus or family name can be
+used in more than one kingdom (\emph{Morus} is both mulberries and gannets);
+\code{kingdom} picks one. Without it such a result mixes the kingdoms, with a
+warning.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
 A data.frame of accepted taxa, columns: \code{name}, \code{authorship}, \code{rank},
-\code{family}, \code{genus}, \code{taxon_id}, \code{parent_rank} (\code{"genus"} or \code{"family"}),
-\code{backbone}. Empty if the parent is not found.
+\code{kingdom_group}, \code{family}, \code{genus}, \code{taxon_id}, \code{parent}, \code{parent_rank}
+(\code{"genus"} or \code{"family"}), \code{backbone}. Empty if the parent is not found.
 }
 \description{
 Returns the accepted taxa a backbone places inside a genus or family, so you
 can build a checklist from the backbone rather than only validating one. The
-parent is auto-detected: a genus is tried first, then a family.
+parent's rank is read from the backbone, as in \code{\link[=downstream]{downstream()}}, restricted to
+genus and family: \code{children()} is \code{\link[=downstream]{downstream()}} for a genus or family parent.
 }
 \examples{
 # Runs offline against the bundled example database.
@@ -37,5 +51,6 @@ options(old)
 
 }
 \seealso{
-\code{\link[=synonyms]{synonyms()}}, \code{\link[=taxify]{taxify()}}.
+\code{\link[=downstream]{downstream()}} to reach below a higher rank, \code{\link[=synonyms]{synonyms()}},
+\code{\link[=taxify]{taxify()}}.
 }

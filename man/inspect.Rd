@@ -24,9 +24,12 @@ no matching. The backbones used are printed in the report header. Ignored
 when \code{x} is already a \code{taxify_result} (it was matched already).}
 
 \item{region, coords, range}{Geographic constraint for the \code{geographic} /
-\code{out_of_range} checks, as in \code{\link[=taxify]{taxify()}}. These act on a \code{taxify_result}
-(which carries the accepted names they need); on a character vector there is
-nothing matched to place, so they have no effect.}
+\code{out_of_range} checks, as in \code{\link[=taxify]{taxify()}}. These act on matched names: a
+\code{taxify_result}, or a character vector with \code{backbones = TRUE}. On a
+character vector inspected without matching there is nothing matched to
+place, so they have no effect and are not resolved. A \code{region} / \code{coords}
+that resolves to no known region is named under \verb{not checked} rather than
+treated as a region no species occurs in.}
 
 \item{min_tier}{Lowest tier to report: \code{"note"} (default, everything),
 \code{"review"}, or \code{"unresolved"}.}

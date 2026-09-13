@@ -29,6 +29,50 @@ backbone_path <- function(backbone, verbose = TRUE) {
 }
 
 
+#' Column names of a `.vtr` file
+#'
+#' @param path Path to a `.vtr` file.
+#' @return Character vector of column names.
+#' @noRd
+vtr_schema <- function(path) {
+  names(vectra::collect(utils::head(vectra::tbl(path), 1L)))
+}
+
+
+#' The name of a backbone given as a name or a `taxify_backend` object
+#'
+#' @param backbone A backbone name (or names) or a `taxify_backend` object.
+#' @return Character.
+#' @noRd
+backbone_name_of <- function(backbone) {
+  if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+}
+
+
+#' Resolve a verb's input names through taxify()
+#'
+#' The one route by which the verbs that accept names ([synonyms()],
+#' [upstream()], [sci2comm()], [comm2sci()], [reconcile()], [lowest_common()],
+#' [class2tree()]) run them through [taxify()], so the matching arguments
+#' (`fuzzy`, `fuzzy_threshold`, `fuzzy_method`, `aggregates`, `kingdom`,
+#' `region`, `coords`, `range`) reach the matcher the same way from every verb.
+#'
+#' @param x Character vector of names.
+#' @param backbone Passed to [taxify()].
+#' @param ... Matching arguments passed to [taxify()]; must be named.
+#' @param verbose Logical.
+#' @return A `taxify_result`.
+#' @noRd
+taxify_input <- function(x, backbone, ..., verbose) {
+  nms <- names(list(...))
+  if (...length() > 0L && (is.null(nms) || any(!nzchar(nms)))) {
+    stop("Arguments passed on to taxify() must be named ",
+         "(e.g. fuzzy = FALSE).", call. = FALSE)
+  }
+  taxify(x, backbone = backbone, ..., verbose = verbose)
+}
+
+
 #' Title-case a single taxon name (genus or family)
 #' @noRd
 title_case_taxon <- function(s) {
@@ -119,7 +163,7 @@ enrich_from_backbone <- function(x, backbone, col_map, enrichment_name, label,
 
   # Main join: attach the backbone columns present in the schema.
   if (length(rows) > 0L) {
-    schema <- names(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L)))
+    schema <- vtr_schema(vtr_path)
     avail  <- intersect(unname(col_map), schema)
     if (length(avail) > 0L) {
       joined <- backbone_join(vtr_path, x$taxon_id[rows], bb_key = "taxon_id",
@@ -142,9 +186,8 @@ enrich_from_backbone <- function(x, backbone, col_map, enrichment_name, label,
   if (!is.null(extra_vtr) && length(rows) > 0L) {
     sp_path <- sub("\\.vtr$", extra_vtr$suffix, vtr_path)
     if (file.exists(sp_path)) {
-      sp_schema <- tryCatch(
-        names(vectra::collect(utils::head(vectra::tbl(sp_path), 1L))),
-        error = function(e) character(0L))
+      sp_schema <- tryCatch(vtr_schema(sp_path),
+                            error = function(e) character(0L))
       avail_ex <- intersect(unname(extra_vtr$col_map), sp_schema)
       if (extra_vtr$key %in% sp_schema && length(avail_ex) > 0L) {
         sp <- tryCatch(
@@ -184,9 +227,12 @@ enrich_from_backbone <- function(x, backbone, col_map, enrichment_name, label,
 #'   resolved to its accepted taxon first).
 #' @param backbone A single backbone name (e.g. `"wfo"`) or a `taxify_backend`
 #'   object. `NULL` (default) uses the highest-priority installed backbone.
+#' @param ... Matching arguments passed to [taxify()] when resolving `x`
+#'   (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`, `region`). Must be named.
 #' @param verbose Logical. Default `TRUE`.
 #'
-#' @return A data.frame with one row per synonym found, columns:
+#' @return A data.frame with one row per (distinct input name, synonym); a name
+#'   supplied more than once is reported once. Columns:
 #' \describe{
 #'   \item{input_name}{The queried name.}
 #'   \item{accepted_name}{The accepted name the query resolved to.}
@@ -211,15 +257,15 @@ enrich_from_backbone <- function(x, backbone, col_map, enrichment_name, label,
 #' options(old)
 #'
 #' @export
-synonyms <- function(x, backbone = NULL, verbose = TRUE) {
+synonyms <- function(x, backbone = NULL, ..., verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {
     stop("x must be a non-empty character vector.", call. = FALSE)
   }
   backbone <- resolve_single_backend(backbone, verbose = verbose)
-  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+  bb_name <- backbone_name_of(backbone)
   bb <- backbone_path(backbone, verbose = verbose)
 
-  res <- taxify(x, backbone = backbone, fuzzy = TRUE, verbose = FALSE)
+  res <- taxify_input(unique(x), backbone = backbone, ..., verbose = FALSE)
   keep <- !is.na(res$accepted_id)
   empty <- data.frame(
     input_name = character(0L), accepted_name = character(0L),
@@ -310,7 +356,7 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
     bb <- tryCatch(backbone_path(bb_name, verbose = verbose),
                    error = function(e) NULL)
     if (is.null(bb)) next
-    schema <- names(vectra::collect(utils::head(vectra::tbl(bb), 1L)))
+    schema <- vtr_schema(bb)
     avail <- intersect(ranks, schema)
     if (length(avail) == 0L) next
 
@@ -447,20 +493,28 @@ taxify_candidates <- function(x, verbose = TRUE) {
 #'
 #' Returns the accepted taxa a backbone places inside a genus or family, so you
 #' can build a checklist from the backbone rather than only validating one. The
-#' parent is auto-detected: a genus is tried first, then a family.
+#' parent's rank is read from the backbone, as in [downstream()], restricted to
+#' genus and family: `children()` is [downstream()] for a genus or family parent.
 #'
 #' @param taxon A single genus or family name.
 #' @param backbone A single backbone name (e.g. `"wfo"`) or a `taxify_backend`
 #'   object. `NULL` (default) uses the highest-priority installed backbone.
 #' @param rank Rank of the children to return (`"species"` by default), or
-#'   `"any"` for every rank below the parent.
+#'   `"any"` (or `NULL`) for every rank below the parent. The parent itself is
+#'   never returned.
+#' @param kingdom Optional kingdom (or kingdoms) the parent belongs to, as in
+#'   [taxify()] (`"plantae"`, `"animals"`, ...). A genus or family name can be
+#'   used in more than one kingdom (*Morus* is both mulberries and gannets);
+#'   `kingdom` picks one. Without it such a result mixes the kingdoms, with a
+#'   warning.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame of accepted taxa, columns: `name`, `authorship`, `rank`,
-#'   `family`, `genus`, `taxon_id`, `parent_rank` (`"genus"` or `"family"`),
-#'   `backbone`. Empty if the parent is not found.
+#'   `kingdom_group`, `family`, `genus`, `taxon_id`, `parent`, `parent_rank`
+#'   (`"genus"` or `"family"`), `backbone`. Empty if the parent is not found.
 #'
-#' @seealso [synonyms()], [taxify()].
+#' @seealso [downstream()] to reach below a higher rank, [synonyms()],
+#'   [taxify()].
 #'
 #' @examples
 #' # Runs offline against the bundled example database.
@@ -471,58 +525,9 @@ taxify_candidates <- function(x, verbose = TRUE) {
 #' options(old)
 #'
 #' @export
-children <- function(taxon, backbone = NULL, rank = "species", verbose = TRUE) {
-  if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||
-      !nzchar(trimws(taxon))) {
-    stop("taxon must be a single non-empty name.", call. = FALSE)
-  }
-  backbone <- resolve_single_backend(backbone, verbose = verbose)
-  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
-  bb <- backbone_path(backbone, verbose = verbose)
-  taxon <- title_case_taxon(taxon)
-
-  parent <- taxon
-  hits <- vectra::tbl(bb) |>
-    vectra::filter(genus == parent & is_synonym == FALSE) |>
-    vectra::select(canonical_name, authorship, taxon_rank, family, genus,
-                   taxon_id) |>
-    vectra::collect()
-  parent_rank <- "genus"
-  if (nrow(hits) == 0L) {
-    hits <- vectra::tbl(bb) |>
-      vectra::filter(family == parent & is_synonym == FALSE) |>
-      vectra::select(canonical_name, authorship, taxon_rank, family, genus,
-                     taxon_id) |>
-      vectra::collect()
-    parent_rank <- "family"
-  }
-
-  empty <- data.frame(
-    name = character(0L), authorship = character(0L), rank = character(0L),
-    family = character(0L), genus = character(0L), taxon_id = character(0L),
-    parent_rank = character(0L), backbone = character(0L),
-    stringsAsFactors = FALSE
-  )
-  if (nrow(hits) == 0L) return(empty)
-
-  if (!is.null(rank) && !identical(rank, "any")) {
-    hits <- hits[!is.na(hits$taxon_rank) &
-                 toupper(hits$taxon_rank) == toupper(rank), , drop = FALSE]
-  }
-  if (nrow(hits) == 0L) return(empty)
-
-  out <- data.frame(
-    name        = hits$canonical_name,
-    authorship  = hits$authorship,
-    rank        = hits$taxon_rank,
-    family      = hits$family,
-    genus       = hits$genus,
-    taxon_id    = hits$taxon_id,
-    parent_rank = parent_rank,
-    backbone     = bb_name,
-    stringsAsFactors = FALSE
-  )
-  out <- out[order(out$name), , drop = FALSE]
-  rownames(out) <- NULL
-  out
+children <- function(taxon, backbone = NULL, rank = "species", kingdom = NULL,
+                     verbose = TRUE) {
+  collect_descendants(taxon, backbone = backbone, target_rank = rank,
+                      kingdom = kingdom, parent_cols = c("genus", "family"),
+                      caller = "children", verbose = verbose)
 }

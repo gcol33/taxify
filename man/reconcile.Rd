@@ -13,8 +13,8 @@ reconcile(x, backbone = NULL, ..., verbose = TRUE)
 object, passed to \code{\link[=taxify]{taxify()}}. \code{NULL} (default) uses every installed
 backbone.}
 
-\item{...}{Further arguments passed to \code{\link[=taxify]{taxify()}} (e.g. \code{fuzzy},
-\code{fuzzy_threshold}, \code{kingdom}).}
+\item{...}{Matching arguments passed to \code{\link[=taxify]{taxify()}} (e.g. \code{fuzzy},
+\code{fuzzy_threshold}, \code{kingdom}, \code{region}). Must be named.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

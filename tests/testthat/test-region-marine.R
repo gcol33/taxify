@@ -92,8 +92,9 @@ test_that("validate_region resolves MEOW names and numeric codes when active", {
   expect_equal(validate_region("Test Sea"), "9999")
   expect_equal(validate_region("test sea"), "9999")
   expect_equal(validate_region("9999"), "9999")
-  # a bare TDWG-style token still passes through as before
-  expect_equal(suppressWarnings(validate_region("ZZZ")), "ZZZ")
+  # an unknown TDWG-style token is dropped in marine mode too
+  expect_warning(r <- validate_region("ZZZ"), "Unrecognized region")
+  expect_null(r)
 })
 
 test_that("coords_to_codes maps a marine point to its MEOW ecoregion", {

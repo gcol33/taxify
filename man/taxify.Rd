@@ -264,7 +264,7 @@ taxify("Quercus robus", fuzzy = FALSE)
 
 # Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,
 # or a region name resolved via the bundled WGSRPD crosswalk
-taxify("Quercus robus", region = "EUR")
+taxify("Quercus robus", region = "BGM")
 taxify("Quercus robus", region = "Belgium")
 
 # Constrain by coordinates (downloads WGSRPD boundaries on first use)

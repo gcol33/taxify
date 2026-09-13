@@ -17,22 +17,22 @@ test_that("empty_taxify_result() has the schema of a real taxify() result", {
   expect_output(summary(e), "0 names submitted")
 })
 
-test_that("comm2sci(resolve = TRUE) returns an empty result when nothing matches", {
+test_that("comm2sci(output = 'result') returns an empty result when nothing matches", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  hit <- comm2sci("example_common_name", resolve = TRUE, backbone = "wfo",
+  hit <- comm2sci("example_common_name", output = "result", backbone = "wfo",
                   verbose = FALSE)
   for (q in list("no such vernacular xyz", NA_character_)) {
     out <- expect_no_warning(
-      comm2sci(q, resolve = TRUE, backbone = "wfo", verbose = FALSE))
+      comm2sci(q, output = "result", backbone = "wfo", verbose = FALSE))
     expect_s3_class(out, "taxify_result")
     expect_equal(nrow(out), 0L)
     expect_identical(names(out), names(hit))
   }
 
   # A lang filter that removes every row takes the same exit.
-  none <- comm2sci("example_common_name", lang = "zz", resolve = TRUE,
+  none <- comm2sci("example_common_name", lang = "zz", output = "result",
                    backbone = "wfo", verbose = FALSE)
   expect_equal(nrow(none), 0L)
   expect_identical(names(none), names(hit))

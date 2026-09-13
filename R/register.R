@@ -158,19 +158,21 @@ taxify_load_register <- function(force = FALSE, verbose = TRUE) {
 #' Auto-loads the register on first call.
 #'
 #' @param genus Character scalar. The genus name to look up.
-#' @return A one-row data.frame, or `NULL` if the genus is not in the register.
+#' @return A one-row data.frame, or `NULL` if the genus is not in the register
+#'   (including `NA`).
 #' @export
 lookup_genus <- function(genus) {
   if (!is.character(genus) || length(genus) != 1L) {
     stop("genus must be a character scalar", call. = FALSE)
   }
+  if (is.na(genus)) return(NULL)
 
   if (is.null(.taxify_env$register)) {
     taxify_load_register(verbose = FALSE)
   }
 
   reg <- .taxify_env$register
-  hit <- reg[reg$genus == genus, , drop = FALSE]
+  hit <- reg[which(reg$genus == genus), , drop = FALSE]
   if (nrow(hit) == 0L) NULL else hit
 }
 

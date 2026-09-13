@@ -129,18 +129,6 @@ taxify_long <- function(x, cols = NULL, group_col = NULL, drop_na = FALSE) {
 
   all_names <- names(x)
 
-  # Single-group case: base columns exist without suffixes
-  if (all(cols %in% all_names)) {
-    # Check if there are also suffixed versions
-    has_suffixed <- any(vapply(cols, function(base) {
-      any(grepl(paste0("^", base, "_.+$"), all_names))
-    }, logical(1L)))
-    if (!has_suffixed) {
-      x[[group_col]] <- NA_character_
-      return(x)
-    }
-  }
-
   # Detect suffixed columns: match longest base first to avoid ambiguity. A
   # suffix only counts as a group when it is a real group code (a country / TDWG
   # / language code the manifest lists); companion columns an enrichment emits
@@ -171,6 +159,12 @@ taxify_long <- function(x, cols = NULL, group_col = NULL, drop_na = FALSE) {
   }
 
   if (length(col_assignments) == 0L) {
+    # Single-group case: the base columns exist and no group-suffixed variant
+    # does (a companion column such as <base>_sources is not a group).
+    if (all(cols %in% all_names)) {
+      x[[group_col]] <- NA_character_
+      return(x)
+    }
     stop(sprintf(
       "No suffixed columns found for base names: %s\nAvailable columns: %s",
       paste(cols, collapse = ", "),

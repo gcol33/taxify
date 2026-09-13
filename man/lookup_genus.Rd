@@ -10,7 +10,8 @@ lookup_genus(genus)
 \item{genus}{Character scalar. The genus name to look up.}
 }
 \value{
-A one-row data.frame, or \code{NULL} if the genus is not in the register.
+A one-row data.frame, or \code{NULL} if the genus is not in the register
+(including \code{NA}).
 }
 \description{
 Returns the register row for the given genus, or \code{NULL} if not found.

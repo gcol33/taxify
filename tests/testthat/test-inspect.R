@@ -441,7 +441,7 @@ test_that("geographic flag fires for an in-backbone but out-of-region match", {
                has_data = c("Quercus robur", "Acer pseudoplatanus"))
   out <- with_no_register(with_mocked_bindings(
     region_range_sets = function(...) sets,
-    inspect(res, region = "BEL", verbose = FALSE)
+    inspect(res, region = "BGM", verbose = FALSE)
   ))
   flag <- out$anomalies[out$input_name == "Acer pseudoplatanus"]
   expect_true(grepl("geographic", flag))
@@ -500,4 +500,49 @@ test_that("inspect() records no skip for a check that could run", {
   )
   sk <- attr(out, "taxify_inspection_meta")$skipped
   expect_false("unknown" %in% names(sk))
+})
+
+
+# ---- input handling (#67) ----
+
+test_that("the register check reads the genus from the cleaned name, any case", {
+  fake_reg <- data.frame(
+    genus = c("Quercus", "Cupressocyparis", "Acer"),
+    kingdom_group = c("plantae", "plantae", "plantae"),
+    stringsAsFactors = FALSE)
+  out <- testthat::with_mocked_bindings(
+    inspect(c("quercus robur", "cf. Quercus robur",
+              "\u00d7 Cupressocyparis leylandii", "Bogusus fakus"),
+            verbose = FALSE),
+    inspect_load_register = function() fake_reg,
+    .package = "taxify"
+  )
+  unknown <- out$input_name[grepl("unknown", out$anomalies)]
+  expect_identical(unknown, "Bogusus fakus")
+  expect_match(out$reason[out$input_name == "Bogusus fakus"], "'Bogusus'")
+})
+
+test_that("a mistyped region code is not checked against, and says so", {
+  res <- make_fake_result()
+  sets <- list(present = character(0L),
+               has_data = c("Quercus robur", "Acer pseudoplatanus"))
+  out <- with_no_register(with_mocked_bindings(
+    region_range_sets = function(...) sets,
+    suppressWarnings(inspect(res, region = "GRE", verbose = FALSE))
+  ))
+  expect_warning(validate_region("GRE"), "Unrecognized region")
+  expect_false(any(grepl("geographic", out$anomalies)))
+  sk <- attr(out, "taxify_inspection_meta")$skipped
+  expect_true("geographic" %in% names(sk))
+  # The declared region is not replaced by the list-inferred range check.
+  expect_false(any(grepl("out_of_range", out$anomalies)))
+})
+
+test_that("region and coords are not resolved when no check reads them", {
+  out <- with_no_register(with_mocked_bindings(
+    resolve_region = function(...) stop("resolve_region() was called"),
+    inspect(c("Quercus robur", "Acer campestre"), coords = c(4.35, 50.85),
+            region = "Belgium", verbose = FALSE)
+  ))
+  expect_s3_class(out, "taxify_inspection")
 })

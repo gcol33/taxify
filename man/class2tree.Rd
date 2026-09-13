@@ -5,7 +5,7 @@
 \alias{print.taxify_tree}
 \title{Build a taxonomy tree from resolved names}
 \usage{
-class2tree(x, backbone = NULL, verbose = TRUE)
+class2tree(x, backbone = NULL, ..., verbose = TRUE)
 
 \method{print}{taxify_tree}(x, ...)
 }
@@ -15,20 +15,22 @@ class2tree(x, backbone = NULL, verbose = TRUE)
 \item{backbone}{Backend passed to \code{\link[=taxify]{taxify()}} when \code{x} is raw names. \code{NULL}
 (default) uses every installed backbone. Ignored when \code{x} is a result.}
 
-\item{verbose}{Logical. Default \code{TRUE}.}
-
 \item{...}{Ignored, present for S3 \code{print} method consistency.}
+
+\item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
 An object of class \code{taxify_tree}: a list with
 \describe{
 \item{newick}{The Newick string (internal nodes labelled by rank value,
-tips by species name).}
+tips by species name). Characters Newick reserves, the space among them,
+are written as \verb{_} (\code{Quercus_robur}).}
 \item{classification}{The classification data.frame the tree was built
 from.}
-\item{tip_labels}{The species at the tips.}
+\item{tip_labels}{The species at the tips, as named in \code{classification}.}
 \item{phylo}{An \pkg{ape} \code{phylo} object, or \code{NULL} if \pkg{ape} is not
-installed / the string could not be parsed.}
+installed / the string could not be parsed. Its \code{tip.label} and
+\code{node.label} carry the names themselves, as \code{tip_labels} does.}
 }
 }
 \description{

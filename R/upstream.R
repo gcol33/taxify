@@ -40,6 +40,8 @@
 #' @param to Optional rank (or ranks) to restrict the output to -- e.g.
 #'   `to = "family"` answers "what family is this in?" with a single row.
 #'   `NULL` (default) returns the whole lineage.
+#' @param ... Matching arguments passed to [taxify()] when resolving `taxon`
+#'   (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`, `region`). Must be named.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame with one row per ancestor rank, columns: `input_name` (the
@@ -63,13 +65,13 @@
 #' options(old)
 #'
 #' @export
-upstream <- function(taxon, backbone = NULL, to = NULL, verbose = TRUE) {
+upstream <- function(taxon, backbone = NULL, to = NULL, ..., verbose = TRUE) {
   if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||
       !nzchar(trimws(taxon))) {
     stop("taxon must be a single non-empty name.", call. = FALSE)
   }
   backbone <- resolve_single_backend(backbone, verbose = verbose)
-  bb_name <- if (inherits(backbone, "taxify_backend")) backbone$name else backbone
+  bb_name <- backbone_name_of(backbone)
   bb <- backbone_path(backbone, verbose = verbose)
 
   empty <- data.frame(
@@ -79,7 +81,7 @@ upstream <- function(taxon, backbone = NULL, to = NULL, verbose = TRUE) {
   )
 
   # Resolve the query (handles synonyms / typos) to its accepted taxon.
-  res <- taxify(taxon, backbone = backbone, fuzzy = TRUE, verbose = FALSE)
+  res <- taxify_input(taxon, backbone = backbone, ..., verbose = FALSE)
   if (nrow(res) == 0L || is.na(res$accepted_id[1L])) {
     if (verbose) message(sprintf("upstream(): '%s' did not resolve against '%s'.",
                                  taxon, bb_name))
@@ -90,10 +92,7 @@ upstream <- function(taxon, backbone = NULL, to = NULL, verbose = TRUE) {
   own_rank <- tolower(res$rank[1L] %||% NA_character_)
 
   # Read the denormalized ancestor columns the backbone stores.
-  schema <- tryCatch(
-    names(vectra::collect(utils::head(vectra::tbl(bb), 1L))),
-    error = function(e) character(0L))
-  avail <- intersect(.upstream_cols, schema)
+  avail <- intersect(.upstream_cols, vtr_schema(bb))
   if (length(avail) == 0L) {
     if (verbose) message(sprintf(
       "upstream(): backbone '%s' stores no classification columns.", bb_name))

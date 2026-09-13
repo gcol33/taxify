@@ -4,7 +4,13 @@
 \alias{downstream}
 \title{List all descendants of a taxon down to a target rank}
 \usage{
-downstream(taxon, backbone = NULL, downto = "species", verbose = TRUE)
+downstream(
+  taxon,
+  backbone = NULL,
+  downto = "species",
+  kingdom = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{taxon}{A single higher-taxon name (a genus, family, order, class,
@@ -15,23 +21,30 @@ phylum, or kingdom).}
 stores the higher ranks (e.g. \code{"col"}) to reach above genus.}
 
 \item{downto}{Target rank of the descendants to return (\code{"species"} by
-default), or \code{"any"} for every accepted taxon beneath \code{taxon} regardless of
-rank.}
+default), or \code{"any"} (or \code{NULL}) for every accepted taxon beneath \code{taxon}
+regardless of rank. The parent itself is never returned.}
+
+\item{kingdom}{Optional kingdom (or kingdoms) the parent belongs to, as in
+\code{\link[=taxify]{taxify()}} (\code{"plantae"}, \code{"animals"}, ...). A name can be used in more than
+one kingdom (\emph{Morus} is both mulberries and gannets); \code{kingdom} picks one,
+and also decides the parent's rank when the homonyms sit at different
+ranks. Without it such a result mixes the kingdoms, with a warning.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
 A data.frame of accepted descendants, columns: \code{name}, \code{authorship},
-\code{rank}, \code{family}, \code{genus}, \code{taxon_id}, \code{parent}, \code{parent_rank}, \code{backbone}.
-Empty when \code{taxon} is not found, its rank is one the backbone does not store
-as a column (e.g. subfamily, tribe), or it has no descendants at \code{downto}.
+\code{rank}, \code{kingdom_group} (the coarse kingdom, as in \code{\link[=taxify]{taxify()}} output),
+\code{family}, \code{genus}, \code{taxon_id}, \code{parent}, \code{parent_rank}, \code{backbone}. Empty
+when \code{taxon} is not found, its rank is one the backbone does not store as a
+column (e.g. subfamily, tribe), or it has no descendants at \code{downto}.
 }
 \description{
 Returns every accepted taxon at \code{downto} rank that sits beneath \code{taxon} --
 for example every species in an order or family. The parent's rank is
 detected from the backbone, then descendants are read from the denormalized
-classification the backbone stores. Where \code{\link[=children]{children()}} gives the immediate
-contents of a genus or family, \code{downstream()} reaches an arbitrary depth.
+classification the backbone stores. \code{\link[=children]{children()}} is the same query for a
+genus or family parent.
 }
 \examples{
 # Runs offline against the bundled example database.
@@ -44,5 +57,6 @@ options(old)
 
 }
 \seealso{
-\code{\link[=children]{children()}} for the immediate level, \code{\link[=taxify]{taxify()}}, \code{\link[=synonyms]{synonyms()}}.
+\code{\link[=children]{children()}} for a genus or family parent, \code{\link[=upstream]{upstream()}} for the
+ancestors, \code{\link[=taxify]{taxify()}}, \code{\link[=synonyms]{synonyms()}}.
 }

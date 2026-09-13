@@ -83,9 +83,7 @@ disambiguate_by_authorship <- function(result, vtr_path) {
   want_cols <- c("canonical_name", "authorship", "taxon_id",
                  "accepted_taxon_id", "accepted_name", "accepted_authorship",
                  "is_synonym", "taxon_rank", "accepted_family", "accepted_genus")
-  available <- tryCatch(
-    names(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L))),
-    error = function(e) NULL)
+  available <- tryCatch(vtr_schema(vtr_path), error = function(e) NULL)
   if (is.null(available)) return(result)
   joined <- tryCatch(
     backbone_join(vtr_path, names_to_look, bb_key = "canonical_name",

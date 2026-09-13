@@ -718,7 +718,7 @@ get_fuzzy_bb <- function(vtr_path, col_map) {
 
   # Drop any columns a pre-accepted_authorship backbone .vtr does not carry,
   # so selection stays valid against older downloads.
-  available <- names(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L)))
+  available <- vtr_schema(vtr_path)
   keep_cols <- intersect(keep_cols, available)
 
   fuzzy_path <- tempfile(fileext = ".vtr")

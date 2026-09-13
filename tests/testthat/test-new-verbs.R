@@ -53,14 +53,14 @@ test_that("comm2sci() is case-insensitive and empty on no match", {
   expect_equal(nrow(comm2sci("no such creature", verbose = FALSE)), 0L)
 })
 
-test_that("comm2sci(resolve = TRUE) returns an enrichable taxify_result", {
+test_that("comm2sci(output = 'result') returns an enrichable taxify_result", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()
   skip_if_not(enrichment_ready("common_names"), "common_names example missing")
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  r <- comm2sci("example_common_name", resolve = TRUE, backbone = "wfo",
+  r <- comm2sci("example_common_name", output = "result", backbone = "wfo",
                 verbose = FALSE)
   expect_s3_class(r, "taxify_result")
   expect_true("query_common" %in% names(r))

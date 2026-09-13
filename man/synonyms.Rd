@@ -4,7 +4,7 @@
 \alias{synonyms}
 \title{List the synonyms of a name}
 \usage{
-synonyms(x, backbone = NULL, verbose = TRUE)
+synonyms(x, backbone = NULL, ..., verbose = TRUE)
 }
 \arguments{
 \item{x}{Character vector of names (accepted names or synonyms; each is
@@ -13,10 +13,14 @@ resolved to its accepted taxon first).}
 \item{backbone}{A single backbone name (e.g. \code{"wfo"}) or a \code{taxify_backend}
 object. \code{NULL} (default) uses the highest-priority installed backbone.}
 
+\item{...}{Matching arguments passed to \code{\link[=taxify]{taxify()}} when resolving \code{x}
+(e.g. \code{fuzzy}, \code{fuzzy_threshold}, \code{kingdom}, \code{region}). Must be named.}
+
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-A data.frame with one row per synonym found, columns:
+A data.frame with one row per (distinct input name, synonym); a name
+supplied more than once is reported once. Columns:
 \describe{
 \item{input_name}{The queried name.}
 \item{accepted_name}{The accepted name the query resolved to.}
