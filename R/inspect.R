@@ -26,6 +26,8 @@
 #' \describe{
 #'   \item{`typo`}{Resolved only after fuzzy correction (`match_type = "fuzzy"`):
 #'     the input most likely contains a spelling error; `suggestion` is the name.}
+#'   \item{`rank_fallback`}{An infraspecific name the backbone does not carry,
+#'     resolved to its species (`match_type = "rank_fallback"`).}
 #'   \item{`ambiguous`}{A homonym resolving to more than one accepted taxon.}
 #'   \item{`geographic`}{The matched species is real but has no WCVP record in the
 #'     declared `region` / `coords` (vascular plants only).}
@@ -213,7 +215,7 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
   input     <- res$input_name
 
   is_true <- function(v) !is.na(v) & v
-  matched <- !is.na(mt) & mt %in% c("exact", "exact_ci", "fuzzy", "abbrev")
+  matched <- is_backbone_match(mt)
 
   min_batch  <- getOption("taxify.inspect_min_batch", 4L)
   dominance  <- getOption("taxify.inspect_dominance", 0.7)
@@ -264,6 +266,7 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
   # ---- match-derived per-name labels (only fire on a taxify result) ----
   m_typo      <- !is.na(mt) & mt == "fuzzy"
   m_case      <- !is.na(mt) & mt == "exact_ci"
+  m_rankfb    <- !is.na(mt) & mt == "rank_fallback"
   m_synonym   <- matched & is_true(syn_raw)
   m_ambiguous <- is_true(amb_raw)
 
@@ -339,6 +342,9 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
          reason = rep("likely misspelling", n)),
     list(name = "near_duplicate", mask = m_neardup,  rank = 2L,
          reason = sprintf("near-duplicate of more frequent '%s'", dup_target)),
+    list(name = "rank_fallback", mask = m_rankfb,    rank = 2L,
+         reason = rep("infraspecific taxon not in the backbone; matched its species",
+                      n)),
     list(name = "ambiguous",     mask = m_ambiguous, rank = 2L,
          reason = ifelse(!is.na(amb_tgt),
                          sprintf("ambiguous (targets: %s)", amb_tgt),

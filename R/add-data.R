@@ -570,7 +570,7 @@ detect_species_col <- function(data, backbone, verbose = TRUE) {
     )
     if (is.null(probe_result)) next
 
-    matched <- probe_result$match_type %in% c("exact", "fuzzy")
+    matched <- is_backbone_match(probe_result$match_type)
     match_rate <- sum(matched) / length(probe_names)
     if (verbose) {
       message(sprintf("  '%s': %d/%d matched (%0.0f%%)",

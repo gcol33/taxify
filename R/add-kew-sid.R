@@ -54,7 +54,7 @@ add_kew_sid <- function(x, cols = NULL, verbose = TRUE) {
     enrichment_name = "kew_sid",
     col_map         = col_map,
     source_label    = "Kew Seed Information Database (SID)",
-    col_prefix      = "sid",
+    col_prefix      = "sid_",
     cols            = cols,
     verbose         = verbose
   )

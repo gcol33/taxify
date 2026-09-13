@@ -398,64 +398,107 @@ match_exact_compiled <- function(result, names_df, vtr_path, col_map) {
     }
   }
 
-  # --- Pass 2: Exact (case-sensitive) ---
-  exact_mask <- has_name & !genus_only & is.na(result$match_type)
-  if (any(exact_mask)) {
-    result <- lookup_and_fill(result, cleaned[exact_mask], which(exact_mask),
-                              name_col, "exact")
-  }
+  # --- Passes 2-4, over each rendering of the name ---
+  # The cleaned name first; for an infraspecific name then its rank written
+  # with and without the notho- prefix, then the marker-less trinomial
+  # (infra_key_variants()). Each
+  # rendering runs the full exact -> case-insensitive -> normalized ladder
+  # before the next is tried, so a backbone holding the name as written is
+  # never pre-empted by a looser rendering. The species a trinomial belongs to
+  # is not tried here: match_rank_fallback() settles that after fuzzy matching.
+  variants <- infra_key_variants(cleaned)
+  renderings <- list(cleaned, variants$folded, variants$notho, variants$bare)
+  for (v in seq_along(renderings)) {
+    key <- renderings[[v]]
+    has_key <- !is.na(key)
 
-  # --- Pass 3: Case-insensitive ---
-  ci_mask <- has_name & !genus_only & is.na(result$match_type)
-  if (any(ci_mask)) {
-    result <- lookup_and_fill(result, tolower(cleaned[ci_mask]), which(ci_mask),
-                              "key_ci", "exact_ci")
-  }
+    # Pass 2: Exact (case-sensitive)
+    exact_mask <- has_key & !genus_only & is.na(result$match_type)
+    if (any(exact_mask)) {
+      result <- lookup_and_fill(result, key[exact_mask], which(exact_mask),
+                                name_col, "exact")
+    }
 
-  # Precompute word counts once (used by pass 4 and 5)
-  # Counting spaces is faster than strsplit
-  word_count <- rep(1L, n)
-  word_count[has_name] <- nchar(gsub("[^ ]", "", cleaned[has_name])) + 1L
+    # Pass 3: Case-insensitive
+    ci_mask <- has_key & !genus_only & is.na(result$match_type)
+    if (any(ci_mask)) {
+      result <- lookup_and_fill(result, tolower(key[ci_mask]), which(ci_mask),
+                                "key_ci", "exact_ci")
+    }
 
-  # --- Pass 4: Latin orthographic normalization ---
-  norm_mask <- has_name & is.na(result$match_type)
-  if (any(norm_mask)) {
-    norm_idx   <- which(norm_mask)
-    norm_names <- cleaned[norm_mask]
-
-    norm_plain  <- normalize_epithets(norm_names)
-    norm_hybrid <- ifelse(!is.na(hybrid_name[norm_mask]),
-                          normalize_epithets(hybrid_name[norm_mask]),
-                          NA_character_)
-    wc_sub <- word_count[norm_mask]
-    norm_species <- ifelse(
-      wc_sub >= 3L,
-      normalize_epithets(sub("^(\\S+\\s+\\S+)\\s+.*$", "\\1", norm_names)),
-      NA_character_
-    )
-
-    has_hyb <- !is.na(norm_hybrid)
-    has_sp  <- !is.na(norm_species)
-    nk_ridx <- c(norm_idx, norm_idx[has_hyb], norm_idx[has_sp])
-    nk_keys <- c(norm_plain, norm_hybrid[has_hyb], norm_species[has_sp])
-    valid_nk <- !is.na(nk_keys)
-    nk_ridx  <- nk_ridx[valid_nk]
-    nk_keys  <- nk_keys[valid_nk]
-
-    if (length(nk_keys) > 0L) {
-      result <- lookup_and_fill(result, nk_keys, nk_ridx,
-                                "key_normalized", "exact_ci")
+    # Pass 4: Latin orthographic normalization (the hybrid backbone form rides
+    # with the cleaned name)
+    norm_mask <- has_key & is.na(result$match_type)
+    if (any(norm_mask)) {
+      norm_idx <- which(norm_mask)
+      nk_keys  <- normalize_epithets(key[norm_mask])
+      nk_ridx  <- norm_idx
+      if (v == 1L) {
+        norm_hybrid <- ifelse(!is.na(hybrid_name[norm_mask]),
+                              normalize_epithets(hybrid_name[norm_mask]),
+                              NA_character_)
+        has_hyb <- !is.na(norm_hybrid)
+        nk_ridx <- c(nk_ridx, norm_idx[has_hyb])
+        nk_keys <- c(nk_keys, norm_hybrid[has_hyb])
+      }
+      valid_nk <- !is.na(nk_keys)
+      if (any(valid_nk)) {
+        result <- lookup_and_fill(result, nk_keys[valid_nk], nk_ridx[valid_nk],
+                                  "key_normalized", "exact_ci")
+      }
     }
   }
 
-  # --- Pass 5: Infraspecific-to-species fallback ---
-  inf_mask <- has_name & is.na(result$match_type) & word_count >= 3L
-  if (any(inf_mask)) {
-    sp_names <- sub("^(\\S+\\s+\\S+)\\s+.*$", "\\1", cleaned[inf_mask])
-    result <- lookup_and_fill(result, sp_names, which(inf_mask),
-                              name_col, "exact")
+  result
+}
+
+
+#' Resolve an absent infraspecific name to its species
+#'
+#' The last matching stage, after exact and fuzzy matching have both failed on
+#' the full name: a trinomial the backbone does not carry ("Quercus robur var.
+#' xyz") resolves to the species it belongs to, labelled `"rank_fallback"` so
+#' the result says the rank was not reached. Running it last is what keeps an
+#' accepted subspecies from being answered by its parent, and a misspelled
+#' infraspecific epithet from skipping the fuzzy stage that would correct it.
+#'
+#' @param backend A taxify_backend object (supplies `col_map`).
+#' @param result The match result data.frame.
+#' @param names_df Data.frame from `clean_names()`.
+#' @param vtr_path Path to the compiled backbone .vtr file.
+#' @return The updated result data.frame.
+#' @noRd
+match_rank_fallback <- function(backend, result, names_df, vtr_path) {
+  cleaned <- names_df$cleaned
+  n_tok <- lengths(strsplit(ifelse(is.na(cleaned), "", cleaned), " ",
+                            fixed = TRUE))
+  rows <- which(is.na(result$match_type) & !is.na(result$input_name) &
+                  !is.na(cleaned) & n_tok >= 3L & !names_df$genus_only)
+  if (length(rows) == 0L) return(result)
+
+  col_map <- backend$col_map
+  cache_key <- backbone_memo_key(".blk_", vtr_path)
+  blk <- .taxify_env[[cache_key]]
+  if (is.null(blk)) {
+    blk <- vectra::materialize(vectra::tbl(vtr_path))
+    .taxify_env[[cache_key]] <- blk
   }
 
+  species <- sub("^(\\S+\\s+\\S+)\\s+.*$", "\\1", cleaned[rows])
+  ladder <- list(
+    list(col = col_map$name,     key = function(s) s),
+    list(col = "key_ci",         key = tolower),
+    list(col = "key_normalized", key = normalize_epithets)
+  )
+  for (step in ladder) {
+    todo <- is.na(result$match_type[rows])
+    if (!any(todo)) break
+    hits <- vectra::block_lookup(blk, step$col, step$key(species[todo]))
+    if (nrow(hits) == 0L) next
+    hits$row_idx <- rows[todo][hits$query_idx]
+    hits$query_idx <- NULL
+    result <- fill_compiled_matches(result, hits, "rank_fallback", col_map)
+  }
   result
 }
 

@@ -175,13 +175,13 @@ check_enrichment_version <- function(name) {
   # A cache with no stored id is hashed in place, so an unchanged asset is
   # adopted without any download. A bundled manifest that carries no content id
   # leaves a static enrichment unrefreshed, as its name implies.
+  #
+  # The example database is exempted above by its location. A cache without
+  # `downloaded_at` is one taxifydb built locally (fallback step 5), and it is
+  # compared like any download: its label belongs to the source, not the
+  # release, and its bytes never equal the published asset, so the first
+  # session that can reach the release replaces it.
   if (isTRUE(meta$static)) {
-    # Only reconcile caches the runtime actually downloaded (downloaded_at is
-    # written by download_enrichment). Bundled example data and staged test
-    # mocks lack it and are deliberately left untouched -- they are subsets or
-    # fixtures whose bytes intentionally differ from the released asset, and
-    # must never be silently replaced by a full download.
-    if (is.null(meta$downloaded_at)) return(FALSE)
     entry <- tryCatch(resolve_enrichment_entry(local_manifest(), name),
                       error = function(e) NULL)
     s <- reconcile_content_id(
@@ -201,14 +201,13 @@ check_enrichment_version <- function(name) {
   # 2026.08 was rebuilt after its GBIF source stopped returning `recordid`, and
   # a label comparison holds the pre-rebuild .vtr forever.
   #
-  # Only for runtime-downloaded caches (downloaded_at); hash_missing = FALSE
-  # leaves a cache predating content ids to the version comparison rather than
-  # rehashing it on every session.
-  if (!is.null(meta$downloaded_at)) {
-    s <- reconcile_content_id(vtr_path, meta$content_id, entry$content_id,
-                              hash_missing = FALSE)
-    if (!is.na(s)) return(s)
-  }
+  # A downloaded cache that predates content ids is left to the version
+  # comparison rather than rehashed on every session. A locally built cache is
+  # hashed: it carries no id, and the hash is what tells it apart from the
+  # release until the refresh replaces it.
+  s <- reconcile_content_id(vtr_path, meta$content_id, entry$content_id,
+                            hash_missing = is.null(meta$downloaded_at))
+  if (!is.na(s)) return(s)
 
   isTRUE(meta$version != entry$latest)
 }
@@ -298,8 +297,9 @@ ensure_enrichment <- function(name, verbose = TRUE) {
     }
   }
 
-  # 5. Build from source via taxifydb (if installed)
-  if (requireNamespace("taxifydb", quietly = TRUE)) {
+  # 5. Build from source via taxifydb (if installed). A build fetches the raw
+  #    dataset, so offline mode stops before it.
+  if (!taxify_offline() && requireNamespace("taxifydb", quietly = TRUE)) {
     available <- tryCatch(taxifydb::list_enrichments(),
                           error = function(e) character(0L))
     if (name %in% available) {
@@ -828,6 +828,11 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
 #' @return A data.frame with canonical_name + trait columns.
 #' @noRd
 try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) {
+  if (taxify_offline()) {
+    stop(sprintf(paste0(
+      "Enrichment '%s' is not on disk, and offline mode fetches nothing ",
+      "(options(taxify.offline) / TAXIFY_OFFLINE)."), name), call. = FALSE)
+  }
   if (!requireNamespace("taxifydb", quietly = TRUE)) {
     if (name %in% .build_only_enrichments()) {
       stop(sprintf(
@@ -950,9 +955,14 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
   }
   if (length(cols) == 1L && identical(tolower(cols), "all")) return(col_map)
   want <- as.character(cols)
-  cand <- if (is.null(prefix)) want else
-    ifelse(grepl(paste0("^", prefix), want), want, paste0(prefix, want))
-  idx  <- match(tolower(cand), tolower(out))
+  # A name as given first, then with the prefix: the auto-exposed extras keep
+  # their raw names when a door sets no out_prefix, so only the as-given pass
+  # can reach them.
+  idx  <- match(tolower(want), tolower(out))
+  if (!is.null(prefix) && anyNA(idx)) {
+    miss <- is.na(idx)
+    idx[miss] <- match(tolower(paste0(prefix, want[miss])), tolower(out))
+  }
   if (anyNA(idx)) {
     stop(sprintf(paste0(
       "add_%s(): unknown column(s): %s. Pass column names, \"all\", or NULL ",
@@ -1592,14 +1602,13 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
   # <col> (the join falls back to the point value when they are absent), so a
   # missing _min/_max whose base column is itself mapped is skipped; and
   # auto-exposed extras are drawn from the schema, so they never appear here.
-  # The bundled example database ships curated subset fixtures whose columns are
-  # a deliberate subset of the released .vtr, so the diagnostic is a production
-  # check and is suppressed there (mirroring the version/download gates).
+  # The bundled example database is held to the same bar: its fixtures carry
+  # every column a door maps (test-doors-all.R), so a warning there is drift.
   missing_src <- setdiff(mapped_src, names(schema))
   spread_partner <- grepl("_(min|max)$", missing_src) &
     sub("_(min|max)$", "", missing_src) %in% mapped_src
   missing_src <- missing_src[!spread_partner]
-  if (length(missing_src) > 0L && !is_example_data_dir()) {
+  if (length(missing_src) > 0L) {
     warning(sprintf(
       "Enrichment '%s': mapped column(s) not in the .vtr: %s. Attached as all-NA.",
       enrichment_name, paste(sort(unique(missing_src)), collapse = ", ")

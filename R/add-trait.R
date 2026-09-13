@@ -233,13 +233,13 @@ add_trait <- function(x, trait, sources = "all",
     x[[paste0(trait, "_sources")]] <- co$source
     x[[paste0(trait, "_n")]]       <- co$n
     # Numeric traits also report the spread: the smallest and largest observed
-    # value across the contributing sources -- widened to each source's stored
-    # within-source min/max where taxifydb recorded it. The coalesced value stays
-    # the headline (median by default); min/max let a reader see the range and
-    # decide whether to go back to a source (e.g. a life-stage span). `<trait>_n`
-    # remains the number of contributing sources.
+    # value across the sources behind the headline -- widened to each source's
+    # stored within-source min/max where taxifydb recorded it. The coalesced
+    # value stays the headline (median by default); min/max let a reader see the
+    # range and decide whether to go back to a source (e.g. a life-stage span).
+    # `<trait>_n` remains the number of contributing sources.
     if (numeric) {
-      sp_range <- .coalesce_spread(per_min[ord], per_max[ord])
+      sp_range <- .coalesce_spread(per_min[ord], per_max[ord], ord, co$source)
       x[[paste0(trait, "_min")]] <- sp_range$min
       x[[paste0(trait, "_max")]] <- sp_range$max
     }

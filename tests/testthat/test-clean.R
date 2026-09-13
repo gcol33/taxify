@@ -7,9 +7,11 @@ test_that("clean_names strips trailing authorship", {
 
 test_that("clean_names strips parenthesized authorship", {
   res <- clean_names("Rosa canina var. dumalis (Bechst.) Baker")
-  # var. is stripped as qualifier, (Bechst.) as paren author, Baker as trailing
-  expect_equal(res$cleaned, "Rosa canina dumalis")
-  expect_equal(res$qualifier, "var.")
+  # var. is kept as part of the name, (Bechst.) stripped as paren author, Baker
+  # as trailing
+  expect_equal(res$cleaned, "Rosa canina var. dumalis")
+  expect_equal(res$infra_rank, "var.")
+  expect_true(is.na(res$qualifier))
 })
 
 test_that("clean_names strips qualifiers", {
@@ -34,27 +36,29 @@ test_that("clean_names strips s.l. and s.str. qualifiers", {
 
 test_that("clean_names normalizes ssp./nssp. infra-rank markers to subsp.", {
   res <- clean_names("Pinus mugo ssp. uncinata")
-  expect_equal(res$cleaned, "Pinus mugo uncinata")
-  expect_equal(res$qualifier, "subsp.")
-  expect_equal(res$qualifier_position, "species")
+  expect_equal(res$cleaned, "Pinus mugo subsp. uncinata")
+  expect_equal(res$infra_rank, "subsp.")
+  expect_true(is.na(res$qualifier))
 
   res2 <- clean_names("Festuca ovina nssp. hirtula")
-  expect_equal(res2$cleaned, "Festuca ovina hirtula")
-  expect_equal(res2$qualifier, "subsp.")
+  expect_equal(res2$cleaned, "Festuca ovina nothosubsp. hirtula")
+  expect_equal(res2$infra_rank, "subsp.")
 
   # the fully spelled marker is untouched
-  expect_equal(clean_names("Pinus mugo subsp. uncinata")$qualifier, "subsp.")
+  expect_equal(clean_names("Pinus mugo subsp. uncinata")$cleaned,
+               "Pinus mugo subsp. uncinata")
 
   # ssp is only a marker as a whole bounded token, not inside a genus/epithet
-  expect_true(is.na(clean_names("Sspiraea alba")$qualifier))
+  expect_true(is.na(clean_names("Sspiraea alba")$infra_rank))
 })
 
 test_that("clean_names normalizes ssp./nssp. across a vector", {
   df <- clean_names(c("Pinus mugo ssp. uncinata", "Festuca ovina nssp. hirtula",
                       "Quercus robur"))
-  expect_equal(df$qualifier, c("subsp.", "subsp.", NA))
+  expect_equal(df$infra_rank, c("subsp.", "subsp.", NA))
   expect_equal(df$cleaned,
-               c("Pinus mugo uncinata", "Festuca ovina hirtula", "Quercus robur"))
+               c("Pinus mugo subsp. uncinata", "Festuca ovina nothosubsp. hirtula",
+                 "Quercus robur"))
 })
 
 test_that("clean_names recognizes s.s. as sensu stricto (s.str.)", {
@@ -75,20 +79,22 @@ test_that("clean_names recognizes s.s. as sensu stricto (s.str.)", {
 })
 
 test_that("infraspecific rank variants fold to their base rank token", {
+  rk <- function(x) clean_names(x)$infra_rank
   # forma spellings
-  expect_equal(clean_names("Carex flacca fo. serrulata")$qualifier, "f.")
-  expect_equal(clean_names("Carex flacca forma serrulata")$qualifier, "f.")
+  expect_equal(rk("Carex flacca fo. serrulata"), "f.")
+  expect_equal(clean_names("Carex flacca forma serrulata")$cleaned,
+               "Carex flacca f. serrulata")
   # additional ICN infraspecific ranks
-  expect_equal(clean_names("Carex flacca subvar. serrulata")$qualifier, "subvar.")
-  expect_equal(clean_names("Carex flacca subf. serrulata")$qualifier, "subf.")
-  expect_equal(clean_names("Carex flacca convar. serrulata")$qualifier, "convar.")
-  # notho- (hybrid) ranks fold to the base rank; the epithet is preserved
+  expect_equal(rk("Carex flacca subvar. serrulata"), "subvar.")
+  expect_equal(rk("Carex flacca subf. serrulata"), "subf.")
+  expect_equal(rk("Carex flacca convar. serrulata"), "convar.")
+  # notho- (hybrid) ranks report the base rank; the name keeps the notho- form
   res <- clean_names("Carex flacca nothosubsp. serrulata")
-  expect_equal(res$cleaned, "Carex flacca serrulata")
-  expect_equal(res$qualifier, "subsp.")
-  expect_equal(clean_names("Carex flacca nothovar. serrulata")$qualifier, "var.")
+  expect_equal(res$cleaned, "Carex flacca nothosubsp. serrulata")
+  expect_equal(res$infra_rank, "subsp.")
+  expect_equal(rk("Carex flacca nothovar. serrulata"), "var.")
   # spelled-out subspecies
-  expect_equal(clean_names("Carex flacca subspecies serrulata")$qualifier, "subsp.")
+  expect_equal(rk("Carex flacca subspecies serrulata"), "subsp.")
 })
 
 test_that("cultivar and pathogen infrasubspecific markers are recognized", {
@@ -223,7 +229,8 @@ test_that("clean_names returns correct data.frame", {
   expect_s3_class(df, "data.frame")
   expect_equal(nrow(df), 3L)
   expect_named(df, c("original", "cleaned", "is_hybrid", "hybrid_type",
-                     "qualifier", "qualifier_position", "is_aggregate",
+                     "qualifier", "qualifier_position", "infra_rank",
+                     "is_aggregate",
                      "genus_only", "hybrid_name", "genus_abbrev"))
   expect_equal(df$original, nms)
   expect_equal(df$cleaned[1L], "Quercus robur")

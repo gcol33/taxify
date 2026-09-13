@@ -24,6 +24,37 @@
   ")\\.?(?=\\s|$)"
 )
 
+# The ICN infraspecific ranks, which are part of a name rather than a qualifier
+# on it. Raw spelling (lowercased, period dropped) -> the form the name keeps.
+# Backbones render the notho- ranks in full, so those keep their own token; the
+# base rank they fold to is `.infra_rank_base`.
+.infra_rank_canon <- c(
+  subsp = "subsp.", subspecies = "subsp.", ssp = "subsp.",
+  nssp = "nothosubsp.", nothosubsp = "nothosubsp.", nothossp = "nothosubsp.",
+  var = "var.", nvar = "nothovar.", nothovar = "nothovar.",
+  subvar = "subvar.", convar = "convar.",
+  f = "f.", fo = "f.", forma = "f.",
+  subf = "subf.", subforma = "subf."
+)
+.infra_rank_base <- c(nothosubsp. = "subsp.", nothovar. = "var.")
+
+# A whole token that is one of those spellings, any case, optional period.
+.infra_rank_token_pattern <- paste0(
+  "^(", paste(names(.infra_rank_canon), collapse = "|"), ")\\.?$")
+
+# The open-nomenclature, determination and sensu qualifiers: `.qualifier_pattern`
+# without the infraspecific ranks, which clean_names() keeps in the name.
+.nonrank_qualifier_pattern <- paste0(
+  "\\b(",
+  paste(
+    c("cf", "aff", "nr", "s\\.l", "s\\.str", "sp", "spp", "species",
+      "cv", "indet", "nov", "pv", "gr", "group",
+      "auct", "sensu", "non", "nec", "vel", "agg", "aggr", "sect"),
+    collapse = "|"
+  ),
+  ")\\.?(?=\\s|$)"
+)
+
 # Parenthesized authorship: (L.), (Aiton) etc.
 .author_parens_pattern <- "\\([A-Z][a-z\u00e9.&\\s]*\\)"
 
@@ -38,62 +69,121 @@
 # trailing author in an otherwise-lowercase name.
 .lower_word_pattern <- "^[a-z\u00df-\u00ff-]+$"
 
-#' Strip trailing authorship from a cleaned name (token-based)
+#' Strip authorship from a cleaned name, keeping its rank markers (token-based)
 #'
 #' The specific epithet is the token immediately after the genus and is kept
 #' whatever its case, so a Title-Case or all-caps legacy binomial ("Quercus
 #' Robur", "QUERCUS ROBUR", "Panthera Leo") is never mistaken for a genus plus
 #' author; a genus followed instead by an author-shaped token ("Rosa L.")
 #' reduces to the bare genus. From the third token on, further epithets
-#' (infraspecific) are kept and the author citation is dropped from the first
-#' token that begins it. The two are told apart by case regime: when the
-#' specific epithet is lowercase (standard formatting), a Capitalized later
-#' token is an author ("Rosa canina dumalis Baker" -> "Rosa canina dumalis");
-#' when the epithet is itself upper/Title-case (legacy all-caps data), case
-#' cannot separate them, so only a token carrying a period, "&", or a bracket
-#' ends the name. Parenthesized authorship is removed by the caller beforehand.
+#' (infraspecific) are kept and author citations dropped. Epithet and author
+#' are told apart by case regime: when the specific epithet is lowercase
+#' (standard formatting), a Capitalized later token is an author ("Rosa canina
+#' dumalis Baker" -> "Rosa canina dumalis"); when the epithet is itself
+#' upper/Title-case (legacy all-caps data), case cannot separate them, so only
+#' a token carrying a period, "&", or a bracket starts an author.
+#'
+#' An infraspecific rank marker followed by an epithet is part of the name: it
+#' is kept, in its canonical spelling (`ssp.` and `Var.` become `subsp.` and
+#' `var.`), and it ends any author citation before it, so "Poa annua L. subsp.
+#' exilis" keeps its subspecies. A marker with no epithet after it is not a
+#' rank (the "f." of "L. f." is filius). After an author only a marker resumes
+#' the name, so the lowercase particles of a citation ("ex", "de") are dropped.
+#' Parenthesized authorship is removed by the caller beforehand.
 #'
 #' @param s Character vector (already qualifier- and parenthesized-author-
 #'   stripped).
-#' @return `s` with trailing authorship removed.
+#' @return A list: `name`, `s` with authorship removed and rank markers
+#'   canonicalized; `infra_rank`, the base rank of the lowest marker kept
+#'   (`"subsp."`, `"var."`, `"f."`, ...), `NA` where none.
 #' @noRd
 strip_trailing_authorship <- function(s) {
-  out <- s
+  out  <- s
+  rank <- rep(NA_character_, length(s))
   # Trim so the split yields no leading/trailing empty tokens, then tokenize
   # once. A basionym author that slipped past the parenthesized-author strip
   # (internal capital, e.g. "(Siebold & Zucc.)") is caught here too.
   toks_list <- strsplit(trimws(s), "\\s+", perl = TRUE)
   lens <- lengths(toks_list)
   multi <- which(lens >= 2L)
-  if (length(multi) == 0L) return(out)
+  if (length(multi) == 0L) return(list(name = out, infra_rank = rank))
 
-  # Two vectorized token tests over every token in the multi-token names.
-  flat    <- unlist(toks_list[multi], use.names = FALSE)
+  # Vectorized token tests over every token in the multi-token names.
+  flat     <- unlist(toks_list[multi], use.names = FALSE)
   is_word  <- grepl(.epithet_word_pattern, flat, perl = TRUE)
   is_lower <- grepl(.lower_word_pattern, flat, perl = TRUE)
+  is_rank  <- grepl(.infra_rank_token_pattern, flat, perl = TRUE,
+                    ignore.case = TRUE)
   ends   <- cumsum(lens[multi])
   starts <- ends - lens[multi] + 1L
 
   for (k in seq_along(multi)) {
     i <- multi[k]
     b <- starts[k]                       # flat index of this name's token 1
-    keep <- 1L
-    if (is_word[b + 1L]) {               # token 2 is the specific epithet
-      keep <- 2L
-      regime_lower <- is_lower[b + 1L]
-      if (lens[i] >= 3L) {
-        for (j in 3:lens[i]) {
-          tj <- b + j - 1L
-          author <- !is_word[tj] || (regime_lower && !is_lower[tj])
-          if (author) break else keep <- j
-        }
+    L <- lens[i]
+    toks <- toks_list[[i]]
+    if (!is_word[b + 1L]) {              # token 2 is not an epithet: a genus
+      out[i] <- toks[1L]
+      next
+    }
+    kept <- toks[1:2]
+    regime_lower <- is_lower[b + 1L]
+    in_author <- FALSE
+    j <- 3L
+    while (j <= L) {
+      tj <- b + j - 1L
+      if (is_rank[tj] && j < L && is_word[tj + 1L] &&
+          (!regime_lower || is_lower[tj + 1L])) {
+        mk   <- unname(.infra_rank_canon[gsub(".", "", tolower(toks[j]),
+                                              fixed = TRUE)])
+        kept <- c(kept, mk, toks[j + 1L])
+        rank[i] <- if (mk %in% names(.infra_rank_base))
+          unname(.infra_rank_base[mk]) else mk
+        in_author <- FALSE
+        j <- j + 2L
+        next
       }
+      if (!is_word[tj] || (regime_lower && !is_lower[tj])) {
+        in_author <- TRUE
+      } else if (!in_author) {
+        kept <- c(kept, toks[j])
+      }
+      j <- j + 1L
     }
-    if (keep < lens[i]) {
-      out[i] <- paste(toks_list[[i]][seq_len(keep)], collapse = " ")
-    }
+    out[i] <- paste(kept, collapse = " ")
   }
-  out
+  list(name = out, infra_rank = rank)
+}
+
+
+#' Alternative lookup keys for a cleaned infraspecific name
+#'
+#' Backbones disagree on how a rank marker is written. A notho- rank is stored
+#' either in full or under its base rank ("nothosubsp." / "subsp."), and some
+#' sources render a trinomial with no marker at all (GBIF's older builds;
+#' zoological names always). Matching tries the cleaned name first, then these.
+#'
+#' @param cleaned Character vector from `clean_names()$cleaned`.
+#' @return A list of three character vectors the length of `cleaned`: `folded`
+#'   (notho- ranks under their base rank), `notho` (base ranks under their
+#'   notho- form, for a hybrid written without it) and `bare` (every marker
+#'   removed), each `NA` where it equals the cleaned name.
+#' @noRd
+infra_key_variants <- function(cleaned) {
+  folded <- cleaned
+  notho  <- cleaned
+  for (mk in names(.infra_rank_base)) {
+    base <- .infra_rank_base[[mk]]
+    folded <- gsub(paste0(" ", mk, " "), paste0(" ", base, " "), folded,
+                   fixed = TRUE)
+    notho  <- gsub(paste0(" ", base, " "), paste0(" ", mk, " "), notho,
+                   fixed = TRUE)
+  }
+  markers <- gsub(".", "\\.", unique(.infra_rank_canon), fixed = TRUE)
+  bare <- gsub(paste0(" (", paste(markers, collapse = "|"), ")(?= )"), "",
+               cleaned, perl = TRUE)
+  same <- function(v) { v[!is.na(v) & v == cleaned] <- NA_character_; v }
+  list(folded = same(folded), notho = same(notho), bare = same(bare))
 }
 
 # ---- Qualifier canonicalization (single source of truth) ----
@@ -249,10 +339,11 @@ normalize_aggregate_name <- function(name, rank = NULL) {
 #' that contain hybrid markers.
 #'
 #' @param x Character vector of taxonomic names.
-#' @return A data.frame with columns: `original`, `cleaned`, `is_hybrid`,
-#'   `qualifier` (canonical token), `qualifier_position` (`"genus"`/`"species"`),
-#'   `is_aggregate` (internal concept flag), `genus_only`, `hybrid_name`,
-#'   `genus_abbrev`.
+#' @return A data.frame with columns: `original`, `cleaned` (rank markers kept,
+#'   canonically spelled), `is_hybrid`, `qualifier` (canonical token),
+#'   `qualifier_position` (`"genus"`/`"species"`), `infra_rank` (base rank of
+#'   the lowest infraspecific marker, or `NA`), `is_aggregate` (internal concept
+#'   flag), `genus_only`, `hybrid_name`, `genus_abbrev`.
 #' @noRd
 clean_names <- function(x) {
   n <- length(x)
@@ -316,10 +407,11 @@ clean_names <- function(x) {
   }
 
   # Single-token qualifiers: grepl locates matches, regexpr only on those strings.
-  # Canonicalized to one display token per marker.
-  has_qual <- is.na(qualifier) & grepl(.qualifier_pattern, s, perl = TRUE)
+  # Canonicalized to one display token per marker. Infraspecific ranks are not
+  # qualifiers: they stay in the name for the authorship pass below.
+  has_qual <- is.na(qualifier) & grepl(.nonrank_qualifier_pattern, s, perl = TRUE)
   if (any(has_qual)) {
-    m_sub   <- regexpr(.qualifier_pattern, s[has_qual], perl = TRUE)
+    m_sub   <- regexpr(.nonrank_qualifier_pattern, s[has_qual], perl = TRUE)
     raw_tok <- regmatches(s[has_qual], m_sub)
     qualifier[has_qual] <- vapply(raw_tok, canon_qualifier, character(1L),
                                   USE.NAMES = FALSE)
@@ -329,13 +421,16 @@ clean_names <- function(x) {
   is_aggregate <- !is.na(qualifier) & qualifier %in% .aggregate_tokens
 
   # Strip qualifiers
-  s <- gsub(.qualifier_pattern, " ", s, perl = TRUE)
+  s <- gsub(.nonrank_qualifier_pattern, " ", s, perl = TRUE)
 
   # Strip parenthesized authorship
   s <- gsub(.author_parens_pattern, " ", s, perl = TRUE)
 
-  # Strip trailing authorship (token-based; never consumes the epithet)
-  s <- strip_trailing_authorship(s)
+  # Strip authorship (token-based; never consumes the epithet), keeping and
+  # canonicalizing the infraspecific rank markers
+  sa <- strip_trailing_authorship(s)
+  s <- sa$name
+  infra_rank <- sa$infra_rank
 
   # Strip remaining brackets and numbers
   s <- gsub("\\([^)]*\\)", " ", s)
@@ -398,6 +493,7 @@ clean_names <- function(x) {
   is_hybrid[na_mask] <- FALSE
   qualifier[na_mask] <- NA_character_
   qpos[na_mask] <- NA_character_
+  infra_rank[na_mask | formula_mask] <- NA_character_
   is_aggregate[na_mask] <- FALSE
   genus_only[na_mask] <- FALSE
   hybrid_name[na_mask] <- NA_character_
@@ -410,6 +506,7 @@ clean_names <- function(x) {
     hybrid_type        = hybrid_type,
     qualifier          = qualifier,
     qualifier_position = qpos,
+    infra_rank         = infra_rank,
     is_aggregate       = is_aggregate,
     genus_only         = genus_only,
     hybrid_name        = hybrid_name,

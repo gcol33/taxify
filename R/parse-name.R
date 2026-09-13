@@ -179,9 +179,10 @@ normalize_authorship <- function(x) {
 #'   \item{hybrid_type}{`"nothogenus"`, `"nothospecies"`, `"formula"`, or `NA`.}
 #'   \item{rank}{`"genus"`, `"species"`, `"infraspecies"`, `"hybrid_formula"`,
 #'     or `NA` for an empty input.}
-#'   \item{canonical}{The cleaned name used for matching (genus plus epithets,
-#'     qualifiers and authorship removed, hybrid sign dropped). `NA` for a
-#'     hybrid formula, which is not a single taxon.}
+#'   \item{canonical}{The cleaned name used for matching (genus plus epithets
+#'     and any infraspecific rank marker in its canonical spelling, qualifiers
+#'     and authorship removed, hybrid sign dropped). `NA` for a hybrid formula,
+#'     which is not a single taxon.}
 #' }
 #'
 #' @seealso [taxify()] to match a name; `parse_name()` exposes the same internal
@@ -214,22 +215,26 @@ parse_name <- function(x) {
   auth <- parse_authorship_vec(x)
   canon <- cl$cleaned
 
-  is_infra <- !is.na(cl$qualifier) & cl$qualifier %in% .infra_rank_markers
+  # An ICN rank stays in the cleaned name and is reported in `infra_rank`; the
+  # infrasubspecific markers (cv., pv., f.sp.) are stripped as qualifiers.
+  q_infra  <- !is.na(cl$qualifier) & cl$qualifier %in% .infra_rank_markers
+  is_infra <- !is.na(cl$infra_rank) | q_infra
 
   # Token split of the canonical (matching) form.
   tok  <- strsplit(ifelse(is.na(canon), "", canon), " ", fixed = TRUE)
   ntok <- lengths(tok)
-  pick <- function(k) vapply(tok, function(t)
-    if (length(t) >= k && nzchar(t[k])) t[k] else NA_character_, character(1L))
-  genus <- pick(1L)
-  tok2  <- pick(2L)
-  tok3  <- pick(3L)
+  genus <- vapply(tok, function(t) if (length(t) >= 1L && nzchar(t[1L])) t[1L]
+                  else NA_character_, character(1L))
+  specific_epithet <- vapply(tok, function(t) if (length(t) >= 2L) t[2L]
+                             else NA_character_, character(1L))
+  last_tok <- vapply(tok, function(t) if (length(t)) t[length(t)]
+                     else NA_character_, character(1L))
 
-  specific_epithet <- ifelse(ntok >= 2L, tok2, NA_character_)
-  infrasp_epithet  <- ifelse(is_infra & ntok >= 3L, tok3, NA_character_)
-  infrasp_rank     <- ifelse(is_infra, cl$qualifier, NA_character_)
+  infrasp_epithet <- ifelse(is_infra & ntok >= 3L, last_tok, NA_character_)
+  infrasp_rank    <- ifelse(!is.na(cl$infra_rank), cl$infra_rank,
+                            ifelse(q_infra, cl$qualifier, NA_character_))
   # Open-nomenclature qualifier is everything that is not a rank marker.
-  qualifier <- ifelse(is_infra, NA_character_, cl$qualifier)
+  qualifier <- ifelse(q_infra, NA_character_, cl$qualifier)
 
   is_formula <- !is.na(cl$hybrid_type) & cl$hybrid_type == "formula"
   # A two-parent cross is not a single taxon; its author "citation" is spurious.

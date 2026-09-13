@@ -184,7 +184,9 @@ plus epithet), \code{"hybrid_formula"} (a two-parent cross the backbone does
 not store; the ID, rank and classification columns are \code{NA},
 \code{matched_name} / \code{accepted_name} name the cross by its parents when both
 resolve, and \code{\link[=add_hybrid_info]{add_hybrid_info()}} materializes the parents into the
-\verb{hybrid_parent_*} columns), or \code{"none"}.}
+\verb{hybrid_parent_*} columns), \code{"rank_fallback"} (an infraspecific name no
+backbone carries, resolved to its species: the ID, rank and name columns
+describe the species), or \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
 \item{is_ambiguous}{Logical. \code{TRUE} when the matched scientificName had
 multiple rows pointing to different accepted taxa at the same priority

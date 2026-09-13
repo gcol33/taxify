@@ -29,9 +29,10 @@ Infraspecific rank markers are reported in \code{infrasp_rank}, not here.}
 \item{hybrid_type}{\code{"nothogenus"}, \code{"nothospecies"}, \code{"formula"}, or \code{NA}.}
 \item{rank}{\code{"genus"}, \code{"species"}, \code{"infraspecies"}, \code{"hybrid_formula"},
 or \code{NA} for an empty input.}
-\item{canonical}{The cleaned name used for matching (genus plus epithets,
-qualifiers and authorship removed, hybrid sign dropped). \code{NA} for a
-hybrid formula, which is not a single taxon.}
+\item{canonical}{The cleaned name used for matching (genus plus epithets
+and any infraspecific rank marker in its canonical spelling, qualifiers
+and authorship removed, hybrid sign dropped). \code{NA} for a hybrid formula,
+which is not a single taxon.}
 }
 }
 \description{

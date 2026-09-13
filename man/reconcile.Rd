@@ -27,6 +27,8 @@ A data.frame with one row per input name, columns:
 \code{"unchanged"} (resolves to itself, still accepted),
 \code{"synonym"} (now a synonym of a different accepted name),
 \code{"misspelling"} (resolved by fuzzy/abbrev match to a corrected spelling),
+\code{"rank_fallback"} (an infraspecific name the backbone does not carry;
+\code{accepted_name} is the accepted name of its species),
 \code{"ambiguous"} (a homonym resolving to several accepted taxa; see
 \code{\link[=taxify_candidates]{taxify_candidates()}}),
 \code{"unresolved"} (no match).}

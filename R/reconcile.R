@@ -33,6 +33,8 @@
 #'     `"unchanged"` (resolves to itself, still accepted),
 #'     `"synonym"` (now a synonym of a different accepted name),
 #'     `"misspelling"` (resolved by fuzzy/abbrev match to a corrected spelling),
+#'     `"rank_fallback"` (an infraspecific name the backbone does not carry;
+#'       `accepted_name` is the accepted name of its species),
 #'     `"ambiguous"` (a homonym resolving to several accepted taxa; see
 #'       [taxify_candidates()]),
 #'     `"unresolved"` (no match).}
@@ -87,6 +89,7 @@ reconcile <- function(x, backbone = NULL, ..., verbose = TRUE) {
   status[resolved & same_name & !is_syn] <- "unchanged"
   status[resolved & is_misspell & !is_syn] <- "misspelling"
   status[resolved & is_syn] <- "synonym"
+  status[resolved & !is.na(mt) & mt == "rank_fallback"] <- "rank_fallback"
   status[resolved & is_amb]  <- "ambiguous"
 
   # Many-to-one collapse: >= 2 distinct inputs sharing one accepted name.

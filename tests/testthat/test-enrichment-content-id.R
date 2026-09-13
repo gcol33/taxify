@@ -79,20 +79,27 @@ test_that("legacy cache with differing bytes triggers a refresh", {
   expect_true(taxify:::check_enrichment_version("demo"))
 })
 
-test_that("a bundled/staged copy (no downloaded_at) is never refreshed", {
-  # The example database and test mocks are subsets whose bytes differ from the
-  # released asset; the gate must leave them alone even against a mismatched id.
+test_that("a locally built static cache (no downloaded_at) is refreshed", {
+  # taxifydb::build_enrichment() writes no downloaded_at and stamps the source's
+  # own version. BET built that way read "2023.1" against a 2026.08 release
+  # whose asset carried a column the local build lacked, and was held forever.
   dd <- tempfile("cid_"); dir.create(dd)
-  s <- stage_static(dd, "demo", df,
-                    meta_extra = list(downloaded_at = NULL),  # drop the marker
-                    manifest_cid = "some_other_md5")
-  # stage_static seeds downloaded_at; overwrite meta.json without it.
-  jsonlite::write_json(list(version = "2026.07", static = TRUE),
+  s <- stage_static(dd, "demo", df, manifest_cid = "published_md5")
+  jsonlite::write_json(list(version = "2023.1", static = TRUE),
                        file.path(dd, "enrichment", "demo", "latest", "meta.json"),
                        pretty = TRUE, auto_unbox = TRUE)
   old <- options(taxify.data_dir = dd, taxify.manifest_path = s$manifest)
   on.exit(options(old), add = TRUE)
-  expect_false(taxify:::check_enrichment_version("demo"))
+  expect_true(taxify:::check_enrichment_version("demo"))
+})
+
+test_that("the example database is exempt by location, whatever its meta", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  for (nm in c("iucn", "zanne")) {
+    expect_false(taxify:::check_enrichment_version(nm))
+  }
+  expect_false(taxify:::check_version("wfo"))
 })
 
 test_that("no content_id in the manifest preserves legacy static behaviour", {
@@ -173,14 +180,21 @@ test_that("without content ids the version label still decides", {
   expect_false(taxify:::check_enrichment_version("demo"))
 })
 
-test_that("a versioned cache with no downloaded_at is left to the label", {
-  # A staged mock deliberately differs from the released bytes; hashing it must
-  # not force a full download behind the user's back.
+test_that("a locally built versioned cache is compared by its bytes", {
+  # No downloaded_at means taxifydb built it; the label can coincide with the
+  # release while the bytes do not, so the hash decides.
   dd <- tempfile("cid_"); dir.create(dd)
   s <- stage_versioned(dd, "demo", df,
                        meta_extra = list(downloaded_at = NULL),
                        manifest_cid = "some_other_md5")
   old <- options(taxify.data_dir = dd, taxify.manifest_path = s$manifest)
   on.exit({options(old); reset_manifest_cache()}, add = TRUE)
+  expect_true(taxify:::check_enrichment_version("demo"))
+
+  # Bytes identical to the release: adopted, no download.
+  mf <- jsonlite::read_json(s$manifest)
+  mf$enrichments$demo$content_id <- s$md5
+  jsonlite::write_json(mf, s$manifest, pretty = TRUE, auto_unbox = TRUE)
+  reset_manifest_cache()
   expect_false(taxify:::check_enrichment_version("demo"))
 })

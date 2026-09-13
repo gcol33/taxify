@@ -757,9 +757,40 @@ test_that(".trait_join_spread applies the unit map to the value and both bounds"
 test_that(".coalesce_spread unions per-source lows and highs, ignoring NA", {
   per_min <- list(a = c(10, NA, NA), b = c(5, 20, NA))
   per_max <- list(a = c(30, NA, NA), b = c(8, 25, NA))
-  s <- .coalesce_spread(per_min, per_max)
+  co <- .coalesce_sources(per_min, c("a", "b"), "numeric", "median")
+  s <- .coalesce_spread(per_min, per_max, c("a", "b"), co$source)
   expect_equal(s$min, c(5, 20, NA))
   expect_equal(s$max, c(30, 25, NA))
+})
+
+test_that("the spread covers only the sources behind the headline (#73)", {
+  ord  <- c("groot", "austraits")
+  per  <- list(groot = c(0.3, NA), austraits = c(2.5, 1.9))
+  for (cmb in c("complete", "first")) {
+    co <- .coalesce_sources(per, ord, "numeric", cmb)
+    s  <- .coalesce_spread(per, per, ord, co$source)
+    if (cmb == "complete") {
+      # austraits is the more populated source here, so it is the one reported
+      expect_equal(co$value, c(2.5, 1.9))
+      expect_equal(s$min, c(2.5, 1.9))
+    } else {
+      expect_equal(co$value, c(0.3, 1.9))
+      expect_equal(s$min, c(0.3, 1.9))
+      expect_equal(s$max, c(0.3, 1.9))
+    }
+  }
+  # The issue's shape: groot chosen, austraits set aside.
+  per <- list(groot = c(0.3, NA, 0.4), austraits = c(2.5, 1.9, NA))
+  co  <- .coalesce_sources(per, ord, "numeric", "complete")
+  expect_equal(co$best, "groot")
+  s <- .coalesce_spread(per, per, ord, co$source)
+  expect_equal(s$min, c(0.3, NA, 0.4))
+  expect_equal(s$max, c(0.3, NA, 0.4))
+  expect_true(is.na(co$value[2]))
+
+  co <- .coalesce_sources(per, ord, "numeric", "median")
+  s  <- .coalesce_spread(per, per, ord, co$source)
+  expect_equal(s$max, c(2.5, 1.9, 0.4))
 })
 
 test_that("add_zanne() is the source-named woodiness door", {

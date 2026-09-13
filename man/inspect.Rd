@@ -72,6 +72,8 @@ Checks read from a \code{taxify()} result (only present when you inspect one):
 \describe{
 \item{\code{typo}}{Resolved only after fuzzy correction (\code{match_type = "fuzzy"}):
 the input most likely contains a spelling error; \code{suggestion} is the name.}
+\item{\code{rank_fallback}}{An infraspecific name the backbone does not carry,
+resolved to its species (\code{match_type = "rank_fallback"}).}
 \item{\code{ambiguous}}{A homonym resolving to more than one accepted taxon.}
 \item{\code{geographic}}{The matched species is real but has no WCVP record in the
 declared \code{region} / \code{coords} (vascular plants only).}

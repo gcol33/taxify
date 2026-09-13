@@ -169,7 +169,9 @@
 #'     not store; the ID, rank and classification columns are `NA`,
 #'     `matched_name` / `accepted_name` name the cross by its parents when both
 #'     resolve, and [add_hybrid_info()] materializes the parents into the
-#'     `hybrid_parent_*` columns), or `"none"`.}
+#'     `hybrid_parent_*` columns), `"rank_fallback"` (an infraspecific name no
+#'     backbone carries, resolved to its species: the ID, rank and name columns
+#'     describe the species), or `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
 #'   \item{is_ambiguous}{Logical. `TRUE` when the matched scientificName had
 #'     multiple rows pointing to different accepted taxa at the same priority
@@ -345,12 +347,23 @@ taxify <- function(x,
   # what it is for.
   result <- run_fallback_sweep(NULL, names_df, backbone, fuzzy = FALSE,
                                fuzzy_threshold, fuzzy_method, region, range,
-                               kingdom, verbose)
+                               kingdom, verbose, rank_fallback = FALSE)
 
   if (fuzzy && any(is.na(result$match_type) & !is.na(result$input_name))) {
     result <- run_fallback_sweep(result, names_df, backbone, fuzzy = TRUE,
                                  fuzzy_threshold, fuzzy_method, region, range,
                                  kingdom, verbose)
+  }
+
+  # A third sweep resolves an infraspecific name no backbone carries to its
+  # species. It runs only once every backbone has had the full name, for the
+  # same reason fuzzy waits for exact: a subspecies a later backbone accepts
+  # outranks its parent species in an earlier one.
+  if (any(is.na(result$match_type) & !is.na(names_df$cleaned) &
+          grepl("^\\S+ \\S+ \\S", names_df$cleaned))) {
+    result <- run_fallback_sweep(result, names_df, backbone, fuzzy = FALSE,
+                                 fuzzy_threshold, fuzzy_method, region, range,
+                                 kingdom, verbose, rank_fallback = TRUE)
   }
 
   # Set match_type = "none" for still-unmatched. An NA input is a query like
@@ -424,16 +437,17 @@ taxify_compare <- function(x, backbone, mode, fuzzy, fuzzy_threshold,
 
   # Base = fallback pick, staged by match quality the same way the fallback
   # chain stages it: every backbone is considered for an exact match before any
-  # backbone is considered for a fuzzy one, so the base column agrees with
-  # `mode = "fallback"` on the same input. Within a quality tier the first
-  # backbone in `backbone` order wins.
+  # backbone is considered for a fuzzy one, and for a fuzzy one before any
+  # species fallback, so the base column agrees with `mode = "fallback"` on the
+  # same input. Within a quality tier the first backbone in `backbone` order
+  # wins.
+  tiers <- list(c("fuzzy", "rank_fallback"), "rank_fallback", character(0L))
   base <- per_be[[1L]]
   base_matched <- logical(nrow(base))
-  for (want_exact in c(TRUE, FALSE)) {
+  for (later in tiers) {
     for (k in seq_along(backbone)) {
       r <- per_be[[k]]
-      take <- if (want_exact) is_matched(r) & r$match_type != "fuzzy" else
-                              is_matched(r)
+      take <- is_matched(r) & !r$match_type %in% later
       fill <- which(!base_matched & take)
       if (length(fill)) {
         for (col in intersect(names(base), names(r))) {
@@ -656,13 +670,14 @@ finalize_hybrids <- function(result, names_df, backbone) {
 #' One sweep of the fallback chain across every backbone
 #'
 #' Walks `backbone` in priority order, asking each one for the names still
-#' unresolved, and merges what it returns into `result`. Called twice by
-#' `taxify()`: once with `fuzzy = FALSE`, which runs exact matching and
+#' unresolved, and merges what it returns into `result`. Called up to three
+#' times by `taxify()`: once with `fuzzy = FALSE`, which runs exact matching and
 #' abbreviated-genus resolution against every backbone, then once with
-#' `fuzzy = TRUE` over whatever is still unmatched. The two stages are
-#' separated because match quality outranks backbone priority: a fuzzy hit in
-#' an early backbone must not settle a name that a later backbone holds
-#' exactly.
+#' `fuzzy = TRUE` over whatever is still unmatched, then once with
+#' `rank_fallback = TRUE` to resolve an infraspecific name no backbone carries
+#' to its species. The stages are separated because match quality outranks
+#' backbone priority: a fuzzy hit or a parent species in an early backbone must
+#' not settle a name that a later backbone holds exactly.
 #'
 #' Abbreviated-genus resolution rides in the first sweep rather than in a third
 #' stage of its own. It only ever touches rows `clean_names()` flagged as
@@ -680,11 +695,13 @@ finalize_hybrids <- function(result, names_df, backbone) {
 #' @param fuzzy Logical. Whether this sweep runs the fuzzy stage.
 #' @param fuzzy_threshold,fuzzy_method,region,range_mode,kingdom,verbose Passed
 #'   through to `run_match_stages()` and `filter_result_by_kingdom()`.
+#' @param rank_fallback Logical. Whether this sweep runs the species fallback.
 #' @return The match result data.frame.
 #' @noRd
 run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
                                fuzzy_threshold, fuzzy_method, region,
-                               range_mode, kingdom, verbose) {
+                               range_mode, kingdom, verbose,
+                               rank_fallback = FALSE) {
   # Read the genus context off the whole query once. Each later backbone sees
   # only the names still unmatched, so deriving it per backbone would make
   # `"Q. petraea"` depend on which backbone happened to answer the name that
@@ -704,7 +721,8 @@ run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
                                  fuzzy_method, region = region,
                                  range_mode = range_mode, verbose = verbose,
                                  label = bb_name, scope = backbone,
-                                 genus_context = genus_context)
+                                 genus_context = genus_context,
+                                 rank_fallback = rank_fallback)
       result <- filter_result_by_kingdom(result, vtr_path, kingdom, be$name)
 
       matched <- is_backbone_match(result$match_type)
@@ -727,8 +745,10 @@ run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
 
     # In the fuzzy sweep the per-backbone line comes from `run_match_stages()`,
     # which reports the count that actually reaches the fuzzy pass.
-    if (verbose && !fuzzy) message(sprintf("  [%s] Matching %d remaining names...",
-                                            bb_name, length(unmatched_idx)))
+    if (verbose && !fuzzy) message(sprintf(
+      if (rank_fallback) "  [%s] Species fallback for %d remaining names..."
+      else "  [%s] Matching %d remaining names...",
+      bb_name, length(unmatched_idx)))
 
     sub_names_df <- names_df[unmatched_idx, , drop = FALSE]
     rownames(sub_names_df) <- NULL
@@ -738,7 +758,8 @@ run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
                                    region = region, range_mode = range_mode,
                                    verbose = verbose, label = bb_name,
                                    scope = backbone,
-                                   genus_context = genus_context)
+                                   genus_context = genus_context,
+                                   rank_fallback = rank_fallback)
     sub_result <- filter_result_by_kingdom(sub_result, vtr_path, kingdom,
                                            be$name)
 
@@ -788,13 +809,15 @@ run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
 #' @param genus_context Genera spelled out in full anywhere in the whole query
 #'   (`spelled_genera()`), for abbreviated-genus resolution. `NULL` derives it
 #'   from `names_df`, which is the whole query only outside a fallback chain.
+#' @param rank_fallback Logical. Resolve a still-unmatched infraspecific name to
+#'   its species as the last stage (`match_rank_fallback()`).
 #' @return The match result data.frame.
 #' @noRd
 run_match_stages <- function(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
                              fuzzy_method, region = NULL,
                              range_mode = "present", verbose = FALSE,
                              label = NULL, scope = NULL,
-                             genus_context = NULL) {
+                             genus_context = NULL, rank_fallback = TRUE) {
   pre <- if (is.null(label)) "  " else sprintf("  [%s] ", label)
   n_unresolved <- function(res) {
     sum(is.na(res$match_type) & !is.na(names_df$cleaned))
@@ -813,6 +836,10 @@ run_match_stages <- function(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
     result <- match_fuzzy(be, result, vtr_path, method = fuzzy_method,
                           threshold = fuzzy_threshold, names_df = names_df,
                           region = region, range_mode = range_mode)
+  }
+
+  if (rank_fallback && n_unresolved(result) > 0L) {
+    result <- match_rank_fallback(be, result, names_df, vtr_path)
   }
 
   # Settle homonym ambiguity where the input carried an author (no-op when no
@@ -956,9 +983,13 @@ resolve_kingdom_filter <- function(kingdom) {
 #' @return Logical vector, `TRUE` where a backbone produced the row.
 #' @noRd
 is_backbone_match <- function(match_type) {
-  !is.na(match_type) &
-    match_type %in% c("exact", "exact_ci", "fuzzy", "abbrev")
+  !is.na(match_type) & match_type %in% .backbone_match_types
 }
+
+#' Match types a backbone lookup produces, strongest evidence first
+#' @noRd
+.backbone_match_types <- c("exact", "exact_ci", "abbrev", "fuzzy",
+                           "rank_fallback")
 
 
 #' Demote matched rows back to unmatched (blanking their match columns)
@@ -1369,6 +1400,7 @@ as_taxify_result <- function(result, backbone) {
     case_insensitive = sum(mt == "exact_ci",    na.rm = TRUE),
     fuzzy            = sum(mt == "fuzzy",        na.rm = TRUE),
     abbrev           = sum(mt == "abbrev",      na.rm = TRUE),
+    rank_fallback    = sum(mt == "rank_fallback", na.rm = TRUE),
     hybrid_formula   = sum(mt == "hybrid_formula", na.rm = TRUE),
     out_of_scope     = sum(mt == "out_of_scope", na.rm = TRUE),
     unmatched        = sum(mt == "none",         na.rm = TRUE)

@@ -3566,20 +3566,27 @@
 
 
 # Reduce the per-source lower/upper bounds (in priority order) to one spread per
-# row: the smallest lower bound and largest upper bound across every source that
-# supplied a value there. With no stored within-source spread each source's
-# min/max equal its point value, so this returns the cross-source range; with
-# stored spread it widens to the extremes actually observed in any source.
-.coalesce_spread <- function(per_min, per_max) {
+# row: the smallest lower bound and largest upper bound across the sources the
+# reducer used for that row's headline. `used` is `.coalesce_sources()`'s
+# per-row source label (one name under "first"/"complete", the comma-separated
+# contributors under an aggregator), so a source that "complete" set aside for
+# measuring by a different method never widens the range, and a row with no
+# headline has no spread. With no stored within-source spread each source's
+# min/max equal its point value, so this returns the range behind the headline;
+# with stored spread it widens to the extremes observed in those sources.
+.coalesce_spread <- function(per_min, per_max, ord, used) {
   n  <- length(per_min[[1L]])
-  Lo <- do.call(cbind, per_min)
-  Hi <- do.call(cbind, per_max)
-  mn <- vapply(seq_len(n), function(i) {
-    r <- Lo[i, ]; r <- r[!is.na(r)]; if (!length(r)) NA_real_ else min(r)
-  }, numeric(1L))
-  mx <- vapply(seq_len(n), function(i) {
-    r <- Hi[i, ]; r <- r[!is.na(r)]; if (!length(r)) NA_real_ else max(r)
-  }, numeric(1L))
+  Lo <- matrix(unlist(per_min, use.names = FALSE), nrow = n)
+  Hi <- matrix(unlist(per_max, use.names = FALSE), nrow = n)
+  mn <- rep(NA_real_, n)
+  mx <- rep(NA_real_, n)
+  for (i in which(!is.na(used))) {
+    j  <- match(strsplit(used[i], ",", fixed = TRUE)[[1L]], ord)
+    lo <- Lo[i, j]; lo <- lo[!is.na(lo)]
+    hi <- Hi[i, j]; hi <- hi[!is.na(hi)]
+    if (length(lo)) mn[i] <- min(lo)
+    if (length(hi)) mx[i] <- max(hi)
+  }
   list(min = mn, max = mx)
 }
 

@@ -306,6 +306,8 @@ test_that("add_data reads a .vtr file", {
 })
 
 test_that("add_data reads a SQLite file", {
+  skip_if_not_installed("DBI")
+  skip_if_not_installed("RSQLite")
   setup_mock_backend()
   result <- taxify("Quercus robur", verbose = FALSE)
 

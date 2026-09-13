@@ -116,10 +116,9 @@ check_version <- function(backbone_name) {
   # Frozen/bundled backbones (e.g. the example database) never phone home, but
   # a shipped content id still lets a same-tag republish refresh them offline
   # (mirrors the static-enrichment gate; the example db is small to hash).
+  # The example database is exempted above by its location; a cache without
+  # `downloaded_at` was built locally and is reconciled like a download.
   if (!is.null(meta) && isTRUE(meta$static %in% c(TRUE, "TRUE", "true"))) {
-    # Only reconcile runtime-downloaded caches (downloaded_at present); the
-    # bundled example database and staged mocks lack it and are left untouched.
-    if (is.null(meta$downloaded_at)) return(FALSE)
     entry <- tryCatch(resolve_manifest_entry(local_manifest(), backbone_name),
                       error = function(e) NULL)
     s <- reconcile_content_id(vtr, meta$content_id, entry$content_id,
