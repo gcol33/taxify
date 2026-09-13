@@ -2646,9 +2646,9 @@
     },
     "fungal_traits": {
       "latest": "2026.08",
-      "content_id": "432135db981b152d48d4bd4e1515dcbf",
+      "content_id": "bb0d00ed53f35453ceb180903fac3c16",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/fungal_traits.vtr",
-      "nrow": 13496,
+      "nrow": 12071,
       "source_url": "https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM4_ESM.xlsx",
       "source_format": "xlsx",
       "source_version": "2020.1",
@@ -2664,6 +2664,9 @@
         "endophytic_interaction_capability",
         "ectomycorrhiza_exploration_type",
         "jrk_template",
+        "jrk_template_min",
+        "jrk_template_max",
+        "jrk_template_n",
         "phylum",
         "class",
         "order",
@@ -2713,7 +2716,8 @@
         "wcvp",
         "wfo",
         "worms"
-      ]
+      ],
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/fungal_traits-bb0d00ed53f35453ceb180903fac3c16.vtr"
     },
     "algae_traits": {
       "latest": "2026.08",
@@ -5100,9 +5104,9 @@
     },
     "fungalroot": {
       "latest": "2026.08",
-      "content_id": "6476edd669e9085825dfea5cbd818dc5",
+      "content_id": "bdef36f3304c8688bef612acfe44052b",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/fungalroot.vtr",
-      "nrow": 11394,
+      "nrow": 8782,
       "source_url": "https://orphans.gbif.org/EE/744edc21-8dd2-474e-8a0b-b8c3d56a3c2d.232.zip",
       "source_format": "dwca_zip",
       "source_version": "2020.1",
@@ -5113,19 +5117,43 @@
         "mycorrhizal_records",
         "source",
         "am_intensity",
+        "am_intensity_min",
+        "am_intensity_max",
+        "am_intensity_n",
         "am_method",
         "elevation_min",
+        "elevation_min_min",
+        "elevation_min_max",
+        "elevation_min_n",
         "ecm_method",
         "host_age",
         "ecm_intensity",
+        "ecm_intensity_min",
+        "ecm_intensity_max",
+        "ecm_intensity_n",
         "remark_type",
         "ecm_frequency",
+        "ecm_frequency_min",
+        "ecm_frequency_max",
+        "ecm_frequency_n",
         "am_frequency",
+        "am_frequency_min",
+        "am_frequency_max",
+        "am_frequency_n",
         "erm_intensity",
+        "erm_intensity_min",
+        "erm_intensity_max",
+        "erm_intensity_n",
         "erm_method",
         "orm_method",
         "orm_intensity",
-        "elevation_max"
+        "orm_intensity_min",
+        "orm_intensity_max",
+        "orm_intensity_n",
+        "elevation_max",
+        "elevation_max_min",
+        "elevation_max_max",
+        "elevation_max_n"
       ],
       "static": true,
       "citation": {
@@ -5162,7 +5190,8 @@
         "wfo",
         "worms"
       ],
-      "upstream_id": "Tue, 21 Mar 2023 07:11:41 GMT"
+      "upstream_id": "Tue, 21 Mar 2023 07:11:41 GMT",
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/fungalroot-bdef36f3304c8688bef612acfe44052b.vtr"
     },
     "sealifebase": {
       "latest": "2026.08",
@@ -12614,9 +12643,9 @@
     },
     "disperse": {
       "latest": "2026.08",
-      "content_id": "6aede64032b742ef4ca3d378bc25d614",
+      "content_id": "48333e180c04b1b8ca2b5e14044aaca5",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/disperse.vtr",
-      "nrow": 874,
+      "nrow": 751,
       "source_url": "https://api.figshare.com/v2/articles/12417251",
       "source_format": "csv",
       "source_version": "2020.1",
@@ -12667,7 +12696,8 @@
         "wfo",
         "worms"
       ],
-      "upstream_id": "1"
+      "upstream_id": "1",
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/disperse-48333e180c04b1b8ca2b5e14044aaca5.vtr"
     },
     "edwards_phyto": {
       "latest": "2026.08",
@@ -13005,9 +13035,9 @@
     },
     "blanchard": {
       "latest": "2026.08",
-      "content_id": "8a1d74573a831c96fae411a02d99832a",
+      "content_id": "8eda3ee2ae0614c3091b0d1b10eb5bf9",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/blanchard.vtr",
-      "nrow": 668,
+      "nrow": 650,
       "source_url": "10.5061/dryad.st6sc",
       "source_format": "csv",
       "source_version": "2017.1",
@@ -13064,7 +13094,8 @@
         "wcvp",
         "wfo",
         "worms"
-      ]
+      ],
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/blanchard-8eda3ee2ae0614c3091b0d1b10eb5bf9.vtr"
     },
     "sheld": {
       "latest": "2026.08",
@@ -13626,23 +13657,35 @@
     "ramond": {
       "static": true,
       "latest": "2026.08",
-      "content_id": "879a7a010c8838693334b927285cf32a",
+      "content_id": "62ee06d3bb90b64a5929097ff7f05e42",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/ramond.vtr",
-      "nrow": 3082,
+      "nrow": 2659,
       "source_url": "https://www.seanoe.org/data/00405/51662/",
       "source_format": "csv",
       "source_version": "2018.1",
       "trait_cols": [
         "size_min_um",
+        "size_min_um_min",
+        "size_min_um_max",
+        "size_min_um_n",
         "size_max_um",
+        "size_max_um_min",
+        "size_max_um_max",
+        "size_max_um_n",
         "cover",
         "shape",
         "spicule",
+        "spicule_min",
+        "spicule_max",
+        "spicule_n",
         "symmetry",
         "polarity",
         "colony",
         "motility",
         "chloroplast",
+        "chloroplast_min",
+        "chloroplast_max",
+        "chloroplast_n",
         "plast_origin",
         "ingestion",
         "behaviour",
@@ -13662,9 +13705,18 @@
         "toxygenity",
         "benthic_phase",
         "restingstage",
+        "restingstage_min",
+        "restingstage_max",
+        "restingstage_n",
         "ploidy",
         "cyst_spore",
-        "zoosporic_parasite"
+        "cyst_spore_min",
+        "cyst_spore_max",
+        "cyst_spore_n",
+        "zoosporic_parasite",
+        "zoosporic_parasite_min",
+        "zoosporic_parasite_max",
+        "zoosporic_parasite_n"
       ],
       "species_col": "genus",
       "source_doi": "10.17882/51662",
@@ -13690,14 +13742,15 @@
         "wcvp",
         "wfo",
         "worms"
-      ]
+      ],
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/ramond-62ee06d3bb90b64a5929097ff7f05e42.vtr"
     },
     "freshwater_insects_conus": {
       "static": true,
       "latest": "2026.08",
-      "content_id": "bd13057f1ec554d99aef92e733cbd154",
+      "content_id": "47c6a6645f8957093b34a64d04dabd42",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/freshwater_insects_conus.vtr",
-      "nrow": 1659,
+      "nrow": 1486,
       "source_url": "https://pasta.lternet.edu/package/data/eml/edi/481/5/3a88bfdfefcfe6dcafb27afd3ce4e90c",
       "source_format": "csv",
       "source_version": "2021.1",
@@ -13741,7 +13794,8 @@
         "wcvp",
         "wfo",
         "worms"
-      ]
+      ],
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/freshwater_insects_conus-47c6a6645f8957093b34a64d04dabd42.vtr"
     },
     "eurobat": {
       "static": true,
@@ -14099,9 +14153,9 @@
     },
     "cefas_btrait": {
       "latest": "2026.08",
-      "content_id": "867939f28ce16b6bb9558cca2f1ffb70",
+      "content_id": "88632131d236d18edcb5001e1e0478cc",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/cefas_btrait.vtr",
-      "nrow": 2169,
+      "nrow": 1697,
       "source_url": "https://data-api.cefas.co.uk/api/export/11935?format=csv",
       "source_format": "csv",
       "source_version": "2022.1",
@@ -14146,7 +14200,8 @@
         "wcvp",
         "wfo",
         "worms"
-      ]
+      ],
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/cefas_btrait-88632131d236d18edcb5001e1e0478cc.vtr"
     },
     "marine_distribution": {
       "latest": "2026.08",
@@ -14742,15 +14797,14 @@
     },
     "noddb": {
       "latest": "2026.08",
-      "content_id": "904498cd35edd82a1d14497f14263c90",
+      "content_id": "48d13eb43fba3bfcbfb186de8d3795b3",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/noddb.vtr",
-      "nrow": 1357,
+      "nrow": 1144,
       "source_url": "https://s3.hpc.ut.ee/plutof-public/original/3094fbed-e384-457d-af3f-694ef97e8df8.xlsx",
       "source_format": "xlsx",
       "source_version": "1.3b",
       "species_col": "genus",
       "trait_cols": [
-        "genus",
         "nodulation_consensus",
         "nodulation_type",
         "nodulation_clade",
@@ -14794,7 +14848,8 @@
         "wcvp",
         "wfo",
         "worms"
-      ]
+      ],
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/noddb-48d13eb43fba3bfcbfb186de8d3795b3.vtr"
     },
     "faprotax": {
       "latest": "2026.08",

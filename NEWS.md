@@ -136,6 +136,30 @@ list, and the lookups between names, ids and common names.
   instead changed the return type, is renamed `output = c("lookup",
   "result")`.
 
+* The eight genus-keyed doors reach every genus their source covers (#77).
+  `add_blanchard()`, `add_cefas_btrait()`, `add_disperse()`,
+  `add_freshwater_insects_conus()`, `add_fungal_traits()`, `add_fungalroot()`,
+  `add_noddb()` and `add_ramond()` read assets rebuilt by taxifydb 0.1.23.
+  Their cross-backbone name expansion had keyed rows under subgenus renderings
+  and species, which no genus can match, and had pulled in genus homonyms from
+  the other nomenclature code. For fungalroot, fungal_traits and noddb the
+  expanded names also never reached the `genus` column the door joins on.
+
+* `list_enrichments()` reports every column an enrichment attaches (#76).
+  The manifest's `trait_cols` had fallen behind 40 of the assets, missing the
+  `_min` / `_max` / `_n` spread columns, FishBase's and SeaLifeBase's `lw_*`
+  length-weight columns, `bet`'s `substrate` and `arthropod_traits`'
+  `taxon_order`. They are now taken from each asset's schema, and the manifest
+  sync keeps them that way.
+
+* `normalize_kingdom_group()` and `backbone_fixed_kingdom()` are exported as
+  low-level building blocks, for taxifydb's kingdom check on enrichment name
+  expansion.
+
+* GIFT is no longer a suggested package. `add_gift()` has read the bundled
+  `.vtr` since GIFT was built into an enrichment, and the enrichments vignette
+  no longer describes the earlier on-demand API route.
+
 # taxify 0.5.2
 
 An audit for the #55 shape -- a failure returned as a plausible answer, with
