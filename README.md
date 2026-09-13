@@ -86,12 +86,12 @@ broad aggregators GBIF, ITIS, NCBI, and OTT.
 |---|---|---|---|
 | [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.6M | 761 MB |
 | [COL](https://www.catalogueoflife.org/) | All kingdoms | 5.4M | 2.1 GB |
-| [COL Extended Release](https://www.catalogueoflife.org/) | All kingdoms | 7.9M | 1.6 GB |
+| [COL Extended Release](https://www.catalogueoflife.org/) | All kingdoms | 8.1M | 1.6 GB |
 | [GBIF](https://www.gbif.org/) | All kingdoms | 6.4M | 1.6 GB |
-| [ITIS](https://www.itis.gov) | US focus, freshwater/marine | 993k | 205 MB |
-| [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | 2.8M | 531 MB |
+| [ITIS](https://www.itis.gov) | US focus, freshwater/marine | 1.0M | 206 MB |
+| [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | 3.0M | 549 MB |
 | [OTT](https://opentreeoflife.github.io/) | All life (synthetic) | 3.7M | 763 MB |
-| [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | 1.6M | 312 MB |
+| [WoRMS](https://www.marinespecies.org/) | Marine/aquatic | 1.6M | 304 MB |
 | [Euro+Med](https://europlusmed.org/) | European/Mediterranean plants | 147k | 35 MB |
 | [Species Fungorum](https://www.speciesfungorum.org/) | Fungi | 315k | 71 MB |
 | [AlgaeBase](https://www.algaebase.org/) | Algae | 172k | 36 MB |
