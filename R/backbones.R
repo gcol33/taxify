@@ -110,10 +110,19 @@ backbone_names <- function() {
 
 #' The single kingdom a backbone's rows always belong to, or NA
 #'
-#' @param name Backbone name.
-#' @return A coarse kingdom-group string (e.g. `"plantae"`), or `NA` when the
-#'   backbone spans more than one kingdom or carries its own `kingdom` column.
-#' @noRd
+#' A backbone scoped to one kingdom by construction (the vascular-plant
+#' backbones, Species Fungorum) carries no `kingdom` column, since it has
+#' nothing to record there. This names that kingdom, so a row from such a
+#' backbone can still be placed.
+#'
+#' @param name Character vector of backbone names.
+#' @return Character vector of coarse kingdom groups (see
+#'   [normalize_kingdom_group()]), `NA` where the backbone spans more than one
+#'   kingdom or is not a known backbone.
+#' @keywords internal
+#' @export
+#' @examples
+#' backbone_fixed_kingdom(c("wfo", "fungorum", "gbif"))
 backbone_fixed_kingdom <- function(name) {
   reg <- .backbone_registry()
   reg$fixed_kingdom[match(name, reg$name)]

@@ -928,13 +928,19 @@ normalize_kingdom_names <- function(kingdom) {
 
 #' Normalize a kingdom string to the coarse kingdom-group vocabulary
 #'
-#' Case-insensitive; also folds the NCBI clade / OTT names that
-#' `normalize_kingdom_names()` resolves. Unrecognised, empty, or explicitly
-#' unknown values return `NA` (never a rejection reason downstream).
+#' Case-insensitive; also folds the NCBI clade and OTT kingdom names
+#' (Pseudomonadati, Archaeplastida, ...). Unrecognised, empty, or explicitly
+#' unknown values return `NA`, so an unknown kingdom is never a reason to reject
+#' a row. The coarse vocabulary is `animalia`, `plantae`, `fungi`, `bacteria`,
+#' `archaea`, `chromista`, `protozoa` and `viruses`; taxifydb uses it to check
+#' enrichment name expansion against a source's declared kingdoms.
 #'
 #' @param x Character vector.
 #' @return Character vector of coarse kingdom groups (or `NA`).
-#' @noRd
+#' @keywords internal
+#' @export
+#' @examples
+#' normalize_kingdom_group(c("Animalia", "Viridiplantae", "plants", "unknown"))
 normalize_kingdom_group <- function(x) {
   if (length(x) == 0L) return(character(0L))
   y <- tolower(trimws(as.character(normalize_kingdom_names(as.character(x)))))

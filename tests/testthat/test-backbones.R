@@ -43,3 +43,20 @@ test_that("taxify_databases stacks backbones and enrichments under a type column
   expect_setequal(unique(db$type), c("backbone", "enrichment"))
   expect_equal(sum(db$type == "backbone"), 19L)
 })
+
+test_that("backbone_fixed_kingdom names the kingdom of single-kingdom backbones", {
+  expect_equal(backbone_fixed_kingdom(c("wfo", "fungorum", "gbif", "nope")),
+               c("plantae", "fungi", NA, NA))
+  # Every non-NA value is in the coarse vocabulary the enrichment build checks
+  # a source's declared kingdoms against.
+  fixed <- backbone_fixed_kingdom(backbone_names())
+  fixed <- fixed[!is.na(fixed)]
+  expect_equal(normalize_kingdom_group(fixed), fixed)
+})
+
+test_that("normalize_kingdom_group folds backbone spellings to the coarse set", {
+  expect_equal(
+    normalize_kingdom_group(c("Animalia", "Viridiplantae", "Metazoa", "plants",
+                              "Chromista", "unknown", "", NA)),
+    c("animalia", "plantae", "animalia", "plantae", "chromista", NA, NA, NA))
+})
