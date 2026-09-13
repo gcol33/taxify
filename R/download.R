@@ -205,21 +205,27 @@ download_backbone <- function(backbone_name,
           if (verbose) message("  Trying xdelta3 patch...")
           delta_tmp <- tempfile(tmpdir = store_root, fileext = ".xdelta")
           on.exit(if (file.exists(delta_tmp)) unlink(delta_tmp), add = TRUE)
-          curl::curl_download(delta_url, delta_tmp, quiet = !verbose)
-          status <- system2("xdelta3", c("-d", "-s", vtr_path, delta_tmp,
-                                         tmp_path))
-          if (status == 0L) {
-            if (verbose) {
-              delta_mb <- file.size(delta_tmp) / 1048576
-              message(sprintf("  Patched via xdelta3 (%.1f MB patch).", delta_mb))
-            }
-            TRUE
-          } else {
-            FALSE
+          fetch_asset_file(delta_url, delta_tmp,
+                           sprintf("the %s backbone patch", backbone_name),
+                           verbose = verbose)
+          # system2() joins `args` into one command line, so every path is
+          # quoted to survive a data directory containing a space.
+          status <- system2("xdelta3", c("-d", "-s", shQuote(vtr_path),
+                                         shQuote(delta_tmp), shQuote(tmp_path)))
+          if (status != 0L) {
+            stop(sprintf("xdelta3 exited with status %s", status), call. = FALSE)
           }
+          if (verbose) {
+            delta_mb <- file.size(delta_tmp) / 1048576
+            message(sprintf("  Patched via xdelta3 (%.1f MB patch).", delta_mb))
+          }
+          TRUE
         },
         error = function(e) {
-          if (verbose) message("  xdelta3 patch failed, falling back to full download.")
+          if (verbose) {
+            message("  xdelta3 patch failed (", conditionMessage(e),
+                    "), falling back to full download.")
+          }
           FALSE
         }
       )

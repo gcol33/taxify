@@ -160,6 +160,14 @@ list, and the lookups between names, ids and common names.
   `.vtr` since GIFT was built into an enrichment, and the enrichments vignette
   no longer describes the earlier on-demand API route.
 
+* A backbone upgrade patches through xdelta3 when the data directory contains a
+  space (#79). `download_backbone()` passed the store paths to `xdelta3`
+  unquoted, so a path like `C:\Users\First Last\...` split into several
+  arguments, xdelta3 exited with "too many filenames", and every upgrade fell
+  back to a full download (about 2 GB for `col`). The paths are now quoted, the
+  patch is fetched through the same route as the full asset (so a `file://`
+  manifest can serve it), and a failed patch names its reason when `verbose`.
+
 # taxify 0.5.2
 
 An audit for the #55 shape -- a failure returned as a plausible answer, with
