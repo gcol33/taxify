@@ -868,6 +868,17 @@ test_that("BROT's unassisted G code lands in the barochory gravity class other s
   expect_true(all(reg$sources$brot$map(c("G", "W", "H", "B", "M", "N", "P", "O", "Z")) %in% reg$vocab))
 })
 
+test_that("autochory alone is self-dispersal and places in no dispersal class", {
+  reg <- .trait_registry()$dispersal_syndrome
+  expect_equal(reg$sources$gift$map(c("autochorous", "unspecialized")), c(NA, "unspecialized"))
+  expect_equal(reg$sources$austraits$map(c("autochory", "ballistic", "barochory")),
+               c(NA, "ballistic", "gravity"))
+  expect_equal(reg$sources$leda$map(c("autochor", "ballochor", "nautochor")),
+               c(NA, "ballistic", "water"))
+  expect_equal(reg$sources$baseflor$map(c("autochory", "autochory, myrmecochory")),
+               c(NA, "ant"))
+})
+
 test_that("LEDA seed mass is a registered milligram source", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true("leda" %in% ti$source)

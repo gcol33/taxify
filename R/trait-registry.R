@@ -601,13 +601,21 @@
     "therophyt"                  = "therophyte",
     "cryptophyt"                 = "cryptophyte")
 
+  # Autochory is self-dispersal as a whole and matches no class here. LEDA
+  # files ballochor and blastochor under main type "Autochor" ("Self
+  # dispersal"); AusTraits defines autochory as "dispersed by methods
+  # originating from the parent plant or diaspore" beside its own ballistic
+  # and barochory values; GIFT's autochorous class has no ballistic or gravity
+  # subclass and spans explosive legume pods and passive capsules alike. A
+  # record naming only autochory is left NA so a source that names the
+  # mechanism fills it; one that also names a vector keeps that vector.
   disp_patterns <- c(
     "myrmecochor"                          = "ant",
     "anemochor|meteorochor|boleochor|chamaechor" = "wind",
     "zoochor|dysochor"                     = "animal",
     "hydrochor|nautochor|ombrochor"        = "water",
     "barochor|blastochor|bythisochor"      = "gravity",
-    "ballochor|ballistic|autochor|herpochor" = "ballistic",
+    "ballochor|ballistic|herpochor"        = "ballistic",
     "agochor|hemerochor|ethelochor|speirochor" = "human",
     "unspecialized|undefined"              = "unspecialized")
 
@@ -1863,16 +1871,26 @@
       vocab = c("wind", "animal", "ant", "water", "gravity", "ballistic", "human", "unspecialized"),
       sources = list(
         gift      = list(enrichment = "gift", col = "gift_dispersal_syndrome_1",
-                         citation = "GIFT (Weigelt et al. 2020)", note = "Primary dispersal syndrome.",
+                         citation = "GIFT (Weigelt et al. 2020)",
+                         note = paste("Primary dispersal syndrome. \"autochorous\" (self-dispersal, no ballistic",
+                                      "or gravity subclass in GIFT) is left NA: of 332 such species BROT",
+                                      "codes 234 G and 1 B, and Baseflor 639 of 1,089 barochory, 37 autochory."),
                          map = function(v) .xw_grep(v, disp_patterns)),
         austraits = list(enrichment = "austraits", col = "dispersal_syndrome",
-                         citation = "AusTraits (Falster et al. 2021)", note = "Primary syndrome from a possibly multi-mode record (-chory terms).",
+                         citation = "AusTraits (Falster et al. 2021)", note = paste("Primary syndrome from a possibly multi-mode record (-chory terms).",
+                                      "A record naming only autochory (\"methods originating from the parent",
+                                      "plant or diaspore\", beside AusTraits' own ballistic and barochory) is NA."),
                          map = function(v) .xw_grep(v, disp_patterns)),
         leda      = list(enrichment = "leda", col = "dispersal_type",
-                         citation = "LEDA Traitbase (Kleyer et al. 2008)", note = "LEDA -chor terms mapped to primary vector.",
+                         citation = "LEDA Traitbase (Kleyer et al. 2008)", note = paste("LEDA -chor terms mapped to primary vector. \"autochor\" is LEDA's main type",
+                                      "(\"Self dispersal\") over ballochor and blastochor and is NA; ballochor",
+                                      "reads as ballistic."),
                          map = function(v) .xw_grep(v, disp_patterns)),
         baseflor  = list(enrichment = "baseflor", col = "dispersal_mode",
-                         citation = "Baseflor (Julve, Catminat)", note = "-chory term mapped to primary vector.",
+                         citation = "Baseflor (Julve, Catminat)", note = paste("-chory term mapped to primary vector. \"autochory\" is NA: Baseflor keeps it apart",
+                                      "from barochory and defers type definitions to Gorenflot, and its 402",
+                                      "species mix explosive genera (Oxalis, Geranium, Erodium, Cytisus,",
+                                      "Impatiens) with ferns and Cymbalaria; BROT codes 56 of 77 of them G."),
                          map = function(v) .xw_grep(v, disp_patterns)),
         brot      = list(enrichment = "brot", col = "disp_mode",
                          citation = "BROT 2.0 (Tavsanoglu & Pausas 2018)",
@@ -1882,8 +1900,8 @@
                                       "Baseflor codes 838 of 1,864 barochory and AusTraits 17 of 118 barochory",
                                       "against 1 undefined; GIFT, which has no gravity class, calls 293 of 1,058",
                                       "unspecialized, 367 anemochorous, 234 autochorous, 152 zoochorous.",
-                                      "Agreement on shared keys: GIFT 51% of 3,412, AusTraits 48% of 471,",
-                                      "Baseflor 54% of 5,860; outside BROT's G code 74%, 60% and 58%."),
+                                      "Agreement on shared keys: GIFT 57% of 3,080, AusTraits 48% of 471,",
+                                      "Baseflor 54% of 5,783; outside BROT's G code 78%, 60% and 58%."),
                          map = brot_disp)
       )
     ),
