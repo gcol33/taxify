@@ -87,7 +87,8 @@ cite.character <- function(x, file = NULL, source = NULL, ...) {
       note <- if (is.null(refs$note)) NA_character_ else refs$note[i]
       txt  <- if (is.na(note)) "(no citation)" else paste0("(no citation) ", note)
     }
-    if (!is.na(refs$doi[i]) && nzchar(refs$doi[i])) {
+    if (!is.na(refs$doi[i]) && nzchar(refs$doi[i]) &&
+        !grepl(refs$doi[i], txt, fixed = TRUE)) {
       txt <- paste0(txt, " doi:", refs$doi[i])
     }
     cat(sprintf("  [%s] %s\n", refs$ref[i], txt))

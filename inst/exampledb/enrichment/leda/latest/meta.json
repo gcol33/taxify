@@ -14,5 +14,10 @@
     "volume": "96",
     "pages": "1266-1274",
     "doi": "10.1111/j.1365-2745.2008.01430.x"
+  },
+  "references": {
+    "file": "leda_references.vtr",
+    "nrow": 5,
+    "content_id": "4af3b8fdd2bb6b9eede19dfdb1e55cbf"
   }
 }

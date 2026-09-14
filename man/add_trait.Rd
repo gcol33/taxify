@@ -144,8 +144,8 @@ taxify("Abies alba") |>
 
 # The references behind each value, resolved to citations:
 res <- taxify("Abies alba") |>
-  add_trait("dispersal_syndrome", provenance = TRUE)
-cite(res$dispersal_syndrome_refs)
+  add_trait("seed_mass", mode = "wide", provenance = TRUE)
+cite(res$seed_mass_gift_refs)
 
 options(old)
 

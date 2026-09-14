@@ -2,5 +2,10 @@
   "version": "2026.06",
   "static": true,
   "pinned": false,
-  "downloaded_at": "2026-07-02"
+  "downloaded_at": "2026-07-02",
+  "references": {
+    "file": "brot_references.vtr",
+    "nrow": 435,
+    "content_id": "bd7b92631ea7bbd7471fb04e1e4fd76d"
+  }
 }
