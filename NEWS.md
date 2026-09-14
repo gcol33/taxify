@@ -168,6 +168,30 @@ list, and the lookups between names, ids and common names.
   patch is fetched through the same route as the full asset (so a `file://`
   manifest can serve it), and a failed patch names its reason when `verbose`.
 
+* `install_backbones()` refreshes an installed backbone the manifest has moved
+  past (#82). It resolved each name through `ensure_backbone()`, which returns
+  whatever `.vtr` is on disk, so an installed backbone was never compared and
+  only a later `taxify()` call fetched the new release. It now runs the same
+  comparison as the once-per-session check in `taxify()` (one shared
+  `refresh_backbone()`), downloads where the installed build is behind, leaves
+  a current one alone, and keeps a build pinned by `taxify_restore()` with a
+  message saying so.
+
+* A backbone patch is applied only to the build it was cut against (#83).
+  `download_backbone()` tried the xdelta3 patch against any local `.vtr`, and
+  against a different build xdelta3 stopped with "target window checksum
+  mismatch", printed its own stderr and fell back to a full download that
+  `verbose = FALSE` did not report. The manifest now records the base build's
+  content id as `delta_from_content_id` (written by taxifydb), and the patch is
+  fetched only when the local build carries it; a delta recorded without one
+  is not applied. xdelta3's output is captured into the reason. Whichever path
+  ran, the new file is checked against the manifest `content_id` before it
+  replaces the installed build: a patched file that does not match is replaced
+  by the full asset, and a full download that does not match stops with an
+  error and leaves the previous build in place. `meta.json` records
+  `install_path` (`"patched"` or `"full"`), and the ready message naming the
+  path and any reason the patch was not used is shown regardless of `verbose`.
+
 # taxify 0.5.2
 
 An audit for the #55 shape -- a failure returned as a plausible answer, with

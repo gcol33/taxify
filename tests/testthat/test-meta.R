@@ -97,7 +97,8 @@ test_that("download_backbone clears a stale build .meta so meta.json wins", {
   with_mocked_bindings(
     taxify_data_dir = function() data_dir,
     {
-      p <- download_backbone("euromed", version = "latest", verbose = FALSE)
+      p <- suppressMessages(
+        download_backbone("euromed", version = "latest", verbose = FALSE))
 
       expect_false(file.exists(stale_meta))
       expect_true(file.exists(file.path(slot, "meta.json")))

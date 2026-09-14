@@ -93,25 +93,29 @@ read_json_bom <- function(path, ...) {
 }
 
 
-#' Check whether a local backbone version is current
+#' Where the active build of a backbone stands against the manifest
 #'
-#' Compares the version recorded in `<data_dir>/<backbone>/latest/meta.json`
-#' (if it exists) against the manifest. Returns `TRUE` if an update is needed.
+#' Compares the build recorded in `<data_dir>/<backbone>/latest/meta.json`
+#' against the manifest. The single comparison behind both the once-per-session
+#' check at the top of [taxify()] and [install_backbones()].
 #'
 #' @param backbone_name Character string (e.g., `"wfo"`).
-#' @return Logical scalar. `TRUE` means a newer version is available (or no
-#'   local backbone exists yet).
+#' @return One of `"missing"` (no meta.json, so no downloaded build), `"stale"`
+#'   (the manifest serves a different build), `"pinned"` (a build restored by
+#'   content id, never refreshed), or `"current"` (including a backbone the
+#'   manifest does not describe and the read-only example database).
 #' @noRd
-check_version <- function(backbone_name) {
+backbone_version_state <- function(backbone_name) {
   # Never refresh against the read-only example database (offline fixtures).
-  if (is_example_data_dir()) return(FALSE)
+  if (is_example_data_dir()) return("current")
 
   meta <- read_version_meta(backbone_name, "latest")
   vtr  <- versioned_vtr_path(backbone_name, "latest")
+  state <- function(stale) if (isTRUE(stale)) "stale" else "current"
 
   # A build the user pinned -- restored by content id -- stays put. Refreshing
   # it to the current release would silently undo the pin at the next session.
-  if (!is.null(meta) && isTRUE(as.logical(meta$pinned))) return(FALSE)
+  if (!is.null(meta) && isTRUE(as.logical(meta$pinned))) return("pinned")
 
   # Frozen/bundled backbones (e.g. the example database) never phone home, but
   # a shipped content id still lets a same-tag republish refresh them offline
@@ -123,14 +127,14 @@ check_version <- function(backbone_name) {
                       error = function(e) NULL)
     s <- reconcile_content_id(vtr, meta$content_id, entry$content_id,
                               adopt = function(cid) write_content_id_meta(vtr, cid))
-    return(if (is.na(s)) FALSE else s)
+    return(state(!is.na(s) && s))
   }
 
   manifest <- fetch_manifest()
   entry <- resolve_manifest_entry(manifest, backbone_name)
-  if (is.null(entry)) return(FALSE)  # Unknown backbone — skip
+  if (is.null(entry)) return("current")  # Unknown backbone — skip
 
-  if (is.null(meta)) return(TRUE)   # No local copy at all
+  if (is.null(meta)) return("missing")
 
   # Content identity decides, and the version string is the fallback. A version
   # records when a build ran, not what it read: a backbone whose source is
@@ -146,11 +150,11 @@ check_version <- function(backbone_name) {
   if (!is.null(meta$downloaded_at)) {
     s <- reconcile_content_id(vtr, meta$content_id, entry$content_id,
                               hash_missing = FALSE)
-    if (!is.na(s)) return(s)
+    if (!is.na(s)) return(state(s))
   }
 
   # Neither side carries a content id: the version string is all there is.
-  isTRUE(meta$version != entry$latest)
+  state(isTRUE(meta$version != entry$latest))
 }
 
 
@@ -265,20 +269,6 @@ resolve_manifest_entry <- function(manifest, backbone_name) {
   entry <- pick(manifest)
   if (!is.null(entry)) return(entry)
   tryCatch(pick(local_manifest()), error = function(e) NULL)
-}
-
-
-#' Get the xdelta3 patch URL for a backbone (if available)
-#'
-#' @param backbone_name Character.
-#' @param version Character.
-#' @return Character URL or NULL if no delta available.
-#' @noRd
-manifest_delta_url <- function(backbone_name, version = "latest") {
-  manifest <- fetch_manifest()
-  entry <- resolve_manifest_entry(manifest, backbone_name)
-  if (is.null(entry)) return(NULL)
-  entry$delta_url  # NULL if not present in manifest
 }
 
 

@@ -14,15 +14,27 @@ install_backbones(backbones = NULL, verbose = TRUE)
 }
 \value{
 Invisibly, the backbones now installed (those that downloaded
-successfully), in priority order.
+successfully, or were already on disk), in priority order. A backbone
+whose refresh failed stays in the result with a warning, since its
+previous build is still usable.
 }
 \description{
 Downloads the pre-built \code{.vtr} for each named backbone into the taxify data
 directory (\code{\link[=taxify_data_dir]{taxify_data_dir()}}), so subsequent \code{\link[=taxify]{taxify()}} calls match against
 them offline. taxify installs its default set automatically on first use
 (COL, GBIF, ITIS); call this to pre-install a specific set, add a backbone to
-the default, or refresh to the latest release. Already-current backbones are
-skipped.
+the default, or refresh to the latest release.
+}
+\details{
+An installed backbone is compared against the manifest by the same check
+\code{\link[=taxify]{taxify()}} runs once per session: by content id where both sides record
+one, else by version. A backbone whose build differs from the one the
+manifest serves is replaced with the current release; one that is already
+current is left as it is. A build pinned by \code{\link[=taxify_restore]{taxify_restore()}} or
+\code{taxify_download(content_id = )} is never refreshed, and a message says so;
+\code{taxify_download(backbone)} replaces it with the current release. With
+\code{options(taxify.offline = TRUE)} nothing is compared and installed backbones
+are kept.
 }
 \examples{
 \dontrun{

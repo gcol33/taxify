@@ -31,15 +31,22 @@ test_that("download_backbone patches via xdelta3 when the data dir contains a sp
   on.exit({ .taxify_env$manifest <- orig_manifest }, add = TRUE)
   .taxify_env$manifest <- list(
     euromed = list(latest = "2026.09", full_url = file_url(full_vtr),
-                   delta_url = file_url(delta)))
+                   content_id = unname(tools::md5sum(new_vtr)),
+                   delta_url = file_url(delta),
+                   delta_from_content_id = unname(tools::md5sum(old_vtr))))
   old_opt <- options(taxify.keep_backbone_versions = FALSE)
   on.exit(options(old_opt), add = TRUE)
 
   with_mocked_bindings(
     taxify_data_dir = function() data_dir,
     {
-      p <- download_backbone("euromed", version = "latest", verbose = FALSE)
+      expect_message(
+        p <- download_backbone("euromed", version = "latest", verbose = FALSE),
+        "patched via xdelta3\\)\\."
+      )
       expect_identical(readBin(p, "raw", length(new_bytes) + 1L), new_bytes)
+      expect_identical(read_version_meta("euromed", "latest")$install_path,
+                       "patched")
     }
   )
 })

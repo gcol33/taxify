@@ -51,16 +51,23 @@ taxify_offline <- function() {
 #' @param backbone_name Character.
 #' @param version Character.
 #' @param pinned Logical. `FALSE` for the rolling "latest" slot.
+#' @param content_id Character. md5 of the `.vtr`; hashed from the file when
+#'   not supplied by a caller that already holds it.
+#' @param install_path Character or `NULL`. How the bytes were obtained:
+#'   `"patched"` (xdelta3 against the previous build) or `"full"` (the whole
+#'   asset). Omitted from the file when `NULL`.
 #' @noRd
-write_version_meta <- function(dir, backbone_name, version, pinned = FALSE) {
+write_version_meta <- function(dir, backbone_name, version, pinned = FALSE,
+                               content_id = NULL, install_path = NULL) {
   vtr <- file.path(dir, paste0(backbone_name, ".vtr"))
   meta <- list(
     version      = version,
     pinned       = pinned,
-    # md5 of the downloaded .vtr, so check_version() can detect a same-tag
-    # republish offline (matches the manifest's content_id for this backbone).
-    content_id   = content_id_of(vtr),
-    downloaded_at = format(Sys.Date(), "%Y-%m-%d")
+    # md5 of the downloaded .vtr, so backbone_version_state() can detect a
+    # same-tag republish offline (matches the manifest's content_id).
+    content_id   = content_id %||% content_id_of(vtr),
+    downloaded_at = format(Sys.Date(), "%Y-%m-%d"),
+    install_path = install_path
   )
   path <- file.path(dir, "meta.json")
   jsonlite::write_json(meta, path, pretty = TRUE, auto_unbox = TRUE)
@@ -195,49 +202,43 @@ download_backbone <- function(backbone_name,
   tmp_path <- tempfile(tmpdir = store_root, fileext = ".vtr.tmp")
   on.exit(if (file.exists(tmp_path)) unlink(tmp_path), add = TRUE)
 
-  # ---- Try xdelta3 patching first (if local .vtr exists + delta available) ----
-  patched <- FALSE
-  if (file.exists(vtr_path) && has_xdelta3()) {
-    delta_url <- manifest_delta_url(backbone_name, version)
-    if (!is.null(delta_url)) {
-      patched <- tryCatch(
-        {
-          if (verbose) message("  Trying xdelta3 patch...")
-          delta_tmp <- tempfile(tmpdir = store_root, fileext = ".xdelta")
-          on.exit(if (file.exists(delta_tmp)) unlink(delta_tmp), add = TRUE)
-          fetch_asset_file(delta_url, delta_tmp,
-                           sprintf("the %s backbone patch", backbone_name),
-                           verbose = verbose)
-          # system2() joins `args` into one command line, so every path is
-          # quoted to survive a data directory containing a space.
-          status <- system2("xdelta3", c("-d", "-s", shQuote(vtr_path),
-                                         shQuote(delta_tmp), shQuote(tmp_path)))
-          if (status != 0L) {
-            stop(sprintf("xdelta3 exited with status %s", status), call. = FALSE)
-          }
-          if (verbose) {
-            delta_mb <- file.size(delta_tmp) / 1048576
-            message(sprintf("  Patched via xdelta3 (%.1f MB patch).", delta_mb))
-          }
-          TRUE
-        },
-        error = function(e) {
-          if (verbose) {
-            message("  xdelta3 patch failed (", conditionMessage(e),
-                    "), falling back to full download.")
-          }
-          FALSE
-        }
-      )
-    }
+  # The manifest's content id describes the build `latest` serves; a pinned
+  # version is a different build, which the manifest does not identify.
+  expected_cid <- if (version == "latest") nz_or(entry$content_id, NULL)
+
+  # ---- xdelta3 patch, only against the exact build the patch was cut from ----
+  patch <- if (version == "latest") {
+    try_backbone_patch(backbone_name, entry, vtr_path, dest_dir, tmp_path,
+                       store_root, verbose = verbose)
+  } else {
+    list(patched = FALSE, note = NULL)
+  }
+  got_cid <- if (patch$patched) content_id_of(tmp_path)
+  if (patch$patched && !is.null(expected_cid) &&
+      !identical(as.character(got_cid), as.character(expected_cid))) {
+    unlink(tmp_path)
+    patch <- list(patched = FALSE, note = sprintf(
+      "the patched file hashed to %s, not the manifest's %s",
+      short_cid(got_cid), short_cid(expected_cid)))
   }
 
   # ---- Full download (if patching didn't work) ----
-  if (!patched) {
+  if (!patch$patched) {
     fetch_asset_file(url, tmp_path,
                      sprintf("the %s backbone", backbone_name),
                      verbose = verbose)
+    got_cid <- content_id_of(tmp_path)
+    if (!is.null(expected_cid) &&
+        !identical(as.character(got_cid), as.character(expected_cid))) {
+      unlink(tmp_path)
+      stop(sprintf(
+        paste0("The downloaded %s backbone hashes to %s, not the content id ",
+               "the manifest records (%s). Nothing was installed; the ",
+               "previous build is untouched.\n  URL: %s"),
+        toupper(backbone_name), got_cid, expected_cid, url), call. = FALSE)
+    }
   }
+  install_path <- if (patch$patched) "patched" else "full"
 
   # Keep the build being replaced, when the store is configured to (off by
   # default for backbones, which are gigabytes). This runs only once the new
@@ -265,15 +266,93 @@ download_backbone <- function(backbone_name,
   download_asset_extras(entry, dest_dir, verbose = verbose)
 
   write_version_meta(dest_dir, backbone_name, actual_version,
-                     pinned = (version != "latest"))
+                     pinned = (version != "latest"), content_id = got_cid,
+                     install_path = install_path)
 
-  if (verbose) {
-    size_mb <- file.size(vtr_path) / 1048576
-    message(sprintf("\u2713 %s backbone ready (v%s, %.0f MB).",
-                    toupper(backbone_name), actual_version, size_mb))
-  }
+  # How the bytes were obtained is part of their provenance, so this is
+  # reported whatever `verbose` says.
+  message(sprintf(
+    "\u2713 %s backbone ready (v%s, %.0f MB, %s)%s.",
+    toupper(backbone_name), actual_version, file.size(vtr_path) / 1048576,
+    if (patch$patched) "patched via xdelta3" else "full download",
+    if (is.null(patch$note)) "" else paste0("; patch not used: ", patch$note)
+  ))
 
   invisible(vtr_path)
+}
+
+
+#' First ten characters of a content id, for messages
+#' @noRd
+short_cid <- function(cid) {
+  if (is.null(cid) || length(cid) != 1L || is.na(cid)) return("<none>")
+  substr(cid, 1L, 10L)
+}
+
+
+#' Patch the local build of a backbone up to the manifest's build via xdelta3
+#'
+#' A patch reproduces the new build only from the exact bytes it was cut
+#' against, which the manifest records as `delta_from_content_id`. The patch is
+#' fetched only when the local build carries that id; a delta recorded without
+#' one is not applied, because its `delta_from` release tag does not identify
+#' the bytes (a re-cut reuses the tag). xdelta3's own output is captured, never
+#' printed, and surfaces only in the returned note.
+#'
+#' @param backbone_name Character.
+#' @param entry The resolved manifest entry.
+#' @param vtr_path Character. The local build to patch from.
+#' @param dir Character. Directory holding `vtr_path` and its `meta.json`.
+#' @param tmp_path Character. Where the patched file is written.
+#' @param store_root Character. Directory for the downloaded patch.
+#' @param verbose Logical.
+#' @return A list: `patched` (logical) and `note` (why no patch was used, or
+#'   `NULL` when none was offered or it applied).
+#' @noRd
+try_backbone_patch <- function(backbone_name, entry, vtr_path, dir, tmp_path,
+                               store_root, verbose = TRUE) {
+  no_patch <- function(note = NULL) list(patched = FALSE, note = note)
+  delta_url <- nz_or(entry$delta_url, NULL)
+  if (is.null(delta_url) || !file.exists(vtr_path)) return(no_patch())
+
+  base_cid <- nz_or(entry$delta_from_content_id, NULL)
+  if (is.null(base_cid)) {
+    return(no_patch("the manifest does not record which build it applies to"))
+  }
+  local_cid <- nz_or(read_store_meta(dir)$content_id, NULL) %||%
+    content_id_of(vtr_path)
+  if (!identical(as.character(local_cid), as.character(base_cid))) {
+    return(no_patch(sprintf("it applies to build %s, the local build is %s",
+                            short_cid(base_cid), short_cid(local_cid))))
+  }
+  if (!has_xdelta3()) return(no_patch("xdelta3 is not on PATH"))
+
+  tryCatch(
+    {
+      if (verbose) message("  Applying xdelta3 patch...")
+      delta_tmp <- tempfile(tmpdir = store_root, fileext = ".xdelta")
+      on.exit(if (file.exists(delta_tmp)) unlink(delta_tmp), add = TRUE)
+      fetch_asset_file(delta_url, delta_tmp,
+                       sprintf("the %s backbone patch", backbone_name),
+                       verbose = verbose)
+      # system2() joins `args` into one command line, so every path is quoted
+      # to survive a data directory containing a space.
+      out <- suppressWarnings(system2(
+        "xdelta3", c("-d", "-f", "-s", shQuote(vtr_path), shQuote(delta_tmp),
+                     shQuote(tmp_path)),
+        stdout = TRUE, stderr = TRUE))
+      status <- attr(out, "status") %||% 0L
+      if (status != 0L) {
+        stop(sprintf("xdelta3 exited with status %s: %s", status,
+                     paste(out, collapse = " ")), call. = FALSE)
+      }
+      list(patched = TRUE, note = NULL)
+    },
+    error = function(e) {
+      if (file.exists(tmp_path)) unlink(tmp_path)
+      no_patch(conditionMessage(e))
+    }
+  )
 }
 
 
@@ -402,32 +481,54 @@ recycle_content_ids <- function(content_id, names, kind) {
 ensure_backbones_current <- function(backbones, verbose = TRUE) {
   if (taxify_offline()) return(invisible(NULL))
   for (bb_name in backbones) {
-    # Skip if already checked this session
-    check_key <- paste0(".version_checked.", bb_name)
-    if (isTRUE(.taxify_env[[check_key]])) next
-
-    # Mark as checked immediately (even if download fails — we don't want to
-    # retry on every taxify() call in a session)
-    .taxify_env[[check_key]] <- TRUE
-
-    tryCatch(
-      {
-        if (check_version(bb_name)) {
-          download_backbone(bb_name, version = "latest", verbose = verbose)
-          # Invalidate cached path so ensure_backbone() picks up the new file
-          set_backbone_path(bb_name, NULL)
-        }
-      },
-      error = function(e) {
-        warning(
-          sprintf(
-            "Could not update %s backbone: %s\nUsing existing local version.",
-            bb_name, conditionMessage(e)
-          ),
-          call. = FALSE
-        )
-      }
-    )
+    if (isTRUE(.taxify_env[[paste0(".version_checked.", bb_name)]])) next
+    refresh_backbone(bb_name, verbose = verbose)
   }
   invisible(NULL)
+}
+
+
+#' Bring one backbone up to the build the manifest serves
+#'
+#' Compares the active build against the manifest (`backbone_version_state()`)
+#' and downloads the current release when the local one is behind or carries no
+#' download record. A pinned build is left in place. Shared by the
+#' once-per-session check in [taxify()] and by [install_backbones()], so both
+#' decide by the same comparison.
+#'
+#' The backbone is marked as checked for the session before anything is
+#' fetched, so a failed download is not retried on every later call.
+#'
+#' @param bb_name Character. Backbone name.
+#' @param verbose Logical.
+#' @return Invisibly, one of `"offline"` (nothing compared), `"current"`,
+#'   `"pinned"`, `"refreshed"` (a new build was installed), or `"failed"` (the
+#'   download failed with a warning, leaving the local build in use).
+#' @noRd
+refresh_backbone <- function(bb_name, verbose = TRUE) {
+  if (taxify_offline()) return(invisible("offline"))
+  .taxify_env[[paste0(".version_checked.", bb_name)]] <- TRUE
+
+  state <- tryCatch(
+    {
+      s <- backbone_version_state(bb_name)
+      if (s %in% c("stale", "missing")) {
+        download_backbone(bb_name, version = "latest", verbose = verbose)
+        set_backbone_path(bb_name, NULL)
+        s <- "refreshed"
+      }
+      s
+    },
+    error = function(e) {
+      warning(
+        sprintf(
+          "Could not update %s backbone: %s\nUsing existing local version.",
+          bb_name, conditionMessage(e)
+        ),
+        call. = FALSE
+      )
+      "failed"
+    }
+  )
+  invisible(state)
 }

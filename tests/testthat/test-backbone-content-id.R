@@ -1,6 +1,6 @@
-# The content-id refresh gate is lifted to backbones: check_version() catches a
-# same-tag republish (rebuilt .vtr re-uploaded under an unchanged version) that
-# a version-string comparison alone would miss. Backbones do not rehash a
+# The content-id refresh gate is lifted to backbones: backbone_version_state()
+# catches a same-tag republish (rebuilt .vtr re-uploaded under an unchanged
+# version) that a version-string comparison alone would miss. Backbones do not rehash a
 # multi-GB cache (hash_missing = FALSE); they compare the id their downloaded
 # meta.json already carries.
 
@@ -53,7 +53,8 @@ test_that("same version + matching content id needs no refresh", {
   s <- stage_backend(dd, "demo", df, meta_extra = list(content_id = "MD5"))
   s <- stage_backend(dd, "demo", df, meta_extra = list(content_id = s$md5))
   with_manifest(manifest_with("demo", cid = s$md5),
-                expect_false(taxify:::check_version("demo")))
+                expect_identical(taxify:::backbone_version_state("demo"),
+                                 "current"))
 })
 
 test_that("same version + changed content id forces a refresh (republish)", {
@@ -61,7 +62,8 @@ test_that("same version + changed content id forces a refresh (republish)", {
   old <- options(taxify.data_dir = dd); on.exit(options(old), add = TRUE)
   s <- stage_backend(dd, "demo", df, meta_extra = list(content_id = "old_md5"))
   with_manifest(manifest_with("demo", cid = "new_md5"),
-                expect_true(taxify:::check_version("demo")))
+                expect_identical(taxify:::backbone_version_state("demo"),
+                                 "stale"))
 })
 
 test_that("a version bump with changed content forces a refresh", {
@@ -70,7 +72,8 @@ test_that("a version bump with changed content forces a refresh", {
   s <- stage_backend(dd, "demo", df, version = "2026.06",
                      meta_extra = list(content_id = "old_md5"))
   with_manifest(manifest_with("demo", version = "2026.07", cid = "new_md5"),
-                expect_true(taxify:::check_version("demo")))
+                expect_identical(taxify:::backbone_version_state("demo"),
+                                 "stale"))
 })
 
 # The version a build stamps is `date +%Y.%m`, so it records when the build ran
@@ -84,7 +87,8 @@ test_that("a version bump with identical content needs no refresh", {
   s <- stage_backend(dd, "demo", df, version = "2026.07",
                      meta_extra = list(content_id = "same_md5"))
   with_manifest(manifest_with("demo", version = "2026.08", cid = "same_md5"),
-                expect_false(taxify:::check_version("demo")))
+                expect_identical(taxify:::backbone_version_state("demo"),
+                                 "current"))
 })
 
 test_that("a version bump on a legacy cache (no stored id) still refreshes", {
@@ -92,7 +96,8 @@ test_that("a version bump on a legacy cache (no stored id) still refreshes", {
   old <- options(taxify.data_dir = dd); on.exit(options(old), add = TRUE)
   s <- stage_backend(dd, "demo", df, version = "2026.06")   # meta has NO id
   with_manifest(manifest_with("demo", version = "2026.07", cid = "some_md5"),
-                expect_true(taxify:::check_version("demo")))
+                expect_identical(taxify:::backbone_version_state("demo"),
+                                 "stale"))
 })
 
 test_that("a manifest entry with no content id falls back to the version", {
@@ -101,7 +106,8 @@ test_that("a manifest entry with no content id falls back to the version", {
   s <- stage_backend(dd, "demo", df, version = "2026.06",
                      meta_extra = list(content_id = "whatever"))
   with_manifest(manifest_with("demo", version = "2026.07"),   # no cid shipped
-                expect_true(taxify:::check_version("demo")))
+                expect_identical(taxify:::backbone_version_state("demo"),
+                                 "stale"))
 })
 
 test_that("legacy backbone cache (no stored id) is not rehashed, no refresh", {
@@ -109,7 +115,8 @@ test_that("legacy backbone cache (no stored id) is not rehashed, no refresh", {
   old <- options(taxify.data_dir = dd); on.exit(options(old), add = TRUE)
   s <- stage_backend(dd, "demo", df)              # meta has NO content_id
   with_manifest(manifest_with("demo", cid = "some_md5"),
-                expect_false(taxify:::check_version("demo")))
+                expect_identical(taxify:::backbone_version_state("demo"),
+                                 "current"))
 })
 
 test_that("static backbone reconciles content id offline", {
@@ -121,5 +128,5 @@ test_that("static backbone reconciles content id offline", {
                        mpath, pretty = TRUE, auto_unbox = TRUE)
   old <- options(taxify.data_dir = dd, taxify.manifest_path = mpath)
   on.exit(options(old), add = TRUE)
-  expect_true(taxify:::check_version("demo"))
+  expect_identical(taxify:::backbone_version_state("demo"), "stale")
 })

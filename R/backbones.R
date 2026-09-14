@@ -293,14 +293,25 @@ resolve_single_backend <- function(backbone, verbose = TRUE) {
 #' directory ([taxify_data_dir()]), so subsequent [taxify()] calls match against
 #' them offline. taxify installs its default set automatically on first use
 #' (COL, GBIF, ITIS); call this to pre-install a specific set, add a backbone to
-#' the default, or refresh to the latest release. Already-current backbones are
-#' skipped.
+#' the default, or refresh to the latest release.
+#'
+#' An installed backbone is compared against the manifest by the same check
+#' [taxify()] runs once per session: by content id where both sides record
+#' one, else by version. A backbone whose build differs from the one the
+#' manifest serves is replaced with the current release; one that is already
+#' current is left as it is. A build pinned by [taxify_restore()] or
+#' `taxify_download(content_id = )` is never refreshed, and a message says so;
+#' `taxify_download(backbone)` replaces it with the current release. With
+#' `options(taxify.offline = TRUE)` nothing is compared and installed backbones
+#' are kept.
 #'
 #' @param backbones Character vector of backbone names (see [list_backbones()]).
 #'   `NULL` (default) installs taxify's first-run set: COL, GBIF, and ITIS.
 #' @param verbose Logical. Default `TRUE`.
 #' @return Invisibly, the backbones now installed (those that downloaded
-#'   successfully), in priority order.
+#'   successfully, or were already on disk), in priority order. A backbone
+#'   whose refresh failed stays in the result with a warning, since its
+#'   previous build is still usable.
 #' @seealso [list_backbones()] for the full set with sizes, [taxify()].
 #' @examples
 #' \dontrun{
@@ -320,6 +331,16 @@ install_backbones <- function(backbones = NULL, verbose = TRUE) {
   ok <- character(0)
   for (nm in order_by_priority(unique(backbones))) {
     installed <- tryCatch({
+      if (file.exists(versioned_vtr_path(nm, "latest"))) {
+        state <- refresh_backbone(nm, verbose = verbose)
+        if (identical(state, "pinned")) {
+          cid <- read_version_meta(nm, "latest")$content_id
+          message(sprintf(paste0(
+            "%s backbone is pinned to build %s and was not refreshed; ",
+            "taxify_download(\"%s\") replaces it with the current release."),
+            toupper(nm), short_cid(nz_or(cid, NA_character_)), nm))
+        }
+      }
       ensure_backbone(resolve_backend(nm), verbose = verbose)
       TRUE
     }, error = function(e) {

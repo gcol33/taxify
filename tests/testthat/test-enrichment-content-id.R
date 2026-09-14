@@ -99,7 +99,7 @@ test_that("the example database is exempt by location, whatever its meta", {
   for (nm in c("iucn", "zanne")) {
     expect_false(taxify:::check_enrichment_version(nm))
   }
-  expect_false(taxify:::check_version("wfo"))
+  expect_identical(taxify:::backbone_version_state("wfo"), "current")
 })
 
 test_that("no content_id in the manifest preserves legacy static behaviour", {
