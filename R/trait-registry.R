@@ -609,15 +609,22 @@
   # subclass and spans explosive legume pods and passive capsules alike. A
   # record naming only autochory is left NA so a source that names the
   # mechanism fills it; one that also names a vector keeps that vector.
+  # Blastochory ("Autonomous placement of seeds or daughter plant away from
+  # mother plant", LEDA) and herpochory (a diaspore crawling by trichomes or
+  # hygroscopic awns) are self-placement, neither a fall under gravity nor a
+  # launch, so they match no class either. AusTraits' "undefined" is
+  # "Dispersal mechanism unknown" and is NA. GIFT gives "unspecialized" no
+  # definition; its species are other sources' unassisted and human-dispersed
+  # ones, not unknowns, so it keeps its own class.
   disp_patterns <- c(
     "myrmecochor"                          = "ant",
     "anemochor|meteorochor|boleochor|chamaechor" = "wind",
     "zoochor|dysochor"                     = "animal",
     "hydrochor|nautochor|ombrochor"        = "water",
-    "barochor|blastochor|bythisochor"      = "gravity",
-    "ballochor|ballistic|herpochor"        = "ballistic",
+    "barochor|bythisochor"                 = "gravity",
+    "ballochor|ballistic"                  = "ballistic",
     "agochor|hemerochor|ethelochor|speirochor" = "human",
-    "unspecialized|undefined"              = "unspecialized")
+    "unspecialized"                        = "unspecialized")
 
   # BROT 2.0 writes dispersal mode as one letter per vector, most important
   # first (Tavsanoglu & Pausas 2018, Scientific Data 5:180135, trait 23): "G:
@@ -1874,17 +1881,27 @@
                          citation = "GIFT (Weigelt et al. 2020)",
                          note = paste("Primary dispersal syndrome. \"autochorous\" (self-dispersal, no ballistic",
                                       "or gravity subclass in GIFT) is left NA: of 332 such species BROT",
-                                      "codes 234 G and 1 B, and Baseflor 639 of 1,089 barochory, 37 autochory."),
+                                      "codes 234 G and 1 B, and Baseflor 639 of 1,089 barochory, 37 autochory.",
+                                      "\"unspecialized\" is its own class, not an unknown: on its species BROT",
+                                      "codes 293 of 500 G and AusTraits 243 of 579 barochory against 4",
+                                      "undefined, and GIFT's second level calls 741 of 1,754 anthropochorous."),
                          map = function(v) .xw_grep(v, disp_patterns)),
         austraits = list(enrichment = "austraits", col = "dispersal_syndrome",
                          citation = "AusTraits (Falster et al. 2021)", note = paste("Primary syndrome from a possibly multi-mode record (-chory terms).",
                                       "A record naming only autochory (\"methods originating from the parent",
-                                      "plant or diaspore\", beside AusTraits' own ballistic and barochory) is NA."),
+                                      "plant or diaspore\", beside AusTraits' own ballistic and barochory) is NA,",
+                                      "and so is \"undefined\" (\"Dispersal mechanism unknown\"): BROT codes 16 of",
+                                      "those 17 species W and LEDA 25 of 28 endozoochor."),
                          map = function(v) .xw_grep(v, disp_patterns)),
         leda      = list(enrichment = "leda", col = "dispersal_type",
                          citation = "LEDA Traitbase (Kleyer et al. 2008)", note = paste("LEDA -chor terms mapped to primary vector. \"autochor\" is LEDA's main type",
                                       "(\"Self dispersal\") over ballochor and blastochor and is NA; ballochor",
-                                      "reads as ballistic."),
+                                      "reads as ballistic. blastochor (\"Autonomous placement of seeds or",
+                                      "daughter plant away from mother plant\") and herpochor are NA: the 71",
+                                      "blastochor species (Viola, Scilla, Hepatica, Pulmonaria) are Baseflor",
+                                      "myrmecochory 46 of 64 and GIFT zoochorous 34 of 40, the 6 herpochor",
+                                      "species (Pilosella, Hieracium, Trisetum) Baseflor anemochory or",
+                                      "epizoochory."),
                          map = function(v) .xw_grep(v, disp_patterns)),
         baseflor  = list(enrichment = "baseflor", col = "dispersal_mode",
                          citation = "Baseflor (Julve, Catminat)", note = paste("-chory term mapped to primary vector. \"autochory\" is NA: Baseflor keeps it apart",
@@ -1900,8 +1917,8 @@
                                       "Baseflor codes 838 of 1,864 barochory and AusTraits 17 of 118 barochory",
                                       "against 1 undefined; GIFT, which has no gravity class, calls 293 of 1,058",
                                       "unspecialized, 367 anemochorous, 234 autochorous, 152 zoochorous.",
-                                      "Agreement on shared keys: GIFT 57% of 3,080, AusTraits 48% of 471,",
-                                      "Baseflor 54% of 5,783; outside BROT's G code 78%, 60% and 58%."),
+                                      "Agreement on shared keys: GIFT 57% of 3,080, AusTraits 50% of 454,",
+                                      "Baseflor 54% of 5,783; outside BROT's G code 78%, 63% and 58%."),
                          map = brot_disp)
       )
     ),
