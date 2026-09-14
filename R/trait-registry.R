@@ -612,7 +612,11 @@
   # Blastochory ("Autonomous placement of seeds or daughter plant away from
   # mother plant", LEDA) and herpochory (a diaspore crawling by trichomes or
   # hygroscopic awns) are self-placement, neither a fall under gravity nor a
-  # launch, so they match no class either. AusTraits' "undefined" is
+  # launch, so they match no class either. Bythisochory is non-floating seeds
+  # carried along the bottom of running water after heavy rain, which Vittoz &
+  # Engler (2007) call "complementary to other dispersal modes" and random
+  # across slope species: a water process, but not a species' syndrome, so it
+  # matches no class. AusTraits' "undefined" is
   # "Dispersal mechanism unknown" and is NA. GIFT gives "unspecialized" no
   # definition; its species are other sources' unassisted and human-dispersed
   # ones, not unknowns, so it keeps its own class.
@@ -621,7 +625,7 @@
     "anemochor|meteorochor|boleochor|chamaechor" = "wind",
     "zoochor|dysochor"                     = "animal",
     "hydrochor|nautochor|ombrochor"        = "water",
-    "barochor|bythisochor"                 = "gravity",
+    "barochor"                             = "gravity",
     "ballochor|ballistic"                  = "ballistic",
     "agochor|hemerochor|ethelochor|speirochor" = "human",
     "unspecialized"                        = "unspecialized")
@@ -1901,7 +1905,10 @@
                                       "blastochor species (Viola, Scilla, Hepatica, Pulmonaria) are Baseflor",
                                       "myrmecochory 46 of 64 and GIFT zoochorous 34 of 40, the 6 herpochor",
                                       "species (Pilosella, Hieracium, Trisetum) Baseflor anemochory or",
-                                      "epizoochory."),
+                                      "epizoochory. bythisochor (seeds carried along the bottom of running",
+                                      "water) is NA: its 60 alpine species (Astragalus, Rumex, Carlina,",
+                                      "Leontopodium) are Baseflor epizoochory 26, anemochory 18, barochory 13",
+                                      "of 57 and GIFT anemochorous 10, zoochorous 3 of 13, none water."),
                          map = function(v) .xw_grep(v, disp_patterns)),
         baseflor  = list(enrichment = "baseflor", col = "dispersal_mode",
                          citation = "Baseflor (Julve, Catminat)", note = paste("-chory term mapped to primary vector. \"autochory\" is NA: Baseflor keeps it apart",

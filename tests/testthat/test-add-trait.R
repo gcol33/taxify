@@ -881,8 +881,8 @@ test_that("autochory alone is self-dispersal and places in no dispersal class", 
 
 test_that("self-placement and unknown dispersal terms place in no class", {
   reg <- .trait_registry()$dispersal_syndrome
-  expect_equal(reg$sources$leda$map(c("blastochor", "herpochor", "bythisochor")),
-               c(NA, NA, "gravity"))
+  expect_equal(reg$sources$leda$map(c("blastochor", "herpochor", "bythisochor", "barochor")),
+               c(NA, NA, NA, "gravity"))
   expect_equal(reg$sources$austraits$map(c("undefined", "undefined anemochory")),
                c(NA, "wind"))
   expect_equal(reg$sources$gift$map("unspecialized"), "unspecialized")
