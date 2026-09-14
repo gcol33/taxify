@@ -192,6 +192,18 @@ list, and the lookups between names, ids and common names.
   `install_path` (`"patched"` or `"full"`), and the ready message naming the
   path and any reason the patch was not used is shown regardless of `verbose`.
 
+* Installing a backbone or enrichment no longer leaves the replaced file's
+  vectra indexes beside the new one. A download renamed the new `.vtr` into
+  place and kept `<name>.vtr.<column>.vtri`, and vectra accepts an index whose
+  row and row-group counts match the store, whatever its content
+  (gcol33/vectra#13): a re-cut of the same shape would have pruned by the old
+  keys and dropped exact matches without an error. Every install path (backbone
+  and enrichment downloads, sidecar extras, builds fetched by content id)
+  removes the indexes of the file it replaces, and activating a stored build
+  drops any index the archived build left in the slot. The published assets
+  carry no index, so an installed asset now has the same files on every
+  machine.
+
 * A name the backbone holds without placing it no longer reads as accepted
   (#81). The result carries the matched record's own status in a new
   `taxonomic_status` column (WFO's `"UNCHECKED"`, COL's `"PROVISIONALLY

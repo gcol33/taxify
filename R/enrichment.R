@@ -446,7 +446,7 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
   }
 
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
-  file.rename(tmp_path, vtr_path)
+  install_vtr_file(tmp_path, vtr_path)
 
   # Write meta.json. The content id is the md5 of the freshly downloaded file,
   # which matches the manifest's content_id and lets the static-cache gate

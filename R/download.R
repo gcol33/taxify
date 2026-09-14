@@ -250,7 +250,7 @@ download_backbone <- function(backbone_name,
 
   # Atomic rename
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
-  file.rename(tmp_path, vtr_path)
+  install_vtr_file(tmp_path, vtr_path)
 
   # Clear any stale `.meta` sidecar. That file is a taxifydb build-from-source
   # artifact; a downloaded backbone is defined to carry none (its version lives

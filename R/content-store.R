@@ -181,6 +181,58 @@ keep_superseded_builds <- function(kind = c("enrichment", "backbone")) {
 }
 
 
+#' Index sidecars of a store
+#'
+#' vectra keeps a hash index of a column beside the store as
+#' `<store>.<column>.vtri`. Matched by prefix rather than by glob, so a data
+#' directory holding glob metacharacters still resolves.
+#'
+#' @param vtr_path Character. Path to a `.vtr`.
+#' @return Character vector of index paths (possibly empty).
+#' @noRd
+vtr_index_files <- function(vtr_path) {
+  dir <- dirname(vtr_path)
+  if (!dir.exists(dir)) return(character(0L))
+  files <- list.files(dir, all.files = TRUE, no.. = TRUE)
+  keep <- startsWith(files, paste0(basename(vtr_path), ".")) &
+    endsWith(files, ".vtri")
+  file.path(dir, files[keep])
+}
+
+
+#' Put a new `.vtr` at its installed path, without the replaced file's indexes
+#'
+#' An index is stamped with the shape of the store it was built for (row count,
+#' row-group count, column position), not its content, so vectra accepts one
+#' left behind by a replaced store of the same shape and prunes row groups by
+#' the old keys, dropping matching rows without an error (gcol33/vectra#13).
+#' The published assets carry no index, so every install path removes the
+#' indexes of whatever file it replaces before the new bytes take its place.
+#' Every place a taxify asset is installed goes through here.
+#'
+#' @param tmp_path Character. The new file, already verified.
+#' @param vtr_path Character. Where it is installed.
+#' @return `vtr_path`, invisibly; stops when the file cannot be moved there.
+#' @noRd
+install_vtr_file <- function(tmp_path, vtr_path) {
+  drop_vtr_indexes(vtr_path)
+  if (!isTRUE(file.rename(tmp_path, vtr_path))) {
+    stop(sprintf("Could not move the downloaded file into place at %s.",
+                 vtr_path), call. = FALSE)
+  }
+  invisible(vtr_path)
+}
+
+
+#' Remove the index sidecars of a store
+#' @noRd
+drop_vtr_indexes <- function(vtr_path) {
+  idx <- vtr_index_files(vtr_path)
+  if (length(idx)) unlink(idx)
+  invisible(idx)
+}
+
+
 #' Move the active build into its content-keyed directory
 #'
 #' Called before the active slot is overwritten. Everything in the directory
@@ -284,6 +336,12 @@ activate_content_build <- function(name, content_id,
   if (!same) {
     archive_active_build(name, kind, verbose = verbose)
     dir.create(act_dir, recursive = TRUE, showWarnings = FALSE)
+    # Archiving normally empties the slot, but it leaves the active files in
+    # place when it cannot resolve or move them; their indexes must not end up
+    # beside the store being activated.
+    for (v in list.files(src_dir, pattern = "[.]vtr$")) {
+      drop_vtr_indexes(file.path(act_dir, v))
+    }
     for (f in list.files(src_dir, all.files = FALSE, no.. = TRUE,
                          full.names = TRUE)) {
       target <- file.path(act_dir, basename(f))
@@ -429,7 +487,7 @@ download_asset_extras <- function(entry, dest_dir, verbose = TRUE) {
         if (verbose) message(sprintf("  Downloading sidecar: %s", ex_name))
         fetch_asset_file(ex_url, ex_tmp, sprintf("sidecar '%s'", ex_name),
                          verbose = verbose)
-        file.rename(ex_tmp, ex_path)
+        install_vtr_file(ex_tmp, ex_path)
       },
       error = function(e) {
         if (file.exists(ex_tmp)) unlink(ex_tmp)
@@ -559,7 +617,7 @@ download_content_build <- function(name, content_id,
   dest_dir <- asset_dir(name, content_id, kind)
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
   vtr_path <- file.path(dest_dir, paste0(name, ".vtr"))
-  file.rename(tmp_path, vtr_path)
+  install_vtr_file(tmp_path, vtr_path)
 
   ver <- pinned_version_label(entry, content_id, version)
   meta <- if (kind == "enrichment") {
