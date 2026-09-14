@@ -9,10 +9,24 @@
 #' Prints formatted citations for the taxonomic backbone(s), enrichment
 #' layers, and the taxify package itself. Optionally writes a BibTeX file.
 #'
-#' @param x A `taxify_result` object.
+#' Given reference ids instead of a result, `cite()` resolves them to the works
+#' a trait value was taken from: the per-value references [add_trait()] returns
+#' with `provenance = TRUE` (`<trait>_refs`), or a door's `<col>_source` column
+#' read with `source =`.
+#'
+#' @param x A `taxify_result` object, or a character vector of reference ids
+#'   (cells of `<enrichment>:<id>` joined by `|`, as in `<trait>_refs`).
 #' @param file Optional file path. If provided, BibTeX entries are written
 #'   to this file (extension should be `.bib`).
-#' @return `x`, invisibly (pipe-friendly).
+#' @param source For a character `x` only: `NULL` (default) when the ids carry
+#'   their enrichment prefix, or the enrichment the bare ids belong to (e.g.
+#'   `"austraits"` for the `dispersal_syndrome_source` column of
+#'   `add_austraits(cols = "all")`).
+#' @param ... Unused.
+#' @return For a `taxify_result`, `x`, invisibly (pipe-friendly). For reference
+#'   ids, invisibly, a data.frame with one row per distinct id: `ref` (the
+#'   qualified id), `source`, `ref_id`, `citation`, `doi`, and any further
+#'   columns the source's reference table carries.
 #'
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data())
@@ -24,7 +38,14 @@
 #' options(old)
 #'
 #' @export
-cite <- function(x, file = NULL) {
+cite <- function(x, ...) {
+  UseMethod("cite")
+}
+
+
+#' @rdname cite
+#' @export
+cite.default <- function(x, file = NULL, ...) {
   meta <- attr(x, "taxify_meta")
   if (is.null(meta)) {
     stop("x has no taxify_meta attribute -- was it created by taxify()?",
@@ -50,6 +71,39 @@ cite <- function(x, file = NULL) {
   }
 
   invisible(x)
+}
+
+
+#' @rdname cite
+#' @export
+cite.character <- function(x, file = NULL, source = NULL, ...) {
+  refs <- resolve_ref_ids(parse_ref_ids(x, source = source))
+
+  rule <- strrep("\u2500", 60)
+  cat(sprintf("\u2500\u2500 taxify references %s\n", rule))
+  for (i in seq_len(nrow(refs))) {
+    txt <- if (is.na(refs$citation[i])) "(not found)" else refs$citation[i]
+    if (!is.na(refs$doi[i]) && nzchar(refs$doi[i])) {
+      txt <- paste0(txt, " doi:", refs$doi[i])
+    }
+    cat(sprintf("  [%s] %s\n", refs$ref[i], txt))
+  }
+  cat(sprintf("  %s\n", rule))
+
+  if (!is.null(file)) {
+    bibtex <- vapply(which(!is.na(refs$citation)), function(i) {
+      format_bibtex_entry(list(
+        key  = gsub("[^A-Za-z0-9_:.-]", "_", refs$ref[i]),
+        type = "misc",
+        note = refs$citation[i],
+        doi  = refs$doi[i]
+      ))
+    }, character(1L))
+    writeLines(paste(bibtex, collapse = "\n\n"), file)
+    cat(sprintf("  BibTeX written to: %s\n", file))
+  }
+
+  invisible(refs)
 }
 
 

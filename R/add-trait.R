@@ -41,6 +41,13 @@
 #'   `combine = "vote"`, and to break ties in `combine = "complete"`. Only used
 #'   when `mode = "coalesce"`; defaults to the registered order for the trait
 #'   (see [trait_info()]).
+#' @param provenance Logical. When `TRUE`, also return the references behind
+#'   each value, for sources whose build records them (AusTraits, GIFT, BROT
+#'   and LEDA): `<trait>_refs` in `mode = "coalesce"`, holding the references
+#'   of the sources that produced the reported value, and `<trait>_<source>_refs`
+#'   in `mode = "wide"`. Ids are `<enrichment>:<id>`, several joined by `|`;
+#'   pass the column to [cite()] to resolve them to citations. A source that
+#'   records no per-value references contributes none. Default `FALSE`.
 #' @param verbose Logical. Default `TRUE`.
 #' @param aggregate_trait_fallback Logical. When an aggregate or hybrid name has
 #'   no trait record of its own, fall back to the underlying binomial. Defaults
@@ -57,11 +64,13 @@
 #'       across a source's own records where that spread was recorded at build
 #'       time, so a life-stage or population span stays visible); and, only when
 #'       a source measured the trait differently, `<trait>_caution` explaining
-#'       the method difference. To inspect every source, use `mode = "wide"`.}
+#'       the method difference; with `provenance = TRUE`, `<trait>_refs`. To
+#'       inspect every source, use `mode = "wide"`.}
 #'     \item{`mode = "wide"`}{One column per source, `<trait>_<source>`, each
 #'       harmonized to the trait's shared vocabulary (categorical) or unit
-#'       (numeric); `<trait>_unit`; and `<trait>_caution` on rows where a
-#'       cautioned source supplied a value.}
+#'       (numeric); `<trait>_unit`; `<trait>_caution` on rows where a
+#'       cautioned source supplied a value; and, with `provenance = TRUE`,
+#'       `<trait>_<source>_refs` per source.}
 #'   }
 #'   Numeric traits are returned in the trait's canonical unit (see
 #'   [trait_info()]); rows absent from a source get `NA`.
@@ -80,6 +89,14 @@
 #' sources disagree in method is not blended: the most complete source is
 #' reported and `<trait>_caution` records the difference. [trait_info()] lists
 #' each source's harmonization note and caution.
+#'
+#' With `provenance = TRUE`, a reference names the record a database took the
+#' value from: for a categorical value the references that state that value,
+#' for a numeric value every reference entering the source's aggregate. Under
+#' `combine = "median"` or `"mean"` the coalesced references are those of every
+#' contributing source; under `"first"` or `"complete"` those of the one source
+#' reported; under `"vote"`, `"min"` or `"max"` those of the sources whose value
+#' is the one reported.
 #'
 #' A source enrichment that is not installed and cannot be downloaded or built
 #' is skipped with a warning, and the trait is assembled from the sources that
@@ -101,12 +118,18 @@
 #' taxify("Abies alba") |>
 #'   add_trait("woodiness", mode = "wide")
 #'
+#' # The references behind each value, resolved to citations:
+#' res <- taxify("Abies alba") |>
+#'   add_trait("dispersal_syndrome", provenance = TRUE)
+#' cite(res$dispersal_syndrome_refs)
+#'
 #' options(old)
 #'
 #' @export
 add_trait <- function(x, trait, sources = "all",
                       mode = c("coalesce", "wide"),
-                      combine = NULL, priority = NULL, verbose = TRUE,
+                      combine = NULL, priority = NULL, provenance = FALSE,
+                      verbose = TRUE,
                       aggregate_trait_fallback =
                         getOption("taxify.aggregate_trait_fallback", TRUE)) {
   if (!is.data.frame(x) || !"accepted_name" %in% names(x)) {
@@ -163,6 +186,15 @@ add_trait <- function(x, trait, sources = "all",
                              join_col = jc, group = sp$group,
                              aggregate_trait_fallback = aggregate_trait_fallback)
       per_src[[s]] <- if (is.null(raw)) rep(na_scalar, nrow(x)) else sp$map(raw)
+    }
+  }
+
+  per_refs <- list()
+  if (isTRUE(provenance)) {
+    for (s in ord) {
+      per_refs[[s]] <- .trait_join_refs(
+        x, spec$sources[[s]], per_src[[s]],
+        aggregate_trait_fallback = aggregate_trait_fallback)
     }
   }
 
@@ -223,6 +255,9 @@ add_trait <- function(x, trait, sources = "all",
     cr <- .trait_wide_caution(per_src, cvec, nrow(x))
     cr <- .merge_perrec_caution(cr, perrec, NULL, nrow(x))
     if (!is.null(cr)) x[[paste0(trait, "_caution")]] <- cr
+    if (isTRUE(provenance)) {
+      for (s in ord) x[[paste0(trait, "_", s, "_refs")]] <- per_refs[[s]]
+    }
   } else {
     # When sources measure the trait differently, do not blend: report the most
     # complete source and explain (unless the caller forced `combine`).
@@ -246,6 +281,10 @@ add_trait <- function(x, trait, sources = "all",
     cr <- .trait_caution_col(co, cvec, disc, use_combine)
     cr <- .merge_perrec_caution(cr, perrec, co$source, nrow(x))
     if (!is.null(cr)) x[[paste0(trait, "_caution")]] <- cr
+    if (isTRUE(provenance)) {
+      x[[paste0(trait, "_refs")]] <- .coalesce_refs(per_src[ord], per_refs[ord],
+                                                    co, use_combine)
+    }
     if (auto && disc && verbose && any(!is.na(co$value))) {
       message(sprintf(
         paste0("add_trait('%s'): sources use different methods; reported the ",

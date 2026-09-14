@@ -11,6 +11,7 @@ add_trait(
   mode = c("coalesce", "wide"),
   combine = NULL,
   priority = NULL,
+  provenance = FALSE,
   verbose = TRUE,
   aggregate_trait_fallback = getOption("taxify.aggregate_trait_fallback", TRUE)
 )
@@ -50,6 +51,14 @@ is applied to all sources.}
 when \code{mode = "coalesce"}; defaults to the registered order for the trait
 (see \code{\link[=trait_info]{trait_info()}}).}
 
+\item{provenance}{Logical. When \code{TRUE}, also return the references behind
+each value, for sources whose build records them (AusTraits, GIFT, BROT
+and LEDA): \verb{<trait>_refs} in \code{mode = "coalesce"}, holding the references
+of the sources that produced the reported value, and \verb{<trait>_<source>_refs}
+in \code{mode = "wide"}. Ids are \verb{<enrichment>:<id>}, several joined by \code{|};
+pass the column to \code{\link[=cite]{cite()}} to resolve them to citations. A source that
+records no per-value references contributes none. Default \code{FALSE}.}
+
 \item{verbose}{Logical. Default \code{TRUE}.}
 
 \item{aggregate_trait_fallback}{Logical. When an aggregate or hybrid name has
@@ -69,11 +78,13 @@ values behind the headline -- across the contributing sources, and
 across a source's own records where that spread was recorded at build
 time, so a life-stage or population span stays visible); and, only when
 a source measured the trait differently, \verb{<trait>_caution} explaining
-the method difference. To inspect every source, use \code{mode = "wide"}.}
+the method difference; with \code{provenance = TRUE}, \verb{<trait>_refs}. To
+inspect every source, use \code{mode = "wide"}.}
 \item{\code{mode = "wide"}}{One column per source, \verb{<trait>_<source>}, each
 harmonized to the trait's shared vocabulary (categorical) or unit
-(numeric); \verb{<trait>_unit}; and \verb{<trait>_caution} on rows where a
-cautioned source supplied a value.}
+(numeric); \verb{<trait>_unit}; \verb{<trait>_caution} on rows where a
+cautioned source supplied a value; and, with \code{provenance = TRUE},
+\verb{<trait>_<source>_refs} per source.}
 }
 Numeric traits are returned in the trait's canonical unit (see
 \code{\link[=trait_info]{trait_info()}}); rows absent from a source get \code{NA}.
@@ -107,6 +118,14 @@ sources disagree in method is not blended: the most complete source is
 reported and \verb{<trait>_caution} records the difference. \code{\link[=trait_info]{trait_info()}} lists
 each source's harmonization note and caution.
 
+With \code{provenance = TRUE}, a reference names the record a database took the
+value from: for a categorical value the references that state that value,
+for a numeric value every reference entering the source's aggregate. Under
+\code{combine = "median"} or \code{"mean"} the coalesced references are those of every
+contributing source; under \code{"first"} or \code{"complete"} those of the one source
+reported; under \code{"vote"}, \code{"min"} or \code{"max"} those of the sources whose value
+is the one reported.
+
 A source enrichment that is not installed and cannot be downloaded or built
 is skipped with a warning, and the trait is assembled from the sources that
 are available.
@@ -122,6 +141,11 @@ taxify("Abies alba") |>
 # One column per source, to inspect agreement and conflict:
 taxify("Abies alba") |>
   add_trait("woodiness", mode = "wide")
+
+# The references behind each value, resolved to citations:
+res <- taxify("Abies alba") |>
+  add_trait("dispersal_syndrome", provenance = TRUE)
+cite(res$dispersal_syndrome_refs)
 
 options(old)
 

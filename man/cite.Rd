@@ -2,22 +2,45 @@
 % Please edit documentation in R/cite.R
 \name{cite}
 \alias{cite}
+\alias{cite.default}
+\alias{cite.character}
 \title{Cite data sources used in a taxify result}
 \usage{
-cite(x, file = NULL)
+cite(x, ...)
+
+\method{cite}{default}(x, file = NULL, ...)
+
+\method{cite}{character}(x, file = NULL, source = NULL, ...)
 }
 \arguments{
-\item{x}{A \code{taxify_result} object.}
+\item{x}{A \code{taxify_result} object, or a character vector of reference ids
+(cells of \verb{<enrichment>:<id>} joined by \code{|}, as in \verb{<trait>_refs}).}
+
+\item{...}{Unused.}
 
 \item{file}{Optional file path. If provided, BibTeX entries are written
 to this file (extension should be \code{.bib}).}
+
+\item{source}{For a character \code{x} only: \code{NULL} (default) when the ids carry
+their enrichment prefix, or the enrichment the bare ids belong to (e.g.
+\code{"austraits"} for the \code{dispersal_syndrome_source} column of
+\code{add_austraits(cols = "all")}).}
 }
 \value{
-\code{x}, invisibly (pipe-friendly).
+For a \code{taxify_result}, \code{x}, invisibly (pipe-friendly). For reference
+ids, invisibly, a data.frame with one row per distinct id: \code{ref} (the
+qualified id), \code{source}, \code{ref_id}, \code{citation}, \code{doi}, and any further
+columns the source's reference table carries.
 }
 \description{
 Prints formatted citations for the taxonomic backbone(s), enrichment
 layers, and the taxify package itself. Optionally writes a BibTeX file.
+}
+\details{
+Given reference ids instead of a result, \code{cite()} resolves them to the works
+a trait value was taken from: the per-value references \code{\link[=add_trait]{add_trait()}} returns
+with \code{provenance = TRUE} (\verb{<trait>_refs}), or a door's \verb{<col>_source} column
+read with \verb{source =}.
 }
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())

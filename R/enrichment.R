@@ -367,7 +367,48 @@ build_enrichment_meta <- function(entry, actual_version, pinned, vtr_path) {
   if (!is.null(entry$available_groups)) meta$available_groups <- entry$available_groups
   if (!is.null(entry$license))          meta$license          <- entry$license
   if (!is.null(entry$citation))         meta$citation         <- entry$citation
+  if (!is.null(entry$references$url)) {
+    meta$references <- list(file       = basename(entry$references$url),
+                            content_id = entry$references$content_id,
+                            nrow       = entry$references$nrow)
+  }
   meta
+}
+
+
+#' Download the reference table an enrichment entry declares
+#'
+#' Fetched into the build's directory, preferring the immutable content-addressed
+#' copy, and kept only when its bytes hash to the id the manifest records. A
+#' failure is a warning: the enrichment's values stay usable, only resolving its
+#' provenance ids to citations needs the table.
+#'
+#' @param entry The manifest entry.
+#' @param dest_dir The build directory.
+#' @return `TRUE` when the table is in place, else `FALSE` (invisibly).
+#' @noRd
+download_enrichment_references <- function(entry, dest_dir, verbose = TRUE) {
+  refs <- entry$references
+  if (is.null(refs$url)) return(invisible(FALSE))
+  dest <- file.path(dest_dir, basename(refs$url))
+  tmp  <- tempfile(tmpdir = dest_dir, fileext = ".refs.tmp")
+  on.exit(if (file.exists(tmp)) unlink(tmp), add = TRUE)
+  ok <- tryCatch({
+    fetch_asset_file(refs$content_url %||% refs$url, tmp,
+                     sprintf("reference table '%s'", basename(refs$url)),
+                     verbose = verbose)
+    got <- content_id_of(tmp)
+    if (!is.null(refs$content_id) && !identical(as.character(got), refs$content_id)) {
+      stop(sprintf("bytes hash to %s, not the recorded %s", got, refs$content_id))
+    }
+    install_vtr_file(tmp, dest)
+    TRUE
+  }, error = function(e) {
+    warning(sprintf("Reference table '%s' not installed: %s",
+                    basename(refs$url), conditionMessage(e)), call. = FALSE)
+    FALSE
+  })
+  invisible(isTRUE(ok))
 }
 
 
@@ -455,6 +496,11 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
   # license, citation) so the installed enrichment is self-describing.
   meta <- build_enrichment_meta(entry, actual_version,
                                 pinned = version != "latest", vtr_path)
+  if (version == "latest" && !is.null(meta$references)) {
+    download_enrichment_references(entry, dest_dir, verbose = verbose)
+  } else {
+    meta$references <- NULL
+  }
   jsonlite::write_json(
     meta, file.path(dest_dir, "meta.json"),
     pretty = TRUE, auto_unbox = TRUE

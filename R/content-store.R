@@ -621,7 +621,15 @@ download_content_build <- function(name, content_id,
 
   ver <- pinned_version_label(entry, content_id, version)
   meta <- if (kind == "enrichment") {
-    build_enrichment_meta(entry, ver, pinned = TRUE, vtr_path)
+    m <- build_enrichment_meta(entry, ver, pinned = TRUE, vtr_path)
+    # The entry's reference table belongs to the build the entry names; an older
+    # build restored by content id keeps whatever provenance it was built with.
+    if (identical(entry$content_id, content_id) && !is.null(m$references)) {
+      download_enrichment_references(entry, dest_dir, verbose = verbose)
+    } else {
+      m$references <- NULL
+    }
+    m
   } else {
     list(version = ver, pinned = TRUE, content_id = content_id,
          downloaded_at = format(Sys.Date(), "%Y-%m-%d"))
