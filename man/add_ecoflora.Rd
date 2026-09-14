@@ -16,8 +16,9 @@ add_ecoflora(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with additional \verb{_uk} columns:
 \describe{
-\item{height_max_mm_uk, height_min_mm_uk}{Canopy height range (mm).}
-\item{leaf_area_uk}{Leaf area class.}
+\item{height_max_mm_uk, height_min_mm_uk}{Typical maximum and minimum
+plant height (mm; Ecoflora records cm).}
+\item{leaf_area_uk}{Leaf area class (cm\eqn{^2}).}
 \item{leaf_longevity_uk}{Leaf longevity (e.g. evergreen, deciduous).}
 \item{root_system_uk}{Root system type.}
 \item{photosynthetic_pathway_uk}{Photosynthetic pathway (C3/C4/CAM).}

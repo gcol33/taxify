@@ -19,15 +19,15 @@ The same data.frame with additional columns:
 \item{bien_plant_height_m}{Whole-plant height (m).}
 \item{bien_max_plant_height_m}{Maximum whole-plant height (m).}
 \item{bien_dbh_cm}{Diameter at breast height (cm).}
-\item{bien_sla_mm2_mg}{Leaf area per leaf dry mass (SLA).}
-\item{bien_leaf_area_mm2}{Leaf area.}
-\item{bien_leaf_dry_mass_mg}{Leaf dry mass.}
-\item{bien_leaf_n_per_dry_mass}{Leaf nitrogen per dry mass.}
-\item{bien_leaf_p_per_dry_mass}{Leaf phosphorus per dry mass.}
-\item{bien_leaf_thickness_mm}{Leaf thickness.}
-\item{bien_seed_mass_mg}{Seed mass.}
+\item{bien_sla_mm2_mg}{Leaf area per leaf dry mass (SLA, mm2/mg).}
+\item{bien_leaf_area_mm2}{Leaf area (mm2).}
+\item{bien_leaf_dry_mass_mg}{Leaf dry mass (mg; BIEN records g).}
+\item{bien_leaf_n_per_dry_mass}{Leaf nitrogen per dry mass (mg/g).}
+\item{bien_leaf_p_per_dry_mass}{Leaf phosphorus per dry mass (mg/g).}
+\item{bien_leaf_thickness_mm}{Leaf thickness (mm).}
+\item{bien_seed_mass_mg}{Seed mass (mg).}
 \item{bien_wood_density_g_cm3}{Stem wood density (g/cm3).}
-\item{bien_leaf_lifespan}{Leaf life span.}
+\item{bien_leaf_lifespan}{Leaf life span (months).}
 \item{bien_growth_form}{Whole-plant growth form.}
 \item{bien_woodiness}{Whole-plant woodiness.}
 \item{bien_dispersal_syndrome}{Whole-plant dispersal syndrome.}
