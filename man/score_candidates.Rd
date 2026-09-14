@@ -48,7 +48,7 @@ A synonym counts as homotypic when its own basionym author is the accepted
 name's parenthetical author and the accepted name keeps its final epithet
 (\verb{Lycopsis orientalis} L. -> \verb{Anchusa arvensis subsp. orientalis} (L.)
 Nordh.). That outranks a record the backbone keeps unplaced under the same
-string, which is a different type: a later homonym, not the name the placed
+string, which is a different type: a homonym, not the name the placed
 record carries (#81).
 }
 \keyword{internal}
