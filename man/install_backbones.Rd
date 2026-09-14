@@ -30,9 +30,9 @@ An installed backbone is compared against the manifest by the same check
 \code{\link[=taxify]{taxify()}} runs once per session: by content id where both sides record
 one, else by version. A backbone whose build differs from the one the
 manifest serves is replaced with the current release; one that is already
-current is left as it is. A build pinned by \code{\link[=taxify_restore]{taxify_restore()}} or
-\code{taxify_download(content_id = )} is never refreshed, and a message says so;
-\code{taxify_download(backbone)} replaces it with the current release. With
+current is left as it is. A build pinned by \code{\link[=taxify_pin]{taxify_pin()}},
+\code{\link[=taxify_restore]{taxify_restore()}} or \code{taxify_download(content_id = )} is never refreshed,
+and a message says so; \code{taxify_pin(backbone, pin = FALSE)} releases it. With
 \code{options(taxify.offline = TRUE)} nothing is compared and installed backbones
 are kept.
 }

@@ -299,9 +299,9 @@ resolve_single_backend <- function(backbone, verbose = TRUE) {
 #' [taxify()] runs once per session: by content id where both sides record
 #' one, else by version. A backbone whose build differs from the one the
 #' manifest serves is replaced with the current release; one that is already
-#' current is left as it is. A build pinned by [taxify_restore()] or
-#' `taxify_download(content_id = )` is never refreshed, and a message says so;
-#' `taxify_download(backbone)` replaces it with the current release. With
+#' current is left as it is. A build pinned by [taxify_pin()],
+#' [taxify_restore()] or `taxify_download(content_id = )` is never refreshed,
+#' and a message says so; `taxify_pin(backbone, pin = FALSE)` releases it. With
 #' `options(taxify.offline = TRUE)` nothing is compared and installed backbones
 #' are kept.
 #'
@@ -337,7 +337,7 @@ install_backbones <- function(backbones = NULL, verbose = TRUE) {
           cid <- read_version_meta(nm, "latest")$content_id
           message(sprintf(paste0(
             "%s backbone is pinned to build %s and was not refreshed; ",
-            "taxify_download(\"%s\") replaces it with the current release."),
+            "taxify_pin(\"%s\", pin = FALSE) releases the pin."),
             toupper(nm), short_cid(nz_or(cid, NA_character_)), nm))
         }
       }

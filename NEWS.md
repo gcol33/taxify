@@ -204,6 +204,22 @@ list, and the lookups between names, ids and common names.
   carry no index, so an installed asset now has the same files on every
   machine.
 
+* `taxify_pin()` pins or releases installed backbones and enrichments by name.
+  A pin was reachable only by fetching a build by content id, so a project
+  building against a shared data directory had no call that held the builds it
+  had already installed, and set `"pinned": true` in `meta.json` by hand. The
+  pin is still that `meta.json` flag, now written together with the build's
+  content id and reported back; the version checks in `taxify()`,
+  `install_backbones()` and the enrichment doors leave a pinned build in place.
+  It refuses a name that is not installed, and a name installed as both a
+  backbone and an enrichment (`wcvp`) until `kind =` says which.
+
+* `taxify_restore(install = TRUE)` pins every build that matches the lock,
+  including one that already matched and needed no download. It pinned only
+  the builds it fetched, so a lock that matched the install reported success
+  and left those builds free to be refreshed away at the next session. The
+  report gains a `pinned` column.
+
 * A name the backbone holds without placing it no longer reads as accepted
   (#81). The result carries the matched record's own status in a new
   `taxonomic_status` column (WFO's `"UNCHECKED"`, COL's `"PROVISIONALLY

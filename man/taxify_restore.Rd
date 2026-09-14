@@ -23,8 +23,9 @@ A data.frame with one row per pinned asset, columns: \code{component},
 (\code{"ok"}, \code{"version_drift"}, \code{"content_drift"}, \code{"missing"}, or
 \code{"unverified"} when what the lock pinned cannot be compared against this
 install).
-With \code{install = TRUE} the statuses describe the install afterwards, and a
-\code{restored} column records which rows were fetched.
+With \code{install = TRUE} the statuses describe the install afterwards, a
+\code{restored} column records which rows were fetched, and a \code{pinned} column
+which rows are now pinned (every row whose status is \code{"ok"}).
 }
 \description{
 Reads a lockfile written by \code{\link[=taxify_lock]{taxify_lock()}} and reports, for each backbone
@@ -36,8 +37,10 @@ With \code{install = TRUE} it also fetches the exact build each row pins, from t
 immutable copy published beside the rolling asset, and makes it the active
 one: the recorded run is put back in place in a single call. The build each
 pinned build replaces is kept on disk under its own content id, so restoring
-a lockfile is reversible. A pinned build is not refreshed away by the next
-session's version check.
+a lockfile is reversible. Every build that matches the lock afterwards is
+pinned, including one that already matched and needed no download, so the
+next session's version check does not refresh it away from the lock. Release
+a pin with \code{\link[=taxify_pin]{taxify_pin()}}.
 
 A build published before taxifydb began uploading an immutable copy cannot be
 recovered -- the re-cut replaced it in place -- and its row keeps reporting
@@ -55,6 +58,7 @@ options(old)
 
 }
 \seealso{
-\code{\link[=taxify_lock]{taxify_lock()}}, \code{\link[=taxify_store]{taxify_store()}} for the builds on disk,
+\code{\link[=taxify_lock]{taxify_lock()}}, \code{\link[=taxify_pin]{taxify_pin()}} to pin or release an installed
+build without a lockfile, \code{\link[=taxify_store]{taxify_store()}} for the builds on disk,
 \code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} to fetch a single build by content id.
 }
