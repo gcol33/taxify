@@ -38,11 +38,13 @@ local_provenance_db <- function(env = parent.frame()) {
                gift_dispersal_syndrome_1 = c("myrmecochorous", "zoochorous"),
                gift_dispersal_syndrome_1_source = c("10255", "272|10599"),
                stringsAsFactors = FALSE),
-    refs = data.frame(ref_id = c("10255", "10599", "272"),
-                      citation = c("Kew (2016) Seed information database.",
+    refs = data.frame(ref_id = c("102", "10255", "10599", "272"),
+                      citation = c(NA, "Kew (2016) Seed information database.",
                                    "Ghazanfar (2001) Coastal vegetation.",
                                    "Linhart (1980) Caribbean atoll."),
-                      doi = NA_character_, stringsAsFactors = FALSE))
+                      doi = NA_character_,
+                      note = c("Not served by GIFT_references().", NA, NA, NA),
+                      stringsAsFactors = FALSE))
   # A source without a reference table: its values count, its references do not.
   stage_enrichment(dd, "brot",
     data.frame(canonical_name = "Acacia alata", disp_mode = "myrmecochory",
@@ -134,6 +136,14 @@ test_that("cite() takes bare ids from a door's _source column with source =", {
   expect_equal(out$ref, c("austraits:ABRS_1981", "austraits:Smith_2005"))
   expect_equal(out$citation[2], "Smith (2005) Seeds.")
   expect_error(cite("ABRS_1981"), "source prefix")
+})
+
+test_that("cite() reports an id its source names without a citation, quietly", {
+  local_provenance_db()
+  out <- NULL
+  expect_no_warning(printed <- capture.output(out <- cite("gift:102|gift:272")))
+  expect_true(is.na(out$citation[out$ref == "gift:102"]))
+  expect_true(any(grepl("[gift:102] (no citation) Not served", printed, fixed = TRUE)))
 })
 
 test_that("cite() warns on an id its source's table does not hold", {

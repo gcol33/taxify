@@ -153,11 +153,14 @@ parse_ref_ids <- function(ids, source = NULL) {
 #'
 #' @param parsed A `parse_ref_ids()` result.
 #' @return `parsed` with `citation` and `doi` (plus any further columns the
-#'   tables carry); unresolved ids keep `NA` and are warned about.
+#'   tables carry). An id absent from its table keeps `NA` and is warned about;
+#'   an id the table holds without a citation (a source naming a reference it
+#'   does not cite) keeps `NA` quietly, with the table's `note` where it has one.
 #' @noRd
 resolve_ref_ids <- function(parsed) {
   parsed$citation <- rep(NA_character_, nrow(parsed))
   parsed$doi      <- rep(NA_character_, nrow(parsed))
+  found           <- rep(FALSE, nrow(parsed))
   for (src in unique(parsed$source)) {
     vtr <- ensure_enrichment(src, verbose = FALSE)
     if (is.null(vtr)) {
@@ -175,12 +178,13 @@ resolve_ref_ids <- function(parsed) {
                          stringsAsFactors = FALSE)
     rows <- which(parsed$source == src)
     at   <- match(parsed$ref_id[rows], as.character(tab$ref_id))
+    found[rows] <- !is.na(at)
     for (col in setdiff(names(tab), "ref_id")) {
       if (!col %in% names(parsed)) parsed[[col]] <- rep(NA, nrow(parsed))
       parsed[[col]][rows] <- tab[[col]][at]
     }
   }
-  miss <- parsed$ref[is.na(parsed$citation)]
+  miss <- parsed$ref[!found]
   if (length(miss)) {
     warning(sprintf("%d reference id(s) not found in their source's table: %s",
                     length(miss), paste(utils::head(miss, 5L), collapse = ", ")),

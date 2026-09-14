@@ -82,7 +82,11 @@ cite.character <- function(x, file = NULL, source = NULL, ...) {
   rule <- strrep("\u2500", 60)
   cat(sprintf("\u2500\u2500 taxify references %s\n", rule))
   for (i in seq_len(nrow(refs))) {
-    txt <- if (is.na(refs$citation[i])) "(not found)" else refs$citation[i]
+    txt <- refs$citation[i]
+    if (is.na(txt)) {
+      note <- if (is.null(refs$note)) NA_character_ else refs$note[i]
+      txt  <- if (is.na(note)) "(no citation)" else paste0("(no citation) ", note)
+    }
     if (!is.na(refs$doi[i]) && nzchar(refs$doi[i])) {
       txt <- paste0(txt, " doi:", refs$doi[i])
     }
