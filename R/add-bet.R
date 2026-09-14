@@ -24,6 +24,11 @@
 #'   \item{bet_substrate_rock}{Occurs on rock (0/1).}
 #'   \item{bet_substrate_bark}{Occurs on bark (0/1).}
 #'   \item{bet_substrate_deadwood}{Occurs on deadwood (0/1).}
+#'   \item{bet_substrate}{Every substrate class the species occurs on, as a
+#'     pipe-delimited set over `soil`, `rock`, `bark`, `wood` (deadwood),
+#'     `living_plants` (epiphytic on leaves or other bryophytes) and
+#'     `dung_carcass`, e.g. `"soil|rock|bark"`. [add_trait()] `"substrate"`
+#'     reduces it to one primary class.}
 #'   \item{bet_epiphyte}{Epiphytic (0/1).}
 #'   \item{bet_redlist_category}{IUCN European Red List category.}
 #' }
@@ -62,6 +67,7 @@ add_bet <- function(x, cols = NULL, verbose = TRUE) {
     bet_substrate_rock      = "substrate_rock",
     bet_substrate_bark      = "substrate_bark",
     bet_substrate_deadwood  = "substrate_deadwood",
+    bet_substrate           = "substrate",
     bet_epiphyte            = "epiphyte",
     bet_redlist_category    = "redlist_category"
   )

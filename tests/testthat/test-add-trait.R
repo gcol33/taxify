@@ -526,6 +526,18 @@ test_that("ITALIC lichen descriptors are registered as distinct lichen traits", 
                c("sexual", "asexual"))
 })
 
+test_that("BET's substrate set reduces to ITALIC's primary class by one priority", {
+  reg <- taxify:::.trait_registry()
+  bet <- reg$substrate$sources$bet$map
+  it  <- reg$substrate$sources$italic$map
+  expect_equal(bet(c("soil|rock|bark|wood", "soil|bark", "soil|wood|living_plants",
+                     "soil", "living_plants", "dung_carcass", "wood|dung_carcass", NA)),
+               c("rock", "bark", "wood", "soil", NA, NA, "wood", NA))
+  # Both sources read one priority, so the same classes give the same primary.
+  expect_equal(bet("bark|rock"), it("bark and rocks"))
+  expect_true(all(bet(c("rock", "bark", "wood", "soil")) %in% reg$substrate$vocab))
+})
+
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))

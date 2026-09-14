@@ -32,6 +32,11 @@ The same data.frame with additional columns:
 \item{bet_substrate_rock}{Occurs on rock (0/1).}
 \item{bet_substrate_bark}{Occurs on bark (0/1).}
 \item{bet_substrate_deadwood}{Occurs on deadwood (0/1).}
+\item{bet_substrate}{Every substrate class the species occurs on, as a
+pipe-delimited set over \code{soil}, \code{rock}, \code{bark}, \code{wood} (deadwood),
+\code{living_plants} (epiphytic on leaves or other bryophytes) and
+\code{dung_carcass}, e.g. \code{"soil|rock|bark"}. \code{\link[=add_trait]{add_trait()}} \code{"substrate"}
+reduces it to one primary class.}
 \item{bet_epiphyte}{Epiphytic (0/1).}
 \item{bet_redlist_category}{IUCN European Red List category.}
 }

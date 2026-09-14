@@ -459,9 +459,6 @@
 #     decoding the letters from domain memory is the column-header rung of the
 #     evidence ladder, which is never enough on its own. Same call as nest_type
 #     before its codebook was found.
-#     (bet's four one-hot substrate flags were on this list until taxifydb
-#     collapsed them to a primary `substrate` column at build time, the way
-#     NestTrait's one-hot nest flags were; bet is now a substrate source.)
 #   - coral_traits skeletal_density_g_cm3: 55 species, and not comparable to the
 #     wood_density it superficially resembles.
 #   - brot barkthick: mixes a thin/thick call with numeric ranges written as
@@ -994,9 +991,11 @@
     "squamulose" = "squamulose",
     "leprose"    = "leprose")
 
-  # Lichen substrate (italic); a multi-substrate record is reduced to one primary
-  # class by priority (rock > bark > wood > soil > leaves); the rare "bark and
-  # rocks"-type compounds take the higher-priority class.
+  # Substrate (italic lichens, bet bryophytes); a multi-substrate record is
+  # reduced to one primary class by priority (rock > bark > wood > soil >
+  # leaves): ITALIC's "bark and rocks"-type compounds and BET's pipe-delimited
+  # class sets ("soil|rock|bark") both take the higher-priority class. BET's
+  # living_plants and dung_carcass classes match no pattern.
   lichen_substrate_patterns <- c(
     "rock"                 = "rock",
     "bark"                 = "bark",
@@ -2817,8 +2816,8 @@
                       citation = "ITALIC 8.0 (Nimis; Italian lichens)", note = "Primary substrate of a possibly multi-substrate record (priority rock > bark > wood > soil > leaves).",
                       map = function(v) .xw_grep(v, lichen_substrate_patterns)),
         bet    = list(enrichment = "bet", col = "substrate",
-                      citation = "Bryophytes of Europe Traits (Hodgetts et al.)", note = "Primary substrate derived at build time from four one-hot flags, by the same priority ITALIC's multi-substrate records use. 58.8% of BET species carrying any flag carry several, so the reduction is real rather than incidental; BET's deadwood is ITALIC's lignum.",
-                      map = chr_verbatim)
+                      citation = "Bryophytes of Europe Traits (Hodgetts et al.)", note = "Primary class of BET's substrate set (its six one-hot class flags, collapsed at build time), by the same priority as ITALIC's multi-substrate records. 59.7% of BET species with any class carry several; the full set stays on add_bet(). BET's deadwood is ITALIC's lignum; its living_plants (leaves and other bryophytes) and dung_carcass classes have no counterpart in the vocabulary.",
+                      map = function(v) .xw_grep(v, lichen_substrate_patterns))
       )
     ),
     photobiont = list(
