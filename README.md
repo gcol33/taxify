@@ -84,7 +84,7 @@ broad aggregators GBIF, ITIS, NCBI, and OTT.
 <!-- manifest:backbone-table -->
 | Backbone | Scope | Names | Download |
 |---|---|---|---|
-| [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.6M | 761 MB |
+| [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.7M | 775 MB |
 | [COL](https://www.catalogueoflife.org/) | All kingdoms | 5.4M | 2.1 GB |
 | [COL Extended Release](https://www.catalogueoflife.org/) | All kingdoms | 8.1M | 1.6 GB |
 | [GBIF](https://www.gbif.org/) | All kingdoms | 6.4M | 1.6 GB |
