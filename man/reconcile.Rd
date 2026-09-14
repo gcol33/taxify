@@ -25,7 +25,8 @@ A data.frame with one row per input name, columns:
 \item{accepted_name}{The name it resolves to now (\code{NA} if unresolved).}
 \item{status}{One of:
 \code{"unchanged"} (resolves to itself, still accepted),
-\code{"synonym"} (now a synonym of a different accepted name),
+\code{"synonym"} (now a synonym of a different accepted name, including a
+name the backbone keeps unplaced but resolves through its basionym),
 \code{"misspelling"} (resolved by fuzzy/abbrev match to a corrected spelling),
 \code{"rank_fallback"} (an infraspecific name the backbone does not carry;
 \code{accepted_name} is the accepted name of its species),

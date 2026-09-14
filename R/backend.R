@@ -314,13 +314,7 @@ match_exact_compiled <- function(result, names_df, vtr_path, col_map) {
   name_col  <- col_map$name
   genus_col <- col_map$genus
 
-  # --- Materialize backbone (cached per session) ---
-  cache_key <- backbone_memo_key(".blk_", vtr_path)
-  blk <- .taxify_env[[cache_key]]
-  if (is.null(blk)) {
-    blk <- vectra::materialize(vectra::tbl(vtr_path))
-    .taxify_env[[cache_key]] <- blk
-  }
+  blk <- backbone_block(vtr_path)
 
   # Helper: block_lookup → attach row_idx and feed to fill_compiled_matches
   lookup_and_fill <- function(result, keys, row_indices, column, match_type,
@@ -477,14 +471,9 @@ match_rank_fallback <- function(backend, result, names_df, vtr_path) {
   if (length(rows) == 0L) return(result)
 
   col_map <- backend$col_map
-  cache_key <- backbone_memo_key(".blk_", vtr_path)
-  blk <- .taxify_env[[cache_key]]
-  if (is.null(blk)) {
-    blk <- vectra::materialize(vectra::tbl(vtr_path))
-    .taxify_env[[cache_key]] <- blk
-  }
+  blk <- backbone_block(vtr_path)
 
-  species <- sub("^(\\S+\\s+\\S+)\\s+.*$", "\\1", cleaned[rows])
+  species <-sub("^(\\S+\\s+\\S+)\\s+.*$", "\\1", cleaned[rows])
   ladder <- list(
     list(col = col_map$name,     key = function(s) s),
     list(col = "key_ci",         key = tolower),
@@ -552,23 +541,64 @@ fill_compiled_matches <- function(result, matches, match_type, col_map) {
   idx <- idx[new_match]
   best <- best[new_match, , drop = FALSE]
 
-  result$matched_name[idx]      <- best[[col_map$name]]
-  result$taxon_id[idx]          <- best[[col_map$id]]
-  result$rank[idx]              <- tolower(best[[col_map$rank]])
-  result$family[idx]            <- best$accepted_family
-  result$genus[idx]             <- best$accepted_genus
-  result$epithet[idx]           <- best[[col_map$epithet]]
-  result$authorship[idx]        <- best[[col_map$authorship]]
-  result$accepted_authorship[idx] <- best$accepted_authorship %||% NA_character_
-  result$accepted_name[idx]     <- best$accepted_name
-  result$accepted_id[idx]       <- best$accepted_taxon_id
-  result$is_synonym[idx]        <- best$is_synonym
-  result$match_type[idx]        <- match_type
-  result$fuzzy_dist[idx]        <- NA_real_
-  result$is_ambiguous[idx]      <- best$is_ambiguous %||% FALSE
-  result$ambiguous_targets[idx] <- best$ambiguous_targets %||% NA_character_
-
+  result <- write_match_rows(result, idx, best, col_map)
+  result$match_type[idx] <- match_type
+  result$fuzzy_dist[idx] <- NA_real_
   result
+}
+
+
+#' Write the matched backbone records into result rows
+#'
+#' The one place a picked backbone row becomes result columns, shared by every
+#' matching pass: the matched record's own name, ID, rank, authorship and
+#' status, the accepted taxon it resolves to (with that taxon's family and
+#' genus), and the pick's ambiguity. `match_type` and `fuzzy_dist` describe how
+#' the row was reached and are left to the caller.
+#'
+#' @param result Match result data.frame.
+#' @param idx Integer result rows to write.
+#' @param best Backbone rows (unified schema plus the embedded `accepted_*`
+#'   columns), aligned with `idx`.
+#' @param col_map Named list mapping logical roles to column names.
+#' @return `result` with those rows written.
+#' @noRd
+write_match_rows <- function(result, idx, best, col_map) {
+  col_or_na <- function(col) {
+    if (!is.null(col) && col %in% names(best)) best[[col]]
+    else rep(NA_character_, nrow(best))
+  }
+  result$matched_name[idx]        <- best[[col_map$name]]
+  result$taxon_id[idx]            <- best[[col_map$id]]
+  result$rank[idx]                <- tolower(best[[col_map$rank]])
+  result$family[idx]              <- best$accepted_family
+  result$genus[idx]               <- best$accepted_genus
+  result$epithet[idx]             <- col_or_na(col_map$epithet)
+  result$authorship[idx]          <- col_or_na(col_map$authorship)
+  result$accepted_authorship[idx] <- col_or_na("accepted_authorship")
+  result$accepted_name[idx]       <- best$accepted_name
+  result$accepted_id[idx]         <- best$accepted_taxon_id
+  result$is_synonym[idx]          <- best$is_synonym
+  result$taxonomic_status[idx]    <- col_or_na(col_map$status)
+  result$is_ambiguous[idx]        <- best$is_ambiguous %||% FALSE
+  result$ambiguous_targets[idx]   <- best$ambiguous_targets %||% NA_character_
+  result
+}
+
+
+#' The materialized backbone block, loaded once per build per session
+#'
+#' @param vtr_path Path to the backbone `.vtr`.
+#' @return A `vectra_block`.
+#' @noRd
+backbone_block <- function(vtr_path) {
+  cache_key <- backbone_memo_key(".blk_", vtr_path)
+  blk <- .taxify_env[[cache_key]]
+  if (is.null(blk)) {
+    blk <- vectra::materialize(vectra::tbl(vtr_path))
+    .taxify_env[[cache_key]] <- blk
+  }
+  blk
 }
 
 
@@ -659,12 +689,7 @@ fuzzy_match_via_join <- function(result, names_df, vtr_path, method, threshold,
   # materialization), use the already-materialized block to extract only
   # candidate rows for the relevant genera. This reduces the fuzzy_join
   # right side from millions of rows to thousands.
-  cache_key <- backbone_memo_key(".blk_", vtr_path)
-  blk <- .taxify_env[[cache_key]]
-  if (is.null(blk)) {
-    blk <- vectra::materialize(vectra::tbl(vtr_path))
-    .taxify_env[[cache_key]] <- blk
-  }
+  blk <- backbone_block(vtr_path)
 
   unique_genera <- unique(query_df$query_genus)
   unique_genera <- unique_genera[!is.na(unique_genera)]
@@ -714,21 +739,9 @@ fuzzy_match_via_join <- function(result, names_df, vtr_path, method, threshold,
   if (nrow(matches) > 0L) {
     best <- pick_best_vec(matches)
     idx <- best$row_idx
-    result$matched_name[idx]      <- best[[col_map$name]]
-    result$taxon_id[idx]          <- best[[col_map$id]]
-    result$rank[idx]              <- tolower(best[[col_map$rank]])
-    result$accepted_name[idx]     <- best$accepted_name
-    result$accepted_id[idx]       <- best$accepted_taxon_id
-    result$family[idx]            <- best$accepted_family
-    result$genus[idx]             <- best$accepted_genus
-    result$epithet[idx]           <- best[[col_map$epithet]]
-    result$authorship[idx]        <- best[[col_map$authorship]]
-    result$accepted_authorship[idx] <- best$accepted_authorship %||% NA_character_
-    result$is_synonym[idx]        <- best$is_synonym
-    result$match_type[idx]        <- "fuzzy"
-    result$fuzzy_dist[idx]        <- best$fuzzy_dist
-    result$is_ambiguous[idx]      <- best$is_ambiguous %||% FALSE
-    result$ambiguous_targets[idx] <- best$ambiguous_targets %||% NA_character_
+    result <- write_match_rows(result, idx, best, col_map)
+    result$match_type[idx] <- "fuzzy"
+    result$fuzzy_dist[idx] <- best$fuzzy_dist
   }
 
   result
@@ -865,21 +878,9 @@ fuzzy_match_prefix_blocked <- function(result, names_df, vtr_path, method,
   if (nrow(matches) > 0L) {
     best <- pick_best_vec(matches)
     idx <- best$row_idx
-    result$matched_name[idx]      <- best[[col_map$name]]
-    result$taxon_id[idx]          <- best[[col_map$id]]
-    result$rank[idx]              <- tolower(best[[col_map$rank]])
-    result$accepted_name[idx]     <- best$accepted_name
-    result$accepted_id[idx]       <- best$accepted_taxon_id
-    result$family[idx]            <- best$accepted_family
-    result$genus[idx]             <- best$accepted_genus
-    result$epithet[idx]           <- best[[col_map$epithet]]
-    result$authorship[idx]        <- best[[col_map$authorship]]
-    result$accepted_authorship[idx] <- best$accepted_authorship %||% NA_character_
-    result$is_synonym[idx]        <- best$is_synonym
-    result$match_type[idx]        <- "fuzzy"
-    result$fuzzy_dist[idx]        <- best$fuzzy_dist
-    result$is_ambiguous[idx]      <- best$is_ambiguous %||% FALSE
-    result$ambiguous_targets[idx] <- best$ambiguous_targets %||% NA_character_
+    result <- write_match_rows(result, idx, best, col_map)
+    result$match_type[idx] <- "fuzzy"
+    result$fuzzy_dist[idx] <- best$fuzzy_dist
   }
 
   result
@@ -945,13 +946,7 @@ match_abbrev_genus <- function(backend, result, names_df, vtr_path,
 
   spelled <- genus_context %||% spelled_genera(names_df$cleaned)
 
-  # Materialized backbone (shared session cache with the exact/fuzzy passes).
-  cache_key <- backbone_memo_key(".blk_", vtr_path)
-  blk <- .taxify_env[[cache_key]]
-  if (is.null(blk)) {
-    blk <- vectra::materialize(vectra::tbl(vtr_path))
-    .taxify_env[[cache_key]] <- blk
-  }
+  blk <- backbone_block(vtr_path)
 
   # Pull candidate rows by epithet via the same block-lookup the exact pass
   # uses, then constrain each query to its genus initial in R.
@@ -1043,6 +1038,7 @@ empty_match_result <- function(n) {
     authorship        = NA_character_,
     accepted_authorship = NA_character_,
     is_synonym        = NA,
+    taxonomic_status  = NA_character_,
     is_hybrid         = NA,
     match_type        = NA_character_,
     fuzzy_dist        = NA_real_,

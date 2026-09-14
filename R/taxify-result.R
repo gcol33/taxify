@@ -84,7 +84,8 @@ summary.taxify_result <- function(object, ...) {
                (tally$case_insensitive %||% 0L) +
                (tally$fuzzy %||% 0L) +
                (tally$abbrev %||% 0L) +
-               (tally$rank_fallback %||% 0L)
+               (tally$rank_fallback %||% 0L) +
+               (tally$basionym %||% 0L)
   n_oos     <- tally$out_of_scope %||% 0L
   n_none    <- tally$unmatched %||% 0L
   n_hybform <- tally$hybrid_formula %||% 0L
@@ -109,13 +110,16 @@ summary.taxify_result <- function(object, ...) {
 
   # Matched line
   n_rankfb <- tally$rank_fallback %||% 0L
-  cat(sprintf("  matched     %5d  (exact: %d, case-insensitive: %d, fuzzy: %d, abbrev: %d%s)\n",
+  n_basio  <- tally$basionym %||% 0L
+  cat(sprintf("  matched     %5d  (exact: %d, case-insensitive: %d, fuzzy: %d, abbrev: %d%s%s)\n",
               n_matched,
               tally$exact %||% 0L,
               tally$case_insensitive %||% 0L,
               tally$fuzzy %||% 0L,
               tally$abbrev %||% 0L,
               if (n_rankfb > 0L) sprintf(", species fallback: %d", n_rankfb)
+              else "",
+              if (n_basio > 0L) sprintf(", via basionym: %d", n_basio)
               else ""))
 
   # Helper: pick the label column (taxon_group if present, else life_form)
@@ -254,6 +258,7 @@ summary.taxify_result <- function(object, ...) {
     authorship          = NA_character_,
     accepted_authorship = NA_character_,
     is_synonym          = NA,
+    taxonomic_status    = NA_character_,
     is_hybrid           = NA,
     match_type          = NA_character_,
     fuzzy_dist          = NA_real_,

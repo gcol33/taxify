@@ -35,8 +35,9 @@
 #'     outside the list's main TDWG continents (skipped for globally spread
 #'     lists).}
 #'   \item{`case`}{Resolved only after ignoring case (`match_type = "exact_ci"`).}
-#'   \item{`synonym`}{The input is an outdated synonym; `suggestion` is the
-#'     current accepted name.}
+#'   \item{`synonym`}{The input is an outdated synonym, or a name the backbone
+#'     keeps unplaced whose basionym it places (`match_type = "basionym"`);
+#'     `suggestion` is the current accepted name.}
 #' }
 #' Rows with no anomaly are dropped.
 #'
@@ -358,7 +359,9 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
     list(name = "case",          mask = m_case,      rank = 1L,
          reason = rep("case mismatch", n)),
     list(name = "synonym",       mask = m_synonym,   rank = 1L,
-         reason = rep("outdated synonym", n))
+         reason = ifelse(!is.na(mt) & mt == "basionym",
+                         "unplaced name; its basionym is placed as this taxon",
+                         "outdated synonym"))
   )
 
   anomalies_chr <- rep("", n)

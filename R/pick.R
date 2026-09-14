@@ -9,8 +9,9 @@
 #   0. smallest fuzzy distance      (fuzzy matches only; decides which backbone
 #                                    name the input meant, before the scores
 #                                    below decide which row of that name to take)
-#   1. status                       (accepted > unreviewed > synonym >
-#                                    misapplied; see `.status_rank`)
+#   1. status                       (accepted > homotypic placement >
+#                                    unreviewed > synonym > misapplied; see
+#                                    `.status_rank` and `homotypic_placement()`)
 #   2. SPECIES  > higher ranks      (case-tolerant)
 #   3. epithet-preserving accepted  (the candidate whose accepted name keeps the
 #                                    matched name's specific epithet — the
@@ -36,7 +37,9 @@
 #
 # One tier gap does not settle a conflict either: a best row that is only
 # *unplaced* is a non-decision by the backbone, so a lower-tier record that does
-# place the name elsewhere still counts. See `in_conflict_scope()`.
+# place the name elsewhere still counts; and a best row that won only as a
+# homotypic placement leaves the unplaced homonym it outranked in the conflict.
+# See `in_conflict_scope()`.
 
 
 # Ordered vocabulary for `taxonomicStatus`, smaller = better. Backbones spell
@@ -92,6 +95,78 @@ status_score_vec <- function(status, is_synonym = NULL) {
 }
 
 
+# Status grade of a name the backbone keeps as its own concept but has not
+# placed: WFO's `UNCHECKED`, COL's `PROVISIONALLY ACCEPTED`.
+.status_unplaced <- 1L
+
+# Status grade of a synonym record that is homotypic with the accepted name it
+# points to (see `homotypic_placement()`). It sits between an accepted record
+# and an unplaced one: a record carrying the queried string that the backbone
+# places, by its type, under a combination built on it.
+.status_homotypic <- 0.5
+
+#' Last epithet of a name, orthographically normalized
+#'
+#' The epithet that travels with the type when a name is recombined or moved in
+#' rank: `orientalis` in both `Lycopsis orientalis` and `Anchusa arvensis subsp.
+#' orientalis`. `NA` for a genus-only name or `NA` input.
+#'
+#' @param names Character vector of taxonomic names.
+#' @return Character vector of normalized terminal epithets (or `NA`).
+#' @noRd
+terminal_epithet_key <- function(names) {
+  norm <- normalize_epithets(names)
+  ep <- sub("^.*\\s(\\S+)$", "\\1", norm)
+  ep[is.na(norm) | !grepl("\\s", norm)] <- NA_character_
+  ep
+}
+
+#' Is a synonym record homotypic with the accepted name it points to?
+#'
+#' A recombination cites the author of its basionym in parentheses
+#' (`Anchusa arvensis subsp. orientalis (L.) Nordh.`, based on `Lycopsis
+#' orientalis L.`) and keeps the basionym's final epithet. A synonym record whose
+#' own basionym author -- its parenthetical author, or its whole authorship when
+#' it has none -- is the accepted name's parenthetical author, and whose final
+#' epithet the accepted name keeps, shares the accepted name's type: the
+#' backbone's placement of it is a placement of the name itself, not of a
+#' different plant that happens to carry the same string.
+#'
+#' @param candidates A data.frame carrying `matched_name_std`, `accepted_name`,
+#'   `authorship` and `accepted_authorship`.
+#' @return Logical vector along the rows, `FALSE` wherever the evidence is
+#'   missing.
+#' @noRd
+homotypic_placement <- function(candidates) {
+  n <- nrow(candidates)
+  out <- rep(FALSE, n)
+  cols <- c("matched_name_std", "accepted_name", "authorship",
+            "accepted_authorship")
+  if (!all(cols %in% names(candidates))) return(out)
+  matched_name        <- as.character(candidates$matched_name_std)
+  accepted_name       <- as.character(candidates$accepted_name)
+  authorship          <- as.character(candidates$authorship)
+  accepted_authorship <- as.character(candidates$accepted_authorship)
+
+  cand <- which(!is.na(authorship) & !is.na(accepted_authorship) &
+                  startsWith(trimws(accepted_authorship), "(") &
+                  !is.na(matched_name) & !is.na(accepted_name) &
+                  matched_name != accepted_name)
+  if (length(cand) == 0L) return(out)
+
+  s <- author_key_parts(authorship[cand])
+  t <- author_key_parts(accepted_authorship[cand])
+  s_basionym <- ifelse(nzchar(s$paren), s$paren, s$terminal)
+  ep_s <- terminal_epithet_key(matched_name[cand])
+  ep_t <- terminal_epithet_key(accepted_name[cand])
+
+  out[cand] <- !is.na(s_basionym) & nzchar(s_basionym) &
+    !is.na(t$paren) & nzchar(t$paren) & s_basionym == t$paren &
+    !is.na(ep_s) & !is.na(ep_t) & ep_s == ep_t
+  out
+}
+
+
 #' Extract the normalized specific epithet from a binomial name
 #'
 #' Applies the same orthographic normalization as the matcher
@@ -114,8 +189,9 @@ epithet_key <- function(names) {
 #'
 #' Computes the per-row priority scores used to rank backbone candidates for a
 #' name (smaller is better): smallest fuzzy distance (`dist_score`), then
-#' taxonomic status (`status_score`: accepted, then a name the backbone keeps
-#' but has not reviewed, then a synonym, then a misapplication), SPECIES over
+#' taxonomic status (`status_score`: accepted, then a synonym homotypic with its
+#' accepted name, then a name the backbone keeps but has not reviewed, then any
+#' other synonym, then a misapplication), SPECIES over
 #' higher ranks (`rank_score`), the epithet-preserving accepted target
 #' (`epithet_score`, the homotypic basionym among same-name homonym synonyms,
 #' e.g. `Pinus abies` -> `Picea abies`), and finally nomenclatural validity
@@ -134,19 +210,29 @@ epithet_key <- function(names) {
 #' string, so validity must not make that conflict look resolved. Sort with
 #' [candidate_order()] rather than re-listing the columns.
 #'
+#' A synonym counts as homotypic when its own basionym author is the accepted
+#' name's parenthetical author and the accepted name keeps its final epithet
+#' (`Lycopsis orientalis` L. -> `Anchusa arvensis subsp. orientalis` (L.)
+#' Nordh.). That outranks a record the backbone keeps unplaced under the same
+#' string, which is a different type: a homonym, not the name the placed
+#' record carries (#81).
+#'
 #' @param candidates A data.frame with `taxonomicStatus` and `taxonRank`, and
 #'   optionally `is_synonym` (the backbone's normalized synonym flag),
-#'   `fuzzy_dist` (fuzzy proximity), `nomenclaturalStatus` (validity), plus
-#'   `matched_name_std` and `accepted_name` (epithet preservation).
-#' @return A list with the numeric vector `dist_score`, integer vectors
-#'   `status_score`, `rank_score`, `valid_score`, `epithet_score`, and the
+#'   `fuzzy_dist` (fuzzy proximity), `nomenclaturalStatus` (validity),
+#'   `matched_name_std` and `accepted_name` (epithet preservation), plus
+#'   `authorship` and `accepted_authorship` (homotypy).
+#' @return A list with the numeric vectors `dist_score` and `status_score`,
+#'   integer vectors `rank_score`, `valid_score`, `epithet_score`, and the
 #'   character `tier` signature (`"dist/status/rank/epithet"`) per row, in input
 #'   order.
 #' @keywords internal
 #' @export
 score_candidates <- function(candidates) {
-  status_score <- status_score_vec(candidates$taxonomicStatus,
-                                   candidates$is_synonym)
+  status_score <- as.numeric(status_score_vec(candidates$taxonomicStatus,
+                                              candidates$is_synonym))
+  homotypic <- status_score == 2 & homotypic_placement(candidates)
+  status_score[homotypic] <- .status_homotypic
   rank_score   <- ifelse(toupper(candidates$taxonRank) == "SPECIES",
                           0L, 1L)
 
@@ -222,17 +308,13 @@ candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
 }
 
 
-# Status grade of a name the backbone keeps as its own concept but has not
-# placed: WFO's `UNCHECKED`, COL's `PROVISIONALLY ACCEPTED`.
-.status_unplaced <- 1L
-
 #' Which candidates count when looking for a conflicting accepted target
 #'
 #' Normally the rows sharing the best row's `tier`: below that tier the backbone
 #' has ranked the candidate lower and the pick is settled.
 #'
-#' The exception is a best row that is only *unplaced* -- a name the backbone
-#' lists but has not placed in its taxonomy. That is a non-decision, not a
+#' Two exceptions. A best row that is only *unplaced* -- a name the backbone
+#' lists but has not placed in its taxonomy -- is a non-decision, not a
 #' resolution, so a lower-tier record that does place the name somewhere else is
 #' a real disagreement and the whole candidate set counts. `Abies douglasii` var.
 #' `taxifolia` in WFO is the case: an unplaced record keeping the name and a
@@ -240,14 +322,24 @@ candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
 #' unplaced record keeps the queried plant's name, but the synonymy is the only
 #' actual placement on offer, so the caller has to be told it exists (#53).
 #'
+#' The mirror case is a best row that won as a homotypic placement over an
+#' unplaced record of the same string (`Lycopsis orientalis` L. over `Lycopsis
+#' orientalis` Steph.). The unplaced record is a different type the backbone
+#' keeps, so it stays in the conflict and the caller is told both exist (#81).
+#'
+#' Vectorized: `best_tier` and `best_status` are the best row's values,
+#' broadcast along the candidates they are compared with.
+#'
 #' @param tier Character tier signature per row, from [score_candidates()].
-#' @param status_score Integer status score per row, from [score_candidates()].
-#' @param best_idx Integer position of the best row.
+#' @param status_score Numeric status score per row, from [score_candidates()].
+#' @param best_tier,best_status The best row's tier and status score, recycled
+#'   along `tier`.
 #' @return Logical vector along `tier`.
 #' @noRd
-in_conflict_scope <- function(tier, status_score, best_idx) {
-  if (status_score[best_idx] == .status_unplaced) return(rep(TRUE, length(tier)))
-  tier == tier[best_idx]
+in_conflict_scope <- function(tier, status_score, best_tier, best_status) {
+  tier == best_tier |
+    best_status == .status_unplaced |
+    (best_status == .status_homotypic & status_score == .status_unplaced)
 }
 
 
@@ -277,11 +369,12 @@ pick_best <- function(candidates) {
   best_idx <- candidate_order(candidates, s)[1L]
 
   # Tier-level ambiguity: rows in the same tier as the best, disagreeing on
-  # accepted_taxon_id. Widened to the whole candidate set when the best row is
-  # only unplaced (see `in_conflict_scope`).
+  # accepted_taxon_id, widened around unplaced records (see
+  # `in_conflict_scope`).
   ambig_targets <- NA_character_
   if ("accepted_taxon_id" %in% names(candidates)) {
-    same_tier <- in_conflict_scope(s$tier, s$status_score, best_idx)
+    same_tier <- in_conflict_scope(s$tier, s$status_score, s$tier[best_idx],
+                                   s$status_score[best_idx])
     ids <- unique(candidates$accepted_taxon_id[same_tier])
     ids <- ids[!is.na(ids)]
     if (length(ids) >= 2L) {
@@ -300,7 +393,8 @@ pick_best <- function(candidates) {
 #'
 #' Replaces the per-group loop with a single sort + dedup. Honours the same
 #' priority as `pick_best()` and reports tier-level ambiguity per group:
-#' accepted before unreviewed before synonym, SPECIES > higher ranks, then the
+#' accepted before a homotypic synonym before unreviewed before any other
+#' synonym, SPECIES > higher ranks, then the
 #' epithet-preserving accepted target (homotypic basionym), then the
 #' nomenclatural-validity and lowest-`taxonID` tiebreaks.
 #'
@@ -338,14 +432,14 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
   sorted$ambiguous_targets <- NA_character_
 
   if ("accepted_taxon_id" %in% names(sorted)) {
-    # Per-group best tier signature, broadcast to every row of the group. Same
-    # scope rule as pick_best(), vectorized: a group whose best row is only
-    # unplaced puts its whole candidate set in scope.
+    # Per-group best tier signature and status, broadcast to every row of the
+    # group, under the same scope rule as pick_best().
     grp_vec   <- sorted[[group_col]]
     best_pos  <- which(is_first)
     grp_best  <- match(grp_vec, grp_vec[is_first])
-    same_tier <- sorted_tier == sorted_tier[best_pos][grp_best] |
-      sorted_status[best_pos][grp_best] == .status_unplaced
+    same_tier <- in_conflict_scope(sorted_tier, sorted_status,
+                                   sorted_tier[best_pos][grp_best],
+                                   sorted_status[best_pos][grp_best])
 
     if (any(same_tier)) {
       tier_grp <- ifelse(same_tier, as.character(grp_vec), NA_character_)

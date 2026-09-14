@@ -192,6 +192,20 @@ list, and the lookups between names, ids and common names.
   `install_path` (`"patched"` or `"full"`), and the ready message naming the
   path and any reason the patch was not used is shown regardless of `verbose`.
 
+* A name the backbone holds without placing it no longer reads as accepted
+  (#81). The result carries the matched record's own status in a new
+  `taxonomic_status` column (WFO's `"UNCHECKED"`, COL's `"PROVISIONALLY
+  ACCEPTED"`, ...). Where such a record's basionym is placed, the name resolves
+  to the taxon the basionym is placed under, with `match_type = "basionym"` and
+  `is_synonym = TRUE`: against WFO 2024-12, *Sabulina tenuifolia* now resolves
+  to *Minuartia hybrida*. This reads the backbone's basionym link
+  (`original_name_usage_id`), which WFO and COL builds carry once rebuilt; a
+  build without it is matched as before. And where one record of a name is a
+  synonym homotypic with its accepted name and another is unplaced, the
+  homotypic record is picked and the unplaced homonym stays in
+  `ambiguous_targets`: *Lycopsis orientalis* resolves to *Anchusa arvensis*
+  subsp. *orientalis* rather than to the unplaced *Lycopsis orientalis* Steph.
+
 # taxify 0.5.2
 
 An audit for the #55 shape -- a failure returned as a plausible answer, with

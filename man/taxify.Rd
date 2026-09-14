@@ -153,7 +153,14 @@ cross (both parents resolved), else \code{NA}.}
 this is the author of the resolved accepted name, not the synonym's own
 author, so \code{accepted_name} and \code{accepted_authorship} together form the
 accepted name's full citation.}
-\item{is_synonym}{Logical. Was the match a synonym?}
+\item{is_synonym}{Logical. Does the matched name resolve to a different
+accepted taxon? \code{TRUE} for a synonym record, and for an unplaced record
+resolved through its basionym (\code{match_type = "basionym"}).}
+\item{taxonomic_status}{The matched record's own status as the backbone
+writes it (\code{"ACCEPTED"}, \code{"SYNONYM"}, WFO's \code{"UNCHECKED"}, COL's
+\code{"PROVISIONALLY ACCEPTED"}, ...), so a name the backbone holds without
+having placed it can be told from an accepted one. \code{NA} when nothing
+matched.}
 \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
 \item{hybrid_type}{\code{"nothogenus"} (\code{"x Cupressocyparis leylandii"}),
 \code{"nothospecies"} (\code{"Quercus x hispanica"}), \code{"formula"}
@@ -186,11 +193,19 @@ not store; the ID, rank and classification columns are \code{NA},
 resolve, and \code{\link[=add_hybrid_info]{add_hybrid_info()}} materializes the parents into the
 \verb{hybrid_parent_*} columns), \code{"rank_fallback"} (an infraspecific name no
 backbone carries, resolved to its species: the ID, rank and name columns
-describe the species), or \code{"none"}.}
+describe the species), \code{"basionym"} (a record the backbone keeps
+unplaced, resolved to the taxon under which it places the record's
+basionym: \code{matched_name}, \code{taxon_id} and \code{taxonomic_status} describe the
+unplaced record, the \verb{accepted_*} columns that taxon; needs a backbone
+built with its basionym links), or \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
 \item{is_ambiguous}{Logical. \code{TRUE} when the matched scientificName had
 multiple rows pointing to different accepted taxa at the same priority
-tier (homonym ambiguity). An authorship carried by the input resolves it
+tier (homonym ambiguity). A record the backbone keeps unplaced does not
+settle such a conflict: it is reported beside the records that place the
+name, whichever of them is picked. Where one record of the name is a
+synonym homotypic with its accepted name and another is unplaced, the
+homotypic record is picked. An authorship carried by the input resolves it
 where it picks out one target; \code{nomenclaturalStatus = "Valid"} orders
 which candidate the scalar columns hold, but does not clear the flag,
 because a valid name and an illegitimate one can be synonyms of different

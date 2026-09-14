@@ -82,7 +82,8 @@ disambiguate_by_authorship <- function(result, vtr_path) {
   names_to_look <- unique(result$matched_name[rows])
   want_cols <- c("canonical_name", "authorship", "taxon_id",
                  "accepted_taxon_id", "accepted_name", "accepted_authorship",
-                 "is_synonym", "taxon_rank", "accepted_family", "accepted_genus")
+                 "is_synonym", "taxonomic_status", "taxon_rank",
+                 "accepted_family", "accepted_genus")
   available <- tryCatch(vtr_schema(vtr_path), error = function(e) NULL)
   if (is.null(available)) return(result)
   joined <- tryCatch(
@@ -129,6 +130,8 @@ disambiguate_by_authorship <- function(result, vtr_path) {
     if (has_col("accepted_authorship") && "accepted_authorship" %in% names(cand))
       result$accepted_authorship[i] <- cand$accepted_authorship[w]
     if (has_col("is_synonym"))     result$is_synonym[i]     <- cand$is_synonym[w]
+    if (has_col("taxonomic_status") && "taxonomic_status" %in% names(cand))
+      result$taxonomic_status[i] <- cand$taxonomic_status[w]
     if (has_col("rank") && "taxon_rank" %in% names(cand))
       result$rank[i] <- tolower(cand$taxon_rank[w])
     # Family/genus of the ACCEPTED taxon. `cand`/`w` is the matched synonym row,

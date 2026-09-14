@@ -9,20 +9,22 @@ score_candidates(candidates)
 \arguments{
 \item{candidates}{A data.frame with \code{taxonomicStatus} and \code{taxonRank}, and
 optionally \code{is_synonym} (the backbone's normalized synonym flag),
-\code{fuzzy_dist} (fuzzy proximity), \code{nomenclaturalStatus} (validity), plus
-\code{matched_name_std} and \code{accepted_name} (epithet preservation).}
+\code{fuzzy_dist} (fuzzy proximity), \code{nomenclaturalStatus} (validity),
+\code{matched_name_std} and \code{accepted_name} (epithet preservation), plus
+\code{authorship} and \code{accepted_authorship} (homotypy).}
 }
 \value{
-A list with the numeric vector \code{dist_score}, integer vectors
-\code{status_score}, \code{rank_score}, \code{valid_score}, \code{epithet_score}, and the
+A list with the numeric vectors \code{dist_score} and \code{status_score},
+integer vectors \code{rank_score}, \code{valid_score}, \code{epithet_score}, and the
 character \code{tier} signature (\code{"dist/status/rank/epithet"}) per row, in input
 order.
 }
 \description{
 Computes the per-row priority scores used to rank backbone candidates for a
 name (smaller is better): smallest fuzzy distance (\code{dist_score}), then
-taxonomic status (\code{status_score}: accepted, then a name the backbone keeps
-but has not reviewed, then a synonym, then a misapplication), SPECIES over
+taxonomic status (\code{status_score}: accepted, then a synonym homotypic with its
+accepted name, then a name the backbone keeps but has not reviewed, then any
+other synonym, then a misapplication), SPECIES over
 higher ranks (\code{rank_score}), the epithet-preserving accepted target
 (\code{epithet_score}, the homotypic basionym among same-name homonym synonyms,
 e.g. \verb{Pinus abies} -> \verb{Picea abies}), and finally nomenclatural validity
@@ -41,5 +43,12 @@ the pick but stays out of the tier: a nomenclaturally valid name can be a
 synonym of a different species than an illegitimate one carrying the same
 string, so validity must not make that conflict look resolved. Sort with
 \code{\link[=candidate_order]{candidate_order()}} rather than re-listing the columns.
+
+A synonym counts as homotypic when its own basionym author is the accepted
+name's parenthetical author and the accepted name keeps its final epithet
+(\verb{Lycopsis orientalis} L. -> \verb{Anchusa arvensis subsp. orientalis} (L.)
+Nordh.). That outranks a record the backbone keeps unplaced under the same
+string, which is a different type: a later homonym, not the name the placed
+record carries (#81).
 }
 \keyword{internal}

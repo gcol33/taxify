@@ -30,7 +30,8 @@
   acc_name   = "accepted_name",
   acc_family = "accepted_family",
   acc_genus  = "accepted_genus",
-  is_synonym = "is_synonym"
+  is_synonym = "is_synonym",
+  basionym   = "original_name_usage_id"
 )
 
 

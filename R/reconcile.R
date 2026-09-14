@@ -31,7 +31,8 @@
 #'   \item{accepted_name}{The name it resolves to now (`NA` if unresolved).}
 #'   \item{status}{One of:
 #'     `"unchanged"` (resolves to itself, still accepted),
-#'     `"synonym"` (now a synonym of a different accepted name),
+#'     `"synonym"` (now a synonym of a different accepted name, including a
+#'       name the backbone keeps unplaced but resolves through its basionym),
 #'     `"misspelling"` (resolved by fuzzy/abbrev match to a corrected spelling),
 #'     `"rank_fallback"` (an infraspecific name the backbone does not carry;
 #'       `accepted_name` is the accepted name of its species),

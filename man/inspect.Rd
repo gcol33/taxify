@@ -81,8 +81,9 @@ declared \code{region} / \code{coords} (vascular plants only).}
 outside the list's main TDWG continents (skipped for globally spread
 lists).}
 \item{\code{case}}{Resolved only after ignoring case (\code{match_type = "exact_ci"}).}
-\item{\code{synonym}}{The input is an outdated synonym; \code{suggestion} is the
-current accepted name.}
+\item{\code{synonym}}{The input is an outdated synonym, or a name the backbone
+keeps unplaced whose basionym it places (\code{match_type = "basionym"});
+\code{suggestion} is the current accepted name.}
 }
 Rows with no anomaly are dropped.
 

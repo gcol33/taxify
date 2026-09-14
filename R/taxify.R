@@ -138,7 +138,14 @@
 #'     this is the author of the resolved accepted name, not the synonym's own
 #'     author, so `accepted_name` and `accepted_authorship` together form the
 #'     accepted name's full citation.}
-#'   \item{is_synonym}{Logical. Was the match a synonym?}
+#'   \item{is_synonym}{Logical. Does the matched name resolve to a different
+#'     accepted taxon? `TRUE` for a synonym record, and for an unplaced record
+#'     resolved through its basionym (`match_type = "basionym"`).}
+#'   \item{taxonomic_status}{The matched record's own status as the backbone
+#'     writes it (`"ACCEPTED"`, `"SYNONYM"`, WFO's `"UNCHECKED"`, COL's
+#'     `"PROVISIONALLY ACCEPTED"`, ...), so a name the backbone holds without
+#'     having placed it can be told from an accepted one. `NA` when nothing
+#'     matched.}
 #'   \item{is_hybrid}{Logical. Was a hybrid marker detected in the input?}
 #'   \item{hybrid_type}{`"nothogenus"` (`"x Cupressocyparis leylandii"`),
 #'     `"nothospecies"` (`"Quercus x hispanica"`), `"formula"`
@@ -171,11 +178,19 @@
 #'     resolve, and [add_hybrid_info()] materializes the parents into the
 #'     `hybrid_parent_*` columns), `"rank_fallback"` (an infraspecific name no
 #'     backbone carries, resolved to its species: the ID, rank and name columns
-#'     describe the species), or `"none"`.}
+#'     describe the species), `"basionym"` (a record the backbone keeps
+#'     unplaced, resolved to the taxon under which it places the record's
+#'     basionym: `matched_name`, `taxon_id` and `taxonomic_status` describe the
+#'     unplaced record, the `accepted_*` columns that taxon; needs a backbone
+#'     built with its basionym links), or `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
 #'   \item{is_ambiguous}{Logical. `TRUE` when the matched scientificName had
 #'     multiple rows pointing to different accepted taxa at the same priority
-#'     tier (homonym ambiguity). An authorship carried by the input resolves it
+#'     tier (homonym ambiguity). A record the backbone keeps unplaced does not
+#'     settle such a conflict: it is reported beside the records that place the
+#'     name, whichever of them is picked. Where one record of the name is a
+#'     synonym homotypic with its accepted name and another is unplaced, the
+#'     homotypic record is picked. An authorship carried by the input resolves it
 #'     where it picks out one target; `nomenclaturalStatus = "Valid"` orders
 #'     which candidate the scalar columns hold, but does not clear the flag,
 #'     because a valid name and an illegitimate one can be synonyms of different
@@ -440,14 +455,19 @@ taxify_compare <- function(x, backbone, mode, fuzzy, fuzzy_threshold,
   # backbone is considered for a fuzzy one, and for a fuzzy one before any
   # species fallback, so the base column agrees with `mode = "fallback"` on the
   # same input. Within a quality tier the first backbone in `backbone` order
-  # wins.
+  # wins. The quality is that of the name match, so a row resolved through its
+  # basionym after a fuzzy match counts as fuzzy.
   tiers <- list(c("fuzzy", "rank_fallback"), "rank_fallback", character(0L))
+  quality <- function(r) {
+    ifelse(r$match_type == "rank_fallback", "rank_fallback",
+           ifelse(!is.na(r$fuzzy_dist), "fuzzy", "exact"))
+  }
   base <- per_be[[1L]]
   base_matched <- logical(nrow(base))
   for (later in tiers) {
     for (k in seq_along(backbone)) {
       r <- per_be[[k]]
-      take <- is_matched(r) & !r$match_type %in% later
+      take <- is_matched(r) & !quality(r) %in% later
       fill <- which(!base_matched & take)
       if (length(fill)) {
         for (col in intersect(names(base), names(r))) {
@@ -632,12 +652,8 @@ finalize_hybrids <- function(result, names_df, backbone) {
                   unresolved)
   if (length(form) == 0L) return(result)
 
-  na_cols <- intersect(
-    c("matched_name", "taxon_id", "accepted_id", "rank",
-      "family", "genus", "epithet", "authorship", "accepted_authorship",
-      "is_synonym", "fuzzy_dist", "is_ambiguous", "ambiguous_targets",
-      "aggregate_fallback"),
-    names(result))
+  na_cols <- intersect(c(.match_record_cols, "aggregate_fallback"),
+                       names(result))
   for (col in na_cols) result[[col]][form] <- NA
   result$match_type[form] <- "hybrid_formula"
   result$is_hybrid[form]  <- TRUE
@@ -793,7 +809,9 @@ run_fallback_sweep <- function(result, names_df, backbone, fuzzy,
 #'
 #' The shared sequence used by both the single-backbone and multi-backbone paths:
 #' exact matching, the out-of-scope prefilter, abbreviated-genus resolution,
-#' then (optionally) fuzzy matching of whatever remains.
+#' then (optionally) fuzzy matching of whatever remains, the species fallback,
+#' the authorship tiebreak, and resolution of unplaced records through their
+#' basionym.
 #'
 #' @param be A taxify_backend object.
 #' @param names_df Data.frame from `clean_names()`.
@@ -845,6 +863,10 @@ run_match_stages <- function(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
   # Settle homonym ambiguity where the input carried an author (no-op when no
   # ambiguous row carries one).
   result <- disambiguate_by_authorship(result, vtr_path)
+
+  # An unplaced record goes where the backbone places its basionym. After the
+  # authorship pass, so an author the caller typed chooses the record first.
+  result <- resolve_via_basionym(result, vtr_path, be$col_map)
 
   release_out_of_scope(result, names_df, scope %||% be$name)
 }
@@ -995,7 +1017,20 @@ is_backbone_match <- function(match_type) {
 #' Match types a backbone lookup produces, strongest evidence first
 #' @noRd
 .backbone_match_types <- c("exact", "exact_ci", "abbrev", "fuzzy",
-                           "rank_fallback")
+                           "rank_fallback", "basionym")
+
+
+#' Result columns describing the backbone record a row matched
+#'
+#' Everything a match writes except `accepted_name` (which an unresolved hybrid
+#' formula fills with its parent cross) and the input-side columns: the columns
+#' blanked when a match is taken back.
+#' @noRd
+.match_record_cols <- c("matched_name", "taxon_id", "accepted_id", "rank",
+                        "family", "genus", "epithet", "authorship",
+                        "accepted_authorship", "is_synonym",
+                        "taxonomic_status", "fuzzy_dist", "is_ambiguous",
+                        "ambiguous_targets")
 
 
 #' Demote matched rows back to unmatched (blanking their match columns)
@@ -1012,10 +1047,8 @@ is_backbone_match <- function(match_type) {
 demote_match_rows <- function(result, rows) {
   if (length(rows) == 0L) return(result)
   na_cols <- intersect(
-    c("matched_name", "accepted_name", "taxon_id", "accepted_id", "rank",
-      "family", "genus", "epithet", "authorship", "accepted_authorship",
-      "is_synonym", "fuzzy_dist", "is_ambiguous", "ambiguous_targets",
-      "aggregate_fallback", "backbone", "backbone_version"),
+    c(.match_record_cols, "accepted_name", "aggregate_fallback", "backbone",
+      "backbone_version"),
     names(result))
   for (col in na_cols) result[[col]][rows] <- NA
   result$match_type[rows] <- NA_character_
@@ -1407,6 +1440,7 @@ as_taxify_result <- function(result, backbone) {
     fuzzy            = sum(mt == "fuzzy",        na.rm = TRUE),
     abbrev           = sum(mt == "abbrev",      na.rm = TRUE),
     rank_fallback    = sum(mt == "rank_fallback", na.rm = TRUE),
+    basionym         = sum(mt == "basionym",     na.rm = TRUE),
     hybrid_formula   = sum(mt == "hybrid_formula", na.rm = TRUE),
     out_of_scope     = sum(mt == "out_of_scope", na.rm = TRUE),
     unmatched        = sum(mt == "none",         na.rm = TRUE)
