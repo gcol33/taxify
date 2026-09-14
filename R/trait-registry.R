@@ -619,7 +619,11 @@
   # animal transport. P: ePizoochory, external animal transport
   # (=exozoochory). O: hOarding, scatter and hoarding diaspores by animals
   # (others than ants). Z: Zoochory, dispersal mediated by animals (unknown
-  # transport system)." The primary vector is the first letter.
+  # transport system)." The primary vector is the first letter. G reads as
+  # "gravity", the class Baseflor, AusTraits and LEDA fill from barochory, not
+  # as "unspecialized", which only GIFT (no gravity class) and AusTraits'
+  # "undefined" supply: of BROT's G species, Baseflor codes 838 of 1,864
+  # barochory, and AusTraits 17 of 118 barochory against 1 undefined.
   brot_disp_codes <- c(g = "gravity", w = "wind", h = "water", b = "ballistic",
                        m = "ant", n = "animal", p = "animal", o = "animal",
                        z = "animal")
@@ -1873,11 +1877,13 @@
         brot      = list(enrichment = "brot", col = "disp_mode",
                          citation = "BROT 2.0 (Tavsanoglu & Pausas 2018)",
                          note = paste("BROT's letter code (G gravity, W wind, H water, B ballistic, M ant;",
-                                      "N, P, O, Z animal); the first letter is the primary vector.",
-                                      "Agrees with GIFT on 51% of 3,459 shared species and with AusTraits",
-                                      "on 49% of 481; on species BROT does not code G the figures are 74%",
-                                      "and 60%. GIFT has no gravity class: its calls on BROT's G species",
-                                      "split unspecialized 294, wind 369, ballistic 237, animal 153."),
+                                      "N, P, O, Z animal); the first letter is the primary vector. BROT defines",
+                                      "G as \"autochory, by Gravity (=unassisted dispersal)\". Of BROT's G species,",
+                                      "Baseflor codes 838 of 1,864 barochory and AusTraits 17 of 118 barochory",
+                                      "against 1 undefined; GIFT, which has no gravity class, calls 293 of 1,058",
+                                      "unspecialized, 367 anemochorous, 234 autochorous, 152 zoochorous.",
+                                      "Agreement on shared keys: GIFT 51% of 3,412, AusTraits 48% of 471,",
+                                      "Baseflor 54% of 5,860; outside BROT's G code 74%, 60% and 58%."),
                          map = brot_disp)
       )
     ),

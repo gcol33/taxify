@@ -860,6 +860,14 @@ test_that("BROT dispersal letter codes map through the BROT 2.0 legend, primary 
                c("wind", "animal", "ant", NA, NA, NA))
 })
 
+test_that("BROT's unassisted G code lands in the barochory gravity class other sources fill", {
+  reg <- .trait_registry()$dispersal_syndrome
+  expect_equal(reg$sources$brot$map(c("G", "GH", "GM")), rep("gravity", 3))
+  expect_equal(reg$sources$baseflor$map("barochory"), "gravity")
+  expect_equal(reg$sources$austraits$map("barochory"), "gravity")
+  expect_true(all(reg$sources$brot$map(c("G", "W", "H", "B", "M", "N", "P", "O", "Z")) %in% reg$vocab))
+})
+
 test_that("LEDA seed mass is a registered milligram source", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true("leda" %in% ti$source)
