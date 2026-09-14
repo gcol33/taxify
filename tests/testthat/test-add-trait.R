@@ -541,7 +541,7 @@ test_that("BET's substrate set reduces to ITALIC's primary class by one priority
 test_that("trait_info() returns one row per source with harmonization notes", {
   ti <- suppressMessages(trait_info("seed_mass"))
   expect_true(all(c("source", "enrichment", "column", "note") %in% names(ti)))
-  expect_setequal(ti$source, c("diaz", "gift", "austraits", "bien", "brot", "ecoflora", "kew_sid"))
+  expect_setequal(ti$source, c("diaz", "gift", "austraits", "bien", "brot", "ecoflora", "kew_sid", "leda"))
   expect_true(any(grepl("x1000", ti$note)))          # GIFT g -> mg conversion noted
   expect_error(suppressMessages(trait_info("nope")), "unknown trait")
 })
@@ -597,11 +597,11 @@ test_that("coalesce defaults to median for numeric traits", {
 
   # Default numeric combine is median across all sources that carry the row.
   # Abies alba seed mass in the example database: Diaz 62.007, GIFT 73.9425,
-  # BIEN 44.47, BROT 52.63 mg -> median (52.63 + 62.007) / 2 = 57.3185.
+  # BIEN 44.47, BROT 52.63, LEDA 79.2 mg -> median 62.007.
   d <- add_trait(mk("Abies alba"), "seed_mass", mode = "coalesce", verbose = FALSE)
   expect_true(all(c("seed_mass", "seed_mass_sources", "seed_mass_n") %in% names(d)))
-  expect_equal(d$seed_mass_n, 4L)
-  expect_equal(d$seed_mass, 57.3185, tolerance = 1e-6)
+  expect_equal(d$seed_mass_n, 5L)
+  expect_equal(d$seed_mass, 62.007, tolerance = 1e-6)
   expect_match(d$seed_mass_sources, "diaz")
   expect_match(d$seed_mass_sources, "gift")
 })
@@ -611,14 +611,15 @@ test_that("numeric coalesce reports the spread as <trait>_min / <trait>_max", {
   on.exit(options(old), add = TRUE)
   skip_if_not(trait_ready(), "example enrichments not available")
 
-  # No example seed-mass source stores a within-source range, so min/max are the
-  # extremes across the four contributing sources: BIEN 44.47 mg up to GIFT
-  # 73.9425 mg, bracketing the 57.3185 mg median headline.
+  # LEDA's two Abies alba records both read 79.2 mg, so no source contributes a
+  # within-source range and min/max are the extremes across the five
+  # contributing sources: BIEN 44.47 mg up to LEDA 79.2 mg, bracketing the
+  # 62.007 mg median headline.
   d <- add_trait(mk("Abies alba"), "seed_mass", verbose = FALSE)
   expect_true(all(c("seed_mass_min", "seed_mass_max") %in% names(d)))
   expect_equal(d$seed_mass_min, 44.47, tolerance = 1e-6)
-  expect_equal(d$seed_mass_max, 73.9425, tolerance = 1e-6)
-  expect_equal(d$seed_mass, 57.3185, tolerance = 1e-6)
+  expect_equal(d$seed_mass_max, 79.2, tolerance = 1e-6)
+  expect_equal(d$seed_mass, 62.007, tolerance = 1e-6)
 })
 
 test_that("categorical coalesce adds no min/max columns", {
@@ -848,4 +849,28 @@ test_that("verbose reports what each source supplied", {
 
   expect_message(add_trait(mk("Abies alba"), "woodiness"),
                  "add_trait\\('woodiness'\\).*zanne 1.*of 1 resolved name")
+})
+
+test_that("BROT dispersal letter codes map through the BROT 2.0 legend, primary first", {
+  map <- .trait_registry()$dispersal_syndrome$sources$brot$map
+  expect_equal(map(c("G", "W", "H", "B", "M", "N", "P", "O", "Z")),
+               c("gravity", "wind", "water", "ballistic", "ant",
+                 "animal", "animal", "animal", "animal"))
+  expect_equal(map(c("WZG", "NOG", " mbg", NA, "", "X")),
+               c("wind", "animal", "ant", NA, NA, NA))
+})
+
+test_that("LEDA seed mass is a registered milligram source", {
+  ti <- suppressMessages(trait_info("seed_mass"))
+  expect_true("leda" %in% ti$source)
+  expect_equal(ti$column[ti$source == "leda"], "leda_seed_mass_mg")
+  map <- .trait_registry()$seed_mass$sources$leda$map
+  expect_equal(map(c("79.2", "0.53")), c(79.2, 0.53))
+})
+
+test_that("LEDA stem specific density is read as built in g/cm3, with a method caution", {
+  sp <- .trait_registry()$wood_density$sources$leda
+  expect_equal(sp$col, "ssd_g_cm3")
+  expect_equal(sp$map(c("0.66", "0.43")), c(0.66, 0.43))
+  expect_match(sp$caution, "air-dry")
 })

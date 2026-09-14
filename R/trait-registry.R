@@ -64,8 +64,10 @@
 #     body length).
 #   - LDMC is mg/g in LEDA, GIFT and BROT; Diaz ldmc_g_g is g/g (x1000 -> 195,
 #     matches LEDA's 194). Stem specific density feeds wood_density: GIFT
-#     gift_ssd and LEDA ssd are mg/cm^3 (/1000 -> 0.63 and 0.70 against GWDD's
-#     0.57 g/cm^3).
+#     gift_ssd is mg/cm^3 (/1000 -> 0.63 against GWDD's 0.57 g/cm^3). LEDA's
+#     ssd_g_cm3 is g/cm^3 as built: its source records mix g/cm^3 with kg/m^3,
+#     and taxifydb reads a record above LEDA's 0-1.5 g/cm^3 validity range as
+#     kg/m^3.
 #   - generation_length: BET is years, COMBINE days (/365.25 -> 6.0 against
 #     BET's 6.7). Weaning is days in Amniote, AnAge and PanTHERIA.
 #   - Days -> years for the maturity and interval traits: male_maturity_d
@@ -410,9 +412,8 @@
 #
 # Too thin, empty, or an uncatchable error:
 #
-#   - LEDA leda_seed_mass_mg (values 1-4, a class code, not mg); AmphiBIO
-#     longevity_d (values are years); SeaLifeBase trophic_level, FloraWeb
-#     chromosome and ploidy, and LEDA leaf dry mass (all empty).
+#   - AmphiBIO longevity_d (values are years); SeaLifeBase trophic_level and
+#     FloraWeb chromosome and ploidy (all empty).
 #   - huang_amph eye_diameter: median 3.7 mm is plausible but the maximum is
 #     747 mm, a magnitude error with no second source to catch it.
 #   - bee_ostwald morphology: forewing_length has n=2, and thorax and hair
@@ -609,6 +610,22 @@
     "ballochor|ballistic|autochor|herpochor" = "ballistic",
     "agochor|hemerochor|ethelochor|speirochor" = "human",
     "unspecialized|undefined"              = "unspecialized")
+
+  # BROT 2.0 writes dispersal mode as one letter per vector, most important
+  # first (Tavsanoglu & Pausas 2018, Scientific Data 5:180135, trait 23): "G:
+  # autochory, by Gravity (=unassisted dispersal). W: anemochory, by Wind (with
+  # wind dispersal adaptations). H: Hydrochory, by water. B: Ballistichory, by
+  # launching (=ballochory). M: Myrmecochory, by ants. N: eNdozoochory, internal
+  # animal transport. P: ePizoochory, external animal transport
+  # (=exozoochory). O: hOarding, scatter and hoarding diaspores by animals
+  # (others than ants). Z: Zoochory, dispersal mediated by animals (unknown
+  # transport system)." The primary vector is the first letter.
+  brot_disp_codes <- c(g = "gravity", w = "wind", h = "water", b = "ballistic",
+                       m = "ant", n = "animal", p = "animal", o = "animal",
+                       z = "animal")
+  brot_disp <- function(v) {
+    .xw_cat(substr(trimws(as.character(v)), 1L, 1L), brot_disp_codes)
+  }
 
   poll_patterns <- c(
     "insekt|insect|bee|beetle|fly|flies|butterfly|moth|wasp|thrip|hymenopt|lepidopt|dipter|coleopt|hoverfly|midge" = "insect",
@@ -1098,7 +1115,11 @@
         bien      = nsrc("bien", "seed_mass_mg", "BIEN (Maitner et al. 2018)", "Milligrams."),
         brot      = nsrc("brot", "seed_mass_mg", "BROT 2.0 (Tavsanoglu & Pausas 2018)", "Milligrams."),
         ecoflora  = nsrc("ecoflora", "seed_weight_mg_uk", "Ecoflora (Fitter & Peat 1994)", "Milligrams."),
-        kew_sid   = nsrc("kew_sid", "thousand_seed_weight", "Kew SID (RBG Kew)", "Thousand-seed weight in grams equals per-seed mass in milligrams (x1).")
+        kew_sid   = nsrc("kew_sid", "thousand_seed_weight", "Kew SID (RBG Kew)", "Thousand-seed weight in grams equals per-seed mass in milligrams (x1)."),
+        leda      = nsrc("leda", "leda_seed_mass_mg", "LEDA Traitbase (Kleyer et al. 2008)",
+                         paste("Milligrams, LEDA's per-record single value reduced to the species median.",
+                               "Ratio 1.00 against Kew SID (2,198 shared species), GIFT (2,252) and",
+                               "BIEN (1,662), 1.01 against Diaz (2,215) and BROT (521)."))
       )
     ),
     sla = list(
@@ -1117,7 +1138,11 @@
         austraits = nsrc("austraits", "wood_density_g_cm3", "AusTraits (Falster et al. 2021)", "g/cm^3."),
         bien      = nsrc("bien", "wood_density_g_cm3", "BIEN (Maitner et al. 2018)", "g/cm^3."),
         gift      = nsrc("gift", "gift_ssd_mean", "GIFT (Weigelt et al. 2020)", "Stem specific density, mg/cm^3 converted to g/cm^3 (/1000; 630 -> 0.63).", map = mgcm2g),
-        leda      = nsrc("leda", "ssd_g_cm3", "LEDA (Kleyer et al. 2008)", "Stem specific density, mg/cm^3 converted to g/cm^3 (/1000).", map = mgcm2g)
+        leda      = nsrc("leda", "ssd_g_cm3", "LEDA (Kleyer et al. 2008)", "Stem specific density, g/cm^3.",
+                         caution = paste("Most LEDA density records are air-dry wood densities at 12-15% moisture,",
+                                         "which LEDA's own standard converts to oven-dry stem specific density as",
+                                         "SSD = 0.800 ADW + 0.0134. They run 1.14x GWDD's density on 37 shared",
+                                         "species (1.06x Diaz, 1.19x BIEN)."))
       )
     ),
     leaf_area = list(
@@ -1846,8 +1871,14 @@
                          citation = "Baseflor (Julve, Catminat)", note = "-chory term mapped to primary vector.",
                          map = function(v) .xw_grep(v, disp_patterns)),
         brot      = list(enrichment = "brot", col = "disp_mode",
-                         citation = "BROT 2.0 (Tavsanoglu & Pausas 2018)", note = "-chory term mapped to primary vector.",
-                         map = function(v) .xw_grep(v, disp_patterns))
+                         citation = "BROT 2.0 (Tavsanoglu & Pausas 2018)",
+                         note = paste("BROT's letter code (G gravity, W wind, H water, B ballistic, M ant;",
+                                      "N, P, O, Z animal); the first letter is the primary vector.",
+                                      "Agrees with GIFT on 51% of 3,459 shared species and with AusTraits",
+                                      "on 49% of 481; on species BROT does not code G the figures are 74%",
+                                      "and 60%. GIFT has no gravity class: its calls on BROT's G species",
+                                      "split unspecialized 294, wind 369, ballistic 237, animal 153."),
+                         map = brot_disp)
       )
     ),
     pollination_vector = list(
