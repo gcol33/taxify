@@ -688,9 +688,9 @@
     },
     "alien_first_records": {
       "latest": "2026.08",
-      "content_id": "ffa5511219a5bd83c62af58c5583de3c",
+      "content_id": "273277d6468b4570a69018f6cb185143",
       "full_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/alien_first_records.vtr",
-      "nrow": 409370,
+      "nrow": 327475,
       "source_url": "https://zenodo.org/api/records/18759840/files/FirstRecords_dataset_public_v4.0.csv/content",
       "source_format": "xlsx",
       "source_version": "4.0",
@@ -708,7 +708,9 @@
         "establishmentmeans",
         "degreeofestablishment",
         "pathway",
-        "accessrights"
+        "accessrights",
+        "verbatim_taxon",
+        "taxon_qualifier"
       ],
       "available_groups": [
         "AD",
@@ -984,7 +986,7 @@
         "wfo",
         "worms"
       ],
-      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/alien_first_records-ffa5511219a5bd83c62af58c5583de3c.vtr"
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/enrichment-2026.08/alien_first_records-273277d6468b4570a69018f6cb185143.vtr"
     },
     "wcvp": {
       "latest": "2026.08",
