@@ -23,7 +23,7 @@ Imports:
     curl,
     jsonlite,
     rlang,
-    vectra
+    vectra (>= 0.12.4)
 Suggests:
     ape,
     DBI,
