@@ -1,6 +1,6 @@
-# taxify (development version)
+# taxify 0.5.4
 
-* `add_alien_first_records()` joins on the source's own locations and takes
+* Breaking: `add_alien_first_records()` joins on the source's own locations and takes
   `location =` in place of `country =`. FirstRecords records islands and
   other parts of a country as regions of their own ("282 non-overlapping
   regions (countries and sub-national regions such as islands)", Seebens et
@@ -14,6 +14,38 @@
   its name (`location = "Hawaii"`), listed by
   `enrichment_groups("alien_first_records")`. Every row carries
   `country_code` for an explicit roll-up to countries.
+
+* `dispersal_syndrome` reads BROT 2.0 (gcol33/taxifydb#57). BROT writes
+  dispersal mode as vector letters, most important first, and no pattern
+  matched a letter, so BROT supplied nothing; the slot now maps the first
+  letter through the legend of the BROT 2.0 data paper (Tavsanoglu & Pausas
+  2018). G ("autochory, by Gravity (=unassisted dispersal)") reads as
+  `gravity`, the class Baseflor, AusTraits and LEDA fill from barochory.
+
+* `dispersal_syndrome` leaves a term that names no mechanism unplaced, so a
+  source that does name one fills the species. Autochory is the self-dispersal
+  umbrella in LEDA and AusTraits, not ballistic; LEDA's blastochor was read as
+  gravity, herpochor (a diaspore crawling on hygroscopic awns) as ballistic,
+  and bythisochor (non-floating seeds carried along the bottom of running
+  water) as gravity; AusTraits' `undefined` ("Dispersal mechanism unknown")
+  was read as unspecialized. All are now `NA`; a co-listed vector still wins
+  (`autochory, myrmecochory` is `ant`). GIFT's `unspecialized` keeps its class.
+  Each source note carries the definitions and the shared-species calibration.
+
+* LEDA is read as taxifydb's corrected reader builds it (gcol33/taxifydb#57).
+  `leda_seed_mass_mg` calibrates at 1.00 against Kew SID, GIFT and BIEN and
+  now feeds `seed_mass`; `ssd_g_cm3` is g/cm3 as built, so `wood_density` no
+  longer divides it by 1000 and carries a caution (most records are air-dry
+  densities, 1.14x GWDD on 37 shared species). `add_leda()` attaches
+  `clonal_growth_organ` and `floating_capacity_1week_pct` in place of the
+  empty `clonal_growth` and `buoyancy`.
+
+* `add_bien()` and `add_ecoflora()` document the unit of every curated numeric
+  column. The rebuilt assets write BIEN leaf dry mass in mg (BIEN records g)
+  and Ecoflora typical maximum and minimum height in mm (Ecoflora records cm).
+
+* taxify requires vectra (>= 0.12.4), which ties each `.vtri` index to the
+  store it was built for and drops stale indexes when a `.vtr` is rewritten.
 
 # taxify 0.5.3
 
