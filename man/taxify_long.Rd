@@ -18,7 +18,8 @@ enrichment metadata stamped by the \verb{add_*()} functions.}
 
 \item{group_col}{Character. Name for the output group column.
 If omitted, auto-detected from enrichment metadata (e.g.,
-\code{"country_code"} for invasive status or alien first records).}
+\code{"country_code"} for invasive status, \code{"location"} for alien first
+records).}
 
 \item{drop_na}{Logical. If \code{TRUE}, drop rows where all value columns
 are \code{NA}. Default \code{FALSE}.}
@@ -57,7 +58,7 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 # Auto-detected: no cols or group_col needed
 taxify("Robinia pseudoacacia") |>
-  add_alien_first_records(country = c("AT", "DE")) |>
+  add_alien_first_records(location = c("AT", "DE")) |>
   taxify_long()
 
 # Explicit: override auto-detection

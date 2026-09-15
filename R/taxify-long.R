@@ -45,7 +45,8 @@ enrichment_group_vocabulary <- function() {
 #'   enrichment metadata stamped by the `add_*()` functions.
 #' @param group_col Character. Name for the output group column.
 #'   If omitted, auto-detected from enrichment metadata (e.g.,
-#'   `"country_code"` for invasive status or alien first records).
+#'   `"country_code"` for invasive status, `"location"` for alien first
+#'   records).
 #' @param drop_na Logical. If `TRUE`, drop rows where all value columns
 #'   are `NA`. Default `FALSE`.
 #'
@@ -78,7 +79,7 @@ enrichment_group_vocabulary <- function() {
 #'
 #' # Auto-detected: no cols or group_col needed
 #' taxify("Robinia pseudoacacia") |>
-#'   add_alien_first_records(country = c("AT", "DE")) |>
+#'   add_alien_first_records(location = c("AT", "DE")) |>
 #'   taxify_long()
 #'
 #' # Explicit: override auto-detection

@@ -162,7 +162,7 @@ test_that("add_alien_first_records() attaches the year and its provenance column
   use_example_db()
   skip_if_not(enrichment_ready("alien_first_records"),
               "alien_first_records fixture missing")
-  out <- add_alien_first_records(grouped_probe(), country = "AT",
+  out <- add_alien_first_records(grouped_probe(), location = "AT",
                                  verbose = FALSE)
 
   expect_true(all(c("alien_first_record", "alien_first_record_source",
@@ -174,11 +174,11 @@ test_that("add_alien_first_records() attaches the year and its provenance column
                "example_alien_first_record_reference")
 })
 
-test_that("add_alien_first_records() keeps each country's year in its own column", {
+test_that("add_alien_first_records() keeps each location's year in its own column", {
   use_example_db()
   skip_if_not(enrichment_ready("alien_first_records"),
               "alien_first_records fixture missing")
-  out <- add_alien_first_records(grouped_probe(), country = c("AT", "DE"),
+  out <- add_alien_first_records(grouped_probe(), location = c("AT", "DE"),
                                  verbose = FALSE)
 
   expect_true(all(c("alien_first_record_AT", "alien_first_record_DE")
@@ -187,11 +187,28 @@ test_that("add_alien_first_records() keeps each country's year in its own column
   expect_equal(out$alien_first_record_DE, c(NA, 12, 14))
 })
 
+test_that("add_alien_first_records() keeps an island apart from its country", {
+  # The fixture records Robinia on Hawaii (country US) and nothing for the US
+  # location itself, so the island's year must not surface under "US".
+  use_example_db()
+  skip_if_not(enrichment_ready("alien_first_records"),
+              "alien_first_records fixture missing")
+  out <- add_alien_first_records(grouped_probe(), location = c("US", "Hawaii"),
+                                 cols = c("alien_first_record", "country_code"),
+                                 verbose = FALSE)
+
+  expect_equal(out$alien_first_record_Hawaii, c(NA, 15, NA))
+  expect_equal(out$country_code_Hawaii, c(NA, "US", NA))
+  expect_true(all(is.na(out$alien_first_record_US)))
+  expect_true("Hawaii" %in% enrichment_groups("alien_first_records",
+                                              verbose = FALSE))
+})
+
 test_that("add_alien_first_records() honours cols=", {
   use_example_db()
   skip_if_not(enrichment_ready("alien_first_records"),
               "alien_first_records fixture missing")
-  out <- add_alien_first_records(grouped_probe(), country = "AT",
+  out <- add_alien_first_records(grouped_probe(), location = "AT",
                                  cols = "alien_first_record", verbose = FALSE)
 
   expect_true("alien_first_record" %in% names(out))
@@ -199,20 +216,20 @@ test_that("add_alien_first_records() honours cols=", {
   expect_equal(out$alien_first_record, c(NA, 11, 13))
 })
 
-test_that("add_alien_first_records() returns NA for a country outside the source", {
+test_that("add_alien_first_records() returns NA for a location outside the source", {
   use_example_db()
   skip_if_not(enrichment_ready("alien_first_records"),
               "alien_first_records fixture missing")
-  out <- add_alien_first_records(grouped_probe(), country = "ZZ",
+  out <- add_alien_first_records(grouped_probe(), location = "ZZ",
                                  verbose = FALSE)
 
   expect_true(all(is.na(out$alien_first_record)))
 })
 
-test_that("add_alien_first_records() requires a country", {
+test_that("add_alien_first_records() requires a location", {
   expect_error(
     add_alien_first_records(data.frame(accepted_name = "Robinia pseudoacacia")),
-    "'country' is required")
+    "'location' is required")
 })
 
 

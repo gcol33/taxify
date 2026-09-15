@@ -1,7 +1,7 @@
 {
   "name": "alien_first_records",
   "version": "example",
-  "nrow": 4,
+  "nrow": 5,
   "static": true,
   "license": "CC BY 4.0",
   "citation": {
@@ -15,6 +15,6 @@
     "pages": "14435",
     "doi": "10.1038/ncomms14435"
   },
-  "group_col": "country_code",
-  "available_groups": ["AT", "DE"]
+  "group_col": "location",
+  "available_groups": ["AT", "DE", "Hawaii"]
 }

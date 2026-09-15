@@ -1052,7 +1052,7 @@ enrichment_cols <- function(source) {
 #'
 #' Some enrichment doors attach data per group: GRIIS invasive status by country
 #' ([add_griis()]), WCVP native ranges by TDWG region ([add_wcvp()]), vernacular
-#' names by language ([add_common_names()]), alien first records by country
+#' names by language ([add_common_names()]), alien first records by location
 #' ([add_alien_first_records()]). This lists the valid group values for such a
 #' door, the way [enrichment_cols()] lists a door's columns, so a country,
 #' region, or language code need not be guessed. Read offline from the local

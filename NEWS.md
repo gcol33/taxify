@@ -1,3 +1,20 @@
+# taxify (development version)
+
+* `add_alien_first_records()` joins on the source's own locations and takes
+  `location =` in place of `country =`. FirstRecords records islands and
+  other parts of a country as regions of their own ("282 non-overlapping
+  regions (countries and sub-national regions such as islands)", Seebens et
+  al. 2017), so its United States of America excludes Hawaii and Alaska and its
+  Spain excludes the Canary and Balearic Islands. The enrichment used to credit
+  each of those to its country and keep the earliest year, which in v4.0 dated
+  665 of the source's species x country first records from an island's earlier year (337 of them from
+  Hawaii, by a median of 25 years) and gave 3,541 country records to species
+  the source records only on an island. A country is still keyed on its ISO
+  3166-1 alpha-2 code (`location = "AT"`); a sub-national location is keyed on
+  its name (`location = "Hawaii"`), listed by
+  `enrichment_groups("alien_first_records")`. Every row carries
+  `country_code` for an explicit roll-up to countries.
+
 # taxify 0.5.3
 
 Five fixes in the core matching path, all of them cases where a result depended

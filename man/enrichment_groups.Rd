@@ -19,7 +19,7 @@ enrichment, which has no group values.
 \description{
 Some enrichment doors attach data per group: GRIIS invasive status by country
 (\code{\link[=add_griis]{add_griis()}}), WCVP native ranges by TDWG region (\code{\link[=add_wcvp]{add_wcvp()}}), vernacular
-names by language (\code{\link[=add_common_names]{add_common_names()}}), alien first records by country
+names by language (\code{\link[=add_common_names]{add_common_names()}}), alien first records by location
 (\code{\link[=add_alien_first_records]{add_alien_first_records()}}). This lists the valid group values for such a
 door, the way \code{\link[=enrichment_cols]{enrichment_cols()}} lists a door's columns, so a country,
 region, or language code need not be guessed. Read offline from the local

@@ -121,7 +121,7 @@ test_that("every grouped enrichment declares its group column in the manifest", 
   grouped <- c(
     griis               = "country_code",
     gidias              = "affected_taxon",
-    alien_first_records = "country_code",
+    alien_first_records = "location",
     wcvp                = "tdwg_code",
     marine_distribution = "region_code",
     common_names        = "lang",
