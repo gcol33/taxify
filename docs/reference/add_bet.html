@@ -22,7 +22,7 @@ accepted_name."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -150,6 +150,13 @@ accepted_name."><script>
 
 <dt>bet_substrate_deadwood</dt>
 <dd><p>Occurs on deadwood (0/1).</p></dd>
+
+<dt>bet_substrate</dt>
+<dd><p>Every substrate class the species occurs on, as a
+pipe-delimited set over <code>soil</code>, <code>rock</code>, <code>bark</code>, <code>wood</code> (deadwood),
+<code>living_plants</code> (epiphytic on leaves or other bryophytes) and
+<code>dung_carcass</code>, e.g. <code>"soil|rock|bark"</code>. <code><a href="add_trait.html">add_trait()</a></code> <code>"substrate"</code>
+reduces it to one primary class.</p></dd>
 
 <dt>bet_epiphyte</dt>
 <dd><p>Epiphytic (0/1).</p></dd>

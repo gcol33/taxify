@@ -26,7 +26,7 @@ seed, leaf, and clonality traits."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,20 +110,21 @@ seed, leaf, and clonality traits.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The same data.frame with additional columns:</p><dl><dt>raunkiaer_life_form</dt>
-<dd><p>Primary Raunkiaer life form classification
-(phanerophyte, chamaephyte, hemicryptophyte, geophyte, therophyte,
-helophyte, hydrophyte).</p></dd>
+<dd><p>Most frequent LEDA plant growth form: the
+Raunkiaer classes (Phanerophyte, Chamaephyte, Hemicryptophyte, Geophyte,
+Therophyte, Hydrophyte) plus Liana, Vascular semi-parasite and Vascular
+parasite.</p></dd>
 
 <dt>raunkiaer_variable</dt>
-<dd><p>1 if species assigned to multiple Raunkiaer
-forms, 0 otherwise.</p></dd>
+<dd><p>1 if the species' records name more than one
+growth form, 0 otherwise.</p></dd>
 
 <dt>dispersal_type</dt>
-<dd><p>Primary dispersal type (anemochory, zoochory,
-hydrochory, autochory, barochory, dysochory).</p></dd>
+<dd><p>Most frequent dispersal type, as LEDA's -chor term
+(meteorochor, epizoochor, nautochor, ...).</p></dd>
 
 <dt>terminal_velocity_ms</dt>
-<dd><p>Seed terminal velocity in m/s (species
+<dd><p>Diaspore terminal velocity in m/s (species
 median).</p></dd>
 
 <dt>seed_mass_mg</dt>
@@ -131,7 +132,9 @@ median).</p></dd>
 <code>leda_</code> in the .vtr to avoid collision with Diaz traits.</p></dd>
 
 <dt>canopy_height_m</dt>
-<dd><p>Canopy height in meters (species median).</p></dd>
+<dd><p>Canopy height in metres (species median): the
+height of the highest photosynthetic tissue, which LEDA distinguishes from
+plant height.</p></dd>
 
 <dt>leaf_mass_mg</dt>
 <dd><p>Leaf dry mass in mg (species median).</p></dd>
@@ -139,18 +142,22 @@ median).</p></dd>
 <dt>sla_mm2_mg</dt>
 <dd><p>Specific leaf area in mm\(^2\)/mg (species median).</p></dd>
 
-<dt>clonal_growth</dt>
-<dd><p>Capable of clonal growth (1 = yes, 0 = no).</p></dd>
+<dt>clonal_growth_organ</dt>
+<dd><p>Most frequent primary clonal growth organ
+(epigeogeneous stems, root-splitters, bulbs, ...).</p></dd>
 
-<dt>buoyancy</dt>
-<dd><p>Seed buoyancy classification.</p></dd>
+<dt>floating_capacity_1week_pct</dt>
+<dd><p>Percentage of diaspores still floating
+after one week (species median).</p></dd>
 
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Source: LEDA Traitbase (Kleyer et al. 2008).
-Coverage: ~8,000 NW European plant species.</p>
+Coverage: ~12,500 NW European plant taxa. <code>cols = "all"</code> adds the remaining
+LEDA traits and, for each, a <code>&lt;col&gt;_source</code> column of the references behind
+the value (resolve with <code><a href="cite.html">cite()</a></code> and <code>source = "leda"</code>).</p>
 <p>The Raunkiaer life form is a bud-position classification system:
 phanerophyte = buds &gt;25 cm above soil, chamaephyte = buds near soil surface,
 hemicryptophyte = buds at soil surface, geophyte (cryptophyte) = buds below

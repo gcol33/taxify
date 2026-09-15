@@ -12,7 +12,14 @@ query.
 ## Usage
 
 ``` r
-comm2sci(x, lang = NULL, resolve = FALSE, backbone = NULL, verbose = TRUE)
+comm2sci(
+  x,
+  lang = NULL,
+  output = c("lookup", "result"),
+  backbone = NULL,
+  ...,
+  verbose = TRUE
+)
 ```
 
 ## Arguments
@@ -28,21 +35,28 @@ comm2sci(x, lang = NULL, resolve = FALSE, backbone = NULL, verbose = TRUE)
   NCBI/Open Tree names. `NULL` (default) searches every language. List
   the languages present with `enrichment_groups("common_names")`.
 
-- resolve:
+- output:
 
-  Logical. When `FALSE` (default), return the lookup table (common name
-  -\> scientific name). When `TRUE`, run the matched scientific names
+  What to return. `"lookup"` (default): the lookup table (common name
+  -\> scientific name). `"result"`: the matched scientific names run
   through
-  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) and
-  return a `taxify_result` (with a leading `query_common` column), so
-  the result pipes straight into the `add_*()` enrichments.
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md), as
+  a `taxify_result` (with a leading `query_common` column), so the
+  result pipes straight into the `add_*()` enrichments.
 
 - backbone:
 
   Passed to
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  when `resolve = TRUE`; `NULL` (default) uses every installed backbone.
-  Ignored when `resolve = FALSE`.
+  when `output = "result"`; `NULL` (default) uses every installed
+  backbone. Ignored for `"lookup"`.
+
+- ...:
+
+  Matching arguments passed to
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  when `output = "result"` (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`,
+  `region`). Must be named.
 
 - verbose:
 
@@ -50,8 +64,8 @@ comm2sci(x, lang = NULL, resolve = FALSE, backbone = NULL, verbose = TRUE)
 
 ## Value
 
-When `resolve = FALSE`, a data.frame with one row per (query, scientific
-match):
+For `output = "lookup"`, a data.frame with one row per (query,
+scientific match, language):
 
 - input_name:
 
@@ -70,9 +84,9 @@ match):
 
   Language tag of the vernacular name (`NA` for NCBI/Open Tree).
 
-A query with no match contributes no rows. When `resolve = TRUE`, a
-`taxify_result` for the distinct matched scientific names, with
-`query_common` prepended.
+A query with no match contributes no rows. For `output = "result"`, a
+`taxify_result` with one row per (query, distinct scientific match),
+with `query_common` prepended.
 
 ## See also
 
@@ -91,7 +105,7 @@ old <- options(taxify.data_dir = taxify_example_data())
 comm2sci("example_common_name")
 
 # Resolve straight to a taxify_result you can enrich
-comm2sci("example_common_name", resolve = TRUE, backbone = "wfo")
+comm2sci("example_common_name", output = "result", backbone = "wfo")
 
 options(old)
 ```

@@ -46,9 +46,12 @@ inspect(
 
   Geographic constraint for the `geographic` / `out_of_range` checks, as
   in [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
-  These act on a `taxify_result` (which carries the accepted names they
-  need); on a character vector there is nothing matched to place, so
-  they have no effect.
+  These act on matched names: a `taxify_result`, or a character vector
+  with `backbones = TRUE`. On a character vector inspected without
+  matching there is nothing matched to place, so they have no effect and
+  are not resolved. A `region` / `coords` that resolves to no known
+  region is named under `not checked` rather than treated as a region no
+  species occurs in.
 
 - min_tier:
 
@@ -65,7 +68,8 @@ A `taxify_inspection` data.frame (one row per anomalous name, ordered
 most-notable first) with columns `input_name`, `suggestion` (the name to
 use instead, or `NA`), `anomalies` (`|`-joined labels), `tier` (ordered
 factor `note` \< `review` \< `unresolved`), `reason`, `fuzzy_dist`, and
-`backbone`. Zero rows means nothing stood out.
+`backbone`. Zero rows means nothing stood out among the checks that ran;
+the header's `not checked` line names any that could not.
 
 ## Details
 
@@ -98,6 +102,11 @@ result (only present when you inspect one):
   Resolved only after fuzzy correction (`match_type = "fuzzy"`): the
   input most likely contains a spelling error; `suggestion` is the name.
 
+- `rank_fallback`:
+
+  An infraspecific name the backbone does not carry, resolved to its
+  species (`match_type = "rank_fallback"`).
+
 - `ambiguous`:
 
   A homonym resolving to more than one accepted taxon.
@@ -118,8 +127,9 @@ result (only present when you inspect one):
 
 - `synonym`:
 
-  The input is an outdated synonym; `suggestion` is the current accepted
-  name.
+  The input is an outdated synonym, or a name the backbone keeps
+  unplaced whose basionym it places (`match_type = "basionym"`);
+  `suggestion` is the current accepted name.
 
 Rows with no anomaly are dropped.
 
@@ -134,8 +144,10 @@ The list-context labels (`near_duplicate`, `out_of_range`,
 `outlier_group`) judge a name against the rest of the batch, so they
 cannot apply to a single name: `inspect()` on one name warns and reports
 only the per-name labels. The register checks (`unknown`, and the
-register-derived `outlier_group`) need the genus register installed;
-without it they are skipped (with a message at `verbose`).
+register-derived `outlier_group`) need the genus register installed, and
+the range checks need the WCVP range data; a check that could not run is
+named in the report header under `not checked`, so an empty report is
+never mistaken for a clean one.
 
 ## See also
 

@@ -16,9 +16,11 @@ id2name(id, backbone = NULL, verbose = TRUE)
 
 - id:
 
-  A vector of backbone IDs (e.g. GBIF keys, ITIS TSNs, WoRMS AphiaIDs).
-  Coerced to character, matched against the backbone's `taxon_id`. IDs
-  are backbone-specific, so name the `backbone` they came from.
+  A vector of backbone IDs (e.g. GBIF keys, ITIS TSNs, WoRMS AphiaIDs),
+  matched as text against the backbone's `taxon_id`. Numeric IDs (as
+  read from a CSV) are written out in full, never in scientific
+  notation, and must be whole numbers. IDs are backbone-specific, so
+  name the `backbone` they came from.
 
 - backbone:
 

@@ -2,12 +2,22 @@
 
 Returns the accepted taxa a backbone places inside a genus or family, so
 you can build a checklist from the backbone rather than only validating
-one. The parent is auto-detected: a genus is tried first, then a family.
+one. The parent's rank is read from the backbone, as in
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
+restricted to genus and family: `children()` is
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
+for a genus or family parent.
 
 ## Usage
 
 ``` r
-children(taxon, backbone = NULL, rank = "species", verbose = TRUE)
+children(
+  taxon,
+  backbone = NULL,
+  rank = "species",
+  kingdom = NULL,
+  verbose = TRUE
+)
 ```
 
 ## Arguments
@@ -24,7 +34,17 @@ children(taxon, backbone = NULL, rank = "species", verbose = TRUE)
 - rank:
 
   Rank of the children to return (`"species"` by default), or `"any"`
-  for every rank below the parent.
+  (or `NULL`) for every rank below the parent. The parent itself is
+  never returned.
+
+- kingdom:
+
+  Optional kingdom (or kingdoms) the parent belongs to, as in
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  (`"plantae"`, `"animals"`, ...). A genus or family name can be used in
+  more than one kingdom (*Morus* is both mulberries and gannets);
+  `kingdom` picks one. Without it such a result mixes the kingdoms, with
+  a warning.
 
 - verbose:
 
@@ -33,11 +53,13 @@ children(taxon, backbone = NULL, rank = "species", verbose = TRUE)
 ## Value
 
 A data.frame of accepted taxa, columns: `name`, `authorship`, `rank`,
-`family`, `genus`, `taxon_id`, `parent_rank` (`"genus"` or `"family"`),
-`backbone`. Empty if the parent is not found.
+`kingdom_group`, `family`, `genus`, `taxon_id`, `parent`, `parent_rank`
+(`"genus"` or `"family"`), `backbone`. Empty if the parent is not found.
 
 ## See also
 
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
+to reach below a higher rank,
 [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 

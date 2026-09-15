@@ -32,8 +32,8 @@ taxify_long(x, cols = NULL, group_col = NULL, drop_na = FALSE)
 - group_col:
 
   Character. Name for the output group column. If omitted, auto-detected
-  from enrichment metadata (e.g., `"country_code"` for invasive status
-  or alien first records).
+  from enrichment metadata (e.g., `"country_code"` for invasive status,
+  `"location"` for alien first records).
 
 - drop_na:
 
@@ -77,7 +77,7 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 # Auto-detected: no cols or group_col needed
 taxify("Robinia pseudoacacia") |>
-  add_alien_first_records(country = c("AT", "DE")) |>
+  add_alien_first_records(location = c("AT", "DE")) |>
   taxify_long()
 
 # Explicit: override auto-detection

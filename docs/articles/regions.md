@@ -80,12 +80,12 @@ country. You can pass several, and they union:
 taxify(field_names, region = c("Belgium", "Netherlands", "Germany"))
 ```
 
-A three-letter token is read as a TDWG code directly, so
-`region = "BGM"` (Belgium) and `region = "Belgium"` reach the same
-place. An unrecognised region is dropped with a warning rather than
-failing the call, and a code that matches no WCVP record simply makes
-the filter a no-op, so a typo in the region degrades gracefully instead
-of producing wrong matches.
+A TDWG code is read directly, so `region = "BGM"` (Belgium) and
+`region = "Belgium"` reach the same place. An unrecognised region or
+code (`"GRE"` for Greece, which is `GRC`) is dropped with a warning
+rather than failing the call, so the match runs unconstrained. A valid
+region with no WCVP record for a candidate leaves that candidate
+unfiltered.
 
 ## By coordinates
 

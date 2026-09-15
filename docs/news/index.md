@@ -1,6 +1,472 @@
 # Changelog
 
+## taxify 0.5.4
+
+- Breaking:
+  [`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md)
+  joins on the source’s own locations and takes `location =` in place of
+  `country =`. FirstRecords records islands and other parts of a country
+  as regions of their own (“282 non-overlapping regions (countries and
+  sub-national regions such as islands)”, Seebens et al. 2017), so its
+  United States of America excludes Hawaii and Alaska and its Spain
+  excludes the Canary and Balearic Islands. The enrichment used to
+  credit each of those to its country and keep the earliest year, which
+  in v4.0 dated 665 of the source’s species x country first records from
+  an island’s earlier year (337 of them from Hawaii, by a median of 25
+  years) and gave 3,541 country records to species the source records
+  only on an island. A country is still keyed on its ISO 3166-1 alpha-2
+  code (`location = "AT"`); a sub-national location is keyed on its name
+  (`location = "Hawaii"`), listed by
+  `enrichment_groups("alien_first_records")`. Every row carries
+  `country_code` for an explicit roll-up to countries.
+
+- `dispersal_syndrome` reads BROT 2.0 (gcol33/taxifydb#57). BROT writes
+  dispersal mode as vector letters, most important first, and no pattern
+  matched a letter, so BROT supplied nothing; the slot now maps the
+  first letter through the legend of the BROT 2.0 data paper (Tavsanoglu
+  & Pausas 2018). G (“autochory, by Gravity (=unassisted dispersal)”)
+  reads as `gravity`, the class Baseflor, AusTraits and LEDA fill from
+  barochory.
+
+- `dispersal_syndrome` leaves a term that names no mechanism unplaced,
+  so a source that does name one fills the species. Autochory is the
+  self-dispersal umbrella in LEDA and AusTraits, not ballistic; LEDA’s
+  blastochor was read as gravity, herpochor (a diaspore crawling on
+  hygroscopic awns) as ballistic, and bythisochor (non-floating seeds
+  carried along the bottom of running water) as gravity; AusTraits’
+  `undefined` (“Dispersal mechanism unknown”) was read as unspecialized.
+  All are now `NA`; a co-listed vector still wins
+  (`autochory, myrmecochory` is `ant`). GIFT’s `unspecialized` keeps its
+  class. Each source note carries the definitions and the shared-species
+  calibration.
+
+- LEDA is read as taxifydb’s corrected reader builds it
+  (gcol33/taxifydb#57). `leda_seed_mass_mg` calibrates at 1.00 against
+  Kew SID, GIFT and BIEN and now feeds `seed_mass`; `ssd_g_cm3` is g/cm3
+  as built, so `wood_density` no longer divides it by 1000 and carries a
+  caution (most records are air-dry densities, 1.14x GWDD on 37 shared
+  species).
+  [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md)
+  attaches `clonal_growth_organ` and `floating_capacity_1week_pct` in
+  place of the empty `clonal_growth` and `buoyancy`.
+
+- [`add_bien()`](https://gillescolling.com/taxify/reference/add_bien.md)
+  and
+  [`add_ecoflora()`](https://gillescolling.com/taxify/reference/add_ecoflora.md)
+  document the unit of every curated numeric column. The rebuilt assets
+  write BIEN leaf dry mass in mg (BIEN records g) and Ecoflora typical
+  maximum and minimum height in mm (Ecoflora records cm).
+
+- taxify requires vectra (\>= 0.12.4), which ties each `.vtri` index to
+  the store it was built for and drops stale indexes when a `.vtr` is
+  rewritten.
+
+## taxify 0.5.3
+
+Five fixes in the core matching path, all of them cases where a result
+depended on something other than the name being matched: how often it
+was submitted, which backbone happened to answer a neighbouring name, or
+which build was loaded earlier in the session.
+
+- Several queries may now resolve to the same backbone row
+  ([\#56](https://github.com/gcol33/taxify/issues/56)). Fuzzy matching
+  kept only the closest query per target and returned
+  `match_type = "none"` for the rest, to stop two different species
+  collapsing onto one row. But two inputs sharing a target is the normal
+  shape of a dirty checklist: a repeated misspelling, or two spellings
+  of one name. The rejected input came back as if the backbone held
+  nothing near it, and which input was rejected depended on how the
+  batch was ordered. Every query within threshold now matches its best
+  target and carries its own `fuzzy_dist`.
+
+- The loaded backbone and its compact fuzzy copy are keyed on the build,
+  not on the file’s basename
+  ([\#57](https://github.com/gcol33/taxify/issues/57)). Both were
+  memoized under `.blk_<basename>`, so a
+  `taxify_restore(install = TRUE)`, a mid-session update and a data-dir
+  switch – all of which swap builds under one basename – left the rest
+  of the session matching against the replaced build while the metadata
+  reported the new one. `clear_backbone_memo()` now owns that state and
+  runs wherever a backbone path is invalidated, so the loaded copy
+  cannot outlive the path that resolved it.
+
+- The authorship tiebreak writes `accepted_authorship`
+  ([\#58](https://github.com/gcol33/taxify/issues/58)). Resolving a
+  homonym by the author the query carried rewrote `accepted_name` but
+  left the author of the candidate it had just rejected, so name and
+  author named two different taxa.
+
+- Abbreviated-genus resolution reads the genus context off the whole
+  query ([\#59](https://github.com/gcol33/taxify/issues/59)).
+  `"Q. petraea"` is disambiguated by a genus written out in full
+  elsewhere in the batch, but each backbone in a fallback chain sees
+  only the names still unmatched – so a genus an earlier backbone had
+  already answered was invisible to the later ones, and
+  `mode = "fallback"` disagreed with `mode = "agreement"` on the same
+  query.
+
+- Three smaller inconsistencies in the core path
+  ([\#60](https://github.com/gcol33/taxify/issues/60)). `clean_one()`,
+  an unreachable and drifted copy of `clean_names()`, is deleted and
+  `names_df` is now required, so `clean_names()` is the single cleaner.
+  An `NA` input gets `match_type = "none"` like `""`, which is what the
+  documented vocabulary says (`match_type` is never `NA`). And
+  [`summary()`](https://rdrr.io/r/base/summary.html) prints each
+  backbone’s own version next to it, rather than labelling a whole chain
+  with the first matched row’s build.
+
+Five fixes in the side paths around matching: joining custom data,
+pinning and locking a build, the less common enrichment joins, and empty
+input.
+
+- [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+  joins on the accepted taxon, not a bare `accepted_id`
+  ([\#61](https://github.com/gcol33/taxify/issues/61)). Backend ids are
+  integers in most backbones and carry no namespace, so a name matched
+  by ITIS could join onto an unrelated taxon GBIF happened to number the
+  same, with no warning. The id is now qualified by the backbone that
+  issued it, and rows matched by different backbones on the two sides
+  join through `accepted_name`, which is what the synonym promise in the
+  documentation needs.
+
+- A pinned version downloads that version
+  ([\#62](https://github.com/gcol33/taxify/issues/62)).
+  `taxify_download(version = )` and
+  `taxify_download_enrichment(version = )` fetched the current release
+  and labelled it with the requested version, marked pinned, so the next
+  session never corrected it. The URL is now derived from the release
+  tag (`<name>-<version>/<name>.vtr`,
+  `enrichment-<version>/<name>.vtr`), and a version that was never
+  published is an error.
+
+- [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+  pins the builds a result was produced from
+  ([\#63](https://github.com/gcol33/taxify/issues/63)). Version and
+  content id are recorded when an enrichment is joined, not read from
+  whatever is installed when the lock is written, so a refresh or
+  restore in between no longer changes the pin. Sources that contributed
+  no value are left out, as
+  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) already
+  did, and
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  sources carry their version instead of `NA`.
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+  reports a row as `"unverified"` when the lock holds a content id and
+  the install has none, rather than `"ok"` on matching version labels.
+
+- Four enrichment join paths now follow the main one
+  ([\#64](https://github.com/gcol33/taxify/issues/64)). A mixed-grain
+  source (`genus_fallback`) fills from the genus row only after
+  cross-backbone recovery has looked for the species, so species
+  resolution wins. `groups = "all"` reads the groups of the installed
+  build before the manifest, so a pinned or restored build no longer
+  gets columns for groups it lacks. Grouped
+  [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+  errors on conflicting values within a group, like the flat join, and
+  uses the shared group fill. The emergency grouped path keeps the `NA`
+  group, so `add_common_names(lang = NA)` returns names there too.
+
+- Empty input returns an empty result
+  ([\#65](https://github.com/gcol33/taxify/issues/65)).
+  `comm2sci(output = "result")` with no match, and
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  or any `add_*()` door on a zero-row result, errored or warned once per
+  source. They now return the full output schema at zero rows, built by
+  one constructor.
+
+Five fixes in the verbs around
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md):
+browsing the backbone, inspecting a list, and the lookups between names,
+ids and common names.
+
+- No more indistinguishable duplicate rows
+  ([\#66](https://github.com/gcol33/taxify/issues/66)).
+  `comm2sci(output = "result")` returned one identical row per language
+  a vernacular was stored in, because it deduplicated on a key that
+  included `lang` and then dropped `lang`; it now has one row per
+  (query, scientific name).
+  [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
+  repeated every synonym once per copy of a repeated input name; each
+  distinct name is now reported once.
+
+- [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+  no longer flags valid names or input
+  ([\#67](https://github.com/gcol33/taxify/issues/67)). The register
+  check read the genus as the raw, case-sensitive first word, so
+  `"quercus robur"` and `"cf. Quercus robur"` came back `unknown` /
+  `unresolved`; the genus is now taken from the cleaned name and looked
+  up case-insensitively, as
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  does. A mistyped region code (`"GRE"` for Greece, which is `GRC`) was
+  kept as a region, and
+  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+  then flagged every plant with WCVP data as `geographic`. `region =`
+  now drops a code the WGSRPD crosswalk does not list, with a warning,
+  as it already did for an unrecognised name;
+  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+  reports the geographic check under `not checked`. `region` and
+  `coords` are no longer resolved when nothing reads them (a character
+  vector inspected without matching), which could download the region
+  boundaries.
+
+- Four input shapes in the secondary verbs
+  ([\#68](https://github.com/gcol33/taxify/issues/68)).
+  `lookup_genus(NA)` returned every register row filled with `NA`; it
+  returns `NULL`.
+  [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md)
+  matched a numeric id through
+  [`as.character()`](https://rdrr.io/r/base/character.html), which
+  writes `1e+05`, so a round GBIF key or TSN read from a CSV found
+  nothing; numeric ids are now written out in full, and a fractional one
+  is an error.
+  [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md)’s
+  `$phylo` tip labels read `Quercus_robur` where `$tip_labels` read
+  `Quercus robur`; the `phylo` now carries the names, and only the
+  Newick string uses `_`.
+  [`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
+  stopped with “No suffixed columns found” on single-group input that
+  carried a companion column such as `<trait>_sources`, and matched base
+  names as regular expressions in one of its two checks; one literal
+  predicate now decides both.
+
+- [`children()`](https://gillescolling.com/taxify/reference/children.md)
+  and
+  [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
+  are one query ([\#69](https://github.com/gcol33/taxify/issues/69)).
+  [`children()`](https://gillescolling.com/taxify/reference/children.md)
+  is
+  [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
+  with the parent restricted to a genus or family, so the two no longer
+  disagree: under `rank = "any"` / `downto = "any"` neither returns the
+  parent itself. Both take `kingdom =`, as
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  does, for a name used in more than one kingdom: on COL or GBIF,
+  `children("Morus")` returned mulberries and gannets together, and
+  [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
+  chose the parent’s rank by a vote across the homonyms. Without
+  `kingdom`, a result that mixes kingdoms now warns. Both return the
+  same columns, adding `kingdom_group`, and
+  [`children()`](https://gillescolling.com/taxify/reference/children.md)
+  gains `parent`.
+
+- The sibling verbs forward matching arguments the same way
+  ([\#70](https://github.com/gcol33/taxify/issues/70)).
+  [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+  [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md),
+  [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md),
+  [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+  [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md),
+  [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md)
+  and
+  [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md)
+  pass named arguments in `...` on to
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md), so
+  `fuzzy = FALSE`, `fuzzy_threshold`, `kingdom` or `region` reach the
+  matcher from each of them;
+  [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+  [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
+  and
+  [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+  no longer set `fuzzy = TRUE` regardless. `resolve =` now means one
+  thing: run the input through
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  first, as in
+  [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md).
+  [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md)’s
+  argument, which instead changed the return type, is renamed
+  `output = c("lookup", "result")`.
+
+- The eight genus-keyed doors reach every genus their source covers
+  ([\#77](https://github.com/gcol33/taxify/issues/77)).
+  [`add_blanchard()`](https://gillescolling.com/taxify/reference/add_blanchard.md),
+  [`add_cefas_btrait()`](https://gillescolling.com/taxify/reference/add_cefas_btrait.md),
+  [`add_disperse()`](https://gillescolling.com/taxify/reference/add_disperse.md),
+  [`add_freshwater_insects_conus()`](https://gillescolling.com/taxify/reference/add_freshwater_insects_conus.md),
+  [`add_fungal_traits()`](https://gillescolling.com/taxify/reference/add_fungal_traits.md),
+  [`add_fungalroot()`](https://gillescolling.com/taxify/reference/add_fungalroot.md),
+  [`add_noddb()`](https://gillescolling.com/taxify/reference/add_noddb.md)
+  and
+  [`add_ramond()`](https://gillescolling.com/taxify/reference/add_ramond.md)
+  read assets rebuilt by taxifydb 0.1.23. Their cross-backbone name
+  expansion had keyed rows under subgenus renderings and species, which
+  no genus can match, and had pulled in genus homonyms from the other
+  nomenclature code. For fungalroot, fungal_traits and noddb the
+  expanded names also never reached the `genus` column the door joins
+  on.
+
+- [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
+  reports every column an enrichment attaches
+  ([\#76](https://github.com/gcol33/taxify/issues/76)). The manifest’s
+  `trait_cols` had fallen behind 40 of the assets, missing the `_min` /
+  `_max` / `_n` spread columns, FishBase’s and SeaLifeBase’s `lw_*`
+  length-weight columns, `bet`‘s `substrate` and `arthropod_traits`’
+  `taxon_order`. They are now taken from each asset’s schema, and the
+  manifest sync keeps them that way.
+
+- [`normalize_kingdom_group()`](https://gillescolling.com/taxify/reference/normalize_kingdom_group.md)
+  and
+  [`backbone_fixed_kingdom()`](https://gillescolling.com/taxify/reference/backbone_fixed_kingdom.md)
+  are exported as low-level building blocks, for taxifydb’s kingdom
+  check on enrichment name expansion.
+
+- GIFT is no longer a suggested package.
+  [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
+  has read the bundled `.vtr` since GIFT was built into an enrichment,
+  and the enrichments vignette no longer describes the earlier on-demand
+  API route.
+
+- A backbone upgrade patches through xdelta3 when the data directory
+  contains a space ([\#79](https://github.com/gcol33/taxify/issues/79)).
+  `download_backbone()` passed the store paths to `xdelta3` unquoted, so
+  a path like `C:\Users\First Last\...` split into several arguments,
+  xdelta3 exited with “too many filenames”, and every upgrade fell back
+  to a full download (about 2 GB for `col`). The paths are now quoted,
+  the patch is fetched through the same route as the full asset (so a
+  `file://` manifest can serve it), and a failed patch names its reason
+  when `verbose`.
+
+- [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+  refreshes an installed backbone the manifest has moved past
+  ([\#82](https://github.com/gcol33/taxify/issues/82)). It resolved each
+  name through `ensure_backbone()`, which returns whatever `.vtr` is on
+  disk, so an installed backbone was never compared and only a later
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  call fetched the new release. It now runs the same comparison as the
+  once-per-session check in
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  (one shared `refresh_backbone()`), downloads where the installed build
+  is behind, leaves a current one alone, and keeps a build pinned by
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+  with a message saying so.
+
+- A backbone patch is applied only to the build it was cut against
+  ([\#83](https://github.com/gcol33/taxify/issues/83)).
+  `download_backbone()` tried the xdelta3 patch against any local
+  `.vtr`, and against a different build xdelta3 stopped with “target
+  window checksum mismatch”, printed its own stderr and fell back to a
+  full download that `verbose = FALSE` did not report. The manifest now
+  records the base build’s content id as `delta_from_content_id`
+  (written by taxifydb), and the patch is fetched only when the local
+  build carries it; a delta recorded without one is not applied.
+  xdelta3’s output is captured into the reason. Whichever path ran, the
+  new file is checked against the manifest `content_id` before it
+  replaces the installed build: a patched file that does not match is
+  replaced by the full asset, and a full download that does not match
+  stops with an error and leaves the previous build in place.
+  `meta.json` records `install_path` (`"patched"` or `"full"`), and the
+  ready message naming the path and any reason the patch was not used is
+  shown regardless of `verbose`.
+
+- Installing a backbone or enrichment no longer leaves the replaced
+  file’s vectra indexes beside the new one. A download renamed the new
+  `.vtr` into place and kept `<name>.vtr.<column>.vtri`, and vectra
+  accepts an index whose row and row-group counts match the store,
+  whatever its content (gcol33/vectra#13): a re-cut of the same shape
+  would have pruned by the old keys and dropped exact matches without an
+  error. Every install path (backbone and enrichment downloads, sidecar
+  extras, builds fetched by content id) removes the indexes of the file
+  it replaces, and activating a stored build drops any index the
+  archived build left in the slot. The published assets carry no index,
+  so an installed asset now has the same files on every machine.
+
+- [`taxify_pin()`](https://gillescolling.com/taxify/reference/taxify_pin.md)
+  pins or releases installed backbones and enrichments by name. A pin
+  was reachable only by fetching a build by content id, so a project
+  building against a shared data directory had no call that held the
+  builds it had already installed, and set `"pinned": true` in
+  `meta.json` by hand. The pin is still that `meta.json` flag, now
+  written together with the build’s content id and reported back; the
+  version checks in
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
+  [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+  and the enrichment doors leave a pinned build in place. It refuses a
+  name that is not installed, and a name installed as both a backbone
+  and an enrichment (`wcvp`) until `kind =` says which.
+
+- `taxify_restore(install = TRUE)` pins every build that matches the
+  lock, including one that already matched and needed no download. It
+  pinned only the builds it fetched, so a lock that matched the install
+  reported success and left those builds free to be refreshed away at
+  the next session. The report gains a `pinned` column.
+
+- A name the backbone holds without placing it no longer reads as
+  accepted ([\#81](https://github.com/gcol33/taxify/issues/81)). The
+  result carries the matched record’s own status in a new
+  `taxonomic_status` column (WFO’s `"UNCHECKED"`, COL’s
+  `"PROVISIONALLY ACCEPTED"`, …). Where such a record’s basionym is
+  placed, the name resolves to the taxon the basionym is placed under,
+  with `match_type = "basionym"` and `is_synonym = TRUE`: against WFO
+  2024-12, *Sabulina tenuifolia* now resolves to *Minuartia hybrida*.
+  This reads the backbone’s basionym link (`original_name_usage_id`),
+  which WFO and COL builds carry once rebuilt; a build without it is
+  matched as before. And where one record of a name is a synonym
+  homotypic with its accepted name and another is unplaced, the
+  homotypic record is picked and the unplaced homonym stays in
+  `ambiguous_targets`: *Lycopsis orientalis* resolves to *Anchusa
+  arvensis* subsp. *orientalis* rather than to the unplaced *Lycopsis
+  orientalis* Steph.
+
+## taxify 0.5.2
+
+An audit for the [\#55](https://github.com/gcol33/taxify/issues/55)
+shape – a failure returned as a plausible answer, with the only notice
+gated on `verbose` – found it in three more places. The cause behind
+[\#55](https://github.com/gcol33/taxify/issues/55) itself, a cache key
+handed to an environment, exists nowhere else: every other session cache
+is keyed on a backbone name or a file basename.
+
+- `region =` and `coords =` now warn when the constraint could not be
+  applied. With no range data for the declared region,
+  `region_range_sets()` returned `NULL` and the fuzzy filter passed its
+  candidates through unconstrained, so a match the region would have
+  excluded could win. This is the one that could change which taxon a
+  name resolved to, and the only notice was a message gated on
+  `verbose`.
+
+- [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+  names the checks it could not run, in the report header under
+  `not checked`. An anomaly-only report has no other way to separate a
+  check that ran clean from one that never ran: both contribute no rows,
+  and the report then prints “nothing stood out”. The genus-recognition
+  check without the register, and both range checks without the WCVP
+  range data, were skipped that way. The skipped set travels on the
+  result, so a saved report carries it.
+
+- Cross-backbone name recovery names a backbone it could not resolve
+  against, instead of silently contributing no alternatives for it. That
+  pass runs over the whole gap set at once, which is where a
+  size-dependent failure like
+  [\#55](https://github.com/gcol33/taxify/issues/55) would next hide.
+
+## taxify 0.5.1
+
+- [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  no longer returns `NA` for every source past a batch size
+  ([\#55](https://github.com/gcol33/taxify/issues/55)). The per-name-set
+  memos behind hybrid-parent resolution and cross-backbone name recovery
+  were keyed on the query set itself, and R caps the name of a variable
+  in an environment at 10000 bytes – so a large enough batch pushed the
+  key past the cap, where reading the cache raised rather than missed
+  and took the whole join down with it. Because the cap is on total
+  bytes, the batch size that tripped it moved with how many names the
+  backbone resolved and how long they were, which is why a large call
+  could come back with one source populated and the rest empty and read
+  as a coverage result. Both memos now use a session store that carries
+  keys of any length.
+
+- A trait source that cannot be joined is named in a warning whether or
+  not `verbose = TRUE`. Such a source leaves an all-NA column, which
+  reads exactly like the source genuinely holding nothing for those
+  taxa, so silence there turns a failure into a coverage statement.
+
+- `add_trait(verbose = TRUE)` reports what each source supplied against
+  the number of names the backbone resolved
+  (`gift 152, austraits 40, leda 281, baseflor 336, brot 0 (of 2400 resolved names)`),
+  which separates thin coverage from a source that returned nothing.
+
 ## taxify 0.5.0
+
+CRAN release: 2026-09-02
 
 - A content id recorded by
   [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)

@@ -17,7 +17,7 @@ several rows.
 ## Usage
 
 ``` r
-sci2comm(x, lang = NULL, resolve = TRUE, backbone = NULL, verbose = TRUE)
+sci2comm(x, lang = NULL, resolve = TRUE, backbone = NULL, ..., verbose = TRUE)
 ```
 
 ## Arguments
@@ -47,6 +47,13 @@ sci2comm(x, lang = NULL, resolve = TRUE, backbone = NULL, verbose = TRUE)
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   when `resolve = TRUE`; `NULL` (default) uses every installed backbone.
   Ignored when `resolve = FALSE`.
+
+- ...:
+
+  Matching arguments passed to
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  when `resolve = TRUE` (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`,
+  `region`). Must be named.
 
 - verbose:
 

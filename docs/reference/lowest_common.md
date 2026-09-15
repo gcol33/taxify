@@ -9,7 +9,7 @@ unrelated taxa share only a kingdom (or nothing).
 ## Usage
 
 ``` r
-lowest_common(x, backbone = NULL, verbose = TRUE)
+lowest_common(x, backbone = NULL, ..., verbose = TRUE)
 ```
 
 ## Arguments
@@ -26,6 +26,13 @@ lowest_common(x, backbone = NULL, verbose = TRUE)
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   when `x` is raw names. `NULL` (default) uses every installed backbone.
   Ignored when `x` is a result.
+
+- ...:
+
+  Matching arguments passed to
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  when `x` is raw names (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`,
+  `region`). Must be named.
 
 - verbose:
 

@@ -15,7 +15,7 @@ accepted taxon's.
 ## Usage
 
 ``` r
-upstream(taxon, backbone = NULL, to = NULL, verbose = TRUE)
+upstream(taxon, backbone = NULL, to = NULL, ..., verbose = TRUE)
 ```
 
 ## Arguments
@@ -36,6 +36,13 @@ upstream(taxon, backbone = NULL, to = NULL, verbose = TRUE)
   Optional rank (or ranks) to restrict the output to – e.g.
   `to = "family"` answers "what family is this in?" with a single row.
   `NULL` (default) returns the whole lineage.
+
+- ...:
+
+  Matching arguments passed to
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  when resolving `taxon` (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`,
+  `region`). Must be named.
 
 - verbose:
 

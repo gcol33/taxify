@@ -3,13 +3,11 @@
 directory (taxify_data_dir()), so subsequent taxify() calls match against
 them offline. taxify installs its default set automatically on first use
 (COL, GBIF, ITIS); call this to pre-install a specific set, add a backbone to
-the default, or refresh to the latest release. Already-current backbones are
-skipped."><meta property="og:description" content="Downloads the pre-built .vtr for each named backbone into the taxify data
+the default, or refresh to the latest release."><meta property="og:description" content="Downloads the pre-built .vtr for each named backbone into the taxify data
 directory (taxify_data_dir()), so subsequent taxify() calls match against
 them offline. taxify installs its default set automatically on first use
 (COL, GBIF, ITIS); call this to pre-install a specific set, add a backbone to
-the default, or refresh to the latest release. Already-current backbones are
-skipped."><script>
+the default, or refresh to the latest release."><script>
 (function () {
   var D = String.fromCharCode(36);
   window.MathJax = {
@@ -30,7 +28,7 @@ skipped."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,8 +86,7 @@ skipped."><script>
 directory (<code><a href="taxify_data_dir.html">taxify_data_dir()</a></code>), so subsequent <code><a href="taxify.html">taxify()</a></code> calls match against
 them offline. taxify installs its default set automatically on first use
 (COL, GBIF, ITIS); call this to pre-install a specific set, add a backbone to
-the default, or refresh to the latest release. Already-current backbones are
-skipped.</p>
+the default, or refresh to the latest release.</p>
     </div>
 
     <div class="section level2">
@@ -113,7 +110,21 @@ skipped.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly, the backbones now installed (those that downloaded
-successfully), in priority order.</p>
+successfully, or were already on disk), in priority order. A backbone
+whose refresh failed stays in the result with a warning, since its
+previous build is still usable.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>An installed backbone is compared against the manifest by the same check
+<code><a href="taxify.html">taxify()</a></code> runs once per session: by content id where both sides record
+one, else by version. A backbone whose build differs from the one the
+manifest serves is replaced with the current release; one that is already
+current is left as it is. A build pinned by <code><a href="taxify_pin.html">taxify_pin()</a></code>,
+<code><a href="taxify_restore.html">taxify_restore()</a></code> or <code>taxify_download(content_id = )</code> is never refreshed,
+and a message says so; <code>taxify_pin(backbone, pin = FALSE)</code> releases it. With
+<code>options(taxify.offline = TRUE)</code> nothing is compared and installed backbones
+are kept.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

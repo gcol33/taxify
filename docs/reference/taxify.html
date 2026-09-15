@@ -26,7 +26,7 @@ match quality information."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -282,7 +282,16 @@ author, so <code>accepted_name</code> and <code>accepted_authorship</code> toget
 accepted name's full citation.</p></dd>
 
 <dt>is_synonym</dt>
-<dd><p>Logical. Was the match a synonym?</p></dd>
+<dd><p>Logical. Does the matched name resolve to a different
+accepted taxon? <code>TRUE</code> for a synonym record, and for an unplaced record
+resolved through its basionym (<code>match_type = "basionym"</code>).</p></dd>
+
+<dt>taxonomic_status</dt>
+<dd><p>The matched record's own status as the backbone
+writes it (<code>"ACCEPTED"</code>, <code>"SYNONYM"</code>, WFO's <code>"UNCHECKED"</code>, COL's
+<code>"PROVISIONALLY ACCEPTED"</code>, ...), so a name the backbone holds without
+having placed it can be told from an accepted one. <code>NA</code> when nothing
+matched.</p></dd>
 
 <dt>is_hybrid</dt>
 <dd><p>Logical. Was a hybrid marker detected in the input?</p></dd>
@@ -325,7 +334,13 @@ plus epithet), <code>"hybrid_formula"</code> (a two-parent cross the backbone do
 not store; the ID, rank and classification columns are <code>NA</code>,
 <code>matched_name</code> / <code>accepted_name</code> name the cross by its parents when both
 resolve, and <code><a href="add_hybrid_info.html">add_hybrid_info()</a></code> materializes the parents into the
-<code>hybrid_parent_*</code> columns), or <code>"none"</code>.</p></dd>
+<code>hybrid_parent_*</code> columns), <code>"rank_fallback"</code> (an infraspecific name no
+backbone carries, resolved to its species: the ID, rank and name columns
+describe the species), <code>"basionym"</code> (a record the backbone keeps
+unplaced, resolved to the taxon under which it places the record's
+basionym: <code>matched_name</code>, <code>taxon_id</code> and <code>taxonomic_status</code> describe the
+unplaced record, the <code>accepted_*</code> columns that taxon; needs a backbone
+built with its basionym links), or <code>"none"</code>.</p></dd>
 
 <dt>fuzzy_dist</dt>
 <dd><p>Normalized string distance (0–1), <code>NA</code> if exact.</p></dd>
@@ -333,7 +348,11 @@ resolve, and <code><a href="add_hybrid_info.html">add_hybrid_info()</a></code> m
 <dt>is_ambiguous</dt>
 <dd><p>Logical. <code>TRUE</code> when the matched scientificName had
 multiple rows pointing to different accepted taxa at the same priority
-tier (homonym ambiguity). An authorship carried by the input resolves it
+tier (homonym ambiguity). A record the backbone keeps unplaced does not
+settle such a conflict: it is reported beside the records that place the
+name, whichever of them is picked. Where one record of the name is a
+synonym homotypic with its accepted name and another is unplaced, the
+homotypic record is picked. An authorship carried by the input resolves it
 where it picks out one target; <code>nomenclaturalStatus = "Valid"</code> orders
 which candidate the scalar columns hold, but does not clear the flag,
 because a valid name and an illegitimate one can be synonyms of different
@@ -419,7 +438,7 @@ the matching.</p>
 <span></span>
 <span><span class="co"># Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,</span></span>
 <span><span class="co"># or a region name resolved via the bundled WGSRPD crosswalk</span></span>
-<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"EUR"</span><span class="op">)</span></span>
+<span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"BGM"</span><span class="op">)</span></span>
 <span><span class="fu">taxify</span><span class="op">(</span><span class="st">"Quercus robus"</span>, region <span class="op">=</span> <span class="st">"Belgium"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Constrain by coordinates (downloads WGSRPD boundaries on first use)</span></span>

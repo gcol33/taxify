@@ -17,6 +17,7 @@ add_trait(
   mode = c("coalesce", "wide"),
   combine = NULL,
   priority = NULL,
+  provenance = FALSE,
   verbose = TRUE,
   aggregate_trait_fallback = getOption("taxify.aggregate_trait_fallback", TRUE)
 )
@@ -77,6 +78,18 @@ add_trait(
   the trait (see
   [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)).
 
+- provenance:
+
+  Logical. When `TRUE`, also return the references behind each value,
+  for sources whose build records them (AusTraits, GIFT, BROT and LEDA):
+  `<trait>_refs` in `mode = "coalesce"`, holding the references of the
+  sources that produced the reported value, and `<trait>_<source>_refs`
+  in `mode = "wide"`. Ids are `<enrichment>:<id>`, several joined by
+  `|`; pass the column to
+  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) to
+  resolve them to citations. A source that records no per-value
+  references contributes none. Default `FALSE`.
+
 - verbose:
 
   Logical. Default `TRUE`.
@@ -103,14 +116,16 @@ The same data.frame with added columns.
   source's own records where that spread was recorded at build time, so
   a life-stage or population span stays visible); and, only when a
   source measured the trait differently, `<trait>_caution` explaining
-  the method difference. To inspect every source, use `mode = "wide"`.
+  the method difference; with `provenance = TRUE`, `<trait>_refs`. To
+  inspect every source, use `mode = "wide"`.
 
 - `mode = "wide"`:
 
   One column per source, `<trait>_<source>`, each harmonized to the
   trait's shared vocabulary (categorical) or unit (numeric);
-  `<trait>_unit`; and `<trait>_caution` on rows where a cautioned source
-  supplied a value.
+  `<trait>_unit`; `<trait>_caution` on rows where a cautioned source
+  supplied a value; and, with `provenance = TRUE`,
+  `<trait>_<source>_refs` per source.
 
 Numeric traits are returned in the trait's canonical unit (see
 [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md));
@@ -142,6 +157,14 @@ records the difference.
 [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
 lists each source's harmonization note and caution.
 
+With `provenance = TRUE`, a reference names the record a database took
+the value from: for a categorical value the references that state that
+value, for a numeric value every reference entering the source's
+aggregate. Under `combine = "median"` or `"mean"` the coalesced
+references are those of every contributing source; under `"first"` or
+`"complete"` those of the one source reported; under `"vote"`, `"min"`
+or `"max"` those of the sources whose value is the one reported.
+
 A source enrichment that is not installed and cannot be downloaded or
 built is skipped with a warning, and the trait is assembled from the
 sources that are available.
@@ -171,6 +194,11 @@ taxify("Abies alba") |>
 # One column per source, to inspect agreement and conflict:
 taxify("Abies alba") |>
   add_trait("woodiness", mode = "wide")
+
+# The references behind each value, resolved to citations:
+res <- taxify("Abies alba") |>
+  add_trait("seed_mass", mode = "wide", provenance = TRUE)
+cite(res$seed_mass_gift_refs)
 
 options(old)
 ```

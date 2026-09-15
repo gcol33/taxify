@@ -17,4 +17,5 @@ lookup_genus(genus)
 
 ## Value
 
-A one-row data.frame, or `NULL` if the genus is not in the register.
+A one-row data.frame, or `NULL` if the genus is not in the register
+(including `NA`).

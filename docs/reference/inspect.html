@@ -36,7 +36,7 @@ the name to use instead."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -132,9 +132,12 @@ when <code>x</code> is already a <code>taxify_result</code> (it was matched alre
 
 <dt id="arg-region-coords-range">region, coords, range<a class="anchor" aria-label="anchor" href="#arg-region-coords-range"></a></dt>
 <dd><p>Geographic constraint for the <code>geographic</code> /
-<code>out_of_range</code> checks, as in <code><a href="taxify.html">taxify()</a></code>. These act on a <code>taxify_result</code>
-(which carries the accepted names they need); on a character vector there is
-nothing matched to place, so they have no effect.</p></dd>
+<code>out_of_range</code> checks, as in <code><a href="taxify.html">taxify()</a></code>. These act on matched names: a
+<code>taxify_result</code>, or a character vector with <code>backbones = TRUE</code>. On a
+character vector inspected without matching there is nothing matched to
+place, so they have no effect and are not resolved. A <code>region</code> / <code>coords</code>
+that resolves to no known region is named under <code>not checked</code> rather than
+treated as a region no species occurs in.</p></dd>
 
 
 <dt id="arg-min-tier">min_tier<a class="anchor" aria-label="anchor" href="#arg-min-tier"></a></dt>
@@ -152,7 +155,8 @@ nothing matched to place, so they have no effect.</p></dd>
 most-notable first) with columns <code>input_name</code>, <code>suggestion</code> (the name to use
 instead, or <code>NA</code>), <code>anomalies</code> (<code>|</code>-joined labels), <code>tier</code> (ordered factor
 <code>note</code> &lt; <code>review</code> &lt; <code>unresolved</code>), <code>reason</code>, <code>fuzzy_dist</code>, and <code>backbone</code>.
-Zero rows means nothing stood out.</p>
+Zero rows means nothing stood out among the checks that ran; the header's
+<code>not checked</code> line names any that could not.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -176,6 +180,10 @@ among plants, typically a cross-kingdom homonym typo.</p></dd>
 <dd><p>Resolved only after fuzzy correction (<code>match_type = "fuzzy"</code>):
 the input most likely contains a spelling error; <code>suggestion</code> is the name.</p></dd>
 
+<dt><code>rank_fallback</code></dt>
+<dd><p>An infraspecific name the backbone does not carry,
+resolved to its species (<code>match_type = "rank_fallback"</code>).</p></dd>
+
 <dt><code>ambiguous</code></dt>
 <dd><p>A homonym resolving to more than one accepted taxon.</p></dd>
 
@@ -192,8 +200,9 @@ lists).</p></dd>
 <dd><p>Resolved only after ignoring case (<code>match_type = "exact_ci"</code>).</p></dd>
 
 <dt><code>synonym</code></dt>
-<dd><p>The input is an outdated synonym; <code>suggestion</code> is the
-current accepted name.</p></dd>
+<dd><p>The input is an outdated synonym, or a name the backbone
+keeps unplaced whose basionym it places (<code>match_type = "basionym"</code>);
+<code>suggestion</code> is the current accepted name.</p></dd>
 
 
 </dl><p>Rows with no anomaly are dropped.</p>
@@ -207,8 +216,9 @@ hint, not a verdict.</p>
 judge a name against the rest of the batch, so they cannot apply to a single
 name: <code>inspect()</code> on one name warns and reports only the per-name labels. The
 register checks (<code>unknown</code>, and the register-derived <code>outlier_group</code>) need the
-genus register installed; without it they are skipped (with a message at
-<code>verbose</code>).</p>
+genus register installed, and the range checks need the WCVP range data; a
+check that could not run is named in the report header under <code>not checked</code>,
+so an empty report is never mistaken for a clean one.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

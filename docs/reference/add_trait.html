@@ -28,7 +28,7 @@ verb: you name the trait, it gathers the sources."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,6 +98,7 @@ verb: you name the trait, it gathers the sources.</p>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coalesce"</span>, <span class="st">"wide"</span><span class="op">)</span>,</span>
 <span>  combine <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  priority <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  provenance <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  aggregate_trait_fallback <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"taxify.aggregate_trait_fallback"</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -153,6 +154,16 @@ when <code>mode = "coalesce"</code>; defaults to the registered order for the tr
 (see <code><a href="trait_info.html">trait_info()</a></code>).</p></dd>
 
 
+<dt id="arg-provenance">provenance<a class="anchor" aria-label="anchor" href="#arg-provenance"></a></dt>
+<dd><p>Logical. When <code>TRUE</code>, also return the references behind
+each value, for sources whose build records them (AusTraits, GIFT, BROT
+and LEDA): <code>&lt;trait&gt;_refs</code> in <code>mode = "coalesce"</code>, holding the references
+of the sources that produced the reported value, and <code>&lt;trait&gt;_&lt;source&gt;_refs</code>
+in <code>mode = "wide"</code>. Ids are <code>&lt;enrichment&gt;:&lt;id&gt;</code>, several joined by <code>|</code>;
+pass the column to <code><a href="cite.html">cite()</a></code> to resolve them to citations. A source that
+records no per-value references contributes none. Default <code>FALSE</code>.</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. Default <code>TRUE</code>.</p></dd>
 
@@ -176,13 +187,15 @@ values behind the headline – across the contributing sources, and
 across a source's own records where that spread was recorded at build
 time, so a life-stage or population span stays visible); and, only when
 a source measured the trait differently, <code>&lt;trait&gt;_caution</code> explaining
-the method difference. To inspect every source, use <code>mode = "wide"</code>.</p></dd>
+the method difference; with <code>provenance = TRUE</code>, <code>&lt;trait&gt;_refs</code>. To
+inspect every source, use <code>mode = "wide"</code>.</p></dd>
 
 <dt><code>mode = "wide"</code></dt>
 <dd><p>One column per source, <code>&lt;trait&gt;_&lt;source&gt;</code>, each
 harmonized to the trait's shared vocabulary (categorical) or unit
-(numeric); <code>&lt;trait&gt;_unit</code>; and <code>&lt;trait&gt;_caution</code> on rows where a
-cautioned source supplied a value.</p></dd>
+(numeric); <code>&lt;trait&gt;_unit</code>; <code>&lt;trait&gt;_caution</code> on rows where a
+cautioned source supplied a value; and, with <code>provenance = TRUE</code>,
+<code>&lt;trait&gt;_&lt;source&gt;_refs</code> per source.</p></dd>
 
 
 </dl><p>Numeric traits are returned in the trait's canonical unit (see
@@ -208,6 +221,13 @@ registry. In <code>mode = "coalesce"</code> with the default <code>combine</code
 sources disagree in method is not blended: the most complete source is
 reported and <code>&lt;trait&gt;_caution</code> records the difference. <code><a href="trait_info.html">trait_info()</a></code> lists
 each source's harmonization note and caution.</p>
+<p>With <code>provenance = TRUE</code>, a reference names the record a database took the
+value from: for a categorical value the references that state that value,
+for a numeric value every reference entering the source's aggregate. Under
+<code>combine = "median"</code> or <code>"mean"</code> the coalesced references are those of every
+contributing source; under <code>"first"</code> or <code>"complete"</code> those of the one source
+reported; under <code>"vote"</code>, <code>"min"</code> or <code>"max"</code> those of the sources whose value
+is the one reported.</p>
 <p>A source enrichment that is not installed and cannot be downloaded or built
 is skipped with a warning, and the trait is assembled from the sources that
 are available.</p>
@@ -231,6 +251,11 @@ trait's sources and units. The per-source doors (<code><a href="add_zanne.html">
 <span><span class="co"># One column per source, to inspect agreement and conflict:</span></span>
 <span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"woodiness"</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The references behind each value, resolved to citations:</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"seed_mass"</span>, mode <span class="op">=</span> <span class="st">"wide"</span>, provenance <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="cite.html">cite</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">seed_mass_gift_refs</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
 <span></span></code></pre></div>

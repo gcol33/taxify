@@ -5,8 +5,12 @@ Joins an external data source (CSV file or data.frame) to a
 result. Species names in the external data are matched through the same
 backbone(s) used in the original
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call,
-and the join is performed on `accepted_id` — so synonyms in either
-dataset resolve to the same key.
+and the join is performed on the accepted taxon — so synonyms in either
+dataset resolve to the same key. The key is the `accepted_id` together
+with the backbone that issued it, falling back to `accepted_name` where
+the two sides were matched by different backbones: backend ids are bare
+integers in most backbones and mean nothing outside the one they came
+from.
 
 ## Usage
 
@@ -101,8 +105,8 @@ add_data(
 
 ## Value
 
-The input data.frame with additional columns from `data`, joined via
-backbone-resolved `accepted_id`. Columns from `data` that collide with
+The input data.frame with additional columns from `data`, joined via the
+backbone-resolved accepted taxon. Columns from `data` that collide with
 existing columns in `x` are prefixed with `"data_"`.
 
 ## Details
@@ -118,11 +122,11 @@ The workflow:
     call, obtaining `accepted_id` for each row.
 
 4.  Check for conflicting duplicates: if multiple rows in `data` resolve
-    to the same `accepted_id` with different values, an error is raised
-    (unless `group_col` is set). Exact duplicates produce a warning and
-    are deduplicated.
+    to the same accepted name with different values, an error is raised
+    – with `group_col` set, within each group. Exact duplicates produce
+    a warning and are deduplicated.
 
-5.  Left-join on `accepted_id`.
+5.  Left-join on the accepted taxon.
 
 ### Grouped data
 

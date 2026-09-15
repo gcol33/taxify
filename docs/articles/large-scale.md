@@ -311,17 +311,17 @@ The sizes below are approximate and depend on the backbone version.
 
 | Backbone                  | Names     | Download   | Version |
 |---------------------------|-----------|------------|---------|
-| WFO                       | 1.6M      | 761 MB     | 2026.08 |
-| COL                       | 5.3M      | 2.0 GB     | 2026.08 |
-| COL Extended Release      | 7.9M      | 1.6 GB     | 2026.08 |
+| WFO                       | 1.7M      | 775 MB     | 2026.06 |
+| COL                       | 5.4M      | 2.1 GB     | 2026.09 |
+| COL Extended Release      | 8.1M      | 1.6 GB     | 2026.09 |
 | GBIF                      | 6.4M      | 1.6 GB     | 2026.08 |
-| ITIS                      | 993k      | 205 MB     | 2026.08 |
-| NCBI                      | 2.8M      | 531 MB     | 2026.08 |
-| OTT                       | 3.7M      | 763 MB     | 2026.08 |
-| WoRMS                     | 1.6M      | 312 MB     | 2026.08 |
+| ITIS                      | 1.0M      | 206 MB     | 2026.09 |
+| NCBI                      | 3.0M      | 549 MB     | 2026.09 |
+| OTT                       | 3.7M      | 763 MB     | 2026.09 |
+| WoRMS                     | 1.6M      | 304 MB     | 2026.09 |
 | Euro+Med                  | 147k      | 35 MB      | 2026.08 |
 | Species Fungorum          | 315k      | 71 MB      | 2026.08 |
-| AlgaeBase                 | 172k      | 36 MB      | 2026.08 |
+| AlgaeBase                 | 172k      | 36 MB      | 2026.09 |
 | FishBase                  | 103k      | 19 MB      | 2026.08 |
 | SeaLifeBase               | 134k      | 29 MB      | 2026.08 |
 | Reptile Database          | 50k       | 10 MB      | 2026.07 |
@@ -330,7 +330,7 @@ The sizes below are approximate and depend on the backbone version.
 | Mammal Diversity Database | 62k       | 11 MB      | 2026.08 |
 | AviList                   | 41k       | 8 MB       | 2026.08 |
 | LPSN                      | 45k       | 12 MB      | 2026.08 |
-| **All 19**                | **34.2M** | **8.5 GB** |         |
+| **All 19**                | **34.7M** | **8.7 GB** |         |
 
 A full installation of all 19 backbones occupies several GB. Most
 workflows need only one or two. The WFO backbone alone covers the vast

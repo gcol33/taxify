@@ -743,7 +743,7 @@ dataset is distributed under CC BY-NC 4.0; the per-genus consensus is
 computed by taxify from the per-observation labels, not FungalRoot’s own
 published genus assignment.
 
-#### Global traits (GIFT, on demand)
+#### Global traits (GIFT)
 
 GIFT, the Global Inventory of Floras and Traits (Weigelt et al. 2020),
 aggregates published plant trait records worldwide into one value per
@@ -782,18 +782,6 @@ time and it ships as a pre-built `.vtr`, so
 joins it offline, with no runtime API calls. Cite GIFT and, where
 applicable, the underlying references
 ([`GIFT::GIFT_references()`](https://biogeomacro.github.io/GIFT/reference/GIFT_references.html)).
-
-GIFT trait values are aggregated from many source references, each under
-its own licence, and are served from a live API rather than an
-openly-licensed bulk dump, so taxify does not redistribute them.
-[`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
-fetches them on demand through the suggested GIFT package: the full
-trait table is downloaded once per session and cached, and the values
-are joined to your result by accepted name. The first call needs
-internet access, and you are responsible for citing GIFT and the
-underlying references
-([`GIFT::GIFT_references()`](https://biogeomacro.github.io/GIFT/reference/GIFT_references.html))
-when you use the values.
 
 ### Conservation status (IUCN Red List)
 
@@ -1759,16 +1747,24 @@ groups naturally takes longer than a single-country join.
 
 ### Alien species first records (Seebens et al.)
 
-The Global Alien Species First Record Database (Seebens et al. 2017)
-records the year each alien species was first documented in a given
-country or territory. Unlike GRIIS (which records current status), this
-enrichment provides a historical timeline of alien species arrivals. The
-dataset covers all taxa (plants, animals, fungi) with ~77,000
-species-country combinations across 241 countries. The `country`
-argument takes ISO 3166-1 alpha-2 codes, same as
-[`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md).
+The FirstRecords dataset (Seebens et al. 2017; version 4.0, Seebens &
+Renard Truong 2026) records the year each alien species was first
+documented in a location. Unlike GRIIS (which records current status),
+this enrichment provides a historical timeline of alien species
+arrivals, across all taxa (plants, animals, fungi).
 
-#### Single country
+A location is a country, or an island or other part of a country that
+the source records as a region of its own: Hawaii and Alaska apart from
+the United States, the Canary and Balearic Islands apart from Spain, the
+Azores and Madeira apart from Portugal. The locations do not overlap, so
+a country’s first record excludes its separately recorded islands. The
+`location` argument takes the ISO 3166-1 alpha-2 code for a country
+(same codes as
+[`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md))
+and the name for a sub-national location;
+`enrichment_groups("alien_first_records")` lists them all.
+
+#### Single location
 
 ``` r
 
@@ -1778,7 +1774,7 @@ aliens <- taxify(c(
   "Ambrosia artemisiifolia", "Solidago canadensis"
 ))
 
-aliens |> add_alien_first_records(country = "AT")
+aliens |> add_alien_first_records(location = "AT")
 #>              input_name alien_first_record alien_first_record_source alien_first_record_reference
 #> 1   Robinia pseudoacacia               1850                   NOBANIS                      NOBANIS
 #> 2    Ailanthus altissima               1870                   NOBANIS                      NOBANIS
@@ -1800,21 +1796,37 @@ matters because a second first-records source (GBIF occurrence-based
 records) will be added in a future version, and the `source` column will
 distinguish which database contributed each record.
 
-#### Multiple countries
+#### Multiple locations
 
 ``` r
 
-aliens |> add_alien_first_records(country = c("AT", "DE", "GB"))
+aliens |> add_alien_first_records(location = c("AT", "DE", "GB"))
 #>              input_name alien_first_record_AT alien_first_record_DE alien_first_record_GB ...
 #> 1   Robinia pseudoacacia                  1850                  1630                  1640 ...
 #> 2    Ailanthus altissima                  1870                  1780                  1751 ...
 #> 3 Impatiens glandulifera                  1900                  1839                  1855 ...
 ```
 
-With multiple countries, each of the three value columns gets a country
+With multiple locations, each of the three value columns gets a location
 suffix: `alien_first_record_AT`, `alien_first_record_source_AT`,
 `alien_first_record_reference_AT`, etc. This makes cross-country
 comparisons of invasion history straightforward.
+
+#### Islands and their country
+
+An island’s first record can be decades older than the mainland’s, or
+the only record the source holds in that country. Request the island by
+name to see it next to the country:
+
+``` r
+
+aliens |> add_alien_first_records(location = c("ES", "Canary Islands"),
+                                  cols = c("alien_first_record", "country_code"))
+```
+
+Every location carries `country_code`, the country it lies in. A first
+record for a country including its islands is then an explicit roll-up:
+request all of the country’s locations and take the earliest year.
 
 #### Reshaping to long format
 
@@ -1826,9 +1838,9 @@ helper reshapes any group-based enrichment columns back to long format:
 ``` r
 
 aliens |>
-  add_alien_first_records(country = c("AT", "DE", "GB")) |>
+  add_alien_first_records(location = c("AT", "DE", "GB")) |>
   taxify_long()
-#>              input_name country_code alien_first_record alien_first_record_source ...
+#>              input_name location alien_first_record alien_first_record_source ...
 #> 1   Robinia pseudoacacia           AT               1850                   NOBANIS ...
 #> 2    Ailanthus altissima           AT               1870                   NOBANIS ...
 #> ...
@@ -1839,10 +1851,10 @@ aliens |>
 When `cols` and `group_col` are omitted,
 [`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
 auto-detects them from metadata stamped by the `add_*()` functions. The
-result has one row per species per country, with the base column names
-(no suffix) and a new `country_code` column. The `drop_na = TRUE`
-argument removes rows where all value columns are `NA` (e.g., native
-species with no alien first record in any queried country).
+result has one row per species per location, with the base column names
+(no suffix) and a new `location` column. The `drop_na = TRUE` argument
+removes rows where all value columns are `NA` (e.g., native species with
+no alien first record in any queried country).
 
 [`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
 works with any group-based enrichment, not just alien first records. It
@@ -1856,17 +1868,18 @@ aliens |>
   taxify_long()
 ```
 
-When multiple grouped enrichments share the same group column, they are
-reshaped together. If an enrichment covers different groups than another
-(e.g., GRIIS for AT/DE but first records for AT/DE/CH), the missing
-combinations are padded with `NA`:
+Grouped enrichments are reshaped together when they share a group
+column, or when `group_col` names the one output column for all of them.
+If an enrichment covers different groups than another (e.g., GRIIS for
+AT/DE but first records for AT/DE/CH), the missing combinations are
+padded with `NA`:
 
 ``` r
 
 aliens |>
   add_griis(country = c("AT", "DE")) |>
-  add_alien_first_records(country = c("AT", "DE", "CH")) |>
-  taxify_long()
+  add_alien_first_records(location = c("AT", "DE", "CH")) |>
+  taxify_long(group_col = "country_code")
 ```
 
 You can still provide `cols` and `group_col` explicitly to override

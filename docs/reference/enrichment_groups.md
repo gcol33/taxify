@@ -7,7 +7,7 @@ WCVP native ranges by TDWG region
 ([`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)),
 vernacular names by language
 ([`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)),
-alien first records by country
+alien first records by location
 ([`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md)).
 This lists the valid group values for such a door, the way
 [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)

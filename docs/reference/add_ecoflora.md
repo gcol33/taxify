@@ -43,11 +43,11 @@ The same data.frame with additional `_uk` columns:
 
 - height_max_mm_uk, height_min_mm_uk:
 
-  Canopy height range (mm).
+  Typical maximum and minimum plant height (mm; Ecoflora records cm).
 
 - leaf_area_uk:
 
-  Leaf area class.
+  Leaf area class (cm\\^2\\).
 
 - leaf_longevity_uk:
 

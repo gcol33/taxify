@@ -35,21 +35,22 @@ The same data.frame with additional columns:
 
 - raunkiaer_life_form:
 
-  Primary Raunkiaer life form classification (phanerophyte, chamaephyte,
-  hemicryptophyte, geophyte, therophyte, helophyte, hydrophyte).
+  Most frequent LEDA plant growth form: the Raunkiaer classes
+  (Phanerophyte, Chamaephyte, Hemicryptophyte, Geophyte, Therophyte,
+  Hydrophyte) plus Liana, Vascular semi-parasite and Vascular parasite.
 
 - raunkiaer_variable:
 
-  1 if species assigned to multiple Raunkiaer forms, 0 otherwise.
+  1 if the species' records name more than one growth form, 0 otherwise.
 
 - dispersal_type:
 
-  Primary dispersal type (anemochory, zoochory, hydrochory, autochory,
-  barochory, dysochory).
+  Most frequent dispersal type, as LEDA's -chor term (meteorochor,
+  epizoochor, nautochor, ...).
 
 - terminal_velocity_ms:
 
-  Seed terminal velocity in m/s (species median).
+  Diaspore terminal velocity in m/s (species median).
 
 - seed_mass_mg:
 
@@ -58,7 +59,8 @@ The same data.frame with additional columns:
 
 - canopy_height_m:
 
-  Canopy height in meters (species median).
+  Canopy height in metres (species median): the height of the highest
+  photosynthetic tissue, which LEDA distinguishes from plant height.
 
 - leaf_mass_mg:
 
@@ -68,18 +70,24 @@ The same data.frame with additional columns:
 
   Specific leaf area in mm\\^2\\/mg (species median).
 
-- clonal_growth:
+- clonal_growth_organ:
 
-  Capable of clonal growth (1 = yes, 0 = no).
+  Most frequent primary clonal growth organ (epigeogeneous stems,
+  root-splitters, bulbs, ...).
 
-- buoyancy:
+- floating_capacity_1week_pct:
 
-  Seed buoyancy classification.
+  Percentage of diaspores still floating after one week (species
+  median).
 
 ## Details
 
-Source: LEDA Traitbase (Kleyer et al. 2008). Coverage: ~8,000 NW
-European plant species.
+Source: LEDA Traitbase (Kleyer et al. 2008). Coverage: ~12,500 NW
+European plant taxa. `cols = "all"` adds the remaining LEDA traits and,
+for each, a `<col>_source` column of the references behind the value
+(resolve with
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md) and
+`source = "leda"`).
 
 The Raunkiaer life form is a bud-position classification system:
 phanerophyte = buds \>25 cm above soil, chamaephyte = buds near soil

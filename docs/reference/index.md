@@ -96,6 +96,8 @@ register.
 - [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
   : Check an install against a lockfile, and optionally reinstall what
   drifted
+- [`taxify_pin()`](https://gillescolling.com/taxify/reference/taxify_pin.md)
+  : Pin or release installed taxify assets
 - [`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
   : Builds of a taxify asset held on disk
 
@@ -413,3 +415,7 @@ Exported internals for power users and custom pipelines.
   : Test whether a canonical name carries an aggregate marker
 - [`normalize_aggregate_name()`](https://gillescolling.com/taxify/reference/normalize_aggregate_name.md)
   : Normalize aggregate markers on canonical names (build-time)
+- [`normalize_kingdom_group()`](https://gillescolling.com/taxify/reference/normalize_kingdom_group.md)
+  : Normalize a kingdom string to the coarse kingdom-group vocabulary
+- [`backbone_fixed_kingdom()`](https://gillescolling.com/taxify/reference/backbone_fixed_kingdom.md)
+  : The single kingdom a backbone's rows always belong to, or NA

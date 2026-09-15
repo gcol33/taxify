@@ -30,7 +30,7 @@ single accepted taxon."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,8 +112,8 @@ backbone.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Further arguments passed to <code><a href="taxify.html">taxify()</a></code> (e.g. <code>fuzzy</code>,
-<code>fuzzy_threshold</code>, <code>kingdom</code>).</p></dd>
+<dd><p>Matching arguments passed to <code><a href="taxify.html">taxify()</a></code> (e.g. <code>fuzzy</code>,
+<code>fuzzy_threshold</code>, <code>kingdom</code>, <code>region</code>). Must be named.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -131,8 +131,11 @@ backbone.</p></dd>
 <dt>status</dt>
 <dd><p>One of:
 <code>"unchanged"</code> (resolves to itself, still accepted),
-<code>"synonym"</code> (now a synonym of a different accepted name),
+<code>"synonym"</code> (now a synonym of a different accepted name, including a
+name the backbone keeps unplaced but resolves through its basionym),
 <code>"misspelling"</code> (resolved by fuzzy/abbrev match to a corrected spelling),
+<code>"rank_fallback"</code> (an infraspecific name the backbone does not carry;
+<code>accepted_name</code> is the accepted name of its species),
 <code>"ambiguous"</code> (a homonym resolving to several accepted taxa; see
 <code><a href="taxify_candidates.html">taxify_candidates()</a></code>),
 <code>"unresolved"</code> (no match).</p></dd>

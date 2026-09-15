@@ -47,31 +47,31 @@ The same data.frame with additional columns:
 
 - bien_sla_mm2_mg:
 
-  Leaf area per leaf dry mass (SLA).
+  Leaf area per leaf dry mass (SLA, mm2/mg).
 
 - bien_leaf_area_mm2:
 
-  Leaf area.
+  Leaf area (mm2).
 
 - bien_leaf_dry_mass_mg:
 
-  Leaf dry mass.
+  Leaf dry mass (mg; BIEN records g).
 
 - bien_leaf_n_per_dry_mass:
 
-  Leaf nitrogen per dry mass.
+  Leaf nitrogen per dry mass (mg/g).
 
 - bien_leaf_p_per_dry_mass:
 
-  Leaf phosphorus per dry mass.
+  Leaf phosphorus per dry mass (mg/g).
 
 - bien_leaf_thickness_mm:
 
-  Leaf thickness.
+  Leaf thickness (mm).
 
 - bien_seed_mass_mg:
 
-  Seed mass.
+  Seed mass (mg).
 
 - bien_wood_density_g_cm3:
 
@@ -79,7 +79,7 @@ The same data.frame with additional columns:
 
 - bien_leaf_lifespan:
 
-  Leaf life span.
+  Leaf life span (months).
 
 - bien_growth_form:
 

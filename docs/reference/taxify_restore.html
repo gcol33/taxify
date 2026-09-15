@@ -24,7 +24,7 @@ version and byte-identity (content id) – or has drifted, or is missing."><scri
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,9 +113,11 @@ already match.</p></dd>
 <code>type</code> (<code>"backbone"</code>/<code>"enrichment"</code>), <code>locked_version</code>, <code>installed_version</code>,
 <code>locked_content_id</code> and <code>installed_content_id</code> (short), and <code>status</code>
 (<code>"ok"</code>, <code>"version_drift"</code>, <code>"content_drift"</code>, <code>"missing"</code>, or
-<code>"unverified"</code> when neither a version nor a content id could be compared).
-With <code>install = TRUE</code> the statuses describe the install afterwards, and a
-<code>restored</code> column records which rows were fetched.</p>
+<code>"unverified"</code> when what the lock pinned cannot be compared against this
+install).
+With <code>install = TRUE</code> the statuses describe the install afterwards, a
+<code>restored</code> column records which rows were fetched, and a <code>pinned</code> column
+which rows are now pinned (every row whose status is <code>"ok"</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -123,15 +125,18 @@ With <code>install = TRUE</code> the statuses describe the install afterwards, a
 immutable copy published beside the rolling asset, and makes it the active
 one: the recorded run is put back in place in a single call. The build each
 pinned build replaces is kept on disk under its own content id, so restoring
-a lockfile is reversible. A pinned build is not refreshed away by the next
-session's version check.</p>
+a lockfile is reversible. Every build that matches the lock afterwards is
+pinned, including one that already matched and needed no download, so the
+next session's version check does not refresh it away from the lock. Release
+a pin with <code><a href="taxify_pin.html">taxify_pin()</a></code>.</p>
 <p>A build published before taxifydb began uploading an immutable copy cannot be
 recovered – the re-cut replaced it in place – and its row keeps reporting
 drift after the install pass.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="taxify_lock.html">taxify_lock()</a></code>, <code><a href="taxify_store.html">taxify_store()</a></code> for the builds on disk,
+    <div class="dont-index"><p><code><a href="taxify_lock.html">taxify_lock()</a></code>, <code><a href="taxify_pin.html">taxify_pin()</a></code> to pin or release an installed
+build without a lockfile, <code><a href="taxify_store.html">taxify_store()</a></code> for the builds on disk,
 <code><a href="taxify_download_enrichment.html">taxify_download_enrichment()</a></code> to fetch a single build by content id.</p></div>
     </div>
 

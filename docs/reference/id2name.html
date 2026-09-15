@@ -24,7 +24,7 @@ the taxon_id / accepted_id columns taxify() emits."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,8 +94,10 @@ the <code>taxon_id</code> / <code>accepted_id</code> columns <code><a href="taxi
 
 <dl><dt id="arg-id">id<a class="anchor" aria-label="anchor" href="#arg-id"></a></dt>
 <dd><p>A vector of backbone IDs (e.g. GBIF keys, ITIS TSNs, WoRMS
-AphiaIDs). Coerced to character, matched against the backbone's <code>taxon_id</code>.
-IDs are backbone-specific, so name the <code>backbone</code> they came from.</p></dd>
+AphiaIDs), matched as text against the backbone's <code>taxon_id</code>. Numeric IDs
+(as read from a CSV) are written out in full, never in scientific notation,
+and must be whole numbers. IDs are backbone-specific, so name the
+<code>backbone</code> they came from.</p></dd>
 
 
 <dt id="arg-backbone">backbone<a class="anchor" aria-label="anchor" href="#arg-backbone"></a></dt>

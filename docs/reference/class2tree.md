@@ -9,7 +9,7 @@ package is installed, an `ape` `phylo` object is included too.
 ## Usage
 
 ``` r
-class2tree(x, backbone = NULL, verbose = TRUE)
+class2tree(x, backbone = NULL, ..., verbose = TRUE)
 
 # S3 method for class 'taxify_tree'
 print(x, ...)
@@ -30,13 +30,13 @@ print(x, ...)
   when `x` is raw names. `NULL` (default) uses every installed backbone.
   Ignored when `x` is a result.
 
-- verbose:
-
-  Logical. Default `TRUE`.
-
 - ...:
 
   Ignored, present for S3 `print` method consistency.
+
+- verbose:
+
+  Logical. Default `TRUE`.
 
 ## Value
 
@@ -45,7 +45,8 @@ An object of class `taxify_tree`: a list with
 - newick:
 
   The Newick string (internal nodes labelled by rank value, tips by
-  species name).
+  species name). Characters Newick reserves, the space among them, are
+  written as `_` (`Quercus_robur`).
 
 - classification:
 
@@ -53,12 +54,13 @@ An object of class `taxify_tree`: a list with
 
 - tip_labels:
 
-  The species at the tips.
+  The species at the tips, as named in `classification`.
 
 - phylo:
 
   An ape `phylo` object, or `NULL` if ape is not installed / the string
-  could not be parsed.
+  could not be parsed. Its `tip.label` and `node.label` carry the names
+  themselves, as `tip_labels` does.
 
 ## See also
 

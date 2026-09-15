@@ -29,9 +29,9 @@ reconcile(x, backbone = NULL, ..., verbose = TRUE)
 
 - ...:
 
-  Further arguments passed to
+  Matching arguments passed to
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`).
+  (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`, `region`). Must be named.
 
 - verbose:
 
@@ -52,10 +52,12 @@ A data.frame with one row per input name, columns:
 - status:
 
   One of: `"unchanged"` (resolves to itself, still accepted),
-  `"synonym"` (now a synonym of a different accepted name),
+  `"synonym"` (now a synonym of a different accepted name, including a
+  name the backbone keeps unplaced but resolves through its basionym),
   `"misspelling"` (resolved by fuzzy/abbrev match to a corrected
-  spelling), `"ambiguous"` (a homonym resolving to several accepted
-  taxa; see
+  spelling), `"rank_fallback"` (an infraspecific name the backbone does
+  not carry; `accepted_name` is the accepted name of its species),
+  `"ambiguous"` (a homonym resolving to several accepted taxa; see
   [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)),
   `"unresolved"` (no match).
 

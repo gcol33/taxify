@@ -95,6 +95,15 @@ The same data.frame with additional columns:
 
   Occurs on deadwood (0/1).
 
+- bet_substrate:
+
+  Every substrate class the species occurs on, as a pipe-delimited set
+  over `soil`, `rock`, `bark`, `wood` (deadwood), `living_plants`
+  (epiphytic on leaves or other bryophytes) and `dung_carcass`, e.g.
+  `"soil|rock|bark"`.
+  [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+  `"substrate"` reduces it to one primary class.
+
 - bet_epiphyte:
 
   Epiphytic (0/1).

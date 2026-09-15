@@ -9,7 +9,7 @@ for auditing which historical names collapse onto a current name.
 ## Usage
 
 ``` r
-synonyms(x, backbone = NULL, verbose = TRUE)
+synonyms(x, backbone = NULL, ..., verbose = TRUE)
 ```
 
 ## Arguments
@@ -24,13 +24,21 @@ synonyms(x, backbone = NULL, verbose = TRUE)
   A single backbone name (e.g. `"wfo"`) or a `taxify_backend` object.
   `NULL` (default) uses the highest-priority installed backbone.
 
+- ...:
+
+  Matching arguments passed to
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  when resolving `x` (e.g. `fuzzy`, `fuzzy_threshold`, `kingdom`,
+  `region`). Must be named.
+
 - verbose:
 
   Logical. Default `TRUE`.
 
 ## Value
 
-A data.frame with one row per synonym found, columns:
+A data.frame with one row per (distinct input name, synonym); a name
+supplied more than once is reported once. Columns:
 
 - input_name:
 

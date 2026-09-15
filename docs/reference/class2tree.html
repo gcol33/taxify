@@ -28,7 +28,7 @@ ape phylo object is included too."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,7 @@ underlying classification table; when the <span class="pkg">ape</span> package i
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">class2tree</span><span class="op">(</span><span class="va">x</span>, backbone <span class="op">=</span> <span class="cn">NULL</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">class2tree</span><span class="op">(</span><span class="va">x</span>, backbone <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'taxify_tree'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
@@ -110,30 +110,32 @@ underlying classification table; when the <span class="pkg">ape</span> package i
 (default) uses every installed backbone. Ignored when <code>x</code> is a result.</p></dd>
 
 
-<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>Logical. Default <code>TRUE</code>.</p></dd>
-
-
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Ignored, present for S3 <code>print</code> method consistency.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical. Default <code>TRUE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>taxify_tree</code>: a list with</p><dl><dt>newick</dt>
 <dd><p>The Newick string (internal nodes labelled by rank value,
-tips by species name).</p></dd>
+tips by species name). Characters Newick reserves, the space among them,
+are written as <code>_</code> (<code>Quercus_robur</code>).</p></dd>
 
 <dt>classification</dt>
 <dd><p>The classification data.frame the tree was built
 from.</p></dd>
 
 <dt>tip_labels</dt>
-<dd><p>The species at the tips.</p></dd>
+<dd><p>The species at the tips, as named in <code>classification</code>.</p></dd>
 
 <dt>phylo</dt>
 <dd><p>An <span class="pkg">ape</span> <code>phylo</code> object, or <code>NULL</code> if <span class="pkg">ape</span> is not
-installed / the string could not be parsed.</p></dd>
+installed / the string could not be parsed. Its <code>tip.label</code> and
+<code>node.label</code> carry the names themselves, as <code>tip_labels</code> does.</p></dd>
 
 
 </dl></div>

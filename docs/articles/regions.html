@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -171,13 +171,12 @@ European code; <code>"Middle Europe"</code> is a Level 2 region;
 several, and they union:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Belgium"</span>, <span class="st">"Netherlands"</span>, <span class="st">"Germany"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>A three-letter token is read as a TDWG code directly, so
-<code>region = "BGM"</code> (Belgium) and
-<code>region = "Belgium"</code> reach the same place. An unrecognised
-region is dropped with a warning rather than failing the call, and a
-code that matches no WCVP record simply makes the filter a no-op, so a
-typo in the region degrades gracefully instead of producing wrong
-matches.</p>
+<p>A TDWG code is read directly, so <code>region = "BGM"</code>
+(Belgium) and <code>region = "Belgium"</code> reach the same place. An
+unrecognised region or code (<code>"GRE"</code> for Greece, which is
+<code>GRC</code>) is dropped with a warning rather than failing the
+call, so the match runs unconstrained. A valid region with no WCVP
+record for a candidate leaves that candidate unfiltered.</p>
 </div>
 <div class="section level2">
 <h2 id="by-coordinates">By coordinates<a class="anchor" aria-label="anchor" href="#by-coordinates"></a>

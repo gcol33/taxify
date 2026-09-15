@@ -75,9 +75,10 @@ A data.frame with one row per input name and columns:
 
 - canonical:
 
-  The cleaned name used for matching (genus plus epithets, qualifiers
-  and authorship removed, hybrid sign dropped). `NA` for a hybrid
-  formula, which is not a single taxon.
+  The cleaned name used for matching (genus plus epithets and any
+  infraspecific rank marker in its canonical spelling, qualifiers and
+  authorship removed, hybrid sign dropped). `NA` for a hybrid formula,
+  which is not a single taxon.
 
 ## See also
 

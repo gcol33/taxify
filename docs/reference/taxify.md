@@ -230,7 +230,17 @@ A data.frame with one row per input name and the following columns:
 
 - is_synonym:
 
-  Logical. Was the match a synonym?
+  Logical. Does the matched name resolve to a different accepted taxon?
+  `TRUE` for a synonym record, and for an unplaced record resolved
+  through its basionym (`match_type = "basionym"`).
+
+- taxonomic_status:
+
+  The matched record's own status as the backbone writes it
+  (`"ACCEPTED"`, `"SYNONYM"`, WFO's `"UNCHECKED"`, COL's
+  `"PROVISIONALLY ACCEPTED"`, ...), so a name the backbone holds without
+  having placed it can be told from an accepted one. `NA` when nothing
+  matched.
 
 - is_hybrid:
 
@@ -280,8 +290,14 @@ A data.frame with one row per input name and the following columns:
   the ID, rank and classification columns are `NA`, `matched_name` /
   `accepted_name` name the cross by its parents when both resolve, and
   [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
-  materializes the parents into the `hybrid_parent_*` columns), or
-  `"none"`.
+  materializes the parents into the `hybrid_parent_*` columns),
+  `"rank_fallback"` (an infraspecific name no backbone carries, resolved
+  to its species: the ID, rank and name columns describe the species),
+  `"basionym"` (a record the backbone keeps unplaced, resolved to the
+  taxon under which it places the record's basionym: `matched_name`,
+  `taxon_id` and `taxonomic_status` describe the unplaced record, the
+  `accepted_*` columns that taxon; needs a backbone built with its
+  basionym links), or `"none"`.
 
 - fuzzy_dist:
 
@@ -291,11 +307,16 @@ A data.frame with one row per input name and the following columns:
 
   Logical. `TRUE` when the matched scientificName had multiple rows
   pointing to different accepted taxa at the same priority tier (homonym
-  ambiguity). An authorship carried by the input resolves it where it
-  picks out one target; `nomenclaturalStatus = "Valid"` orders which
-  candidate the scalar columns hold, but does not clear the flag,
-  because a valid name and an illegitimate one can be synonyms of
-  different species. Expand the alternatives with
+  ambiguity). A record the backbone keeps unplaced does not settle such
+  a conflict: it is reported beside the records that place the name,
+  whichever of them is picked. Where one record of the name is a synonym
+  homotypic with its accepted name and another is unplaced, the
+  homotypic record is picked. An authorship carried by the input
+  resolves it where it picks out one target;
+  `nomenclaturalStatus = "Valid"` orders which candidate the scalar
+  columns hold, but does not clear the flag, because a valid name and an
+  illegitimate one can be synonyms of different species. Expand the
+  alternatives with
   [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md).
 
 - ambiguous_targets:
@@ -382,7 +403,7 @@ taxify("Quercus robus", fuzzy = FALSE)
 
 # Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,
 # or a region name resolved via the bundled WGSRPD crosswalk
-taxify("Quercus robus", region = "EUR")
+taxify("Quercus robus", region = "BGM")
 taxify("Quercus robus", region = "Belgium")
 
 # Constrain by coordinates (downloads WGSRPD boundaries on first use)
