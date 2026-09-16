@@ -35,6 +35,8 @@ ecoregion is the \code{name}, its province the \code{level2_name}, and its realm
 }
 \examples{
 head(taxify_regions())
+\donttest{
 taxify_regions("belgium")
 taxify_regions("Europe")
+}
 }

@@ -1070,8 +1070,10 @@ resolve_region <- function(region = NULL, coords = NULL, verbose = FALSE) {
 #'   `level1_name`, and `scheme`, one row per region.
 #' @examples
 #' head(taxify_regions())
+#' \donttest{
 #' taxify_regions("belgium")
 #' taxify_regions("Europe")
+#' }
 #' @export
 taxify_regions <- function(search = NULL, scheme = c("all", "wgsrpd", "meow")) {
   scheme <- match.arg(scheme)
