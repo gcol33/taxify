@@ -1,5 +1,15 @@
 # taxify 0.5.4
 
+* `enrich_by_group()`'s homonym-collision warning (used by `add_wcvp()` and
+  every other grouped door) now distinguishes two reasons a name's rows were
+  left `NA` (#87). "match more than one concept" stays for a genuine tie --
+  at least one candidate is a plausible near-miss or shares the query's
+  basionym author, but more than one does. A new "none share any authorship"
+  warning covers the case where no candidate shares anything with the
+  queried authorship at all: not a tie to break, but a sign the matched
+  concept may not be recognised by the enrichment under any spelling (WCVP
+  sinking an infraspecific WFO concept into its species, for instance),
+  which previously read as a near-miss the matcher gave up on.
 * Breaking: `add_alien_first_records()` joins on the source's own locations and takes
   `location =` in place of `country =`. FirstRecords records islands and
   other parts of a country as regions of their own ("282 non-overlapping

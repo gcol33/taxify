@@ -1951,8 +1951,16 @@ author_key_near <- function(q, cand) {
 #' the sources disagree over how an author is written and over who is credited
 #' with a recombination, so on its own it discards the data of names that are
 #' not homonyms at all. When no pass picks exactly one concept, every row for
-#' the name is dropped -- left NA rather than guessing -- and a single warning
-#' reports the count.
+#' the name is dropped -- left NA rather than guessing.
+#'
+#' The warning distinguishes two reasons (#87), since they call for different
+#' follow-up. A **tie**: at least one candidate is a near-miss or shares the
+#' query's basionym author, but more than one does, so picking one would be a
+#' guess between plausible matches. A **no-match**: none of the candidates
+#' share anything with the query's authorship at all -- not a tie to break,
+#' but a sign the matched concept may not be in this enrichment under any
+#' spelling (sunk into a broader taxon, split differently, or filed as a
+#' synonym elsewhere). Each reason gets its own aggregate warning.
 #'
 #' @param joined The `join_key`-on-`lookup_name` join result, before group
 #'   filtering. Must carry `lookup_name` and `authorship_col`.
@@ -1983,7 +1991,15 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
 
   rows_by_name <- split(seq_len(nrow(joined)), joined$lookup_name)
   keep <- rep(TRUE, nrow(joined))
+  # Two distinct unresolved reasons (#87): `unresolved` is a genuine tie --
+  # at least one candidate is a plausible near-miss or shares the query's
+  # basionym author, but more than one does, so picking would be a guess.
+  # `no_match` is every candidate sharing nothing at all with the query's
+  # authorship -- not a tie to break, but evidence the matched concept may
+  # not be in this enrichment under any spelling (its own accepted taxon,
+  # a broader/narrower rank, or a synonym elsewhere).
   unresolved <- character(0L)
+  no_match <- character(0L)
 
   for (nm in ambiguous_names) {
     rows <- rows_by_name[[nm]]
@@ -1991,10 +2007,12 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
     concepts <- unique(k[!is.na(k)])
     want <- if (nm %in% qname) qkey[[nm]] else NA_character_
     sel <- NA_character_
+    shared <- FALSE
     if (!is.na(want)) {
       rep_row <- rows[match(concepts, k)]
       if (want %in% concepts) {
         sel <- want
+        shared <- TRUE
       } else {
         q <- list(paren = qparen[[nm]], terminal = qterm[[nm]])
         near <- concepts[vapply(rep_row, function(i) {
@@ -2002,6 +2020,7 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
                                   terminal = parts$terminal[i]))
         }, logical(1L))]
         if (length(near) == 1L) sel <- near
+        shared <- shared || length(near) > 0L
       }
       # Sources also disagree over who is credited with a recombination while
       # naming the same basionym author -- Glaucium corniculatum is (L.) Curtis
@@ -2016,11 +2035,19 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
       if (is.na(sel) && !is.na(qp) && nzchar(qp)) {
         same_basionym <- concepts[parts$paren[rep_row] == qp]
         if (length(same_basionym) == 1L) sel <- same_basionym
+        shared <- shared || length(same_basionym) > 0L
       }
     }
     if (is.na(sel)) {
       keep[rows] <- FALSE
-      unresolved <- c(unresolved, nm)
+      # `want` unknown (nm not among x's own accepted names, e.g. reached via
+      # cross-backbone recovery) leaves nothing to compare against -- treated
+      # as a tie rather than asserting "no match" from no evidence either way.
+      if (is.na(want) || shared) {
+        unresolved <- c(unresolved, nm)
+      } else {
+        no_match <- c(no_match, nm)
+      }
     } else {
       keep[rows] <- !is.na(k) & k == sel
     }
@@ -2033,6 +2060,18 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
              "%s() actually matched; left NA rather than guessing: %s"),
       enrichment_name, length(unresolved), "taxify",
       paste(utils::head(unresolved, 5L), collapse = "; ")
+    ), call. = FALSE)
+  }
+  if (length(no_match) > 0L) {
+    warning(sprintf(
+      paste0("Enrichment '%s': %d name(s) have candidate concept(s) under ",
+             "the same name, but none share any authorship with the one ",
+             "%s() actually matched; left NA rather than guessing. This is ",
+             "not a tie between plausible matches -- the matched concept may ",
+             "not be recognised by this enrichment under any spelling, or ",
+             "may be filed there as a synonym under a different name: %s"),
+      enrichment_name, length(no_match), "taxify",
+      paste(utils::head(no_match, 5L), collapse = "; ")
     ), call. = FALSE)
   }
 

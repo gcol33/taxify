@@ -69,21 +69,23 @@ test_that("add_wcvp() does not attach a homonym's native range", {
   expect_true(is.na(out$native_status_GER))
 })
 
-test_that("add_wcvp() warns once when a homonym collision cannot be resolved", {
+test_that("add_wcvp() warns 'no match' when the query shares nothing with any candidate", {
   setup_mock_wfo()
   data_dir <- setup_mock_wcvp()
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
 
   # A resolved authorship that matches neither concept in the fixture (e.g.
-  # a third backbone's homonym record) cannot be told apart at all -- the
-  # earlier "does not attach a homonym's native range" case shows the
-  # authorship still resolves the right concept; this is genuine ambiguity.
+  # a third backbone's homonym record) shares nothing with either "L." or
+  # "Mill." -- not a tie between plausible candidates (#87), so this gets the
+  # "no candidate shares any authorship" warning rather than "more than one
+  # concept". The earlier "does not attach a homonym's native range" case
+  # shows the authorship still resolves the right concept when it does match.
   r <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
   r$accepted_authorship <- "Nomatch."
 
   expect_warning(add_wcvp(r, region = "GER", verbose = FALSE),
-                 "more than one concept")
+                 "none share any authorship")
   out <- suppressWarnings(add_wcvp(r, region = c("EUR", "GER"), verbose = FALSE))
   expect_true(is.na(out$native_status_EUR))
   expect_true(is.na(out$native_status_GER))
@@ -175,9 +177,38 @@ test_that("the basionym pass needs a unique candidate and a real basionym", {
 
   # No basionym author on either side: two original publications of one
   # binomial are genuine homonyms (#50's Erigeron pulchellus), and an author
-  # this short is never read as a spelling variant either.
+  # this short is never read as a spelling variant either. Neither candidate
+  # shares anything with the query, so this is the "no match" reason (#87),
+  # not a tie between plausible candidates.
   expect_warning(enrich_with("L.f.", wcvp_variant_df("L.")),
-                 "more than one concept")
+                 "none share any authorship")
   out <- suppressWarnings(enrich_with("L.f.", wcvp_variant_df("L.")))
   expect_true(is.na(out$native_status_EUR))
+})
+
+test_that("add_wcvp() gives the 'no match' warning for #87's own repro shape", {
+  # Three unrelated homonyms under one canonical name, none sharing any
+  # authorship component with the queried concept -- the WCVP enrichment
+  # simply doesn't hold this concept under any spelling. This is not a tie
+  # to break, so it must not read as "match more than one concept".
+  setup_mock_wfo()
+  three <- data.frame(
+    canonical_name = rep("Quercus robur", 3L),
+    tdwg_code      = c("EUR", "NAM", "GER"),
+    native_status  = c("native", "introduced", "native"),
+    taxon_authors  = c("Muhl. ex Willd.", "(Shinners) Noyes", "(L.) Desf."),
+    stringsAsFactors = FALSE
+  )
+  data_dir <- setup_mock_wcvp(three)
+  old <- options(taxify.data_dir = data_dir)
+  on.exit(options(old), add = TRUE)
+
+  r <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
+  r$accepted_authorship <- "(Fernald & Wiegand) Fernald"
+
+  expect_warning(add_wcvp(r, region = c("EUR", "GER"), verbose = FALSE),
+                 "none share any authorship")
+  out <- suppressWarnings(add_wcvp(r, region = c("EUR", "GER"), verbose = FALSE))
+  expect_true(is.na(out$native_status_EUR))
+  expect_true(is.na(out$native_status_GER))
 })
