@@ -1,6 +1,26 @@
 # Changelog
 
-## taxify 0.5.4
+## taxify 0.5.5
+
+- [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)’s
+  two search examples (`"belgium"`, `"Europe"`) are wrapped in
+  `\donttest{}`, after `R CMD check --as-cran` flagged the file at 6.4s
+  elapsed against the 5s per-example limit; the coordinate-lookup
+  example ahead of them still runs unwrapped.
+
+- `enrich_by_group()`’s homonym-collision warning (used by
+  [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
+  and every other grouped door) now distinguishes two reasons a name’s
+  rows were left `NA`
+  ([\#87](https://github.com/gcol33/taxify/issues/87)). “match more than
+  one concept” stays for a genuine tie – at least one candidate is a
+  plausible near-miss or shares the query’s basionym author, but more
+  than one does. A new “none share any authorship” warning covers the
+  case where no candidate shares anything with the queried authorship at
+  all: not a tie to break, but a sign the matched concept may not be
+  recognised by the enrichment under any spelling (WCVP sinking an
+  infraspecific WFO concept into its species, for instance), which
+  previously read as a near-miss the matcher gave up on.
 
 - Breaking:
   [`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md)

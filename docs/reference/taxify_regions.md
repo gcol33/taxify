@@ -46,6 +46,8 @@ the `level1_name`.
 
 ``` r
 head(taxify_regions())
+# \donttest{
 taxify_regions("belgium")
 taxify_regions("Europe")
+# }
 ```
