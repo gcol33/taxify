@@ -1,4 +1,9 @@
-# taxify 0.5.4
+# taxify 0.5.5
+
+* `taxify_regions()`'s two search examples (`"belgium"`, `"Europe"`) are
+  wrapped in `\donttest{}`, after `R CMD check --as-cran` flagged the file
+  at 6.4s elapsed against the 5s per-example limit; the coordinate-lookup
+  example ahead of them still runs unwrapped.
 
 * `enrich_by_group()`'s homonym-collision warning (used by `add_wcvp()` and
   every other grouped door) now distinguishes two reasons a name's rows were

@@ -1,26 +1,35 @@
 ## Submission
 
-This is version 0.5.0 of taxify, currently on CRAN at 0.4.0 (accepted
-2026-07-23). The 0.4.x series was developed on GitHub and never submitted, so
-this release collects everything since 0.4.0. The substantive changes:
+This is version 0.5.5 of taxify, currently on CRAN at 0.5.0 (accepted
+2026-09-02). This release collects everything since 0.5.0. The substantive
+changes:
 
-* Three backbones join the default fallback chain -- AviList, the Mammal
-  Diversity Database and LPSN -- giving birds, mammals and prokaryotes a domain
-  authority for the first time. This changes what `taxify()` returns by default
-  for names in those groups, which is the intended effect.
-* Homonym resolution: taxonomic status is now an ordered vocabulary rather than
-  a test for `ACCEPTED`, so a name a backbone keeps as its own unreviewed
-  concept no longer scores level with a synonym, and an ordering tiebreak no
-  longer clears the ambiguity flag on a genuine name-level tie.
-* Enrichment joins recover a name across backbone disagreement about where it
-  was moved, and across GBIF's dropped infraspecific rank marker.
-* A content-addressed store behind `taxify_lock()` / `taxify_restore()`: a
-  lockfile can be restored to the exact data build it recorded, and a refreshed
-  build no longer overwrites the one a lockfile pinned.
+* Fourteen fixes in the core matching path and its side paths (#56-#70), all
+  cases where a result depended on something other than the name being
+  matched -- how often it was submitted, which backbone happened to answer a
+  neighbouring name, or which build was loaded earlier in the session -- plus
+  a query-batch-size cap on `add_trait()` that silently emptied sources past
+  it (#55).
+* A name a backbone holds without placing it (WFO's `UNCHECKED`, COL's
+  `PROVISIONALLY ACCEPTED`) no longer reads as accepted; it carries its own
+  status in a new `taxonomic_status` column, and resolves through its
+  basionym link where the backbone build carries one (#81). A homonym
+  collision warning during enrichment joins now distinguishes a genuine tie
+  from a concept none of the candidates share any authorship with (#87).
+* Breaking: `add_alien_first_records()` takes `location =` in place of
+  `country =`, so a source that records islands as their own regions (Hawaii,
+  the Canary Islands) is no longer collapsed onto their country and does not
+  backdate the country's first record to an island's earlier one.
+* `taxify_pin()` is a new exported function pinning or releasing installed
+  backbones/enrichments by name, alongside `normalize_kingdom_group()` and
+  `backbone_fixed_kingdom()` (low-level building blocks) and
+  `basionym_placement()` (exported, backing the #81 basionym resolution).
+  taxify requires vectra (>= 0.12.4), released to CRAN 2026-09-16, which ties
+  each `.vtr` index to the store it was built for.
 
-Twenty new exported functions, mostly trait-enrichment accessors. One export
-was removed, `taxify_download_vtr()`, a deprecated alias of `taxify_download()`.
-The package has no reverse dependencies.
+Four new exported functions (`taxify_pin`, `normalize_kingdom_group`,
+`backbone_fixed_kingdom`, `basionym_placement`); none removed. The package has
+no reverse dependencies.
 
 taxify matches taxonomic names against locally stored Darwin Core backbone
 databases. The backbone and enrichment data are downloaded on demand from
@@ -54,9 +63,9 @@ repository declared in `Additional_repositories`
 
 ## R CMD check results
 
-* Local (--as-cran): 0 errors | 0 warnings | 1 note
+* Local (--as-cran): 0 errors | 0 warnings | 0 notes
 * win-builder (R-release, 4.6.1): 0 errors | 0 warnings | 1 note
-* win-builder (R-devel, 2026-08-31 r90457): 0 errors | 0 warnings | 1 note
+* win-builder (R-devel, 2026-09-16 r90549): 0 errors | 0 warnings | 1 note
 
 The note is "Suggests or Enhances not in mainstream repositories: taxifydb",
 confirmed available via Additional_repositories in the same check output
@@ -64,11 +73,18 @@ confirmed available via Additional_repositories in the same check output
 conditionally, guarded by `requireNamespace()`, and taxify is fully functional
 without it.
 
-Both win-builder flavours report that same single note, and it additionally
-lists https://www.itis.gov (linked from README.md, the homepage of the ITIS
-backbone) as possibly invalid with status 404. The URL is correct and the site
-responds 200 to a plain request from here; ITIS intermittently refuses
-automated requests.
+Both win-builder flavours also flag URLs/DOIs that respond normally to a plain
+request from here and are intermittent automated-request refusals on the
+remote end, not broken links:
+
+* https://www.itis.gov (README.md, the ITIS backbone's homepage): 404 on both
+  flavours. Responds 200 to a plain request; ITIS intermittently refuses
+  automated requests (also seen in the 0.5.0 submission).
+* https://europlusmed.org/ (README.md, the Euro+Med backbone's homepage): 502
+  on R-devel only. Responds 200 to a plain request.
+* doi:10.1111/jbi.13623 (man/add_gift.Rd): 502 on R-release only. Resolves via
+  the Crossref API (Wiley, "Journal of Biogeography"); Wiley's server
+  occasionally gateway-errors an automated HEAD request.
 
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
