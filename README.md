@@ -123,11 +123,11 @@ differ from the backbone:
 Fuzzy matching takes Damerau-Levenshtein, Levenshtein, or Jaro-Winkler with a distance
 threshold, and runs genus-blocked, so a typo competes against names in its own genus.
 
-taxify and [WorldFlora](https://cran.r-project.org/package=WorldFlora) both read the same
-WFO snapshot, which isolates the two matching implementations on identical data. The
-corpus is 1,000 accepted binomials drawn from the backbone with a fixed seed; the fuzzy
-corpus is those names with one substituted character in each epithet, so every one has to
-resolve by distance.
+Speed and memory were compared with [WorldFlora](https://cran.r-project.org/package=WorldFlora),
+an R package that matches names against WFO. Both packages read the same WFO snapshot, so
+the differences below come from the matching code. The exact-match corpus is 1,000 accepted
+binomials drawn from the backbone with a fixed seed; the fuzzy corpus is those names with
+one substituted character in each epithet, so every one has to resolve by distance.
 
 | | taxify | WorldFlora |
 |---|---|---|
