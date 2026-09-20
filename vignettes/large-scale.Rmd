@@ -305,7 +305,7 @@ backbone version.
 | WFO | 1.7M | 775 MB | 2026.06 |
 | COL | 5.4M | 2.1 GB | 2026.09 |
 | COL Extended Release | 8.1M | 1.6 GB | 2026.09 |
-| GBIF | 6.4M | 1.6 GB | 2026.08 |
+| GBIF Backbone Taxonomy (legacy) | 6.4M | 1.6 GB | 2026.08 |
 | ITIS | 1.0M | 206 MB | 2026.09 |
 | NCBI | 3.0M | 549 MB | 2026.09 |
 | OTT | 3.7M | 763 MB | 2026.09 |

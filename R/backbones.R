@@ -59,7 +59,7 @@
     ),
     label = c(
       "the WFO backbone", "the COL backbone",
-      "the COL Extended Release backbone", "the GBIF backbone",
+      "the COL Extended Release backbone", "the GBIF Backbone Taxonomy (legacy)",
       "the ITIS backbone", "the NCBI backbone", "the OTT backbone",
       "the WoRMS backbone", "the Euro+Med backbone",
       "the Species Fungorum backbone", "the AlgaeBase backbone",
