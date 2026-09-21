@@ -40,6 +40,19 @@ data to a \code{\link[=taxify]{taxify()}} result, filtered by TDWG botanical reg
 \details{
 Source: WCVP (Kew, CC BY). Coverage: ~340k plant species.
 Plants only.
+
+The range reported is that of the taxon \code{\link[=taxify]{taxify()}} matched, as its
+backbone circumscribes it: the matched name's own records plus those of every
+name the backbone sinks into it. Where these disagree on a region, \code{native}
+wins over \code{introduced}, and \code{introduced} over \code{extinct}, since the taxon is
+native wherever any part of it is.
+
+A region is left \code{NA} rather than filled from a broader taxon, or from one
+the matched backbone accepts as separate, when that is the only name
+another backbone offers for it. Those names are listed as \code{refused} in the
+\code{wcvp} entry of \code{attr(x, "taxify_meta")$enrichments} (the queried and
+refused name, the reason, the backbones offering it and the number of
+regions it would have filled), and counted by \code{\link[=summary]{summary()}}.
 }
 \examples{
 # Runs offline against the bundled example database.

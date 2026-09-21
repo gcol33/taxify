@@ -10,10 +10,23 @@
   species offered for a subspecies) is refused, and so is one the matched
   backbone accepts as a taxon of its own, unless that accepted record is a
   homonym under another author. Over 10,000 wcvp keys through COL / WFO / GBIF
-  this gains 10,062 / 4,894 / 5,193 cells and drops 4,966 / 11,975 / 8,782,
-  the dropped ones being a species' range under an infraspecific name or an
-  independent taxon's range (*Dianthus carthusianorum*'s under *D.
-  rogowiczii*, which WFO accepts on its own).
+  this gains 10,062 / 4,894 / 5,193 cells and drops 4,966 / 11,975 / 8,782.
+  Every dropped cell traces to one of the two refusals (switching the check
+  off restores all of them): a species' range under an infraspecific name, or
+  an independent taxon's range (*Dianthus carthusianorum*'s under *D.
+  rogowiczii*, which WFO accepts on its own). Each "accepted elsewhere"
+  refusal behind a dropped cell rests on agreeing authors or on an autonym.
+* A grouped door now reports what the within-taxon check left empty: the
+  recovery message counts the names, `summary()` shows the count, and the
+  enrichment's `taxify_meta` entry carries `n_refused` plus a `refused` table
+  (queried name, refused name, reason, the backbones offering it, and how many
+  requested groups it would have filled). Through COL / WFO / GBIF over the
+  same 10,000 names that is 2,284 / 2,001 / 2,664 names.
+* `add_wcvp()`: where parts of the matched taxon disagree on a region,
+  `native` wins over `introduced` and `introduced` over `extinct`, since a taxon
+  is native wherever any of its parts is; ties go to the name's own record,
+  then the parts by name. Previously the first part read won. This changes
+  126 / 159 / 197 cells through COL / WFO / GBIF, all to `native`.
 * Faster grouped enrichment: the backbone reads behind the concept pick use
   the cached in-memory block, a `.vtr`'s schema is read once per session,
   author citations are parsed once per distinct string, and the group fill and

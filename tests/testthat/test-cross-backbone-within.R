@@ -1,4 +1,4 @@
-# .alt_within_matched(): a recovered alternative is refused when it sits at a
+# .alt_refusal_reason(): a recovered alternative is refused when it sits at a
 # broader rank than the queried name, or when the matched backbone accepts it
 # as a taxon of its own.
 
@@ -32,42 +32,57 @@ cand_of <- function(name, alt, authorship = NA_character_, q_id = "m1",
 
 test_that("a species offered for an infraspecific name is refused", {
   local_within_mocks()
-  expect_false(.alt_within_matched(
-    cand_of("Viola tricolor subsp. matutina", "Viola tricolor", "L.")))
-  expect_false(.alt_within_matched(
-    cand_of("Orostachys minuta f. alba", "Orostachys minuta", "(Kom.) A.Berger")))
+  expect_identical(.alt_refusal_reason(
+    cand_of("Viola tricolor subsp. matutina", "Viola tricolor", "L.")),
+    "broader_rank")
+  expect_identical(.alt_refusal_reason(
+    cand_of("Orostachys minuta f. alba", "Orostachys minuta", "(Kom.) A.Berger")),
+    "broader_rank")
 })
 
 test_that("an alternative the matched backbone accepts elsewhere is refused", {
   local_within_mocks()
-  expect_false(.alt_within_matched(
-    cand_of("Orostachys minuta", "Orostachys spinosa", "(L.) Sweet")))
+  expect_identical(.alt_refusal_reason(
+    cand_of("Orostachys minuta", "Orostachys spinosa", "(L.) Sweet")),
+    "accepted_elsewhere")
 })
 
 test_that("an alternative held only as a synonym or unreviewed record is kept", {
   local_within_mocks()
-  expect_true(.alt_within_matched(
+  expect_identical(.alt_refusal_reason(
     cand_of("Viola matutina", "Viola tricolor subsp. matutina",
-            "(Klokov) Valentine")))
-  expect_true(.alt_within_matched(
+            "(Klokov) Valentine")), NA_character_)
+  expect_identical(.alt_refusal_reason(
     cand_of("Mulgedium lessertianum subsp. lyratum",
-            "Melanoseris lessertiana var. lyrata", "(Decne.) Ghafoor")))
+            "Melanoseris lessertiana var. lyrata", "(Decne.) Ghafoor")),
+    NA_character_)
 })
 
 test_that("an accepted homonym under another author does not refuse", {
   local_within_mocks()
-  expect_true(.alt_within_matched(
-    cand_of("Sedum foo", "Sedum album", "L.")))
-  expect_false(.alt_within_matched(
-    cand_of("Sedum foo", "Sedum album", "Mill.")))
+  expect_identical(.alt_refusal_reason(
+    cand_of("Sedum foo", "Sedum album", "L.")), NA_character_)
+  expect_identical(.alt_refusal_reason(
+    cand_of("Sedum foo", "Sedum album", "Mill.")), "accepted_elsewhere")
 })
 
 test_that("the matched taxon itself, and an unjudged entry, are kept", {
   local_within_mocks()
-  expect_true(.alt_within_matched(
+  expect_identical(.alt_refusal_reason(
     cand_of("Orostachys minuta", "Orostachys spinosa", "(L.) Sweet",
-            q_id = "m-spinosa")))
-  expect_true(.alt_within_matched(
+            q_id = "m-spinosa")), NA_character_)
+  expect_identical(.alt_refusal_reason(
     cand_of("Viola tricolor subsp. matutina", "Viola tricolor", "L.",
-            q_backbone = NA, q_id = NA)))
+            q_backbone = NA, q_id = NA)), NA_character_)
+})
+
+test_that("each entry of a mixed batch keeps its own reason", {
+  local_within_mocks()
+  cand <- rbind(
+    cand_of("Viola tricolor subsp. matutina", "Viola tricolor", "L."),
+    cand_of("Orostachys minuta", "Orostachys spinosa", "(L.) Sweet"),
+    cand_of("Viola matutina", "Viola tricolor subsp. matutina",
+            "(Klokov) Valentine"))
+  expect_identical(.alt_refusal_reason(cand),
+                   c("broader_rank", "accepted_elsewhere", NA_character_))
 })

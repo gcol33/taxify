@@ -1323,7 +1323,10 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
 # is one entry per row, the row's own accepted name. With `within = TRUE` an
 # alternative is taken only when it lies inside the taxon the row matched
 # (`.alt_within_matched()`), so a backbone that sinks the name into a broader
-# taxon cannot hand the row that taxon's values.
+# taxon cannot hand the row that taxon's values. The alternatives refused that
+# way come back as `refused` (one row per entry, with the reason) and the
+# source rows keyed under them as `refused_rows`; a list carrying only those is
+# returned when every alternative was refused.
 .cross_backbone_recover <- function(x, rows, vtr_path, join_key, join_col,
                                     src_cols, enrichment_name = NULL,
                                     query = NULL, within = FALSE) {
@@ -1389,10 +1392,26 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
   joined <- .enrichment_vtr_lookup(vtr_path, join_key, cand$alt, src_cols)
   if (is.null(joined) || nrow(joined) == 0L) return(NULL)
   cand <- cand[cand$alt %in% joined$lookup_name, , drop = FALSE]
+  refused <- NULL
+  refused_rows <- NULL
   if (within && nrow(cand) > 0L) {
-    cand <- cand[.alt_within_matched(cand), , drop = FALSE]
+    why <- .alt_refusal_reason(cand)
+    if (any(!is.na(why))) {
+      refused <- cand[!is.na(why), c("row", "name", "backbone", "alt"),
+                      drop = FALSE]
+      refused$reason <- why[!is.na(why)]
+      rownames(refused) <- NULL
+      refused_rows <- joined[joined$lookup_name %in% refused$alt, , drop = FALSE]
+    }
+    cand <- cand[is.na(why), , drop = FALSE]
   }
-  if (nrow(cand) == 0L) return(NULL)
+  if (nrow(cand) == 0L) {
+    if (is.null(refused)) return(NULL)
+    none <- rep(NA_character_, nrow(x))
+    return(list(alt = none, via = none, authorship = none, id = none,
+                joined = joined[0L, , drop = FALSE], entries = cand,
+                refused = refused, refused_rows = refused_rows))
+  }
 
   # Backbones disagree about where a moved name went (Minuartia hybrida is
   # Sabulina tenuifolia subsp. tenuifolia in WCVP and subsp. hybrida in COL,
@@ -1422,11 +1441,13 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
        authorship = fill_vec(first$authorship),
        id         = fill_vec(first$id),
        joined     = joined,
-       entries    = cand)
+       entries    = cand,
+       refused    = refused,
+       refused_rows = refused_rows)
 }
 
 
-#' Is each alternative the queried taxon under another name, not a broader one?
+#' Why an alternative is refused as lying outside the matched taxon
 #'
 #' A backbone that sinks a name into a broader taxon offers that taxon as the
 #' name's alternative, and its values belong to the whole of it. Two things
@@ -1444,12 +1465,13 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
 #'
 #' @param cand Candidates with `name` (the name re-resolved), `q_backbone`,
 #'   `q_id` (the matched taxon), `alt` and `authorship` (the alternative).
-#' @return Logical, one per row of `cand`.
+#' @return Character, one per row of `cand`: `NA` where the alternative is
+#'   kept, else `"broader_rank"` or `"accepted_elsewhere"`.
 #' @noRd
-.alt_within_matched <- function(cand) {
-  ok <- rep(TRUE, nrow(cand))
+.alt_refusal_reason <- function(cand) {
+  why <- rep(NA_character_, nrow(cand))
   judged <- !is.na(cand$q_backbone) & !is.na(cand$q_id)
-  if (!any(judged)) return(ok)
+  if (!any(judged)) return(why)
 
   level <- function(nm) {
     r <- name_rank_of(nm)
@@ -1457,8 +1479,9 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
   }
   lq <- level(cand$name)
   la <- level(cand$alt)
-  ok[judged & !is.na(lq) & !is.na(la) & la < lq] <- FALSE
+  why[judged & !is.na(lq) & !is.na(la) & la < lq] <- "broader_rank"
 
+  ok <- is.na(why)
   todo <- which(judged & ok)
   for (m in unique(cand$q_backbone[todo])) {
     i <- todo[cand$q_backbone[todo] == m]
@@ -1485,7 +1508,64 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
       }, logical(1L)))
     }, logical(1L))
   }
-  ok
+  why[is.na(why) & !ok] <- "accepted_elsewhere"
+  why
+}
+
+# The refused recovery alternatives that withheld something: the source holds
+# rows for the alternative in a requested group that the output left empty for
+# that row. One row per (row of x, queried name, alternative, reason), with the
+# backbones that offered it and the number of such groups. NULL when none.
+.refused_report <- function(x, rec, groups, group_col, base_col) {
+  rf <- rec$refused
+  rr <- rec$refused_rows
+  if (is.null(rf) || nrow(rf) == 0L || is.null(rr) || nrow(rr) == 0L) {
+    return(NULL)
+  }
+  in_groups <- rr[[group_col]] %in% groups |
+    (anyNA(groups) & is.na(rr[[group_col]]))
+  rr <- unique(rr[in_groups, c("lookup_name", group_col), drop = FALSE])
+  if (nrow(rr) == 0L) return(NULL)
+
+  hit <- rows_aligned(rr$lookup_name, rf$alt)
+  i <- rep(seq_len(nrow(rf)), lengths(hit))
+  g <- rr[[group_col]][unlist(hit, use.names = FALSE)]
+  cols <- rep_len(.group_out_col(base_col, g, groups), length(i))
+  ucols <- unique(cols)
+  empty <- is.na(as.matrix(x[, ucols, drop = FALSE]))[
+    cbind(rf$row[i], match(cols, ucols))]
+  n_groups <- tabulate(i[empty], nrow(rf))
+  rf <- rf[n_groups > 0L, , drop = FALSE]
+  if (nrow(rf) == 0L) return(NULL)
+  rf$n_groups <- n_groups[n_groups > 0L]
+
+  key <- paste(rf$row, rf$name, rf$alt, rf$reason, sep = "\r")
+  via <- tapply(rf$backbone, key, function(z) paste(sort(unique(z)), collapse = ", "))
+  rf <- rf[!duplicated(key), , drop = FALSE]
+  out <- data.frame(
+    row           = rf$row,
+    input_name    = if ("input_name" %in% names(x)) x$input_name[rf$row] else
+      NA_character_,
+    accepted_name = x$accepted_name[rf$row],
+    queried_name  = rf$name,
+    refused_name  = rf$alt,
+    reason        = rf$reason,
+    via           = unname(via[key[!duplicated(key)]]),
+    n_groups      = rf$n_groups,
+    stringsAsFactors = FALSE)
+  out <- out[order(out$row, out$refused_name), , drop = FALSE]
+  rownames(out) <- NULL
+  out
+}
+
+.report_refused <- function(enrichment_name, refused, verbose) {
+  if (is.null(refused) || !isTRUE(verbose)) return(invisible(NULL))
+  message(sprintf(
+    paste0("add_%s(): %d name(s) left empty where the source holds values only ",
+           "for a broader taxon or one the matched backbone accepts separately; ",
+           "listed as `refused` in this enrichment's taxify_meta entry."),
+    enrichment_name, length(unique(refused$row))))
+  invisible(NULL)
 }
 
 # Which rows are still completely empty for this enrichment's output columns.
@@ -2705,6 +2785,7 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
       drawn[i] <- TRUE
       if (length(got[[i]]) > 0L) {
         pr <- part_rows[got[[i]], , drop = FALSE]
+        pr$.source_key <- pr$lookup_name
         pr$lookup_name <- nm
         pulled[[length(pulled) + 1L]] <- pr
       }
@@ -2758,6 +2839,8 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
 
   own_found <- unique(joined$lookup_name[own_idx])
   out <- joined[own_idx, , drop = FALSE]
+  # The key each row was read under: the name itself, or the part it came from.
+  out$.source_key <- out$lookup_name
   if (length(pulled) > 0L) {
     pulled <- do.call(rbind, pulled)
     out <- if (nrow(out) == 0L) pulled else
@@ -2782,8 +2865,20 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
 # group, matching `lookup` (one name per row of x) against the join key. Only
 # empty cells are written, so a second pass over the same frame -- the
 # cross-backbone recovery below -- never overwrites a direct hit.
+#
+# A name can draw several rows for one group, one per part of its taxon. Without
+# `prefer` the first row wins. With `prefer = list(col =, order =)` the row
+# whose `col` comes earliest in `order` wins, then the name's own row, then the
+# part rows by the key they were read under, so the pick does not depend on
+# join order.
 .enrich_group_fill <- function(x, joined, lookup, groups, value_cols,
-                               group_col) {
+                               group_col, prefer = NULL) {
+  if (!is.null(prefer) && nrow(joined) > 1L && prefer$col %in% names(joined)) {
+    key <- joined$.source_key %||% joined$lookup_name
+    joined <- joined[order(match(joined[[prefer$col]], prefer$order,
+                                 nomatch = length(prefer$order) + 1L),
+                           key != joined$lookup_name, key), , drop = FALSE]
+  }
   # Names as integer codes, so each group matches integers rather than
   # re-hashing the strings.
   names_u <- unique(c(joined$lookup_name, lookup))
@@ -2828,13 +2923,19 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
 #'   use the base name; when > 1, they get a suffix (e.g., "invasive_status_AT").
 #' @param source_label Character.
 #' @param na_types Named list of NA sentinels (optional).
+#' @param prefer Optional `list(col =, order =)`: where parts of one taxon give
+#'   a group different rows, the row whose source column `col` comes earliest in
+#'   `order` wins (see `.enrich_group_fill()`).
 #' @param verbose Logical.
-#' @return The enriched data.frame.
+#' @return The enriched data.frame. Recovery alternatives refused as lying
+#'   outside the matched taxon, where the source holds rows for them in a group
+#'   the output left empty, are recorded in the enrichment's `taxify_meta`
+#'   entry as `refused` (see `.refused_report()`).
 #' @noRd
 enrich_by_group <- function(x, enrichment_name, group_col, groups,
                             value_cols, source_label,
                             na_types = NULL, cols = NULL, col_prefix = NULL,
-                            expose_all = TRUE, verbose = TRUE) {
+                            expose_all = TRUE, prefer = NULL, verbose = TRUE) {
   if (!"accepted_name" %in% names(x)) {
     stop("x must have an 'accepted_name' column (from taxify())", call. = FALSE)
   }
@@ -2993,7 +3094,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     x)
   if (!is.null(direct$rows)) {
     x <- .enrich_group_fill(x, direct$rows, x$accepted_name, groups,
-                            value_cols, group_col)
+                            value_cols, group_col, prefer)
   }
 
   # Cross-backbone recovery: the source may hold a concept under the accepted
@@ -3037,7 +3138,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   rec <- .cross_backbone_recover(
     x, rows, vtr_path, join_key, "accepted_name", select_cols,
     enrichment_name, query = query, within = judged)
-  if (!is.null(rec)) {
+  if (!is.null(rec) && nrow(rec$entries) > 0L) {
     e <- rec$entries
     xa <- data.frame(accepted_name = e$alt, accepted_authorship = e$authorship,
                      accepted_id = e$id, backbone = e$backbone,
@@ -3051,7 +3152,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
       alt$lookup_name <- sprintf("\r%d", rep(e$row, lengths(hit)))
       empty_before <- is.na(as.matrix(x[, out_cols, drop = FALSE]))
       x <- .enrich_group_fill(x, alt, sprintf("\r%d", seq_len(nrow(x))), groups,
-                              value_cols, group_col)
+                              value_cols, group_col, prefer)
       got <- rowSums(empty_before &
                        !is.na(as.matrix(x[, out_cols, drop = FALSE]))) > 0L
       recovered[got] <- rec$via[got]
@@ -3071,9 +3172,15 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     xa$accepted_name <- rec2$alt
     alt2 <- prepare(rec2$joined, xa)$rows
     if (!is.null(alt2)) {
-      x <- .enrich_group_fill(x, alt2, rec2$alt, groups, value_cols, group_col)
+      x <- .enrich_group_fill(x, alt2, rec2$alt, groups, value_cols, group_col,
+                              prefer)
     }
   }
+
+  refused <- if (!is.null(rec)) {
+    .refused_report(x, rec, groups, group_col, names(value_cols)[1L])
+  }
+  .report_refused(enrichment_name, refused, verbose)
 
   meta <- read_enrichment_meta(vtr_path)
   ver <- if (!is.null(meta)) meta$version %||% NA_character_ else NA_character_
@@ -3083,7 +3190,8 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   )
   x <- register_enrichment(x, enrichment_name, source_label, ver, n_enriched,
                             license = lic,
-                            n_recovered = sum(!is.na(recovered)))
+                            n_recovered = sum(!is.na(recovered)),
+                            refused = refused)
 
   # Stamp reshape metadata so taxify_long() can auto-detect
   reshape_entry <- list(cols = names(value_cols), group_col = group_col)

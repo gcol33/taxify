@@ -18,6 +18,10 @@
 #'   cross-backbone recovery -- the source had no row under the accepted name
 #'   the query was matched to, and one under another backbone's accepted name
 #'   for the same concept.
+#' @param refused A data.frame of recovery alternatives refused as lying
+#'   outside the matched taxon where the source holds values for them in a
+#'   group the output left empty (`.refused_report()`), or `NULL`. Stored as
+#'   `refused`, with its count of distinct rows as `n_refused`.
 #' @return The modified result with updated taxify_meta attribute.
 #'
 #' @details
@@ -31,7 +35,8 @@ register_enrichment <- function(result, name, source_label, version,
                                 n_matched,
                                 license = NA_character_,
                                 n_recovered = 0L,
-                                content_id = NULL) {
+                                content_id = NULL,
+                                refused = NULL) {
   meta <- attr(result, "taxify_meta")
   if (is.null(meta)) meta <- list()
   if (is.null(meta$enrichments)) meta$enrichments <- list()
@@ -55,7 +60,9 @@ register_enrichment <- function(result, name, source_label, version,
     license   = license,
     n_matched = as.integer(n_matched),
     n_total   = as.integer(n_total),
-    n_recovered = as.integer(n_recovered)
+    n_recovered = as.integer(n_recovered),
+    n_refused = if (is.null(refused)) 0L else length(unique(refused$row)),
+    refused   = refused
   )))
 
   attr(result, "taxify_meta") <- meta

@@ -28,6 +28,19 @@
 #' Source: WCVP (Kew, CC BY). Coverage: ~340k plant species.
 #' Plants only.
 #'
+#' The range reported is that of the taxon [taxify()] matched, as its
+#' backbone circumscribes it: the matched name's own records plus those of every
+#' name the backbone sinks into it. Where these disagree on a region, `native`
+#' wins over `introduced`, and `introduced` over `extinct`, since the taxon is
+#' native wherever any part of it is.
+#'
+#' A region is left `NA` rather than filled from a broader taxon, or from one
+#' the matched backbone accepts as separate, when that is the only name
+#' another backbone offers for it. Those names are listed as `refused` in the
+#' `wcvp` entry of `attr(x, "taxify_meta")$enrichments` (the queried and
+#' refused name, the reason, the backbones offering it and the number of
+#' regions it would have filled), and counted by [summary()].
+#'
 #' @examples
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
@@ -54,6 +67,8 @@ add_wcvp <- function(x, region, cols = NULL, verbose = TRUE) {
     value_cols      = c(native_status = "native_status"),
     source_label    = "WCVP (Kew)",
     cols            = cols,
+    prefer          = list(col = "native_status",
+                           order = c("native", "introduced", "extinct")),
     verbose         = verbose
   )
 }

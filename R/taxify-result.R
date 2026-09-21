@@ -222,6 +222,12 @@ summary.taxify_result <- function(object, ...) {
       } else {
         ""
       }
+      n_ref <- e$n_refused %||% 0L
+      if (!is.na(n_ref) && n_ref > 0L) {
+        rec_str <- paste0(rec_str, sprintf(
+          " (%d left empty: values only for a broader or separately accepted taxon)",
+          n_ref))
+      }
       cat(sprintf("    %-*s  (%s)%s \u2014 %d of %d matched%s%s\n",
                   max_name, e$name,
                   src_str,
