@@ -26,10 +26,10 @@
 #'
 #' @references
 #' van Kleunen M et al. (2019) The Global Naturalized Alien Flora
-#' (GloNAF) database. Ecology 100:e02542.
+#' (GloNAF) database. Ecology 100:e02542. \doi{10.1002/ecy.2542}
 #'
-#' Davis K et al. (2025) The updated Global Naturalized Alien Flora
-#' (GloNAF 2.0) database. Ecology, e70245.
+#' Davis AJS et al. (2025) The updated Global Naturalized Alien Flora
+#' (GloNAF 2.0) database. Ecology 106:e70245. \doi{10.1002/ecy.70245}
 #'
 #' @examples
 #' # Runs offline against the bundled example database.

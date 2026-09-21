@@ -1448,30 +1448,16 @@ auto-detection or to rename the group column.
 
 The World Checklist of Vascular Plants (WCVP) from the Royal Botanic
 Gardens, Kew, classifies ~340,000 plant species as native, introduced, or
-extinct in TDWG Level 2 botanical regions. TDWG (Taxonomic Databases
-Working Group, now TDWG Biodiversity Information Standards) defined a
-hierarchical system of geographic regions for recording plant
-distributions. Level 2 regions are continent-scale units.
+extinct in each botanical region of the World Geographical Scheme for
+Recording Plant Distributions (WGSRPD), the TDWG standard for recording
+plant distributions. The `region` argument takes Level 3 codes, the
+"botanical countries": a country, or a part of a large one (`GER` for
+Germany, `SPA` for Spain, `TAS` for Tasmania, `CAL` for California).
+`taxify_regions()` looks the codes up offline:
 
-The `region` argument takes TDWG Level 2 codes. Common codes include:
-
-- `EUR` (Europe)
-
-- `NAM` (Northern America)
-
-- `SAM` (Southern America)
-
-- `AFR` (Africa)
-
-- `AUS` (Australasia)
-
-- `ASI` (Asia-Temperate)
-
-- `AST` (Asia-Tropical)
-
-- `PAC` (Pacific)
-
-- `ANT` (Antarctica)
+```{r wcvp-codes, eval = TRUE}
+taxify_regions("Germany", scheme = "wgsrpd")
+```
 
 ```{r wcvp-single}
 trees <- taxify(c(
@@ -1479,38 +1465,35 @@ trees <- taxify(c(
   "Nothofagus pumilio", "Sequoiadendron giganteum"
 ))
 
-trees |> add_wcvp(region = "EUR")
-#>              input_name native_status
-#> 1          Quercus robur        native
-#> 2          Quercus suber        native
-#> 3    Eucalyptus globulus            NA
-#> 4    Nothofagus pumilio            NA
-#> 5 Sequoiadendron giganteum          NA
+trees |> add_wcvp(region = "GER")
+#>                 input_name native_status
+#> 1            Quercus robur        native
+#> 2            Quercus suber          <NA>
+#> 3      Eucalyptus globulus          <NA>
+#> 4       Nothofagus pumilio          <NA>
+#> 5 Sequoiadendron giganteum    introduced
 ```
 
-*Eucalyptus globulus* returns `NA` for Europe because it is native to
-Australia, not because it is absent from the WCVP dataset. The dataset
-records where a species is natively distributed, not where it has been
-planted or naturalized, so many cultivated species will show `NA` in regions where they are widespread in gardens and
-plantations.
+A species with no record for the region receives `NA`: *Quercus suber* and
+*Eucalyptus globulus* are not recorded in Germany. *Sequoiadendron
+giganteum*, native to California, is recorded there as introduced, so the
+column covers naturalized occurrences as well as the native range.
 
-Querying multiple regions reveals each species' native continental range:
+Several codes give one column each:
 
 ```{r wcvp-multi}
-trees |> add_wcvp(region = c("EUR", "AUS", "SAM"))
-#>              input_name native_status_EUR native_status_AUS native_status_SAM
-#> 1          Quercus robur           native                NA                NA
-#> 2          Quercus suber           native                NA                NA
-#> 3    Eucalyptus globulus               NA            native                NA
-#> 4    Nothofagus pumilio               NA                NA            native
-#> 5 Sequoiadendron giganteum              NA                NA                NA
+trees |> add_wcvp(region = c("GER", "AGS"))
+#>                 input_name native_status_GER native_status_AGS
+#> 1            Quercus robur            native              <NA>
+#> 2            Quercus suber              <NA>              <NA>
+#> 3      Eucalyptus globulus              <NA>              <NA>
+#> 4       Nothofagus pumilio              <NA>            native
+#> 5 Sequoiadendron giganteum        introduced              <NA>
 ```
 
-*Sequoiadendron giganteum* (Giant Sequoia) returns `NA` for all three
-regions because it is native to western North America (`NAM`), which was
-not included in the query. This illustrates that the absence of a region
-code from the query does not mean the species lacks native range data; it
-means we did not ask about the right region.
+*Nothofagus pumilio* is native to southern Argentina (`AGS`). A species'
+native range shows only for the regions the query names, so a species
+native elsewhere reads `NA` in every requested column.
 
 The full list of available TDWG codes can be retrieved programmatically
 with `enrichment_groups("wcvp")`, from the manifest (the `available_groups`
@@ -1524,9 +1507,10 @@ rebuilt when new versions are published.
 The Global Naturalized Alien Flora (GloNAF) records which plant species
 are naturalized in ~1,300 regions worldwide. Unlike GRIIS (which classifies
 species as native/introduced/invasive per country), GloNAF provides a
-binary naturalization flag per region with finer geographic resolution,
-using TDWG-compatible codes extended with dot notation for sub-national
-units (e.g., `"USA.CA"` for California).
+binary naturalization flag per region with finer geographic resolution.
+Regions are ISO 3166 alpha-3 country codes, extended with dot notation for
+sub-national units (`"DEU"` for Germany, `"USA.CA"` for California);
+`enrichment_groups("glonaf")` lists them.
 
 ```{r glonaf}
 plants <- taxify(c(
@@ -1534,8 +1518,8 @@ plants <- taxify(c(
   "Impatiens glandulifera", "Quercus robur"
 ))
 
-plants |> add_glonaf(region = "EUR")
-#>              input_name naturalized
+plants |> add_glonaf(region = "DEU")
+#>               input_name naturalized
 #> 1   Robinia pseudoacacia           1
 #> 2    Ailanthus altissima           1
 #> 3 Impatiens glandulifera           1
@@ -1544,7 +1528,8 @@ plants |> add_glonaf(region = "EUR")
 
 The output column `naturalized` is `1` if the species is recorded as
 naturalized in the queried region, and `NA` otherwise. Multiple regions
-produce suffixed columns (`naturalized_EUR`, `naturalized_NAM`). The
+produce suffixed columns (`naturalized_DEU`, `naturalized_USA.CA`); *Quercus
+robur*, native in Germany, is recorded as naturalized in California. The
 `region = "all"` option expands to all ~1,300 regions.
 
 GloNAF complements GRIIS: GRIIS provides the invasion status dimension
@@ -2161,7 +2146,7 @@ group-based join performs one `match()` call per group value, so requesting
 This is still fast for typical use cases (sub-second for results with tens
 of thousands of rows), but requesting `"all"` on a large result may take a
 few seconds because it iterates over all group values in the enrichment
-(196 countries for GRIIS, dozens of TDWG regions for WCVP).
+(196 countries for GRIIS, 368 TDWG Level 3 regions for WCVP).
 
 ## Coverage patterns
 
@@ -2277,7 +2262,7 @@ result <- taxify(species_list, backbone = "wfo") |>
   add_eive() |>
   add_diaz_traits() |>
   add_leda() |>
-  add_wcvp(region = "EUR") |>
+  add_wcvp(region = c("GER", "AUT", "SWI")) |>
   add_common_names()
 ```
 
@@ -2309,14 +2294,14 @@ result <- taxify(species_list, backbone = "wfo") |>
   add_zanne() |>
   add_fungalroot() |>
   add_diaz_traits() |>
-  add_wcvp(region = c("NAM", "SAM", "AFR")) |>
+  add_wcvp(region = c("CAL", "BZS", "CPP")) |>
   add_common_names()
 ```
 
 Woodiness, Diaz traits, and FungalRoot mycorrhizal type all have global
 coverage, so they contribute useful data regardless of the geographic origin
-of the species list. WCVP can be queried for any TDWG region, providing native
-range information for the continents relevant to the study.
+of the species list. WCVP can be queried for any TDWG Level 3 region, here
+California (`CAL`), southern Brazil (`BZS`) and the Cape Provinces (`CPP`).
 
 ### Birds
 
