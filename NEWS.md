@@ -5,6 +5,13 @@
   authorship-bearing enrichment on the concept the guard will accept
   (gcol33/taxifydb#58).
 
+* Every backbone entry in the bundled manifest now records `source_date`, the
+  date the source gives the release a build was made from (an ISO date, or
+  `YYYY-MM` / `YYYY` where the source dates it no finer), so
+  `list_backbones()`, `taxify_databases()` and the `cite()` data-version note
+  report it for all nineteen backbones rather than GBIF alone. taxifydb
+  records it at build time from the same place it reads the version (#88).
+
 # taxify 0.5.5
 
 * `taxify_regions()`'s two search examples (`"belgium"`, `"Europe"`) are

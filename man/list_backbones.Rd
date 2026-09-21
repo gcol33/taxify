@@ -19,8 +19,9 @@ when the manifest cannot be fetched offline.
 date of the upstream data, which can be much earlier. The GBIF backbone is
 the case that matters: GBIF froze it at 2023-08-28 and has said it will not
 be updated again, so a current release tag there carries a treatment three
-years older than the tag suggests. \code{source_date} is \code{NA} for a backbone
-whose upstream date has not been recorded.
+years older than the tag suggests. \code{source_date} is an ISO date, or
+\code{YYYY-MM} / \code{YYYY} where the source dates its release no finer, and \code{NA}
+for a backbone whose upstream date has not been recorded.
 }
 \description{
 Returns every taxonomic backbone \code{taxify()} can match against, its taxonomic

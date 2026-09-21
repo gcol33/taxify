@@ -371,8 +371,9 @@ install_backbones <- function(backbones = NULL, verbose = TRUE) {
 #'   date of the upstream data, which can be much earlier. The GBIF backbone is
 #'   the case that matters: GBIF froze it at 2023-08-28 and has said it will not
 #'   be updated again, so a current release tag there carries a treatment three
-#'   years older than the tag suggests. `source_date` is `NA` for a backbone
-#'   whose upstream date has not been recorded.
+#'   years older than the tag suggests. `source_date` is an ISO date, or
+#'   `YYYY-MM` / `YYYY` where the source dates its release no finer, and `NA`
+#'   for a backbone whose upstream date has not been recorded.
 #'
 #' @seealso [list_enrichments()], [list_traits()], [taxify_databases()].
 #'

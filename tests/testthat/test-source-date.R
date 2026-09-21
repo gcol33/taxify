@@ -60,3 +60,14 @@ test_that("the bundled manifest dates the frozen GBIF backbone", {
   mf <- jsonlite::read_json(system.file("manifest.json", package = "taxify"))
   expect_equal(mf$backends$gbif$source_date, "2023-08-28")
 })
+
+
+test_that("every bundled backbone entry records its source_date", {
+  mf <- jsonlite::read_json(system.file("manifest.json", package = "taxify"))
+  for (b in taxify:::backbone_names()) {
+    d <- mf$backends[[b]]$source_date
+    expect_true(is.character(d) && length(d) == 1L &&
+                  grepl("^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$", d),
+                label = sprintf("source_date of %s (%s)", b, format(d)))
+  }
+})
