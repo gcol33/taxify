@@ -178,7 +178,7 @@
 <td>1.6 GB</td>
 </tr>
 <tr>
-<td><a href="https://www.gbif.org/" class="external-link">GBIF</a></td>
+<td><a href="https://www.gbif.org/" class="external-link">GBIF Backbone Taxonomy (legacy)</a></td>
 <td>All kingdoms</td>
 <td>6.4M</td>
 <td>1.6 GB</td>
@@ -287,7 +287,7 @@
 <span><span class="st">"Nothofagus x alpina"</span>         <span class="op">-&gt;</span>  <span class="st">"Nothofagus × alpina"</span>  <span class="co"># hybrid sign normalized (x -&gt; ×)</span></span>
 <span><span class="st">"Betula pendula (Roth) Doll"</span>  <span class="op">-&gt;</span>  <span class="st">"Betula pendula"</span>       <span class="co"># parenthesized author stripped</span></span></code></pre></div>
 <p>Fuzzy matching takes Damerau-Levenshtein, Levenshtein, or Jaro-Winkler with a distance threshold, and runs genus-blocked, so a typo competes against names in its own genus.</p>
-<p>taxify and <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a> both read the same WFO snapshot, which isolates the two matching implementations on identical data. The corpus is 1,000 accepted binomials drawn from the backbone with a fixed seed; the fuzzy corpus is those names with one substituted character in each epithet, so every one has to resolve by distance.</p>
+<p>Speed and memory were compared with <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a>, an R package that matches names against WFO. Both packages read the same WFO snapshot, so the differences below come from the matching code. The exact-match corpus is 1,000 accepted binomials drawn from the backbone with a fixed seed; the fuzzy corpus is those names with one substituted character in each epithet, so every one has to resolve by distance.</p>
 <table class="table">
 <thead><tr>
 <th></th>
@@ -322,7 +322,7 @@
 </tr>
 </tbody>
 </table>
-<p><code>scripts/benchmark-worldflora.R</code> produces these numbers and <code>scripts/benchmark-worldflora-results.json</code> records the run, including package versions and the backbone snapshot. Both packages were measured back to back on one machine (Windows 11, R 4.6.0, taxify 0.3.21, WorldFlora 1.14.5) that was carrying other work at the time, so the ratios are the reliable figures.</p>
+<p>Windows 11, R 4.6.0, taxify 0.3.21, WorldFlora 1.14.5 (<code>scripts/benchmark-worldflora.R</code>).</p>
 </div>
 <div class="section level2">
 <h2 id="beyond-matching">Beyond matching<a class="anchor" aria-label="anchor" href="#beyond-matching"></a>

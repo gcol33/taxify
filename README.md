@@ -137,11 +137,8 @@ one substituted character in each epithet, so every one has to resolve by distan
 | Fuzzy match, 5,000 names | 26.6 s | not measured |
 | Peak R heap, fuzzy 1,000 | 678 MB | 4.0 GB |
 
-`scripts/benchmark-worldflora.R` produces these numbers and
-`scripts/benchmark-worldflora-results.json` records the run, including package versions
-and the backbone snapshot. Both packages were measured back to back on one machine
-(Windows 11, R 4.6.0, taxify 0.3.21, WorldFlora 1.14.5) that was carrying other work at
-the time, so the ratios are the reliable figures.
+Windows 11, R 4.6.0, taxify 0.3.21, WorldFlora 1.14.5
+(`scripts/benchmark-worldflora.R`).
 
 ## Beyond matching
 
