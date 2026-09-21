@@ -31,11 +31,21 @@ backbone_path <- function(backbone, verbose = TRUE) {
 
 #' Column names of a `.vtr` file
 #'
+#' Reading them materializes the first row group, over a second on a large
+#' backbone, so they are memoized for the session per path, size and
+#' modification time: a file rewritten in place is read afresh.
+#'
 #' @param path Path to a `.vtr` file.
 #' @return Character vector of column names.
 #' @noRd
 vtr_schema <- function(path) {
-  names(vectra::collect(utils::head(vectra::tbl(path), 1L)))
+  info <- file.info(path)
+  key <- paste(normalizePath(path, mustWork = FALSE), info$size,
+               as.numeric(info$mtime))
+  hit <- memo_get(".vtr_schema", key)
+  if (!is.null(hit)) return(hit)
+  memo_set(".vtr_schema", key,
+           names(vectra::collect(utils::head(vectra::tbl(path), 1L))))
 }
 
 

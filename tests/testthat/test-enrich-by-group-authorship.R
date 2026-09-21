@@ -247,18 +247,51 @@ test_that("another name's autonym under a name is not its range", {
   expect_true(is.na(out$native_status_TUR))
 })
 
-test_that("a concept the matched backbone places inside the taxon is kept", {
+test_that("the concept of a name the matched backbone places inside the taxon is added", {
   # The mock WFO lists Quercus pedunculata (Mattusch.) Bonnier & Layens as a
-  # synonym of Q. robur L., so a row of its basionym author's concept belongs
-  # to Q. robur; a concept the backbone does not place there does not.
-  df <- wcvp_ranked_df("Quercus robur", c("EUR", "GER", "NAM"),
-                       c("L.", "Mattusch.", "Mill."),
-                       rep("Species", 3L), rep(NA, 3L))
+  # synonym of Q. robur L., so the concept the source keys under that name,
+  # picked by that author, is part of Q. robur: its GER record is added even
+  # though nothing filed it under Q. robur. A row under Q. robur that no part
+  # of the taxon accounts for (NAM, "Mill.") is dropped.
+  df <- rbind(
+    wcvp_ranked_df("Quercus robur", c("EUR", "NAM"), c("L.", "Mill."),
+                   rep("Species", 2L), rep(NA, 2L)),
+    wcvp_ranked_df("Quercus pedunculata", c("GER", "SPA"),
+                   c("(Mattusch.) Bonnier & Layens", "Hoffm."),
+                   rep("Species", 2L), rep(NA, 2L))
+  )
   out <- expect_no_warning(
-    enrich_ranked("Quercus robur", df, c("EUR", "GER", "NAM")))
+    enrich_ranked("Quercus robur", df, c("EUR", "GER", "NAM", "SPA")))
   expect_equal(out$native_status_EUR, "native")
   expect_equal(out$native_status_GER, "native")
   expect_true(is.na(out$native_status_NAM))
+  # The other concept under the synonym's name is not the synonym's.
+  expect_true(is.na(out$native_status_SPA))
+})
+
+test_that("a name with rows of one foreign concept only keeps none of them", {
+  # Every row under the name belongs to a concept that is neither the name's
+  # nor any part's -- the case a collision-only check never looked at.
+  df <- wcvp_ranked_df("Quercus robur", c("EUR", "NAM"), c("Mill.", "Mill."),
+                       rep("Species", 2L), rep(NA, 2L))
+  expect_warning(out <- enrich_ranked("Quercus robur", df, c("EUR", "NAM")),
+                 "none share any authorship")
+  expect_true(is.na(out$native_status_EUR))
+  expect_true(is.na(out$native_status_NAM))
+})
+
+test_that("an accepted subspecies' range is part of its species", {
+  # The mock WFO accepts Quercus robur subsp. robur under Q. robur; its rows
+  # under its own key count for the species.
+  df <- rbind(
+    wcvp_ranked_df("Quercus robur", "EUR", "L.", "Species", NA),
+    wcvp_ranked_df("Quercus robur subsp. robur", "TUR", NA, "Subspecies",
+                   "robur")
+  )
+  out <- expect_no_warning(
+    enrich_ranked("Quercus robur", df, c("EUR", "TUR")))
+  expect_equal(out$native_status_EUR, "native")
+  expect_equal(out$native_status_TUR, "native")
 })
 
 test_that("an autonym keeps its own rows, not its species' range", {
@@ -270,5 +303,21 @@ test_that("an autonym keeps its own rows, not its species' range", {
   out <- expect_no_warning(
     enrich_ranked("Quercus robur subsp. robur", df, c("EUR", "NAM")))
   expect_equal(out$native_status_EUR, "native")
+  expect_true(is.na(out$native_status_NAM))
+})
+
+test_that("a recombination of a part, filed under the name, is kept", {
+  # The mock WFO places Quercus pedunculata (Mattusch.) Bonnier & Layens inside
+  # Q. robur. A subspecies row with that epithet whose basionym authors are
+  # the part's authors is the same type at another rank; one with another
+  # epithet is not.
+  df <- wcvp_ranked_df("Quercus robur", c("EUR", "GER", "NAM"),
+                       c("L.", "(Bonnier & Layens) Schwarz", "(Bonnier & Layens) Schwarz"),
+                       c("Species", "Subspecies", "Subspecies"),
+                       c(NA, "pedunculata", "sessiliflora"))
+  out <- expect_no_warning(
+    enrich_ranked("Quercus robur", df, c("EUR", "GER", "NAM")))
+  expect_equal(out$native_status_EUR, "native")
+  expect_equal(out$native_status_GER, "native")
   expect_true(is.na(out$native_status_NAM))
 })

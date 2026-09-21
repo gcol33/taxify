@@ -1944,6 +1944,152 @@ author_key_near <- function(q, cand) {
 }
 
 
+#' Surnames of the authors in an author citation
+#'
+#' An author citation lists the authors of the name and, before `ex`, the
+#' authors a name was ascribed to but not validly published by. Sources cite
+#' the same authors with and without initials (`Ralph`, `T.S.Ralph`), with and
+#' without the pre-`ex` part (`Wawra`, `Ruiz & Pav. ex Wawra`), and write the
+#' son as `f.` or `fil.`. Each author is reduced to the last word of his name
+#' (the surname or its standard abbreviation), joined to a preceding particle
+#' (`Mc Coy` is `McCoy`), `+f` appended for a son, so `L.` and `L.f.` stay
+#' apart.
+#'
+#' @param s A single citation part (one of the basionym or combining authors),
+#'   already without its parentheses.
+#' @return A list: `valid`, the surnames after the last `ex`, `ascribed`,
+#'   those before it, and `all`, every surname in the part.
+#' @noRd
+author_surnames <- function(s) {
+  if (is.na(s) || !nzchar(trimws(s))) {
+    return(list(valid = character(0L), all = character(0L)))
+  }
+  s <- iconv(s, to = "ASCII//TRANSLIT", sub = "")
+  s <- gsub("\\bfil\\.?|\\bfilius\\b", "f.", s, ignore.case = TRUE)
+  halves <- strsplit(s, "\\s+ex\\.?\\s+", perl = TRUE)[[1L]]
+  surnames <- function(h) {
+    au <- strsplit(h, "\\s*(&|,|\\bet\\b|\\band\\b)\\s*", perl = TRUE)[[1L]]
+    out <- vapply(au, function(a) {
+      tok <- strsplit(trimws(gsub("[^a-z]+", " ", tolower(a))), " +")[[1L]]
+      tok <- tok[nzchar(tok)]
+      son <- length(tok) > 1L && tok[length(tok)] == "f"
+      if (son) tok <- tok[-length(tok)]
+      if (length(tok) == 0L) return(NA_character_)
+      n <- length(tok)
+      last <- tok[n]
+      if (n > 1L && tok[n - 1L] %in% c("mc", "mac", "de", "da", "di", "du",
+                                       "la", "le", "van", "von", "o")) {
+        last <- paste0(tok[n - 1L], last)
+      }
+      paste0(last, if (son) "+f" else "")
+    }, character(1L), USE.NAMES = FALSE)
+    out[!is.na(out)]
+  }
+  list(valid = surnames(halves[length(halves)]),
+       ascribed = if (length(halves) > 1L) {
+         unique(unlist(lapply(halves[-length(halves)], surnames),
+                       use.names = FALSE))
+       } else {
+         character(0L)
+       },
+       all = unique(unlist(lapply(halves, surnames), use.names = FALSE)))
+}
+
+
+#' Do two author lists name the same authors, as sources cite them?
+#'
+#' True when every valid author of one side appears among all the authors of
+#' the other, in either direction, so a citation that drops the pre-`ex` part
+#' or a co-author still reads as the same one; or when both ascribe the name
+#' to the same author and differ only over who validated it (`Wall. ex
+#' A.DC.`, `Wall. ex G.Don`). Two surnames agree when equal, one edit apart,
+#' or one an abbreviation of the other (four letters at least, as in
+#' `author_key_near()`).
+#'
+#' @param a,b Outputs of `author_surnames()`.
+#' @return Logical scalar; `FALSE` when either side names nobody.
+#' @noRd
+author_sets_agree <- function(a, b) {
+  within <- function(v, pool) {
+    length(v) > 0L &&
+      all(vapply(v, function(s) any(vapply(pool, surname_same, logical(1L),
+                                           x = s)), logical(1L)))
+  }
+  within(a$valid, b$all) || within(b$valid, a$all) ||
+    (length(a$ascribed) > 0L && length(b$ascribed) > 0L &&
+       (within(a$ascribed, b$ascribed) || within(b$ascribed, a$ascribed)))
+}
+
+# Two surnames from author_surnames() that name the same author: equal, one
+# edit apart, or one an abbreviation of the other (four letters at least).
+surname_same <- function(x, y) {
+    if (x == y) return(TRUE)
+    if (grepl("+f", x, fixed = TRUE) != grepl("+f", y, fixed = TRUE)) {
+      return(FALSE)
+    }
+    if (nchar(x) < 4L || nchar(y) < 4L) return(FALSE)
+  as.integer(utils::adist(x, y)) <= 1L || startsWith(x, y) || startsWith(y, x)
+}
+
+# Do two author lists share at least one author?
+author_sets_overlap <- function(a, b) {
+  any(vapply(a$all, function(s) any(vapply(b$all, surname_same, logical(1L),
+                                           x = s)), logical(1L)))
+}
+
+
+# Surnames of a citation's basionym and combining parts, parsed once per
+# distinct string for the session: the same few thousand author strings recur
+# across every name of a join.
+.citation_cache <- new.env(hash = TRUE, parent = emptyenv())
+
+citation_surnames <- function(s) {
+  hit <- .citation_cache[[s]]
+  if (!is.null(hit)) return(hit)
+  t <- trimws(s)
+  parts <- if (startsWith(t, "(")) {
+    list(paren = sub("^[(]([^)]*)[)].*$", "\\1", t),
+         term = sub("^[(][^)]*[)]", "", t))
+  } else {
+    list(paren = "", term = t)
+  }
+  out <- list(paren = author_surnames(parts$paren),
+              term = author_surnames(parts$term))
+  assign(s, out, envir = .citation_cache)
+  out
+}
+
+
+#' Does an authorship cite the same name as another, as sources vary it?
+#'
+#' The last of the concept tests in `pick_own_concept()`, after exact,
+#' spelling-variant and basionym-author comparison have failed. Two citations
+#' of one name agree on the combining authors (`author_sets_agree()`) and
+#' share a basionym author, where one source may omit the basionym part
+#' altogether (GBIF often writes `Greuter` for `(Rech.f.) Greuter`). Under one
+#' spelling of a name a shared basionym author pins the type whoever made the
+#' combination (`(Benth. ex A.DC.) A.Heller`, `(Benth.) Jeps.`), and so does a
+#' citation whose combining authors are the other's basionym authors
+#' (`Melastoma mutabilis` Vell. and `(Vell.) Triana`).
+#'
+#' @param q,r Author strings.
+#' @return Logical scalar.
+#' @noRd
+author_citations_agree <- function(q, r) {
+  if (is.na(q) || is.na(r)) return(FALSE)
+  qc <- citation_surnames(q)
+  rc <- citation_surnames(r)
+  qp <- qc$paren; qt <- qc$term
+  rp <- rc$paren; rt <- rc$term
+  if (length(qp$all) > 0L && length(rp$all) > 0L) {
+    return(author_sets_overlap(qp, rp))
+  }
+  if (author_sets_agree(qt, rt)) return(TRUE)
+  (length(rp$all) > 0L && length(qp$all) == 0L && author_sets_agree(qt, rp)) ||
+    (length(qp$all) > 0L && length(rp$all) == 0L && author_sets_agree(rt, qp))
+}
+
+
 #' Rank a scientific name is written at, from its connecting term
 #'
 #' `"species"` for a binomial, the lowercased rank word for a trinomial with a
@@ -1995,9 +2141,9 @@ norm_rank <- function(r) {
 #'
 #' @param backbone Backbone name.
 #' @param ids Accepted taxon ids in that backbone.
-#' @return A data.frame with `root` (the id from `ids`), `authorship`, `rank`,
-#'   `specific_epithet`, `infraspecific_epithet`; `NULL` when the backbone
-#'   cannot be read or carries none of the needed columns.
+#' @return A data.frame with `root` (the id from `ids`), `canonical_name`,
+#'   `authorship`, `rank`, `specific_epithet`, `infraspecific_epithet`; `NULL`
+#'   when the backbone cannot be read or carries none of the needed columns.
 #' @noRd
 .backbone_circumscription <- function(backbone, ids) {
   ids <- sort(unique(ids[!is.na(ids) & nzchar(ids)]))
@@ -2010,10 +2156,12 @@ norm_rank <- function(r) {
                  error = function(e) NULL)
   if (is.null(bb)) return(NULL)
   schema <- vtr_schema(bb)
-  if (!all(c("taxon_id", "accepted_taxon_id", "authorship") %in% schema)) {
+  if (!all(c("taxon_id", "accepted_taxon_id", "authorship",
+             "canonical_name") %in% schema)) {
     return(NULL)
   }
   cols <- intersect(c("taxon_id", "accepted_taxon_id", "authorship",
+                      "canonical_name",
                       "taxon_rank", "specific_epithet",
                       "infraspecific_epithet", "key_species", "is_synonym"),
                     schema)
@@ -2057,8 +2205,8 @@ norm_rank <- function(r) {
     }
   }
 
-  keep <- c("root", "authorship", "taxon_rank", "specific_epithet",
-            "infraspecific_epithet")
+  keep <- c("root", "canonical_name", "authorship", "taxon_rank",
+            "specific_epithet", "infraspecific_epithet")
   out <- do.call(rbind, lapply(parts, function(p) p[, keep, drop = FALSE]))
   names(out)[names(out) == "taxon_rank"] <- "rank"
   out$rank <- norm_rank(out$rank)
@@ -2067,231 +2215,378 @@ norm_rank <- function(r) {
 }
 
 
-#' Does a backbone's circumscription contain an enrichment row's concept?
+#' The concept each row of an authorship-bearing group join belongs to
 #'
-#' A row keyed under a name by the build-time expansion carries the authorship
-#' of its own concept, which can differ from the one the name resolved to. It
-#' belongs to the resolved taxon when the backbone places a name of that
-#' concept inside it: the same author (exactly or as a spelling variant), or a
-#' basionym relation in either direction -- COL's *E. globulus* subsp.
-#' *bicostata* (Maiden, Blakely & Simmonds) J.B.Kirkp. is the recombination of
-#' the WCVP species *E. bicostata* Maiden, Blakely & Simmonds. An autonym has
-#' no author, so it is recognised by its rank and epithet instead.
+#' A concept is told apart by its authorship key. A row with no authorship is
+#' an autonym (WCVP writes none for one): the name's own concept under an
+#' autonym key, some other name's autonym anywhere else.
 #'
-#' @param rparts Author parts of the row (`paren`, `terminal`, `key`, scalars).
-#' @param rrank,rinfra The row's rank (normalized) and infraspecific epithet.
-#' @param circ The rows of `.backbone_circumscription()` for one root.
-#' @return Logical scalar.
+#' @param joined A group join with `lookup_name`.
+#' @param authorship_col,rank_col,infra_col Column names in `joined`;
+#'   `rank_col` / `infra_col` may be `NULL`.
+#' @return A list with the row's `name`, the author `parts` (from
+#'   `author_key_parts()`), the `raw` authorship, `rank`, `infra`, and
+#'   `concept` (the author key, `"<autonym>"` or `"<other autonym>"`), each
+#'   one entry per row.
 #' @noRd
-row_in_circumscription <- function(rparts, rrank, rinfra, circ) {
-  if (is.null(circ) || nrow(circ) == 0L) return(FALSE)
-  if (is.na(rparts$key)) {
-    if (is.na(rinfra) || is.na(rrank)) return(FALSE)
-    auto <- !is.na(circ$infraspecific_epithet) &
-      circ$infraspecific_epithet == circ$specific_epithet
-    return(any(auto & circ$infraspecific_epithet == rinfra &
-                 circ$rank == rrank, na.rm = TRUE))
-  }
-  cp <- author_key_parts(circ$authorship)
-  known <- !is.na(cp$key)
-  if (!any(known)) return(FALSE)
-  if (rparts$key %in% cp$key[known]) return(TRUE)
-  if (any(nzchar(cp$paren[known]) & cp$paren[known] == rparts$key)) return(TRUE)
-  if (nzchar(rparts$paren) && rparts$paren %in% cp$key[known]) return(TRUE)
-  any(vapply(which(known), function(i) {
-    author_key_near(rparts, list(paren = cp$paren[i], terminal = cp$terminal[i]))
-  }, logical(1L)))
+row_concepts <- function(joined, authorship_col, rank_col = NULL,
+                         infra_col = NULL) {
+  n <- nrow(joined)
+  # Parsed once per distinct string: a name's rows repeat its authorship and
+  # its name once per region.
+  raw <- joined[[authorship_col]]
+  ua <- unique(raw)
+  up <- author_key_parts(ua)
+  ai <- match(raw, ua)
+  parts <- list(paren = up$paren[ai], terminal = up$terminal[ai],
+                key = up$key[ai])
+  rank <- if (!is.null(rank_col)) norm_rank(joined[[rank_col]]) else
+    rep(NA_character_, n)
+  infra <- if (!is.null(infra_col)) joined[[infra_col]] else
+    rep(NA_character_, n)
+  nm <- joined$lookup_name
+  un <- unique(nm)
+  ni <- match(nm, un)
+  last_epi <- vapply(strsplit(un, " +"), function(t) t[length(t)],
+                     character(1L))[ni]
+  own_autonym <- is.na(parts$key) & name_is_autonym(un)[ni] & !is.na(infra) &
+    infra == last_epi & (is.na(rank) | rank == name_rank_of(un)[ni])
+  concept <- parts$key
+  concept[own_autonym] <- "<autonym>"
+  concept[is.na(concept)] <- "<other autonym>"
+  list(name = nm, parts = parts, raw = joined[[authorship_col]], rank = rank,
+       infra = infra, concept = concept)
 }
 
 
-#' Keep the rows of a group join that belong to the concept `x` resolved to
+#' The concept a name denotes among the rows keyed under it
 #'
-#' `enrich_by_group()` joins on a bare accepted-name string, so a name that
-#' resolves to more than one distinct concept in the source (different
-#' authorship) would otherwise keep whichever row happens to survive the
-#' later per-group `!duplicated()` dedup -- silently, and not necessarily the
-#' concept `x` actually resolved to (#50).
+#' Picked by the authorship the name carries, first as the normalized key,
+#' then as a spelling variant, then as a shared basionym author (#51), then as
+#' the same citation written another way (`author_citations_agree()`). An
+#' autonym's authorless rows are its concept whatever author a backbone writes
+#' beside it. With no authorship to compare, the one authored concept under a
+#' name that is not an autonym is its concept, since the authorless rows there
+#' are another name's autonym. A row of a broader rank than the name (a
+#' species' rows under one of its subspecies) is never its concept.
 #'
-#' Concepts are counted on the normalized authorship key, and the concept `x`
-#' resolved to is picked by that key, then by a spelling-variant test, then by
-#' a shared basionym author (#51). Exact string equality alone is not enough:
-#' the sources disagree over how an author is written and over who is credited
-#' with a recombination, so on its own it discards the data of names that are
-#' not homonyms at all. When no pass picks exactly one concept, every row for
-#' the name is dropped -- left NA rather than guessing.
+#' @param rows Row indices of the name in `rc`.
+#' @param nm The name.
+#' @param rc Output of `row_concepts()`.
+#' @param want,qparen,qterm The name's authorship key, basionym author and
+#'   combining author (`author_key_parts()`), `NA` when unknown.
+#' @param qraw The name's authorship as written.
+#' @return A list: `sel` (the concept, `NA` when none is picked) and `shared`
+#'   (whether any candidate shares an author with `want`, for the warning).
+#' @noRd
+pick_own_concept <- function(rows, nm, rc, want, qparen, qterm, qraw) {
+  k <- rc$concept[rows]
+  if ("<autonym>" %in% k) return(list(sel = "<autonym>", shared = TRUE))
+  nm_rank <- name_rank_of(nm)
+  rank_ok <- is.na(rc$rank[rows]) | is.na(nm_rank) | rc$rank[rows] == nm_rank
+  concepts <- unique(k[rank_ok & k != "<other autonym>"])
+  if (length(concepts) == 0L) return(list(sel = NA_character_, shared = FALSE))
+  if (is.na(want)) {
+    sel <- if (!name_is_autonym(nm) && length(concepts) == 1L) concepts else
+      NA_character_
+    return(list(sel = sel, shared = FALSE))
+  }
+  if (want %in% concepts) return(list(sel = want, shared = TRUE))
+
+  rep_row <- rows[match(concepts, k)]
+  p <- rc$parts
+  near <- concepts[vapply(rep_row, function(i) {
+    author_key_near(list(paren = qparen, terminal = qterm),
+                    list(paren = p$paren[i], terminal = p$terminal[i]))
+  }, logical(1L))]
+  if (length(near) == 1L) return(list(sel = near, shared = TRUE))
+  shared <- length(near) > 0L
+  # Sources also disagree over who is credited with a recombination while
+  # naming the same basionym author -- Glaucium corniculatum is (L.) Curtis in
+  # WFO and (L.) Rudolph in WCVP. Epithet plus basionym author pins the
+  # basionym, and with it the type, so a concept that is the only candidate
+  # carrying the query's basionym author is the same taxon whoever made the
+  # combination. Two candidates sharing it are not separable this way, which
+  # is what keeps a homonym pair with no basionym author at all (Erigeron
+  # pulchellus Michx. vs Hoppe & Hornsch., #50) out of this branch entirely.
+  if (!is.na(qparen) && nzchar(qparen)) {
+    same_basionym <- concepts[p$paren[rep_row] == qparen]
+    if (length(same_basionym) == 1L) {
+      return(list(sel = same_basionym, shared = TRUE))
+    }
+    shared <- shared || length(same_basionym) > 0L
+  }
+  cited <- concepts[vapply(rep_row, function(i) {
+    author_citations_agree(qraw, rc$raw[i])
+  }, logical(1L))]
+  if (length(cited) == 1L) return(list(sel = cited, shared = TRUE))
+  list(sel = NA_character_, shared = shared || length(cited) > 0L)
+}
+
+
+# Row indices of `row_names` grouped by name, one entry per `names_out` (empty
+# where a name has no rows), aligned by position so no lookup by name is ever
+# a linear search.
+rows_aligned <- function(row_names, names_out) {
+  out <- rep(list(integer(0L)), length(names_out))
+  if (length(row_names) == 0L) return(out)
+  by <- split(seq_along(row_names), row_names)
+  hit <- match(names_out, names(by))
+  out[!is.na(hit)] <- by[hit[!is.na(hit)]]
+  out
+}
+
+
+#' The rows of the concept each name denotes, for many names at once
 #'
-#' A row with no authorship is a concept too. WCVP writes no author for an
-#' autonym, and the build keys an autonym's range under every name a backbone
-#' sends it to, so *Erigeron caucasicus* subsp. *caucasicus* sits under
-#' *Erigeron pulchellus*. Under an autonym key such rows are the name's own
-#' concept; under any other key they are some other name's autonym.
+#' `pick_own_concept()` over a vector of names. An autonym's authorless rows
+#' and an exact authorship-key match are found by one keyed lookup; only the
+#' names left go through the spelling-variant, basionym and citation passes.
 #'
-#' Rows of the other concepts are kept when the backbone `x` matched through
-#' places that concept inside the matched taxon (`row_in_circumscription()`),
-#' so a name follows the matched backbone's own treatment: through COL,
-#' *E. globulus* carries *E. bicostata*'s New South Wales record, through WFO
-#' it does not. A row of a broader rank than the name (a species' range under
-#' one of its subspecies) never is.
+#' @param nms Names.
+#' @param auth Their authorship as written, `NA` where unknown.
+#' @param rows_by_name Row indices in `rc` for each name, aligned with `nms`.
+#' @param rc Output of `row_concepts()`, or `NULL` when there are no rows.
+#' @return A list: `rows`, one integer vector per name, and `shared`, as
+#'   `pick_own_concept()` reports it (`TRUE` where the lookup settled it).
+#' @noRd
+own_concept_rows <- function(nms, auth, rows_by_name, rc) {
+  n <- length(nms)
+  rows_out <- rep(list(integer(0L)), n)
+  shared <- logical(n)
+  if (n == 0L || is.null(rc)) return(list(rows = rows_out, shared = shared))
+
+  qp <- author_key_parts(auth)
+  nm_rank <- name_rank_of(nms)
+  row_key <- paste(rc$name, rc$concept, sep = "\r")
+  by_key <- split(seq_along(row_key), row_key)
+  auto_hit <- match(paste(nms, "<autonym>", sep = "\r"), names(by_key))
+  key_hit <- match(paste(nms, qp$key, sep = "\r"), names(by_key))
+  key_hit[is.na(qp$key)] <- NA_integer_
+
+  for (i in which(lengths(rows_by_name) > 0L)) {
+    hit <- if (!is.na(auto_hit[i])) by_key[[auto_hit[i]]]
+    if (is.null(hit) && !is.na(key_hit[i])) {
+      hit <- by_key[[key_hit[i]]]
+      r <- rc$rank[hit]
+      if (!any(is.na(r) | is.na(nm_rank[i]) | r == nm_rank[i])) hit <- NULL
+    }
+    if (!is.null(hit)) {
+      rows_out[[i]] <- hit
+      shared[i] <- TRUE
+      next
+    }
+    rows <- rows_by_name[[i]]
+    pick <- pick_own_concept(rows, nms[i], rc, qp$key[i], qp$paren[i],
+                             qp$terminal[i], auth[i])
+    shared[i] <- pick$shared
+    if (!is.na(pick$sel)) rows_out[[i]] <- rows[rc$concept[rows] == pick$sel]
+  }
+  list(rows = rows_out, shared = shared)
+}
+
+
+#' Rows under a name that are a recombination of one of its taxon's parts
 #'
-#' The warning distinguishes two reasons (#87), since they call for different
-#' follow-up. A **tie**: at least one candidate is a near-miss or shares the
-#' query's basionym author, but more than one does, so picking one would be a
-#' guess between plausible matches. A **no-match**: none of the candidates
-#' share anything with the query's authorship at all -- not a tie to break,
-#' but a sign the matched concept may not be in this enrichment under any
-#' spelling (sunk into a broader taxon, split differently, or filed as a
-#' synonym elsewhere). Each reason gets its own aggregate warning.
+#' A part of the matched taxon may be known to the source only under a new
+#' combination filed elsewhere: WFO holds *Silene graefferi* Guss. inside
+#' *S. ciliata* subsp. *ciliata*, where WCVP accepts it as *S. ciliata* subsp.
+#' *graefferi* (Guss.) Nyman. An infraspecific row whose epithet is the
+#' part's final epithet and whose basionym author is the part's author is the
+#' same type at another rank or in another genus, and so belongs to the part.
+#' Rows at species rank carry no epithet in the source and are not judged
+#' this way.
+#'
+#' @param rows Candidate row indices in `rc`.
+#' @param rc Output of `row_concepts()`.
+#' @param pc The parts, from `.backbone_circumscription()`.
+#' @return The subset of `rows` that recombine a part.
+#' @noRd
+recombined_part_rows <- function(rows, rc, pc) {
+  paren <- rc$parts$paren[rows]
+  rows <- rows[!is.na(rc$infra[rows]) & !is.na(paren) & nzchar(paren)]
+  if (length(rows) == 0L || nrow(pc) == 0L) return(integer(0L))
+  part_epi <- vapply(strsplit(pc$canonical_name, " +"),
+                     function(t) t[length(t)], character(1L))
+  part_auth <- lapply(pc$authorship, function(a) {
+    if (is.na(a)) NULL else citation_surnames(a)$term
+  })
+  keep <- vapply(rows, function(i) {
+    hit <- which(part_epi == rc$infra[i])
+    if (length(hit) == 0L) return(FALSE)
+    basionym <- citation_surnames(rc$raw[i])$paren
+    any(vapply(hit, function(j) {
+      !is.null(part_auth[[j]]) && author_sets_agree(part_auth[[j]], basionym)
+    }, logical(1L)))
+  }, logical(1L))
+  rows[keep]
+}
+
+
+#' Keep the rows of a group join that belong to the taxon `x` resolved to
+#'
+#' `enrich_by_group()` joins on a bare accepted-name string, and the build keys
+#' a source concept under every name a backbone gives it, so the rows under a
+#' name can belong to several concepts: a homonym (#50), another name's
+#' autonym (WCVP writes no author for one, so *Erigeron caucasicus* subsp.
+#' *caucasicus* sits under *Erigeron pulchellus*), or a taxon some backbone
+#' sinks into this one. Keeping whichever row survives the per-group dedup
+#' attaches a range to a taxon it does not belong to.
+#'
+#' The taxon's rows are those of the concept the name denotes
+#' (`pick_own_concept()`), plus the concept of every other name the backbone
+#' `x` matched through places inside it: its synonyms and, for a species, its
+#' accepted infraspecific taxa and their synonyms
+#' (`.backbone_circumscription()`). Each of those names contributes the
+#' concept keyed under its own name, picked by the author the backbone gives
+#' it, so a concept is taken only where one named part of the matched taxon
+#' denotes it. A name therefore follows its backbone's treatment: COL holds
+#' *Eucalyptus bicostata* Maiden, Blakely & Simmonds as *E. globulus* subsp.
+#' *bicostata*, so its *E. globulus* carries *E. bicostata*'s New South Wales
+#' record; WFO keeps it a species, so WFO's does not. Rows under the name that
+#' no part of the taxon accounts for are dropped.
+#'
+#' Where `x` carries no backbone and accepted id to read the taxon from, or
+#' the name no authorship to pick a part by, only the name's own rows are
+#' judged: a name holding one concept keeps it, and one holding several keeps
+#' the one its authorship picks. When nothing can be picked every row for the
+#' name is dropped -- left NA rather than guessing -- and the warning
+#' distinguishes two reasons (#87). A **tie**: at least one candidate is a
+#' near-miss or shares the query's basionym author, but more than one does. A
+#' **no-match**: none of the candidates share anything with the query's
+#' authorship, a sign the matched concept may not be in this enrichment under
+#' any spelling.
 #'
 #' @param joined The `join_key`-on-`lookup_name` join result, before group
 #'   filtering. Must carry `lookup_name` and `authorship_col`.
-#' @param x The taxify_result being enriched, for `accepted_authorship`.
+#' @param x The taxify_result being enriched: `accepted_name`,
+#'   `accepted_authorship`, and `backbone` / `accepted_id` when present.
 #' @param authorship_col Name of the authorship-like column in `joined`.
 #' @param enrichment_name Character, for the warning message.
 #' @param rank_col,infra_col Names of the row's rank and infraspecific-epithet
 #'   columns in `joined`, or `NULL` when the source carries none.
-#' @return `joined`, row-filtered to the resolved concept and the concepts the
-#'   matched backbone places inside it, the resolved concept's rows first.
+#' @param lookup A function taking names and returning their rows in the same
+#'   shape as `joined`, or `NULL` to judge only the rows in `joined`.
+#' @return The rows belonging to each name's taxon, keyed under that name, the
+#'   name's own concept first so the per-group dedup keeps its value wherever
+#'   a contained concept also holds the region.
 #' @noRd
 disambiguate_by_name_authorship <- function(joined, x, authorship_col,
                                             enrichment_name, rank_col = NULL,
-                                            infra_col = NULL) {
-  parts <- author_key_parts(joined[[authorship_col]])
-  key <- parts$key
-  nm_row <- joined$lookup_name
-  rrank <- if (!is.null(rank_col)) norm_rank(joined[[rank_col]]) else
-    rep(NA_character_, nrow(joined))
-  rinfra <- if (!is.null(infra_col)) joined[[infra_col]] else
-    rep(NA_character_, nrow(joined))
-
-  # Concept of each row: its authorship key, the name's own autonym, or some
-  # other autonym (no author, under a name it is not the autonym of).
-  auto_key <- name_is_autonym(nm_row)
-  last_epi <- vapply(strsplit(nm_row, " +"), function(t) t[length(t)],
-                     character(1L))
-  own_autonym <- is.na(key) & auto_key & !is.na(rinfra) & rinfra == last_epi &
-    (is.na(rrank) | rrank == name_rank_of(nm_row))
-  concept <- key
-  concept[own_autonym] <- "<autonym>"
-  concept[is.na(concept)] <- "<other autonym>"
-
-  pairs <- unique(data.frame(nm = nm_row, k = concept,
-                             stringsAsFactors = FALSE))
-  counts <- table(pairs$nm)
-  ambiguous_names <- names(counts)[counts > 1L]
-  if (length(ambiguous_names) == 0L) return(joined)
-
-  qparts <- author_key_parts(x$accepted_authorship)
-  first <- !duplicated(x$accepted_name)
+                                            infra_col = NULL, lookup = NULL) {
+  first <- !is.na(x$accepted_name) & !duplicated(x$accepted_name)
   qname <- x$accepted_name[first]
-  qkey <- stats::setNames(qparts$key[first], qname)
-  qparen <- stats::setNames(qparts$paren[first], qname)
-  qterm <- stats::setNames(qparts$terminal[first], qname)
-  qid <- stats::setNames(
-    if ("accepted_id" %in% names(x)) as.character(x$accepted_id[first]) else
-      rep(NA_character_, length(qname)), qname)
-  qbb <- stats::setNames(
-    if ("backbone" %in% names(x)) as.character(x$backbone[first]) else
-      rep(NA_character_, length(qname)), qname)
+  qkey <- author_key_parts(x$accepted_authorship[first])$key
+  qraw <- x$accepted_authorship[first]
+  col_or_na <- function(col) {
+    if (col %in% names(x)) as.character(x[[col]][first]) else
+      rep(NA_character_, length(qname))
+  }
+  qid <- col_or_na("accepted_id")
+  qbb <- col_or_na("backbone")
 
-  # One circumscription read per backbone, over every ambiguous name x
-  # resolved through it.
-  amb_q <- intersect(ambiguous_names, qname)
-  circ <- list()
-  for (bb in unique(stats::na.omit(qbb[amb_q]))) {
-    ids <- qid[amb_q][qbb[amb_q] == bb]
-    cb <- .backbone_circumscription(bb, ids)
-    if (!is.null(cb)) circ[[bb]] <- split(cb, cb$root)
+  # The parts of each taxon the backbone draws, one read per backbone, as one
+  # frame per queried name.
+  parts_of <- list()
+  if (!is.null(lookup)) {
+    for (bb in unique(stats::na.omit(qbb))) {
+      on_bb <- which(!is.na(qbb) & qbb == bb & !is.na(qid))
+      cb <- .backbone_circumscription(bb, qid[on_bb])
+      if (is.null(cb)) next
+      cb <- merge(cb[!is.na(cb$canonical_name), , drop = FALSE],
+                  data.frame(root = qid[on_bb], nm = qname[on_bb],
+                             stringsAsFactors = FALSE),
+                  by = "root")
+      cb <- cb[cb$canonical_name != cb$nm &
+                 !duplicated(cb[, c("nm", "canonical_name")]), , drop = FALSE]
+      parts_of <- c(parts_of, split(cb, cb$nm))
+    }
   }
 
-  rows_by_name <- split(seq_len(nrow(joined)), nm_row)
-  keep <- rep(TRUE, nrow(joined))
-  own_row <- rep(TRUE, nrow(joined))
-  # Two distinct unresolved reasons (#87): `unresolved` is a genuine tie --
-  # at least one candidate is a plausible near-miss or shares the query's
-  # basionym author, but more than one does, so picking would be a guess.
-  # `no_match` is every candidate sharing nothing at all with the query's
-  # authorship -- not a tie to break, but evidence the matched concept may
-  # not be in this enrichment under any spelling (its own accepted taxon,
-  # a broader/narrower rank, or a synonym elsewhere).
+  # Rows keyed under the parts' own names, read once for every name.
+  part_names <- unique(unlist(lapply(parts_of, `[[`, "canonical_name"),
+                              use.names = FALSE))
+  part_rows <- if (length(part_names) > 0L) lookup(part_names)
+  if (is.null(part_rows) || nrow(part_rows) == 0L) part_rows <- NULL
+
+  names_all <- union(unique(joined$lookup_name), names(parts_of))
+  rc <- if (nrow(joined) > 0L) {
+    row_concepts(joined, authorship_col, rank_col, infra_col)
+  }
+  rows_by_name <- rows_aligned(joined$lookup_name, names_all)
+  qi <- match(names_all, qname)
+  want <- qkey[qi]
+  own <- own_concept_rows(names_all, qraw[qi], rows_by_name, rc)
+
+  # The concept each part denotes under its own key, picked by the author its
+  # backbone gives it. A part the backbone writes no author for is taken only
+  # when it is an autonym, which has none to give.
+  pi <- match(names_all, names(parts_of))
+  got <- rep(list(integer(0L)), length(names_all))
+  if (!is.null(part_rows)) {
+    has <- which(!is.na(pi))
+    pl <- data.frame(
+      i = rep(has, vapply(parts_of[pi[has]], nrow, integer(1L))),
+      pname = unlist(lapply(parts_of[pi[has]], `[[`, "canonical_name"),
+                     use.names = FALSE),
+      pauth = unlist(lapply(parts_of[pi[has]], `[[`, "authorship"),
+                     use.names = FALSE),
+      stringsAsFactors = FALSE)
+    pl <- pl[!is.na(pl$pauth) | name_is_autonym(pl$pname), , drop = FALSE]
+    pu <- unique(pl[, c("pname", "pauth")])
+    part_rc <- row_concepts(part_rows, authorship_col, rank_col, infra_col)
+    pown <- own_concept_rows(
+      pu$pname, pu$pauth, rows_aligned(part_rows$lookup_name, pu$pname),
+      part_rc)$rows
+    idx <- match(paste(pl$pname, pl$pauth, sep = "\r"),
+                 paste(pu$pname, pu$pauth, sep = "\r"))
+    by_i <- split(idx, pl$i)
+    got[as.integer(names(by_i))] <- lapply(by_i, function(k) {
+      unique(unlist(pown[k], use.names = FALSE))
+    })
+  }
+
+  own_idx <- integer(0L)
+  pulled <- list()
   unresolved <- character(0L)
   no_match <- character(0L)
 
-  for (nm in ambiguous_names) {
-    rows <- rows_by_name[[nm]]
-    k <- concept[rows]
-    nm_rank <- name_rank_of(nm)
-    # A row of a broader rank than the name is never its own concept.
-    rank_ok <- is.na(rrank[rows]) | is.na(nm_rank) | rrank[rows] == nm_rank
-    authored <- unique(k[rank_ok & !k %in% c("<autonym>", "<other autonym>")])
-    concepts <- authored
-    want <- if (nm %in% qname) qkey[[nm]] else NA_character_
-    sel <- NA_character_
-    shared <- FALSE
-    if ("<autonym>" %in% k) {
-      # An autonym has no author of its own, whatever a backbone writes beside
-      # it, so its authorless rows are the name's concept.
-      sel <- "<autonym>"
-    } else if (is.na(want) && !auto_key[rows[1L]] && length(authored) == 1L) {
-      # Nothing to compare against, but authorless rows under a name that is
-      # not an autonym are another name's autonym: one authored concept left.
-      sel <- authored
-    } else if (!is.na(want)) {
-      rep_row <- rows[match(concepts, k)]
-      if (want %in% concepts) {
-        sel <- want
-        shared <- TRUE
-      } else {
-        q <- list(paren = qparen[[nm]], terminal = qterm[[nm]])
-        near <- concepts[vapply(rep_row, function(i) {
-          author_key_near(q, list(paren = parts$paren[i],
-                                  terminal = parts$terminal[i]))
-        }, logical(1L))]
-        if (length(near) == 1L) sel <- near
-        shared <- shared || length(near) > 0L
+  for (i in seq_along(names_all)) {
+    nm <- names_all[i]
+    rows <- rows_by_name[[i]]
+    mine <- own$rows[[i]]
+
+    if (!is.na(pi[i]) && (!is.na(want[i]) || length(mine) > 0L)) {
+      # The taxon is drawn by its backbone: its own concept plus the concept of
+      # every part, and nothing else keyed under the name.
+      if (length(got[[i]]) > 0L) {
+        pr <- part_rows[got[[i]], , drop = FALSE]
+        pr$lookup_name <- nm
+        pulled[[length(pulled) + 1L]] <- pr
       }
-      # Sources also disagree over who is credited with a recombination while
-      # naming the same basionym author -- Glaucium corniculatum is (L.) Curtis
-      # in WFO and (L.) Rudolph in WCVP. Epithet plus basionym author pins the
-      # basionym, and with it the type, so a concept that is the only candidate
-      # carrying the query's basionym author is the same taxon whoever made the
-      # combination. Two candidates sharing it are not separable this way and
-      # fall through to the drop below, which is what keeps a homonym pair with
-      # no basionym author at all (Erigeron pulchellus Michx. vs Hoppe &
-      # Hornsch., #50) out of this branch entirely.
-      qp <- qparen[[nm]]
-      if (is.na(sel) && !is.na(qp) && nzchar(qp)) {
-        same_basionym <- concepts[parts$paren[rep_row] == qp]
-        if (length(same_basionym) == 1L) sel <- same_basionym
-        shared <- shared || length(same_basionym) > 0L
+      mine <- c(mine, recombined_part_rows(setdiff(rows, mine), rc,
+                                           parts_of[[pi[i]]]))
+      own_idx <- c(own_idx, mine)
+      if (length(mine) == 0L && length(got[[i]]) == 0L && length(rows) > 0L) {
+        if (own$shared[i]) unresolved <- c(unresolved, nm) else
+          no_match <- c(no_match, nm)
       }
+      next
     }
-    if (is.na(sel)) {
-      keep[rows] <- FALSE
+
+    if (length(rows) == 0L) next
+    # No taxon to read: judge only the rows under the name.
+    if (length(unique(rc$concept[rows])) == 1L) {
+      own_idx <- c(own_idx, rows)
+    } else if (length(mine) > 0L) {
+      own_idx <- c(own_idx, mine)
+    } else if (is.na(want[i]) || own$shared[i]) {
       # `want` unknown (nm not among x's own accepted names, e.g. reached via
       # cross-backbone recovery) leaves nothing to compare against -- treated
       # as a tie rather than asserting "no match" from no evidence either way.
-      if (is.na(want) || shared) {
-        unresolved <- c(unresolved, nm)
-      } else {
-        no_match <- c(no_match, nm)
-      }
+      unresolved <- c(unresolved, nm)
     } else {
-      own <- k == sel
-      member <- own
-      broader <- !is.na(nm_rank) & nm_rank != "species" &
-        !is.na(rrank[rows]) & rrank[rows] == "species"
-      cn <- if (nm %in% qname && !is.na(qbb[[nm]]) && !is.na(qid[[nm]])) {
-        circ[[qbb[[nm]]]][[qid[[nm]]]]
-      }
-      for (j in which(!own & !broader)) {
-        i <- rows[j]
-        member[j] <- row_in_circumscription(
-          list(paren = parts$paren[i], terminal = parts$terminal[i],
-               key = parts$key[i]),
-          rrank[i], rinfra[i], cn)
-      }
-      keep[rows] <- member
-      own_row[rows] <- own
+      no_match <- c(no_match, nm)
     }
   }
 
@@ -2317,9 +2612,14 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
     ), call. = FALSE)
   }
 
-  # The resolved concept's rows first, so the per-group dedup in the fill keeps
-  # its value wherever a contained concept also holds the region.
-  joined[c(which(keep & own_row), which(keep & !own_row)), , drop = FALSE]
+  out <- joined[own_idx, , drop = FALSE]
+  if (length(pulled) > 0L) {
+    pulled <- do.call(rbind, pulled)
+    out <- if (nrow(out) == 0L) pulled else
+      rbind(out, pulled[, names(out), drop = FALSE])
+  }
+  rownames(out) <- NULL
+  out
 }
 
 
@@ -2494,25 +2794,30 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 
   has_na_group <- anyNA(groups)
 
-  # One pass over a set of looked-up rows: resolve homonyms against the
-  # authorship the caller matched, then narrow to the requested groups. Shared
-  # by the direct join and the cross-backbone recovery below, which differ only
-  # in the name each row is looked up under.
-  #
-  # A name the join_key resolves to more than one row that disagree on
-  # authorship is a homonym collision: the same accepted-name string covers
-  # two distinct taxonomic concepts in the source (#50 -- add_wcvp() joining
-  # Erigeron pulchellus Michx. onto Erigeron pulchellus Hoppe & Hornsch. ex
-  # Bluff & Fingerh.'s European range because both share the bare name).
-  # Resolve against the caller's own accepted_authorship where it uniquely
-  # picks one concept; otherwise drop every row for that name so its output
-  # cells stay NA rather than silently keeping an arbitrary one.
+  # One pass over a set of looked-up rows: keep the rows of the taxon each name
+  # resolved to (disambiguate_by_name_authorship()), then narrow to the
+  # requested groups. Shared by the direct join and the cross-backbone recovery
+  # below, which differ only in the name each row is looked up under. The
+  # taxon can draw rows from other names' keys, so a name with no rows of its
+  # own still goes through it.
+  lookup <- function(nms) {
+    .enrichment_vtr_lookup(vtr_path, join_key, nms, select_cols)
+  }
   prepare <- function(joined, xa) {
-    if (is.null(joined) || nrow(joined) == 0L) return(NULL)
-    if (!is.null(authorship_col) && "accepted_authorship" %in% names(xa)) {
-      joined <- disambiguate_by_name_authorship(
-        joined, xa, authorship_col, enrichment_name, rank_col, infra_col)
+    judged <- !is.null(authorship_col) && "accepted_authorship" %in% names(xa)
+    if (is.null(joined)) {
+      if (!judged) return(NULL)
+      cols <- unique(c("lookup_name", join_key, select_cols))
+      joined <- as.data.frame(
+        stats::setNames(rep(list(character(0L)), length(cols)), cols),
+        stringsAsFactors = FALSE)
     }
+    if (judged) {
+      joined <- disambiguate_by_name_authorship(
+        joined, xa, authorship_col, enrichment_name, rank_col, infra_col,
+        lookup)
+    }
+    if (nrow(joined) == 0L) return(NULL)
     joined <- joined[
       joined[[group_col]] %in% groups |
         (has_na_group & is.na(joined[[group_col]])),

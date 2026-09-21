@@ -1,24 +1,39 @@
 # taxify (development version)
 
-* `enrich_by_group()`'s homonym guard (`add_wcvp()` and every other grouped
-  door) now treats a row with no authorship as a concept. WCVP writes no
-  author for an autonym, and the build keys an autonym's range under every
-  name a backbone sends it to, so a name with one authored concept plus such
-  rows skipped the guard: *Erigeron pulchellus* Michx. came back native in
-  Turkey, Iran and the Caucasus from *Erigeron caucasicus* subsp.
-  *caucasicus*. 1,042 names in the current `wcvp` asset carried another
-  name's autonym this way (40,447 rows). Under an autonym key the authorless
-  rows are the name's own concept, and a species' rows keyed under one of its
-  subspecies are no longer attached to it.
+* `add_wcvp()` (and every grouped door over an authorship-bearing source)
+  now returns the range of the taxon a name was matched to, as the matching
+  backbone draws it. The build keys a source concept under every name a
+  backbone gives it, so the rows under one name belonged to several concepts
+  and the guard only ever separated two authored ones:
+  - A row with no authorship is an autonym (WCVP writes no author for one).
+    It is the name's own concept under an autonym key and another name's
+    autonym anywhere else. *Erigeron pulchellus* Michx. came back native in
+    Turkey, Iran and the Caucasus from *E. caucasicus* subsp. *caucasicus*;
+    1,042 names in the current `wcvp` asset carried another name's autonym
+    this way (40,447 rows).
+  - A name's range is its own concept plus the concept of every name the
+    matched backbone places inside it (its synonyms and, for a species, its
+    accepted infraspecific taxa and their synonyms), each read under its own
+    key and picked by the author the backbone gives it. Through COL and GBIF,
+    which hold *Eucalyptus bicostata* as a subspecies or variety of
+    *E. globulus*, *E. globulus* includes New South Wales; through WFO, which
+    keeps *E. bicostata* a species, it does not. A subspecies filed only
+    under its own name now counts for its species.
+  - Rows under the name that no part of the taxon accounts for are dropped,
+    also when they are the only rows there. The largest group is a species'
+    range filed under one of its subspecies or varieties.
+  - An author citation is matched as sources vary it (initials, the part
+    before `ex`, `fil.` for `f.`, a dropped basionym author, a co-author left
+    out, a one-letter typo), so a name's own concept is still found when the
+    backbone and the source cite it differently, while `L.` and `L.f.`, or
+    `Rose` and `Lowe`, stay apart.
 
-* Rows of another concept keyed under a name are kept when the backbone the
-  name was matched through places that concept inside the matched taxon (the
-  taxon, its synonyms, and for a species its accepted infraspecific taxa and
-  their synonyms, compared by author and basionym author). A name therefore
-  follows the matched backbone's own treatment: through COL and GBIF, which
-  hold *Eucalyptus bicostata* as a subspecies or variety of *E. globulus*,
-  `add_wcvp()` reports *E. globulus* in New South Wales; through WFO, which
-  keeps *E. bicostata* a species, it does not.
+  Over 10,000 `wcvp` keys (half at random, half holding several concepts),
+  matched through COL / WFO / GBIF, against the previous release: 8,595 /
+  8,574 / 39,964 region cells are gone, of which 5,450 / 4,761 / 34,770 were
+  a species' range under one of its subspecies or varieties and 1,005 / 954 /
+  710 another name's autonym; 4,188 / 5,823 / 9,457 cells are new, from the
+  parts of each taxon. Names left with no range: 19 / 5 / 25.
 
 * `enrichment_authorship_col()`, the column `enrich_by_group()`'s homonym
   guard reads, is exported (internal) so taxifydb keys each region row of an
