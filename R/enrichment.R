@@ -1235,7 +1235,8 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
 .cross_backbone_alternatives <- function(names_in, kingdoms = NULL) {
   empty <- data.frame(input_name = character(0L), backbone = character(0L),
                       alt_name = character(0L), alt_authorship = character(0L),
-                      alt_genus = character(0L), stringsAsFactors = FALSE)
+                      alt_genus = character(0L), alt_id = character(0L),
+                      stringsAsFactors = FALSE)
   q <- unique(names_in[!is.na(names_in) & nzchar(names_in)])
   if (length(q) == 0L) return(empty)
   # Fewer than two backbones is a legitimate no-op (nothing to cross-check
@@ -1286,6 +1287,7 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
       alt_name       = r$accepted_name,
       alt_authorship = r$accepted_authorship %||% NA_character_,
       alt_genus      = r$genus %||% NA_character_,
+      alt_id         = as.character(r$accepted_id %||% NA_character_),
       stringsAsFactors = FALSE
     )
   })
@@ -1339,6 +1341,7 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
     backbone   = a$backbone,
     alt        = if (join_col == "genus") a$alt_genus else a$alt_name,
     authorship = a$alt_authorship,
+    id         = a$alt_id %||% rep(NA_character_, nrow(a)),
     stringsAsFactors = FALSE
   )
   cand <- cand[!is.na(cand$alt) &
@@ -1374,6 +1377,7 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
   list(alt        = fill_vec(cand$alt),
        via        = fill_vec(cand$backbone),
        authorship = fill_vec(cand$authorship),
+       id         = fill_vec(cand$id),
        joined     = joined)
 }
 
@@ -1940,7 +1944,167 @@ author_key_near <- function(q, cand) {
 }
 
 
-#' Drop the wrong side of a name-level homonym collision from a group join
+#' Rank a scientific name is written at, from its connecting term
+#'
+#' `"species"` for a binomial, the lowercased rank word for a trinomial with a
+#' marker (`subsp.` -> `"subspecies"`), `NA` for anything else (a genus, a
+#' marker-less zoological trinomial).
+#'
+#' @param nm Character vector of names.
+#' @return Character vector, the length of `nm`.
+#' @noRd
+name_rank_of <- function(nm) {
+  markers <- c("subsp." = "subspecies", "ssp." = "subspecies",
+               "var." = "variety", "f." = "form", "forma" = "form",
+               "subvar." = "subvariety", "subf." = "subform",
+               "nothosubsp." = "nothosubsp.", "nothovar." = "nothovar.")
+  tok <- strsplit(trimws(nm), " +")
+  vapply(tok, function(t) {
+    if (length(t) == 2L) return("species")
+    if (length(t) == 4L && t[3L] %in% names(markers)) return(markers[[t[3L]]])
+    NA_character_
+  }, character(1L), USE.NAMES = FALSE)
+}
+
+# Is each name an autonym (`Quercus robur subsp. robur`)?
+name_is_autonym <- function(nm) {
+  tok <- strsplit(trimws(nm), " +")
+  vapply(tok, function(t) length(t) == 4L && identical(t[2L], t[4L]),
+         logical(1L), USE.NAMES = FALSE)
+}
+
+# Rank strings as the backbones and WCVP write them ("SUBSPECIES",
+# "Subspecies", "nothosubsp.") reduced to the vocabulary of name_rank_of().
+norm_rank <- function(r) {
+  r <- tolower(trimws(r))
+  r[r %in% c("subsp.", "ssp.")] <- "subspecies"
+  r[r == "var."] <- "variety"
+  r[r %in% c("f.", "forma")] <- "form"
+  r
+}
+
+
+#' Every name a backbone places inside an accepted taxon
+#'
+#' The circumscription of each accepted taxon in `ids`, as the backbone draws
+#' it: the taxon itself and its synonyms, plus, for a species, its accepted
+#' infraspecific taxa and their synonyms. COL keeps *Eucalyptus bicostata*
+#' Maiden, Blakely & Simmonds as *E. globulus* subsp. *bicostata*, so its
+#' *E. globulus* covers the name; WFO keeps it a species of its own, so WFO's
+#' does not. Session-memoized per backbone and id set.
+#'
+#' @param backbone Backbone name.
+#' @param ids Accepted taxon ids in that backbone.
+#' @return A data.frame with `root` (the id from `ids`), `authorship`, `rank`,
+#'   `specific_epithet`, `infraspecific_epithet`; `NULL` when the backbone
+#'   cannot be read or carries none of the needed columns.
+#' @noRd
+.backbone_circumscription <- function(backbone, ids) {
+  ids <- sort(unique(ids[!is.na(ids) & nzchar(ids)]))
+  if (length(ids) == 0L || is.na(backbone)) return(NULL)
+  key <- paste0(backbone, "_", paste(ids, collapse = "|"))
+  cached <- memo_get(".circ", key)
+  if (!is.null(cached)) return(cached)
+
+  bb <- tryCatch(backbone_path(backbone, verbose = FALSE),
+                 error = function(e) NULL)
+  if (is.null(bb)) return(NULL)
+  schema <- vtr_schema(bb)
+  if (!all(c("taxon_id", "accepted_taxon_id", "authorship") %in% schema)) {
+    return(NULL)
+  }
+  cols <- intersect(c("taxon_id", "accepted_taxon_id", "authorship",
+                      "taxon_rank", "specific_epithet",
+                      "infraspecific_epithet", "key_species", "is_synonym"),
+                    schema)
+  pad <- function(df) {
+    for (cc in setdiff(cols, names(df))) df[[cc]] <- NA_character_
+    df
+  }
+
+  own <- backbone_join(bb, ids, "accepted_taxon_id", cols)
+  if (is.null(own) || nrow(own) == 0L) return(NULL)
+  own <- pad(own)
+  own$root <- own$lookup
+  parts <- list(own)
+
+  # A species' accepted infraspecific taxa share its key_species. A key two
+  # accepted species hold (a homonym pair in the backbone) cannot say whose
+  # children they are, so it contributes none.
+  if (all(c("key_species", "is_synonym", "taxon_rank") %in% cols)) {
+    roots <- own[own$taxon_id == own$root &
+                   norm_rank(own$taxon_rank) == "species" &
+                   !is.na(own$key_species), , drop = FALSE]
+    roots <- roots[!duplicated(roots$root), , drop = FALSE]
+    shared <- roots$key_species[duplicated(roots$key_species)]
+    roots <- roots[!roots$key_species %in% shared, , drop = FALSE]
+    if (nrow(roots) > 0L) {
+      kids <- backbone_join(bb, roots$key_species, "key_species", cols,
+                            pre = function(t) vectra::filter(t, is_synonym == FALSE))
+      if (!is.null(kids) && nrow(kids) > 0L) {
+        kids <- kids[kids$taxon_id == kids$accepted_taxon_id &
+                       norm_rank(kids$taxon_rank) != "species", , drop = FALSE]
+      }
+      if (!is.null(kids) && nrow(kids) > 0L) {
+        kid_root <- roots$root[match(kids$lookup, roots$key_species)]
+        under <- backbone_join(bb, kids$taxon_id, "accepted_taxon_id", cols)
+        if (!is.null(under) && nrow(under) > 0L) {
+          under <- pad(under)
+          under$root <- kid_root[match(under$lookup, kids$taxon_id)]
+          parts <- c(parts, list(under))
+        }
+      }
+    }
+  }
+
+  keep <- c("root", "authorship", "taxon_rank", "specific_epithet",
+            "infraspecific_epithet")
+  out <- do.call(rbind, lapply(parts, function(p) p[, keep, drop = FALSE]))
+  names(out)[names(out) == "taxon_rank"] <- "rank"
+  out$rank <- norm_rank(out$rank)
+  rownames(out) <- NULL
+  memo_set(".circ", key, out)
+}
+
+
+#' Does a backbone's circumscription contain an enrichment row's concept?
+#'
+#' A row keyed under a name by the build-time expansion carries the authorship
+#' of its own concept, which can differ from the one the name resolved to. It
+#' belongs to the resolved taxon when the backbone places a name of that
+#' concept inside it: the same author (exactly or as a spelling variant), or a
+#' basionym relation in either direction -- COL's *E. globulus* subsp.
+#' *bicostata* (Maiden, Blakely & Simmonds) J.B.Kirkp. is the recombination of
+#' the WCVP species *E. bicostata* Maiden, Blakely & Simmonds. An autonym has
+#' no author, so it is recognised by its rank and epithet instead.
+#'
+#' @param rparts Author parts of the row (`paren`, `terminal`, `key`, scalars).
+#' @param rrank,rinfra The row's rank (normalized) and infraspecific epithet.
+#' @param circ The rows of `.backbone_circumscription()` for one root.
+#' @return Logical scalar.
+#' @noRd
+row_in_circumscription <- function(rparts, rrank, rinfra, circ) {
+  if (is.null(circ) || nrow(circ) == 0L) return(FALSE)
+  if (is.na(rparts$key)) {
+    if (is.na(rinfra) || is.na(rrank)) return(FALSE)
+    auto <- !is.na(circ$infraspecific_epithet) &
+      circ$infraspecific_epithet == circ$specific_epithet
+    return(any(auto & circ$infraspecific_epithet == rinfra &
+                 circ$rank == rrank, na.rm = TRUE))
+  }
+  cp <- author_key_parts(circ$authorship)
+  known <- !is.na(cp$key)
+  if (!any(known)) return(FALSE)
+  if (rparts$key %in% cp$key[known]) return(TRUE)
+  if (any(nzchar(cp$paren[known]) & cp$paren[known] == rparts$key)) return(TRUE)
+  if (nzchar(rparts$paren) && rparts$paren %in% cp$key[known]) return(TRUE)
+  any(vapply(which(known), function(i) {
+    author_key_near(rparts, list(paren = cp$paren[i], terminal = cp$terminal[i]))
+  }, logical(1L)))
+}
+
+
+#' Keep the rows of a group join that belong to the concept `x` resolved to
 #'
 #' `enrich_by_group()` joins on a bare accepted-name string, so a name that
 #' resolves to more than one distinct concept in the source (different
@@ -1956,6 +2120,19 @@ author_key_near <- function(q, cand) {
 #' not homonyms at all. When no pass picks exactly one concept, every row for
 #' the name is dropped -- left NA rather than guessing.
 #'
+#' A row with no authorship is a concept too. WCVP writes no author for an
+#' autonym, and the build keys an autonym's range under every name a backbone
+#' sends it to, so *Erigeron caucasicus* subsp. *caucasicus* sits under
+#' *Erigeron pulchellus*. Under an autonym key such rows are the name's own
+#' concept; under any other key they are some other name's autonym.
+#'
+#' Rows of the other concepts are kept when the backbone `x` matched through
+#' places that concept inside the matched taxon (`row_in_circumscription()`),
+#' so a name follows the matched backbone's own treatment: through COL,
+#' *E. globulus* carries *E. bicostata*'s New South Wales record, through WFO
+#' it does not. A row of a broader rank than the name (a species' range under
+#' one of its subspecies) never is.
+#'
 #' The warning distinguishes two reasons (#87), since they call for different
 #' follow-up. A **tie**: at least one candidate is a near-miss or shares the
 #' query's basionym author, but more than one does, so picking one would be a
@@ -1970,16 +2147,34 @@ author_key_near <- function(q, cand) {
 #' @param x The taxify_result being enriched, for `accepted_authorship`.
 #' @param authorship_col Name of the authorship-like column in `joined`.
 #' @param enrichment_name Character, for the warning message.
-#' @return `joined`, row-filtered to drop the losing side of any collision.
+#' @param rank_col,infra_col Names of the row's rank and infraspecific-epithet
+#'   columns in `joined`, or `NULL` when the source carries none.
+#' @return `joined`, row-filtered to the resolved concept and the concepts the
+#'   matched backbone places inside it, the resolved concept's rows first.
 #' @noRd
 disambiguate_by_name_authorship <- function(joined, x, authorship_col,
-                                            enrichment_name) {
+                                            enrichment_name, rank_col = NULL,
+                                            infra_col = NULL) {
   parts <- author_key_parts(joined[[authorship_col]])
   key <- parts$key
-  known <- !is.na(key)
-  if (!any(known)) return(joined)
+  nm_row <- joined$lookup_name
+  rrank <- if (!is.null(rank_col)) norm_rank(joined[[rank_col]]) else
+    rep(NA_character_, nrow(joined))
+  rinfra <- if (!is.null(infra_col)) joined[[infra_col]] else
+    rep(NA_character_, nrow(joined))
 
-  pairs <- unique(data.frame(nm = joined$lookup_name[known], k = key[known],
+  # Concept of each row: its authorship key, the name's own autonym, or some
+  # other autonym (no author, under a name it is not the autonym of).
+  auto_key <- name_is_autonym(nm_row)
+  last_epi <- vapply(strsplit(nm_row, " +"), function(t) t[length(t)],
+                     character(1L))
+  own_autonym <- is.na(key) & auto_key & !is.na(rinfra) & rinfra == last_epi &
+    (is.na(rrank) | rrank == name_rank_of(nm_row))
+  concept <- key
+  concept[own_autonym] <- "<autonym>"
+  concept[is.na(concept)] <- "<other autonym>"
+
+  pairs <- unique(data.frame(nm = nm_row, k = concept,
                              stringsAsFactors = FALSE))
   counts <- table(pairs$nm)
   ambiguous_names <- names(counts)[counts > 1L]
@@ -1991,9 +2186,26 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
   qkey <- stats::setNames(qparts$key[first], qname)
   qparen <- stats::setNames(qparts$paren[first], qname)
   qterm <- stats::setNames(qparts$terminal[first], qname)
+  qid <- stats::setNames(
+    if ("accepted_id" %in% names(x)) as.character(x$accepted_id[first]) else
+      rep(NA_character_, length(qname)), qname)
+  qbb <- stats::setNames(
+    if ("backbone" %in% names(x)) as.character(x$backbone[first]) else
+      rep(NA_character_, length(qname)), qname)
 
-  rows_by_name <- split(seq_len(nrow(joined)), joined$lookup_name)
+  # One circumscription read per backbone, over every ambiguous name x
+  # resolved through it.
+  amb_q <- intersect(ambiguous_names, qname)
+  circ <- list()
+  for (bb in unique(stats::na.omit(qbb[amb_q]))) {
+    ids <- qid[amb_q][qbb[amb_q] == bb]
+    cb <- .backbone_circumscription(bb, ids)
+    if (!is.null(cb)) circ[[bb]] <- split(cb, cb$root)
+  }
+
+  rows_by_name <- split(seq_len(nrow(joined)), nm_row)
   keep <- rep(TRUE, nrow(joined))
+  own_row <- rep(TRUE, nrow(joined))
   # Two distinct unresolved reasons (#87): `unresolved` is a genuine tie --
   # at least one candidate is a plausible near-miss or shares the query's
   # basionym author, but more than one does, so picking would be a guess.
@@ -2006,12 +2218,24 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
 
   for (nm in ambiguous_names) {
     rows <- rows_by_name[[nm]]
-    k <- key[rows]
-    concepts <- unique(k[!is.na(k)])
+    k <- concept[rows]
+    nm_rank <- name_rank_of(nm)
+    # A row of a broader rank than the name is never its own concept.
+    rank_ok <- is.na(rrank[rows]) | is.na(nm_rank) | rrank[rows] == nm_rank
+    authored <- unique(k[rank_ok & !k %in% c("<autonym>", "<other autonym>")])
+    concepts <- authored
     want <- if (nm %in% qname) qkey[[nm]] else NA_character_
     sel <- NA_character_
     shared <- FALSE
-    if (!is.na(want)) {
+    if ("<autonym>" %in% k) {
+      # An autonym has no author of its own, whatever a backbone writes beside
+      # it, so its authorless rows are the name's concept.
+      sel <- "<autonym>"
+    } else if (is.na(want) && !auto_key[rows[1L]] && length(authored) == 1L) {
+      # Nothing to compare against, but authorless rows under a name that is
+      # not an autonym are another name's autonym: one authored concept left.
+      sel <- authored
+    } else if (!is.na(want)) {
       rep_row <- rows[match(concepts, k)]
       if (want %in% concepts) {
         sel <- want
@@ -2052,7 +2276,22 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
         no_match <- c(no_match, nm)
       }
     } else {
-      keep[rows] <- !is.na(k) & k == sel
+      own <- k == sel
+      member <- own
+      broader <- !is.na(nm_rank) & nm_rank != "species" &
+        !is.na(rrank[rows]) & rrank[rows] == "species"
+      cn <- if (nm %in% qname && !is.na(qbb[[nm]]) && !is.na(qid[[nm]])) {
+        circ[[qbb[[nm]]]][[qid[[nm]]]]
+      }
+      for (j in which(!own & !broader)) {
+        i <- rows[j]
+        member[j] <- row_in_circumscription(
+          list(paren = parts$paren[i], terminal = parts$terminal[i],
+               key = parts$key[i]),
+          rrank[i], rinfra[i], cn)
+      }
+      keep[rows] <- member
+      own_row[rows] <- own
     }
   }
 
@@ -2078,7 +2317,9 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
     ), call. = FALSE)
   }
 
-  joined[keep, , drop = FALSE]
+  # The resolved concept's rows first, so the per-group dedup in the fill keeps
+  # its value wherever a contained concept also holds the region.
+  joined[c(which(keep & own_row), which(keep & !own_row)), , drop = FALSE]
 }
 
 
@@ -2243,7 +2484,12 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   # one) is pulled in too, even if not requested as output: it is the only
   # signal available for disambiguate_by_name_authorship() below.
   authorship_col <- enrichment_authorship_col(names(schema))
-  select_cols <- unique(c(group_col, unname(value_cols), authorship_col))
+  rank_col <- intersect("taxon_rank", names(schema))
+  infra_col <- intersect("infraspecies", names(schema))
+  if (length(rank_col) == 0L) rank_col <- NULL
+  if (length(infra_col) == 0L) infra_col <- NULL
+  select_cols <- unique(c(group_col, unname(value_cols), authorship_col,
+                          rank_col, infra_col))
   select_cols <- intersect(select_cols, names(schema))
 
   has_na_group <- anyNA(groups)
@@ -2265,7 +2511,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     if (is.null(joined) || nrow(joined) == 0L) return(NULL)
     if (!is.null(authorship_col) && "accepted_authorship" %in% names(xa)) {
       joined <- disambiguate_by_name_authorship(
-        joined, xa, authorship_col, enrichment_name)
+        joined, xa, authorship_col, enrichment_name, rank_col, infra_col)
     }
     joined <- joined[
       joined[[group_col]] %in% groups |
@@ -2296,6 +2542,8 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     xa <- x
     xa$accepted_name       <- rec$alt
     xa$accepted_authorship <- rec$authorship
+    xa$accepted_id         <- rec$id
+    xa$backbone            <- rec$via
     alt <- prepare(rec$joined, xa)
     if (!is.null(alt)) {
       before <- rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L

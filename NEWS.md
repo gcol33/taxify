@@ -1,5 +1,25 @@
 # taxify (development version)
 
+* `enrich_by_group()`'s homonym guard (`add_wcvp()` and every other grouped
+  door) now treats a row with no authorship as a concept. WCVP writes no
+  author for an autonym, and the build keys an autonym's range under every
+  name a backbone sends it to, so a name with one authored concept plus such
+  rows skipped the guard: *Erigeron pulchellus* Michx. came back native in
+  Turkey, Iran and the Caucasus from *Erigeron caucasicus* subsp.
+  *caucasicus*. 1,042 names in the current `wcvp` asset carried another
+  name's autonym this way (40,447 rows). Under an autonym key the authorless
+  rows are the name's own concept, and a species' rows keyed under one of its
+  subspecies are no longer attached to it.
+
+* Rows of another concept keyed under a name are kept when the backbone the
+  name was matched through places that concept inside the matched taxon (the
+  taxon, its synonyms, and for a species its accepted infraspecific taxa and
+  their synonyms, compared by author and basionym author). A name therefore
+  follows the matched backbone's own treatment: through COL and GBIF, which
+  hold *Eucalyptus bicostata* as a subspecies or variety of *E. globulus*,
+  `add_wcvp()` reports *E. globulus* in New South Wales; through WFO, which
+  keeps *E. bicostata* a species, it does not.
+
 * `enrichment_authorship_col()`, the column `enrich_by_group()`'s homonym
   guard reads, is exported (internal) so taxifydb keys each region row of an
   authorship-bearing enrichment on the concept the guard will accept

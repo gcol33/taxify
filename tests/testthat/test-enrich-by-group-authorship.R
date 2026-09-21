@@ -212,3 +212,63 @@ test_that("add_wcvp() gives the 'no match' warning for #87's own repro shape", {
   expect_true(is.na(out$native_status_EUR))
   expect_true(is.na(out$native_status_GER))
 })
+
+
+# A row with no authorship is an autonym: WCVP writes none for one, and the
+# build keys an autonym's range under every name a backbone sends it to, so
+# Erigeron caucasicus subsp. caucasicus arrived under Erigeron pulchellus and
+# attached Turkey, Iran and the Caucasus to a North American species.
+wcvp_ranked_df <- function(name, tdwg, authors, rank, infra) {
+  data.frame(
+    canonical_name = rep(name, length(tdwg)),
+    tdwg_code      = tdwg,
+    native_status  = rep("native", length(tdwg)),
+    taxon_authors  = authors,
+    taxon_rank     = rank,
+    infraspecies   = infra,
+    stringsAsFactors = FALSE
+  )
+}
+
+enrich_ranked <- function(name, wcvp, region) {
+  setup_mock_wfo()
+  data_dir <- setup_mock_wcvp(wcvp)
+  old <- options(taxify.data_dir = data_dir)
+  on.exit(options(old), add = TRUE)
+  r <- taxify(name, backbone = "wfo", verbose = FALSE)
+  add_wcvp(r, region = region, verbose = FALSE)
+}
+
+test_that("another name's autonym under a name is not its range", {
+  df <- wcvp_ranked_df("Quercus robur", c("EUR", "TUR"), c("L.", NA),
+                       c("Species", "Subspecies"), c(NA, "caucasicus"))
+  out <- expect_no_warning(enrich_ranked("Quercus robur", df, c("EUR", "TUR")))
+  expect_equal(out$native_status_EUR, "native")
+  expect_true(is.na(out$native_status_TUR))
+})
+
+test_that("a concept the matched backbone places inside the taxon is kept", {
+  # The mock WFO lists Quercus pedunculata (Mattusch.) Bonnier & Layens as a
+  # synonym of Q. robur L., so a row of its basionym author's concept belongs
+  # to Q. robur; a concept the backbone does not place there does not.
+  df <- wcvp_ranked_df("Quercus robur", c("EUR", "GER", "NAM"),
+                       c("L.", "Mattusch.", "Mill."),
+                       rep("Species", 3L), rep(NA, 3L))
+  out <- expect_no_warning(
+    enrich_ranked("Quercus robur", df, c("EUR", "GER", "NAM")))
+  expect_equal(out$native_status_EUR, "native")
+  expect_equal(out$native_status_GER, "native")
+  expect_true(is.na(out$native_status_NAM))
+})
+
+test_that("an autonym keeps its own rows, not its species' range", {
+  # The mock WFO writes the autonym with its species' author, "L.", which is
+  # also the author of the species rows keyed under it.
+  df <- wcvp_ranked_df("Quercus robur subsp. robur", c("EUR", "NAM"),
+                       c(NA, "L."), c("Subspecies", "Species"),
+                       c("robur", NA))
+  out <- expect_no_warning(
+    enrich_ranked("Quercus robur subsp. robur", df, c("EUR", "NAM")))
+  expect_equal(out$native_status_EUR, "native")
+  expect_true(is.na(out$native_status_NAM))
+})
