@@ -1,0 +1,39 @@
+{
+  "columns": [
+    {
+      "name": "ref_id",
+      "type": "character",
+      "values": ["10016", "10114", "10129", "10132", "10172", "10190", "10191", "10193", "10215", "10216", "10233", "10248", "10255", "10280", "10290", "10302", "10313", "10315", "10321", "10598", "10651"]
+    },
+    {
+      "name": "citation",
+      "type": "character",
+      "values": ["BioScripts (2014) Flora Vascular. Available at: http://www.floravascular.com/, last accessed  25.05.2014.", "Selvi (2010) A critical checklist of the vascular flora of Tuscan Maremma (Grosseto province, Italy). Fl. Medit 20, 47–139.", "USDA & NRCS (2015) The PLANTS Database. Available at: http://plants.usda.gov, last accessed  24.04.2015.", "Viciani, Gonnelli, Sirotti & Agostini (2010) An annotated check-list of the vascular flora of the “Parco Nazionale delle Foreste Casentinesi, Monte Falterona e Campigna”(Northern Apennines Central Italy). Webbia 65, 3–131.", "Pedashenko & Vassilev (2014) Flora of Ponor Special Protection Area (Natura 2000), western Bulgaria. Acta zoologica bulgarica 5, 33–60.", "Zanne, Tank, Cornwell, Eastman, Smith, FitzJohn, McGlinn, O'Meara, Moles, Reich, Royer, Soltis, Stevens, Westoby, Wright, Aarssen, Bertin, Calaminus, Govaerts, Hemmings, Leishman, Oleksyn, Soltis, Swenson, Warman & Beaulieu (2014) Three keys to the radiation of angiosperms into freezing environments. Nature 506, 89–92.", "Kleyer, Bekker, Knevel, Bakker, Thompson, Sonnenschein, Poschlod, van Groenendael, Klimeš, Klimešová, Klotz, Rusch, Hermy, Adriaens, Boedeltje, Bossuyt, Dannemann, Endels, Götzenberger, Hodgson, Jackel, Kühn, Kunzmann, Ozinga, Römermann, Stadler, Schlegelmilch, Steendam, Tackenberg, Wilmann, Cornelissen, Eriksson, Garnier & Peco (2008) The LEDA Traitbase: a database of life-history traits of the Northwest European flora. Journal of Ecology 96, 1266–1274.", "WCSP (2014) World Checklist of Selected Plant Families. Available at: http://apps.kew.org/wcsp/home.do, last accessed  01.12.2014.", "Pandža (2010) Flora parka prirode Papuk (Slavonija, Hrvatska). Šumarski list 134, 25-43.", "Tonkov, Pavlova, Atanassova, Nedelcheva & Marinova (2004) Floristis catalogue of the nature reserve Rilomanastirska Gora (Central Rila Mountains). I. The locality Kirilova. University of Sofia, Sofia, Bulgaria, 21p.", "Kattge, Diaz, Lavorel, Prentice, Leadley, Bönisch, Garnier, Westoby, Reich & Wright (2011) TRY – a global database of plant traits. Global Change Biology 17, 2905–2935.", "Zanne, Lopez-Gonzalez, Coomes, Ilic, Jansen, Lewis, Miller, Swenson, Wiemann & Chave (2009) Data from: Towards a worldwide wood economics spectrum. NA NA, NA.", "Royal Botanic Gardens Kew (2016) Seed information database (SID). Available at: http://data.kew.org/sid/, last accessed  22/03/2013.", "Engemann, Sandel, Boyle, Enquist, Jørgensen, Kattge, McGill, Morueta-Holme, Peet, Spencer, Violle, Wiser & Svenning (2016) A plant growth form dataset for the New World. Ecology 97, 3243.", "Dimopoulos, Raus, Bergmeier, Constantinidis, Iatrou, Kokkini, Strid & Tzanoudakis (2013) Vascular plants of Greece. Botanischer Garten und Botanisches Museum Berlin-Dahlem, Freie Universität Berlin; Hellenic Botanical Society, Berlin, Athens, 372 Sp.", "Fischer, Adler & Oswald (2008) Exkursionsflora für Österreich, Liechtenstein und Südtirol. Oberöstereichisches Landesmuseum, Linz, Austria, 1392 S.p.", "Bundesamt für Naturschutz (2016) Floraweb. Available at: www.floraweb.de, last accessed  15.9.2016.", "Tamis, van der Meijden, Runhaar, Bekker, Ozinga, Odé & Hoste (2004) Standard List of the Flora of the Netherlands 2003. Gorteria 30, 101-195.", "BGCI (2017) GlobalTreeSearch online database. Available at: www.bgci.org/globaltree_search.php, last accessed  14.08.2017.", "BGCI (2021) GlobalTreeSearch online database (version 1.4). Available at: https://tools.bgci.org/global_tree_search.php, last accessed  19.02.2021.", "Komarov, Shishkin & Bobrov (1933-1964) Flora of the U.S.S.R. Israel Program for Scientific Translations, Springfield, US."]
+    },
+    {
+      "name": "doi",
+      "type": "character",
+      "values": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+    },
+    {
+      "name": "ref_type",
+      "type": "character",
+      "values": ["Species Database", "Checklist", "Species Database", "Checklist", "Checklist", "Checklist", "Species Database", "Species Database", "Checklist", "Checklist", "Species Database", "Species Database", "Species Database", "Checklist", "Checklist", "Species Database", "Species Database", "Checklist", "Species Database", "Species Database", "Flora"]
+    },
+    {
+      "name": "note",
+      "type": "character",
+      "values": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+    },
+    {
+      "name": "listed_negative",
+      "type": "logical",
+      "values": [false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, true, false, false]
+    },
+    {
+      "name": "listed_positive",
+      "type": "logical",
+      "values": [false, false, true, false, false, true, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "elton_traits",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC0",
+  "citation": {
+    "key": "wilman2014eltontraits",
+    "type": "article",
+    "authors": "Wilman H, Belmaker J, Simpson J, de la Rosa C, Rivadeneira MM, Jetz W",
+    "year": "2014",
+    "title": "EltonTraits 1.0: Species-level foraging attributes of the world's birds and mammals",
+    "journal": "Ecology",
+    "volume": "95",
+    "pages": "2027",
+    "doi": "10.1890/13-1917.1"
+  }
+}

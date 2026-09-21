@@ -1,0 +1,84 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Octopus vulgaris"]
+    },
+    {
+      "name": "body_length_cm",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "body_mass_g",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "trophic_level",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "depth_min_m",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "depth_max_m",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "vulnerability",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "habitat",
+      "type": "character",
+      "values": ["example_habitat"]
+    },
+    {
+      "name": "importance",
+      "type": "character",
+      "values": ["example_importance"]
+    },
+    {
+      "name": "lw_a",
+      "type": "numeric",
+      "values": [0.485]
+    },
+    {
+      "name": "lw_b",
+      "type": "numeric",
+      "values": [2.908]
+    },
+    {
+      "name": "lw_type",
+      "type": "character",
+      "values": ["ML"]
+    },
+    {
+      "name": "lw_method",
+      "type": "character",
+      "values": ["nonlinear regression"]
+    },
+    {
+      "name": "lw_sex",
+      "type": "character",
+      "values": ["unsexed"]
+    },
+    {
+      "name": "lw_n",
+      "type": "numeric",
+      "values": [800]
+    },
+    {
+      "name": "lw_r2",
+      "type": "numeric",
+      "values": [0.841]
+    }
+  ]
+}

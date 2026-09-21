@@ -1,0 +1,89 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Abies alba", "Acacia doratoxylon", "Acer pensylvanicum", "Acer pseudoplatanus", "Acer rubrum", "Acer saccharum", "Alnus glutinosa", "Alnus incana", "Anacardium excelsum", "Astronium graveolens", "Betula alleghaniensis", "Betula papyrifera", "Brachychiton populneus", "Bursera simaruba", "Dendropanax arboreus", "Dodonaea viscosa", "Fagus grandifolia", "Fraxinus americana", "Garcinia intermedia", "Garcinia madruno", "Guarea guidonia", "Guatteria amplifolia", "Hirtella triandra", "Liquidambar styraciflua", "Populus tremuloides", "Prunus serotina", "Quercus alba", "Robinia pseudoacacia", "Sapium glandulosum", "Spondias mombin", "Syncarpia glomulifera", "Ulmus americana"]
+    },
+    {
+      "name": "plant_height_m",
+      "type": "numeric",
+      "values": [18.3, 12, 9.144, 15.63, 15.24, 18.288, 11.8872, 9.9, 37.5, 20, 15.8496, 15.8496, 7.65, 7.62, 3.6576, 6.7056, 15.5448, 17.3736, 0, 9.95, 9.144, 7.5, 0, 14.3256, 16.1544, 14.0208, 17.9832, 16.1544, 20, 9, 10, 13.716]
+    },
+    {
+      "name": "max_plant_height_m",
+      "type": "numeric",
+      "values": [null, 12, null, 30, 35, null, 11.65, 6, 40, 35, 30, 20, 8.3, 30, 20, 3, 36, 24, 12, 16, 16.75, 20, 15, null, 12, null, 30, 35, 25, 35, 17.5, 36]
+    },
+    {
+      "name": "dbh_cm",
+      "type": "numeric",
+      "values": [28.2253, null, 4.826, 9, 14.732, 18.288, 5.08, 7.2, 5000.5, 9.6, 18.796, 17.526, null, 15.2, 15.494, 3.95, 17.272, 18.034, 19.8, 18.6, 15.24, 14, 10.75, 13.462, 16.256, 14.732, 22.86, 18.542, 34.35, 17.5, null, 16.51]
+    },
+    {
+      "name": "sla_mm2_mg",
+      "type": "numeric",
+      "values": [5.38759023, 2.855, 27.02722445, 12.665, 20.87682672, 24.69418696, 14, 15.812686565, 14.15, 17.3897, 22.84820031, 15.26717557, 6.358, 11.26126126, 14.4265, 6.896999998, 24.57002457, 25.8455, 10.67654021, 11.419, 24.335, 12.937, 14.845, 16.372682185, 13.04821429, 19.34235977, 15.907035, 15.5, 14.2, 36.92, 6.758982885, 15.385]
+    },
+    {
+      "name": "leaf_area_mm2",
+      "type": "numeric",
+      "values": [41.25, 602.5, 10595, 8332, 7173.9, 6760, 3126, 2712.54, 14060, 3396, 2440, 2890, 1334.4, 1215, 12499.3, 262, 4430, 4513, 13192.9, 6804.7, 11263.5, 28271.55, 3480, 3135, 1994.9145, 2225, 8201.1, 1500, 8092.4, 2240, 2077.3, 4745]
+    },
+    {
+      "name": "leaf_dry_mass_mg",
+      "type": "numeric",
+      "values": [5.48, 171, 420, null, 160, 200, null, 91.47, null, null, 120, 215, 192, 100, 825.5, 36, 185, 120, 1264, 624, null, 2095, null, 220, 160, 135, 320, null, 518.5, null, 207, 240]
+    },
+    {
+      "name": "leaf_n_per_dry_mass",
+      "type": "numeric",
+      "values": [17.2, 20.0554006, 8.1, 27, 16.3, 17.2835, 33.85, 32, 16.6, 27.681, 22, 22.8, 16.7, 21.84369905, 16.5, 19.78976285, 18.8, 19.9, 14.3, 13.55, 24.6, 16.6, 13.9, 15.95, 21.4, 20.2, 20.6, 38.75, 21.45, 14.8, 9.9188511, 19.3]
+    },
+    {
+      "name": "leaf_p_per_dry_mass",
+      "type": "numeric",
+      "values": [1.41, 0.83, 2.7, 1.8, 1.115, 1.4, 2.1, 1.01, null, 1.40391, 1.7, 2.1, 0.9, 1.421534985, 0.75, 1.15, 1.4, 3.5, 0.79728245, 0.5, 1.622945, 0.5, 0.65015, 1.02976, 1.71699009, 0.94619, null, 1.5, 1.45, 1.13745, 0.4, 1.43]
+    },
+    {
+      "name": "leaf_thickness_mm",
+      "type": "numeric",
+      "values": [null, 0.39, null, null, null, null, null, null, 0.195, 0.08, null, null, 0.36, null, 0.28, 0.36, null, null, 0.3, 0.27, 0.1825, 0.225, 0.127, null, null, null, null, null, 0.265, 0.21, 0.4, null]
+    },
+    {
+      "name": "seed_mass_mg",
+      "type": "numeric",
+      "values": [44.47, 15.4, 40.83205, 88.765166, 19.842041, 59.85, 1.347971, 0.672, 2697.05, 20.33, 0.93, 0.324, 103.2310625, 98.95, 9, 7.04, 266, 38.1, 616, 5000, 317.7105, 102, 176.828, 5.29, 0.121165, 102.6, 2408, 18.894841, 36.2578955, 1580, 0.45905, 3.757]
+    },
+    {
+      "name": "wood_density_g_cm3",
+      "type": "numeric",
+      "values": [0.353, 0.7879075, 0.44, 0.509, 0.49, 0.56, 0.42, 0.439055, 0.34, 0.8115, 0.55, 0.48, 0.387225, 0.31, 0.416, 0.946932, 0.56, 0.55, 0.682, 0.758, 0.55104, 0.4385, 0.665, 0.46, 0.35, 0.47, 0.63, 0.681, 0.393, 0.3676110135, 0.760236, 0.46]
+    },
+    {
+      "name": "leaf_lifespan",
+      "type": "numeric",
+      "values": [98.4, 19.7, 5, 5.5, 5.5, 5.5, null, 3.6, 8.4, 8.8, 5.5, 3.6, 13.25, 9, 17.3, null, 5, 5.7, null, null, 19.7, null, 16.1, 7.2, 4.44, 5.5, null, 4.6, 5.6, 4.3, 22.9, 5.8]
+    },
+    {
+      "name": "growth_form",
+      "type": "character",
+      "values": ["tree", "shrub", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "Tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "Tree", "tree"]
+    },
+    {
+      "name": "woodiness",
+      "type": "character",
+      "values": ["woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody"]
+    },
+    {
+      "name": "dispersal_syndrome",
+      "type": "character",
+      "values": [null, null, null, null, null, null, "biotic", null, null, null, null, null, "biotic", null, null, "biotic", null, "biotic", null, null, null, null, null, "biotic", null, "abiotic", null, "biotic", null, null, "biotic", null]
+    },
+    {
+      "name": "flower_color",
+      "type": "character",
+      "values": [null, null, "Yellow", "Green", "Red", "Green", "Purple", null, "White", "Green-golden_yellow", "Yellow", "Yellow", null, "Green", "White", "Yellow", "Yellow", "Yellow", "Yellow", "White", "White", "Green-yellow", "Pink", "Green", "Blue", "White", "Yellow", "White", "Green", "White", null, "Green"]
+    }
+  ]
+}

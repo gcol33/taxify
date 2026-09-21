@@ -1,0 +1,99 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Bellis perennis"]
+    },
+    {
+      "name": "height_max_mm_uk",
+      "type": "character",
+      "values": ["example_height_max_mm_uk"]
+    },
+    {
+      "name": "height_min_mm_uk",
+      "type": "character",
+      "values": ["example_height_min_mm_uk"]
+    },
+    {
+      "name": "leaf_area_uk",
+      "type": "character",
+      "values": ["example_leaf_area_uk"]
+    },
+    {
+      "name": "leaf_longevity_uk",
+      "type": "character",
+      "values": ["example_leaf_longevity_uk"]
+    },
+    {
+      "name": "root_system_uk",
+      "type": "character",
+      "values": ["example_root_system_uk"]
+    },
+    {
+      "name": "photosynthetic_pathway_uk",
+      "type": "character",
+      "values": ["example_photosynthetic_pathway_uk"]
+    },
+    {
+      "name": "life_form_uk",
+      "type": "character",
+      "values": ["example_life_form_uk"]
+    },
+    {
+      "name": "reproduction_uk",
+      "type": "character",
+      "values": ["example_reproduction_uk"]
+    },
+    {
+      "name": "flower_begin_month_uk",
+      "type": "character",
+      "values": ["example_flower_begin_month_uk"]
+    },
+    {
+      "name": "flower_end_month_uk",
+      "type": "character",
+      "values": ["example_flower_end_month_uk"]
+    },
+    {
+      "name": "pollination_vector_uk",
+      "type": "character",
+      "values": ["example_pollination_vector_uk"]
+    },
+    {
+      "name": "seed_weight_mg_uk",
+      "type": "character",
+      "values": ["example_seed_weight_mg_uk"]
+    },
+    {
+      "name": "propagule_uk",
+      "type": "character",
+      "values": ["example_propagule_uk"]
+    },
+    {
+      "name": "ell_light_uk",
+      "type": "character",
+      "values": ["example_ell_light_uk"]
+    },
+    {
+      "name": "ell_moisture_uk",
+      "type": "character",
+      "values": ["example_ell_moisture_uk"]
+    },
+    {
+      "name": "ell_reaction_uk",
+      "type": "character",
+      "values": ["example_ell_reaction_uk"]
+    },
+    {
+      "name": "ell_nitrogen_uk",
+      "type": "character",
+      "values": ["example_ell_nitrogen_uk"]
+    },
+    {
+      "name": "ell_salt_uk",
+      "type": "character",
+      "values": ["example_ell_salt_uk"]
+    }
+  ]
+}

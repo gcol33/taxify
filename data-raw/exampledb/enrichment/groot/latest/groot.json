@@ -1,0 +1,54 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Abies alba"]
+    },
+    {
+      "name": "root_diameter",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "specific_root_length",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "root_tissue_density",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "root_n_concentration",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "root_c_concentration",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "root_mass_fraction",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "lateral_spread",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "root_mycorrhizal_colonization",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "rooting_depth",
+      "type": "numeric",
+      "values": [11]
+    }
+  ]
+}

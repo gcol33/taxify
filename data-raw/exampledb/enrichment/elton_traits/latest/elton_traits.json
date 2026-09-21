@@ -1,0 +1,104 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Parus major"]
+    },
+    {
+      "name": "diet_inv",
+      "type": "character",
+      "values": ["example_diet_inv"]
+    },
+    {
+      "name": "diet_vend",
+      "type": "character",
+      "values": ["example_diet_vend"]
+    },
+    {
+      "name": "diet_vect",
+      "type": "character",
+      "values": ["example_diet_vect"]
+    },
+    {
+      "name": "diet_vfish",
+      "type": "character",
+      "values": ["example_diet_vfish"]
+    },
+    {
+      "name": "diet_vunk",
+      "type": "character",
+      "values": ["example_diet_vunk"]
+    },
+    {
+      "name": "diet_scav",
+      "type": "character",
+      "values": ["example_diet_scav"]
+    },
+    {
+      "name": "diet_fruit",
+      "type": "character",
+      "values": ["example_diet_fruit"]
+    },
+    {
+      "name": "diet_nect",
+      "type": "character",
+      "values": ["example_diet_nect"]
+    },
+    {
+      "name": "diet_seed",
+      "type": "character",
+      "values": ["example_diet_seed"]
+    },
+    {
+      "name": "diet_plantother",
+      "type": "character",
+      "values": ["example_diet_plantother"]
+    },
+    {
+      "name": "foraging_water",
+      "type": "character",
+      "values": ["example_foraging_water"]
+    },
+    {
+      "name": "foraging_ground",
+      "type": "character",
+      "values": ["example_foraging_ground"]
+    },
+    {
+      "name": "foraging_understory",
+      "type": "character",
+      "values": ["example_foraging_understory"]
+    },
+    {
+      "name": "foraging_midhigh",
+      "type": "character",
+      "values": ["example_foraging_midhigh"]
+    },
+    {
+      "name": "foraging_canopy",
+      "type": "character",
+      "values": ["example_foraging_canopy"]
+    },
+    {
+      "name": "foraging_aerial",
+      "type": "character",
+      "values": ["example_foraging_aerial"]
+    },
+    {
+      "name": "body_mass_g",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "nocturnal",
+      "type": "character",
+      "values": ["example_nocturnal"]
+    },
+    {
+      "name": "diet_guild",
+      "type": "character",
+      "values": ["omnivore"]
+    }
+  ]
+}

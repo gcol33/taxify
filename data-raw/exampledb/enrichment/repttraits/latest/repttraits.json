@@ -1,0 +1,89 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Pogona vitticeps"]
+    },
+    {
+      "name": "biogeographic_realm",
+      "type": "character",
+      "values": ["example_biogeographic_realm"]
+    },
+    {
+      "name": "microhabitat",
+      "type": "character",
+      "values": ["example_microhabitat"]
+    },
+    {
+      "name": "habitat_type",
+      "type": "character",
+      "values": ["example_habitat_type"]
+    },
+    {
+      "name": "elevation_min_m",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "elevation_max_m",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "mean_annual_temp_c",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "insular_endemic",
+      "type": "character",
+      "values": ["example_insular_endemic"]
+    },
+    {
+      "name": "body_mass_g",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "svl_mm",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "total_length_mm",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "longevity_yr",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "diet",
+      "type": "character",
+      "values": ["example_diet"]
+    },
+    {
+      "name": "reproductive_mode",
+      "type": "character",
+      "values": ["example_reproductive_mode"]
+    },
+    {
+      "name": "clutch_size",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "active_time",
+      "type": "character",
+      "values": ["example_active_time"]
+    },
+    {
+      "name": "foraging_mode",
+      "type": "character",
+      "values": ["example_foraging_mode"]
+    }
+  ]
+}

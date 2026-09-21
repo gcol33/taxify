@@ -1,0 +1,19 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Quercus robur", "Quercus robur"]
+    },
+    {
+      "name": "lang",
+      "type": "character",
+      "values": ["en", "de"]
+    },
+    {
+      "name": "common_name",
+      "type": "character",
+      "values": ["example_common_name", "example_common_name"]
+    }
+  ]
+}

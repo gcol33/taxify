@@ -1,0 +1,14 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Quercus robur", "Abies alba"]
+    },
+    {
+      "name": "woodiness",
+      "type": "character",
+      "values": ["woody", "woody"]
+    }
+  ]
+}

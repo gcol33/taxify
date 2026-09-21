@@ -1,0 +1,44 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Robinia pseudoacacia", "Robinia pseudoacacia"]
+    },
+    {
+      "name": "region_id",
+      "type": "character",
+      "values": ["DEU", "AUT"]
+    },
+    {
+      "name": "naturalized",
+      "type": "numeric",
+      "values": [1, 1]
+    },
+    {
+      "name": "family_orig",
+      "type": "character",
+      "values": ["example_family_orig", "example_family_orig"]
+    },
+    {
+      "name": "created",
+      "type": "character",
+      "values": ["example_created", "example_created"]
+    },
+    {
+      "name": "updated",
+      "type": "character",
+      "values": ["example_updated", "example_updated"]
+    },
+    {
+      "name": "family_wcvp",
+      "type": "character",
+      "values": ["example_family_wcvp", "example_family_wcvp"]
+    },
+    {
+      "name": "status",
+      "type": "character",
+      "values": ["example_status", "example_status"]
+    }
+  ]
+}

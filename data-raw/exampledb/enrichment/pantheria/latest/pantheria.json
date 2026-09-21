@@ -1,0 +1,49 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Vulpes vulpes"]
+    },
+    {
+      "name": "body_mass_g",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "longevity_mo",
+      "type": "character",
+      "values": ["example_longevity_mo"]
+    },
+    {
+      "name": "litter_size",
+      "type": "character",
+      "values": ["example_litter_size"]
+    },
+    {
+      "name": "gestation_d",
+      "type": "character",
+      "values": ["example_gestation_d"]
+    },
+    {
+      "name": "weaning_d",
+      "type": "character",
+      "values": ["example_weaning_d"]
+    },
+    {
+      "name": "home_range_km2",
+      "type": "character",
+      "values": ["example_home_range_km2"]
+    },
+    {
+      "name": "diet_breadth",
+      "type": "character",
+      "values": ["example_diet_breadth"]
+    },
+    {
+      "name": "habitat_breadth",
+      "type": "character",
+      "values": ["example_habitat_breadth"]
+    }
+  ]
+}

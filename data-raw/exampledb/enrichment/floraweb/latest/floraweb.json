@@ -1,0 +1,304 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Bellis perennis"]
+    },
+    {
+      "name": "height_de",
+      "type": "character",
+      "values": ["example_height_de"]
+    },
+    {
+      "name": "life_form_de",
+      "type": "character",
+      "values": ["example_life_form_de"]
+    },
+    {
+      "name": "leaf_shape_de",
+      "type": "character",
+      "values": ["example_leaf_shape_de"]
+    },
+    {
+      "name": "leaf_anatomy_de",
+      "type": "character",
+      "values": ["example_leaf_anatomy_de"]
+    },
+    {
+      "name": "leaf_persistence_de",
+      "type": "character",
+      "values": ["example_leaf_persistence_de"]
+    },
+    {
+      "name": "storage_organs_de",
+      "type": "character",
+      "values": ["example_storage_organs_de"]
+    },
+    {
+      "name": "flowering_months_de",
+      "type": "character",
+      "values": ["example_flowering_months_de"]
+    },
+    {
+      "name": "flowering_months_biolflor_de",
+      "type": "character",
+      "values": ["example_flowering_months_biolflor_de"]
+    },
+    {
+      "name": "flowering_phase_de",
+      "type": "character",
+      "values": ["example_flowering_phase_de"]
+    },
+    {
+      "name": "phenological_season_de",
+      "type": "character",
+      "values": ["example_phenological_season_de"]
+    },
+    {
+      "name": "description_de",
+      "type": "character",
+      "values": ["example_description_de"]
+    },
+    {
+      "name": "pollination_vector_de",
+      "type": "character",
+      "values": ["example_pollination_vector_de"]
+    },
+    {
+      "name": "pollinator_de",
+      "type": "character",
+      "values": ["example_pollinator_de"]
+    },
+    {
+      "name": "pollinator_reward_de",
+      "type": "character",
+      "values": ["example_pollinator_reward_de"]
+    },
+    {
+      "name": "flower_type_de",
+      "type": "character",
+      "values": ["example_flower_type_de"]
+    },
+    {
+      "name": "flower_class_de",
+      "type": "character",
+      "values": ["example_flower_class_de"]
+    },
+    {
+      "name": "dispersal_type_de",
+      "type": "character",
+      "values": ["example_dispersal_type_de"]
+    },
+    {
+      "name": "diaspore_type_de",
+      "type": "character",
+      "values": ["example_diaspore_type_de"]
+    },
+    {
+      "name": "germinule_type_de",
+      "type": "character",
+      "values": ["example_germinule_type_de"]
+    },
+    {
+      "name": "reproduction_type_de",
+      "type": "character",
+      "values": ["example_reproduction_type_de"]
+    },
+    {
+      "name": "vegetative_spread_de",
+      "type": "character",
+      "values": ["example_vegetative_spread_de"]
+    },
+    {
+      "name": "fertilization_type_de",
+      "type": "character",
+      "values": ["example_fertilization_type_de"]
+    },
+    {
+      "name": "apomixis_de",
+      "type": "character",
+      "values": ["example_apomixis_de"]
+    },
+    {
+      "name": "dicliny_de",
+      "type": "character",
+      "values": ["example_dicliny_de"]
+    },
+    {
+      "name": "dichogamy_de",
+      "type": "character",
+      "values": ["example_dichogamy_de"]
+    },
+    {
+      "name": "self_incompatibility_de",
+      "type": "character",
+      "values": ["example_self_incompatibility_de"]
+    },
+    {
+      "name": "si_mechanism_de",
+      "type": "character",
+      "values": ["example_si_mechanism_de"]
+    },
+    {
+      "name": "ploidy_de",
+      "type": "character",
+      "values": ["example_ploidy_de"]
+    },
+    {
+      "name": "chromosome_number_de",
+      "type": "character",
+      "values": ["example_chromosome_number_de"]
+    },
+    {
+      "name": "chromosome_freq_de",
+      "type": "character",
+      "values": ["example_chromosome_freq_de"]
+    },
+    {
+      "name": "chromosomes_de",
+      "type": "character",
+      "values": ["example_chromosomes_de"]
+    },
+    {
+      "name": "ell_light_de",
+      "type": "character",
+      "values": ["example_ell_light_de"]
+    },
+    {
+      "name": "ell_temperature_de",
+      "type": "character",
+      "values": ["example_ell_temperature_de"]
+    },
+    {
+      "name": "ell_continentality_de",
+      "type": "character",
+      "values": ["example_ell_continentality_de"]
+    },
+    {
+      "name": "ell_moisture_de",
+      "type": "character",
+      "values": ["example_ell_moisture_de"]
+    },
+    {
+      "name": "ell_moisture_variability_de",
+      "type": "character",
+      "values": ["example_ell_moisture_variability_de"]
+    },
+    {
+      "name": "ell_reaction_de",
+      "type": "character",
+      "values": ["example_ell_reaction_de"]
+    },
+    {
+      "name": "ell_nitrogen_de",
+      "type": "character",
+      "values": ["example_ell_nitrogen_de"]
+    },
+    {
+      "name": "ell_salt_de",
+      "type": "character",
+      "values": ["example_ell_salt_de"]
+    },
+    {
+      "name": "heavy_metal_resistance_de",
+      "type": "character",
+      "values": ["example_heavy_metal_resistance_de"]
+    },
+    {
+      "name": "strategy_type_de",
+      "type": "character",
+      "values": ["example_strategy_type_de"]
+    },
+    {
+      "name": "habitat_site_de",
+      "type": "character",
+      "values": ["example_habitat_site_de"]
+    },
+    {
+      "name": "formation_de",
+      "type": "character",
+      "values": ["example_formation_de"]
+    },
+    {
+      "name": "plant_community_de",
+      "type": "character",
+      "values": ["example_plant_community_de"]
+    },
+    {
+      "name": "biotope_type_de",
+      "type": "character",
+      "values": ["example_biotope_type_de"]
+    },
+    {
+      "name": "forest_binding_de",
+      "type": "character",
+      "values": ["example_forest_binding_de"]
+    },
+    {
+      "name": "hemeroby_de",
+      "type": "character",
+      "values": ["example_hemeroby_de"]
+    },
+    {
+      "name": "urbanity_de",
+      "type": "character",
+      "values": ["example_urbanity_de"]
+    },
+    {
+      "name": "floristic_zones_de",
+      "type": "character",
+      "values": ["example_floristic_zones_de"]
+    },
+    {
+      "name": "areal_formula_de",
+      "type": "character",
+      "values": ["example_areal_formula_de"]
+    },
+    {
+      "name": "areal_type_de",
+      "type": "character",
+      "values": ["example_areal_type_de"]
+    },
+    {
+      "name": "oceanity_de",
+      "type": "character",
+      "values": ["example_oceanity_de"]
+    },
+    {
+      "name": "range_centre_de",
+      "type": "character",
+      "values": ["example_range_centre_de"]
+    },
+    {
+      "name": "world_range_size_de",
+      "type": "character",
+      "values": ["example_world_range_size_de"]
+    },
+    {
+      "name": "world_range_frequency_de",
+      "type": "character",
+      "values": ["example_world_range_frequency_de"]
+    },
+    {
+      "name": "world_range_position_de",
+      "type": "character",
+      "values": ["example_world_range_position_de"]
+    },
+    {
+      "name": "world_range_hazard_de",
+      "type": "character",
+      "values": ["example_world_range_hazard_de"]
+    },
+    {
+      "name": "germany_range_share_de",
+      "type": "character",
+      "values": ["example_germany_range_share_de"]
+    },
+    {
+      "name": "germany_responsibility_de",
+      "type": "character",
+      "values": ["example_germany_responsibility_de"]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Quercus robur", "Abies alba"]
+    },
+    {
+      "name": "seed_mass_mg",
+      "type": "numeric",
+      "values": [3000, 62.007]
+    },
+    {
+      "name": "plant_height_m",
+      "type": "numeric",
+      "values": [30, 42.074]
+    }
+  ]
+}

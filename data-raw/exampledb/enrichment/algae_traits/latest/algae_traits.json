@@ -1,0 +1,49 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Fucus vesiculosus"]
+    },
+    {
+      "name": "body_size_cm",
+      "type": "character",
+      "values": ["example_body_size_cm"]
+    },
+    {
+      "name": "growth_form",
+      "type": "character",
+      "values": ["example_growth_form"]
+    },
+    {
+      "name": "calcification",
+      "type": "character",
+      "values": ["example_calcification"]
+    },
+    {
+      "name": "life_span",
+      "type": "character",
+      "values": ["example_life_span"]
+    },
+    {
+      "name": "tidal_zone",
+      "type": "character",
+      "values": ["example_tidal_zone"]
+    },
+    {
+      "name": "wave_exposure",
+      "type": "character",
+      "values": ["example_wave_exposure"]
+    },
+    {
+      "name": "environment",
+      "type": "character",
+      "values": ["example_environment"]
+    },
+    {
+      "name": "substrate",
+      "type": "character",
+      "values": ["example_substrate"]
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Quercus robur", "Quercus robur"]
+    },
+    {
+      "name": "tdwg_code",
+      "type": "character",
+      "values": ["GER", "BGM"]
+    },
+    {
+      "name": "native_status",
+      "type": "character",
+      "values": ["native", "native"]
+    },
+    {
+      "name": "continent_code_l1",
+      "type": "numeric",
+      "values": [1, 1]
+    },
+    {
+      "name": "continent",
+      "type": "character",
+      "values": ["EUROPE", "EUROPE"]
+    },
+    {
+      "name": "region_code_l2",
+      "type": "numeric",
+      "values": [11, 11]
+    },
+    {
+      "name": "region",
+      "type": "character",
+      "values": ["Middle Europe", "Middle Europe"]
+    },
+    {
+      "name": "area",
+      "type": "character",
+      "values": ["Germany", "Belgium"]
+    },
+    {
+      "name": "location_doubtful",
+      "type": "numeric",
+      "values": [0, 0]
+    },
+    {
+      "name": "taxon_rank",
+      "type": "character",
+      "values": ["Species", "Species"]
+    },
+    {
+      "name": "family",
+      "type": "character",
+      "values": ["Fagaceae", "Fagaceae"]
+    },
+    {
+      "name": "genus_hybrid",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "species_hybrid",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "infraspecific_rank",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "infraspecies",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "parenthetical_author",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "primary_author",
+      "type": "character",
+      "values": ["L.", "L."]
+    },
+    {
+      "name": "publication_author",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "place_of_publication",
+      "type": "character",
+      "values": ["Sp. Pl.", "Sp. Pl."]
+    },
+    {
+      "name": "volume_and_page",
+      "type": "numeric",
+      "values": [996, 996]
+    },
+    {
+      "name": "volume_and_page_min",
+      "type": "numeric",
+      "values": [996, 996]
+    },
+    {
+      "name": "volume_and_page_max",
+      "type": "numeric",
+      "values": [996, 996]
+    },
+    {
+      "name": "volume_and_page_n",
+      "type": "numeric",
+      "values": [1, 1]
+    },
+    {
+      "name": "first_published",
+      "type": "numeric",
+      "values": [1753, 1753]
+    },
+    {
+      "name": "first_published_min",
+      "type": "numeric",
+      "values": [1753, 1753]
+    },
+    {
+      "name": "first_published_max",
+      "type": "numeric",
+      "values": [1753, 1753]
+    },
+    {
+      "name": "first_published_n",
+      "type": "numeric",
+      "values": [1, 1]
+    },
+    {
+      "name": "nomenclatural_remarks",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "geographic_area",
+      "type": "character",
+      "values": ["Europe to Iran", "Europe to Iran"]
+    },
+    {
+      "name": "lifeform_description",
+      "type": "character",
+      "values": ["tree", "tree"]
+    },
+    {
+      "name": "climate_description",
+      "type": "character",
+      "values": ["temperate", "temperate"]
+    },
+    {
+      "name": "taxon_authors",
+      "type": "character",
+      "values": ["L.", "L."]
+    },
+    {
+      "name": "replaced_synonym_author",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "homotypic_synonym",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "hybrid_formula",
+      "type": "character",
+      "values": [null, null]
+    },
+    {
+      "name": "reviewed",
+      "type": "character",
+      "values": ["Y", "Y"]
+    }
+  ]
+}

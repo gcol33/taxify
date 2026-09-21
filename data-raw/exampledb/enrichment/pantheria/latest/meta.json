@@ -1,0 +1,18 @@
+{
+  "name": "pantheria",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC0",
+  "citation": {
+    "key": "jones2009pantheria",
+    "type": "article",
+    "authors": "Jones KE, Bielby J, Cardillo M, Fritz SA, O'Dell J, Orme CDL, Safi K, Sechrest W, Boakes EH, Carbone C, et al.",
+    "year": "2009",
+    "title": "PanTHERIA: a species-level database of life history, ecology, and geography of extant and recently extinct mammals",
+    "journal": "Ecology",
+    "volume": "90",
+    "pages": "2648",
+    "doi": "10.1890/08-1494.1"
+  }
+}

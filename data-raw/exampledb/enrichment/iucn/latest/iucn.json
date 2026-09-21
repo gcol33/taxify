@@ -1,0 +1,14 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Panthera tigris"]
+    },
+    {
+      "name": "conservation_status",
+      "type": "character",
+      "values": ["example_conservation_status"]
+    }
+  ]
+}

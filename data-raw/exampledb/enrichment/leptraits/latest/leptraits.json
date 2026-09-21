@@ -1,0 +1,54 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Vanessa cardui"]
+    },
+    {
+      "name": "wingspan_mm",
+      "type": "character",
+      "values": ["example_wingspan_mm"]
+    },
+    {
+      "name": "voltinism",
+      "type": "character",
+      "values": ["example_voltinism"]
+    },
+    {
+      "name": "diapause_stage",
+      "type": "character",
+      "values": ["example_diapause_stage"]
+    },
+    {
+      "name": "canopy_affinity",
+      "type": "character",
+      "values": ["example_canopy_affinity"]
+    },
+    {
+      "name": "edge_affinity",
+      "type": "character",
+      "values": ["example_edge_affinity"]
+    },
+    {
+      "name": "moisture_affinity",
+      "type": "character",
+      "values": ["example_moisture_affinity"]
+    },
+    {
+      "name": "disturbance_affinity",
+      "type": "character",
+      "values": ["example_disturbance_affinity"]
+    },
+    {
+      "name": "n_hostplant_families",
+      "type": "character",
+      "values": ["example_n_hostplant_families"]
+    },
+    {
+      "name": "flight_months",
+      "type": "character",
+      "values": ["example_flight_months"]
+    }
+  ]
+}

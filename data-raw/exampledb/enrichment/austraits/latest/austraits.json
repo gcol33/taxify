@@ -1,0 +1,169 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Acacia acuminata", "Acacia aneura", "Acacia cambagei", "Acacia celsa", "Acacia colletioides", "Acacia coriacea", "Acacia dealbata", "Acacia difficilis", "Acacia doratoxylon", "Acacia falcata", "Acacia floribunda", "Acacia harpophylla", "Acacia havilandiorum", "Acacia latescens", "Acacia leptostachya", "Acacia longifolia", "Acacia mangium", "Acacia melanoxylon", "Acacia mimula", "Acacia myrtifolia", "Acacia oncinocarpa", "Acacia oswaldii", "Acacia parramattensis", "Acacia platycarpa", "Acacia rubida", "Acacia suaveolens", "Acacia terminalis", "Acacia tetragonophylla", "Acacia ulicifolia", "Acacia verticillata", "Eucalyptus globulus"]
+    },
+    {
+      "name": "plant_growth_form",
+      "type": "character",
+      "values": ["shrub", "shrub tree", "tree", "tree", "shrub", "shrub tree", "shrub tree", "shrub tree", "shrub tree", "shrub", "shrub tree", "tree", "shrub tree", "shrub tree", "shrub tree", "shrub", "tree", "tree", "tree", "shrub", "shrub tree", "shrub tree", "shrub tree", "shrub tree", "shrub tree", "shrub", "shrub tree", "shrub", "shrub", "shrub tree", "tree"]
+    },
+    {
+      "name": "life_history",
+      "type": "character",
+      "values": ["perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial", "perennial"]
+    },
+    {
+      "name": "woodiness",
+      "type": "character",
+      "values": ["woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody", "woody"]
+    },
+    {
+      "name": "photosynthetic_pathway",
+      "type": "character",
+      "values": ["c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3", "c3"]
+    },
+    {
+      "name": "dispersal_syndrome",
+      "type": "character",
+      "values": ["ballistic myrmecochory", "zoochory", "barochory endozoochory myrmecochory", "endozoochory", "barochory endozoochory myrmecochory", "zoochory", "myrmecochory", "myrmecochory", "zoochory", "zoochory", "myrmecochory", "barochory endozoochory myrmecochory", "zoochory", "myrmecochory", "zoochory", "myrmecochory", "endozoochory", "endozoochory", "myrmecochory", "myrmecochory", "myrmecochory", "barochory endozoochory myrmecochory", "myrmecochory", "myrmecochory", "myrmecochory", "myrmecochory", "zoochory", "zoochory", "zoochory", "myrmecochory", "anemochory"]
+    },
+    {
+      "name": "resprouting_capacity",
+      "type": "character",
+      "values": ["partial_resprouting", "fire_killed", "resprouts", "fire_killed", "fire_killed", "resprouts", "fire_killed", "resprouts", "fire_killed", "fire_killed", "resprouts", "resprouts", "fire_killed", "resprouts", "fire_killed", "fire_killed", "fire_killed", "resprouts", "resprouts", "fire_killed", "fire_killed", "resprouts", "fire_killed", "resprouts", "resprouts", "fire_killed", "fire_killed", "fire_killed", "fire_killed", "fire_killed", "resprouts"]
+    },
+    {
+      "name": "flowering_time",
+      "type": "character",
+      "values": ["nnnnnnyyyynn", "nnyyynnnnnnn", "nnyyyyynnnnn", "yyyyynnnnnnn", "nnnnnnyyyynn", "nnnnnnnnnnnn", "nnnnnnyyyyyn", "nnnyyyyyyynn", "nnnnnnnyyyyn", "nnnyyyyynnnn", "nnnnnyyyynnn", "nnnnnnyyyynn", "nnnnnnnnnynn", "nnnnyynnnnnn", "nnnnnnyyyynn", "nnnnnnyyyynn", "nnnnyynnnnnn", "nnnnnnyyyyyy", "nnnyyynnnnnn", "nnnnnyyyyynn", "nnyyyyyynnnn", "nnnnnnnnnyyy", "yynnnnnnnnyy", "yyynnnnnnnyy", "nnnnnnyyyyyn", "nnnyyyyyyynn", "nnyyyyynnnnn", "nnnnnnyyyynn", "nnnyyyyyyynn", "nnnnnnyyyyyy", "nnnnnnnnnnyy"]
+    },
+    {
+      "name": "plant_height_m",
+      "type": "numeric",
+      "values": [7, 10, 8, 30, 3, 7, 30, 9, 8, 2, 8, 25, 3, 9, 1.5, 5.5, 30, 30, 7, 1, 4, 6, 15, 6, 5, 2.5, 6, 4.5, 2, 10, 57.5]
+    },
+    {
+      "name": "leaf_length_mm",
+      "type": "numeric",
+      "values": [115, 50, 70, 102.5, 30, 175, 5, 105, 125, 130, 150, 150, 55, 170, 65, 150, 150, 140, 130, 90, 85, 80, 7, 115, 50, 120, 14, 26.7404, 15, 15, 300]
+    },
+    {
+      "name": "leaf_width_mm",
+      "type": "numeric",
+      "values": [5, 3, 6.5, 20, 1.3, 3.75, 0.5, 25, 6, 25, 6.7, 20, 1, 11.5, 7, 30, 47, 19.8, 19, 30, 15.5, 3, 0.75, 35, 8, 4.4, 4, 1, 1.5, 2, 30]
+    },
+    {
+      "name": "leaf_area_mm2",
+      "type": "numeric",
+      "values": [918.715, 121.6, 628.5, 3020.5, 26, 33, 1306.2, 1706.7, 680, 2350, 170.435, 560, 90, 2087.44, 706, 1947, 12055, 1140, 1985.74, 314.19, 1438.5, 153.96, 2236.8, 3662, 423.8, 342.84, 30.18, 10.521, 8.94, 12.842, 3183.095]
+    },
+    {
+      "name": "leaf_mass_per_area",
+      "type": "numeric",
+      "values": [200.160032991586, 324.345, 327.868852459016, 125.544375587549, 428.591304347826, 1127.15298885511, 82.33, 98.6193293885601, 242.820194312685, 138.093831871943, 104.4, 107.991360691145, 324.999999991875, 147.058823529412, 180, 129.831781197349, 101.779508196721, 132.2, 146.842878120411, 145.10418480469, 134.904102744044, 322.023105575167, 249.365, 239.125863120175, 206.005046442718, 206.009460778477, 143.404701059732, 483.794316150798, 283.881224095838, 160.791390087099, 68.645]
+    },
+    {
+      "name": "leaf_n_per_dry_mass",
+      "type": "numeric",
+      "values": [24.993, 19.475, 22.08442496, 24.5, 21.44, 12.329, 25.59, 17.1, 20.607284905, 19.85, 25, 28.77, 14.6, 19.46, 11.22, 23.8, 24.7942, 24.3, 21.65, 15.5, 29.45, 18.23050557, 28.46925, 19.3425, 31.316, 18.7, 17.9, 16.922, 14.9, 19.9, 27.32499981]
+    },
+    {
+      "name": "leaf_p_per_dry_mass",
+      "type": "numeric",
+      "values": [0.68, 0.6095, 3.361, 1.36, 0.6103365885, 0.3645833333, 0.9025, 0.757, 0.782276805, 0.508, 0.5895, 2.46, 0.456139808, 0.53265, 0.280983883, 0.44, 0.699910807, 0.8245, 0.451, 0.149, 0.645, 0.67, 0.679, 0.31, 1.22, 0.26, 0.3776510515, 0.5265, 0.14, 0.6, 0.7]
+    },
+    {
+      "name": "seed_dry_mass_mg",
+      "type": "numeric",
+      "values": [12.2972, 13.3, 27.51, 11.65, 9.7625, 76.92, 13.8, 23, 10.1, 14.92, 6.076, 55.2668, 5.6168, 93.0588, 3.9776, 26.1, 11.4858, 13.48, 167, 9.61, 17.395, 78.5916, 10.9, 160.4941, 20.745, 36.1, 34.7, 13.5848, 14, 8.86, 3.03]
+    },
+    {
+      "name": "wood_density_g_cm3",
+      "type": "numeric",
+      "values": [0.9515, 0.95, 1.06, 0.5755, 0.87715, 0.938, 0.428715, 0.585, 0.788, 0.58, 0.654499698, 0.82, 0.905, 0.640058, 0.70944, 0.443, 0.482, 0.545, 0.6702145, 0.54, 0.485, 0.978, 0.699997917, 0.58, 0.649262506, 0.5942039295, 0.541375, 0.99, 0.66, 0.64, 0.7385]
+    },
+    {
+      "name": "plant_growth_form_source",
+      "type": "character",
+      "values": ["Barrett_2009|Gosper_2018|Shedley_2007|Standish_2019", "ABRS_2022|Curtis_2012|Maslin_2012|NHNSW_2022|NSWFRD_2014|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|Leishman_1992|NHNSW_2022|SAH_2022|Wenk_2022|White_2020", "ABRS_2022|Cooper_2013|Kooyman_2011|Maslin_2012|Metcalfe_2009|Wenk_2022", "Fonseca_2000|Gosper_2018|Leishman_1992|McGlone_2015|NHNSW_2022|NSWFRD_2014|SAH_2022|Shedley_2007|Soliveres_2012|WAH_2022_2|White_2020", "ABRS_2022|Maslin_2012|NHNSW_2022|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|Maslin_2012|NHNSW_2022|RBGV_2022|WAH_2022_1|WAH_2022_2|Wenk_2022", "ABRS_2022|Maslin_2012|NTH_2022|Schmidt_2003|Wenk_2022", "ABRS_2022|Maslin_2012|NHNSW_2022|Wenk_2022", "Hughes_1992|Leishman_2007|Pickup_2021|Stewart_1995|White_2020", "ABRS_2022|Maslin_2012|NHNSW_2022|RBGV_2022|WAH_2022_1|WAH_2022_2|Wenk_2022", "ABRS_2022|ATRP_2020|Cooper_2013|Kooyman_2011|NHNSW_2022|NSWFRD_2014|Stewart_1995|Wenk_2022|White_2020", "ABRS_2022|Maslin_2012|NHNSW_2022|NSWFRD_2014|RBGV_2022|Wenk_2022", "ABRS_2022|Maslin_2012|Schmidt_2003|Wenk_2022", "ABRS_2022|Maslin_2012|Wenk_2022", "Hughes_1992|Leishman_2007|Pickup_2021|SAH_2022|Standish_2019", "ABRS_2022|Cooper_2013|Kooyman_2011|Maslin_2012|Metcalfe_2009|NTH_2022|Wenk_2022", "ATRP_2020|Butler_2004|Campbell_2006|Clarke_2009|Cooper_2013|Edwards_2000|Fonseca_2000|Hughes_1992|Kooyman_2011|McGlone_2015|NHNSW_2022|NSWFRD_2014|RBGV_2022|Rumman_2018|SAH_2022|Stewart_1995|WAH_2022_1|White_2020|Williams_2011", "Lord_1997|Maslin_2012|NTH_2022|Rice_1991|Schulze_1998", "ABRS_2022|Barrett_2009|Clarke_2009|Hughes_1992|Maslin_2012|McGlone_2015|NHNSW_2022|NSWFRD_2014|Peeters_2002|Pickup_2021|RBGV_2022|SAH_2022|Standish_2019|WAH_2022_2|Wenk_2022|White_2020|Williams_2011", "ABRS_2022|Maslin_2012|NTH_2022|Wenk_2022", "ABRS_2022|Maslin_2012|NHNSW_2022|NSWFRD_2014|NTH_2022|RBGV_2022|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|Hughes_1992|Maslin_2012|NHNSW_2022|Wenk_2022", "ABRS_2022|Maslin_2012|NTH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|Maslin_2012|NHNSW_2022|NSWFRD_2014|RBGV_2022|Wenk_2022", "ABRS_2022|Clarke_2009|Edwards_2000|Fonseca_2000|Hughes_1992|Leishman_1995|McGlone_2015|NHNSW_2022|NSWFRD_2014|RBGV_2022|SAH_2022|Wenk_2022|White_2020|Williams_2011", "ABRS_2022|Maslin_2012|NHNSW_2022|RBGV_2022|Wenk_2022", "Curtis_2012|Jurado_1991|Leishman_1992|NHNSW_2022|NSWFRD_2014|Shedley_2007|White_2020", "ABRS_2022|Campbell_2006|Clarke_2009|Hughes_1992|Leishman_1995|Maslin_2012|McGlone_2015|NHNSW_2022|NSWFRD_2014|Pickup_2021|RBGV_2022|Wenk_2022|White_2020|Williams_2011", "ABRS_2022|Maslin_2012|RBGV_2022|Wenk_2022", "ABRS_2022|McGlone_2015|RBGV_2022|Richards_2008|WAH_2022_1|WAH_2022_2|Wenk_2022|White_2020"]
+    },
+    {
+      "name": "life_history_source",
+      "type": "character",
+      "values": ["ABRS_2022|Burrows_2008_2|Burrows_2020|Gosper_2018|Maslin_2012|Pate_1998|RBGV_2022|Standish_2019|Tsakalos_2020|WAH_2022_2|Wenk_2023", "ABRS_2022|Burrows_2008_2|Burrows_2020|Curtis_2012|Leishman_1992|Maslin_2012|NHNSW_2022|Pate_1998|SAH_2022|WAH_2022_2|Wenk_2023", "ABRS_2022|Leishman_1992|Maslin_2012|NHNSW_2022|SAH_2022|Wenk_2023", "ABRS_2022|Maslin_2012|Metcalfe_2009|Wenk_2023", "ABRS_2022|Gosper_2018|Leishman_1992|Maslin_2012|NHNSW_2022|RBGV_2022|SAH_2022|WAH_2022_2|Wenk_2023", "ABRS_2022|Maslin_2012|NHNSW_2022|SAH_2022|WAH_2022_2|Wenk_2023", "ABRS_2022|Cheal_2017|Jordan_2001|Maslin_2012|Morgan_2011_1|NHNSW_2022|RBGV_2022|SAH_2022|WAH_2022_1|WAH_2022_2|Wenk_2023", "ABRS_2022|Maslin_2012|NTH_2022|Schmidt_2003|WAH_2022_2|Wenk_2023", "ABRS_2022|Cheal_2017|Maslin_2012|NHNSW_2022|RBGV_2022|Wenk_2023", "ABRS_2022|Maslin_2012|NHNSW_2022|Wenk_2023", "ABRS_2022|Maslin_2012|NHNSW_2022|RBGV_2022|WAH_2022_1|WAH_2022_2|Wenk_2023", "ABRS_2022|Maslin_2012|NHNSW_2022|Wenk_2023", "ABRS_2022|Cheal_2017|Maslin_2012|NHNSW_2022|RBGV_2022|SAH_2022|Wenk_2023", "ABRS_2022|Maslin_2012|NTH_2022|Schmidt_2003|Wenk_2023", "ABRS_2022|Maslin_2012|Wenk_2023", "ABRS_2022|Cheal_2017|Maslin_2012|Morgan_2011_1|NHNSW_2022|RBGV_2022|SAH_2022|Standish_2019|WAH_2022_1|WAH_2022_2|Wenk_2023", "ABRS_2022|Maslin_2012|Metcalfe_2009|NTH_2022|Wenk_2023", "ABRS_2022|Burrows_2008_2|Burrows_2020|Cheal_2017|Jordan_2001|Maslin_2012|Morgan_2011_1|NHNSW_2022|RBGV_2022|SAH_2022|WAH_2022_1|WAH_2022_2|Wenk_2023|Williams_2005", "ABRS_2022|Maslin_2012|NTH_2022|Schmidt_2003|Wenk_2023", "ABRS_2022|Burrows_2008_2|Burrows_2020|Cheal_2017|Jordan_2001|Maslin_2012|Morgan_2011_1|NHNSW_2022|Pekin_2011|RBGV_2022|SAH_2022|Standish_2019|WAH_2022_2|Wenk_2023", "ABRS_2022|Maslin_2012|NTH_2022|Schmidt_2003|Wenk_2023", "ABRS_2022|Maslin_2012|NHNSW_2022|NTH_2022|RBGV_2022|SAH_2022|WAH_2022_2|Wenk_2023", "ABRS_2022|Maslin_2012|NHNSW_2022|Wenk_2023", "ABRS_2022|Maslin_2012|NTH_2022|WAH_2022_2|Wenk_2023", "ABRS_2022|Cheal_2017|Maslin_2012|NHNSW_2022|RBGV_2022|Wenk_2023", "ABRS_2022|Cheal_2017|Jordan_2001|Maslin_2012|NHNSW_2022|RBGV_2022|SAH_2022|Wenk_2023", "ABRS_2022|Cheal_2017|Jordan_2001|Maslin_2012|NHNSW_2022|RBGV_2022|Wenk_2023", "ABRS_2022|Burrows_2008_2|Burrows_2020|Curtis_2012|Leishman_1992|Maslin_2012|NHNSW_2022|NTH_2022|Pate_1998|SAH_2022|WAH_2022_2|Wenk_2023", "ABRS_2022|Jordan_2001|Maslin_2012|NHNSW_2022|RBGV_2022|Wenk_2023", "ABRS_2022|Cheal_2017|Jordan_2001|Maslin_2012|Morgan_2011_1|RBGV_2022|SAH_2022|Wenk_2023", "ABRS_2022|Cheal_2017|Jordan_2001|RBGV_2022|WAH_2022_1|WAH_2022_2|Wenk_2023"]
+    },
+    {
+      "name": "woodiness_source",
+      "type": "character",
+      "values": ["ABRS_2022|RBGV_2022|Tsakalos_2020|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|SAH_2022|Wenk_2022", "ABRS_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|SAH_2022|WAH_2022_1|WAH_2022_2|Wenk_2022", "ABRS_2022|NTH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|WAH_2022_1|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|SAH_2022|Wenk_2022", "ABRS_2022|NTH_2022|Wenk_2022", "ABRS_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|SAH_2022|WAH_2022_1|WAH_2022_2|Wenk_2022", "ABRS_2022|NTH_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|SAH_2022|WAH_2022_1|WAH_2022_2|Wenk_2022", "ABRS_2022|NTH_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|NTH_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|NTH_2022|RBGV_2022|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|Wenk_2022", "ABRS_2022|NTH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|SAH_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|Wenk_2022", "ABRS_2022|NHNSW_2022|NTH_2022|SAH_2022|WAH_2022_2|Wenk_2022", "ABRS_2022|NHNSW_2022|RBGV_2022|Wenk_2022", "ABRS_2022|RBGV_2022|SAH_2022|Wenk_2022", "ABRS_2022|RBGV_2022|WAH_2022_1|WAH_2022_2|Wenk_2022"]
+    },
+    {
+      "name": "photosynthetic_pathway_source",
+      "type": "character",
+      "values": ["Munroe_2019|Pate_1998|Tsakalos_2020", "Munroe_2019|Pate_1998|Stewart_1995|White_2020", "Munroe_2019|White_2020", "Metcalfe_2009", "Munroe_2019|White_2020", "Schmidt_2010|White_2020", "Richards_2008|White_2020|Williams_2011", "Munroe_2019|Schmidt_2003", "White_2020", "Stewart_1995|White_2020", "White_2020", "Munroe_2019|Stewart_1995|White_2020", "Munroe_2019|White_2020", "Schmidt_2003", "White_2020", "White_2020|Williams_2011", "Metcalfe_2009", "Stewart_1995|White_2020|Williams_2011", "Munroe_2019|Schmidt_2003", "Munroe_2019|White_2020|Williams_2011", "Munroe_2019|Schmidt_2003", "Munroe_2019|White_2020", "White_2020", "Munroe_2019", "White_2020", "Munroe_2019|White_2020|Williams_2011", "Munroe_2019|White_2020", "Munroe_2019|Pate_1998|White_2020", "Munroe_2019|White_2020|Williams_2011", "Richards_2008|White_2020|Williams_2011", "Richards_2008|White_2020"]
+    },
+    {
+      "name": "dispersal_syndrome_source",
+      "type": "character",
+      "values": ["Draper_2023", "Kew_2019_5|White_2020", "Draper_2023", "Metcalfe_2009", "Draper_2023", "Kew_2019_5|White_2020", "Meers_2007|Morgan_2011_1|Williams_2011", "Lord_1997", "White_2020", "White_2020", "Hughes_1992|Leishman_1995|NSWFRD_2014", "Draper_2023", "White_2020", "Lord_1997", "White_2020", "Hughes_1992|Morgan_2011_1|Williams_2011", "Metcalfe_2009", "Butler_2004|Draper_2023|Meers_2007|RadfordSmith_2024|Williams_2011", "Lord_1997", "Morgan_2011_1|NSWFRD_2014|Williams_2011", "Lord_1997", "Draper_2023", "Hughes_1992", "Lord_1997", "Meers_2007", "Hughes_1992|Leishman_1995|NSWFRD_2014|Williams_2011", "Kew_2019_5|White_2020", "Kew_2019_5|White_2020", "Kew_2019_5|White_2020", "Morgan_2011_1|Williams_2011", "Kew_2019_5"]
+    },
+    {
+      "name": "resprouting_capacity_source",
+      "type": "character",
+      "values": ["Shedley_2007", "Burrows_2008_2|Burrows_2020|Clarke_2015|Nano_2011|RussellSmith_2012|White_2020", "Clarke_2015|RussellSmith_2012", "Williams_2012", "Clarke_2015|Gosper_2018|NSWFRD_2014|Shedley_2007", "White_2020", "Prior_2016|Prior_2022|White_2020|Yang_2023", "Nano_2011|RussellSmith_2012", "Cheal_2017|White_2020", "Clarke_2015|Kubiak_2009|NSWFRD_2014|Pickup_2021|White_2020", "Cheal_2017|Kubiak_2009|Yang_2023", "Clarke_2015|NSWFRD_2014|White_2020", "Cheal_2017|NSWFRD_2014", "Clarke_2015|Nano_2011|RussellSmith_2012", "Clarke_2015|White_2020", "Cheal_2017|Clarke_2015|Falster_2005_2|Standish_2019|White_2020", "Nano_2011|Williams_2012", "Burrows_2008_2|Burrows_2020|Cheal_2017|Clarke_2015|Doherty_2021|Meers_2007|Prior_2022|White_2020|Yang_2023", "Clarke_2015|Nano_2011|RussellSmith_2012|Yang_2023", "Barrett_2009|Benwell_2024|Burrows_2008_2|Burrows_2020|Cheal_2017|Clarke_2015|Kubiak_2009|Pekin_2011|Standish_2019|White_2020", "Clarke_2015|Crowley_2007|Nano_2011|RussellSmith_2012", "Clarke_2015|Crowley_2007|NSWFRD_2014|Nano_2011|RussellSmith_2012|White_2020", "Clarke_2015|Kubiak_2009|NSWFRD_2014|Pickup_2021|White_2020", "Nano_2011|RussellSmith_2012", "Cheal_2017|Clarke_2015|Doherty_2021|Meers_2007|White_2020", "Cheal_2017|Clarke_2015|Falster_2005_2|Knox_2011|Kubiak_2009|White_2020", "Cheal_2017|Clarke_2015|Falster_2005_2|Kubiak_2009|White_2020", "Burrows_2008_2|Burrows_2020|Clarke_2015|Nano_2011|Shedley_2007|White_2020", "Benwell_2024|Campbell_2006|Cheal_2017|Clarke_2015|Falster_2005_2|Kubiak_2009|White_2020", "Cheal_2017|White_2020", "Cheal_2017|Nicholson_2017|Nicolle_2006|Yang_2023"]
+    },
+    {
+      "name": "flowering_time_source",
+      "type": "character",
+      "values": ["Chen_2017", "NHNSW_2014_2|NSWFRD_2014", "Maslin_2012|NHNSW_2014_2", "Cooper_2013|Maslin_2012", "NHNSW_2014_2|NSWFRD_2014", "NHNSW_2014_2", "NHNSW_2014_2|NSWFRD_2014", "Chen_2017|Maslin_2012", "Chen_2017|NHNSW_2014_2|White_2020", "NHNSW_2014_2|NSWFRD_2014|White_2020", "NHNSW_2014_2|NSWFRD_2014", "NHNSW_2014_2|NSWFRD_2014", "White_2020", "Maslin_2012", "White_2020", "Maslin_2012|White_2020", "Cooper_2013", "NHNSW_2014_2|NSWFRD_2014", "NTH_2014", "NHNSW_2014_2|NSWFRD_2014", "Chen_2017|Maslin_2012|NTH_2014", "NHNSW_2014_2|NSWFRD_2014", "NHNSW_2014_2|NSWFRD_2014|White_2020", "NTH_2014", "NHNSW_2014_2|NSWFRD_2014", "White_2020", "Hughes_1992|Maslin_2012|White_2020", "NHNSW_2014_2|NSWFRD_2014", "Chen_2017|Maslin_2012|NHNSW_2014_2|NSWFRD_2014|White_2020", "Chen_2017|White_2020", "White_2020"]
+    },
+    {
+      "name": "plant_height_m_source",
+      "type": "character",
+      "values": ["ABRS_2023|Andrew_2022|Maslin_2012|RBGV_2023|Tsakalos_2020|WAH_2023_2", "Jurado_1991|Leishman_1992|Maslin_2012|NHNSW_2023|SAH_2023|WAH_2023_2", "ABRS_2023|Leishman_1992|Maslin_2012|NHNSW_2023|SAH_2023", "ABRS_2023|Cooper_2013|Maslin_2012|Metcalfe_2009", "ABRS_2023|Leishman_1992|Maslin_2012|McGlone_2015|Morgan_2005|NHNSW_2023|RBGV_2023|SAH_2023|WAH_2023_2", "ABRS_2023|Jurado_1991|Maslin_2012|NHNSW_2023|SAH_2023|WAH_2023_2", "ABRS_2023|Maslin_2012|McGlone_2015|Meers_2007|Mokany_2015|Morgan_2011_1|NHNSW_2023|RBGV_2023|Richards_2008|SAH_2023|Tng_2013|WAH_2023_2", "ABRS_2023|Maslin_2012|NTH_2023|WAH_2023_2", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Hughes_1992|Maslin_2012|NHNSW_2023", "ABRS_2023|Hughes_1992|Leishman_1995|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|WAH_2023_2", "ABRS_2023|Kooyman_2011|Maslin_2012|NHNSW_2023", "ABRS_2023|Maslin_2012|McGlone_2015|Morgan_2005|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012|Westoby_2014", "ABRS_2023|Falster_2005_2|Hughes_1992|Maslin_2012|McGlone_2015|Mokany_2015|Morgan_2011_1|NHNSW_2023|RBGV_2023|SAH_2023|WAH_2023_2", "ABRS_2023|Cooper_2013|Maslin_2012|Metcalfe_2009|NTH_2023", "ABRS_2023|Andrew_2022|Cooper_2013|Hughes_1992|Kooyman_2011|Maslin_2012|McGlone_2015|Meers_2007|Mokany_2015|Morgan_2011_1|NHNSW_2023|RBGV_2023|RadfordSmith_2024|SAH_2023|Sams_2017|Tng_2013|WAH_2023_2|Williams_2011", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Hughes_1992|Maslin_2012|McGlone_2015|Mokany_2015|Morgan_2011_1|NHNSW_2023|RBGV_2023|SAH_2023|Tng_2013|WAH_2023_2", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Jurado_1991|Maslin_2012|McGlone_2015|Morgan_2005|NHNSW_2023|NTH_2023|RBGV_2023|SAH_2023|WAH_2023_2", "ABRS_2023|Hughes_1992|Maslin_2012|NHNSW_2023", "ABRS_2023|Jurado_1991|Maslin_2012|NTH_2023|WAH_2023_2", "ABRS_2023|Andrew_2022|Maslin_2012|McGlone_2015|Meers_2007|NHNSW_2023|RBGV_2023", "ABRS_2023|Falster_2005_2|Hughes_1992|Knox_2011|Leishman_1995|Maslin_2012|McGlone_2015|Mokany_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Falster_2005_2|Hughes_1992|Maslin_2012|McGlone_2015|Mokany_2015|NHNSW_2023|RBGV_2023|Westoby_2014", "ABRS_2023|Jurado_1991|Leishman_1992|Maslin_2012|NHNSW_2023|NTH_2023|SAH_2023|WAH_2023_2|Westoby_2014", "ABRS_2023|Falster_2005_2|Hughes_1992|Knox_2011|Maslin_2012|McGlone_2015|Mokany_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Andrew_2022|Maslin_2012|McGlone_2015|Mokany_2015|Morgan_2011_1|RBGV_2023|SAH_2023", "ABRS_2023|McGlone_2015|Mokany_2015|RBGV_2023|WAH_2023_2"]
+    },
+    {
+      "name": "leaf_length_mm_source",
+      "type": "character",
+      "values": ["ABRS_2023|Maslin_2012|RBGV_2023", "ABRS_2023|Curtis_2012|Maslin_2012|NHNSW_2023|SAH_2023", "ABRS_2023|Maslin_2012|NHNSW_2023|SAH_2023", "ABRS_2023|Kooyman_2011|Maslin_2012", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NHNSW_2023|SAH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Grootemaat_2015|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Maslin_2012|NHNSW_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Kooyman_2011|Maslin_2012|NHNSW_2023", "ABRS_2023|Grootemaat_2015|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Kooyman_2011|Maslin_2012|NTH_2023", "ABRS_2023|Kooyman_2011|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|NTH_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NHNSW_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Curtis_2012|Maslin_2012|NHNSW_2023|NTH_2023|SAH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Maslin_2012|McGlone_2015|RBGV_2023|SAH_2023", "McGlone_2015|RBGV_2023|Stephens_2024"]
+    },
+    {
+      "name": "leaf_width_mm_source",
+      "type": "character",
+      "values": ["ABRS_2023|Maslin_2012|RBGV_2023", "ABRS_2023|Curtis_2012|Fonseca_2000|Maslin_2012|NHNSW_2023|SAH_2023", "ABRS_2023|Maslin_2012|NHNSW_2023|SAH_2023", "ABRS_2023|Kooyman_2011|Maslin_2012", "ABRS_2023|Fonseca_2000|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NHNSW_2023|SAH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Fonseca_2000|Grootemaat_2015|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Maslin_2012|NHNSW_2023", "ABRS_2023|Fonseca_2000|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Kooyman_2011|Maslin_2012|NHNSW_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Kooyman_2011|Maslin_2012|NTH_2023", "ABRS_2023|Fonseca_2000|Kooyman_2011|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|NTH_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|NHNSW_2023", "ABRS_2023|Maslin_2012|NTH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Fonseca_2000|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023|SAH_2023", "ABRS_2023|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Curtis_2012|Fonseca_2000|Maslin_2012|NHNSW_2023|NTH_2023|SAH_2023", "ABRS_2023|Fonseca_2000|Maslin_2012|McGlone_2015|NHNSW_2023|RBGV_2023", "ABRS_2023|Maslin_2012|McGlone_2015|RBGV_2023|SAH_2023", "McGlone_2015|RBGV_2023|Stephens_2024"]
+    },
+    {
+      "name": "leaf_area_mm2_source",
+      "type": "character",
+      "values": ["Andrew_2022|Read_2005|Staples_2019", "Curtis_2012|Fonseca_2000|Jurado_1991|Leishman_1992|Moles_2011|Schulze_2014|Westoby_2014", "Leishman_1992|Tomlinson_2013", "Falster_2005_1|Metcalfe_2009", "Fonseca_2000|Leishman_1992|Morgan_2005|Westoby_2003|Westoby_2014|Wright_2002", "Jurado_1991", "Atkinson_2020_2|Meers_2007|Westoby_2014|Wright_2006", "Wright_2008|Wright_2019", "Burrows_2001|Fonseca_2000|Grootemaat_2015|Pickup_2005|Westoby_2003|Wright_2002", "Niinemets_2009", "Falster_2003|Fonseca_2000|Laxton_2005|Leishman_1995|Moles_2000|Wright_2002", "Tomlinson_2013", "Grootemaat_2015|Morgan_2005|Pickup_2005|Westoby_2003|Westoby_2014|Wright_2002", "Wright_2008|Wright_2019", "Westoby_2014", "Falster_2005_2|Mokany_2015|Niinemets_2009", "Metcalfe_2009|Westoby_2014", "Andrew_2022|Edwards_2000|Fonseca_2000|Jordan_2007|Kanowski_2000|Meers_2007|Mokany_2015|RadfordSmith_2024|Read_2003|Tng_2013|Wright_2006", "Wright_2008|Wright_2019", "Bragg_2002|Caldwell_2016|Falster_2003|Gallagher_2018|Mokany_2015|Niinemets_2009|Peeters_2002|Tng_2013|Westoby_2003", "Wright_2008", "Jurado_1991|Morgan_2005|Pickup_2005|Wright_2002", "Atkinson_2020_2", "Jurado_1991|Wright_2008", "Andrew_2022|Atkinson_2020_2|Meers_2007", "Bragg_2002|Edwards_2000|Falster_2003|Falster_2005_2|Fonseca_2000|Gallagher_2018|Laxton_2005|Leishman_1995|Mokany_2015|Niinemets_2009|Pickup_2005|Westoby_2003|Wright_2002", "Falster_2005_2|Gallagher_2018|Mokany_2015|Moles_2000|Westoby_2014", "Curtis_2012|Fonseca_2000|Jurado_1991|Leishman_1992|Schulze_2014|Westoby_2014", "Falster_2005_2|Fonseca_2000|Gallagher_2018|Leishman_1995|Mokany_2015", "Andrew_2022|Mokany_2015|Staples_2019|Wright_2006", "Blackman_2023|Mokany_2015"]
+    },
+    {
+      "name": "leaf_mass_per_area_source",
+      "type": "character",
+      "values": ["Gallagher_2011_3|Read_2005|Schulze_2014|Staples_2019", "Bloomfield_2018|Curtis_2012|Dong_2017|Fonseca_2000|Li_2018|Moles_2011|Schulze_1998|Schulze_2014|Westoby_2014", "Dong_2017|Gallagher_2011_3|Tomlinson_2013", "Falster_2005_1|Gray_2019", "Fonseca_2000|Morgan_2005|Westoby_2003|Westoby_2014|Wright_2002", "Schulze_1998", "Atkinson_2020_2|Bloomfield_2018|Everingham_2020|Meers_2007|Tng_2013|Westoby_2014|Wright_2006|Zieminska_2015", "Wright_2008|Wright_2019", "Burrows_2001|Fonseca_2000|Grootemaat_2015|Pickup_2005|Westoby_2003|Wright_2002|Zanne_2007", "Leishman_2007|Niinemets_2009", "Fonseca_2000|Gallagher_2011_3|Laxton_2005|Leishman_1995|Moles_2000|Tsujii_2023|Wright_2002|Zanne_2007", "Dwyer_2018|Tomlinson_2013|Tomlinson_2019", "Grootemaat_2015|Morgan_2005|Pickup_2005|Westoby_2003|Westoby_2014|Wright_2002|Zanne_2007", "Wright_2008|Wright_2019", "Westoby_2014", "Falster_2005_2|Gallagher_2011_3|Leishman_2007|Niinemets_2009|Tsujii_2023", "Gallagher_2011_3|Westoby_2014", "Bloomfield_2018|Edwards_2000|Fonseca_2000|Gallagher_2011_3|Jordan_2007|Kanowski_2000|Meers_2007|RadfordSmith_2024|Read_2003|Sams_2017|Tng_2013|Wright_2006|Zieminska_2015", "Schulze_1998|Wright_2008|Wright_2019", "Caldwell_2016|Dong_2017|Gallagher_2011_3|Gallagher_2018|Niinemets_2009|Peeters_2002|Tng_2013|Westoby_2003", "Dong_2017|Wright_2008", "Dong_2017|Morgan_2005|Pickup_2005|Schulze_2014|Wright_2002", "Atkinson_2020_2|Bloomfield_2018|Leishman_2007", "Schulze_2014|Wright_2008", "Atkinson_2020_2|Leishman_2007|Meers_2007", "Edwards_2000|Falster_2005_2|Fonseca_2000|Gallagher_2011_3|Gallagher_2018|Knox_2011|Laxton_2005|Leishman_1995|Leishman_2007|Niinemets_2009|Pickup_2005|Tsujii_2023|Westoby_2003|Williams_2011|Wright_2002|Zanne_2007", "Falster_2005_2|Gallagher_2011_3|Gallagher_2018|Moles_2000|Westoby_2014", "Curtis_2012|Dong_2017|Fonseca_2000|Gallagher_2011_3|Schulze_2014|Westoby_2014", "Falster_2005_2|Fonseca_2000|Gallagher_2011_3|Gallagher_2018|Knox_2011|Leishman_1995", "Gallagher_2011_3|Staples_2019|Wright_2006", "Blackman_2023|Crous_2013"]
+    },
+    {
+      "name": "leaf_n_per_dry_mass_source",
+      "type": "character",
+      "values": ["Read_2005|Schulze_2014", "Bloomfield_2018|Dong_2017|Schulze_1998|Schulze_2014|Soper_2014", "Dong_2017|Tomlinson_2013", "Falster_2005_1|Gray_2019", "Westoby_2014|Wright_2002", "Schmidt_2010|Schulze_1998", "Bloomfield_2018|Richards_2008|Westoby_2014", "Schmidt_2003|Wright_2008|Wright_2019", "Grootemaat_2017_2|Wright_2002", "Leishman_2007|Niinemets_2009", "Laxton_2005|Tsujii_2023|Wright_2002", "Richards_2008|Tomlinson_2013|Tomlinson_2019", "Grootemaat_2017_2|Westoby_2014|Wright_2002", "Schmidt_2003|Wright_2008|Wright_2019", "Westoby_2014", "Falster_2005_2|Leishman_2007|Niinemets_2009|Tsujii_2023", "Westoby_2014", "Bloomfield_2018|Edwards_2000|Kanowski_2000|Read_2003|Richards_2008", "Schmidt_2003|Schulze_1998|Wright_2008|Wright_2019", "Caldwell_2016|Dong_2017|Gallagher_2018|Niinemets_2009|Peeters_2002", "Dong_2017|Schmidt_2003|Wright_2008", "Dong_2017|Schulze_2014|Wright_2002", "Bloomfield_2018|Leishman_2007", "Schulze_2014|Wright_2008", "Leishman_2007", "Edwards_2000|Falster_2005_2|Gallagher_2018|Laxton_2005|Niinemets_2009|Tsujii_2023|Wright_2002", "Falster_2005_2|Gallagher_2018|Westoby_2014", "Dong_2017|Schulze_2014", "Falster_2005_2|Gallagher_2018", "Richards_2008", "Crous_2013|Richards_2008"]
+    },
+    {
+      "name": "leaf_p_per_dry_mass_source",
+      "type": "character",
+      "values": ["Read_2005", "Bloomfield_2018|Schulze_2014", "Tomlinson_2013", "Gray_2019", "Westoby_2014|Wright_2002", "Schmidt_2010", "Bloomfield_2018|Richards_2008|Westoby_2014", "Wright_2008|Wright_2019", "Grootemaat_2017_2|Wright_2002", "Niinemets_2009", "Tsujii_2023|Wright_2002", "Richards_2008|Tomlinson_2013|Tomlinson_2019", "Grootemaat_2017_2|Westoby_2014|Wright_2002", "Wright_2008|Wright_2019", "Westoby_2014", "Leishman_2007|Niinemets_2009|Tsujii_2023", "Westoby_2014", "Bloomfield_2018|Edwards_2000|Kanowski_2000|Read_2003|Richards_2008", "Wright_2008|Wright_2019", "Gallagher_2018|Niinemets_2009", "Wright_2008", "Wright_2002", "Bloomfield_2018", "Wright_2008", "Leishman_2007", "Edwards_2000|Gallagher_2018|Niinemets_2009|Tsujii_2023|Wright_2002|deCampos_2013", "Gallagher_2018|Westoby_2014", "Schulze_2014", "Gallagher_2018", "Richards_2008", "Richards_2008"]
+    },
+    {
+      "name": "seed_dry_mass_mg_source",
+      "type": "character",
+      "values": ["ANBG_2019|Andrew_2022|Kew_2019_1|Standish_2019", "Everingham_2020|Kew_2019_1|Leishman_1992", "Kew_2019_1|Leishman_1992", "Falster_2005_1|Metcalfe_2009", "ANBG_2019|Kew_2019_1|Leishman_1992|Wright_2001", "Kew_2019_1", "ANBG_2019|Everingham_2020|Kew_2019_1|Meers_2007", "Kew_2019_1|Lord_1997", "Kew_2019_1|Wright_2001", "ANBG_2019|Kew_2019_1|Ooi_2007", "Kew_2019_1|Leishman_1993|Leishman_1995|Ooi_2007|Wright_2001", "Kew_2019_1", "Kew_2019_1|Wright_2001", "Kew_2019_1|Lord_1997", "Kew_2019_1", "Falster_2005_2|Kew_2019_1|Ooi_2007|Standish_2019", "Kew_2019_1|Metcalfe_2009", "ANBG_2019|Andrew_2022|Kew_2019_1|Meers_2007|Williams_2005", "Lord_1997", "ANBG_2019|Henery_2001|Kew_2019_1|Standish_2019|Williams_2011", "Kew_2019_1|Lord_1997", "ANBG_2019|Kew_2019_1", "ANBG_2019|Kew_2019_1", "ANBG_2019|Jurado_1991|Kew_2019_1|Lord_1997", "ANBG_2019|Andrew_2022|Kew_2019_1|Meers_2007", "Falster_2005_2|Henery_2001|Kew_2019_1|Leishman_1993|Leishman_1995|Ooi_2007|Williams_2011|Wright_2001", "ANBG_2019|Falster_2005_2|Kew_2019_1|Ooi_2007", "ANBG_2019|Kew_2019_1|Leishman_1992", "Falster_2005_2|Jagdish_2020|Kew_2019_1|Leishman_1993|Leishman_1995|Ooi_2007|Williams_2011", "Andrew_2022|Kew_2019_1|Mokany_2015", "Kew_2019_1|Mokany_2015"]
+    },
+    {
+      "name": "wood_density_g_cm3_source",
+      "type": "character",
+      "values": ["Ilic_2000", "Ilic_2000|Li_2018|Santini_2016|Westoby_2014|Zanne_2009", "Ilic_2000", "Falster_2005_1|Metcalfe_2009", "Morgan_2005|Westoby_2014", "Ilic_2000", "Everingham_2020|Ilic_2000|Lawson_2015|Rosell_2014|Tng_2013|Westoby_2014|Zieminska_2015", "Ilic_2000|Wright_2019", "Hughes_2005|Ilic_2000|Onoda_2010|Pickup_2005|Zanne_2007", "McCarthy_2017", "Lawson_2015|Onoda_2010|Staples_2019|Zanne_2007", "Dwyer_2018|Ilic_2000", "Hughes_2005|Morgan_2005|Onoda_2010|Pickup_2005|Westoby_2014|Zanne_2007", "Rosell_2014|Wright_2019", "Westoby_2014", "Falster_2005_2|Zanne_2009", "Ilic_2000|Kooyman_2011|Metcalfe_2009|Zanne_2009|Zieminska_2013", "Ilic_2000|Kooyman_2011|Lawson_2015|RadfordSmith_2024|Sams_2017|Tng_2013|Wright_2006|Zanne_2009|Zieminska_2015", "Wright_2008|Wright_2019", "Pickup_2002|Tng_2013", "Wright_2008", "Hughes_2005|Ilic_2000|Morgan_2005|Pickup_2005", "Lee_2019", "Wright_2008", "Staples_2019", "Falster_2005_2|Hughes_2005|Knox_2011|Onoda_2010|Pickup_2002|Pickup_2005|Zanne_2007", "Falster_2005_2|Westoby_2014", "Ilic_2000|Westoby_2014", "Falster_2005_2|Hughes_2005|Knox_2011", "Staples_2019|Wright_2006", "Blackman_2023|Ilic_2000|Zanne_2009"]
+    }
+  ]
+}

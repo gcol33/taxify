@@ -1,0 +1,18 @@
+{
+  "name": "funguild",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "nguyen2016funguild",
+    "type": "article",
+    "authors": "Nguyen NH, Song Z, Bates ST, Branco S, Tedersoo L, Menke J, Schilling JS, Kennedy PG",
+    "year": "2016",
+    "title": "FUNGuild: An open annotation tool for parsing fungal community datasets by ecological guild",
+    "journal": "Fungal Ecology",
+    "volume": "20",
+    "pages": "241-248",
+    "doi": "10.1016/j.funeco.2015.06.006"
+  }
+}

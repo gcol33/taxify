@@ -1,0 +1,21 @@
+{
+  "name": "gift",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "weigelt2020gift",
+    "type": "article",
+    "authors": "Weigelt P, Konig C, Kreft H",
+    "year": "2020",
+    "title": "GIFT - A Global Inventory of Floras and Traits for macroecology and biogeography",
+    "journal": "Journal of Biogeography",
+    "doi": "10.1111/jbi.13623"
+  },
+  "references": {
+    "file": "gift_references.vtr",
+    "nrow": 21,
+    "content_id": "92660bcff1f2df0f51ef16294e93332c"
+  }
+}

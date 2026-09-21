@@ -1,0 +1,74 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Bufo bufo"]
+    },
+    {
+      "name": "body_size_mm",
+      "type": "character",
+      "values": ["example_body_size_mm"]
+    },
+    {
+      "name": "litter_size",
+      "type": "character",
+      "values": ["example_litter_size"]
+    },
+    {
+      "name": "reproductive_output",
+      "type": "character",
+      "values": ["example_reproductive_output"]
+    },
+    {
+      "name": "offspring_size_mm",
+      "type": "character",
+      "values": ["example_offspring_size_mm"]
+    },
+    {
+      "name": "direct_development",
+      "type": "character",
+      "values": ["example_direct_development"]
+    },
+    {
+      "name": "larval",
+      "type": "character",
+      "values": ["example_larval"]
+    },
+    {
+      "name": "aquatic",
+      "type": "character",
+      "values": ["example_aquatic"]
+    },
+    {
+      "name": "fossorial",
+      "type": "character",
+      "values": ["example_fossorial"]
+    },
+    {
+      "name": "arboreal",
+      "type": "character",
+      "values": ["example_arboreal"]
+    },
+    {
+      "name": "diurnal",
+      "type": "character",
+      "values": ["example_diurnal"]
+    },
+    {
+      "name": "nocturnal_amphibio",
+      "type": "character",
+      "values": ["example_nocturnal_amphibio"]
+    },
+    {
+      "name": "age_maturity_y",
+      "type": "numeric",
+      "values": [2]
+    },
+    {
+      "name": "longevity_yr",
+      "type": "numeric",
+      "values": [40]
+    }
+  ]
+}

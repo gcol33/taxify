@@ -1,0 +1,33 @@
+{
+  "name": "glonaf",
+  "version": "example",
+  "nrow": 2,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": [
+    {
+      "key": "davis2025glonaf",
+      "type": "article",
+      "authors": "Davis AJS, Dawson W, Essl F, Kreft H, Lenzner B, Pergl J, Pysek P, Weigelt P, Winter M, van Kleunen M",
+      "year": "2025",
+      "title": "The updated Global Naturalized Alien Flora (GloNAF 2.0) database",
+      "journal": "Ecology",
+      "volume": "106",
+      "pages": "e70245",
+      "doi": "10.1002/ecy.70245"
+    },
+    {
+      "key": "vankleunen2019glonaf",
+      "type": "article",
+      "authors": "van Kleunen M, Pysek P, Dawson W, Essl F, Kreft H, Pergl J, Weigelt P, Stein A, Dullinger S, Konig C, et al.",
+      "year": "2019",
+      "title": "The Global Naturalized Alien Flora (GloNAF) database",
+      "journal": "Ecology",
+      "volume": "100",
+      "pages": "e02542",
+      "doi": "10.1002/ecy.2542"
+    }
+  ],
+  "group_col": "region_id",
+  "available_groups": ["DEU", "AUT"]
+}

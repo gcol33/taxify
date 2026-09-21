@@ -1,0 +1,19 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Robinia pseudoacacia", "Robinia pseudoacacia"]
+    },
+    {
+      "name": "country_code",
+      "type": "character",
+      "values": ["AT", "DE"]
+    },
+    {
+      "name": "invasive_status",
+      "type": "character",
+      "values": ["example_invasive_status", "example_invasive_status"]
+    }
+  ]
+}

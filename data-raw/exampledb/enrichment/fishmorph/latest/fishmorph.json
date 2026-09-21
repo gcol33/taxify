@@ -1,0 +1,59 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Salmo trutta"]
+    },
+    {
+      "name": "max_body_length",
+      "type": "character",
+      "values": ["example_max_body_length"]
+    },
+    {
+      "name": "body_elongation",
+      "type": "character",
+      "values": ["example_body_elongation"]
+    },
+    {
+      "name": "vertical_eye_position",
+      "type": "character",
+      "values": ["example_vertical_eye_position"]
+    },
+    {
+      "name": "relative_eye_size",
+      "type": "character",
+      "values": ["example_relative_eye_size"]
+    },
+    {
+      "name": "oral_gape_position",
+      "type": "character",
+      "values": ["example_oral_gape_position"]
+    },
+    {
+      "name": "relative_maxillary_length",
+      "type": "character",
+      "values": ["example_relative_maxillary_length"]
+    },
+    {
+      "name": "body_lateral_shape",
+      "type": "character",
+      "values": ["example_body_lateral_shape"]
+    },
+    {
+      "name": "pectoral_fin_position",
+      "type": "character",
+      "values": ["example_pectoral_fin_position"]
+    },
+    {
+      "name": "pectoral_fin_size",
+      "type": "character",
+      "values": ["example_pectoral_fin_size"]
+    },
+    {
+      "name": "caudal_peduncle_throttling",
+      "type": "character",
+      "values": ["example_caudal_peduncle_throttling"]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Bellis perennis"]
+    },
+    {
+      "name": "flower_begin_month",
+      "type": "character",
+      "values": ["example_flower_begin_month"]
+    },
+    {
+      "name": "flower_end_month",
+      "type": "character",
+      "values": ["example_flower_end_month"]
+    },
+    {
+      "name": "pollination_vector",
+      "type": "character",
+      "values": ["example_pollination_vector"]
+    },
+    {
+      "name": "dispersal_mode",
+      "type": "character",
+      "values": ["example_dispersal_mode"]
+    },
+    {
+      "name": "breeding_system",
+      "type": "character",
+      "values": ["example_breeding_system"]
+    },
+    {
+      "name": "flower_colour",
+      "type": "character",
+      "values": ["example_flower_colour"]
+    },
+    {
+      "name": "fruit_type",
+      "type": "character",
+      "values": ["example_fruit_type"]
+    },
+    {
+      "name": "woody_growth_form",
+      "type": "character",
+      "values": ["example_woody_growth_form"]
+    },
+    {
+      "name": "continentality",
+      "type": "character",
+      "values": ["example_continentality"]
+    },
+    {
+      "name": "salinity",
+      "type": "character",
+      "values": ["example_salinity"]
+    }
+  ]
+}

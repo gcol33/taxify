@@ -1,0 +1,59 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Agaricus", "Amanita", "Boletus", "Penicillium", "Saccharomyces"]
+    },
+    {
+      "name": "genus",
+      "type": "character",
+      "values": ["Agaricus", "Amanita", "Boletus", "Penicillium", "Saccharomyces"]
+    },
+    {
+      "name": "primary_lifestyle",
+      "type": "character",
+      "values": ["soil_saprotroph", "ectomycorrhizal", "ectomycorrhizal", "unspecified_saprotroph", "nectar/tap_saprotroph"]
+    },
+    {
+      "name": "secondary_lifestyle",
+      "type": "character",
+      "values": [null, null, null, "foliar_endophyte", null]
+    },
+    {
+      "name": "growth_form",
+      "type": "character",
+      "values": ["filamentous_mycelium", "filamentous_mycelium", "filamentous_mycelium", "filamentous_mycelium", "yeast"]
+    },
+    {
+      "name": "fruitbody_type",
+      "type": "character",
+      "values": ["agaricoid", "agaricoid", "agaricoid", null, "none"]
+    },
+    {
+      "name": "decay_substrate",
+      "type": "character",
+      "values": ["soil", null, null, "soil", "sugar-rich_substrates"]
+    },
+    {
+      "name": "plant_pathogenic_capacity",
+      "type": "character",
+      "values": [null, null, null, null, null]
+    },
+    {
+      "name": "animal_biotrophic_capacity",
+      "type": "character",
+      "values": [null, null, null, "opportunistic_human_parasite", "arthropod-associated"]
+    },
+    {
+      "name": "endophytic_interaction_capability",
+      "type": "character",
+      "values": [null, null, null, "foliar_endophyte", null]
+    },
+    {
+      "name": "ectomycorrhiza_exploration_type",
+      "type": "character",
+      "values": [null, "contact", "long-distance", null, null]
+    }
+  ]
+}

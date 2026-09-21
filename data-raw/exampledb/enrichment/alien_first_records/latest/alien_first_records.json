@@ -1,0 +1,34 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Ailanthus altissima", "Ailanthus altissima", "Robinia pseudoacacia", "Robinia pseudoacacia", "Robinia pseudoacacia"]
+    },
+    {
+      "name": "location",
+      "type": "character",
+      "values": ["AT", "DE", "AT", "DE", "Hawaii"]
+    },
+    {
+      "name": "country_code",
+      "type": "character",
+      "values": ["AT", "DE", "AT", "DE", "US"]
+    },
+    {
+      "name": "alien_first_record",
+      "type": "numeric",
+      "values": [13, 14, 11, 12, 15]
+    },
+    {
+      "name": "alien_first_record_source",
+      "type": "character",
+      "values": ["example_alien_first_record_source", "example_alien_first_record_source", "example_alien_first_record_source", "example_alien_first_record_source", "example_alien_first_record_source"]
+    },
+    {
+      "name": "alien_first_record_reference",
+      "type": "character",
+      "values": ["example_alien_first_record_reference", "example_alien_first_record_reference", "example_alien_first_record_reference", "example_alien_first_record_reference", "example_alien_first_record_reference"]
+    }
+  ]
+}

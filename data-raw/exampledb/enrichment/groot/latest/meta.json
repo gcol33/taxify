@@ -1,0 +1,16 @@
+{
+  "name": "groot",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "Free use with data-paper citation (no formal license stated)",
+  "citation": {
+    "key": "guerreroramirez2021groot",
+    "type": "article",
+    "authors": "Guerrero-Ramirez NR et al.",
+    "year": "2021",
+    "title": "Global root traits (GRooT) database",
+    "journal": "Global Ecology and Biogeography",
+    "doi": "10.1111/geb.13179"
+  }
+}

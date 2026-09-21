@@ -1,0 +1,19 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Drosophila melanogaster"]
+    },
+    {
+      "name": "body_mass_kg",
+      "type": "character",
+      "values": ["example_body_mass_kg"]
+    },
+    {
+      "name": "metabolic_rate_w",
+      "type": "character",
+      "values": ["example_metabolic_rate_w"]
+    }
+  ]
+}

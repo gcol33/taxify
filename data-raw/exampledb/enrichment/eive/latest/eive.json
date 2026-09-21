@@ -1,0 +1,34 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Arrhenatherum elatius"]
+    },
+    {
+      "name": "light",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "temperature",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "moisture",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "reaction",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "nutrients",
+      "type": "numeric",
+      "values": [11]
+    }
+  ]
+}

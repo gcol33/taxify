@@ -1,0 +1,44 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Quercus robur"]
+    },
+    {
+      "name": "lifeform",
+      "type": "character",
+      "values": ["example_lifeform"]
+    },
+    {
+      "name": "thousand_seed_weight",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "n_seed_weight_records",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "storage_behaviour",
+      "type": "character",
+      "values": ["example_storage_behaviour"]
+    },
+    {
+      "name": "oil_content_pct",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "protein_content_pct",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "fruit_type",
+      "type": "character",
+      "values": ["example_fruit_type"]
+    }
+  ]
+}

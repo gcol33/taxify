@@ -1,0 +1,18 @@
+{
+  "name": "algae_traits",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "vranken2023algaetraits",
+    "type": "article",
+    "authors": "Vranken S, Wernberg T, Scheben A, Leliaert F, De Clerck O",
+    "year": "2023",
+    "title": "AlgaeTraits: a trait database for (European) seaweeds",
+    "journal": "Earth System Science Data",
+    "volume": "15",
+    "pages": "2711-2754",
+    "doi": "10.5194/essd-15-2711-2023"
+  }
+}

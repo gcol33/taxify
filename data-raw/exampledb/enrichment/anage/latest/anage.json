@@ -1,0 +1,59 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Vulpes vulpes"]
+    },
+    {
+      "name": "max_longevity_yr",
+      "type": "character",
+      "values": ["example_max_longevity_yr"]
+    },
+    {
+      "name": "body_mass_g",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "metabolic_rate_w",
+      "type": "character",
+      "values": ["example_metabolic_rate_w"]
+    },
+    {
+      "name": "female_maturity_d",
+      "type": "character",
+      "values": ["example_female_maturity_d"]
+    },
+    {
+      "name": "male_maturity_d",
+      "type": "character",
+      "values": ["example_male_maturity_d"]
+    },
+    {
+      "name": "gestation_incubation_d",
+      "type": "character",
+      "values": ["example_gestation_incubation_d"]
+    },
+    {
+      "name": "litter_size",
+      "type": "character",
+      "values": ["example_litter_size"]
+    },
+    {
+      "name": "birth_mass_g",
+      "type": "character",
+      "values": ["example_birth_mass_g"]
+    },
+    {
+      "name": "growth_rate",
+      "type": "character",
+      "values": ["example_growth_rate"]
+    },
+    {
+      "name": "temperature_k",
+      "type": "character",
+      "values": ["example_temperature_k"]
+    }
+  ]
+}

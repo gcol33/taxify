@@ -1,0 +1,84 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Gadus morhua"]
+    },
+    {
+      "name": "body_length_cm",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "body_mass_g",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "trophic_level",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "depth_min_m",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "depth_max_m",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "vulnerability",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "habitat",
+      "type": "character",
+      "values": ["example_habitat"]
+    },
+    {
+      "name": "importance",
+      "type": "character",
+      "values": ["example_importance"]
+    },
+    {
+      "name": "lw_a",
+      "type": "numeric",
+      "values": [0.0065]
+    },
+    {
+      "name": "lw_b",
+      "type": "numeric",
+      "values": [3.0982]
+    },
+    {
+      "name": "lw_type",
+      "type": "character",
+      "values": ["TL"]
+    },
+    {
+      "name": "lw_method",
+      "type": "character",
+      "values": ["type I linear regression"]
+    },
+    {
+      "name": "lw_sex",
+      "type": "character",
+      "values": ["unsexed"]
+    },
+    {
+      "name": "lw_n",
+      "type": "numeric",
+      "values": [16665]
+    },
+    {
+      "name": "lw_r2",
+      "type": "numeric",
+      "values": [0.9929]
+    }
+  ]
+}

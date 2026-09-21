@@ -1,0 +1,59 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Abax parallelepipedus"]
+    },
+    {
+      "name": "body_size_mm",
+      "type": "character",
+      "values": ["example_body_size_mm"]
+    },
+    {
+      "name": "dispersal",
+      "type": "character",
+      "values": ["example_dispersal"]
+    },
+    {
+      "name": "voltinism",
+      "type": "character",
+      "values": ["example_voltinism"]
+    },
+    {
+      "name": "fecundity",
+      "type": "character",
+      "values": ["example_fecundity"]
+    },
+    {
+      "name": "development_d",
+      "type": "character",
+      "values": ["example_development_d"]
+    },
+    {
+      "name": "lifespan_d",
+      "type": "character",
+      "values": ["example_lifespan_d"]
+    },
+    {
+      "name": "thermal_mean",
+      "type": "character",
+      "values": ["example_thermal_mean"]
+    },
+    {
+      "name": "diurnality",
+      "type": "character",
+      "values": ["example_diurnality"]
+    },
+    {
+      "name": "feeding_guild",
+      "type": "character",
+      "values": ["example_feeding_guild"]
+    },
+    {
+      "name": "trophic_range",
+      "type": "character",
+      "values": ["example_trophic_range"]
+    }
+  ]
+}

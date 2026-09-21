@@ -1,0 +1,29 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Amanita muscaria"]
+    },
+    {
+      "name": "trophic_mode",
+      "type": "character",
+      "values": ["example_trophic_mode"]
+    },
+    {
+      "name": "guild",
+      "type": "character",
+      "values": ["example_guild"]
+    },
+    {
+      "name": "growth_morphology",
+      "type": "character",
+      "values": ["example_growth_morphology"]
+    },
+    {
+      "name": "confidence_ranking",
+      "type": "character",
+      "values": ["example_confidence_ranking"]
+    }
+  ]
+}

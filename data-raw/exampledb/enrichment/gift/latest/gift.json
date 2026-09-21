@@ -1,0 +1,169 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Abies alba"]
+    },
+    {
+      "name": "gift_woodiness_1",
+      "type": "character",
+      "values": ["woody"]
+    },
+    {
+      "name": "gift_growth_form_1",
+      "type": "character",
+      "values": ["tree"]
+    },
+    {
+      "name": "gift_lifecycle_1",
+      "type": "character",
+      "values": ["example_gift_lifecycle_1"]
+    },
+    {
+      "name": "gift_life_form_1",
+      "type": "character",
+      "values": ["example_gift_life_form_1"]
+    },
+    {
+      "name": "gift_climber_1",
+      "type": "character",
+      "values": ["example_gift_climber_1"]
+    },
+    {
+      "name": "gift_epiphyte_1",
+      "type": "character",
+      "values": ["example_gift_epiphyte_1"]
+    },
+    {
+      "name": "gift_parasite_1",
+      "type": "character",
+      "values": ["example_gift_parasite_1"]
+    },
+    {
+      "name": "gift_aquatic_1",
+      "type": "character",
+      "values": ["example_gift_aquatic_1"]
+    },
+    {
+      "name": "gift_plant_height_max",
+      "type": "numeric",
+      "values": [65]
+    },
+    {
+      "name": "gift_photosynthetic_pathway",
+      "type": "character",
+      "values": ["example_gift_photosynthetic_pathway"]
+    },
+    {
+      "name": "gift_seed_mass_mean",
+      "type": "numeric",
+      "values": [0.0739425]
+    },
+    {
+      "name": "gift_dispersal_syndrome_1",
+      "type": "character",
+      "values": ["example_gift_dispersal_syndrome_1"]
+    },
+    {
+      "name": "gift_flowering_start",
+      "type": "character",
+      "values": ["example_gift_flowering_start"]
+    },
+    {
+      "name": "gift_flowering_end",
+      "type": "character",
+      "values": ["example_gift_flowering_end"]
+    },
+    {
+      "name": "gift_deciduousness_1",
+      "type": "character",
+      "values": ["example_gift_deciduousness_1"]
+    },
+    {
+      "name": "gift_sla_mean",
+      "type": "numeric",
+      "values": [58.7]
+    },
+    {
+      "name": "gift_woodiness_1_source",
+      "type": "character",
+      "values": ["10114|10129|10132|10172|10190|10191|10193|10215|10216|10233|10248|10290|10302|10313|10315|10321|10598|10651"]
+    },
+    {
+      "name": "gift_growth_form_1_source",
+      "type": "character",
+      "values": ["10016|10114|10132|10280|10321|10598|10651"]
+    },
+    {
+      "name": "gift_lifecycle_1_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_life_form_1_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_climber_1_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_epiphyte_1_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_parasite_1_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_aquatic_1_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_plant_height_max_source",
+      "type": "character",
+      "values": ["10302|10315|10651"]
+    },
+    {
+      "name": "gift_photosynthetic_pathway_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_seed_mass_mean_source",
+      "type": "character",
+      "values": ["10191|10255"]
+    },
+    {
+      "name": "gift_dispersal_syndrome_1_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_flowering_start_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_flowering_end_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_deciduousness_1_source",
+      "type": "character",
+      "values": [null]
+    },
+    {
+      "name": "gift_sla_mean_source",
+      "type": "character",
+      "values": ["10191"]
+    }
+  ]
+}

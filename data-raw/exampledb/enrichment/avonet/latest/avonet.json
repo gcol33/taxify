@@ -1,0 +1,64 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Parus major"]
+    },
+    {
+      "name": "beak_length",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "beak_depth",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "wing_length",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "tail_length",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "tarsus_length",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "body_mass_g",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "hand_wing_index",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "habitat",
+      "type": "character",
+      "values": ["example_habitat"]
+    },
+    {
+      "name": "trophic_level",
+      "type": "numeric",
+      "values": [11]
+    },
+    {
+      "name": "trophic_niche",
+      "type": "character",
+      "values": ["example_trophic_niche"]
+    },
+    {
+      "name": "migration",
+      "type": "character",
+      "values": ["example_migration"]
+    }
+  ]
+}

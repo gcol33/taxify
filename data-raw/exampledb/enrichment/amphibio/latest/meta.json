@@ -1,0 +1,18 @@
+{
+  "name": "amphibio",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY 4.0",
+  "citation": {
+    "key": "oliveira2017amphibio",
+    "type": "article",
+    "authors": "Oliveira BF, Sao-Pedro VA, Santos-Barrera G, Penone C, Costa GC",
+    "year": "2017",
+    "title": "AmphiBIO, a global database for amphibian ecological traits",
+    "journal": "Scientific Data",
+    "volume": "4",
+    "pages": "170123",
+    "doi": "10.1038/sdata.2017.123"
+  }
+}

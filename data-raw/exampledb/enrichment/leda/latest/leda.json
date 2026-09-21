@@ -1,0 +1,444 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": ["Arrhenatherum elatius", "Abies alba"]
+    },
+    {
+      "name": "raunkiaer_life_form",
+      "type": "character",
+      "values": ["Hemicryptophyte", null]
+    },
+    {
+      "name": "raunkiaer_life_form_source",
+      "type": "character",
+      "values": ["12618f2bbe63|646a58ebb09a|9de1c4d67736", null]
+    },
+    {
+      "name": "dispersal_type",
+      "type": "character",
+      "values": ["epizoochor", null]
+    },
+    {
+      "name": "terminal_velocity_ms",
+      "type": "numeric",
+      "values": [2.645, null]
+    },
+    {
+      "name": "terminal_velocity_ms_min",
+      "type": "numeric",
+      "values": [1.55, null]
+    },
+    {
+      "name": "terminal_velocity_ms_max",
+      "type": "numeric",
+      "values": [3.29, null]
+    },
+    {
+      "name": "terminal_velocity_ms_n",
+      "type": "numeric",
+      "values": [24, null]
+    },
+    {
+      "name": "terminal_velocity_ms_source",
+      "type": "character",
+      "values": ["279c755ad2a5|37b76c2a2449|ed795074455a|f0836ea7ca3f", null]
+    },
+    {
+      "name": "leda_seed_mass_mg",
+      "type": "numeric",
+      "values": [2.774, 79.2]
+    },
+    {
+      "name": "leda_seed_mass_mg_min",
+      "type": "numeric",
+      "values": [1.5984, 79.2]
+    },
+    {
+      "name": "leda_seed_mass_mg_max",
+      "type": "numeric",
+      "values": [5.24, 79.2]
+    },
+    {
+      "name": "leda_seed_mass_mg_n",
+      "type": "numeric",
+      "values": [15, 2]
+    },
+    {
+      "name": "leda_seed_mass_mg_source",
+      "type": "character",
+      "values": ["1ed7e1dccf64|37b76c2a2449|ed795074455a|f00e37a9b503|f0836ea7ca3f", "1ed7e1dccf64"]
+    },
+    {
+      "name": "canopy_height_m",
+      "type": "numeric",
+      "values": [1.35, 50]
+    },
+    {
+      "name": "canopy_height_m_min",
+      "type": "numeric",
+      "values": [0.6, 50]
+    },
+    {
+      "name": "canopy_height_m_max",
+      "type": "numeric",
+      "values": [1.8, 50]
+    },
+    {
+      "name": "canopy_height_m_n",
+      "type": "numeric",
+      "values": [4, 1]
+    },
+    {
+      "name": "canopy_height_m_source",
+      "type": "character",
+      "values": ["12618f2bbe63|3cb57d495dce", "df5419eb85e4"]
+    },
+    {
+      "name": "leaf_mass_mg",
+      "type": "numeric",
+      "values": [30.654063375, 5.395]
+    },
+    {
+      "name": "leaf_mass_mg_min",
+      "type": "numeric",
+      "values": [11.03, 5.31]
+    },
+    {
+      "name": "leaf_mass_mg_max",
+      "type": "numeric",
+      "values": [50.27812675, 5.48]
+    },
+    {
+      "name": "leaf_mass_mg_n",
+      "type": "numeric",
+      "values": [2, 2]
+    },
+    {
+      "name": "leaf_mass_mg_source",
+      "type": "character",
+      "values": ["2f1f9cc7a35a|ed795074455a", "edba13cc6d78"]
+    },
+    {
+      "name": "sla_mm2_mg",
+      "type": "numeric",
+      "values": [29.035, 5.87]
+    },
+    {
+      "name": "sla_mm2_mg_min",
+      "type": "numeric",
+      "values": [19.8, 3.7]
+    },
+    {
+      "name": "sla_mm2_mg_max",
+      "type": "numeric",
+      "values": [37.1, 8.04]
+    },
+    {
+      "name": "sla_mm2_mg_n",
+      "type": "numeric",
+      "values": [10, 2]
+    },
+    {
+      "name": "sla_mm2_mg_source",
+      "type": "character",
+      "values": ["15e7c1d9716a|2f1f9cc7a35a|b52ddb1c94ae|e8f0ac6f5407|ed795074455a", "a3ad3dd3e257|edba13cc6d78"]
+    },
+    {
+      "name": "clonal_growth_organ",
+      "type": "character",
+      "values": ["epigeogeneous stems", null]
+    },
+    {
+      "name": "clonal_growth_organ_source",
+      "type": "character",
+      "values": ["3024df2eb3bd", null]
+    },
+    {
+      "name": "floating_capacity_1week_pct",
+      "type": "numeric",
+      "values": [25, null]
+    },
+    {
+      "name": "floating_capacity_1week_pct_min",
+      "type": "numeric",
+      "values": [0, null]
+    },
+    {
+      "name": "floating_capacity_1week_pct_max",
+      "type": "numeric",
+      "values": [50, null]
+    },
+    {
+      "name": "floating_capacity_1week_pct_n",
+      "type": "numeric",
+      "values": [78, null]
+    },
+    {
+      "name": "floating_capacity_1week_pct_source",
+      "type": "character",
+      "values": ["1a4f66285979|f0836ea7ca3f", null]
+    },
+    {
+      "name": "age_first_flowering",
+      "type": "character",
+      "values": ["Within 1 year", null]
+    },
+    {
+      "name": "age_first_flowering_source",
+      "type": "character",
+      "values": ["be54d2f7f21a", null]
+    },
+    {
+      "name": "branching",
+      "type": "character",
+      "values": ["yes", "yes"]
+    },
+    {
+      "name": "branching_source",
+      "type": "character",
+      "values": ["5252029b92bc|df5419eb85e4", "50eb26836670|df5419eb85e4"]
+    },
+    {
+      "name": "bud_bank_seasonality",
+      "type": "character",
+      "values": ["seasonal", null]
+    },
+    {
+      "name": "bud_bank_seasonality_source",
+      "type": "character",
+      "values": ["3024df2eb3bd", null]
+    },
+    {
+      "name": "buds_vertical_distribution",
+      "type": "character",
+      "values": [">=0", null]
+    },
+    {
+      "name": "buds_vertical_distribution_source",
+      "type": "character",
+      "values": ["491b313771bb", null]
+    },
+    {
+      "name": "leaf_distribution",
+      "type": "character",
+      "values": ["semi-rosette", "leaves distributed regularly along the stem"]
+    },
+    {
+      "name": "leaf_distribution_source",
+      "type": "character",
+      "values": ["12618f2bbe63|1ed7e1dccf64", "1ed7e1dccf64"]
+    },
+    {
+      "name": "ldmc_mg_g",
+      "type": "numeric",
+      "values": [300, 319.3]
+    },
+    {
+      "name": "ldmc_mg_g_min",
+      "type": "numeric",
+      "values": [266.95, 319.3]
+    },
+    {
+      "name": "ldmc_mg_g_max",
+      "type": "numeric",
+      "values": [307, 319.3]
+    },
+    {
+      "name": "ldmc_mg_g_n",
+      "type": "numeric",
+      "values": [3, 1]
+    },
+    {
+      "name": "ldmc_mg_g_source",
+      "type": "character",
+      "values": ["15e7c1d9716a|2f1f9cc7a35a|ed795074455a", "edba13cc6d78"]
+    },
+    {
+      "name": "leaf_size_mm2",
+      "type": "numeric",
+      "values": [1223, 41.25]
+    },
+    {
+      "name": "leaf_size_mm2_min",
+      "type": "numeric",
+      "values": [1223, 41.25]
+    },
+    {
+      "name": "leaf_size_mm2_max",
+      "type": "numeric",
+      "values": [1223, 41.25]
+    },
+    {
+      "name": "leaf_size_mm2_n",
+      "type": "numeric",
+      "values": [1, 1]
+    },
+    {
+      "name": "leaf_size_mm2_source",
+      "type": "character",
+      "values": ["ed795074455a", "edba13cc6d78"]
+    },
+    {
+      "name": "diaspore_type",
+      "type": "character",
+      "values": ["one-seeded generative dispersule", "germinule"]
+    },
+    {
+      "name": "diaspore_type_source",
+      "type": "character",
+      "values": ["279c755ad2a5", "f00e37a9b503"]
+    },
+    {
+      "name": "plant_life_span",
+      "type": "character",
+      "values": ["perennials", "poly-annuals > 50 years (long-lived perennials)"]
+    },
+    {
+      "name": "plant_life_span_source",
+      "type": "character",
+      "values": ["12618f2bbe63|646a58ebb09a|af0bc52e52f0", "4d6c1fa0b70b"]
+    },
+    {
+      "name": "releasing_height_m",
+      "type": "numeric",
+      "values": [0.9, 29]
+    },
+    {
+      "name": "releasing_height_m_min",
+      "type": "numeric",
+      "values": [0.9, 8]
+    },
+    {
+      "name": "releasing_height_m_max",
+      "type": "numeric",
+      "values": [1.2, 50]
+    },
+    {
+      "name": "releasing_height_m_n",
+      "type": "numeric",
+      "values": [3, 2]
+    },
+    {
+      "name": "releasing_height_m_source",
+      "type": "character",
+      "values": ["17267a656230|b8d99be3c83c|de1b793f1a14", "b8d99be3c83c|de1b793f1a14"]
+    },
+    {
+      "name": "seed_longevity_index",
+      "type": "numeric",
+      "values": [0, null]
+    },
+    {
+      "name": "seed_longevity_index_min",
+      "type": "numeric",
+      "values": [0, null]
+    },
+    {
+      "name": "seed_longevity_index_max",
+      "type": "numeric",
+      "values": [1, null]
+    },
+    {
+      "name": "seed_longevity_index_n",
+      "type": "numeric",
+      "values": [266, null]
+    },
+    {
+      "name": "seed_longevity_index_source",
+      "type": "character",
+      "values": ["02d6d0fd42e6|039d9df29a96|0e130615ec19|0ed7c22e4bfc|14679f4b7e0b|174640a4086f|1f1780da4334|268835aed07b|277d1a8203bd|338153086507|3b548eda909e|3f4d243ee8e0|4083fb6618dc|51ff6244c7a8|596b8efb0781|734f139cbaa5|7501aed28115|7ad82456d60c|806699446f05|829913f37e44|84ef77788d78|8937c2a1ada6|94b743323125|9552a450bff1|997016824a0e|ae0a492e71a3|ae63720e0421|af0d9b55e360|b24baa7d39be|b94feec2f4d5|b96698757d59|bbf8f4bddf65|c708c3e28970|c77ba07ea0e3|cac040649fda|d099184a2e41|d70e7a42a09f|d8c48adebdae|eb62a04b9dfa|f688b9d6ecbe|f6cb5361daad|fa6266a6fd58", null]
+    },
+    {
+      "name": "seed_number_per_plant",
+      "type": "numeric",
+      "values": [12580.333335, null]
+    },
+    {
+      "name": "seed_number_per_plant_min",
+      "type": "numeric",
+      "values": [10, null]
+    },
+    {
+      "name": "seed_number_per_plant_max",
+      "type": "numeric",
+      "values": [25150.66667, null]
+    },
+    {
+      "name": "seed_number_per_plant_n",
+      "type": "numeric",
+      "values": [2, null]
+    },
+    {
+      "name": "seed_number_per_plant_source",
+      "type": "character",
+      "values": ["650296fa8a62|8a96887c998a", null]
+    },
+    {
+      "name": "seed_length_mm",
+      "type": "numeric",
+      "values": [8.04, 10.5]
+    },
+    {
+      "name": "seed_length_mm_min",
+      "type": "numeric",
+      "values": [3.81, 8.5]
+    },
+    {
+      "name": "seed_length_mm_max",
+      "type": "numeric",
+      "values": [14.5, 20]
+    },
+    {
+      "name": "seed_length_mm_n",
+      "type": "numeric",
+      "values": [7, 5]
+    },
+    {
+      "name": "seed_length_mm_source",
+      "type": "character",
+      "values": ["1d5d541ec875|1ed7e1dccf64|55ca6d8b6e7e|bd82cec9734b|f0836ea7ca3f", "1ed7e1dccf64|55ca6d8b6e7e"]
+    },
+    {
+      "name": "shoot_growth_form",
+      "type": "character",
+      "values": ["Stem erect", "Stem erect"]
+    },
+    {
+      "name": "shoot_growth_form_source",
+      "type": "character",
+      "values": ["087a5614ef63|12618f2bbe63|646a58ebb09a|ddb038b896d6", "50eb26836670"]
+    },
+    {
+      "name": "ssd_g_cm3",
+      "type": "numeric",
+      "values": [null, 0.45475]
+    },
+    {
+      "name": "ssd_g_cm3_min",
+      "type": "numeric",
+      "values": [null, 0.43]
+    },
+    {
+      "name": "ssd_g_cm3_max",
+      "type": "numeric",
+      "values": [null, 0.4795]
+    },
+    {
+      "name": "ssd_g_cm3_n",
+      "type": "numeric",
+      "values": [null, 2]
+    },
+    {
+      "name": "ssd_g_cm3_source",
+      "type": "character",
+      "values": [null, "50553d082a8f|a3ad3dd3e257"]
+    },
+    {
+      "name": "raunkiaer_variable",
+      "type": "numeric",
+      "values": [0, null]
+    }
+  ]
+}

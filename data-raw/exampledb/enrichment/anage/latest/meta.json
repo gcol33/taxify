@@ -1,0 +1,18 @@
+{
+  "name": "anage",
+  "version": "example",
+  "nrow": 1,
+  "static": true,
+  "license": "CC BY",
+  "citation": {
+    "key": "tacutu2018anage",
+    "type": "article",
+    "authors": "Tacutu R, Thornton D, Johnson E, Budovsky A, Barardo D, Craig T, Diana E, Lehmann G, Toren D, Wang J, et al.",
+    "year": "2018",
+    "title": "Human Ageing Genomic Resources: new and updated databases",
+    "journal": "Nucleic Acids Research",
+    "volume": "46",
+    "pages": "D1083-D1090",
+    "doi": "10.1093/nar/gkx1042"
+  }
+}
