@@ -33,6 +33,10 @@
   `pick_best_vec()`'s ambiguity flag no longer scale with the square of the
   group count. `add_wcvp(region = "all")` over 10,000 names through GBIF,
   including the wider recovery above, went from 53 s to 22 s.
+  `add_griis(country = "all")` over 10,000 GRIIS keys went from 29.6 s to
+  3.7 s through WFO and from 10.4 s to 4.4 s through GBIF, with output
+  identical cell for cell: GRIIS carries no authorship column, so neither
+  the wider recovery nor the within-taxon check applies to it.
 
 * `add_wcvp()` (and every grouped door over an authorship-bearing source)
   now returns the range of the taxon a name was matched to, as the matching
