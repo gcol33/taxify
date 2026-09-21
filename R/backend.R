@@ -592,13 +592,21 @@ write_match_rows <- function(result, idx, best, col_map) {
 #' @return A `vectra_block`.
 #' @noRd
 backbone_block <- function(vtr_path) {
-  cache_key <- backbone_memo_key(".blk_", vtr_path)
-  blk <- .taxify_env[[cache_key]]
+  blk <- loaded_backbone_block(vtr_path)
   if (is.null(blk)) {
     blk <- vectra::materialize(vectra::tbl(vtr_path))
-    .taxify_env[[cache_key]] <- blk
+    .taxify_env[[backbone_memo_key(".blk_", vtr_path)]] <- blk
   }
   blk
+}
+
+#' The materialized backbone block if this session has already loaded it
+#'
+#' @param vtr_path Path to the backbone `.vtr`.
+#' @return A `vectra_block`, or `NULL` when the build is not loaded.
+#' @noRd
+loaded_backbone_block <- function(vtr_path) {
+  .taxify_env[[backbone_memo_key(".blk_", vtr_path)]]
 }
 
 
@@ -1060,10 +1068,6 @@ empty_match_result <- function(n) {
 #' @return Logical. TRUE if the backbone has precomputed columns.
 #' @noRd
 is_compiled_backbone <- function(vtr_path) {
-  tryCatch({
-    cols <- names(vectra::tbl(vtr_path) |>
-                    vectra::slice_head(n = 1L) |>
-                    vectra::collect())
-    "accepted_name" %in% cols
-  }, error = function(e) FALSE)
+  tryCatch("accepted_name" %in% vtr_schema(vtr_path),
+           error = function(e) FALSE)
 }

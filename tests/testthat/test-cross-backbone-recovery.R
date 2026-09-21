@@ -31,7 +31,7 @@ test_that("enrich_simple() recovers a row the source holds under another backbon
   r <- testthat::with_mocked_bindings(
     taxify:::enrich_simple(x, "mockrecovery", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       alt_frame(list("Minuartia hybrida", "wcvp",
                      "Sabulina tenuifolia subsp. tenuifolia"))
     },
@@ -56,7 +56,7 @@ test_that("recovery reports once per call, naming the backbone that supplied it"
     testthat::with_mocked_bindings(
       taxify:::enrich_simple(x, "mockreport", col_map = c(regions = "regions"),
                              source_label = "mock", verbose = TRUE),
-      .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+      .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
         alt_frame(list("Minuartia hybrida", "col", "Sabulina tenuifolia"),
                   list("Senecio jacobaea", "col", "Jacobaea vulgaris"))
       },
@@ -77,7 +77,7 @@ test_that("recovery leaves a direct hit alone and only fills empty cells", {
   r <- testthat::with_mocked_bindings(
     taxify:::enrich_simple(x, "mockdirect", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       # An alternative is offered for the row that already matched too; the
       # direct value must survive it.
       alt_frame(list("Quercus robur", "col", "Sabulina tenuifolia"),
@@ -100,7 +100,7 @@ test_that("options(taxify.cross_backbone_recovery = FALSE) leaves the gap empty"
   r <- testthat::with_mocked_bindings(
     taxify:::enrich_simple(x, "mockoff", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       stop("alternatives must not be resolved when recovery is off")
     },
     .package = "taxify"
@@ -124,7 +124,7 @@ test_that("recovery prefers the backbone the enrichment is named after", {
   r <- testthat::with_mocked_bindings(
     taxify:::enrich_simple(x, "wcvp", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       alt_frame(list("Minuartia hybrida", "col",
                      "Sabulina tenuifolia subsp. hybrida"),
                 list("Minuartia hybrida", "wcvp",
@@ -147,7 +147,7 @@ test_that("recovery falls back to fallback priority when the source is not a bac
   r <- testthat::with_mocked_bindings(
     taxify:::enrich_simple(x, "mockprio", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       # Offered lowest-priority first, so a bare "take the first row" would
       # pick GBIF; COL outranks it.
       alt_frame(list("Minuartia hybrida", "gbif",
@@ -171,7 +171,7 @@ test_that("a genus-keyed enrichment recovers on the alternative's genus", {
     taxify:::enrich_simple(x, "mockgenusrec", col_map = c(myco = "myco"),
                            source_label = "mock", join_col = "genus",
                            verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       alt_frame(list("Minuartia hybrida", "col", "Sabulina tenuifolia"))
     },
     .package = "taxify"
@@ -193,7 +193,7 @@ test_that("enrich_by_group() recovers, including when the direct join matched no
                              groups = c("BGM", "GER"),
                              value_cols = c(native_status = "native_status"),
                              source_label = "mock", verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       alt_frame(list("Minuartia hybrida", "col", "Sabulina tenuifolia"))
     },
     .package = "taxify"

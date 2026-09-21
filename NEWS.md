@@ -1,5 +1,26 @@
 # taxify (development version)
 
+* Cross-backbone recovery in grouped doors (`add_wcvp()` and the others over an
+  authorship-bearing source) now also runs for a name whose own concept the
+  source does not hold under that name, even where parts of the taxon supplied
+  values, and for each part of the matched taxon that found nothing under its
+  own name. A part is asked of the source's own backbone only when the source
+  is also a backbone. When the matched backbone is known, an alternative is
+  taken only if it lies inside the matched taxon: one at a broader rank (a
+  species offered for a subspecies) is refused, and so is one the matched
+  backbone accepts as a taxon of its own, unless that accepted record is a
+  homonym under another author. Over 10,000 wcvp keys through COL / WFO / GBIF
+  this gains 10,062 / 4,894 / 5,193 cells and drops 4,966 / 11,975 / 8,782,
+  the dropped ones being a species' range under an infraspecific name or an
+  independent taxon's range (*Dianthus carthusianorum*'s under *D.
+  rogowiczii*, which WFO accepts on its own).
+* Faster grouped enrichment: the backbone reads behind the concept pick use
+  the cached in-memory block, a `.vtr`'s schema is read once per session,
+  author citations are parsed once per distinct string, and the group fill and
+  `pick_best_vec()`'s ambiguity flag no longer scale with the square of the
+  group count. `add_wcvp(region = "all")` over 10,000 names through GBIF,
+  including the wider recovery above, went from 53 s to 22 s.
+
 * `add_wcvp()` (and every grouped door over an authorship-bearing source)
   now returns the range of the taxon a name was matched to, as the matching
   backbone draws it. The build keys a source concept under every name a

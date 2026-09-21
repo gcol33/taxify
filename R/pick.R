@@ -441,22 +441,25 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
                                    sorted_tier[best_pos][grp_best],
                                    sorted_status[best_pos][grp_best])
 
-    if (any(same_tier)) {
-      tier_grp <- ifelse(same_tier, as.character(grp_vec), NA_character_)
-      tier_acc <- split(sorted$accepted_taxon_id, tier_grp)
-
-      for (g_str in names(tier_acc)) {
-        ids <- unique(tier_acc[[g_str]])
-        ids <- ids[!is.na(ids)]
-        if (length(ids) >= 2L) {
-          # Find the first (best) row for this group and flag it.
-          g_first <- best_pos[grp_vec[is_first] == g_str |
-                              as.character(grp_vec[is_first]) == g_str][1L]
-          if (!is.na(g_first)) {
-            sorted$is_ambiguous[g_first] <- TRUE
-            sorted$ambiguous_targets[g_first] <- paste(sort(ids), collapse = "|")
-          }
-        }
+    # A group is ambiguous when its in-scope rows name two or more distinct
+    # accepted taxa; the flag and the sorted targets go on its best row.
+    st <- which(same_tier & !is.na(sorted$accepted_taxon_id))
+    if (length(st) > 0L) {
+      g  <- as.character(grp_vec[st])
+      id <- sorted$accepted_taxon_id[st]
+      keep <- !duplicated(data.frame(g, id, stringsAsFactors = FALSE))
+      g <- g[keep]
+      id <- id[keep]
+      ug <- unique(g)
+      amb <- ug[tabulate(match(g, ug), length(ug)) >= 2L]
+      if (length(amb) > 0L) {
+        in_amb <- g %in% amb
+        targets <- vapply(
+          split(id[in_amb], factor(g[in_amb], levels = amb)),
+          function(v) paste(sort(v), collapse = "|"), character(1L))
+        pos <- best_pos[match(amb, as.character(grp_vec[best_pos]))]
+        sorted$is_ambiguous[pos] <- TRUE
+        sorted$ambiguous_targets[pos] <- unname(targets)
       }
     }
   }

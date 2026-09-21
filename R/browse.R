@@ -29,24 +29,31 @@ backbone_path <- function(backbone, verbose = TRUE) {
 }
 
 
-#' Column names of a `.vtr` file
+#' A zero-row data.frame with the columns and types of a `.vtr` file
 #'
 #' Reading them materializes the first row group, over a second on a large
 #' backbone, so they are memoized for the session per path, size and
 #' modification time: a file rewritten in place is read afresh.
 #'
 #' @param path Path to a `.vtr` file.
-#' @return Character vector of column names.
+#' @return A data.frame with no rows.
 #' @noRd
-vtr_schema <- function(path) {
+vtr_prototype <- function(path) {
   info <- file.info(path)
   key <- paste(normalizePath(path, mustWork = FALSE), info$size,
                as.numeric(info$mtime))
-  hit <- memo_get(".vtr_schema", key)
+  hit <- memo_get(".vtr_proto", key)
   if (!is.null(hit)) return(hit)
-  memo_set(".vtr_schema", key,
-           names(vectra::collect(utils::head(vectra::tbl(path), 1L))))
+  memo_set(".vtr_proto", key,
+           vectra::collect(utils::head(vectra::tbl(path), 1L))[0L, , drop = FALSE])
 }
+
+#' Column names of a `.vtr` file
+#'
+#' @param path Path to a `.vtr` file.
+#' @return Character vector of column names.
+#' @noRd
+vtr_schema <- function(path) names(vtr_prototype(path))
 
 
 #' The name of a backbone given as a name or a `taxify_backend` object
@@ -95,7 +102,9 @@ title_case_taxon <- function(s) {
 #'
 #' Writes the lookup values to a temp `.vtr` and inner-joins the backbone,
 #' selecting `select_cols`, matching the vectorized pattern used throughout the
-#' package.
+#' package. When matching has already loaded the backbone into memory this
+#' session (`loaded_backbone_block()`) and the key is a string column, the rows
+#' come from a hashed lookup on that copy instead of a scan of the file.
 #'
 #' @param bb Backbone `.vtr` path.
 #' @param values Character/other vector of lookup values.
@@ -108,6 +117,15 @@ title_case_taxon <- function(s) {
 backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
   values <- unique(values[!is.na(values)])
   if (length(values) == 0L) return(NULL)
+  blk <- if (is.null(pre)) loaded_backbone_block(bb)
+  if (!is.null(blk) && is.character(vtr_prototype(bb)[[bb_key]])) {
+    values <- as.character(values)
+    hits <- vectra::block_lookup(blk, bb_key, values)
+    out <- data.frame(lookup = values[hits$query_idx],
+                      stringsAsFactors = FALSE)
+    for (cc in setdiff(unique(select_cols), bb_key)) out[[cc]] <- hits[[cc]]
+    return(out)
+  }
   lookup <- data.frame(lookup = values, stringsAsFactors = FALSE)
   tmp <- tempfile(fileext = ".vtr")
   on.exit(unlink(tmp), add = TRUE)

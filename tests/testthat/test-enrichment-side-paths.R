@@ -12,7 +12,7 @@ test_that("species-level recovery runs before the genus fill", {
     enrich_simple(x, "mockgenusfb", col_map = c(habit = "habit"),
                   source_label = "mock", genus_fallback = TRUE,
                   verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       data.frame(input_name = "Minuartia hybrida", backbone = "wcvp",
                  alt_name = "Sabulina tenuifolia", alt_authorship = NA_character_,
                  alt_genus = "Sabulina", stringsAsFactors = FALSE)
@@ -26,7 +26,7 @@ test_that("species-level recovery runs before the genus fill", {
     enrich_simple(x, "mockgenusfb", col_map = c(habit = "habit"),
                   source_label = "mock", genus_fallback = TRUE,
                   verbose = FALSE),
-    .cross_backbone_alternatives = function(names_in, kingdoms = NULL) {
+    .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       data.frame(input_name = character(0), backbone = character(0),
                  alt_name = character(0), alt_authorship = character(0),
                  alt_genus = character(0), stringsAsFactors = FALSE)
