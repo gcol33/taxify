@@ -39,6 +39,12 @@ options(old)
 
 }
 \references{
-Diaz S et al. (2022) The global spectrum of plant form and function:
-enhanced species-level trait data. TRY File Archive.
+Diaz S, Kattge J, Cornelissen JHC, Wright IJ, Lavorel S, Dray S, Reu B,
+Kleyer M, Wirth C, Prentice IC, et al. (2022) The global spectrum of plant
+form and function: enhanced species-level trait dataset. Scientific Data
+9:755. \doi{10.1038/s41597-022-01774-9}
+
+Diaz S, Kattge J, Cornelissen JHC, Wright IJ, Lavorel S, Dray S, Reu B,
+Kleyer M, Wirth C, Prentice IC, et al. (2016) The global spectrum of plant
+form and function. Nature 529:167-171. \doi{10.1038/nature16489}
 }

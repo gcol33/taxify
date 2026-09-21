@@ -218,3 +218,45 @@ test_that("formatters do not error on a {} doi field", {
   expect_no_error(bib <- format_bibtex_entry(cleaned))
   expect_false(grepl("doi =", bib))
 })
+
+# ---- multi-work citations ----
+
+test_that("an array citation yields one citation per work", {
+  mf <- list(enrichments = list(demo = list(
+    source_date = "2025-01-01",
+    citation = list(
+      list(key = "release2025", type = "misc", title = "Release"),
+      list(key = "paper2017", type = "article", title = "Paper")
+    )
+  )))
+  cits <- extract_manifest_citations(mf, "enrichments", "demo")
+  expect_length(cits, 2L)
+  expect_identical(vapply(cits, `[[`, "", "key"), c("release2025", "paper2017"))
+  expect_equal(cits[[1]]$note, "Data version 2025-01-01")
+  expect_null(cits[[2]]$note)
+})
+
+test_that("a single-object citation yields one citation", {
+  mf <- list(backends = list(demo = list(
+    citation = list(key = "demo", type = "misc", title = "Demo")
+  )))
+  cits <- extract_manifest_citations(mf, "backends", "demo")
+  expect_length(cits, 1L)
+  expect_identical(cits[[1]]$key, "demo")
+})
+
+test_that("an entry without a citation yields none", {
+  expect_length(extract_manifest_citations(list(enrichments = list(demo = list())),
+                                           "enrichments", "demo"), 0L)
+  expect_length(extract_manifest_citations(NULL, "enrichments", "demo"), 0L)
+})
+
+test_that("the bundled manifest cites both GloNAF versions and both FirstRecords works", {
+  mf <- jsonlite::read_json(system.file("manifest.json", package = "taxify"))
+  glonaf <- extract_manifest_citations(mf, "enrichments", "glonaf")
+  expect_identical(vapply(glonaf, `[[`, "", "doi"),
+                   c("10.1002/ecy.70245", "10.1002/ecy.2542"))
+  fr <- extract_manifest_citations(mf, "enrichments", "alien_first_records")
+  expect_identical(vapply(fr, `[[`, "", "doi"),
+                   c("10.5281/zenodo.18759840", "10.1038/ncomms14435"))
+})

@@ -20,38 +20,38 @@ test_that("taxify_databases() carries source_date through", {
 
 
 test_that("a manifest source_date reaches the citation note", {
-  cit <- taxify:::extract_manifest_citation(
+  cit <- taxify:::extract_manifest_citations(
     list(backends = list(demo = list(
       source_date = "2023-08-28",
       citation = list(key = "demo", type = "misc", title = "Demo Backbone")
     ))),
     "backends", "demo"
-  )
+  )[[1]]
   expect_equal(cit$note, "Data version 2023-08-28")
   expect_match(taxify:::format_bibtex_entry(cit), "note = \\{Data version 2023-08-28\\}")
 })
 
 
 test_that("an entry without source_date keeps its citation unchanged", {
-  cit <- taxify:::extract_manifest_citation(
+  cit <- taxify:::extract_manifest_citations(
     list(backends = list(demo = list(
       citation = list(key = "demo", type = "misc", title = "Demo Backbone")
     ))),
     "backends", "demo"
-  )
+  )[[1]]
   expect_null(cit$note)
 })
 
 
 test_that("an existing citation note is kept alongside the data version", {
-  cit <- taxify:::extract_manifest_citation(
+  cit <- taxify:::extract_manifest_citations(
     list(backends = list(demo = list(
       source_date = "2023-08-28",
       citation = list(key = "demo", type = "misc", title = "Demo",
                       note = "Accessed via ChecklistBank")
     ))),
     "backends", "demo"
-  )
+  )[[1]]
   expect_equal(cit$note, "Accessed via ChecklistBank; Data version 2023-08-28")
 })
 

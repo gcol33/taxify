@@ -984,7 +984,28 @@
         "ZW"
       ],
       "static": true,
-      "citation": "Seebens H, Renard Truong T (2026) FirstRecords: a global dataset of first records of non-native species, version 4.0. Zenodo (doi:10.5281/zenodo.18759840), CC BY 4.0. The year a non-native species was first recorded in a region, reduced to one row per species x location by taxifydb, where a location is a country or an island or other part of one the release records as a region of its own. Built from the public dataset table, whose records the deposit marks free to share; the records their holders did not permit sharing are not in it.",
+      "citation": [
+        {
+          "key": "seebens2026firstrecords",
+          "type": "misc",
+          "authors": "Seebens H, Renard Truong T",
+          "year": "2026",
+          "title": "FirstRecords: a global dataset of first records of non-native species, version 4.0",
+          "doi": "10.5281/zenodo.18759840",
+          "note": "Zenodo, CC BY 4.0. The year a non-native species was first recorded in a region, reduced to one row per species x location by taxifydb, where a location is a country or an island or other part of one the release records as a region of its own. Built from the public dataset table, whose records the deposit marks free to share; the records their holders did not permit sharing are not in it."
+        },
+        {
+          "key": "seebens2017firstrecords",
+          "type": "article",
+          "authors": "Seebens H, Blackburn TM, Dyer EE, Genovesi P, Hulme PE, Jeschke JM, Pagad S, Pysek P, Winter M, Arianoutsou M, et al.",
+          "year": "2017",
+          "title": "No saturation in the accumulation of alien species worldwide",
+          "journal": "Nature Communications",
+          "volume": "8",
+          "pages": "14435",
+          "doi": "10.1038/ncomms14435"
+        }
+      ],
       "license": "CC BY 4.0",
       "source_doi": "10.5281/zenodo.18759840",
       "group_col": "location",
@@ -4484,17 +4505,30 @@
         "ZWE.W"
       ],
       "static": true,
-      "citation": {
-        "key": "vankleunen2019glonaf",
-        "type": "article",
-        "authors": "van Kleunen M, Pysek P, Dawson W, Essl F, Kreft H, Pergl J, Weigelt P, Stein A, Dullinger S, Konig C, et al.",
-        "year": "2019",
-        "title": "The Global Naturalized Alien Flora (GloNAF) database",
-        "journal": "Ecology",
-        "volume": "100",
-        "pages": "e02542",
-        "doi": "10.1002/ecy.2542"
-      },
+      "citation": [
+        {
+          "key": "davis2025glonaf",
+          "type": "article",
+          "authors": "Davis AJS, Dawson W, Essl F, Kreft H, Lenzner B, Pergl J, Pysek P, Weigelt P, Winter M, van Kleunen M",
+          "year": "2025",
+          "title": "The updated Global Naturalized Alien Flora (GloNAF 2.0) database",
+          "journal": "Ecology",
+          "volume": "106",
+          "pages": "e70245",
+          "doi": "10.1002/ecy.70245"
+        },
+        {
+          "key": "vankleunen2019glonaf",
+          "type": "article",
+          "authors": "van Kleunen M, Pysek P, Dawson W, Essl F, Kreft H, Pergl J, Weigelt P, Stein A, Dullinger S, Konig C, et al.",
+          "year": "2019",
+          "title": "The Global Naturalized Alien Flora (GloNAF) database",
+          "journal": "Ecology",
+          "volume": "100",
+          "pages": "e02542",
+          "doi": "10.1002/ecy.2542"
+        }
+      ],
       "license": "CC BY 4.0",
       "source_doi": "10.1002/ecy.2542",
       "group_col": "region_id",

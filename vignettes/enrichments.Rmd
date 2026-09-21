@@ -1555,7 +1555,7 @@ distributions.
 
 The dataset is licensed under CC BY 4.0. The reference is van Kleunen et
 al. (2019), *Ecology* 100:e02542 (v1.0) and Davis et al. (2025), *Ecology*
-e70245 (v2.0). GloNAF is classified as static in the taxify manifest.
+106:e70245 (v2.0). GloNAF is classified as static in the taxify manifest.
 
 ### Common (vernacular) names (GBIF)
 
@@ -2603,10 +2603,19 @@ Brosse S, Charpin N, Su G, Toussaint A, Hermine O, Tedesco PA (2021). FISHMORPH:
 A global database on morphological traits of freshwater fishes. *Global Ecology
 and Biogeography* 30: 2330-2336. <https://doi.org/10.1111/geb.13395>
 
+Davis AJS, Dawson W, Essl F, Kreft H, Lenzner B, Pergl J, Pysek P, Weigelt P,
+Winter M, van Kleunen M (2025). The updated Global Naturalized Alien Flora
+(GloNAF 2.0) database. *Ecology* 106: e70245.
+<https://doi.org/10.1002/ecy.70245>
+
 Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova
 I, Bruun HH, Chytry M, Guarino R, et al. (2023). Ecological Indicator Values for
 Europe (EIVE) 1.0. *Vegetation Classification and Survey* 4: 7-29.
 <https://doi.org/10.3897/VCS.98324>
+
+Diaz S, Kattge J, Cornelissen JHC, Wright IJ, Lavorel S, Dray S, Reu B, Kleyer
+M, Wirth C, Prentice IC, et al. (2016). The global spectrum of plant form and
+function. *Nature* 529: 167-171. <https://doi.org/10.1038/nature16489>
 
 Diaz S, Kattge J, Cornelissen JHC, Wright IJ, Lavorel S, Dray S, Reu B, Kleyer
 M, Wirth C, Prentice IC, et al. (2022). The global spectrum of plant form and
@@ -2670,6 +2679,11 @@ Polme S, Abarenkov K, Henrik Nilsson R, Lindahl BD, Clemmensen KE, Kauserud H,
 Nguyen N, Kjoller R, Bates ST, Baldrian P, et al. (2020). FungalTraits: a
 user-friendly traits database of fungi and fungus-like stramenopiles. *Fungal
 Diversity* 105: 1-16. <https://doi.org/10.1007/s13225-020-00466-2>
+
+Seebens H, Blackburn TM, Dyer EE, Genovesi P, Hulme PE, Jeschke JM, Pagad S,
+Pysek P, Winter M, Arianoutsou M, et al. (2017). No saturation in the
+accumulation of alien species worldwide. *Nature Communications* 8: 14435.
+<https://doi.org/10.1038/ncomms14435>
 
 Seebens H, Renard Truong T (2026). FirstRecords: a global dataset of first
 records of non-native species, version 4.0. Zenodo.

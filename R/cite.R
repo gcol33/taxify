@@ -145,9 +145,9 @@ collect_citations <- function(meta) {
   backbones <- meta$backbone
   if (!is.null(backbones) && length(backbones) > 0L) {
     for (be in backbones) {
-      cit <- extract_manifest_citation(manifest, "backends", be)
-      if (!is.null(cit)) {
-        citations <- c(citations, list(cit))
+      cits <- extract_manifest_citations(manifest, "backends", be)
+      if (length(cits) > 0L) {
+        citations <- c(citations, cits)
       } else {
         # Fallback: minimal citation from meta
         citations <- c(citations, list(list(
@@ -170,9 +170,9 @@ collect_citations <- function(meta) {
   if (!is.null(enrichments) && length(enrichments) > 0L) {
     for (e in enrichments) {
       if (!enrichment_contributed(e)) next
-      cit <- extract_manifest_citation(manifest, "enrichments", e$name)
-      if (!is.null(cit)) {
-        citations <- c(citations, list(cit))
+      cits <- extract_manifest_citations(manifest, "enrichments", e$name)
+      if (length(cits) > 0L) {
+        citations <- c(citations, cits)
       } else {
         # Fallback: reconstruct from registered enrichment metadata
         citations <- c(citations, list(list(
@@ -194,19 +194,31 @@ collect_citations <- function(meta) {
 }
 
 
-#' Extract a citation object from the manifest
+#' Extract the citation objects of a manifest entry
+#'
+#' An entry's `citation` is either one citation object or an array of them,
+#' for a source whose data rest on more than one work (a dataset release and
+#' the paper that introduced it). The first element is the work the data
+#' version belongs to and carries the `source_date` note.
 #'
 #' @param manifest Parsed manifest list.
 #' @param section `"backends"` or `"enrichments"`.
 #' @param name Entry name (e.g., `"wfo"`, `"eive"`).
-#' @return A citation list, or NULL.
+#' @return A list of citation lists, empty when the entry has none.
 #' @noRd
-extract_manifest_citation <- function(manifest, section, name) {
-  if (is.null(manifest)) return(NULL)
+extract_manifest_citations <- function(manifest, section, name) {
+  if (is.null(manifest)) return(list())
   entry <- manifest[[section]][[name]]
-  if (is.null(entry) || is.null(entry$citation)) return(NULL)
-  cit <- clean_citation(entry$citation)
-  if (is.null(cit)) return(NULL)
+  if (is.null(entry) || is.null(entry$citation)) return(list())
+
+  raw <- entry$citation
+  if (is.list(raw) && is.null(names(raw))) {
+    cits <- lapply(raw, clean_citation)
+  } else {
+    cits <- list(clean_citation(raw))
+  }
+  cits <- cits[!vapply(cits, is.null, logical(1L))]
+  if (length(cits) == 0L) return(list())
 
   # A citation year is the year of the work; a frozen source can be packaged
   # under a much later release, so the date of the data itself is carried in
@@ -215,9 +227,11 @@ extract_manifest_citation <- function(manifest, section, name) {
   if (!is.null(src_date) && length(src_date) == 1L && is.atomic(src_date) &&
       !is.na(src_date) && nzchar(as.character(src_date))) {
     note <- sprintf("Data version %s", as.character(src_date))
-    cit$note <- if (is.null(cit$note)) note else paste(cit$note, note, sep = "; ")
+    first <- cits[[1L]]
+    first$note <- if (is.null(first$note)) note else paste(first$note, note, sep = "; ")
+    cits[[1L]] <- first
   }
-  cit
+  cits
 }
 
 
