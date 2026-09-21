@@ -19,7 +19,6 @@ todos.md
 next-steps.md
 enrichments_plan.md
 enrichments-todo.md
-docs/enrichments-todo.*
 tests/e2e/debug-*
 tests/e2e/bench-*
 tests/e2e/measure-*
