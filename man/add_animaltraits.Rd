@@ -25,7 +25,7 @@ Joins AnimalTraits body mass and metabolic rate data to a \code{\link[=taxify]{t
 result by looking up \code{accepted_name}.
 }
 \details{
-Source: AnimalTraits (Hebert et al. 2022, CC0). Coverage: ~2k species
+Source: AnimalTraits (Herberstein et al. 2022, CC0). Coverage: ~2k species
 across arthropods, vertebrates, molluscs, and annelids. Individual-level
 observations aggregated to species medians.
 }
@@ -40,6 +40,6 @@ options(old)
 
 }
 \references{
-Hebert K et al. (2022) AnimalTraits -- a curated animal trait database
+Herberstein ME et al. (2022) AnimalTraits -- a curated animal trait database
 for body mass, metabolic rate and brain size. Scientific Data 9:265.
 }
