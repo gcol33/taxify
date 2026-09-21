@@ -1,4 +1,4 @@
-# taxify (development version)
+# taxify 0.5.6
 
 * Cross-backbone recovery in grouped doors (`add_wcvp()` and the others over an
   authorship-bearing source) now also runs for a name whose own concept the
