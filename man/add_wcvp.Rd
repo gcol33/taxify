@@ -46,10 +46,10 @@ Plants only.
 old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Quercus robur") |>
-  add_wcvp(region = "EUR")
+  add_wcvp(region = "GER")
 
 taxify("Quercus robur") |>
-  add_wcvp(region = c("EUR", "NAM"))
+  add_wcvp(region = c("GER", "BGM"))
 
 options(old)
 

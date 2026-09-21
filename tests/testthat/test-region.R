@@ -225,14 +225,13 @@ test_that("region filtering runs end-to-end against the example database", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  # The example WCVP fixture records Quercus robur under NAM (a real Level 3
-  # code); its other code, EUR, is a placeholder validate_region() drops.
+  # The example WCVP fixture records Quercus robur as native in GER and BGM.
   reg <- expect_no_warning(
-    taxify("Quercus robus", region = "NAM", verbose = FALSE))
+    taxify("Quercus robus", region = "GER", verbose = FALSE))
 
   expect_s3_class(reg, "taxify_result")
   expect_equal(nrow(reg), 1L)
-  # Quercus robur is recorded in NAM, so the fuzzy match is retained: the
+  # Quercus robur is recorded in GER, so the fuzzy match is retained: the
   # misspelling resolves to col-ex-001, the example database's Quercus robur.
   expect_equal(reg$match_type, "fuzzy")
   expect_equal(reg$accepted_name, "Quercus robur")

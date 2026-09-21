@@ -1847,12 +1847,15 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
 #' happen to share a name. An authorship column is the only signal available
 #' to tell them apart; this picks the first alias present, in order of how
 #' likely it is to be the taxon's own authorship rather than something else.
+#' taxifydb reads the same column at build time, so that the row it keys under
+#' a name is the one this guard will accept.
 #'
 #' @param schema_names Character vector of column names in the enrichment
 #'   `.vtr`.
 #' @return The matching column name, or `NULL` if none of the aliases is
 #'   present.
-#' @noRd
+#' @keywords internal
+#' @export
 enrichment_authorship_col <- function(schema_names) {
   aliases <- c("taxon_authors", "scientificNameAuthorship", "authorship",
               "author")

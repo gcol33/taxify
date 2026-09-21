@@ -1,3 +1,10 @@
+# taxify (development version)
+
+* `enrichment_authorship_col()`, the column `enrich_by_group()`'s homonym
+  guard reads, is exported (internal) so taxifydb keys each region row of an
+  authorship-bearing enrichment on the concept the guard will accept
+  (gcol33/taxifydb#58).
+
 # taxify 0.5.5
 
 * `taxify_regions()`'s two search examples (`"belgium"`, `"Europe"`) are

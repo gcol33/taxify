@@ -82,23 +82,22 @@ test_that("add_common_names() requires a taxify() result", {
 test_that("add_wcvp() attaches the native status for one TDWG region", {
   use_example_db()
   skip_if_not(enrichment_ready("wcvp"), "wcvp fixture missing")
-  out <- add_wcvp(grouped_probe(), region = "EUR", verbose = FALSE)
+  out <- add_wcvp(grouped_probe(), region = "GER", verbose = FALSE)
 
   expect_true("native_status" %in% names(out))
-  expect_equal(out$native_status,
-               c("example_native_status", NA_character_, NA_character_))
+  expect_equal(out$native_status, c("native", NA_character_, NA_character_))
 })
 
 test_that("add_wcvp() suffixes one column per region when several are asked", {
   use_example_db()
   skip_if_not(enrichment_ready("wcvp"), "wcvp fixture missing")
-  out <- add_wcvp(grouped_probe(), region = c("EUR", "NAM"), verbose = FALSE)
+  out <- add_wcvp(grouped_probe(), region = c("GER", "BGM"), verbose = FALSE)
 
-  expect_true(all(c("native_status_EUR", "native_status_NAM") %in% names(out)))
+  expect_true(all(c("native_status_GER", "native_status_BGM") %in% names(out)))
   expect_false("native_status" %in% names(out))
-  expect_equal(out$native_status_EUR[1L], "example_native_status")
-  expect_equal(out$native_status_NAM[1L], "example_native_status")
-  expect_true(all(is.na(out$native_status_EUR[2:3])))
+  expect_equal(out$native_status_GER[1L], "native")
+  expect_equal(out$native_status_BGM[1L], "native")
+  expect_true(all(is.na(out$native_status_GER[2:3])))
 })
 
 test_that("add_wcvp() returns NA for a region outside the source", {
@@ -121,28 +120,27 @@ test_that("add_wcvp() requires a region", {
 test_that("add_glonaf() flags only the species GloNAF records for the region", {
   use_example_db()
   skip_if_not(enrichment_ready("glonaf"), "glonaf fixture missing")
-  out <- add_glonaf(grouped_probe(), region = "EUR", verbose = FALSE)
+  out <- add_glonaf(grouped_probe(), region = "DEU", verbose = FALSE)
 
   expect_true("naturalized" %in% names(out))
-  expect_equal(out$naturalized,
-               c(NA_character_, "example_naturalized", NA_character_))
+  expect_equal(out$naturalized, c(NA_real_, 1, NA_real_))
 })
 
 test_that("add_glonaf() suffixes one column per region when several are asked", {
   use_example_db()
   skip_if_not(enrichment_ready("glonaf"), "glonaf fixture missing")
-  out <- add_glonaf(grouped_probe(), region = c("EUR", "NAM"), verbose = FALSE)
+  out <- add_glonaf(grouped_probe(), region = c("DEU", "AUT"), verbose = FALSE)
 
-  expect_true(all(c("naturalized_EUR", "naturalized_NAM") %in% names(out)))
-  expect_equal(out$naturalized_EUR[2L], "example_naturalized")
-  expect_equal(out$naturalized_NAM[2L], "example_naturalized")
-  expect_true(is.na(out$naturalized_EUR[1L]))
+  expect_true(all(c("naturalized_DEU", "naturalized_AUT") %in% names(out)))
+  expect_equal(out$naturalized_DEU[2L], 1)
+  expect_equal(out$naturalized_AUT[2L], 1)
+  expect_true(is.na(out$naturalized_DEU[1L]))
 })
 
 test_that("add_glonaf() records how many rows it enriched", {
   use_example_db()
   skip_if_not(enrichment_ready("glonaf"), "glonaf fixture missing")
-  out <- add_glonaf(grouped_probe(), region = "EUR", verbose = FALSE)
+  out <- add_glonaf(grouped_probe(), region = "DEU", verbose = FALSE)
 
   en <- attr(out, "taxify_meta")$enrichments
   last <- en[[length(en)]]
