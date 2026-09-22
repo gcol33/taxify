@@ -21,10 +21,15 @@ doubtful or unplaced; never a synonym, whose accepted ID is another taxon)
 and 1 otherwise (no records, no count, or a synonym); it orders
 after \code{dist_score} and before \code{status_score}. \code{occ_score} is minus the count,
 \code{Inf} where it is missing; it orders after \code{epithet_score}, so it only
-separates keys the concept scores leave level.}
+separates keys the concept scores leave level. \code{year_score} is the year the
+name was published (the \code{year} column, else the first year in
+\code{name_published_in}; \code{Inf} where unknown, 0 throughout when both columns are
+absent); it orders after \code{epithet_score} and before \code{occ_score}, so the
+earliest of several same-name homonyms wins before the count is read.}
 }
 \value{
-A list with the numeric vectors \code{dist_score}, \code{data_score}, \code{occ_score} and
+A list with the numeric vectors \code{dist_score}, \code{data_score},
+\code{year_score}, \code{occ_score} and
 \code{status_score}, integer vectors \code{rank_score}, \code{valid_score}, \code{epithet_score}, and the
 character \code{tier} signature (\code{"dist/status/rank/epithet"}) per row, in input
 order.

@@ -156,14 +156,32 @@ test_that("the year is silent between homonyms of different kingdoms", {
   expect_equal(pick_best_vec(m)$accepted_taxon_id, "gerania")
 })
 
-test_that("an unknown publication year sorts after a known one", {
+test_that("a recombination is dated by its basionym", {
+  # Rhus hirta (L.) Sudw. dates from Linnaeus, not from the 1892 combination,
+  # so it predates the 1883 Rhus hirta Harv. ex Engl. it is compared with.
+  m <- pick_frame(taxonID = c("1", "2"),
+                  taxonomicStatus = c("SYNONYM", "SYNONYM"),
+                  accepted_taxon_id = c("typhina", "swintonia"),
+                  kingdom = c("Plantae", "Plantae"),
+                  year = c("1892", "1883"),
+                  bracket_year = c("1756", NA),
+                  bracket_authorship = c("L.", NA),
+                  n_occurrences = c(1284, 26))
+  expect_equal(pick_best_vec(m)$accepted_taxon_id, "typhina")
+
+})
+
+test_that("an undated record sorts after a dated one", {
   expect_equal(publication_year(c("1805", NA, NA),
                                 c(NA, "Traite Arbr. 1: 3 (1755)", "no year")),
                c(1805L, 1755L, NA))
+  expect_equal(publication_year("1892", NA, "1756"), 1756L)
   m <- pick_frame(taxonID = c("1", "2"),
                   taxonomicStatus = c("SYNONYM", "SYNONYM"),
                   accepted_taxon_id = c("a", "b"),
-                  year = c(NA, "1900"))
+                  kingdom = c("Plantae", "Plantae"),
+                  year = c(NA, "1900"),
+                  n_occurrences = c(12, 3))
   expect_equal(pick_best_vec(m)$accepted_taxon_id, "b")
 })
 

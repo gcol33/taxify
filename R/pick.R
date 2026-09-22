@@ -223,18 +223,30 @@ epithet_key <- function(names) {
 
 #' Year a name was published
 #'
-#' The backbone's own year where it carries one (GBIF `year`), otherwise the
-#' first four-digit year between 1500 and 2099 in the publication reference
-#' (`name_published_in`, "Lam. (1779). In: Fl. Franc. 2: 45.").
+#' A backbone that records the basionym's year separately (GBIF `bracket_year`,
+#' filled for 14% of its records) is read first, since the epithet dates from
+#' there; then the record's own year; then the first four-digit year between
+#' 1500 and 2099 in the publication reference (`name_published_in`, "Lam.
+#' (1779). In: Fl. Franc. 2: 45.").
 #'
 #' @param year Vector of years (character or numeric), or `NULL`.
 #' @param published_in Character vector of publication references, or `NULL`.
-#' @return Integer vector (`NA` where neither gives a year), or `NULL` when both
-#'   inputs are `NULL`.
+#' @param bracket_year Vector of basionym years, or `NULL`.
+#' @return Integer vector (`NA` where none gives a year), or `NULL` when every
+#'   input is `NULL`.
+#' @seealso `year_within_kingdom()`, which decides when the years may order.
 #' @noRd
-publication_year <- function(year, published_in) {
-  if (is.null(year) && is.null(published_in)) return(NULL)
-  n <- length(year %||% published_in)
+publication_year <- function(year, published_in, bracket_year = NULL) {
+  if (is.null(year) && is.null(published_in) && is.null(bracket_year)) {
+    return(NULL)
+  }
+  n <- length(bracket_year %||% year %||% published_in)
+  if (!is.null(bracket_year)) {
+    basionym <- suppressWarnings(as.integer(substr(as.character(bracket_year),
+                                                   1L, 4L)))
+  } else {
+    basionym <- rep(NA_integer_, n)
+  }
   out <- if (is.null(year)) rep(NA_integer_, n) else
     suppressWarnings(as.integer(substr(as.character(year), 1L, 4L)))
   pat <- "(1[5-9][0-9]{2}|20[0-9]{2})"
@@ -245,7 +257,9 @@ publication_year <- function(year, published_in) {
     out[need] <- as.integer(regmatches(src[need], regexpr(pat, src[need])))
     out
   }
-  fill(out, published_in)
+  out <- fill(out, published_in)
+  out <- ifelse(is.na(basionym), out, basionym)
+  out
 }
 
 
@@ -378,7 +392,8 @@ score_candidates <- function(candidates) {
   # (same-name homonyms by different authors), the earliest-published one is
   # the name itself and a later one a homonym. Unknown year sorts last; absent
   # columns: uniformly 0.
-  year_score <- publication_year(candidates$year, candidates$name_published_in)
+  year_score <- publication_year(candidates$year, candidates$name_published_in,
+                                 candidates$bracket_year)
   year_score <- if (is.null(year_score)) {
     numeric(nrow(candidates))
   } else {

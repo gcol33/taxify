@@ -778,7 +778,8 @@ get_fuzzy_bb <- function(vtr_path, col_map) {
     col_map$status, col_map$epithet, col_map$authorship,
     "accepted_name", "accepted_family", "accepted_genus",
     "accepted_taxon_id", "accepted_authorship", "is_synonym", "fuzzy_block",
-    "n_occurrences", "year", "name_published_in", "kingdom"
+    "n_occurrences", "year", "bracket_year", "bracket_authorship",
+    "name_published_in", "kingdom"
   ))
 
   # Drop any columns a pre-accepted_authorship backbone .vtr does not carry,
