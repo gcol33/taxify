@@ -39,6 +39,15 @@
   epithet leave.
   Checked against the live GBIF API: *Karwinskia mollis* went to the doubtful
   Standl. key (0 records) and now goes to the accepted Schltdl. key (663).
+* Among records the status, rank and epithet steps leave level, typically
+  one name published by several authors, the earliest-published record
+  wins before the occurrence count is read (priority of publication; the
+  year comes from GBIF's `year` or `name_published_in`). *Absinthium
+  vulgare* Lam. (1779) resolves to *Artemisia absinthium* rather than to
+  the Dulac homonym (1867). Years are compared only between records of one
+  kingdom, since priority does not cross codes of nomenclature.
+* A fuzzy match on GBIF now reads occurrence counts and publication years
+  too; the fuzzy path used to drop those columns.
   Needs the `gbif-2023.08` backbone (built 2026-09-22), which also carries GBIF's `DOUBTFUL`
   status instead of folding it into `ACCEPTED`.
 * `reconcile()` marks a name `"ambiguous"` when it has several accepted IDs and

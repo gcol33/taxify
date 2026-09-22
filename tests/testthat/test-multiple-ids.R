@@ -116,6 +116,44 @@ test_that("the count breaks a tie the concept scores leave", {
   expect_equal(pick_best_vec(m)$taxonID, "2")
 })
 
+test_that("the earliest of two same-name homonyms wins before the count", {
+  # Absinthium vulgare: Lam. (1779) -> Artemisia absinthium, 0 records;
+  # Dulac (1867) -> Artemisia vulgaris subsp. vulgaris, 17 records.
+  m <- pick_frame(taxonID = c("8159978", "3121326"),
+                  taxonomicStatus = c("SYNONYM", "SYNONYM"),
+                  accepted_taxon_id = c("vulg", "absin"),
+                  n_occurrences = c(17, 0),
+                  year = c(NA, NA),
+                  name_published_in = c("Dulac. (1867). In: Fl. Hautes-Pyr. 502.",
+                                        "Lam. (1779). In: Fl. Franc. 2: 45."))
+  expect_equal(pick_best_vec(m)$accepted_taxon_id, "absin")
+})
+
+test_that("the year is silent between homonyms of different kingdoms", {
+  # Padia: Gistl 1848 (animal) and Moritzi 1854 (plant, synonym of Oryza);
+  # priority does not cross codes, so the count decides.
+  m <- pick_frame(taxonID = c("1", "2"),
+                  taxonomicStatus = c("SYNONYM", "SYNONYM"),
+                  accepted_taxon_id = c("gerania", "oryza"),
+                  kingdom = c("Animalia", "Plantae"),
+                  year = c("1848", "1854"),
+                  n_occurrences = c(0, 3))
+  expect_equal(pick_best_vec(m)$accepted_taxon_id, "oryza")
+  m$kingdom <- c("Plantae", "Plantae")
+  expect_equal(pick_best_vec(m)$accepted_taxon_id, "gerania")
+})
+
+test_that("an unknown publication year sorts after a known one", {
+  expect_equal(publication_year(c("1805", NA, NA),
+                                c(NA, "Traite Arbr. 1: 3 (1755)", "no year")),
+               c(1805L, 1755L, NA))
+  m <- pick_frame(taxonID = c("1", "2"),
+                  taxonomicStatus = c("SYNONYM", "SYNONYM"),
+                  accepted_taxon_id = c("a", "b"),
+                  year = c(NA, "1900"))
+  expect_equal(pick_best_vec(m)$accepted_taxon_id, "b")
+})
+
 test_that("a missing count is no evidence of records", {
   m <- pick_frame(taxonID = c("1", "2"),
                   taxonomicStatus = c("ACCEPTED", "SYNONYM"),

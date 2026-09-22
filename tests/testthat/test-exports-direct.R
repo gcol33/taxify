@@ -10,9 +10,11 @@ test_that("score_candidates() grades status, rank, epithet and distance", {
     stringsAsFactors = FALSE
   )
   s <- score_candidates(cand)
-  expect_named(s, c("dist_score", "data_score", "occ_score", "status_score",
-                    "rank_score", "valid_score", "epithet_score", "tier"))
+  expect_named(s, c("dist_score", "data_score", "year_score", "occ_score",
+                    "status_score", "rank_score", "valid_score",
+                    "epithet_score", "tier"))
   expect_equal(s$data_score, integer(4))                # no n_occurrences
+  expect_equal(s$year_score, numeric(4))                # no year columns
   expect_equal(s$occ_score, numeric(4))
   expect_gt(s$status_score[1], s$status_score[2])       # synonym below accepted
   expect_equal(s$rank_score, c(0L, 0L, 1L, 0L))         # species over genus

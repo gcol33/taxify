@@ -35,6 +35,17 @@
 # first step and sorts after every known count at the second; a backbone
 # without the column scores every row alike.
 #
+# PUBLICATION YEAR orders after 3 and before the occurrence count: among records
+# the concept scores leave level, typically one name published by several
+# authors, the earliest is the name itself and the later ones are homonyms,
+# which the codes of nomenclature treat as illegitimate. `Absinthium vulgare`
+# Lam. (1779, a synonym of `Artemisia absinthium`) outranks the Dulac homonym
+# (1867) even though GBIF files more records under the latter. The year is the
+# backbone's `year`, else the first year in `name_published_in`; a missing year
+# sorts last. Priority holds within one code of nomenclature, so where those
+# level records span kingdoms (`Padia`, a plant and an animal genus) the year is
+# silent and the count decides (`year_within_kingdom()`).
+#
 # ORDERING TIEBREAKS then choose one row inside the best tier, deterministically:
 #   4. nomenclaturalStatus = Valid  (when the column is present in the .vtr)
 #   5. lowest taxonID
@@ -208,6 +219,34 @@ epithet_key <- function(names) {
   ep
 }
 
+#' Year a name was published
+#'
+#' The backbone's own year where it carries one (GBIF `year`), otherwise the
+#' first four-digit year between 1500 and 2099 in the publication reference
+#' (`name_published_in`, "Lam. (1779). In: Fl. Franc. 2: 45.").
+#'
+#' @param year Vector of years (character or numeric), or `NULL`.
+#' @param published_in Character vector of publication references, or `NULL`.
+#' @return Integer vector (`NA` where neither gives a year), or `NULL` when both
+#'   inputs are `NULL`.
+#' @noRd
+publication_year <- function(year, published_in) {
+  if (is.null(year) && is.null(published_in)) return(NULL)
+  n <- length(year %||% published_in)
+  out <- if (is.null(year)) rep(NA_integer_, n) else
+    suppressWarnings(as.integer(substr(as.character(year), 1L, 4L)))
+  pat <- "(1[5-9][0-9]{2}|20[0-9]{2})"
+  fill <- function(out, src) {
+    if (is.null(src)) return(out)
+    src <- as.character(src)
+    need <- is.na(out) & !is.na(src) & grepl(pat, src)
+    out[need] <- as.integer(regmatches(src[need], regexpr(pat, src[need])))
+    out
+  }
+  fill(out, published_in)
+}
+
+
 #' Score match candidates by resolution priority
 #'
 #' Computes the per-row priority scores used to rank backbone candidates for a
@@ -254,9 +293,14 @@ epithet_key <- function(names) {
 #' and 1 otherwise (no records, no count, or a synonym); it orders
 #' after `dist_score` and before `status_score`. `occ_score` is minus the count,
 #' `Inf` where it is missing; it orders after `epithet_score`, so it only
-#' separates keys the concept scores leave level.
+#' separates keys the concept scores leave level. `year_score` is the year the
+#' name was published (the `year` column, else the first year in
+#' `name_published_in`; `Inf` where unknown, 0 throughout when both columns are
+#' absent); it orders after `epithet_score` and before `occ_score`, so the
+#' earliest of several same-name homonyms wins before the count is read.
 #'
-#' @return A list with the numeric vectors `dist_score`, `data_score`, `occ_score` and
+#' @return A list with the numeric vectors `dist_score`, `data_score`,
+#'   `year_score`, `occ_score` and
 #'   `status_score`, integer vectors `rank_score`, `valid_score`, `epithet_score`, and the
 #'   character `tier` signature (`"dist/status/rank/epithet"`) per row, in input
 #'   order.
@@ -328,9 +372,21 @@ score_candidates <- function(candidates) {
     occ_score <- numeric(nrow(candidates))
   }
 
+  # Priority of publication: among records the concept scores leave level
+  # (same-name homonyms by different authors), the earliest-published one is
+  # the name itself and a later one a homonym. Unknown year sorts last; absent
+  # columns: uniformly 0.
+  year_score <- publication_year(candidates$year, candidates$name_published_in)
+  year_score <- if (is.null(year_score)) {
+    numeric(nrow(candidates))
+  } else {
+    ifelse(is.na(year_score), Inf, as.numeric(year_score))
+  }
+
   tier <- paste(dist_score, status_score, rank_score, epithet_score, sep = "/")
   list(dist_score    = dist_score,
        data_score    = data_score,
+       year_score    = year_score,
        occ_score     = occ_score,
        status_score  = status_score,
        rank_score    = rank_score,
@@ -358,10 +414,40 @@ score_candidates <- function(candidates) {
 #' @export
 candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
   s <- scores %||% score_candidates(candidates)
+  grp <- if (is.null(group_col)) NULL else candidates[[group_col]]
+  year <- year_within_kingdom(s, candidates$kingdom, grp)
   keys <- list(s$dist_score, s$data_score, s$status_score, s$rank_score,
-               s$epithet_score, s$occ_score, s$valid_score, candidates$taxonID)
-  if (!is.null(group_col)) keys <- c(list(candidates[[group_col]]), keys)
+               s$epithet_score, year, s$occ_score, s$valid_score,
+               candidates$taxonID)
+  if (!is.null(grp)) keys <- c(list(grp), keys)
   do.call(order, keys)
+}
+
+
+#' Publication years, silenced where the level candidates span kingdoms
+#'
+#' Priority of publication holds within one code of nomenclature: a plant genus
+#' and an animal genus of the same spelling are both legitimate, whichever came
+#' first (`Padia` Moritzi, a synonym of `Oryza`, beside `Padia` Gistl). Among
+#' the candidates of a group that the preceding scores leave level, the year
+#' therefore only orders when they all share one kingdom; otherwise it is 0
+#' for every one of them and the occurrence count decides. An `NA` kingdom
+#' contradicts nothing.
+#'
+#' @param s The [score_candidates()] output.
+#' @param kingdom Character vector along the candidates, or `NULL`.
+#' @param grp Grouping vector along the candidates, or `NULL` for one group.
+#' @return Numeric vector: `s$year_score` with the cross-kingdom levels zeroed.
+#' @noRd
+year_within_kingdom <- function(s, kingdom, grp = NULL) {
+  year <- s$year_score
+  if (is.null(kingdom) || length(year) == 0L) return(year)
+  level <- paste(grp %||% "", s$dist_score, s$data_score, s$status_score,
+                 s$rank_score, s$epithet_score, sep = "\r")
+  k <- as.character(kingdom)
+  n_k <- tapply(k, level, function(v) length(unique(v[!is.na(v) & nzchar(v)])))
+  year[n_k[level] > 1L] <- 0
+  year
 }
 
 
