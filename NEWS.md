@@ -30,7 +30,7 @@
   accepted or doubtful key loses to a key of the same name that has the data.
   Checked against the live GBIF API: *Karwinskia mollis* went to the doubtful
   Standl. key (0 records) and now goes to the accepted Schltdl. key (663).
-  Needs the `gbif-2026.09` backbone, which also carries GBIF's `DOUBTFUL`
+  Needs the `gbif-2023.08` backbone (built 2026-09-22), which also carries GBIF's `DOUBTFUL`
   status instead of folding it into `ACCEPTED`.
 * `reconcile()` marks a name `"ambiguous"` when it has several accepted IDs and
   does not resolve to itself as accepted, and gains an `n_ids` column; a name
