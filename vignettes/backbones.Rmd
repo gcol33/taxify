@@ -101,7 +101,7 @@ Every row in the output has 27 columns regardless of which backbone produced
 it: `input_name`, `matched_name`, `accepted_name`, `taxon_id`, `accepted_id`,
 `rank`, `family`, `genus`, `epithet`, `authorship`, `accepted_authorship`,
 `is_synonym`, `taxonomic_status`, `is_hybrid`, `match_type`, `fuzzy_dist`,
-`is_ambiguous`, `ambiguous_targets`, `backbone`, `backbone_version`,
+`n_ids`, `accepted_ids`, `backbone`, `backbone_version`,
 `kingdom_group`, `taxon_group`, `life_form`, `qualifier`,
 `qualifier_position`, `aggregate_fallback`, and `hybrid_type`. The `backbone`
 column records `"wfo"` for matched rows and `NA` for unmatched ones. The

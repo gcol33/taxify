@@ -199,19 +199,16 @@ basionym: \code{matched_name}, \code{taxon_id} and \code{taxonomic_status} descr
 unplaced record, the \verb{accepted_*} columns that taxon; needs a backbone
 built with its basionym links), or \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
-\item{is_ambiguous}{Logical. \code{TRUE} when the matched scientificName had
-multiple rows pointing to different accepted taxa at the same priority
-tier (homonym ambiguity). A record the backbone keeps unplaced does not
-settle such a conflict: it is reported beside the records that place the
-name, whichever of them is picked. Where one record of the name is a
-synonym homotypic with its accepted name and another is unplaced, the
-homotypic record is picked. An authorship carried by the input resolves it
-where it picks out one target; \code{nomenclaturalStatus = "Valid"} orders
-which candidate the scalar columns hold, but does not clear the flag,
-because a valid name and an illegitimate one can be synonyms of different
-species. Expand the alternatives with \code{\link[=taxify_candidates]{taxify_candidates()}}.}
-\item{ambiguous_targets}{Character. \code{|}-joined list of conflicting
-accepted taxon IDs when \code{is_ambiguous = TRUE}; \code{NA} otherwise.}
+\item{n_ids}{Integer. How many distinct accepted taxa the backbone files
+the matched name under, across every record of it (accepted, doubtful,
+unplaced, synonym). \code{1} for a name with one accepted ID; more for a
+homonym or a name the backbone holds twice, e.g. GBIF's
+\emph{Karwinskia mollis}, kept both as the accepted Schltdl. name and as a
+doubtful Standl. one. \code{NA} when nothing matched. \code{taxify()} warns once
+per call when any row has more than one (see Details).}
+\item{accepted_ids}{Character. Those accepted IDs, \code{|}-joined, the one in
+\code{accepted_id} first. List them with their names, status and GBIF
+occurrence counts through \code{\link[=taxify_ids]{taxify_ids()}}.}
 \item{backbone}{Which backbone was used (e.g., \code{"wfo"}, \code{"col"},
 \code{"gbif"}).}
 \item{backbone_version}{Backend name, version, and download date
@@ -246,6 +243,29 @@ default set (COL, GBIF, ITIS) once; pre-install a different set with
 \code{\link[=install_backbones]{install_backbones()}}. Name a backbone (or several) explicitly to match only
 against that one, or those in that order.
 }
+\section{Names with several accepted IDs}{
+
+A backbone can file one name under several accepted taxa: a homonym (the same
+binomial published by two authors), or a name held twice, once accepted and
+once as a doubtful or duplicate record. \code{accepted_id} holds one of them;
+\code{accepted_ids} and \code{n_ids} hold all of them, and \code{\link[=taxify_ids]{taxify_ids()}} lists them one
+row per ID with name, authorship, status and, for GBIF, occurrence count.
+
+Which one \code{accepted_id} holds is decided by fuzzy distance first, then, on a
+backbone that carries occurrence counts (GBIF), by the number of GBIF
+occurrence records filed under each record's key, then by taxonomic status
+(accepted before doubtful or unplaced before synonym), rank and the other
+tiebreaks. The count of an accepted key includes the records of its synonyms
+and descendants, which is what a GBIF download by that key returns, so the
+pick is the key a download can be made with; a key with no records only
+wins when no other key of the name has any.
+
+When any input resolves to more than one accepted ID, \code{taxify()} issues one
+warning per call, of class \code{taxify_multiple_ids}, naming the count and a few
+examples. Silence it with \code{options(taxify.warn_multiple_ids = FALSE)} or
+catch it by class.
+}
+
 \section{Backbone-specific accepted names}{
 
 Each backbone is an independent taxonomy, and they can legitimately disagree

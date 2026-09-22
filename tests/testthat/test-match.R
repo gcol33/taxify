@@ -336,19 +336,23 @@ test_that("an unreviewed accepted record wins over a synonym of another species"
   expect_false(res$is_synonym[1L])
   # The almond's own record wins, and the two homonyms that place the name on
   # other species are reported rather than dropped.
-  expect_true(res$is_ambiguous[1L])
-  expect_equal(res$ambiguous_targets[1L],
-               "wfo-0000996162|wfo-0001006607|wfo-0001015846")
+  expect_equal(res$n_ids[1L], 3L)
+  expect_equal(strsplit(res$accepted_ids[1L], "|", fixed = TRUE)[[1L]][1L],
+               "wfo-0000996162")
+  expect_setequal(strsplit(res$accepted_ids[1L], "|", fixed = TRUE)[[1L]],
+                  c("wfo-0000996162", "wfo-0001006607", "wfo-0001015846"))
 })
 
 test_that("two synonyms of different species are reported, not silently picked", {
-  # #53: `Rubus laciniatus` returned `Rubus ulmifolius` with is_ambiguous FALSE.
+  # #53: `Rubus laciniatus` returned `Rubus ulmifolius` with no sign of the
+  # second species.
   be  <- wfo_backend()
   bb  <- issue53_backbone_vtr()
   res <- match_exact(be, clean_names("Rubus laciniatus"), bb)
 
-  expect_true(res$is_ambiguous[1L])
-  expect_equal(res$ambiguous_targets[1L], "wfo-0000985000|wfo-0001012948")
+  expect_equal(res$n_ids[1L], 2L)
+  expect_setequal(strsplit(res$accepted_ids[1L], "|", fixed = TRUE)[[1L]],
+                  c("wfo-0000985000", "wfo-0001012948"))
 })
 
 test_that("a query author picks the record it names", {
@@ -366,7 +370,8 @@ test_that("a query author picks the record it names", {
   expect_equal(res$accepted_name,
                c("Prunus dulcis", "Prunus amygdalus", "Prunus avium",
                  "Rubus nemoralis", "Rubus ulmifolius"))
-  expect_false(any(res$is_ambiguous))
+  # Each row leads its accepted_ids with the record the author named.
+  expect_equal(sub("[|].*$", "", res$accepted_ids), res$accepted_id)
 })
 
 
@@ -484,12 +489,12 @@ test_that("end-to-end: WFO mock with nom_status disambiguates Pinus abies", {
   result <- match_exact(be, names_df, vtr_path)
   # Of three synonym rows, two are Valid (Thunb. → Picea polita,
   # L. → Pinus sylvestris). One is Illegitimate. Two Valid rows disagree →
-  # is_ambiguous should be TRUE.
+  # both targets are reported.
   expect_equal(result$match_type[1L], "exact")
   expect_true(result$is_synonym[1L])
-  expect_true(result$is_ambiguous[1L])
-  expect_match(result$ambiguous_targets[1L], "wfo-0000005")
-  expect_match(result$ambiguous_targets[1L], "wfo-0000019")
+  expect_gte(result$n_ids[1L], 2L)
+  expect_match(result$accepted_ids[1L], "wfo-0000005")
+  expect_match(result$accepted_ids[1L], "wfo-0000019")
 })
 
 test_that("vtr_path without nomenclaturalStatus still reports ambiguity", {
@@ -498,7 +503,6 @@ test_that("vtr_path without nomenclaturalStatus still reports ambiguity", {
   names_df <- clean_names("Pinus abies")
   result <- match_exact(be, names_df, vtr_path)
   expect_equal(result$match_type[1L], "exact")
-  expect_true(result$is_ambiguous[1L])
-  expect_match(result$ambiguous_targets[1L], "\\|")
+  expect_gte(result$n_ids[1L], 2L)
 })
 

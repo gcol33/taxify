@@ -191,12 +191,14 @@ test_that("unauthored homonyms are flagged rather than silently resolved", {
   # WFO carries two Schedonorus arundinaceus records under different authors,
   # a synonym of Scolochloa festucacea (Roem. & Schult.) and one of Lolium
   # arundinaceum ((Schreb.) Dumort.). With no authorship in the query neither
-  # can be preferred, so the result must carry the ambiguity flag.
-  res <- taxify("Schedonorus arundinaceus", backbone = "wfo", fuzzy = FALSE,
-                verbose = FALSE)
+  # can be preferred, so the result must list both accepted IDs.
+  res <- suppressWarnings(
+    taxify("Schedonorus arundinaceus", backbone = "wfo", fuzzy = FALSE,
+           verbose = FALSE),
+    classes = "taxify_multiple_ids")
 
   expect_equal(res$match_type, "exact")
-  expect_true(res$is_ambiguous)
+  expect_gte(res$n_ids, 2L)
   expect_true(res$accepted_name %in% c("Scolochloa festucacea",
                                        "Lolium arundinaceum"))
 })

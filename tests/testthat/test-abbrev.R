@@ -87,7 +87,7 @@ test_that("abbreviated genus resolves when unique", {
   expect_equal(result$match_type[1L], "abbrev")
   expect_equal(result$accepted_name[1L], "Quercus petraea")
   expect_equal(result$genus[1L], "Quercus")
-  expect_false(isTRUE(result$is_ambiguous[1L]))
+  expect_equal(result$n_ids[1L], 1L)
   expect_true(is.na(result$fuzzy_dist[1L]))
 })
 
@@ -102,7 +102,7 @@ test_that("abbreviated genus resolves when initial is shared but epithet unique"
 
   expect_equal(result$match_type[1L], "abbrev")
   expect_equal(result$accepted_name[1L], "Pinus sylvestris")
-  expect_false(isTRUE(result$is_ambiguous[1L]))
+  expect_false(isTRUE(result$n_ids[1L] > 1L))
 })
 
 test_that("abbreviated genus reaches a synonym and resolves accepted info", {
@@ -132,8 +132,9 @@ test_that("abbreviated genus stays unmatched and flags ambiguity", {
   result <- match_abbrev_genus(be, result, names_df, vtr_path)
 
   expect_true(is.na(result$match_type[1L]))
-  expect_true(result$is_ambiguous[1L])
-  expect_equal(result$ambiguous_targets[1L], "5|6")
+  expect_equal(result$n_ids[1L], 2L)
+  expect_setequal(strsplit(result$accepted_ids[1L], "|", fixed = TRUE)[[1L]],
+                  c("5", "6"))
   expect_true(is.na(result$accepted_name[1L]))
 })
 
@@ -152,7 +153,7 @@ test_that("a genus spelled out in the batch disambiguates the abbreviation", {
   expect_equal(result$match_type[2L], "abbrev")
   expect_equal(result$accepted_name[2L], "Abies alba")
   expect_equal(result$genus[2L], "Abies")
-  expect_false(isTRUE(result$is_ambiguous[2L]))
+  expect_false(isTRUE(result$n_ids[2L] > 1L))
 })
 
 
@@ -167,7 +168,7 @@ test_that("abbreviated genus with no candidate epithet stays unmatched", {
   result <- match_abbrev_genus(be, result, names_df, vtr_path)
 
   expect_true(is.na(result$match_type[1L]))
-  expect_false(isTRUE(result$is_ambiguous[1L]))
+  expect_false(isTRUE(result$n_ids[1L] > 1L))
 })
 
 
@@ -186,7 +187,7 @@ test_that("run_match_stages handles normal and abbreviated names together", {
   expect_equal(result$match_type[2L], "abbrev")
   expect_equal(result$accepted_name[2L], "Quercus petraea")
   expect_true(is.na(result$match_type[3L]))
-  expect_true(result$is_ambiguous[3L])
+  expect_gt(result$n_ids[3L], 1L)
 })
 
 
@@ -253,7 +254,7 @@ test_that("a genus an earlier backbone answered still disambiguates later ones",
   expect_equal(res$backbone[2L], "ott")
   expect_equal(res$match_type[2L], "abbrev")
   expect_equal(res$accepted_name[2L], "Abies alba")
-  expect_false(isTRUE(res$is_ambiguous[2L]))
+  expect_false(isTRUE(res$n_ids[2L] > 1L))
 })
 
 test_that("the chained result agrees with mode = \"agreement\" on the abbreviation", {

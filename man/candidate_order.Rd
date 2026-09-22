@@ -19,9 +19,10 @@ already been computed; recomputed when \code{NULL}.}
 An integer permutation of \code{seq_len(nrow(candidates))}.
 }
 \description{
-The single source of truth for the candidate sort: the four concept scores of
-\code{\link[=score_candidates]{score_candidates()}} in tier order, then the nomenclatural-validity tiebreak,
-then the lowest \code{taxonID}. Pass \code{group_col} to sort within groups first, so
+The single source of truth for the candidate sort: the fuzzy distance, the
+occurrence count, then the remaining concept scores of \code{\link[=score_candidates]{score_candidates()}}
+in tier order, then the nomenclatural-validity tiebreak, then the lowest
+\code{taxonID}. Pass \code{group_col} to sort within groups first, so
 the first row of each group is that group's best candidate.
 }
 \keyword{internal}

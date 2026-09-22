@@ -1,5 +1,5 @@
 # Backbone-browsing verbs: synonyms(), children(), add_classification(),
-# taxify_candidates(). Run against the bundled example database, where the
+# taxify_ids(). Run against the bundled example database, where the
 # reptiledb backbone carries a synonym (Amphibolurus vitticeps -> Pogona
 # vitticeps) and the full higher classification, and the wfo backbone carries
 # three Quercus species in family Fagaceae.
@@ -120,28 +120,40 @@ test_that("add_classification() leaves ranks NA for a backbone without them", {
   expect_true(is.na(r$phylum))
 })
 
-test_that("taxify_candidates() expands an ambiguous match into candidates", {
+test_that("taxify_ids() lists every accepted ID of a name, the pick first", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("reptiledb"), "reptiledb example backbone missing")
 
   r <- taxify("Naja naja", backbone = "reptiledb", verbose = FALSE)
-  r$is_ambiguous <- TRUE
-  r$ambiguous_targets <- paste(r$accepted_id, "reptiledb-ex-001", sep = "|")
-  cand <- taxify_candidates(r, verbose = FALSE)
-  expect_true(all(c("Naja naja", "Pogona vitticeps") %in% cand$candidate))
-  expect_true(all(cand$input_name == "Naja naja"))
+  pick <- r$accepted_id
+  r$accepted_ids <- paste(pick, "reptiledb-ex-001", sep = "|")
+  r$n_ids <- 2L
+  ids <- taxify_ids(r, verbose = FALSE)
+  expect_equal(ids$accepted_id, c(pick, "reptiledb-ex-001"))
+  expect_equal(ids$accepted_name, c("Naja naja", "Pogona vitticeps"))
+  expect_equal(ids$is_pick, c(TRUE, FALSE))
+  expect_true(all(ids$input_name == "Naja naja"))
+  expect_true(all(ids$backbone == "reptiledb"))
+  # No occurrence counts on this backbone.
+  expect_true(all(is.na(ids$n_occurrences)))
 })
 
-test_that("taxify_candidates() returns an empty frame when nothing is ambiguous", {
+test_that("taxify_ids() gives one row per matched name with a single ID", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  r <- taxify("Quercus robur", verbose = FALSE)
-  expect_equal(nrow(taxify_candidates(r, verbose = FALSE)), 0L)
+  r <- taxify(c("Quercus robur", "Notagenus imaginus"), backbone = "wfo",
+              verbose = FALSE)
+  ids <- taxify_ids(r, verbose = FALSE)
+  expect_equal(nrow(ids), 1L)
+  expect_equal(ids$input_name, "Quercus robur")
+  expect_equal(ids$accepted_id, r$accepted_id[1L])
+  expect_true(ids$is_pick)
+  expect_equal(r$n_ids, c(1L, NA_integer_))
 })
 
 

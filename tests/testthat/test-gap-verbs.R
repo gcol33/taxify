@@ -312,16 +312,20 @@ test_that("authorship resolves a homonym the query names an author for", {
   # L. -> wfo-0000005, Lour. -> Cunninghamia (wfo-0000022). Bare name is
   # ambiguous; the author picks one.
   res <- match_exact(be, clean_names("Pinus abies L."), bb)
-  expect_true(res$is_ambiguous[1L])
+  expect_equal(res$n_ids[1L], 3L)
 
   out <- disambiguate_by_authorship(res, bb)
-  expect_false(out$is_ambiguous[1L])
   expect_equal(out$accepted_id[1L], "wfo-0000005")
+  # The author picks one; the other two targets stay listed after it.
+  expect_equal(out$n_ids[1L], 3L)
+  expect_equal(strsplit(out$accepted_ids[1L], "|", fixed = TRUE)[[1L]][1L],
+               "wfo-0000005")
 
   res2 <- match_exact(be, clean_names("Pinus abies Thunb."), bb)
   out2 <- disambiguate_by_authorship(res2, bb)
-  expect_false(out2$is_ambiguous[1L])
   expect_equal(out2$accepted_id[1L], "wfo-0000019")
+  expect_equal(strsplit(out2$accepted_ids[1L], "|", fixed = TRUE)[[1L]][1L],
+               "wfo-0000019")
   expect_equal(out2$accepted_name[1L], "Picea polita")
   # The genus/family must be the ACCEPTED taxon's (Picea polita), not the
   # rejected synonym row's own (Pinus abies -> genus Pinus).
@@ -336,9 +340,9 @@ test_that("a bare homonym (no author) stays ambiguous", {
   be <- wfo_backend()
   bb <- mock_backbone_vtr()
   res <- match_exact(be, clean_names("Pinus abies"), bb)
-  expect_true(res$is_ambiguous[1L])
+  expect_equal(res$n_ids[1L], 3L)
   out <- disambiguate_by_authorship(res, bb)
-  expect_true(out$is_ambiguous[1L])
+  expect_identical(out, res)
 })
 
 test_that("authorship also settles a name the tiers already resolved", {
@@ -349,9 +353,9 @@ test_that("authorship also settles a name the tiers already resolved", {
   bb <- mock_backbone_vtr()
 
   bare <- match_exact(be, clean_names("Pinus abies Thunb."), bb)
-  # Force the row unambiguous so only the widened scope can move it.
-  bare$is_ambiguous[1L]      <- FALSE
-  bare$ambiguous_targets[1L] <- NA_character_
+  # Force a single-target row so only the widened scope can move it.
+  bare$n_ids[1L]             <- 1L
+  bare$accepted_ids[1L]      <- "wfo-0000005"
   bare$accepted_id[1L]       <- "wfo-0000005"
   bare$accepted_name[1L]     <- "Pinus sylvestris"
 
@@ -365,8 +369,7 @@ test_that("an author matching no backbone record leaves the row alone", {
   bb <- mock_backbone_vtr()
   res <- match_exact(be, clean_names("Pinus abies Nobody"), bb)
   out <- disambiguate_by_authorship(res, bb)
-  expect_true(out$is_ambiguous[1L])
-  expect_equal(out$accepted_id[1L], res$accepted_id[1L])
+  expect_identical(out, res)
 })
 
 test_that("authorship_compatible matches tokens, not substrings", {

@@ -5,7 +5,7 @@
 # cannot separate them. But the query often carries the authorship that settles
 # it, and an author the caller typed is an explicit choice of record, not a
 # decoration -- so this pass runs over every matched row whose input carried
-# one, not only the rows matching flagged `is_ambiguous`. A name that is unique
+# one, not only the rows whose pick tied. A name that is unique
 # in the backbone re-reads to a single row and resolves to what it already had,
 # so the widening only bites where the backbone actually holds several records
 # for the name (#53).
@@ -59,7 +59,8 @@ authorship_compatible <- function(input_auth, cand_auth) {
 #' For each matched row whose input name carried an authorship, re-reads the
 #' backbone rows sharing the matched name, compares their authorship to the
 #' input's, and if exactly one accepted target survives, rewrites the row to that
-#' resolution and clears any ambiguity. Rows with no input author, or where the
+#' resolution and moves it to the front of `accepted_ids`; the other targets
+#' stay listed, since the backbone still holds them under the name. Rows with no input author, or where the
 #' author does not single out one target, are left as they were.
 #'
 #' @param result The match result data.frame (post `run_match_stages`).
@@ -120,6 +121,7 @@ disambiguate_by_authorship <- function(result, vtr_path) {
     if (length(targets) != 1L) next
 
     w <- hit[1L]
+    result <- promote_accepted_id(result, i, cand$accepted_taxon_id[w])
     if (has_col("taxon_id"))       result$taxon_id[i]       <- cand$taxon_id[w]
     if (has_col("authorship"))     result$authorship[i]     <- cand$authorship[w]
     if (has_col("accepted_id"))    result$accepted_id[i]    <- cand$accepted_taxon_id[w]
@@ -141,8 +143,6 @@ disambiguate_by_authorship <- function(result, vtr_path) {
       result$family[i] <- cand$accepted_family[w]
     if (has_col("genus") && "accepted_genus" %in% names(cand))
       result$genus[i] <- cand$accepted_genus[w]
-    if (has_col("is_ambiguous")) result$is_ambiguous[i] <- FALSE
-    if (has_col("ambiguous_targets")) result$ambiguous_targets[i] <- NA_character_
   }
   result
 }

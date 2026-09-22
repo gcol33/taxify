@@ -85,7 +85,7 @@ reference:
   - add_classification
   - class2tree
   - lowest_common
-  - taxify_candidates
+  - taxify_ids
 - title: Backbone data and cache
   desc: Download, cache, and inspect backbone snapshots and the unified genus register.
   contents:

@@ -74,6 +74,10 @@ backbone_name_of <- function(backbone) {
 #' (`fuzzy`, `fuzzy_threshold`, `fuzzy_method`, `aggregates`, `kingdom`,
 #' `region`, `coords`, `range`) reach the matcher the same way from every verb.
 #'
+#' The `taxify_multiple_ids` warning is muffled here: it points the caller at
+#' `accepted_ids` and [taxify_ids()], which most of these verbs' outputs do not
+#' carry (reconcile() reports such names as `"ambiguous"` instead).
+#'
 #' @param x Character vector of names.
 #' @param backbone Passed to [taxify()].
 #' @param ... Matching arguments passed to [taxify()]; must be named.
@@ -86,7 +90,9 @@ taxify_input <- function(x, backbone, ..., verbose) {
     stop("Arguments passed on to taxify() must be named ",
          "(e.g. fuzzy = FALSE).", call. = FALSE)
   }
-  taxify(x, backbone = backbone, ..., verbose = verbose)
+  withCallingHandlers(
+    taxify(x, backbone = backbone, ..., verbose = verbose),
+    taxify_multiple_ids = function(w) invokeRestart("muffleWarning"))
 }
 
 
@@ -409,31 +415,39 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 }
 
 
-#' Expand ambiguous matches into their candidate taxa
+#' List every accepted ID of each matched name
 #'
-#' Where [taxify()] meets an irreducible homonym -- a name whose synonyms point
-#' to several accepted taxa at the same priority tier -- it records one candidate
-#' in the scalar columns, sets `is_ambiguous = TRUE`, and lists the conflicting
-#' accepted taxon IDs in `ambiguous_targets`. This verb expands those rows into
-#' one row per candidate, resolved to full names against the backbone, so you can
-#' choose the right taxon yourself instead of relying on the automatic tiebreak.
+#' [taxify()] returns one accepted ID per name, and records in `accepted_ids`
+#' every accepted taxon the backbone files the name under: a homonym published
+#' by two authors, or a name held twice, once accepted and once as a doubtful or
+#' duplicate record. This verb lays those out one row per (name, accepted ID),
+#' resolved against the backbone, with the ID `taxify()` picked marked. On the
+#' GBIF backbone each ID carries its occurrence count, so the IDs to request
+#' occurrence data with can be read off directly.
 #'
 #' @param x A [taxify()] result.
 #' @param verbose Logical. Default `TRUE`.
 #'
-#' @return A data.frame with one row per (ambiguous input, candidate taxon):
+#' @return A data.frame with one row per (matched input row, accepted ID), in
+#'   input order and, within a name, in the order of `accepted_ids` (the pick
+#'   first):
 #' \describe{
 #'   \item{input_name}{The queried name.}
-#'   \item{chosen}{The accepted name `taxify()` picked for that row.}
-#'   \item{candidate}{A candidate accepted name.}
-#'   \item{authorship}{Authorship of the candidate.}
-#'   \item{rank}{Rank of the candidate.}
-#'   \item{family}{Family of the candidate.}
-#'   \item{genus}{Genus of the candidate.}
-#'   \item{taxon_id}{Backend ID of the candidate.}
-#'   \item{backbone}{Backend used.}
+#'   \item{backbone}{Backbone that matched the name.}
+#'   \item{accepted_id}{An accepted ID the name resolves to.}
+#'   \item{accepted_name}{The name of that accepted taxon.}
+#'   \item{authorship}{Its authorship.}
+#'   \item{rank}{Its rank.}
+#'   \item{taxonomic_status}{Its status in the backbone (`"ACCEPTED"`, GBIF's
+#'     `"DOUBTFUL"`, WFO's `"UNCHECKED"`, ...).}
+#'   \item{family}{Its family.}
+#'   \item{n_occurrences}{GBIF occurrence records under this ID, including
+#'     those of its synonyms and descendants (what a GBIF download by this key
+#'     returns), as counted when the backbone was built. `NA` on a backbone
+#'     without counts, and for an ID whose count was not taken.}
+#'   \item{is_pick}{Logical. Is this the `accepted_id` [taxify()] reported?}
 #' }
-#' Empty when no rows were ambiguous.
+#' Unmatched names contribute no rows.
 #'
 #' @seealso [taxify()], [synonyms()].
 #'
@@ -441,77 +455,75 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 #' # Runs offline against the bundled example database.
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
-#' # Homonyms are rare; on an unambiguous result this is an empty frame.
-#' taxify("Quercus robur") |>
-#'   taxify_candidates()
+#' taxify(c("Quercus robur", "Pinus sylvestris")) |>
+#'   taxify_ids()
 #'
 #' options(old)
 #'
 #' @export
-taxify_candidates <- function(x, verbose = TRUE) {
-  req <- c("ambiguous_targets", "is_ambiguous", "backbone", "accepted_id",
-           "input_name", "accepted_name")
+taxify_ids <- function(x, verbose = TRUE) {
+  req <- c("input_name", "backbone", "accepted_id", "accepted_ids")
   if (!is.data.frame(x) || !all(req %in% names(x))) {
-    stop("x must be a taxify() result with ambiguity columns.", call. = FALSE)
+    stop("x must be a taxify() result (with an accepted_ids column).",
+         call. = FALSE)
   }
   empty <- data.frame(
-    input_name = character(0L), chosen = character(0L), candidate = character(0L),
-    authorship = character(0L), rank = character(0L), family = character(0L),
-    genus = character(0L), taxon_id = character(0L), backbone = character(0L),
+    input_name = character(0L), backbone = character(0L),
+    accepted_id = character(0L), accepted_name = character(0L),
+    authorship = character(0L), rank = character(0L),
+    taxonomic_status = character(0L), family = character(0L),
+    n_occurrences = numeric(0L), is_pick = logical(0L),
     stringsAsFactors = FALSE
   )
-  amb <- which(!is.na(x$is_ambiguous) & x$is_ambiguous &
-               !is.na(x$ambiguous_targets))
-  if (length(amb) == 0L) {
-    if (verbose) message("No ambiguous matches to expand.")
+
+  ids <- ifelse(is.na(x$accepted_ids), x$accepted_id, x$accepted_ids)
+  rows <- which(!is.na(ids) & nzchar(ids) & !is.na(x$backbone))
+  if (length(rows) == 0L) {
+    if (verbose) message("No matched names to list.")
     return(empty)
   }
+  split_ids <- strsplit(ids[rows], "|", fixed = TRUE)
+  long <- data.frame(row = rep(rows, lengths(split_ids)),
+                     id = unlist(split_ids, use.names = FALSE),
+                     stringsAsFactors = FALSE)
+  long$ord <- seq_len(nrow(long))
 
-  # One (row, candidate id) per conflicting id, plus the chosen accepted id.
-  long <- do.call(rbind, lapply(amb, function(i) {
-    ids <- unique(c(x$accepted_id[i],
-                    strsplit(x$ambiguous_targets[i], "\\|")[[1L]]))
-    ids <- ids[!is.na(ids) & nzchar(ids)]
-    if (length(ids) == 0L) return(NULL)
-    data.frame(row = i, cand_id = ids, stringsAsFactors = FALSE)
-  }))
-  if (is.null(long) || nrow(long) == 0L) return(empty)
-
+  want <- c("taxon_id", "canonical_name", "authorship", "taxon_rank",
+            "taxonomic_status", "family", "n_occurrences")
   out <- list()
   for (bb_name in unique(x$backbone[long$row])) {
-    if (is.na(bb_name)) next
-    sub <- long[!is.na(x$backbone[long$row]) & x$backbone[long$row] == bb_name, ,
-                drop = FALSE]
+    sub <- long[x$backbone[long$row] == bb_name, , drop = FALSE]
     bb <- tryCatch(backbone_path(bb_name, verbose = verbose),
                    error = function(e) NULL)
     if (is.null(bb)) next
-    joined <- backbone_join(
-      bb, sub$cand_id, bb_key = "taxon_id",
-      select_cols = c("taxon_id", "canonical_name", "authorship", "taxon_rank",
-                      "family", "genus")
-    )
-    if (is.null(joined) || nrow(joined) == 0L) next
-    idx <- match(sub$cand_id, joined$lookup)
-    hit <- which(!is.na(idx))
-    if (length(hit) == 0L) next
-    sub <- sub[hit, , drop = FALSE]
-    idx <- idx[hit]
+    cols <- intersect(want, vtr_schema(bb))
+    joined <- backbone_join(bb, sub$id, bb_key = "taxon_id",
+                            select_cols = cols)
+    idx <- if (is.null(joined)) rep(NA_integer_, nrow(sub)) else
+      match(sub$id, joined$lookup)
+    get <- function(col, na) {
+      if (is.null(joined) || !col %in% names(joined)) rep(na, nrow(sub))
+      else joined[[col]][idx]
+    }
     out[[length(out) + 1L]] <- data.frame(
-      input_name = x$input_name[sub$row],
-      chosen     = x$accepted_name[sub$row],
-      candidate  = joined$canonical_name[idx],
-      authorship = joined$authorship[idx],
-      rank       = joined$taxon_rank[idx],
-      family     = joined$family[idx],
-      genus      = joined$genus[idx],
-      taxon_id   = sub$cand_id,
-      backbone    = bb_name,
+      ord              = sub$ord,
+      input_name       = x$input_name[sub$row],
+      backbone         = bb_name,
+      accepted_id      = sub$id,
+      accepted_name    = get("canonical_name", NA_character_),
+      authorship       = get("authorship", NA_character_),
+      rank             = tolower(get("taxon_rank", NA_character_)),
+      taxonomic_status = get("taxonomic_status", NA_character_),
+      family           = get("family", NA_character_),
+      n_occurrences    = as.numeric(get("n_occurrences", NA_real_)),
+      is_pick          = !is.na(x$accepted_id[sub$row]) &
+        sub$id == x$accepted_id[sub$row],
       stringsAsFactors = FALSE
     )
   }
   if (length(out) == 0L) return(empty)
   res <- do.call(rbind, out)
-  res <- res[order(res$input_name, res$candidate), , drop = FALSE]
+  res <- res[order(res$ord), setdiff(names(res), "ord"), drop = FALSE]
   rownames(res) <- NULL
   res
 }

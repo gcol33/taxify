@@ -1,3 +1,45 @@
+# taxify 0.6.0
+
+## Names with several accepted IDs
+
+* `taxify()` output replaces `is_ambiguous` and `ambiguous_targets` with
+  `n_ids` and `accepted_ids`: how many distinct accepted taxa the backbone
+  files the matched name under, and all of those IDs (`|`-joined, the one in
+  `accepted_id` first). The old flag fired only when candidates tied in the top
+  priority tier, so a name GBIF holds both as an accepted record and as a
+  doubtful or duplicate one came back with one ID and `is_ambiguous = FALSE`.
+  `n_ids` counts every record of the name. In a fuzzy match only names at the
+  pick's distance count: a farther neighbour is a worse reading of the input,
+  not another taxon it names.
+* `taxify()` warns once per call when any name resolves to more than one
+  accepted ID, naming the count and a few examples. The warning has class
+  `taxify_multiple_ids`; switch it off with
+  `options(taxify.warn_multiple_ids = FALSE)`. The verbs built on `taxify()`
+  (`reconcile()`, `synonyms()`, `upstream()`, ...) do not repeat it.
+  `summary()` shows the count as a `multiple ids` line.
+* `taxify_ids()` lists every accepted ID of each matched name, one row per
+  (name, ID), with accepted name, authorship, rank, status, family, the GBIF
+  occurrence count and which ID `taxify()` picked. It replaces
+  `taxify_candidates()`, which only expanded tied homonyms.
+* On the GBIF backbone the pick now follows occurrence records: among the
+  records of a name, the key with more GBIF occurrence records wins before
+  taxonomic status is consulted. The count of an accepted key includes its
+  synonyms and descendants (what a GBIF download by that key returns), the
+  count of a synonym key only its own records, so an accepted species with
+  data still outranks a homonym synonym of another species, while an empty
+  accepted or doubtful key loses to a key of the same name that has the data.
+  Checked against the live GBIF API: *Karwinskia mollis* went to the doubtful
+  Standl. key (0 records) and now goes to the accepted Schltdl. key (663).
+  Needs the `gbif-2026.09` backbone, which also carries GBIF's `DOUBTFUL`
+  status instead of folding it into `ACCEPTED`.
+* `reconcile()` marks a name `"ambiguous"` when it has several accepted IDs and
+  does not resolve to itself as accepted, and gains an `n_ids` column; a name
+  accepted under its own spelling stays `"unchanged"` when a homonym record also
+  exists. `inspect()`'s `ambiguous` label follows the same rule.
+* The abbreviated-genus stage (`"Q. robur"`) considers only names with as many
+  words as the query, so a binomial no longer draws the infraspecific names
+  built on it into its candidates.
+
 # taxify 0.5.6
 
 * Cross-backbone recovery in grouped doors (`add_wcvp()` and the others over an

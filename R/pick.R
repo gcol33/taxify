@@ -9,7 +9,7 @@
 #   0. smallest fuzzy distance      (fuzzy matches only; decides which backbone
 #                                    name the input meant, before the scores
 #                                    below decide which row of that name to take)
-#   1. status                       (accepted > homotypic placement >
+#   1. status                      (accepted > homotypic placement >
 #                                    unreviewed > synonym > misapplied; see
 #                                    `.status_rank` and `homotypic_placement()`)
 #   2. SPECIES  > higher ranks      (case-tolerant)
@@ -20,13 +20,32 @@
 #                                    abies` rather than the later homonyms
 #                                    `Pinus abies` Thunb. -> `Picea polita` etc.)
 #
+# OCCURRENCE COUNT orders between 0 and 1, on a backbone whose `.vtr` carries an
+# `n_occurrences` column (GBIF): the records the data provider files under each
+# candidate's key, where a key of the same name with more records beats one
+# with fewer, before status is consulted. A name GBIF holds as ACCEPTED with no
+# records beside a DOUBTFUL or synonym record carrying the data is a key nobody
+# can request anything with. The count of an accepted key includes its synonyms
+# and descendants, the count of a synonym key only its own records, so an
+# accepted species with data still outranks a homonym synonym of another one.
+# A missing count sorts after every known count; a backbone without the column
+# scores every row alike.
+#
 # ORDERING TIEBREAKS then choose one row inside the best tier, deterministically:
 #   4. nomenclaturalStatus = Valid  (when the column is present in the .vtr)
 #   5. lowest taxonID
 #
+# Every distinct accepted ID among the candidates is reported with the pick, in
+# candidate order (`accepted_ids`, `n_ids`), whatever tier it sits in, as long
+# as it is at the pick's fuzzy distance (see `at_best_distance()`): a name
+# the backbone files under several accepted taxa has several keys, and a caller
+# requesting data by key needs all of them.
+#
 # When multiple rows share the best `tier` AND disagree on `accepted_taxon_id`,
-# the pick is genuinely ambiguous: we set `is_ambiguous = TRUE` and report the
-# conflicting accepted IDs in `ambiguous_targets` so callers can detect the case.
+# the pick is genuinely ambiguous: the pick carries `is_ambiguous = TRUE` and the
+# conflicting accepted IDs in `ambiguous_targets`, which is what the
+# abbreviated-genus stage reads to leave a row unresolved rather than guess a
+# genus. Neither reaches the `taxify()` output, which reports `accepted_ids`.
 # The ordering tiebreaks stay out of that signature on purpose: nomenclatural
 # validity is a statement about how a name was published, not about which taxon
 # it denotes, so it may order the pick but must never make a conflict between
@@ -222,8 +241,14 @@ epithet_key <- function(names) {
 #'   `fuzzy_dist` (fuzzy proximity), `nomenclaturalStatus` (validity),
 #'   `matched_name_std` and `accepted_name` (epithet preservation), plus
 #'   `authorship` and `accepted_authorship` (homotypy).
-#' @return A list with the numeric vectors `dist_score` and `status_score`,
-#'   integer vectors `rank_score`, `valid_score`, `epithet_score`, and the
+#' `occ_score` is minus the candidate's `n_occurrences` (records filed under
+#' its key, a column only the GBIF backbone carries), `Inf` where the count is
+#' missing and 0 throughout when the column is absent. It orders after
+#' `dist_score` and before `status_score`, outside the tier: which key holds the
+#' data is not a statement about which taxon the name denotes.
+#'
+#' @return A list with the numeric vectors `dist_score`, `occ_score` and
+#'   `status_score`, integer vectors `rank_score`, `valid_score`, `epithet_score`, and the
 #'   character `tier` signature (`"dist/status/rank/epithet"`) per row, in input
 #'   order.
 #' @keywords internal
@@ -274,8 +299,21 @@ score_candidates <- function(candidates) {
     dist_score <- numeric(nrow(candidates))
   }
 
+  # Occurrence records filed under the candidate's key, more first. Absent
+  # column: uniformly 0. A missing count is not zero records, it is a key the
+  # count was not taken for, so it sorts after every known count rather than
+  # level with an empty key.
+  occ <- candidates$n_occurrences
+  if (!is.null(occ)) {
+    occ_score <- -as.numeric(occ)
+    occ_score[is.na(occ_score)] <- Inf
+  } else {
+    occ_score <- numeric(nrow(candidates))
+  }
+
   tier <- paste(dist_score, status_score, rank_score, epithet_score, sep = "/")
   list(dist_score    = dist_score,
+       occ_score     = occ_score,
        status_score  = status_score,
        rank_score    = rank_score,
        valid_score   = valid_score,
@@ -286,9 +324,10 @@ score_candidates <- function(candidates) {
 
 #' Order match candidates by resolution priority
 #'
-#' The single source of truth for the candidate sort: the four concept scores of
-#' [score_candidates()] in tier order, then the nomenclatural-validity tiebreak,
-#' then the lowest `taxonID`. Pass `group_col` to sort within groups first, so
+#' The single source of truth for the candidate sort: the fuzzy distance, the
+#' occurrence count, then the remaining concept scores of [score_candidates()]
+#' in tier order, then the nomenclatural-validity tiebreak, then the lowest
+#' `taxonID`. Pass `group_col` to sort within groups first, so
 #' the first row of each group is that group's best candidate.
 #'
 #' @param candidates A data.frame accepted by [score_candidates()], carrying a
@@ -301,8 +340,8 @@ score_candidates <- function(candidates) {
 #' @export
 candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
   s <- scores %||% score_candidates(candidates)
-  keys <- list(s$dist_score, s$status_score, s$rank_score, s$epithet_score,
-               s$valid_score, candidates$taxonID)
+  keys <- list(s$dist_score, s$occ_score, s$status_score, s$rank_score,
+               s$epithet_score, s$valid_score, candidates$taxonID)
   if (!is.null(group_col)) keys <- c(list(candidates[[group_col]]), keys)
   do.call(order, keys)
 }
@@ -343,30 +382,123 @@ in_conflict_scope <- function(tier, status_score, best_tier, best_status) {
 }
 
 
+#' Every distinct accepted ID among each group's candidates, best first
+#'
+#' @param id Accepted taxon IDs along the candidate rows, already in candidate
+#'   order within each group, or `NULL` when the backbone carries none.
+#' @param grp Group of each row, in the same order.
+#' @return A list of `n_ids` (integer) and `accepted_ids` (`|`-joined,
+#'   `NA` where a group has none), both aligned with `unique(grp)`.
+#' @noRd
+candidate_id_sets <- function(id, grp) {
+  ug <- unique(grp)
+  if (is.null(id)) {
+    return(list(n_ids = rep(NA_integer_, length(ug)),
+                accepted_ids = rep(NA_character_, length(ug))))
+  }
+  id <- as.character(id)
+  keep <- !is.na(id) & nzchar(id) &
+    !duplicated(data.frame(grp, id, stringsAsFactors = FALSE))
+  n <- tabulate(match(grp[keep], ug), length(ug))
+  joined <- vapply(split(id[keep], factor(grp[keep], levels = ug)),
+                   paste, character(1L), collapse = "|")
+  joined[n == 0L] <- NA_character_
+  list(n_ids = as.integer(n), accepted_ids = unname(joined))
+}
+
+
+#' Accepted IDs of the candidates at the pick's fuzzy distance
+#'
+#' The candidates of a fuzzy query are different backbone names; one farther
+#' from the input than the pick is a worse reading of it, not another taxon the
+#' input names, so its ID is left out of `accepted_ids`. Names at the same
+#' distance are equally good readings and stay in. On an exact pass every
+#' distance is 0 and nothing is dropped.
+#'
+#' @param id Accepted IDs along the candidates.
+#' @param dist,best_dist Each candidate's distance score and its group's best,
+#'   recycled along `id`.
+#' @return `id`, `NA` where the candidate is farther than the best, or `NULL`
+#'   when `id` is.
+#' @noRd
+at_best_distance <- function(id, dist, best_dist) {
+  if (is.null(id)) return(NULL)
+  id[dist != best_dist] <- NA
+  id
+}
+
+
+#' Rewrite the pick's position in a result's `accepted_ids`
+#'
+#' A stage after the pick that moves a row to another accepted taxon (the
+#' authorship tiebreak, the basionym resolution) puts that taxon first in the
+#' row's `accepted_ids` and recounts `n_ids`, so the set still leads with the
+#' `accepted_id` the row reports.
+#'
+#' @param result The match result data.frame.
+#' @param rows Integer rows rewritten.
+#' @param new The new accepted ID of each row.
+#' @param old The accepted ID each row held before, removed from the set when
+#'   `drop_old` is `TRUE`: the basionym stage replaces the unplaced record's own
+#'   ID, which no longer names a target, where the authorship tiebreak leaves the
+#'   rejected homonym's target in the set as an alternative.
+#' @param drop_old Logical.
+#' @return `result` with `accepted_ids` and `n_ids` updated on `rows`.
+#' @noRd
+promote_accepted_id <- function(result, rows, new, old = NULL,
+                                drop_old = FALSE) {
+  if (length(rows) == 0L || !"accepted_ids" %in% names(result)) return(result)
+  ids <- result$accepted_ids[rows]
+  sets <- lapply(seq_along(rows), function(k) {
+    v <- if (is.na(ids[k])) character(0L) else
+      strsplit(ids[k], "|", fixed = TRUE)[[1L]]
+    if (drop_old && !is.null(old) && !is.na(old[k])) v <- setdiff(v, old[k])
+    unique(c(new[k][!is.na(new[k])], v))
+  })
+  result$accepted_ids[rows] <- vapply(sets, function(v) {
+    if (length(v)) paste(v, collapse = "|") else NA_character_
+  }, character(1L))
+  result$n_ids[rows] <- lengths(sets)
+  result
+}
+
+
 #' Select the best match from a set of candidates
 #'
 #' @param candidates A data.frame with at least columns `taxonomicStatus`,
 #'   `taxonRank`, and `taxonID`. May optionally include `nomenclaturalStatus`
 #'   (used to disambiguate homonym synonyms) and `accepted_taxon_id` (used to
-#'   detect ambiguous picks).
+#'   detect ambiguous picks and to list every accepted target).
 #' @return A single-row data.frame (the best candidate), with added columns
-#'   `is_ambiguous` (logical) and `ambiguous_targets` (`|`-joined accepted IDs
-#'   when ambiguous, otherwise `NA`).
+#'   `is_ambiguous` (logical: a tie in the best tier), `ambiguous_targets`
+#'   (`|`-joined accepted IDs of that tie, otherwise `NA`), `n_ids` (distinct
+#'   accepted IDs among all candidates) and `accepted_ids` (those IDs,
+#'   `|`-joined, the pick's first).
 #' @noRd
 pick_best <- function(candidates) {
   if (nrow(candidates) == 0L) {
     candidates$is_ambiguous <- logical(0L)
     candidates$ambiguous_targets <- character(0L)
+    candidates$n_ids <- integer(0L)
+    candidates$accepted_ids <- character(0L)
     return(candidates)
   }
   if (nrow(candidates) == 1L) {
+    sets <- candidate_id_sets(candidates$accepted_taxon_id, 1L)
     candidates$is_ambiguous <- FALSE
     candidates$ambiguous_targets <- NA_character_
+    candidates$n_ids <- sets$n_ids
+    candidates$accepted_ids <- sets$accepted_ids
     return(candidates)
   }
 
   s <- score_candidates(candidates)
-  best_idx <- candidate_order(candidates, s)[1L]
+  ord <- candidate_order(candidates, s)
+  best_idx <- ord[1L]
+  sets <- candidate_id_sets(
+    at_best_distance(candidates$accepted_taxon_id[ord], s$dist_score[ord],
+                     s$dist_score[best_idx]),
+    rep(1L, length(ord)))
 
   # Tier-level ambiguity: rows in the same tier as the best, disagreeing on
   # accepted_taxon_id, widened around unplaced records (see
@@ -385,6 +517,8 @@ pick_best <- function(candidates) {
   out <- candidates[best_idx, , drop = FALSE]
   out$is_ambiguous <- !is.na(ambig_targets)
   out$ambiguous_targets <- ambig_targets
+  out$n_ids <- sets$n_ids
+  out$accepted_ids <- sets$accepted_ids
   out
 }
 
@@ -405,18 +539,24 @@ pick_best <- function(candidates) {
 #'   (ambiguity detection).
 #' @param group_col Character. Column name to group by (default `"row_idx"`).
 #' @return A data.frame with one row per unique group value, with added
-#'   `is_ambiguous` and `ambiguous_targets` columns.
+#'   `is_ambiguous`, `ambiguous_targets`, `n_ids` and `accepted_ids` columns
+#'   (see `pick_best()`).
 #' @noRd
 pick_best_vec <- function(matches, group_col = "row_idx") {
   nr <- nrow(matches)
   if (nr == 0L) {
     matches$is_ambiguous <- logical(0L)
     matches$ambiguous_targets <- character(0L)
+    matches$n_ids <- integer(0L)
+    matches$accepted_ids <- character(0L)
     return(matches)
   }
   if (nr == 1L) {
+    sets <- candidate_id_sets(matches$accepted_taxon_id, 1L)
     matches$is_ambiguous <- FALSE
     matches$ambiguous_targets <- NA_character_
+    matches$n_ids <- sets$n_ids
+    matches$accepted_ids <- sets$accepted_ids
     return(matches)
   }
 
@@ -430,6 +570,19 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
 
   sorted$is_ambiguous <- FALSE
   sorted$ambiguous_targets <- NA_character_
+
+  # Groups come out of candidate_order() contiguous and in first-appearance
+  # order of the sorted frame, which is the order `is_first` picks them in.
+  sorted_dist <- s$dist_score[ord]
+  best_dist <- sorted_dist[is_first][match(sorted[[group_col]],
+                                          sorted[[group_col]][is_first])]
+  sets <- candidate_id_sets(
+    at_best_distance(sorted$accepted_taxon_id, sorted_dist, best_dist),
+    sorted[[group_col]])
+  sorted$n_ids <- NA_integer_
+  sorted$accepted_ids <- NA_character_
+  sorted$n_ids[is_first] <- sets$n_ids
+  sorted$accepted_ids[is_first] <- sets$accepted_ids
 
   if ("accepted_taxon_id" %in% names(sorted)) {
     # Per-group best tier signature and status, broadcast to every row of the

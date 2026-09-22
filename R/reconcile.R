@@ -36,11 +36,16 @@
 #'     `"misspelling"` (resolved by fuzzy/abbrev match to a corrected spelling),
 #'     `"rank_fallback"` (an infraspecific name the backbone does not carry;
 #'       `accepted_name` is the accepted name of its species),
-#'     `"ambiguous"` (a homonym resolving to several accepted taxa; see
-#'       [taxify_candidates()]),
+#'     `"ambiguous"` (a name the backbone files under several accepted taxa,
+#'       `n_ids > 1`, that does not resolve to itself as accepted;
+#'       `accepted_name` is the one it picked, and [taxify_ids()] lists the
+#'       others),
 #'     `"unresolved"` (no match).}
 #'   \item{is_synonym}{Logical, from [taxify()].}
 #'   \item{match_type}{The [taxify()] match type.}
+#'   \item{n_ids}{Distinct accepted taxa the backbone files the name under,
+#'     from [taxify()]. Above 1 on an `"unchanged"` row, the name is accepted
+#'     under its own spelling and a homonym record also exists.}
 #'   \item{merged}{Logical. `TRUE` when two or more input names resolve to this
 #'     same accepted name (a many-to-one collapse).}
 #'   \item{merged_with}{`|`-joined other input names sharing this accepted name,
@@ -48,7 +53,7 @@
 #'   \item{backbone}{Backend that matched (`NA` if unresolved).}
 #' }
 #'
-#' @seealso [taxify()], [taxify_candidates()] to expand the ambiguous rows,
+#' @seealso [taxify()], [taxify_ids()] to expand the ambiguous rows,
 #'   [synonyms()].
 #'
 #' @examples
@@ -82,7 +87,7 @@ reconcile <- function(x, backbone = NULL, ..., verbose = TRUE) {
   acc_norm <- normalize_epithets(res$accepted_name)
   same_name <- !is.na(in_norm) & !is.na(acc_norm) & in_norm == acc_norm
 
-  is_amb <- !is.na(res$is_ambiguous) & res$is_ambiguous
+  is_amb <- open_multiple_ids(res)
   is_syn <- !is.na(res$is_synonym) & res$is_synonym
   is_misspell <- !is.na(mt) & mt %in% c("fuzzy", "abbrev")
 
@@ -91,7 +96,7 @@ reconcile <- function(x, backbone = NULL, ..., verbose = TRUE) {
   status[resolved & is_misspell & !is_syn] <- "misspelling"
   status[resolved & is_syn] <- "synonym"
   status[resolved & !is.na(mt) & mt == "rank_fallback"] <- "rank_fallback"
-  status[resolved & is_amb]  <- "ambiguous"
+  status[resolved & is_amb] <- "ambiguous"
 
   # Many-to-one collapse: >= 2 distinct inputs sharing one accepted name.
   # Distinctness is measured in the same normalized (case- and orthography-
@@ -123,6 +128,7 @@ reconcile <- function(x, backbone = NULL, ..., verbose = TRUE) {
     status        = status,
     is_synonym    = res$is_synonym,
     match_type    = mt,
+    n_ids         = res$n_ids,
     merged        = merged,
     merged_with   = merged_with,
     backbone       = if ("backbone" %in% names(res)) res$backbone else NA_character_,

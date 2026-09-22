@@ -368,8 +368,8 @@ regardless of the backbone:
 | `is_hybrid` | logical | Hybrid marker detected in the input? |
 | `match_type` | character | `"exact"`, `"exact_ci"`, `"abbrev"`, `"fuzzy"`, `"hybrid_formula"`, `"rank_fallback"`, `"basionym"`, or `"none"` |
 | `fuzzy_dist` | numeric | Normalized edit distance (NA if exact) |
-| `is_ambiguous` | logical | TRUE if the match is an unresolved homonym |
-| `ambiguous_targets` | character | Candidate accepted IDs when `is_ambiguous` |
+| `n_ids` | integer | Distinct accepted taxa the backbone files the name under |
+| `accepted_ids` | character | All of those accepted IDs, pipe-separated, the pick first |
 | `backbone` | character | Which backbone matched this name |
 | `backbone_version` | character | Backend name, version, and download date |
 | `kingdom_group` | character | Coarse kingdom group (from the genus register) |
@@ -429,10 +429,11 @@ answer in these situations:
 
 - **Interactive, per-name resolution with manual disambiguation.** taxize had
   interactive modes where the user could pick among multiple candidates. taxify
-  picks the best match automatically (accepted name over synonym, species rank
-  over higher ranks, lowest ID as tiebreaker) and flags an unresolved homonym in
-  `is_ambiguous`, with the candidates in `ambiguous_targets`. If manual control
-  over ambiguous matches is needed, direct API calls may be preferable.
+  picks the best match automatically (on GBIF the key with the most occurrence
+  records, then accepted name over synonym, species rank over higher ranks,
+  lowest ID as tiebreaker), records every accepted ID of the name in
+  `accepted_ids`, and lists them with `taxify_ids()`. If per-name interactive
+  choice is needed, direct API calls may be preferable.
 
 - **Column-oriented querying of a backbone.** taxadb stores backbones in
   DuckDB / MonetDB and exposes them through dplyr verbs, a natural fit when the

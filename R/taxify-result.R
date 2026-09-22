@@ -184,6 +184,18 @@ summary.taxify_result <- function(object, ...) {
     }
   }
 
+  # Names filed under more than one accepted taxon: the row's accepted_id is
+  # one of several, which matters to anyone requesting data by ID.
+  n_multi <- if ("n_ids" %in% names(object)) {
+    sum(!is.na(object$n_ids) & object$n_ids > 1L)
+  } else {
+    0L
+  }
+  if (n_multi > 0L) {
+    cat(sprintf("  multiple ids%5d  (more than one accepted ID; see taxify_ids())\n",
+                n_multi))
+  }
+
   cat(sprintf("  %s\n", rule))
 
   # Taxon-group summary line
@@ -268,8 +280,8 @@ summary.taxify_result <- function(object, ...) {
     is_hybrid           = NA,
     match_type          = NA_character_,
     fuzzy_dist          = NA_real_,
-    is_ambiguous        = NA,
-    ambiguous_targets   = NA_character_,
+    n_ids               = NA_integer_,
+    accepted_ids        = NA_character_,
     backbone            = NA_character_,
     backbone_version    = NA_character_,
     kingdom_group       = NA_character_,

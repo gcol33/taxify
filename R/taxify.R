@@ -184,19 +184,16 @@
 #'     unplaced record, the `accepted_*` columns that taxon; needs a backbone
 #'     built with its basionym links), or `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
-#'   \item{is_ambiguous}{Logical. `TRUE` when the matched scientificName had
-#'     multiple rows pointing to different accepted taxa at the same priority
-#'     tier (homonym ambiguity). A record the backbone keeps unplaced does not
-#'     settle such a conflict: it is reported beside the records that place the
-#'     name, whichever of them is picked. Where one record of the name is a
-#'     synonym homotypic with its accepted name and another is unplaced, the
-#'     homotypic record is picked. An authorship carried by the input resolves it
-#'     where it picks out one target; `nomenclaturalStatus = "Valid"` orders
-#'     which candidate the scalar columns hold, but does not clear the flag,
-#'     because a valid name and an illegitimate one can be synonyms of different
-#'     species. Expand the alternatives with [taxify_candidates()].}
-#'   \item{ambiguous_targets}{Character. `|`-joined list of conflicting
-#'     accepted taxon IDs when `is_ambiguous = TRUE`; `NA` otherwise.}
+#'   \item{n_ids}{Integer. How many distinct accepted taxa the backbone files
+#'     the matched name under, across every record of it (accepted, doubtful,
+#'     unplaced, synonym). `1` for a name with one accepted ID; more for a
+#'     homonym or a name the backbone holds twice, e.g. GBIF's
+#'     *Karwinskia mollis*, kept both as the accepted Schltdl. name and as a
+#'     doubtful Standl. one. `NA` when nothing matched. `taxify()` warns once
+#'     per call when any row has more than one (see Details).}
+#'   \item{accepted_ids}{Character. Those accepted IDs, `|`-joined, the one in
+#'     `accepted_id` first. List them with their names, status and GBIF
+#'     occurrence counts through [taxify_ids()].}
 #'   \item{backbone}{Which backbone was used (e.g., `"wfo"`, `"col"`,
 #'     `"gbif"`).}
 #'   \item{backbone_version}{Backend name, version, and download date
@@ -209,6 +206,27 @@
 #'   \item{life_form}{Life-form classification of the matched genus, from the
 #'     genus register's family-based lookup; `NA` when unavailable.}
 #' }
+#'
+#' @section Names with several accepted IDs:
+#' A backbone can file one name under several accepted taxa: a homonym (the same
+#' binomial published by two authors), or a name held twice, once accepted and
+#' once as a doubtful or duplicate record. `accepted_id` holds one of them;
+#' `accepted_ids` and `n_ids` hold all of them, and [taxify_ids()] lists them one
+#' row per ID with name, authorship, status and, for GBIF, occurrence count.
+#'
+#' Which one `accepted_id` holds is decided by fuzzy distance first, then, on a
+#' backbone that carries occurrence counts (GBIF), by the number of GBIF
+#' occurrence records filed under each record's key, then by taxonomic status
+#' (accepted before doubtful or unplaced before synonym), rank and the other
+#' tiebreaks. The count of an accepted key includes the records of its synonyms
+#' and descendants, which is what a GBIF download by that key returns, so the
+#' pick is the key a download can be made with; a key with no records only
+#' wins when no other key of the name has any.
+#'
+#' When any input resolves to more than one accepted ID, `taxify()` issues one
+#' warning per call, of class `taxify_multiple_ids`, naming the count and a few
+#' examples. Silence it with `options(taxify.warn_multiple_ids = FALSE)` or
+#' catch it by class.
 #'
 #' @section Backbone-specific accepted names:
 #' Each backbone is an independent taxonomy, and they can legitimately disagree
@@ -318,18 +336,19 @@ taxify <- function(x,
         mode))
     } else {
       ensure_backbones_current(bb_names, verbose = verbose)
-      return(taxify_compare(x, bb_names, mode, fuzzy, fuzzy_threshold,
-                            fuzzy_method, aggregates, region, range, kingdom,
-                            verbose))
+      return(warn_multiple_ids(taxify_compare(
+        x, bb_names, mode, fuzzy, fuzzy_threshold, fuzzy_method, aggregates,
+        region, range, kingdom, verbose)))
     }
   }
 
   # Handle a single backend object
   if (inherits(backbone, "taxify_backend")) {
     ensure_backbones_current(backbone$name, verbose = verbose)
-    return(taxify_single(x, backbone, fuzzy, fuzzy_threshold, fuzzy_method,
-                         aggregates, region = region, range_mode = range,
-                         kingdom = kingdom, verbose = verbose))
+    return(warn_multiple_ids(taxify_single(
+      x, backbone, fuzzy, fuzzy_threshold, fuzzy_method, aggregates,
+      region = region, range_mode = range, kingdom = kingdom,
+      verbose = verbose)))
   }
 
   if (!is.character(backbone) || length(backbone) == 0L) {
@@ -341,9 +360,10 @@ taxify <- function(x,
 
   if (length(backbone) == 1L) {
     be <- resolve_backend(backbone)
-    return(taxify_single(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
-                         aggregates, region = region, range_mode = range,
-                         kingdom = kingdom, verbose = verbose))
+    return(warn_multiple_ids(taxify_single(
+      x, be, fuzzy, fuzzy_threshold, fuzzy_method, aggregates,
+      region = region, range_mode = range, kingdom = kingdom,
+      verbose = verbose)))
   }
 
   # Multi-backbone fallback chain
@@ -398,7 +418,7 @@ taxify <- function(x,
   result <- enrich_with_register(result, names_df, backbone)
   result <- finalize_hybrids(result, names_df, backbone)
   rownames(result) <- NULL
-  as_taxify_result(result, backbone = backbone)
+  warn_multiple_ids(as_taxify_result(result, backbone = backbone))
 }
 
 
@@ -1014,6 +1034,62 @@ is_backbone_match <- function(match_type) {
   !is.na(match_type) & match_type %in% .backbone_match_types
 }
 
+#' Warn once when any name resolves to more than one accepted ID
+#'
+#' A name the backbone files under several accepted taxa comes back with one of
+#' them in `accepted_id`, and a caller requesting data by that ID gets only that
+#' taxon's share. One warning per call, never one per name: on a long list a
+#' per-name warning buries everything else. It carries the affected rows in
+#' `rows` and the class `taxify_multiple_ids`, so it can be caught or muffled;
+#' `options(taxify.warn_multiple_ids = FALSE)` switches it off.
+#'
+#' @param x A `taxify_result`.
+#' @return `x`, unchanged.
+#' @noRd
+warn_multiple_ids <- function(x) {
+  if (!isTRUE(getOption("taxify.warn_multiple_ids", TRUE))) return(x)
+  n <- x$n_ids
+  if (is.null(n)) return(x)
+  multi <- which(!is.na(n) & n > 1L)
+  if (length(multi) == 0L) return(x)
+  ex <- unique(x$input_name[multi])
+  shown <- paste(utils::head(ex, 3L), collapse = ", ")
+  if (length(ex) > 3L) shown <- paste0(shown, ", ...")
+  msg <- sprintf(paste0(
+    "%d of %d names resolve to more than one accepted ID (%s). ",
+    "`accepted_id` holds one and `accepted_ids` all of them; list them with ",
+    "taxify_ids() before requesting data by ID."),
+    length(multi), nrow(x), shown)
+  warning(structure(
+    class = c("taxify_multiple_ids", "warning", "condition"),
+    list(message = msg, call = NULL, rows = multi)))
+  x
+}
+
+
+#' Rows whose several accepted IDs leave the verdict open
+#'
+#' A row with `n_ids > 1` whose input is not itself the accepted name: a name
+#' the backbone accepts under its own spelling still names that taxon when a
+#' homonym record also exists, so only the rest count. The one rule behind
+#' [reconcile()]'s `"ambiguous"` status and [inspect()]'s `ambiguous` label.
+#' Input and accepted name are compared in the normalized space the matcher
+#' uses, so a case-only difference reads as the same name.
+#'
+#' @param res A `taxify_result`.
+#' @return Logical vector along the rows.
+#' @noRd
+open_multiple_ids <- function(res) {
+  n <- res$n_ids
+  if (is.null(n)) return(rep(FALSE, nrow(res)))
+  in_norm  <- normalize_epithets(clean_names(res$input_name)$cleaned)
+  acc_norm <- normalize_epithets(res$accepted_name)
+  self <- !is.na(in_norm) & !is.na(acc_norm) & in_norm == acc_norm &
+    !(res$is_synonym %in% TRUE)
+  !is.na(n) & n > 1L & !self
+}
+
+
 #' Match types a backbone lookup produces, strongest evidence first
 #' @noRd
 .backbone_match_types <- c("exact", "exact_ci", "abbrev", "fuzzy",
@@ -1029,8 +1105,8 @@ is_backbone_match <- function(match_type) {
 .match_record_cols <- c("matched_name", "taxon_id", "accepted_id", "rank",
                         "family", "genus", "epithet", "authorship",
                         "accepted_authorship", "is_synonym",
-                        "taxonomic_status", "fuzzy_dist", "is_ambiguous",
-                        "ambiguous_targets")
+                        "taxonomic_status", "fuzzy_dist", "n_ids",
+                        "accepted_ids")
 
 
 #' Demote matched rows back to unmatched (blanking their match columns)

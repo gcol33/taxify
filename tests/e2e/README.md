@@ -59,7 +59,7 @@ counts:
 | different genus | taxify landed on another record entirely | 258 |
 
 Only the last class is worth reading as a possible defect, and even there some
-are genuine homonyms that taxify flags with `is_ambiguous`. Before changing
+are genuine homonyms that taxify reports with `n_ids > 1`. Before changing
 matching code to close a gap, establish which class moved.
 
 ## Everything else in this directory

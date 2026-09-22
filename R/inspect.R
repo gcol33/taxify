@@ -28,7 +28,9 @@
 #'     the input most likely contains a spelling error; `suggestion` is the name.}
 #'   \item{`rank_fallback`}{An infraspecific name the backbone does not carry,
 #'     resolved to its species (`match_type = "rank_fallback"`).}
-#'   \item{`ambiguous`}{A homonym resolving to more than one accepted taxon.}
+#'   \item{`ambiguous`}{A name the backbone files under more than one accepted
+#'     taxon (`n_ids > 1`) that is not itself the accepted name; the reason lists
+#'     the accepted IDs.}
 #'   \item{`geographic`}{The matched species is real but has no WCVP record in the
 #'     declared `region` / `coords` (vascular plants only).}
 #'   \item{`out_of_range`}{No region declared, yet the matched species' range falls
@@ -209,10 +211,9 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
   col <- function(nm, default) if (nm %in% names(res)) res[[nm]] else default
   acc       <- col("accepted_name",     rep(NA_character_, n))
   fd        <- col("fuzzy_dist",        rep(NA_real_, n))
-  amb_tgt   <- col("ambiguous_targets", rep(NA_character_, n))
+  amb_tgt   <- col("accepted_ids",      rep(NA_character_, n))
   backbone   <- col("backbone",           rep(NA_character_, n))
   syn_raw   <- col("is_synonym",        rep(FALSE, n))
-  amb_raw   <- col("is_ambiguous",      rep(FALSE, n))
   input     <- res$input_name
 
   is_true <- function(v) !is.na(v) & v
@@ -269,7 +270,7 @@ build_inspection <- function(res, region_codes = NULL, range_mode = "present",
   m_case      <- !is.na(mt) & mt == "exact_ci"
   m_rankfb    <- !is.na(mt) & mt == "rank_fallback"
   m_synonym   <- matched & is_true(syn_raw)
-  m_ambiguous <- is_true(amb_raw)
+  m_ambiguous <- open_multiple_ids(res)
 
   # ---- list-context labels: need the rest of the batch ----
   n_active <- sum(!is.na(input))

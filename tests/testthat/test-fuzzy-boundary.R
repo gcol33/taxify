@@ -91,16 +91,17 @@ setup_fuzzy_backend <- function() {
 
 # ---- Two near-equidistant candidates ----
 
-test_that("a typo equidistant from two species is flagged ambiguous", {
+test_that("a typo equidistant from two species reports both accepted IDs", {
   setup_fuzzy_backend()
 
   # 'Carex flavca' is one edit from both 'Carex flava' and 'Carex flacca'.
-  res <- taxify("Carex flavca", verbose = FALSE)
+  expect_warning(res <- taxify("Carex flavca", verbose = FALSE),
+                 class = "taxify_multiple_ids")
 
   expect_equal(res$match_type, "fuzzy")
   expect_equal(res$fuzzy_dist, 1 / 12, tolerance = 1e-6)
-  expect_true(res$is_ambiguous)
-  expect_equal(res$ambiguous_targets, "wfo-f0001|wfo-f0002")
+  expect_equal(res$n_ids, 2L)
+  expect_equal(res$accepted_ids, "wfo-f0001|wfo-f0002")
   # Both competing accepted taxa are named, and the scalar columns hold the
   # lower-id candidate rather than dropping the row.
   expect_equal(res$accepted_name, "Carex flacca")
@@ -108,7 +109,7 @@ test_that("a typo equidistant from two species is flagged ambiguous", {
 })
 
 
-test_that("a typo with a single in-range candidate is not flagged ambiguous", {
+test_that("a typo with a single in-range candidate reports one accepted ID", {
   setup_fuzzy_backend()
 
   # 'Carex flavo' is 0.0909 from 'Carex flava' and 0.25 from 'Carex flacca', so
@@ -119,8 +120,8 @@ test_that("a typo with a single in-range candidate is not flagged ambiguous", {
   expect_equal(res$accepted_name, "Carex flava")
   expect_equal(res$taxon_id, "wfo-f0002")
   expect_equal(res$fuzzy_dist, 1 / 11, tolerance = 1e-6)
-  expect_false(res$is_ambiguous)
-  expect_true(is.na(res$ambiguous_targets))
+  expect_equal(res$n_ids, 1L)
+  expect_equal(res$accepted_ids, "wfo-f0002")
 })
 
 
@@ -301,7 +302,8 @@ test_that("the closer of two fuzzy candidates wins regardless of taxon_id", {
   expect_equal(wide$accepted_name, "Carex flava")
   expect_equal(wide$taxon_id, "wfo-f0002")
   expect_equal(wide$fuzzy_dist, 1 / 12, tolerance = 1e-6)
-  expect_false(wide$is_ambiguous)
+  # The farther Carex flacca is a worse reading, not a second ID.
+  expect_equal(wide$n_ids, 1L)
 
   # Excluding the farther candidate with a tighter threshold cannot change the
   # answer: it was never the better one.
@@ -309,5 +311,5 @@ test_that("the closer of two fuzzy candidates wins regardless of taxon_id", {
   expect_equal(narrow$accepted_name, "Carex flava")
   expect_equal(narrow$taxon_id, "wfo-f0002")
   expect_equal(narrow$fuzzy_dist, 1 / 12, tolerance = 1e-6)
-  expect_false(narrow$is_ambiguous)
+  expect_equal(narrow$n_ids, 1L)
 })

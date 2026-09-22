@@ -30,11 +30,16 @@ name the backbone keeps unplaced but resolves through its basionym),
 \code{"misspelling"} (resolved by fuzzy/abbrev match to a corrected spelling),
 \code{"rank_fallback"} (an infraspecific name the backbone does not carry;
 \code{accepted_name} is the accepted name of its species),
-\code{"ambiguous"} (a homonym resolving to several accepted taxa; see
-\code{\link[=taxify_candidates]{taxify_candidates()}}),
+\code{"ambiguous"} (a name the backbone files under several accepted taxa,
+\code{n_ids > 1}, that does not resolve to itself as accepted;
+\code{accepted_name} is the one it picked, and \code{\link[=taxify_ids]{taxify_ids()}} lists the
+others),
 \code{"unresolved"} (no match).}
 \item{is_synonym}{Logical, from \code{\link[=taxify]{taxify()}}.}
 \item{match_type}{The \code{\link[=taxify]{taxify()}} match type.}
+\item{n_ids}{Distinct accepted taxa the backbone files the name under,
+from \code{\link[=taxify]{taxify()}}. Above 1 on an \code{"unchanged"} row, the name is accepted
+under its own spelling and a homonym record also exists.}
 \item{merged}{Logical. \code{TRUE} when two or more input names resolve to this
 same accepted name (a many-to-one collapse).}
 \item{merged_with}{\code{|}-joined other input names sharing this accepted name,
@@ -64,6 +69,6 @@ options(old)
 
 }
 \seealso{
-\code{\link[=taxify]{taxify()}}, \code{\link[=taxify_candidates]{taxify_candidates()}} to expand the ambiguous rows,
+\code{\link[=taxify]{taxify()}}, \code{\link[=taxify_ids]{taxify_ids()}} to expand the ambiguous rows,
 \code{\link[=synonyms]{synonyms()}}.
 }
