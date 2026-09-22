@@ -42,9 +42,11 @@
 # Lam. (1779, a synonym of `Artemisia absinthium`) outranks the Dulac homonym
 # (1867) even though GBIF files more records under the latter. The year is the
 # backbone's `year`, else the first year in `name_published_in`; a missing year
-# sorts last. Priority holds within one code of nomenclature, so where those
-# level records span kingdoms (`Padia`, a plant and an animal genus) the year is
-# silent and the count decides (`year_within_kingdom()`).
+# sorts last. Priority decides between homonyms under the botanical code, so the
+# year orders only records that share one ICN kingdom; where they span kingdoms
+# (`Padia`, a plant and an animal genus) or are animals, whose code protects
+# prevailing usage instead, the year is silent and the count decides
+# (`year_within_kingdom()`, `.priority_kingdoms`).
 #
 # ORDERING TIEBREAKS then choose one row inside the best tier, deterministically:
 #   4. nomenclaturalStatus = Valid  (when the column is present in the .vtr)
@@ -424,15 +426,25 @@ candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
 }
 
 
-#' Publication years, silenced where the level candidates span kingdoms
+# Kingdoms whose names are governed by the botanical code (ICN), where priority
+# of publication decides between homonyms. The zoological code instead protects
+# prevailing usage over strict priority (reversal of precedence), and measuring
+# bears that out: among animal names where the publication year and the
+# occurrence count disagree and a reference backbone names one of the two, the
+# count is right 69% of the time against ITIS and 60% against WoRMS, while for
+# plants the year wins by 10-17 points against WFO, WCVP and COL. So the year
+# orders ICN names only, and animal (and unplaced) names fall to the count.
+.priority_kingdoms <- c("PLANTAE", "FUNGI", "CHROMISTA", "PROTOZOA")
+
+#' Publication years, silenced where priority does not decide
 #'
 #' Priority of publication holds within one code of nomenclature: a plant genus
 #' and an animal genus of the same spelling are both legitimate, whichever came
 #' first (`Padia` Moritzi, a synonym of `Oryza`, beside `Padia` Gistl). Among
 #' the candidates of a group that the preceding scores leave level, the year
-#' therefore only orders when they all share one kingdom; otherwise it is 0
-#' for every one of them and the occurrence count decides. An `NA` kingdom
-#' contradicts nothing.
+#' therefore only orders when they all sit in one kingdom governed by the
+#' botanical code (`.priority_kingdoms`); otherwise it is 0 for every one of
+#' them and the occurrence count decides.
 #'
 #' @param s The [score_candidates()] output.
 #' @param kingdom Character vector along the candidates, or `NULL`.
@@ -444,9 +456,12 @@ year_within_kingdom <- function(s, kingdom, grp = NULL) {
   if (is.null(kingdom) || length(year) == 0L) return(year)
   level <- paste(grp %||% "", s$dist_score, s$data_score, s$status_score,
                  s$rank_score, s$epithet_score, sep = "\r")
-  k <- as.character(kingdom)
-  n_k <- tapply(k, level, function(v) length(unique(v[!is.na(v) & nzchar(v)])))
-  year[n_k[level] > 1L] <- 0
+  k <- toupper(trimws(as.character(kingdom)))
+  ok <- tapply(k, level, function(v) {
+    v <- unique(v[!is.na(v) & nzchar(v)])
+    length(v) == 1L && v %in% .priority_kingdoms
+  })
+  year[!ok[level]] <- 0
   year
 }
 

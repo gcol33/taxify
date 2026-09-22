@@ -44,8 +44,10 @@
   wins before the occurrence count is read (priority of publication; the
   year comes from GBIF's `year` or `name_published_in`). *Absinthium
   vulgare* Lam. (1779) resolves to *Artemisia absinthium* rather than to
-  the Dulac homonym (1867). Years are compared only between records of one
-  kingdom, since priority does not cross codes of nomenclature.
+  the Dulac homonym (1867). Years order names under the botanical code only
+  (plants, fungi, chromists, protozoa) and only between records of one
+  kingdom: priority does not cross codes, and the zoological code protects
+  prevailing usage over strict priority, which the occurrence count tracks.
 * A fuzzy match on GBIF now reads occurrence counts and publication years
   too; the fuzzy path used to drop those columns.
   Needs the `gbif-2023.08` backbone (built 2026-09-22), which also carries GBIF's `DOUBTFUL`

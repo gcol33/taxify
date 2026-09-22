@@ -129,6 +129,18 @@ test_that("the earliest of two same-name homonyms wins before the count", {
   expect_equal(pick_best_vec(m)$accepted_taxon_id, "absin")
 })
 
+test_that("the year is silent for animal names, where usage prevails", {
+  m <- pick_frame(taxonID = c("1", "2"),
+                  taxonomicStatus = c("SYNONYM", "SYNONYM"),
+                  accepted_taxon_id = c("early", "used"),
+                  kingdom = c("Animalia", "Animalia"),
+                  year = c("1836", "1839"),
+                  n_occurrences = c(1, 3))
+  expect_equal(pick_best_vec(m)$accepted_taxon_id, "used")
+  m$kingdom <- c("Fungi", "Fungi")
+  expect_equal(pick_best_vec(m)$accepted_taxon_id, "early")
+})
+
 test_that("the year is silent between homonyms of different kingdoms", {
   # Padia: Gistl 1848 (animal) and Moritzi 1854 (plant, synonym of Oryza);
   # priority does not cross codes, so the count decides.
@@ -139,6 +151,7 @@ test_that("the year is silent between homonyms of different kingdoms", {
                   year = c("1848", "1854"),
                   n_occurrences = c(0, 3))
   expect_equal(pick_best_vec(m)$accepted_taxon_id, "oryza")
+  # Both plants: the earlier name wins although it has no records.
   m$kingdom <- c("Plantae", "Plantae")
   expect_equal(pick_best_vec(m)$accepted_taxon_id, "gerania")
 })
