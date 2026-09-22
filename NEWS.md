@@ -21,6 +21,13 @@
   (name, ID), with accepted name, authorship, rank, status, family, the GBIF
   occurrence count and which ID `taxify()` picked. It replaces
   `taxify_candidates()`, which only expanded tied homonyms.
+* `n_ids` and `accepted_ids` appear in `taxify()` output only when some name
+  resolves to more than one accepted ID, which is also when the
+  `taxify_multiple_ids` warning fires (unless switched off). Otherwise `accepted_id` says all there
+  is to say and the two columns are left out. `taxify_ids()` and `reconcile()`
+  work either way (`reconcile()` always carries `n_ids`). Results from two
+  calls can then differ in columns: combine them with `dplyr::bind_rows()`,
+  which fills the missing columns with `NA`, rather than base `rbind()`.
 * On the GBIF backbone the pick now reads occurrence records: among the
   records that keep a name as their own concept (accepted, doubtful,
   unplaced), a key with any GBIF occurrence records beats a key with none,

@@ -34,8 +34,9 @@ without counts, and for an ID whose count was not taken.}
 Unmatched names contribute no rows.
 }
 \description{
-\code{\link[=taxify]{taxify()}} returns one accepted ID per name, and records in \code{accepted_ids}
-every accepted taxon the backbone files the name under: a homonym published
+\code{\link[=taxify]{taxify()}} returns one accepted ID per name, and, when any name has several,
+records in \code{accepted_ids} every accepted taxon the backbone files the name
+under: a homonym published
 by two authors, or a name held twice, once accepted and once as a doubtful or
 duplicate record. This verb lays those out one row per (name, accepted ID),
 resolved against the backbone, with the ID \code{taxify()} picked marked. On the

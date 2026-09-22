@@ -120,8 +120,7 @@ test_that("a typo with a single in-range candidate reports one accepted ID", {
   expect_equal(res$accepted_name, "Carex flava")
   expect_equal(res$taxon_id, "wfo-f0002")
   expect_equal(res$fuzzy_dist, 1 / 11, tolerance = 1e-6)
-  expect_equal(res$n_ids, 1L)
-  expect_equal(res$accepted_ids, "wfo-f0002")
+  expect_false(any(c("n_ids", "accepted_ids") %in% names(res)))
 })
 
 
@@ -303,7 +302,7 @@ test_that("the closer of two fuzzy candidates wins regardless of taxon_id", {
   expect_equal(wide$taxon_id, "wfo-f0002")
   expect_equal(wide$fuzzy_dist, 1 / 12, tolerance = 1e-6)
   # The farther Carex flacca is a worse reading, not a second ID.
-  expect_equal(wide$n_ids, 1L)
+  expect_false("n_ids" %in% names(wide))
 
   # Excluding the farther candidate with a tighter threshold cannot change the
   # answer: it was never the better one.
@@ -311,5 +310,5 @@ test_that("the closer of two fuzzy candidates wins regardless of taxon_id", {
   expect_equal(narrow$accepted_name, "Carex flava")
   expect_equal(narrow$taxon_id, "wfo-f0002")
   expect_equal(narrow$fuzzy_dist, 1 / 12, tolerance = 1e-6)
-  expect_equal(narrow$n_ids, 1L)
+  expect_false("n_ids" %in% names(narrow))
 })

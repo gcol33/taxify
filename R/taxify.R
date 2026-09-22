@@ -184,16 +184,16 @@
 #'     unplaced record, the `accepted_*` columns that taxon; needs a backbone
 #'     built with its basionym links), or `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
-#'   \item{n_ids}{Integer. How many distinct accepted taxa the backbone files
-#'     the matched name under, across every record of it (accepted, doubtful,
-#'     unplaced, synonym). `1` for a name with one accepted ID; more for a
-#'     homonym or a name the backbone holds twice, e.g. GBIF's
-#'     *Karwinskia mollis*, kept both as the accepted Schltdl. name and as a
-#'     doubtful Standl. one. `NA` when nothing matched. `taxify()` warns once
-#'     per call when any row has more than one (see Details).}
-#'   \item{accepted_ids}{Character. Those accepted IDs, `|`-joined, the one in
-#'     `accepted_id` first. List them with their names, status and GBIF
-#'     occurrence counts through [taxify_ids()].}
+#'   \item{n_ids}{Integer, present only when some name has more than one
+#'     accepted ID (the call then warns, see Details). How many distinct
+#'     accepted taxa the backbone files the matched name under, across every
+#'     record of it (accepted, doubtful, unplaced, synonym). `1` for a name with
+#'     one accepted ID; more for a homonym or a name the backbone holds twice,
+#'     e.g. GBIF's *Karwinskia mollis*, kept both as the accepted Schltdl. name
+#'     and as a doubtful Standl. one. `NA` when nothing matched.}
+#'   \item{accepted_ids}{Character, present alongside `n_ids`. Those accepted
+#'     IDs, `|`-joined, the one in `accepted_id` first. List them with their
+#'     names, status and GBIF occurrence counts through [taxify_ids()].}
 #'   \item{backbone}{Which backbone was used (e.g., `"wfo"`, `"col"`,
 #'     `"gbif"`).}
 #'   \item{backbone_version}{Backend name, version, and download date
@@ -1035,24 +1035,32 @@ is_backbone_match <- function(match_type) {
   !is.na(match_type) & match_type %in% .backbone_match_types
 }
 
-#' Warn once when any name resolves to more than one accepted ID
+#' Report names that resolve to more than one accepted ID
 #'
 #' A name the backbone files under several accepted taxa comes back with one of
 #' them in `accepted_id`, and a caller requesting data by that ID gets only that
-#' taxon's share. One warning per call, never one per name: on a long list a
-#' per-name warning buries everything else. It carries the affected rows in
-#' `rows` and the class `taxify_multiple_ids`, so it can be caught or muffled;
-#' `options(taxify.warn_multiple_ids = FALSE)` switches it off.
+#' taxon's share. When any row has several, the result keeps `n_ids` and
+#' `accepted_ids` and one warning is raised per call, never one per name: on a
+#' long list a per-name warning buries everything else. It carries the affected
+#' rows in `rows` and the class `taxify_multiple_ids`, so it can be caught or
+#' muffled; `options(taxify.warn_multiple_ids = FALSE)` switches it off. When no
+#' row has several, both columns are dropped: `accepted_id` then says all there
+#' is to say.
 #'
 #' @param x A `taxify_result`.
-#' @return `x`, unchanged.
+#' @return `x`, without `n_ids` and `accepted_ids` when no row has more than one
+#'   accepted ID.
 #' @noRd
 warn_multiple_ids <- function(x) {
-  if (!isTRUE(getOption("taxify.warn_multiple_ids", TRUE))) return(x)
   n <- x$n_ids
   if (is.null(n)) return(x)
   multi <- which(!is.na(n) & n > 1L)
-  if (length(multi) == 0L) return(x)
+  if (length(multi) == 0L) {
+    x$n_ids <- NULL
+    x$accepted_ids <- NULL
+    return(x)
+  }
+  if (!isTRUE(getOption("taxify.warn_multiple_ids", TRUE))) return(x)
   ex <- unique(x$input_name[multi])
   shown <- paste(utils::head(ex, 3L), collapse = ", ")
   if (length(ex) > 3L) shown <- paste0(shown, ", ...")

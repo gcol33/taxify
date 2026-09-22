@@ -417,8 +417,9 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 
 #' List every accepted ID of each matched name
 #'
-#' [taxify()] returns one accepted ID per name, and records in `accepted_ids`
-#' every accepted taxon the backbone files the name under: a homonym published
+#' [taxify()] returns one accepted ID per name, and, when any name has several,
+#' records in `accepted_ids` every accepted taxon the backbone files the name
+#' under: a homonym published
 #' by two authors, or a name held twice, once accepted and once as a doubtful or
 #' duplicate record. This verb lays those out one row per (name, accepted ID),
 #' resolved against the backbone, with the ID `taxify()` picked marked. On the
@@ -462,10 +463,9 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 #'
 #' @export
 taxify_ids <- function(x, verbose = TRUE) {
-  req <- c("input_name", "backbone", "accepted_id", "accepted_ids")
+  req <- c("input_name", "backbone", "accepted_id")
   if (!is.data.frame(x) || !all(req %in% names(x))) {
-    stop("x must be a taxify() result (with an accepted_ids column).",
-         call. = FALSE)
+    stop("x must be a taxify() result.", call. = FALSE)
   }
   empty <- data.frame(
     input_name = character(0L), backbone = character(0L),
@@ -476,7 +476,8 @@ taxify_ids <- function(x, verbose = TRUE) {
     stringsAsFactors = FALSE
   )
 
-  ids <- ifelse(is.na(x$accepted_ids), x$accepted_id, x$accepted_ids)
+  multi <- x$accepted_ids %||% rep(NA_character_, nrow(x))
+  ids <- ifelse(is.na(multi), x$accepted_id, multi)
   rows <- which(!is.na(ids) & nzchar(ids) & !is.na(x$backbone))
   if (length(rows) == 0L) {
     if (verbose) message("No matched names to list.")

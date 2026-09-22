@@ -316,5 +316,5 @@ empty_taxify_result <- function(backbone = NULL) {
   proto <- .taxify_result_proto()
   df <- as.data.frame(lapply(proto, function(v) v[0L]),
                       stringsAsFactors = FALSE, check.names = FALSE)
-  as_taxify_result(df, bb)
+  warn_multiple_ids(as_taxify_result(df, bb))
 }

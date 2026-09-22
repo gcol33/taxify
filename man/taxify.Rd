@@ -199,16 +199,16 @@ basionym: \code{matched_name}, \code{taxon_id} and \code{taxonomic_status} descr
 unplaced record, the \verb{accepted_*} columns that taxon; needs a backbone
 built with its basionym links), or \code{"none"}.}
 \item{fuzzy_dist}{Normalized string distance (0--1), \code{NA} if exact.}
-\item{n_ids}{Integer. How many distinct accepted taxa the backbone files
-the matched name under, across every record of it (accepted, doubtful,
-unplaced, synonym). \code{1} for a name with one accepted ID; more for a
-homonym or a name the backbone holds twice, e.g. GBIF's
-\emph{Karwinskia mollis}, kept both as the accepted Schltdl. name and as a
-doubtful Standl. one. \code{NA} when nothing matched. \code{taxify()} warns once
-per call when any row has more than one (see Details).}
-\item{accepted_ids}{Character. Those accepted IDs, \code{|}-joined, the one in
-\code{accepted_id} first. List them with their names, status and GBIF
-occurrence counts through \code{\link[=taxify_ids]{taxify_ids()}}.}
+\item{n_ids}{Integer, present only when some name has more than one
+accepted ID (the call then warns, see Details). How many distinct
+accepted taxa the backbone files the matched name under, across every
+record of it (accepted, doubtful, unplaced, synonym). \code{1} for a name with
+one accepted ID; more for a homonym or a name the backbone holds twice,
+e.g. GBIF's \emph{Karwinskia mollis}, kept both as the accepted Schltdl. name
+and as a doubtful Standl. one. \code{NA} when nothing matched.}
+\item{accepted_ids}{Character, present alongside \code{n_ids}. Those accepted
+IDs, \code{|}-joined, the one in \code{accepted_id} first. List them with their
+names, status and GBIF occurrence counts through \code{\link[=taxify_ids]{taxify_ids()}}.}
 \item{backbone}{Which backbone was used (e.g., \code{"wfo"}, \code{"col"},
 \code{"gbif"}).}
 \item{backbone_version}{Backend name, version, and download date

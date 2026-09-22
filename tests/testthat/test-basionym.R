@@ -99,7 +99,11 @@ test_that("the result carries the backbone's own status", {
   expect_equal(res$taxonomic_status,
                c("UNCHECKED", "UNCHECKED", "ACCEPTED", "UNCHECKED", "SYNONYM",
                  "ACCEPTED", "SYNONYM", NA))
-  expect_identical(names(res), names(empty_taxify_result("wfo")))
+  # Lycopsis orientalis has two accepted IDs, so the result also carries the
+  # columns an empty result leaves out.
+  expect_identical(setdiff(names(res), c("n_ids", "accepted_ids")),
+                   names(empty_taxify_result("wfo")))
+  expect_true(all(c("n_ids", "accepted_ids") %in% names(res)))
 })
 
 test_that("an unplaced combination resolves to where its basionym is placed", {

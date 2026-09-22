@@ -153,7 +153,8 @@ test_that("taxify_ids() gives one row per matched name with a single ID", {
   expect_equal(ids$input_name, "Quercus robur")
   expect_equal(ids$accepted_id, r$accepted_id[1L])
   expect_true(ids$is_pick)
-  expect_equal(r$n_ids, c(1L, NA_integer_))
+  # No name has several IDs, so the result carries accepted_id alone.
+  expect_false(any(c("n_ids", "accepted_ids") %in% names(r)))
 })
 
 

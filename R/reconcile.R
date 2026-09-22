@@ -128,7 +128,7 @@ reconcile <- function(x, backbone = NULL, ..., verbose = TRUE) {
     status        = status,
     is_synonym    = res$is_synonym,
     match_type    = mt,
-    n_ids         = res$n_ids,
+    n_ids         = res$n_ids %||% ifelse(resolved, 1L, NA_integer_),
     merged        = merged,
     merged_with   = merged_with,
     backbone       = if ("backbone" %in% names(res)) res$backbone else NA_character_,
