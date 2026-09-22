@@ -429,8 +429,8 @@ answer in these situations:
 
 - **Interactive, per-name resolution with manual disambiguation.** taxize had
   interactive modes where the user could pick among multiple candidates. taxify
-  picks the best match automatically (on GBIF the key with the most occurrence
-  records, then accepted name over synonym, species rank over higher ranks,
+  picks the best match automatically (on GBIF a key with occurrence records
+  over one without, then accepted name over synonym, species rank over higher ranks,
   lowest ID as tiebreaker), records every accepted ID of the name in
   `accepted_ids`, and lists them with `taxify_ids()`. If per-name interactive
   choice is needed, direct API calls may be preferable.

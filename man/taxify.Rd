@@ -252,13 +252,14 @@ once as a doubtful or duplicate record. \code{accepted_id} holds one of them;
 row per ID with name, authorship, status and, for GBIF, occurrence count.
 
 Which one \code{accepted_id} holds is decided by fuzzy distance first, then, on a
-backbone that carries occurrence counts (GBIF), by the number of GBIF
-occurrence records filed under each record's key, then by taxonomic status
-(accepted before doubtful or unplaced before synonym), rank and the other
-tiebreaks. The count of an accepted key includes the records of its synonyms
-and descendants, which is what a GBIF download by that key returns, so the
-pick is the key a download can be made with; a key with no records only
-wins when no other key of the name has any.
+backbone that carries occurrence counts (GBIF), by whether any GBIF
+occurrence records are filed under a key that keeps the name as its own
+concept (accepted, doubtful or unplaced), then by taxonomic status
+(accepted before doubtful or unplaced before synonym), rank and epithet, and
+only then by the number of records, before the remaining tiebreaks. An empty
+accepted key thus loses to a doubtful key of the name that has the data,
+while a synonym record, whose accepted ID is another taxon, never displaces
+the name's own key; it stays listed in \code{accepted_ids}.
 
 When any input resolves to more than one accepted ID, \code{taxify()} issues one
 warning per call, of class \code{taxify_multiple_ids}, naming the count and a few

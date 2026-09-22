@@ -21,13 +21,15 @@
   (name, ID), with accepted name, authorship, rank, status, family, the GBIF
   occurrence count and which ID `taxify()` picked. It replaces
   `taxify_candidates()`, which only expanded tied homonyms.
-* On the GBIF backbone the pick now follows occurrence records: among the
-  records of a name, the key with more GBIF occurrence records wins before
-  taxonomic status is consulted. The count of an accepted key includes its
-  synonyms and descendants (what a GBIF download by that key returns), the
-  count of a synonym key only its own records, so an accepted species with
-  data still outranks a homonym synonym of another species, while an empty
-  accepted or doubtful key loses to a key of the same name that has the data.
+* On the GBIF backbone the pick now reads occurrence records: among the
+  records that keep a name as their own concept (accepted, doubtful,
+  unplaced), a key with any GBIF occurrence records beats a key with none,
+  before taxonomic status is consulted. A synonym record never wins on
+  records, since its accepted ID is another species and a download by it
+  returns that species' data; its key stays listed in `accepted_ids` and
+  `taxify_ids()`. Between keys that both have records, or both have none,
+  status decides as before, and the count only breaks a tie status, rank and
+  epithet leave.
   Checked against the live GBIF API: *Karwinskia mollis* went to the doubtful
   Standl. key (0 records) and now goes to the accepted Schltdl. key (663).
   Needs the `gbif-2023.08` backbone (built 2026-09-22), which also carries GBIF's `DOUBTFUL`

@@ -20,16 +20,20 @@
 #                                    abies` rather than the later homonyms
 #                                    `Pinus abies` Thunb. -> `Picea polita` etc.)
 #
-# OCCURRENCE COUNT orders between 0 and 1, on a backbone whose `.vtr` carries an
-# `n_occurrences` column (GBIF): the records the data provider files under each
-# candidate's key, where a key of the same name with more records beats one
-# with fewer, before status is consulted. A name GBIF holds as ACCEPTED with no
-# records beside a DOUBTFUL or synonym record carrying the data is a key nobody
-# can request anything with. The count of an accepted key includes its synonyms
-# and descendants, the count of a synonym key only its own records, so an
-# accepted species with data still outranks a homonym synonym of another one.
-# A missing count sorts after every known count; a backbone without the column
-# scores every row alike.
+# OCCURRENCE RECORDS enter twice, on a backbone whose `.vtr` carries an
+# `n_occurrences` column (GBIF: the records the data provider files under each
+# candidate's key). Between 0 and 1, among the records that keep the name as
+# their own concept (accepted, doubtful, unplaced), a key with any records
+# beats a key with none: a name GBIF holds as ACCEPTED with no records beside a
+# DOUBTFUL record carrying the data is a key nobody can request anything with.
+# A synonym record never takes part in that step: its accepted ID is another
+# taxon, and a download by it returns that taxon's data, not the name's. Between
+# keys that both have records, or both have none, status decides as usual, and
+# the count only breaks a tie left after 3 (more records first). A count of 1
+# against 5,000 says nothing about which taxon the name denotes, so it never
+# overrides status. A missing count is treated as no records at the
+# first step and sorts after every known count at the second; a backbone
+# without the column scores every row alike.
 #
 # ORDERING TIEBREAKS then choose one row inside the best tier, deterministically:
 #   4. nomenclaturalStatus = Valid  (when the column is present in the .vtr)
@@ -241,13 +245,18 @@ epithet_key <- function(names) {
 #'   `fuzzy_dist` (fuzzy proximity), `nomenclaturalStatus` (validity),
 #'   `matched_name_std` and `accepted_name` (epithet preservation), plus
 #'   `authorship` and `accepted_authorship` (homotypy).
-#' `occ_score` is minus the candidate's `n_occurrences` (records filed under
-#' its key, a column only the GBIF backbone carries), `Inf` where the count is
-#' missing and 0 throughout when the column is absent. It orders after
-#' `dist_score` and before `status_score`, outside the tier: which key holds the
-#' data is not a statement about which taxon the name denotes.
+#' Two scores read the candidate's `n_occurrences` (records filed under its
+#' key, a column only the GBIF backbone carries), both 0 throughout when the
+#' column is absent and both outside the tier: which key holds the data is not
+#' a statement about which taxon the name denotes. `data_score` is 0 for a key
+#' with at least one record that keeps the name as its own concept (accepted,
+#' doubtful or unplaced; never a synonym, whose accepted ID is another taxon)
+#' and 1 otherwise (no records, no count, or a synonym); it orders
+#' after `dist_score` and before `status_score`. `occ_score` is minus the count,
+#' `Inf` where it is missing; it orders after `epithet_score`, so it only
+#' separates keys the concept scores leave level.
 #'
-#' @return A list with the numeric vectors `dist_score`, `occ_score` and
+#' @return A list with the numeric vectors `dist_score`, `data_score`, `occ_score` and
 #'   `status_score`, integer vectors `rank_score`, `valid_score`, `epithet_score`, and the
 #'   character `tier` signature (`"dist/status/rank/epithet"`) per row, in input
 #'   order.
@@ -299,20 +308,29 @@ score_candidates <- function(candidates) {
     dist_score <- numeric(nrow(candidates))
   }
 
-  # Occurrence records filed under the candidate's key, more first. Absent
-  # column: uniformly 0. A missing count is not zero records, it is a key the
-  # count was not taken for, so it sorts after every known count rather than
-  # level with an empty key.
+  # Occurrence records filed under the candidate's key. `data_score` separates
+  # a key with records from one without, among the records that keep the name
+  # as their own concept (accepted, doubtful, unplaced); a synonym record
+  # points to another taxon, whose key would fetch that taxon's data, so it
+  # never scores as holding the name's records. `occ_score` (more first) orders keys
+  # the concept scores leave level. A missing count is a key the count was not
+  # taken for: no evidence of data, and after every known count. Absent column:
+  # both uniformly 0.
   occ <- candidates$n_occurrences
   if (!is.null(occ)) {
-    occ_score <- -as.numeric(occ)
+    occ <- as.numeric(occ)
+    own <- status_score <= .status_unplaced & status_score != .status_homotypic
+    data_score <- ifelse(own & !is.na(occ) & occ > 0, 0L, 1L)
+    occ_score <- -occ
     occ_score[is.na(occ_score)] <- Inf
   } else {
+    data_score <- integer(nrow(candidates))
     occ_score <- numeric(nrow(candidates))
   }
 
   tier <- paste(dist_score, status_score, rank_score, epithet_score, sep = "/")
   list(dist_score    = dist_score,
+       data_score    = data_score,
        occ_score     = occ_score,
        status_score  = status_score,
        rank_score    = rank_score,
@@ -324,10 +342,10 @@ score_candidates <- function(candidates) {
 
 #' Order match candidates by resolution priority
 #'
-#' The single source of truth for the candidate sort: the fuzzy distance, the
-#' occurrence count, then the remaining concept scores of [score_candidates()]
-#' in tier order, then the nomenclatural-validity tiebreak, then the lowest
-#' `taxonID`. Pass `group_col` to sort within groups first, so
+#' The single source of truth for the candidate sort: the fuzzy distance,
+#' whether the key has occurrence records, the remaining concept scores of
+#' [score_candidates()] in tier order, the occurrence count, then the
+#' nomenclatural-validity tiebreak, then the lowest `taxonID`. Pass `group_col` to sort within groups first, so
 #' the first row of each group is that group's best candidate.
 #'
 #' @param candidates A data.frame accepted by [score_candidates()], carrying a
@@ -340,8 +358,8 @@ score_candidates <- function(candidates) {
 #' @export
 candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
   s <- scores %||% score_candidates(candidates)
-  keys <- list(s$dist_score, s$occ_score, s$status_score, s$rank_score,
-               s$epithet_score, s$valid_score, candidates$taxonID)
+  keys <- list(s$dist_score, s$data_score, s$status_score, s$rank_score,
+               s$epithet_score, s$occ_score, s$valid_score, candidates$taxonID)
   if (!is.null(group_col)) keys <- c(list(candidates[[group_col]]), keys)
   do.call(order, keys)
 }

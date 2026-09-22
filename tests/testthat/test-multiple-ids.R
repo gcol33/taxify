@@ -69,20 +69,59 @@ test_that("the key with occurrence records beats an empty one of the same name",
   expect_equal(best$accepted_ids, "2|1")
 })
 
-test_that("records outrank status: a synonym key with data beats an empty accepted one", {
+test_that("records outrank status among the name's own keys", {
   m <- pick_frame(taxonID = c("1", "2"),
-                  taxonomicStatus = c("DOUBTFUL", "SYNONYM"),
-                  accepted_taxon_id = c("1", "9"),
+                  taxonomicStatus = c("ACCEPTED", "DOUBTFUL"),
+                  accepted_taxon_id = c("1", "2"),
                   n_occurrences = c(0, 25))
-  expect_equal(pick_best_vec(m)$accepted_taxon_id, "9")
+  expect_equal(pick_best_vec(m)$taxonID, "2")
 })
 
-test_that("equal counts fall through to status", {
+test_that("a synonym key with data never displaces the name's own empty key", {
+  # Rosa capreolata: the accepted key has 0 records, a synonym record of the
+  # same name 1; its accepted ID is Rosa arvensis, whose data a download by
+  # that ID would return.
+  m <- pick_frame(taxonID = c("1", "2"),
+                  taxonomicStatus = c("ACCEPTED", "SYNONYM"),
+                  accepted_taxon_id = c("1", "9"),
+                  n_occurrences = c(0, 1))
+  best <- pick_best_vec(m)
+  expect_equal(best$accepted_taxon_id, "1")
+  expect_equal(best$accepted_ids, "1|9")
+})
+
+test_that("between two empty keys status decides", {
   m <- pick_frame(taxonID = c("1", "2"),
                   taxonomicStatus = c("SYNONYM", "DOUBTFUL"),
                   accepted_taxon_id = c("9", "2"),
                   n_occurrences = c(0, 0))
   expect_equal(pick_best_vec(m)$taxonID, "2")
+})
+
+test_that("between two keys with records status decides, not the count", {
+  # Houstonia pusilla: the accepted key keeps the name although the synonym
+  # key of another species could carry more records.
+  m <- pick_frame(taxonID = c("1", "2"),
+                  taxonomicStatus = c("SYNONYM", "ACCEPTED"),
+                  accepted_taxon_id = c("9", "2"),
+                  n_occurrences = c(5000, 1))
+  expect_equal(pick_best_vec(m)$taxonID, "2")
+})
+
+test_that("the count breaks a tie the concept scores leave", {
+  m <- pick_frame(taxonID = c("1", "2"),
+                  taxonomicStatus = c("ACCEPTED", "ACCEPTED"),
+                  accepted_taxon_id = c("1", "2"),
+                  n_occurrences = c(3, 40))
+  expect_equal(pick_best_vec(m)$taxonID, "2")
+})
+
+test_that("a missing count is no evidence of records", {
+  m <- pick_frame(taxonID = c("1", "2"),
+                  taxonomicStatus = c("ACCEPTED", "SYNONYM"),
+                  accepted_taxon_id = c("1", "9"),
+                  n_occurrences = c(NA, 0))
+  expect_equal(pick_best_vec(m)$taxonID, "1")
 })
 
 test_that("a missing count sorts after every known count, not level with zero", {
