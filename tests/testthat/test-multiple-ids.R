@@ -330,5 +330,28 @@ test_that("taxify_ids() lists each ID with its status and occurrence count", {
                  c("ACCEPTED", "DOUBTFUL", "ACCEPTED", "ACCEPTED"))
     expect_equal(ids$n_occurrences, c(663, 0, 14947, 35385))
     expect_equal(ids$is_pick, c(TRUE, FALSE, TRUE, FALSE))
+    expect_equal(ids$gbif_key, ids$accepted_id)
   })
+})
+
+test_that("taxify_ids() reads gbif_key from a backbone that carries a crosswalk", {
+  path <- tempfile(fileext = ".vtr")
+  vectra::write_vtr(data.frame(
+    taxon_id         = c("4R5YN", "SFTX6", "9ZZZZ"),
+    canonical_name   = c("Quercus robur", "Quercus robur", "Newus novus"),
+    authorship       = c("L.", "Asso", "Nov."),
+    taxon_rank       = "SPECIES",
+    taxonomic_status = "ACCEPTED",
+    family           = c("Fagaceae", "Fagaceae", "Fagaceae"),
+    gbif_key         = c("2878688", "7911626|8206510", NA),
+    stringsAsFactors = FALSE
+  ), path)
+  local_mocked_bindings(backbone_path = function(...) path)
+  x <- data.frame(input_name = c("Quercus robur", "Newus novus"),
+                  backbone = "colxr", accepted_id = c("4R5YN", "9ZZZZ"),
+                  accepted_ids = c("4R5YN|SFTX6", NA_character_),
+                  stringsAsFactors = FALSE)
+  ids <- taxify_ids(x, verbose = FALSE)
+  expect_equal(ids$accepted_id, c("4R5YN", "SFTX6", "9ZZZZ"))
+  expect_equal(ids$gbif_key, c("2878688", "7911626|8206510", NA))
 })

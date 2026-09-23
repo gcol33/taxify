@@ -10,6 +10,7 @@
   *Quercus robur* has three keys and *Pinus sylvestris* six. `strict = TRUE`
   narrows the request to the key `taxify()` reported, and reports how many
   keys and records that leaves behind. It is off by default.
+* `taxify_ids()` gains a `gbif_key` column: the legacy GBIF taxon key(s) of each accepted ID, which are what GBIF serves occurrence records for. On the `gbif` backbone it is the ID itself; on a COL XR build that carries a GBIF crosswalk it is the `|`-delimited set of GBIF keys for the same name, several where GBIF files it under more than one. `gbif_request()` reads it, so a default-chain result whose names are on COL XR is requested without a second match pass over the GBIF backbone; only names on a backbone with no crosswalk (or a COL XR build that predates it) are still re-matched against GBIF. `taxon_id` and `accepted_id` stay COL XR's.
 * `method = "download"` (default) submits one asynchronous GBIF download
   covering every key as a single `taxonKey IN (...)` predicate, so the list
   returns as one dataset under one citable DOI. It needs a GBIF account in

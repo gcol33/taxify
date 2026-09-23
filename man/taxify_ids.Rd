@@ -19,6 +19,11 @@ first):
 \item{input_name}{The queried name.}
 \item{backbone}{Backbone that matched the name.}
 \item{accepted_id}{An accepted ID the name resolves to.}
+\item{gbif_key}{The legacy GBIF taxon key(s) of that taxon, the keys GBIF
+serves occurrence records for: the ID itself on the \code{gbif} backbone, and
+on a backbone whose build carries a crosswalk (COL XR) the
+\code{|}-delimited set of GBIF keys for the same name, several when GBIF
+files it under more than one. \code{NA} on a backbone with no crosswalk.}
 \item{accepted_name}{The name of that accepted taxon.}
 \item{authorship}{Its authorship.}
 \item{rank}{Its rank.}

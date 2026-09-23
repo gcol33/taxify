@@ -18,6 +18,7 @@ fake_ids <- function(...) {
     input_name       = c("Quercus robur", "Quercus robur", "Bellis perennis"),
     backbone         = "gbif",
     accepted_id      = c("2878688", "7911626", "3117424"),
+    gbif_key         = c("2878688", "7911626", "3117424"),
     accepted_name    = c("Quercus robur", "Quercus robur", "Bellis perennis"),
     authorship       = c("L.", "auct.", "L."),
     rank             = "species",
@@ -27,6 +28,20 @@ fake_ids <- function(...) {
     is_pick          = c(TRUE, FALSE, TRUE),
     stringsAsFactors = FALSE
   )
+}
+
+
+# What taxify_ids() returns for a frame: one row per input row, a GBIF key only
+# where the backbone is GBIF itself or the row's build carries a crosswalk.
+ids_of <- function(crosswalk = character(0L)) {
+  function(x, ...) {
+    key <- ifelse(x$backbone == "gbif", x$accepted_id,
+                  unname(crosswalk[x$input_name]))
+    data.frame(input_name = x$input_name, backbone = x$backbone,
+               accepted_id = x$accepted_id, gbif_key = key,
+               accepted_name = x$input_name, n_occurrences = NA_real_,
+               is_pick = TRUE, stringsAsFactors = FALSE)
+  }
 }
 
 
@@ -111,7 +126,7 @@ test_that("names matched by another backbone are re-matched, not dropped", {
   # on gbif, the rest elsewhere. Every name has to reach the request.
   asked <- NULL
   local_mocked_bindings(
-    taxify_ids = fake_ids,
+    taxify_ids = ids_of(),
     taxify_input = function(x, backbone, ..., verbose) {
       asked <<- x
       fake_result(input = x, backbone = "gbif", accepted_id = "3117424")
@@ -122,13 +137,13 @@ test_that("names matched by another backbone are re-matched, not dropped", {
     "carry no GBIF key"
   )
   expect_equal(asked, "Bellis perennis")
-  expect_equal(nrow(attr(out, "taxa")), 3L)
+  expect_equal(as.integer(out), c(2878688L, 3117424L))
 })
 
 
 test_that("re-matched rows keep the input's order", {
   local_mocked_bindings(
-    taxify_ids = function(x, ...) x,
+    taxify_ids = ids_of(),
     taxify_input = function(x, backbone, ..., verbose)
       fake_result(input = x, backbone = "gbif", accepted_id = "3117424"))
   mixed <- fake_result(input = c("Bellis perennis", "Quercus robur"),
@@ -145,17 +160,17 @@ test_that("a result matched by the default chain is re-matched against GBIF", {
   # no GBIF keys. It has to work anyway, not error.
   rematched <- 0L
   local_mocked_bindings(
-    taxify_ids = fake_ids,
+    taxify_ids = ids_of(),
     taxify_input = function(x, backbone, ..., verbose) {
       rematched <<- rematched + 1L
       expect_equal(backbone, "gbif")
       fake_result()
     })
-  x <- fake_result(backbone = "colxr")
+  x <- fake_result(backbone = "colxr", accepted_id = c("4R5YN", "5WH44"))
   expect_message(keys <- gbif_request(x, dry_run = TRUE, verbose = TRUE),
                  "re-matching the names against the GBIF backbone")
   expect_equal(rematched, 1L)
-  expect_length(keys, 3L)
+  expect_equal(as.integer(keys), c(2878688L, 3117424L))
 })
 
 
@@ -183,22 +198,39 @@ test_that("a result with no GBIF rows and no names is still refused", {
 # request must not be built from them. These tests pin that until GBIF's
 # occurrence index accepts them (gcol33/taxify COL XR migration issue).
 
-test_that("COL XR keys are refused rather than sent as GBIF taxon keys", {
-  colxr_ids <- function(...) {
-    d <- fake_ids()
-    d$accepted_id <- c("4R5YN", "7KPMG", "5WH44")
-    d
-  }
-  local_mocked_bindings(taxify_ids = colxr_ids)
-  expect_error(gbif_request(fake_result(), dry_run = TRUE, verbose = FALSE),
-               "not GBIF taxon keys")
+test_that("a COL XR result with a crosswalk requests its GBIF keys, not its IDs", {
+  # 4R5YN returns 0 records; the GBIF keys behind it are what a request needs.
+  # A name GBIF files under two keys carries both, `|`-delimited.
+  local_mocked_bindings(
+    taxify_ids = ids_of(c("Quercus robur" = "2878688|7911626",
+                          "Bellis perennis" = "3117424")),
+    taxify_input = function(...) stop("must not re-match"))
+  x <- fake_result(backbone = "colxr", accepted_id = c("4R5YN", "5WH44"))
+  keys <- gbif_request(x, dry_run = TRUE, verbose = FALSE)
+  expect_equal(as.integer(keys), c(2878688L, 7911626L, 3117424L))
+  expect_false(any(grepl("[A-Z]", as.character(keys))))
 })
 
 
-test_that("a colxr result is re-matched to GBIF instead of failing", {
-  # The default backbone chain starts at COL XR, so this is the common path.
+test_that("only the rows a crosswalk leaves without keys are re-matched", {
+  asked <- NULL
   local_mocked_bindings(
-    taxify_ids = fake_ids,
+    taxify_ids = ids_of(c("Quercus robur" = "2878688")),
+    taxify_input = function(x, backbone, ..., verbose) {
+      asked <<- x
+      fake_result(input = x, backbone = "gbif", accepted_id = "3117424")
+    })
+  x <- fake_result(backbone = "colxr", accepted_id = c("4R5YN", "5WH44"))
+  out <- ensure_gbif_match(x, verbose = FALSE)
+  expect_equal(asked, "Bellis perennis")
+  expect_equal(out$input_name, c("Quercus robur", "Bellis perennis"))
+})
+
+
+test_that("a colxr result with no crosswalk is re-matched to GBIF", {
+  # A colxr build that predates the crosswalk has no gbif_key column.
+  local_mocked_bindings(
+    taxify_ids = ids_of(),
     taxify_input = function(x, backbone, ..., verbose) {
       expect_equal(backbone, "gbif")
       fake_result()
@@ -212,7 +244,7 @@ test_that("a colxr result is re-matched to GBIF instead of failing", {
 test_that("non-GBIF IDs are refused rather than sent as taxon keys", {
   synthetic <- function(...) {
     d <- fake_ids()
-    d$accepted_id <- c("gbif-ex-001", "gbif-ex-002", "gbif-ex-003")
+    d$accepted_id <- d$gbif_key <- c("gbif-ex-001", "gbif-ex-002", "gbif-ex-003")
     d
   }
   local_mocked_bindings(taxify_ids = synthetic)

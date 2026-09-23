@@ -436,6 +436,11 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 #'   \item{input_name}{The queried name.}
 #'   \item{backbone}{Backbone that matched the name.}
 #'   \item{accepted_id}{An accepted ID the name resolves to.}
+#'   \item{gbif_key}{The legacy GBIF taxon key(s) of that taxon, the keys GBIF
+#'     serves occurrence records for: the ID itself on the `gbif` backbone, and
+#'     on a backbone whose build carries a crosswalk (COL XR) the
+#'     `|`-delimited set of GBIF keys for the same name, several when GBIF
+#'     files it under more than one. `NA` on a backbone with no crosswalk.}
 #'   \item{accepted_name}{The name of that accepted taxon.}
 #'   \item{authorship}{Its authorship.}
 #'   \item{rank}{Its rank.}
@@ -469,7 +474,8 @@ taxify_ids <- function(x, verbose = TRUE) {
   }
   empty <- data.frame(
     input_name = character(0L), backbone = character(0L),
-    accepted_id = character(0L), accepted_name = character(0L),
+    accepted_id = character(0L), gbif_key = character(0L),
+    accepted_name = character(0L),
     authorship = character(0L), rank = character(0L),
     taxonomic_status = character(0L), family = character(0L),
     n_occurrences = numeric(0L), is_pick = logical(0L),
@@ -490,7 +496,7 @@ taxify_ids <- function(x, verbose = TRUE) {
   long$ord <- seq_len(nrow(long))
 
   want <- c("taxon_id", "canonical_name", "authorship", "taxon_rank",
-            "taxonomic_status", "family", "n_occurrences")
+            "taxonomic_status", "family", "n_occurrences", "gbif_key")
   out <- list()
   for (bb_name in unique(x$backbone[long$row])) {
     sub <- long[x$backbone[long$row] == bb_name, , drop = FALSE]
@@ -511,6 +517,8 @@ taxify_ids <- function(x, verbose = TRUE) {
       input_name       = x$input_name[sub$row],
       backbone         = bb_name,
       accepted_id      = sub$id,
+      gbif_key         = if (bb_name == "gbif") sub$id else
+        get("gbif_key", NA_character_),
       accepted_name    = get("canonical_name", NA_character_),
       authorship       = get("authorship", NA_character_),
       rank             = tolower(get("taxon_rank", NA_character_)),
