@@ -21,8 +21,7 @@ by name. It serves them by *taxon key*, an integer identifying one taxon in the
 GBIF backbone, so the list has to be resolved to keys before anything can be
 requested.
 
-taxify does that in four steps: your list, matched, requested, and linked back
-to your names.
+taxify takes it from there: match, request, fetch, cite.
 
 Matching the names and reading off their keys runs offline. Sending the request
 needs [rgbif](https://CRAN.R-project.org/package=rgbif) installed, and a
@@ -37,9 +36,18 @@ spp <- c("Quercus robur", "Pinus sylvestris", "Bellis perennis", "Morus alba")
 
 ## Match first, then request
 
-`taxify()` resolves the list against the local GBIF backbone and returns an
-ordinary data frame, so you can see what every name landed on before anything
-is sent:
+The whole run, from a list of names to a DOI you can cite:
+
+```{r}
+matched <- taxify(spp, backbone = "gbif")   # resolve the names to GBIF keys
+dl      <- gbif_request(matched)            # ask GBIF for every key
+recs    <- gbif_fetch(dl)                   # wait, download, attach your names
+cite(recs)                                  # the download's DOI
+```
+
+Taken a step at a time. `taxify()` resolves the list against the local GBIF
+backbone and returns an ordinary data frame, so you can see what every name
+landed on before anything is sent:
 
 ```{r}
 matched <- taxify(spp, backbone = "gbif")
@@ -66,6 +74,12 @@ dl   <- gbif_request(matched)
 recs <- gbif_fetch(dl)
 ```
 
+The records arrive with an `input_name` column carrying the name you queried, so
+they can be counted or grouped by species straight away. `cite(recs)` closes
+the run: it reports the download's DOI beside the backbone the names were
+matched against, which is the pair GBIF asks you to cite.
+[Citing the download](#citing-the-download) shows what it prints.
+
 ## Or match and request in one call
 
 `gbif_request()` also takes the names themselves and matches them against GBIF
@@ -77,9 +91,9 @@ dl   <- gbif_request(spp)   # match, then ask GBIF for every key
 recs <- gbif_fetch(dl)      # wait, download, import, attach your names
 ```
 
-The same two steps with the match folded into the first. The matched table is
-still there afterwards, as `attr(dl, "taxa")`, but you commit to the request
-without having read it.
+The same run with the match folded into the request, and `cite(recs)` closing
+it the same way. The matched table is still there afterwards, as
+`attr(dl, "taxa")`, but you commit to the request without having read it.
 
 `dry_run = TRUE` sits between the two: it matches, reports the keys, and
 contacts nothing.
