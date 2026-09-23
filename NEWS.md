@@ -23,6 +23,11 @@
   which is what happens against the bundled example database.
 * rgbif moves into Suggests. Resolving names and reading off their keys stays
   offline and does not need it; only the request itself does.
+* `gbif_fetch()` waits for a submitted download, retrieves it, imports it and
+  attaches the queried names, so the records come back in one call instead of a
+  wait/get/import loop. A split request is fetched the same way: every download
+  is waited for and the frames stacked on the union of their columns, since
+  GBIF returns only the fields a record carries.
 * `gbif_backmatch()` links the returned occurrence records back to the names
   they were requested for. Joining on `taxonKey` alone loses records without
   saying so: GBIF returns a key's descendants too, and a record identified

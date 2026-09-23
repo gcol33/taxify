@@ -116,10 +116,72 @@ test_that("names matched by another backbone are dropped, not silently sent", {
 })
 
 
-test_that("a result with no GBIF rows is refused with the fix in the message", {
+test_that("a result matched by the default chain is re-matched against GBIF", {
+  # taxify's default chain starts at COL XR, so a plain taxify() result holds
+  # no GBIF keys. It has to work anyway, not error.
+  rematched <- 0L
+  local_mocked_bindings(
+    taxify_ids = fake_ids,
+    taxify_input = function(x, backbone, ..., verbose) {
+      rematched <<- rematched + 1L
+      expect_equal(backbone, "gbif")
+      fake_result()
+    })
+  x <- fake_result(backbone = "colxr")
+  expect_message(keys <- gbif_request(x, dry_run = TRUE, verbose = TRUE),
+                 "re-matching the names against the GBIF backbone")
+  expect_equal(rematched, 1L)
+  expect_length(keys, 3L)
+})
+
+
+test_that("a result that already has GBIF rows is not re-matched", {
+  local_mocked_bindings(
+    taxify_ids = fake_ids,
+    taxify_input = function(...) stop("must not re-match"))
+  expect_no_error(gbif_request(fake_result(), dry_run = TRUE, verbose = FALSE))
+})
+
+
+test_that("a result with no GBIF rows and no names is still refused", {
   x <- fake_result(backbone = "col")
+  x$input_name <- NULL
   expect_error(gbif_request(x, dry_run = TRUE, verbose = FALSE),
                'backbone = "gbif"')
+})
+
+
+# ---- COL XR ----
+# GBIF's default taxonomy is moving to the Catalogue of Life Extended Release,
+# whose keys are alpha-numeric ("4R5YN") rather than the legacy backbone's
+# numeric ones. Measured 2026-09-23 against api.gbif.org/v1: COL XR keys return
+# 0 occurrence records and species/match still answers with a numeric key, so a
+# request must not be built from them. These tests pin that until GBIF's
+# occurrence index accepts them (gcol33/taxify COL XR migration issue).
+
+test_that("COL XR keys are refused rather than sent as GBIF taxon keys", {
+  colxr_ids <- function(...) {
+    d <- fake_ids()
+    d$accepted_id <- c("4R5YN", "7KPMG", "5WH44")
+    d
+  }
+  local_mocked_bindings(taxify_ids = colxr_ids)
+  expect_error(gbif_request(fake_result(), dry_run = TRUE, verbose = FALSE),
+               "not GBIF taxon keys")
+})
+
+
+test_that("a colxr result is re-matched to GBIF instead of failing", {
+  # The default backbone chain starts at COL XR, so this is the common path.
+  local_mocked_bindings(
+    taxify_ids = fake_ids,
+    taxify_input = function(x, backbone, ..., verbose) {
+      expect_equal(backbone, "gbif")
+      fake_result()
+    })
+  keys <- gbif_request(fake_result(backbone = "colxr"), dry_run = TRUE,
+                       verbose = FALSE)
+  expect_true(all(grepl("^[0-9]+$", as.character(keys))))
 })
 
 
@@ -300,6 +362,61 @@ test_that("cite() reports every DOI when a request was split", {
   txt <- paste(readLines(bib), collapse = "\n")
   expect_match(txt, "10\\.15468/dl\\.aaa")
   expect_match(txt, "10\\.15468/dl\\.bbb")
+})
+
+
+# ---- gbif_fetch() ----
+
+# rgbif's download trio, stubbed: two downloads whose frames do not share a
+# schema, which is what a split request returns.
+mock_download_rgbif <- function(env = parent.frame()) {
+  testthat::local_mocked_bindings(
+    occ_download_wait = function(key, ...) invisible(TRUE),
+    occ_download_get = function(key, ...) key,
+    occ_download_import = function(x, ...) {
+      if (identical(x, "k1")) {
+        data.frame(taxonKey = 2878688L, speciesKey = 2878688L,
+                   onlyInFirst = "a", stringsAsFactors = FALSE)
+      } else {
+        data.frame(taxonKey = 3117424L, speciesKey = 3117424L,
+                   onlyInSecond = "b", stringsAsFactors = FALSE)
+      }
+    },
+    .package = "rgbif", .env = env)
+}
+
+
+test_that("gbif_fetch stacks every download of a split request", {
+  mock_download_rgbif()
+  x <- structure(c("k1", "k2"), taxa = fake_ids(),
+                 gbif_download = c("k1", "k2"))
+  out <- gbif_fetch(x, backmatch = FALSE, verbose = FALSE)
+
+  expect_equal(nrow(out), 2L)
+  # Columns unique to one download survive, filled with NA in the other.
+  expect_true(all(c("onlyInFirst", "onlyInSecond") %in% names(out)))
+  expect_equal(sum(is.na(out$onlyInFirst)), 1L)
+})
+
+
+test_that("gbif_fetch back-matches by default and carries provenance", {
+  mock_download_rgbif()
+  x <- structure(c("k1", "k2"), taxa = fake_ids(),
+                 gbif_download = c("k1", "k2"),
+                 taxify_meta = list(backends = "gbif"))
+  out <- gbif_fetch(x, verbose = FALSE)
+
+  expect_true(all(c("input_name", "requested_key") %in% names(out)))
+  expect_equal(sort(stats::na.omit(out$input_name)),
+               c("Bellis perennis", "Quercus robur"))
+  expect_equal(attr(out, "gbif_download"), c("k1", "k2"))
+  expect_equal(attr(out, "taxify_meta"), list(backends = "gbif"))
+})
+
+
+test_that("gbif_fetch refuses an object with no download key", {
+  expect_error(gbif_fetch(structure(character(0), taxa = fake_ids())),
+               "no GBIF download key")
 })
 
 

@@ -43,6 +43,29 @@ check_gbif_credentials <- function() {
 }
 
 
+#' Make sure a result carries GBIF keys
+#'
+#' The default backbone chain starts at COL XR, so a plain [taxify()] call
+#' resolves most names against something other than GBIF and the result holds
+#' no GBIF keys at all. Rather than refuse it, the names are re-matched against
+#' GBIF, which is the only backbone whose IDs GBIF accepts. A result that
+#' already has GBIF rows is left alone, including a mixed one, where the
+#' non-GBIF rows are reported by [gbif_keys_of()].
+#'
+#' @noRd
+ensure_gbif_match <- function(x, verbose = TRUE) {
+  if (!is.data.frame(x) || !"backbone" %in% names(x)) return(x)
+  if (any(!is.na(x$backbone) & x$backbone == "gbif")) return(x)
+  if (!"input_name" %in% names(x)) return(x)
+
+  if (verbose) {
+    message("No rows matched by GBIF; re-matching the names against the ",
+            "GBIF backbone, whose keys a GBIF request needs.")
+  }
+  taxify_input(x$input_name, backbone = "gbif", verbose = verbose)
+}
+
+
 #' The GBIF keys behind a matched name list
 #'
 #' Reduces a `taxify()` result to the GBIF taxon keys to request data with,
@@ -195,6 +218,8 @@ gbif_request <- function(x,
   } else if (...length() > 0L) {
     stop("Matching arguments in ... apply only when x is a character vector; ",
          "pass them to taxify() instead.", call. = FALSE)
+  } else {
+    x <- ensure_gbif_match(x, verbose = verbose)
   }
 
   keys <- gbif_keys_of(x, strict = strict, verbose = verbose)
@@ -456,10 +481,88 @@ gbif_search_keys <- function(keys, limit = 500, verbose = TRUE) {
     if (verbose) message("No occurrence records returned.")
     return(data.frame())
   }
+  rbind_union(parts)
+}
+
+
+#' Stack frames that do not share a schema
+#'
+#' GBIF returns only the fields a record carries, so two keys, or two
+#' downloads, can come back with different columns. Stacking them on the union
+#' of their columns keeps every field instead of failing or silently dropping
+#' the ones not shared.
+#'
+#' @param parts A list of data.frames.
+#' @return One data.frame.
+#' @noRd
+rbind_union <- function(parts) {
+  parts <- Filter(function(d) is.data.frame(d) && nrow(d) > 0L, parts)
+  if (length(parts) == 0L) return(data.frame())
   cols <- unique(unlist(lapply(parts, names), use.names = FALSE))
   parts <- lapply(parts, function(d) {
     for (cn in setdiff(cols, names(d))) d[[cn]] <- NA
     d[, cols, drop = FALSE]
   })
   do.call(rbind, parts)
+}
+
+
+#' Fetch the records of a submitted GBIF download
+#'
+#' Waits for the download [gbif_request()] submitted, retrieves it, imports it
+#' and returns the records. A request too long for one GBIF query is split
+#' across several downloads, and all of them are waited for and stacked, so a
+#' sharded request is fetched the same way as a single one.
+#'
+#' @param x What `gbif_request(method = "download")` returned.
+#' @param backmatch Logical. Attach the queried names with [gbif_backmatch()].
+#'   Default `TRUE`.
+#' @param path Directory to download into. Defaults to a session temp
+#'   directory, so nothing is written outside it unless you ask.
+#' @param verbose Logical. Default `TRUE`.
+#'
+#' @return A data.frame of occurrence records, carrying the same `keys`,
+#'   `taxa`, `taxify_meta` and `gbif_download` attributes as `x`, so [cite()]
+#'   reports the backbone and every download DOI.
+#'
+#' @seealso [gbif_request()], [gbif_backmatch()], [cite()].
+#'
+#' @examples
+#' \dontrun{
+#' dl <- gbif_request(c("Quercus robur", "Bellis perennis"))
+#' recs <- gbif_fetch(dl)
+#' cite(recs)
+#' }
+#'
+#' @export
+gbif_fetch <- function(x, backmatch = TRUE, path = tempdir(), verbose = TRUE) {
+  require_rgbif("gbif_fetch()")
+  keys <- attr(x, "gbif_download") %||% as.character(x)
+  keys <- keys[!is.na(keys) & nzchar(keys)]
+  if (length(keys) == 0L) {
+    stop("x carries no GBIF download key; was it made by ",
+         "gbif_request(method = \"download\")?", call. = FALSE)
+  }
+
+  parts <- vector("list", length(keys))
+  for (i in seq_along(keys)) {
+    if (verbose) {
+      message(sprintf("Waiting for download %d of %d (%s)...",
+                      i, length(keys), keys[i]))
+    }
+    rgbif::occ_download_wait(keys[i], quiet = !verbose)
+    got <- rgbif::occ_download_get(keys[i], path = path, overwrite = TRUE)
+    parts[[i]] <- rgbif::occ_download_import(got)
+  }
+
+  out <- rbind_union(parts)
+  for (a in c("keys", "taxa", "taxify_meta", "gbif_download")) {
+    if (!is.null(attr(x, a))) attr(out, a) <- attr(x, a)
+  }
+  if (verbose) message(sprintf("%d record(s).", nrow(out)))
+
+  if (isTRUE(backmatch) && nrow(out) > 0L && !is.null(attr(x, "taxa"))) {
+    out <- gbif_backmatch(out, x, verbose = verbose)
+  }
+  out
 }

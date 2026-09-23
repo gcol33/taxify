@@ -88,6 +88,7 @@ reference:
   - lowest_common
   - taxify_ids
   - gbif_request
+  - gbif_fetch
   - gbif_backmatch
 - title: Backbone data and cache
   desc: Download, cache, and inspect backbone snapshots and the unified genus register.
