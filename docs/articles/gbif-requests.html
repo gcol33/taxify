@@ -111,9 +111,14 @@ records from GBIF, the Global Biodiversity Information Facility. GBIF
 does not serve records by name. It serves them by <em>taxon key</em>, an
 integer identifying one taxon in the GBIF backbone, so the list has to
 be resolved to keys before anything can be requested.</p>
-<p>taxify matches the names, requests the records for every key they
-resolve to, fetches them and reports the download’s DOI for
-citation.</p>
+<p>Three functions cover it. <code><a href="../reference/taxify.html">taxify()</a></code> resolves the names to
+keys. <code><a href="../reference/gbif_request.html">gbif_request()</a></code> sends those keys to GBIF, which
+prepares the records as a download on its side and issues a DOI for it.
+<code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for that download to finish and returns
+the records with your names attached. The request and the fetch are
+separate because GBIF prepares a download in the background, which can
+take a while, and a list too long for one query is split into several
+downloads.</p>
 <p>Matching the names and reading off their keys runs offline. Sending
 the request needs <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a> installed, and
 a download needs a free GBIF account in your <code>.Renviron</code>; <a href="#setting-up-rgbif">Setting up rgbif</a> below covers both.</p>
@@ -146,10 +151,12 @@ you can see what every name landed on before anything is sent:</p>
 <p><code>accepted_id</code> is the key <code><a href="../reference/taxify.html">taxify()</a></code> reported;
 <code>n_ids</code> above 1 means GBIF files that name under several
 keys, and <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> lists them one per row.</p>
-<p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> takes the matched result, collects every
-one of those keys, and hands them to <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a>.
-<code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for the download and returns the records
-with your queried name on every row:</p>
+<p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> is the step that contacts GBIF. It takes
+the matched result, collects every one of those keys and submits them as
+one download through <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a>, after which
+GBIF prepares the records in the background. <code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code>
+waits for the download and returns the records with your queried name on
+every row:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dl</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span></code></pre></div>
@@ -170,10 +177,11 @@ through to <code><a href="../reference/taxify.html">taxify()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dl</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span><span class="op">)</span>   <span class="co"># match, then ask GBIF for every key</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span>      <span class="co"># wait, download, import, attach your names</span></span></code></pre></div>
-<p>The same run with the match folded into the request, and
-<code>cite(recs)</code> closing it the same way. The matched table is
-still there afterwards, as <code>attr(dl, "taxa")</code>, but you commit
-to the request without having read it.</p>
+<p>This is the same run with the match folded into the request, and
+<code>cite(recs)</code> closes it the same way. Matching first is only
+needed when you want to read the matches before anything is sent. The
+matched table is still there afterwards, as
+<code>attr(dl, "taxa")</code>.</p>
 <p><code>dry_run = TRUE</code> sits between the two: it matches, reports
 the keys, and contacts nothing.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">

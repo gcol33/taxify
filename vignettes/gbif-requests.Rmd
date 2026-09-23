@@ -21,8 +21,12 @@ by name. It serves them by *taxon key*, an integer identifying one taxon in the
 GBIF backbone, so the list has to be resolved to keys before anything can be
 requested.
 
-taxify matches the names, requests the records for every key they resolve to,
-fetches them and reports the download's DOI for citation.
+Three functions cover it. `taxify()` resolves the names to keys. `gbif_request()`
+sends those keys to GBIF, which prepares the records as a download on its side
+and issues a DOI for it. `gbif_fetch()` waits for that download to finish and
+returns the records with your names attached. The request and the fetch are
+separate because GBIF prepares a download in the background, which can take a
+while, and a list too long for one query is split into several downloads.
 
 Matching the names and reading off their keys runs offline. Sending the request
 needs [rgbif](https://CRAN.R-project.org/package=rgbif) installed, and a
@@ -65,10 +69,11 @@ matched[, c("input_name", "accepted_name", "accepted_id", "taxonomic_status", "n
 `accepted_id` is the key `taxify()` reported; `n_ids` above 1 means GBIF files
 that name under several keys, and `taxify_ids()` lists them one per row.
 
-`gbif_request()` takes the matched result, collects every one of those keys,
-and hands them to [rgbif](https://CRAN.R-project.org/package=rgbif).
-`gbif_fetch()` waits for the download and returns the records with your queried
-name on every row:
+`gbif_request()` is the step that contacts GBIF. It takes the matched result,
+collects every one of those keys and submits them as one download through
+[rgbif](https://CRAN.R-project.org/package=rgbif), after which GBIF prepares the
+records in the background. `gbif_fetch()` waits for the download and returns the
+records with your queried name on every row:
 
 ```{r}
 dl   <- gbif_request(matched)
@@ -92,9 +97,10 @@ dl   <- gbif_request(spp)   # match, then ask GBIF for every key
 recs <- gbif_fetch(dl)      # wait, download, import, attach your names
 ```
 
-The same run with the match folded into the request, and `cite(recs)` closing
-it the same way. The matched table is still there afterwards, as
-`attr(dl, "taxa")`, but you commit to the request without having read it.
+This is the same run with the match folded into the request, and `cite(recs)`
+closes it the same way. Matching first is only needed when you want to read the
+matches before anything is sent. The matched table is still there afterwards, as
+`attr(dl, "taxa")`.
 
 `dry_run = TRUE` sits between the two: it matches, reports the keys, and
 contacts nothing.
