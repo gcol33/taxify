@@ -244,6 +244,65 @@ test_that("an empty record set comes back with the columns added", {
 })
 
 
+# ---- sharding a list too long for one GBIF query ----
+
+test_that("the chunk size stays inside GBIF's 12,000-character query limit", {
+  # Measured against occ_download_prep(): 10 characters per key plus 125 of
+  # envelope. If either the chunk size or GBIF's limit moves, this catches it.
+  chars <- 125 + 10 * taxify:::.gbif_keys_per_query
+  expect_lt(chars, 12000)
+})
+
+
+test_that("a list within the limit is one download", {
+  submitted <- list()
+  local_mocked_bindings(
+    occ_download = function(...) { submitted[[length(submitted) + 1L]] <<- 1; "k1" },
+    pred_in = function(...) NULL,
+    .package = "rgbif")
+  out <- gbif_download_keys(1:10, verbose = FALSE)
+  expect_equal(out, "k1")
+  expect_length(submitted, 1L)
+})
+
+
+test_that("a list over the limit is split and every download key returned", {
+  n_chunks <- 0L
+  local_mocked_bindings(
+    occ_download = function(...) stop("should go through the queue"),
+    occ_download_prep = function(...) "req",
+    pred_in = function(...) NULL,
+    occ_download_queue = function(.list, ...) {
+      n_chunks <<- length(.list)
+      as.list(paste0("k", seq_along(.list)))
+    },
+    .package = "rgbif")
+
+  keys <- seq_len(2500)
+  expect_message(out <- gbif_download_keys(keys, verbose = TRUE),
+                 "splitting into 3 downloads")
+  expect_equal(out, c("k1", "k2", "k3"))
+  expect_equal(n_chunks, 3L)
+})
+
+
+test_that("cite() reports every DOI when a request was split", {
+  local_mocked_bindings(gbif_download_citation = function(key)
+    list(text = paste("download", key), doi = paste0("10.15468/dl.", key)))
+  x <- data.frame(a = 1)
+  attr(x, "gbif_download") <- c("aaa", "bbb")
+  out <- capture.output(cite(x))
+  expect_true(any(grepl("download aaa", out)))
+  expect_true(any(grepl("download bbb", out)))
+
+  bib <- tempfile(fileext = ".bib")
+  cite(x, file = bib)
+  txt <- paste(readLines(bib), collapse = "\n")
+  expect_match(txt, "10\\.15468/dl\\.aaa")
+  expect_match(txt, "10\\.15468/dl\\.bbb")
+})
+
+
 # ---- provenance carried to cite() ----
 
 test_that("the backbone provenance travels to the records", {

@@ -85,6 +85,8 @@
 <li>rgbif moves into Suggests. Resolving names and reading off their keys stays offline and does not need it; only the request itself does.</li>
 <li>
 <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> links the returned occurrence records back to the names they were requested for. Joining on <code>taxonKey</code> alone loses records without saying so: GBIF returns a key’s descendants too, and a record identified below species level carries its own key, so a request for <em>Pinus nigra</em> returns rows whose <code>taxonKey</code> is its subspecies and which carry the requested key only in <code>speciesKey</code>. On a 300-record sample of that request a <code>taxonKey</code> join matches 250; <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> matches 300.</li>
+<li>
+<code><a href="../reference/cite.html">cite()</a></code> reports a GBIF download’s DOI beside the backbone citations. The download key travels from <code><a href="../reference/gbif_request.html">gbif_request()</a></code> through <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> onto the records, and the DOI is read from GBIF at citation time, since GBIF issues it only once the download has finished preparing. A download still running is reported as having no DOI yet, and an unreachable GBIF leaves the backbone citations intact rather than failing. <code>file =</code> writes the download as a BibTeX <code>@misc</code> entry too.</li>
 <li>New vignette, <code><a href="../articles/gbif-requests.html">vignette("gbif-requests")</a></code>, which also covers installing rgbif and storing GBIF credentials.</li>
 </ul></div>
 <div class="section level3">

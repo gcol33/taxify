@@ -158,7 +158,9 @@ Ignored by <code>"search"</code>.</p></dd>
 download key, to be passed to <code>occ_download_wait()</code>). With
 <code>method = "search"</code>, a data.frame of occurrence records, empty if none
 matched. In every case the keys and the <code><a href="taxify_ids.html">taxify_ids()</a></code> table behind them
-are attached as the <code>keys</code> and <code>taxa</code> attributes.</p>
+are attached as the <code>keys</code> and <code>taxa</code> attributes, along with the match's
+<code>taxify_meta</code>; a download also carries its key as <code>gbif_download</code>, which
+is what lets <code><a href="cite.html">cite()</a></code> report the download's DOI beside the backbone.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

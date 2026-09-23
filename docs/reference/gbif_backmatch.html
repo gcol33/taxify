@@ -112,7 +112,9 @@ rgbif's <code>occ_download_import()</code>.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>records</code> with three columns added: <code>requested_key</code> (the key that
 matched), <code>input_name</code> (the name as queried) and <code>accepted_name</code>. Records
-matching no requested key keep <code>NA</code> in all three.</p>
+matching no requested key keep <code>NA</code> in all three. The provenance on <code>x</code>
+travels with them, so <code><a href="cite.html">cite()</a></code> on the result reports the backbone and,
+for a download, its DOI.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

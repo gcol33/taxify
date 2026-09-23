@@ -170,6 +170,37 @@ dataset under one DOI. A download of four million records is prepared on GBIF's
 servers and takes a while, which is why the call returns as soon as the request
 is queued rather than waiting for it.
 
+### Lists too long for one query
+
+GBIF caps a download query at 12,000 characters. A taxonKey predicate costs
+about 10 characters per key, so roughly 1,187 keys fit, and a checklist of a
+few hundred names can pass that once its homonyms are counted.
+
+Above the limit `gbif_request()` splits the keys into chunks of 1,000 and
+submits them through rgbif's `occ_download_queue()`, which respects GBIF's rule
+of three concurrent downloads per user:
+
+```{r}
+dl <- gbif_request(long_species_list, method = "download")
+#> 2,431 keys exceed GBIF's query limit; splitting into 3 downloads of up to
+#> 1000 keys. Each gets its own DOI.
+```
+
+`dl` is then a vector of download keys rather than one. Fetch and stack them,
+and `cite()` reports every DOI:
+
+```{r}
+recs <- do.call(rbind, lapply(dl, function(k) {
+  rgbif::occ_download_wait(k)
+  rgbif::occ_download_import(rgbif::occ_download_get(k))
+}))
+
+recs <- gbif_backmatch(recs, dl)
+```
+
+The record count itself is not a limit. GBIF prepares downloads of tens of
+millions of records server-side; only the query naming the keys is capped.
+
 ## Linking the records back to your names
 
 The records come back keyed by GBIF taxon, not by the name you asked for, so

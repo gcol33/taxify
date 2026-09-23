@@ -125,8 +125,7 @@ their keys works offline without it.</p>
 <span><span class="co">#&gt; 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.</span></span>
 <span><span class="co">#&gt;  [1] 2878688 7911626 7586523 5285637 7718215 8116613 9079676 8251433 7393648</span></span>
 <span><span class="co">#&gt; [10] 3117424 5361889</span></span></code></pre></div>
-<p>Four names, eleven keys. That is the part worth understanding before
-sending a request.</p>
+<p>Four names, eleven keys.</p>
 <div class="section level2">
 <h2 id="why-one-name-gives-several-keys">Why one name gives several keys<a class="anchor" aria-label="anchor" href="#why-one-name-gives-several-keys"></a>
 </h2>
@@ -285,14 +284,24 @@ added columns and are counted in a message rather than dropped.</p>
 <h2 id="citing-the-download">Citing the download<a class="anchor" aria-label="anchor" href="#citing-the-download"></a>
 </h2>
 <p>A GBIF download gets a DOI once it is ready, and citing it is what
-lets someone else retrieve the same records:</p>
+lets someone else retrieve the same records. The download key travels
+with the records, so <code><a href="../reference/cite.html">cite()</a></code> reports the DOI next to the
+backbone the names were matched against:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_meta.html" class="external-link">occ_download_meta</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span><span class="op">$</span><span class="va">doi</span></span></code></pre></div>
-<p>Cite the backbone the names were matched against alongside it, which
-<code><a href="../reference/cite.html">cite()</a></code> reports for any <code><a href="../reference/taxify.html">taxify()</a></code> result:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_import.html" class="external-link">occ_download_import</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span>, <span class="va">dl</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ── taxify citations ────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching (version 0.6.0).</span></span>
+<span><span class="co">#&gt;   [2] GBIF Secretariat (2024). GBIF Backbone Taxonomy. doi:10.15468/39omei</span></span>
+<span><span class="co">#&gt;   [3] GBIF.org (2026-09-23) GBIF Occurrence Download https://doi.org/10.15468/dl.ckzs32</span></span>
+<span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span></code></pre></div>
+<p>The DOI is read from GBIF when you call <code><a href="../reference/cite.html">cite()</a></code>, not
+stored when the request was made, because GBIF issues it only once the
+download has finished preparing. A download still running is reported as
+having no DOI yet.</p>
+<p><code>cite(recs, file = "refs.bib")</code> writes the same entries as
+BibTeX, the download included.</p>
 </div>
 <div class="section level2">
 <h2 id="starting-from-an-already-matched-list">Starting from an already matched list<a class="anchor" aria-label="anchor" href="#starting-from-an-already-matched-list"></a>
@@ -300,7 +309,7 @@ lets someone else retrieve the same records:</p>
 <p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> takes a <code><a href="../reference/taxify.html">taxify()</a></code> result as
 well as a character vector, so matching arguments and any filtering
 belong in the <code><a href="../reference/taxify.html">taxify()</a></code> call:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span>, fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, kingdom <span class="op">=</span> <span class="st">"Plantae"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">matched</span> <span class="op">|&gt;</span></span>

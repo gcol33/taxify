@@ -25,8 +25,7 @@ gbif_request(spp, dry_run = TRUE)
 #> [10] 3117424 5361889
 ```
 
-Four names, eleven keys. That is the part worth understanding before
-sending a request.
+Four names, eleven keys.
 
 ## Why one name gives several keys
 
@@ -229,24 +228,31 @@ are counted in a message rather than dropped.
 ## Citing the download
 
 A GBIF download gets a DOI once it is ready, and citing it is what lets
-someone else retrieve the same records:
-
-``` r
-
-rgbif::occ_download_meta(dl)$doi
-```
-
-Cite the backbone the names were matched against alongside it, which
+someone else retrieve the same records. The download key travels with
+the records, so
 [`cite()`](https://gillescolling.com/taxify/reference/cite.md) reports
-for any
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result:
+the DOI next to the backbone the names were matched against:
 
 ``` r
 
-taxify(spp, backbone = "gbif") |>
-  cite()
+recs <- gbif_backmatch(rgbif::occ_download_import(d), dl)
+
+cite(recs)
+#> ── taxify citations ────────────────────────────────────────────────
+#>   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching (version 0.6.0).
+#>   [2] GBIF Secretariat (2024). GBIF Backbone Taxonomy. doi:10.15468/39omei
+#>   [3] GBIF.org (2026-09-23) GBIF Occurrence Download https://doi.org/10.15468/dl.ckzs32
+#>   ────────────────────────────────────────────────────────────
 ```
+
+The DOI is read from GBIF when you call
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md), not
+stored when the request was made, because GBIF issues it only once the
+download has finished preparing. A download still running is reported as
+having no DOI yet.
+
+`cite(recs, file = "refs.bib")` writes the same entries as BibTeX, the
+download included.
 
 ## Starting from an already matched list
 

@@ -38,7 +38,10 @@ gbif_backmatch(records, x, verbose = TRUE)
 
 `records` with three columns added: `requested_key` (the key that
 matched), `input_name` (the name as queried) and `accepted_name`.
-Records matching no requested key keep `NA` in all three.
+Records matching no requested key keep `NA` in all three. The provenance
+on `x` travels with them, so
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md) on the
+result reports the backbone and, for a download, its DOI.
 
 ## Details
 

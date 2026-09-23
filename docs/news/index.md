@@ -40,6 +40,17 @@
   sample of that request a `taxonKey` join matches 250;
   [`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
   matches 300.
+- [`cite()`](https://gillescolling.com/taxify/reference/cite.md) reports
+  a GBIF download’s DOI beside the backbone citations. The download key
+  travels from
+  [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+  through
+  [`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
+  onto the records, and the DOI is read from GBIF at citation time,
+  since GBIF issues it only once the download has finished preparing. A
+  download still running is reported as having no DOI yet, and an
+  unreachable GBIF leaves the backbone citations intact rather than
+  failing. `file =` writes the download as a BibTeX `@misc` entry too.
 - New vignette,
   [`vignette("gbif-requests")`](https://gillescolling.com/taxify/articles/gbif-requests.md),
   which also covers installing rgbif and storing GBIF credentials.

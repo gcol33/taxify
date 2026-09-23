@@ -64,30 +64,32 @@ cite.default <- function(x, file = NULL, ...) {
   }
   # A GBIF download is cited by its own DOI, separately from the backbone the
   # names were matched against, because it is a distinct archived dataset.
-  if (!is.null(download)) {
-    dl <- gbif_download_citation(download)
-    if (!is.null(dl)) {
-      cat(sprintf("  [%d] %s\n", length(citations) + 1L, dl$text))
-    }
+  # A list too long for one GBIF query is split across several downloads, each
+  # with its own DOI, so every one of them is reported.
+  n <- length(citations)
+  for (key in download) {
+    dl <- gbif_download_citation(key)
+    if (is.null(dl)) next
+    n <- n + 1L
+    cat(sprintf("  [%d] %s\n", n, dl$text))
   }
   cat(sprintf("  %s\n", rule))
 
   # BibTeX file
   if (!is.null(file)) {
     bibtex <- vapply(citations, format_bibtex_entry, character(1L))
-    if (!is.null(download)) {
-      dl <- gbif_download_citation(download)
-      if (!is.null(dl) && !is.na(dl$doi)) {
-        bibtex <- c(bibtex, sprintf(paste0(
-          "@misc{gbif_download_%s,\n",
-          "  title = {GBIF Occurrence Download},\n",
-          "  author = {{GBIF.org}},\n",
-          "  year = {%s},\n",
-          "  doi = {%s},\n",
-          "  note = {Download key %s}\n}"),
-          gsub("[^A-Za-z0-9]", "", download),
-          format(Sys.Date(), "%Y"), dl$doi, download))
-      }
+    for (key in download) {
+      dl <- gbif_download_citation(key)
+      if (is.null(dl) || is.na(dl$doi)) next
+      bibtex <- c(bibtex, sprintf(paste0(
+        "@misc{gbif_download_%s,\n",
+        "  title = {GBIF Occurrence Download},\n",
+        "  author = {{GBIF.org}},\n",
+        "  year = {%s},\n",
+        "  doi = {%s},\n",
+        "  note = {Download key %s}\n}"),
+        gsub("[^A-Za-z0-9]", "", key),
+        format(Sys.Date(), "%Y"), dl$doi, key))
     }
     writeLines(paste(bibtex, collapse = "\n\n"), file)
     cat(sprintf("  BibTeX written to: %s\n", file))

@@ -77,7 +77,11 @@ download key, to be passed to `occ_download_wait()`). With
 `method = "search"`, a data.frame of occurrence records, empty if none
 matched. In every case the keys and the
 [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
-table behind them are attached as the `keys` and `taxa` attributes.
+table behind them are attached as the `keys` and `taxa` attributes,
+along with the match's `taxify_meta`; a download also carries its key as
+`gbif_download`, which is what lets
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md) report
+the download's DOI beside the backbone.
 
 ## Details
 

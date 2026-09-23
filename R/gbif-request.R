@@ -213,20 +213,59 @@ gbif_request <- function(x,
 
   out <- if (method == "download") {
     check_gbif_credentials()
-    if (verbose) message("Submitting a GBIF download...")
-    rgbif::occ_download(rgbif::pred_in("taxonKey", keys), format = format)
+    gbif_download_keys(keys, format = format, verbose = verbose)
   } else {
     gbif_search_keys(keys, limit = limit, verbose = verbose)
   }
 
   attr(out, "keys") <- as.integer(keys)
   attr(out, "taxa") <- taxa
+  if (method == "download") attr(out, "gbif_download") <- as.character(out)
   # Carry the backbone provenance from the match, and the download key, so
   # cite() can report both what the names were matched against and the
   # download GBIF asks you to cite.
   attr(out, "taxify_meta") <- attr(x, "taxify_meta")
-  if (method == "download") attr(out, "gbif_download") <- as.character(out)
   out
+}
+
+
+# GBIF caps a download query at 12,000 characters. Measured against
+# occ_download_prep(), a taxonKey predicate costs 10 characters per key on top
+# of 125 of envelope, so about 1,187 keys fit. Chunking at 1,000 leaves room
+# for a longer format string or an added predicate without recomputing this.
+.gbif_keys_per_query <- 1000L
+
+
+#' Submit a GBIF download, splitting it when the query would be too long
+#'
+#' A list of any size has to fit GBIF's 12,000-character query limit, which a
+#' few hundred names can exceed once their homonyms are included. Above the
+#' limit the keys are split across several downloads, submitted through rgbif's
+#' queue so the three-concurrent-downloads rule is respected, and every
+#' resulting key is returned. Each download gets its own DOI, and [cite()]
+#' reports all of them.
+#'
+#' @return A character vector of download keys, one per submitted download.
+#' @noRd
+gbif_download_keys <- function(keys, format = "SIMPLE_CSV", verbose = TRUE) {
+  chunks <- split(keys, ceiling(seq_along(keys) / .gbif_keys_per_query))
+
+  if (length(chunks) == 1L) {
+    if (verbose) message("Submitting a GBIF download...")
+    return(as.character(
+      rgbif::occ_download(rgbif::pred_in("taxonKey", keys), format = format)))
+  }
+
+  if (verbose) {
+    message(sprintf(
+      paste0("%d keys exceed GBIF's query limit; splitting into %d downloads ",
+             "of up to %d keys. Each gets its own DOI."),
+      length(keys), length(chunks), .gbif_keys_per_query))
+  }
+  reqs <- lapply(chunks, function(k)
+    rgbif::occ_download_prep(rgbif::pred_in("taxonKey", k), format = format))
+  res <- rgbif::occ_download_queue(.list = reqs)
+  vapply(res, as.character, character(1L), USE.NAMES = FALSE)
 }
 
 
