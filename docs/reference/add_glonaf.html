@@ -22,7 +22,7 @@ result, filtered by region."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@ result, filtered by region."><script>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
@@ -95,8 +96,9 @@ result, filtered by region.</p>
 
 <dt id="arg-region">region<a class="anchor" aria-label="anchor" href="#arg-region"></a></dt>
 <dd><p>Character. GloNAF region identifier(s), or <code>"all"</code>.
-Regions use TDWG-compatible codes extended with dot notation for
-sub-national units (e.g., <code>"USA.CA"</code> for California).</p><ul><li><p>Single region: adds <code>naturalized</code> column (no suffix).</p></li>
+Regions are ISO 3166 alpha-3 country codes extended with dot notation
+for sub-national units (e.g., <code>"DEU"</code> for Germany, <code>"USA.CA"</code> for
+California). List them with <code>enrichment_groups("glonaf")</code>.</p><ul><li><p>Single region: adds <code>naturalized</code> column (no suffix).</p></li>
 <li><p>Multiple regions: adds <code>naturalized_&lt;region&gt;</code> columns.</p></li>
 <li><p><code>"all"</code>: adds one column per region in the dataset.</p></li>
 </ul></dd>
@@ -109,7 +111,7 @@ sub-national units (e.g., <code>"USA.CA"</code> for California).</p><ul><li><p>S
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The same data.frame with additional column(s):</p><dl><dt>naturalized</dt>
-<dd><p>Integer <code>1</code> if the species is recorded as
+<dd><p><code>1</code> if the species is recorded as
 naturalized in that region, <code>NA</code> otherwise.</p></dd>
 
 
@@ -123,9 +125,9 @@ Plants only.</p>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>van Kleunen M et al. (2019) The Global Naturalized Alien Flora
-(GloNAF) database. Ecology 100:e02542.</p>
-<p>Davis K et al. (2025) The updated Global Naturalized Alien Flora
-(GloNAF 2.0) database. Ecology, e70245.</p>
+(GloNAF) database. Ecology 100:e02542. <a href="https://doi.org/10.1002/ecy.2542" class="external-link">doi:10.1002/ecy.2542</a></p>
+<p>Davis AJS et al. (2025) The updated Global Naturalized Alien Flora
+(GloNAF 2.0) database. Ecology 106:e70245. <a href="https://doi.org/10.1002/ecy.70245" class="external-link">doi:10.1002/ecy.70245</a></p>
     </div>
 
     <div class="section level2">
@@ -134,10 +136,10 @@ Plants only.</p>
 <span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Robinia pseudoacacia"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_glonaf</span><span class="op">(</span>region <span class="op">=</span> <span class="st">"EUR"</span><span class="op">)</span></span>
+<span>  <span class="fu">add_glonaf</span><span class="op">(</span>region <span class="op">=</span> <span class="st">"DEU"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Robinia pseudoacacia"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_glonaf</span><span class="op">(</span>region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"EUR"</span>, <span class="st">"NAM"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu">add_glonaf</span><span class="op">(</span>region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DEU"</span>, <span class="st">"AUT"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
 <span></span></code></pre></div>

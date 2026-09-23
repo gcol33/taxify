@@ -57,9 +57,11 @@ A data.frame with one row per input name, columns:
   `"misspelling"` (resolved by fuzzy/abbrev match to a corrected
   spelling), `"rank_fallback"` (an infraspecific name the backbone does
   not carry; `accepted_name` is the accepted name of its species),
-  `"ambiguous"` (a homonym resolving to several accepted taxa; see
-  [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)),
-  `"unresolved"` (no match).
+  `"ambiguous"` (a name the backbone files under several accepted taxa,
+  `n_ids > 1`, that does not resolve to itself as accepted;
+  `accepted_name` is the one it picked, and
+  [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+  lists the others), `"unresolved"` (no match).
 
 - is_synonym:
 
@@ -70,6 +72,13 @@ A data.frame with one row per input name, columns:
 
   The [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   match type.
+
+- n_ids:
+
+  Distinct accepted taxa the backbone files the name under, from
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+  Above 1 on an `"unchanged"` row, the name is accepted under its own
+  spelling and a homonym record also exists.
 
 - merged:
 
@@ -87,7 +96,7 @@ A data.frame with one row per input name, columns:
 ## See also
 
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
-[`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
 to expand the ambiguous rows,
 [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md).
 

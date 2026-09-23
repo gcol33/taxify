@@ -61,8 +61,13 @@ tree.
   : Build a taxonomy tree from resolved names
 - [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md)
   : Lowest common taxon of a set of names
-- [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)
-  : Expand ambiguous matches into their candidate taxa
+- [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+  : List every accepted ID of each matched name
+- [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+  : Request GBIF occurrence data for a matched name list
+- [`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
+  : Link GBIF occurrence records back to the names they were requested
+  for
 
 ## Backbone data and cache
 

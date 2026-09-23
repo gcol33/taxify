@@ -109,7 +109,9 @@ result (only present when you inspect one):
 
 - `ambiguous`:
 
-  A homonym resolving to more than one accepted taxon.
+  A name the backbone files under more than one accepted taxon
+  (`n_ids > 1`) that is not itself the accepted name; the reason lists
+  the accepted IDs.
 
 - `geographic`:
 

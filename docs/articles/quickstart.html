@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -62,6 +62,7 @@
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
@@ -124,39 +125,51 @@ window.VA = {
   setup:function(id){var cv=document.getElementById(id);if(!cv)return null;var ctx=cv.getContext("2d");var w=cv.width,h=cv.height,d=window.devicePixelRatio||1;cv.width=w*d;cv.height=h*d;cv.style.width=w+"px";cv.style.height="auto";ctx.scale(d,d);return {ctx:ctx,w:w,h:h};},
   run:function(drawAt,period,btnId,key,cvId){var fz=(window.__FREEZE&&(key in window.__FREEZE))?window.__FREEZE[key]:null;if(fz!=null){drawAt(((fz%period)+period)%period);return;}var start=performance.now();function loop(now){var e=(now-start)/1000;if(e<0)e=0;drawAt(e%period);requestAnimationFrame(loop);}requestAnimationFrame(loop);function restart(){start=performance.now();}if(btnId){var b=document.getElementById(btnId);if(b)b.onclick=restart;}if(cvId){var cv=document.getElementById(cvId);if(cv){cv.style.cursor="pointer";cv.title="click to replay";cv.onclick=restart;}}}
 };
-</script><div class="section level2">
-<h2 id="what-taxify-solves">What taxify solves<a class="anchor" aria-label="anchor" href="#what-taxify-solves"></a>
-</h2>
-<p>Almost every biodiversity dataset starts as a column of names. Before
-any analysis, those strings have to resolve to one accepted name per
+</script><p>This vignette runs a messy list of species names through taxify, from
+raw strings to an analysis on attached traits. Before any analysis, the
+names in a biodiversity dataset have to resolve to one accepted name per
 taxon, and they rarely line up on their own: authorship, field
 qualifiers, capitalization, historical synonyms, hybrids, and plain
-typos all keep two records of the same species apart. A bare
+typos all keep two records of the same species apart, and a bare
 <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> on raw strings silently drops every row that
-disagrees, so the matching has to come first.</p>
-<p><code><a href="../reference/taxify.html">taxify()</a></code> takes a character vector and returns one
-standardized table: each name cleaned, matched against a backbone you
-keep on disk, synonyms resolved to the accepted name. Matching runs in C
-through the <a href="https://github.com/gcol33/vectra" class="external-link">vectra</a>
+disagrees. <code><a href="../reference/taxify.html">taxify()</a></code> takes a character vector and returns
+one standardized table: each name cleaned, matched against a backbone
+you keep on disk, synonyms resolved to the accepted name. Matching runs
+in C through the <a href="https://github.com/gcol33/vectra" class="external-link">vectra</a>
 engine, so there are no web services and no rate limits, and the same
 input gives the same output on any machine.
 <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
-Darwin Core backbones are available (WFO, COL, GBIF, ITIS, NCBI, OTT,
-WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase, SeaLifeBase,
-Reptile Database, LCVP, WCVP, MDD, AviList, LPSN), all queried
-offline.</p>
-<p>The first <code><a href="../reference/taxify.html">taxify()</a></code> call installs the default backbone
-set (COL, GBIF, and ITIS) once, about 4 GB, and caches it under
-<code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>. After that, nothing touches the
+Darwin Core backbones are available (WFO, COL, COL XR, GBIF, ITIS, NCBI,
+OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase,
+SeaLifeBase, Reptile Database, LCVP, WCVP, MDD, AviList, LPSN), all
+queried offline. The first <code><a href="../reference/taxify.html">taxify()</a></code> call installs the
+default backbone set (COL, GBIF, and ITIS) once, about 4 GB, and caches
+it under <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>. After that, nothing touches the
 network.</p>
-</div>
+<ol style="list-style-type: decimal">
+<li><p><strong>Match</strong> the names with
+<code><a href="../reference/taxify.html">taxify()</a></code>.</p></li>
+<li><p><strong>Check</strong> the batch with
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</p></li>
+<li><p><strong>Join</strong> your own attributes with
+<code><a href="../reference/add_data.html">add_data()</a></code>.</p></li>
+<li><p><strong>Enrich</strong> the result with the published
+<code>add_*()</code> layers, listed by
+<code><a href="../reference/list_enrichments.html">list_enrichments()</a></code>.</p></li>
+<li><p><strong>Analyse</strong> the attached columns with ordinary
+R.</p></li>
+</ol>
 <div class="section level2">
-<h2 id="one-call">One call<a class="anchor" aria-label="anchor" href="#one-call"></a>
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>Hand <code><a href="../reference/taxify.html">taxify()</a></code> a vector of names. The list below is
-deliberately small and deliberately messy: every entry takes a different
-route to its accepted name.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="one-call">One call<a class="anchor" aria-label="anchor" href="#one-call"></a>
+</h3>
+<p>The list below is small and messy on purpose: every entry takes a
+different route to its accepted name.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">field_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur L."</span>,        <span class="co"># authorship to strip</span></span>
 <span>  <span class="st">"Quercus robus"</span>,           <span class="co"># typo</span></span>
@@ -184,15 +197,14 @@ route to its accepted name.</p>
 <span><span class="co">#&gt; 8       Festuca rubrra        Festuca rubra      Poaceae      FALSE      fuzzy      0.071</span></span>
 <span><span class="co">#&gt; 9    Fallopia japonica  Reynoutria japonica Polygonaceae       TRUE      exact         NA</span></span>
 <span><span class="co">#&gt; 10 Taraxacum officinale Taraxacum officinale  Asteraceae      FALSE      exact         NA</span></span></code></pre>
-<p>Ten names, ten rows, every match readable. Each row also carries
-genus, authorship, taxon and accepted IDs, a hybrid flag and type, the
-backbone, and the exact backbone version (the full table is wider, the
-same shape for any input).</p>
-<p>Each name reaches its accepted name a different way. The animation
-below walks one name at a time through the pipeline: the clean step
-strips authorship, a qualifier, or case; the match step is exact,
-case-folded, fuzzy, or abbreviated; the resolve step follows a synonym
-to the current name.</p>
+<p>Each input gets one row. Each row also carries genus, authorship,
+taxon and accepted IDs, a hybrid flag and type, the backbone, and the
+exact backbone version (the full table is wider, the same shape for any
+input).</p>
+<p>The animation below walks one name at a time through the pipeline:
+the clean step strips authorship, a qualifier, or case; the match step
+is exact, case-folded, fuzzy, or abbreviated; the resolve step follows a
+synonym to the current name.</p>
 <canvas id="pp-cv" width="860" height="360" style="max-width:100%"></canvas><script>
 (function(){
 var NM=["Quercus robur L.","Quercus robus","cf. Betula pendula","FAGUS SYLVATICA","Quercus pedunculata","Q. petraea","Pinus abies","Festuca rubrra","Fallopia japonica","Taraxacum officinale"];
@@ -245,15 +257,199 @@ initial plus epithet (<code>abbrev</code>). The three synonyms
 (<code>Quercus pedunculata</code>, <code>Pinus abies</code>,
 <code>Fallopia japonica</code>) resolve to their accepted names, the
 last being the current name for a well-known invader. The two typos go
-to the fuzzy pass, which is the next thing worth seeing.</p>
+to the fuzzy pass, described in <a href="#how-the-fuzzy-pass-works">How
+the fuzzy pass works</a>.</p>
+</div>
+<div class="section level3">
+<h3 id="checking-the-batch">Checking the batch<a class="anchor" aria-label="anchor" href="#checking-the-batch"></a>
+</h3>
+<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> prints a digest, the fastest way to see
+whether a run went cleanly.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; ── taxify results ──────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   backbone: COL v2026.07  |  10 names submitted</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)</span></span>
+<span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt;   taxon groups: angiosperm: 8  gymnosperm: 1  unknown: 1</span></span></code></pre>
+<p>The digest reports the backbone and version, the match-route
+breakdown (all ten resolved here, including the abbreviated
+<code>Q. petraea</code>), and the taxon-group mix. When a name is out of
+scope (an animal in a plant-only backbone) or genuinely absent, the
+digest tallies it and suggests an alternative backbone. The match types
+and the multi-backbone fallback
+(<code>backbone = c("col", "gbif", "itis")</code>) are covered in the <a href="https://gillescolling.com/taxify/articles/backbones.html">backbones
+vignette</a>.</p>
+</div>
+<div class="section level3">
+<h3 id="adding-your-own-attributes">Adding your own attributes<a class="anchor" aria-label="anchor" href="#adding-your-own-attributes"></a>
+</h3>
+<p>Once names resolve to an accepted name, any table keyed on species
+joins cleanly. <code><a href="../reference/add_data.html">add_data()</a></code> takes a data.frame, CSV, XLSX, or
+SQLite file, runs its species column through the same backbone, and
+joins on the accepted name, so a synonym on either side still lines
+up.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  species      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus pedunculata"</span>,   <span class="co"># synonym of Q. robur</span></span>
+<span>                   <span class="st">"Pinus sylvestris"</span>,</span>
+<span>                   <span class="st">"Betula pendula"</span><span class="op">)</span>,</span>
+<span>  seed_mass_mg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3200</span>, <span class="fl">7.5</span>, <span class="fl">0.2</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">my_traits</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; add_data: 3 of 3 species matched (100.0%). 0 names in data unmatched.</span></span>
+<span><span class="co">#&gt;         input_name    accepted_name seed_mass_mg</span></span>
+<span><span class="co">#&gt; 1    Quercus robur    Quercus robur       3200.0</span></span>
+<span><span class="co">#&gt; 2 Pinus sylvestris Pinus sylvestris          7.5</span></span>
+<span><span class="co">#&gt; 3   Betula pendula   Betula pendula          0.2</span></span></code></pre>
+<p>The trait table used <em>Quercus pedunculata</em> and the result used
+<em>Quercus robur</em>; a plain <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> would have missed
+that row. Formats, auto-detection, and strict duplicate handling are in
+the <a href="https://gillescolling.com/taxify/articles/custom-data.html">custom-data
+vignette</a>.</p>
+</div>
+<div class="section level3">
+<h3 id="enrichment-layers">Enrichment layers<a class="anchor" aria-label="anchor" href="#enrichment-layers"></a>
+</h3>
+<p>taxify also ships more than eighty published trait and status layers,
+across the tree of life and for the conservation and invasion records
+this kind of work needs. Each <code>add_*()</code> matches its own
+source against the backbone and attaches on the accepted name, so any of
+them stacks into a pipeline the same way. Run
+<code><a href="../reference/list_enrichments.html">list_enrichments()</a></code> for the current set, versions, and
+coverage.</p>
+<canvas id="en-cv" width="880" height="540" style="max-width:100%"></canvas><script>
+(function(){
+var G=[
+{n:'Plants',s:'Plants',c:'#6bcb77',L:[['add_zanne()','woody / herbaceous'],['add_eive()','EIVE indicator values'],['add_diaz_traits()','seed mass & height'],['add_leda()','LEDA life-history'],['add_wcvp()','native range'],['add_glonaf()','naturalized alien flora'],['add_baseflor()','ecological traits'],['add_ecoflora()','British flora'],['add_floraweb()','German flora'],['add_pignatti()','Italian indicator values'],['add_fungalroot()','mycorrhizal type']]},
+{n:'Birds & mammals',s:'Birds/mammals',c:'#3ad7ff',L:[['add_avonet()','bird morphology'],['add_elton_traits()','diet & body mass'],['add_pantheria()','mammal life-history']]},
+{n:'Amphibians & reptiles',s:'Amph & reptiles',c:'#b388ff',L:[['add_amphibio()','amphibian traits'],['add_repttraits()','reptile traits & range']]},
+{n:'Fish',s:'Fish',c:'#4d96ff',L:[['add_fishmorph()','morphology'],['add_fishbase()','ecology']]},
+{n:'Arthropods',s:'Arthropods',c:'#ff8fd0',L:[['add_arthropod_traits()','arthropod traits'],['add_leptraits()','butterfly traits']]},
+{n:'Fungi',s:'Fungi',c:'#ffd93d',L:[['add_fungal_traits()','fungal traits'],['add_funguild()','trophic guild']]},
+{n:'Algae',s:'Algae',c:'#33ffd0',L:[['add_algae_traits()','algal traits']]},
+{n:'Cross-taxon animals',s:'Cross-taxon',c:'#ffc24b',L:[['add_animaltraits()','body mass & metabolism'],['add_anage()','longevity & ageing']]},
+{n:'Status, alien & names',s:'Status & alien',c:'#ff3b6b',L:[['add_iucn()','IUCN Red List'],['add_griis()','GRIIS invasive'],['add_alien_first_records()','first-record years'],['add_common_names()','vernacular names']]}
+];
+
+var s=VA.setup('en-cv'); if(!s)return; var x=s.ctx,W=s.w,H=s.h,C=VA.C;
+var NG=G.length;
+var cx=280,cy=298,R=192;
+var px0=556,pw=W-556-12;
+var nLayers=0;for(var gi=0;gi<NG;gi++)nLayers+=G[gi].L.length;
+var FOC=3.1,PERIOD=NG*FOC;
+function ang(i){return -Math.PI/2 + i*2*Math.PI/NG;}
+function node(i){return {x:cx+R*Math.cos(ang(i)),y:cy+R*Math.sin(ang(i))};}
+function hub(){var w=152,h=34;x.save();VA.glow(x,C.cyan,14);x.fillStyle=C.bg;x.strokeStyle=C.cyan;x.lineWidth=2;x.beginPath();x.rect(cx-w/2,cy-h/2,w,h);x.fill();x.stroke();VA.noglow(x);x.fillStyle=C.cyan;x.font=VA.F(13,true);x.textAlign='center';x.textBaseline='middle';x.fillText('accepted_name',cx,cy);x.restore();x.textBaseline='alphabetic';}
+function spoke(i,foc){var n=node(i);x.strokeStyle=foc?G[i].c:C.off;x.lineWidth=foc?2:1;if(foc)VA.glow(x,G[i].c,6);x.beginPath();x.moveTo(cx,cy);x.lineTo(n.x,n.y);x.stroke();VA.noglow(x);}
+function gnode(i,foc,pulse){var n=node(i);var rad=foc?13+2*pulse:8;if(foc)VA.glow(x,G[i].c,12);x.fillStyle=foc?G[i].c:C.off;x.beginPath();x.arc(n.x,n.y,rad,0,6.2832);x.fill();VA.noglow(x);x.fillStyle=foc?C.ink:C.mut;x.font=VA.F(11,foc);x.textAlign='center';var below=n.y>=cy;var ly=n.y+(below?rad+15:-rad-8);x.fillText(G[i].s,n.x,ly);x.fillStyle=foc?G[i].c:C.mut;x.font=VA.F(10);x.fillText('('+G[i].L.length+')',n.x,ly+(below?13:-13));}
+function travel(i,t){var n=node(i);var u=t-Math.floor(t);var tx=VA.lerp(n.x,cx,VA.easeOut(u)),ty=VA.lerp(n.y,cy,VA.easeOut(u));VA.glow(x,G[i].c,8);x.fillStyle=G[i].c;x.beginPath();x.arc(tx,ty,3.6,0,6.2832);x.fill();VA.noglow(x);}
+function panel(i,lt){var g=G[i];x.textAlign='left';VA.glow(x,g.c,8);x.fillStyle=g.c;x.font=VA.F(15,true);x.fillText(g.n,px0,92);VA.noglow(x);x.strokeStyle=g.c;x.lineWidth=2;x.beginPath();x.moveTo(px0,102);x.lineTo(px0+pw,102);x.stroke();x.lineWidth=1;for(var k=0;k<g.L.length;k++){var ry=132+k*42;var a=VA.clamp((lt-0.05-k*0.06)/0.3,0,1);if(a<=0)continue;x.globalAlpha=a;x.fillStyle=C.ink;x.font=VA.F(13,true);x.fillText(g.L[k][0],px0,ry);x.fillStyle=C.mut;x.font=VA.F(11);x.fillText(g.L[k][1],px0,ry+16);x.globalAlpha=1;}}
+function draw(tc){VA.bg(x,W,H);
+  VA.glow(x,C.cyan,7);x.fillStyle=C.cyan;x.textAlign='left';x.font=VA.F(15,true);x.fillText('ONE NAME, EVERY LAYER',16,28);VA.noglow(x);
+  x.fillStyle=C.mut;x.font=VA.F(12);x.textAlign='left';x.fillText(nLayers+' layers across '+NG+' groups, all keyed on the accepted name',16,48);
+  var foc=Math.min(NG-1,Math.floor(tc/FOC));var lt=(tc-foc*FOC)/FOC;
+  for(var i=0;i<NG;i++)spoke(i,i===foc);
+  var pulse=Math.sin(lt*Math.PI);
+  for(i=0;i<NG;i++)gnode(i,i===foc,pulse);
+  travel(foc,tc/FOC*1.7);
+  hub();
+  panel(foc,lt);
+  VA.scan(x,W,H);
+}
+VA.run(draw,PERIOD,null,'en','en-cv');
+
+})();
+</script><p>For invasion work the GloNAF, GRIIS, and alien-first-record layers
+attach naturalized status, invasive status, and first-record years on
+the same accepted name, so a resolved species list carries its invasion
+history without a second join. The full menu and per-layer detail are in
+the <a href="https://gillescolling.com/taxify/articles/enrichments.html">enrichments
+vignette</a>.</p>
+</div>
+<div class="section level3">
+<h3 id="stacking-layers-and-testing-an-idea">Stacking layers and testing an idea<a class="anchor" aria-label="anchor" href="#stacking-layers-and-testing-an-idea"></a>
+</h3>
+<p>Field lists run to hundreds of names. Here is a realistic one, about
+a hundred European species, matched in one call. Any layers stack:
+woodiness, the EIVE ecological indicator values, and plant height from
+the Diaz global trait dataset all attach on the accepted name.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">field</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Quercus petraea"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Picea abies"</span>, <span class="st">"Betula pendula"</span>,</span>
+<span>  <span class="st">"Acer pseudoplatanus"</span>, <span class="st">"Acer platanoides"</span>, <span class="st">"Acer campestre"</span>, <span class="st">"Corylus avellana"</span>,</span>
+<span>  <span class="st">"Fraxinus excelsior"</span>, <span class="st">"Carpinus betulus"</span>, <span class="st">"Sorbus aucuparia"</span>, <span class="st">"Tilia cordata"</span>,</span>
+<span>  <span class="st">"Ulmus glabra"</span>, <span class="st">"Alnus glutinosa"</span>, <span class="st">"Salix caprea"</span>, <span class="st">"Populus tremula"</span>,</span>
+<span>  <span class="st">"Prunus avium"</span>, <span class="st">"Prunus spinosa"</span>, <span class="st">"Crataegus monogyna"</span>, <span class="st">"Sambucus nigra"</span>,</span>
+<span>  <span class="st">"Cornus sanguinea"</span>, <span class="st">"Viburnum opulus"</span>, <span class="st">"Euonymus europaeus"</span>, <span class="st">"Ligustrum vulgare"</span>,</span>
+<span>  <span class="st">"Frangula alnus"</span>, <span class="st">"Juniperus communis"</span>, <span class="st">"Taxus baccata"</span>, <span class="st">"Larix decidua"</span>,</span>
+<span>  <span class="st">"Abies alba"</span>, <span class="st">"Rosa canina"</span>, <span class="st">"Rubus idaeus"</span>, <span class="st">"Hedera helix"</span>,</span>
+<span>  <span class="st">"Clematis vitalba"</span>, <span class="st">"Berberis vulgaris"</span>, <span class="st">"Betula pubescens"</span>, <span class="st">"Prunus padus"</span>,</span>
+<span>  <span class="st">"Rhamnus cathartica"</span>, <span class="st">"Lonicera xylosteum"</span>, <span class="st">"Trifolium repens"</span>, <span class="st">"Trifolium pratense"</span>,</span>
+<span>  <span class="st">"Festuca ovina"</span>, <span class="st">"Dactylis glomerata"</span>, <span class="st">"Plantago lanceolata"</span>, <span class="st">"Plantago major"</span>,</span>
+<span>  <span class="st">"Plantago media"</span>, <span class="st">"Achillea millefolium"</span>, <span class="st">"Ranunculus acris"</span>, <span class="st">"Ranunculus repens"</span>,</span>
+<span>  <span class="st">"Urtica dioica"</span>, <span class="st">"Poa pratensis"</span>, <span class="st">"Poa annua"</span>, <span class="st">"Galium mollugo"</span>,</span>
+<span>  <span class="st">"Galium aparine"</span>, <span class="st">"Bellis perennis"</span>, <span class="st">"Cardamine pratensis"</span>, <span class="st">"Cirsium arvense"</span>,</span>
+<span>  <span class="st">"Cirsium vulgare"</span>, <span class="st">"Daucus carota"</span>, <span class="st">"Heracleum sphondylium"</span>, <span class="st">"Anthriscus sylvestris"</span>,</span>
+<span>  <span class="st">"Lotus corniculatus"</span>, <span class="st">"Medicago lupulina"</span>, <span class="st">"Vicia cracca"</span>, <span class="st">"Lathyrus pratensis"</span>,</span>
+<span>  <span class="st">"Stellaria media"</span>, <span class="st">"Silene dioica"</span>, <span class="st">"Silene vulgaris"</span>, <span class="st">"Geranium pratense"</span>,</span>
+<span>  <span class="st">"Geranium robertianum"</span>, <span class="st">"Glechoma hederacea"</span>, <span class="st">"Lamium album"</span>, <span class="st">"Prunella vulgaris"</span>,</span>
+<span>  <span class="st">"Ajuga reptans"</span>, <span class="st">"Veronica chamaedrys"</span>, <span class="st">"Rumex acetosa"</span>, <span class="st">"Rumex obtusifolius"</span>,</span>
+<span>  <span class="st">"Chenopodium album"</span>, <span class="st">"Capsella bursa-pastoris"</span>, <span class="st">"Senecio vulgaris"</span>, <span class="st">"Leucanthemum vulgare"</span>,</span>
+<span>  <span class="st">"Centaurea jacea"</span>, <span class="st">"Knautia arvensis"</span>, <span class="st">"Campanula rotundifolia"</span>, <span class="st">"Primula veris"</span>,</span>
+<span>  <span class="st">"Anemone nemorosa"</span>, <span class="st">"Filipendula ulmaria"</span>, <span class="st">"Lythrum salicaria"</span>, <span class="st">"Robinia pseudoacacia"</span>,</span>
+<span>  <span class="st">"Solidago canadensis"</span>, <span class="st">"Solidago gigantea"</span>, <span class="st">"Impatiens glandulifera"</span>,</span>
+<span>  <span class="st">"Heracleum mantegazzianum"</span>, <span class="st">"Prunus serotina"</span>, <span class="st">"Quercus rubra"</span>,</span>
+<span>  <span class="st">"Quercus robur L."</span>, <span class="st">"FAGUS SYLVATICA"</span>, <span class="st">"Quercus robus"</span>,</span>
+<span>  <span class="st">"cf. Taraxacum officinale"</span>, <span class="st">"Quercus pedunculata"</span>, <span class="st">"Festuca rubrra"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_diaz_traits.html">add_diaz_traits</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"woodiness"</span>, <span class="st">"eive_light"</span>,</span>
+<span>             <span class="st">"eive_reaction"</span>, <span class="st">"eive_nutrients"</span>, <span class="st">"plant_height_m"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt;         accepted_name woodiness eive_light eive_reaction eive_nutrients plant_height_m</span></span>
+<span><span class="co">#&gt; 1     Quercus petraea     woody       5.83          4.79           3.55          31.44</span></span>
+<span><span class="co">#&gt; 2    Pinus sylvestris     woody       7.10          5.13           2.69          19.03</span></span>
+<span><span class="co">#&gt; 3         Picea abies     woody       4.36          4.24           4.31          40.69</span></span>
+<span><span class="co">#&gt; 4      Betula pendula     woody       6.84          4.38           3.64          12.02</span></span>
+<span><span class="co">#&gt; 5 Acer pseudoplatanus     woody       3.80          5.92           6.89          24.46</span></span>
+<span><span class="co">#&gt; 6    Acer platanoides     woody       3.87          6.34           5.66          21.93</span></span></code></pre>
+<p>A few species lack an EIVE or a height value, so those cells are
+<code>NA</code>; R’s statistics functions drop incomplete rows on their
+own. From here it is ordinary analysis. Do species on more base-rich
+soils also sit higher on the nutrient axis?</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.test.html" class="external-link">cor.test</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">eive_reaction</span>, <span class="va">dat</span><span class="op">$</span><span class="va">eive_nutrients</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt;  Pearson's product-moment correlation</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; data:  dat$eive_reaction and dat$eive_nutrients</span></span>
+<span><span class="co">#&gt; t = 3.2378, df = 96, p-value = 0.001654</span></span>
+<span><span class="co">#&gt; alternative hypothesis: true correlation is not equal to 0</span></span>
+<span><span class="co">#&gt; 95 percent confidence interval:</span></span>
+<span><span class="co">#&gt;  0.1230070 0.4821711</span></span>
+<span><span class="co">#&gt; sample estimates:</span></span>
+<span><span class="co">#&gt;       cor</span></span>
+<span><span class="co">#&gt; 0.3137695</span></span></code></pre>
+<p>Across about a hundred species the correlation is positive and
+significant, though modest (r = 0.31, p = 0.002): base-rich soils tend
+to carry higher nutrient values. The same three lines work for any
+attribute the package can attach.</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="why-a-typo-barely-costs-anything">Why a typo barely costs anything<a class="anchor" aria-label="anchor" href="#why-a-typo-barely-costs-anything"></a>
+<h2 id="how-the-fuzzy-pass-works">How the fuzzy pass works<a class="anchor" aria-label="anchor" href="#how-the-fuzzy-pass-works"></a>
 </h2>
 <p>The fuzzy pass never scores a name against the whole backbone. It
 blocks on genus first, so <code>Quercus robus</code> is compared only
-against the other <em>Quercus</em> names. A one-letter slip is found in
-a handful of comparisons rather than across every name on disk.</p>
+against the other <em>Quercus</em> names, and a one-letter slip is found
+in a handful of comparisons.</p>
 <canvas id="bl-cv" width="860" height="460" style="max-width:100%"></canvas><script>
 (function(){
 var QACC="Quercus robur",QD=0.077;
@@ -310,38 +506,15 @@ vignette</a> covers the sub-blocking for very large genera and the
 genus-typo fallback in full.</p>
 </div>
 <div class="section level2">
-<h2 id="check-the-batch-at-a-glance">Check the batch at a glance<a class="anchor" aria-label="anchor" href="#check-the-batch-at-a-glance"></a>
-</h2>
-<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> prints a digest, the fastest way to see
-whether a run went cleanly.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; ── taxify results ──────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   backbone: COL v2026.07  |  10 names submitted</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt;   matched        10  (exact: 6, case-insensitive: 1, fuzzy: 2, abbrev: 1)</span></span>
-<span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   taxon groups: angiosperm: 8  gymnosperm: 1  unknown: 1</span></span></code></pre>
-<p>The digest reports the backbone and version, the match-route
-breakdown (all ten resolved here, including the abbreviated
-<code>Q. petraea</code>), and the taxon-group mix. When a name is out of
-scope (an animal in a plant-only backbone) or genuinely absent, the
-digest tallies it and suggests an alternative backbone. The match types
-and the multi-backbone fallback
-(<code>backbone = c("col", "gbif", "itis")</code>) are covered in the <a href="https://gillescolling.com/taxify/articles/backbones.html">backbones
-vignette</a>.</p>
-</div>
-<div class="section level2">
-<h2 id="offline-and-how-much-faster">Offline, and how much faster<a class="anchor" aria-label="anchor" href="#offline-and-how-much-faster"></a>
+<h2 id="offline-matching-and-speed">Offline matching and speed<a class="anchor" aria-label="anchor" href="#offline-matching-and-speed"></a>
 </h2>
 <p>Every match runs against the local snapshot, so a run reproduces
-exactly and the <code>backbone_version</code> column records the WFO
-release and download date for a methods section. On the same task many
-in this field reach for, WorldFlora’s <code>WFO.match</code>, both run
-against a local copy and return the same matches; the difference is
-where the matching happens. taxify scores names in C against the
-compiled backbone, WorldFlora in R. On 1,000 plant names with fuzzy
-matching on (Windows, R 4.5.2):</p>
+exactly and the <code>backbone_version</code> column records the
+backbone release and download date for a methods section. WorldFlora’s
+<code>WFO.match</code> also runs against a local copy and returns the
+same matches; taxify scores names in C against the compiled backbone,
+WorldFlora in R. On 1,000 plant names with fuzzy matching on (Windows, R
+4.5.2):</p>
 <canvas id="sp-cv" width="760" height="330" style="max-width:100%"></canvas><script>
 (function(){
 var TAX=18.8,WFO=4192.4;
@@ -376,180 +549,17 @@ VA.run(draw,PERIOD,null,'sp','sp-cv');
 })();
 </script><p>On 1,000 names that all carry a one-character typo, taxify takes 18.8
 s and WorldFlora 4,192 s. Exact matching is closer, 2.2 s against 17.1
-s. The genus blocking is what opens the gap: a typo competes only
-against names in its own genus, so the work does not grow with the size
-of the backbone. <code>scripts/benchmark-worldflora.R</code> in the
-repository produces both figures, and the <a href="https://gillescolling.com/taxify/articles/large-scale.html">large-scale
+s. The genus blocking opens the gap: a typo competes only against names
+in its own genus, so the work does not grow with the size of the
+backbone. <code>scripts/benchmark-worldflora.R</code> in the repository
+produces both figures, and the <a href="https://gillescolling.com/taxify/articles/large-scale.html">large-scale
 vignette</a> covers the batch strategy for lists above 100,000
 names.</p>
 </div>
 <div class="section level2">
-<h2 id="add-your-own-attributes">Add your own attributes<a class="anchor" aria-label="anchor" href="#add-your-own-attributes"></a>
-</h2>
-<p>Once names resolve to an accepted name, any table keyed on species
-joins cleanly. <code><a href="../reference/add_data.html">add_data()</a></code> takes a data.frame, CSV, XLSX, or
-SQLite file, runs its species column through the same backbone, and
-joins on the accepted name, so a synonym on either side still lines
-up.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  species      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus pedunculata"</span>,   <span class="co"># synonym of Q. robur</span></span>
-<span>                   <span class="st">"Pinus sylvestris"</span>,</span>
-<span>                   <span class="st">"Betula pendula"</span><span class="op">)</span>,</span>
-<span>  seed_mass_mg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3200</span>, <span class="fl">7.5</span>, <span class="fl">0.2</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">my_traits</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; add_data: 3 of 3 species matched (100.0%). 0 names in data unmatched.</span></span>
-<span><span class="co">#&gt;         input_name    accepted_name seed_mass_mg</span></span>
-<span><span class="co">#&gt; 1    Quercus robur    Quercus robur       3200.0</span></span>
-<span><span class="co">#&gt; 2 Pinus sylvestris Pinus sylvestris          7.5</span></span>
-<span><span class="co">#&gt; 3   Betula pendula   Betula pendula          0.2</span></span></code></pre>
-<p>The trait table used <em>Quercus pedunculata</em> and the result used
-<em>Quercus robur</em>; a plain <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> would have missed
-that row. <code><a href="../reference/add_data.html">add_data()</a></code> joins on the accepted name, so it
-lines up. Formats, auto-detection, and strict duplicate handling are in
-the <a href="https://gillescolling.com/taxify/articles/custom-data.html">custom-data
-vignette</a>.</p>
-</div>
-<div class="section level2">
-<h2 id="the-enrichment-layers">The enrichment layers<a class="anchor" aria-label="anchor" href="#the-enrichment-layers"></a>
-</h2>
-<p>taxify also ships published trait and status layers that attach on
-the accepted name. There are more than eighty, across the tree of life
-and for the conservation and invasion records this kind of work needs.
-Each <code>add_*()</code> matches its own source against the backbone
-and attaches on the accepted name, so any of them stacks into a pipeline
-the same way. Run <code><a href="../reference/list_enrichments.html">list_enrichments()</a></code> for the current set,
-versions, and coverage.</p>
-<canvas id="en-cv" width="880" height="540" style="max-width:100%"></canvas><script>
-(function(){
-var G=[
-{n:'Plants',s:'Plants',c:'#6bcb77',L:[['add_zanne()','woody / herbaceous'],['add_eive()','EIVE indicator values'],['add_diaz_traits()','seed mass & height'],['add_leda()','LEDA life-history'],['add_wcvp()','native range'],['add_glonaf()','naturalized alien flora'],['add_baseflor()','ecological traits'],['add_ecoflora()','British flora'],['add_floraweb()','German flora'],['add_pignatti()','Italian indicator values'],['add_fungalroot()','mycorrhizal type']]},
-{n:'Birds & mammals',s:'Birds/mammals',c:'#3ad7ff',L:[['add_avonet()','bird morphology'],['add_elton_traits()','diet & body mass'],['add_pantheria()','mammal life-history']]},
-{n:'Amphibians & reptiles',s:'Amph & reptiles',c:'#b388ff',L:[['add_amphibio()','amphibian traits'],['add_repttraits()','reptile traits & range']]},
-{n:'Fish',s:'Fish',c:'#4d96ff',L:[['add_fishmorph()','morphology'],['add_fishbase()','ecology']]},
-{n:'Arthropods',s:'Arthropods',c:'#ff8fd0',L:[['add_arthropod_traits()','arthropod traits'],['add_leptraits()','butterfly traits']]},
-{n:'Fungi',s:'Fungi',c:'#ffd93d',L:[['add_fungal_traits()','fungal traits'],['add_funguild()','trophic guild']]},
-{n:'Algae',s:'Algae',c:'#33ffd0',L:[['add_algae_traits()','algal traits']]},
-{n:'Cross-taxon animals',s:'Cross-taxon',c:'#ffc24b',L:[['add_animaltraits()','body mass & metabolism'],['add_anage()','longevity & ageing']]},
-{n:'Status, alien & names',s:'Status & alien',c:'#ff3b6b',L:[['add_iucn()','IUCN Red List'],['add_griis()','GRIIS invasive'],['add_alien_first_records()','first-record years'],['add_common_names()','vernacular names']]}
-];
-
-var s=VA.setup('en-cv'); if(!s)return; var x=s.ctx,W=s.w,H=s.h,C=VA.C;
-var NG=G.length;
-var cx=280,cy=298,R=192;
-var px0=556,pw=W-556-12;
-var nLayers=0;for(var gi=0;gi<NG;gi++)nLayers+=G[gi].L.length;
-var FOC=3.1,PERIOD=NG*FOC;
-function ang(i){return -Math.PI/2 + i*2*Math.PI/NG;}
-function node(i){return {x:cx+R*Math.cos(ang(i)),y:cy+R*Math.sin(ang(i))};}
-function hub(){var w=152,h=34;x.save();VA.glow(x,C.cyan,14);x.fillStyle=C.bg;x.strokeStyle=C.cyan;x.lineWidth=2;x.beginPath();x.rect(cx-w/2,cy-h/2,w,h);x.fill();x.stroke();VA.noglow(x);x.fillStyle=C.cyan;x.font=VA.F(13,true);x.textAlign='center';x.textBaseline='middle';x.fillText('accepted_name',cx,cy);x.restore();x.textBaseline='alphabetic';}
-function spoke(i,foc){var n=node(i);x.strokeStyle=foc?G[i].c:C.off;x.lineWidth=foc?2:1;if(foc)VA.glow(x,G[i].c,6);x.beginPath();x.moveTo(cx,cy);x.lineTo(n.x,n.y);x.stroke();VA.noglow(x);}
-function gnode(i,foc,pulse){var n=node(i);var rad=foc?13+2*pulse:8;if(foc)VA.glow(x,G[i].c,12);x.fillStyle=foc?G[i].c:C.off;x.beginPath();x.arc(n.x,n.y,rad,0,6.2832);x.fill();VA.noglow(x);x.fillStyle=foc?C.ink:C.mut;x.font=VA.F(11,foc);x.textAlign='center';var below=n.y>=cy;var ly=n.y+(below?rad+15:-rad-8);x.fillText(G[i].s,n.x,ly);x.fillStyle=foc?G[i].c:C.mut;x.font=VA.F(10);x.fillText('('+G[i].L.length+')',n.x,ly+(below?13:-13));}
-function travel(i,t){var n=node(i);var u=t-Math.floor(t);var tx=VA.lerp(n.x,cx,VA.easeOut(u)),ty=VA.lerp(n.y,cy,VA.easeOut(u));VA.glow(x,G[i].c,8);x.fillStyle=G[i].c;x.beginPath();x.arc(tx,ty,3.6,0,6.2832);x.fill();VA.noglow(x);}
-function panel(i,lt){var g=G[i];x.textAlign='left';VA.glow(x,g.c,8);x.fillStyle=g.c;x.font=VA.F(15,true);x.fillText(g.n,px0,92);VA.noglow(x);x.strokeStyle=g.c;x.lineWidth=2;x.beginPath();x.moveTo(px0,102);x.lineTo(px0+pw,102);x.stroke();x.lineWidth=1;for(var k=0;k<g.L.length;k++){var ry=132+k*42;var a=VA.clamp((lt-0.05-k*0.06)/0.3,0,1);if(a<=0)continue;x.globalAlpha=a;x.fillStyle=C.ink;x.font=VA.F(13,true);x.fillText(g.L[k][0],px0,ry);x.fillStyle=C.mut;x.font=VA.F(11);x.fillText(g.L[k][1],px0,ry+16);x.globalAlpha=1;}}
-function draw(tc){VA.bg(x,W,H);
-  VA.glow(x,C.cyan,7);x.fillStyle=C.cyan;x.textAlign='left';x.font=VA.F(15,true);x.fillText('ONE NAME, EVERY LAYER',16,28);VA.noglow(x);
-  x.fillStyle=C.mut;x.font=VA.F(12);x.textAlign='left';x.fillText(nLayers+' layers across '+NG+' groups, all keyed on the accepted name',16,48);
-  var foc=Math.min(NG-1,Math.floor(tc/FOC));var lt=(tc-foc*FOC)/FOC;
-  for(var i=0;i<NG;i++)spoke(i,i===foc);
-  var pulse=Math.sin(lt*Math.PI);
-  for(i=0;i<NG;i++)gnode(i,i===foc,pulse);
-  travel(foc,tc/FOC*1.7);
-  hub();
-  panel(foc,lt);
-  VA.scan(x,W,H);
-}
-VA.run(draw,PERIOD,null,'en','en-cv');
-
-})();
-</script><p>For invasion work the GloNAF, GRIIS, and alien-first-record layers
-attach naturalized status, invasive status, and first-record years on
-the same accepted name, so a resolved species list carries its invasion
-history without a second join. The full menu and per-layer detail are in
-the <a href="https://gillescolling.com/taxify/articles/enrichments.html">enrichments
-vignette</a>.</p>
-</div>
-<div class="section level2">
-<h2 id="stack-layers-then-test-an-idea">Stack layers, then test an idea<a class="anchor" aria-label="anchor" href="#stack-layers-then-test-an-idea"></a>
-</h2>
-<p>Field lists run to hundreds of names. Here is a realistic one, about
-a hundred European species, matched in one call. Pick any layers and
-stack them: woodiness, the EIVE ecological indicator values, and plant
-height from the Diaz global trait dataset all attach on the accepted
-name.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">field</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus petraea"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Picea abies"</span>, <span class="st">"Betula pendula"</span>,</span>
-<span>  <span class="st">"Acer pseudoplatanus"</span>, <span class="st">"Acer platanoides"</span>, <span class="st">"Acer campestre"</span>, <span class="st">"Corylus avellana"</span>,</span>
-<span>  <span class="st">"Fraxinus excelsior"</span>, <span class="st">"Carpinus betulus"</span>, <span class="st">"Sorbus aucuparia"</span>, <span class="st">"Tilia cordata"</span>,</span>
-<span>  <span class="st">"Ulmus glabra"</span>, <span class="st">"Alnus glutinosa"</span>, <span class="st">"Salix caprea"</span>, <span class="st">"Populus tremula"</span>,</span>
-<span>  <span class="st">"Prunus avium"</span>, <span class="st">"Prunus spinosa"</span>, <span class="st">"Crataegus monogyna"</span>, <span class="st">"Sambucus nigra"</span>,</span>
-<span>  <span class="st">"Cornus sanguinea"</span>, <span class="st">"Viburnum opulus"</span>, <span class="st">"Euonymus europaeus"</span>, <span class="st">"Ligustrum vulgare"</span>,</span>
-<span>  <span class="st">"Frangula alnus"</span>, <span class="st">"Juniperus communis"</span>, <span class="st">"Taxus baccata"</span>, <span class="st">"Larix decidua"</span>,</span>
-<span>  <span class="st">"Abies alba"</span>, <span class="st">"Rosa canina"</span>, <span class="st">"Rubus idaeus"</span>, <span class="st">"Hedera helix"</span>,</span>
-<span>  <span class="st">"Clematis vitalba"</span>, <span class="st">"Berberis vulgaris"</span>, <span class="st">"Betula pubescens"</span>, <span class="st">"Prunus padus"</span>,</span>
-<span>  <span class="st">"Rhamnus cathartica"</span>, <span class="st">"Lonicera xylosteum"</span>, <span class="st">"Trifolium repens"</span>, <span class="st">"Trifolium pratense"</span>,</span>
-<span>  <span class="st">"Festuca ovina"</span>, <span class="st">"Dactylis glomerata"</span>, <span class="st">"Plantago lanceolata"</span>, <span class="st">"Plantago major"</span>,</span>
-<span>  <span class="st">"Plantago media"</span>, <span class="st">"Achillea millefolium"</span>, <span class="st">"Ranunculus acris"</span>, <span class="st">"Ranunculus repens"</span>,</span>
-<span>  <span class="st">"Urtica dioica"</span>, <span class="st">"Poa pratensis"</span>, <span class="st">"Poa annua"</span>, <span class="st">"Galium mollugo"</span>,</span>
-<span>  <span class="st">"Galium aparine"</span>, <span class="st">"Bellis perennis"</span>, <span class="st">"Cardamine pratensis"</span>, <span class="st">"Cirsium arvense"</span>,</span>
-<span>  <span class="st">"Cirsium vulgare"</span>, <span class="st">"Daucus carota"</span>, <span class="st">"Heracleum sphondylium"</span>, <span class="st">"Anthriscus sylvestris"</span>,</span>
-<span>  <span class="st">"Lotus corniculatus"</span>, <span class="st">"Medicago lupulina"</span>, <span class="st">"Vicia cracca"</span>, <span class="st">"Lathyrus pratensis"</span>,</span>
-<span>  <span class="st">"Stellaria media"</span>, <span class="st">"Silene dioica"</span>, <span class="st">"Silene vulgaris"</span>, <span class="st">"Geranium pratense"</span>,</span>
-<span>  <span class="st">"Geranium robertianum"</span>, <span class="st">"Glechoma hederacea"</span>, <span class="st">"Lamium album"</span>, <span class="st">"Prunella vulgaris"</span>,</span>
-<span>  <span class="st">"Ajuga reptans"</span>, <span class="st">"Veronica chamaedrys"</span>, <span class="st">"Rumex acetosa"</span>, <span class="st">"Rumex obtusifolius"</span>,</span>
-<span>  <span class="st">"Chenopodium album"</span>, <span class="st">"Capsella bursa-pastoris"</span>, <span class="st">"Senecio vulgaris"</span>, <span class="st">"Leucanthemum vulgare"</span>,</span>
-<span>  <span class="st">"Centaurea jacea"</span>, <span class="st">"Knautia arvensis"</span>, <span class="st">"Campanula rotundifolia"</span>, <span class="st">"Primula veris"</span>,</span>
-<span>  <span class="st">"Anemone nemorosa"</span>, <span class="st">"Filipendula ulmaria"</span>, <span class="st">"Lythrum salicaria"</span>, <span class="st">"Robinia pseudoacacia"</span>,</span>
-<span>  <span class="st">"Solidago canadensis"</span>, <span class="st">"Solidago gigantea"</span>, <span class="st">"Impatiens glandulifera"</span>,</span>
-<span>  <span class="st">"Heracleum mantegazzianum"</span>, <span class="st">"Prunus serotina"</span>, <span class="st">"Quercus rubra"</span>,</span>
-<span>  <span class="st">"Quercus robur L."</span>, <span class="st">"FAGUS SYLVATICA"</span>, <span class="st">"Quercus robus"</span>,</span>
-<span>  <span class="st">"cf. Taraxacum officinale"</span>, <span class="st">"Quercus pedunculata"</span>, <span class="st">"Festuca rubrra"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_diaz_traits.html">add_diaz_traits</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"woodiness"</span>, <span class="st">"eive_light"</span>,</span>
-<span>             <span class="st">"eive_reaction"</span>, <span class="st">"eive_nutrients"</span>, <span class="st">"plant_height_m"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;         accepted_name woodiness eive_light eive_reaction eive_nutrients plant_height_m</span></span>
-<span><span class="co">#&gt; 1     Quercus petraea     woody       5.83          4.79           3.55          31.44</span></span>
-<span><span class="co">#&gt; 2    Pinus sylvestris     woody       7.10          5.13           2.69          19.03</span></span>
-<span><span class="co">#&gt; 3         Picea abies     woody       4.36          4.24           4.31          40.69</span></span>
-<span><span class="co">#&gt; 4      Betula pendula     woody       6.84          4.38           3.64          12.02</span></span>
-<span><span class="co">#&gt; 5 Acer pseudoplatanus     woody       3.80          5.92           6.89          24.46</span></span>
-<span><span class="co">#&gt; 6    Acer platanoides     woody       3.87          6.34           5.66          21.93</span></span></code></pre>
-<p>A few species lack an EIVE or a height value, so those cells are
-<code>NA</code>; R’s statistics functions drop incomplete rows on their
-own. From here it is ordinary analysis. Do species on more base-rich
-soils also sit higher on the nutrient axis?</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.test.html" class="external-link">cor.test</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">eive_reaction</span>, <span class="va">dat</span><span class="op">$</span><span class="va">eive_nutrients</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;  Pearson's product-moment correlation</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; data:  dat$eive_reaction and dat$eive_nutrients</span></span>
-<span><span class="co">#&gt; t = 3.2378, df = 96, p-value = 0.001654</span></span>
-<span><span class="co">#&gt; alternative hypothesis: true correlation is not equal to 0</span></span>
-<span><span class="co">#&gt; 95 percent confidence interval:</span></span>
-<span><span class="co">#&gt;  0.1230070 0.4821711</span></span>
-<span><span class="co">#&gt; sample estimates:</span></span>
-<span><span class="co">#&gt;       cor</span></span>
-<span><span class="co">#&gt; 0.3137695</span></span></code></pre>
-<p>Across about a hundred species the correlation is positive and
-significant, though modest (r = 0.31, p = 0.002): base-rich soils tend
-to carry higher nutrient values. The same three lines work for any
-attribute the package can attach.</p>
-</div>
-<div class="section level2">
 <h2 id="where-to-go-next">Where to go next<a class="anchor" aria-label="anchor" href="#where-to-go-next"></a>
 </h2>
-<p>This vignette is the fast path. Each step has a dedicated vignette
-with the full detail:</p>
+<p>Each step has a dedicated vignette with the full detail:</p>
 <ul>
 <li><p><a href="https://gillescolling.com/taxify/articles/backbones.html">Choosing
 and combining backbones</a></p></li>
@@ -563,7 +573,7 @@ and aggregates</a></p></li>
 <li><p><a href="https://gillescolling.com/taxify/articles/large-scale.html">Large-scale
 matching</a></p></li>
 <li><p><a href="https://gillescolling.com/taxify/articles/migration.html">Migrating
-from taxize and WorldFlora</a> ```</p></li>
+from taxize and WorldFlora</a></p></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

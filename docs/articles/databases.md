@@ -25,7 +25,7 @@ they form a fallback chain.
 | wfo | Vascular plants | 1,664,014 | 739 | 2026.06 | [source](https://www.worldfloraonline.org/) |
 | col | All kingdoms | 5,432,444 | 1,960 | 2026.09 | [source](https://www.catalogueoflife.org/) |
 | colxr | All kingdoms | 8,096,804 | 1,518 | 2026.09 | [source](https://www.catalogueoflife.org/) |
-| gbif | All kingdoms | 6,404,001 | 1,572 | 2026.08 | [source](https://www.gbif.org/) |
+| gbif | All kingdoms | 6,404,001 | 1,622 | 2023.08 | [source](https://www.gbif.org/) |
 | itis | US focus, freshwater/marine | 1,000,552 | 197 | 2026.09 | [source](https://www.itis.gov) |
 | ncbi | All life | 2,952,424 | 524 | 2026.09 | [source](https://www.ncbi.nlm.nih.gov/taxonomy) |
 | ott | All life (synthetic) | 3,690,217 | 728 | 2026.09 | [source](https://opentreeoflife.github.io/) |
@@ -53,47 +53,47 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 
 | Enrichment | Version | Rows | Columns |  |
 |:---|:---|---:|---:|:---|
-| algae_traits | 2026.08 | 3,756 | 47 | [source](https://mda.vliz.be/download.php?file=VLIZ_00000308_62bf06138859e409561556) |
-| alien_first_records | 2026.08 | 340,130 | 15 | [source](https://zenodo.org/api/records/18759840/files/FirstRecords_dataset_public_v4.0.csv/content) |
+| algae_traits | 2026.08 | 3,754 | 47 | [source](https://mda.vliz.be/download.php?file=VLIZ_00000308_62bf06138859e409561556) |
+| alien_first_records | 2026.08 | 340,104 | 15 | [source](https://zenodo.org/api/records/18759840/files/FirstRecords_dataset_public_v4.0.csv/content) |
 | alpine_carabids | 2026.08 | 209 | 2 | [source](https://doi.org/10.5061/dryad.fn2z34tq1) |
 | amniote | 2026.08 | 36,706 | 34 | [source](https://ndownloader.figshare.com/files/8067269) |
 | amphibio | 2026.08 | 8,901 | 35 | [source](https://ndownloader.figshare.com/files/8828578) |
-| anage | 2026.08 | 11,856 | 29 | [source](https://genomics.senescence.info/species/dataset.zip) |
-| animaltraits | 2026.08 | 5,105 | 77 | [source](https://zenodo.org/record/6468938/files/observations.csv?download=1) |
+| anage | 2026.08 | 11,859 | 29 | [source](https://genomics.senescence.info/species/dataset.zip) |
+| animaltraits | 2026.08 | 5,106 | 77 | [source](https://zenodo.org/record/6468938/files/observations.csv?download=1) |
 | arctic_traits | 2026.08 | 644 | 20 | [source](https://phaidra.univie.ac.at/api/object/o:861474/octets) |
-| arthropod_traits | 2026.08 | 6,823 | 29 | [source](https://ipt.biodiversity.be/archive.do?r=arthropod-trait-dataset&v=1.1) |
-| austraits | 2026.08 | 54,990 | 2,203 | [source](https://zenodo.org/api/records/15718081/files/austraits-7.0.0.zip/content) |
+| arthropod_traits | 2026.08 | 6,822 | 29 | [source](https://ipt.biodiversity.be/archive.do?r=arthropod-trait-dataset&v=1.1) |
+| austraits | 2026.08 | 54,995 | 2,203 | [source](https://zenodo.org/api/records/15718081/files/austraits-7.0.0.zip/content) |
 | avonet | 2026.08 | 17,205 | 35 | [source](https://ndownloader.figshare.com/files/34480856) |
 | bacdive | 2026.08 | 21,375 | 26 | [source](https://github.com/gcol33/taxifydb/releases/download/crawl-snapshots-2026.07/bacdive.jsonl.gz) |
-| baseflor | 2026.08 | 28,245 | 109 | [source](http://web.archive.org/web/20231002005253id_/https://philippe.julve.pagesperso-orange.fr/baseflor.xlsx) |
+| baseflor | 2026.08 | 28,259 | 109 | [source](http://web.archive.org/web/20231002005253id_/https://philippe.julve.pagesperso-orange.fr/baseflor.xlsx) |
 | bee_ostwald | 2026.08 | 2,602 | 38 | [source](https://zenodo.org/records/13366989/files/Sup%20Table%204%20Morphological%20Dataset%20Revised.csv?download=1) |
-| bet | 2026.08 | 3,978 | 98 | [source](https://www.envidat.ch/dataset/4865a082-169d-40d1-920b-fc20ad0acad2/resource/d2d2f958-051c-4638-a808-88547cc64d92/download/betdata.txt) |
+| bet | 2026.08 | 3,981 | 98 | [source](https://www.envidat.ch/dataset/4865a082-169d-40d1-920b-fc20ad0acad2/resource/d2d2f958-051c-4638-a808-88547cc64d92/download/betdata.txt) |
 | betsi_collembola_body_length | 2026.08 | 1,443 | 5 | [source](https://zenodo.org/api/records/1292461/files/BETSI_Trait%20data%20request_Collembola_Body%20length_01062017.xlsx/content) |
 | betsi_collembola_traits | 2026.08 | 38 | 9 | [source](https://doi.org/10.1002/eap.70034) |
 | betsi_earthworm_traits | 2026.08 | 47 | 22 | [source](https://doi.org/10.1016/j.apsoil.2013.10.005) |
 | beukhof | 2026.08 | 2,138 | 70 | [source](https://doi.pangaea.de/10.1594/PANGAEA.900866?format=textfile) |
-| bien | 2026.08 | 202,106 | 175 | [source](https://bien.nceas.ucsb.edu) |
+| bien | 2026.08 | 202,121 | 175 | [source](https://bien.nceas.ucsb.edu) |
 | birdbase | 2026.08 | 18,244 | 95 | [source](https://ndownloader.figshare.com/files/55634729) |
 | blanchard | 2026.08 | 599 | 19 | [source](https://doi.org/10.5061/dryad.st6sc) |
-| brot | 2026.08 | 10,580 | 133 | [source](https://api.figshare.com/v2/articles/5280868) |
+| brot | 2026.08 | 10,584 | 133 | [source](https://api.figshare.com/v2/articles/5280868) |
 | cefas_btrait | 2026.08 | 1,166 | 10 | [source](https://data-api.cefas.co.uk/api/export/11935?format=csv) |
 | chelonians | 2026.08 | 558 | 79 | [source](https://ndownloader.figshare.com/files/53840531) |
 | chowdhury | 2026.08 | 428 | 10 | [source](https://onlinelibrary.wiley.com/doi/10.1111/ddi.70112) |
 | combine | 2026.08 | 15,034 | 57 | [source](https://ndownloader.figshare.com/files/27703263) |
 | combine_imputed | 2026.08 | 15,034 | 69 | [source](https://ndownloader.figshare.com/files/27703266) |
-| common_names | 2026.08 | 1,198,291 | 2 | [source](https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip%20;%20https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz%20;%20https://files.opentreeoflife.org/ott/ott3.7.3/ott3.7.3.tgz) |
+| common_names | 2026.08 | 1,198,444 | 2 | [source](https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip%20;%20https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz%20;%20https://files.opentreeoflife.org/ott/ott3.7.3/ott3.7.3.tgz) |
 | copepod_traits | 2026.08 | 1,675 | 17 | [source](https://store.pangaea.de/Publications/BrunP-etal_2016/Brun-etal_2016_Copepode_trait.xlsx) |
 | coral_traits | 2026.08 | 1,934 | 257 | [source](https://ndownloader.figshare.com/files/3678603) |
-| diaz_traits | 2026.08 | 111,612 | 29 | [source](https://raw.githubusercontent.com/kydahl/biodiv-hotspots/main/data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx) |
-| disperse | 2026.08 | 563 | 12 | [source](https://api.figshare.com/v2/articles/12417251) |
+| diaz_traits | 2026.08 | 111,713 | 29 | [source](https://raw.githubusercontent.com/kydahl/biodiv-hotspots/main/data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx) |
+| disperse | 2026.08 | 564 | 12 | [source](https://api.figshare.com/v2/articles/12417251) |
 | eberswalde | 2026.08 | 30 | 8 | [source](https://pubdata.leuphana.de/server/api/core/bitstreams/1abc1f9b-d416-4ec8-8139-a3730724e77c/content) |
-| ecoflora | 2026.08 | 15,724 | 18 | [source](https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/ecoflora_raw_2026-06-23.csv) |
+| ecoflora | 2026.08 | 15,727 | 18 | [source](https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/ecoflora_raw_2026-06-23.csv) |
 | ecomorphosis | 2026.08 | 57 | 3 | [source](https://zenodo.org/api/records/7194559/files/Annex_ASE_Online_db.xlsx/content) |
 | edwards_phyto | 2026.08 | 243 | 108 | [source](https://esapubs.org/archive/ecol/E096/202/) |
-| eive | 2026.08 | 44,799 | 18 | [source](https://zenodo.org/records/7534792/files/EIVE_Paper_1.0_SM_08.xlsx?download=1) |
+| eive | 2026.08 | 44,811 | 18 | [source](https://zenodo.org/records/7534792/files/EIVE_Paper_1.0_SM_08.xlsx?download=1) |
 | ellers_collembola | 2026.08 | 366 | 6 | [source](https://zenodo.org/api/records/4934993/files/Collembola_trait_data.csv/content) |
 | elton_traits | 2026.08 | 29,052 | 48 | [source](https://ndownloader.figshare.com/files/5631081) |
-| epa_freshwater | 2026.08 | 3,080 | 9 | [source](https://ofmpub.epa.gov/eims/eimscomm.getfile?p_download_id=526642) |
+| epa_freshwater | 2026.08 | 3,081 | 9 | [source](https://ofmpub.epa.gov/eims/eimscomm.getfile?p_download_id=526642) |
 | eupolltrait | 2026.08 | 3,637 | 57 | [source](https://zenodo.org/api/records/18032357) |
 | eurobat | 2026.08 | 139 | 83 | [source](https://api.figshare.com/v2/articles/21777161) |
 | faprotax | 2026.08 | 5,391 | 2 | [source](https://pages.uoregon.edu/slouca/LoucaLab/archive/FAPROTAX/SECTION_Download/MODULE_Downloads/CLASS_Latest%20release/UNIT_FAPROTAX_1.2.12/FAPROTAX_1.2.12.zip) |
@@ -101,35 +101,35 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | fishbase | 2026.08 | 43,578 | 246 | [source](https://fishbase.ropensci.org) |
 | fishmorph | 2026.08 | 11,008 | 15 | [source](https://ndownloader.figshare.com/files/28672242) |
 | fishtraits | 2026.08 | 1,144 | 28 | [source](https://www.sciencebase.gov/catalog/file/get/5a7c6e8ce4b00f54eb2318c0?name=FishTraits_14.3.xls) |
-| floraweb | 2026.08 | 22,353 | 59 | [source](https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/floraweb_raw_2026-06-24.csv) |
-| freshwater_insects_conus | 2026.08 | 1,261 | 14 | [source](https://pasta.lternet.edu/package/data/eml/edi/481/5/3a88bfdfefcfe6dcafb27afd3ce4e90c) |
+| floraweb | 2026.08 | 22,354 | 59 | [source](https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/floraweb_raw_2026-06-24.csv) |
+| freshwater_insects_conus | 2026.08 | 1,262 | 14 | [source](https://pasta.lternet.edu/package/data/eml/edi/481/5/3a88bfdfefcfe6dcafb27afd3ce4e90c) |
 | frugivoria | 2026.08 | 3,032 | 90 | [source](https://pasta.lternet.edu/package/data/eml/edi/1220/5/) |
-| fungal_traits | 2026.08 | 11,121 | 27 | [source](https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM4_ESM.xlsx) |
-| fungalroot | 2026.08 | 5,639 | 42 | [source](https://orphans.gbif.org/EE/744edc21-8dd2-474e-8a0b-b8c3d56a3c2d.232.zip) |
-| funguild | 2026.08 | 18,651 | 9 | [source](http://www.stbates.org/funguild_db_2.php) |
-| gidias | 2026.08 | 19,490 | 15 | [source](https://ndownloader.figshare.com/files/53894801) |
-| gift | 2026.08 | 420,018 | 218 | [source](https://gift.uni-goettingen.de) |
-| globi | 2026.08 | 547,252 | 3 | [source](https://github.com/gcol33/taxifydb/releases/download/crawl-snapshots-2026.07/globi_edges.tsv.gz) |
-| globtherm | 2026.08 | 5,010 | 42 | [source](https://doi.org/10.5061/dryad.1cv08) |
-| glonaf | 2026.08 | 1,543,403 | 6 | [source](https://zenodo.org/api/records/17105725) |
-| griis | 2026.08 | 437,621 | 13 | [source](https://zenodo.org/records/6348164/files/GRIIS%20-%20Country%20Compendium%20V1_0.csv?download=1) |
-| groot | 2026.08 | 26,264 | 38 | [source](https://raw.githubusercontent.com/GRooT-Database/GRooT-Data/master/DataFiles/GRooTAggregateSpeciesVersion.zip) |
-| gwdd | 2026.08 | 34,858 | 15 | [source](https://zenodo.org/api/records/18262736/files/gwddagg_v2.2_species.csv/content) |
+| fungal_traits | 2026.08 | 11,129 | 27 | [source](https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM4_ESM.xlsx) |
+| fungalroot | 2026.08 | 5,647 | 42 | [source](https://orphans.gbif.org/EE/744edc21-8dd2-474e-8a0b-b8c3d56a3c2d.232.zip) |
+| funguild | 2026.08 | 18,659 | 9 | [source](http://www.stbates.org/funguild_db_2.php) |
+| gidias | 2026.08 | 19,493 | 15 | [source](https://ndownloader.figshare.com/files/53894801) |
+| gift | 2026.08 | 420,049 | 218 | [source](https://gift.uni-goettingen.de) |
+| globi | 2026.08 | 547,125 | 3 | [source](https://github.com/gcol33/taxifydb/releases/download/crawl-snapshots-2026.07/globi_edges.tsv.gz) |
+| globtherm | 2026.08 | 5,013 | 42 | [source](https://doi.org/10.5061/dryad.1cv08) |
+| glonaf | 2026.08 | 1,543,250 | 6 | [source](https://zenodo.org/api/records/17105725) |
+| griis | 2026.08 | 437,664 | 13 | [source](https://zenodo.org/records/6348164/files/GRIIS%20-%20Country%20Compendium%20V1_0.csv?download=1) |
+| groot | 2026.08 | 26,275 | 38 | [source](https://raw.githubusercontent.com/GRooT-Database/GRooT-Data/master/DataFiles/GRooTAggregateSpeciesVersion.zip) |
+| gwdd | 2026.08 | 34,850 | 15 | [source](https://zenodo.org/api/records/18262736/files/gwddagg_v2.2_species.csv/content) |
 | homerange | 2026.08 | 4,805 | 77 | [source](https://doi.org/10.5061/dryad.d2547d85x) |
-| hosts | 2026.08 | 22,778 | 2 | [source](https://data.nhm.ac.uk/dataset/hosts-a-database-of-the-world-s-lepidopteran-hostplants) |
+| hosts | 2026.08 | 22,776 | 2 | [source](https://data.nhm.ac.uk/dataset/hosts-a-database-of-the-world-s-lepidopteran-hostplants) |
 | huang_amph | 2026.08 | 5,736 | 331 | [source](https://api.figshare.com/v2/articles/21159229) |
-| hydraulics | 2026.08 | 6,269 | 7 | [source](https://ndownloader.figshare.com/files/23745155) |
+| hydraulics | 2026.08 | 6,267 | 7 | [source](https://ndownloader.figshare.com/files/23745155) |
 | imageomics_neon | 2026.08 | 86 | 3 | [source](https://huggingface.co/datasets/imageomics/2018-NEON-beetles/resolve/main/BeetleMeasurements.csv) |
 | inrae_collembola_traits | 2026.08 | 186 | 16 | [source](https://doi.org/10.15454/UU2FQT%20;%20https://doi.org/10.15454/UCYSLH) |
-| invacost | 2026.08 | 3,193 | 3 | [source](https://ndownloader.figshare.com/files/33669518) |
+| invacost | 2026.08 | 3,194 | 3 | [source](https://ndownloader.figshare.com/files/33669518) |
 | italic | 2026.08 | 3,580 | 4 | [source](https://github.com/gcol33/taxifydb/releases/download/crawl-snapshots-2026.07/italic.jsonl) |
-| iucn | 2026.08 | 254,967 | 1 | [source](https://hosted-datasets.gbif.org/datasets/iucn/iucn-latest.zip) |
-| kew_cvalues | 2026.08 | 35,436 | 14 | [source](https://cvalues.science.kew.org/search) |
-| kew_sid | 2026.08 | 106,108 | 13 | [source](https://ser-sid.org/) |
-| leda | 2026.08 | 23,717 | 87 | [source](https://uol.de/f/5/inst/biologie/ag/landeco/download/LEDA/Data_files/) |
-| leptraits | 2026.08 | 15,324 | 97 | [source](https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv) |
+| iucn | 2026.08 | 254,965 | 1 | [source](https://hosted-datasets.gbif.org/datasets/iucn/iucn-latest.zip) |
+| kew_cvalues | 2026.08 | 35,469 | 14 | [source](https://cvalues.science.kew.org/search) |
+| kew_sid | 2026.08 | 106,119 | 13 | [source](https://ser-sid.org/) |
+| leda | 2026.08 | 23,748 | 87 | [source](https://uol.de/f/5/inst/biologie/ag/landeco/download/LEDA/Data_files/) |
+| leptraits | 2026.08 | 15,323 | 97 | [source](https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv) |
 | madin | 2026.08 | 17,710 | 76 | [source](https://raw.githubusercontent.com/bacteria-archaea-traits/bacteria-archaea-traits/master/output/condensed_species_NCBI.csv) |
-| marine_distribution | 2026.08 | 2,552,394 | 4 | [source](https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/worms_distributions.jsonl%20;%20https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/mrgid_meow.tsv) |
+| marine_distribution | 2026.08 | 2,552,415 | 4 | [source](https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/worms_distributions.jsonl%20;%20https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/mrgid_meow.tsv) |
 | monograph_collembola_body_length | 2026.08 | 577 | 5 | [source](https://github.com/gcol33/taxifydb/releases/download/monograph-snapshots-2026.08/collembola_monograph_bodylength_2026-08-05.csv) |
 | nesttrait | 2026.08 | 17,413 | 34 | [source](https://zenodo.org/records/10128906/files/NestTrait_v2.csv?download=1) |
 | noddb | 2026.08 | 857 | 8 | [source](https://s3.hpc.ut.ee/plutof-public/original/3094fbed-e384-457d-af3f-694ef97e8df8.xlsx) |
@@ -143,23 +143,23 @@ dataset’s columns in R with `enrichment_cols("<name>")`.
 | plazi_collembola_body_length | 2026.08 | 1,056 | 5 | [source](https://api.gbif.org/v1/dataset/search?publishingOrg=7ce8aef0-9e92-11dc-8738-b8a03c50a862&taxonKey=10713444) |
 | pottier | 2026.08 | 929 | 176 | [source](https://zenodo.org/api/records/6565454) |
 | quimbayo | 2026.08 | 2,614 | 60 | [source](https://zenodo.org/api/records/4455016) |
-| ramond | 2026.08 | 1,637 | 53 | [source](https://www.seanoe.org/data/00405/51662/) |
+| ramond | 2026.08 | 1,631 | 53 | [source](https://www.seanoe.org/data/00405/51662/) |
 | repttraits | 2026.08 | 14,553 | 47 | [source](https://ndownloader.figshare.com/files/45408133) |
-| rimet_phyto | 2026.08 | 1,925 | 107 | [source](https://zenodo.org/records/1164834/files/Appendix-1-Phytoplankton%20metrics%20database-revised.xlsx?download=1) |
+| rimet_phyto | 2026.08 | 1,927 | 107 | [source](https://zenodo.org/records/1164834/files/Appendix-1-Phytoplankton%20metrics%20database-revised.xlsx?download=1) |
 | saproxylic | 2026.08 | 1,356 | 57 | [source](https://doi.org/10.5061/dryad.2fqz612p3) |
-| sealifebase | 2026.08 | 126,922 | 257 | [source](https://sealifebase.ropensci.org) |
+| sealifebase | 2026.08 | 126,916 | 257 | [source](https://sealifebase.ropensci.org) |
 | sharkipedia | 2026.08 | 216 | 175 | [source](https://zenodo.org/records/6656525/files/Sharkipedia-Traits-v1.0-22-01-25.csv?download=1) |
 | sheld | 2026.08 | 456 | 105 | [source](https://api.figshare.com/v2/articles/24115998) |
 | spider_traits | 2026.08 | 10,320 | 547 | [source](https://spidertraits.sci.muni.cz/backend/data/export/csv/family/*/genus/*/species/*/original-name/*/trait-category/*/trait/*/method/*/location/*/country/*/dataset/*/authors/*/reference/*/row-link/*) |
 | sworm | 2026.08 | 346 | 1 | [source](https://idata.idiv.de/ddm/Data/DownloadZip/1880?version=4881) |
 | tetradensity | 2026.08 | 4,711 | 28 | [source](https://api.figshare.com/v2/articles/5371633) |
 | thermofresh | 2026.08 | 1,252 | 20 | [source](https://zenodo.org/api/records/16959762/files/hsbayat%2FThermoFresh-v1.0.zip/content) |
-| tree_of_sex | 2026.08 | 54,314 | 116 | [source](https://doi.org/10.5061/dryad.v1908) |
-| usda_fungus_host | 2026.08 | 81,266 | 2 | [source](https://api.figshare.com/v2/articles/24855585) |
-| useful_plants | 2026.08 | 96,017 | 11 | [source](https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn:uuid:e576e4b7-845a-422a-8472-b5eb078e08eb) |
-| virion | 2026.08 | 10,866 | 4 | [source](https://zenodo.org/api/records/21636520) |
-| wcvp | 2026.08 | 4,908,476 | 34 | [source](https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip) |
-| zanne | 2026.08 | 101,198 | 2 | [source](https://raw.githubusercontent.com/ejedwards/reanalysis_zanne2014/master/dryad/GlobalWoodinessDatabase.csv) |
+| tree_of_sex | 2026.08 | 54,318 | 116 | [source](https://doi.org/10.5061/dryad.v1908) |
+| usda_fungus_host | 2026.08 | 81,263 | 2 | [source](https://api.figshare.com/v2/articles/24855585) |
+| useful_plants | 2026.08 | 96,022 | 11 | [source](https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn:uuid:e576e4b7-845a-422a-8472-b5eb078e08eb) |
+| virion | 2026.08 | 10,864 | 4 | [source](https://zenodo.org/api/records/21636520) |
+| wcvp | 2026.08 | 4,909,534 | 34 | [source](https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip) |
+| zanne | 2026.08 | 101,237 | 2 | [source](https://raw.githubusercontent.com/ejedwards/reanalysis_zanne2014/master/dryad/GlobalWoodinessDatabase.csv) |
 | zooplankton | 2026.08 | 5,064 | 86 | [source](https://zenodo.org/api/records/8102913) |
 
 ## Cross-source traits

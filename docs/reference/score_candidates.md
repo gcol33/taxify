@@ -28,13 +28,29 @@ score_candidates(candidates)
   `is_synonym` (the backbone's normalized synonym flag), `fuzzy_dist`
   (fuzzy proximity), `nomenclaturalStatus` (validity),
   `matched_name_std` and `accepted_name` (epithet preservation), plus
-  `authorship` and `accepted_authorship` (homotypy).
+  `authorship` and `accepted_authorship` (homotypy). Two scores read the
+  candidate's `n_occurrences` (records filed under its key, a column
+  only the GBIF backbone carries), both 0 throughout when the column is
+  absent and both outside the tier: which key holds the data is not a
+  statement about which taxon the name denotes. `data_score` is 0 for a
+  key with at least one record that keeps the name as its own concept
+  (accepted, doubtful or unplaced; never a synonym, whose accepted ID is
+  another taxon) and 1 otherwise (no records, no count, or a synonym);
+  it orders after `dist_score` and before `status_score`. `occ_score` is
+  minus the count, `Inf` where it is missing; it orders after
+  `epithet_score`, so it only separates keys the concept scores leave
+  level. `year_score` is the year the name was published (the `year`
+  column, else the first year in `name_published_in`; `Inf` where
+  unknown, 0 throughout when both columns are absent); it orders after
+  `epithet_score` and before `occ_score`, so the earliest of several
+  same-name homonyms wins before the count is read.
 
 ## Value
 
-A list with the numeric vectors `dist_score` and `status_score`, integer
-vectors `rank_score`, `valid_score`, `epithet_score`, and the character
-`tier` signature (`"dist/status/rank/epithet"`) per row, in input order.
+A list with the numeric vectors `dist_score`, `data_score`,
+`year_score`, `occ_score` and `status_score`, integer vectors
+`rank_score`, `valid_score`, `epithet_score`, and the character `tier`
+signature (`"dist/status/rank/epithet"`) per row, in input order.
 
 ## Details
 

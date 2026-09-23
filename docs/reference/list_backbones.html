@@ -26,7 +26,7 @@ list_enrichments() for the backbone side."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,7 @@ list_enrichments() for the backbone side."><script>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
@@ -109,8 +110,9 @@ when the manifest cannot be fetched offline.</p>
 date of the upstream data, which can be much earlier. The GBIF backbone is
 the case that matters: GBIF froze it at 2023-08-28 and has said it will not
 be updated again, so a current release tag there carries a treatment three
-years older than the tag suggests. <code>source_date</code> is <code>NA</code> for a backbone
-whose upstream date has not been recorded.</p>
+years older than the tag suggests. <code>source_date</code> is an ISO date, or
+<code>YYYY-MM</code> / <code>YYYY</code> where the source dates its release no finer, and <code>NA</code>
+for a backbone whose upstream date has not been recorded.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

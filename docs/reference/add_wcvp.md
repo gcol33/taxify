@@ -57,6 +57,21 @@ The same data.frame with additional column(s):
 
 Source: WCVP (Kew, CC BY). Coverage: ~340k plant species. Plants only.
 
+The range reported is that of the taxon
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+matched, as its backbone circumscribes it: the matched name's own
+records plus those of every name the backbone sinks into it. Where these
+disagree on a region, `native` wins over `introduced`, and `introduced`
+over `extinct`, since the taxon is native wherever any part of it is.
+
+A region is left `NA` rather than filled from a broader taxon, or from
+one the matched backbone accepts as separate, when that is the only name
+another backbone offers for it. Those names are listed as `refused` in
+the `wcvp` entry of `attr(x, "taxify_meta")$enrichments` (the queried
+and refused name, the reason, the backbones offering it and the number
+of regions it would have filled), and counted by
+[`summary()`](https://rdrr.io/r/base/summary.html).
+
 ## Examples
 
 ``` r
@@ -64,10 +79,10 @@ Source: WCVP (Kew, CC BY). Coverage: ~340k plant species. Plants only.
 old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Quercus robur") |>
-  add_wcvp(region = "EUR")
+  add_wcvp(region = "GER")
 
 taxify("Quercus robur") |>
-  add_wcvp(region = c("EUR", "NAM"))
+  add_wcvp(region = c("GER", "BGM"))
 
 options(old)
 ```

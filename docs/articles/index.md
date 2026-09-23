@@ -24,6 +24,8 @@
   data](https://gillescolling.com/taxify/articles/enrichments.md):
 - [Joining custom data with
   add_data()](https://gillescolling.com/taxify/articles/custom-data.md):
+- [Requesting GBIF data for a species
+  list](https://gillescolling.com/taxify/articles/gbif-requests.md):
 
 ### Special topics
 

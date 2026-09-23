@@ -41,14 +41,15 @@ The same data.frame with additional columns:
 
 ## Details
 
-Source: AnimalTraits (Hebert et al. 2022, CC0). Coverage: ~2k species
-across arthropods, vertebrates, molluscs, and annelids. Individual-level
-observations aggregated to species medians.
+Source: AnimalTraits (Herberstein et al. 2022, CC0). Coverage: ~2k
+species across arthropods, vertebrates, molluscs, and annelids.
+Individual-level observations aggregated to species medians.
 
 ## References
 
-Hebert K et al. (2022) AnimalTraits – a curated animal trait database
-for body mass, metabolic rate and brain size. Scientific Data 9:265.
+Herberstein ME et al. (2022) AnimalTraits – a curated animal trait
+database for body mass, metabolic rate and brain size. Scientific Data
+9:265.
 
 ## Examples
 

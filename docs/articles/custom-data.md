@@ -1,33 +1,51 @@
 # Joining custom data with add_data()
 
-## The problem
-
-Taxonomic name matching is rarely the last step. After
+This vignette shows how to attach trait data, occurrence records, or
+measurement tables from external sources to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-resolves your species list to accepted names and IDs, the next task is
-usually to attach trait data, occurrence records, or measurement tables
-from external sources. The trouble is that external datasets almost
-never use the same names as your backbone. A CSV of leaf trait
-measurements might record *Pinus nigra* subsp. *laricio*, while the
-backbone stores the accepted name as *Pinus nigra*. A colleague’s
-spreadsheet might list *Picea excelsa* (a synonym retired decades ago),
-while COL recognises *Picea abies*.
-
-Joining on raw species strings misses these cases: the rows do not
-match, and the merged data.frame has `NA`s where values should exist.
-The standard workaround is to run the external names through the
-backbone first, resolve them to accepted IDs, and then join on those
-IDs.
+result. External datasets rarely use the same names as the backbone. A
+CSV of leaf trait measurements might record *Pinus nigra* subsp.
+*laricio* while the backbone stores the accepted name as *Pinus nigra*,
+and a colleague’s spreadsheet might list *Picea excelsa*, a synonym
+retired decades ago, where COL recognises *Picea abies*. A join on the
+raw species strings misses these rows and leaves `NA`s where values
+should exist.
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-wraps that entire workflow into a single pipe step.
+runs the external names through the backbone, resolves each to its
+accepted taxon, and joins on that, in a single pipe step.
 
-## Joining a data.frame
+1.  **Match** the species list with
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
-The most common case: we have trait measurements in a data.frame sitting
-in our R session, and we want to attach them to a
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result. Here we create a small table of specific leaf area (SLA) and
-maximum height for five European tree species.
+2.  **Read** the external data by passing a data.frame or a file path
+    (`.csv`, `.tsv`, `.xlsx`, `.sqlite`, `.vtr`) to
+    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md).
+
+3.  **Identify** the species column with `species_col`, or let
+    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+    detect it.
+
+4.  **Select** the columns to join with `cols`.
+
+5.  **Resolve** the duplicates and column name collisions
+    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+    reports.
+
+6.  **Export** the joined result with
+    [`export_data()`](https://gillescolling.com/taxify/reference/export_data.md).
+
+## Example
+
+``` r
+
+library(taxify)
+```
+
+### Joining a data.frame
+
+The most common case is a table of trait measurements already in the R
+session. Here a small table holds specific leaf area (SLA) and maximum
+height for five European tree species.
 
 ``` r
 
@@ -38,7 +56,7 @@ species <- c(
 )
 result <- taxify(species, backbone = "col")
 
-# External trait data: note one synonym and one subspecies
+# External trait data: note one synonym
 traits <- data.frame(
   taxon = c(
     "Quercus robur", "Fagus sylvatica", "Picea excelsa",
@@ -56,20 +74,16 @@ result <- result |> add_data(traits, species_col = "taxon")
 takes the names from the `taxon` column, runs them through the same
 backbone(s) used in the original
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call,
-resolves each to an `accepted_id`, and left-joins on that ID. *Picea
-excelsa* is a synonym of *Picea abies* in COL, so the SLA and height
-values land on the correct row even though the literal strings differ.
-The output has two new columns, `sla` and `max_height_m`, appended to
-the existing result.
+resolves each to its accepted taxon, and left-joins on it. *Picea
+excelsa* is a synonym of *Picea abies* in COL, so its SLA and height
+land on the *Picea abies* row even though the strings differ. The result
+gains two columns, `sla` and `max_height_m`.
 
-## Joining from a CSV file
+### Joining from a CSV file
 
-When the data lives in a file rather than in memory, we can pass the
-path directly.
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-reads `.csv` and `.csv.gz` files via vectra’s CSV reader, which handles
-large files efficiently without loading everything into R at once.
-Tab-separated files (`.tsv`, `.tsv.gz`) are also supported.
+A file path can be passed directly. `.csv` and `.csv.gz` files are read
+with vectra’s CSV reader, and a `.csv.gz` path is decompressed
+transparently.
 
 ``` r
 
@@ -77,30 +91,38 @@ result <- taxify(species, backbone = "col")
 result <- result |> add_data("path/to/leaf_traits.csv")
 ```
 
-If the CSV has a single obvious species-name column, auto-detection
-picks it up. If there are several plausible character columns, or if the
-names are encoded in a column with an unusual name like
-`latin_binomial`, specifying `species_col` avoids ambiguity.
+If the file has a single obvious species-name column, auto-detection
+picks it up. When there are several plausible character columns, or the
+names sit in a column with an unusual name like `latin_binomial`,
+`species_col` removes the ambiguity.
 
 ``` r
 
 result |> add_data("leaf_traits.csv", species_col = "latin_binomial")
 ```
 
-The same pattern works for compressed CSV files. A `.csv.gz` path is
-detected and decompressed transparently.
-
 ``` r
 
 result |> add_data("global_leaf_traits.csv.gz", species_col = "species")
 ```
 
-## Joining from an Excel file
+### Joining from a TSV file
+
+Tab-separated files work the same way; `.tsv` and `.tsv.gz` files are
+read with [`read.delim()`](https://rdrr.io/r/utils/read.table.html).
+
+``` r
+
+result |> add_data("leaf_traits.tsv", species_col = "species")
+result |> add_data("leaf_traits.tsv.gz")
+```
+
+### Joining from an Excel file
 
 Spreadsheets are common in ecology, especially for hand-curated trait
 databases shared among collaborators.
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-reads `.xlsx` files via the openxlsx2 package, which must be installed
+reads `.xlsx` files with the openxlsx2 package, which must be installed
 separately.
 
 ``` r
@@ -112,19 +134,17 @@ result |> add_data("bird_morphometry.xlsx")
 When `sheet`, `start_row`, and `species_col` are all left at their
 defaults,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-scans the workbook to find the right combination automatically. It tests
-each sheet and up to 20 candidate header rows, probing character columns
-against the backbone until it finds species names. This handles the
-common case where a colleague’s spreadsheet has a title block, column
-descriptions, or notes above the actual data table.
-
-The scan reports what it found:
+scans the workbook for the right combination. It tests each sheet and up
+to 20 candidate header rows, probing character columns against the
+backbone until it finds species names. This handles the common case of a
+spreadsheet with a title block, column descriptions, or notes above the
+data table. The scan reports what it found:
 
     Scanning Excel layout...
       Detected: sheet 'measurements', header row 3, species column 'latin_name' (90% match rate)
 
-To skip auto-detection, specify any combination of `sheet`, `start_row`,
-and `species_col` explicitly:
+Any combination of `sheet`, `start_row`, and `species_col` given
+explicitly skips that part of the detection:
 
 ``` r
 
@@ -140,14 +160,12 @@ result |> add_data("bird_morphometry.xlsx", sheet = 1, start_row = 3,
                    species_col = "latin_name")
 ```
 
-## SQLite databases
+### Joining from a SQLite database
 
-When trait data lives in a SQLite database,
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-reads the table via vectra’s SQLite reader (which depends on DBI and
-RSQLite under the hood). Because a single `.sqlite` or `.db` file can
-hold many tables, the `table` argument is mandatory here. Omitting it
-raises an informative error rather than guessing.
+A table in a SQLite database is read with vectra’s SQLite reader, which
+depends on DBI and RSQLite. A single `.sqlite` or `.db` file can hold
+many tables, so the `table` argument is mandatory here, and omitting it
+raises an error.
 
 ``` r
 
@@ -159,29 +177,26 @@ result |> add_data(
 )
 ```
 
-This is particularly handy when we already maintain a relational
-database of measurements across projects. We can point
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-at the relevant table without exporting to CSV first, and the backbone
-matching still runs the same way it does for any other format.
+A relational database of measurements maintained across projects can be
+joined this way without exporting to CSV first, and the backbone
+matching runs the same way as for any other format.
 
-## vectra native format
+### Joining a vectra file
 
-If we have pre-built `.vtr` files (the columnar format that taxify uses
-internally for backbone storage), they can be passed directly. vectra
-reads these with near-zero overhead because no parsing or type inference
-is needed.
+Pre-built `.vtr` files (the columnar format taxify uses internally for
+backbone storage) can be passed directly. vectra reads them with
+near-zero overhead, because no parsing or type inference is needed.
 
 ``` r
 
 result |> add_data("prebuilt_traits.vtr", species_col = "canonical_name")
 ```
 
-This is mainly useful when sharing processed trait tables between team
-members or across projects. A `.vtr` file produced by one workflow can
-be re-used in another without converting back through CSV. The
+This is mainly useful for sharing processed trait tables between team
+members or across projects: a `.vtr` file produced by one workflow can
+be reused in another without converting back through CSV.
 [`export_data()`](https://gillescolling.com/taxify/reference/export_data.md)
-function makes this easy:
+writes one:
 
 ``` r
 
@@ -193,8 +208,7 @@ other_result |> add_data("processed_traits.vtr")
 ```
 
 [`export_data()`](https://gillescolling.com/taxify/reference/export_data.md)
-also supports `.csv`, `.tsv`, and `.xlsx` for interoperability with
-tools outside R.
+also writes `.csv`, `.tsv`, and `.xlsx` for tools outside R.
 
 ``` r
 
@@ -202,25 +216,12 @@ result |> export_data("for_excel_users.xlsx")
 result |> export_data("for_python.csv")
 ```
 
-## Joining from a TSV file
+### Other file formats
 
-Tab-separated files work the same way as CSV.
+Formats
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-reads `.tsv` and `.tsv.gz` files via
-[`read.delim()`](https://rdrr.io/r/utils/read.table.html).
-
-``` r
-
-result |> add_data("leaf_traits.tsv", species_col = "species")
-result |> add_data("leaf_traits.tsv.gz")
-```
-
-## Other file formats
-
-For formats not directly supported (`.parquet`, `.rds`), reading the
-file into a data.frame first and passing it to
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-works in every case.
+does not read directly (`.parquet`, `.rds`) can be read into a
+data.frame first and passed in that form.
 
 ``` r
 
@@ -228,16 +229,13 @@ my_data <- readRDS("legacy_traits.rds")
 result |> add_data(my_data, species_col = "sp")
 ```
 
-## Species column auto-detection
+### Detecting the species column
 
-When `species_col` is not specified,
+Without `species_col`,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-probes each character column in the external data. It takes the first 10
-rows of each column, runs them through
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-against the same backbone, and picks the column with the highest match
-rate. A column needs at least 50% of its probe names to match before it
-qualifies.
+probes each character column of the external data and picks the one
+whose first 10 names match the backbone best (see [How the join
+works](#how-the-join-works)).
 
 ``` r
 
@@ -255,21 +253,20 @@ traits <- data.frame(
 result |> add_data(traits)
 ```
 
-Auto-detection works well when the species column contains clean
-binomial names and the other character columns contain obviously
-non-taxonomic strings (site codes, habitat descriptions, observer
-names). It can fail when column names are ambiguous, or when species
-names are heavily misspelled or use common names. In those situations,
-specifying `species_col` explicitly saves time and avoids a confusing
-error message.
+Detection works well when the species column contains clean binomials
+and the other character columns hold obviously non-taxonomic strings
+(site codes, habitat descriptions, observer names). It can fail when
+column names are ambiguous, or when species names are heavily misspelled
+or given as common names, and then an explicit `species_col` avoids the
+error.
 
-## Selecting columns with `cols`
+### Selecting columns with `cols`
 
-By default,
+By default
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-joins all columns from the external data except the species column. When
-the external dataset has dozens of columns and we only need two or
-three, the `cols` argument keeps the output tidy.
+joins every column of the external data except the species column. When
+the external table has dozens of columns and only two or three are
+needed, `cols` names them.
 
 ``` r
 
@@ -289,19 +286,16 @@ result |> add_data(big_traits, species_col = "species",
                    cols = c("sla", "wood_density"))
 ```
 
-This also helps when some columns in the external data would create name
-collisions (discussed below) that we would rather avoid entirely.
+`cols` can also leave out columns that would collide with existing ones.
 
-## Column name collisions
+### Column name collisions
 
-If the external data has columns with the same name as columns already
-present in the
+When the external data has columns named like columns already in the
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-prefixes the incoming columns with `data_`. Existing columns in the
-taxify result remain unchanged regardless of what the external data
-contains.
+prefixes the incoming columns with `data_` and prints a message listing
+them. The existing columns of the result are never changed.
 
 ``` r
 
@@ -318,23 +312,19 @@ result |> add_data(external, species_col = "species")
 # Output gains "data_family" (from external) and "leaf_area" (no collision)
 ```
 
-A message prints when collisions are detected, listing the renamed
-columns. If we know in advance that a collision will occur and we do not
-need the conflicting column, filtering it out via `cols` is cleaner than
-letting the rename happen.
+If the conflicting column is not needed, leaving it out through `cols`
+avoids the rename.
 
-## Duplicate species handling
+### Duplicate species
 
-External datasets sometimes contain the same species more than once.
-This happens with repeated measurements across sites, multiple
-literature sources compiled into one table, or subspecies that resolve
-to the same accepted species.
+External datasets sometimes list the same species more than once:
+repeated measurements across sites, several literature sources compiled
+into one table, or subspecies that resolve to the same accepted species.
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-distinguishes two cases.
+separates two cases.
 
-**Exact duplicates** occur when all trait values for a given species are
-identical across the repeated rows. This is harmless: the duplicates are
-collapsed into a single row with a warning.
+Exact duplicates have identical trait values across the repeated rows.
+They are collapsed into a single row with a warning.
 
 ``` r
 
@@ -347,21 +337,16 @@ result |> add_data(dup_ok, species_col = "species")
 # Warning: 1 duplicate rows ... deduplicated.
 ```
 
-**Conflicting duplicates** occur when the same species appears with
-different trait values. “Conflicting” here means that at least one of
-the selected trait columns differs between two rows that share the same
-`accepted_id`. The comparison is column-by-column and treats two `NA`
-values as equal (both missing counts as agreement). So if two rows for
-*Quercus robur* have SLA values of 18.2 and 21.5, that is a conflict. If
-both rows have SLA of 18.2 but one has `NA` for wood density while the
-other has 0.56, that is also a conflict. Only when every selected column
-matches exactly across all rows for a given species do we consider the
-duplicates identical.
-
-Because
+Conflicting duplicates differ in at least one of the selected columns
+between two rows that resolve to the same accepted taxon. The comparison
+runs column by column and treats two `NA` values as equal. Two rows for
+*Quercus robur* with SLA values of 18.2 and 21.5 conflict; so do two
+rows that agree on an SLA of 18.2 when one has `NA` for wood density and
+the other 0.56. The duplicates count as identical only when every
+selected column matches across all rows of a species.
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-cannot decide which value is correct when a conflict exists, it raises
-an error and names the offending species.
+cannot decide which value is correct, so it raises an error that names
+the offending species.
 
 ``` r
 
@@ -371,17 +356,15 @@ dup_bad <- data.frame(
   sla = c(18.2, 21.5, 24.1)
 )
 result |> add_data(dup_bad, species_col = "species")
-# Error: 1 species resolved to the same accepted_id but have
+# Error: 1 species in data resolved to the same accepted name but have
 #   different trait values.
-#   Examples: 'Quercus robur' (wfo-0000309171)
+#   Examples: 'Quercus robur'
 ```
 
-The fix depends on the data. If the duplicates represent within-species
-variation (e.g., measurements from different populations), aggregating
-before joining is the right approach. If they represent data entry
-errors, removing the bad rows resolves the issue. The `cols` argument
-can also help when only some columns conflict: selecting the
-non-conflicting subset lets the join proceed.
+The fix depends on the data. Within-species variation (measurements from
+different populations) can be aggregated before joining; data entry
+errors can be removed. When only some columns conflict, `cols` can
+select the non-conflicting subset so the join proceeds.
 
 ``` r
 
@@ -391,80 +374,27 @@ dup_agg <- aggregate(sla ~ species, data = dup_bad, FUN = mean)
 result |> add_data(dup_agg, species_col = "species")
 ```
 
-Note that duplicates are checked after backbone resolution, not on the
-raw names. If the external data lists both *Picea excelsa* and *Picea
-abies* with different SLA values, those two names resolve to the same
-accepted species and trigger the conflicting-duplicate error. This is
-intentional: the join key is the accepted ID, and conflicting values for
-the same key cannot coexist.
+When the repeated rows are meant to stay apart, one per country or
+region, `group_col` names the grouping column and the output is pivoted
+to one column per group (`sla_AT`, `sla_DE`), with the conflict check
+applied within each group. The error message suggests `group_col` when a
+column looks like a country or region code.
 
-## How the join works
-
-The full pipeline inside
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-has five steps:
-
-1.  **Read** the external data. File paths are dispatched by extension
-    (`.csv`, `.csv.gz`, `.tsv`, `.tsv.gz`, `.xlsx`, `.sqlite`, `.vtr`).
-    Data.frames pass through directly. The format detection is based
-    solely on the file extension, so a misnamed file (e.g., a
-    tab-separated file saved as `.csv`) will produce a read error rather
-    than silent misparse.
-
-2.  **Identify** the species column, either from the explicit
-    `species_col` argument or via auto-detection. When auto-detecting,
-    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-    samples the first 10 rows of every character column and runs each
-    sample through
-    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-    against the same backbone(s). The column whose sample achieves the
-    highest match rate wins, provided it clears the 50% threshold.
-    Columns containing site codes, habitat labels, or observer names
-    rarely match any backbone entry, so the true species column tends to
-    stand out clearly.
-
-3.  **Match** the species names through the same backbone(s) used in the
-    original
-    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-    call. This produces an `accepted_id` for each row in the external
-    data. The backbone choice is read from the `taxify_meta` attribute
-    that
-    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-    attaches to its output, so we do not need to specify it again. Fuzzy
-    matching is on by default (controlled via `fuzzy` and
-    `fuzzy_threshold`). Any names that fail to resolve are dropped from
-    the joinable pool, and their count appears in the summary message at
-    the end.
-
-4.  **Check for duplicates.** After backbone resolution, any rows that
-    share the same `accepted_id` are inspected. Exact duplicates
-    (identical trait values across all selected columns) are collapsed
-    with a warning. Conflicting duplicates raise an error, as described
-    in the section above.
-
-5.  **Left join** on `accepted_id`. Every row in the original
-    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-    result that has a matching `accepted_id` in the external data
-    receives the trait columns. Rows without a match get `NA`. Column
-    name collisions are resolved by prefixing the incoming columns with
-    `data_`.
-
-The join preserves every row of the original result; nothing is dropped.
-Species present in the external data but absent from the original result
-are ignored. A summary message reports how many species were matched and
-how many names in the external data could not be resolved through the
-backbone.
+Duplicates are checked after backbone resolution, not on the raw names.
+If the external data lists both *Picea excelsa* and *Picea abies* with
+different SLA values, the two names resolve to the same accepted species
+and trigger the conflicting-duplicate error, because conflicting values
+for one join key cannot coexist.
 
 ### Controlling fuzzy matching
 
-By default,
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-uses the same fuzzy matching as
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) to
-resolve names in the external data. Fuzzy matching catches typos and
-minor spelling differences, but it can produce false matches for short
-or similar names. The `fuzzy_threshold` argument controls how permissive
-the matching is. Lower values are stricter.
+resolves the external names with the same fuzzy matching as
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+Fuzzy matching catches typos and minor spelling differences, and can
+produce false matches between short or similar names. `fuzzy_threshold`
+sets how permissive it is, with lower values stricter, and
+`fuzzy = FALSE` turns it off.
 
 ``` r
 
@@ -475,16 +405,16 @@ result |> add_data(traits, species_col = "taxon", fuzzy_threshold = 0.1)
 result |> add_data(traits, species_col = "taxon", fuzzy = FALSE)
 ```
 
-Disabling fuzzy matching entirely (`fuzzy = FALSE`) is useful when the
-external data is already well-curated and we want to avoid any risk of
-cross-species contamination from approximate string matches.
+Exact matching suits external data that is already well curated, where
+an approximate string match would risk attaching one species’ values to
+another.
 
-## Combining add_data() with enrichments
+### Combining add_data() with enrichments
 
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-fits naturally into a pipe chain alongside the built-in enrichment
-functions. Custom data and pre-built enrichments use the same
-`accepted_id` join key, so they can be stacked in any order.
+sits in a pipe chain alongside the built-in enrichment functions. Custom
+data and pre-built enrichments join on the same accepted taxon, so they
+can be stacked in any order.
 
 ``` r
 
@@ -494,9 +424,63 @@ result <- taxify(species, backbone = "col") |>
   add_data(traits, species_col = "taxon")
 ```
 
-Each step appends columns to the result. The final data.frame contains
-the core
+Each step appends columns. The final data.frame holds the core
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-output, IUCN conservation status, woodiness classification, and our
-custom SLA and height measurements, all aligned by accepted species
-identity.
+output, IUCN conservation status, woodiness classification, and the
+custom SLA and height measurements, all aligned by accepted species.
+
+## How the join works
+
+The pipeline inside
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+has five steps:
+
+1.  **Read** the external data. File paths are dispatched by extension
+    (`.csv`, `.csv.gz`, `.tsv`, `.tsv.gz`, `.xlsx`, `.sqlite`, `.db`,
+    `.vtr`); data.frames pass through directly. Format detection relies
+    on the file extension alone, so a misnamed file (e.g., a
+    tab-separated file saved as `.csv`) produces a read error rather
+    than a silent misparse.
+
+2.  **Identify** the species column, from `species_col` or by
+    auto-detection. Auto-detection takes the first 10 rows of every
+    character column and runs each sample through
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+    against the same backbone(s). The column with the highest match rate
+    wins, provided it reaches 50%; otherwise
+    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+    stops and asks for `species_col`. Site codes, habitat labels, and
+    observer names rarely match a backbone entry, so the species column
+    tends to stand out.
+
+3.  **Match** the species names through the backbone(s) of the original
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+    call, which
+    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+    reads from the `taxify_meta` attribute
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+    attaches to its output, so they need not be given again. This
+    produces an accepted taxon for each row of the external data. Fuzzy
+    matching is on by default (`fuzzy`, `fuzzy_threshold`). Names that
+    fail to resolve are dropped from the joinable pool, and their count
+    appears in the summary message. If none resolve, no columns are
+    added.
+
+4.  **Check for duplicates.** Rows of the external data that resolve to
+    the same accepted name are compared. Exact duplicates (identical
+    values in all selected columns) are collapsed with a warning;
+    conflicting duplicates raise an error.
+
+5.  **Left join** on the accepted taxon. The key is the `accepted_id`
+    together with the backbone that issued it, since backbone IDs are
+    bare integers in most backbones and mean nothing outside the one
+    they came from. Where the result and the external data were matched
+    by different backbones, the accepted name is the key instead. Every
+    row of the result with a match receives the trait columns, rows
+    without a match get `NA`, and colliding column names are prefixed
+    with `data_`.
+
+The join keeps every row of the original result. Species present in the
+external data but absent from the result are ignored. A summary message
+reports how many species were matched and how many names in the external
+data could not be resolved through the backbone.

@@ -303,26 +303,22 @@ A data.frame with one row per input name and the following columns:
 
   Normalized string distance (0–1), `NA` if exact.
 
-- is_ambiguous:
+- n_ids:
 
-  Logical. `TRUE` when the matched scientificName had multiple rows
-  pointing to different accepted taxa at the same priority tier (homonym
-  ambiguity). A record the backbone keeps unplaced does not settle such
-  a conflict: it is reported beside the records that place the name,
-  whichever of them is picked. Where one record of the name is a synonym
-  homotypic with its accepted name and another is unplaced, the
-  homotypic record is picked. An authorship carried by the input
-  resolves it where it picks out one target;
-  `nomenclaturalStatus = "Valid"` orders which candidate the scalar
-  columns hold, but does not clear the flag, because a valid name and an
-  illegitimate one can be synonyms of different species. Expand the
-  alternatives with
-  [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md).
+  Integer, present only when some name has more than one accepted ID
+  (the call then warns, see Details). How many distinct accepted taxa
+  the backbone files the matched name under, across every record of it
+  (accepted, doubtful, unplaced, synonym). `1` for a name with one
+  accepted ID; more for a homonym or a name the backbone holds twice,
+  e.g. GBIF's *Karwinskia mollis*, kept both as the accepted Schltdl.
+  name and as a doubtful Standl. one. `NA` when nothing matched.
 
-- ambiguous_targets:
+- accepted_ids:
 
-  Character. `|`-joined list of conflicting accepted taxon IDs when
-  `is_ambiguous = TRUE`; `NA` otherwise.
+  Character, present alongside `n_ids`. Those accepted IDs, `|`-joined,
+  the one in `accepted_id` first. List them with their names, status and
+  GBIF occurrence counts through
+  [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md).
 
 - backbone:
 
@@ -365,6 +361,31 @@ GBIF, ITIS) once; pre-install a different set with
 [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md).
 Name a backbone (or several) explicitly to match only against that one,
 or those in that order.
+
+## Names with several accepted IDs
+
+A backbone can file one name under several accepted taxa: a homonym (the
+same binomial published by two authors), or a name held twice, once
+accepted and once as a doubtful or duplicate record. `accepted_id` holds
+one of them; `accepted_ids` and `n_ids` hold all of them, and
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+lists them one row per ID with name, authorship, status and, for GBIF,
+occurrence count.
+
+Which one `accepted_id` holds is decided by fuzzy distance first, then,
+on a backbone that carries occurrence counts (GBIF), by whether any GBIF
+occurrence records are filed under a key that keeps the name as its own
+concept (accepted, doubtful or unplaced), then by taxonomic status
+(accepted before doubtful or unplaced before synonym), rank and epithet,
+and only then by the number of records, before the remaining tiebreaks.
+An empty accepted key thus loses to a doubtful key of the name that has
+the data, while a synonym record, whose accepted ID is another taxon,
+never displaces the name's own key; it stays listed in `accepted_ids`.
+
+When any input resolves to more than one accepted ID, `taxify()` issues
+one warning per call, of class `taxify_multiple_ids`, naming the count
+and a few examples. Silence it with
+`options(taxify.warn_multiple_ids = FALSE)` or catch it by class.
 
 ## Backbone-specific accepted names
 

@@ -5,6 +5,7 @@
 <url><loc>https://gillescolling.com/taxify/articles/databases.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/enrichments.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/fuzzy-matching.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/articles/gbif-requests.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/index.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/inspecting-names.html</loc></url>
@@ -149,9 +150,12 @@
 <url><loc>https://gillescolling.com/taxify/reference/comm2sci.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/downstream.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/embed_accepted.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/enrichment_authorship_col.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/enrichment_cols.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/enrichment_groups.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/export_data.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/gbif_backmatch.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/gbif_request.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/gift_traits.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/id2name.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/index.html</loc></url>
@@ -188,6 +192,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/taxify_download.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_download_enrichment.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_example_data.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/taxify_ids.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_load_register.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_lock.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_long.html</loc></url>

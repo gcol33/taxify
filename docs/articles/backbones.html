@@ -35,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -62,6 +62,7 @@
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
@@ -105,25 +106,501 @@
 
     
     
-<p>taxify matches taxonomic names against locally stored Darwin Core
-backbone databases.
+<p>This vignette shows how to pick a taxonomic backbone for a name list,
+how to chain several backbones so that each name is resolved by the
+source best placed to judge it, and how to check afterwards which source
+resolved which name. taxify matches names against locally stored Darwin
+Core backbone databases.
 <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
 backbones are available, each compiled from a different authoritative
 source. The backbone we choose determines which names can be matched,
-what taxonomic opinion governs synonym resolution, and which extra
-metadata columns are available downstream. This vignette walks through
-the backbones, explains how to combine them in fallback chains, and
-offers practical guidance on which combination to pick for a given
-project.</p>
+which taxonomic opinion governs synonym resolution, and which extra
+metadata columns are available downstream.</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Choose</strong> the backbones that cover the taxonomic
+scope of the list (see <a href="#the-backbones">The backbones</a>);
+<code><a href="../reference/list_backbones.html">list_backbones()</a></code> reports each one’s current version, name
+count, and whether it is installed.</p></li>
+<li><p><strong>Download</strong> them ahead of time, or pin a version,
+with <code><a href="../reference/taxify_download.html">taxify_download()</a></code>.</p></li>
+<li><p><strong>Match</strong> against a single backbone with the
+<code>backbone</code> argument of <code><a href="../reference/taxify.html">taxify()</a></code>.</p></li>
+<li><p><strong>Chain</strong> several backbones in fallback order by
+passing a vector to <code>backbone</code>.</p></li>
+<li><p><strong>Audit</strong> which backbone matched each name through
+the <code>backbone</code> and <code>backbone_version</code>
+columns.</p></li>
+<li><p><strong>Extend</strong> the result with backbone-specific columns
+from <code><a href="../reference/add_wfo_info.html">add_wfo_info()</a></code>, <code><a href="../reference/add_col_info.html">add_col_info()</a></code>, and
+<code><a href="../reference/add_gbif_info.html">add_gbif_info()</a></code>.</p></li>
+<li><p><strong>Diagnose</strong> names outside a backbone’s scope with
+<code><a href="../reference/lookup_genus.html">lookup_genus()</a></code> and
+<code><a href="../reference/taxify_register_coverage.html">taxify_register_coverage()</a></code>.</p></li>
+</ol>
 <div class="section level2">
-<h2 id="backend-overview">Backend overview<a class="anchor" aria-label="anchor" href="#backend-overview"></a>
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>The table below summarizes all
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="downloading-backbones">Downloading backbones<a class="anchor" aria-label="anchor" href="#downloading-backbones"></a>
+</h3>
+<p>taxify downloads a backbone on first use. When
+<code>taxify(names, backbone = "wfo")</code> finds no local WFO
+backbone, it fetches the pre-built <code>.vtr</code> file from the
+taxifydb release it is published under, writes it to
+<code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>, and caches the path for the rest of the
+R session. Later calls, in the same session or in future ones, reuse the
+local copy without network access. <code><a href="../reference/taxify_download.html">taxify_download()</a></code>
+fetches backbones ahead of time, which is useful on a shared server or
+in a Docker image:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Download one backbone</span></span>
+<span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Download several at once</span></span>
+<span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"worms"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Pre-built <code>.vtr</code> files are published as GitHub Releases on
+<a href="https://github.com/gcol33/taxifydb" class="external-link">taxifydb</a>, one tag per
+backbone (<code>gbif-2026.06</code>, <code>algaebase-2026.06</code>),
+and range from 8 MB (AviList) to 2.0 GB (COL). They are compiled from
+the raw Darwin Core sources with precomputed matching keys, embedded
+synonym resolution, and genus-level indexes, so they can be queried as
+soon as the download completes.</p>
+<p>A specific backbone version can be pinned:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span>, version <span class="op">=</span> <span class="st">"2024.01"</span><span class="op">)</span></span></code></pre></div>
+<p>Pinned versions are stored in their own directory
+(<code>taxify_data_dir()/wfo/2024.01/</code>) and are never overwritten
+by future updates. The “latest” slot
+(<code>taxify_data_dir()/wfo/latest/</code>) is overwritten whenever a
+newer version becomes available. A project that locks a backbone version
+produces identical results regardless of when the analysis is
+re-run.</p>
+</div>
+<div class="section level3">
+<h3 id="matching-against-one-backbone">Matching against one backbone<a class="anchor" aria-label="anchor" href="#matching-against-one-backbone"></a>
+</h3>
+<p>The simplest case matches plant names against WFO:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Quercus robur"</span>,</span>
+<span>  <span class="st">"Quercus petraea"</span>,</span>
+<span>  <span class="st">"Pinus sylvestris"</span>,</span>
+<span>  <span class="st">"Acer pseudoplatanus"</span>,</span>
+<span>  <span class="st">"Betula pendula"</span>,</span>
+<span>  <span class="st">"Fagus sylvatica"</span>,</span>
+<span>  <span class="st">"Picea abies"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"family"</span>, <span class="st">"match_type"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>Every row in the output has 27 columns regardless of which backbone
+produced it: <code>input_name</code>, <code>matched_name</code>,
+<code>accepted_name</code>, <code>taxon_id</code>,
+<code>accepted_id</code>, <code>rank</code>, <code>family</code>,
+<code>genus</code>, <code>epithet</code>, <code>authorship</code>,
+<code>accepted_authorship</code>, <code>is_synonym</code>,
+<code>taxonomic_status</code>, <code>is_hybrid</code>,
+<code>match_type</code>, <code>fuzzy_dist</code>, <code>n_ids</code>,
+<code>accepted_ids</code>, <code>backbone</code>,
+<code>backbone_version</code>, <code>kingdom_group</code>,
+<code>taxon_group</code>, <code>life_form</code>,
+<code>qualifier</code>, <code>qualifier_position</code>,
+<code>aggregate_fallback</code>, and <code>hybrid_type</code>. The
+<code>backbone</code> column records <code>"wfo"</code> for matched rows
+and <code>NA</code> for unmatched ones. The
+<code>backbone_version</code> column records the backbone name, version,
+and download date (e.g., <code>"wfo:2024-12 (2026-04-01)"</code>), so we
+can cite the exact data snapshot used.</p>
+<p>When a name matches a synonym, taxify resolves it to the accepted
+name. The <code>matched_name</code> column shows the string that matched
+in the backbone (which may be a synonym), <code>accepted_name</code>
+shows the current accepted name after resolution, and
+<code>is_synonym</code> is <code>TRUE</code> for resolved synonyms and
+<code>FALSE</code> for direct matches.</p>
+<p>Fuzzy matching is on by default with a normalized Damerau-Levenshtein
+threshold of 0.2, roughly one edit per five characters, which catches
+typos such as transposed letters or missing diacritics. A lower
+threshold is stricter:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
+<p><code>fuzzy = FALSE</code> turns fuzzy matching off and accepts only
+exact and case-insensitive matches:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>The <code>fuzzy_method</code> argument selects the distance metric:
+the default <code>"dl"</code> (Damerau-Levenshtein, which counts a
+transposition as one edit), <code>"levenshtein"</code> (standard
+Levenshtein, no transposition handling), or <code>"jw"</code>
+(Jaro-Winkler, which weights agreement in the first characters of the
+two strings).</p>
+</div>
+<div class="section level3">
+<h3 id="chaining-backbones">Chaining backbones<a class="anchor" aria-label="anchor" href="#chaining-backbones"></a>
+</h3>
+<p>A wetland monitoring dataset might contain vascular plants,
+invertebrates, amphibians, algae, and fungi, and no single backbone
+covers all of these equally well. Passing a vector of backbone names
+builds a fallback chain: names are matched against each backbone in
+order, and a name matched by an earlier backbone is removed from the
+pool and never re-matched by a later one.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Quercus robur"</span>,       <span class="co"># plant</span></span>
+<span>  <span class="st">"Panthera leo"</span>,        <span class="co"># animal</span></span>
+<span>  <span class="st">"Amanita muscaria"</span>,    <span class="co"># fungus</span></span>
+<span>  <span class="st">"Salmo trutta"</span>,        <span class="co"># fish</span></span>
+<span>  <span class="st">"Escherichia coli"</span>     <span class="co"># bacterium</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">mixed</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"match_type"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>The console output during matching shows the chain in action:</p>
+<pre><code>Matching 5 names against 3 backbones: wfo -&gt; col -&gt; gbif
+  [wfo] Matching 5 names...
+  [col] Matching 4 remaining names...
+  [gbif] Matching 1 remaining names...</code></pre>
+<p><code>"Quercus robur"</code> matches in WFO and leaves the pool. The
+remaining four names go to COL, and anything still unmatched after COL
+(perhaps an obscure bacterial name) goes to GBIF. The process continues
+until all names have been tried against all backbones or all names have
+matched. If earlier backbones have matched every name, later ones are
+skipped with a message:</p>
+<pre><code>  [gbif] Skipped (all names matched)</code></pre>
+<p>The order of the vector decides which taxonomic opinion wins for each
+name. If <code>"Quercus robur"</code> exists in both WFO and COL,
+putting WFO first means WFO’s accepted name, family assignment, and
+synonym resolution are used; putting COL first gives COL’s. For names
+that exist in several backbones, the first backbone in the chain always
+wins. With GBIF first, everything would match there (GBIF has ~6.4M
+names, the largest of any backbone) and the curated opinions of WFO,
+COL, or WoRMS would never be consulted. For a plant-heavy list with some
+non-plant taxa, <code>c("wfo", "col")</code> or
+<code>c("wfo", "col", "gbif")</code> gives WFO’s curated plant taxonomy
+for the plants while COL or GBIF picks up the rest.</p>
+<p>Fuzzy matching runs independently within each backbone. A name that
+fails exact matching in WFO is fuzzy-matched against WFO, and only if
+that also fails does it move to the next backbone, where it is
+exact-matched and then fuzzy-matched again. A misspelled plant name
+therefore gets its best chance in WFO, the plant-specialist backbone,
+before falling through to COL or GBIF.</p>
+</div>
+<div class="section level3">
+<h3 id="plants-wfo-with-a-col-fallback">Plants: WFO with a COL fallback<a class="anchor" aria-label="anchor" href="#plants-wfo-with-a-col-fallback"></a>
+</h3>
+<p>WFO focuses on accepted vascular plant and bryophyte names. Names
+that appear only in older literature, belong to genera not yet
+integrated into WFO, or are nomenclaturally orphaned (no clear accepted
+name) may be absent. COL inherits WFO’s plant taxonomy as one of its
+sector databases and supplements it with names from other sources,
+including historical synonyms and cultivar names.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Quercus robur"</span>,</span>
+<span>  <span class="st">"Quercus petraea"</span>,</span>
+<span>  <span class="st">"Pinus sylvestris"</span>,</span>
+<span>  <span class="st">"Acer pseudoplatanus"</span>,</span>
+<span>  <span class="st">"Coffea arabica"</span>,</span>
+<span>  <span class="st">"Welwitschia mirabilis"</span>,</span>
+<span>  <span class="st">"Lepidodendron aculeatum"</span>,   <span class="co"># extinct lycopsid</span></span>
+<span>  <span class="st">"Nothofagus cunninghamii"</span>,</span>
+<span>  <span class="st">"Dracaena draco"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># WFO alone</span></span>
+<span><span class="va">wfo_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">wfo_result</span><span class="op">$</span><span class="va">match_type</span><span class="op">)</span></span></code></pre></div>
+<p>If any names come back as <code>"none"</code>, COL can be added as a
+fallback:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># WFO first, COL as fallback</span></span>
+<span><span class="va">both_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">both_result</span><span class="op">$</span><span class="va">match_type</span><span class="op">)</span></span>
+<span><span class="va">both_result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>The <code>backbone</code> column now shows <code>"wfo"</code> for
+names matched by WFO and <code>"col"</code> for names only COL could
+resolve. A methods section can then state “plant names were resolved
+against WFO 2024-12, with unmatched names resolved against COL 2025.” In
+large vegetation plot datasets most names resolve in WFO, and the
+handful of edge cases (cultivars, historical names, genera recently
+moved between families) that fall through to COL would otherwise need
+manual resolution.</p>
+</div>
+<div class="section level3">
+<h3 id="mixed-kingdoms-col-gbif-and-worms">Mixed kingdoms: COL, GBIF and WoRMS<a class="anchor" aria-label="anchor" href="#mixed-kingdoms-col-gbif-and-worms"></a>
+</h3>
+<p>A monitoring dataset from a coastal estuary might contain vascular
+plants, invertebrates, fish, and marine algae. COL has broad
+expert-curated coverage across kingdoms, GBIF fills gaps with its larger
+name pool, including names from national checklists not yet incorporated
+into COL, and WoRMS is a final backstop for marine invertebrate
+synonyms, which can be slow to propagate to generalist databases. The
+chain runs from highest curation to broadest coverage, and most of these
+names resolve in COL.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">estuary_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Zostera marina"</span>,              <span class="co"># seagrass (plant)</span></span>
+<span>  <span class="st">"Salicornia europaea"</span>,         <span class="co"># glasswort (plant)</span></span>
+<span>  <span class="st">"Carcinus maenas"</span>,             <span class="co"># shore crab</span></span>
+<span>  <span class="st">"Mytilus edulis"</span>,              <span class="co"># blue mussel</span></span>
+<span>  <span class="st">"Platichthys flesus"</span>,          <span class="co"># European flounder</span></span>
+<span>  <span class="st">"Nereis diversicolor"</span>,         <span class="co"># ragworm</span></span>
+<span>  <span class="st">"Fucus vesiculosus"</span>,           <span class="co"># bladderwrack (brown alga)</span></span>
+<span>  <span class="st">"Littorina littorea"</span>,          <span class="co"># common periwinkle</span></span>
+<span>  <span class="st">"Arenicola marina"</span>,            <span class="co"># lugworm</span></span>
+<span>  <span class="st">"Cerastoderma edule"</span>           <span class="co"># common cockle</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">estuary_species</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"gbif"</span>, <span class="st">"worms"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"family"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>For a predominantly marine list with only a few terrestrial taxa,
+leading with WoRMS makes its marine taxonomy take precedence:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">estuary_species</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"worms"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="fungi-species-fungorum-with-a-col-fallback">Fungi: Species Fungorum with a COL fallback<a class="anchor" aria-label="anchor" href="#fungi-species-fungorum-with-a-col-fallback"></a>
+</h3>
+<p>Species Fungorum Plus is curated specifically for fungi, with ~315k
+names including anamorphs, teleomorphs, and the pleomorphic naming
+changes of the 2011 Melbourne Code. Its synonym coverage for fungal
+genera is better than in generalist databases, where fungal taxonomy is
+often a secondary concern.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fungi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Amanita muscaria"</span>,</span>
+<span>  <span class="st">"Boletus edulis"</span>,</span>
+<span>  <span class="st">"Cantharellus cibarius"</span>,</span>
+<span>  <span class="st">"Tuber melanosporum"</span>,</span>
+<span>  <span class="st">"Saccharomyces cerevisiae"</span>,</span>
+<span>  <span class="st">"Aspergillus niger"</span>,</span>
+<span>  <span class="st">"Penicillium chrysogenum"</span>,</span>
+<span>  <span class="st">"Agaricus bisporus"</span>,</span>
+<span>  <span class="st">"Trametes versicolor"</span>,</span>
+<span>  <span class="st">"Cordyceps militaris"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">fungi</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fungorum"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"is_synonym"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>Species Fungorum resolves the standard names, and COL picks up any
+obscure, recently described, or historically orphaned species that fall
+through. For a list of fungi and plants, a three-backbone chain gives
+each group its specialist, with COL catching what falls through
+both:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Quercus robur"</span>,              <span class="co"># plant</span></span>
+<span>  <span class="st">"Amanita muscaria"</span>,           <span class="co"># fungus</span></span>
+<span>  <span class="st">"Lactarius deliciosus"</span>,       <span class="co"># fungus</span></span>
+<span>  <span class="st">"Pinus sylvestris"</span>,           <span class="co"># plant</span></span>
+<span>  <span class="st">"Russula emetica"</span>             <span class="co"># fungus</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">mixed</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"fungorum"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Because the genus <code>Amanita</code> is not in WFO’s coverage
+table, <code>"Amanita muscaria"</code> is marked out of scope for WFO
+immediately and passed to the next backbone without fuzzy matching (see
+<a href="#the-genus-register">The genus register</a>).</p>
+</div>
+<div class="section level3">
+<h3 id="algae-algaebase">Algae: AlgaeBase<a class="anchor" aria-label="anchor" href="#algae-algaebase"></a>
+</h3>
+<p>AlgaeBase covers micro- and macroalgae, cyanobacteria, and some
+protists. Its curation is strong for freshwater and marine microalgae,
+where generalist databases often have thin coverage and outdated
+synonymy.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">algae</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Chlamydomonas reinhardtii"</span>,</span>
+<span>  <span class="st">"Chlorella vulgaris"</span>,</span>
+<span>  <span class="st">"Ulva lactuca"</span>,</span>
+<span>  <span class="st">"Fucus vesiculosus"</span>,</span>
+<span>  <span class="st">"Sargassum muticum"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">algae</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"algaebase"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>AlgaeBase is licensed CC BY-NC, and taxify prints a license notice
+during its download. For commercial applications, COL or WoRMS can serve
+instead, with less specialized algal coverage.</p>
+</div>
+<div class="section level3">
+<h3 id="molecular-ecology-ncbi">Molecular ecology: NCBI<a class="anchor" aria-label="anchor" href="#molecular-ecology-ncbi"></a>
+</h3>
+<p>Species lists from metabarcoding or eDNA studies are often linked to
+NCBI accessions. The NCBI backbone aligns taxify’s accepted names with
+the taxonomy used in GenBank and BOLD.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">edna_hits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Salmo trutta"</span>,</span>
+<span>  <span class="st">"Phoxinus phoxinus"</span>,</span>
+<span>  <span class="st">"Anguilla anguilla"</span>,</span>
+<span>  <span class="st">"Cottus gobio"</span>,</span>
+<span>  <span class="st">"Lampetra planeri"</span>,</span>
+<span>  <span class="st">"Chironomus riparius"</span>,     <span class="co"># midge (insect)</span></span>
+<span>  <span class="st">"Potamopyrgus antipodarum"</span> <span class="co"># New Zealand mud snail</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">edna_hits</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ncbi"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"taxon_id"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>The <code>taxon_id</code> values of NCBI-matched rows are NCBI
+tax_ids, which link directly to GenBank records and NCBI taxonomy pages.
+COL covers names not found in NCBI, such as taxa without sequenced
+representatives.</p>
+</div>
+<div class="section level3">
+<h3 id="auditing-the-backbone-column">Auditing the backbone column<a class="anchor" aria-label="anchor" href="#auditing-the-backbone-column"></a>
+</h3>
+<p><code>backbone</code> is a plain character column. In a
+single-backbone call every matched row shows the same name; in a chain
+it records which backbone produced each match; unmatched rows have
+<code>backbone = NA</code>. It can count how many names each backbone
+resolved:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span>, useNA <span class="op">=</span> <span class="st">"ifany"</span><span class="op">)</span></span></code></pre></div>
+<p>or filter to the rows matched by one backbone:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">wfo_matches</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span> <span class="op">==</span> <span class="st">"wfo"</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">col_matches</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span> <span class="op">==</span> <span class="st">"col"</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
+<p>In a list expected to be purely plants, many names matched by COL
+instead of WFO point to names outside WFO’s scope, perhaps algae
+classified as plants in older literature, or animal-associated organisms
+such as plant parasites.</p>
+<p>For a methods section, the unique <code>backbone_version</code>
+strings give the provenance of the whole result:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone_version</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone_version</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co"># e.g., c("wfo:2024-12 (2026-04-01)", "col:2025 (2026-04-01)")</span></span></code></pre></div>
+<p>Each string identifies both the taxonomic source and the snapshot
+used, so the result can be reproduced even if a backbone releases a new
+version between the analysis and a reviewer’s check.</p>
+</div>
+<div class="section level3">
+<h3 id="backbone-specific-extras">Backbone-specific extras<a class="anchor" aria-label="anchor" href="#backbone-specific-extras"></a>
+</h3>
+<p>Three backbones have enrichment functions that join extra
+backbone-specific columns to a taxify result. Each fills only the rows
+matched by its own backbone; rows from other backbones get
+<code>NA</code> in the new columns.</p>
+<p><code><a href="../reference/add_wfo_info.html">add_wfo_info()</a></code> adds <code>scientificNameID</code>,
+<code>parentNameUsageID</code>, <code>namePublishedIn</code>,
+<code>higherClassification</code>, <code>taxonRemarks</code>, and
+<code>infraspecificEpithet</code>. <code>namePublishedIn</code> is
+useful for citing original descriptions, and
+<code>higherClassification</code> holds the full taxonomic hierarchy as
+a semicolon-separated string.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_wfo_info.html">add_wfo_info</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"namePublishedIn"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p><code><a href="../reference/add_col_info.html">add_col_info()</a></code> adds COL classification columns
+(<code>kingdom</code>, <code>phylum</code>, <code>col_class</code>,
+<code>order</code>), nomenclatural metadata (<code>notho</code>,
+<code>nomenclaturalCode</code>, <code>nomenclaturalStatus</code>,
+<code>namePublishedIn</code>), <code>infraspecificEpithet</code>, and
+SpeciesProfile flags (<code>is_extinct</code>, <code>is_marine</code>,
+<code>is_freshwater</code>, <code>is_terrestrial</code>). The
+<code>class</code> column is renamed to <code>col_class</code> to avoid
+conflict with R’s <code><a href="https://rdrr.io/r/base/class.html" class="external-link">class()</a></code> function. The SpeciesProfile
+flags come from a separate file in the COL DwC-A archive and can, for
+instance, exclude extinct species from a contemporary biodiversity
+analysis or separate marine from terrestrial taxa in an estuarine
+dataset.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_col_info.html">add_col_info</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check which species are marine</span></span>
+<span><span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">is_marine</span> <span class="op">==</span> <span class="cn">TRUE</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">is_marine</span><span class="op">)</span>,</span>
+<span>       <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"kingdom"</span>, <span class="st">"is_marine"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p><code><a href="../reference/add_gbif_info.html">add_gbif_info()</a></code> adds <code>notho_type</code> (hybrid
+type), <code>nom_status</code> (nomenclatural status),
+<code>bracket_authorship</code> (basionym author),
+<code>bracket_year</code>, <code>gbif_year</code>,
+<code>name_published_in</code>, <code>origin</code> (how the name
+entered the GBIF backbone), and <code>infra_specific_epithet</code>.
+<code>origin</code> values such as <code>"SOURCE"</code>,
+<code>"DENORMED_CLASSIFICATION"</code>, or
+<code>"VERBATIM_ACCEPTED"</code> record how GBIF ingested the name.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_gbif_info.html">add_gbif_info</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"origin"</span>, <span class="st">"nom_status"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>A multi-backbone result can pass through all three; each touches only
+rows from its own backbone:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_wfo_info.html">add_wfo_info</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_col_info.html">add_col_info</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_gbif_info.html">add_gbif_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The result is a wide data.frame with the union of all extra columns,
+where each row has only its own backbone’s columns populated and the
+rest <code>NA</code>. For most workflows the base 27 columns are enough;
+the extras matter when an analysis needs nomenclatural details, habitat
+flags, or publication references that the standard output does not
+include.</p>
+</div>
+<div class="section level3">
+<h3 id="diagnosing-out-of-scope-names">Diagnosing out-of-scope names<a class="anchor" aria-label="anchor" href="#diagnosing-out-of-scope-names"></a>
+</h3>
+<p><code><a href="../reference/lookup_genus.html">lookup_genus()</a></code> returns the genus register row for a
+single genus. The register is loaded into memory on the first call and
+cached for the session.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/lookup_genus.html">lookup_genus</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span>
+<span><span class="co">#   genus   kingdom phylum class   order   family   life_form</span></span>
+<span><span class="co"># 1 Quercus Plantae ...    ...     Fagales Fagaceae vascular plant</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/lookup_genus.html">lookup_genus</a></span><span class="op">(</span><span class="st">"Panthera"</span><span class="op">)</span></span>
+<span><span class="co">#   genus    kingdom  phylum   class    order     family  life_form</span></span>
+<span><span class="co"># 1 Panthera Animalia Chordata Mammalia Carnivora Felidae animal</span></span></code></pre></div>
+<p><code><a href="../reference/taxify_register_coverage.html">taxify_register_coverage()</a></code> shows which backbones contain
+a genus and at what version. If the genus does not appear for the
+requested backbone, a name in it is out of that backbone’s scope.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_register_coverage.html">taxify_register_coverage</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span>
+<span><span class="co">#     genus   backbone version date_added</span></span>
+<span><span class="co"># 1 Quercus  col     2025    2026-04-01</span></span>
+<span><span class="co"># 2 Quercus  gbif    current 2026-04-01</span></span>
+<span><span class="co"># 3 Quercus  wfo     2024-12 2026-04-01</span></span></code></pre></div>
+<p>A genus covered by all three backbones can be matched by any of them,
+while a genus covered only by GBIF (perhaps a recently described
+bacterial genus) will not match against WFO or COL.</p>
+<p>When an unmatched name’s genus is in the register but covered by none
+of the requested backbones, taxify sets
+<code>match_type = "out_of_scope"</code> instead of <code>"none"</code>.
+An out-of-scope result means the name likely exists in a different
+backbone, where a plain <code>"none"</code> leaves open whether it is a
+misspelling or an invalid name.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Trying to match a marine invertebrate against WFO (plants only)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Carcinus maenas"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="va">result</span><span class="op">$</span><span class="va">match_type</span></span>
+<span><span class="co"># [1] "out_of_scope"</span></span>
+<span></span>
+<span><span class="va">result</span><span class="op">$</span><span class="va">life_form</span></span>
+<span><span class="co"># [1] "animal"</span></span></code></pre></div>
+<p>The <code>life_form</code> column places the genus among animals, so
+WFO is the wrong backbone for this name. In a pipeline, the
+<code>"out_of_scope"</code> rows can be filtered and re-run against a
+broader backbone; including the right backbones in the chain from the
+start avoids the second pass. The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method of a
+taxify result tallies out-of-scope names by <code>life_form</code>.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="the-backbones">The backbones<a class="anchor" aria-label="anchor" href="#the-backbones"></a>
+</h2>
+<p>The table summarizes all
 <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->.
 “Approx. names” is the total number of name strings in the compiled
-backbone (accepted names plus synonyms); the actual species count is
-lower because each accepted species may have several synonym entries
-pointing to it.</p>
+backbone (accepted names plus synonyms); the species count is lower
+because each accepted species may have several synonym entries pointing
+to it.</p>
 <table class="table">
 <colgroup>
 <col width="15%">
@@ -276,77 +753,78 @@ Nomenclature</td>
 </tr>
 </tbody>
 </table>
-<p>A few things stand out. WFO is the standard reference for plant
-taxonomy, maintained by the World Flora Online consortium and updated
-regularly. The backbone includes all taxonomic ranks from kingdom down
-to form, with full synonym resolution and authorship.</p>
-<p>COL and GBIF both cover all kingdoms, but they differ in curation
-strategy. COL is an expert-curated checklist assembled from over 160
-sector databases, each maintained by a taxonomic authority for its
-group. GBIF’s backbone is assembled algorithmically from COL, ITIS, and
-dozens of other sources, which gives it broader raw coverage (~6.4M
-names vs COL’s ~5.3M) at the cost of occasional inconsistencies where
-source databases disagree. In practice, COL tends to give cleaner
-synonym resolution; GBIF tends to match more names.</p>
-<p>ITIS was originally developed for North American fauna and remains
-particularly strong on freshwater invertebrates, insects, and US-listed
-species. Its coverage of non-American taxa is uneven. The ITIS backbone
-is distributed as a SQLite dump; building it from source requires the
-RSQLite package. Pre-built <code>.vtr</code> backbones avoid this
-dependency.</p>
-<p>NCBI Taxonomy is the gold standard for sequence-linked work. Every
-GenBank, RefSeq, and BOLD sequence is linked to an NCBI tax_id, making
-this backbone essential for molecular ecology and metagenomics. It is
-also the only backbone that covers bacteria, archaea, and viruses in
-meaningful depth. However, NCBI Taxonomy does not store authorship data,
-so the <code>authorship</code> column is always <code>NA</code> for
+<p>WFO (Borsch et al. <a href="https://doi.org/10.1002/tax.12373" class="external-link">2020</a>) is the standard
+reference for plant taxonomy, maintained by the World Flora Online
+consortium and updated regularly. The backbone includes all taxonomic
+ranks from kingdom down to form, with full synonym resolution and
+authorship.</p>
+<p>COL (Banki et al. <a href="https://doi.org/10.48580/d4t2" class="external-link">2024</a>)
+and GBIF (GBIF Secretariat <a href="https://doi.org/10.15468/39omei" class="external-link">2024</a>) both cover all kingdoms
+with different curation strategies. COL is an expert-curated checklist
+assembled from over 160 sector databases, each maintained by a taxonomic
+authority for its group. GBIF’s backbone is assembled algorithmically
+from COL, ITIS, and dozens of other sources, which gives it broader raw
+coverage (~6.4M names against COL’s ~5.3M) and occasional
+inconsistencies where source databases disagree. In practice COL tends
+to give cleaner synonym resolution and GBIF tends to match more
+names.</p>
+<p>ITIS (<a href="https://doi.org/10.5066/F7KH0KBK" class="external-link">2025</a>) was
+originally developed for North American fauna and remains particularly
+strong on freshwater invertebrates, insects, and US-listed species; its
+coverage of non-American taxa is uneven. It is distributed as a SQLite
+dump, so building the backbone from source requires the RSQLite package,
+a dependency the pre-built <code>.vtr</code> avoids.</p>
+<p>NCBI Taxonomy is the reference taxonomy for sequence-linked work.
+Every GenBank, RefSeq, and BOLD sequence is linked to an NCBI tax_id,
+which makes this backbone essential for molecular ecology and
+metagenomics, and it is the only backbone that covers bacteria, archaea,
+and viruses in meaningful depth. NCBI Taxonomy stores no authorship
+data, so <code>authorship</code> is always <code>NA</code> for
 NCBI-matched rows.</p>
 <p>OTT (Open Tree of Life) is a synthetic taxonomy that merges NCBI,
 GBIF, WoRMS, IRMNG, and several other sources into a single tree. It has
-the broadest coverage of any single source and provides cross-references
-to all of its constituent databases via the <code>sourceinfo</code>
-field. The trade-off is that synthetic taxonomies can carry conflicts
-and inconsistencies at the edges, where source databases disagree about
-the placement of a taxon.</p>
-<p>WoRMS is the authoritative source for marine species. It is curated
-by a network of over 300 taxonomic editors and covers marine, brackish,
-and some freshwater species. Beyond basic taxonomy, the WoRMS backbone
+the broadest coverage of any single source and cross-references all of
+its constituent databases through the <code>sourceinfo</code> field.
+Synthetic taxonomies can carry conflicts and inconsistencies at the
+edges, where source databases disagree about the placement of a
+taxon.</p>
+<p>WoRMS is the authoritative source for marine species, curated by a
+network of over 300 taxonomic editors and covering marine, brackish, and
+some freshwater species. Beyond basic taxonomy, the WoRMS backbone
 stores habitat flags (marine, brackish, freshwater, terrestrial) and
-extinction status, some of which are accessible via the COL
+extinction status, some of which are accessible through the COL
 SpeciesProfile.</p>
-<p>Euro+Med PlantBase is the taxonomic reference for the flora of
-Europe, the Mediterranean, and the Caucasus. It covers all native and
-introduced vascular plants in its geographic scope (~49k accepted names,
-~83k synonyms). The backbone is built from the 2020 bulk download,
-updated via a PESI API delta refresh (April 2026) that resolved 1,014
-reclassifications and synonym changes cross-referenced against WFO and
-POWO. Euro+Med is particularly useful for European vegetation surveys
-and datasets aligned with the European Vegetation Archive (EVA). Its
-data is licensed CC BY-SA 3.0.</p>
+<p>Euro+Med PlantBase (<a href="https://europlusmed.org" class="external-link">2026</a>) is
+the taxonomic reference for the flora of Europe, the Mediterranean, and
+the Caucasus. It covers all native and introduced vascular plants in its
+geographic scope (~49k accepted names, ~83k synonyms). The backbone is
+built from the 2020 bulk download, updated by a PESI API delta refresh
+(April 2026) that resolved 1,014 reclassifications and synonym changes
+cross-referenced against WFO and POWO. It suits European vegetation
+surveys and datasets aligned with the European Vegetation Archive (EVA).
+Its data is licensed CC BY-SA 3.0.</p>
 <p>Species Fungorum Plus is the specialist reference for fungal
 taxonomy, with ~315k names curated by the Royal Botanic Gardens, Kew. It
 covers Ascomycota, Basidiomycota, and other fungal phyla, including
-anamorphs and teleomorphs. For purely mycological datasets, it gives
+anamorphs and teleomorphs, and for purely mycological datasets it gives
 better synonym resolution than generalist databases.</p>
 <p>AlgaeBase covers micro- and macroalgae, cyanobacteria, and some
 protists. It is the only backbone licensed CC BY-NC (non-commercial use
-only). All other backbones are open-access. taxify prints a license
-notice during AlgaeBase download to make this visible.</p>
-<p>FishBase and SeaLifeBase are the standard references for aquatic
-animals. FishBase covers fishes; SeaLifeBase covers the non-fish marine
-and aquatic groups (molluscs, crustaceans, marine mammals, and the
-rest). Both are compiled from the rfishbase package rather than a file
+only); all other backbones are open-access.</p>
+<p>FishBase covers fishes and SeaLifeBase the non-fish marine and
+aquatic groups (molluscs, crustaceans, marine mammals, and the rest).
+Both are compiled from the rfishbase package rather than a file
 download, taking accepted species from <code>load_taxa()</code> and
 synonym links from <code><a href="../reference/synonyms.html">synonyms()</a></code>. They carry species-rank rows
 only, so their genera enter the genus register derived from those
 species. The data is CC BY-NC 3.0.</p>
-<p>The Reptile Database is the taxonomic reference for reptiles, with
-~50k names covering snakes, lizards, turtles, crocodilians, and the
-tuatara. It is built from the reptarium bulk exports: the current
-accepted-species list, the periodic synonym snapshot, and the
-family-to-order checklist. The source carries no kingdom or class field,
-so the backbone stamps Animalia / Chordata / Reptilia on every row. The
-data is CC BY 4.0.</p>
+<p>The Reptile Database (Uetz et al. <a href="http://www.reptile-database.org" class="external-link">2026</a>) is the taxonomic
+reference for reptiles, with ~50k names covering snakes, lizards,
+turtles, crocodilians, and the tuatara. It is built from the reptarium
+bulk exports: the current accepted-species list, the periodic synonym
+snapshot, and the family-to-order checklist. The source carries no
+kingdom or class field, so the backbone stamps Animalia / Chordata /
+Reptilia on every row. The data is CC BY 4.0.</p>
 <p>The Mammal Diversity Database is the American Society of
 Mammalogists’ reference mammal taxonomy, distributed as a zip of CSVs
 holding the accepted species with their full higher classification and
@@ -359,544 +837,74 @@ column: where a species has since moved genus, its original combination
 is a synonym of the current name (<code>Parus caeruleus</code> -&gt;
 <code>Cyanistes caeruleus</code>). The data is CC BY 4.0.</p>
 <p>LPSN is the nomenclatural authority for prokaryotes, hosted by DSMZ,
-and it answers a question NCBI, GBIF, and OTT leave open: whether a
-bacterial or archaeal name is validly published. LPSN’s own download
+and it records whether a bacterial or archaeal name is validly
+published, which NCBI, GBIF, and OTT leave open. LPSN’s own download
 route sits behind a free DSMZ account, so the backbone is built from the
 open ColDP mirror on GBIF ChecklistBank. The data is CC BY-SA 4.0.</p>
 </div>
 <div class="section level2">
-<h2 id="downloading-backbones">Downloading backbones<a class="anchor" aria-label="anchor" href="#downloading-backbones"></a>
-</h2>
-<p>taxify auto-downloads backbones on first use. When we call
-<code>taxify(names, backbone = "wfo")</code> and no local WFO backbone
-exists, taxify fetches the pre-built <code>.vtr</code> file from the
-taxifydb release it is published under, writes it to
-<code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>, and caches the path for the remainder of
-the R session. Subsequent calls, whether in the same session or future
-sessions, reuse the local copy without any network access.</p>
-<p>To download a backbone ahead of time (useful on a shared server or in
-a Docker image), use <code><a href="../reference/taxify_download.html">taxify_download()</a></code>:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Download one backbone</span></span>
-<span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Download several at once</span></span>
-<span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"worms"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Pre-built <code>.vtr</code> files are published as GitHub Releases on
-<a href="https://github.com/gcol33/taxifydb" class="external-link">taxifydb</a>, one tag per
-backbone (<code>gbif-2026.06</code>, <code>algaebase-2026.06</code>),
-and range from 8 MB (AviList) to 2.0 GB (COL), depending on the
-backbone. The files are compiled from the raw Darwin Core sources with
-precomputed matching keys, embedded synonym resolution, and genus-level
-indexes, so they are ready for querying the moment the download
-completes.</p>
-<p>taxify checks for backbone updates once per R session. The first
-<code><a href="../reference/taxify.html">taxify()</a></code> call in a session fetches the manifest from
-GitHub, compares each requested backbone’s local version against the
-latest available release, and downloads a new version only if one
-exists. If the network is unavailable, taxify falls back to the bundled
-manifest and uses whatever local copy is on disk. The version check is
-logged to the console so there are no silent updates.</p>
-<p>For backbones with large source files, the build-from-source path
-also exists. <code>taxify_build("gbif")</code> downloads the raw 1.5 GB
-<code>simple.txt.gz</code> from GBIF, parses all 30 positional columns,
-denormalizes the family hierarchy via self-joins, and compiles the
-result into <code>.vtr</code> format. This is slower than downloading
-the pre-built file but produces the same output. The build-from-source
-path is mainly useful for CI pipelines or users who want to customize
-the compilation step.</p>
-<p>We can also pin a specific backbone version:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span>, version <span class="op">=</span> <span class="st">"2024.01"</span><span class="op">)</span></span></code></pre></div>
-<p>Pinned versions are stored in their own directory
-(<code>taxify_data_dir()/wfo/2024.01/</code>) and are never overwritten
-by future updates. The “latest” slot
-(<code>taxify_data_dir()/wfo/latest/</code>) is always overwritten when
-a newer version becomes available. Pinning is useful for
-reproducibility: a project can lock a specific backbone version and
-produce identical results regardless of when the analysis is re-run.</p>
-</div>
-<div class="section level2">
-<h2 id="single-backbone-matching">Single-backbone matching<a class="anchor" aria-label="anchor" href="#single-backbone-matching"></a>
-</h2>
-<p>The simplest use case: match plant names against WFO.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus robur"</span>,</span>
-<span>  <span class="st">"Quercus petraea"</span>,</span>
-<span>  <span class="st">"Pinus sylvestris"</span>,</span>
-<span>  <span class="st">"Acer pseudoplatanus"</span>,</span>
-<span>  <span class="st">"Betula pendula"</span>,</span>
-<span>  <span class="st">"Fagus sylvatica"</span>,</span>
-<span>  <span class="st">"Picea abies"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"family"</span>, <span class="st">"match_type"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<p>Every row in the output has 26 columns regardless of which backbone
-produced it: <code>input_name</code>, <code>matched_name</code>,
-<code>accepted_name</code>, <code>taxon_id</code>,
-<code>accepted_id</code>, <code>rank</code>, <code>family</code>,
-<code>genus</code>, <code>epithet</code>, <code>authorship</code>,
-<code>accepted_authorship</code>, <code>is_synonym</code>,
-<code>is_hybrid</code>, <code>match_type</code>,
-<code>fuzzy_dist</code>, <code>is_ambiguous</code>,
-<code>ambiguous_targets</code>, <code>backbone</code>,
-<code>backbone_version</code>, <code>kingdom_group</code>,
-<code>taxon_group</code>, <code>life_form</code>,
-<code>qualifier</code>, <code>qualifier_position</code>,
-<code>aggregate_fallback</code>, and <code>hybrid_type</code>. The
-<code>backbone</code> column records <code>"wfo"</code> for matched rows
-and <code>NA</code> for unmatched ones. The
-<code>backbone_version</code> column records the backbone name, version,
-and download date (e.g., <code>"wfo:2024-12 (2026-04-01)"</code>) so we
-can cite the exact data snapshot used.</p>
-<p>When a name matches a synonym, taxify automatically resolves it to
-the accepted name. The <code>matched_name</code> column shows the name
-string that actually matched in the backbone (which may be a synonym),
-while <code>accepted_name</code> shows the current accepted name after
-resolution. The <code>is_synonym</code> column is <code>TRUE</code> for
-resolved synonyms, <code>FALSE</code> for direct matches.</p>
-<p>Fuzzy matching is on by default with a normalized Damerau-Levenshtein
-threshold of 0.2, roughly one edit per five characters. This catches
-common typos like transposed letters or missing diacritics. We can
-tighten the threshold for stricter matching:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
-<p>Or disable fuzzy matching entirely to only accept exact and
-case-insensitive matches:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p>Two alternative distance metrics are available via the
-<code>fuzzy_method</code> argument: <code>"levenshtein"</code> (standard
-Levenshtein, no transposition handling) and <code>"jw"</code>
-(Jaro-Winkler, better for names that differ mainly in their beginnings).
-The default <code>"dl"</code> (Damerau-Levenshtein) is a good
-all-rounder.</p>
-</div>
-<div class="section level2">
-<h2 id="backend-specific-output-differences">Backend-specific output differences<a class="anchor" aria-label="anchor" href="#backend-specific-output-differences"></a>
+<h2 id="output-differences-between-backbones">Output differences between backbones<a class="anchor" aria-label="anchor" href="#output-differences-between-backbones"></a>
 </h2>
 <p>All
 <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
-backbones produce the same 26-column output schema. This is a deliberate
-design choice: downstream code does not need to know which backbone
-produced a match. That said, the content of those columns varies in ways
-worth knowing about.</p>
+backbones produce the same 27-column output schema, so downstream code
+does not need to know which backbone produced a match. The content of
+those columns varies in several ways.</p>
 <p><strong>Authorship.</strong> WFO’s <code>scientificName</code> is
 already canonical (no authorship appended), so the
 <code>authorship</code> column comes from a separate
 <code>scientificNameAuthorship</code> field. COL and WoRMS store the
 full <code>scientificName</code> with authorship included; taxify strips
-it at build time to produce the canonical name used for matching, and
-the stripped authorship is stored separately. NCBI and OTT have no
-authorship data at all, so the <code>authorship</code> column is always
-<code>NA</code> for those backbones. GBIF and ITIS provide authorship.
-Euro+Med provides authorship from its <code>AuthorString</code> field.
-Species Fungorum and AlgaeBase provide authorship from their DwC-A
-archives.</p>
+it at build time to produce the canonical name used for matching and
+stores the stripped authorship separately. NCBI and OTT have no
+authorship data, so <code>authorship</code> is always <code>NA</code>
+for those backbones. GBIF and ITIS provide authorship, Euro+Med provides
+it from its <code>AuthorString</code> field, and Species Fungorum and
+AlgaeBase from their DwC-A archives.</p>
 <p><strong>Taxon IDs.</strong> Each backbone uses a different identifier
 system. WFO IDs look like <code>"wfo-0000000123"</code>. COL IDs are
 opaque alphanumeric strings like <code>"4LHBG"</code>. GBIF uses integer
-keys (<code>"2878688"</code>). ITIS uses TSN integers
-(<code>"183671"</code>). NCBI uses NCBI Taxonomy IDs
-(<code>"9606"</code>). OTT uses OTT IDs (<code>"770315"</code>). WoRMS
-uses AphiaIDs extracted from LSIDs; during build time, taxify strips the
+keys (<code>"2878688"</code>), ITIS TSN integers
+(<code>"183671"</code>), NCBI its Taxonomy IDs (<code>"9606"</code>),
+and OTT its own IDs (<code>"770315"</code>). WoRMS uses AphiaIDs
+extracted from LSIDs: at build time taxify strips the
 <code>urn:lsid:marinespecies.org:taxname:</code> prefix and stores just
 the numeric ID. Euro+Med uses <code>TaxonUsageID</code> integers from
-the PlantBase export. Species Fungorum and AlgaeBase use ChecklistBank
-dataset-specific IDs. All IDs are stored as character strings in the
-<code>taxon_id</code> and <code>accepted_id</code> columns for
-consistency, but their format is backbone-specific and meaningful only
-within that backbone’s ecosystem. A <code>taxon_id</code> from WFO
-cannot be looked up in the COL database, and vice versa.</p>
+the PlantBase export, and Species Fungorum and AlgaeBase use
+ChecklistBank dataset-specific IDs. All IDs are stored as character
+strings in <code>taxon_id</code> and <code>accepted_id</code>, but their
+format is backbone-specific and meaningful only within that backbone’s
+ecosystem: a <code>taxon_id</code> from WFO cannot be looked up in the
+COL database, and vice versa.</p>
 <p><strong>Classification depth.</strong> The base output always
 includes <code>family</code> and <code>genus</code>. WFO provides these
 directly from its classification file. COL stores the full Linnaean
-hierarchy (kingdom through order) in the Taxon.tsv, though these extra
-columns require <code><a href="../reference/add_col_info.html">add_col_info()</a></code> to access. GBIF provides
-family through a denormalized <code>family_key</code> self-join at build
-time. ITIS, NCBI, and OTT resolve family and genus via parent-hierarchy
-walks during backbone compilation; the walk traverses up to 25 levels of
-the taxonomic tree. WoRMS has denormalized classification columns
-directly in its DwC-A. Euro+Med resolves family and genus via a
-hierarchy walk on <code>IsChildTaxonOfID</code>. The genus register
-(covered later in this vignette) fills in higher classification fields
-(<code>kingdom_group</code>, <code>taxon_group</code>,
-<code>life_form</code>) for all backbones.</p>
-<p><strong>Synonym handling.</strong> The backbones represent synonymy
-in very different ways internally. WFO and COL use the Darwin Core field
-<code>acceptedNameUsageID</code> to point from a synonym row to its
-accepted name. GBIF encodes synonyms via <code>parent_key</code>
+hierarchy (kingdom through order) in the Taxon.tsv, though the extra
+columns require <code><a href="../reference/add_col_info.html">add_col_info()</a></code>. GBIF provides family
+through a denormalized <code>family_key</code> self-join at build time.
+ITIS, NCBI, and OTT resolve family and genus by parent-hierarchy walks
+during backbone compilation, which traverse up to 25 levels of the
+taxonomic tree. WoRMS has denormalized classification columns in its
+DwC-A, and Euro+Med resolves family and genus by a hierarchy walk on
+<code>IsChildTaxonOfID</code>. The genus register fills in the higher
+classification fields (<code>kingdom_group</code>,
+<code>taxon_group</code>, <code>life_form</code>) for all backbones.</p>
+<p><strong>Synonym handling.</strong> WFO and COL use the Darwin Core
+field <code>acceptedNameUsageID</code> to point from a synonym row to
+its accepted name. GBIF encodes synonyms through <code>parent_key</code>
 pointing to the accepted taxon. NCBI represents synonyms as alternative
-name strings for the same <code>tax_id</code>; during build, taxify
+name strings for the same <code>tax_id</code>; at build time taxify
 emits these as separate rows with synthetic IDs of the form
 <code>"123456_syn_1"</code>, <code>"123456_syn_2"</code>, etc. OTT uses
 a separate <code>synonyms.tsv</code> file with explicit
 synonym-to-accepted mappings. All of these representations are
 normalized at build time into the same <code>is_synonym</code> +
-<code>accepted_name</code> + <code>accepted_id</code> schema, so the
-output looks the same regardless of source.</p>
+<code>accepted_name</code> + <code>accepted_id</code> schema.</p>
 <p><strong>Synonym chains.</strong> Some backbones contain chained
 synonyms, where synonym A points to synonym B, which points to accepted
-name C. taxify resolves these chains at build time (up to 10 hops) so
-the <code>accepted_name</code> always points to the terminal accepted
-name. This happens transparently during backbone compilation and does
-not affect query-time performance.</p>
-</div>
-<div class="section level2">
-<h2 id="multi-backbone-fallback-chains">Multi-backbone fallback chains<a class="anchor" aria-label="anchor" href="#multi-backbone-fallback-chains"></a>
-</h2>
-<p>When a species list spans multiple kingdoms, a single backbone may
-not cover everything. A wetland monitoring dataset might contain
-vascular plants, invertebrates, amphibians, algae, and fungi. No single
-backbone covers all of these equally well. taxify’s fallback chain
-handles this: we pass a vector of backbone names, and names are matched
-against each backbone in order. A name matched by an earlier backbone is
-never re-matched by a later one; it is removed from the pool.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus robur"</span>,       <span class="co"># plant</span></span>
-<span>  <span class="st">"Panthera leo"</span>,        <span class="co"># animal</span></span>
-<span>  <span class="st">"Amanita muscaria"</span>,    <span class="co"># fungus</span></span>
-<span>  <span class="st">"Salmo trutta"</span>,        <span class="co"># fish</span></span>
-<span>  <span class="st">"Escherichia coli"</span>     <span class="co"># bacterium</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">mixed</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"match_type"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<p>The console output during matching shows the chain in action:</p>
-<pre><code>Matching 5 names against 3 backbones: wfo -&gt; col -&gt; gbif
-  [wfo] Matching 5 names...
-  [col] Matching 4 remaining names...
-  [gbif] Matching 1 remaining names...</code></pre>
-<p><code>"Quercus robur"</code> matches in WFO and is removed from the
-pool. The remaining four names go to COL. If any are still unmatched
-after COL (perhaps an obscure bacterial name), they go to GBIF. The
-process continues until all names have been tried against all backbones
-or all names have matched.</p>
-<p>The order of backbones in the vector matters. It determines which
-taxonomic opinion wins for each name. If <code>"Quercus robur"</code>
-exists in both WFO and COL, putting WFO first means WFO’s taxonomic
-opinion is used (its accepted name, family assignment, synonym
-resolution). Putting COL first would give COL’s opinion. For names that
-exist in multiple backbones, the first backbone in the chain always
-wins.</p>
-<p>This has practical consequences. If we put GBIF first, everything
-would match there (GBIF has ~6.4M names, the largest of any backbone)
-and the curated opinions from WFO, COL, or WoRMS would never be
-consulted. For a plant-heavy list with some non-plant taxa mixed in,
-<code>c("wfo", "col")</code> or <code>c("wfo", "col", "gbif")</code> is
-a sensible ordering: we get WFO’s curated plant taxonomy for plants, and
-COL or GBIF picks up the rest.</p>
-<p>If all names have been matched by earlier backbones, later backbones
-are skipped entirely with a message:</p>
-<pre><code>  [gbif] Skipped (all names matched)</code></pre>
-<p>Fuzzy matching runs independently within each backbone in the chain.
-A name that fails exact matching in WFO gets fuzzy-matched against WFO.
-If it still fails, it moves to the next backbone and gets exact-matched,
-then fuzzy-matched there. This means a misspelled plant name has the
-best chance of matching in WFO (the plant-specialist backbone) before
-falling through to COL or GBIF.</p>
-<div class="section level3">
-<h3 id="worked-example-plants-only-with-wfo-vs-wfo-col">Worked example: plants-only with WFO vs WFO + COL<a class="anchor" aria-label="anchor" href="#worked-example-plants-only-with-wfo-vs-wfo-col"></a>
-</h3>
-<p>WFO focuses on accepted vascular plant and bryophyte names. Its
-coverage is excellent for current taxonomy, but names that appear only
-in older literature, belong to genera not yet integrated into WFO, or
-are nomenclaturally orphaned (no clear accepted name) may be absent. COL
-inherits WFO’s plant taxonomy as one of its sector databases but
-supplements it with names from other sources, including historical
-synonyms and cultivar names.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus robur"</span>,</span>
-<span>  <span class="st">"Quercus petraea"</span>,</span>
-<span>  <span class="st">"Pinus sylvestris"</span>,</span>
-<span>  <span class="st">"Acer pseudoplatanus"</span>,</span>
-<span>  <span class="st">"Coffea arabica"</span>,</span>
-<span>  <span class="st">"Welwitschia mirabilis"</span>,</span>
-<span>  <span class="st">"Lepidodendron aculeatum"</span>,   <span class="co"># extinct lycopsid</span></span>
-<span>  <span class="st">"Nothofagus cunninghamii"</span>,</span>
-<span>  <span class="st">"Dracaena draco"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># WFO alone</span></span>
-<span><span class="va">wfo_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">wfo_result</span><span class="op">$</span><span class="va">match_type</span><span class="op">)</span></span></code></pre></div>
-<p>If any names come back as <code>"none"</code>, we can add COL as a
-fallback:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># WFO first, COL as fallback</span></span>
-<span><span class="va">both_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">both_result</span><span class="op">$</span><span class="va">match_type</span><span class="op">)</span></span>
-<span><span class="va">both_result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<p>The <code>backbone</code> column now shows <code>"wfo"</code> for
-names matched by WFO and <code>"col"</code> for names that only COL
-could resolve. This tells us exactly where each match came from, which
-matters for reproducibility. In a paper’s methods section, we can state
-“plant names were resolved against WFO 2024-12, with unmatched names
-resolved against COL 2025.”</p>
-<p>The two-backbone chain is especially valuable for large vegetation
-plot datasets. Most names resolve in WFO with its plant-optimized
-taxonomy, but the handful of edge cases (cultivars, historical names,
-genera recently moved between families) that fall through to COL would
-otherwise require manual resolution.</p>
-</div>
-<div class="section level3">
-<h3 id="worked-example-mixed-kingdom-list-with-col-gbif-worms">Worked example: mixed-kingdom list with COL + GBIF + WoRMS<a class="anchor" aria-label="anchor" href="#worked-example-mixed-kingdom-list-with-col-gbif-worms"></a>
-</h3>
-<p>An ecological monitoring dataset from a coastal estuary might contain
-vascular plants, invertebrates, fish, and marine algae. No single
-backbone covers all of these well. COL has broad expert-curated coverage
-across kingdoms. GBIF fills gaps with its larger name pool. WoRMS
-provides an authoritative backstop for marine invertebrate synonymy,
-which can be slow to propagate to generalist databases.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">estuary_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Zostera marina"</span>,              <span class="co"># seagrass (plant)</span></span>
-<span>  <span class="st">"Salicornia europaea"</span>,         <span class="co"># glasswort (plant)</span></span>
-<span>  <span class="st">"Carcinus maenas"</span>,             <span class="co"># shore crab</span></span>
-<span>  <span class="st">"Mytilus edulis"</span>,              <span class="co"># blue mussel</span></span>
-<span>  <span class="st">"Platichthys flesus"</span>,          <span class="co"># European flounder</span></span>
-<span>  <span class="st">"Nereis diversicolor"</span>,         <span class="co"># ragworm</span></span>
-<span>  <span class="st">"Fucus vesiculosus"</span>,           <span class="co"># bladderwrack (brown alga)</span></span>
-<span>  <span class="st">"Littorina littorea"</span>,          <span class="co"># common periwinkle</span></span>
-<span>  <span class="st">"Arenicola marina"</span>,            <span class="co"># lugworm</span></span>
-<span>  <span class="st">"Cerastoderma edule"</span>           <span class="co"># common cockle</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">estuary_species</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"gbif"</span>, <span class="st">"worms"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"family"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<p>COL is a good first choice here because it covers all kingdoms with
-expert curation. Most of these names will resolve there. GBIF catches
-anything COL might miss, including names from national checklists that
-have not yet been incorporated into COL. WoRMS serves as a final
-backstop specifically for marine taxa, covering invertebrate synonyms
-that may lag in generalist databases. The chain is ordered from highest
-curation to broadest coverage.</p>
-<p>If the list were predominantly marine with only a few terrestrial
-taxa, we might lead with WoRMS instead to ensure its authoritative
-marine taxonomy takes precedence:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">estuary_species</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"worms"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="worked-example-fungi-with-species-fungorum-col-fallback">Worked example: fungi with Species Fungorum + COL fallback<a class="anchor" aria-label="anchor" href="#worked-example-fungi-with-species-fungorum-col-fallback"></a>
-</h3>
-<p>Mycological datasets benefit from using Species Fungorum Plus as the
-primary backbone. It is curated specifically for fungi, with ~315k names
-including anamorphs, teleomorphs, and the pleomorphic naming changes
-introduced by the 2011 Melbourne Code. Synonym coverage for fungal
-genera is better than in generalist databases, where fungal taxonomy is
-often a secondary concern.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fungi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Amanita muscaria"</span>,</span>
-<span>  <span class="st">"Boletus edulis"</span>,</span>
-<span>  <span class="st">"Cantharellus cibarius"</span>,</span>
-<span>  <span class="st">"Tuber melanosporum"</span>,</span>
-<span>  <span class="st">"Saccharomyces cerevisiae"</span>,</span>
-<span>  <span class="st">"Aspergillus niger"</span>,</span>
-<span>  <span class="st">"Penicillium chrysogenum"</span>,</span>
-<span>  <span class="st">"Agaricus bisporus"</span>,</span>
-<span>  <span class="st">"Trametes versicolor"</span>,</span>
-<span>  <span class="st">"Cordyceps militaris"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">fungi</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fungorum"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"is_synonym"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<p>Species Fungorum resolves the standard names. If any obscure,
-recently described, or historically orphaned species fall through, COL
-picks them up. For mixed datasets that include both fungi and plants, a
-three-backbone chain works well:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus robur"</span>,              <span class="co"># plant</span></span>
-<span>  <span class="st">"Amanita muscaria"</span>,           <span class="co"># fungus</span></span>
-<span>  <span class="st">"Lactarius deliciosus"</span>,       <span class="co"># fungus</span></span>
-<span>  <span class="st">"Pinus sylvestris"</span>,           <span class="co"># plant</span></span>
-<span>  <span class="st">"Russula emetica"</span>             <span class="co"># fungus</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">mixed</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"fungorum"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>WFO handles plants, Species Fungorum handles fungi, and COL serves as
-a catch-all for anything that falls through both specialist backbones.
-The genus register (see below) helps taxify skip backbones that cannot
-possibly match a given name. When taxify encounters
-<code>"Amanita muscaria"</code> and the genus <code>Amanita</code> is
-not in WFO’s coverage table, the name is marked out-of-scope for WFO
-immediately and passed to the next backbone without wasting time on
-fuzzy matching.</p>
-</div>
-<div class="section level3">
-<h3 id="worked-example-algae">Worked example: algae<a class="anchor" aria-label="anchor" href="#worked-example-algae"></a>
-</h3>
-<p>For algal taxonomy, AlgaeBase is the specialist source. It covers
-micro- and macroalgae, cyanobacteria, and some protists. Its curation is
-particularly strong for freshwater and marine microalgae where
-generalist databases often have thin coverage and outdated synonymy.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">algae</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Chlamydomonas reinhardtii"</span>,</span>
-<span>  <span class="st">"Chlorella vulgaris"</span>,</span>
-<span>  <span class="st">"Ulva lactuca"</span>,</span>
-<span>  <span class="st">"Fucus vesiculosus"</span>,</span>
-<span>  <span class="st">"Sargassum muticum"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">algae</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"algaebase"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<p>AlgaeBase is licensed CC BY-NC. taxify prints a license notice during
-download so users are aware of the restriction before incorporating the
-data into a workflow. For commercial applications, COL or WoRMS can
-serve as alternatives, though with less specialized algal coverage.</p>
-</div>
-<div class="section level3">
-<h3 id="worked-example-molecular-ecology-with-ncbi">Worked example: molecular ecology with NCBI<a class="anchor" aria-label="anchor" href="#worked-example-molecular-ecology-with-ncbi"></a>
-</h3>
-<p>When reconciling species lists from metabarcoding or eDNA studies,
-names are often linked to NCBI accessions. Using the NCBI backbone
-ensures that taxify’s accepted names align with the same taxonomy used
-in GenBank and BOLD.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">edna_hits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Salmo trutta"</span>,</span>
-<span>  <span class="st">"Phoxinus phoxinus"</span>,</span>
-<span>  <span class="st">"Anguilla anguilla"</span>,</span>
-<span>  <span class="st">"Cottus gobio"</span>,</span>
-<span>  <span class="st">"Lampetra planeri"</span>,</span>
-<span>  <span class="st">"Chironomus riparius"</span>,     <span class="co"># midge (insect)</span></span>
-<span>  <span class="st">"Potamopyrgus antipodarum"</span> <span class="co"># New Zealand mud snail</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">edna_hits</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ncbi"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"taxon_id"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<p>The <code>taxon_id</code> values for NCBI-matched rows are NCBI
-tax_ids, which can be used directly to link back to GenBank records or
-NCBI taxonomy pages. For names not found in NCBI (e.g., taxa without
-sequenced representatives), COL provides a fallback.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="the-backbone-column">The backbone column<a class="anchor" aria-label="anchor" href="#the-backbone-column"></a>
-</h2>
-<p>The <code>backbone</code> column in taxify’s output is a plain
-character column. For single-backbone calls, every matched row shows the
-same backbone name. For multi-backbone chains, the column records which
-backbone produced each match. Unmatched rows have
-<code>backbone = NA</code>.</p>
-<p>We can use this column to count how many names each backbone
-resolved:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span>, useNA <span class="op">=</span> <span class="st">"ifany"</span><span class="op">)</span></span></code></pre></div>
-<p>Or filter to rows matched by a specific backbone:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">wfo_matches</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span> <span class="op">==</span> <span class="st">"wfo"</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="va">col_matches</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span> <span class="op">==</span> <span class="st">"col"</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
-<p>This is useful for quality control. If we expected a purely
-plant-based list but see many names matched by COL instead of WFO, that
-tells us the list contains names outside WFO’s scope (perhaps algae
-classified as plants in older literature, or animal-associated organisms
-like plant parasites).</p>
-<p>The <code>backbone_version</code> column gives the full provenance
-string for each row, combining the backbone name, version, and download
-date. For a paper’s methods section, we can extract the unique versions
-used:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone_version</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">backbone_version</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co"># e.g., c("wfo:2024-12 (2026-04-01)", "col:2025 (2026-04-01)")</span></span></code></pre></div>
-<p>These provenance strings identify both the taxonomic source and the
-exact snapshot used, making results fully reproducible even if the
-backbone releases a new version between when we run the analysis and
-when a reviewer checks it.</p>
-</div>
-<div class="section level2">
-<h2 id="backend-specific-extras">Backend-specific extras<a class="anchor" aria-label="anchor" href="#backend-specific-extras"></a>
-</h2>
-<p>Three backbones have dedicated enrichment functions that join
-additional backbone-specific columns to a taxify result. These functions
-only enrich rows that were matched by the corresponding backbone; rows
-from other backbones get <code>NA</code> in the new columns.</p>
-<div class="section level3">
-<h3 id="wfo-extras-add_wfo_info">WFO extras: <code>add_wfo_info()</code><a class="anchor" aria-label="anchor" href="#wfo-extras-add_wfo_info"></a>
-</h3>
-<p>Adds WFO-specific columns: <code>scientificNameID</code>,
-<code>parentNameUsageID</code>, <code>namePublishedIn</code>,
-<code>higherClassification</code>, <code>taxonRemarks</code>, and
-<code>infraspecificEpithet</code>. The <code>namePublishedIn</code>
-field is particularly useful for citing original descriptions, and
-<code>higherClassification</code> provides the full taxonomic hierarchy
-as a semicolon-separated string.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plants</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_wfo_info.html">add_wfo_info</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"namePublishedIn"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="col-extras-add_col_info">COL extras: <code>add_col_info()</code><a class="anchor" aria-label="anchor" href="#col-extras-add_col_info"></a>
-</h3>
-<p>Adds COL classification columns (<code>kingdom</code>,
-<code>phylum</code>, <code>col_class</code>, <code>order</code>),
-nomenclatural metadata (<code>notho</code>,
-<code>nomenclaturalCode</code>, <code>nomenclaturalStatus</code>,
-<code>namePublishedIn</code>), <code>infraspecificEpithet</code>, and
-SpeciesProfile flags (<code>is_extinct</code>, <code>is_marine</code>,
-<code>is_freshwater</code>, <code>is_terrestrial</code>). The
-<code>class</code> column is renamed to <code>col_class</code> to avoid
-conflict with R’s <code><a href="https://rdrr.io/r/base/class.html" class="external-link">class()</a></code> function.</p>
-<p>The SpeciesProfile flags come from a separate file in the COL DwC-A
-archive. They are especially useful for filtering: we can, for instance,
-exclude extinct species from a contemporary biodiversity analysis, or
-separate marine from terrestrial taxa in an estuarine dataset.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_col_info.html">add_col_info</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Check which species are marine</span></span>
-<span><span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">is_marine</span> <span class="op">==</span> <span class="cn">TRUE</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">is_marine</span><span class="op">)</span>,</span>
-<span>       <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"kingdom"</span>, <span class="st">"is_marine"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="gbif-extras-add_gbif_info">GBIF extras: <code>add_gbif_info()</code><a class="anchor" aria-label="anchor" href="#gbif-extras-add_gbif_info"></a>
-</h3>
-<p>Adds GBIF-specific columns: <code>notho_type</code> (hybrid type),
-<code>nom_status</code> (nomenclatural status),
-<code>bracket_authorship</code> (basionym author),
-<code>bracket_year</code>, <code>gbif_year</code>,
-<code>name_published_in</code>, <code>origin</code> (how the name
-entered the GBIF backbone), and <code>infra_specific_epithet</code>. The
-<code>origin</code> field is useful for understanding provenance: values
-like <code>"SOURCE"</code>, <code>"DENORMED_CLASSIFICATION"</code>, or
-<code>"VERBATIM_ACCEPTED"</code> indicate how GBIF ingested the
-name.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_gbif_info.html">add_gbif_info</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"origin"</span>, <span class="st">"nom_status"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="combining-extras-in-a-multi-backbone-result">Combining extras in a multi-backbone result<a class="anchor" aria-label="anchor" href="#combining-extras-in-a-multi-backbone-result"></a>
-</h3>
-<p>In a multi-backbone result, we can pipe through multiple enrichment
-functions. Each one only touches rows from its own backbone; the others
-are left alone.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_wfo_info.html">add_wfo_info</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_col_info.html">add_col_info</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_gbif_info.html">add_gbif_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>This produces a wide data.frame with the union of all extra columns.
-For a given row, only the columns from its backbone are populated; the
-rest are <code>NA</code>. Whether this is useful depends on the
-analysis. For most workflows, the base 26 columns are sufficient, and
-backbone-specific extras are only needed when we require nomenclatural
-details, habitat flags, or publication references that the standard
-output does not include.</p>
-</div>
+name C. taxify resolves these chains at build time (up to 10 hops), so
+<code>accepted_name</code> always points to the terminal accepted name,
+at no cost to query-time performance.</p>
 </div>
 <div class="section level2">
 <h2 id="the-genus-register">The genus register<a class="anchor" aria-label="anchor" href="#the-genus-register"></a>
@@ -911,208 +919,155 @@ resolved by priority: WoRMS, COL Extended Release, COL, WCVP, Reptile
 Database, MDD, AviList, LPSN, GBIF, Euro+Med, LCVP, ITIS, NCBI, OTT,
 WFO, FishBase, SeaLifeBase, Species Fungorum, AlgaeBase. If COL and WFO
 disagree, COL’s assignment wins.</p>
-<p>The register is built by taxifydb over that fixed backbone set and
-published as a versioned asset, the same way each backbone is, so it
-arrives by download rather than by a local build. taxify resolves it on
-first use: local disk, then the manifest download, then a local build
-through <code><a href="../reference/taxify_build_register.html">taxify_build_register()</a></code> (equivalently
-<code>taxify_download("register")</code>) if taxifydb is installed.
-Building it from whichever backbones a given machine happened to have
-installed is what the published asset replaced, because it made the same
-code report different <code>kingdom_group</code> and
-<code>life_form</code> labels on two machines.</p>
-<p>A <code>backend_coverage</code> asset ships alongside it, one row per
-genus and backbone, which is what
+<p>taxifydb builds the register over that fixed backbone set and
+publishes it as a versioned asset, the same way it publishes each
+backbone, so it arrives by download. taxify resolves it on first use:
+local disk, then the manifest download, then a local build through
+<code><a href="../reference/taxify_build_register.html">taxify_build_register()</a></code> (equivalently
+<code>taxify_download("register")</code>) if taxifydb is installed. A
+register built from whichever backbones a machine happened to have
+installed made the same code report different <code>kingdom_group</code>
+and <code>life_form</code> labels on two machines, which the published
+asset prevents. A <code>backend_coverage</code> asset ships alongside
+it, one row per genus and backbone, and is what
 <code><a href="../reference/taxify_register_coverage.html">taxify_register_coverage()</a></code> reads.</p>
-<p>The register serves two purposes in taxify’s matching pipeline.
-First, it provides <code>life_form</code>, <code>kingdom_group</code>,
-and <code>taxon_group</code> columns in taxify output for every matched
-name, regardless of which backbone matched it. These columns make it
-possible to stratify results by broad taxonomic group without needing to
-look up each family manually.</p>
-<p>Second, the register enables out-of-scope detection. Before fuzzy
-matching begins, taxify checks whether an unmatched name’s genus is in
-the register. If the genus is known (it appears in the register) but not
-covered by any of the requested backbones (it does not appear in the
-backbone coverage table), taxify marks the name as
-<code>"out_of_scope"</code> immediately. This avoids wasting time on
-fuzzy matching against a backbone that could never produce a match, and
-gives the user a more informative signal than a plain
-<code>"none"</code>.</p>
-<div class="section level3">
-<h3 id="looking-up-a-genus">Looking up a genus<a class="anchor" aria-label="anchor" href="#looking-up-a-genus"></a>
-</h3>
-<p><code><a href="../reference/lookup_genus.html">lookup_genus()</a></code> returns the register row for a single
-genus. The register is loaded into memory on first call and cached for
-the session.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/lookup_genus.html">lookup_genus</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span>
-<span><span class="co">#   genus   kingdom phylum class   order   family   life_form</span></span>
-<span><span class="co"># 1 Quercus Plantae ...    ...     Fagales Fagaceae vascular plant</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/lookup_genus.html">lookup_genus</a></span><span class="op">(</span><span class="st">"Panthera"</span><span class="op">)</span></span>
-<span><span class="co">#   genus    kingdom  phylum   class    order     family  life_form</span></span>
-<span><span class="co"># 1 Panthera Animalia Chordata Mammalia Carnivora Felidae animal</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="checking-backbone-coverage">Checking backbone coverage<a class="anchor" aria-label="anchor" href="#checking-backbone-coverage"></a>
-</h3>
-<p><code><a href="../reference/taxify_register_coverage.html">taxify_register_coverage()</a></code> shows which backbones contain
-a given genus and at what version. This is useful when diagnosing match
-failures: if the genus does not appear in the coverage table for the
-requested backbone, the name is genuinely out of scope for that
-backbone.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_register_coverage.html">taxify_register_coverage</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span>
-<span><span class="co">#     genus   backbone version date_added</span></span>
-<span><span class="co"># 1 Quercus  col     2025    2026-04-01</span></span>
-<span><span class="co"># 2 Quercus  gbif    current 2026-04-01</span></span>
-<span><span class="co"># 3 Quercus  wfo     2024-12 2026-04-01</span></span></code></pre></div>
-<p>A genus covered by all three backbones can be matched by any of them.
-A genus covered only by GBIF (perhaps a recently described bacterial
-genus) will not match against WFO or COL.</p>
-</div>
-<div class="section level3">
-<h3 id="out-of-scope-detection-in-practice">Out-of-scope detection in practice<a class="anchor" aria-label="anchor" href="#out-of-scope-detection-in-practice"></a>
-</h3>
-<p>When taxify encounters an unmatched name whose genus appears in the
-register but is not covered by any of the requested backbones, it sets
-<code>match_type = "out_of_scope"</code> instead of <code>"none"</code>.
-This distinction carries information: an out-of-scope result means the
-name likely exists in a different backbone rather than being a
-misspelling or invalid name.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Trying to match a marine invertebrate against WFO (plants only)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Carcinus maenas"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">$</span><span class="va">match_type</span></span>
-<span><span class="co"># [1] "out_of_scope"</span></span>
-<span></span>
-<span><span class="va">result</span><span class="op">$</span><span class="va">life_form</span></span>
-<span><span class="co"># [1] "animal"</span></span></code></pre></div>
-<p>The <code>life_form</code> column tells us the genus belongs to
-animals, confirming that WFO is the wrong backbone for this name. In a
-pipeline, we can filter for <code>"out_of_scope"</code> rows and re-run
-them against a broader backbone. Or, more practically, we include the
-right backbones in the fallback chain from the start, and the
-out-of-scope mechanism saves time by skipping the fuzzy matching step
-for names that cannot possibly match.</p>
-<p>The taxify result’s <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method includes a tally of
-out-of-scope names broken down by <code>taxon_group</code>, making it
-easy to see at a glance what kinds of organisms were outside the
-requested backbone’s scope.</p>
-</div>
+<p>The register serves two purposes in matching. It supplies the
+<code>life_form</code>, <code>kingdom_group</code>, and
+<code>taxon_group</code> columns for every matched name, regardless of
+which backbone matched it, so results can be stratified by broad
+taxonomic group without looking up each family. It also enables
+out-of-scope detection: before fuzzy matching begins, taxify checks
+whether an unmatched name’s genus is known to the register but absent
+from the coverage table of every requested backbone, and if so marks the
+name <code>"out_of_scope"</code> immediately. This skips fuzzy matching
+against a backbone that could never produce a match and gives a more
+informative signal than a plain <code>"none"</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="practical-guidance-choosing-backbones">Practical guidance: choosing backbones<a class="anchor" aria-label="anchor" href="#practical-guidance-choosing-backbones"></a>
+<h2 id="choosing-backbones">Choosing backbones<a class="anchor" aria-label="anchor" href="#choosing-backbones"></a>
 </h2>
-<p>The right backbone depends on the taxonomic scope of the data. Here
-is a decision tree organized by the most common use cases.</p>
-<p><strong>Pure vascular plant lists.</strong> Use
-<code>backbone = "wfo"</code>. WFO is the standard reference,
-well-curated, and updated regularly. If some names fall through (e.g.,
-horticultural cultivars, nomenclaturally complex genera, or names from
-older floras that use outdated synonymy), add COL:
-<code>backbone = c("wfo", "col")</code>.</p>
-<p><strong>European vegetation data.</strong> Use
+<p>The right backbone depends on the taxonomic scope of the data. The
+general rule is specialist backbones first and generalist backbones
+second: lead with the backbone whose taxonomic opinion we trust most for
+the dominant taxon group, and add broader backbones as fallbacks for the
+remainder. The <code>backbone</code> column then records which taxonomic
+opinion was applied to each name.</p>
+<ul>
+<li>For pure vascular plant lists, use <code>backbone = "wfo"</code>. If
+some names fall through (horticultural cultivars, nomenclaturally
+complex genera, or names from older floras that use outdated synonymy),
+add COL: <code>backbone = c("wfo", "col")</code>.</li>
+<li>For European vegetation data, use
 <code>backbone = c("euromed", "wfo")</code>. Euro+Med PlantBase is the
 taxonomic reference used by EVA and covers all native and introduced
 vascular plants of Europe, the Mediterranean, and the Caucasus. Leading
-with Euro+Med ensures European synonym resolution follows Euro+Med’s
-taxonomic opinion, with WFO as fallback for non-European taxa or names
-outside Euro+Med’s scope. Note that Euro+Med data is CC BY-SA 3.0.</p>
-<p><strong>Pure marine/aquatic lists.</strong> Use
-<code>backbone = "worms"</code>. WoRMS is the authoritative source for
-marine taxonomy, curated by domain experts, and includes habitat and
-extinction flags. For estuarine or transitional lists that include some
-terrestrial taxa, add COL:
-<code>backbone = c("worms", "col")</code>.</p>
-<p><strong>Pure fungal lists.</strong> Use
-<code>backbone = "fungorum"</code>. Species Fungorum Plus is the
-specialist reference for fungi. Add COL as fallback for obscure or
-recently described species:
-<code>backbone = c("fungorum", "col")</code>.</p>
-<p><strong>Pure algal lists.</strong> Use
-<code>backbone = "algaebase"</code>. Add COL or WoRMS as fallback:
-<code>backbone = c("algaebase", "col")</code>. Remember AlgaeBase is CC
-BY-NC.</p>
-<p><strong>Mixed-kingdom ecological datasets.</strong> Use
+with it makes European synonym resolution follow Euro+Med’s opinion,
+with WFO as fallback for non-European taxa or names outside its scope.
+Euro+Med data is CC BY-SA 3.0.</li>
+<li>For pure marine or aquatic lists, use
+<code>backbone = "worms"</code>, which is curated by domain experts and
+includes habitat and extinction flags. For estuarine or transitional
+lists with some terrestrial taxa, add COL:
+<code>backbone = c("worms", "col")</code>.</li>
+<li>For pure fungal lists, use <code>backbone = "fungorum"</code>, with
+COL as fallback for obscure or recently described species:
+<code>backbone = c("fungorum", "col")</code>.</li>
+<li>For pure algal lists, use <code>backbone = "algaebase"</code>, with
+COL or WoRMS as fallback: <code>backbone = c("algaebase", "col")</code>.
+AlgaeBase is CC BY-NC.</li>
+<li>For mixed-kingdom ecological datasets, use
 <code>backbone = c("col", "gbif")</code>, or lead with a specialist
-backbone for the dominant taxon group. For a plant-dominated dataset
-with some animals and fungi: <code>backbone = c("wfo", "col")</code>.
-For a marine biodiversity survey:
-<code>backbone = c("worms", "col", "gbif")</code>. For a forest
-inventory that includes trees, fungi, insects, and epiphytes:
-<code>backbone = c("wfo", "fungorum", "col")</code>.</p>
-<p><strong>Molecular/sequence-linked work.</strong> Use
-<code>backbone = "ncbi"</code>. NCBI Taxonomy is the reference for
-GenBank, BOLD, and other sequence databases. It covers bacteria,
-archaea, and viruses that other backbones lack. For mixed molecular and
-ecological work: <code>backbone = c("ncbi", "col")</code>.</p>
-<p><strong>Phylogenetic studies.</strong> Use
-<code>backbone = "ott"</code>. OTT is the backbone of the Open Tree of
-Life and merges multiple source taxonomies. Its cross-references to
-NCBI, GBIF, WoRMS, and IRMNG make it a good bridge between different
-identifier systems.</p>
-<p><strong>Maximum coverage / catch-all.</strong> Use
-<code>backbone = c("col", "gbif")</code>. COL provides expert-curated
-taxonomy for ~5.3M names. GBIF’s backbone adds ~6.4M names from
-additional sources. Together they cover virtually all described species
-with a nomenclatural record. This combination is a reasonable default
-when the taxonomic composition of the dataset is unknown.</p>
-<p><strong>General rule.</strong> Specialist backbones first, generalist
-backbones second. Lead with the backbone whose taxonomic opinion we
-trust most for the dominant taxon group, and add broader backbones as
-fallbacks for the remainder. The <code>backbone</code> column in the
-output lets us audit exactly which taxonomic opinion was applied to each
-name.</p>
-<div class="section level3">
-<h3 id="performance-considerations">Performance considerations<a class="anchor" aria-label="anchor" href="#performance-considerations"></a>
-</h3>
-<p>Backend size affects download time and, to a lesser extent, matching
-speed. WFO (~1.6M names) matches faster than GBIF (~6.4M names) for the
-same query. However, taxify uses index-accelerated genus-blocked joins
-at the C level (via vectra), so even GBIF matching is fast for typical
-species lists. A list of 5,000 names resolves against GBIF in under a
-second on modern hardware. The performance difference only becomes
+backbone for the dominant taxon group: <code>c("wfo", "col")</code> for
+a plant-dominated dataset with some animals and fungi,
+<code>c("worms", "col", "gbif")</code> for a marine biodiversity survey,
+and <code>c("wfo", "fungorum", "col")</code> for a forest inventory that
+includes trees, fungi, insects, and epiphytes.</li>
+<li>For molecular and sequence-linked work, use
+<code>backbone = "ncbi"</code>, the reference for GenBank, BOLD, and
+other sequence databases, which covers the bacteria, archaea, and
+viruses other backbones lack. For mixed molecular and ecological work:
+<code>backbone = c("ncbi", "col")</code>.</li>
+<li>For phylogenetic studies, use <code>backbone = "ott"</code>, the
+backbone of the Open Tree of Life. Its cross-references to NCBI, GBIF,
+WoRMS, and IRMNG bridge different identifier systems.</li>
+<li>For maximum coverage, use <code>backbone = c("col", "gbif")</code>.
+COL provides expert-curated taxonomy for ~5.3M names and GBIF’s backbone
+adds ~6.4M names from additional sources; together they cover virtually
+all described species with a nomenclatural record. This combination is a
+reasonable default when the taxonomic composition of the dataset is
+unknown.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
+</h2>
+<p>Backbone size affects download time and, to a lesser extent, matching
+speed: WFO (~1.6M names) matches faster than GBIF (~6.4M names) for the
+same query. taxify uses index-accelerated genus-blocked joins at the C
+level (via vectra), so a list of 5,000 names resolves against GBIF in
+under a second on modern hardware. The difference only becomes
 noticeable at scale (100k+ names) or with heavy fuzzy matching against a
 large backbone.</p>
-<p>For large lists with a multi-backbone chain, putting the most likely
-backbone first saves time. Names matched by the first backbone skip all
-later backbones entirely. If 90% of a list is plants,
-<code>c("wfo", "col")</code> is faster than <code>c("col", "wfo")</code>
-because WFO is smaller and resolves most names on the first pass. The
-remaining 10% of names go to COL, which is larger but only processes the
-small residual.</p>
+<p>In a multi-backbone chain, putting the most likely backbone first
+saves time, because names matched by the first backbone skip all later
+ones. If 90% of a list is plants, <code>c("wfo", "col")</code> is faster
+than <code>c("col", "wfo")</code>: WFO is smaller and resolves most
+names on the first pass, and COL, which is larger, only processes the
+remaining 10%.</p>
 <p>Fuzzy matching is the most expensive step. It runs a genus-blocked
 fuzzy join with multi-threaded string distance computation. For names
-with misspelled genera (where genus blocking cannot help), taxify falls
-back to a 2-character prefix block that catches most genus-level typos
-while keeping the search space manageable.</p>
+with misspelled genera, where genus blocking cannot help, backbones
+configured for it fall back to a 2-character prefix block that catches
+most genus-level typos while keeping the search space manageable.</p>
 </div>
-<div class="section level3">
-<h3 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
-</h3>
-<p>The <code>backbone_version</code> column encodes the exact data
-snapshot used. For a published analysis, we recommend recording these
-strings in the methods section or supplementary material. taxify pins
-the backbone version at download time and does not update mid-session.
-Version checks happen once per R session, and any update is logged to
-the console with the old and new version numbers.</p>
-<p>To lock a specific backbone version for a project:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="st">"wfo"</span>, version <span class="op">=</span> <span class="st">"2024.01"</span><span class="op">)</span></span></code></pre></div>
-<p>Pinned versions live in their own directories and are never
-overwritten. The “latest” slot continues to track new releases
-independently. A project that needs exact reproducibility can pin all
-backbones at specific versions and never use the “latest” slot. A
+<div class="section level2">
+<h2 id="versions-and-reproducibility">Versions and reproducibility<a class="anchor" aria-label="anchor" href="#versions-and-reproducibility"></a>
+</h2>
+<p>taxify checks for backbone updates once per R session. The first
+<code><a href="../reference/taxify.html">taxify()</a></code> call in a session fetches the manifest from
+GitHub, compares each requested backbone’s local version against the
+latest release, and downloads a new version only if one exists. If the
+network is unavailable, taxify falls back to the bundled manifest and
+uses whatever local copy is on disk. The version check and any update
+are logged to the console with the old and new version numbers, and the
+backbone version never changes mid-session. The manifest, which maps
+backbone names to their download URLs and latest versions, is cached per
+session and can be refreshed with
+<code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code>.</p>
+<p>For a published analysis, the <code>backbone_version</code> strings
+belong in the methods section or supplementary material. A project that
+needs exact reproducibility can pin every backbone with
+<code>taxify_download(version = )</code>, as in <a href="#downloading-backbones">Downloading backbones</a>, and never use
+the “latest” slot, which keeps tracking new releases independently. A
 project that prefers to stay current can rely on the default “latest”
 behavior and cite the <code>backbone_version</code> strings from the
 output.</p>
-<p>The manifest, which maps backbone names to their download URLs and
-latest versions, is cached per session and can be refreshed with
-<code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code>. For offline use, taxify falls
-back to the bundled manifest shipped with the package.</p>
+<p>Backbones with large source files can also be built from source:
+<code>taxify_build("gbif")</code> downloads the raw 1.5 GB
+<code>simple.txt.gz</code> from GBIF, parses all 30 positional columns,
+denormalizes the family hierarchy through self-joins, and compiles the
+result into <code>.vtr</code> format. This is slower than downloading
+the pre-built file and produces the same output; it is mainly useful for
+CI pipelines or for customizing the compilation step.</p>
 </div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Banki O, Roskov Y, Doring M, Ower G, Hernandez Robles DR, Plata
+Corredor CA, Stjernegaard Jeppesen T, Orrell TM, Pugh D, Kostichka J, et
+al. (2024). <em>Catalogue of Life Checklist</em>. <a href="https://doi.org/10.48580/d4t2" class="external-link uri">https://doi.org/10.48580/d4t2</a></p>
+<p>Borsch T, Berendsohn W, Dalcin E, Delmas M, Demissew S, Elliott A,
+Fritsch P, Fuchs A, Geltman D, Guner A, et al. (2020). World Flora
+Online: Placing taxonomists at the heart of a definitive and
+comprehensive global resource on the world’s plants. <em>Taxon</em> 69:
+1311-1341. <a href="https://doi.org/10.1002/tax.12373" class="external-link uri">https://doi.org/10.1002/tax.12373</a></p>
+<p>Euro+Med (2026). <em>Euro+Med PlantBase: the information resource for
+Euro-Mediterranean plant diversity</em>. <a href="https://europlusmed.org" class="external-link uri">https://europlusmed.org</a>,
+accessed 2026-07-11.</p>
+<p>GBIF Secretariat (2024). <em>GBIF Backbone Taxonomy</em>. <a href="https://doi.org/10.15468/39omei" class="external-link uri">https://doi.org/10.15468/39omei</a></p>
+<p>ITIS (2025). <em>Integrated Taxonomic Information System</em>. <a href="https://doi.org/10.5066/F7KH0KBK" class="external-link uri">https://doi.org/10.5066/F7KH0KBK</a></p>
+<p>Uetz P, Freed P, Aguilar R, Reyes F, Kudera J, Hosek J (2026).
+<em>The Reptile Database</em>. <a href="http://www.reptile-database.org" class="external-link uri">http://www.reptile-database.org</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

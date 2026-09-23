@@ -1,23 +1,44 @@
 # Inspecting a name list with inspect()
 
-## The problem
-
-A field list reaches you as a column of strings, and some of those
-strings are wrong. A genus is misspelled, an animal is sitting in a list
-of plants, a synonym slipped in from an old data sheet, the same species
-appears under two spellings.
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) will
-resolve what it can and mark the rest, but it returns a row for every
-name, matched or not, so the problems are spread through a wide table.
-Before committing a list to analysis it helps to see only the names that
-look off, each with a short note on why.
-
+This vignette shows how to screen a species list for the names that need
+attention before analysis. A field list reaches you as a column of
+strings, and some of those strings are wrong: a genus is misspelled, an
+animal sits in a list of plants, a synonym slipped in from an old data
+sheet, the same species appears under two spellings.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+resolves what it can and returns a row for every name, matched or not,
+so the problems are spread through a wide table.
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
 returns one row per anomalous name, ordered most-notable first, each
 labelled with what stands out and, where known, the name to use instead.
 Clean names are dropped, so a short report means a clean list.
 
-## A first look, without matching
+1.  **Screen** the raw names against the genus register and the rest of
+    the list with
+    [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md).
+
+2.  **Match** them to pick up typos, synonyms and ambiguity, with
+    `backbones = TRUE` or by piping in a
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+    result.
+
+3.  **Place** the matched species against a declared `region`, `coords`
+    or `range`.
+
+4.  **Filter** the report to the rows that need action with `min_tier`.
+
+5.  **Apply** the confident `suggestion`s and re-run
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+    on the corrected list.
+
+## Example
+
+``` r
+
+library(taxify)
+```
+
+### A first look, without matching
 
 By default
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
@@ -61,49 +82,7 @@ homonym typo often shows up exactly this way.
 and its synonymy with *Picea abies* surfaces only when a backbone is
 matched. That check is opt-in.
 
-## The labels
-
-Each flagged name carries one or more labels in its `anomalies` column.
-The list-only checks need no matching:
-
-| Label | Meaning |
-|----|----|
-| `unknown` | The genus is not in the register, the union of every backbone’s genera. No backbone recognises it. |
-| `near_duplicate` | A near-twin of a more frequent name in the same list, so probably a misspelling of it. Caught from the list alone, even for names no backbone holds. |
-| `outlier_group` | The name’s kingdom group is a tiny minority of an otherwise coherent list, typically a cross-kingdom homonym typo. |
-
-The remaining labels read from a
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result and only appear once matching has run:
-
-| Label | Meaning |
-|----|----|
-| `typo` | Resolved only after fuzzy correction. The input most likely contains a spelling error; `suggestion` holds the corrected name. |
-| `synonym` | The input is an outdated synonym; `suggestion` holds the current accepted name. |
-| `case` | Resolved only after ignoring case. |
-| `ambiguous` | A homonym resolving to more than one accepted taxon. |
-| `geographic` | The matched species is real but has no record in a declared region (vascular plants, via WCVP). |
-| `out_of_range` | No region declared, yet the species’ range falls outside the list’s main continents. |
-
-## Tiers
-
-Every flagged row also gets a `tier`. A tier names the action a row
-needs before analysis, from a required decision down to optional
-cleanup:
-
-- `unresolved`: no usable name came back, so the row needs a decision
-  before analysis. `unknown` lands here.
-- `review`: a name is there, but its identity is uncertain. The identity
-  checks (`typo`, `near_duplicate`, `ambiguous`, `geographic`,
-  `out_of_range`, `outlier_group`) land here.
-- `note`: the name is correct, the change is optional cleanup. `case`
-  and `synonym` land here.
-
-An anomaly can be intended. A list may genuinely include one animal
-among plants, or deliberately keep a synonym. The tier is a triage hint,
-so treat it as a starting point.
-
-## Turning on matching
+### Turning on matching
 
 To pick up typos, synonyms, and ambiguity, let
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
@@ -145,10 +124,10 @@ taxify(names, backbone = c("col", "gbif")) |>
 ```
 
 The two routes return the same kind of report. Pass `backbones = TRUE`
-when you want a quick standalone check; pipe a result in when matching
-is already part of the workflow.
+for a quick standalone check; pipe a result in when matching is already
+part of the workflow.
 
-## Geographic checks
+### Geographic checks
 
 When a list is regionally coherent, a species whose range sits elsewhere
 is worth a second look. With a declared `region`,
@@ -174,7 +153,8 @@ shrub in a European list. The same check accepts `coords` instead of a
 region name, and a `range` argument to count only native or only
 introduced records. The [geographic constraints
 vignette](https://gillescolling.com/taxify/articles/regions.html) covers
-those inputs in full.
+those inputs in full. The geographic arguments act on matched names, so
+on a character vector inspected without matching they have no effect.
 
 Without a declared region, the `out_of_range` check does the comparison
 from the list itself: it finds the continents that hold the bulk of the
@@ -184,7 +164,7 @@ the coherence test, and flags nothing, so the check stays quiet unless
 the list is regionally tight. Both geographic checks use WCVP, which
 covers vascular plants only.
 
-## Reporting fewer rows
+### Reporting fewer rows
 
 On a long list even the `note` rows add up. `min_tier` raises the floor
 so the report keeps only what needs action.
@@ -207,32 +187,11 @@ inspect(names, backbones = TRUE, min_tier = "review")
 `min_tier = "review"` drops the `note`-tier synonym;
 `min_tier = "unresolved"` would leave only the unknown name.
 
-## What needs a batch, and what needs the register
+### Using the report in a cleaning script
 
-The list-context labels (`near_duplicate`, `outlier_group`,
-`out_of_range`) weigh a name against the rest of the batch, so they
-cannot apply to a single name.
-[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) on
-one name warns and reports only the per-name labels.
-
-``` r
-
-inspect("Quercus robber", backbones = TRUE)
-#> Warning: list-context anomaly checks need a batch of names; with a single
-#> name only the per-name checks run.
-```
-
-The register checks (`unknown`, and the register-derived
-`outlier_group`) need the genus register installed. Without it they are
-skipped, with a message at `verbose = TRUE`, and the rest of the checks
-still run.
-
-## The report is a data.frame
-
-Printing is a convenience. The object underneath is an ordinary
+The printed view is a convenience. The object underneath is an ordinary
 data.frame with columns `input_name`, `suggestion`, `anomalies`, `tier`,
-`reason`, `fuzzy_dist`, and `backbone`, so the report drops straight
-into a cleaning script.
+`reason`, `fuzzy_dist`, and `backbone`.
 
 ``` r
 
@@ -256,6 +215,70 @@ names by hand, then re-run
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) on
 the corrected list.
 
+## The labels
+
+Each flagged name carries one or more labels in its `anomalies` column.
+The list-only checks need no matching:
+
+| Label | Meaning |
+|----|----|
+| `unknown` | The genus is not in the register, the union of every backbone’s genera. No backbone recognises it. |
+| `near_duplicate` | A near-identical spelling of a more frequent name in the same list, so probably a misspelling of it. Caught from the list alone, even for names no backbone holds. |
+| `outlier_group` | The name’s kingdom group is a tiny minority of an otherwise coherent list, typically a cross-kingdom homonym typo. |
+
+The remaining labels read from a
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result and only appear once matching has run:
+
+| Label | Meaning |
+|----|----|
+| `typo` | Resolved only after fuzzy correction. The input most likely contains a spelling error; `suggestion` holds the corrected name. |
+| `synonym` | The input is an outdated synonym, or an unplaced name whose basionym the backbone places; `suggestion` holds the current accepted name. |
+| `case` | Resolved only after ignoring case. |
+| `rank_fallback` | An infraspecific name the backbone does not carry, resolved to its species. |
+| `ambiguous` | A homonym resolving to more than one accepted taxon. |
+| `geographic` | The matched species is real but has no record in a declared region (vascular plants, via WCVP). |
+| `out_of_range` | No region declared, yet the species’ range falls outside the list’s main continents. |
+
+## Tiers
+
+Every flagged row also gets a `tier`. A tier names the action a row
+needs before analysis, from a required decision down to optional
+cleanup:
+
+- `unresolved`: no usable name came back, so the row needs a decision
+  before analysis. `unknown` lands here.
+- `review`: a name is there, but its identity is uncertain. The identity
+  checks (`typo`, `near_duplicate`, `rank_fallback`, `ambiguous`,
+  `geographic`, `out_of_range`, `outlier_group`) land here.
+- `note`: the name is correct, the change is optional cleanup. `case`
+  and `synonym` land here.
+
+An anomaly can be intended. A list may genuinely include one animal
+among plants, or deliberately keep a synonym. The tier is a triage hint,
+so treat it as a starting point.
+
+## What needs a batch, and what needs the register
+
+The list-context labels (`near_duplicate`, `outlier_group`,
+`out_of_range`) weigh a name against the rest of the batch, so they
+cannot apply to a single name.
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) on
+one name warns and reports only the per-name labels.
+
+``` r
+
+inspect("Quercus robber", backbones = TRUE)
+#> Warning: list-context anomaly checks need a batch of names; with a single
+#> name only the per-name checks run.
+```
+
+The register checks (`unknown`, and the register-derived
+`outlier_group`) need the genus register installed, and the range checks
+need the WCVP range data. A check that could not run is named on a
+`not checked` line in the report header, so an empty report is never
+mistaken for a clean one, and the rest of the checks still run.
+
 ## Where to go next
 
 - [Geographic
@@ -272,4 +295,4 @@ the corrected list.
   started](https://gillescolling.com/taxify/articles/quickstart.html)
   for the matching pipeline
   [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-  sits on top of. \`\`\`
+  sits on top of.

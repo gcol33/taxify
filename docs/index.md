@@ -100,7 +100,7 @@ ITIS, NCBI, and OTT.
 | [WFO](https://www.worldfloraonline.org/) | Vascular plants | 1.7M | 775 MB |
 | [COL](https://www.catalogueoflife.org/) | All kingdoms | 5.4M | 2.1 GB |
 | [COL Extended Release](https://www.catalogueoflife.org/) | All kingdoms | 8.1M | 1.6 GB |
-| [GBIF Backbone Taxonomy (legacy)](https://www.gbif.org/) | All kingdoms | 6.4M | 1.6 GB |
+| [GBIF Backbone Taxonomy (legacy)](https://www.gbif.org/) | All kingdoms | 6.4M | 1.7 GB |
 | [ITIS](https://www.itis.gov) | US focus, freshwater/marine | 1.0M | 206 MB |
 | [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy) | All life | 3.0M | 549 MB |
 | [OTT](https://opentreeoflife.github.io/) | All life (synthetic) | 3.7M | 763 MB |

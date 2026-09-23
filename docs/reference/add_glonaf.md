@@ -19,9 +19,10 @@ add_glonaf(x, region, verbose = TRUE)
 
 - region:
 
-  Character. GloNAF region identifier(s), or `"all"`. Regions use
-  TDWG-compatible codes extended with dot notation for sub-national
-  units (e.g., `"USA.CA"` for California).
+  Character. GloNAF region identifier(s), or `"all"`. Regions are ISO
+  3166 alpha-3 country codes extended with dot notation for sub-national
+  units (e.g., `"DEU"` for Germany, `"USA.CA"` for California). List
+  them with `enrichment_groups("glonaf")`.
 
   - Single region: adds `naturalized` column (no suffix).
 
@@ -39,8 +40,8 @@ The same data.frame with additional column(s):
 
 - naturalized:
 
-  Integer `1` if the species is recorded as naturalized in that region,
-  `NA` otherwise.
+  `1` if the species is recorded as naturalized in that region, `NA`
+  otherwise.
 
 ## Details
 
@@ -52,9 +53,11 @@ only.
 
 van Kleunen M et al. (2019) The Global Naturalized Alien Flora (GloNAF)
 database. Ecology 100:e02542.
+[doi:10.1002/ecy.2542](https://doi.org/10.1002/ecy.2542)
 
-Davis K et al. (2025) The updated Global Naturalized Alien Flora (GloNAF
-2.0) database. Ecology, e70245.
+Davis AJS et al. (2025) The updated Global Naturalized Alien Flora
+(GloNAF 2.0) database. Ecology 106:e70245.
+[doi:10.1002/ecy.70245](https://doi.org/10.1002/ecy.70245)
 
 ## Examples
 
@@ -63,10 +66,10 @@ Davis K et al. (2025) The updated Global Naturalized Alien Flora (GloNAF
 old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Robinia pseudoacacia") |>
-  add_glonaf(region = "EUR")
+  add_glonaf(region = "DEU")
 
 taxify("Robinia pseudoacacia") |>
-  add_glonaf(region = c("EUR", "NAM"))
+  add_glonaf(region = c("DEU", "AUT"))
 
 options(old)
 ```

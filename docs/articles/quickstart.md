@@ -1,38 +1,54 @@
 # Getting started with taxify
 
-## What taxify solves
-
-Almost every biodiversity dataset starts as a column of names. Before
-any analysis, those strings have to resolve to one accepted name per
+This vignette runs a messy list of species names through taxify, from
+raw strings to an analysis on attached traits. Before any analysis, the
+names in a biodiversity dataset have to resolve to one accepted name per
 taxon, and they rarely line up on their own: authorship, field
 qualifiers, capitalization, historical synonyms, hybrids, and plain
-typos all keep two records of the same species apart. A bare
+typos all keep two records of the same species apart, and a bare
 [`merge()`](https://rdrr.io/r/base/merge.html) on raw strings silently
-drops every row that disagrees, so the matching has to come first.
-
+drops every row that disagrees.
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) takes
 a character vector and returns one standardized table: each name
 cleaned, matched against a backbone you keep on disk, synonyms resolved
 to the accepted name. Matching runs in C through the
 [vectra](https://github.com/gcol33/vectra) engine, so there are no web
 services and no rate limits, and the same input gives the same output on
-any machine. 19 Darwin Core backbones are available (WFO, COL, GBIF,
-ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase, FishBase,
-SeaLifeBase, Reptile Database, LCVP, WCVP, MDD, AviList, LPSN), all
-queried offline.
-
-The first
+any machine. 19 Darwin Core backbones are available (WFO, COL, COL XR,
+GBIF, ITIS, NCBI, OTT, WoRMS, Euro+Med, Species Fungorum, AlgaeBase,
+FishBase, SeaLifeBase, Reptile Database, LCVP, WCVP, MDD, AviList,
+LPSN), all queried offline. The first
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call
 installs the default backbone set (COL, GBIF, and ITIS) once, about 4
 GB, and caches it under
 [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
 After that, nothing touches the network.
 
-## One call
+1.  **Match** the names with
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
-Hand [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-a vector of names. The list below is deliberately small and deliberately
-messy: every entry takes a different route to its accepted name.
+2.  **Check** the batch with
+    [`summary()`](https://rdrr.io/r/base/summary.html).
+
+3.  **Join** your own attributes with
+    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md).
+
+4.  **Enrich** the result with the published `add_*()` layers, listed by
+    [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md).
+
+5.  **Analyse** the attached columns with ordinary R.
+
+## Example
+
+``` r
+
+library(taxify)
+```
+
+### One call
+
+The list below is small and messy on purpose: every entry takes a
+different route to its accepted name.
 
 ``` r
 
@@ -66,16 +82,15 @@ res[, c("input_name", "accepted_name", "family",
     #> 9    Fallopia japonica  Reynoutria japonica Polygonaceae       TRUE      exact         NA
     #> 10 Taraxacum officinale Taraxacum officinale  Asteraceae      FALSE      exact         NA
 
-Ten names, ten rows, every match readable. Each row also carries genus,
-authorship, taxon and accepted IDs, a hybrid flag and type, the
-backbone, and the exact backbone version (the full table is wider, the
-same shape for any input).
+Each input gets one row. Each row also carries genus, authorship, taxon
+and accepted IDs, a hybrid flag and type, the backbone, and the exact
+backbone version (the full table is wider, the same shape for any
+input).
 
-Each name reaches its accepted name a different way. The animation below
-walks one name at a time through the pipeline: the clean step strips
-authorship, a qualifier, or case; the match step is exact, case-folded,
-fuzzy, or abbreviated; the resolve step follows a synonym to the current
-name.
+The animation below walks one name at a time through the pipeline: the
+clean step strips authorship, a qualifier, or case; the match step is
+exact, case-folded, fuzzy, or abbreviated; the resolve step follows a
+synonym to the current name.
 
 `Quercus robur L.` loses its authorship before matching.
 `cf. Betula pendula` loses the qualifier. `FAGUS SYLVATICA` matches
@@ -83,25 +98,10 @@ after case folding (`exact_ci`). `Q. petraea` resolves on the genus
 initial plus epithet (`abbrev`). The three synonyms
 (`Quercus pedunculata`, `Pinus abies`, `Fallopia japonica`) resolve to
 their accepted names, the last being the current name for a well-known
-invader. The two typos go to the fuzzy pass, which is the next thing
-worth seeing.
+invader. The two typos go to the fuzzy pass, described in [How the fuzzy
+pass works](#how-the-fuzzy-pass-works).
 
-## Why a typo barely costs anything
-
-The fuzzy pass never scores a name against the whole backbone. It blocks
-on genus first, so `Quercus robus` is compared only against the other
-*Quercus* names. A one-letter slip is found in a handful of comparisons
-rather than across every name on disk.
-
-The default threshold allows about one edit per five characters, so
-common typos resolve while genuinely different names do not. Fuzzy
-matching is controlled by `fuzzy`, `fuzzy_threshold`, and
-`fuzzy_method`; the [fuzzy-matching
-vignette](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
-covers the sub-blocking for very large genera and the genus-typo
-fallback in full.
-
-## Check the batch at a glance
+### Checking the batch
 
 [`summary()`](https://rdrr.io/r/base/summary.html) prints a digest, the
 fastest way to see whether a run went cleanly.
@@ -126,26 +126,7 @@ alternative backbone. The match types and the multi-backbone fallback
 (`backbone = c("col", "gbif", "itis")`) are covered in the [backbones
 vignette](https://gillescolling.com/taxify/articles/backbones.html).
 
-## Offline, and how much faster
-
-Every match runs against the local snapshot, so a run reproduces exactly
-and the `backbone_version` column records the WFO release and download
-date for a methods section. On the same task many in this field reach
-for, WorldFlora’s `WFO.match`, both run against a local copy and return
-the same matches; the difference is where the matching happens. taxify
-scores names in C against the compiled backbone, WorldFlora in R. On
-1,000 plant names with fuzzy matching on (Windows, R 4.5.2):
-
-On 1,000 names that all carry a one-character typo, taxify takes 18.8 s
-and WorldFlora 4,192 s. Exact matching is closer, 2.2 s against 17.1 s.
-The genus blocking is what opens the gap: a typo competes only against
-names in its own genus, so the work does not grow with the size of the
-backbone. `scripts/benchmark-worldflora.R` in the repository produces
-both figures, and the [large-scale
-vignette](https://gillescolling.com/taxify/articles/large-scale.html)
-covers the batch strategy for lists above 100,000 names.
-
-## Add your own attributes
+### Adding your own attributes
 
 Once names resolve to an accepted name, any table keyed on species joins
 cleanly.
@@ -175,20 +156,17 @@ taxify(c("Quercus robur", "Pinus sylvestris", "Betula pendula")) |>
 
 The trait table used *Quercus pedunculata* and the result used *Quercus
 robur*; a plain [`merge()`](https://rdrr.io/r/base/merge.html) would
-have missed that row.
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-joins on the accepted name, so it lines up. Formats, auto-detection, and
-strict duplicate handling are in the [custom-data
+have missed that row. Formats, auto-detection, and strict duplicate
+handling are in the [custom-data
 vignette](https://gillescolling.com/taxify/articles/custom-data.html).
 
-## The enrichment layers
+### Enrichment layers
 
-taxify also ships published trait and status layers that attach on the
-accepted name. There are more than eighty, across the tree of life and
-for the conservation and invasion records this kind of work needs. Each
-`add_*()` matches its own source against the backbone and attaches on
-the accepted name, so any of them stacks into a pipeline the same way.
-Run
+taxify also ships more than eighty published trait and status layers,
+across the tree of life and for the conservation and invasion records
+this kind of work needs. Each `add_*()` matches its own source against
+the backbone and attaches on the accepted name, so any of them stacks
+into a pipeline the same way. Run
 [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
 for the current set, versions, and coverage.
 
@@ -199,12 +177,12 @@ history without a second join. The full menu and per-layer detail are in
 the [enrichments
 vignette](https://gillescolling.com/taxify/articles/enrichments.html).
 
-## Stack layers, then test an idea
+### Stacking layers and testing an idea
 
 Field lists run to hundreds of names. Here is a realistic one, about a
-hundred European species, matched in one call. Pick any layers and stack
-them: woodiness, the EIVE ecological indicator values, and plant height
-from the Diaz global trait dataset all attach on the accepted name.
+hundred European species, matched in one call. Any layers stack:
+woodiness, the EIVE ecological indicator values, and plant height from
+the Diaz global trait dataset all attach on the accepted name.
 
 ``` r
 
@@ -280,10 +258,42 @@ significant, though modest (r = 0.31, p = 0.002): base-rich soils tend
 to carry higher nutrient values. The same three lines work for any
 attribute the package can attach.
 
+## How the fuzzy pass works
+
+The fuzzy pass never scores a name against the whole backbone. It blocks
+on genus first, so `Quercus robus` is compared only against the other
+*Quercus* names, and a one-letter slip is found in a handful of
+comparisons.
+
+The default threshold allows about one edit per five characters, so
+common typos resolve while genuinely different names do not. Fuzzy
+matching is controlled by `fuzzy`, `fuzzy_threshold`, and
+`fuzzy_method`; the [fuzzy-matching
+vignette](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
+covers the sub-blocking for very large genera and the genus-typo
+fallback in full.
+
+## Offline matching and speed
+
+Every match runs against the local snapshot, so a run reproduces exactly
+and the `backbone_version` column records the backbone release and
+download date for a methods section. WorldFlora’s `WFO.match` also runs
+against a local copy and returns the same matches; taxify scores names
+in C against the compiled backbone, WorldFlora in R. On 1,000 plant
+names with fuzzy matching on (Windows, R 4.5.2):
+
+On 1,000 names that all carry a one-character typo, taxify takes 18.8 s
+and WorldFlora 4,192 s. Exact matching is closer, 2.2 s against 17.1 s.
+The genus blocking opens the gap: a typo competes only against names in
+its own genus, so the work does not grow with the size of the backbone.
+`scripts/benchmark-worldflora.R` in the repository produces both
+figures, and the [large-scale
+vignette](https://gillescolling.com/taxify/articles/large-scale.html)
+covers the batch strategy for lists above 100,000 names.
+
 ## Where to go next
 
-This vignette is the fast path. Each step has a dedicated vignette with
-the full detail:
+Each step has a dedicated vignette with the full detail:
 
 - [Choosing and combining
   backbones](https://gillescolling.com/taxify/articles/backbones.html)
@@ -304,4 +314,3 @@ the full detail:
 
 - [Migrating from taxize and
   WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
-  \`\`\`

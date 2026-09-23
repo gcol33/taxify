@@ -40,7 +40,7 @@ accepted name taxify() resolves it to."><script>
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,6 +65,7 @@ accepted name taxify() resolves it to."><script>
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
@@ -121,13 +122,28 @@ accepted name <code><a href="taxify.html">taxify()</a></code> resolves it to.</p
 optionally <code>is_synonym</code> (the backbone's normalized synonym flag),
 <code>fuzzy_dist</code> (fuzzy proximity), <code>nomenclaturalStatus</code> (validity),
 <code>matched_name_std</code> and <code>accepted_name</code> (epithet preservation), plus
-<code>authorship</code> and <code>accepted_authorship</code> (homotypy).</p></dd>
+<code>authorship</code> and <code>accepted_authorship</code> (homotypy).
+Two scores read the candidate's <code>n_occurrences</code> (records filed under its
+key, a column only the GBIF backbone carries), both 0 throughout when the
+column is absent and both outside the tier: which key holds the data is not
+a statement about which taxon the name denotes. <code>data_score</code> is 0 for a key
+with at least one record that keeps the name as its own concept (accepted,
+doubtful or unplaced; never a synonym, whose accepted ID is another taxon)
+and 1 otherwise (no records, no count, or a synonym); it orders
+after <code>dist_score</code> and before <code>status_score</code>. <code>occ_score</code> is minus the count,
+<code>Inf</code> where it is missing; it orders after <code>epithet_score</code>, so it only
+separates keys the concept scores leave level. <code>year_score</code> is the year the
+name was published (the <code>year</code> column, else the first year in
+<code>name_published_in</code>; <code>Inf</code> where unknown, 0 throughout when both columns are
+absent); it orders after <code>epithet_score</code> and before <code>occ_score</code>, so the
+earliest of several same-name homonyms wins before the count is read.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with the numeric vectors <code>dist_score</code> and <code>status_score</code>,
-integer vectors <code>rank_score</code>, <code>valid_score</code>, <code>epithet_score</code>, and the
+    <p>A list with the numeric vectors <code>dist_score</code>, <code>data_score</code>,
+<code>year_score</code>, <code>occ_score</code> and
+<code>status_score</code>, integer vectors <code>rank_score</code>, <code>valid_score</code>, <code>epithet_score</code>, and the
 character <code>tier</code> signature (<code>"dist/status/rank/epithet"</code>) per row, in input
 order.</p>
     </div>

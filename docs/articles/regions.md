@@ -1,61 +1,62 @@
 # Constraining matches to a geographic region
 
-## The problem
-
-Fuzzy matching corrects a typo by finding the nearest real name. Most of
-the time the nearest name is the one the recorder meant, but two species
-can sit a single edit apart while living on different continents. A
-recorder working in Belgium who writes a slightly misspelled name meant
-a Belgian plant, and its one-letter neighbour from New Zealand is a
-different species. The string distance alone cannot tell the two apart;
-the geography can.
-
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) takes
-a `region` argument for exactly this. When you set it,
+This vignette shows how to steer
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)’s
+spelling corrections toward the species that occur where the data were
+collected. Two species can sit a single edit apart on different
+continents, and a recorder in Belgium who misspells a name meant the
+Belgian plant. With a `region` declared,
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-prefers the fuzzy candidates that actually occur where you work and sets
-the others aside. It never touches an exact match, so declaring a region
-only ever changes which spelling correction wins, never a name that was
-already right.
+prefers the fuzzy candidates recorded in that region. Plant ranges come
+from the World Checklist of Vascular Plants (WCVP, Govaerts et al.
+[2021](https://doi.org/10.1038/s41597-021-00997-6)) on the botanical
+regions of the World Geographical Scheme for Recording Plant
+Distributions (WGSRPD, Brummitt [2001](https://github.com/tdwg/wgsrpd));
+marine ranges come from WoRMS distribution records rolled up to the
+Marine Ecoregions of the World (MEOW, Spalding et
+al. [2007](https://doi.org/10.1641/B570707)).
+
+1.  **Declare** the region by name or code with the `region` argument of
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+2.  **Locate** the records by coordinates with `coords`.
+
+3.  **Narrow** to native or introduced occurrences with `range`.
+
+4.  **Look up** the accepted region names and codes with
+    [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md).
+
+## Example
 
 ``` r
 
-# a small regional list, with a couple of misspellings to correct
+library(taxify)
+```
+
+The example uses a short regional list with two misspellings:
+
+``` r
+
 field_names <- c(
   "Gentiana acaulis", "Primula veris", "Pulsatilla vulgaris",
   "Gentiana acaulary", "Primula elatour"
 )
 ```
 
-## How the constraint works
+### By region name
 
-The filter rests on two range sources. For vascular plants it uses WCVP,
-the World Checklist of Vascular Plants, which records where each
-accepted species occurs by TDWG botanical region. For marine taxa it
-uses WoRMS distribution records rolled up to Marine Ecoregions of the
-World.
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-resolves your `region` input to codes in whichever vocabulary it belongs
-to, looks the candidate fuzzy names up in the matching source, and drops
-an out-of-region candidate when a better one survives. Three rules keep
-it conservative:
+A region name is matched case- and accent-insensitively at any of the
+three WGSRPD levels: a continent (`"Europe"`, Level 1), a
+sub-continental region (`"Middle Europe"`, Level 2) or a country
+(`"Belgium"`, Level 3). Several regions union.
 
-- It filters fuzzy candidates only. It trusts an exact or case-folded
-  match as given.
-- It never drops a candidate with no range data. Absence of data is not
-  absence from the region, so a match neither source covers passes
-  through untouched.
-- It keeps every candidate for a name when all of them are out of
-  region. The filter refines a match; it does not refuse one.
+``` r
 
-So the constraint is a soft preference. It breaks ties toward local
-species and otherwise stays out of the way.
+taxify(field_names, region = c("Belgium", "Netherlands", "Germany"))
+```
 
-## By region name
-
-The clearest input is a name. The bundled WGSRPD crosswalk accepts
-botanical regions at three levels, so a country, a sub-continental
-region, or a continent all work, case- and accent-insensitively.
+The region acts on fuzzy candidates only. An exact match comes back
+unchanged:
 
 ``` r
 
@@ -65,46 +66,26 @@ taxify("Gentiana acaulis", region = "Europe")
     #>         input_name    accepted_name       family match_type fuzzy_dist backbone
     #> 1 Gentiana acaulis Gentiana acaulis Gentianaceae      exact         NA     COL
 
-The exact match comes back unchanged, since the region never touches
-one. The constraint earns its keep on the fuzzy names in the same call:
-when a typo has two corrections a single edit apart and only one of them
-grows in Europe, the European one wins the tie. A name with no such
-conflict resolves exactly as it would without a region.
+A TDWG code is read directly, so `region = "BGM"` and
+`region = "Belgium"` select the same region. An unrecognised name or
+code (`"GRE"` for Greece, whose code is `GRC`) is dropped with a
+warning, and the call runs without that constraint.
 
-`"Europe"` is a Level 1 region and expands to every European code;
-`"Middle Europe"` is a Level 2 region; `"Belgium"` is a single Level 3
-country. You can pass several, and they union:
+### By coordinates
 
-``` r
-
-taxify(field_names, region = c("Belgium", "Netherlands", "Germany"))
-```
-
-A TDWG code is read directly, so `region = "BGM"` (Belgium) and
-`region = "Belgium"` reach the same place. An unrecognised region or
-code (`"GRE"` for Greece, which is `GRC`) is dropped with a warning
-rather than failing the call, so the match runs unconstrained. A valid
-region with no WCVP record for a candidate leaves that candidate
-unfiltered.
-
-## By coordinates
-
-When the data carry coordinates, hand them over directly. A point is
-mapped to its botanical region by point-in-polygon against the WGSRPD
-Level 3 boundaries, and the resulting codes are used the same way a
-region name would be.
+Coordinates are mapped to their WGSRPD Level 3 region by
+point-in-polygon, in the order `c(lon, lat)`:
 
 ``` r
 
-# Brussels: c(longitude, latitude)
+# Brussels
 taxify(field_names, coords = c(4.35, 50.85))
 ```
 
-The order is `c(lon, lat)`. A single point, a two-column matrix or
-data.frame of points, or a point-geometry spatial object all work; an
-`sf` object or a terra `SpatVector` is reprojected to longitude/latitude
-on the way in. Points and a `region` name can be combined, and their
-regions union.
+A two-column matrix or data.frame of points, an `sf` object or a terra
+`SpatVector` work too; spatial objects are reprojected to
+longitude/latitude. Points and a `region` name can be combined, and
+their regions union.
 
 ``` r
 
@@ -115,73 +96,73 @@ occ <- data.frame(
 taxify(field_names, coords = occ)
 ```
 
-The boundary file downloads once and stays cached. By default the lookup
-runs a native ray-casting test, so no spatial package is required. With
-terra or sf installed taxify uses that instead, which is faster on large
-point sets, and `options(taxify.pip_engine = "terra" | "sf" | "native")`
-forces the choice.
+The boundary file downloads once and is cached. The point-in-polygon
+test runs natively by default; with terra or sf installed taxify uses
+that package, and
+`options(taxify.pip_engine = "terra" | "sf" | "native")` forces the
+choice.
 
-## Native, introduced, or present
+### Native, introduced, or present
 
-By default any WCVP record counts as in-region, native or introduced
-alike. The `range` argument narrows that.
+By default any WCVP record counts as in-region, native or introduced.
+The `range` argument narrows that:
 
 ``` r
 
-# only count regions where WCVP lists the species as native
 taxify(field_names, region = "Europe", range = "native")
-
-# only introduced occurrences
 taxify(field_names, region = "Europe", range = "introduced")
 ```
 
-`range = "present"` is the default and the most permissive. `"native"`
-is stricter and suits work that should ignore naturalised populations; a
-species present in your region only as an introduction will not satisfy
-it, and its out-of-region native correction can lose the tie.
-`"introduced"` is the mirror image, for invasion work that wants the
-alien records specifically. The argument is ignored when no region is
-set.
+`"native"` suits work that should ignore naturalised populations: a
+species present in the region only as an introduction does not satisfy
+it, so its out-of-region native neighbour can win the tie.
+`"introduced"` selects the alien records for invasion work. `range` has
+no effect without a region.
 
-## Looking up regions
+### Looking up regions
 
 [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
-returns the regions `region=` accepts so you can find the right code or
-confirm a name resolves. With no argument it lists both vocabularies;
-with a search term it filters, matching the code and all three level
-names. The `scheme` column names the vocabulary a row belongs to, and
-`scheme=` restricts the listing to one of them.
+lists the regions `region` accepts and filters them by a search term
+matched against the code and all three level names. The botanical
+regions ship with the package:
 
 ``` r
 
-taxify_regions("Belgium")
+taxify_regions("Belgium", scheme = "wgsrpd")
+#>   code    name   level2_name level1_name scheme
+#> 1  BGM Belgium Middle Europe      EUROPE wgsrpd
 ```
 
-    #>   code    name   level2_name level1_name scheme
-    #> 1  BGM Belgium Middle Europe      EUROPE wgsrpd
+Each Level 1 region expands to its Level 3 codes:
 
 ``` r
 
-# every code Europe expands to
-nrow(taxify_regions("Europe"))
-#> [1] 41
-
-# browse the full table
-head(taxify_regions())
+wgsrpd <- taxify_regions(scheme = "wgsrpd")
+n_l3 <- as.data.frame(table(wgsrpd$level1_name), stringsAsFactors = FALSE)
+knitr::kable(n_l3, col.names = c("Level 1 region", "Level 3 regions"))
 ```
 
-The same crosswalk powers
-[`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md),
-so the botanical codes here are the ones that appear in native-range
-enrichment output.
+| Level 1 region   | Level 3 regions |
+|:-----------------|----------------:|
+| AFRICA           |              71 |
+| ANTARCTIC        |              12 |
+| ASIA-TEMPERATE   |              52 |
+| ASIA-TROPICAL    |              31 |
+| AUSTRALASIA      |              13 |
+| EUROPE           |              41 |
+| NORTHERN AMERICA |              73 |
+| PACIFIC          |              28 |
+| SOUTHERN AMERICA |              48 |
 
-## Marine regions
+The same codes appear in the native-range output of
+[`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md).
 
-Marine names use the second range source: WoRMS distribution records
-rolled up to Marine Ecoregions of the World. It arrives with the
-`marine_distribution` asset, which downloads on first use, and from then
-on `region=` takes MEOW names and codes the same way it takes botanical
-ones.
+### Marine regions
+
+Marine names use the `marine_distribution` asset, which downloads on
+first use. From then on `region` takes MEOW ecoregion, province and
+realm names and codes the same way it takes botanical ones; a province
+or realm expands to its member ecoregions.
 
 ``` r
 
@@ -192,74 +173,44 @@ taxify(c("Carcinus maenus", "Gadus morhua"), region = "North Sea")
     #> 1 Carcinus maenus Carcinus maenas Carcinidae      fuzzy     col
     #> 2    Gadus morhua    Gadus morhua    Gadidae      exact     col
 
-An ecoregion name resolves to its own code. A province or realm name
-expands to its member ecoregions, the way a TDWG Level 1 continent
-expands to its Level 3 codes.
-
 ``` r
 
 head(taxify_regions("Temperate Northern Atlantic", scheme = "meow"))
 ```
 
-    #>    code                           name                       level2_name
-    #> 1 25042                     Carolinian Warm Temperate Northwest Atlantic
-    #> 2 20043        Northern Gulf of Mexico Warm Temperate Northwest Atlantic
-    #> 3 25040     Gulf of Maine/Bay of Fundy Cold Temperate Northwest Atlantic
-    #> 4 20041                      Virginian Cold Temperate Northwest Atlantic
-    #> 5 20030                   Adriatic Sea                 Mediterranean Sea
-    #> 6 25033 Tunisian Plateau/Gulf of Sidra                 Mediterranean Sea
-    #>                   level1_name scheme
-    #> 1 Temperate Northern Atlantic   meow
-    #> 2 Temperate Northern Atlantic   meow
-    #> 3 Temperate Northern Atlantic   meow
-    #> 4 Temperate Northern Atlantic   meow
-    #> 5 Temperate Northern Atlantic   meow
-    #> 6 Temperate Northern Atlantic   meow
+A point at sea maps to the MEOW ecoregion containing it and is unioned
+with the botanical lookup, so one `coords` argument serves a list of
+plants and marine animals. MEOW covers coastal and shelf waters; a point
+over a deep ocean basin belongs to no ecoregion and leaves those names
+unconstrained.
 
-Coordinates behave the same way. A point at sea maps to the MEOW
-ecoregion containing it, and
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-unions that with the botanical lookup, so a single `coords` argument
-serves a list holding both plants and marine animals.
+## How the filter decides
 
-``` r
+For each input name,
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) looks
+its fuzzy candidates up in the range source that owns the resolved
+region codes and drops an out-of-region candidate when another candidate
+survives. Three rules apply:
 
-# central North Sea
-taxify(field_names, coords = c(3.0, 56.0))
-```
+- Exact and case-folded matches are never filtered.
 
-MEOW maps coastal and shelf waters, so a point over a deep ocean basin
-belongs to no ecoregion. The filter treats that as absence of data and
-leaves those names alone.
+- A candidate with no range data is kept. Vascular plants and marine
+  taxa are covered; a name outside both passes through unchanged, so a
+  mixed list can carry a region safely.
 
-## What it covers, and what it does not
+- When every candidate for a name is out of region, all are kept.
 
-The two sources cover vascular plants and marine taxa. A name outside
-both scopes has no range records, so the filter leaves it alone by
-design, which is why a mixed list can carry a region without harming the
-matches it has no data for.
+Marine ranges inherit the grain of the WoRMS locality they were recorded
+against, which runs from a single bay to an ocean basin. The median
+species spans 4 ecoregions and a quarter span exactly one; about 0.3%
+span more than half the ocean and are in region wherever you ask.
 
-Marine ranges inherit the grain of the underlying record. WoRMS files a
-distribution against a named locality, and those run from a single bay
-to a whole ocean basin; a record against a basin maps to every ecoregion
-inside it. The median species spans 4 ecoregions and a quarter span
-exactly one, so most ranges are sharp. About 0.3% span more than half
-the ocean, and for those the filter is permissive: a species recorded
-that widely is in region wherever you ask, so it breaks no ties. The
-constraint also acts on fuzzy candidates only, so it changes nothing for
-a list that matches exactly throughout. It is most useful on regional
-field lists with the usual crop of misspellings, where the right
-correction and a plausible wrong one are a single edit apart.
-
+The constraint is most useful on regional field lists with misspellings,
+where the intended correction and a wrong one are a single edit apart.
 The related check in
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-looks at the other end of the pipeline. Rather than steering a
-correction, it takes matched names and flags the ones WCVP does not
-record in your region, surfacing a real but geographically out-of-place
-species for review. The two share the `region`, `coords`, and `range`
-arguments. See the [name inspection
-vignette](https://gillescolling.com/taxify/articles/inspecting-names.html)
-for that pass.
+works after matching: it flags matched names that WCVP does not record
+in your region, using the same `region`, `coords` and `range` arguments.
 
 ## Where to go next
 
@@ -274,4 +225,20 @@ for that pass.
 - [Enrichments](https://gillescolling.com/taxify/articles/enrichments.html)
   for
   [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md),
-  which attaches native range on the same TDWG codes. \`\`\`
+  which attaches native range on the same TDWG codes.
+
+## References
+
+Brummitt RK (2001). *World Geographical Scheme for Recording Plant
+Distributions*, Edition 2. <https://github.com/tdwg/wgsrpd>
+
+Govaerts R, Nic Lughadha E, Black N, Turner R, Paton A (2021). The World
+Checklist of Vascular Plants, a continuously updated resource for
+exploring global plant diversity. *Scientific Data* 8: 215.
+<https://doi.org/10.1038/s41597-021-00997-6>
+
+Spalding MD, Fox HE, Allen GR, Davidson N, Ferdana ZA, Finlayson M,
+Halpern BS, Jorge MA, Lombana A, Lourie SA, Martin KD, McManus E, Molnar
+J, Recchia CA, Robertson J (2007). Marine Ecoregions of the World: a
+bioregionalization of coastal and shelf areas. *BioScience* 57: 573-583.
+<https://doi.org/10.1641/B570707>

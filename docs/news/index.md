@@ -1,6 +1,243 @@
 # Changelog
 
+## taxify 0.6.0
+
+### Requesting GBIF data for a name list
+
+- [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+  takes a species list, matches it against the GBIF backbone and
+  requests occurrence data for every accepted taxon key the matches
+  resolve to. GBIF serves records by taxon key rather than by name, and
+  a name it files under several keys (a homonym, or a name held once as
+  accepted and again as a doubtful record) needs all of them: of the
+  four species in the new vignette, *Quercus robur* has three keys and
+  *Pinus sylvestris* six. `strict = TRUE` narrows the request to the key
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  reported, and reports how many keys and records that leaves behind. It
+  is off by default.
+- `method = "download"` (default) submits one asynchronous GBIF download
+  covering every key as a single `taxonKey IN (...)` predicate, so the
+  list returns as one dataset under one citable DOI. It needs a GBIF
+  account in `GBIF_USER` / `GBIF_PWD` / `GBIF_EMAIL`, and says which are
+  missing before contacting GBIF. `method = "search"` sends
+  unauthenticated searches and returns the records directly, with a
+  `taxon_key_requested` column tracing each row to the key that asked
+  for it.
+- Before a request is sent, the expected size is reported from the
+  backbone’s own occurrence counts, and `dry_run = TRUE` returns the
+  keys while contacting nothing. An ID that is not a GBIF integer key is
+  refused rather than sent, which is what happens against the bundled
+  example database.
+- rgbif moves into Suggests. Resolving names and reading off their keys
+  stays offline and does not need it; only the request itself does.
+- [`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
+  links the returned occurrence records back to the names they were
+  requested for. Joining on `taxonKey` alone loses records without
+  saying so: GBIF returns a key’s descendants too, and a record
+  identified below species level carries its own key, so a request for
+  *Pinus nigra* returns rows whose `taxonKey` is its subspecies and
+  which carry the requested key only in `speciesKey`. On a 300-record
+  sample of that request a `taxonKey` join matches 250;
+  [`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
+  matches 300.
+- New vignette,
+  [`vignette("gbif-requests")`](https://gillescolling.com/taxify/articles/gbif-requests.md),
+  which also covers installing rgbif and storing GBIF credentials.
+
+### Names with several accepted IDs
+
+- [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  output replaces `is_ambiguous` and `ambiguous_targets` with `n_ids`
+  and `accepted_ids`: how many distinct accepted taxa the backbone files
+  the matched name under, and all of those IDs (`|`-joined, the one in
+  `accepted_id` first). The old flag fired only when candidates tied in
+  the top priority tier, so a name GBIF holds both as an accepted record
+  and as a doubtful or duplicate one came back with one ID and
+  `is_ambiguous = FALSE`. `n_ids` counts every record of the name. In a
+  fuzzy match only names at the pick’s distance count: a farther
+  neighbour is a worse reading of the input, not another taxon it names.
+- [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  warns once per call when any name resolves to more than one accepted
+  ID, naming the count and a few examples. The warning has class
+  `taxify_multiple_ids`; switch it off with
+  `options(taxify.warn_multiple_ids = FALSE)`. The verbs built on
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  ([`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md),
+  [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+  [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md),
+  …) do not repeat it.
+  [`summary()`](https://rdrr.io/r/base/summary.html) shows the count as
+  a `multiple ids` line.
+- [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+  lists every accepted ID of each matched name, one row per (name, ID),
+  with accepted name, authorship, rank, status, family, the GBIF
+  occurrence count and which ID
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  picked. It replaces `taxify_candidates()`, which only expanded tied
+  homonyms.
+- `n_ids` and `accepted_ids` appear in
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  output only when some name resolves to more than one accepted ID,
+  which is also when the `taxify_multiple_ids` warning fires (unless
+  switched off). Otherwise `accepted_id` says all there is to say and
+  the two columns are left out.
+  [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+  and
+  [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+  work either way
+  ([`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+  always carries `n_ids`). Results from two calls can then differ in
+  columns: combine them with
+  [`dplyr::bind_rows()`](https://dplyr.tidyverse.org/reference/bind_rows.html),
+  which fills the missing columns with `NA`, rather than base
+  [`rbind()`](https://rdrr.io/r/base/cbind.html).
+- On the GBIF backbone the pick now reads occurrence records: among the
+  records that keep a name as their own concept (accepted, doubtful,
+  unplaced), a key with any GBIF occurrence records beats a key with
+  none, before taxonomic status is consulted. A synonym record never
+  wins on records, since its accepted ID is another species and a
+  download by it returns that species’ data; its key stays listed in
+  `accepted_ids` and
+  [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md).
+  Between keys that both have records, or both have none, status decides
+  as before, and the count only breaks a tie status, rank and epithet
+  leave. Checked against the live GBIF API: *Karwinskia mollis* went to
+  the doubtful Standl. key (0 records) and now goes to the accepted
+  Schltdl. key (663).
+- Among records the status, rank and epithet steps leave level,
+  typically one name published by several authors, the
+  earliest-published record wins before the occurrence count is read
+  (priority of publication; the year comes from GBIF’s `year` or
+  `name_published_in`). *Absinthium vulgare* Lam. (1779) resolves to
+  *Artemisia absinthium* rather than to the Dulac homonym (1867). Years
+  order names under the botanical code only (plants, fungi, chromists,
+  protozoa) and only between records of one kingdom: priority does not
+  cross codes, and the zoological code protects prevailing usage over
+  strict priority, which the occurrence count tracks.
+- A fuzzy match on GBIF now reads occurrence counts and publication
+  years too; the fuzzy path used to drop those columns. Needs the
+  `gbif-2023.08` backbone (built 2026-09-22), which also carries GBIF’s
+  `DOUBTFUL` status instead of folding it into `ACCEPTED`.
+- [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+  marks a name `"ambiguous"` when it has several accepted IDs and does
+  not resolve to itself as accepted, and gains an `n_ids` column; a name
+  accepted under its own spelling stays `"unchanged"` when a homonym
+  record also exists.
+  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)’s
+  `ambiguous` label follows the same rule.
+- The abbreviated-genus stage (`"Q. robur"`) considers only names with
+  as many words as the query, so a binomial no longer draws the
+  infraspecific names built on it into its candidates.
+
+## taxify 0.5.6
+
+- Cross-backbone recovery in grouped doors
+  ([`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
+  and the others over an authorship-bearing source) now also runs for a
+  name whose own concept the source does not hold under that name, even
+  where parts of the taxon supplied values, and for each part of the
+  matched taxon that found nothing under its own name. A part is asked
+  of the source’s own backbone only when the source is also a backbone.
+  When the matched backbone is known, an alternative is taken only if it
+  lies inside the matched taxon: one at a broader rank (a species
+  offered for a subspecies) is refused, and so is one the matched
+  backbone accepts as a taxon of its own, unless that accepted record is
+  a homonym under another author. Over 10,000 wcvp keys through COL /
+  WFO / GBIF this gains 10,062 / 4,894 / 5,193 cells and drops 4,966 /
+  11,975 / 8,782. Every dropped cell traces to one of the two refusals
+  (switching the check off restores all of them): a species’ range under
+  an infraspecific name, or an independent taxon’s range (*Dianthus
+  carthusianorum*’s under *D. rogowiczii*, which WFO accepts on its
+  own). Each “accepted elsewhere” refusal behind a dropped cell rests on
+  agreeing authors or on an autonym.
+
+- A grouped door now reports what the within-taxon check left empty: the
+  recovery message counts the names,
+  [`summary()`](https://rdrr.io/r/base/summary.html) shows the count,
+  and the enrichment’s `taxify_meta` entry carries `n_refused` plus a
+  `refused` table (queried name, refused name, reason, the backbones
+  offering it, and how many requested groups it would have filled).
+  Through COL / WFO / GBIF over the same 10,000 names that is 2,284 /
+  2,001 / 2,664 names.
+
+- [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md):
+  where parts of the matched taxon disagree on a region, `native` wins
+  over `introduced` and `introduced` over `extinct`, since a taxon is
+  native wherever any of its parts is; ties go to the name’s own record,
+  then the parts by name. Previously the first part read won. This
+  changes 126 / 159 / 197 cells through COL / WFO / GBIF, all to
+  `native`.
+
+- Faster grouped enrichment: the backbone reads behind the concept pick
+  use the cached in-memory block, a `.vtr`’s schema is read once per
+  session, author citations are parsed once per distinct string, and the
+  group fill and `pick_best_vec()`’s ambiguity flag no longer scale with
+  the square of the group count. `add_wcvp(region = "all")` over 10,000
+  names through GBIF, including the wider recovery above, went from 53 s
+  to 22 s. `add_griis(country = "all")` over 10,000 GRIIS keys went from
+  29.6 s to 3.7 s through WFO and from 10.4 s to 4.4 s through GBIF,
+  with output identical cell for cell: GRIIS carries no authorship
+  column, so neither the wider recovery nor the within-taxon check
+  applies to it.
+
+- [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
+  (and every grouped door over an authorship-bearing source) now returns
+  the range of the taxon a name was matched to, as the matching backbone
+  draws it. The build keys a source concept under every name a backbone
+  gives it, so the rows under one name belonged to several concepts and
+  the guard only ever separated two authored ones:
+
+  - A row with no authorship is an autonym (WCVP writes no author for
+    one). It is the name’s own concept under an autonym key and another
+    name’s autonym anywhere else. *Erigeron pulchellus* Michx. came back
+    native in Turkey, Iran and the Caucasus from *E. caucasicus* subsp.
+    *caucasicus*; 1,042 names in the current `wcvp` asset carried
+    another name’s autonym this way (40,447 rows).
+  - A name’s range is its own concept plus the concept of every name the
+    matched backbone places inside it (its synonyms and, for a species,
+    its accepted infraspecific taxa and their synonyms), each read under
+    its own key and picked by the author the backbone gives it. Through
+    COL and GBIF, which hold *Eucalyptus bicostata* as a subspecies or
+    variety of *E. globulus*, *E. globulus* includes New South Wales;
+    through WFO, which keeps *E. bicostata* a species, it does not. A
+    subspecies filed only under its own name now counts for its species.
+  - Rows under the name that no part of the taxon accounts for are
+    dropped, also when they are the only rows there. The largest group
+    is a species’ range filed under one of its subspecies or varieties.
+  - An author citation is matched as sources vary it (initials, the part
+    before `ex`, `fil.` for `f.`, a dropped basionym author, a co-author
+    left out, a one-letter typo), so a name’s own concept is still found
+    when the backbone and the source cite it differently, while `L.` and
+    `L.f.`, or `Rose` and `Lowe`, stay apart.
+
+  Over 10,000 `wcvp` keys (half at random, half holding several
+  concepts), matched through COL / WFO / GBIF, against the previous
+  release: 8,595 / 8,574 / 39,964 region cells are gone, of which 5,450
+  / 4,761 / 34,770 were a species’ range under one of its subspecies or
+  varieties and 1,005 / 954 / 710 another name’s autonym; 4,188 / 5,823
+  / 9,457 cells are new, from the parts of each taxon. Names left with
+  no range: 19 / 5 / 25.
+
+- [`enrichment_authorship_col()`](https://gillescolling.com/taxify/reference/enrichment_authorship_col.md),
+  the column `enrich_by_group()`’s homonym guard reads, is exported
+  (internal) so taxifydb keys each region row of an authorship-bearing
+  enrichment on the concept the guard will accept (gcol33/taxifydb#58).
+
+- Every backbone entry in the bundled manifest now records
+  `source_date`, the date the source gives the release a build was made
+  from (an ISO date, or `YYYY-MM` / `YYYY` where the source dates it no
+  finer), so
+  [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md),
+  [`taxify_databases()`](https://gillescolling.com/taxify/reference/taxify_databases.md)
+  and the [`cite()`](https://gillescolling.com/taxify/reference/cite.md)
+  data-version note report it for all nineteen backbones rather than
+  GBIF alone. taxifydb records it at build time from the same place it
+  reads the version
+  ([\#88](https://github.com/gcol33/taxify/issues/88)).
+
 ## taxify 0.5.5
+
+CRAN release: 2026-09-18
 
 - [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)’s
   two search examples (`"belgium"`, `"Europe"`) are wrapped in
@@ -541,9 +778,7 @@ CRAN release: 2026-09-02
   candidate the scalar columns hold but no longer clears the flag,
   because a valid name and an illegitimate one carrying the same string
   can be synonyms of different species. Both names now answer as they
-  should, and
-  [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)
-  expands the conflict.
+  should, and `taxify_candidates()` expands the conflict.
 
 - An authorship carried by the query now settles a homonym whether or
   not the row was flagged ambiguous: an author the caller typed is a
@@ -2116,8 +2351,7 @@ CRAN release: 2026-07-09
   the core output.
   [`children()`](https://gillescolling.com/taxify/reference/children.md)
   lists the accepted taxa within a genus or family, for building a
-  checklist rather than only validating one.
-  [`taxify_candidates()`](https://gillescolling.com/taxify/reference/taxify_candidates.md)
+  checklist rather than only validating one. `taxify_candidates()`
   expands an ambiguous match (`is_ambiguous`) into one row per candidate
   accepted taxon, so homonyms can be resolved by hand.
 - [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)

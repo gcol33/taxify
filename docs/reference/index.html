@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@
     <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
     <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
@@ -218,10 +219,24 @@
 
         <dt>
 
-          <code><a href="taxify_candidates.html">taxify_candidates()</a></code>
+          <code><a href="taxify_ids.html">taxify_ids()</a></code>
 
         </dt>
-        <dd>Expand ambiguous matches into their candidate taxa</dd>
+        <dd>List every accepted ID of each matched name</dd>
+
+        <dt>
+
+          <code><a href="gbif_request.html">gbif_request()</a></code>
+
+        </dt>
+        <dd>Request GBIF occurrence data for a matched name list</dd>
+
+        <dt>
+
+          <code><a href="gbif_backmatch.html">gbif_backmatch()</a></code>
+
+        </dt>
+        <dd>Link GBIF occurrence records back to the names they were requested for</dd>
       </dl></div><div class="section level2">
       <h2 id="backbone-data-and-cache">Backbone data and cache<a class="anchor" aria-label="anchor" href="#backbone-data-and-cache"></a></h2>
 

@@ -1,11 +1,12 @@
 # Order match candidates by resolution priority
 
-The single source of truth for the candidate sort: the four concept
-scores of
+The single source of truth for the candidate sort: the fuzzy distance,
+whether the key has occurrence records, the remaining concept scores of
 [`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md)
-in tier order, then the nomenclatural-validity tiebreak, then the lowest
-`taxonID`. Pass `group_col` to sort within groups first, so the first
-row of each group is that group's best candidate.
+in tier order, the occurrence count, then the nomenclatural-validity
+tiebreak, then the lowest `taxonID`. Pass `group_col` to sort within
+groups first, so the first row of each group is that group's best
+candidate.
 
 ## Usage
 

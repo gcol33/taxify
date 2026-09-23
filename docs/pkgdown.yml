@@ -7,13 +7,14 @@ articles:
   articles/databases: databases.html
   enrichments: enrichments.html
   fuzzy-matching: fuzzy-matching.html
+  gbif-requests: gbif-requests.html
   hybrids-and-aggregates: hybrids-and-aggregates.html
   inspecting-names: inspecting-names.html
   large-scale: large-scale.html
   migration: migration.html
   quickstart: quickstart.html
   regions: regions.html
-last_built: 2026-09-17T20:23Z
+last_built: 2026-09-23T14:47Z
 urls:
   reference: https://gillescolling.com/taxify/reference
   article: https://gillescolling.com/taxify/articles
