@@ -227,6 +227,25 @@ test_that("only the rows a crosswalk leaves without keys are re-matched", {
 })
 
 
+test_that("a COL XR name with several accepted taxa is re-matched to GBIF", {
+  # COL XR files a homonym's synonyms under other species, so the keys of those
+  # accepted taxa are not the name's own.
+  asked <- NULL
+  local_mocked_bindings(
+    taxify_ids = ids_of(c("Quercus robur" = "2878688",
+                          "Bellis perennis" = "3117424")),
+    taxify_input = function(x, backbone, ..., verbose) {
+      asked <<- x
+      fake_result(input = x, backbone = "gbif", accepted_id = "2878688")
+    })
+  x <- fake_result(backbone = "colxr", accepted_id = c("4R5YN", "5WH44"))
+  x$accepted_ids <- c("4R5YN|7KPMG", NA_character_)
+  out <- ensure_gbif_match(x, verbose = FALSE)
+  expect_equal(asked, "Quercus robur")
+  expect_equal(out$input_name, c("Quercus robur", "Bellis perennis"))
+})
+
+
 test_that("a colxr result with no crosswalk is re-matched to GBIF", {
   # A colxr build that predates the crosswalk has no gbif_key column.
   local_mocked_bindings(

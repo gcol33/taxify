@@ -43,19 +43,25 @@ check_gbif_credentials <- function() {
 }
 
 
-#' Which rows of a result carry GBIF keys
+#' Which rows of a result carry GBIF keys a request can use
 #'
 #' A row on the `gbif` backbone does. So does a row on a backbone whose build
-#' carries a GBIF crosswalk (COL XR), once its accepted taxon has a key there.
-#' Every other row has none.
+#' carries a GBIF crosswalk (COL XR) when the name resolves to a single
+#' accepted taxon and that taxon has a key. A name that resolves to several
+#' accepted taxa does not: the backbone files a homonym's synonyms under other
+#' species (COL XR files *Pinus sylvestris* Lour. under *P. massoniana*), and a
+#' request for those keys would return records of taxa the name does not
+#' denote. Those names are matched against GBIF, which files each homonym under
+#' its own key.
 #'
 #' @noRd
 rows_with_gbif_key <- function(x) {
   keyed <- !is.na(x$backbone) & x$backbone == "gbif"
-  rest <- !keyed
-  if (any(rest)) {
-    tab <- taxify_ids(as.data.frame(x)[rest, , drop = FALSE], verbose = FALSE)
-    keyed[rest] <- x$input_name[rest] %in% tab$input_name[!is.na(tab$gbif_key)]
+  multi <- x$accepted_ids %||% rep(NA_character_, nrow(x))
+  cand <- !keyed & (is.na(multi) | !grepl("|", multi, fixed = TRUE))
+  if (any(cand)) {
+    tab <- taxify_ids(as.data.frame(x)[cand, , drop = FALSE], verbose = FALSE)
+    keyed[cand] <- x$input_name[cand] %in% tab$input_name[!is.na(tab$gbif_key)]
   }
   keyed
 }
@@ -134,16 +140,16 @@ gbif_keys_of <- function(x, strict = FALSE, verbose = TRUE) {
     stop("No names matched the GBIF backbone. Match against it with ",
          "taxify(x, backbone = \"gbif\").", call. = FALSE)
   }
-  tab <- taxify_ids(x, verbose = verbose)
-  keyless <- !is.na(tab$accepted_id) & is.na(tab$gbif_key)
-  if (any(keyless)) {
+  usable <- rows_with_gbif_key(x)
+  if (!all(usable)) {
     if (verbose) {
-      message(sprintf("Dropping %d name(s) matched by a backbone with no GBIF ",
-                      length(unique(tab$input_name[keyless]))),
-              "key; GBIF keys come from the GBIF backbone.")
+      message(sprintf("Dropping %d name(s) with no single GBIF key; ",
+                      length(unique(x$input_name[!usable]))),
+              "GBIF keys come from the GBIF backbone.")
     }
-    tab <- tab[!keyless, , drop = FALSE]
+    x <- as.data.frame(x)[usable, , drop = FALSE]
   }
+  tab <- taxify_ids(x, verbose = verbose)
   if (nrow(tab) == 0L || all(is.na(tab$gbif_key))) {
     stop("No names matched the GBIF backbone. Match against it with ",
          "taxify(x, backbone = \"gbif\").", call. = FALSE)
@@ -170,8 +176,7 @@ gbif_keys_of <- function(x, strict = FALSE, verbose = TRUE) {
   bad <- !grepl("^[0-9]+$", all_keys)
   if (any(bad)) {
     stop(sprintf(
-      paste0("%d of %d GBIF keys are not GBIF taxon keys (e.g. %s).
-",
+      paste0("%d of %d GBIF keys are not GBIF taxon keys (e.g. %s).\n",
              "  A GBIF request needs the real GBIF backbone; the bundled ",
              "example database carries synthetic IDs."),
       sum(bad), length(all_keys), all_keys[which(bad)[1L]]), call. = FALSE)
