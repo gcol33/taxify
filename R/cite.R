@@ -47,12 +47,13 @@ cite <- function(x, ...) {
 #' @export
 cite.default <- function(x, file = NULL, ...) {
   meta <- attr(x, "taxify_meta")
-  if (is.null(meta)) {
+  download <- attr(x, "gbif_download")
+  if (is.null(meta) && is.null(download)) {
     stop("x has no taxify_meta attribute -- was it created by taxify()?",
          call. = FALSE)
   }
 
-  citations <- collect_citations(meta)
+  citations <- if (is.null(meta)) list() else collect_citations(meta)
 
   # Console output
   rule <- strrep("\u2500", 60)
@@ -61,11 +62,33 @@ cite.default <- function(x, file = NULL, ...) {
     txt <- format_citation_text(citations[[i]])
     cat(sprintf("  [%d] %s\n", i, txt))
   }
+  # A GBIF download is cited by its own DOI, separately from the backbone the
+  # names were matched against, because it is a distinct archived dataset.
+  if (!is.null(download)) {
+    dl <- gbif_download_citation(download)
+    if (!is.null(dl)) {
+      cat(sprintf("  [%d] %s\n", length(citations) + 1L, dl$text))
+    }
+  }
   cat(sprintf("  %s\n", rule))
 
   # BibTeX file
   if (!is.null(file)) {
     bibtex <- vapply(citations, format_bibtex_entry, character(1L))
+    if (!is.null(download)) {
+      dl <- gbif_download_citation(download)
+      if (!is.null(dl) && !is.na(dl$doi)) {
+        bibtex <- c(bibtex, sprintf(paste0(
+          "@misc{gbif_download_%s,\n",
+          "  title = {GBIF Occurrence Download},\n",
+          "  author = {{GBIF.org}},\n",
+          "  year = {%s},\n",
+          "  doi = {%s},\n",
+          "  note = {Download key %s}\n}"),
+          gsub("[^A-Za-z0-9]", "", download),
+          format(Sys.Date(), "%Y"), dl$doi, download))
+      }
+    }
     writeLines(paste(bibtex, collapse = "\n\n"), file)
     cat(sprintf("  BibTeX written to: %s\n", file))
   }

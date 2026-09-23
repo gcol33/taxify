@@ -19,7 +19,9 @@ rgbif's \code{occ_download_import()}.}
 \value{
 \code{records} with three columns added: \code{requested_key} (the key that
 matched), \code{input_name} (the name as queried) and \code{accepted_name}. Records
-matching no requested key keep \code{NA} in all three.
+matching no requested key keep \code{NA} in all three. The provenance on \code{x}
+travels with them, so \code{\link[=cite]{cite()}} on the result reports the backbone and,
+for a download, its DOI.
 }
 \description{
 A request built from \code{\link[=gbif_request]{gbif_request()}} covers several keys per name, so the

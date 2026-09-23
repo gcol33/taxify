@@ -46,7 +46,9 @@ With \code{dry_run = TRUE}, an integer vector of GBIF taxon keys. With
 download key, to be passed to \code{occ_download_wait()}). With
 \code{method = "search"}, a data.frame of occurrence records, empty if none
 matched. In every case the keys and the \code{\link[=taxify_ids]{taxify_ids()}} table behind them
-are attached as the \code{keys} and \code{taxa} attributes.
+are attached as the \code{keys} and \code{taxa} attributes, along with the match's
+\code{taxify_meta}; a download also carries its key as \code{gbif_download}, which
+is what lets \code{\link[=cite]{cite()}} report the download's DOI beside the backbone.
 }
 \description{
 Takes a list of names, matches it against the GBIF backbone and requests

@@ -151,7 +151,9 @@ gbif_keys_of <- function(x, strict = FALSE, verbose = TRUE) {
 #'   download key, to be passed to `occ_download_wait()`). With
 #'   `method = "search"`, a data.frame of occurrence records, empty if none
 #'   matched. In every case the keys and the [taxify_ids()] table behind them
-#'   are attached as the `keys` and `taxa` attributes.
+#'   are attached as the `keys` and `taxa` attributes, along with the match's
+#'   `taxify_meta`; a download also carries its key as `gbif_download`, which
+#'   is what lets [cite()] report the download's DOI beside the backbone.
 #'
 #' @seealso [taxify_ids()] for the keys and their occurrence counts,
 #'   [taxify()] for the matching itself.
@@ -197,6 +199,9 @@ gbif_request <- function(x,
 
   keys <- gbif_keys_of(x, strict = strict, verbose = verbose)
   taxa <- attr(keys, "taxa")
+  # Attached before the dry-run return, so the keys carry the same provenance
+  # the records would.
+  attr(keys, "taxify_meta") <- attr(x, "taxify_meta")
   if (verbose) {
     message(sprintf("%d GBIF key(s) from %d matched name(s).%s",
                     length(keys), length(unique(taxa$input_name)),
@@ -216,6 +221,11 @@ gbif_request <- function(x,
 
   attr(out, "keys") <- as.integer(keys)
   attr(out, "taxa") <- taxa
+  # Carry the backbone provenance from the match, and the download key, so
+  # cite() can report both what the names were matched against and the
+  # download GBIF asks you to cite.
+  attr(out, "taxify_meta") <- attr(x, "taxify_meta")
+  if (method == "download") attr(out, "gbif_download") <- as.character(out)
   out
 }
 
@@ -260,7 +270,9 @@ expected_records_note <- function(taxa) {
 #'
 #' @return `records` with three columns added: `requested_key` (the key that
 #'   matched), `input_name` (the name as queried) and `accepted_name`. Records
-#'   matching no requested key keep `NA` in all three.
+#'   matching no requested key keep `NA` in all three. The provenance on `x`
+#'   travels with them, so [cite()] on the result reports the backbone and,
+#'   for a download, its DOI.
 #'
 #' @seealso [gbif_request()], [taxify_ids()].
 #'
@@ -306,6 +318,12 @@ gbif_backmatch <- function(records, x, verbose = TRUE) {
   records$input_name    <- taxa$input_name[idx]
   records$accepted_name <- taxa$accepted_name[idx]
 
+  # Provenance travels with the records: the backbone the names were matched
+  # against, and the download to cite, so cite() works on the result.
+  for (a in c("taxify_meta", "gbif_download")) {
+    if (!is.null(attr(x, a))) attr(records, a) <- attr(x, a)
+  }
+
   if (verbose) {
     lost <- sum(is.na(matched))
     if (lost) {
@@ -315,6 +333,38 @@ gbif_backmatch <- function(records, x, verbose = TRUE) {
     }
   }
   records
+}
+
+
+#' The citation for a GBIF download
+#'
+#' GBIF asks that a download be cited by its DOI, which the download is issued
+#' once it finishes preparing, not when it is submitted. The DOI is therefore
+#' read from GBIF at citation time rather than stored when the request was
+#' made. Returns NULL when rgbif is absent or GBIF cannot be reached, so a
+#' citation listing degrades to the backbone entries instead of failing.
+#'
+#' @param key A GBIF download key.
+#' @return A one-row list with `text` and `doi`, or NULL.
+#' @noRd
+gbif_download_citation <- function(key) {
+  if (!requireNamespace("rgbif", quietly = TRUE)) return(NULL)
+  meta <- tryCatch(rgbif::occ_download_meta(key), error = function(e) NULL)
+  if (is.null(meta)) return(NULL)
+  doi <- meta$doi
+  if (is.null(doi) || !nzchar(doi)) {
+    return(list(
+      text = sprintf(paste0("GBIF Occurrence Download, key %s (status %s). ",
+                            "No DOI yet; it is issued when the download ",
+                            "finishes."),
+                     key, meta$status %||% "unknown"),
+      doi = NA_character_))
+  }
+  date <- substr(meta$created %||% "", 1L, 10L)
+  list(
+    text = sprintf("GBIF.org%s GBIF Occurrence Download https://doi.org/%s",
+                   if (nzchar(date)) sprintf(" (%s)", date) else "", doi),
+    doi = doi)
 }
 
 

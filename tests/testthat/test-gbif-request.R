@@ -244,6 +244,81 @@ test_that("an empty record set comes back with the columns added", {
 })
 
 
+# ---- provenance carried to cite() ----
+
+test_that("the backbone provenance travels to the records", {
+  local_mocked_bindings(taxify_ids = fake_ids)
+  x <- fake_result()
+  attr(x, "taxify_meta") <- list(backends = "gbif")
+
+  keys <- gbif_request(x, dry_run = TRUE, verbose = FALSE)
+  expect_equal(attr(keys, "taxify_meta"), list(backends = "gbif"))
+
+  out <- gbif_backmatch(fake_records(), keys, verbose = FALSE)
+  expect_equal(attr(out, "taxify_meta"), list(backends = "gbif"))
+})
+
+
+test_that("a download key is attached only by the download method", {
+  local_mocked_bindings(
+    taxify_ids = fake_ids,
+    require_rgbif = function(...) invisible(TRUE),
+    check_gbif_credentials = function(...) invisible(TRUE),
+    gbif_search_keys = function(...) data.frame(x = 1)
+  )
+  local_mocked_bindings(
+    occ_download = function(...) structure("0001-abc", class = "occ_download"),
+    pred_in = function(...) NULL,
+    .package = "rgbif"
+  )
+  dl <- gbif_request(fake_result(), method = "download", verbose = FALSE)
+  expect_equal(attr(dl, "gbif_download"), "0001-abc")
+
+  sr <- gbif_request(fake_result(), method = "search", verbose = FALSE)
+  expect_null(attr(sr, "gbif_download"))
+})
+
+
+test_that("the download key reaches the records through backmatch", {
+  src <- structure(list(), taxa = fake_ids(), gbif_download = "0001-abc")
+  out <- gbif_backmatch(fake_records(), src, verbose = FALSE)
+  expect_equal(attr(out, "gbif_download"), "0001-abc")
+})
+
+
+test_that("cite() reports the GBIF download beside the backbone", {
+  local_mocked_bindings(gbif_download_citation = function(key)
+    list(text = sprintf("GBIF.org (2026-01-01) ... https://doi.org/10.15468/dl.%s", key),
+         doi = "10.15468/dl.test"))
+  x <- data.frame(a = 1)
+  attr(x, "gbif_download") <- "abc"
+  expect_output(cite(x), "10\\.15468/dl\\.abc")
+})
+
+
+test_that("cite() still refuses an object with no provenance at all", {
+  expect_error(cite(data.frame(a = 1)), "taxify_meta")
+})
+
+
+test_that("a download with no DOI yet is reported as such, not as a citation", {
+  local_mocked_bindings(
+    occ_download_meta = function(key) list(status = "RUNNING", doi = NULL),
+    .package = "rgbif")
+  cit <- gbif_download_citation("0001-abc")
+  expect_true(is.na(cit$doi))
+  expect_match(cit$text, "No DOI yet")
+})
+
+
+test_that("an unreachable GBIF degrades to no download citation", {
+  local_mocked_bindings(
+    occ_download_meta = function(key) stop("offline"),
+    .package = "rgbif")
+  expect_null(gbif_download_citation("0001-abc"))
+})
+
+
 test_that("a missing rgbif is reported with an install instruction", {
   local_mocked_bindings(requireNamespace = function(...) FALSE,
                         .package = "base")
