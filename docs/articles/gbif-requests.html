@@ -113,37 +113,73 @@ integer identifying one taxon in the GBIF backbone, so the list has to
 be resolved to keys before anything can be requested.</p>
 <p>taxify does that in four steps: your list, matched, requested, and
 linked back to your names.</p>
+<p>Matching the names and reading off their keys runs offline. Sending
+the request needs <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a> installed, and
+a download needs a free GBIF account in your <code>.Renviron</code>; <a href="#setting-up-rgbif">Setting up rgbif</a> below covers both.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">spp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Bellis perennis"</span>, <span class="st">"Morus alba"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">dl</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span><span class="op">)</span>   <span class="co"># match, then ask GBIF for every key</span></span>
-<span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span>      <span class="co"># wait, download, import, attach your names</span></span></code></pre></div>
-<p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> matches the names against the local GBIF
-backbone, collects every accepted key they resolve to, and hands those
-to <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a>.
-<code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for the download and returns the records
-with your queried name on every row. rgbif is needed only for the
-request; matching the names and reading off their keys works offline
-without it.</p>
-<p>The rest of this article is what those two calls do, and what to
-check before sending a request for four million records.</p>
+<span><span class="va">spp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Bellis perennis"</span>, <span class="st">"Morus alba"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="match-first-then-request">Match first, then request<a class="anchor" aria-label="anchor" href="#match-first-then-request"></a>
+</h2>
+<p><code><a href="../reference/taxify.html">taxify()</a></code> resolves the list against the local GBIF
+backbone and returns an ordinary data frame, so you can see what every
+name landed on before anything is sent:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">matched</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"accepted_id"</span>, <span class="st">"taxonomic_status"</span>, <span class="st">"n_ids"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;         input_name    accepted_name accepted_id taxonomic_status n_ids</span></span>
+<span><span class="co">#&gt; 1    Quercus robur    Quercus robur     2878688         ACCEPTED     3</span></span>
+<span><span class="co">#&gt; 2 Pinus sylvestris Pinus sylvestris     5285637         ACCEPTED     6</span></span>
+<span><span class="co">#&gt; 3  Bellis perennis  Bellis perennis     3117424         ACCEPTED     1</span></span>
+<span><span class="co">#&gt; 4       Morus alba       Morus alba     5361889         ACCEPTED     1</span></span>
+<span><span class="co">#&gt; Sources: GBIF 2023.08 | cite() for full citations</span></span></code></pre></div>
+<p><code>accepted_id</code> is the key <code><a href="../reference/taxify.html">taxify()</a></code> reported;
+<code>n_ids</code> above 1 means GBIF files that name under several
+keys, and <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> lists them one per row.</p>
+<p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> takes the matched result, collects every
+one of those keys, and hands them to <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a>.
+<code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for the download and returns the records
+with your queried name on every row:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dl</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span>
+<span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="or-match-and-request-in-one-call">Or match and request in one call<a class="anchor" aria-label="anchor" href="#or-match-and-request-in-one-call"></a>
+</h2>
+<p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> also takes the names themselves and
+matches them against GBIF on the way past, with matching arguments
+(<code>fuzzy</code>, <code>kingdom</code>, <code>region</code>) passed
+through to <code><a href="../reference/taxify.html">taxify()</a></code>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dl</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span><span class="op">)</span>   <span class="co"># match, then ask GBIF for every key</span></span>
+<span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span>      <span class="co"># wait, download, import, attach your names</span></span></code></pre></div>
+<p>The same two steps with the match folded into the first. The matched
+table is still there afterwards, as <code>attr(dl, "taxa")</code>, but
+you commit to the request without having read it.</p>
+<p><code>dry_run = TRUE</code> sits between the two: it matches, reports
+the keys, and contacts nothing.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.</span></span>
 <span><span class="co">#&gt;  [1] 2878688 7911626 7586523 5285637 7718215 8116613 9079676 8251433 7393648</span></span>
 <span><span class="co">#&gt; [10] 3117424 5361889</span></span></code></pre></div>
-<p>Four names, eleven keys.</p>
+<p>Four names, eleven keys. The rest of this article is where the other
+seven come from, and what to check before sending a request for four
+million records.</p>
+</div>
 <div class="section level2">
-<h2 id="why-one-name-gives-several-keys">Why one name gives several keys<a class="anchor" aria-label="anchor" href="#why-one-name-gives-several-keys"></a>
+<h2 id="why-one-name-sometimes-gives-several-keys">Why one name sometimes gives several keys<a class="anchor" aria-label="anchor" href="#why-one-name-sometimes-gives-several-keys"></a>
 </h2>
 <p>GBIF files a name under more than one key in two situations: a
 homonym, where two authors published the same name for different taxa,
 and a name held once as an accepted record and again as a doubtful or
 duplicate one. <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> lays those out, one row per
 name and key, with the occurrence count each key carries:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/taxify_ids.html">taxify_ids</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          input_name accepted_id    accepted_name taxonomic_status n_occurrences is_pick</span></span>
@@ -173,25 +209,21 @@ promise.</p>
 </h2>
 <p>Every key is requested by default. <code>strict = TRUE</code> narrows
 the request to the single key <code><a href="../reference/taxify.html">taxify()</a></code> reported:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, strict <span class="op">=</span> <span class="cn">TRUE</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 4 GBIF key(s) from 4 matched name(s). About 4,090,074 occurrence record(s) across them.</span></span>
 <span><span class="co">#&gt; [1] 2878688 5285637 3117424 5361889</span></span></code></pre></div>
 <p>For this list the two choices differ by 11 records out of 4.09
 million, so asking for every key costs almost nothing and picks up
-records that would otherwise be dropped. The balance shifts for a list
-full of homonyms, which is what <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> is there to
-show you.</p>
-<p><code>dry_run = TRUE</code> returns the keys and contacts nothing, so
-it is the way to see what a request would cover before committing to
-it.</p>
+records that would otherwise be dropped. For a list with many homonyms
+the difference is larger, and <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> is where you see
+it before choosing.</p>
 </div>
 <div class="section level2">
 <h2 id="setting-up-rgbif">Setting up rgbif<a class="anchor" aria-label="anchor" href="#setting-up-rgbif"></a>
 </h2>
-<p>Everything so far ran offline against the local backbone. Sending the
-request is the part that needs rgbif:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>Sending the request is the part that needs rgbif:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rgbif"</span><span class="op">)</span></span></code></pre></div>
 <p><code>method = "search"</code> works with nothing further.
 <code>method = "download"</code> is an authenticated call and needs a
@@ -200,7 +232,7 @@ GBIF account, which is free: register at <a href="https://www.gbif.org/" class="
 documentation recommends keeping them in <code>.Renviron</code> rather
 than passing them as arguments, which also keeps them out of your
 scripts:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html" class="external-link">edit_r_environ</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Add the three lines, with no quotes and no spaces around the
 <code>=</code>:</p>
@@ -214,7 +246,7 @@ see <code><a href="https://docs.ropensci.org/rgbif/reference/occ_download.html" 
 <p>To confirm GBIF accepts the account, ask it for your own past
 downloads. That call is authenticated, so it only succeeds when the
 credentials are right:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_list.html" class="external-link">occ_download_list</a></span><span class="op">(</span>limit <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p>If a variable is missing, <code><a href="../reference/gbif_request.html">gbif_request()</a></code> stops before
 contacting GBIF and names which one. If the password is wrong, GBIF
@@ -223,11 +255,10 @@ answers 401.</p>
 <div class="section level2">
 <h2 id="sending-the-request">Sending the request<a class="anchor" aria-label="anchor" href="#sending-the-request"></a>
 </h2>
-<p>Two methods, for two situations.</p>
 <p><code>method = "search"</code> sends unauthenticated searches and
 returns the records directly. It needs no account, and the GBIF search
 API limits how deep it will page, so it suits a look at a few taxa:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, method <span class="op">=</span> <span class="st">"search"</span>, strict <span class="op">=</span> <span class="cn">TRUE</span>, limit <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 200</span></span></code></pre></div>
@@ -237,19 +268,18 @@ the key that asked for it.</p>
 <p><code>method = "download"</code> is the default. It submits an
 asynchronous GBIF download, which has no record cap and is issued a DOI
 you can cite. It needs a GBIF account:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, method <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for the download, retrieves it,
 imports it, and attaches your queried names.</p>
-<p>All of the keys go into one download, not one download per key: they
-are sent as a single <code>taxonKey IN (...)</code> predicate, so the
-whole list comes back as one dataset under one DOI. A download of four
-million records is prepared on GBIF’s servers and takes a while, which
-is why the call returns as soon as the request is queued rather than
-waiting for it.</p>
+<p>All of the keys go into one download: they are sent as a single
+<code>taxonKey IN (...)</code> predicate, so the whole list comes back
+as one dataset under one DOI. GBIF prepares a download of four million
+records on its own servers, which takes a while, so the call returns as
+soon as the request is queued.</p>
 <div class="section level3">
-<h3 id="lists-too-long-for-one-query">Lists too long for one query<a class="anchor" aria-label="anchor" href="#lists-too-long-for-one-query"></a>
+<h3 id="long-lists-are-split-across-downloads">Long lists are split across downloads<a class="anchor" aria-label="anchor" href="#long-lists-are-split-across-downloads"></a>
 </h3>
 <p>GBIF caps a download query at 12,000 characters. A taxonKey predicate
 costs about 10 characters per key, so roughly 1,187 keys fit, and a
@@ -259,19 +289,18 @@ counted.</p>
 chunks of 1,000 and submits them through rgbif’s
 <code>occ_download_queue()</code>, which respects GBIF’s rule of three
 concurrent downloads per user:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">long_species_list</span>, method <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 2,431 keys exceed GBIF's query limit; splitting into 3 downloads of up to</span></span>
+<span><span class="co">#&gt; 2431 keys exceed GBIF's query limit; splitting into 3 downloads of up to</span></span>
 <span><span class="co">#&gt; 1000 keys. Each gets its own DOI.</span></span></code></pre></div>
 <p><code>dl</code> is then a vector of download keys rather than one,
 and <code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for all of them and stacks the
 records, so fetching a split request looks the same as fetching a single
 one:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span></code></pre></div>
-<p>The record count itself is not a limit. GBIF prepares downloads of
-tens of millions of records server-side; only the query naming the keys
-is capped.</p>
+<p>Only the query naming the keys is capped. GBIF prepares downloads of
+tens of millions of records server-side, however many that comes to.</p>
 </div>
 </div>
 <div class="section level2">
@@ -282,21 +311,21 @@ for, so they have to be traced back before you can count or group by
 species. <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> does that, adding
 <code>requested_key</code>, <code>input_name</code> and
 <code>accepted_name</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, method <span class="op">=</span> <span class="st">"search"</span>, limit <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="va">recs</span>, <span class="va">recs</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">recs</span><span class="op">$</span><span class="va">input_name</span>, useNA <span class="op">=</span> <span class="st">"ifany"</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> calls it for you, so this is only needed
 when you fetched the records some other way or asked it not to:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span>, backmatch <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="va">recs</span>, <span class="va">dl</span><span class="op">)</span></span></code></pre></div>
 <p>It takes the object <code><a href="../reference/gbif_request.html">gbif_request()</a></code> returned, which
 carries the key table as an attribute. A <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> table
 or a <code><a href="../reference/taxify.html">taxify()</a></code> result works too, so records imported by hand
 can still be linked back:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="va">recs</span>, <span class="va">matched</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
@@ -324,7 +353,7 @@ added columns and are counted in a message rather than dropped.</p>
 lets someone else retrieve the same records. The download key travels
 with the records, so <code><a href="../reference/cite.html">cite()</a></code> reports the DOI next to the
 backbone the names were matched against:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span></span>
@@ -341,22 +370,31 @@ having no DOI yet.</p>
 BibTeX, the download included.</p>
 </div>
 <div class="section level2">
-<h2 id="starting-from-an-already-matched-list">Starting from an already matched list<a class="anchor" aria-label="anchor" href="#starting-from-an-already-matched-list"></a>
+<h2 id="results-matched-against-another-backbone">Results matched against another backbone<a class="anchor" aria-label="anchor" href="#results-matched-against-another-backbone"></a>
 </h2>
-<p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> takes a <code><a href="../reference/taxify.html">taxify()</a></code> result as
-well as a character vector, so matching arguments belong in the
-<code><a href="../reference/taxify.html">taxify()</a></code> call:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<p>Every match above named <code>backbone = "gbif"</code>. taxify’s
+default chain starts at COL XR, so a plain <code>taxify(spp)</code>
+resolves most names against something other than GBIF and the result
+carries no GBIF keys. Passing one of those is fine: the rows without a
+GBIF key are re-matched against GBIF, with a message, because GBIF only
+accepts its own keys.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span>dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No rows matched by GBIF; re-matching the names against the GBIF backbone, whose keys a GBIF request needs.</span></span>
+<span><span class="co">#&gt; 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.</span></span>
+<span><span class="co">#&gt;  [1] 2878688 7911626 7586523 5285637 7718215 8116613 9079676 8251433 7393648</span></span>
+<span><span class="co">#&gt; [10] 3117424 5361889</span></span></code></pre></div>
+<p>A mixed result, where the one name only GBIF carries landed on
+<code>gbif</code> and the rest elsewhere, is handled the same way: the
+rows without a key are re-matched and the rest are kept, so every name
+in the list reaches the request.</p>
+<p>Matching arguments go in the <code><a href="../reference/taxify.html">taxify()</a></code> call here, not in
+<code><a href="../reference/gbif_request.html">gbif_request()</a></code>, which takes them only when it is doing the
+matching itself:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span>, kingdom <span class="op">=</span> <span class="st">"Plantae"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>taxify’s default backbone chain starts at COL XR, so a plain
-<code>taxify(spp)</code> resolves most names against something other
-than GBIF and the result carries no GBIF keys. Passing one of those is
-fine: the names are re-matched against GBIF, with a message, because
-GBIF only accepts its own keys. A mixed result, where the one name only
-GBIF carries landed on <code>gbif</code> and the rest elsewhere, is
-handled the same way: the rows without a GBIF key are re-matched and the
-rest are kept, so every name in the list reaches the request.</p>
 </div>
 <div class="section level2">
 <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
