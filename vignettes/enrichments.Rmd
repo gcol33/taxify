@@ -35,7 +35,7 @@ below cite each layer's source, among them woodiness (Zanne et al.
    every source that carries it with `add_trait()`.
 4. **Stack** several doors in one pipe chain.
 5. **Check** coverage and data versions with `summary()`.
-6. **Join** your own data with `add_data()`.
+6. **Join** custom data with `add_data()`.
 
 ## Example
 
@@ -421,7 +421,7 @@ per-observation labels, not FungalRoot's own published genus assignment.
 
 GIFT, the Global Inventory of Floras and Traits (Weigelt et al. 2020), aggregates
 published plant trait records worldwide into one value per species. `add_gift()`
-attaches the traits you ask for, named `gift_<trait>`. Called with no `cols`
+attaches the requested traits, named `gift_<trait>`. Called with no `cols`
 argument it uses a convenient default set of well-populated ones: woodiness,
 growth form, life cycle, Raunkiaer life form, climbing, epiphytic, parasitic and
 aquatic habit, maximum plant height, photosynthetic pathway, mean seed mass,
@@ -1441,7 +1441,7 @@ aliens |>
   taxify_long(group_col = "country_code")
 ```
 
-You can still provide `cols` and `group_col` explicitly to override
+`cols` and `group_col` can still be provided explicitly to override
 auto-detection or to rename the group column.
 
 ### Native range by botanical region (WCVP)

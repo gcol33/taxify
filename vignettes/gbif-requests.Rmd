@@ -15,16 +15,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-You have a list of species names and you want their occurrence records from
-GBIF, the Global Biodiversity Information Facility. GBIF does not serve records
-by name. It serves them by *taxon key*, an integer identifying one taxon in the
-GBIF backbone, so the list has to be resolved to keys before anything can be
-requested.
+GBIF, the Global Biodiversity Information Facility, serves occurrence records
+by *taxon key*, an integer identifying one taxon in the GBIF backbone, and not
+by name. A list of species names has to be resolved to keys before anything can
+be requested.
 
 `taxify()` resolves the names to keys. `gbif_request()`
 sends those keys to GBIF, which prepares the records as a download on its side
 and issues a DOI for it. `gbif_fetch()` waits for that download to finish and
-returns the records with your names attached. The request and the fetch are
+returns the records with the input names attached. The request and the fetch are
 separate because GBIF prepares a download in the background, which can take a
 while.
 
@@ -38,7 +37,7 @@ stacks the records, and every download gets its own DOI
 
 Matching the names and reading off their keys runs offline. Sending the request
 needs [rgbif](https://CRAN.R-project.org/package=rgbif) installed, and a
-download needs a free GBIF account in your `.Renviron`;
+download needs a free GBIF account, set in `.Renviron`;
 [Setting up rgbif](#setting-up-rgbif) below covers both.
 
 ```{r}
@@ -49,18 +48,18 @@ spp <- c("Quercus robur", "Pinus sylvestris", "Bellis perennis", "Morus alba")
 
 ## Match first, then request
 
-The whole run, from a list of names to a DOI you can cite:
+The whole run, from a list of names to a citable DOI:
 
 ```{r}
 matched <- taxify(spp, backbone = "gbif")   # resolve the names to GBIF keys
 dl      <- gbif_request(matched)            # ask GBIF for every key
-recs    <- gbif_fetch(dl)                   # wait, download, attach your names
+recs    <- gbif_fetch(dl)                   # wait, download, attach the input names
 cite(recs)                                  # the download's DOI
 ```
 
 Taken a step at a time. `taxify()` resolves the list against the local GBIF
-backbone and returns an ordinary data frame, so you can see what every name
-landed on before anything is sent:
+backbone and returns an ordinary data frame, so what every name landed on is
+visible before anything is sent:
 
 ```{r}
 matched <- taxify(spp, backbone = "gbif")
@@ -81,17 +80,17 @@ that name under several keys, and `taxify_ids()` lists them one per row.
 collects every one of those keys and submits them as one download through
 [rgbif](https://CRAN.R-project.org/package=rgbif), after which GBIF prepares the
 records in the background. `gbif_fetch()` waits for the download and returns the
-records with your queried name on every row:
+records with the queried name on every row:
 
 ```{r}
 dl   <- gbif_request(matched)
 recs <- gbif_fetch(dl)
 ```
 
-The records arrive with an `input_name` column carrying the name you queried, so
+The records arrive with an `input_name` column carrying the name queried, so
 they can be counted or grouped by species straight away. `cite(recs)` closes
 the run: it reports the download's DOI beside the backbone the names were
-matched against, which is the pair GBIF asks you to cite.
+matched against, which is the pair GBIF asks to be cited.
 [Citing the download](#citing-the-download) shows what it prints.
 
 ## Or match and request in one call
@@ -102,12 +101,12 @@ through to `taxify()`:
 
 ```{r}
 dl   <- gbif_request(spp)   # match, then ask GBIF for every key
-recs <- gbif_fetch(dl)      # wait, download, import, attach your names
+recs <- gbif_fetch(dl)      # wait, download, import, attach the input names
 ```
 
 This is the same run with the match folded into the request, and `cite(recs)`
-closes it the same way. Matching first is only needed when you want to read the
-matches before anything is sent. The matched table is still there afterwards, as
+closes it the same way. Matching first is only needed to read the matches before
+anything is sent. The matched table is still there afterwards, as
 `attr(dl, "taxa")`.
 
 `dry_run = TRUE` sits between the two: it matches, reports the keys, and
@@ -171,7 +170,7 @@ gbif_request(spp, strict = TRUE, dry_run = TRUE)
 For this list the two choices differ by 11 records out of 4.09 million, so
 asking for every key costs almost nothing and picks up records that would
 otherwise be dropped. For a list with many homonyms the difference is larger,
-and `taxify_ids()` is where you see it before choosing.
+and `taxify_ids()` shows it before choosing.
 
 ## Setting up rgbif
 
@@ -187,7 +186,7 @@ authenticated call and needs a GBIF account, which is free: register at
 
 rgbif reads that account from three environment variables. Its own
 documentation recommends keeping them in `.Renviron` rather than passing them
-as arguments, which also keeps them out of your scripts:
+as arguments, which also keeps them out of scripts:
 
 ```{r}
 usethis::edit_r_environ()
@@ -198,14 +197,14 @@ Add the three lines, with no quotes and no spaces around the `=`:
 ```
 GBIF_USER=yourname
 GBIF_PWD=yourpassword
-GBIF_EMAIL=you@example.org
+GBIF_EMAIL=name@example.org
 ```
 
 Save, then restart R so the file is read. rgbif also accepts the lower-case
-names `gbif_user`, `gbif_pwd` and `gbif_email` in `.Rprofile` if you prefer
-that; see `?rgbif::occ_download`.
+names `gbif_user`, `gbif_pwd` and `gbif_email` in `.Rprofile` as an
+alternative; see `?rgbif::occ_download`.
 
-To confirm GBIF accepts the account, ask it for your own past downloads.
+To confirm GBIF accepts the account, ask it for the account's past downloads.
 That call is authenticated, so it only succeeds when the credentials are right:
 
 ```{r}
@@ -231,7 +230,7 @@ The records come back as one data frame with a `taxon_key_requested` column, so
 a row can be traced back to the key that asked for it.
 
 `method = "download"` is the default. It submits an asynchronous GBIF download,
-which has no record cap and is issued a DOI you can cite. It needs a GBIF
+which has no record cap and is issued a citable DOI. It needs a GBIF
 account:
 
 ```{r}
@@ -240,7 +239,7 @@ recs <- gbif_fetch(dl)
 ```
 
 `gbif_fetch()` waits for the download, retrieves it, imports it, and attaches
-your queried names.
+the queried names.
 
 All of the keys go into one download: they are sent as a single
 `taxonKey IN (...)` predicate, so the whole list comes back as one dataset
@@ -275,10 +274,10 @@ recs <- gbif_fetch(dl)
 Only the query naming the keys is capped. GBIF prepares downloads of tens of
 millions of records server-side, however many that comes to.
 
-## Linking the records back to your names
+## Linking the records back to the queried names
 
-The records come back keyed by GBIF taxon, not by the name you asked for, so
-they have to be traced back before you can count or group by species.
+The records come back keyed by GBIF taxon, not by the name asked for, so
+they have to be traced back before counting or grouping by species.
 `gbif_backmatch()` does that, adding `requested_key`, `input_name` and
 `accepted_name`:
 
@@ -289,8 +288,8 @@ recs <- gbif_backmatch(recs, recs)
 table(recs$input_name, useNA = "ifany")
 ```
 
-`gbif_fetch()` calls it for you, so this is only needed when you fetched the
-records some other way or asked it not to:
+`gbif_fetch()` calls it itself, so this is only needed when the records were
+fetched some other way or with `backmatch = FALSE`:
 
 ```{r}
 recs <- gbif_fetch(dl, backmatch = FALSE)
@@ -317,7 +316,7 @@ record identified below species level carries its own key. Requesting
 In a 300-record sample of that request, 50 rows are identified to a subspecies.
 Joining on `taxonKey` matches 250 of 300. `gbif_backmatch()` matches all 300,
 because it tries the record's keys from the most specific outwards and takes
-the first that is one of the keys you requested.
+the first that is one of the keys requested.
 
 Rows matching no requested key keep `NA` in the three added columns and are
 counted in a message rather than dropped.
@@ -339,7 +338,7 @@ cite(recs)
 #>   ────────────────────────────────────────────────────────────
 ```
 
-The DOI is read from GBIF when you call `cite()`, not stored when the request
+The DOI is read from GBIF when `cite()` is called, not stored when the request
 was made, because GBIF issues it only once the download has finished
 preparing. A download still running is reported as having no DOI yet.
 

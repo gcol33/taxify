@@ -177,12 +177,12 @@ candidate when another candidate survives. Three rules apply:
 Marine ranges inherit the grain of the WoRMS locality they were recorded
 against, which runs from a single bay to an ocean basin. The median species
 spans 4 ecoregions and a quarter span exactly one; about 0.3% span more than
-half the ocean and are in region wherever you ask.
+half the ocean and are in region wherever it is asked.
 
 The constraint is most useful on regional field lists with misspellings, where
 the intended correction and a wrong one are a single edit apart. The related
 check in `inspect()` works after matching: it flags matched names that WCVP does
-not record in your region, using the same `region`, `coords` and `range`
+not record in the declared region, using the same `region`, `coords` and `range`
 arguments.
 
 ## Where to go next

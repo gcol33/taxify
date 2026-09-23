@@ -238,7 +238,7 @@ The Levenshtein column is always equal to or larger than the Damerau-Levenshtein
 column, because Levenshtein charges double for transpositions. Jaro-Winkler is
 consistently the smallest, because the shared genus prefix dominates the
 similarity. This is why the same threshold value behaves differently across
-methods and needs recalibrating when you switch.
+methods and needs recalibrating on a switch.
 
 ### Setting the threshold
 

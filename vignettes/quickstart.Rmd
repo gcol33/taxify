@@ -47,7 +47,7 @@ rarely line up on their own: authorship, field qualifiers, capitalization,
 historical synonyms, hybrids, and plain typos all keep two records of the same
 species apart, and a bare `merge()` on raw strings drops every row that
 disagrees. `taxify()` takes a character vector and returns one standardized
-table: each name cleaned, matched against a backbone you keep on disk, synonyms
+table: each name cleaned, matched against a backbone kept on disk, synonyms
 resolved to the accepted name. Matching runs in C through the
 [vectra](https://github.com/gcol33/vectra) engine, so there are no web services
 and no rate limits, and the same input gives the same output on any machine.
@@ -60,7 +60,7 @@ caches it under `taxify_data_dir()`. After that, nothing touches the network.
 
 1. **Match** the names with `taxify()`.
 2. **Check** the batch with `summary()`.
-3. **Join** your own attributes with `add_data()`.
+3. **Join** custom attributes with `add_data()`.
 4. **Enrich** the result with the published `add_*()` layers, listed by
    `list_enrichments()`.
 5. **Analyse** the attached columns with ordinary R.
@@ -199,7 +199,7 @@ types and the multi-backbone fallback (`backbone = c("col", "gbif", "itis")`)
 are covered in the
 [backbones vignette](https://gillescolling.com/taxify/articles/backbones.html).
 
-### Adding your own attributes
+### Adding custom attributes
 
 Once names resolve to an accepted name, any table keyed on species joins
 cleanly. `add_data()` takes a data.frame, CSV, XLSX, or SQLite file, runs its

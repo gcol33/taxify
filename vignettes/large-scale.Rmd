@@ -68,7 +68,7 @@ t_fuzzy["elapsed"]
 t_exact["elapsed"]
 ```
 
-The timings depend on your list and your machine, so run the pair on your own
+The timings depend on the list and the machine, so run the pair on the target
 data; `scripts/benchmark-worldflora.R` in the taxify repository is the measured
 reference. The shape is consistent: the exact-only run is roughly an order of
 magnitude faster. The exact pass matches most names on the first try through
@@ -310,7 +310,7 @@ backbone block), which saves the repeated initialization.
 
 For a reproducible batch pipeline (e.g., a Makefile or targets plan), it is
 cleaner to separate the download step from the analysis step. Downloads can
-fail due to network issues, and you want to know about that before a 2-hour
+fail due to network issues, and that is worth knowing before a 2-hour
 matching run starts.
 
 `taxify_download()` downloads one or more backbone `.vtr` files.
@@ -405,7 +405,7 @@ of each backbone and enrichment). This forces the next `taxify()` call to
 re-check for updates. Normally the manifest is fetched once per session and
 cached. In a long-running R session (e.g., an RStudio session that stays
 open for days), calling `taxify_refresh_manifest()` before a batch run
-ensures you are working against the latest backbone version. If a new
+ensures the run works against the latest backbone version. If a new
 backbone release was published since the session started, the version check
 will detect it and trigger an automatic download.
 

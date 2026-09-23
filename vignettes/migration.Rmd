@@ -27,8 +27,8 @@ written in C with genus-blocked fuzzy joins, and ten thousand names resolve in
 seconds. Results pipe directly into more than eighty published trait and status
 datasets (IUCN, GRIIS, WCVP, EIVE, EltonTraits, etc.) with a single `|>` chain.
 Backbones are versioned files on disk, and the `backbone_version` column records
-exactly which snapshot was used. If your workflow already uses one of the other
-packages and you are happy with it, there is no urgent reason to switch.
+exactly which snapshot was used. There is no urgent reason to switch a workflow that already uses one of the
+other packages and works well.
 
 1. **Map** each call of the old package to its taxify equivalent with the
    tables below.
@@ -37,7 +37,7 @@ packages and you are happy with it, there is no urgent reason to switch.
 3. **Chain** backbones by passing a vector to `backbone`; unmatched names
    cascade to the next one.
 4. **Enrich** the result with the `add_*()` layers that `list_enrichments()`
-   lists, or join your own table with `add_data()`.
+   lists, or join a custom table with `add_data()`.
 
 ## Example
 
@@ -179,7 +179,7 @@ taxadb is built around exact lookups against pre-cleaned input; taxify cleans
 the input and runs fuzzy matching on names that do not match exactly, which
 catches typos, orthographic variants, and authorship strings without a separate
 preprocessing step. taxadb returns multiple rows per input when a name has
-multiple matches, and you pick the row you want with `dplyr::filter`. taxify
+multiple matches, and the wanted row is picked with `dplyr::filter`. taxify
 returns one row per input with a best-match selection rule (ACCEPTED over
 SYNONYM, species rank over higher ranks, lowest ID as tiebreaker), and reports
 the match type and fuzzy distance as columns.
@@ -424,7 +424,7 @@ answer in these situations:
 - **Wider biodiversity-data cleaning.** [bdc](https://brunobrr.github.io/bdc/)
   wraps the entire data-cleaning workflow (coordinate cleaning, dataset merging,
   taxonomic harmonization, occurrence flagging). taxify can replace its
-  taxonomic step alone if you prefer offline backbones over taxadb + GNR; the
+  taxonomic step alone when offline backbones are preferred over taxadb + GNR; the
   rest of bdc's pipeline is outside taxify's scope.
 
 - **Interactive, per-name resolution with manual disambiguation.** taxize had

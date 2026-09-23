@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 This vignette shows how to screen a species list for the names that need
-attention before analysis. A field list reaches you as a column of strings, and
+attention before analysis. A field list arrives as a column of strings, and
 some of those strings are wrong: a genus is misspelled, an animal sits in a list
 of plants, a synonym slipped in from an old data sheet, the same species appears
 under two spellings. `taxify()` resolves what it can and returns a row for every
@@ -44,7 +44,7 @@ library(taxify)
 ### A first look, without matching
 
 By default `inspect()` runs only the checks that need no backbone; it matches
-nothing unless you ask. On a plain character vector it asks the genus register
+nothing unless asked. On a plain character vector it asks the genus register
 whether each genus is a real one and compares each name against the rest of the
 batch. Both are fast and offline.
 
@@ -111,9 +111,9 @@ and *Festuca rubraa* carries both its list-context label and the fuzzy `typo`
 label that confirms it. *Panthera leo* now matches in GBIF, so the
 candidate-typo label drops. It stays a kingdom-group outlier in a plant list.
 
-If you have already matched the list, inspect the result instead of asking
+If the list is already matched, inspect the result instead of asking
 `inspect()` to match again. This reuses the exact backbone, region, and options
-of your original call.
+of the original call.
 
 ```{r}
 taxify(names, backbone = c("col", "gbif")) |>

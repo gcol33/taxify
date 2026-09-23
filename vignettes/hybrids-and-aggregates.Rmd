@@ -170,7 +170,7 @@ first token of the first parent.
 
 ### Traits for hybrids
 
-Trait enrichment is hybrid-aware. When you attach traits to a result that
+Trait enrichment is hybrid-aware. When traits are attached to a result that
 contains a hybrid formula, each trait is resolved with a ladder:
 
 1. the hybrid directly: if the cross resolved to a nothospecies and that name
@@ -358,11 +358,11 @@ uneven coverage. GBIF aggregates many sources and includes hybrid names where
 the contributing checklists provide them. ITIS, NCBI and OTT have minimal hybrid
 coverage.
 
-Hybrid detection is input-side only. taxify detects hybrids in the names you
-supply and does not scan the backbone for hybrid records. If a backbone stores
-"Mentha × piperita" as an accepted name, taxify matches your input against it,
+Hybrid detection is input-side only. taxify detects hybrids in the supplied
+names and does not scan the backbone for hybrid records. If a backbone stores
+"Mentha × piperita" as an accepted name, taxify matches the input against it,
 but the backbone record's own hybrid status is not exposed as a separate field;
-the `is_hybrid` column reflects your input.
+the `is_hybrid` column reflects the input.
 
 The formula parser expects binomials (genus plus epithet) on both sides of the ×
 marker. A formula that includes a subspecies or variety rank (e.g., "Salix alba
