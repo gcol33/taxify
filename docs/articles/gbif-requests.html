@@ -111,9 +111,9 @@ records from GBIF, the Global Biodiversity Information Facility. GBIF
 does not serve records by name. It serves them by <em>taxon key</em>, an
 integer identifying one taxon in the GBIF backbone, so the list has to
 be resolved to keys before anything can be requested.</p>
-<p>Three functions cover it. <code><a href="../reference/taxify.html">taxify()</a></code> resolves the names to
-keys. <code><a href="../reference/gbif_request.html">gbif_request()</a></code> sends those keys to GBIF, which
-prepares the records as a download on its side and issues a DOI for it.
+<p><code><a href="../reference/taxify.html">taxify()</a></code> resolves the names to keys.
+<code><a href="../reference/gbif_request.html">gbif_request()</a></code> sends those keys to GBIF, which prepares the
+records as a download on its side and issues a DOI for it.
 <code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for that download to finish and returns
 the records with your names attached. The request and the fetch are
 separate because GBIF prepares a download in the background, which can

@@ -21,7 +21,7 @@ by name. It serves them by *taxon key*, an integer identifying one taxon in the
 GBIF backbone, so the list has to be resolved to keys before anything can be
 requested.
 
-Three functions cover it. `taxify()` resolves the names to keys. `gbif_request()`
+`taxify()` resolves the names to keys. `gbif_request()`
 sends those keys to GBIF, which prepares the records as a download on its side
 and issues a DOI for it. `gbif_fetch()` waits for that download to finish and
 returns the records with your names attached. The request and the fetch are
