@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -353,8 +353,10 @@ well as a character vector, so matching arguments belong in the
 <code>taxify(spp)</code> resolves most names against something other
 than GBIF and the result carries no GBIF keys. Passing one of those is
 fine: the names are re-matched against GBIF, with a message, because
-GBIF only accepts its own keys. In a result that has GBIF rows and
-others, the others are dropped and reported.</p>
+GBIF only accepts its own keys. A mixed result, where the one name only
+GBIF carries landed on <code>gbif</code> and the rest elsewhere, is
+handled the same way: the rows without a GBIF key are re-matched and the
+rest are kept, so every name in the list reaches the request.</p>
 </div>
 <div class="section level2">
 <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a>
