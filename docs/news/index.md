@@ -40,6 +40,17 @@
   sample of that request a `taxonKey` join matches 250;
   [`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
   matches 300.
+- A list too long for one GBIF query is split automatically. GBIF caps a
+  download query at 12,000 characters, which a taxonKey predicate
+  reaches at about 1,187 keys (10 characters per key plus 125 of
+  envelope, measured against `occ_download_prep()`), so a few hundred
+  names can exceed it once their homonyms are counted.
+  [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+  chunks at 1,000 keys and submits through rgbif’s
+  `occ_download_queue()`, which respects GBIF’s limit of three
+  concurrent downloads. Each chunk gets its own DOI and
+  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) reports
+  all of them.
 - [`cite()`](https://gillescolling.com/taxify/reference/cite.md) reports
   a GBIF download’s DOI beside the backbone citations. The download key
   travels from

@@ -239,6 +239,34 @@ whole list comes back as one dataset under one DOI. A download of four
 million records is prepared on GBIF’s servers and takes a while, which
 is why the call returns as soon as the request is queued rather than
 waiting for it.</p>
+<div class="section level3">
+<h3 id="lists-too-long-for-one-query">Lists too long for one query<a class="anchor" aria-label="anchor" href="#lists-too-long-for-one-query"></a>
+</h3>
+<p>GBIF caps a download query at 12,000 characters. A taxonKey predicate
+costs about 10 characters per key, so roughly 1,187 keys fit, and a
+checklist of a few hundred names can pass that once its homonyms are
+counted.</p>
+<p>Above the limit <code><a href="../reference/gbif_request.html">gbif_request()</a></code> splits the keys into
+chunks of 1,000 and submits them through rgbif’s
+<code>occ_download_queue()</code>, which respects GBIF’s rule of three
+concurrent downloads per user:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">long_species_list</span>, method <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 2,431 keys exceed GBIF's query limit; splitting into 3 downloads of up to</span></span>
+<span><span class="co">#&gt; 1000 keys. Each gets its own DOI.</span></span></code></pre></div>
+<p><code>dl</code> is then a vector of download keys rather than one.
+Fetch and stack them, and <code><a href="../reference/cite.html">cite()</a></code> reports every DOI:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">dl</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_wait.html" class="external-link">occ_download_wait</a></span><span class="op">(</span><span class="va">k</span><span class="op">)</span></span>
+<span>  <span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_import.html" class="external-link">occ_download_import</a></span><span class="op">(</span><span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_get.html" class="external-link">occ_download_get</a></span><span class="op">(</span><span class="va">k</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="va">recs</span>, <span class="va">dl</span><span class="op">)</span></span></code></pre></div>
+<p>The record count itself is not a limit. GBIF prepares downloads of
+tens of millions of records server-side; only the query naming the keys
+is capped.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="linking-the-records-back-to-your-names">Linking the records back to your names<a class="anchor" aria-label="anchor" href="#linking-the-records-back-to-your-names"></a>
@@ -248,7 +276,7 @@ for, so they have to be traced back before you can count or group by
 species. <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> does that, adding
 <code>requested_key</code>, <code>input_name</code> and
 <code>accepted_name</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, method <span class="op">=</span> <span class="st">"search"</span>, limit <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="va">recs</span>, <span class="va">recs</span><span class="op">)</span></span>
 <span></span>
@@ -257,7 +285,7 @@ species. <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></
 carries the key table as an attribute. A <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> table
 or a <code><a href="../reference/taxify.html">taxify()</a></code> result works too, which is what you need
 after importing a download:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_import.html" class="external-link">occ_download_import</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span>
@@ -287,7 +315,7 @@ added columns and are counted in a message rather than dropped.</p>
 lets someone else retrieve the same records. The download key travels
 with the records, so <code><a href="../reference/cite.html">cite()</a></code> reports the DOI next to the
 backbone the names were matched against:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_import.html" class="external-link">occ_download_import</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span>, <span class="va">dl</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span></span>
@@ -309,7 +337,7 @@ BibTeX, the download included.</p>
 <p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> takes a <code><a href="../reference/taxify.html">taxify()</a></code> result as
 well as a character vector, so matching arguments and any filtering
 belong in the <code><a href="../reference/taxify.html">taxify()</a></code> call:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span>, fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, kingdom <span class="op">=</span> <span class="st">"Plantae"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">matched</span> <span class="op">|&gt;</span></span>
