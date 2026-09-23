@@ -45,7 +45,7 @@ strings to an analysis on attached traits. Before any analysis, the names in a
 biodiversity dataset have to resolve to one accepted name per taxon, and they
 rarely line up on their own: authorship, field qualifiers, capitalization,
 historical synonyms, hybrids, and plain typos all keep two records of the same
-species apart, and a bare `merge()` on raw strings silently drops every row that
+species apart, and a bare `merge()` on raw strings drops every row that
 disagrees. `taxify()` takes a character vector and returns one standardized
 table: each name cleaned, matched against a backbone you keep on disk, synonyms
 resolved to the accepted name. Matching runs in C through the

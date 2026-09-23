@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -131,11 +131,11 @@ names in a biodiversity dataset have to resolve to one accepted name per
 taxon, and they rarely line up on their own: authorship, field
 qualifiers, capitalization, historical synonyms, hybrids, and plain
 typos all keep two records of the same species apart, and a bare
-<code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> on raw strings silently drops every row that
-disagrees. <code><a href="../reference/taxify.html">taxify()</a></code> takes a character vector and returns
-one standardized table: each name cleaned, matched against a backbone
-you keep on disk, synonyms resolved to the accepted name. Matching runs
-in C through the <a href="https://github.com/gcol33/vectra" class="external-link">vectra</a>
+<code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> on raw strings drops every row that disagrees.
+<code><a href="../reference/taxify.html">taxify()</a></code> takes a character vector and returns one
+standardized table: each name cleaned, matched against a backbone you
+keep on disk, synonyms resolved to the accepted name. Matching runs in C
+through the <a href="https://github.com/gcol33/vectra" class="external-link">vectra</a>
 engine, so there are no web services and no rate limits, and the same
 input gives the same output on any machine.
 <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
@@ -147,17 +147,19 @@ default backbone set (COL, GBIF, and ITIS) once, about 4 GB, and caches
 it under <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>. After that, nothing touches the
 network.</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Match</strong> the names with
-<code><a href="../reference/taxify.html">taxify()</a></code>.</p></li>
-<li><p><strong>Check</strong> the batch with
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</p></li>
-<li><p><strong>Join</strong> your own attributes with
-<code><a href="../reference/add_data.html">add_data()</a></code>.</p></li>
-<li><p><strong>Enrich</strong> the result with the published
+<li>
+<strong>Match</strong> the names with <code><a href="../reference/taxify.html">taxify()</a></code>.</li>
+<li>
+<strong>Check</strong> the batch with <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</li>
+<li>
+<strong>Join</strong> your own attributes with
+<code><a href="../reference/add_data.html">add_data()</a></code>.</li>
+<li>
+<strong>Enrich</strong> the result with the published
 <code>add_*()</code> layers, listed by
-<code><a href="../reference/list_enrichments.html">list_enrichments()</a></code>.</p></li>
-<li><p><strong>Analyse</strong> the attached columns with ordinary
-R.</p></li>
+<code><a href="../reference/list_enrichments.html">list_enrichments()</a></code>.</li>
+<li>
+<strong>Analyse</strong> the attached columns with ordinary R.</li>
 </ol>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
