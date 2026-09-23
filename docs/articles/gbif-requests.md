@@ -6,18 +6,32 @@ serve records by name. It serves them by *taxon key*, an integer
 identifying one taxon in the GBIF backbone, so the list has to be
 resolved to keys before anything can be requested.
 
-[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
-does that in one call: it matches the names against the local GBIF
-backbone, collects every accepted key the matches resolve to, and hands
-them to [rgbif](https://CRAN.R-project.org/package=rgbif). rgbif is
-needed only for the request itself; resolving names and reading off
-their keys works offline without it.
+taxify does that in four steps: your list, matched, requested, and
+linked back to your names.
 
 ``` r
 
 library(taxify)
 
 spp <- c("Quercus robur", "Pinus sylvestris", "Bellis perennis", "Morus alba")
+
+dl   <- gbif_request(spp)   # match, then ask GBIF for every key
+recs <- gbif_fetch(dl)      # wait, download, import, attach your names
+```
+
+[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+matches the names against the local GBIF backbone, collects every
+accepted key they resolve to, and hands those to
+[rgbif](https://CRAN.R-project.org/package=rgbif).
+[`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
+waits for the download and returns the records with your queried name on
+every row. rgbif is needed only for the request; matching the names and
+reading off their keys works offline without it.
+
+The rest of this article is what those two calls do, and what to check
+before sending a request for four million records.
+
+``` r
 
 gbif_request(spp, dry_run = TRUE)
 #> 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.
@@ -163,10 +177,12 @@ needs a GBIF account:
 ``` r
 
 dl <- gbif_request(spp, method = "download")
-rgbif::occ_download_wait(dl)
-d <- rgbif::occ_download_get(dl)
-recs <- rgbif::occ_download_import(d)
+recs <- gbif_fetch(dl)
 ```
+
+[`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
+waits for the download, retrieves it, imports it, and attaches your
+queried names.
 
 All of the keys go into one download, not one download per key: they are
 sent as a single `taxonKey IN (...)` predicate, so the whole list comes
@@ -194,18 +210,14 @@ dl <- gbif_request(long_species_list, method = "download")
 #> 1000 keys. Each gets its own DOI.
 ```
 
-`dl` is then a vector of download keys rather than one. Fetch and stack
-them, and [`cite()`](https://gillescolling.com/taxify/reference/cite.md)
-reports every DOI:
+`dl` is then a vector of download keys rather than one, and
+[`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
+waits for all of them and stacks the records, so fetching a split
+request looks the same as fetching a single one:
 
 ``` r
 
-recs <- do.call(rbind, lapply(dl, function(k) {
-  rgbif::occ_download_wait(k)
-  rgbif::occ_download_import(rgbif::occ_download_get(k))
-}))
-
-recs <- gbif_backmatch(recs, dl)
+recs <- gbif_fetch(dl)
 ```
 
 The record count itself is not a limit. GBIF prepares downloads of tens
@@ -228,19 +240,27 @@ recs <- gbif_backmatch(recs, recs)
 table(recs$input_name, useNA = "ifany")
 ```
 
+[`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
+calls it for you, so this is only needed when you fetched the records
+some other way or asked it not to:
+
+``` r
+
+recs <- gbif_fetch(dl, backmatch = FALSE)
+recs <- gbif_backmatch(recs, dl)
+```
+
 It takes the object
 [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
 returned, which carries the key table as an attribute. A
 [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
 table or a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result works too, which is what you need after importing a download:
+result works too, so records imported by hand can still be linked back:
 
 ``` r
 
 matched <- taxify(spp, backbone = "gbif")
-
-recs <- rgbif::occ_download_import(d)
 recs <- gbif_backmatch(recs, matched)
 ```
 
@@ -273,7 +293,7 @@ the DOI next to the backbone the names were matched against:
 
 ``` r
 
-recs <- gbif_backmatch(rgbif::occ_download_import(d), dl)
+recs <- gbif_fetch(dl)
 
 cite(recs)
 #> ── taxify citations ────────────────────────────────────────────────
@@ -297,22 +317,22 @@ download included.
 [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
 takes a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result as well as a character vector, so matching arguments and any
-filtering belong in the
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) call:
+result as well as a character vector, so matching arguments belong in
+the [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+call:
 
 ``` r
 
-matched <- taxify(spp, backbone = "gbif", fuzzy = TRUE, kingdom = "Plantae")
-
-matched |>
-  gbif_request(method = "search", limit = 100)
+taxify(spp, backbone = "gbif", kingdom = "Plantae") |>
+  gbif_request()
 ```
 
-Rows matched by another backbone are dropped with a message, because
-their IDs are not GBIF keys. If nothing in the result came from GBIF,
-[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
-stops and says to match against `backbone = "gbif"`.
+taxify’s default backbone chain starts at COL XR, so a plain
+`taxify(spp)` resolves most names against something other than GBIF and
+the result carries no GBIF keys. Passing one of those is fine: the names
+are re-matched against GBIF, with a message, because GBIF only accepts
+its own keys. In a result that has GBIF rows and others, the others are
+dropped and reported.
 
 ## See also
 

@@ -379,6 +379,8 @@ tree.
   : List every accepted ID of each matched name
 - [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
   : Request GBIF occurrence data for a matched name list
+- [`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
+  : Fetch the records of a submitted GBIF download
 - [`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
   : Link GBIF occurrence records back to the names they were requested
   for
