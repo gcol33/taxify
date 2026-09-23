@@ -106,13 +106,37 @@ test_that("a backbone with no occurrence counts reports no record estimate", {
 })
 
 
-test_that("names matched by another backbone are dropped, not silently sent", {
-  local_mocked_bindings(taxify_ids = fake_ids)
+test_that("names matched by another backbone are re-matched, not dropped", {
+  # A default-chain result is usually mixed: the name only GBIF carries lands
+  # on gbif, the rest elsewhere. Every name has to reach the request.
+  asked <- NULL
+  local_mocked_bindings(
+    taxify_ids = fake_ids,
+    taxify_input = function(x, backbone, ..., verbose) {
+      asked <<- x
+      fake_result(input = x, backbone = "gbif", accepted_id = "3117424")
+    })
   mixed <- fake_result(backbone = c("gbif", "col"))
   expect_message(
-    gbif_request(mixed, dry_run = TRUE, verbose = TRUE),
-    "matched by another backbone"
+    out <- gbif_request(mixed, dry_run = TRUE, verbose = TRUE),
+    "carry no GBIF key"
   )
+  expect_equal(asked, "Bellis perennis")
+  expect_equal(nrow(attr(out, "taxa")), 3L)
+})
+
+
+test_that("re-matched rows keep the input's order", {
+  local_mocked_bindings(
+    taxify_ids = function(x, ...) x,
+    taxify_input = function(x, backbone, ..., verbose)
+      fake_result(input = x, backbone = "gbif", accepted_id = "3117424"))
+  mixed <- fake_result(input = c("Bellis perennis", "Quercus robur"),
+                       backbone = c("col", "gbif"),
+                       accepted_id = c("x", "2878688"))
+  out <- ensure_gbif_match(mixed, verbose = FALSE)
+  expect_equal(out$input_name, c("Bellis perennis", "Quercus robur"))
+  expect_true(all(out$backbone == "gbif"))
 })
 
 

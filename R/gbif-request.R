@@ -47,22 +47,37 @@ check_gbif_credentials <- function() {
 #'
 #' The default backbone chain starts at COL XR, so a plain [taxify()] call
 #' resolves most names against something other than GBIF and the result holds
-#' no GBIF keys at all. Rather than refuse it, the names are re-matched against
-#' GBIF, which is the only backbone whose IDs GBIF accepts. A result that
-#' already has GBIF rows is left alone, including a mixed one, where the
-#' non-GBIF rows are reported by [gbif_keys_of()].
+#' no GBIF keys at all. Rather than refuse it, every row without a GBIF key is
+#' re-matched against GBIF, which is the only backbone whose IDs GBIF accepts,
+#' and the re-matched rows are put back in the input's order beside the rows
+#' that already carried one. A result matched entirely by GBIF is left alone.
 #'
 #' @noRd
 ensure_gbif_match <- function(x, verbose = TRUE) {
-  if (!is.data.frame(x) || !"backbone" %in% names(x)) return(x)
-  if (any(!is.na(x$backbone) & x$backbone == "gbif")) return(x)
-  if (!"input_name" %in% names(x)) return(x)
+  if (!is.data.frame(x) || !all(c("backbone", "input_name") %in% names(x))) {
+    return(x)
+  }
+  on_gbif <- !is.na(x$backbone) & x$backbone == "gbif"
+  if (all(on_gbif)) return(x)
 
   if (verbose) {
-    message("No rows matched by GBIF; re-matching the names against the ",
-            "GBIF backbone, whose keys a GBIF request needs.")
+    if (any(on_gbif)) {
+      message(sprintf(
+        "%d of %d name(s) carry no GBIF key; re-matching those against the ",
+        sum(!on_gbif), nrow(x)), "GBIF backbone.")
+    } else {
+      message("No rows matched by GBIF; re-matching the names against the ",
+              "GBIF backbone, whose keys a GBIF request needs.")
+    }
   }
-  taxify_input(x$input_name, backbone = "gbif", verbose = verbose)
+  redone <- as.data.frame(
+    taxify_input(x$input_name[!on_gbif], backbone = "gbif", verbose = verbose))
+  if (!any(on_gbif)) return(redone)
+
+  out <- rbind_union(list(as.data.frame(x)[on_gbif, , drop = FALSE], redone))
+  out <- out[order(match(out$input_name, x$input_name)), , drop = FALSE]
+  rownames(out) <- NULL
+  out
 }
 
 

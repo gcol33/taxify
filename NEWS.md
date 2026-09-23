@@ -21,6 +21,12 @@
   own occurrence counts, and `dry_run = TRUE` returns the keys while contacting
   nothing. An ID that is not a GBIF integer key is refused rather than sent,
   which is what happens against the bundled example database.
+* A result from the default backbone chain works without being re-matched by
+  hand. The chain starts at COL XR, whose alphanumeric IDs GBIF does not serve
+  records for, so `gbif_request()` re-matches every row without a GBIF key
+  against the GBIF backbone and keeps the rows that already had one. A mixed
+  result, where the one name only GBIF carries landed on `gbif`, keeps all of
+  its names rather than dropping the others.
 * rgbif moves into Suggests. Resolving names and reading off their keys stays
   offline and does not need it; only the request itself does.
 * `gbif_fetch()` waits for a submitted download, retrieves it, imports it and

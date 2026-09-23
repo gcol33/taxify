@@ -294,8 +294,10 @@ taxify(spp, backbone = "gbif", kingdom = "Plantae") |>
 taxify's default backbone chain starts at COL XR, so a plain `taxify(spp)`
 resolves most names against something other than GBIF and the result carries no
 GBIF keys. Passing one of those is fine: the names are re-matched against GBIF,
-with a message, because GBIF only accepts its own keys. In a result that has
-GBIF rows and others, the others are dropped and reported.
+with a message, because GBIF only accepts its own keys. A mixed result, where
+the one name only GBIF carries landed on `gbif` and the rest elsewhere, is
+handled the same way: the rows without a GBIF key are re-matched and the rest
+are kept, so every name in the list reaches the request.
 
 ## See also
 
