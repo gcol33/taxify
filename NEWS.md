@@ -1,5 +1,38 @@
 # taxify 0.6.0
 
+## Requesting GBIF data for a name list
+
+* `gbif_request()` takes a species list, matches it against the GBIF backbone
+  and requests occurrence data for every accepted taxon key the matches resolve
+  to. GBIF serves records by taxon key rather than by name, and a name it files
+  under several keys (a homonym, or a name held once as accepted and again as a
+  doubtful record) needs all of them: of the four species in the new vignette,
+  *Quercus robur* has three keys and *Pinus sylvestris* six. `strict = TRUE`
+  narrows the request to the key `taxify()` reported, and reports how many
+  keys and records that leaves behind. It is off by default.
+* `method = "download"` (default) submits one asynchronous GBIF download
+  covering every key as a single `taxonKey IN (...)` predicate, so the list
+  returns as one dataset under one citable DOI. It needs a GBIF account in
+  `GBIF_USER` / `GBIF_PWD` / `GBIF_EMAIL`, and says which are missing before
+  contacting GBIF. `method = "search"` sends unauthenticated searches and
+  returns the records directly, with a `taxon_key_requested` column tracing
+  each row to the key that asked for it.
+* Before a request is sent, the expected size is reported from the backbone's
+  own occurrence counts, and `dry_run = TRUE` returns the keys while contacting
+  nothing. An ID that is not a GBIF integer key is refused rather than sent,
+  which is what happens against the bundled example database.
+* rgbif moves into Suggests. Resolving names and reading off their keys stays
+  offline and does not need it; only the request itself does.
+* `gbif_backmatch()` links the returned occurrence records back to the names
+  they were requested for. Joining on `taxonKey` alone loses records without
+  saying so: GBIF returns a key's descendants too, and a record identified
+  below species level carries its own key, so a request for *Pinus nigra*
+  returns rows whose `taxonKey` is its subspecies and which carry the
+  requested key only in `speciesKey`. On a 300-record sample of that request
+  a `taxonKey` join matches 250; `gbif_backmatch()` matches 300.
+* New vignette, `vignette("gbif-requests")`, which also covers installing
+  rgbif and storing GBIF credentials.
+
 ## Names with several accepted IDs
 
 * `taxify()` output replaces `is_ambiguous` and `ambiguous_targets` with

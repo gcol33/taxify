@@ -29,6 +29,7 @@ Suggests:
     DBI,
     knitr,
     openxlsx2,
+    rgbif,
     rmarkdown,
     RSQLite,
     sf,

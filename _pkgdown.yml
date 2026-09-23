@@ -54,6 +54,7 @@ articles:
   - regions
   - enrichments
   - custom-data
+  - gbif-requests
 - title: Special topics
   navbar: Special topics
   contents:
@@ -86,6 +87,8 @@ reference:
   - class2tree
   - lowest_common
   - taxify_ids
+  - gbif_request
+  - gbif_backmatch
 - title: Backbone data and cache
   desc: Download, cache, and inspect backbone snapshots and the unified genus register.
   contents:
