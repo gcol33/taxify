@@ -117,8 +117,14 @@ records as a download on its side and issues a DOI for it.
 <code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for that download to finish and returns
 the records with your names attached. The request and the fetch are
 separate because GBIF prepares a download in the background, which can
-take a while, and a list too long for one query is split into several
-downloads.</p>
+take a while.</p>
+<p>GBIF caps a download query at 12,000 characters, which fits about
+1,187 taxon keys, and a checklist of a few hundred names can pass that
+once its homonyms are counted. <code><a href="../reference/gbif_request.html">gbif_request()</a></code> splits a
+longer list into downloads of up to 1,000 keys and queues them within
+GBIF’s limit of three concurrent downloads, so a list of any length is
+still one call. <code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for all of them and
+stacks the records, and every download gets its own DOI (<a href="#long-lists-are-split-across-downloads">details</a>).</p>
 <p>Matching the names and reading off their keys runs offline. Sending
 the request needs <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a> installed, and
 a download needs a free GBIF account in your <code>.Renviron</code>; <a href="#setting-up-rgbif">Setting up rgbif</a> below covers both.</p>
