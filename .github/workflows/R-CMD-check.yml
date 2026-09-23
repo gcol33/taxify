@@ -46,6 +46,8 @@ jobs:
         if: steps.pandoc.outcome == 'failure'
         uses: r-lib/actions/setup-pandoc@v2
 
+      # Posit Package Manager's macOS binaries of vectra link libomp, which the
+      # runner does not provide; macOS takes CRAN binaries instead.
       - name: Setup R
         id: setup-r
         continue-on-error: true
@@ -53,7 +55,7 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+          use-public-rspm: ${{ runner.os != 'macOS' }}
           extra-repositories: https://gcol33.r-universe.dev
 
       - name: Setup R (retry)
@@ -62,7 +64,7 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+          use-public-rspm: ${{ runner.os != 'macOS' }}
           extra-repositories: https://gcol33.r-universe.dev
 
       - name: Install dependencies
