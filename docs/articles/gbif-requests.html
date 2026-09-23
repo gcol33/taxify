@@ -331,12 +331,12 @@ can still be linked back:</p>
 <div class="section level3">
 <h3 id="why-not-just-join-on-taxonkey">Why not just join on taxonKey<a class="anchor" aria-label="anchor" href="#why-not-just-join-on-taxonkey"></a>
 </h3>
-<p>Because it loses records without saying so. GBIF returns the records
-of a key’s descendants along with its own, and a record identified below
-species level carries its own key. Requesting <em>Pinus nigra</em>
-(5284809) returns records whose <code>taxonKey</code> is 5686674, <em>P.
-nigra</em> subsp. <em>salzmannii</em>; those rows carry the requested
-key in <code>speciesKey</code> and nowhere else.</p>
+<p>GBIF returns the records of a key’s descendants along with its own,
+and a record identified below species level carries its own key.
+Requesting <em>Pinus nigra</em> (5284809) returns records whose
+<code>taxonKey</code> is 5686674, <em>P. nigra</em> subsp.
+<em>salzmannii</em>; those rows carry the requested key in
+<code>speciesKey</code> and nowhere else.</p>
 <p>In a 300-record sample of that request, 50 rows are identified to a
 subspecies. Joining on <code>taxonKey</code> matches 250 of 300.
 <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> matches all 300, because it tries the

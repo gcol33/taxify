@@ -279,11 +279,11 @@ recs <- gbif_backmatch(recs, matched)
 
 ### Why not just join on taxonKey
 
-Because it loses records without saying so. GBIF returns the records of a key's
-descendants along with its own, and a record identified below species level
-carries its own key. Requesting *Pinus nigra* (5284809) returns records whose
-`taxonKey` is 5686674, *P. nigra* subsp. *salzmannii*; those rows carry the
-requested key in `speciesKey` and nowhere else.
+GBIF returns the records of a key's descendants along with its own, and a
+record identified below species level carries its own key. Requesting
+*Pinus nigra* (5284809) returns records whose `taxonKey` is 5686674,
+*P. nigra* subsp. *salzmannii*; those rows carry the requested key in
+`speciesKey` and nowhere else.
 
 In a 300-record sample of that request, 50 rows are identified to a subspecies.
 Joining on `taxonKey` matches 250 of 300. `gbif_backmatch()` matches all 300,
