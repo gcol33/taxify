@@ -111,7 +111,9 @@ records from GBIF, the Global Biodiversity Information Facility. GBIF
 does not serve records by name. It serves them by <em>taxon key</em>, an
 integer identifying one taxon in the GBIF backbone, so the list has to
 be resolved to keys before anything can be requested.</p>
-<p>taxify takes it from there: match, request, fetch, cite.</p>
+<p>taxify matches the names, requests the records for every key they
+resolve to, fetches them and reports the download’s DOI for
+citation.</p>
 <p>Matching the names and reading off their keys runs offline. Sending
 the request needs <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a> installed, and
 a download needs a free GBIF account in your <code>.Renviron</code>; <a href="#setting-up-rgbif">Setting up rgbif</a> below covers both.</p>

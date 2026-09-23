@@ -21,7 +21,8 @@ by name. It serves them by *taxon key*, an integer identifying one taxon in the
 GBIF backbone, so the list has to be resolved to keys before anything can be
 requested.
 
-taxify takes it from there: match, request, fetch, cite.
+taxify matches the names, requests the records for every key they resolve to,
+fetches them and reports the download's DOI for citation.
 
 Matching the names and reading off their keys runs offline. Sending the request
 needs [rgbif](https://CRAN.R-project.org/package=rgbif) installed, and a
