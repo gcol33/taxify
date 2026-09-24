@@ -48,7 +48,8 @@ spp <- c("Quercus robur", "Pinus sylvestris", "Bellis perennis", "Morus alba")
 
 ## Match first, then request
 
-The whole run, from a list of names to a citable DOI:
+Three calls match the names, request the records and return them with the
+download's DOI:
 
 ```{r}
 matched <- taxify(spp, backbone = "gbif")   # resolve the names to GBIF keys
@@ -57,9 +58,9 @@ recs    <- gbif_fetch(dl)                   # wait, download, attach the input n
 cite(recs)                                  # the download's DOI
 ```
 
-Taken a step at a time. `taxify()` resolves the list against the local GBIF
-backbone and returns an ordinary data frame, so what every name landed on is
-visible before anything is sent:
+`taxify()` resolves the list against the local GBIF backbone and returns an
+ordinary data frame, so what every name landed on is visible before anything is
+sent:
 
 ```{r}
 matched <- taxify(spp, backbone = "gbif")

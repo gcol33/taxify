@@ -336,7 +336,7 @@ Each enrichment downloads on first use and is cached locally, following the same
 pattern as backbones. The cross-source `add_trait()` verb gathers a single trait
 across every source that carries it.
 
-## Key differences at a glance
+## Key differences
 
 **Offline matching.** taxify downloads backbone files once and matches locally.
 After the initial download (typically 50–300 MB depending on the backbone), no

@@ -724,7 +724,7 @@ fungi |> add_fungal_traits()
 #> 5 Cantharellus cibarius ectomycorrhizal cantharelloid cantharelloid          <NA> ...
 ```
 
-The nine trait columns capture complementary facets of fungal ecology:
+The nine trait columns are:
 
 - `primary_lifestyle`: the dominant trophic strategy (ectomycorrhizal,
   saprotroph, plant pathogen, animal parasite, lichen, endophyte, etc.).
@@ -1921,13 +1921,12 @@ between the `accepted_name` column in a `taxify()` result and the
 is the accepted (resolved) name rather than the original input, synonyms
 that were resolved during matching contribute automatically. If the input
 contained "Pinus abies" and the backbone resolved it to "Picea abies", the
-enrichment join looks up "Picea abies" in the trait database. This means
-we never have to worry about whether our species list uses currently accepted
-names or outdated synonyms: the backbone resolution step has already
-normalized everything.
+enrichment join looks up "Picea abies" in the trait database. A species list
+can therefore mix currently accepted names and outdated synonyms, because the
+backbone resolution step has already normalized them.
 
-This design has a deliberate consequence: enrichments only produce values
-for rows that were successfully matched by `taxify()`. Rows where
+Enrichments only produce values for rows that were successfully matched by
+`taxify()`. Rows where
 `accepted_name` is `NA` (unmatched names) always receive `NA` in all
 enrichment columns. If a species could not be resolved against the backbone,
 it cannot be looked up in a trait database either. This is usually the
