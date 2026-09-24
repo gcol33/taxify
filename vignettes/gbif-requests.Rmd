@@ -35,10 +35,10 @@ list of any length is still one call. `gbif_fetch()` waits for all of them and
 stacks the records, and every download gets its own DOI
 ([details](#long-lists-are-split-across-downloads)).
 
-Matching the names and reading off their keys runs offline. Sending the request
-needs [rgbif](https://CRAN.R-project.org/package=rgbif) installed, and a
-download needs a free GBIF account, set in `.Renviron`;
-[Setting up rgbif](#setting-up-rgbif) below covers both.
+Matching the names and reading off their keys runs offline. Sending the
+request and fetching the download both need
+[rgbif](https://CRAN.R-project.org/package=rgbif) and a free GBIF account set
+up in `.Renviron` — see [Setting up rgbif](#setting-up-rgbif).
 
 ```{r}
 library(taxify)
