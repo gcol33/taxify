@@ -139,6 +139,8 @@ reference:
   - add_gidias
   - add_alien_first_records
   - add_wcvp
+  - add_euromed_distribution
+  - euromed_areas
   - add_common_names
   - add_globi
 - title: Enrichments — plants

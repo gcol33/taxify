@@ -1,0 +1,103 @@
+{
+  "columns": [
+    {
+      "name": "canonical_name",
+      "type": "character",
+      "values": [
+        "Robinia pseudoacacia",
+        "Robinia pseudoacacia",
+        "Robinia pseudoacacia",
+        "Robinia pseudoacacia",
+        "Robinia pseudoacacia"
+      ]
+    },
+    {
+      "name": "area_code",
+      "type": "character",
+      "values": [
+        "Ge",
+        "Au(A)",
+        "Au(L)",
+        "Au",
+        "Ga(F)"
+      ]
+    },
+    {
+      "name": "area_name",
+      "type": "character",
+      "values": [
+        "Germany",
+        "Austria",
+        "Liechtenstein",
+        "Austria, with Liechtenstein",
+        "France"
+      ]
+    },
+    {
+      "name": "area_level",
+      "type": "character",
+      "values": [
+        "Euro+Med 1. area level",
+        "Euro+Med 2. area level",
+        "Euro+Med 2. area level",
+        "Euro+Med 1. area level",
+        "Euro+Med 2. area level"
+      ]
+    },
+    {
+      "name": "iso2",
+      "type": "character",
+      "values": [
+        "DE",
+        "AT",
+        "LI",
+        null,
+        "FR"
+      ]
+    },
+    {
+      "name": "euromed_status",
+      "type": "character",
+      "values": [
+        "naturalised",
+        "naturalised",
+        "introduced",
+        "naturalised",
+        "native"
+      ]
+    },
+    {
+      "name": "euromed_status_detail",
+      "type": "character",
+      "values": [
+        "naturalised",
+        "naturalised",
+        "introduced: uncertain degree of naturalisation",
+        "naturalised",
+        "native"
+      ]
+    },
+    {
+      "name": "euromed_status_source",
+      "type": "character",
+      "values": [
+        "ref-ex-1|ref-ex-2",
+        "ref-ex-1",
+        "ref-ex-2",
+        "ref-ex-1",
+        "ref-ex-2"
+      ]
+    },
+    {
+      "name": "taxon_id",
+      "type": "character",
+      "values": [
+        "example-taxon-robinia",
+        "example-taxon-robinia",
+        "example-taxon-robinia",
+        "example-taxon-robinia",
+        "example-taxon-robinia"
+      ]
+    }
+  ]
+}

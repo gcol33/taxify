@@ -1,0 +1,19 @@
+{
+  "name": "euromed_distribution",
+  "version": "example",
+  "nrow": 5,
+  "static": true,
+  "license": "CC BY-SA",
+  "group_col": "area_code",
+  "available_groups": [
+    "Au",
+    "Au(A)",
+    "Au(L)",
+    "Ga(F)",
+    "Ge"
+  ],
+  "references": {
+    "file": "euromed_distribution_references.vtr",
+    "nrow": 2
+  }
+}

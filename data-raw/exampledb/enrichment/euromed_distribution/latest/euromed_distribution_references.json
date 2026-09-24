@@ -1,0 +1,28 @@
+{
+  "columns": [
+    {
+      "name": "ref_id",
+      "type": "character",
+      "values": [
+        "ref-ex-1",
+        "ref-ex-2"
+      ]
+    },
+    {
+      "name": "citation",
+      "type": "character",
+      "values": [
+        "Example checklist of the flora of Central Europe, 2020",
+        "Example national inventory of alien plants, 2018"
+      ]
+    },
+    {
+      "name": "doi",
+      "type": "character",
+      "values": [
+        null,
+        null
+      ]
+    }
+  ]
+}
