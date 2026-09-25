@@ -4,6 +4,7 @@ setup_mock_backend <- function() {
   vtr_path <- mock_backbone_vtr()
   be <- wfo_backend()
   set_backbone_path(be$name, vtr_path)
+  withr::defer(set_backbone_path(be$name, NULL), envir = parent.frame())
   be
 }
 
@@ -36,10 +37,10 @@ setup_mock_fungalroot <- function() {
 }
 
 test_that("add_fungalroot joins mycorrhizal type by genus", {
-  setup_mock_backend()
   data_dir <- setup_mock_fungalroot()
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_backend()
 
   # The temp data dir holds only the enrichment; match against the cached wfo
   # mock explicitly rather than the (empty) default installed set.
@@ -54,10 +55,10 @@ test_that("add_fungalroot joins mycorrhizal type by genus", {
 })
 
 test_that("add_fungalroot annotates any species in a covered genus", {
-  setup_mock_backend()
   data_dir <- setup_mock_fungalroot()
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_backend()
 
   # Pinus sylvestris is not in the enrichment by binomial, but its genus is.
   result <- taxify("Pinus sylvestris", backbone = "wfo", verbose = FALSE)
@@ -68,10 +69,10 @@ test_that("add_fungalroot annotates any species in a covered genus", {
 })
 
 test_that("add_fungalroot returns NA for genera not in FungalRoot", {
-  setup_mock_backend()
   data_dir <- setup_mock_fungalroot()
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_backend()
 
   # Picea is in the mock backbone but absent from the enrichment .vtr
   result <- taxify("Picea polita", backbone = "wfo", verbose = FALSE)

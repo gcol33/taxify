@@ -126,6 +126,14 @@
   words as the query, so a binomial no longer draws the infraspecific names
   built on it into its candidates.
 
+## Session cache
+
+* The session cache of resolved backbone and enrichment paths is scoped by
+  data directory. Pointing `taxify.data_dir` elsewhere mid-session (at the
+  example database, at a second install) now reads that directory's files;
+  a backbone opened under the previous directory used to keep answering under
+  the same name.
+
 # taxify 0.5.6
 
 * Cross-backbone recovery in grouped doors (`add_wcvp()` and the others over an

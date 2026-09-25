@@ -4,6 +4,7 @@ setup_mock_backend <- function() {
   vtr_path <- mock_backbone_vtr()
   be <- wfo_backend()
   set_backbone_path(be$name, vtr_path)
+  withr::defer(set_backbone_path(be$name, NULL), envir = parent.frame())
   be
 }
 

@@ -2,15 +2,36 @@
 #
 # vectra nodes are single-use (consumed on collect). We cache the *path*
 # to the .vtr file, and create fresh tbl() handles on demand.
+#
+# A name resolves inside the data directory of the moment (`taxify_data_dir()`
+# reads a session option), so the same name denotes a different build once the
+# option points elsewhere -- at the example database, at a second data dir. The
+# cache slot therefore carries the directory with the name: each directory
+# reads and writes its own paths, and switching back finds the earlier ones.
+
+#' Cache slot of a backbone or enrichment name under the current data directory
+#'
+#' @param backbone_name Character string (e.g., "wfo", "enrichment_gift").
+#' @return A single character key.
+#' @noRd
+cache_slot <- function(backbone_name) {
+  dd <- taxify_data_dir()
+  dd <- tryCatch(normalizePath(dd, winslash = "/", mustWork = FALSE),
+                 error = function(e) dd)
+  paste0(dd, "|", backbone_name)
+}
+
 
 #' Get a cached backbone path
 #'
 #' @param backbone_name Character string (e.g., "wfo").
-#' @return A character path or NULL if not cached.
+#' @return A character path or NULL if not cached under the current data
+#'   directory.
 #' @noRd
 get_backbone_path <- function(backbone_name) {
-  if (exists(backbone_name, envir = .taxify_cache, inherits = FALSE)) {
-    get(backbone_name, envir = .taxify_cache, inherits = FALSE)
+  slot <- cache_slot(backbone_name)
+  if (exists(slot, envir = .taxify_cache, inherits = FALSE)) {
+    get(slot, envir = .taxify_cache, inherits = FALSE)
   } else {
     NULL
   }
@@ -23,14 +44,15 @@ get_backbone_path <- function(backbone_name) {
 #' @param path Character. Path to the .vtr file, or `NULL` to remove from cache.
 #' @noRd
 set_backbone_path <- function(backbone_name, path) {
+  slot <- cache_slot(backbone_name)
   if (is.null(path)) {
-    if (exists(backbone_name, envir = .taxify_cache, inherits = FALSE)) {
-      old <- get(backbone_name, envir = .taxify_cache, inherits = FALSE)
-      rm(list = backbone_name, envir = .taxify_cache)
+    if (exists(slot, envir = .taxify_cache, inherits = FALSE)) {
+      old <- get(slot, envir = .taxify_cache, inherits = FALSE)
+      rm(list = slot, envir = .taxify_cache)
       if (is.character(old) && length(old) == 1L) clear_backbone_memo(old)
     }
   } else {
-    assign(backbone_name, path, envir = .taxify_cache)
+    assign(slot, path, envir = .taxify_cache)
   }
 }
 

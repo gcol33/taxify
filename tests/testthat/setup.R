@@ -18,7 +18,8 @@ options(taxify.offline = TRUE)
 # matching the pre-existing tests. Tests that need other backbones either set
 # taxify.data_dir to the example database (restoring to this value on exit), or
 # inject mocks into the session cache and call them via an explicit
-# backbone = ... .
+# backbone = ... . The cache is scoped by data dir, so a mock is pinned after
+# the option points at the dir the calls will run under, never before.
 #
 # Set with a bare options() so it holds for the entire run (a deferred restore
 # tied to teardown_env() can fire too early and re-expose the real data dir).

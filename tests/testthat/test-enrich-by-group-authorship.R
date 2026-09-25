@@ -9,6 +9,7 @@
 setup_mock_wfo <- function() {
   vtr_path <- mock_backbone_vtr()
   set_backbone_path("wfo", vtr_path)
+  withr::defer(set_backbone_path("wfo", NULL), envir = parent.frame())
 }
 
 # Build a WCVP-shaped enrichment .vtr where "Quercus robur" covers two
@@ -45,10 +46,10 @@ setup_mock_wcvp <- function(wcvp = NULL) {
 
 
 test_that("add_wcvp() does not attach a homonym's native range", {
-  setup_mock_wfo()
   data_dir <- setup_mock_wcvp()
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_wfo()
 
   r <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
   expect_equal(r$accepted_authorship, "L.")
@@ -70,10 +71,10 @@ test_that("add_wcvp() does not attach a homonym's native range", {
 })
 
 test_that("add_wcvp() warns 'no match' when the query shares nothing with any candidate", {
-  setup_mock_wfo()
   data_dir <- setup_mock_wcvp()
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_wfo()
 
   # A resolved authorship that matches neither concept in the fixture (e.g.
   # a third backbone's homonym record) shares nothing with either "L." or
@@ -92,10 +93,10 @@ test_that("add_wcvp() warns 'no match' when the query shares nothing with any ca
 })
 
 test_that("a single-concept name is unaffected by the authorship check", {
-  setup_mock_wfo()
   data_dir <- setup_mock_wcvp()
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_wfo()
 
   r <- taxify("Quercus petraea", backbone = "wfo", verbose = FALSE)
   # Not in the fixture at all: normal "no data for this name" path, no warning.
@@ -123,10 +124,10 @@ wcvp_variant_df <- function(second) {
 }
 
 enrich_with <- function(authorship, wcvp) {
-  setup_mock_wfo()
   data_dir <- setup_mock_wcvp(wcvp)
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_wfo()
   r <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
   r$accepted_authorship <- authorship
   add_wcvp(r, region = c("EUR", "NAM"), verbose = FALSE)
@@ -191,7 +192,6 @@ test_that("add_wcvp() gives the 'no match' warning for #87's own repro shape", {
   # authorship component with the queried concept -- the WCVP enrichment
   # simply doesn't hold this concept under any spelling. This is not a tie
   # to break, so it must not read as "match more than one concept".
-  setup_mock_wfo()
   three <- data.frame(
     canonical_name = rep("Quercus robur", 3L),
     tdwg_code      = c("EUR", "NAM", "GER"),
@@ -202,6 +202,7 @@ test_that("add_wcvp() gives the 'no match' warning for #87's own repro shape", {
   data_dir <- setup_mock_wcvp(three)
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_wfo()
 
   r <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
   r$accepted_authorship <- "(Fernald & Wiegand) Fernald"
@@ -231,10 +232,10 @@ wcvp_ranked_df <- function(name, tdwg, authors, rank, infra) {
 }
 
 enrich_ranked <- function(name, wcvp, region) {
-  setup_mock_wfo()
   data_dir <- setup_mock_wcvp(wcvp)
   old <- options(taxify.data_dir = data_dir)
   on.exit(options(old), add = TRUE)
+  setup_mock_wfo()
   r <- taxify(name, backbone = "wfo", verbose = FALSE)
   add_wcvp(r, region = region, verbose = FALSE)
 }
