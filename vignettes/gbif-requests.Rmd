@@ -288,13 +288,15 @@ record identified below species level carries its own key. Requesting
 *P. nigra* subsp. *salzmannii*; those rows carry the requested key in
 `speciesKey` and nowhere else.
 
-In a 300-record sample of that request, 50 rows are identified to a subspecies.
-Joining on `taxonKey` matches 250 of 300. `gbif_backmatch()` matches all 300,
-because it tries the record's keys from the most specific outwards and takes
-the first that is one of the keys requested.
+A join on `taxonKey` misses those rows. In a sample of 300 records from that
+request, 50 were identified to a subspecies, and a join on `taxonKey` linked
+the other 250. `gbif_backmatch()` linked all 300. For each record it reads the
+keys in order, `taxonKey`, then `acceptedTaxonKey`, `speciesKey`, `genusKey`
+and `familyKey`, and takes the first one that was requested.
 
-Rows matching no requested key are kept, with `NA` in the three added columns,
-and a message reports their count.
+Some records carry none of the requested keys. Those rows are kept, with `NA`
+in `requested_key`, `input_name` and `accepted_name`, and a message reports how
+many there were.
 
 ## Citing the download
 

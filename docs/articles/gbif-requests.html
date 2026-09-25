@@ -340,13 +340,18 @@ Requesting <em>Pinus nigra</em> (5284809) returns records whose
 <code>taxonKey</code> is 5686674, <em>P. nigra</em> subsp.
 <em>salzmannii</em>; those rows carry the requested key in
 <code>speciesKey</code> and nowhere else.</p>
-<p>In a 300-record sample of that request, 50 rows are identified to a
-subspecies. Joining on <code>taxonKey</code> matches 250 of 300.
-<code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> matches all 300, because it tries the
-record’s keys from the most specific outwards and takes the first that
-is one of the keys requested.</p>
-<p>Rows matching no requested key are kept, with <code>NA</code> in the
-three added columns, and a message reports their count.</p>
+<p>A join on <code>taxonKey</code> misses those rows. In a sample of 300
+records from that request, 50 were identified to a subspecies, and a
+join on <code>taxonKey</code> linked the other 250.
+<code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> linked all 300. For each record it reads
+the keys in order, <code>taxonKey</code>, then
+<code>acceptedTaxonKey</code>, <code>speciesKey</code>,
+<code>genusKey</code> and <code>familyKey</code>, and takes the first
+one that was requested.</p>
+<p>Some records carry none of the requested keys. Those rows are kept,
+with <code>NA</code> in <code>requested_key</code>,
+<code>input_name</code> and <code>accepted_name</code>, and a message
+reports how many there were.</p>
 </div>
 </div>
 <div class="section level2">
