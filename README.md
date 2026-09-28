@@ -163,7 +163,7 @@ cite(result)                                # citations for every source used
 
 ## Traits and status
 
-<!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count --> enrichment layers
+<!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count --> enrichment layers
 join published trait and status data to a result through the backbone-resolved accepted
 name, so synonyms in either dataset land on the same key.
 

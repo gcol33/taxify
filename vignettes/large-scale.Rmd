@@ -626,7 +626,7 @@ file that arrives on disk is the file that vectra reads at query time.
 
 Enrichment files are much smaller. The largest enrichment is WCVP (native
 range data, ~2 million rows) at roughly 30-40 MB. Most enrichments are
-under 5 MB. A full set of <!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count --> enrichments adds a few hundred MB to disk
+under 5 MB. A full set of <!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count --> enrichments adds a few hundred MB to disk
 usage.
 
 ## Memory footprint

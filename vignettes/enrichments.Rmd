@@ -2073,7 +2073,7 @@ This check adds negligible latency because the manifest itself is cached.
 
 If the pre-built `.vtr` download fails (network issues, mirror outage,
 transient server errors), taxify attempts to build the enrichment from the original source data. Each of
-the <!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count --> enrichments has a build recipe in an internal registry
+the <!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count --> enrichments has a build recipe in an internal registry
 (`.enrichment_build_registry`) that knows how to download the raw CSV, ZIP,
 or API response from the upstream source, parse it into a data.frame with
 a `canonical_name` column, and produce the `.vtr` file locally. This
@@ -2117,7 +2117,7 @@ directory (typically `~/.local/share/taxify` on Linux/macOS or
 `%LOCALAPPDATA%/taxify` on Windows). This directory is also where backbone
 `.vtr` files are stored, so a single `taxify_data_dir()` call reveals
 where all taxify data lives on the system. Enrichment files are modest in
-size: most are between 1 and 20 MB. The full set of <!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count --> enrichments is
+size: most are between 1 and 20 MB. The full set of <!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count --> enrichments is
 correspondingly larger.
 
 ### Flat and grouped joins
