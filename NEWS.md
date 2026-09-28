@@ -4,7 +4,7 @@
 
 * `add_euromed_distribution()` attaches the status Euro+Med PlantBase states for a taxon in each Euro+Med area: `euromed_status` is `native`, `naturalised`, `introduced`, `casual`, `cultivated`, `doubtful` or `extinct`, and `euromed_status_detail` keeps the term as Euro+Med words it (`endemic`, `introduced: uncertain degree of naturalisation`). The citing references of each record are in `euromed_status_source` (resolve with `cite(x$euromed_status_source, source = "euromed_distribution")`), and `cols = "all"` adds the taxon's Euro+Med UUID as `taxon_id`, the `taxon_id` of the `euromed` backbone. `region` takes ISO 3166-1 alpha-2 country codes or Euro+Med area codes. A report Euro+Med marks as made in error is not carried, and a former presence is `extinct` (issue #90).
 * `euromed_areas()` lists the areas with the ISO code of those that are exactly one country. A combined area (Italy with San Marino and Vatican City, Ireland with Northern Ireland) has none; its countries are read from the level-2 areas (`Au(A)` Austria, `Au(L)` Liechtenstein).
-* The status is harvested per taxon from the CDM REST API behind europlusmed.org, which has no bulk export, by `crawl_euromed_distribution.py` in taxifydb.
+* The status is harvested per accepted taxon from the europlusmed.org portal taxon pages, served from the CyberTaxonomy CDM which has no bulk export, by `crawl_euromed_portal.py` in taxifydb.
 
 ## Requesting GBIF data for a name list
 
