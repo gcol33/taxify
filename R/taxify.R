@@ -1435,6 +1435,18 @@ release_out_of_scope <- function(result, names_df, scope) {
 
 #' Enrich unmatched names using the unified genus register
 #'
+#' A genus name that is a homonym across kingdoms resolves in the register to
+#' whichever kingdom the register's own cross-backbone priority picked for
+#' that spelling globally (see [resolve_genus_classification()] in taxifydb),
+#' which can contradict the kingdom of the backbone a row actually matched
+#' through. Where that row's backbone has a fixed, unambiguous kingdom
+#' (`backbone_fixed_kingdom()`), that kingdom overrides the register's
+#' `kingdom_group` for the row, and `life_form`/`taxon_group` -- which the
+#' register carries only for the kingdom it picked -- are left `NA` rather
+#' than served from a value that belongs to the other homonym. This mirrors
+#' the fixed-kingdom check `row_kingdom_groups()` already applies to the
+#' `kingdom =` filter.
+#'
 #' @param result The match result data.frame.
 #' @param names_df The cleaned names data.frame from `clean_names()`.
 #' @param backbone Character scalar or vector of backbone names that were tried.
@@ -1488,9 +1500,19 @@ enrich_with_register <- function(result, names_df, backbone) {
   if (any(found)) {
     f_rows <- active_rows[found]
     f_idx  <- reg_idx[found]
-    result$life_form[f_rows] <- reg$life_form[f_idx]
-    if (has_kingdom_group) result$kingdom_group[f_rows] <- reg$kingdom_group[f_idx]
-    if (has_taxon_group)   result$taxon_group[f_rows]   <- reg$taxon_group[f_idx]
+
+    fixed_kg <- normalize_kingdom_group(backbone_fixed_kingdom(result$backbone[f_rows]))
+    reg_kg   <- if (has_kingdom_group) normalize_kingdom_group(reg$kingdom_group[f_idx]) else
+      rep(NA_character_, length(f_rows))
+    conflict <- !is.na(fixed_kg) & !is.na(reg_kg) & fixed_kg != reg_kg
+
+    result$life_form[f_rows] <- ifelse(conflict, NA_character_, reg$life_form[f_idx])
+    if (has_kingdom_group) {
+      result$kingdom_group[f_rows] <- ifelse(!is.na(fixed_kg), fixed_kg, reg_kg)
+    }
+    if (has_taxon_group) {
+      result$taxon_group[f_rows] <- ifelse(conflict, NA_character_, reg$taxon_group[f_idx])
+    }
   }
 
   if (!is.null(covered_genera)) {
