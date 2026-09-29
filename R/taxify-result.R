@@ -30,7 +30,7 @@ print.taxify_result <- function(x, ...) {
 #' Subset a taxify_result, preserving its metadata
 #'
 #' The default data.frame `[` method drops the `taxify_meta` attribute that the
-#' downstream doors ([add_data()], [cite()], [summary()], [taxify_lock()]) read.
+#' downstream doors ([add_data()], [cite()], [base::summary()], [taxify_lock()]) read.
 #' This method carries `taxify_meta` and the `taxify_result` class through
 #' row/column subsetting, so a subset (including one taken internally by a door
 #' that reorders columns) still exposes its provenance. A subset that collapses

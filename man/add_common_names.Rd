@@ -34,11 +34,11 @@ Joins vernacular names to a \code{\link[=taxify]{taxify()}} result by looking up
 \details{
 Common names are merged from three sources:
 \itemize{
-\item GBIF backbone vernacular names (CC0) — multi-language via ISO
+\item GBIF backbone vernacular names (CC0), multi-language via ISO
 639-1 codes.
-\item NCBI Taxonomy common names (public domain) — no language tag
+\item NCBI Taxonomy common names (public domain), no language tag
 (\code{lang = NA}).
-\item Open Tree of Life common names (CC0) — no language tag
+\item Open Tree of Life common names (CC0), no language tag
 (\code{lang = NA}).
 }
 When multiple common names exist for a species in the requested

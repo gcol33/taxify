@@ -1,7 +1,8 @@
 ## Submission
 
 This is version 0.6.0 of taxify, currently on CRAN at 0.5.5 (published
-2026-09-18). The release adds one feature and completes one rename:
+2026-09-18). The release adds two features, corrects the kingdom labels of
+the genus register, and completes one rename:
 
 * Requesting GBIF occurrence data for a matched name list. GBIF serves records
   by taxon key rather than by name, and a name it files under several keys (a
@@ -19,12 +20,25 @@ This is version 0.6.0 of taxify, currently on CRAN at 0.5.5 (published
 * rgbif moves into Suggests. Resolving names and reading off their keys is
   offline work and does not need it; only sending the request does, and every
   call site guards it with `requireNamespace()`.
+* `add_euromed_distribution()` attaches the status Euro+Med PlantBase states
+  for a taxon in each of its areas (native, naturalised, introduced, casual,
+  cultivated, doubtful, extinct), with the citing references of each record;
+  `euromed_areas()` lists the areas.
+* The genus register behind the `kingdom_group`, `taxon_group` and
+  `life_form` output columns is rebuilt: kingdoms are read from accepted
+  records first, and a genus spelling shared by two kingdoms takes the kingdom
+  of the record actually matched. Genera without a kingdom fall from 44,024 to
+  2,978 of 502,381. The register is a downloaded data file, not part of the
+  package sources.
 * Breaking: `taxify_candidates()` is removed in favour of `taxify_ids()`,
   which returns one row per name and accepted ID with the name, authorship,
-  rank, status, family and occurrence count of each.
+  rank, status, family and occurrence count of each. In the `taxify()` output,
+  `is_ambiguous` and `ambiguous_targets` are replaced by `n_ids` and
+  `accepted_ids`.
 
-Five new exported functions (`gbif_request`, `gbif_fetch`, `gbif_backmatch`,
-`taxify_ids`, `enrichment_authorship_col`); one removed (`taxify_candidates`).
+Seven new exported functions (`gbif_request`, `gbif_fetch`, `gbif_backmatch`,
+`taxify_ids`, `enrichment_authorship_col`, `add_euromed_distribution`,
+`euromed_areas`); one removed (`taxify_candidates`).
 The package has no reverse dependencies, so the removal breaks nothing on
 CRAN.
 
@@ -42,7 +56,10 @@ or example time:
   downloads far too large to fetch during a check. The same applies to the
   examples that contact GBIF, which additionally need an account.
 * Tests use small bundled fixtures and a local test manifest; no network.
-* Vignettes do not download data (every chunk is `eval = FALSE`).
+* Vignettes do not download data. The chunks that run read only what ships
+  with the package (the trait registry, the bundled WGSRPD region table) or
+  build small illustrative tables; every chunk that needs a backbone is
+  `eval = FALSE`.
 
 taxifydb is the optional companion package that builds the backbone and
 enrichment data from source. It is used strictly conditionally (every call site

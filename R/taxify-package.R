@@ -13,6 +13,8 @@ utils::globalVariables(c(
   "scientificNameAuthorship", "dist", "join_key",
   "scientificNameID", "parentNameUsageID", "namePublishedIn",
   "higherClassification", "taxonRemarks", "infraspecificEpithet",
+  # Euro+Med area table column references (euromed_areas)
+  "area_code", "area_name", "area_level", "iso2",
   # COL-specific column references
   "canonicalName", "genericName",
   # ITIS-specific column references (unified schema)

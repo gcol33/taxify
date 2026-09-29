@@ -17,7 +17,7 @@ remains a data.frame, otherwise the bare column.
 }
 \description{
 The default data.frame \code{[} method drops the \code{taxify_meta} attribute that the
-downstream doors (\code{\link[=add_data]{add_data()}}, \code{\link[=cite]{cite()}}, \code{\link[=summary]{summary()}}, \code{\link[=taxify_lock]{taxify_lock()}}) read.
+downstream doors (\code{\link[=add_data]{add_data()}}, \code{\link[=cite]{cite()}}, \code{\link[base:summary]{base::summary()}}, \code{\link[=taxify_lock]{taxify_lock()}}) read.
 This method carries \code{taxify_meta} and the \code{taxify_result} class through
 row/column subsetting, so a subset (including one taken internally by a door
 that reorders columns) still exposes its provenance. A subset that collapses
