@@ -78,13 +78,9 @@ repository declared in `Additional_repositories`
 
 ## R CMD check results
 
-<!-- FILL BEFORE SUBMITTING: the two win-builder lines below are placeholders.
-     Neither flavour has been run for 0.6.0. Replace with the actual results,
-     and drop this comment. -->
-
-* Local (--as-cran): 0 errors | 0 warnings | 1 note
-* win-builder (R-release): not yet run
-* win-builder (R-devel): not yet run
+* Local (--as-cran): 0 errors | 0 warnings | 0 notes
+* win-builder (R-release, 4.6.1): 0 errors | 0 warnings | 1 note
+* win-builder (R-devel, 2026-09-25 r90590): 0 errors | 0 warnings | 1 note
 
 The note is "Suggests or Enhances not in mainstream repositories: taxifydb",
 confirmed available via Additional_repositories in the same check output
