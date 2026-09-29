@@ -2,9 +2,10 @@
 
 ## Genus register kingdoms
 
-* The genus register (`genus_register.vtr`, which fills `kingdom_group`, `taxon_group` and `life_form`) is rebuilt: its kingdom is read from accepted genus records before synonyms, a spelling shared by genera in two kingdoms resolves to the genus with more accepted species, and a genus's ranks all come from one of the genera sharing its spelling. 4,773 of 502,381 genera change kingdom. *Olea europaea* read `kingdom_group = "animalia"` (the register had picked the sea slug *Olea*), and *Aa*, *Abelia* and *Acaena* read as animals from synonym records; *Panthera* and *Pteropus* carried a moth's and a stick insect's family.
-* The register's new `multi_kingdom` column marks the 3,142 genera whose spelling accepted records place in more than one kingdom. For those, a matched row's `kingdom_group` is the kingdom of the record it matched, read from the backbone's `kingdom` column, and `taxon_group` / `life_form` are `NA` where that kingdom differs from the register's.
+* The genus register (`genus_register.vtr`, which fills `kingdom_group`, `taxon_group` and `life_form`) is rebuilt: its kingdom is read from accepted genus records before synonyms, a spelling shared by genera in two kingdoms resolves to the genus with more accepted species, a genus's ranks all come from one of the genera sharing its spelling, and GBIF's own kingdom column is read. Genera without a kingdom fall from 44,024 to 2,978 of 502,381, and 5,767 change kingdom. *Olea europaea* read `kingdom_group = "animalia"` (the register had picked the sea slug *Olea*), and *Aa*, *Abelia* and *Acaena* read as animals from synonym records; *Panthera* and *Pteropus* carried a moth's and a stick insect's family.
+* The register's new `multi_kingdom` column marks the 5,026 genera whose spelling accepted records place in more than one kingdom. For those, a matched row's `kingdom_group` is the kingdom of the record it matched, read from the backbone's `kingdom` column, and `taxon_group` / `life_form` are `NA` where that kingdom differs from the register's.
 * A backbone scoped to one kingdom (WFO, Euro+Med, LCVP, WCVP, Species Fungorum, MDD, AviList, ReptileDB, FishBase) always sets a matched row's `kingdom_group` to that kingdom.
+* `taxify_register_coverage()` reports the release each backbone was indexed from; the previous coverage table had none for 17 of 19 backbones.
 
 ## Euro+Med distribution status
 
