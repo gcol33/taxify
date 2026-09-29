@@ -344,3 +344,37 @@ test_that("taxify_build_register() delegates to taxifydb", {
           "taxifydb is installed, so the missing-dependency error cannot fire")
   expect_error(taxify_build_register(verbose = FALSE), "taxifydb")
 })
+
+
+test_that("a multi-kingdom genus takes the kingdom of the record it matched", {
+  # Olea is the olive and a sea slug; WoRMS carries both, with a kingdom
+  # column the register cannot see.
+  bb <- tempfile(fileext = ".vtr")
+  on.exit(unlink(bb), add = TRUE)
+  vectra::write_vtr(data.frame(taxon_id = c("1", "2"),
+                               kingdom = c("Plantae", "Animalia"),
+                               stringsAsFactors = FALSE), bb)
+  old_path <- get_backbone_path("worms")
+  set_backbone_path("worms", bb)
+  on.exit(set_backbone_path("worms", old_path), add = TRUE)
+
+  old_reg <- .taxify_env$register
+  .taxify_env$register <- data.frame(
+    genus = "Olea", kingdom = "Animalia", kingdom_group = "animalia",
+    taxon_group = "animal", life_form = "animal", multi_kingdom = TRUE,
+    stringsAsFactors = FALSE)
+  on.exit(.taxify_env$register <- old_reg, add = TRUE)
+  local_mocked_bindings(ensure_coverage = function(...) NULL)
+
+  result <- data.frame(
+    input_name = c("Olea europaea", "Olea hansineensis"),
+    match_type = "exact", genus = "Olea",
+    matched_name = c("Olea europaea", "Olea hansineensis"),
+    backbone = "worms", accepted_id = c("1", "2"),
+    stringsAsFactors = FALSE)
+  out <- enrich_with_register(result, NULL, "worms")
+
+  expect_equal(out$kingdom_group, c("plantae", "animalia"))
+  expect_equal(out$taxon_group, c(NA_character_, "animal"))
+  expect_equal(out$life_form, c(NA_character_, "animal"))
+})

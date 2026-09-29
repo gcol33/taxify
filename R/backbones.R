@@ -82,19 +82,12 @@
     # The kingdom a backbone's rows always belong to, for a backbone whose
     # scope is unambiguous, whether or not its .vtr carries a `kingdom`
     # column of its own. Read by filter_result_by_kingdom() and by
-    # enrich_with_register() ahead of the genus register fallback: the
-    # register is a single cross-backbone genus index, so a genus name that
-    # is a homonym across kingdoms (not rare -- botanical and zoological
-    # nomenclature are independent codes) resolves to whichever kingdom
-    # happens to be recorded for that genus string globally, which can
-    # contradict a backbone that is scoped to one kingdom by construction.
-    # MDD, AviList, ReptileDB and FishBase already carry a `kingdom` column
-    # (a constant "Animalia", since each covers one animal group), but
-    # enrich_with_register() never reads a matched row's own backbone .vtr,
-    # only the register -- so without a fixed value here it still overwrote
-    # that certainty with a wrong register pick, the same gap already closed
-    # for the plant-only backbones (Euro+Med's `Olea` row is the worked
-    # case).
+    # enrich_with_register() ahead of the genus register: the register holds
+    # one kingdom per genus spelling, and botanical and zoological
+    # nomenclature are independent codes, so a spelling can name genera in
+    # two kingdoms (Euro+Med's Olea is the olive, WoRMS also carries a sea
+    # slug Olea). A fixed scope settles the kingdom without reading the .vtr.
+    # MDD, AviList, ReptileDB and FishBase each cover one animal group.
     # AlgaeBase and SeaLifeBase are left NA: "algae" and "non-fish
     # marine/aquatic" each span more than one kingdom, so there is no single
     # correct fixed value; LPSN spans Bacteria and Archaea for the same

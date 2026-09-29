@@ -1,9 +1,10 @@
 # taxify 0.6.0
 
-## Genus register kingdom fallback
+## Genus register kingdoms
 
-* A matched row's `kingdom_group` no longer takes a wrong reading from the genus register when its genus name is a homonym across kingdoms. `enrich_with_register()` now overrides the register with the matched backbone's own fixed kingdom for every backbone scoped to one kingdom (WFO, Euro+Med, LCVP, WCVP, Species Fungorum, and now also MDD, AviList, ReptileDB and FishBase, which stamp a constant `Animalia` `kingdom` column but had no fixed value to fall back on); `taxon_group` and `life_form`, which the register carries only for the kingdom it picked, come back `NA` rather than served from the other homonym's row. `add_euromed_distribution()` surfaced the bug: *Olea europaea* (Oleaceae) read `kingdom_group = "animalia"`, because the register's cross-backbone pick for the genus name `Olea` is a sea-slug genus (Limapontiidae) that happens to share the spelling.
-* This is a symptom, not an isolated slip: cross-referencing the published `genus_register.vtr` against `backend_coverage.vtr` finds 4,727 genera where the register's pick disagrees with a plant- or fungus-only backbone that carries the same name, mostly because COL and COL XR file thousands of genera under two contradicting kingdoms and the higher-priority one wins outright. That data-quality question sits in taxifydb's register build, not here; this fix only stops it from reaching a `taxify()` result for the backbones a fixed kingdom can settle.
+* The genus register (`genus_register.vtr`, which fills `kingdom_group`, `taxon_group` and `life_form`) is rebuilt: its kingdom is read from accepted genus records before synonyms, a spelling shared by genera in two kingdoms resolves to the genus with more accepted species, and a genus's ranks all come from one of the genera sharing its spelling. 4,773 of 502,381 genera change kingdom. *Olea europaea* read `kingdom_group = "animalia"` (the register had picked the sea slug *Olea*), and *Aa*, *Abelia* and *Acaena* read as animals from synonym records; *Panthera* and *Pteropus* carried a moth's and a stick insect's family.
+* The register's new `multi_kingdom` column marks the 3,142 genera whose spelling accepted records place in more than one kingdom. For those, a matched row's `kingdom_group` is the kingdom of the record it matched, read from the backbone's `kingdom` column, and `taxon_group` / `life_form` are `NA` where that kingdom differs from the register's.
+* A backbone scoped to one kingdom (WFO, Euro+Med, LCVP, WCVP, Species Fungorum, MDD, AviList, ReptileDB, FishBase) always sets a matched row's `kingdom_group` to that kingdom.
 
 ## Euro+Med distribution status
 

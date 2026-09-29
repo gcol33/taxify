@@ -1183,6 +1183,26 @@ row_kingdom_groups <- function(bb_name, kingdom = NULL, genus = NULL, n) {
 }
 
 
+#' A backbone's own `kingdom` value for a set of taxon ids
+#'
+#' @param vtr_path Path to the backbone `.vtr`.
+#' @param ids Taxon ids to look up (`taxon_id`).
+#' @return Character vector parallel to `ids` (`NA` where an id is absent), or
+#'   `NULL` when the backbone stores no `kingdom` column.
+#' @noRd
+backbone_kingdom_values <- function(vtr_path, ids) {
+  schema <- tryCatch(vtr_schema(vtr_path), error = function(e) character(0L))
+  if (!"kingdom" %in% schema) return(NULL)
+  j <- tryCatch(
+    backbone_join(vtr_path, ids, bb_key = "taxon_id",
+                  select_cols = c("taxon_id", "kingdom")),
+    error = function(e) NULL)
+  if (is.null(j) || nrow(j) == 0L) return(rep(NA_character_, length(ids)))
+  j <- j[!duplicated(j$lookup), , drop = FALSE]
+  j$kingdom[match(ids, j$lookup)]
+}
+
+
 #' Drop matched rows whose kingdom is not among the requested set
 #'
 #' Resolves each matched row's kingdom with `row_kingdom_groups()`, reading the
@@ -1205,19 +1225,8 @@ filter_result_by_kingdom <- function(result, vtr_path, kingdom_set, bb_name) {
   if (length(matched) == 0L) return(result)
 
   bb_kingdom <- NULL
-  if (is.na(backbone_fixed_kingdom(bb_name))) {
-    schema <- tryCatch(vtr_schema(vtr_path), error = function(e) character(0L))
-    if ("kingdom" %in% schema && "accepted_id" %in% names(result)) {
-      j <- tryCatch(
-        backbone_join(vtr_path, result$accepted_id[matched],
-                      bb_key = "taxon_id",
-                      select_cols = c("taxon_id", "kingdom")),
-        error = function(e) NULL)
-      if (!is.null(j) && nrow(j) > 0L) {
-        j <- j[!duplicated(j$lookup), , drop = FALSE]
-        bb_kingdom <- j$kingdom[match(result$accepted_id[matched], j$lookup)]
-      }
-    }
+  if (is.na(backbone_fixed_kingdom(bb_name)) && "accepted_id" %in% names(result)) {
+    bb_kingdom <- backbone_kingdom_values(vtr_path, result$accepted_id[matched])
   }
 
   kg <- row_kingdom_groups(
@@ -1433,19 +1442,53 @@ release_out_of_scope <- function(result, names_df, scope) {
 }
 
 
+#' Kingdom group of the records matched rows came from
+#'
+#' The backbone's fixed scope (`backbone_fixed_kingdom()`) for every row, then,
+#' for rows flagged in `read_backbone`, the matched accepted record's own
+#' `kingdom` value where the backbone stores one.
+#'
+#' @param result The match result data.frame.
+#' @param rows Row indices into `result`.
+#' @param read_backbone Logical, parallel to `rows`: read the backbone `.vtr`
+#'   for these rows when the backbone has no fixed scope.
+#' @return Character vector of coarse kingdom groups parallel to `rows`, `NA`
+#'   where unknown.
+#' @noRd
+matched_row_kingdoms <- function(result, rows, read_backbone) {
+  bb <- result$backbone[rows]
+  kg <- normalize_kingdom_group(backbone_fixed_kingdom(bb))
+
+  mt <- result$match_type[rows]
+  ask <- read_backbone & is.na(kg) & !is.na(bb) & !is.na(mt) &
+    !mt %in% c("none", "out_of_scope", "hybrid_formula")
+  if ("accepted_id" %in% names(result)) {
+    ask <- ask & !is.na(result$accepted_id[rows])
+  } else {
+    ask[] <- FALSE
+  }
+  for (b in unique(bb[ask])) {
+    i <- which(ask & bb == b)
+    path <- get_backbone_path(b) %||% versioned_vtr_path(b, "latest")
+    if (!file.exists(path)) next
+    k <- backbone_kingdom_values(path, result$accepted_id[rows[i]])
+    if (!is.null(k)) kg[i] <- normalize_kingdom_group(k)
+  }
+  kg
+}
+
+
 #' Enrich unmatched names using the unified genus register
 #'
-#' A genus name that is a homonym across kingdoms resolves in the register to
-#' whichever kingdom the register's own cross-backbone priority picked for
-#' that spelling globally (see [resolve_genus_classification()] in taxifydb),
-#' which can contradict the kingdom of the backbone a row actually matched
-#' through. Where that row's backbone has a fixed, unambiguous kingdom
-#' (`backbone_fixed_kingdom()`), that kingdom overrides the register's
-#' `kingdom_group` for the row, and `life_form`/`taxon_group` -- which the
-#' register carries only for the kingdom it picked -- are left `NA` rather
-#' than served from a value that belongs to the other homonym. This mirrors
-#' the fixed-kingdom check `row_kingdom_groups()` already applies to the
-#' `kingdom =` filter.
+#' The register holds one classification per genus spelling. Where the
+#' spelling belongs to genera in more than one kingdom (the register's
+#' `multi_kingdom` flag: *Olea* the olive and a sea slug), its kingdom is the
+#' one taxifydb's build chose, which can contradict the record a row actually
+#' matched. For a matched row, the kingdom of that record wins: the backbone's
+#' fixed scope (`backbone_fixed_kingdom()`) for every genus, and for a
+#' `multi_kingdom` genus also the backbone's own `kingdom` column. Where that
+#' kingdom differs from the register's, `life_form` and `taxon_group`, which
+#' the register carries only for the genus it chose, are left `NA`.
 #'
 #' @param result The match result data.frame.
 #' @param names_df The cleaned names data.frame from `clean_names()`.
@@ -1501,14 +1544,19 @@ enrich_with_register <- function(result, names_df, backbone) {
     f_rows <- active_rows[found]
     f_idx  <- reg_idx[found]
 
-    fixed_kg <- normalize_kingdom_group(backbone_fixed_kingdom(result$backbone[f_rows]))
+    multi <- if ("multi_kingdom" %in% names(reg)) {
+      !is.na(reg$multi_kingdom[f_idx]) & reg$multi_kingdom[f_idx]
+    } else {
+      rep(FALSE, length(f_rows))
+    }
+    row_kg   <- matched_row_kingdoms(result, f_rows, read_backbone = multi)
     reg_kg   <- if (has_kingdom_group) normalize_kingdom_group(reg$kingdom_group[f_idx]) else
       rep(NA_character_, length(f_rows))
-    conflict <- !is.na(fixed_kg) & !is.na(reg_kg) & fixed_kg != reg_kg
+    conflict <- !is.na(row_kg) & !is.na(reg_kg) & row_kg != reg_kg
 
     result$life_form[f_rows] <- ifelse(conflict, NA_character_, reg$life_form[f_idx])
     if (has_kingdom_group) {
-      result$kingdom_group[f_rows] <- ifelse(!is.na(fixed_kg), fixed_kg, reg_kg)
+      result$kingdom_group[f_rows] <- ifelse(!is.na(row_kg), row_kg, reg_kg)
     }
     if (has_taxon_group) {
       result$taxon_group[f_rows] <- ifelse(conflict, NA_character_, reg$taxon_group[f_idx])
