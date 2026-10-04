@@ -16,7 +16,7 @@ The same data.frame with additional columns:
 \code{"infrageneric"}, or \code{"infraspecific"}.}
 \item{nomenclaturalCode}{Nomenclatural code (\code{"ICN"}, \code{"ICZN"}, etc.).}
 \item{nomenclaturalStatus}{Nomenclatural status.}
-\item{namePublishedIn}{Original publication reference.}
+\item{name_published_in}{Original publication reference.}
 \item{kingdom}{Kingdom classification.}
 \item{phylum}{Phylum classification.}
 \item{col_class}{Class classification (renamed to avoid conflict with

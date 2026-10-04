@@ -205,13 +205,14 @@ inspect_load_register <- function() {
 build_inspection <- function(res, region_codes = NULL, range_mode = "present",
                              min_tier = "note", region_declared = FALSE,
                              verbose = TRUE) {
+  res <- complete_id_sets(res)
   n  <- nrow(res)
   mt <- res$match_type
 
   col <- function(nm, default) if (nm %in% names(res)) res[[nm]] else default
   acc       <- col("accepted_name",     rep(NA_character_, n))
   fd        <- col("fuzzy_dist",        rep(NA_real_, n))
-  amb_tgt   <- col("accepted_ids",      rep(NA_character_, n))
+  amb_tgt   <- res$accepted_ids
   backbone   <- col("backbone",           rep(NA_character_, n))
   syn_raw   <- col("is_synonym",        rep(FALSE, n))
   input     <- res$input_name

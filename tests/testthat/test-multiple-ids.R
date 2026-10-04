@@ -156,9 +156,10 @@ test_that("the year is silent between homonyms of different kingdoms", {
   expect_equal(pick_best_vec(m)$accepted_taxon_id, "gerania")
 })
 
-test_that("a recombination is dated by its basionym", {
-  # Rhus hirta (L.) Sudw. dates from Linnaeus, not from the 1892 combination,
-  # so it predates the 1883 Rhus hirta Harv. ex Engl. it is compared with.
+test_that("a recombination is dated by its own publication", {
+  # ICN Art. 53.1: Rhus hirta (L.) Sudw. (1892) is a later homonym of Rhus
+  # hirta Harv. ex Engl. (1883), whatever its basionym's date, which is why the
+  # staghorn sumac is Rhus typhina.
   m <- pick_frame(taxonID = c("1", "2"),
                   taxonomicStatus = c("SYNONYM", "SYNONYM"),
                   accepted_taxon_id = c("typhina", "swintonia"),
@@ -167,22 +168,37 @@ test_that("a recombination is dated by its basionym", {
                   bracket_year = c("1756", NA),
                   bracket_authorship = c("L.", NA),
                   n_occurrences = c(1284, 26))
-  expect_equal(pick_best_vec(m)$accepted_taxon_id, "typhina")
-
+  out <- pick_best_vec(m)
+  expect_equal(out$accepted_taxon_id, "swintonia")
+  expect_equal(out$pick_basis, "priority")
 })
 
-test_that("an undated record sorts after a dated one", {
+test_that("the year orders only when every candidate has one", {
   expect_equal(publication_year(c("1805", NA, NA),
                                 c(NA, "Traite Arbr. 1: 3 (1755)", "no year")),
                c(1805L, 1755L, NA))
-  expect_equal(publication_year("1892", NA, "1756"), 1756L)
+  # A dated record beside an undated one says which record carries a date,
+  # not which name came first: the count decides.
   m <- pick_frame(taxonID = c("1", "2"),
                   taxonomicStatus = c("SYNONYM", "SYNONYM"),
                   accepted_taxon_id = c("a", "b"),
                   kingdom = c("Plantae", "Plantae"),
                   year = c(NA, "1900"),
                   n_occurrences = c(12, 3))
-  expect_equal(pick_best_vec(m)$accepted_taxon_id, "b")
+  out <- pick_best_vec(m)
+  expect_equal(out$accepted_taxon_id, "a")
+  expect_equal(out$pick_basis, "occurrences")
+})
+
+test_that("a pick left to the lowest taxon ID says so", {
+  # COL XR's two Absinthium vulgare records: same status, no year, no count.
+  m <- pick_frame(taxonID = c("8MN7", "8MN6"),
+                  taxonomicStatus = c("AMBIGUOUS SYNONYM", "AMBIGUOUS SYNONYM"),
+                  accepted_taxon_id = c("absin", "vulg"))
+  out <- pick_best_vec(m)
+  expect_equal(out$accepted_taxon_id, "vulg")
+  expect_equal(out$pick_basis, "id")
+  expect_true(is.na(pick_best_vec(m[1L, , drop = FALSE])$pick_basis))
 })
 
 test_that("a missing count is no evidence of records", {
@@ -354,4 +370,29 @@ test_that("taxify_ids() reads gbif_key from a backbone that carries a crosswalk"
   ids <- taxify_ids(x, verbose = FALSE)
   expect_equal(ids$accepted_id, c("4R5YN", "SFTX6", "9ZZZZ"))
   expect_equal(ids$gbif_key, c("2878688", "7911626|8206510", NA))
+})
+
+test_that("a single-ID result carries n_ids and accepted_ids and binds", {
+  with_gbif_like({
+    a <- taxify("Houstonia caerulea", backbone = "gbif", fuzzy = FALSE,
+                verbose = FALSE)
+    b <- suppressWarnings(
+      taxify(c("Houstonia caerulea", "Karwinskia mollis"), backbone = "gbif",
+             fuzzy = FALSE, verbose = FALSE),
+      classes = "taxify_multiple_ids")
+    expect_equal(a$n_ids, 1L)
+    expect_equal(a$accepted_ids, a$accepted_id)
+    expect_identical(names(a), names(b))
+    expect_equal(nrow(rbind(as.data.frame(a), as.data.frame(b))), 3L)
+    expect_false(any(grepl("accepted_ids", capture.output(print(a)))))
+  })
+})
+
+test_that("an unmatched row reads NA in both ID columns", {
+  with_gbif_like({
+    r <- taxify("Nonexistia fakeii", backbone = "gbif", fuzzy = FALSE,
+                verbose = FALSE)
+    expect_true(is.na(r$n_ids))
+    expect_true(is.na(r$accepted_ids))
+  })
 })

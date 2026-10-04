@@ -1,3 +1,47 @@
+# taxify (development version)
+
+## Accepted-ID columns
+
+* `n_ids` and `accepted_ids` are in every `taxify()` result: `1` and the
+  `accepted_id` for a name with one accepted ID, `NA` for an unmatched row.
+  Two results now always `rbind()`, and `x$n_ids > 1` is `FALSE` rather than
+  `logical(0)` on a list without homonyms. Printing still leaves the two
+  columns out when no row has more than one ID (#92).
+
+## Requesting GBIF data
+
+* `gbif_request(keys = c("taxon", "pick", "all"))` replaces `strict`.
+  `taxify_ids()` gives each ID a `role`: `pick`, `same_name` (another record
+  of the same name, such as GBIF's doubtful *Pinus sylvestris* homonyms) or
+  `other_taxon` (the accepted taxon of a synonym record under another author,
+  a different species). The default `"taxon"` requests the first two and
+  names the keys of other taxa it leaves out; previously every key was
+  requested, so *Absinthium vulgare* returned two species under one name.
+  `"pick"` is the old `strict = TRUE`, `"all"` the old default (#93).
+* A default-chain result follows the taxon each row picked: a crosswalked
+  row takes its pick's GBIF key, a row without one is re-matched against GBIF
+  by its `accepted_name` rather than its input name. With the GBIF backbone
+  installed, GBIF's further records of the picked name and the occurrence
+  counts of crosswalked keys are read from it, so the same list requests the
+  same keys through `backbone = "gbif"` and through the default chain, and
+  the size estimate covers every key. The `taxa` attribute gains
+  `key_source` (`backbone` / `crosswalk` / `rematch`) and `requested` (#93).
+
+## Picking between homonyms
+
+* Publication year orders same-name homonyms only when every candidate at
+  that level has a year; a dated record beside an undated one no longer wins
+  for being dated. A recombination is dated by its own publication, not its
+  basionym's (ICN Art. 53.1): *Rhus hirta* (L.) Sudw. (1892) now loses to
+  *Rhus hirta* Harv. ex Engl. (1883) (#91).
+* `taxify()` results and `taxify_ids()` carry `pick_basis`, what decided the
+  pick over a name's other accepted IDs (`status`, `priority`,
+  `occurrences`, `validity`, `fuzzy`, `authorship`, `basionym`, or `id` when
+  only the lowest taxon ID separated them, which settles nothing) (#91).
+* `add_wfo_info()` and `add_col_info()` return the publication reference as
+  `name_published_in`, the name `add_gbif_info()` uses; it reads the
+  unified column taxifydb now writes for every backbone (gcol33/taxifydb#60).
+
 # taxify 0.6.0
 
 ## Genus register kingdoms

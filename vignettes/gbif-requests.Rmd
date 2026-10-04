@@ -109,23 +109,42 @@ its occurrence count:
 ```{r}
 taxify(spp, backbone = "gbif") |>
   taxify_ids()
-#>          input_name accepted_id    accepted_name taxonomic_status n_occurrences is_pick
-#> 1     Quercus robur     2878688    Quercus robur         ACCEPTED       1725528    TRUE
-#> 2     Quercus robur     7911626    Quercus robur         DOUBTFUL             2   FALSE
-#> 3     Quercus robur     7586523    Quercus robur         DOUBTFUL             9   FALSE
-#> 4  Pinus sylvestris     5285637 Pinus sylvestris         ACCEPTED       1204947    TRUE
-#> 5  Pinus sylvestris     7718215 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 6  Pinus sylvestris     8116613 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 7  Pinus sylvestris     9079676 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 8  Pinus sylvestris     8251433 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 9  Pinus sylvestris     7393648 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 10  Bellis perennis     3117424  Bellis perennis         ACCEPTED       1107989    TRUE
-#> 11       Morus alba     5361889       Morus alba         ACCEPTED         51610    TRUE
+#>          input_name accepted_id    accepted_name taxonomic_status n_occurrences      role
+#> 1     Quercus robur     2878688    Quercus robur         ACCEPTED       1725528      pick
+#> 2     Quercus robur     7586523    Quercus robur         DOUBTFUL             9 same_name
+#> 3     Quercus robur     7911626    Quercus robur         DOUBTFUL             2 same_name
+#> 4  Pinus sylvestris     5285637 Pinus sylvestris         ACCEPTED       1204947      pick
+#> 5  Pinus sylvestris     7718215 Pinus sylvestris         DOUBTFUL             0 same_name
+#> 6  Pinus sylvestris     8116613 Pinus sylvestris         DOUBTFUL             0 same_name
+#> 7  Pinus sylvestris     9079676 Pinus sylvestris         DOUBTFUL             0 same_name
+#> 8  Pinus sylvestris     8251433 Pinus sylvestris         DOUBTFUL             0 same_name
+#> 9  Pinus sylvestris     7393648 Pinus sylvestris         DOUBTFUL             0 same_name
+#> 10  Bellis perennis     3117424  Bellis perennis         ACCEPTED       1107989      pick
+#> 11       Morus alba     5361889       Morus alba         ACCEPTED         51610      pick
 ```
 
-`is_pick` marks the key reported in `accepted_id`. The other rows are further
-records of the same name. Requesting only the pick would have missed the eleven
+`role` says what each key is to the name. `pick` is the key reported in
+`accepted_id`; `same_name` is another record of the same name, here GBIF's
+doubtful records. Requesting only the pick would have missed the eleven
 records under the two doubtful *Quercus robur* keys.
+
+A third role, `other_taxon`, is the accepted taxon of a synonym record of the
+name under another author, which is a different species. GBIF files
+*Absinthium vulgare* Lam. under *Artemisia absinthium* and the Dulac homonym
+under *Artemisia vulgaris* subsp. *vulgaris*:
+
+```{r}
+taxify("Absinthium vulgare", backbone = "gbif") |>
+  taxify_ids()
+#>           input_name accepted_id                      accepted_name n_occurrences        role pick_basis
+#> 1 Absinthium vulgare     3121319               Artemisia absinthium        109694        pick   priority
+#> 2 Absinthium vulgare     7337086 Artemisia vulgaris subsp. vulgaris         35385 other_taxon   priority
+```
+
+`pick_basis` says what decided the pick: here `priority`, Lamarck's 1779 name
+before Dulac's 1867 combination. On a backbone that dates neither record it
+reads `id`, meaning only the lowest taxon ID separated them, and the name is
+open there.
 
 `n_occurrences` is the count taken when the backbone was built. For an accepted
 key it includes the records of that taxon's synonyms and descendants, which is
@@ -134,11 +153,14 @@ request.
 
 ## Choosing what to request
 
-Every key is requested by default. `strict = TRUE` narrows the request to
-the single key reported in `accepted_id`:
+By default (`keys = "taxon"`) the request covers the `pick` and `same_name`
+keys and reports the `other_taxon` keys it leaves out. `keys = "pick"`
+narrows it to the single key reported in `accepted_id`, and `keys = "all"`
+adds the other taxa:
 
 ```{r}
-gbif_request(spp, strict = TRUE, dry_run = TRUE)
+gbif_request(spp, keys = "pick", dry_run = TRUE)
+#> 4 name(s): 4 picked key(s) and 0 other key(s) of the same taxa requested. Left out under keys = "pick": 7 same-taxon key(s) (Quercus robur, Pinus sylvestris).
 #> 4 GBIF key(s) from 4 matched name(s). About 4,090,074 occurrence record(s) across them.
 #> [1] 2878688 5285637 3117424 5361889
 ```
@@ -197,7 +219,7 @@ directly. It needs no account, and the GBIF search API limits how deep it will
 page, so it suits a look at a few taxa:
 
 ```{r}
-recs <- gbif_request(spp, method = "search", strict = TRUE, limit = 50)
+recs <- gbif_request(spp, method = "search", keys = "pick", limit = 50)
 nrow(recs)
 #> [1] 200
 ```
@@ -326,22 +348,31 @@ download included.
 
 Every match above named `backbone = "gbif"`. taxify's default chain starts at
 COL XR, so a plain `taxify(spp)` resolves most names against another backbone
-and the result carries no GBIF keys. Passing such a result works: the rows
-without a GBIF key are re-matched against GBIF, with a message, because GBIF
-only accepts its own keys.
+and its own IDs are not GBIF's. A COL XR build carries the GBIF key of each
+record, so the request follows the taxon each row picked; with the GBIF
+backbone installed, GBIF's further records of that name and the occurrence
+counts are read from it, so the request matches the one built from
+`backbone = "gbif"`:
 
 ```{r}
 taxify(spp) |>
   gbif_request(dry_run = TRUE)
-#> No rows matched by GBIF; re-matching the names against the GBIF backbone, whose keys a GBIF request needs.
+#> 4 name(s): 4 picked key(s) and 7 other key(s) of the same taxa requested. Left out under keys = "taxon": 6 other-taxon key(s) (Quercus robur, Pinus sylvestris).
 #> 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.
-#>  [1] 2878688 7911626 7586523 5285637 7718215 8116613 9079676 8251433 7393648
+#>  [1] 2878688 7911626 7586523 5285637 8116613 8251433 7393648 9079676 7718215
 #> [10] 3117424 5361889
 ```
 
+The six other-taxon keys are COL XR's homonym synonyms of *Pinus sylvestris*
+and *Quercus robur* under other species. A row whose backbone carries no
+crosswalk is re-matched against GBIF by its `accepted_name`, not its input
+name, so the request stays on the taxon the result names. The `taxa`
+attribute records where each key came from in `key_source` (`backbone`,
+`crosswalk` or `rematch`).
+
 A mixed result, where the one name only GBIF carries landed on `gbif` and the
-rest elsewhere, is handled the same way: the rows without a key are re-matched
-and the rest are kept, so every name in the list reaches the request.
+rest elsewhere, is handled the same way, so every name in the list reaches the
+request.
 
 `gbif_request()` takes matching arguments only when it does the matching
 itself. With a `taxify()` result as input, they go in the `taxify()` call:

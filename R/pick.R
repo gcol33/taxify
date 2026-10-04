@@ -41,12 +41,15 @@
 # which the codes of nomenclature treat as illegitimate. `Absinthium vulgare`
 # Lam. (1779, a synonym of `Artemisia absinthium`) outranks the Dulac homonym
 # (1867) even though GBIF files more records under the latter. The year is the
-# backbone's `year`, else the first year in `name_published_in`; a missing year
-# sorts last. Priority decides between homonyms under the botanical code, so the
-# year orders only records that share one ICN kingdom; where they span kingdoms
-# (`Padia`, a plant and an animal genus) or are animals, whose code protects
-# prevailing usage instead, the year is silent and the count decides
-# (`year_within_kingdom()`, `.priority_kingdoms`).
+# record's own `year`, else the first year in `name_published_in` (a
+# recombination is dated by its own publication, ICN Art. 53.1). The year orders
+# a level only when every candidate there has one, so a backbone that dates
+# some records and not others does not reward the dated ones. Priority decides
+# between homonyms under the botanical code, so the year orders only records
+# that share one ICN kingdom; where they span kingdoms (`Padia`, a plant and an
+# animal genus) or are animals, whose code protects prevailing usage instead,
+# the year is silent and the count decides (`year_where_priority()`,
+# `.priority_kingdoms`). What decided each pick is reported in `pick_basis`.
 #
 # ORDERING TIEBREAKS then choose one row inside the best tier, deterministically:
 #   4. nomenclaturalStatus = Valid  (when the column is present in the .vtr)
@@ -223,42 +226,31 @@ epithet_key <- function(names) {
 
 #' Year a name was published
 #'
-#' A backbone that records the basionym's year separately (GBIF `bracket_year`,
-#' filled for 14% of its records) is read first, since the epithet dates from
-#' there; then the record's own year; then the first four-digit year between
-#' 1500 and 2099 in the publication reference (`name_published_in`, "Lam.
-#' (1779). In: Fl. Franc. 2: 45.").
+#' The record's own year, else the first four-digit year between 1500 and 2099
+#' in its publication reference (`name_published_in`, "Lam. (1779). In: Fl.
+#' Franc. 2: 45."). A recombination is dated by its own publication, not its
+#' basionym's: ICN Art. 53.1 makes a name a later homonym when an identical
+#' name "was previously and validly published", and a combination is published
+#' when it is made. `Absinthium vulgare` (L.) Dulac is a combination of 1867,
+#' later than Lamarck's 1779 name, although its basionym is Linnaeus's.
 #'
 #' @param year Vector of years (character or numeric), or `NULL`.
 #' @param published_in Character vector of publication references, or `NULL`.
-#' @param bracket_year Vector of basionym years, or `NULL`.
-#' @return Integer vector (`NA` where none gives a year), or `NULL` when every
-#'   input is `NULL`.
-#' @seealso `year_within_kingdom()`, which decides when the years may order.
+#' @return Integer vector (`NA` where neither gives a year), or `NULL` when both
+#'   inputs are `NULL`.
+#' @seealso `year_where_priority()`, which decides when the years may order.
 #' @noRd
-publication_year <- function(year, published_in, bracket_year = NULL) {
-  if (is.null(year) && is.null(published_in) && is.null(bracket_year)) {
-    return(NULL)
-  }
-  n <- length(bracket_year %||% year %||% published_in)
-  if (!is.null(bracket_year)) {
-    basionym <- suppressWarnings(as.integer(substr(as.character(bracket_year),
-                                                   1L, 4L)))
-  } else {
-    basionym <- rep(NA_integer_, n)
-  }
+publication_year <- function(year, published_in) {
+  if (is.null(year) && is.null(published_in)) return(NULL)
+  n <- length(year %||% published_in)
   out <- if (is.null(year)) rep(NA_integer_, n) else
     suppressWarnings(as.integer(substr(as.character(year), 1L, 4L)))
-  pat <- "(1[5-9][0-9]{2}|20[0-9]{2})"
-  fill <- function(out, src) {
-    if (is.null(src)) return(out)
-    src <- as.character(src)
+  if (!is.null(published_in)) {
+    pat <- "(1[5-9][0-9]{2}|20[0-9]{2})"
+    src <- as.character(published_in)
     need <- is.na(out) & !is.na(src) & grepl(pat, src)
     out[need] <- as.integer(regmatches(src[need], regexpr(pat, src[need])))
-    out
   }
-  out <- fill(out, published_in)
-  out <- ifelse(is.na(basionym), out, basionym)
   out
 }
 
@@ -313,7 +305,8 @@ publication_year <- function(year, published_in, bracket_year = NULL) {
 #' name was published (the `year` column, else the first year in
 #' `name_published_in`; `Inf` where unknown, 0 throughout when both columns are
 #' absent); it orders after `epithet_score` and before `occ_score`, so the
-#' earliest of several same-name homonyms wins before the count is read.
+#' earliest of several same-name homonyms wins before the count is read, where
+#' `year_where_priority()` lets it order at all.
 #'
 #' @return A list with the numeric vectors `dist_score`, `data_score`,
 #'   `year_score`, `occ_score` and
@@ -392,8 +385,7 @@ score_candidates <- function(candidates) {
   # (same-name homonyms by different authors), the earliest-published one is
   # the name itself and a later one a homonym. Unknown year sorts last; absent
   # columns: uniformly 0.
-  year_score <- publication_year(candidates$year, candidates$name_published_in,
-                                 candidates$bracket_year)
+  year_score <- publication_year(candidates$year, candidates$name_published_in)
   year_score <- if (is.null(year_score)) {
     numeric(nrow(candidates))
   } else {
@@ -432,12 +424,71 @@ score_candidates <- function(candidates) {
 candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
   s <- scores %||% score_candidates(candidates)
   grp <- if (is.null(group_col)) NULL else candidates[[group_col]]
-  year <- year_within_kingdom(s, candidates$kingdom, grp)
-  keys <- list(s$dist_score, s$data_score, s$status_score, s$rank_score,
-               s$epithet_score, year, s$occ_score, s$valid_score,
-               candidates$taxonID)
+  keys <- candidate_sort_keys(candidates, s, grp)
   if (!is.null(grp)) keys <- c(list(grp), keys)
-  do.call(order, keys)
+  do.call(order, unname(keys))
+}
+
+
+#' The sort keys of the candidate order, named by what each one weighs
+#'
+#' One list behind both [candidate_order()] and `pick_basis()`, so the order
+#' and the report of what decided it read the same keys. Several keys can share
+#' a name: the occurrence evidence enters twice and the concept scores three
+#' times.
+#'
+#' @param candidates,s,grp As in [candidate_order()].
+#' @return A named list of sort keys, most significant first.
+#' @noRd
+candidate_sort_keys <- function(candidates, s, grp = NULL) {
+  year <- year_where_priority(s, candidates$kingdom, grp)
+  list(fuzzy       = s$dist_score,
+       occurrences = s$data_score,
+       status      = s$status_score,
+       status      = s$rank_score,
+       status      = s$epithet_score,
+       priority    = year,
+       occurrences = s$occ_score,
+       validity    = s$valid_score,
+       id          = candidates$taxonID)
+}
+
+
+#' What decided each group's pick
+#'
+#' The pick is the first row of its group; the rival is the first row after it
+#' with another accepted ID. The basis is the name of the first sort key on
+#' which the two differ: `"status"`, `"priority"` (publication year),
+#' `"occurrences"`, `"validity"`, `"fuzzy"`, or `"id"` when only the lowest
+#' taxon ID separated them. `NA` for a group with one accepted ID.
+#'
+#' @param keys `candidate_sort_keys()` output, in candidate order.
+#' @param grp Group of each row, in candidate order (contiguous).
+#' @param id Accepted ID of each row, in candidate order, or `NULL`.
+#' @return Character vector aligned with `unique(grp)`.
+#' @noRd
+pick_basis <- function(keys, grp, id) {
+  ug <- unique(grp)
+  out <- rep(NA_character_, length(ug))
+  if (is.null(id)) return(out)
+  id <- as.character(id)
+  first <- match(ug, grp)
+  for (g in seq_along(ug)) {
+    rows <- which(grp == ug[g])
+    p <- first[g]
+    rival <- rows[!is.na(id[rows]) & id[rows] != id[p]]
+    if (!length(rival) || is.na(id[p])) next
+    r <- rival[1L]
+    for (k in seq_along(keys)) {
+      a <- keys[[k]][p]
+      b <- keys[[k]][r]
+      if (!identical(a, b)) {
+        out[g] <- names(keys)[k]
+        break
+      }
+    }
+  }
+  out
 }
 
 
@@ -453,29 +504,37 @@ candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
 
 #' Publication years, silenced where priority does not decide
 #'
-#' Priority of publication holds within one code of nomenclature: a plant genus
-#' and an animal genus of the same spelling are both legitimate, whichever came
-#' first (`Padia` Moritzi, a synonym of `Oryza`, beside `Padia` Gistl). Among
-#' the candidates of a group that the preceding scores leave level, the year
-#' therefore only orders when they all sit in one kingdom governed by the
-#' botanical code (`.priority_kingdoms`); otherwise it is 0 for every one of
-#' them and the occurrence count decides.
+#' Among the candidates of a group that the preceding scores leave level, the
+#' year orders only when every one of them has a year: a known year beside an
+#' unknown one says which record carries the date, not which name came first.
+#' And priority of publication holds within one code of nomenclature: a plant
+#' genus and an animal genus of the same spelling are both legitimate,
+#' whichever came first (`Padia` Moritzi, a synonym of `Oryza`, beside `Padia`
+#' Gistl). Where the backbone carries a kingdom, the year therefore also needs
+#' every candidate of the level in one kingdom governed by the botanical code
+#' (`.priority_kingdoms`). Elsewhere it is 0 for every candidate of the level
+#' and the occurrence count, then the remaining tiebreaks, decide.
 #'
 #' @param s The [score_candidates()] output.
 #' @param kingdom Character vector along the candidates, or `NULL`.
 #' @param grp Grouping vector along the candidates, or `NULL` for one group.
-#' @return Numeric vector: `s$year_score` with the cross-kingdom levels zeroed.
+#' @return Numeric vector: `s$year_score` with the levels it may not order
+#'   zeroed.
 #' @noRd
-year_within_kingdom <- function(s, kingdom, grp = NULL) {
+year_where_priority <- function(s, kingdom, grp = NULL) {
   year <- s$year_score
-  if (is.null(kingdom) || length(year) == 0L) return(year)
+  if (length(year) == 0L) return(year)
   level <- paste(grp %||% "", s$dist_score, s$data_score, s$status_score,
                  s$rank_score, s$epithet_score, sep = "\r")
-  k <- toupper(trimws(as.character(kingdom)))
-  ok <- tapply(k, level, function(v) {
-    v <- unique(v[!is.na(v) & nzchar(v)])
-    length(v) == 1L && v %in% .priority_kingdoms
-  })
+  ok <- tapply(is.finite(year), level, all)
+  if (!is.null(kingdom)) {
+    k <- toupper(trimws(as.character(kingdom)))
+    one_icn <- tapply(k, level, function(v) {
+      v <- unique(v[!is.na(v) & nzchar(v)])
+      length(v) == 1L && v %in% .priority_kingdoms
+    })
+    ok <- ok & one_icn[names(ok)]
+  }
   year[!ok[level]] <- 0
   year
 }
@@ -577,11 +636,14 @@ at_best_distance <- function(id, dist, best_dist) {
 #'   ID, which no longer names a target, where the authorship tiebreak leaves the
 #'   rejected homonym's target in the set as an alternative.
 #' @param drop_old Logical.
-#' @return `result` with `accepted_ids` and `n_ids` updated on `rows`.
+#' @param basis The stage that moved the rows, recorded as their `pick_basis`.
+#' @return `result` with `accepted_ids`, `n_ids` and `pick_basis` updated on
+#'   `rows`.
 #' @noRd
 promote_accepted_id <- function(result, rows, new, old = NULL,
-                                drop_old = FALSE) {
+                                drop_old = FALSE, basis) {
   if (length(rows) == 0L || !"accepted_ids" %in% names(result)) return(result)
+  result$pick_basis[rows] <- basis
   ids <- result$accepted_ids[rows]
   sets <- lapply(seq_along(rows), function(k) {
     v <- if (is.na(ids[k])) character(0L) else
@@ -615,6 +677,7 @@ pick_best <- function(candidates) {
     candidates$ambiguous_targets <- character(0L)
     candidates$n_ids <- integer(0L)
     candidates$accepted_ids <- character(0L)
+    candidates$pick_basis <- character(0L)
     return(candidates)
   }
   if (nrow(candidates) == 1L) {
@@ -623,12 +686,18 @@ pick_best <- function(candidates) {
     candidates$ambiguous_targets <- NA_character_
     candidates$n_ids <- sets$n_ids
     candidates$accepted_ids <- sets$accepted_ids
+    candidates$pick_basis <- NA_character_
     return(candidates)
   }
 
   s <- score_candidates(candidates)
   ord <- candidate_order(candidates, s)
   best_idx <- ord[1L]
+  basis <- pick_basis(
+    lapply(candidate_sort_keys(candidates, s), `[`, ord),
+    rep(1L, length(ord)),
+    at_best_distance(candidates$accepted_taxon_id[ord], s$dist_score[ord],
+                     s$dist_score[best_idx]))
   sets <- candidate_id_sets(
     at_best_distance(candidates$accepted_taxon_id[ord], s$dist_score[ord],
                      s$dist_score[best_idx]),
@@ -653,6 +722,7 @@ pick_best <- function(candidates) {
   out$ambiguous_targets <- ambig_targets
   out$n_ids <- sets$n_ids
   out$accepted_ids <- sets$accepted_ids
+  out$pick_basis <- basis
   out
 }
 
@@ -683,6 +753,7 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
     matches$ambiguous_targets <- character(0L)
     matches$n_ids <- integer(0L)
     matches$accepted_ids <- character(0L)
+    matches$pick_basis <- character(0L)
     return(matches)
   }
   if (nr == 1L) {
@@ -691,6 +762,7 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
     matches$ambiguous_targets <- NA_character_
     matches$n_ids <- sets$n_ids
     matches$accepted_ids <- sets$accepted_ids
+    matches$pick_basis <- NA_character_
     return(matches)
   }
 
@@ -717,6 +789,11 @@ pick_best_vec <- function(matches, group_col = "row_idx") {
   sorted$accepted_ids <- NA_character_
   sorted$n_ids[is_first] <- sets$n_ids
   sorted$accepted_ids[is_first] <- sets$accepted_ids
+  sorted$pick_basis <- NA_character_
+  sorted$pick_basis[is_first] <- pick_basis(
+    lapply(candidate_sort_keys(matches, s, matches[[group_col]]), `[`, ord),
+    sorted[[group_col]],
+    at_best_distance(sorted$accepted_taxon_id, sorted_dist, best_dist))
 
   if ("accepted_taxon_id" %in% names(sorted)) {
     # Per-group best tier signature and status, broadcast to every row of the

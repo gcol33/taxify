@@ -14,7 +14,8 @@ The same data.frame with additional columns:
 \describe{
 \item{scientificNameID}{WFO scientificNameID.}
 \item{parentNameUsageID}{WFO parentNameUsageID.}
-\item{namePublishedIn}{Publication reference.}
+\item{name_published_in}{Publication reference, under the name every
+backbone's \code{.vtr} and \code{\link[=add_gbif_info]{add_gbif_info()}} use.}
 \item{higherClassification}{Higher classification string.}
 \item{taxonRemarks}{Taxonomic remarks.}
 \item{infraspecificEpithet}{Infraspecific epithet (for subspecies,

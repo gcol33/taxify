@@ -7,7 +7,7 @@
 gbif_request(
   x,
   method = c("download", "search"),
-  strict = FALSE,
+  keys = c("taxon", "pick", "all"),
   limit = 500,
   format = "SIMPLE_CSV",
   dry_run = FALSE,
@@ -22,10 +22,13 @@ vector is matched against the GBIF backbone first.}
 \item{method}{\code{"download"} (authenticated, no cap, citable) or \code{"search"}
 (unauthenticated, capped). See Choosing a method.}
 
-\item{strict}{Logical, default \code{FALSE}. By default every accepted key each
-name resolves to is requested. \code{TRUE} narrows the request to the single
-key \code{\link[=taxify]{taxify()}} reported, and says how many keys, and how many records,
-that leaves behind.}
+\item{keys}{Which of a name's GBIF keys to request, by their \code{role} in
+\code{\link[=taxify_ids]{taxify_ids()}}. \code{"taxon"} (default) requests the key \code{\link[=taxify]{taxify()}} picked
+and every other record of the same taxon (a doubtful or duplicate record
+of the name), and reports the keys of other taxa a homonym's synonym
+records point to. \code{"pick"} requests the picked key alone. \code{"all"}
+requests every key, other taxa included. The keys left out are named in
+the verbose line.}
 
 \item{limit}{Records per key for \code{method = "search"}. Ignored by
 \code{"download"}.}

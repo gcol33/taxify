@@ -184,15 +184,16 @@
 #'     unplaced record, the `accepted_*` columns that taxon; needs a backbone
 #'     built with its basionym links), or `"none"`.}
 #'   \item{fuzzy_dist}{Normalized string distance (0--1), `NA` if exact.}
-#'   \item{n_ids}{Integer, present only when some name has more than one
-#'     accepted ID (the call then warns, see Details). How many distinct
+#'   \item{n_ids}{Integer. How many distinct
 #'     accepted taxa the backbone files the matched name under, across every
 #'     record of it (accepted, doubtful, unplaced, synonym). `1` for a name with
 #'     one accepted ID; more for a homonym or a name the backbone holds twice,
 #'     e.g. GBIF's *Karwinskia mollis*, kept both as the accepted Schltdl. name
 #'     and as a doubtful Standl. one. `NA` when nothing matched.}
-#'   \item{accepted_ids}{Character, present alongside `n_ids`. Those accepted
-#'     IDs, `|`-joined, the one in `accepted_id` first. List them with their
+#'   \item{accepted_ids}{Character. Those accepted IDs, `|`-joined, the one in
+#'     `accepted_id` first (`accepted_id` itself for a name with one). Both
+#'     columns are in every result; printing leaves them out when no row has
+#'     more than one ID. List them with their
 #'     names, status and GBIF occurrence counts through [taxify_ids()].}
 #'   \item{backbone}{Which backbone was used (e.g., `"wfo"`, `"col"`,
 #'     `"gbif"`).}
@@ -1039,27 +1040,22 @@ is_backbone_match <- function(match_type) {
 #'
 #' A name the backbone files under several accepted taxa comes back with one of
 #' them in `accepted_id`, and a caller requesting data by that ID gets only that
-#' taxon's share. When any row has several, the result keeps `n_ids` and
-#' `accepted_ids` and one warning is raised per call, never one per name: on a
-#' long list a per-name warning buries everything else. It carries the affected
-#' rows in `rows` and the class `taxify_multiple_ids`, so it can be caught or
-#' muffled; `options(taxify.warn_multiple_ids = FALSE)` switches it off. When no
-#' row has several, both columns are dropped: `accepted_id` then says all there
-#' is to say.
+#' taxon's share. Every result carries `n_ids` and `accepted_ids` (completed by
+#' [complete_id_sets()]), whatever its values, so two results always bind. When
+#' any row has several, one warning is raised per call, never one per name: on
+#' a long list a per-name warning buries everything else. It carries the
+#' affected rows in `rows` and the class `taxify_multiple_ids`, so it can be
+#' caught or muffled; `options(taxify.warn_multiple_ids = FALSE)` switches it
+#' off.
 #'
 #' @param x A `taxify_result`.
-#' @return `x`, without `n_ids` and `accepted_ids` when no row has more than one
-#'   accepted ID.
+#' @return `x`, with `n_ids` and `accepted_ids` completed.
 #' @noRd
 warn_multiple_ids <- function(x) {
+  x <- complete_id_sets(x)
   n <- x$n_ids
-  if (is.null(n)) return(x)
   multi <- which(!is.na(n) & n > 1L)
-  if (length(multi) == 0L) {
-    x$n_ids <- NULL
-    x$accepted_ids <- NULL
-    return(x)
-  }
+  if (length(multi) == 0L) return(x)
   if (!isTRUE(getOption("taxify.warn_multiple_ids", TRUE))) return(x)
   ex <- unique(x$input_name[multi])
   shown <- paste(utils::head(ex, 3L), collapse = ", ")
@@ -1072,6 +1068,32 @@ warn_multiple_ids <- function(x) {
   warning(structure(
     class = c("taxify_multiple_ids", "warning", "condition"),
     list(message = msg, call = NULL, rows = multi)))
+  x
+}
+
+
+#' Give every row of a result its accepted-ID set
+#'
+#' A matched row with one accepted ID reads `n_ids = 1` and `accepted_ids =
+#' accepted_id`; an unmatched row reads `NA` in both. Rows a stage left without
+#' a set (a crosswalk, a hybrid formula) take it from `accepted_id`, so the two
+#' columns exist and agree with `accepted_id` on every result.
+#'
+#' @param x A result data.frame.
+#' @return `x` with `n_ids` (integer) and `accepted_ids` (character) on every
+#'   row.
+#' @noRd
+complete_id_sets <- function(x) {
+  n <- nrow(x)
+  ids <- as.character(x$accepted_ids %||% rep(NA_character_, n))
+  cnt <- x$n_ids %||% rep(NA_integer_, n)
+  acc <- as.character(x$accepted_id %||% rep(NA_character_, n))
+  fill <- is.na(ids) & !is.na(acc)
+  ids[fill] <- acc[fill]
+  redo <- !is.na(ids) & (fill | is.na(cnt))
+  cnt[redo] <- lengths(strsplit(ids[redo], "|", fixed = TRUE))
+  x$n_ids <- as.integer(cnt)
+  x$accepted_ids <- as.character(ids)
   x
 }
 
@@ -1090,7 +1112,6 @@ warn_multiple_ids <- function(x) {
 #' @noRd
 open_multiple_ids <- function(res) {
   n <- res$n_ids
-  if (is.null(n)) return(rep(FALSE, nrow(res)))
   in_norm  <- normalize_epithets(clean_names(res$input_name)$cleaned)
   acc_norm <- normalize_epithets(res$accepted_name)
   self <- !is.na(in_norm) & !is.na(acc_norm) & in_norm == acc_norm &
@@ -1115,7 +1136,7 @@ open_multiple_ids <- function(res) {
                         "family", "genus", "epithet", "authorship",
                         "accepted_authorship", "is_synonym",
                         "taxonomic_status", "fuzzy_dist", "n_ids",
-                        "accepted_ids")
+                        "accepted_ids", "pick_basis")
 
 
 #' Demote matched rows back to unmatched (blanking their match columns)

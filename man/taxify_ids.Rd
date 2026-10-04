@@ -35,6 +35,21 @@ those of its synonyms and descendants (what a GBIF download by this key
 returns), as counted when the backbone was built. \code{NA} on a backbone
 without counts, and for an ID whose count was not taken.}
 \item{is_pick}{Logical. Is this the \code{accepted_id} \code{\link[=taxify]{taxify()}} reported?}
+\item{role}{What the ID is to the queried name: \code{"pick"} (the
+\code{accepted_id} \code{\link[=taxify]{taxify()}} reported), \code{"same_name"} (another record of the
+same taxon, or a record keeping the queried name as its own concept, as
+GBIF's doubtful homonym records of \emph{Pinus sylvestris} do) or
+\code{"other_taxon"} (the accepted taxon of a synonym record under another
+author, a different species: GBIF files \emph{Absinthium vulgare} Dulac under
+\emph{Artemisia vulgaris} subsp. \emph{vulgaris} while the pick, Lam., goes to
+\emph{A. absinthium}).}
+\item{pick_basis}{What decided the pick over the name's other accepted
+IDs, the same on every row of a name: \code{"status"}, \code{"priority"}
+(publication year), \code{"occurrences"}, \code{"validity"}, \code{"fuzzy"}, or \code{"id"}
+when only the lowest taxon ID separated them, which settles nothing
+about the taxon the name denotes; \code{"authorship"} or \code{"basionym"} when
+the input's author or the record's basionym link moved the pick. \code{NA}
+for a name with one ID.}
 }
 Unmatched names contribute no rows.
 }

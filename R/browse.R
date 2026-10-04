@@ -452,6 +452,21 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 #'     returns), as counted when the backbone was built. `NA` on a backbone
 #'     without counts, and for an ID whose count was not taken.}
 #'   \item{is_pick}{Logical. Is this the `accepted_id` [taxify()] reported?}
+#'   \item{role}{What the ID is to the queried name: `"pick"` (the
+#'     `accepted_id` [taxify()] reported), `"same_name"` (another record of the
+#'     same taxon, or a record keeping the queried name as its own concept, as
+#'     GBIF's doubtful homonym records of *Pinus sylvestris* do) or
+#'     `"other_taxon"` (the accepted taxon of a synonym record under another
+#'     author, a different species: GBIF files *Absinthium vulgare* Dulac under
+#'     *Artemisia vulgaris* subsp. *vulgaris* while the pick, Lam., goes to
+#'     *A. absinthium*).}
+#'   \item{pick_basis}{What decided the pick over the name's other accepted
+#'     IDs, the same on every row of a name: `"status"`, `"priority"`
+#'     (publication year), `"occurrences"`, `"validity"`, `"fuzzy"`, or `"id"`
+#'     when only the lowest taxon ID separated them, which settles nothing
+#'     about the taxon the name denotes; `"authorship"` or `"basionym"` when
+#'     the input's author or the record's basionym link moved the pick. `NA`
+#'     for a name with one ID.}
 #' }
 #' Unmatched names contribute no rows.
 #'
@@ -479,11 +494,11 @@ taxify_ids <- function(x, verbose = TRUE) {
     authorship = character(0L), rank = character(0L),
     taxonomic_status = character(0L), family = character(0L),
     n_occurrences = numeric(0L), is_pick = logical(0L),
+    role = character(0L), pick_basis = character(0L),
     stringsAsFactors = FALSE
   )
 
-  multi <- x$accepted_ids %||% rep(NA_character_, nrow(x))
-  ids <- ifelse(is.na(multi), x$accepted_id, multi)
+  ids <- complete_id_sets(x)$accepted_ids
   rows <- which(!is.na(ids) & nzchar(ids) & !is.na(x$backbone))
   if (length(rows) == 0L) {
     if (verbose) message("No matched names to list.")
@@ -527,14 +542,45 @@ taxify_ids <- function(x, verbose = TRUE) {
       n_occurrences    = as.numeric(get("n_occurrences", NA_real_)),
       is_pick          = !is.na(x$accepted_id[sub$row]) &
         sub$id == x$accepted_id[sub$row],
+      pick_basis       = (x$pick_basis %||%
+                            rep(NA_character_, nrow(x)))[sub$row],
       stringsAsFactors = FALSE
     )
   }
   if (length(out) == 0L) return(empty)
   res <- do.call(rbind, out)
-  res <- res[order(res$ord), setdiff(names(res), "ord"), drop = FALSE]
+  res <- res[order(res$ord), , drop = FALSE]
+  res$role <- id_roles(res, x, long$row[match(res$ord, long$ord)])
+  res <- res[, setdiff(names(res), "ord"), drop = FALSE]
   rownames(res) <- NULL
   res
+}
+
+
+#' What each accepted ID is to the name it was listed for
+#'
+#' An ID other than the pick is the same taxon when it names what the pick
+#' names or what the queried name itself names (a doubtful or duplicate record
+#' keeping the name as its own concept); otherwise it is the accepted taxon a
+#' synonym record of the name under another author points to, a different
+#' species. Names are compared in the matcher's normalized space. An ID the
+#' backbone did not resolve has no name to compare and counts as another taxon.
+#'
+#' @param tab The `taxify_ids()` rows, in output order.
+#' @param x The `taxify()` result.
+#' @param rows The row of `x` each row of `tab` came from.
+#' @return Character vector of roles.
+#' @noRd
+id_roles <- function(tab, x, rows) {
+  norm <- function(v) normalize_epithets(as.character(v))
+  own <- if ("matched_name" %in% names(x)) x$matched_name[rows] else
+    rep(NA_character_, length(rows))
+  own <- ifelse(is.na(own), clean_names(x$input_name[rows])$cleaned, own)
+  id_name <- norm(tab$accepted_name)
+  same <- !is.na(id_name) & nzchar(id_name) &
+    ((!is.na(own) & id_name == norm(own)) |
+       (!is.na(x$accepted_name[rows]) & id_name == norm(x$accepted_name[rows])))
+  ifelse(tab$is_pick, "pick", ifelse(same, "same_name", "other_taxon"))
 }
 
 

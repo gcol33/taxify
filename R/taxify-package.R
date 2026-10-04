@@ -11,7 +11,7 @@ utils::globalVariables(c(
   "taxonID", "scientificName", "taxonRank", "taxonomicStatus",
   "acceptedNameUsageID", "family", "genus", "specificEpithet",
   "scientificNameAuthorship", "dist", "join_key",
-  "scientificNameID", "parentNameUsageID", "namePublishedIn",
+  "scientificNameID", "parentNameUsageID",
   "higherClassification", "taxonRemarks", "infraspecificEpithet",
   # Euro+Med area table column references (euromed_areas)
   "area_code", "area_name", "area_level", "iso2",

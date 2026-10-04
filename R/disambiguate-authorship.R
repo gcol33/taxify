@@ -121,7 +121,8 @@ disambiguate_by_authorship <- function(result, vtr_path) {
     if (length(targets) != 1L) next
 
     w <- hit[1L]
-    result <- promote_accepted_id(result, i, cand$accepted_taxon_id[w])
+    result <- promote_accepted_id(result, i, cand$accepted_taxon_id[w],
+                                  basis = "authorship")
     if (has_col("taxon_id"))       result$taxon_id[i]       <- cand$taxon_id[w]
     if (has_col("authorship"))     result$authorship[i]     <- cand$authorship[w]
     if (has_col("accepted_id"))    result$accepted_id[i]    <- cand$accepted_taxon_id[w]

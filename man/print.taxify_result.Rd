@@ -15,6 +15,8 @@
 \code{x}, invisibly.
 }
 \description{
-Delegates to the standard data.frame print method.
+Delegates to the standard data.frame print method. \code{n_ids} and
+\code{accepted_ids} are left out of the display when no row has more than one
+accepted ID, since \code{accepted_id} then says the same; the object keeps them.
 }
 \keyword{internal}

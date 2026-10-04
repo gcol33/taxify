@@ -7,7 +7,9 @@
 
 #' Print a taxify_result
 #'
-#' Delegates to the standard data.frame print method.
+#' Delegates to the standard data.frame print method. `n_ids` and
+#' `accepted_ids` are left out of the display when no row has more than one
+#' accepted ID, since `accepted_id` then says the same; the object keeps them.
 #'
 #' @param x A `taxify_result` object.
 #' @param ... Passed to the next method.
@@ -15,7 +17,13 @@
 #' @keywords internal
 #' @export
 print.taxify_result <- function(x, ...) {
-  NextMethod()
+  shown <- as.data.frame(x)
+  if (!any(!is.na(x$n_ids) & x$n_ids > 1L)) {
+    shown <- shown[, setdiff(names(shown),
+                             c("n_ids", "accepted_ids", "pick_basis")),
+                   drop = FALSE]
+  }
+  print(shown, ...)
   meta <- attr(x, "taxify_meta")
   if (!is.null(meta)) {
     footer <- cite_footer(meta)
@@ -186,11 +194,7 @@ summary.taxify_result <- function(object, ...) {
 
   # Names filed under more than one accepted taxon: the row's accepted_id is
   # one of several, which matters to anyone requesting data by ID.
-  n_multi <- if ("n_ids" %in% names(object)) {
-    sum(!is.na(object$n_ids) & object$n_ids > 1L)
-  } else {
-    0L
-  }
+  n_multi <- sum(!is.na(object$n_ids) & object$n_ids > 1L)
   if (n_multi > 0L) {
     cat(sprintf("  multiple ids%5d  (more than one accepted ID; see taxify_ids())\n",
                 n_multi))
@@ -282,6 +286,7 @@ summary.taxify_result <- function(object, ...) {
     fuzzy_dist          = NA_real_,
     n_ids               = NA_integer_,
     accepted_ids        = NA_character_,
+    pick_basis          = NA_character_,
     backbone            = NA_character_,
     backbone_version    = NA_character_,
     kingdom_group       = NA_character_,

@@ -114,7 +114,7 @@ backbones$wfo <- function() {
   # WFO-specific extra columns surfaced by add_wfo_info().
   wfo$scientificNameID     <- paste0("https://list.worldfloraonline.org/", wfo$taxon_id)
   wfo$parentNameUsageID    <- NA_character_
-  wfo$namePublishedIn      <- NA_character_
+  wfo$name_published_in    <- NA_character_
   wfo$higherClassification <- paste("Plantae", wfo$family, wfo$genus, sep = "|")
   wfo$taxonRemarks         <- NA_character_
   write_backbone(wfo, "wfo")

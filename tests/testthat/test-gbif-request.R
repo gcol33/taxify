@@ -12,7 +12,8 @@ fake_result <- function(backbone = "gbif",
 }
 
 # What taxify_ids() would return for that frame: Quercus under two keys, one of
-# them the pick, Bellis under one.
+# them the pick and the other a doubtful record of the same name, Bellis under
+# one.
 fake_ids <- function(...) {
   data.frame(
     input_name       = c("Quercus robur", "Quercus robur", "Bellis perennis"),
@@ -26,6 +27,26 @@ fake_ids <- function(...) {
     family           = c("Fagaceae", "Fagaceae", "Asteraceae"),
     n_occurrences    = c(2000000, 0, 1107989),
     is_pick          = c(TRUE, FALSE, TRUE),
+    role             = c("pick", "same_name", "pick"),
+    stringsAsFactors = FALSE
+  )
+}
+
+# Absinthium vulgare as GBIF files it: the pick (Lam.) under Artemisia
+# absinthium, and a synonym record (Dulac) under another species.
+homonym_ids <- function(...) {
+  data.frame(
+    input_name       = "Absinthium vulgare",
+    backbone         = "gbif",
+    accepted_id      = c("3121319", "7337086"),
+    gbif_key         = c("3121319", "7337086"),
+    accepted_name    = c("Artemisia absinthium",
+                         "Artemisia vulgaris subsp. vulgaris"),
+    authorship       = NA_character_, rank = "species",
+    taxonomic_status = "ACCEPTED", family = "Asteraceae",
+    n_occurrences    = c(109694, 35385),
+    is_pick          = c(TRUE, FALSE),
+    role             = c("pick", "other_taxon"),
     stringsAsFactors = FALSE
   )
 }
@@ -40,50 +61,50 @@ ids_of <- function(crosswalk = character(0L)) {
     data.frame(input_name = x$input_name, backbone = x$backbone,
                accepted_id = x$accepted_id, gbif_key = key,
                accepted_name = x$input_name, n_occurrences = NA_real_,
-               is_pick = TRUE, stringsAsFactors = FALSE)
+               is_pick = TRUE, role = "pick", stringsAsFactors = FALSE)
   }
 }
 
 
-test_that("every accepted key is requested, deduplicated, as integers", {
+test_that("every key of the same taxon is requested, deduplicated, as integers", {
   local_mocked_bindings(taxify_ids = fake_ids)
   keys <- gbif_request(fake_result(), dry_run = TRUE, verbose = FALSE)
 
   expect_type(keys, "integer")
   expect_equal(as.integer(keys), c(2878688L, 7911626L, 3117424L))
   expect_equal(nrow(attr(keys, "taxa")), 3L)
+  expect_equal(attr(keys, "taxa")$key_source, rep("backbone", 3L))
 })
 
 
-test_that("strict = TRUE requests only the key taxify() reported", {
+test_that('keys = "pick" requests only the key taxify() reported', {
   local_mocked_bindings(taxify_ids = fake_ids)
-  keys <- gbif_request(fake_result(), strict = TRUE, dry_run = TRUE,
+  keys <- gbif_request(fake_result(), keys = "pick", dry_run = TRUE,
                        verbose = FALSE)
-
   expect_equal(as.integer(keys), c(2878688L, 3117424L))
-  expect_true(all(attr(keys, "taxa")$is_pick))
+  taxa <- attr(keys, "taxa")
+  expect_true(all(taxa$is_pick[taxa$requested]))
 })
 
 
-test_that("strict = TRUE says what it leaves behind", {
-  local_mocked_bindings(taxify_ids = fake_ids)
+test_that("a homonym's other taxon is reported, not requested, by default", {
+  local_mocked_bindings(taxify_ids = homonym_ids)
+  x <- fake_result(input = "Absinthium vulgare", accepted_id = "3121319")
   msg <- capture_messages(
-    gbif_request(fake_result(), strict = TRUE, dry_run = TRUE, verbose = TRUE))
-  expect_match(paste(msg, collapse = ""), "drops 1 other key\\(s\\)")
+    keys <- gbif_request(x, dry_run = TRUE, verbose = TRUE))
+  expect_equal(as.integer(keys), 3121319L)
+  expect_match(paste(msg, collapse = ""),
+               "Left out under keys = \"taxon\": 1 other-taxon key")
+  expect_match(paste(msg, collapse = ""), "109,694 occurrence record")
+
+  all_keys <- gbif_request(x, keys = "all", dry_run = TRUE, verbose = FALSE)
+  expect_equal(as.integer(all_keys), c(3121319L, 7337086L))
 })
 
 
-test_that("strict is off by default", {
-  local_mocked_bindings(taxify_ids = fake_ids)
-  expect_equal(formals(gbif_request)$strict, FALSE)
-  keys <- gbif_request(fake_result(), dry_run = TRUE, verbose = FALSE)
-  expect_length(keys, 3L)
-})
-
-
-test_that("strict rejects a non-logical", {
-  expect_error(gbif_request(fake_result(), strict = "pick", dry_run = TRUE),
-               "strict must be TRUE or FALSE")
+test_that("keys rejects an unknown choice", {
+  expect_error(gbif_request(fake_result(), keys = "every", dry_run = TRUE),
+               "should be one of")
 })
 
 
@@ -168,7 +189,7 @@ test_that("a result matched by the default chain is re-matched against GBIF", {
     })
   x <- fake_result(backbone = "colxr", accepted_id = c("4R5YN", "5WH44"))
   expect_message(keys <- gbif_request(x, dry_run = TRUE, verbose = TRUE),
-                 "re-matching the names against the GBIF backbone")
+                 "re-matching their accepted names against the GBIF backbone")
   expect_equal(rematched, 1L)
   expect_equal(as.integer(keys), c(2878688L, 3117424L))
 })
@@ -227,22 +248,39 @@ test_that("only the rows a crosswalk leaves without keys are re-matched", {
 })
 
 
-test_that("a COL XR name with several accepted taxa is re-matched to GBIF", {
-  # COL XR files a homonym's synonyms under other species, so the keys of those
-  # accepted taxa are not the name's own.
-  asked <- NULL
+test_that("a COL XR name with several accepted taxa follows its pick's crosswalk", {
+  # The pick's GBIF key names the taxon the result names; the homonym targets
+  # are sorted by role rather than sending the name back through GBIF.
   local_mocked_bindings(
     taxify_ids = ids_of(c("Quercus robur" = "2878688",
                           "Bellis perennis" = "3117424")),
-    taxify_input = function(x, backbone, ..., verbose) {
-      asked <<- x
-      fake_result(input = x, backbone = "gbif", accepted_id = "2878688")
-    })
+    taxify_input = function(...) stop("must not re-match"))
   x <- fake_result(backbone = "colxr", accepted_id = c("4R5YN", "5WH44"))
   x$accepted_ids <- c("4R5YN|7KPMG", NA_character_)
-  out <- ensure_gbif_match(x, verbose = FALSE)
-  expect_equal(asked, "Quercus robur")
-  expect_equal(out$input_name, c("Quercus robur", "Bellis perennis"))
+  keys <- gbif_request(x, dry_run = TRUE, verbose = FALSE)
+  expect_equal(as.integer(keys), c(2878688L, 3117424L))
+  expect_equal(unique(attr(keys, "taxa")$key_source), "crosswalk")
+})
+
+
+test_that("a row without a crosswalk is re-matched by its accepted name", {
+  # Re-matching the input name could follow another taxon than the result
+  # names; the accepted name keeps the request on the result's taxon.
+  asked <- NULL
+  local_mocked_bindings(
+    taxify_ids = ids_of(),
+    taxify_input = function(x, backbone, ..., verbose) {
+      asked <<- x
+      fake_result(input = x, backbone = "gbif", accepted_id = "7337086")
+    })
+  x <- fake_result(backbone = "col", input = "Absinthium vulgare",
+                   accepted_id = "8MN6")
+  x$accepted_name <- "Artemisia vulgaris subsp. vulgaris"
+  keys <- gbif_request(x, dry_run = TRUE, verbose = FALSE)
+  expect_equal(asked, "Artemisia vulgaris subsp. vulgaris")
+  taxa <- attr(keys, "taxa")
+  expect_equal(taxa$input_name, "Absinthium vulgare")
+  expect_equal(taxa$key_source, "rematch")
 })
 
 

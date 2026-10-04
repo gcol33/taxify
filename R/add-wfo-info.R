@@ -8,7 +8,8 @@
 #' \describe{
 #'   \item{scientificNameID}{WFO scientificNameID.}
 #'   \item{parentNameUsageID}{WFO parentNameUsageID.}
-#'   \item{namePublishedIn}{Publication reference.}
+#'   \item{name_published_in}{Publication reference, under the name every
+#'     backbone's `.vtr` and [add_gbif_info()] use.}
 #'   \item{higherClassification}{Higher classification string.}
 #'   \item{taxonRemarks}{Taxonomic remarks.}
 #'   \item{infraspecificEpithet}{Infraspecific epithet (for subspecies,
@@ -32,7 +33,7 @@ add_wfo_info <- function(x) {
   col_map <- c(
     scientificNameID     = "scientificNameID",
     parentNameUsageID    = "parentNameUsageID",
-    namePublishedIn      = "namePublishedIn",
+    name_published_in    = "name_published_in",
     higherClassification = "higherClassification",
     taxonRemarks         = "taxonRemarks",
     infraspecificEpithet = "infraspecific_epithet"
@@ -40,7 +41,7 @@ add_wfo_info <- function(x) {
   enrich_from_backbone(
     x, wfo_backend(), col_map,
     enrichment_name = "wfo_info", label = "WFO",
-    probe_cols = c("scientificNameID", "namePublishedIn",
+    probe_cols = c("scientificNameID", "name_published_in",
                    "higherClassification")
   )
 }

@@ -25,7 +25,8 @@ separates keys the concept scores leave level. \code{year_score} is the year the
 name was published (the \code{year} column, else the first year in
 \code{name_published_in}; \code{Inf} where unknown, 0 throughout when both columns are
 absent); it orders after \code{epithet_score} and before \code{occ_score}, so the
-earliest of several same-name homonyms wins before the count is read.}
+earliest of several same-name homonyms wins before the count is read, where
+\code{year_where_priority()} lets it order at all.}
 }
 \value{
 A list with the numeric vectors \code{dist_score}, \code{data_score},

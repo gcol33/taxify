@@ -95,7 +95,7 @@ resolve_via_basionym <- function(result, vtr_path, col_map) {
 
   result <- promote_accepted_id(result, rows, target$accepted_taxon_id,
                                 old = result$accepted_id[rows],
-                                drop_old = TRUE)
+                                drop_old = TRUE, basis = "basionym")
   result$accepted_id[rows]         <- target$accepted_taxon_id
   result$accepted_name[rows]       <- target$accepted_name
   result$accepted_authorship[rows] <- target$accepted_authorship %||%

@@ -142,7 +142,7 @@ test_that("add_col_info attaches COL columns incl. the SpeciesProfile sidecar", 
   result <- add_col_info(x)
 
   expect_true(all(c("notho", "nomenclaturalCode", "nomenclaturalStatus",
-                    "namePublishedIn", "kingdom", "phylum", "col_class",
+                    "name_published_in", "kingdom", "phylum", "col_class",
                     "order", "infraspecificEpithet", "is_extinct",
                     "is_marine", "is_freshwater", "is_terrestrial") %in%
                   names(result)))

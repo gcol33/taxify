@@ -582,6 +582,7 @@ write_match_rows <- function(result, idx, best, col_map) {
   result$taxonomic_status[idx]    <- col_or_na(col_map$status)
   result$n_ids[idx]               <- best$n_ids %||% NA_integer_
   result$accepted_ids[idx]        <- best$accepted_ids %||% NA_character_
+  result$pick_basis[idx]          <- best$pick_basis %||% NA_character_
   result
 }
 
@@ -778,7 +779,7 @@ get_fuzzy_bb <- function(vtr_path, col_map) {
     col_map$status, col_map$epithet, col_map$authorship,
     "accepted_name", "accepted_family", "accepted_genus",
     "accepted_taxon_id", "accepted_authorship", "is_synonym", "fuzzy_block",
-    "n_occurrences", "year", "bracket_year", "bracket_authorship",
+    "n_occurrences", "year", "bracket_authorship",
     "name_published_in", "kingdom"
   ))
 
@@ -1060,6 +1061,7 @@ empty_match_result <- function(n) {
     fuzzy_dist        = NA_real_,
     n_ids             = NA_integer_,
     accepted_ids      = NA_character_,
+    pick_basis        = NA_character_,
     backbone          = NA_character_,
     backbone_version  = NA_character_,
     stringsAsFactors  = FALSE
