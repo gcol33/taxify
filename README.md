@@ -99,7 +99,7 @@ broad aggregators GBIF, ITIS, NCBI, and OTT.
 | [SeaLifeBase](https://www.sealifebase.org/) | Non-fish marine/aquatic | 134k | 29 MB |
 | [Reptile Database](http://www.reptile-database.org/) | Reptiles | 50k | 10 MB |
 | [LCVP](https://github.com/idiv-biodiversity/LCVP) | Vascular plants | 1.3M | 252 MB |
-| [WCVP](https://powo.science.kew.org/) | Vascular plants | 1.4M | 309 MB |
+| [WCVP](https://powo.science.kew.org/) | Vascular plants | 1.4M | 342 MB |
 | [Mammal Diversity Database](https://www.mammaldiversity.org/) | Mammals | 62k | 11 MB |
 | [AviList](https://www.avilist.org/) | Birds | 41k | 8 MB |
 | [LPSN](https://lpsn.dsmz.de) | Prokaryotes (Bacteria/Archaea) | 45k | 12 MB |

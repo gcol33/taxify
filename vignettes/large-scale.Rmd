@@ -609,7 +609,7 @@ backbone version.
 | SeaLifeBase | 134k | 29 MB | 2026.08 |
 | Reptile Database | 50k | 10 MB | 2026.07 |
 | LCVP | 1.3M | 252 MB | 2026.08 |
-| WCVP | 1.4M | 309 MB | 2026.08 |
+| WCVP | 1.4M | 342 MB | 2026.06 |
 | Mammal Diversity Database | 62k | 11 MB | 2026.08 |
 | AviList | 41k | 8 MB | 2026.08 |
 | LPSN | 45k | 12 MB | 2026.08 |
