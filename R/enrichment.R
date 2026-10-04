@@ -791,11 +791,12 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
 #'   values = source columns in df.
 #' @param source_label Character.
 #' @param na_types Named list of NA sentinels (optional).
+#' @param prefer Optional `list(col =, order =)`, as for `enrich_by_group()`.
 #' @return The enriched data.frame.
 #' @noRd
 enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
                                           groups, value_cols, source_label,
-                                          na_types = NULL) {
+                                          na_types = NULL, prefer = NULL) {
   if (!group_col %in% names(df)) return(x)
 
   # License lookup is delegated to taxifydb; emergency fallback leaves it unset.
@@ -846,7 +847,8 @@ enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
   # names carry lang = NA) selects the NA rows here too rather than every row,
   # and the output column naming has one definition.
   df$lookup_name <- df$canonical_name
-  x <- .enrich_group_fill(x, df, x$accepted_name, groups, value_cols, group_col)
+  x <- .enrich_group_fill(x, df, x$accepted_name, groups, value_cols, group_col,
+                          prefer)
 
   n_enriched <- sum(
     rowSums(!is.na(x[, out_cols, drop = FALSE])) > 0L
@@ -2947,7 +2949,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
     df <- try_emergency_fallback(enrichment_name, verbose = verbose)
     return(enrich_from_dataframe_grouped(x, df, enrichment_name, group_col,
                                           groups, value_cols, source_label,
-                                          na_types))
+                                          na_types, prefer))
   }
 
   # Check schema
@@ -3044,8 +3046,8 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
   infra_col <- intersect("infraspecies", names(schema))
   if (length(rank_col) == 0L) rank_col <- NULL
   if (length(infra_col) == 0L) infra_col <- NULL
-  select_cols <- unique(c(group_col, unname(value_cols), authorship_col,
-                          rank_col, infra_col))
+  select_cols <- unique(c(group_col, unname(value_cols), prefer$col,
+                          authorship_col, rank_col, infra_col))
   select_cols <- intersect(select_cols, names(schema))
 
   has_na_group <- anyNA(groups)

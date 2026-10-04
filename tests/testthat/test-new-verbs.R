@@ -42,6 +42,17 @@ test_that("comm2sci() honours the lang filter", {
   expect_equal(r$lang, "en")
 })
 
+test_that("comm2sci() resolves a name that is not the first of its language", {
+  old <- options(taxify.data_dir = taxify_example_data())
+  on.exit(options(old), add = TRUE)
+  taxify_clear_cache()
+  skip_if_not(enrichment_ready("common_names"), "common_names example missing")
+
+  r <- comm2sci("alternate_common_name", verbose = FALSE)
+  expect_equal(r$accepted_name, "Quercus robur")
+  expect_equal(r$lang, "en")
+})
+
 test_that("comm2sci() is case-insensitive and empty on no match", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)

@@ -3,17 +3,22 @@
     {
       "name": "canonical_name",
       "type": "character",
-      "values": ["Quercus robur", "Quercus robur"]
+      "values": ["Quercus robur", "Quercus robur", "Quercus robur"]
     },
     {
       "name": "lang",
       "type": "character",
-      "values": ["en", "de"]
+      "values": ["en", "en", "de"]
     },
     {
       "name": "common_name",
       "type": "character",
-      "values": ["example_common_name", "example_common_name"]
+      "values": ["alternate_common_name", "example_common_name", "example_common_name"]
+    },
+    {
+      "name": "name_rank",
+      "type": "integer",
+      "values": [2, 1, 1]
     }
   ]
 }

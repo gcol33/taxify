@@ -1,7 +1,7 @@
 {
   "name": "common_names",
   "version": "example",
-  "nrow": 2,
+  "nrow": 3,
   "static": true,
   "license": "CC0",
   "citation": {

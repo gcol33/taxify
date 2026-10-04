@@ -84,3 +84,15 @@ test_that("the emergency grouped path keeps the NA group", {
                                      c(common_name = "common_name"), "mock")
   expect_equal(r$common_name, "oak (ncbi)")
 })
+
+test_that("the emergency grouped path honours prefer", {
+  df <- data.frame(canonical_name = rep("Quercus robur", 2L), lang = "en",
+                   common_name = c("second", "first"), name_rank = c(2L, 1L),
+                   stringsAsFactors = FALSE)
+  x <- data.frame(accepted_name = "Quercus robur", matched_name = "Quercus robur",
+                  stringsAsFactors = FALSE)
+  r <- enrich_from_dataframe_grouped(x, df, "common_names", "lang", "en",
+                                     c(common_name = "common_name"), "mock",
+                                     prefer = list(col = "name_rank", order = 1L))
+  expect_equal(r$common_name, "first")
+})

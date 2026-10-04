@@ -221,6 +221,9 @@ comm2sci <- function(x, lang = NULL, output = c("lookup", "result"),
 #'     `resolve = FALSE` or the input_name was already accepted).}
 #'   \item{common_name}{A vernacular name.}
 #'   \item{lang}{Language tag (`NA` for NCBI/Open Tree).}
+#'   \item{name_rank}{Rank of the name among the taxon's names in that
+#'     language, 1 being the one most source records give (the name
+#'     [add_common_names()] reports).}
 #' }
 #' A query with no vernacular contributes no rows.
 #'
@@ -247,6 +250,7 @@ sci2comm <- function(x, lang = NULL, resolve = TRUE, backbone = NULL, ...,
   empty <- data.frame(
     input_name = character(0L), accepted_name = character(0L),
     common_name = character(0L), lang = character(0L),
+    name_rank = integer(0L),
     stringsAsFactors = FALSE
   )
   if (length(x_in) == 0L) return(empty)
@@ -272,9 +276,13 @@ sci2comm <- function(x, lang = NULL, resolve = TRUE, backbone = NULL, ...,
   }
   if (nrow(acc) == 0L) return(empty)
 
+  # An asset built before names were ranked holds one name per language, which
+  # is that language's first.
+  ranked <- "name_rank" %in% vtr_schema(vtr_path)
   hit <- .enrichment_vtr_lookup(
     vtr_path, join_key = "canonical_name",
-    keys = acc$accepted_name, src_cols = c("common_name", "lang"))
+    keys = acc$accepted_name,
+    src_cols = c("common_name", "lang", if (ranked) "name_rank"))
   if (is.null(hit) || nrow(hit) == 0L) return(empty)
 
   out <- merge(acc, hit, by.x = "accepted_name", by.y = "lookup_name")
@@ -294,11 +302,12 @@ sci2comm <- function(x, lang = NULL, resolve = TRUE, backbone = NULL, ...,
     accepted_name = out$accepted_name,
     common_name     = out$common_name,
     lang            = out$lang,
+    name_rank       = if (ranked) as.integer(out$name_rank) else rep(1L, nrow(out)),
     stringsAsFactors = FALSE
   )
   tab <- tab[!duplicated(tab[c("input_name", "common_name", "lang")]), , drop = FALSE]
-  tab <- tab[order(tab$input_name, is.na(tab$lang), tab$lang, tab$common_name), ,
-             drop = FALSE]
+  tab <- tab[order(tab$input_name, is.na(tab$lang), tab$lang, tab$name_rank,
+                   tab$common_name), , drop = FALSE]
   rownames(tab) <- NULL
   tab
 }

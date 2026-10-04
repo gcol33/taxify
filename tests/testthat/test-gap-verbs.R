@@ -116,7 +116,8 @@ test_that("sci2comm() returns the vernacular names of a scientific name", {
   r <- sci2comm("Quercus robur", resolve = FALSE, verbose = FALSE)
   expect_s3_class(r, "data.frame")
   expect_setequal(names(r),
-                  c("input_name", "accepted_name", "common_name", "lang"))
+                  c("input_name", "accepted_name", "common_name", "lang",
+                    "name_rank"))
   expect_true("example_common_name" %in% r$common_name)
   expect_setequal(r$lang, c("en", "de"))
 })
@@ -128,8 +129,10 @@ test_that("sci2comm() honours the lang filter and is a clean inverse", {
   skip_if_not(enrichment_ready("common_names"), "common_names example missing")
 
   r <- sci2comm("Quercus robur", lang = "en", resolve = FALSE, verbose = FALSE)
-  expect_equal(nrow(r), 1L)
-  expect_equal(r$lang, "en")
+  # Every English name, the best supported first.
+  expect_equal(r$common_name, c("example_common_name", "alternate_common_name"))
+  expect_equal(r$name_rank, 1:2)
+  expect_true(all(r$lang == "en"))
   expect_equal(nrow(sci2comm("Nothing here", resolve = FALSE, verbose = FALSE)),
                0L)
 })

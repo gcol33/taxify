@@ -52,6 +52,9 @@ add_common_names <- function(x, lang = "en", cols = NULL, verbose = TRUE) {
     groups          = lang,
     value_cols      = c(common_name = "common_name"),
     source_label    = "vernacular names",
+    # The asset keeps every name a taxon has in a language, ranked by how many
+    # records give it; the column shows the first.
+    prefer          = list(col = "name_rank", order = 1L),
     cols            = cols,
     verbose         = verbose
   )
