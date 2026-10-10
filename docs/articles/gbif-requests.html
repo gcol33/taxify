@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -118,23 +118,33 @@ keys, so <code><a href="../reference/gbif_request.html">gbif_request()</a></code
 downloads, each with its own DOI (<a href="#long-lists-are-split-across-downloads">details</a>).</p>
 <p>Name matching runs offline. Requests and downloads require <a href="https://CRAN.R-project.org/package=rgbif" class="external-link">rgbif</a>. The default
 download method also requires a free GBIF account; see <a href="#setting-up-rgbif">Setting up rgbif</a>.</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">spp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Bellis perennis"</span>, <span class="st">"Morus alba"</span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="match-first-then-request">Match first, then request<a class="anchor" aria-label="anchor" href="#match-first-then-request"></a>
 </h2>
 <p>Match the names, submit the request, fetch the records and retrieve
 the citations:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span>   <span class="co"># resolve the names to GBIF keys</span></span>
 <span><span class="va">dl</span>      <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span>            <span class="co"># ask GBIF for every key</span></span>
 <span><span class="va">recs</span>    <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span>                   <span class="co"># wait, download, attach the input names</span></span>
 <span><span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span>                                  <span class="co"># the download's DOI</span></span></code></pre></div>
 <p>The matching result is a data frame. Inspect it before submitting the
 request:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">matched</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"accepted_id"</span>, <span class="st">"taxonomic_status"</span>, <span class="st">"n_ids"</span><span class="op">)</span><span class="op">]</span></span>
@@ -150,7 +160,7 @@ request:</p>
 <p>By default, <code><a href="../reference/gbif_request.html">gbif_request()</a></code> requests all associated keys.
 GBIF prepares the download in the background, and
 <code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for it to finish:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dl</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span></code></pre></div>
 <p>The returned <code>input_name</code> column links records to the
@@ -164,7 +174,7 @@ the package, backbone and download citations; see <a href="#citing-the-download"
 <code><a href="../reference/taxify.html">taxify()</a></code> internally, passing through matching arguments
 such as <code>fuzzy</code>, <code>kingdom</code> and
 <code>region</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dl</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span><span class="op">)</span>   <span class="co"># match, then ask GBIF for every key</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span>      <span class="co"># wait, download, import, attach the input names</span></span></code></pre></div>
 <p>The matched table is available afterwards as
@@ -172,7 +182,7 @@ such as <code>fuzzy</code>, <code>kingdom</code> and
 you want to inspect the matches before submitting a request.</p>
 <p>Use <code>dry_run = TRUE</code> to inspect the keys and estimated
 record count without contacting GBIF:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.</span></span>
 <span><span class="co">#&gt;  [1] 2878688 7911626 7586523 5285637 7718215 8116613 9079676 8251433 7393648</span></span>
@@ -185,25 +195,42 @@ record count without contacting GBIF:</p>
 different taxa, or because the backbone contains doubtful or duplicate
 entries alongside an accepted entry. <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> returns
 one row per name and key, including its occurrence count:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/taxify_ids.html">taxify_ids</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          input_name accepted_id    accepted_name taxonomic_status n_occurrences is_pick</span></span>
-<span><span class="co">#&gt; 1     Quercus robur     2878688    Quercus robur         ACCEPTED       1725528    TRUE</span></span>
-<span><span class="co">#&gt; 2     Quercus robur     7911626    Quercus robur         DOUBTFUL             2   FALSE</span></span>
-<span><span class="co">#&gt; 3     Quercus robur     7586523    Quercus robur         DOUBTFUL             9   FALSE</span></span>
-<span><span class="co">#&gt; 4  Pinus sylvestris     5285637 Pinus sylvestris         ACCEPTED       1204947    TRUE</span></span>
-<span><span class="co">#&gt; 5  Pinus sylvestris     7718215 Pinus sylvestris         DOUBTFUL             0   FALSE</span></span>
-<span><span class="co">#&gt; 6  Pinus sylvestris     8116613 Pinus sylvestris         DOUBTFUL             0   FALSE</span></span>
-<span><span class="co">#&gt; 7  Pinus sylvestris     9079676 Pinus sylvestris         DOUBTFUL             0   FALSE</span></span>
-<span><span class="co">#&gt; 8  Pinus sylvestris     8251433 Pinus sylvestris         DOUBTFUL             0   FALSE</span></span>
-<span><span class="co">#&gt; 9  Pinus sylvestris     7393648 Pinus sylvestris         DOUBTFUL             0   FALSE</span></span>
-<span><span class="co">#&gt; 10  Bellis perennis     3117424  Bellis perennis         ACCEPTED       1107989    TRUE</span></span>
-<span><span class="co">#&gt; 11       Morus alba     5361889       Morus alba         ACCEPTED         51610    TRUE</span></span></code></pre></div>
-<p><code>is_pick</code> marks the key reported in
-<code>accepted_id</code>. The other rows are further records of the same
-name. Requesting only the pick would have missed the eleven records
-under the two doubtful <em>Quercus robur</em> keys.</p>
+<span><span class="co">#&gt;          input_name accepted_id    accepted_name taxonomic_status n_occurrences      role</span></span>
+<span><span class="co">#&gt; 1     Quercus robur     2878688    Quercus robur         ACCEPTED       1725528      pick</span></span>
+<span><span class="co">#&gt; 2     Quercus robur     7586523    Quercus robur         DOUBTFUL             9 same_name</span></span>
+<span><span class="co">#&gt; 3     Quercus robur     7911626    Quercus robur         DOUBTFUL             2 same_name</span></span>
+<span><span class="co">#&gt; 4  Pinus sylvestris     5285637 Pinus sylvestris         ACCEPTED       1204947      pick</span></span>
+<span><span class="co">#&gt; 5  Pinus sylvestris     7718215 Pinus sylvestris         DOUBTFUL             0 same_name</span></span>
+<span><span class="co">#&gt; 6  Pinus sylvestris     8116613 Pinus sylvestris         DOUBTFUL             0 same_name</span></span>
+<span><span class="co">#&gt; 7  Pinus sylvestris     9079676 Pinus sylvestris         DOUBTFUL             0 same_name</span></span>
+<span><span class="co">#&gt; 8  Pinus sylvestris     8251433 Pinus sylvestris         DOUBTFUL             0 same_name</span></span>
+<span><span class="co">#&gt; 9  Pinus sylvestris     7393648 Pinus sylvestris         DOUBTFUL             0 same_name</span></span>
+<span><span class="co">#&gt; 10  Bellis perennis     3117424  Bellis perennis         ACCEPTED       1107989      pick</span></span>
+<span><span class="co">#&gt; 11       Morus alba     5361889       Morus alba         ACCEPTED         51610      pick</span></span></code></pre></div>
+<p><code>role</code> says what each key is to the name.
+<code>pick</code> is the key reported in <code>accepted_id</code>;
+<code>same_name</code> is another record of the same name, here GBIF’s
+doubtful records. Requesting only the pick would have missed the eleven
+records under the two doubtful <em>Quercus robur</em> keys.</p>
+<p>A third role, <code>other_taxon</code>, is the accepted taxon of a
+synonym record of the name under another author, which is a different
+species. GBIF files <em>Absinthium vulgare</em> Lam. under <em>Artemisia
+absinthium</em> and the Dulac homonym under <em>Artemisia vulgaris</em>
+subsp. <em>vulgaris</em>:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Absinthium vulgare"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/taxify_ids.html">taxify_ids</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           input_name accepted_id                      accepted_name n_occurrences        role pick_basis</span></span>
+<span><span class="co">#&gt; 1 Absinthium vulgare     3121319               Artemisia absinthium        109694        pick   priority</span></span>
+<span><span class="co">#&gt; 2 Absinthium vulgare     7337086 Artemisia vulgaris subsp. vulgaris         35385 other_taxon   priority</span></span></code></pre></div>
+<p><code>pick_basis</code> says what decided the pick: here
+<code>priority</code>, Lamarck’s 1779 name before Dulac’s 1867
+combination. On a backbone that dates neither record it reads
+<code>id</code>, meaning only the lowest taxon ID separated them, and
+the name is open there.</p>
 <p><code>n_occurrences</code> is the count taken when the backbone was
 built. For an accepted key it includes the records of that taxon’s
 synonyms and descendants, which is what a download by that key returns,
@@ -212,10 +239,14 @@ so it gives the approximate size of a request.</p>
 <div class="section level2">
 <h2 id="choosing-what-to-request">Choosing what to request<a class="anchor" aria-label="anchor" href="#choosing-what-to-request"></a>
 </h2>
-<p>Every key is requested by default. <code>strict = TRUE</code> narrows
-the request to the single key reported in <code>accepted_id</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, strict <span class="op">=</span> <span class="cn">TRUE</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<p>By default (<code>keys = "taxon"</code>) the request covers the
+<code>pick</code> and <code>same_name</code> keys and reports the
+<code>other_taxon</code> keys it leaves out. <code>keys = "pick"</code>
+narrows it to the single key reported in <code>accepted_id</code>, and
+<code>keys = "all"</code> adds the other taxa:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, keys <span class="op">=</span> <span class="st">"pick"</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 4 name(s): 4 picked key(s) and 0 other key(s) of the same taxa requested. Left out under keys = "pick": 7 same-taxon key(s) (Quercus robur, Pinus sylvestris).</span></span>
 <span><span class="co">#&gt; 4 GBIF key(s) from 4 matched name(s). About 4,090,074 occurrence record(s) across them.</span></span>
 <span><span class="co">#&gt; [1] 2878688 5285637 3117424 5361889</span></span></code></pre></div>
 <p>For this list the two choices differ by 11 records out of 4.09
@@ -228,7 +259,7 @@ choosing.</p>
 <h2 id="setting-up-rgbif">Setting up rgbif<a class="anchor" aria-label="anchor" href="#setting-up-rgbif"></a>
 </h2>
 <p>Sending the request needs rgbif:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rgbif"</span><span class="op">)</span></span></code></pre></div>
 <p><code>method = "search"</code> works with nothing further.
 <code>method = "download"</code> is an authenticated call and needs a
@@ -236,7 +267,7 @@ GBIF account, which is free: register at <a href="https://www.gbif.org/" class="
 <p>rgbif reads that account from three environment variables. Its own
 documentation recommends keeping them in <code>.Renviron</code>, which
 also keeps them out of scripts:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html" class="external-link">edit_r_environ</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Add the three lines, with no quotes and no spaces around the
 <code>=</code>:</p>
@@ -250,7 +281,7 @@ lower-case names <code>gbif_user</code>, <code>gbif_pwd</code> and
 <p>To confirm GBIF accepts the account, ask it for the account’s past
 downloads. That call is authenticated, so it only succeeds when the
 credentials are right:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">rgbif</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/occ_download_list.html" class="external-link">occ_download_list</a></span><span class="op">(</span>limit <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p>If a variable is missing, <code><a href="../reference/gbif_request.html">gbif_request()</a></code> stops before
 contacting GBIF and names which one. If the password is wrong, GBIF
@@ -262,8 +293,8 @@ answers 401.</p>
 <p><code>method = "search"</code> sends unauthenticated searches and
 returns the records directly. It needs no account, and the GBIF search
 API limits how deep it will page, so it suits a look at a few taxa:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, method <span class="op">=</span> <span class="st">"search"</span>, strict <span class="op">=</span> <span class="cn">TRUE</span>, limit <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, method <span class="op">=</span> <span class="st">"search"</span>, keys <span class="op">=</span> <span class="st">"pick"</span>, limit <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 200</span></span></code></pre></div>
 <p>The records come back as one data frame with a
@@ -272,7 +303,7 @@ the key that asked for it.</p>
 <p><code>method = "download"</code> is the default. It submits an
 asynchronous GBIF download, which has no record cap and is issued a
 citable DOI. It needs a GBIF account:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, method <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for the download, retrieves it,
@@ -293,14 +324,14 @@ counted.</p>
 chunks of 1,000 and submits them through rgbif’s
 <code>occ_download_queue()</code>, which respects GBIF’s rule of three
 concurrent downloads per user:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">long_species_list</span>, method <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 2431 keys exceed GBIF's query limit; splitting into 3 downloads of up to</span></span>
 <span><span class="co">#&gt; 1000 keys. Each gets its own DOI.</span></span></code></pre></div>
 <p><code>dl</code> is then a vector of download keys, and
 <code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> waits for all of them and stacks the records,
 so fetching a split request looks the same as fetching a single one:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span></code></pre></div>
 <p>The cap applies to the query naming the keys; a single download can
 hold tens of millions of records.</p>
@@ -313,7 +344,7 @@ hold tens of millions of records.</p>
 for is a second step, and <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> does it, adding
 <code>requested_key</code>, <code>input_name</code> and
 <code>accepted_name</code>:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">spp</span>, method <span class="op">=</span> <span class="st">"search"</span>, limit <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="va">recs</span>, <span class="va">recs</span><span class="op">)</span></span>
 <span></span>
@@ -321,14 +352,14 @@ for is a second step, and <code><a href="../reference/gbif_backmatch.html">gbif_
 <p><code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code> calls it itself, so this is only needed
 when the records were fetched some other way or with
 <code>backmatch = FALSE</code>:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span>, backmatch <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="va">recs</span>, <span class="va">dl</span><span class="op">)</span></span></code></pre></div>
 <p>It takes the object <code><a href="../reference/gbif_request.html">gbif_request()</a></code> returned, which
 carries the key table as an attribute. A <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> table
 or a <code><a href="../reference/taxify.html">taxify()</a></code> result works too, so records imported by hand
 can still be linked back:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_backmatch.html">gbif_backmatch</a></span><span class="op">(</span><span class="va">recs</span>, <span class="va">matched</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
@@ -361,7 +392,7 @@ reports how many there were.</p>
 lets someone else retrieve the same records. The download key travels
 with the records, so <code><a href="../reference/cite.html">cite()</a></code> reports the DOI next to the
 backbone the names were matched against:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gbif_fetch.html">gbif_fetch</a></span><span class="op">(</span><span class="va">dl</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="va">recs</span><span class="op">)</span></span>
@@ -381,25 +412,34 @@ BibTeX, the download included.</p>
 </h2>
 <p>Every match above named <code>backbone = "gbif"</code>. taxify’s
 default chain starts at COL XR, so a plain <code>taxify(spp)</code>
-resolves most names against another backbone and the result carries no
-GBIF keys. Passing such a result works: the rows without a GBIF key are
-re-matched against GBIF, with a message, because GBIF only accepts its
-own keys.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+resolves most names against another backbone and its own IDs are not
+GBIF’s. A COL XR build carries the GBIF key of each record, so the
+request follows the taxon each row picked; with the GBIF backbone
+installed, GBIF’s further records of that name and the occurrence counts
+are read from it, so the request matches the one built from
+<code>backbone = "gbif"</code>:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span>dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; No rows matched by GBIF; re-matching the names against the GBIF backbone, whose keys a GBIF request needs.</span></span>
+<span><span class="co">#&gt; 4 name(s): 4 picked key(s) and 7 other key(s) of the same taxa requested. Left out under keys = "taxon": 6 other-taxon key(s) (Quercus robur, Pinus sylvestris).</span></span>
 <span><span class="co">#&gt; 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.</span></span>
-<span><span class="co">#&gt;  [1] 2878688 7911626 7586523 5285637 7718215 8116613 9079676 8251433 7393648</span></span>
+<span><span class="co">#&gt;  [1] 2878688 7911626 7586523 5285637 8116613 8251433 7393648 9079676 7718215</span></span>
 <span><span class="co">#&gt; [10] 3117424 5361889</span></span></code></pre></div>
+<p>The six other-taxon keys are COL XR’s homonym synonyms of <em>Pinus
+sylvestris</em> and <em>Quercus robur</em> under other species. A row
+whose backbone carries no crosswalk is re-matched against GBIF by its
+<code>accepted_name</code>, not its input name, so the request stays on
+the taxon the result names. The <code>taxa</code> attribute records
+where each key came from in <code>key_source</code>
+(<code>backbone</code>, <code>crosswalk</code> or
+<code>rematch</code>).</p>
 <p>A mixed result, where the one name only GBIF carries landed on
-<code>gbif</code> and the rest elsewhere, is handled the same way: the
-rows without a key are re-matched and the rest are kept, so every name
-in the list reaches the request.</p>
+<code>gbif</code> and the rest elsewhere, is handled the same way, so
+every name in the list reaches the request.</p>
 <p><code><a href="../reference/gbif_request.html">gbif_request()</a></code> takes matching arguments only when it
 does the matching itself. With a <code><a href="../reference/taxify.html">taxify()</a></code> result as input,
 they go in the <code><a href="../reference/taxify.html">taxify()</a></code> call:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">spp</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span>, kingdom <span class="op">=</span> <span class="st">"Plantae"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>

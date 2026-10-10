@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -118,23 +118,38 @@ large lists, and pre-downloading resources before a batch run; the
 sections after them describe the internals, measured sizes and memory
 costs, and timing guidance by list size.</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Choose</strong> exact-only or fuzzy matching with the
+<li>
+<strong>Choose</strong> exact-only or fuzzy matching with the
 <code>fuzzy</code> and <code>fuzzy_threshold</code> arguments of
-<code><a href="../reference/taxify.html">taxify()</a></code>.</p></li>
-<li><p><strong>Order</strong> the backbones in <code>backbone</code> so
-the one covering the dominant taxon group comes first.</p></li>
-<li><p><strong>Chunk</strong> very large lists and write each chunk’s
-result to disk.</p></li>
-<li><p><strong>Pre-download</strong> backbones and enrichments with
+<code><a href="../reference/taxify.html">taxify()</a></code>.</li>
+<li>
+<strong>Order</strong> the backbones in <code>backbone</code> so the
+one covering the dominant taxon group comes first.</li>
+<li>
+<strong>Chunk</strong> very large lists and write each chunk’s
+result to disk.</li>
+<li>
+<strong>Pre-download</strong> backbones and enrichments with
 <code><a href="../reference/taxify_download.html">taxify_download()</a></code> and
-<code><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment()</a></code>.</p></li>
-<li><p><strong>Free</strong> memory between phases with
-<code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code>.</p></li>
+<code><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment()</a></code>.</li>
+<li>
+<strong>Free</strong> memory between phases with
+<code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code>.</li>
 </ol>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="exact-vs--fuzzy-matching">Exact vs. fuzzy matching<a class="anchor" aria-label="anchor" href="#exact-vs--fuzzy-matching"></a>
@@ -147,7 +162,7 @@ entirely.</p>
 <p>Consider a list of 10,000 plant names extracted from an herbarium
 database where names are already in standard binomial form. We time both
 modes:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Assume `species_list` is a character vector of 10,000 plant names</span></span>
 <span></span>
 <span><span class="co"># Exact + fuzzy (default)</span></span>
@@ -162,15 +177,15 @@ modes:</p>
 <span></span>
 <span><span class="va">t_fuzzy</span><span class="op">[</span><span class="st">"elapsed"</span><span class="op">]</span></span>
 <span><span class="va">t_exact</span><span class="op">[</span><span class="st">"elapsed"</span><span class="op">]</span></span></code></pre></div>
-<p>The timings depend on your list and your machine, so run the pair on
-your own data; <code>scripts/benchmark-worldflora.R</code> in the taxify
-repository is the measured reference. The shape is consistent: the
-exact-only run is roughly an order of magnitude faster. The exact pass
-matches most names on the first try through its five passes (described
-under <a href="#how-taxify-scales">How taxify scales</a>). Fuzzy
-matching picks up the remaining names with minor misspellings, at a cost
-that scales with the number of unmatched names times the average genus
-size in the backbone.</p>
+<p>The timings depend on the list and the machine, so run the pair on
+the target data; <code>scripts/benchmark-worldflora.R</code> in the
+taxify repository is the measured reference. The shape is consistent:
+the exact-only run is roughly an order of magnitude faster. The exact
+pass matches most names on the first try through its five passes
+(described under <a href="#how-taxify-scales">How taxify scales</a>).
+Fuzzy matching picks up the remaining names with minor misspellings, at
+a cost that scales with the number of unmatched names times the average
+genus size in the backbone.</p>
 <p>The ratio between the two modes depends on input quality. For a list
 of names extracted from a curated database (GBIF occurrence records, a
 published checklist, or a previous taxify run), the exact pass resolves
@@ -181,7 +196,7 @@ essential.</p>
 <p>A practical two-pass pattern for large lists: run exact-only first,
 inspect the unmatched names, and decide whether the fuzzy pass is worth
 the time.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Pass 1: exact only</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -226,7 +241,7 @@ invertebrates. WFO covers the plants, COL covers everything but is
 larger and slower to search. Putting WFO first means the plant names
 (the majority) are resolved quickly, and only the animal names fall
 through to COL.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 8,000 names: ~6,000 plants, ~1,500 fish, ~500 invertebrates</span></span>
 <span><span class="va">t_wfo_first</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
 <span>  <span class="va">result_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey_names</span>,</span>
@@ -301,7 +316,7 @@ regardless of name length. This is useful for long infraspecific names
 where a normalized threshold of 0.2 might allow too many edits. Integer
 thresholds are not supported with the Jaro-Winkler method
 (<code>fuzzy_method = "jw"</code>).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Tight threshold for clean input</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">clean_names</span>, backbone <span class="op">=</span> <span class="st">"col"</span>,</span>
 <span>                 fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
@@ -327,7 +342,7 @@ interrupted mid-run (Ctrl+C, OOM kill, session timeout), the entire
 result is lost. Chunking at 50,000-100,000 names keeps peak memory
 predictable, gives progress monitoring, and provides natural restart
 points.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 300,000 names from a herbarium digitization project</span></span>
 <span><span class="va">all_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"herbarium_names.txt"</span><span class="op">)</span></span>
 <span><span class="va">chunk_size</span> <span class="op">&lt;-</span> <span class="fl">50000</span></span>
@@ -354,7 +369,7 @@ and freed per chunk.</p>
 <p>For lists in the millions (e.g., processing all occurrence records
 from a GBIF download), write results to disk after each chunk instead of
 accumulating them in memory:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output_dir</span> <span class="op">&lt;-</span> <span class="st">"results"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">output_dir</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -374,7 +389,7 @@ accumulating them in memory:</p>
 total list size. It also makes the workflow resumable: if the process
 dies at chunk 47 of 60, we can check which <code>.rds</code> files exist
 and restart from chunk 48. A skip condition handles this:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">out_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">output_dir</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"chunk_%04d.rds"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">out_file</span><span class="op">)</span><span class="op">)</span> <span class="kw">next</span></span>
@@ -396,13 +411,13 @@ repeated initialization.</p>
 </h3>
 <p>For a reproducible batch pipeline (e.g., a Makefile or targets plan),
 it is cleaner to separate the download step from the analysis step.
-Downloads can fail due to network issues, and you want to know about
-that before a 2-hour matching run starts.</p>
+Downloads can fail due to network issues, and that is worth knowing
+before a 2-hour matching run starts.</p>
 <p><code><a href="../reference/taxify_download.html">taxify_download()</a></code> downloads one or more backbone
 <code>.vtr</code> files. <code><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment()</a></code> does
 the same for enrichment layers. Both are idempotent: if the file already
 exists and the version is current, they return immediately.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Pre-download everything needed for a multi-kingdom analysis</span></span>
 <span><span class="co"># with conservation status and trait enrichments</span></span>
 <span></span>
@@ -436,7 +451,7 @@ though in practice the path is resolved internally by
 explicitly.</p>
 <p>To see which enrichments are available and their current
 versions:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                name version    nrow static</span></span>
 <span><span class="co">#&gt; 1 iucn 2026.04   59583  FALSE</span></span>
@@ -460,7 +475,7 @@ from memory. The next <code><a href="../reference/taxify.html">taxify()</a></cod
 and re-materialize. This is useful after a large matching run when the
 backbone is no longer needed: save the result, release the backbone,
 then run downstream models.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Match names</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span></span>
@@ -485,18 +500,18 @@ listing the latest version of each backbone and enrichment). This forces
 the next <code><a href="../reference/taxify.html">taxify()</a></code> call to re-check for updates. Normally
 the manifest is fetched once per session and cached. In a long-running R
 session (e.g., an RStudio session that stays open for days), calling
-<code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code> before a batch run ensures you
-are working against the latest backbone version. If a new backbone
-release was published since the session started, the version check will
-detect it and trigger an automatic download.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code> before a batch run ensures the
+run works against the latest backbone version. If a new backbone release
+was published since the session started, the version check will detect
+it and trigger an automatic download.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="disk-storage-and-sharing-across-projects">Disk storage and sharing across projects<a class="anchor" aria-label="anchor" href="#disk-storage-and-sharing-across-projects"></a>
 </h3>
 <p>All taxify data lives under <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "C:/Users/jane/AppData/Local/R/taxify"</span></span></code></pre></div>
 <p>By default this is the platform-specific user data directory
@@ -537,7 +552,7 @@ the <code>R_USER_DATA_DIR</code> environment variable, the
 read-only at query time, so concurrent access from multiple R sessions
 is safe and needs no file locking.</p>
 <p>To check how much disk space taxify is currently using:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Total size of all backbones and enrichments</span></span>
 <span><span class="va">data_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -546,7 +561,7 @@ is safe and needs no file locking.</p>
 <span>                <span class="va">total_mb</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">files</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>To remove a specific backbone (e.g., GBIF after finishing a project
 that needed it), delete its directory:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Remove GBIF backbone (frees ~1.6 GB)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"gbif"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -588,18 +603,16 @@ the reason exact matching scales linearly with list size: a list of
 <p>The exact pipeline runs five passes in sequence, each catching a
 different class of name variation:</p>
 <ol style="list-style-type: decimal">
-<li><p>Case-sensitive exact match against the canonical name
-column.</p></li>
-<li><p>Case-insensitive match against a precomputed lowercased
-key.</p></li>
-<li><p>Latin orthographic normalization that maps common epithet
-variants (e.g., <em>-ii</em> to <em>-i</em>, <em>-anum</em> to
-<em>-ana</em>) to a canonical form.</p></li>
-<li><p>Infraspecific-to-species fallback that strips variety/subspecies
-qualifiers and matches against the binomial.</p></li>
-<li><p>Hybrid name normalization that resolves nothospecies formatting
+<li>Case-sensitive exact match against the canonical name column.</li>
+<li>Case-insensitive match against a precomputed lowercased key.</li>
+<li>Latin orthographic normalization that maps common epithet variants
+(e.g., <em>-ii</em> to <em>-i</em>, <em>-anum</em> to <em>-ana</em>) to
+a canonical form.</li>
+<li>Infraspecific-to-species fallback that strips variety/subspecies
+qualifiers and matches against the binomial.</li>
+<li>Hybrid name normalization that resolves nothospecies formatting
 differences (e.g., <em>Salix x rubens</em> vs. <em>Salix
-xrubens</em>).</p></li>
+xrubens</em>).</li>
 </ol>
 <p>All five passes use hash lookups. A name that matches in pass 1 is
 never tested in passes 2-5. In practice, pass 1 resolves 85-95% of names
@@ -682,7 +695,7 @@ depend on the backbone version.</p>
 <tr class="odd">
 <td>WFO</td>
 <td>1.7M</td>
-<td>775 MB</td>
+<td>823 MB</td>
 <td>2026.06</td>
 </tr>
 <tr class="even">
@@ -693,8 +706,8 @@ depend on the backbone version.</p>
 </tr>
 <tr class="odd">
 <td>COL Extended Release</td>
-<td>8.1M</td>
-<td>1.6 GB</td>
+<td>8.5M</td>
+<td>1.5 GB</td>
 <td>2026.09</td>
 </tr>
 <tr class="even">
@@ -772,8 +785,8 @@ depend on the backbone version.</p>
 <tr class="even">
 <td>WCVP</td>
 <td>1.4M</td>
-<td>309 MB</td>
-<td>2026.08</td>
+<td>342 MB</td>
+<td>2026.06</td>
 </tr>
 <tr class="odd">
 <td>Mammal Diversity Database</td>
@@ -795,7 +808,7 @@ depend on the backbone version.</p>
 </tr>
 <tr class="even">
 <td><strong>All 19</strong></td>
-<td><strong>34.7M</strong></td>
+<td><strong>35.0M</strong></td>
 <td><strong>8.7 GB</strong></td>
 <td></td>
 </tr>
@@ -813,7 +826,7 @@ vectra reads at query time.</p>
 <p>Enrichment files are much smaller. The largest enrichment is WCVP
 (native range data, ~2 million rows) at roughly 30-40 MB. Most
 enrichments are under 5 MB. A full set of
-<!-- manifest:enrichment-count -->108<!-- /manifest:enrichment-count -->
+<!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count -->
 enrichments adds a few hundred MB to disk usage.</p>
 </div>
 <div class="section level2">
@@ -947,7 +960,7 @@ between analysis phases (matching, enrichment, downstream modelling) to
 keep memory usage bounded. If enriching with multiple layers, apply all
 enrichments to each chunk before writing rather than accumulating the
 full result in memory and enriching after.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Pattern for 500,000+ names with enrichments</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>,</span>

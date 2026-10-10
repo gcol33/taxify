@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -119,23 +119,36 @@ fallback: where a hybrid formula has no record of its own, it resolves
 through its two parents; where an aggregate has no record of its own, it
 falls back to the nominal binomial.</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Match</strong> the list with <code><a href="../reference/taxify.html">taxify()</a></code>, which
+<li>
+<strong>Match</strong> the list with <code><a href="../reference/taxify.html">taxify()</a></code>, which
 records hybrids in <code>is_hybrid</code> and <code>hybrid_type</code>
 and aggregates in <code>qualifier</code> and
-<code>aggregate_fallback</code>.</p></li>
-<li><p><strong>Parse</strong> the parents of a hybrid formula with
-<code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>.</p></li>
-<li><p><strong>Choose</strong> whether an aggregate keeps its own
-concept with the <code>aggregates</code> argument of
-<code><a href="../reference/taxify.html">taxify()</a></code>.</p></li>
-<li><p><strong>Attach</strong> traits with <code><a href="../reference/add_trait.html">add_trait()</a></code> or
-an <code>add_&lt;source&gt;()</code> door, which fall back to a hybrid’s
-parents and an aggregate’s binomial.</p></li>
+<code>aggregate_fallback</code>.</li>
+<li>
+<strong>Parse</strong> the parents of a hybrid formula with
+<code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>.</li>
+<li>
+<strong>Choose</strong> whether an aggregate keeps its own concept
+with the <code>aggregates</code> argument of <code><a href="../reference/taxify.html">taxify()</a></code>.</li>
+<li>
+<strong>Attach</strong> traits with <code><a href="../reference/add_trait.html">add_trait()</a></code> or an
+<code>add_&lt;source&gt;()</code> door, which fall back to a hybrid’s
+parents and an aggregate’s binomial.</li>
 </ol>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="matching-a-mixed-species-list">Matching a mixed species list<a class="anchor" aria-label="anchor" href="#matching-a-mixed-species-list"></a>
@@ -162,7 +175,7 @@ case:</p>
 nothogenus, a formula and a second nothospecies, written with the plain
 “x” most data use in place of the sign, and matches them in a single
 call:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,</span>
 <span>  <span class="st">"Mentha x piperita"</span>,</span>
@@ -252,23 +265,27 @@ it parses the <code>input_name</code> column for the two parents and
 resolves each against the same backbone(s) used for the result. It adds
 these columns:</p>
 <ul>
-<li><p><code>hybrid_parent_1</code>: the first parent binomial (for
-formulas) or NA</p></li>
-<li><p><code>hybrid_parent_2</code>: the second parent binomial (for
-formulas, with abbreviated or omitted genera expanded) or NA</p></li>
-<li><p><code>hybrid_parent_1_accepted</code>,
+<li>
+<code>hybrid_parent_1</code>: the first parent binomial (for
+formulas) or NA</li>
+<li>
+<code>hybrid_parent_2</code>: the second parent binomial (for
+formulas, with abbreviated or omitted genera expanded) or NA</li>
+<li>
+<code>hybrid_parent_1_accepted</code>,
 <code>hybrid_parent_2_accepted</code>: the accepted name each parent
-resolves to, or NA if it did not match</p></li>
-<li><p><code>hybrid_parent_1_id</code>, <code>hybrid_parent_2_id</code>:
+resolves to, or NA if it did not match</li>
+<li>
+<code>hybrid_parent_1_id</code>, <code>hybrid_parent_2_id</code>:
 the backbone <code>taxon_id</code> of the accepted taxon each parent
 resolves to, ready for <code><a href="../reference/id2name.html">id2name()</a></code>, or NA if it did not
-match</p></li>
+match</li>
 </ul>
 <p>For nothogenus and nothospecies names the parent columns are NA,
 because the name string does not encode the parents: those of <em>Mentha
 ×piperita</em> (<em>Mentha aquatica</em> and <em>Mentha spicata</em>)
 appear nowhere in it. Only hybrid formulas carry both parent names.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The new columns for the five-name example:</p>
 <table class="table">
@@ -332,7 +349,7 @@ appear nowhere in it. Only hybrid formulas carry both parent names.</p>
 specimen is known or suspected, so they appear in botanical and
 horticultural datasets. The notation varies: some records spell out both
 genera in full, others abbreviate the second genus.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">formulas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Salix alba x Salix fragilis"</span>,</span>
 <span>  <span class="st">"Quercus pyrenaica x Q. petraea"</span>,</span>
@@ -393,8 +410,8 @@ period, it is replaced with the first token of the first parent.</p>
 <div class="section level3">
 <h3 id="traits-for-hybrids">Traits for hybrids<a class="anchor" aria-label="anchor" href="#traits-for-hybrids"></a>
 </h3>
-<p>Trait enrichment is hybrid-aware. When you attach traits to a result
-that contains a hybrid formula, each trait is resolved with a
+<p>Trait enrichment is hybrid-aware. When traits are attached to a
+result that contains a hybrid formula, each trait is resolved with a
 ladder:</p>
 <ol style="list-style-type: decimal">
 <li>the hybrid directly: if the cross resolved to a nothospecies and
@@ -410,7 +427,7 @@ its value is used.</li>
 <p>This happens automatically inside every
 <code>add_&lt;source&gt;()</code> door and inside
 <code><a href="../reference/add_trait.html">add_trait()</a></code>; no extra call is needed.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># A hybrid formula with no direct trait record inherits from its parents</span></span>
 <span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Salix alba x Salix fragilis"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"plant_height"</span><span class="op">)</span></span></code></pre></div>
@@ -427,7 +444,7 @@ so the components of the average sit beside the combined value.</p>
 <em>s.l.</em> (<em>sensu lato</em>, “in the broad sense”). Matched
 against WFO, which carries no aggregate taxa, each aggregate falls back
 to its binomial and is flagged:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">agg_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Rubus fruticosus agg."</span>,</span>
 <span>  <span class="st">"Taraxacum officinale agg."</span>,</span>
@@ -508,7 +525,7 @@ aggregate-level figure exists.</li>
 <p>This happens automatically inside every
 <code>add_&lt;source&gt;()</code> door and inside
 <code><a href="../reference/add_trait.html">add_trait()</a></code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Rubus fruticosus agg. takes the aggregate's trait where the source records</span></span>
 <span><span class="co"># one, otherwise the nominal Rubus fruticosus value.</span></span>
 <span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Rubus fruticosus agg."</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -516,7 +533,7 @@ aggregate-level figure exists.</li>
 <p>The binomial fallback is on by default. Turning it off, per call or
 globally, keeps an aggregate without aggregate-level data as
 <code>NA</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Rubus fruticosus agg."</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"plant_height"</span>, aggregate_trait_fallback <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -546,12 +563,12 @@ a lowercase or uppercase “x”, since herbarium databases, spreadsheet
 exports and OCR output rarely preserve the Unicode character. Data
 arrive in three forms:</p>
 <ol style="list-style-type: decimal">
-<li><p>the Unicode character itself, <code>×</code> (common in
-well-curated databases)</p></li>
-<li><p>a lowercase <code>x</code> surrounded by spaces (common in
-spreadsheets and field data)</p></li>
-<li><p>an uppercase <code>X</code> surrounded by spaces (less common,
-found in older databases and OCR output)</p></li>
+<li>the Unicode character itself, <code>×</code> (common in well-curated
+databases)</li>
+<li>a lowercase <code>x</code> surrounded by spaces (common in
+spreadsheets and field data)</li>
+<li>an uppercase <code>X</code> surrounded by spaces (less common, found
+in older databases and OCR output)</li>
 </ol>
 <p>The Unicode multiplication sign is the character the International
 Code of Nomenclature prescribes. taxify replaces every occurrence of it
@@ -617,7 +634,7 @@ its two parents in <code>matched_name</code> and
 <code>accepted_name</code>, never collapsed to one parent. To work with
 the parents, <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> resolves both against the
 same backbone:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">info</span> <span class="op">&lt;-</span> <span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">formula_rows</span> <span class="op">&lt;-</span> <span class="va">info</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">info</span><span class="op">$</span><span class="va">hybrid_type</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">info</span><span class="op">$</span><span class="va">hybrid_type</span> <span class="op">==</span> <span class="st">"formula"</span>, <span class="op">]</span></span>
 <span><span class="va">formula_rows</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"hybrid_parent_1"</span>, <span class="st">"hybrid_parent_1_accepted"</span>,</span>
@@ -632,11 +649,11 @@ kingdoms, with uneven coverage. GBIF aggregates many sources and
 includes hybrid names where the contributing checklists provide them.
 ITIS, NCBI and OTT have minimal hybrid coverage.</p>
 <p>Hybrid detection is input-side only. taxify detects hybrids in the
-names you supply and does not scan the backbone for hybrid records. If a
+supplied names and does not scan the backbone for hybrid records. If a
 backbone stores “Mentha × piperita” as an accepted name, taxify matches
-your input against it, but the backbone record’s own hybrid status is
-not exposed as a separate field; the <code>is_hybrid</code> column
-reflects your input.</p>
+the input against it, but the backbone record’s own hybrid status is not
+exposed as a separate field; the <code>is_hybrid</code> column reflects
+the input.</p>
 <p>The formula parser expects binomials (genus plus epithet) on both
 sides of the × marker. A formula that includes a subspecies or variety
 rank (e.g., “Salix alba var. vitellina × Salix fragilis”) is still
@@ -647,7 +664,7 @@ precisely than the binomial alone.</p>
 <p>Hybrid names sometimes carry authorship strings (“Mentha ×piperita
 L.”). The cleaning pipeline strips authorship before matching, so an
 author string does not interfere with hybrid detection or matching:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Authorship is stripped; hybrid detection still works</span></span>
 <span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Mentha x piperita L."</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span></code></pre></div>
 <p><code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> parses the parents from the

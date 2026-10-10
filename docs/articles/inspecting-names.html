@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -107,7 +107,7 @@
     
     
 <p>This vignette shows how to screen a species list for the names that
-need attention before analysis. A field list reaches you as a column of
+need attention before analysis. A field list arrives as a column of
 strings, and some of those strings are wrong: a genus is misspelled, an
 animal sits in a list of plants, a synonym slipped in from an old data
 sheet, the same species appears under two spellings.
@@ -118,31 +118,46 @@ most-notable first, each labelled with what stands out and, where known,
 the name to use instead. Clean names are dropped, so a short report
 means a clean list.</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Screen</strong> the raw names against the genus register
-and the rest of the list with <code><a href="../reference/inspect.html">inspect()</a></code>.</p></li>
-<li><p><strong>Match</strong> them to pick up typos, synonyms and
+<li>
+<strong>Screen</strong> the raw names against the genus register and
+the rest of the list with <code><a href="../reference/inspect.html">inspect()</a></code>.</li>
+<li>
+<strong>Match</strong> them to pick up typos, synonyms and
 ambiguity, with <code>backbones = TRUE</code> or by piping in a
-<code><a href="../reference/taxify.html">taxify()</a></code> result.</p></li>
-<li><p><strong>Place</strong> the matched species against a declared
-<code>region</code>, <code>coords</code> or <code>range</code>.</p></li>
-<li><p><strong>Filter</strong> the report to the rows that need action
-with <code>min_tier</code>.</p></li>
-<li><p><strong>Apply</strong> the confident <code>suggestion</code>s and
-re-run <code><a href="../reference/taxify.html">taxify()</a></code> on the corrected list.</p></li>
+<code><a href="../reference/taxify.html">taxify()</a></code> result.</li>
+<li>
+<strong>Place</strong> the matched species against a declared
+<code>region</code>, <code>coords</code> or <code>range</code>.</li>
+<li>
+<strong>Filter</strong> the report to the rows that need action with
+<code>min_tier</code>.</li>
+<li>
+<strong>Apply</strong> the confident <code>suggestion</code>s and
+re-run <code><a href="../reference/taxify.html">taxify()</a></code> on the corrected list.</li>
 </ol>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="a-first-look-without-matching">A first look, without matching<a class="anchor" aria-label="anchor" href="#a-first-look-without-matching"></a>
 </h3>
 <p>By default <code><a href="../reference/inspect.html">inspect()</a></code> runs only the checks that need no
-backbone; it matches nothing unless you ask. On a plain character vector
+backbone; it matches nothing unless asked. On a plain character vector
 it asks the genus register whether each genus is a real one and compares
 each name against the rest of the batch. Both are fast and offline.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,</span>
 <span>  <span class="st">"Panthera leo"</span>,         <span class="co"># an animal among plants</span></span>
@@ -180,7 +195,7 @@ a backbone is matched. That check is opt-in.</p>
 match. The simplest route is <code>backbones = TRUE</code>, which runs
 the names through every installed backbone and records which ones it
 used in the report header.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">names</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   8 names inspected  |  4 with anomalies</span></span>
@@ -196,10 +211,10 @@ used in the report header.</p>
 list-context label and the fuzzy <code>typo</code> label that confirms
 it. <em>Panthera leo</em> now matches in GBIF, so the candidate-typo
 label drops. It stays a kingdom-group outlier in a plant list.</p>
-<p>If you have already matched the list, inspect the result instead of
-asking <code><a href="../reference/inspect.html">inspect()</a></code> to match again. This reuses the exact
-backbone, region, and options of your original call.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>If the list is already matched, inspect the result instead of asking
+<code><a href="../reference/inspect.html">inspect()</a></code> to match again. This reuses the exact backbone,
+region, and options of the original call.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"gbif"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The two routes return the same kind of report. Pass
@@ -213,7 +228,7 @@ result in when matching is already part of the workflow.</p>
 elsewhere is worth a second look. With a declared <code>region</code>,
 <code><a href="../reference/inspect.html">inspect()</a></code> flags matched species that WCVP does not record
 there.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">alpine</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gentiana lutea"</span>, <span class="st">"Primula veris"</span>, <span class="st">"Banksia serrata"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span>region <span class="op">=</span> <span class="st">"Europe"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────</span></span>
@@ -244,7 +259,7 @@ WCVP, which covers vascular plants only.</p>
 <p>On a long list even the <code>note</code> rows add up.
 <code>min_tier</code> raises the floor so the report keeps only what
 needs action.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># only names that need a decision or a second look</span></span>
 <span><span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">names</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span>, min_tier <span class="op">=</span> <span class="st">"review"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────</span></span>
@@ -267,7 +282,7 @@ ordinary data.frame with columns <code>input_name</code>,
 <code>suggestion</code>, <code>anomalies</code>, <code>tier</code>,
 <code>reason</code>, <code>fuzzy_dist</code>, and
 <code>backbone</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">names</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># the names that came back with a confident replacement</span></span>
@@ -400,7 +415,7 @@ so treat it as a starting point.</p>
 against the rest of the batch, so they cannot apply to a single name.
 <code><a href="../reference/inspect.html">inspect()</a></code> on one name warns and reports only the per-name
 labels.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="st">"Quercus robber"</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: list-context anomaly checks need a batch of names; with a single</span></span>
 <span><span class="co">#&gt; name only the per-name checks run.</span></span></code></pre></div>

@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -124,23 +124,37 @@ survived cleaning and every exact pass without a hit, so it never
 overrides an exact match, even when a closer candidate exists under
 another spelling.</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Match</strong> the names with <code><a href="../reference/taxify.html">taxify()</a></code>,
-which falls back to fuzzy matching for names no exact pass
-resolves.</p></li>
-<li><p><strong>Pick</strong> the distance algorithm with
-<code>fuzzy_method</code>.</p></li>
-<li><p><strong>Set</strong> the tolerance with
+<li>
+<strong>Match</strong> the names with <code><a href="../reference/taxify.html">taxify()</a></code>, which
+falls back to fuzzy matching for names no exact pass resolves.</li>
+<li>
+<strong>Pick</strong> the distance algorithm with
+<code>fuzzy_method</code>.</li>
+<li>
+<strong>Set</strong> the tolerance with
 <code>fuzzy_threshold</code>, as a fraction of name length or as a raw
-edit count.</p></li>
-<li><p><strong>Review</strong> the questionable matches by their
-<code>fuzzy_dist</code>.</p></li>
-<li><p><strong>Skip</strong> fuzzy matching for curated lists with
-<code>fuzzy = FALSE</code>.</p></li>
+edit count.</li>
+<li>
+<strong>Review</strong> the questionable matches by their
+<code>fuzzy_dist</code>.</li>
+<li>
+<strong>Skip</strong> fuzzy matching for curated lists with
+<code>fuzzy = FALSE</code>.</li>
 </ol>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="names-that-need-no-fuzzy-matching">Names that need no fuzzy matching<a class="anchor" aria-label="anchor" href="#names-that-need-no-fuzzy-matching"></a>
@@ -148,7 +162,7 @@ edit count.</p></li>
 <p>A curated species list, with or without authorship strings, typically
 resolves entirely by exact match. Fuzzy matching runs but finds nothing
 to do.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">clean_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,</span>
 <span>  <span class="st">"Pinus sylvestris"</span>,</span>
@@ -168,7 +182,7 @@ to do.</p>
 <span><span class="co"># TRUE</span></span></code></pre></div>
 <p>The cleaning pipeline strips authorship before matching, so adding it
 does not change the picture:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">with_authors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur L."</span>,</span>
 <span>  <span class="st">"Pinus sylvestris L."</span>,</span>
@@ -189,7 +203,7 @@ entirely and saves a small amount of time on large lists.</p>
 <p>Species lists transcribed from handwritten field notes or extracted
 from scanned PDFs by OCR arrive with the errors fuzzy matching is
 designed to rescue:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">messy_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Qurecus robur"</span>,         <span class="co"># transposition: ur -&gt; ru</span></span>
 <span>  <span class="st">"Taraxacum officianle"</span>,  <span class="co"># transposition: al -&gt; la</span></span>
@@ -232,14 +246,14 @@ comparisons in parallel via OpenMP.</p>
 <p>Damerau-Levenshtein (<code>fuzzy_method = "dl"</code>, the default)
 counts four edit operations, each costing 1:</p>
 <ul>
-<li><p>insertion: add a character (<em>Querus</em> to
-<em>Quercus</em>)</p></li>
-<li><p>deletion: remove a character (<em>Quercuss</em> to
-<em>Quercus</em>)</p></li>
-<li><p>substitution: replace one character with another
-(<em>Quarcus</em> to <em>Quercus</em>)</p></li>
-<li><p>transposition: swap two adjacent characters (<em>Qurecus</em> to
-<em>Quercus</em>)</p></li>
+<li>insertion: add a character (<em>Querus</em> to
+<em>Quercus</em>)</li>
+<li>deletion: remove a character (<em>Quercuss</em> to
+<em>Quercus</em>)</li>
+<li>substitution: replace one character with another (<em>Quarcus</em>
+to <em>Quercus</em>)</li>
+<li>transposition: swap two adjacent characters (<em>Qurecus</em> to
+<em>Quercus</em>)</li>
 </ul>
 <p>Transpositions are among the most common typos in hand-entered data,
 and counting one as a single edit, where plain Levenshtein counts a
@@ -270,7 +284,7 @@ in the epithet. For general-purpose matching, Damerau-Levenshtein
 remains the safer default.</p>
 <p>The same input list can produce different results under each method,
 most visibly when the errors include transpositions:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">test_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Qurecus robur"</span>,        <span class="co"># transposition in genus</span></span>
 <span>  <span class="st">"Achillea milefolium"</span>,  <span class="co"># deletion (l dropped)</span></span>
@@ -365,7 +379,7 @@ Damerau-Levenshtein column, because Levenshtein charges double for
 transpositions. Jaro-Winkler is consistently the smallest, because the
 shared genus prefix dominates the similarity. This is why the same
 threshold value behaves differently across methods and needs
-recalibrating when you switch.</p>
+recalibrating on a switch.</p>
 </div>
 <div class="section level3">
 <h3 id="setting-the-threshold">Setting the threshold<a class="anchor" aria-label="anchor" href="#setting-the-threshold"></a>
@@ -384,7 +398,7 @@ a 12-character name gets at most 2, because
 <code>3 / 12 = 0.25 &gt; 0.2</code>; a 20-character name gets up to 4.
 The table computes the largest number of edits each threshold allows for
 a few representative names:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nm</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Poa annua"</span>, <span class="st">"Quercus robur"</span>, <span class="st">"Taraxacum officinale"</span>,</span>
 <span>         <span class="st">"Achillea millefolium"</span>, <span class="st">"Brachypodium sylvaticum"</span><span class="op">)</span></span>
 <span><span class="va">len</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nchar</a></span><span class="op">(</span><span class="va">nm</span><span class="op">)</span></span>
@@ -458,7 +472,7 @@ occasionally drops or doubles a single character,
 <code>fuzzy_threshold = 1L</code> captures those errors without
 over-matching on longer names. Integer thresholds are not supported for
 Jaro-Winkler, which does not count discrete edits.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Allow exactly 1 edit, regardless of name length</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Qurecus robur"</span>, <span class="st">"Achillea milefolium"</span>, <span class="st">"Poa anua"</span><span class="op">)</span>,</span>
@@ -470,7 +484,7 @@ Jaro-Winkler, which does not count discrete edits.</p>
 <p>A loose threshold can match names to the wrong species. This is the
 main risk of fuzzy matching, and it is highest for short names and names
 in species-rich genera:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Poa is a large genus with many similar epithets</span></span>
 <span><span class="va">poa_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Poa anua"</span>,       <span class="co"># intended: Poa annua (1 edit)</span></span>
@@ -487,7 +501,7 @@ to 4 edits. That reaches <em>Poa trivialis</em>, the intended target at
 closer in string distance. With 500+ <em>Poa</em> species in the
 backbone, the risk of a false match is real. Tightening the threshold
 removes it:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tight</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">poa_names</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span></span>
 <span><span class="va">tight</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"match_type"</span>, <span class="st">"fuzzy_dist"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co"># "Poa anua" still matches (1/9 = 0.11 &lt; 0.15)</span></span>
@@ -513,7 +527,7 @@ almost always the better setting.</p>
 Latin-normalized ones) and holds the normalized distance, between 0 and
 1 with lower meaning closer, for fuzzy matches. A simple filter
 separates high-confidence matches from questionable ones:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">my_species_list</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># High-confidence fuzzy matches (likely just typos)</span></span>
@@ -529,7 +543,7 @@ and 0.2 means 1-3 edits depending on name length and warrants a glance,
 and anything above 0.15 on a short name (under 10 characters) deserves
 scrutiny. Sorting by <code>fuzzy_dist</code> in descending order puts
 the most suspect matches at the top:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fuzzy_rows</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">match_type</span> <span class="op">==</span> <span class="st">"fuzzy"</span>, <span class="op">]</span></span>
 <span><span class="va">fuzzy_rows</span> <span class="op">&lt;-</span> <span class="va">fuzzy_rows</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">fuzzy_rows</span><span class="op">$</span><span class="va">fuzzy_dist</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">fuzzy_rows</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"fuzzy_dist"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
@@ -552,7 +566,7 @@ choice between a tight and a loose threshold. The first pass runs with a
 tight threshold to get the high-confidence matches; the second runs the
 names still unmatched with a looser threshold, and its additional fuzzy
 matches go to manual review.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Pass 1: conservative</span></span>
 <span><span class="va">pass1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">my_names</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="va">unmatched</span> <span class="op">&lt;-</span> <span class="va">pass1</span><span class="op">$</span><span class="va">input_name</span><span class="op">[</span><span class="va">pass1</span><span class="op">$</span><span class="va">match_type</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">]</span></span>
@@ -586,7 +600,7 @@ everything except the genus. Backbone names are already clean, so this
 step brings user input into the same format, and many names that look as
 if they need fuzzy matching resolve by exact match once the noise is
 gone:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># All three resolve to the same clean form: "Quercus robur"</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur L."</span>,</span>
@@ -638,7 +652,7 @@ threshold, but in the range where manual review is advisable.</p>
 through a name-resolution service, fuzzy matching adds risk without
 benefit. Disabling it also skips the fuzzy join step; on a list of
 100,000 names the difference can be several seconds.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">curated_list</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -650,7 +664,7 @@ two-word names under 12 characters), when the genera are species-rich
 costly (conservation assessments, regulatory lists). A threshold of 0.1
 still catches single-character typos on names of 10+ characters and
 rejects matches that need 2+ edits on shorter names.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">short_grass_list</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -662,7 +676,7 @@ completeness matters more than precision (an initial screening pass
 where unmatched names are expensive to follow up). A threshold of
 0.25-0.3 is reasonable for OCR data; going above 0.3 is rarely
 justified.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">ocr_names</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
 <span><span class="co"># Then filter questionable matches:</span></span>
 <span><span class="va">suspect</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">fuzzy_dist</span> <span class="op">&gt;</span> <span class="fl">0.15</span>, <span class="op">]</span></span></code></pre></div>
@@ -685,7 +699,7 @@ most 1 character”), an integer threshold gives direct control:
 <code>fuzzy_threshold = 1L</code> means at most 1 edit on a name of any
 length. A fractional threshold instead allows a 5-character name 1 edit
 and a 25-character name 5.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Uniform 2-edit budget, regardless of name length</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">my_names</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></code></pre></div>
 </div>

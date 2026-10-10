@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -118,22 +118,36 @@ Distributions (WGSRPD, Brummitt <a href="https://github.com/tdwg/wgsrpd" class="
 WoRMS distribution records rolled up to the Marine Ecoregions of the
 World (MEOW, Spalding et al. <a href="https://doi.org/10.1641/B570707" class="external-link">2007</a>).</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Declare</strong> the region by name or code with the
-<code>region</code> argument of <code><a href="../reference/taxify.html">taxify()</a></code>.</p></li>
-<li><p><strong>Locate</strong> the records by coordinates with
-<code>coords</code>.</p></li>
-<li><p><strong>Narrow</strong> to native or introduced occurrences with
-<code>range</code>.</p></li>
-<li><p><strong>Look up</strong> the accepted region names and codes with
-<code><a href="../reference/taxify_regions.html">taxify_regions()</a></code>.</p></li>
+<li>
+<strong>Declare</strong> the region by name or code with the
+<code>region</code> argument of <code><a href="../reference/taxify.html">taxify()</a></code>.</li>
+<li>
+<strong>Locate</strong> the records by coordinates with
+<code>coords</code>.</li>
+<li>
+<strong>Narrow</strong> to native or introduced occurrences with
+<code>range</code>.</li>
+<li>
+<strong>Look up</strong> the accepted region names and codes with
+<code><a href="../reference/taxify_regions.html">taxify_regions()</a></code>.</li>
 </ol>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
 <p>The example uses a short regional list with two misspellings:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">field_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Gentiana acaulis"</span>, <span class="st">"Primula veris"</span>, <span class="st">"Pulsatilla vulgaris"</span>,</span>
 <span>  <span class="st">"Gentiana acaulary"</span>, <span class="st">"Primula elatour"</span></span>
@@ -145,11 +159,11 @@ World (MEOW, Spalding et al. <a href="https://doi.org/10.1641/B570707" class="e
 three WGSRPD levels: a continent (<code>"Europe"</code>, Level 1), a
 sub-continental region (<code>"Middle Europe"</code>, Level 2) or a
 country (<code>"Belgium"</code>, Level 3). Several regions union.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Belgium"</span>, <span class="st">"Netherlands"</span>, <span class="st">"Germany"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The region acts on fuzzy candidates only. An exact match comes back
 unchanged:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Gentiana acaulis"</span>, region <span class="op">=</span> <span class="st">"Europe"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;         input_name    accepted_name       family match_type fuzzy_dist backbone</span></span>
 <span><span class="co">#&gt; 1 Gentiana acaulis Gentiana acaulis Gentianaceae      exact         NA     COL</span></span></code></pre>
@@ -164,14 +178,14 @@ that constraint.</p>
 </h3>
 <p>Coordinates are mapped to their WGSRPD Level 3 region by
 point-in-polygon, in the order <code>c(lon, lat)</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Brussels</span></span>
 <span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.35</span>, <span class="fl">50.85</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>A two-column matrix or data.frame of points, an <code>sf</code>
 object or a terra <code>SpatVector</code> work too; spatial objects are
 reprojected to longitude/latitude. Points and a <code>region</code> name
 can be combined, and their regions union.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">occ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  lon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.35</span>, <span class="fl">5.12</span>, <span class="fl">4.40</span><span class="op">)</span>,</span>
 <span>  lat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50.85</span>, <span class="fl">51.21</span>, <span class="fl">50.50</span><span class="op">)</span></span>
@@ -188,7 +202,7 @@ forces the choice.</p>
 </h3>
 <p>By default any WCVP record counts as in-region, native or introduced.
 The <code>range</code> argument narrows that:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, region <span class="op">=</span> <span class="st">"Europe"</span>, range <span class="op">=</span> <span class="st">"native"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">field_names</span>, region <span class="op">=</span> <span class="st">"Europe"</span>, range <span class="op">=</span> <span class="st">"introduced"</span><span class="op">)</span></span></code></pre></div>
 <p><code>"native"</code> suits work that should ignore naturalised
@@ -203,12 +217,12 @@ work. <code>range</code> has no effect without a region.</p>
 <p><code><a href="../reference/taxify_regions.html">taxify_regions()</a></code> lists the regions <code>region</code>
 accepts and filters them by a search term matched against the code and
 all three level names. The botanical regions ship with the package:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_regions.html">taxify_regions</a></span><span class="op">(</span><span class="st">"Belgium"</span>, scheme <span class="op">=</span> <span class="st">"wgsrpd"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   code    name   level2_name level1_name scheme</span></span>
 <span><span class="co">#&gt; 1  BGM Belgium Middle Europe      EUROPE wgsrpd</span></span></code></pre></div>
 <p>Each Level 1 region expands to its Level 3 codes:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wgsrpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify_regions.html">taxify_regions</a></span><span class="op">(</span>scheme <span class="op">=</span> <span class="st">"wgsrpd"</span><span class="op">)</span></span>
 <span><span class="va">n_l3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">wgsrpd</span><span class="op">$</span><span class="va">level1_name</span><span class="op">)</span>, stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">n_l3</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Level 1 region"</span>, <span class="st">"Level 3 regions"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -267,12 +281,12 @@ downloads on first use. From then on <code>region</code> takes MEOW
 ecoregion, province and realm names and codes the same way it takes
 botanical ones; a province or realm expands to its member
 ecoregions.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Carcinus maenus"</span>, <span class="st">"Gadus morhua"</span><span class="op">)</span>, region <span class="op">=</span> <span class="st">"North Sea"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;        input_name   accepted_name     family match_type backbone</span></span>
 <span><span class="co">#&gt; 1 Carcinus maenus Carcinus maenas Carcinidae      fuzzy     col</span></span>
 <span><span class="co">#&gt; 2    Gadus morhua    Gadus morhua    Gadidae      exact     col</span></span></code></pre>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/taxify_regions.html">taxify_regions</a></span><span class="op">(</span><span class="st">"Temperate Northern Atlantic"</span>, scheme <span class="op">=</span> <span class="st">"meow"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>A point at sea maps to the MEOW ecoregion containing it and is
 unioned with the botanical lookup, so one <code>coords</code> argument
@@ -289,24 +303,23 @@ up in the range source that owns the resolved region codes and drops an
 out-of-region candidate when another candidate survives. Three rules
 apply:</p>
 <ul>
-<li><p>Exact and case-folded matches are never filtered.</p></li>
-<li><p>A candidate with no range data is kept. Vascular plants and
-marine taxa are covered; a name outside both passes through unchanged,
-so a mixed list can carry a region safely.</p></li>
-<li><p>When every candidate for a name is out of region, all are
-kept.</p></li>
+<li>Exact and case-folded matches are never filtered.</li>
+<li>A candidate with no range data is kept. Vascular plants and marine
+taxa are covered; a name outside both passes through unchanged, so a
+mixed list can carry a region safely.</li>
+<li>When every candidate for a name is out of region, all are kept.</li>
 </ul>
 <p>Marine ranges inherit the grain of the WoRMS locality they were
 recorded against, which runs from a single bay to an ocean basin. The
 median species spans 4 ecoregions and a quarter span exactly one; about
-0.3% span more than half the ocean and are in region wherever you
-ask.</p>
+0.3% span more than half the ocean and are in region wherever it is
+asked.</p>
 <p>The constraint is most useful on regional field lists with
 misspellings, where the intended correction and a wrong one are a single
 edit apart. The related check in <code><a href="../reference/inspect.html">inspect()</a></code> works after
-matching: it flags matched names that WCVP does not record in your
-region, using the same <code>region</code>, <code>coords</code> and
-<code>range</code> arguments.</p>
+matching: it flags matched names that WCVP does not record in the
+declared region, using the same <code>region</code>, <code>coords</code>
+and <code>range</code> arguments.</p>
 </div>
 <div class="section level2">
 <h2 id="where-to-go-next">Where to go next<a class="anchor" aria-label="anchor" href="#where-to-go-next"></a>

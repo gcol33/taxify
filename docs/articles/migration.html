@@ -45,7 +45,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
@@ -120,9 +120,9 @@ thousand names resolve in seconds. Results pipe directly into more than
 eighty published trait and status datasets (IUCN, GRIIS, WCVP, EIVE,
 EltonTraits, etc.) with a single <code>|&gt;</code> chain. Backbones are
 versioned files on disk, and the <code>backbone_version</code> column
-records exactly which snapshot was used. If your workflow already uses
-one of the other packages and you are happy with it, there is no urgent
-reason to switch.</p>
+records exactly which snapshot was used. There is no urgent reason to
+switch a workflow that already uses one of the other packages and works
+well.</p>
 <ol style="list-style-type: decimal">
 <li>
 <strong>Map</strong> each call of the old package to its taxify
@@ -135,13 +135,23 @@ naming the <code>backbone</code> the old package read.</li>
 <code>backbone</code>; unmatched names cascade to the next one.</li>
 <li>
 <strong>Enrich</strong> the result with the <code>add_*()</code>
-layers that <code><a href="../reference/list_enrichments.html">list_enrichments()</a></code> lists, or join your own
+layers that <code><a href="../reference/list_enrichments.html">list_enrichments()</a></code> lists, or join a custom
 table with <code><a href="../reference/add_data.html">add_data()</a></code>.</li>
 </ol>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="the-packages-compared">The packages compared<a class="anchor" aria-label="anchor" href="#the-packages-compared"></a>
@@ -269,12 +279,12 @@ equivalents:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code><a href="https://docs.ropensci.org/taxize/reference/gnr_resolve.html" class="external-link">gnr_resolve()</a></code></td>
+<td><code>gnr_resolve()</code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
 <td>Any backbone; returns best match per name</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification()</a></code></td>
+<td><code>classification()</code></td>
 <td>
 <code><a href="../reference/taxify.html">taxify()</a></code> + <code><a href="../reference/add_classification.html">add_classification()</a></code>
 </td>
@@ -305,7 +315,7 @@ class / order</td>
 <td>The ancestors of a taxon, one row per rank</td>
 </tr>
 <tr class="odd">
-<td><code><a href="https://docs.ropensci.org/taxize/reference/tax_name.html" class="external-link">tax_name()</a></code></td>
+<td><code>tax_name()</code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
 <td>
 <code>family</code>, <code>genus</code>, <code>rank</code>
@@ -350,8 +360,8 @@ retrieves occurrence and sequence data; those tasks are outside taxify’s
 scope, and <a href="#when-another-package-fits-better">When another
 package fits better</a> points to the packages for them.</p>
 <p>taxize returned results in varied formats depending on the function
-(<code><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification()</a></code> gave a nested list of data.frames,
-<code><a href="../reference/synonyms.html">synonyms()</a></code> another nested list, <code><a href="https://docs.ropensci.org/taxize/reference/get_tsn.html" class="external-link">get_tsn()</a></code> a
+(<code>classification()</code> gave a nested list of data.frames,
+<code><a href="../reference/synonyms.html">synonyms()</a></code> another nested list, <code>get_tsn()</code> a
 character vector with attributes). taxify returns the same 27-column
 data.frame from every <code><a href="../reference/taxify.html">taxify()</a></code> call, with synonym status,
 classification, and match quality as columns.</p>
@@ -372,23 +382,23 @@ classification, and match quality as columns.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code></td>
+<td><code>WFO.match()</code></td>
 <td><code>taxify(backbone = "wfo")</code></td>
-<td>Both do exact + fuzzy in one call. <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code> returns
+<td>Both do exact + fuzzy in one call. <code>WFO.match()</code> returns
 several candidate rows per input name</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one()</a></code></td>
+<td><code>WFO.one()</code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
-<td>The selection step. <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one()</a></code> collapses
-<code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code>’s candidate rows to one best match per input;
+<td>The selection step. <code>WFO.one()</code> collapses
+<code>WFO.match()</code>’s candidate rows to one best match per input;
 <code><a href="../reference/taxify.html">taxify()</a></code> returns one best-match row directly, so the two
 steps are one call</td>
 </tr>
 <tr class="odd">
-<td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html" class="external-link">WFO.match.fuzzyjoin()</a></code></td>
+<td><code>WFO.match.fuzzyjoin()</code></td>
 <td><code>taxify(backbone = "wfo")</code></td>
-<td>Same matching as <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code>, faster
+<td>Same matching as <code>WFO.match()</code>, faster
 <code>fuzzyjoin</code>-based engine; taxify is fast by default, so there
 is no separate call</td>
 </tr>
@@ -461,7 +471,7 @@ an in-package data object</td>
 <p>The LCVP and WCVP backbones can be combined in a single fallback
 chain to arbitrate between the Leipzig and Kew vascular-plant
 authorities:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plant_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">plant_names</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wcvp"</span>, <span class="st">"lcvp"</span>, <span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
@@ -589,8 +599,8 @@ shape. taxadb is built around exact lookups against pre-cleaned input;
 taxify cleans the input and runs fuzzy matching on names that do not
 match exactly, which catches typos, orthographic variants, and
 authorship strings without a separate preprocessing step. taxadb returns
-multiple rows per input when a name has multiple matches, and you pick
-the row you want with <code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">dplyr::filter</a></code>. taxify returns one row
+multiple rows per input when a name has multiple matches, and the wanted
+row is picked with <code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">dplyr::filter</a></code>. taxify returns one row
 per input with a best-match selection rule (ACCEPTED over SYNONYM,
 species rank over higher ranks, lowest ID as tiebreaker), and reports
 the match type and fuzzy distance as columns.</p>
@@ -635,23 +645,23 @@ across the three large vascular-plant authorities.</p>
 <h3 id="basic-name-resolution">Basic name resolution<a class="anchor" aria-label="anchor" href="#basic-name-resolution"></a>
 </h3>
 <p>With taxize, name resolution typically meant several separate calls:
-<code><a href="https://docs.ropensci.org/taxize/reference/gnr_resolve.html" class="external-link">gnr_resolve()</a></code> for matching, <code><a href="https://docs.ropensci.org/taxize/reference/get_gbifid.html" class="external-link">get_gbifid()</a></code> for
-IDs, <code><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification()</a></code> for hierarchy,
+<code>gnr_resolve()</code> for matching, <code>get_gbifid()</code> for
+IDs, <code>classification()</code> for hierarchy,
 <code><a href="../reference/synonyms.html">synonyms()</a></code> for synonym status.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxize ---</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span>,</span>
 <span>           <span class="st">"Panthera leo"</span>, <span class="st">"Salmo trutta"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">resolved</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/taxize/reference/gnr_resolve.html" class="external-link">gnr_resolve</a></span><span class="op">(</span><span class="va">names</span>, best_match_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">gbif_ids</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/taxize/reference/get_gbifid.html" class="external-link">get_gbifid</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span></span>
-<span><span class="va">class_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/taxize/reference/classification.html" class="external-link">classification</a></span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
+<span><span class="va">resolved</span>  <span class="op">&lt;-</span> <span class="fu">gnr_resolve</span><span class="op">(</span><span class="va">names</span>, best_match_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">gbif_ids</span>  <span class="op">&lt;-</span> <span class="fu">get_gbifid</span><span class="op">(</span><span class="va">names</span><span class="op">)</span></span>
+<span><span class="va">class_list</span> <span class="op">&lt;-</span> <span class="fu">classification</span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
 <span><span class="va">syn_list</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/synonyms.html">synonyms</a></span><span class="op">(</span><span class="va">gbif_ids</span>, db <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span></code></pre></div>
 <p>With taxify, all of that is one call, returning a data.frame with 27
 columns and one row per input name:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span>,</span>
 <span>           <span class="st">"Panthera leo"</span>, <span class="st">"Salmo trutta"</span><span class="op">)</span></span>
@@ -671,7 +681,7 @@ columns and one row per input name:</p>
 match (exact and fuzzy together, here with the faster
 <code>fuzzyjoin</code> engine), then collapses the candidate rows to one
 best match per input.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- WorldFlora ---</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">WorldFlora</span><span class="op">)</span></span>
 <span></span>
@@ -679,11 +689,11 @@ best match per input.</p>
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>,</span>
 <span>           <span class="st">"Pinus silvestris"</span>, <span class="st">"Rosa canina"</span><span class="op">)</span></span>
-<span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html" class="external-link">WFO.match.fuzzyjoin</a></span><span class="op">(</span><span class="va">names</span>, WFO.data <span class="op">=</span> <span class="va">wfo_data</span><span class="op">)</span></span>
-<span><span class="va">best</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu">WFO.match.fuzzyjoin</span><span class="op">(</span><span class="va">names</span>, WFO.data <span class="op">=</span> <span class="va">wfo_data</span><span class="op">)</span></span>
+<span><span class="va">best</span>    <span class="op">&lt;-</span> <span class="fu">WFO.one</span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span></code></pre></div>
 <p>In taxify, exact matching, fuzzy matching, and synonym resolution
 happen in a single call:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># --- taxify ---</span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>,</span>
 <span>           <span class="st">"Pinus silvestris"</span>, <span class="st">"Rosa canina"</span><span class="op">)</span></span>
@@ -710,7 +720,7 @@ The fuzzy matcher corrects the spelling to
 </h3>
 <p>A vector of backbones forms a fallback chain: names left unmatched by
 one backbone cascade to the next.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mixed kingdom input: plants, animals, fungi</span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>,         <span class="co"># plant (matched by WFO)</span></span>
@@ -753,7 +763,7 @@ functional traits, morphological measurements, and vernacular names, and
 join to the result through the <code>add_*()</code> functions.
 <code><a href="../reference/list_enrichments.html">list_enrichments()</a></code> lists every source-named
 <code>add_*()</code> door with its metadata:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Each enrichment downloads on first use and is cached locally,
 following the same pattern as backbones. The cross-source
@@ -762,7 +772,7 @@ that carries it.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="key-differences-at-a-glance">Key differences at a glance<a class="anchor" aria-label="anchor" href="#key-differences-at-a-glance"></a>
+<h2 id="key-differences">Key differences<a class="anchor" aria-label="anchor" href="#key-differences"></a>
 </h2>
 <p><strong>Offline matching.</strong> taxify downloads backbone files
 once and matches locally. After the initial download (typically 50–300
@@ -969,7 +979,7 @@ GBIF API.</p></li>
 <code><a href="../reference/downstream.html">downstream()</a></code> and <code><a href="../reference/children.html">children()</a></code> list descendants
 from the backbone’s classification, and <code><a href="../reference/class2tree.html">class2tree()</a></code> builds
 a taxonomy tree from it. For the Open Tree of Life synthetic tree, use
-rotl (<code><a href="https://docs.ropensci.org/rotl/reference/tol_subtree.html" class="external-link">rotl::tol_subtree()</a></code>); rgbif’s
+rotl (<code>rotl::tol_subtree()</code>); rgbif’s
 <code>name_usage(key, data = "children")</code> lists the children of a
 GBIF usage key live. For phylogenetic data, use rotl or
 phylomatic.</p></li>
@@ -980,8 +990,8 @@ GenBank/NCBI queries directly.</p></li>
 <li><p><strong>Wider biodiversity-data cleaning.</strong> <a href="https://brunobrr.github.io/bdc/" class="external-link">bdc</a> wraps the entire
 data-cleaning workflow (coordinate cleaning, dataset merging, taxonomic
 harmonization, occurrence flagging). taxify can replace its taxonomic
-step alone if you prefer offline backbones over taxadb + GNR; the rest
-of bdc’s pipeline is outside taxify’s scope.</p></li>
+step alone when offline backbones are preferred over taxadb + GNR; the
+rest of bdc’s pipeline is outside taxify’s scope.</p></li>
 <li><p><strong>Interactive, per-name resolution with manual
 disambiguation.</strong> taxize had interactive modes where the user
 could pick among multiple candidates. taxify picks the best match
