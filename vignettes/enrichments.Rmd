@@ -37,6 +37,19 @@ below cite each layer's source, among them woodiness (Zanne et al.
 5. **Check** coverage and data versions with `summary()`.
 6. **Join** custom data with `add_data()`.
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ## Example
 
 ```{r, eval = TRUE, message = FALSE, warning = FALSE}

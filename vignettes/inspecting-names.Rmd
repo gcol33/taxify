@@ -35,6 +35,19 @@ names are dropped, so a short report means a clean list.
 5. **Apply** the confident `suggestion`s and re-run `taxify()` on the corrected
    list.
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ## Example
 
 ```{r, eval = TRUE, message = FALSE, warning = FALSE}

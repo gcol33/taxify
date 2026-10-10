@@ -30,6 +30,19 @@ Name matching runs offline. Requests and downloads require
 [rgbif](https://CRAN.R-project.org/package=rgbif). The default download method
 also requires a free GBIF account; see [Setting up rgbif](#setting-up-rgbif).
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ```{r}
 library(taxify)
 

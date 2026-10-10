@@ -15,6 +15,19 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ```{r va-engine, echo = FALSE, results = "asis", eval = TRUE}
 cat('
 <style>

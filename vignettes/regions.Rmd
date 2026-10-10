@@ -33,6 +33,19 @@ Spalding et al. [2007](https://doi.org/10.1641/B570707)).
 3. **Narrow** to native or introduced occurrences with `range`.
 4. **Look up** the accepted region names and codes with `taxify_regions()`.
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ## Example
 
 ```{r, eval = TRUE, message = FALSE, warning = FALSE}

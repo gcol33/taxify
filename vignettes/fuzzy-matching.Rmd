@@ -34,6 +34,19 @@ exact match, even when a closer candidate exists under another spelling.
 4. **Review** the questionable matches by their `fuzzy_dist`.
 5. **Skip** fuzzy matching for curated lists with `fuzzy = FALSE`.
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ## Example
 
 ```{r, eval = TRUE, message = FALSE, warning = FALSE}

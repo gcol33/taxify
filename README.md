@@ -9,15 +9,6 @@
 [![Codecov test coverage](https://codecov.io/gh/gcol33/taxify/graph/badge.svg)](https://app.codecov.io/gh/gcol33/taxify)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Overview
-
-Hand `taxify` a column of messy species names. It cleans them, matches them against a
-Darwin Core backbone on your disk, resolves synonyms to accepted names, and returns one
-standardized data.frame. Every step runs locally against a versioned snapshot, so there
-are no API calls, no rate limits, and the same input gives the same output on any machine.
-A list of thousands resolves in seconds, with the matching engine written in C through the
-[vectra](https://github.com/gcol33/vectra) columnar engine.
-
 ## Installation
 
 ```r
@@ -30,6 +21,15 @@ Or the development version from GitHub:
 install.packages("pak")
 pak::pak("gcol33/taxify")          # vectra is installed automatically
 ```
+
+## Overview
+
+Hand `taxify` a column of messy species names. It cleans them, matches them against a
+Darwin Core backbone on your disk, resolves synonyms to accepted names, and returns one
+standardized data.frame. Every step runs locally against a versioned snapshot, so there
+are no API calls, no rate limits, and the same input gives the same output on any machine.
+A list of thousands resolves in seconds, with the matching engine written in C through the
+[vectra](https://github.com/gcol33/vectra) columnar engine.
 
 ## Usage
 

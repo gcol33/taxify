@@ -25,6 +25,19 @@ link <- function(url) {
 }
 ```
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ```{=html}
 <style>
 /* This page only: the manifest tables are wide, so widen the layout and let the

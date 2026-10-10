@@ -39,6 +39,19 @@ other packages and works well.
 4. **Enrich** the result with the `add_*()` layers that `list_enrichments()`
    lists, or join a custom table with `add_data()`.
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ## Example
 
 ```{r, eval = TRUE, message = FALSE, warning = FALSE}

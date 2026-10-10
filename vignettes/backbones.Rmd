@@ -35,6 +35,19 @@ metadata columns are available downstream.
 7. **Diagnose** names outside a backbone's scope with `lookup_genus()` and
    `taxify_register_coverage()`.
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ## Example
 
 ```{r, eval = TRUE, message = FALSE, warning = FALSE}

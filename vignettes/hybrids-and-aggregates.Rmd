@@ -34,6 +34,19 @@ nominal binomial.
 4. **Attach** traits with `add_trait()` or an `add_<source>()` door, which fall
    back to a hybrid's parents and an aggregate's binomial.
 
+## Installation
+
+```{r, eval = FALSE}
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+```{r, eval = FALSE}
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 ## Example
 
 ```{r, eval = TRUE, message = FALSE, warning = FALSE}
