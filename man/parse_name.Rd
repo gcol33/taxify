@@ -4,13 +4,19 @@
 \alias{parse_name}
 \title{Parse taxonomic names into their structural parts}
 \usage{
-parse_name(x)
+parse_name(x, code = c("taxon", "syntaxon"))
 }
 \arguments{
 \item{x}{Character vector of taxonomic names.}
+
+\item{code}{Character. The nomenclature the names follow: \code{"taxon"}
+(default; botanical and zoological names) or \code{"syntaxon"} (vegetation
+units under the International Code of Phytosociological Nomenclature,
+the names a syntaxon backbone such as \code{"evc"} matches; see \code{\link[=taxify]{taxify()}}).}
 }
 \value{
-A data.frame with one row per input name and columns:
+For \code{code = "taxon"}, a data.frame with one row per input name and
+columns:
 \describe{
 \item{input_name}{The original name as supplied.}
 \item{genus}{The genus (first token), or a single-letter initial for an
@@ -34,6 +40,29 @@ and any infraspecific rank marker in its canonical spelling, qualifiers
 and authorship removed, hybrid sign dropped). \code{NA} for a hybrid formula,
 which is not a single taxon.}
 }
+
+For \code{code = "syntaxon"}, a data.frame with one row per input name and
+columns:
+\describe{
+\item{input_name}{The original name as supplied.}
+\item{code}{A national or database code written in front of the name
+(\code{"TDA - Arrhenatherion elatioris"}, \code{"41BB03 - Tilio-Carpinetum"}), or
+\code{NA}.}
+\item{name}{The syntaxon name without author or annotations, the form
+the matcher looks up. Where a record names several units, the most
+specific rank-labelled one (\code{"all. X, ord. Y"}), else the first.}
+\item{authorship}{The author citation (\code{"(Oberd. 1957) Passarge 1964"}),
+or \code{NA}.}
+\item{rank}{The rank the name's suffix denotes: \code{"class"} (-etea),
+\code{"order"} (-etalia), \code{"alliance"} (-ion), \code{"suballiance"} (-enion),
+\code{"association"} (-etum), \code{"subassociation"} (a trailing -etosum),
+\code{"subclass"}, \code{"suborder"}, or \code{NA}.}
+\item{qualifier}{\code{"?"} for a doubtful assignment, \code{"cf."}, \code{"s.l."},
+\code{"s.str."}, or \code{NA}.}
+\item{name_status}{Nomenclatural annotations after the citation
+(\code{"nom. inval. (5a)"}, \code{"(syntax.syn.)"}, \code{"(Regionalverband)"}), or
+\code{NA}.}
+}
 }
 \description{
 Decomposes each name into genus, specific epithet, infraspecific rank and
@@ -50,6 +79,11 @@ parse_name(c("Quercus robur L.",
              "Q. robur",
              "Pinus cf. sylvestris",
              "Salix alba x Salix fragilis"))
+
+parse_name(c("Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967",
+             "TDA - Arrhenatherion elatioris",
+             "Conioselinion tatarici Golub et al. 2003 nom. inval. (5a)"),
+           code = "syntaxon")
 
 }
 \seealso{

@@ -395,6 +395,75 @@
         "url": "https://www.catalogueoflife.org"
       },
       "content_url": "https://github.com/gcol33/taxifydb/releases/download/colxr-2026.09/colxr-d745272af67c07d7395e9ed97a1bdb73.vtr"
+    },
+    "evc": {
+      "latest": "4",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/evc-4/evc.vtr",
+      "full_size": 1837139,
+      "full_sha256": "0d472de06860abd7d3060e70938d2103b0f7fc2560f2d46d6cea5cea1002e83b",
+      "content_id": "c6e559518cdf9143bb59169b3ec2327e",
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/evc-4/evc-c6e559518cdf9143bb59169b3ec2327e.vtr",
+      "nrow": 7542,
+      "source_url": "https://floraveg.eu/vegetation/",
+      "source_date": "2026-10-12",
+      "citation": [
+        {
+          "key": "mucina2016evc",
+          "type": "article",
+          "authors": "Mucina L, Bültmann H, Dierßen K, Theurillat J-P, Raus T, Čarni A, et al.",
+          "year": "2016",
+          "title": "Vegetation of Europe: hierarchical floristic classification system of vascular plant, bryophyte, lichen, and algal communities",
+          "journal": "Applied Vegetation Science",
+          "volume": "19 (Suppl. 1)",
+          "pages": "3-264",
+          "doi": "10.1111/avsc.12257"
+        },
+        {
+          "key": "chytry2024floraveg",
+          "type": "article",
+          "authors": "Chytrý M, Řezníčková M, Novotný P, Holubová D, Preislerová Z, Attorre F, et al.",
+          "year": "2024",
+          "title": "FloraVeg.EU -- an online database of European vegetation, habitats and flora",
+          "journal": "Applied Vegetation Science",
+          "volume": "27",
+          "pages": "e12798",
+          "doi": "10.1111/avsc.12798",
+          "note": "EuroVegChecklist version 4 (2025-06-17), synonyms from FloraVeg.EU accessed 2026-10-12"
+        }
+      ]
+    },
+    "vegcz": {
+      "latest": "2026.10",
+      "full_url": "https://github.com/gcol33/taxifydb/releases/download/vegcz-2026.10/vegcz.vtr",
+      "full_size": 537578,
+      "full_sha256": "668d5eabcf61988e42c28e8983f5c3f1f3308d30eba423b2a8b9fa910e23e213",
+      "content_id": "68db83169e57ca167c8407f50508abb6",
+      "content_url": "https://github.com/gcol33/taxifydb/releases/download/vegcz-2026.10/vegcz-68db83169e57ca167c8407f50508abb6.vtr",
+      "nrow": 2258,
+      "source_url": "https://pladias.cz/en/vegetation/",
+      "source_date": "2026-10-12",
+      "citation": [
+        {
+          "key": "chytry2007vegcz",
+          "type": "book",
+          "authors": "Chytrý M (ed.)",
+          "year": "2007-2013",
+          "title": "Vegetace České republiky 1-4 [Vegetation of the Czech Republic 1-4]",
+          "publisher": "Academia, Praha"
+        },
+        {
+          "key": "chytry2021pladias",
+          "type": "article",
+          "authors": "Chytrý M, Danihelka J, Kaplan Z, Wild J, Holubová D, Novotný P, et al.",
+          "year": "2021",
+          "title": "Pladias Database of the Czech Flora and Vegetation",
+          "journal": "Preslia",
+          "volume": "93",
+          "pages": "1-87",
+          "doi": "10.23855/preslia.2021.001",
+          "note": "vegetation units and synonyms accessed 2026-10-12"
+        }
+      ]
     }
   },
   "enrichments": {

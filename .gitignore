@@ -8,6 +8,8 @@
 data-raw/*
 !data-raw/make_example_db.R
 !data-raw/exampledb/
+!data-raw/extract_syntaxon_examples.R
+!data-raw/syntaxa/
 docs/euro-med-plan.md
 inst/doc
 .claude/

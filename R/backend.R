@@ -111,11 +111,12 @@ taxify_load.taxify_backend <- function(backend, path = NULL, ...) {
 #' @exportS3Method
 match_exact.taxify_backend <- function(backend, names_df, vtr_path, ...) {
   n <- nrow(names_df)
-  result <- empty_match_result(n)
+  result <- empty_match_result(n, hierarchy = backend$col_map$hierarchy)
   result$input_name <- names_df$original
   result$is_hybrid  <- names_df$is_hybrid
 
-  match_exact_compiled(result, names_df, vtr_path, backend$col_map)
+  match_exact_compiled(result, names_df, vtr_path, backend$col_map,
+                       normalize = code_spec(backend$code %||% "taxon")$normalize)
 }
 
 
@@ -126,6 +127,7 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, vtr_path,
                                        range_mode = "present", ...) {
   result  <- unmatched_df
   col_map <- backend$col_map
+  fuzzy_filter <- code_spec(backend$code %||% "taxon")$fuzzy_filter
 
   if (method == "jw" && threshold >= 1) {
     stop("fuzzy_threshold must be < 1 for fuzzy_method = 'jw' (Jaro-Winkler range is 0-1)")
@@ -133,12 +135,14 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, vtr_path,
 
   result <- fuzzy_match_via_join(result, names_df, vtr_path, method, threshold,
                                  col_map, region = region,
-                                 range_mode = range_mode)
+                                 range_mode = range_mode,
+                                 fuzzy_filter = fuzzy_filter)
 
   if (isTRUE(backend$prefix_fallback)) {
     result <- fuzzy_match_prefix_blocked(result, names_df, vtr_path, method,
                                          threshold, col_map, region = region,
-                                         range_mode = range_mode)
+                                         range_mode = range_mode,
+                                         fuzzy_filter = fuzzy_filter)
   }
 
   result
@@ -160,8 +164,9 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, vtr_path,
 #' @param id_col Name of the taxon ID column.
 #' @param acc_id_col Name of the accepted name usage ID column.
 #' @param name_col Name of the canonical name column.
-#' @param family_col Name of the family column.
-#' @param genus_col Name of the genus column.
+#' @param family_col Name of the family column, or `NULL` for a backbone
+#'   without one (a syntaxon backbone); `accepted_family` is then not added.
+#' @param genus_col Name of the genus column, or `NULL` likewise.
 #' @param status_col Name of the taxonomic status column.
 #' @param synonym_pattern Regex pattern to detect synonyms in status column.
 #' @param authorship_col Optional name of the authorship column. When supplied,
@@ -173,8 +178,8 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, vtr_path,
 #'   accepted_genus, accepted_taxon_id, accepted_authorship, is_synonym.
 #' @keywords internal
 #' @export
-embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
-                           genus_col, status_col,
+embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col = NULL,
+                           genus_col = NULL, status_col,
                            synonym_pattern = "SYNONYM",
                            authorship_col = NULL) {
   n <- nrow(df)
@@ -187,12 +192,20 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
 
   have_auth <- !is.null(authorship_col) && authorship_col %in% names(df)
 
-  df$accepted_name       <- df[[name_col]]
-  df$accepted_family     <- df[[family_col]]
-  df$accepted_genus      <- df[[genus_col]]
-  df$accepted_taxon_id   <- df[[id_col]]
-  df$accepted_authorship <- if (have_auth) df[[authorship_col]] else NA_character_
-  df$is_synonym          <- FALSE
+  # Each embedded accepted_* column and the source column it copies from the
+  # accepted row. A backbone without a family or genus (a syntaxon backbone)
+  # carries no accepted_family / accepted_genus.
+  carry <- c(accepted_name = name_col, accepted_family = family_col,
+             accepted_genus = genus_col, accepted_taxon_id = id_col,
+             accepted_authorship = if (have_auth) authorship_col)
+  copy_from <- function(df, rows, from) {
+    for (k in names(carry)) df[[k]][rows] <- df[[carry[[k]]]][from]
+    df
+  }
+
+  for (k in names(carry)) df[[k]] <- df[[carry[[k]]]]
+  if (!have_auth) df$accepted_authorship <- NA_character_
+  df$is_synonym <- FALSE
 
   # Build ID → row index lookup
   id_to_row <- match(df[[acc_id_col]], df[[id_col]])
@@ -200,14 +213,8 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
   # One-hop resolution
   resolved <- is_syn & !is.na(id_to_row)
   if (any(resolved)) {
-    target_rows <- id_to_row[resolved]
-    df$accepted_name[resolved]     <- df[[name_col]][target_rows]
-    df$accepted_family[resolved]   <- df[[family_col]][target_rows]
-    df$accepted_genus[resolved]    <- df[[genus_col]][target_rows]
-    df$accepted_taxon_id[resolved] <- df[[id_col]][target_rows]
-    if (have_auth)
-      df$accepted_authorship[resolved] <- df[[authorship_col]][target_rows]
-    df$is_synonym[resolved]        <- TRUE
+    df <- copy_from(df, resolved, id_to_row[resolved])
+    df$is_synonym[resolved] <- TRUE
   }
 
   # Unresolvable synonyms (accepted ID not found): keep as synonym, self-ref
@@ -237,12 +244,7 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
     chain_idx <- which(chain)[has_next]
     next_row <- next_row[has_next]
 
-    df$accepted_name[chain_idx]     <- df[[name_col]][next_row]
-    df$accepted_family[chain_idx]   <- df[[family_col]][next_row]
-    df$accepted_genus[chain_idx]    <- df[[genus_col]][next_row]
-    df$accepted_taxon_id[chain_idx] <- df[[id_col]][next_row]
-    if (have_auth)
-      df$accepted_authorship[chain_idx] <- df[[authorship_col]][next_row]
+    df <- copy_from(df, chain_idx, next_row)
   }
 
   df
@@ -253,18 +255,31 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col,
 #'
 #' Used by the `taxifydb` build pipeline and by taxify's own test fixtures.
 #' Adds `key_ci`, `key_normalized`, `key_species`, and `fuzzy_block` columns
-#' to the backbone data.frame for direct lookup at query time.
+#' to the backbone data.frame for direct lookup at query time. For a syntaxon
+#' backbone (`code = "syntaxon"`) it adds `key_ci`, `key_normalized` (from
+#' [normalize_syntaxon_name()]), `block_key`, the name's first word, which
+#' the fuzzy pass groups candidates by, and `key_stem`, the name's plant-name
+#' stems without their epithets, which resolves a unit written in short form;
+#' a syntaxon has no genus or epithet.
 #'
 #' @param df The backbone data.frame.
 #' @param name_col Name of the canonical name column.
-#' @param genus_col Name of the genus column.
-#' @param epithet_col Name of the specific epithet column.
+#' @param genus_col Name of the genus column (taxon code only).
+#' @param epithet_col Name of the specific epithet column (taxon code only).
+#' @param code Nomenclature code of the backbone: `"taxon"` (default) or
+#'   `"syntaxon"`.
 #' @return The data.frame with added key columns.
 #' @keywords internal
 #' @export
-precompute_keys <- function(df, name_col, genus_col, epithet_col) {
+precompute_keys <- function(df, name_col, genus_col = NULL, epithet_col = NULL,
+                            code = "taxon") {
   df$key_ci <- tolower(df[[name_col]])
-  df$key_normalized <- normalize_epithets(df[[name_col]])
+  df$key_normalized <- code_spec(code)$normalize(df[[name_col]])
+  if (code != "taxon") {
+    df$block_key <- sub(" .*$", "", df[[name_col]])
+    df$key_stem  <- syntaxon_stem_key(df[[name_col]])
+    return(df)
+  }
 
   # key_species: "Genus epithet" for infraspecific names (3+ words)
   # Allows fallback from "Genus epithet var. foo" to "Genus epithet"
@@ -297,9 +312,12 @@ precompute_keys <- function(df, name_col, genus_col, epithet_col) {
 #' @param names_df The cleaned names data.frame from `clean_names()`.
 #' @param vtr_path Path to the compiled backbone .vtr.
 #' @param col_map Named list mapping logical roles to column names.
+#' @param normalize The nomenclature code's normalization key function (the
+#'   one the backbone's `key_normalized` was built with).
 #' @return The updated result data.frame.
 #' @noRd
-match_exact_compiled <- function(result, names_df, vtr_path, col_map) {
+match_exact_compiled <- function(result, names_df, vtr_path, col_map,
+                                 normalize = normalize_epithets) {
   cleaned     <- names_df$cleaned
   genus_only  <- names_df$genus_only
   has_name    <- !is.na(cleaned)
@@ -387,7 +405,7 @@ match_exact_compiled <- function(result, names_df, vtr_path, col_map) {
     norm_still <- is_formula & is.na(result$match_type)
     if (any(norm_still)) {
       result <- lookup_and_fill(result,
-                                normalize_epithets(hybrid_name[which(norm_still)]),
+                                normalize(hybrid_name[which(norm_still)]),
                                 which(norm_still), "key_normalized", "exact_ci")
     }
   }
@@ -425,11 +443,11 @@ match_exact_compiled <- function(result, names_df, vtr_path, col_map) {
     norm_mask <- has_key & is.na(result$match_type)
     if (any(norm_mask)) {
       norm_idx <- which(norm_mask)
-      nk_keys  <- normalize_epithets(key[norm_mask])
+      nk_keys  <- normalize(key[norm_mask])
       nk_ridx  <- norm_idx
       if (v == 1L) {
         norm_hybrid <- ifelse(!is.na(hybrid_name[norm_mask]),
-                              normalize_epithets(hybrid_name[norm_mask]),
+                              normalize(hybrid_name[norm_mask]),
                               NA_character_)
         has_hyb <- !is.na(norm_hybrid)
         nk_ridx <- c(nk_ridx, norm_idx[has_hyb])
@@ -553,7 +571,8 @@ fill_compiled_matches <- function(result, matches, match_type, col_map) {
 #' The one place a picked backbone row becomes result columns, shared by every
 #' matching pass: the matched record's own name, ID, rank, authorship and
 #' status, the accepted taxon it resolves to (with that taxon's family and
-#' genus), and every accepted ID among the candidates. `match_type` and `fuzzy_dist` describe how
+#' genus, or for a syntaxon backbone its ancestors in `col_map$hierarchy`),
+#' and every accepted ID among the candidates. `match_type` and `fuzzy_dist` describe how
 #' the row was reached and are left to the caller.
 #'
 #' @param result Match result data.frame.
@@ -571,8 +590,9 @@ write_match_rows <- function(result, idx, best, col_map) {
   result$matched_name[idx]        <- best[[col_map$name]]
   result$taxon_id[idx]            <- best[[col_map$id]]
   result$rank[idx]                <- tolower(best[[col_map$rank]])
-  result$family[idx]              <- best$accepted_family
-  result$genus[idx]               <- best$accepted_genus
+  result$family[idx]              <- col_or_na("accepted_family")
+  result$genus[idx]               <- col_or_na("accepted_genus")
+  for (h in col_map$hierarchy) result[[h]][idx] <- col_or_na(h)
   result$epithet[idx]             <- col_or_na(col_map$epithet)
   result$authorship[idx]          <- col_or_na(col_map$authorship)
   result$accepted_authorship[idx] <- col_or_na("accepted_authorship")
@@ -671,7 +691,7 @@ filter_by_raw_edits <- function(matches, threshold, probe_col, build_col) {
 #' @noRd
 fuzzy_match_via_join <- function(result, names_df, vtr_path, method, threshold,
                                  col_map, region = NULL,
-                                 range_mode = "present") {
+                                 range_mode = "present", fuzzy_filter = NULL) {
   unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
   if (length(unmatched_rows) == 0L) return(result)
 
@@ -739,6 +759,9 @@ fuzzy_match_via_join <- function(result, names_df, vtr_path, method, threshold,
   )
 
   matches <- filter_by_raw_edits(matches, threshold, "cleaned_name", col_map$name)
+  if (!is.null(fuzzy_filter)) {
+    matches <- fuzzy_filter(matches, names_df, col_map$name)
+  }
 
   if (nrow(matches) > 0L) {
     matches <- standardize_pick_cols(matches, col_map)
@@ -817,7 +840,8 @@ get_fuzzy_bb <- function(vtr_path, col_map) {
 #' @noRd
 fuzzy_match_prefix_blocked <- function(result, names_df, vtr_path, method,
                                        threshold, col_map, region = NULL,
-                                       range_mode = "present") {
+                                       range_mode = "present",
+                                       fuzzy_filter = NULL) {
   unmatched_rows <- which(is.na(result$match_type) & !is.na(result$input_name))
   if (length(unmatched_rows) == 0L) return(result)
 
@@ -880,6 +904,9 @@ fuzzy_match_prefix_blocked <- function(result, names_df, vtr_path, method,
   )
 
   matches <- filter_by_raw_edits(matches, threshold, "cleaned_name", col_map$name)
+  if (!is.null(fuzzy_filter)) {
+    matches <- fuzzy_filter(matches, names_df, col_map$name)
+  }
 
   if (nrow(matches) > 0L) {
     matches <- standardize_pick_cols(matches, col_map)
@@ -1039,10 +1066,12 @@ resolve_backend <- function(backbone) {
 #' Create an empty match result data.frame
 #'
 #' @param n Integer. Number of rows.
+#' @param hierarchy Names of the hierarchy columns a syntaxon backbone writes
+#'   (`col_map$hierarchy`), added after the standard columns; `NULL` for none.
 #' @return A data.frame with all match columns initialized to NA.
 #' @noRd
-empty_match_result <- function(n) {
-  data.frame(
+empty_match_result <- function(n, hierarchy = NULL) {
+  out <- data.frame(
     input_name        = character(n),
     matched_name      = NA_character_,
     accepted_name     = NA_character_,
@@ -1066,6 +1095,8 @@ empty_match_result <- function(n) {
     backbone_version  = NA_character_,
     stringsAsFactors  = FALSE
   )
+  for (h in hierarchy) out[[h]] <- rep(NA_character_, n)
+  out
 }
 
 

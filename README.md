@@ -103,10 +103,22 @@ broad aggregators GBIF, ITIS, NCBI, and OTT.
 | [Mammal Diversity Database](https://www.mammaldiversity.org/) | Mammals | 62k | 11 MB |
 | [AviList](https://www.avilist.org/) | Birds | 41k | 8 MB |
 | [LPSN](https://lpsn.dsmz.de) | Prokaryotes (Bacteria/Archaea) | 45k | 12 MB |
+| [EuroVegChecklist syntaxon](https://floraveg.eu/vegetation/) | European vegetation units (syntaxa) | 8k | 2 MB |
+| [Vegetation of the Czech Republic syntaxon](https://pladias.cz/en/vegetation/) | Czech vegetation units (syntaxa) | 2k | 1 MB |
 <!-- /manifest:backbone-table -->
 
 `list_backbones()` returns this table live, with the installed and version status of
 each. `taxify_databases()` adds the enrichment layers alongside it.
+
+The last two hold vegetation units (syntaxa) rather than taxa: the EuroVegChecklist's
+classes, orders and alliances, and the Czech national classification down to
+associations. Name one and the names are read under the phytosociological code, with
+the accepted unit's class, order, alliance and association in the result:
+
+```r
+taxify(c("Mesobromion erecti", "Cynosurion", "TDA - Arrhenatherion elatioris"),
+       backbone = "evc")
+```
 
 ## Matching
 

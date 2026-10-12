@@ -18,6 +18,7 @@ manifest_stats <- function(manifest_path) {
   reg$version  <- vapply(entry, function(e) as.character(e$latest %||% NA), character(1))
 
   list(backbones     = reg,
+       n_taxon       = sum(reg$code == "taxon"),
        n_enrichments = length(m$enrichments),
        total_bytes   = sum(reg$bytes, na.rm = TRUE))
 }

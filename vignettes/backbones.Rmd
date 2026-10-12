@@ -15,8 +15,8 @@ This vignette shows how to pick a taxonomic backbone for a name list, how to
 chain several backbones so that each name is resolved by the source best placed
 to judge it, and how to check afterwards which source resolved which name.
 taxify matches names against locally stored Darwin Core backbone databases.
-<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones are available, each compiled from a different
-authoritative source. The backbone we choose determines which names can be
+<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> taxonomic backbones are available, each compiled from a different
+authoritative source, and two backbones of vegetation units. The backbone we choose determines which names can be
 matched, which taxonomic opinion governs synonym resolution, and which extra
 metadata columns are available downstream.
 
@@ -379,6 +379,83 @@ The `taxon_id` values of NCBI-matched rows are NCBI tax_ids, which link
 directly to GenBank records and NCBI taxonomy pages. COL covers names not
 found in NCBI, such as taxa without sequenced representatives.
 
+### Vegetation units: EuroVegChecklist
+
+Vegetation plots are often labelled with a phytosociological unit (a
+syntaxon) as well as a species list: an alliance such as *Arrhenatherion
+elatioris*, an order, or a class. Syntaxon names follow their own code, the
+International Code of Phytosociological Nomenclature: a name is built from one
+or two plant names, the last one carrying a rank suffix (`-etea` for a class,
+`-etalia` for an order, `-ion` for an alliance, `-enion` for a suballiance,
+`-etum` for an association), and its author citation carries years
+(`Caricenion gracilis (Neuhäusl 1959) Oberd. et al. 1967`). taxify matches
+these names against two syntaxon backbones:
+
+- `evc`, the EuroVegChecklist (Mucina et al.
+  [2016](https://doi.org/10.1111/avsc.12257)) in its current version as
+  maintained in FloraVeg.EU (Chytrý et al.
+  [2024](https://doi.org/10.1111/avsc.12798)): 150 classes, 381 orders and
+  1,310 alliances of European vegetation, with their synonyms;
+- `vegcz`, the national classification of the Czech Republic (Chytrý
+  2007-2013, published in [Pladias](https://pladias.cz/en/vegetation/)): 39
+  classes, 138 alliances and 496 associations with their synonyms. It places
+  each association under its alliance, below the level where the
+  EuroVegChecklist stops.
+
+A syntaxon backbone is used only when it is named in `backbone`; the default
+call reads names as taxa, and the two kinds of backbone are not combined in
+one call.
+
+```{r syntaxa}
+plots <- c(
+  "Fagion sylvaticae Luquet 1926",
+  "Mesobromion erecti",            # a synonym
+  "Fagion silvaticae",             # a spelling variant
+  "TDA - Arrhenatherion elatioris", # a national code in front of the name
+  "Cynosurion",                    # the short form, without the epithet
+  "Brachypodietalia pinnata",      # a misspelling
+  "Carpinion"                      # the short form of three alliances
+)
+res <- taxify(plots, backbone = "evc")
+res[, c("input_name", "accepted_name", "match_type", "class", "order",
+        "alliance")]
+```
+
+A syntaxon result has the columns of a taxon result except those that only a
+taxon has (`family`, `genus`, `epithet`, the genus register's columns, the
+hybrid and aggregate columns). In their place it carries the hierarchy of the
+accepted unit, `class`, `order`, `alliance` and `association`, so every
+matched name, synonym or not, rolls up to the ranks above it.
+
+The author citation and any code written in front of the name are parsed off
+before matching (`parse_name(x, code = "syntaxon")` shows the parse). A unit
+written without its epithets, the usual short form (`Cynosurion` for
+*Cynosurion cristati*), resolves with `match_type = "short_name"` when its
+stems name one unit; `Carpinion` is the stem of three alliances, so it stays
+unmatched, with the three candidates in `accepted_ids`. An author citation in
+the input chooses among such candidates (`Fagion Luquet 1926`). Fuzzy matching
+keeps the rank (a suballiance never matches an alliance) and the plant names
+the unit is named after: `Vaccinio-Piceion` is two letters from
+`Vaccinio-Pinion`, a different alliance, and is not matched to it.
+
+An association has no counterpart in the EuroVegChecklist, but the national
+classification places it, and its alliance then resolves against the
+EuroVegChecklist:
+
+```{r syntaxa-rollup}
+cz <- taxify(c("Pastinaco sativae-Arrhenatheretum elatioris",
+               "Arrhenatheretum elatioris Braun 1915"),
+             backbone = "vegcz")
+cz[, c("input_name", "accepted_name", "alliance", "class")]
+
+eu <- taxify(cz$alliance, backbone = "evc")
+eu[, c("input_name", "accepted_name", "order", "class")]
+```
+
+Both backbones can also be chained, `backbone = c("vegcz", "evc")`, so that
+each name is resolved by the national list where it holds the name and by the
+EuroVegChecklist otherwise.
+
 ### Auditing the backbone column
 
 `backbone` is a plain character column. In a single-backbone call every
@@ -539,7 +616,8 @@ taxify result tallies out-of-scope names by `life_form`.
 
 ## The backbones
 
-The table summarizes all <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->. "Approx. names" is the total
+The table summarizes all <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> taxonomic backbones and the two
+syntaxon backbones. "Approx. names" is the total
 number of name strings in the compiled backbone (accepted names plus
 synonyms); the species count is lower because each accepted species may have
 several synonym entries pointing to it.
@@ -565,6 +643,8 @@ several synonym entries pointing to it.
 | `mdd` | Mammal Diversity Database | Mammals | ~62k | MDD.zip of CSVs (species + synonyms) |
 | `avilist` | AviList (Global Avian Checklist) | Birds | ~41k | AviList extended .xlsx |
 | `lpsn` | List of Prokaryotic names with Standing in Nomenclature | Bacteria and archaea | ~45k | ChecklistBank ColDP (NameUsage.tsv) |
+| `evc` | EuroVegChecklist | European vegetation units (syntaxa) | ~7.5k | FloraVeg.EU unit list (XLSX) + Nomenclature pages |
+| `vegcz` | Vegetation of the Czech Republic | Czech vegetation units (syntaxa) | ~2.3k | Pladias unit list (XLSX) + Nomenclature pages |
 
 WFO (Borsch et al. [2020](https://doi.org/10.1002/tax.12373)) is the standard
 reference for plant taxonomy, maintained by the World Flora Online consortium
@@ -660,9 +740,23 @@ GBIF, and OTT leave open. LPSN's own download route sits behind a free DSMZ
 account, so the backbone is built from the open ColDP mirror on GBIF
 ChecklistBank. The data is CC BY-SA 4.0.
 
+Two further backbones hold vegetation units rather than taxa (see
+[Vegetation units: EuroVegChecklist](#vegetation-units-eurovegchecklist)).
+`evc` is built from the FloraVeg.EU list of European vegetation units (version
+4, 2025-06-17) and the synonyms on each unit's FloraVeg.EU Nomenclature page.
+FloraVeg.EU fails on a few dozen of those pages partway through the list; for
+those units the synonym lists printed in Mucina et al. (2016), published CC BY
+4.0, supply the missing entries. `vegcz` is built from the Pladias list of the
+vegetation units of the Czech Republic and the synonyms on each unit's Pladias
+Nomenclature page, public data under the Pladias access rules (free for
+research, teaching and conservation; commercial use needs the Pladias board's
+approval). A name either source cites in another author's sense (`sensu`,
+`auct.`) is kept with `taxonomic_status = "MISAPPLIED"`, ranked below the
+synonyms when a name points to more than one unit.
+
 ## Output differences between backbones
 
-All <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones produce the same 27-column output schema, so
+All <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> taxonomic backbones produce the same 27-column output schema, so
 downstream code does not need to know which backbone produced a match. The
 content of those columns varies in several ways.
 

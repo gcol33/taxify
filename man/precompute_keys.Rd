@@ -4,16 +4,25 @@
 \alias{precompute_keys}
 \title{Precompute matching keys at build time}
 \usage{
-precompute_keys(df, name_col, genus_col, epithet_col)
+precompute_keys(
+  df,
+  name_col,
+  genus_col = NULL,
+  epithet_col = NULL,
+  code = "taxon"
+)
 }
 \arguments{
 \item{df}{The backbone data.frame.}
 
 \item{name_col}{Name of the canonical name column.}
 
-\item{genus_col}{Name of the genus column.}
+\item{genus_col}{Name of the genus column (taxon code only).}
 
-\item{epithet_col}{Name of the specific epithet column.}
+\item{epithet_col}{Name of the specific epithet column (taxon code only).}
+
+\item{code}{Nomenclature code of the backbone: \code{"taxon"} (default) or
+\code{"syntaxon"}.}
 }
 \value{
 The data.frame with added key columns.
@@ -21,6 +30,11 @@ The data.frame with added key columns.
 \description{
 Used by the \code{taxifydb} build pipeline and by taxify's own test fixtures.
 Adds \code{key_ci}, \code{key_normalized}, \code{key_species}, and \code{fuzzy_block} columns
-to the backbone data.frame for direct lookup at query time.
+to the backbone data.frame for direct lookup at query time. For a syntaxon
+backbone (\code{code = "syntaxon"}) it adds \code{key_ci}, \code{key_normalized} (from
+\code{\link[=normalize_syntaxon_name]{normalize_syntaxon_name()}}), \code{block_key}, the name's first word, which
+the fuzzy pass groups candidates by, and \code{key_stem}, the name's plant-name
+stems without their epithets, which resolves a unit written in short form;
+a syntaxon has no genus or epithet.
 }
 \keyword{internal}

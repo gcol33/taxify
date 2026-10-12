@@ -92,6 +92,7 @@ summary.taxify_result <- function(object, ...) {
                (tally$case_insensitive %||% 0L) +
                (tally$fuzzy %||% 0L) +
                (tally$abbrev %||% 0L) +
+               (tally$short_name %||% 0L) +
                (tally$rank_fallback %||% 0L) +
                (tally$basionym %||% 0L)
   n_oos     <- tally$out_of_scope %||% 0L
@@ -119,7 +120,8 @@ summary.taxify_result <- function(object, ...) {
   # Matched line
   n_rankfb <- tally$rank_fallback %||% 0L
   n_basio  <- tally$basionym %||% 0L
-  cat(sprintf("  matched     %5d  (exact: %d, case-insensitive: %d, fuzzy: %d, abbrev: %d%s%s)\n",
+  n_short  <- tally$short_name %||% 0L
+  cat(sprintf("  matched     %5d  (exact: %d, case-insensitive: %d, fuzzy: %d, abbrev: %d%s%s%s)\n",
               n_matched,
               tally$exact %||% 0L,
               tally$case_insensitive %||% 0L,
@@ -128,6 +130,8 @@ summary.taxify_result <- function(object, ...) {
               if (n_rankfb > 0L) sprintf(", species fallback: %d", n_rankfb)
               else "",
               if (n_basio > 0L) sprintf(", via basionym: %d", n_basio)
+              else "",
+              if (n_short > 0L) sprintf(", short name: %d", n_short)
               else ""))
 
   # Helper: pick the label column (taxon_group if present, else life_form)

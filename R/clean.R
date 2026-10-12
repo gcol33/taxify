@@ -653,16 +653,29 @@ normalize_epithets <- function(names) {
   has_rest <- nzchar(rest) & !is.na(rest)
 
   genus <- .strip_accents(tolower(genus))
-  rest  <- .strip_accents(tolower(rest))
-
-  rest <- gsub("ae|oe", "i", rest)
-  rest <- gsub("ii\\b", "i", rest, perl = TRUE)
-  rest <- chartr("y", "i", rest)
-  rest <- gsub("ph", "f", rest, fixed = TRUE)
-  rest <- gsub("rh", "r", rest, fixed = TRUE)
-  rest <- gsub("th", "t", rest, fixed = TRUE)
+  rest  <- latin_orthography(.strip_accents(tolower(rest)))
 
   result <- ifelse(has_rest, paste(genus, rest), genus)
   result[is.na(names)] <- NA_character_
   result
+}
+
+
+#' Fold the Latin orthographic alternations to one spelling
+#'
+#' `ae`/`oe` -> `i`, a word-final `ii` -> `i`, `y` -> `i`, `ph` -> `f`,
+#' `rh` -> `r`, `th` -> `t`. The one definition behind both normalization
+#' keys: [normalize_epithets()] applies it to a taxon name's epithets,
+#' [normalize_syntaxon_name()] to every word of a syntaxon name.
+#'
+#' @param x Lowercased, accent-stripped character vector.
+#' @return `x` with the alternations folded.
+#' @noRd
+latin_orthography <- function(x) {
+  x <- gsub("ae|oe", "i", x)
+  x <- gsub("ii\\b", "i", x, perl = TRUE)
+  x <- chartr("y", "i", x)
+  x <- gsub("ph", "f", x, fixed = TRUE)
+  x <- gsub("rh", "r", x, fixed = TRUE)
+  gsub("th", "t", x, fixed = TRUE)
 }

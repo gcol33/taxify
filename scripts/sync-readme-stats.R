@@ -27,7 +27,7 @@ stats <- manifest_stats(file.path(repo, "inst", "manifest.json"))
 blocks <- list(
   "backbone-table"   = readme_backbone_table(stats),
   "backbone-sizes"   = vignette_size_table(stats),
-  "backbone-count"   = as.character(nrow(stats$backbones)),
+  "backbone-count"   = as.character(stats$n_taxon),
   "enrichment-count" = as.character(stats$n_enrichments)
 )
 

@@ -327,6 +327,18 @@ taxify <- function(x,
     backbone <- resolve_default_backend(verbose = verbose)
   }
 
+  # The names are read under one nomenclature code, the one the backbones
+  # share. Region and kingdom constrain taxa, so they have no meaning for a
+  # syntaxon backbone.
+  code <- shared_code(backbone)
+  if (!code_spec(code)$genus_structure &&
+      (!is.null(region) || !is.null(kingdom))) {
+    stop(sprintf(paste0(
+      "`region`, `coords` and `kingdom` constrain taxon names; they do not ",
+      "apply to the %s backbone(s) %s."), code_spec(code)$label,
+      paste(backbone_name_of(backbone), collapse = ", ")), call. = FALSE)
+  }
+
   # Comparison modes consult every backbone for every name. They need >= 2
   # named backbones; with fewer there is nothing to compare, so fall through to
   # the normal single-answer result.
@@ -373,7 +385,7 @@ taxify <- function(x,
                                 length(x), length(backbone),
                                 paste(backbone, collapse = " -> ")))
 
-  names_df <- attach_agg_key(clean_names(x), aggregates)
+  names_df <- attach_agg_key(code_spec(code)$clean(x), aggregates)
 
   # Two sweeps, staged by match quality rather than by backbone: every backbone
   # is asked for an exact (or abbreviated-genus) match before any backbone is
@@ -396,7 +408,8 @@ taxify <- function(x,
   # species. It runs only once every backbone has had the full name, for the
   # same reason fuzzy waits for exact: a subspecies a later backbone accepts
   # outranks its parent species in an earlier one.
-  if (any(is.na(result$match_type) & !is.na(names_df$cleaned) &
+  if (code_spec(code)$genus_structure &&
+      any(is.na(result$match_type) & !is.na(names_df$cleaned) &
           grepl("^\\S+ \\S+ \\S", names_df$cleaned))) {
     result <- run_fallback_sweep(result, names_df, backbone, fuzzy = FALSE,
                                  fuzzy_threshold, fuzzy_method, region, range,
@@ -407,7 +420,26 @@ taxify <- function(x,
   # any other and gets the same verdict as "" -- match_type is never NA.
   result$match_type[is.na(result$match_type)] <- "none"
 
-  # Ensure classification columns always exist
+  warn_multiple_ids(finalize_result(result, names_df, backbone, code))
+}
+
+
+#' Finish a match result: input-side columns, register, hybrids, shape
+#'
+#' The steps every `taxify()` path runs once matching is done, in one place:
+#' the classification columns always exist, the input-side qualifier columns
+#' are carried over, and for a code with genus/epithet structure the aggregate
+#' flag, the genus register's kingdom and life form and the hybrid-formula
+#' verdicts are attached. The result is then shaped to the code's columns and
+#' classed.
+#'
+#' @param result The match result data.frame, `match_type` final.
+#' @param names_df The cleaned-names frame, rows 1:1 with `result`.
+#' @param backbone Backbone name(s) or a `taxify_backend`.
+#' @param code The nomenclature code the names were matched under.
+#' @return A `taxify_result`.
+#' @noRd
+finalize_result <- function(result, names_df, backbone, code) {
   if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_
   if (!"taxon_group"   %in% names(result)) result$taxon_group   <- NA_character_
   if (!"life_form"     %in% names(result)) result$life_form     <- NA_character_
@@ -415,12 +447,16 @@ taxify <- function(x,
   # Carry input-side qualifier info (rows are 1:1 with names_df)
   result$qualifier          <- names_df$qualifier
   result$qualifier_position <- names_df$qualifier_position
-  result <- attach_aggregate_fallback(result, names_df)
 
-  result <- enrich_with_register(result, names_df, backbone)
-  result <- finalize_hybrids(result, names_df, backbone)
+  bb_name <- backbone_name_of(backbone)
+  if (code_spec(code)$genus_structure) {
+    result <- attach_aggregate_fallback(result, names_df)
+    result <- enrich_with_register(result, names_df, bb_name)
+    result <- finalize_hybrids(result, names_df, backbone)
+  }
+  result <- shape_result_for_code(result, code)
   rownames(result) <- NULL
-  warn_multiple_ids(as_taxify_result(result, backbone = backbone))
+  as_taxify_result(result, backbone = bb_name)
 }
 
 
@@ -545,9 +581,10 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
                           aggregates = "preserve", region = NULL,
                           range_mode = "present", kingdom = NULL, verbose) {
   vtr_path <- ensure_backbone(be, verbose = verbose)
+  code <- be$code %||% "taxon"
 
   if (verbose) message(sprintf("Matching %d names...", length(x)))
-  names_df <- attach_agg_key(clean_names(x), aggregates)
+  names_df <- attach_agg_key(code_spec(code)$clean(x), aggregates)
 
   result <- run_match_stages(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
                              fuzzy_method, region = region,
@@ -561,20 +598,7 @@ taxify_single <- function(x, be, fuzzy, fuzzy_threshold, fuzzy_method,
   )
   result$match_type[is.na(result$match_type)] <- "none"
 
-  # Ensure classification columns always exist
-  if (!"kingdom_group" %in% names(result)) result$kingdom_group <- NA_character_
-  if (!"taxon_group"   %in% names(result)) result$taxon_group   <- NA_character_
-  if (!"life_form"     %in% names(result)) result$life_form     <- NA_character_
-
-  # Carry input-side qualifier info (rows are 1:1 with names_df)
-  result$qualifier          <- names_df$qualifier
-  result$qualifier_position <- names_df$qualifier_position
-  result <- attach_aggregate_fallback(result, names_df)
-
-  result <- enrich_with_register(result, names_df, be$name)
-  result <- finalize_hybrids(result, names_df, be)
-  rownames(result) <- NULL
-  as_taxify_result(result, backbone = be$name)
+  finalize_result(result, names_df, be, code)
 }
 
 
@@ -863,11 +887,23 @@ run_match_stages <- function(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
     sum(is.na(res$match_type) & !is.na(names_df$cleaned))
   }
 
-  result <- match_exact(be, names_df, vtr_path)
-  result <- prefilter_out_of_scope(result, names_df, be$name)
+  # The stages that read a genus/epithet structure (out-of-scope genera,
+  # abbreviated genera, the species of an infraspecific name, basionyms) run
+  # only for a code whose names have one.
+  structured <- code_spec(be$code %||% "taxon")$genus_structure
 
-  if (n_unresolved(result) > 0L) {
-    result <- match_abbrev_genus(be, result, names_df, vtr_path, genus_context)
+  result <- match_exact(be, names_df, vtr_path)
+  if (structured) {
+    result <- prefilter_out_of_scope(result, names_df, be$name)
+    if (n_unresolved(result) > 0L) {
+      result <- match_abbrev_genus(be, result, names_df, vtr_path,
+                                   genus_context)
+    }
+  }
+
+  pre_fuzzy <- code_spec(be$code %||% "taxon")$pre_fuzzy
+  if (!is.null(pre_fuzzy) && n_unresolved(result) > 0L) {
+    result <- pre_fuzzy(be, result, names_df, vtr_path)
   }
 
   n_un <- n_unresolved(result)
@@ -878,13 +914,23 @@ run_match_stages <- function(be, names_df, vtr_path, fuzzy, fuzzy_threshold,
                           region = region, range_mode = range_mode)
   }
 
-  if (rank_fallback && n_unresolved(result) > 0L) {
+  post_fuzzy <- code_spec(be$code %||% "taxon")$post_fuzzy
+  if (!is.null(post_fuzzy) && fuzzy && n_unresolved(result) > 0L) {
+    result <- post_fuzzy(be, result, names_df, vtr_path)
+  }
+
+  if (structured && rank_fallback && n_unresolved(result) > 0L) {
     result <- match_rank_fallback(be, result, names_df, vtr_path)
   }
 
   # Settle homonym ambiguity where the input carried an author (no-op when no
-  # ambiguous row carries one).
-  result <- disambiguate_by_authorship(result, vtr_path)
+  # ambiguous row carries one). A cleaner that parses the author itself (the
+  # syntaxon one) hands it over in `names_df$authorship`.
+  result <- disambiguate_by_authorship(result, vtr_path,
+                                       input_authorship = names_df$authorship,
+                                       hierarchy = be$col_map$hierarchy)
+
+  if (!structured) return(result)
 
   # An unplaced record goes where the backbone places its basionym. After the
   # authorship pass, so an author the caller typed chooses the record first.
@@ -1122,8 +1168,8 @@ open_multiple_ids <- function(res) {
 
 #' Match types a backbone lookup produces, strongest evidence first
 #' @noRd
-.backbone_match_types <- c("exact", "exact_ci", "abbrev", "fuzzy",
-                           "rank_fallback", "basionym")
+.backbone_match_types <- c("exact", "exact_ci", "abbrev", "short_name",
+                           "fuzzy", "rank_fallback", "basionym")
 
 
 #' Result columns describing the backbone record a row matched
@@ -1615,6 +1661,7 @@ as_taxify_result <- function(result, backbone) {
     case_insensitive = sum(mt == "exact_ci",    na.rm = TRUE),
     fuzzy            = sum(mt == "fuzzy",        na.rm = TRUE),
     abbrev           = sum(mt == "abbrev",      na.rm = TRUE),
+    short_name       = sum(mt == "short_name",  na.rm = TRUE),
     rank_fallback    = sum(mt == "rank_fallback", na.rm = TRUE),
     basionym         = sum(mt == "basionym",     na.rm = TRUE),
     hybrid_formula   = sum(mt == "hybrid_formula", na.rm = TRUE),

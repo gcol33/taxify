@@ -18,15 +18,15 @@
 #' (whether the prefix-blocked fuzzy pass runs for this backbone).
 #'
 #' @return A data.frame with `name`, `scope`, `source` (homepage), `label`,
-#'   `version`, `prefix_fallback`, and `fixed_kingdom`, in canonical display
-#'   order.
+#'   `version`, `prefix_fallback`, `fixed_kingdom` and `code`, in canonical
+#'   display order.
 #' @noRd
 .backbone_registry <- function() {
   data.frame(
     name = c(
       "wfo", "col", "colxr", "gbif", "itis", "ncbi", "ott", "worms", "euromed",
       "fungorum", "algaebase", "fishbase", "sealifebase", "reptiledb",
-      "lcvp", "wcvp", "mdd", "avilist", "lpsn"
+      "lcvp", "wcvp", "mdd", "avilist", "lpsn", "evc", "vegcz"
     ),
     scope = c(
       "Vascular plants", "All kingdoms", "All kingdoms", "All kingdoms",
@@ -34,7 +34,9 @@
       "Marine/aquatic", "European/Mediterranean plants", "Fungi", "Algae",
       "Fishes", "Non-fish marine/aquatic", "Reptiles",
       "Vascular plants", "Vascular plants", "Mammals", "Birds",
-      "Prokaryotes (Bacteria/Archaea)"
+      "Prokaryotes (Bacteria/Archaea)",
+      "European vegetation units (syntaxa)",
+      "Czech vegetation units (syntaxa)"
     ),
     source = c(
       "https://www.worldfloraonline.org/",
@@ -55,7 +57,9 @@
       "https://powo.science.kew.org/",
       "https://www.mammaldiversity.org/",
       "https://www.avilist.org/",
-      "https://lpsn.dsmz.de"
+      "https://lpsn.dsmz.de",
+      "https://floraveg.eu/vegetation/",
+      "https://pladias.cz/en/vegetation/"
     ),
     label = c(
       "the WFO backbone", "the COL backbone",
@@ -66,18 +70,20 @@
       "the FishBase backbone", "the SeaLifeBase backbone",
       "the Reptile Database backbone", "the LCVP backbone", "the WCVP backbone",
       "the Mammal Diversity Database backbone", "the AviList backbone",
-      "the LPSN backbone"
+      "the LPSN backbone", "the EuroVegChecklist syntaxon backbone",
+      "the Vegetation of the Czech Republic syntaxon backbone"
     ),
     version = c(
       "2024-12", "2025", "2026-07-17", "2023-08-28", "2025.04", "2025.04",
       "3.7.3", "2025.04",
       "2026.07", "2025.04", "2025.04", "2026.06", "2026.06", "2026.06",
-      "3.0.1", "2026.06", "2.5", "2025b", "2026.07"
+      "3.0.1", "2026.06", "2.5", "2025b", "2026.07", "4",
+      "2026.10"
     ),
     prefix_fallback = c(
       TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
       FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,
-      FALSE
+      FALSE, TRUE, TRUE
     ),
     # The kingdom a backbone's rows always belong to, for a backbone whose
     # scope is unambiguous, whether or not its .vtr carries a `kingdom`
@@ -95,8 +101,14 @@
     fixed_kingdom = c(
       "plantae", NA, NA, NA, NA, NA, NA, NA, "plantae",
       "fungi", NA, "animalia", NA, "animalia", "plantae", "plantae",
-      "animalia", "animalia", NA
+      "animalia", "animalia", NA, NA, NA
     ),
+    # The nomenclature the backbone's names follow (see
+    # .nomenclature_codes()): "taxon" for botanical, zoological and
+    # prokaryote names, "syntaxon" for vegetation units. A name is matched
+    # under one code, so the default chain and every fallback chain stay
+    # within one.
+    code = c(rep("taxon", 19L), "syntaxon", "syntaxon"),
     stringsAsFactors = FALSE
   )
 }
@@ -168,7 +180,8 @@ backbone_label <- function(name) {
     "colxr", "col", "worms", "wcvp", "euromed", "lcvp", "wfo",
     "fungorum", "algaebase", "fishbase", "sealifebase", "reptiledb", "mdd", "avilist",
     "lpsn",
-    "gbif", "itis", "ncbi", "ott"
+    "gbif", "itis", "ncbi", "ott",
+    "vegcz", "evc"
   )
   known <- backbone_names()
   # Guard against a registry change leaving a name out of the default list.
@@ -364,7 +377,11 @@ install_backbones <- function(backbones = NULL, verbose = TRUE) {
 #'
 #' @param verbose Logical. Default `TRUE`.
 #' @return A data.frame with columns: `name`, `scope`, `n_names`, `size_mb`,
-#'   `version`, `source_date`, `installed`, `source`. `n_names`, `size_mb`, and
+#'   `version`, `source_date`, `installed`, `code`, `source`. `code` is the
+#'   nomenclature the backbone's names follow: `"taxon"` for the taxonomic
+#'   backbones, `"syntaxon"` for a backbone of vegetation units (`"evc"`, the
+#'   EuroVegChecklist), which is matched only when named in
+#'   `taxify(backbone = )`. `n_names`, `size_mb`, and
 #'   `version` are `NA` for any backbone the manifest does not yet describe or
 #'   when the manifest cannot be fetched offline.
 #'
@@ -388,7 +405,7 @@ list_backbones <- function(verbose = TRUE) {
   reg <- .backbone_registry()
   manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
   bb <- if (!is.null(manifest)) manifest$backends else NULL
-  inst <- installed_backbones()
+  inst <- installed_backbones(code = NULL)
 
   field <- function(nm, key, default) {
     if (is.null(bb) || is.null(bb[[nm]])) return(default)
@@ -417,6 +434,7 @@ list_backbones <- function(verbose = TRUE) {
       as.character(field(n, "source_date", NA_character_))
     }, character(1L)),
     installed = reg$name %in% inst,
+    code      = reg$code,
     source    = reg$source,
     stringsAsFactors = FALSE,
     row.names = NULL

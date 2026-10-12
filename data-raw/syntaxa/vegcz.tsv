@@ -1,0 +1,240 @@
+taxon_id	canonical_name	authorship	taxon_rank	taxonomic_status	accepted_name_usage_id	vegcz_code	nomenclatural_note	class	order	alliance	association
+LB	Carpino-Fagetea	Jakucs ex Passarge 1968	CLASS	ACCEPTED		LB		Carpino-Fagetea			
+LB:0250223fd0	Carpino-Fagetea	Jakucs 1960	CLASS	SYNONYM	LB	LB	prov. (§ 2b, nomen nudum, § 3b)	Carpino-Fagetea			
+LB:97de1d9e3d	Carpino-Fagetea	Jakucs 1967	CLASS	SYNONYM	LB	LB	prov. (§ 2b, nomen nudum)	Carpino-Fagetea			
+LB:d9c9c78d4d	Querco-Fagetea	Br.-Bl. et Vlieger in Vlieger 1937	CLASS	SYNONYM	LB	LB	p. p. (§ 35)	Carpino-Fagetea			
+LBA	Alnion incanae	Pawłowski et al. 1928	ALLIANCE	ACCEPTED		LBA		Carpino-Fagetea		Alnion incanae	
+LBA:86d9dfb93f	Alno-Ulmion	Br.-Bl. et Tüxen ex Tchou 1948	ALLIANCE	SYNONYM	LBA	LBA	p. p.	Carpino-Fagetea		Alnion incanae	
+LBA:9b62d4b03b	Alno-Padion	Knapp ex Medwecka-Kornaś in W. Matuszkiewicz et Borowik 1957	ALLIANCE	SYNONYM	LBA	LBA		Carpino-Fagetea		Alnion incanae	
+LBA01	Alnetum incanae	Lüdi 1921	ASSOCIATION	ACCEPTED		LBA01		Carpino-Fagetea		Alnion incanae	Alnetum incanae
+LBA02	Piceo abietis-Alnetum glutinosae	Mráz 1959	ASSOCIATION	ACCEPTED		LBA02		Carpino-Fagetea		Alnion incanae	Piceo abietis-Alnetum glutinosae
+LBA02:36c9e1e73d	Piceo-Alnetum	Rubner 1954	ASSOCIATION	SYNONYM	LBA02	LBA02	(§ 2b, nomen nudum)	Carpino-Fagetea		Alnion incanae	Piceo abietis-Alnetum glutinosae
+LBA02:4c4a62d9a2	Piceo-Alnetum	Rubner in Oberdorfer 1957	ASSOCIATION	SYNONYM	LBA02	LBA02	(§ 2b, nomen nudum)	Carpino-Fagetea		Alnion incanae	Piceo abietis-Alnetum glutinosae
+LBA03	Carici remotae-Fraxinetum excelsioris	Koch ex Faber 1936	ASSOCIATION	ACCEPTED		LBA03		Carpino-Fagetea		Alnion incanae	Carici remotae-Fraxinetum excelsioris
+LBA03:421e4f1541	Carici remotae-Fraxinetum	Koch 1926	ASSOCIATION	SYNONYM	LBA03	LBA03	(§ 2b, nomen nudum)	Carpino-Fagetea		Alnion incanae	Carici remotae-Fraxinetum excelsioris
+LBA03:440b38c888	Equiseto telmateiae-Fraxinetum	Oberdorfer ex Seibert 1987	ASSOCIATION	SYNONYM	LBA03	LBA03		Carpino-Fagetea		Alnion incanae	Carici remotae-Fraxinetum excelsioris
+LBA04	Stellario nemorum-Alnetum glutinosae	Lohmeyer 1957	ASSOCIATION	ACCEPTED		LBA04		Carpino-Fagetea		Alnion incanae	Stellario nemorum-Alnetum glutinosae
+LBA04:385d4375bb	Alno-Fraxinetum stellarietosum	Mikyška 1944	SUBASSOCIATION	SYNONYM	LBA04	LBA04	(§ 3e)	Carpino-Fagetea		Alnion incanae	Stellario nemorum-Alnetum glutinosae
+LBA04:4eb8f42add	Alnetum incanae	sensu Kästner 1938 non Lüdi 1921	ASSOCIATION	MISAPPLIED	LBA04	LBA04	(pseudonym)	Carpino-Fagetea		Alnion incanae	Stellario nemorum-Alnetum glutinosae
+LBA04:b784834f03	Arunco sylvestris-Alnetum glutinosae	Tüxen 1957	ASSOCIATION	SYNONYM	LBA04	LBA04		Carpino-Fagetea		Alnion incanae	Stellario nemorum-Alnetum glutinosae
+LBA04:c37e5b3529	Chaerophyllo hirsuti-Alnetum glutinosae	Müller et Görs 1958	ASSOCIATION	SYNONYM	LBA04	LBA04		Carpino-Fagetea		Alnion incanae	Stellario nemorum-Alnetum glutinosae
+LBA05	Pruno padi-Fraxinetum excelsioris	Oberdorfer 1953	ASSOCIATION	ACCEPTED		LBA05		Carpino-Fagetea		Alnion incanae	Pruno padi-Fraxinetum excelsioris
+LBA05:6595573413	Pruno padi-Quercetum roboris	Neuhäuslová et Kučera 2004	ASSOCIATION	SYNONYM	LBA05	LBA05		Carpino-Fagetea		Alnion incanae	Pruno padi-Fraxinetum excelsioris
+LBA05:93e418dc02	Alnetosum glutinosae	Neuhäuslová et Kučera 2004	ASSOCIATION	SYNONYM	LBA05	LBA05		Carpino-Fagetea		Alnion incanae	Pruno padi-Fraxinetum excelsioris
+LBA06	Ficario vernae-Ulmetum campestris	Knapp ex Medwecka-Kornaś 1952	ASSOCIATION	ACCEPTED		LBA06		Carpino-Fagetea		Alnion incanae	Ficario vernae-Ulmetum campestris
+LBA06:26a5679dad	Fraxino-Ulmetum	Tüxen ex Oberdorfer 1953	ASSOCIATION	SYNONYM	LBA06	LBA06		Carpino-Fagetea		Alnion incanae	Ficario vernae-Ulmetum campestris
+LBA06:44a1dba03d	Ficario-Ulmetum campestris	Knapp 1942	ASSOCIATION	SYNONYM	LBA06	LBA06	(§ 1)	Carpino-Fagetea		Alnion incanae	Ficario vernae-Ulmetum campestris
+LBA06:4a93cbe221	Typicum	Neuhäuslová et Kučera 2004	ASSOCIATION	SYNONYM	LBA06	LBA06		Carpino-Fagetea		Alnion incanae	Ficario vernae-Ulmetum campestris
+LBA06:4fb9845991	Querceto-Ulmetum	Mezera et Samek 1954	ASSOCIATION	SYNONYM	LBA06	LBA06		Carpino-Fagetea		Alnion incanae	Ficario vernae-Ulmetum campestris
+LBA06:6595573413	Pruno padi-Quercetum roboris	Neuhäuslová et Kučera 2004	ASSOCIATION	SYNONYM	LBA06	LBA06		Carpino-Fagetea		Alnion incanae	Ficario vernae-Ulmetum campestris
+LBA06:ca3c8d0a39	Querco-Ulmetum	Issler 1926	ASSOCIATION	SYNONYM	LBA06	LBA06	(§ 3e)	Carpino-Fagetea		Alnion incanae	Ficario vernae-Ulmetum campestris
+LBA06:f87629779a	Querco-Populetum	Neuhäuslová-Novotná 1965	ASSOCIATION	SYNONYM	LBA06	LBA06		Carpino-Fagetea		Alnion incanae	Ficario vernae-Ulmetum campestris
+LBA07	Fraxino pannonicae-Ulmetum glabrae	Aszód 1935 corr. Soó 1963	ASSOCIATION	ACCEPTED		LBA07		Carpino-Fagetea		Alnion incanae	Fraxino pannonicae-Ulmetum glabrae
+LBB	Carpinion betuli	Issler 1931	ALLIANCE	ACCEPTED		LBB		Carpino-Fagetea		Carpinion betuli	
+LBB01	Galio sylvatici-Carpinetum betuli	Oberdorfer 1957	ASSOCIATION	ACCEPTED		LBB01		Carpino-Fagetea		Carpinion betuli	Galio sylvatici-Carpinetum betuli
+LBB01:1e6922e6d4	Melampyro nemorosi-Carpinetum		ASSOCIATION	MISAPPLIED	LBB01	LBB01	sensu auct. bohem. non Passarge 1957 prov. (§ 3b	Carpino-Fagetea		Carpinion betuli	Galio sylvatici-Carpinetum betuli
+LBB01:5ca97d7caf	Stellario-Tilietum	Moravec 1964	ASSOCIATION	SYNONYM	LBB01	LBB01		Carpino-Fagetea		Carpinion betuli	Galio sylvatici-Carpinetum betuli
+LBB01:7736f2efbb	Querco pedunculatae-Carpinetum	Klika 1928 (potenciální správné jméno	ASSOCIATION	SYNONYM	LBB01	LBB01		Carpino-Fagetea		Carpinion betuli	Galio sylvatici-Carpinetum betuli
+LBB02	Stellario holosteae-Carpinetum betuli	Oberdorfer 1957	ASSOCIATION	ACCEPTED		LBB02		Carpino-Fagetea		Carpinion betuli	Stellario holosteae-Carpinetum betuli
+LBB02:a52f670f54	Melampyro nemorosi-Carpinetum	Passarge 1962	ASSOCIATION	MISAPPLIED	LBB02	LBB02	(pseudonym)	Carpino-Fagetea		Carpinion betuli	Stellario holosteae-Carpinetum betuli
+LBB02:c0ac3f6587	Melampyro nemorosi-Carpinetum	Passarge 1957	ASSOCIATION	SYNONYM	LBB02	LBB02	prov. (§ 3b)	Carpino-Fagetea		Carpinion betuli	Stellario holosteae-Carpinetum betuli
+LBB03	Carici pilosae-Carpinetum betuli	Neuhäusl et Neuhäuslová-Novotná 1964	ASSOCIATION	ACCEPTED		LBB03		Carpino-Fagetea		Carpinion betuli	Carici pilosae-Carpinetum betuli
+LBB04	Primulo veris-Carpinetum betuli	Neuhäusl et Neuhäuslová in Neuhäuslová-Novotná 1964	ASSOCIATION	ACCEPTED		LBB04		Carpino-Fagetea		Carpinion betuli	Primulo veris-Carpinetum betuli
+LBB04:7779da2454	Primulo veris-Carpinetum	Neuhäusl et Neuhäuslová-Novotná 1964	ASSOCIATION	SYNONYM	LBB04	LBB04	prov. (§ 3b)	Carpino-Fagetea		Carpinion betuli	Primulo veris-Carpinetum betuli
+LBB04:861eaa242f	Primulo veris-Carpinetum	Neuhäusl et Neuhäuslová 1963	ASSOCIATION	SYNONYM	LBB04	LBB04	(§ 1)	Carpino-Fagetea		Carpinion betuli	Primulo veris-Carpinetum betuli
+LBC	Fagion sylvaticae	Luquet 1926	ALLIANCE	ACCEPTED		LBC		Carpino-Fagetea		Fagion sylvaticae	
+LBC:88746b1647	Asperulo-Fagion	Tüxen 1955	ALLIANCE	SYNONYM	LBC	LBC		Carpino-Fagetea		Fagion sylvaticae	
+LBC:9f35e74d3f	Acerenion	Oberdorfer 1957 (podsvaz)	SUBALLIANCE	SYNONYM	LBC	LBC		Carpino-Fagetea		Fagion sylvaticae	
+LBC:b213557eb7	Eu-Fagenion	Oberdorfer 1957 p. p. (podsvaz)	SUBALLIANCE	SYNONYM	LBC	LBC		Carpino-Fagetea		Fagion sylvaticae	
+LBC:d4b3c73073	Galio-Abietenion	Oberdorfer 1962 (podsvaz)	SUBALLIANCE	SYNONYM	LBC	LBC		Carpino-Fagetea		Fagion sylvaticae	
+LBC01	Galio odorati-Fagetum sylvaticae	Sougnez et Thill 1959	ASSOCIATION	ACCEPTED		LBC01		Carpino-Fagetea		Fagion sylvaticae	Galio odorati-Fagetum sylvaticae
+LBC01:268bbf2f80	Tilio cordatae-Fagetum	Mráz 1960	ASSOCIATION	SYNONYM	LBC01	LBC01	p. p.	Carpino-Fagetea		Fagion sylvaticae	Galio odorati-Fagetum sylvaticae
+LBC01:2e3643ec70	Dentario bulbiferae-Fagetum	Mikyška 1939 (potenciální správné jméno)	ASSOCIATION	SYNONYM	LBC01	LBC01		Carpino-Fagetea		Fagion sylvaticae	Galio odorati-Fagetum sylvaticae
+LBC01:56b210ef87	Festuco altissimae-Fagetum	Schlüter in Grüneberg et Schlüter 1957 (potenciální správné jméno)	ASSOCIATION	SYNONYM	LBC01	LBC01		Carpino-Fagetea		Fagion sylvaticae	Galio odorati-Fagetum sylvaticae
+LBC01:8eccba6564	Dentario bulbiferae-Fagetum	Hartmann 1953	ASSOCIATION	SYNONYM	LBC01	LBC01	(§ 31, mladší homonymum, non: Dentario bulbiferae-Fagetum Mikyška 1939)	Carpino-Fagetea		Fagion sylvaticae	Galio odorati-Fagetum sylvaticae
+LBC01:a64158d483	Dentario glandulosae-Fagetum	W. Matuszkiewicz ex Guzikowa et Kornaś 1969	ASSOCIATION	SYNONYM	LBC01	LBC01	p. p.	Carpino-Fagetea		Fagion sylvaticae	Galio odorati-Fagetum sylvaticae
+LBC01:bd9c1390a9	Dentario enneaphylli-Fagetum	Oberdorfer ex W. Matuszkiewicz et A. Matuszkiewicz 1960	ASSOCIATION	SYNONYM	LBC01	LBC01	p. p.	Carpino-Fagetea		Fagion sylvaticae	Galio odorati-Fagetum sylvaticae
+LBC02	Mercuriali perennis-Fagetum sylvaticae	Scamoni 1935	ASSOCIATION	ACCEPTED		LBC02		Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC02:268bbf2f80	Tilio cordatae-Fagetum	Mráz 1960	ASSOCIATION	SYNONYM	LBC02	LBC02	p. p.	Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC02:3c39297f39	Hordelymo-Fagetum	Kuhn 1937	ASSOCIATION	SYNONYM	LBC02	LBC02		Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC02:42c389bef5	Violo reichenbachianae-Fagetum	Moravec 1979	ASSOCIATION	SYNONYM	LBC02	LBC02		Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC02:50b8378185	Melico-Fagetum	Seibert 1954	ASSOCIATION	SYNONYM	LBC02	LBC02	prov.	Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC02:72f17fd84c	Melico-Fagetum	Tüxen (1937) 1955	ASSOCIATION	SYNONYM	LBC02	LBC02		Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC02:a64158d483	Dentario glandulosae-Fagetum	W. Matuszkiewicz ex Guzikowa et Kornaś 1969	ASSOCIATION	SYNONYM	LBC02	LBC02	p. p.	Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC02:bd9c1390a9	Dentario enneaphylli-Fagetum	Oberdorfer ex W. Matuszkiewicz et A. Matuszkiewicz 1960	ASSOCIATION	SYNONYM	LBC02	LBC02	p. p.	Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC02:e9c60fa817	Tilio platyphylli-Fagetum	Klika 1939	ASSOCIATION	SYNONYM	LBC02	LBC02		Carpino-Fagetea		Fagion sylvaticae	Mercuriali perennis-Fagetum sylvaticae
+LBC03	Carici pilosae-Fagetum sylvaticae	Oberdorfer 1957	ASSOCIATION	ACCEPTED		LBC03		Carpino-Fagetea		Fagion sylvaticae	Carici pilosae-Fagetum sylvaticae
+LBC04	Athyrio distentifolii-Fagetum sylvaticae	Willner 2002	ASSOCIATION	ACCEPTED		LBC04		Carpino-Fagetea		Fagion sylvaticae	Athyrio distentifolii-Fagetum sylvaticae
+LBC04:a0251d658d	Aceri-Fagetum	Bartsch et Bartsch 1940	ASSOCIATION	SYNONYM	LBC04	LBC04	prov. (§ 3b)	Carpino-Fagetea		Fagion sylvaticae	Athyrio distentifolii-Fagetum sylvaticae
+LBC05	Galio rotundifolii-Abietetum albae	Wraber 1959	ASSOCIATION	ACCEPTED		LBC05		Carpino-Fagetea		Fagion sylvaticae	Galio rotundifolii-Abietetum albae
+LBC05:27b501fd18	Abietetum hercynicum	Husová 1968	ASSOCIATION	SYNONYM	LBC05	LBC05		Carpino-Fagetea		Fagion sylvaticae	Galio rotundifolii-Abietetum albae
+LBC05:2ba2eaab76	Pyrolo secundae-Abietetum	Oberdorfer ex Stoffler 1975	ASSOCIATION	SYNONYM	LBC05	LBC05		Carpino-Fagetea		Fagion sylvaticae	Galio rotundifolii-Abietetum albae
+LBC05:718a3b9ddc	Saniculo europaeae-Abietetum	Husová (1968) 1998	ASSOCIATION	SYNONYM	LBC05	LBC05		Carpino-Fagetea		Fagion sylvaticae	Galio rotundifolii-Abietetum albae
+LBC05:78c2df1eaa	Carici remotae-Abietetum	Husová 1998	ASSOCIATION	SYNONYM	LBC05	LBC05		Carpino-Fagetea		Fagion sylvaticae	Galio rotundifolii-Abietetum albae
+LBC05:b23fc9e298	Calamagrostietosum arundinaceae	Husová 1983	ASSOCIATION	SYNONYM	LBC05	LBC05		Carpino-Fagetea		Fagion sylvaticae	Galio rotundifolii-Abietetum albae
+LBC05:cb38063eee	Galieto rotundifolii-Abietetum	Wraber 1955	ASSOCIATION	SYNONYM	LBC05	LBC05	(§ 2b, nomen nudum)	Carpino-Fagetea		Fagion sylvaticae	Galio rotundifolii-Abietetum albae
+LBC05:dde12accb0	Deschampsio flexuosae-Abietetum	Husová 1968	ASSOCIATION	SYNONYM	LBC05	LBC05		Carpino-Fagetea		Fagion sylvaticae	Galio rotundifolii-Abietetum albae
+LBD	Sorbo torminalis-Fagion sylvaticae	Hofmann in Passarge 1968	ALLIANCE	ACCEPTED		LBD		Carpino-Fagetea		Sorbo torminalis-Fagion sylvaticae	
+LBD01	Cephalanthero damasonii-Fagetum sylvaticae	Oberdorfer 1957	ASSOCIATION	ACCEPTED		LBD01		Carpino-Fagetea		Sorbo torminalis-Fagion sylvaticae	Cephalanthero damasonii-Fagetum sylvaticae
+LBE	Luzulo-Fagion sylvaticae	Lohmeyer et Tüxen in Tüxen 1954	ALLIANCE	ACCEPTED		LBE		Carpino-Fagetea		Luzulo-Fagion sylvaticae	
+LBE:b30bffee45	Deschampsio-Fagion	Soó 1971	ALLIANCE	SYNONYM	LBE	LBE		Carpino-Fagetea		Luzulo-Fagion sylvaticae	
+LBE01	Luzulo luzuloidis-Fagetum sylvaticae	Meusel 1937	ASSOCIATION	ACCEPTED		LBE01		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo luzuloidis-Fagetum sylvaticae
+LBE01:211f31b10e	Melampyro-Fagetum	Oberdorfer 1957	ASSOCIATION	SYNONYM	LBE01	LBE01		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo luzuloidis-Fagetum sylvaticae
+LBE01:53e6438502	Calamagrostio arundinaceae-Fagetum	Sýkora 1971	ASSOCIATION	SYNONYM	LBE01	LBE01		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo luzuloidis-Fagetum sylvaticae
+LBE01:5b51783087	Dryopterido dilatatae-Fagetum	Kučera et Jirásek 1994	ASSOCIATION	SYNONYM	LBE01	LBE01		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo luzuloidis-Fagetum sylvaticae
+LBE02	Calamagrostio villosae-Fagetum sylvaticae	Mikyška 1972	ASSOCIATION	ACCEPTED		LBE02		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Calamagrostio villosae-Fagetum sylvaticae
+LBE03	Luzulo-Abietetum albae	Oberdorfer 1957	ASSOCIATION	ACCEPTED		LBE03		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo-Abietetum albae
+LBE03:027420ec31	Luzulo pilosae-Abietetum	Mráz 1957	ASSOCIATION	SYNONYM	LBE03	LBE03		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo-Abietetum albae
+LBE03:7f5ff80137	Deschampsietosum flexuosae	Husová 1983	ASSOCIATION	SYNONYM	LBE03	LBE03		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo-Abietetum albae
+LBE03:a44f531e60	Vaccinio myrtilli-Abietetum	Kuoch 1954 (§ 31, mladší homonymum, non: Vaccinio myrtilli-Abietetum albae Zeidler 1953) typische Variante	ASSOCIATION	SYNONYM	LBE03	LBE03		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo-Abietetum albae
+LBE03:dde12accb0	Deschampsio flexuosae-Abietetum	Husová 1968	ASSOCIATION	SYNONYM	LBE03	LBE03		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Luzulo-Abietetum albae
+LBE04	Vaccinio myrtilli-Abietetum albae	Zeidler 1953	ASSOCIATION	ACCEPTED		LBE04		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Vaccinio myrtilli-Abietetum albae
+LBE04:28b6bc44a2	Vaccinio myrtilli-Abietetum	Kuoch 1954	ASSOCIATION	SYNONYM	LBE04	LBE04		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Vaccinio myrtilli-Abietetum albae
+LBE04:a4175287a3	Pleuroschisma trilobatum		ASSOCIATION	SYNONYM	LBE04	LBE04		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Vaccinio myrtilli-Abietetum albae
+LBE04:b2981a3875	Bazzanio-Abietetum	Ellenberg et Klötzli 1972	ASSOCIATION	SYNONYM	LBE04	LBE04		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Vaccinio myrtilli-Abietetum albae
+LBE04:f9a7486a86	Vaccinio vitis-idaeae-Abietetum	Oberdorfer 1957	ASSOCIATION	SYNONYM	LBE04	LBE04		Carpino-Fagetea		Luzulo-Fagion sylvaticae	Vaccinio myrtilli-Abietetum albae
+LBF	Tilio platyphylli-Acerion	Klika 1955	ALLIANCE	ACCEPTED		LBF		Carpino-Fagetea		Tilio platyphylli-Acerion	
+LBF01	Aceri-Tilietum	Faber 1936	ASSOCIATION	ACCEPTED		LBF01		Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:1d9f25d225	Tilio platyphylli-Abietetum	Husová 1968	ASSOCIATION	SYNONYM	LBF01	LBF01		Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:3f6db84ec1	Aceri-Carpinetum betuli	Klika 1941	ASSOCIATION	SYNONYM	LBF01	LBF01		Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:4e89ec1ce4	Aceri pseudoplatani-Fraxinetum	Rübel 1930	ASSOCIATION	SYNONYM	LBF01	LBF01	(§ 36, nomen ambiguum rejiciendum propositum)	Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:54396c937b	Poo nemoralis-Tilietum cordatae	Firbas et Sigmond 1928	ASSOCIATION	SYNONYM	LBF01	LBF01	(§ 37, nomen dubium)	Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:6352516d6a	Querco-Tilietum	Rühl 1967	ASSOCIATION	SYNONYM	LBF01	LBF01		Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:84886cc40b	Stellarietosum	Husová 1968 et	ASSOCIATION	SYNONYM	LBF01	LBF01		Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:885ec32bca	Acer pseudoplatanus-Fraxinus	Koch 1926	ASSOCIATION	SYNONYM	LBF01	LBF01		Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:8bc7bdaa99	Querco roboris-Aceretum	Husová 1968	ASSOCIATION	SYNONYM	LBF01	LBF01		Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF01:a073c45354	Typicum	Husová 1968	ASSOCIATION	SYNONYM	LBF01	LBF01		Carpino-Fagetea		Tilio platyphylli-Acerion	Aceri-Tilietum
+LBF02	Mercuriali perennis-Fraxinetum excelsioris	(Klika 1942) Husová in Moravec et al. 1982	ASSOCIATION	ACCEPTED		LBF02		Carpino-Fagetea		Tilio platyphylli-Acerion	Mercuriali perennis-Fraxinetum excelsioris
+LBF02:5199fc27ba	Aceri-Fraxinetum	Tüxen 1937	ASSOCIATION	SYNONYM	LBF02	LBF02	(§ 31, mladší homonymum, non: Aceri pseudoplatani-Fraxinetum Rübel 1930)	Carpino-Fagetea		Tilio platyphylli-Acerion	Mercuriali perennis-Fraxinetum excelsioris
+LBF02:a857534f2d	Aceri-Fagetum carpaticum	Klika 1942	ASSOCIATION	SYNONYM	LBF02	LBF02	(§ 36)	Carpino-Fagetea		Tilio platyphylli-Acerion	Mercuriali perennis-Fraxinetum excelsioris
+LBF03	Arunco dioici-Aceretum pseudoplatani	Moor 1952	ASSOCIATION	ACCEPTED		LBF03		Carpino-Fagetea		Tilio platyphylli-Acerion	Arunco dioici-Aceretum pseudoplatani
+LBF03:1d9f25d225	Tilio platyphylli-Abietetum	Husová 1968	ASSOCIATION	SYNONYM	LBF03	LBF03		Carpino-Fagetea		Tilio platyphylli-Acerion	Arunco dioici-Aceretum pseudoplatani
+LBF03:5b3b4016fa	Lunarietosum	Husová 1968	ASSOCIATION	SYNONYM	LBF03	LBF03		Carpino-Fagetea		Tilio platyphylli-Acerion	Arunco dioici-Aceretum pseudoplatani
+LBF03:8bc7bdaa99	Querco roboris-Aceretum	Husová 1968	ASSOCIATION	SYNONYM	LBF03	LBF03		Carpino-Fagetea		Tilio platyphylli-Acerion	Arunco dioici-Aceretum pseudoplatani
+LBF03:ae11443fdf	Lunario-Aceretum	Schlüter in Grüneberg et Schlüter 1957	ASSOCIATION	SYNONYM	LBF03	LBF03		Carpino-Fagetea		Tilio platyphylli-Acerion	Arunco dioici-Aceretum pseudoplatani
+LBF03:e94100e46c	Daphno mezerei-Aceretum pseudoplatani	Jeník et al. 1980	ASSOCIATION	SYNONYM	LBF03	LBF03		Carpino-Fagetea		Tilio platyphylli-Acerion	Arunco dioici-Aceretum pseudoplatani
+LBF04	Seslerio albicantis-Tilietum cordatae	Chytrý et Sádlo 1998	ASSOCIATION	ACCEPTED		LBF04		Carpino-Fagetea		Tilio platyphylli-Acerion	Seslerio albicantis-Tilietum cordatae
+LBF04:58b6cc03d4	Seslerietosum	Willner in Willner et Grabherr 2007	ASSOCIATION	SYNONYM	LBF04	LBF04	prov.	Carpino-Fagetea		Tilio platyphylli-Acerion	Seslerio albicantis-Tilietum cordatae
+LBF04:f272dee50c	Aceri-Tilietum	Faber 1936	ASSOCIATION	SYNONYM	LBF04	LBF04		Carpino-Fagetea		Tilio platyphylli-Acerion	Seslerio albicantis-Tilietum cordatae
+TD	Molinio-Arrhenatheretea	Tüxen 1937	CLASS	ACCEPTED		TD		Molinio-Arrhenatheretea			
+TDA	Arrhenatherion elatioris	Luquet 1926	ALLIANCE	ACCEPTED		TDA		Molinio-Arrhenatheretea		Arrhenatherion elatioris	
+TDA:04d8c93db4	Arrhenatherion elatioris	Koch 1926	ALLIANCE	SYNONYM	TDA	TDA	(§ 2b, nomen nudum)	Molinio-Arrhenatheretea		Arrhenatherion elatioris	
+TDA01	Pastinaco sativae-Arrhenatheretum elatioris	Passarge 1964	ASSOCIATION	ACCEPTED		TDA01		Molinio-Arrhenatheretea		Arrhenatherion elatioris	Pastinaco sativae-Arrhenatheretum elatioris
+TDA01:529a80d1a5	Arrhenatheretum elatioris	Braun 1915	ASSOCIATION	SYNONYM	TDA01	TDA01	(§ 36, nomen ambiguum)	Molinio-Arrhenatheretea		Arrhenatherion elatioris	Pastinaco sativae-Arrhenatheretum elatioris
+TDA02	Ranunculo bulbosi-Arrhenatheretum elatioris	Ellmauer in Mucina et al. 1993	ASSOCIATION	ACCEPTED		TDA02		Molinio-Arrhenatheretea		Arrhenatherion elatioris	Ranunculo bulbosi-Arrhenatheretum elatioris
+TDA02:ca30830f7a	Arrhenatheretum elatioris	Scherrer 1925	ASSOCIATION	SYNONYM	TDA02	TDA02	(§ 31, mladší homonymum: non Arrhenatheretum elatioris Braun 1915)	Molinio-Arrhenatheretea		Arrhenatherion elatioris	Ranunculo bulbosi-Arrhenatheretum elatioris
+TDA03	Poo-Trisetetum flavescentis	Knapp ex Oberdorfer 1957	ASSOCIATION	ACCEPTED		TDA03		Molinio-Arrhenatheretea		Arrhenatherion elatioris	Poo-Trisetetum flavescentis
+TDA03:3a7754d0f7	Phyteumato-Festucetum	Passarge 1968	ASSOCIATION	SYNONYM	TDA03	TDA03		Molinio-Arrhenatheretea		Arrhenatherion elatioris	Poo-Trisetetum flavescentis
+TDA03:543f3e7c19	Trifolio-Festucetum rubrae	Oberdorfer 1957	ASSOCIATION	SYNONYM	TDA03	TDA03	prov. (§ 3b)	Molinio-Arrhenatheretea		Arrhenatherion elatioris	Poo-Trisetetum flavescentis
+TDA04	Potentillo albae-Festucetum rubrae	Blažková 1979	ASSOCIATION	ACCEPTED		TDA04		Molinio-Arrhenatheretea		Arrhenatherion elatioris	Potentillo albae-Festucetum rubrae
+TDB	Polygono bistortae-Trisetion flavescentis	Br.-Bl. et Tüxen ex Marschall 1947	ALLIANCE	ACCEPTED		TDB		Molinio-Arrhenatheretea		Polygono bistortae-Trisetion flavescentis	
+TDB:047711e5fd	Triseto-Polygonion bistortae	Br.-Bl. et Tx. 1943	ALLIANCE	SYNONYM	TDB	TDB	(§ 2b, nomen nudum)	Molinio-Arrhenatheretea		Polygono bistortae-Trisetion flavescentis	
+TDB:b4652993c2	Phyteumo-Trisetion	(Passarge 1969) Ellmauer et Mucina in Mucina et al. 1993	ALLIANCE	SYNONYM	TDB	TDB		Molinio-Arrhenatheretea		Polygono bistortae-Trisetion flavescentis	
+TDB01	Geranio sylvatici-Trisetetum flavescentis	Knapp ex Oberdorfer 1957	ASSOCIATION	ACCEPTED		TDB01		Molinio-Arrhenatheretea		Polygono bistortae-Trisetion flavescentis	Geranio sylvatici-Trisetetum flavescentis
+TDB02	Melandrio rubri-Phleetum alpini	Blažková in Krahulec et al. 1997	ASSOCIATION	ACCEPTED		TDB02		Molinio-Arrhenatheretea		Polygono bistortae-Trisetion flavescentis	Melandrio rubri-Phleetum alpini
+TDB03	Meo athamantici-Festucetum rubrae	Bartsch et Bartsch 1940	ASSOCIATION	ACCEPTED		TDB03		Molinio-Arrhenatheretea		Polygono bistortae-Trisetion flavescentis	Meo athamantici-Festucetum rubrae
+TDC	Cynosurion cristati	Tüxen 1947	ALLIANCE	ACCEPTED		TDC		Molinio-Arrhenatheretea		Cynosurion cristati	
+TDC:14a536cd45	Lolio-Cynosurenion	Jurko 1974	SUBALLIANCE	SYNONYM	TDC	TDC		Molinio-Arrhenatheretea		Cynosurion cristati	
+TDC:1b37af7395	Plantagini-Prunellion	Eliáš 1980	ALLIANCE	SYNONYM	TDC	TDC		Molinio-Arrhenatheretea		Cynosurion cristati	
+TDC:c4f69809ef	Polygalo-Cynosurenion	Jurko 1974	SUBALLIANCE	SYNONYM	TDC	TDC		Molinio-Arrhenatheretea		Cynosurion cristati	
+TDC:d57c95b1d8	Polygonion avicularis	Aichinger 1933	ALLIANCE	SYNONYM	TDC	TDC	(§ 36, nomen ambiguum)	Molinio-Arrhenatheretea		Cynosurion cristati	
+TDC:e7e2e69cf2	Lolion perennis	Felföldy 1942 (potenciálně správné jméno)	ALLIANCE	SYNONYM	TDC	TDC		Molinio-Arrhenatheretea		Cynosurion cristati	
+TDC01	Lolio perennis-Cynosuretum cristati	Tüxen 1937	ASSOCIATION	ACCEPTED		TDC01		Molinio-Arrhenatheretea		Cynosurion cristati	Lolio perennis-Cynosuretum cristati
+TDC01:5b683c1e15	Caro-Poëtum pratensis	Blažková 1967	ASSOCIATION	SYNONYM	TDC01	TDC01		Molinio-Arrhenatheretea		Cynosurion cristati	Lolio perennis-Cynosuretum cristati
+TDC01:c003b05052	Festuco-Cynosuretum	Tüxen in Büker 1942	ASSOCIATION	SYNONYM	TDC01	TDC01		Molinio-Arrhenatheretea		Cynosurion cristati	Lolio perennis-Cynosuretum cristati
+TDC01:dd8b4ef95d	Lolium-Cynosurus	Braun-Blanquet et De Leeuw 1936	ASSOCIATION	SYNONYM	TDC01	TDC01	(§ 3c)	Molinio-Arrhenatheretea		Cynosurion cristati	Lolio perennis-Cynosuretum cristati
+TDC02	Anthoxantho odorati-Agrostietum tenuis	Sillinger 1933	ASSOCIATION	ACCEPTED		TDC02		Molinio-Arrhenatheretea		Cynosurion cristati	Anthoxantho odorati-Agrostietum tenuis
+TDC02:86c5a91c6e	Agrostio vulgaris-Gladioletum imbricati	Br.-Bl. 1930	ASSOCIATION	SYNONYM	TDC02	TDC02	(§ 2b, nomen nudum)	Molinio-Arrhenatheretea		Cynosurion cristati	Anthoxantho odorati-Agrostietum tenuis
+TDC03	Lolietum perennis	Gams 1927	ASSOCIATION	ACCEPTED		TDC03		Molinio-Arrhenatheretea		Cynosurion cristati	Lolietum perennis
+TDC03:7d53835925	Festuco rupicolae-Lolietum perennis	Hadač et Rambousková 1980	ASSOCIATION	SYNONYM	TDC03	TDC03		Molinio-Arrhenatheretea		Cynosurion cristati	Lolietum perennis
+TDC03:81f057bb86	Lolio perennis-Plantaginetum majoris	Beger 1930	ASSOCIATION	SYNONYM	TDC03	TDC03		Molinio-Arrhenatheretea		Cynosurion cristati	Lolietum perennis
+TDC03:d26887973b	Lolio perennis-Polygonetum avicularis	Br.-Bl. 1930	ASSOCIATION	SYNONYM	TDC03	TDC03	p. p.	Molinio-Arrhenatheretea		Cynosurion cristati	Lolietum perennis
+TDC04	Prunello vulgaris-Ranunculetum repentis	Winterhoff 1963	ASSOCIATION	ACCEPTED		TDC04		Molinio-Arrhenatheretea		Cynosurion cristati	Prunello vulgaris-Ranunculetum repentis
+TDC04:014b4553a9	Juncetum tenuis		ASSOCIATION	MISAPPLIED	TDC04	TDC04	sensu auct. non Schwickerath 1944 prov.	Molinio-Arrhenatheretea		Cynosurion cristati	Prunello vulgaris-Ranunculetum repentis
+TDC04:2b31cb9c01	Plantagini-Juncetum macri	Oberdorfer 1957	ASSOCIATION	SYNONYM	TDC04	TDC04	prov. (§ 3b)	Molinio-Arrhenatheretea		Cynosurion cristati	Prunello vulgaris-Ranunculetum repentis
+TDC04:84b14d72d0	Prunello-Plantaginetum majoris	Faliński 1963	ASSOCIATION	SYNONYM	TDC04	TDC04	prov. (§ 3b)	Molinio-Arrhenatheretea		Cynosurion cristati	Prunello vulgaris-Ranunculetum repentis
+TDC04:9917ed5161	Alchemillo-Prunelletum vulgaris	Passarge 1979	ASSOCIATION	SYNONYM	TDC04	TDC04		Molinio-Arrhenatheretea		Cynosurion cristati	Prunello vulgaris-Ranunculetum repentis
+TDC05	Alchemillo hybridae-Poëtum supinae	Aichinger 1933	ASSOCIATION	ACCEPTED		TDC05		Molinio-Arrhenatheretea		Cynosurion cristati	Alchemillo hybridae-Poëtum supinae
+TDD	Molinion caeruleae	Koch 1926	ALLIANCE	ACCEPTED		TDD		Molinio-Arrhenatheretea		Molinion caeruleae	
+TDD01	Molinietum caeruleae	Koch 1926	ASSOCIATION	ACCEPTED		TDD01		Molinio-Arrhenatheretea		Molinion caeruleae	Molinietum caeruleae
+TDD01:0d878f0a86	Sanguisorbo-Festucetum pratensis	Blažková 1973	ASSOCIATION	SYNONYM	TDD01	TDD01		Molinio-Arrhenatheretea		Molinion caeruleae	Molinietum caeruleae
+TDD01:0fda1c99f1	Sanguisorbo-Festucetum commutatae	Balátová-Tuláčková 1959	ASSOCIATION	SYNONYM	TDD01	TDD01	p. p.	Molinio-Arrhenatheretea		Molinion caeruleae	Molinietum caeruleae
+TDD01:7b2093f42a	Serratulo-Festucetum commutatae	Balátová-Tuláčková 1966	ASSOCIATION	SYNONYM	TDD01	TDD01	p. p.	Molinio-Arrhenatheretea		Molinion caeruleae	Molinietum caeruleae
+TDD01:8538cf2e9e	Gentiano pneumonanthis-Molinietum litoralis	Ilijanić 1968	ASSOCIATION	SYNONYM	TDD01	TDD01		Molinio-Arrhenatheretea		Molinion caeruleae	Molinietum caeruleae
+TDD01:f1f85e67f8	Silaëtum pratensis	Knapp 1954	ASSOCIATION	SYNONYM	TDD01	TDD01		Molinio-Arrhenatheretea		Molinion caeruleae	Molinietum caeruleae
+TDD02	Junco effusi-Molinietum caeruleae	Tüxen 1954	ASSOCIATION	ACCEPTED		TDD02		Molinio-Arrhenatheretea		Molinion caeruleae	Junco effusi-Molinietum caeruleae
+TDD02:0fda1c99f1	Sanguisorbo-Festucetum commutatae	Balátová-Tuláčková 1959	ASSOCIATION	SYNONYM	TDD02	TDD02	p. p.	Molinio-Arrhenatheretea		Molinion caeruleae	Junco effusi-Molinietum caeruleae
+TDD02:2d8cbb766a	Junco-Molinietum caeruleae	Preising 1951	ASSOCIATION	SYNONYM	TDD02	TDD02	(§ 2b, nomen nudum)	Molinio-Arrhenatheretea		Molinion caeruleae	Junco effusi-Molinietum caeruleae
+TDE	Deschampsion cespitosae	Horvatić 1930	ALLIANCE	ACCEPTED		TDE		Molinio-Arrhenatheretea		Deschampsion cespitosae	
+TDE:47e7290cb9	Cnidion venosi	Balátová-Tuláčková 1965	ALLIANCE	SYNONYM	TDE	TDE		Molinio-Arrhenatheretea		Deschampsion cespitosae	
+TDE:7a91c120be	Agrostion albae	Soó 1941	ALLIANCE	SYNONYM	TDE	TDE		Molinio-Arrhenatheretea		Deschampsion cespitosae	
+TDE:97c04dca2c	Cnidion venosi	Balátová-Tuláčková 1966	ALLIANCE	SYNONYM	TDE	TDE		Molinio-Arrhenatheretea		Deschampsion cespitosae	
+TDE:be27d853ba	Veronico longifoliae-Lysimachion vulgaris	(Passarge 1977) Balátová-Tuláčková 1981	ALLIANCE	SYNONYM	TDE	TDE		Molinio-Arrhenatheretea		Deschampsion cespitosae	
+TDE:fae37985ee	Alopecurion pratensis	Passarge 1964	ALLIANCE	SYNONYM	TDE	TDE		Molinio-Arrhenatheretea		Deschampsion cespitosae	
+TDE01	Poo trivialis-Alopecuretum pratensis	Regel 1925	ASSOCIATION	ACCEPTED		TDE01		Molinio-Arrhenatheretea		Deschampsion cespitosae	Poo trivialis-Alopecuretum pratensis
+TDE01:00e9ae8bae	Sanguisorbo-Deschampsietum cespitosae	Moravec 1965	ASSOCIATION	SYNONYM	TDE01	TDE01		Molinio-Arrhenatheretea		Deschampsion cespitosae	Poo trivialis-Alopecuretum pratensis
+TDE01:0dec7cba6f	Alopecuretum pratensis	Steffen 1931	ASSOCIATION	SYNONYM	TDE01	TDE01		Molinio-Arrhenatheretea		Deschampsion cespitosae	Poo trivialis-Alopecuretum pratensis
+TDE01:26acf1dea7	Deschampsio cespitosae-Heracleetum sibirici	Libbert 1932	ASSOCIATION	SYNONYM	TDE01	TDE01		Molinio-Arrhenatheretea		Deschampsion cespitosae	Poo trivialis-Alopecuretum pratensis
+TDE01:4963d3dc7c	Agrostio-Deschampsietum cespitosae	Ujvárosi 1947	ASSOCIATION	SYNONYM	TDE01	TDE01		Molinio-Arrhenatheretea		Deschampsion cespitosae	Poo trivialis-Alopecuretum pratensis
+TDE01:68efc91ae2	Stellario-Deschampsietum cespitosae	Freitag 1957	ASSOCIATION	SYNONYM	TDE01	TDE01		Molinio-Arrhenatheretea		Deschampsion cespitosae	Poo trivialis-Alopecuretum pratensis
+TDE01:ac1b99862e	Alopecuretum pratensis	Regel 1925	ASSOCIATION	SYNONYM	TDE01	TDE01	(§ 36, nomen ambiguum)	Molinio-Arrhenatheretea		Deschampsion cespitosae	Poo trivialis-Alopecuretum pratensis
+TDE01:fc00bd278c	Agropyro-Alopecuretum	Moravec 1965	ASSOCIATION	SYNONYM	TDE01	TDE01		Molinio-Arrhenatheretea		Deschampsion cespitosae	Poo trivialis-Alopecuretum pratensis
+TDE02	Holcetum lanati	Issler 1934	ASSOCIATION	ACCEPTED		TDE02		Molinio-Arrhenatheretea		Deschampsion cespitosae	Holcetum lanati
+TDE02:b60e73b2dc	Holcetum lanati	Gams 1927	ASSOCIATION	SYNONYM	TDE02	TDE02	(§ 2b, nomen nudum)	Molinio-Arrhenatheretea		Deschampsion cespitosae	Holcetum lanati
+TDE03	Lathyro palustris-Gratioletum officinalis	Balátová-Tuláčková 1966	ASSOCIATION	ACCEPTED		TDE03		Molinio-Arrhenatheretea		Deschampsion cespitosae	Lathyro palustris-Gratioletum officinalis
+TDE03:2f01d2556d	Juncetum atrati	Vicherek in Balátová-Tuláčková 1969	ASSOCIATION	SYNONYM	TDE03	TDE03	prov.	Molinio-Arrhenatheretea		Deschampsion cespitosae	Lathyro palustris-Gratioletum officinalis
+TDE03:ed26896f5a	Carici vulpinae-Alopecuretum	(Kovács et Máthé 1967) Soó 1971 corr. Borhidi 1996	ASSOCIATION	SYNONYM	TDE03	TDE03		Molinio-Arrhenatheretea		Deschampsion cespitosae	Lathyro palustris-Gratioletum officinalis
+TDE04	Cnidio dubii-Deschampsietum cespitosae	Passarge 1960	ASSOCIATION	ACCEPTED		TDE04		Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:07b61abb50	Cnidio dubii-Violetum pumilae	Balátová-Tuláčková 1969	ASSOCIATION	SYNONYM	TDE04	TDE04		Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:2c7e1ab941	Cnidio		ASSOCIATION	SYNONYM	TDE04	TDE04		Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:31b9ab8403	Festucetum commutatae	Balátová-Tuláčková 1966	ASSOCIATION	SYNONYM	TDE04	TDE04	p. p.	Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:4c75c31926	Cnidium dubium-Viola pumila	Gesellschaft Korneck 1962	ASSOCIATION	SYNONYM	TDE04	TDE04		Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:5d3569763a	Jaceetum angustifoliae	Vicherek 1962	ASSOCIATION	SYNONYM	TDE04	TDE04		Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:88c86fb8f0	Cnidio venosi	venosi-	ASSOCIATION	SYNONYM	TDE04	TDE04		Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:9458754c45	Serratulo		ASSOCIATION	SYNONYM	TDE04	TDE04		Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:994229a3a5	Violetum elatioris	Walther in Tüxen 1954	ASSOCIATION	SYNONYM	TDE04	TDE04	(§ 3f)	Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:ab9657cc23	Violo-Cnidietum	Walther ex Philippi 1960	ASSOCIATION	SYNONYM	TDE04	TDE04	(fantom)	Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:cf35810d9d	Deschampsia cespitosa-Cnidium	Hundt 1958	ASSOCIATION	SYNONYM	TDE04	TDE04	(§ 3d)	Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE04:cfaf988041	Gratiolo officinalis-Caricetum suzae	Balátová-Tuláčková 1966	ASSOCIATION	SYNONYM	TDE04	TDE04		Molinio-Arrhenatheretea		Deschampsion cespitosae	Cnidio dubii-Deschampsietum cespitosae
+TDE05	Scutellario hastifoliae-Veronicetum longifoliae	Walther 1955	ASSOCIATION	ACCEPTED		TDE05		Molinio-Arrhenatheretea		Deschampsion cespitosae	Scutellario hastifoliae-Veronicetum longifoliae
+TDE05:0e15d39805	Filipenduletum picbaueri	Balátová-Tuláčková 1981	ASSOCIATION	SYNONYM	TDE05	TDE05		Molinio-Arrhenatheretea		Deschampsion cespitosae	Scutellario hastifoliae-Veronicetum longifoliae
+TDE05:10491fe2a0	Lysimachio		ASSOCIATION	SYNONYM	TDE05	TDE05		Molinio-Arrhenatheretea		Deschampsion cespitosae	Scutellario hastifoliae-Veronicetum longifoliae
+TDE05:1072f796b3	Veronico longifoliae-Euphorbietum lucidae	Balátová-Tuláčková et Knežević 1975	ASSOCIATION	SYNONYM	TDE05	TDE05		Molinio-Arrhenatheretea		Deschampsion cespitosae	Scutellario hastifoliae-Veronicetum longifoliae
+TDE05:89bea2a5b3	Veronico longifoliae-Euphorbietum palustris	Korneck 1963	ASSOCIATION	SYNONYM	TDE05	TDE05		Molinio-Arrhenatheretea		Deschampsion cespitosae	Scutellario hastifoliae-Veronicetum longifoliae
+TDE05:cf9fddbb99	Pseudolysimachio longifoliae-Alopecuretum	Blažková 1993.	ASSOCIATION	SYNONYM	TDE05	TDE05		Molinio-Arrhenatheretea		Deschampsion cespitosae	Scutellario hastifoliae-Veronicetum longifoliae
+TDE05:e41015a490	Stachyo palustris-Thalictretum flavae	Balátová-Tuláčková 1981	ASSOCIATION	SYNONYM	TDE05	TDE05		Molinio-Arrhenatheretea		Deschampsion cespitosae	Scutellario hastifoliae-Veronicetum longifoliae
+TDF	Calthion palustris	Tüxen 1937	ALLIANCE	ACCEPTED		TDF		Molinio-Arrhenatheretea		Calthion palustris	
+TDF:3884a54078	Filipendulenion	(Lohmeyer in Oberd. et al. 1967) Balátová-Tuláčková 1978	SUBALLIANCE	SYNONYM	TDF	TDF		Molinio-Arrhenatheretea		Calthion palustris	
+TDF:447ba005c1	Filipendulo ulmariae-Petasition hybridi	Br.-Bl. ex Duvigneaud 1949	ALLIANCE	SYNONYM	TDF	TDF		Molinio-Arrhenatheretea		Calthion palustris	
+TDF:4b3c030d46	Filipendulion ulmariae	Segal 1966	ALLIANCE	SYNONYM	TDF	TDF		Molinio-Arrhenatheretea		Calthion palustris	
+TDF:5713bc2973	Filipendulion ulmariae	Lohmeyer in Oberdorfer et al. 1967	ALLIANCE	SYNONYM	TDF	TDF		Molinio-Arrhenatheretea		Calthion palustris	
+TDF01	Angelico sylvestris-Cirsietum oleracei	Tüxen 1937	ASSOCIATION	ACCEPTED		TDF01		Molinio-Arrhenatheretea		Calthion palustris	Angelico sylvestris-Cirsietum oleracei
+TDF02	Cirsietum rivularis	Nowiński 1927	ASSOCIATION	ACCEPTED		TDF02		Molinio-Arrhenatheretea		Calthion palustris	Cirsietum rivularis
+TDF02:876d77b22b	Trollio-Cirsietum salisburgensis	(Kuhn 1937) Oberdorfer 1957	ASSOCIATION	SYNONYM	TDF02	TDF02		Molinio-Arrhenatheretea		Calthion palustris	Cirsietum rivularis
+TDF03	Angelico sylvestris-Cirsietum palustris	Darimont ex Balátová-Tuláčková 1973	ASSOCIATION	ACCEPTED		TDF03		Molinio-Arrhenatheretea		Calthion palustris	Angelico sylvestris-Cirsietum palustris
+TDF03:23d21aa9b3	Cirsio palustris-Calthetum	Balátová-Tuláčková 1997	ASSOCIATION	SYNONYM	TDF03	TDF03		Molinio-Arrhenatheretea		Calthion palustris	Angelico sylvestris-Cirsietum palustris
+TDF03:4ad3ebaedf	Junco filiformis-Polygonetum bistortae	Balátová-Tuláčková 1981	ASSOCIATION	SYNONYM	TDF03	TDF03		Molinio-Arrhenatheretea		Calthion palustris	Angelico sylvestris-Cirsietum palustris
+TDF03:c16997dfe0	Polygono-Cirsietum palustris	Balátová-Tuláčková 1974	ASSOCIATION	SYNONYM	TDF03	TDF03		Molinio-Arrhenatheretea		Calthion palustris	Angelico sylvestris-Cirsietum palustris
+TDF03:d15814d3f1	Sanguisorbo-Polygonetum bistortae	Balátová-Tuláčková 1985	ASSOCIATION	SYNONYM	TDF03	TDF03		Molinio-Arrhenatheretea		Calthion palustris	Angelico sylvestris-Cirsietum palustris
+TDF04	Crepido paludosae-Juncetum acutiflori	Oberdorfer 1957	ASSOCIATION	ACCEPTED		TDF04		Molinio-Arrhenatheretea		Calthion palustris	Crepido paludosae-Juncetum acutiflori
+TDF04:5c617f51d2	Juncetum sylvatici	Braun 1915	ASSOCIATION	SYNONYM	TDF04	TDF04		Molinio-Arrhenatheretea		Calthion palustris	Crepido paludosae-Juncetum acutiflori
+TDF04:add0e8dfd8	Juncetum acutiflori		ASSOCIATION	MISAPPLIED	TDF04	TDF04	sensu auct. non Braun 1915 (pseudonym)	Molinio-Arrhenatheretea		Calthion palustris	Crepido paludosae-Juncetum acutiflori
+TDF05	Polygono bistortae-Cirsietum heterophylli	Balátová-Tuláčková 1975	ASSOCIATION	ACCEPTED		TDF05		Molinio-Arrhenatheretea		Calthion palustris	Polygono bistortae-Cirsietum heterophylli
+TDF05:a50bab63c6	Deschampsio-Cirsietum heterophylli	Balátová-Tuláčková 1985	ASSOCIATION	SYNONYM	TDF05	TDF05		Molinio-Arrhenatheretea		Calthion palustris	Polygono bistortae-Cirsietum heterophylli
+TDF06	Chaerophyllo hirsuti-Calthetum palustris	Balátová-Tuláčková 1985	ASSOCIATION	ACCEPTED		TDF06		Molinio-Arrhenatheretea		Calthion palustris	Chaerophyllo hirsuti-Calthetum palustris
+TDF06:8477c18302	Chaerophyllum cicutaria	et	ASSOCIATION	SYNONYM	TDF06	TDF06		Molinio-Arrhenatheretea		Calthion palustris	Chaerophyllo hirsuti-Calthetum palustris
+TDF06:f0aeeb8c03	Chaerophyllo hirsuti-Crepidetum paludosae	Balátová-Tuláčková in Balátová-Tuláčková et Venanzoni 1990	ASSOCIATION	SYNONYM	TDF06	TDF06		Molinio-Arrhenatheretea		Calthion palustris	Chaerophyllo hirsuti-Calthetum palustris
+TDF06:fb3583c5f3	Caltha palustris	Buttler et al. 1983	ASSOCIATION	SYNONYM	TDF06	TDF06	(§ 3c)	Molinio-Arrhenatheretea		Calthion palustris	Chaerophyllo hirsuti-Calthetum palustris
+TDF07	Scirpo sylvatici-Cirsietum cani	Balátová-Tuláčková 1973	ASSOCIATION	ACCEPTED		TDF07		Molinio-Arrhenatheretea		Calthion palustris	Scirpo sylvatici-Cirsietum cani
+TDF08	Scirpetum sylvatici	Ralski 1931	ASSOCIATION	ACCEPTED		TDF08		Molinio-Arrhenatheretea		Calthion palustris	Scirpetum sylvatici
+TDF08:6a304c43de	Polygono-Scirpetum	(Schwickerath 1944) Oberdorfer 1957	ASSOCIATION	SYNONYM	TDF08	TDF08		Molinio-Arrhenatheretea		Calthion palustris	Scirpetum sylvatici
+TDF08:97b5f0cc8a	Junco filiformis-Scirpetum	Oberdorfer 1957	ASSOCIATION	SYNONYM	TDF08	TDF08		Molinio-Arrhenatheretea		Calthion palustris	Scirpetum sylvatici
+TDF08:c1b574360a	Scirpetum sylvatici	Knapp 1946	ASSOCIATION	SYNONYM	TDF08	TDF08		Molinio-Arrhenatheretea		Calthion palustris	Scirpetum sylvatici
+TDF08:e58cf8f791	Scirpetum sylvatici	Schwickerath 1944	ASSOCIATION	SYNONYM	TDF08	TDF08	prov.	Molinio-Arrhenatheretea		Calthion palustris	Scirpetum sylvatici
+TDF09	Caricetum cespitosae	Steffen 1931	ASSOCIATION	ACCEPTED		TDF09		Molinio-Arrhenatheretea		Calthion palustris	Caricetum cespitosae
+TDF10	Scirpo sylvatici-Caricetum brizoidis	Kučera et al. 1994	ASSOCIATION	ACCEPTED		TDF10		Molinio-Arrhenatheretea		Calthion palustris	Scirpo sylvatici-Caricetum brizoidis
+TDF11	Junco inflexi-Menthetum longifoliae	Lohmeyer ex Oberdorfer 1957	ASSOCIATION	ACCEPTED		TDF11		Molinio-Arrhenatheretea		Calthion palustris	Junco inflexi-Menthetum longifoliae
+TDF11:9009815fc6	Junco inflexi-Menthetum longifoliae	Lohmeyer 1953	ASSOCIATION	SYNONYM	TDF11	TDF11	prov. (§ 3b)	Molinio-Arrhenatheretea		Calthion palustris	Junco inflexi-Menthetum longifoliae
+TDF12	Filipendulo ulmariae-Geranietum palustris	Koch 1926	ASSOCIATION	ACCEPTED		TDF12		Molinio-Arrhenatheretea		Calthion palustris	Filipendulo ulmariae-Geranietum palustris
+TDF13	Lysimachio vulgaris-Filipenduletum ulmariae	Balátová-Tuláčková 1978	ASSOCIATION	ACCEPTED		TDF13		Molinio-Arrhenatheretea		Calthion palustris	Lysimachio vulgaris-Filipenduletum ulmariae
+TDF14	Chaerophyllo hirsuti-Filipenduletum ulmariae	Niemann et al. 1973	ASSOCIATION	ACCEPTED		TDF14		Molinio-Arrhenatheretea		Calthion palustris	Chaerophyllo hirsuti-Filipenduletum ulmariae

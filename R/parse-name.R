@@ -159,8 +159,13 @@ normalize_authorship <- function(x) {
 #' matcher uses drives the parse, so a name breaks apart the way it matches.
 #'
 #' @param x Character vector of taxonomic names.
+#' @param code Character. The nomenclature the names follow: `"taxon"`
+#'   (default; botanical and zoological names) or `"syntaxon"` (vegetation
+#'   units under the International Code of Phytosociological Nomenclature,
+#'   the names a syntaxon backbone such as `"evc"` matches; see [taxify()]).
 #'
-#' @return A data.frame with one row per input name and columns:
+#' @return For `code = "taxon"`, a data.frame with one row per input name and
+#'   columns:
 #' \describe{
 #'   \item{input_name}{The original name as supplied.}
 #'   \item{genus}{The genus (first token), or a single-letter initial for an
@@ -185,6 +190,29 @@ normalize_authorship <- function(x) {
 #'     which is not a single taxon.}
 #' }
 #'
+#' For `code = "syntaxon"`, a data.frame with one row per input name and
+#' columns:
+#' \describe{
+#'   \item{input_name}{The original name as supplied.}
+#'   \item{code}{A national or database code written in front of the name
+#'     (`"TDA - Arrhenatherion elatioris"`, `"41BB03 - Tilio-Carpinetum"`), or
+#'     `NA`.}
+#'   \item{name}{The syntaxon name without author or annotations, the form
+#'     the matcher looks up. Where a record names several units, the most
+#'     specific rank-labelled one (`"all. X, ord. Y"`), else the first.}
+#'   \item{authorship}{The author citation (`"(Oberd. 1957) Passarge 1964"`),
+#'     or `NA`.}
+#'   \item{rank}{The rank the name's suffix denotes: `"class"` (-etea),
+#'     `"order"` (-etalia), `"alliance"` (-ion), `"suballiance"` (-enion),
+#'     `"association"` (-etum), `"subassociation"` (a trailing -etosum),
+#'     `"subclass"`, `"suborder"`, or `NA`.}
+#'   \item{qualifier}{`"?"` for a doubtful assignment, `"cf."`, `"s.l."`,
+#'     `"s.str."`, or `NA`.}
+#'   \item{name_status}{Nomenclatural annotations after the citation
+#'     (`"nom. inval. (5a)"`, `"(syntax.syn.)"`, `"(Regionalverband)"`), or
+#'     `NA`.}
+#' }
+#'
 #' @seealso [taxify()] to match a name; `parse_name()` exposes the same internal
 #'   cleaning pipeline the matcher runs.
 #'
@@ -195,11 +223,18 @@ normalize_authorship <- function(x) {
 #'              "Pinus cf. sylvestris",
 #'              "Salix alba x Salix fragilis"))
 #'
+#' parse_name(c("Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967",
+#'              "TDA - Arrhenatherion elatioris",
+#'              "Conioselinion tatarici Golub et al. 2003 nom. inval. (5a)"),
+#'            code = "syntaxon")
+#'
 #' @export
-parse_name <- function(x) {
+parse_name <- function(x, code = c("taxon", "syntaxon")) {
   if (!is.character(x)) {
     stop("x must be a character vector.", call. = FALSE)
   }
+  code <- match.arg(code)
+  if (code == "syntaxon") return(parse_syntaxon(x))
   n <- length(x)
   empty <- data.frame(
     input_name = character(0L), genus = character(0L),

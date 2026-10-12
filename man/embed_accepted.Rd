@@ -9,8 +9,8 @@ embed_accepted(
   id_col,
   acc_id_col,
   name_col,
-  family_col,
-  genus_col,
+  family_col = NULL,
+  genus_col = NULL,
   status_col,
   synonym_pattern = "SYNONYM",
   authorship_col = NULL
@@ -25,9 +25,10 @@ embed_accepted(
 
 \item{name_col}{Name of the canonical name column.}
 
-\item{family_col}{Name of the family column.}
+\item{family_col}{Name of the family column, or \code{NULL} for a backbone
+without one (a syntaxon backbone); \code{accepted_family} is then not added.}
 
-\item{genus_col}{Name of the genus column.}
+\item{genus_col}{Name of the genus column, or \code{NULL} likewise.}
 
 \item{status_col}{Name of the taxonomic status column.}
 

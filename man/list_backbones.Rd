@@ -11,7 +11,11 @@ list_backbones(verbose = TRUE)
 }
 \value{
 A data.frame with columns: \code{name}, \code{scope}, \code{n_names}, \code{size_mb},
-\code{version}, \code{source_date}, \code{installed}, \code{source}. \code{n_names}, \code{size_mb}, and
+\code{version}, \code{source_date}, \code{installed}, \code{code}, \code{source}. \code{code} is the
+nomenclature the backbone's names follow: \code{"taxon"} for the taxonomic
+backbones, \code{"syntaxon"} for a backbone of vegetation units (\code{"evc"}, the
+EuroVegChecklist), which is matched only when named in
+\code{taxify(backbone = )}. \code{n_names}, \code{size_mb}, and
 \code{version} are \code{NA} for any backbone the manifest does not yet describe or
 when the manifest cannot be fetched offline.
 

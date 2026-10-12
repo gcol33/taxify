@@ -65,14 +65,25 @@ authorship_compatible <- function(input_auth, cand_auth) {
 #'
 #' @param result The match result data.frame (post `run_match_stages`).
 #' @param vtr_path Path to the backbone `.vtr`.
+#' @param input_authorship The authorship of each input, parallel to the rows
+#'   of `result`, when the cleaner has parsed it (syntaxon names); `NULL` reads
+#'   it from `input_name` with the taxon parser.
+#' @param hierarchy Hierarchy columns of the backbone (`col_map$hierarchy`),
+#'   rewritten with the resolution; `NULL` for none.
 #' @return `result`, with any author-resolved rows rewritten.
 #' @noRd
-disambiguate_by_authorship <- function(result, vtr_path) {
+disambiguate_by_authorship <- function(result, vtr_path,
+                                       input_authorship = NULL,
+                                       hierarchy = NULL) {
   if (is.null(result$matched_name) || is.null(result$input_name)) return(result)
   rows <- which(!is.na(result$matched_name) & !is.na(result$input_name))
   if (length(rows) == 0L) return(result)
 
-  auth_raw <- parse_authorship_vec(result$input_name[rows])
+  auth_raw <- if (is.null(input_authorship)) {
+    parse_authorship_vec(result$input_name[rows])
+  } else {
+    input_authorship[rows]
+  }
   auth_in  <- normalize_authorship(auth_raw)
   have_auth <- !is.na(auth_in)
   rows     <- rows[have_auth]
@@ -84,7 +95,7 @@ disambiguate_by_authorship <- function(result, vtr_path) {
   want_cols <- c("canonical_name", "authorship", "taxon_id",
                  "accepted_taxon_id", "accepted_name", "accepted_authorship",
                  "is_synonym", "taxonomic_status", "taxon_rank",
-                 "accepted_family", "accepted_genus")
+                 "accepted_family", "accepted_genus", hierarchy)
   available <- tryCatch(vtr_schema(vtr_path), error = function(e) NULL)
   if (is.null(available)) return(result)
   joined <- tryCatch(
@@ -144,6 +155,8 @@ disambiguate_by_authorship <- function(result, vtr_path) {
       result$family[i] <- cand$accepted_family[w]
     if (has_col("genus") && "accepted_genus" %in% names(cand))
       result$genus[i] <- cand$accepted_genus[w]
+    for (h in intersect(hierarchy, intersect(names(cand), names(result))))
+      result[[h]][i] <- cand[[h]][w]
   }
   result
 }

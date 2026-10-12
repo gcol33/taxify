@@ -36,18 +36,33 @@ EX_DATE    <- "2026-06-24"
 # Build a backbone .vtr from a plain data.frame in the pre-compute schema,
 # reusing the exact pipeline the real download path and test fixtures use.
 write_backbone <- function(df, backend_name) {
-  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
-  df <- embed_accepted(
-    df,
-    id_col         = "taxon_id",
-    acc_id_col     = "accepted_name_usage_id",
-    name_col       = "canonical_name",
-    family_col     = "family",
-    genus_col      = "genus",
-    status_col     = "taxonomic_status",
-    authorship_col = "authorship"
-  )
-  df <- df[order(df$genus, na.last = TRUE), ]
+  code <- backbone_code(backend_name)
+  if (code == "taxon") {
+    df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
+    df <- embed_accepted(
+      df,
+      id_col         = "taxon_id",
+      acc_id_col     = "accepted_name_usage_id",
+      name_col       = "canonical_name",
+      family_col     = "family",
+      genus_col      = "genus",
+      status_col     = "taxonomic_status",
+      authorship_col = "authorship"
+    )
+    df <- df[order(df$genus, na.last = TRUE), ]
+  } else {
+    df <- precompute_keys(df, "canonical_name", code = code)
+    df <- embed_accepted(
+      df,
+      id_col          = "taxon_id",
+      acc_id_col      = "accepted_name_usage_id",
+      name_col        = "canonical_name",
+      status_col      = "taxonomic_status",
+      synonym_pattern = "SYNONYM|MISAPPLIED",
+      authorship_col  = "authorship"
+    )
+    df <- df[order(df$block_key, na.last = TRUE), ]
+  }
   rownames(df) <- NULL
 
   dir <- file.path(OUT, backend_name, "latest")
@@ -202,6 +217,20 @@ backbones$wcvp <- function() {
            status = "SYNONYM", acc_id = "wcvp-ex-001", authorship = "Ehrh.")
   )), "wcvp")
 }
+
+# ---- Syntaxon backbones (EuroVegChecklist, Czech national classification) ----
+# Whole classes of the real backbones, unkeyed, as taxifydb's readers assemble
+# them, frozen in data-raw/syntaxa/<name>.tsv by
+# data-raw/extract_syntaxon_examples.R. A whole class keeps every competitor a
+# name inside it has, so a name resolved to a unit of these classes against
+# the full backbone resolves the same way here.
+read_syntaxon_rows <- function(name) {
+  utils::read.delim(file.path("data-raw", "syntaxa", paste0(name, ".tsv")),
+                    quote = "", na.strings = "", encoding = "UTF-8",
+                    colClasses = "character", stringsAsFactors = FALSE)
+}
+backbones$evc   <- function() write_backbone(read_syntaxon_rows("evc"), "evc")
+backbones$vegcz <- function() write_backbone(read_syntaxon_rows("vegcz"), "vegcz")
 
 # ----------------------------------------------------------------------------
 # Spec-defined tables (enrichments, reference tables, register, coverage)

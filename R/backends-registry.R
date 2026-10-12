@@ -51,7 +51,8 @@ make_backend <- function(name) {
   be <- new_backend(
     name    = name,
     version = reg$version[i],
-    col_map = .backbone_col_map,
+    code    = reg$code[i],
+    col_map = code_spec(reg$code[i])$col_map,
     class   = paste0("taxify_", name)
   )
   if (isTRUE(reg$prefix_fallback[i])) be$prefix_fallback <- TRUE
@@ -80,6 +81,8 @@ wcvp_backend        <- function() make_backend("wcvp")
 mdd_backend         <- function() make_backend("mdd")
 avilist_backend     <- function() make_backend("avilist")
 lpsn_backend        <- function() make_backend("lpsn")
+evc_backend         <- function() make_backend("evc")
+vegcz_backend       <- function() make_backend("vegcz")
 
 
 # Default build method for every backbone: delegates to taxifydb::build_<name>(),

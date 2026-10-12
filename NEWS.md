@@ -1,5 +1,36 @@
 # taxify (development version)
 
+## Vegetation units (syntaxa)
+
+* Two syntaxon backbones match vegetation-unit names the way the others match
+  taxon names: `evc`, the EuroVegChecklist (Mucina et al. 2016, current
+  version from FloraVeg.EU: 150 classes, 381 orders, 1,310 alliances and
+  their synonyms), and `vegcz`, the national classification of the Czech
+  Republic (Chytrý 2007-2013, from Pladias: classes, alliances and 496
+  associations). Name one in `taxify(backbone = )`; the default chain stays
+  with taxon names, and the two kinds are not combined in one call (#96).
+* A syntaxon result carries the accepted unit's `class`, `order`, `alliance`
+  and `association` in place of `family`, `genus` and `epithet`, so a name at
+  any rank rolls up. A Czech association reaches its EuroVegChecklist
+  alliance through `vegcz` (which places it under its alliance) and then
+  `evc`.
+* Names are read under the phytosociological code: the author citation
+  (`(Neuhäusl 1959) Oberd. et al. 1967`), annotations (`nom. inval. (5a)`),
+  a database code in front (`TDA - Arrhenatherion elatioris`), rank-labelled
+  lists (`all. X, ord. Y`) and code-page mojibake are parsed off, and the rank
+  is read from the suffix. `parse_name(x, code = "syntaxon")` returns the
+  parse.
+* A unit written without its epithets (`Cynosurion` for *Cynosurion
+  cristati*) resolves with the new `match_type = "short_name"` when its stems
+  name one unit; otherwise it stays unmatched with the candidates in
+  `accepted_ids`. Fuzzy matching of a syntaxon keeps its rank and the plant
+  names it is built from, so `Vaccinio-Piceion` is not matched to the
+  different alliance `Vaccinio-Pinion`.
+* The backbone registry records each backbone's nomenclature code
+  (`backbone_code()`, the `code` column of `list_backbones()`), and the name
+  cleaner, normalization key and stages a backbone runs are read from that
+  code.
+
 ## Accepted-ID columns
 
 * `n_ids` and `accepted_ids` are in every `taxify()` result: `1` and the
