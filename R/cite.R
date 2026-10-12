@@ -174,12 +174,16 @@ collect_citations <- function(meta) {
       if (length(cits) > 0L) {
         citations <- c(citations, cits)
       } else {
-        # Fallback: minimal citation from meta
+        # Fallback: minimal citation from meta. `meta$version` holds one
+        # version per backbone, named by backbone.
+        ver <- meta$version
+        ver <- if (!is.null(ver) && be %in% names(ver)) ver[[be]] else ""
+        if (is.na(ver)) ver <- ""
         citations <- c(citations, list(list(
-          key     = paste0(be, gsub("\\.", "", meta$version %||% "")),
+          key     = paste0(be, gsub("\\.", "", ver)),
           type    = "misc",
           authors = toupper(be),
-          year    = sub("^(\\d{4}).*", "\\1", meta$version %||% ""),
+          year    = sub("^(\\d{4}).*", "\\1", ver),
           title   = sprintf("%s Backbone Taxonomy", toupper(be)),
           url     = NA_character_
         )))

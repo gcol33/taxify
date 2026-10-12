@@ -260,3 +260,13 @@ test_that("the bundled manifest cites both GloNAF versions and both FirstRecords
   expect_identical(vapply(fr, `[[`, "", "doi"),
                    c("10.5281/zenodo.18759840", "10.1038/ncomms14435"))
 })
+
+
+test_that("a backbone without a manifest citation is cited with its own version", {
+  meta <- list(backbone = c("nobb1", "nobb2"),
+               version = c(nobb1 = "2026.01", nobb2 = NA))
+  cits <- taxify:::collect_citations(meta)
+  keys <- vapply(cits, `[[`, character(1L), "key")
+  expect_true(all(c("nobb1202601", "nobb2") %in% keys))
+  expect_equal(cits[[match("nobb1202601", keys)]]$year, "2026")
+})
