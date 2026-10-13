@@ -1,4 +1,4 @@
-# taxify (development version)
+# taxify 0.7.1
 
 ## Documentation
 
