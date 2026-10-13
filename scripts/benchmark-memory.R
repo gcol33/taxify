@@ -45,7 +45,7 @@ if (length(args) >= 2L && args[1] == "--stage") {
   after_match <- NA_real_
 
   if (stage %in% c("load", "match", "fuzzy")) {
-    invisible(taxify::taxify("Quercus robur", backend = be, verbose = FALSE))
+    invisible(taxify::taxify("Quercus robur", backbone = be, verbose = FALSE))
     after_load <- rss_mb()
   }
   if (stage %in% c("match", "fuzzy")) {
@@ -64,7 +64,7 @@ if (length(args) >= 2L && args[1] == "--stage") {
         paste(p[1], ep)
       }, character(1))
     }
-    invisible(taxify::taxify(nm, backend = be, verbose = FALSE))
+    invisible(taxify::taxify(nm, backbone = be, verbose = FALSE))
     after_match <- rss_mb()
   }
 

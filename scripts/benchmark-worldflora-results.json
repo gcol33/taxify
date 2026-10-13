@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-22T14:16:49",
+  "generated_at": "2026-10-13T02:27:06",
   "script": "scripts/benchmark-worldflora.R",
-  "git_sha": "dc9aaa1",
+  "git_sha": "8883bdf",
   "seed": 20260722,
   "corpus": "accepted WFO binomials sampled from the backbone; the fuzzy corpus substitutes one character per epithet",
   "snapshot": {
@@ -12,47 +12,47 @@
   "platform": {
     "os": "Windows 11 x64 (build 26200)",
     "r": "4.6.0",
-    "taxify": "0.3.21",
-    "vectra": "0.11.7",
+    "taxify": "0.7.0",
+    "vectra": "0.13.0",
     "worldflora": "1.14.5"
   },
   "results": {
     "taxify_load": {
-      "elapsed": 4.86,
-      "peak_mb": 195.8
+      "elapsed": 1.64,
+      "peak_mb": 210.1
     },
     "taxify_exact": {
       "n": 1000,
-      "elapsed": 2.2,
-      "peak_mb": 271.1,
+      "elapsed": 0.97,
+      "peak_mb": 284.8,
       "matched": 1000
     },
     "taxify_fuzzy": {
       "n": 1000,
-      "elapsed": 18.77,
-      "peak_mb": 677.8,
+      "elapsed": 9.65,
+      "peak_mb": 683.9,
       "matched": 1000
     },
     "taxify_fuzzy_scale": {
       "n": 5000,
-      "elapsed": 26.59,
-      "peak_mb": 1133.2,
+      "elapsed": 16.96,
+      "peak_mb": 1221.4,
       "matched": 5000
     },
     "worldflora_load": {
-      "elapsed": 20.11,
-      "peak_mb": 1978.8,
+      "elapsed": 14,
+      "peak_mb": 1989.8,
       "nrow": 1638552
     },
     "worldflora_exact": {
       "n": 1000,
-      "elapsed": 17.14,
-      "peak_mb": 3656.9
+      "elapsed": 14.2,
+      "peak_mb": 3218
     },
     "worldflora_fuzzy": {
       "n": 1000,
-      "elapsed": 4192.39,
-      "peak_mb": 4027.3
+      "elapsed": 3881.92,
+      "peak_mb": 3483.4
     }
   }
 }

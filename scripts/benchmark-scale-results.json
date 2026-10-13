@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-10-13T02:28:50",
+  "script": "scripts/benchmark-scale.R",
+  "backbone": "wfo",
+  "typo_share": 0.1,
+  "seed": 20261013,
+  "platform": {
+    "os": "Windows 11 x64 (build 26200)",
+    "cpu": "Intel(R) Core(TM) i9-14900K",
+    "cores": 32,
+    "r": "4.6.0",
+    "taxify": "0.7.0",
+    "vectra": "0.13.0"
+  },
+  "runs": [
+    {
+      "n_names": 1000,
+      "typos": false,
+      "load_s": 2.11,
+      "match_s": 0.86,
+      "match_types": {
+        "exact": 1000
+      }
+    },
+    {
+      "n_names": 10000,
+      "typos": false,
+      "load_s": 2.19,
+      "match_s": 1.81,
+      "match_types": {
+        "exact": 10000
+      }
+    },
+    {
+      "n_names": 100000,
+      "typos": false,
+      "load_s": 2.14,
+      "match_s": 14.12,
+      "match_types": {
+        "exact": 100000
+      }
+    },
+    {
+      "n_names": 1000,
+      "typos": true,
+      "load_s": 2.12,
+      "match_s": 3.33,
+      "match_types": {
+        "exact": 900,
+        "exact_ci": 3,
+        "fuzzy": 97
+      }
+    },
+    {
+      "n_names": 10000,
+      "typos": true,
+      "load_s": 2.18,
+      "match_s": 11.13,
+      "match_types": {
+        "exact": 9000,
+        "exact_ci": 17,
+        "fuzzy": 983
+      }
+    },
+    {
+      "n_names": 100000,
+      "typos": true,
+      "load_s": 2.11,
+      "match_s": 36.78,
+      "match_types": {
+        "exact": 90001,
+        "exact_ci": 239,
+        "fuzzy": 9760
+      }
+    }
+  ]
+}

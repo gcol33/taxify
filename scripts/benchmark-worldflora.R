@@ -111,21 +111,21 @@ results <- list()
 say("--- taxify %s ---", as.character(utils::packageVersion("taxify")))
 
 r <- timed("taxify backbone load (first call)",
-           taxify("Quercus robur", backend = "wfo", verbose = FALSE))
+           taxify("Quercus robur", backbone = "wfo", verbose = FALSE))
 results$taxify_load <- list(elapsed = r$elapsed, peak_mb = r$peak_mb)
 
 r <- timed(sprintf("taxify exact, %d names", N_EXACT),
-           taxify(names_exact, backend = "wfo", verbose = FALSE))
+           taxify(names_exact, backbone = "wfo", verbose = FALSE))
 results$taxify_exact <- list(n = N_EXACT, elapsed = r$elapsed, peak_mb = r$peak_mb,
                              matched = sum(r$value$match_type != "none"))
 
 r <- timed(sprintf("taxify fuzzy, %d names", N_FUZZY),
-           taxify(names_fuzzy, backend = "wfo", verbose = FALSE))
+           taxify(names_fuzzy, backbone = "wfo", verbose = FALSE))
 results$taxify_fuzzy <- list(n = N_FUZZY, elapsed = r$elapsed, peak_mb = r$peak_mb,
                              matched = sum(r$value$match_type != "none"))
 
 r <- timed(sprintf("taxify fuzzy, %d names", N_SCALE),
-           taxify(names_fuzzy_scale, backend = "wfo", verbose = FALSE))
+           taxify(names_fuzzy_scale, backbone = "wfo", verbose = FALSE))
 results$taxify_fuzzy_scale <- list(n = N_SCALE, elapsed = r$elapsed,
                                    peak_mb = r$peak_mb,
                                    matched = sum(r$value$match_type != "none"))

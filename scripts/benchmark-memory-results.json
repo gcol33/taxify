@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-22T16:00:53",
+  "generated_at": "2026-10-13T01:21:12",
   "script": "scripts/benchmark-memory.R",
   "metric": "resident set size (WorkingSet64 on Windows), megabytes",
   "n_names": 5000,
@@ -7,81 +7,81 @@
   "platform": {
     "os": "Windows 11 x64 (build 26200)",
     "r": "4.6.0",
-    "taxify": "0.3.6",
-    "vectra": "0.11.7"
+    "taxify": "0.7.0",
+    "vectra": "0.13.0"
   },
   "stages": [
     {
       "backbone": "wfo",
       "stage": "load",
-      "vtr_mb": 797.0723,
-      "baseline_mb": 105.0977,
-      "after_load_mb": 1548.4219,
+      "vtr_mb": 775.2205,
+      "baseline_mb": 122.6172,
+      "after_load_mb": 1599.8438,
       "after_match_mb": "NA"
     },
     {
       "backbone": "wfo",
       "stage": "match",
-      "vtr_mb": 797.0723,
-      "baseline_mb": 103.2891,
-      "after_load_mb": 1543.9531,
-      "after_match_mb": 1837.0508
+      "vtr_mb": 775.2205,
+      "baseline_mb": 122.6172,
+      "after_load_mb": 1600.1016,
+      "after_match_mb": 1850.6992
     },
     {
       "backbone": "wfo",
       "stage": "fuzzy",
-      "vtr_mb": 797.0723,
-      "baseline_mb": 103.1719,
-      "after_load_mb": 1549.4648,
-      "after_match_mb": 2863.168
+      "vtr_mb": 775.2205,
+      "baseline_mb": 122.6328,
+      "after_load_mb": 1597.0195,
+      "after_match_mb": 3165.5117
     },
     {
       "backbone": "col",
       "stage": "load",
-      "vtr_mb": 1958.1526,
-      "baseline_mb": 103.0312,
-      "after_load_mb": 3854.4883,
+      "vtr_mb": 2055.6974,
+      "baseline_mb": 122.4844,
+      "after_load_mb": 4405.2227,
       "after_match_mb": "NA"
     },
     {
       "backbone": "col",
       "stage": "match",
-      "vtr_mb": 1958.1526,
-      "baseline_mb": 102.543,
-      "after_load_mb": 3854.6836,
-      "after_match_mb": 4646.9648
+      "vtr_mb": 2055.6974,
+      "baseline_mb": 122.6328,
+      "after_load_mb": 4388.8516,
+      "after_match_mb": 5283.4375
     },
     {
       "backbone": "col",
       "stage": "fuzzy",
-      "vtr_mb": 1958.1526,
-      "baseline_mb": 103.125,
-      "after_load_mb": 3857.4062,
-      "after_match_mb": 6230.9023
+      "vtr_mb": 2055.6974,
+      "baseline_mb": 122.7109,
+      "after_load_mb": 4404.8945,
+      "after_match_mb": 7218.5898
     },
     {
       "backbone": "gbif",
       "stage": "load",
-      "vtr_mb": 1854.5059,
-      "baseline_mb": 105.1758,
-      "after_load_mb": 4129.5977,
+      "vtr_mb": 1701.103,
+      "baseline_mb": 122.5703,
+      "after_load_mb": 4613.1758,
       "after_match_mb": "NA"
     },
     {
       "backbone": "gbif",
       "stage": "match",
-      "vtr_mb": 1854.5059,
-      "baseline_mb": 102.5312,
-      "after_load_mb": 4131.1016,
-      "after_match_mb": 4806.3203
+      "vtr_mb": 1701.103,
+      "baseline_mb": 122.7734,
+      "after_load_mb": 4609.1133,
+      "after_match_mb": 5576.1523
     },
     {
       "backbone": "gbif",
       "stage": "fuzzy",
-      "vtr_mb": 1854.5059,
-      "baseline_mb": 103.0352,
-      "after_load_mb": 4129.9766,
-      "after_match_mb": 6012.6328
+      "vtr_mb": 1701.103,
+      "baseline_mb": 122.5391,
+      "after_load_mb": 4614.6562,
+      "after_match_mb": 7345.3906
     }
   ]
 }
