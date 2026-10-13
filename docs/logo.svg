@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 600" width="520" height="600" role="img" aria-label="taxify logo">
+<title>taxify logo</title>
+<style>
+.grat { fill: none; stroke: #BCC2C9; stroke-width: 2; }
+.branch { fill: none; stroke: #5C6166; stroke-width: 4.5; stroke-linecap: round; }
+.still { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .moving { display: none; }
+  .still { display: inline; } }
+</style>
+<defs>
+<clipPath id="inner"><polygon points="260.0,12.0 10.6,156.0 10.6,444.0 260.0,588.0 509.4,444.0 509.4,156.0"/></clipPath>
+</defs>
+<polygon points="260.0,12.0 10.6,156.0 10.6,444.0 260.0,588.0 509.4,444.0 509.4,156.0" fill="#F5F6F8"/>
+<g clip-path="url(#inner)">
+<path class="grat" d="M222.0,330.0a38,38 0 1 0 76,0a38,38 0 1 0 -76,0M184.0,330.0a76,76 0 1 0 152,0a76,76 0 1 0 -152,0M146.0,330.0a114,114 0 1 0 228,0a114,114 0 1 0 -228,0M108.0,330.0a152,152 0 1 0 304,0a152,152 0 1 0 -304,0M70.0,330.0a190,190 0 1 0 380,0a190,190 0 1 0 -380,0M32.0,330.0a228,228 0 1 0 456,0a228,228 0 1 0 -456,0M-6.0,330.0a266,266 0 1 0 532,0a266,266 0 1 0 -532,0M-44.0,330.0a304,304 0 1 0 608,0a304,304 0 1 0 -608,0M-82.0,330.0a342,342 0 1 0 684,0a342,342 0 1 0 -684,0"/>
+<g class="grat moving"><path d="M260.0,330.0L780.0,330.0M260.0,330.0L762.3,195.4M260.0,330.0L710.3,70.0M260.0,330.0L627.7,-37.7M260.0,330.0L520.0,-120.3M260.0,330.0L394.6,-172.3M260.0,330.0L260.0,-190.0M260.0,330.0L125.4,-172.3M260.0,330.0L0.0,-120.3M260.0,330.0L-107.7,-37.7M260.0,330.0L-190.3,70.0M260.0,330.0L-242.3,195.4M260.0,330.0L-260.0,330.0M260.0,330.0L-242.3,464.6M260.0,330.0L-190.3,590.0M260.0,330.0L-107.7,697.7M260.0,330.0L-0.0,780.3M260.0,330.0L125.4,832.3M260.0,330.0L260.0,850.0M260.0,330.0L394.6,832.3M260.0,330.0L520.0,780.3M260.0,330.0L627.7,697.7M260.0,330.0L710.3,590.0M260.0,330.0L762.3,464.6"/><animateTransform attributeName="transform" type="rotate" from="0 260.0 330.0" to="-15 260.0 330.0" dur="6s" repeatCount="indefinite"/></g>
+<path class="grat still" d="M260.0,330.0L780.0,330.0M260.0,330.0L762.3,195.4M260.0,330.0L710.3,70.0M260.0,330.0L627.7,-37.7M260.0,330.0L520.0,-120.3M260.0,330.0L394.6,-172.3M260.0,330.0L260.0,-190.0M260.0,330.0L125.4,-172.3M260.0,330.0L0.0,-120.3M260.0,330.0L-107.7,-37.7M260.0,330.0L-190.3,70.0M260.0,330.0L-242.3,195.4M260.0,330.0L-260.0,330.0M260.0,330.0L-242.3,464.6M260.0,330.0L-190.3,590.0M260.0,330.0L-107.7,697.7M260.0,330.0L-0.0,780.3M260.0,330.0L125.4,832.3M260.0,330.0L260.0,850.0M260.0,330.0L394.6,832.3M260.0,330.0L520.0,780.3M260.0,330.0L627.7,697.7M260.0,330.0L710.3,590.0M260.0,330.0L762.3,464.6"/>
+<path class="branch" d="M260.0,330.0L222.3,324.9M260.0,330.0L246.6,294.4M260.0,330.0L293.5,312.0M222.2,334.0L184.4,337.9M223.2,320.4L186.4,310.9M246.6,294.4L233.3,258.8M281.4,298.6L302.8,267.2M296.8,320.4L333.6,310.9M222.2,334.0A38,38 0 0 1 223.2,320.4M281.4,298.6A38,38 0 0 1 296.8,320.4M184.4,337.9L146.6,341.9M186.4,310.9L149.7,301.3M225.0,262.5L207.5,228.8M278.0,256.2L287.0,219.3M302.8,267.2L324.2,235.8M326.9,294.0L360.4,276.0M336.0,328.9L374.0,328.3M225.0,262.5A76,76 0 0 1 278.0,256.2M326.9,294.0A76,76 0 0 1 336.0,328.9M146.6,341.9L108.8,345.9M147.0,314.7L109.4,309.6M153.9,288.4L118.5,274.5M175.3,253.7L147.0,228.3M207.5,228.8L190.0,195.1M246.4,216.8L241.9,179.1M287.0,219.3L296.0,182.3M324.2,235.8L345.6,204.4M360.4,276.0L393.9,258.0M374.0,328.3L412.0,327.7M147.0,314.7A114,114 0 0 1 153.9,288.4M175.3,253.7A114,114 0 0 1 246.4,216.8M108.8,345.9L71.0,349.9M109.4,309.6L71.7,304.5M118.5,274.5L83.1,260.6M147.0,228.3L118.8,202.9M190.0,195.1L172.5,161.4M241.9,179.1L237.3,141.4M296.0,182.3L305.0,145.4M345.6,204.4L367.0,173.0M384.3,242.5L415.4,220.6M401.5,274.5L436.9,260.6M410.6,309.6L448.3,304.5M411.2,345.9L449.0,349.9M384.3,242.5A152,152 0 0 1 401.5,274.5M410.6,309.6A152,152 0 0 1 411.2,345.9M71.0,349.9L33.2,353.8M71.7,304.5L34.1,299.4M83.1,260.6L47.8,246.7M104.6,220.6L73.6,198.8M135.0,186.9L110.0,158.3M172.5,161.4L155.0,127.6M215.0,145.4L205.9,108.5M260.0,140.0L260.0,102.0M305.0,145.4L314.1,108.5M347.5,161.4L365.0,127.6M385.0,186.9L410.0,158.3M415.4,220.6L446.4,198.8M436.9,260.6L472.2,246.7M448.3,304.5L485.9,299.4M449.0,349.9L486.8,353.8M104.6,220.6A190,190 0 0 1 135.0,186.9M215.0,145.4A190,190 0 0 1 260.0,140.0M347.5,161.4A190,190 0 0 1 385.0,186.9"/>
+<circle cx="260.0" cy="330.0" r="9" fill="#5C6166"/>
+<g class="moving">
+<circle cx="33.2" cy="353.8" r="12" fill="#7A4F9E"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-1.85s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="34.1" cy="299.4" r="12" fill="#7A4F9E"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.71s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="47.8" cy="246.7" r="12" fill="#7A4F9E"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-2.56s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="73.6" cy="198.8" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-1.42s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="110.0" cy="158.3" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.27s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="155.0" cy="127.6" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-2.12s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="205.9" cy="108.5" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.98s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="260.0" cy="102.0" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-2.83s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="314.1" cy="108.5" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-1.69s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="365.0" cy="127.6" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.54s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="410.0" cy="158.3" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-2.40s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="446.4" cy="198.8" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-1.25s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="472.2" cy="246.7" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.10s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="485.9" cy="299.4" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-1.96s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+<circle cx="486.8" cy="353.8" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.81s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/></circle>
+</g>
+<g class="still">
+<circle cx="33.2" cy="353.8" r="12" fill="#7A4F9E"></circle>
+<circle cx="34.1" cy="299.4" r="12" fill="#7A4F9E"></circle>
+<circle cx="47.8" cy="246.7" r="12" fill="#7A4F9E"></circle>
+<circle cx="73.6" cy="198.8" r="12" fill="#3F7A3D"></circle>
+<circle cx="110.0" cy="158.3" r="12" fill="#3F7A3D"></circle>
+<circle cx="155.0" cy="127.6" r="12" fill="#3F7A3D"></circle>
+<circle cx="205.9" cy="108.5" r="12" fill="#3F7A3D"></circle>
+<circle cx="260.0" cy="102.0" r="12" fill="#3F7A3D"></circle>
+<circle cx="314.1" cy="108.5" r="12" fill="#3F7A3D"></circle>
+<circle cx="365.0" cy="127.6" r="12" fill="#9E5E0F"></circle>
+<circle cx="410.0" cy="158.3" r="12" fill="#9E5E0F"></circle>
+<circle cx="446.4" cy="198.8" r="12" fill="#9E5E0F"></circle>
+<circle cx="472.2" cy="246.7" r="12" fill="#9E5E0F"></circle>
+<circle cx="485.9" cy="299.4" r="12" fill="#9E5E0F"></circle>
+<circle cx="486.8" cy="353.8" r="12" fill="#9E5E0F"></circle>
+</g>
+<text x="260.0" y="472" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="bold" font-size="78" fill="#2E6F9E" stroke="#F5F6F8" stroke-width="10" stroke-linejoin="round" paint-order="stroke">taxify</text>
+</g>
+<polygon points="260.0,9.0 8.0,154.5 8.0,445.5 260.0,591.0 512.0,445.5 512.0,154.5" fill="none" stroke="#2B3A4A" stroke-width="18" stroke-linejoin="round"/>
+</svg>
