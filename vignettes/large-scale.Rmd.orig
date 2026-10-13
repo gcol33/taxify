@@ -120,7 +120,9 @@ st <- do.call(rbind, lapply(mem$stages, function(s) {
 by_bb <- split(st, st$backbone)
 tab <- do.call(rbind, lapply(names(by_bb), function(n) {
   s <- by_bb[[n]]
-  pick <- function(stage, col) s[[col]][s$stage == stage] - s$base[s$stage == stage]
+  pick <- function(stage, col) {
+    s[[col]][s$stage == stage] - s$base[s$stage == stage]
+  }
   data.frame(Backbone = toupper(n),
              `File (MB)` = fmt(s$vtr[1], 0),
              `Loaded` = fmt(pick("load", "load"), 0),
