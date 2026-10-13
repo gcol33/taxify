@@ -5,8 +5,8 @@ Floras and Traits (Weigelt et al. 2020), to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result by `accepted_name`. GIFT aggregates published trait records to
 one value per species (mean for numeric traits, most frequent entry for
-categorical ones). You choose which traits to attach with `cols`; browse
-the available columns with
+categorical ones). `cols` chooses which traits to attach; browse the
+available columns with
 [`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md).
 
 ## Usage
@@ -59,7 +59,7 @@ GIFT's API exposes only the redistributable subset of its data (CC BY
 that subset is what is bundled here. Cite GIFT and, where applicable,
 the underlying references
 ([`GIFT::GIFT_references()`](https://biogeomacro.github.io/GIFT/reference/GIFT_references.html))
-when you use the values.
+for the values used.
 
 ## References
 

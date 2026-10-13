@@ -28,7 +28,7 @@ gbif_fetch(x, backmatch = TRUE, path = tempdir(), verbose = TRUE)
 - path:
 
   Directory to download into. Defaults to a session temp directory, so
-  nothing is written outside it unless you ask.
+  nothing is written outside it unless `path` is set.
 
 - verbose:
 

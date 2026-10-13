@@ -1,8 +1,8 @@
 # Add prokaryote metabolic and ecological functions (FAPROTAX)
 
-Joins the function groups a prokaryotic taxon is known to perform –
+Joins the function groups a prokaryotic taxon is known to perform (
 methanogenesis, denitrification, nitrogen fixation, chitinolysis, human
-gut association and 87 others – to a
+gut association and 87 others) to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result.
 

@@ -1,13 +1,13 @@
 # Add mammal traits (COMBINE)
 
-The default COMBINE door. Attaches the reported (measured or literature
-compiled) trait values and fills each still-missing cell from COMBINE's
-phylogenetically imputed table, so a single call reaches the fullest
-coverage COMBINE offers. A measurement is never overwritten: the
+The default COMBINE function. Attaches the reported (measured or
+literature compiled) trait values and fills each still-missing cell from
+COMBINE's phylogenetically imputed table, so a single call reaches the
+fullest coverage COMBINE offers. A measurement is never overwritten: the
 reported value wins wherever it exists and the imputed model only fills
 gaps. Beside every trait sits a `<trait>_src` column recording where
-that cell came from – `"reported"`, `"imputed"`, or `NA` when neither
-table has it – so a model estimate is always distinguishable from a
+that cell came from (`"reported"`, `"imputed"`, or `NA` when neither
+table has it), so a model estimate is always distinguishable from a
 measurement.
 
 ## Usage

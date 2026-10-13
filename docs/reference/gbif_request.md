@@ -2,9 +2,9 @@
 
 Takes a list of names, matches it against the GBIF backbone and requests
 occurrence data for every accepted taxon key the matches resolve to. A
-name GBIF files under more than one key – a homonym published by two
-authors, or a name held once as accepted and again as a doubtful record
-– contributes all of its keys, so the request covers the whole matched
+name GBIF files under more than one key (a homonym published by two
+authors, or a name held once as accepted and again as a doubtful record)
+contributes all of its keys, so the request covers the whole matched
 concept rather than whichever key
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 reported first.
@@ -15,7 +15,7 @@ reported first.
 gbif_request(
   x,
   method = c("download", "search"),
-  strict = FALSE,
+  keys = c("taxon", "pick", "all"),
   limit = 500,
   format = "SIMPLE_CSV",
   dry_run = FALSE,
@@ -37,13 +37,17 @@ gbif_request(
   `"download"` (authenticated, no cap, citable) or `"search"`
   (unauthenticated, capped). See Choosing a method.
 
-- strict:
+- keys:
 
-  Logical, default `FALSE`. By default every accepted key each name
-  resolves to is requested. `TRUE` narrows the request to the single key
+  Which of a name's GBIF keys to request, by their `role` in
+  [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md).
+  `"taxon"` (default) requests the key
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  reported, and says how many keys, and how many records, that leaves
-  behind.
+  picked and every other record of the same taxon (a doubtful or
+  duplicate record of the name), and reports the keys of other taxa a
+  homonym's synonym records point to. `"pick"` requests the picked key
+  alone. `"all"` requests every key, other taxa included. The keys left
+  out are named in the verbose line.
 
 - limit:
 
@@ -71,11 +75,12 @@ gbif_request(
 
 ## Value
 
-With `dry_run = TRUE`, an integer vector of GBIF taxon keys. With
-`method = "download"`, the object rgbif's `occ_download()` returns (the
-download key, to be passed to `occ_download_wait()`). With
-`method = "search"`, a data.frame of occurrence records, empty if none
-matched. In every case the keys and the
+With `dry_run = TRUE`, an integer vector of GBIF taxon keys, which
+prints as the keys alone. With `method = "download"`, the object rgbif's
+`occ_download()` returns (the download key, to be passed to
+`occ_download_wait()`). With `method = "search"`, a data.frame of
+occurrence records, empty if none matched. In every case the keys and
+the
 [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
 table behind them are attached as the `keys` and `taxa` attributes,
 along with the match's `taxify_meta`; a download also carries its key as

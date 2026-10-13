@@ -1,7 +1,7 @@
-# Browse the trait columns an enrichment door can attach
+# Browse the columns a published dataset can attach
 
-Lists the columns available from an enrichment's pre-built `.vtr`, so
-you can choose which to attach through the doors that accept a `cols`
+Lists the columns available from a published dataset's pre-built `.vtr`,
+for choosing which to attach through the functions that accept a `cols`
 argument (such as
 [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
 and

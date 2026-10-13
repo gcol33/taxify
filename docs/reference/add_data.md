@@ -8,7 +8,7 @@ backbone(s) used in the original
 and the join is performed on the accepted taxon — so synonyms in either
 dataset resolve to the same key. The key is the `accepted_id` together
 with the backbone that issued it, falling back to `accepted_name` where
-the two sides were matched by different backbones: backend ids are bare
+the two sides were matched by different backbones: backbone IDs are bare
 integers in most backbones and mean nothing outside the one they came
 from.
 
@@ -123,16 +123,16 @@ The workflow:
 
 4.  Check for conflicting duplicates: if multiple rows in `data` resolve
     to the same accepted name with different values, an error is raised
-    – with `group_col` set, within each group. Exact duplicates produce
+    (with `group_col` set, within each group). Exact duplicates produce
     a warning and are deduplicated.
 
 5.  Left-join on the accepted taxon.
 
 ### Grouped data
 
-When your data has multiple rows per species (e.g., one row per species
-per country), set `group_col` to produce wide output with suffixed
-columns. This is the same format as the built-in grouped enrichments.
+When `data` has multiple rows per species (e.g., one row per species per
+country), set `group_col` to produce wide output with suffixed columns.
+This is the same format as the built-in grouped enrichments.
 
 ### Auto-detection
 

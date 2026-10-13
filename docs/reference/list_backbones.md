@@ -22,8 +22,12 @@ list_backbones(verbose = TRUE)
 
 ## Value
 
-A data.frame with columns: `name`, `scope`, `n_names`, `size_mb`,
-`version`, `source_date`, `installed`, `source`. `n_names`, `size_mb`,
+A data.frame with columns: `name`, `title` (the source's full name),
+`scope`, `n_names`, `size_mb`, `version`, `source_date`, `installed`,
+`code`, `source`. `code` is the nomenclature the backbone's names
+follow: `"taxon"` for the taxonomic backbones, `"syntaxon"` for a
+backbone of vegetation units (`"evc"`, the EuroVegChecklist), which is
+matched only when named in `taxify(backbone = )`. `n_names`, `size_mb`,
 and `version` are `NA` for any backbone the manifest does not yet
 describe or when the manifest cannot be fetched offline.
 

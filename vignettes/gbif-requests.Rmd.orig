@@ -1,0 +1,155 @@
+---
+title: "Requesting GBIF data for a species list"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Requesting GBIF data for a species list}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
+options(width = 80)
+```
+
+This article shows how to request occurrence records from the Global Biodiversity Information Facility (GBIF) for a species list. GBIF identifies each taxon in its backbone by an integer, the taxon key. `taxify()` matches the names to keys offline, `gbif_request()` asks GBIF for the records under those keys, and `gbif_fetch()` downloads them with the input names attached. It ends with the records and the DOI to cite them by. Installation is covered in [Get started](taxify.html). Sending a request needs the [rgbif](https://docs.ropensci.org/rgbif/) package and, for a download, a free GBIF account; the examples that contact GBIF are shown without their output.
+
+1. **Match** the names against the GBIF backbone with `taxify()`.
+
+2. **Check** the keys behind each name with `taxify_ids()`, and the size of the request with `dry_run = TRUE`.
+
+3. **Request** the records with `gbif_request()` and download them with `gbif_fetch()`.
+
+4. **Cite** the download with `cite()`.
+
+```{r setup}
+library(taxify)
+```
+
+## Matching the names to keys
+
+The list has four plants:
+
+```{r match}
+spp <- c("Quercus robur", "Pinus sylvestris", "Bellis perennis", "Morus alba")
+matched <- taxify(spp, backbone = "gbif", verbose = FALSE)
+matched[, c("input_name", "accepted_name", "accepted_id", "n_ids")]
+```
+
+`accepted_id` holds the GBIF key of each accepted taxon. `n_ids` counts the keys of the name: *Quercus robur* has three, *Pinus sylvestris* six.
+
+## Several keys for one name
+
+A name has several keys when the GBIF backbone holds several records of it: doubtful duplicates beside the accepted record, or the same name used by different authors for different taxa. `taxify_ids()` lists one row per name and key, with the number of records GBIF held under each key when the backbone was built:
+
+```{r ids}
+ids <- taxify_ids(matched, verbose = FALSE)
+ids[, c("input_name", "accepted_id", "taxonomic_status", "n_occurrences",
+        "role")]
+```
+
+`role` says what each key is to the name. `pick` is the key in `accepted_id`. `same_name` is another record of the same taxon, here GBIF's doubtful records of *Quercus robur* and *Pinus sylvestris*. A third role, `other_taxon`, is a record of the name that leads to a different species. *Absinthium vulgare* was published by Lamarck and again by Dulac, and GBIF files the two under different species:
+
+```{r other-taxon}
+abs <- taxify("Absinthium vulgare", backbone = "gbif", verbose = FALSE)
+taxify_ids(abs, verbose = FALSE)[
+  , c("accepted_name", "n_occurrences", "role", "pick_basis")]
+```
+
+`pick_basis` says what decided the pick: here `priority`, Lamarck's name of 1779 before Dulac's of 1867. The count of an accepted key includes the records of its synonyms and of the taxa below it, which is what a request by that key returns.
+
+## What a request covers
+
+`dry_run = TRUE` returns the keys a request would send, and the message estimates the number of records from the counts above, without contacting GBIF:
+
+```{r dry-run}
+gbif_request(matched, dry_run = TRUE)
+```
+
+By default (`keys = "taxon"`) the request covers the `pick` and `same_name` keys and leaves out `other_taxon` keys. `keys = "pick"` sends only the picked key of each name, and `keys = "all"` adds the other taxa:
+
+```{r pick}
+gbif_request(matched, keys = "pick", dry_run = TRUE)
+```
+
+For this list the two choices differ by eleven records under the doubtful *Quercus robur* keys, so sending every key of the taxon costs little and keeps those records.
+
+## Results matched against another backbone
+
+The default chain of `taxify()` starts with the Catalogue of Life Extended Release (COL XR), whose IDs are not GBIF keys. COL XR records the GBIF key of each record, so `gbif_request()` reads the key from there and, with the GBIF backbone installed, adds GBIF's other records of the same taxon:
+
+```{r colxr}
+default <- taxify(spp, verbose = FALSE)
+gbif_request(default, dry_run = TRUE)
+```
+
+The request is the same as from the GBIF match, and the message names the other-taxon keys it leaves out: COL XR lists *Pinus sylvestris* and *Quercus robur* as synonyms of other species under other authors. A row whose backbone records no GBIF key is matched again against GBIF by its accepted name. `attr(x, "taxa")$key_source` records where each key came from (`backbone`, `crosswalk` or `rematch`).
+
+## Setting up rgbif
+
+A request needs rgbif:
+
+```{r install-rgbif, eval = FALSE}
+install.packages("rgbif")
+```
+
+`method = "search"` needs nothing further. `method = "download"`, the default, needs a GBIF account, which is free at [gbif.org](https://www.gbif.org/). rgbif reads the account from three environment variables, which its documentation recommends keeping in `.Renviron`:
+
+```{r renviron, eval = FALSE}
+usethis::edit_r_environ()
+```
+
+```
+GBIF_USER=yourname
+GBIF_PWD=yourpassword
+GBIF_EMAIL=name@example.org
+```
+
+Restart R after saving so the file is read. `rgbif::occ_download_list(limit = 5)` lists the account's past downloads and succeeds only when the credentials are right. When a variable is missing, `gbif_request()` stops before contacting GBIF and names it.
+
+## Sending the request
+
+A download has no limit on the number of records and receives a DOI. `gbif_request()` submits it and returns at once, since GBIF prepares the file on its own servers; `gbif_fetch()` waits for it, downloads it, imports the records and adds the input names:
+
+```{r download, eval = FALSE}
+dl <- gbif_request(matched)
+recs <- gbif_fetch(dl)
+```
+
+`method = "search"` returns records at once, without an account, up to `limit` records per key. GBIF's search limits how deep it pages, so it suits a look at a few taxa:
+
+```{r search, eval = FALSE}
+recs <- gbif_request(matched, method = "search", keys = "pick", limit = 50)
+```
+
+The records carry a `taxon_key_requested` column with the key that returned each row.
+
+A download query is limited to 12,000 characters, about 1,187 keys. Above 1,000 keys `gbif_request()` splits them into several downloads, each with its own DOI, submitted through rgbif's queue, which runs at most three at a time. `gbif_fetch()` waits for all of them and returns the records in one table.
+
+## Linking records to the requested names
+
+A record's `taxonKey` is the key of the taxon it was identified as, which can lie below the requested key: a record of *Pinus nigra* subsp. *salzmannii* carries that subspecies' key when *Pinus nigra* was requested. `gbif_fetch()` therefore links each record through `gbif_backmatch()`, which reads `taxonKey`, `acceptedTaxonKey`, `speciesKey`, `genusKey` and `familyKey` in that order and takes the first requested key. It adds `requested_key`, `input_name` and `accepted_name`. A record that carries no requested key keeps `NA` in all three, and the message counts such records.
+
+For records fetched another way, `gbif_backmatch()` takes the request, a `taxify_ids()` table or the `taxify()` result:
+
+```{r backmatch, eval = FALSE}
+recs <- gbif_fetch(dl, backmatch = FALSE)
+recs <- gbif_backmatch(recs, matched)
+```
+
+## Citing the download
+
+A download is cited by its DOI, which GBIF issues once the file is ready. `cite()` on the records lists the DOI next to the GBIF backbone and taxify:
+
+```{r cite, eval = FALSE}
+cite(recs)
+cite(recs, file = "refs.bib")
+```
+
+A download still being prepared is listed without a DOI. `file` writes the same entries as BibTeX.
+
+## Where next
+
+- [Exploring the backbone](exploring.html): `taxify_ids()`, `id2name()` and the other functions that read the backbone.
+
+- [Matching large lists](large-scale.html): long species lists.

@@ -1,0 +1,308 @@
+# Matching vegetation units
+
+This article matches the names of vegetation units, such as the alliance
+recorded for each plot of a vegetation survey, against the
+EuroVegChecklist and the Czech national classification. It ends with
+each name resolved to its accepted unit and placed in the units above
+it. Installation is covered in [Get
+started](https://gillescolling.com/taxify/articles/taxify.md).
+
+1.  **Parse** a unit name into its parts with
+    `parse_name(code = "syntaxon")`.
+
+2.  **Match** the names with `taxify(backbone = "evc")` or
+    `backbone = "vegcz"`.
+
+3.  **Roll up** an association of the national classification to its
+    European alliance and class.
+
+``` r
+
+library(taxify)
+```
+
+## Names of vegetation units
+
+A vegetation unit, or syntaxon, is a type of plant community: a class,
+an order, an alliance or an association. Its name follows the
+International Code of Phytosociological Nomenclature. The name is built
+from one or two plant names, and the last one carries a suffix for the
+rank: `-etea` for a class, `-etalia` for an order, `-ion` for an
+alliance, `-enion` for a suballiance and `-etum` for an association. The
+author citation carries years, as in *Caricenion gracilis* (Neuhäusl
+1959) Oberd. et al. 1967.
+
+[`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md)
+with `code = "syntaxon"` splits a name into these parts without matching
+it:
+
+``` r
+
+parsed <- parse_name(
+  c("Caricenion gracilis (Neuhäusl 1959) Oberd. et al. 1967",
+    "TDA - Arrhenatherion elatioris"),
+  code = "syntaxon"
+)
+parsed[, c("name", "authorship", "rank", "code")]
+#>                       name                         authorship        rank code
+#> 1      Caricenion gracilis (Neuhäusl 1959) Oberd. et al. 1967 suballiance <NA>
+#> 2 Arrhenatherion elatioris                               <NA>    alliance  TDA
+```
+
+The rank is read from the suffix of the last plant name. A code written
+in front of the name, such as the national database code `TDA`, goes to
+`code` and is not used for matching.
+
+## The two backbones
+
+taxify holds two backbones of vegetation units:
+
+- `evc`, the EuroVegChecklist (Mucina et
+  al. [2016](https://doi.org/10.1111/avsc.12257)) in its current version
+  as maintained in FloraVeg.EU (Chytrý et
+  al. [2024](https://doi.org/10.1111/avsc.12798)): the classes, orders
+  and alliances of European vegetation, with their synonyms.
+
+- `vegcz`, the national classification of the Czech Republic (Chytrý
+  2007-2013), as published in the Pladias database (Chytrý et
+  al. [2021](https://doi.org/10.23855/preslia.2021.001)): classes,
+  alliances and associations with their synonyms. It places each
+  association in its alliance, a level below where the EuroVegChecklist
+  stops.
+
+``` r
+
+bb <- list_backbones(verbose = FALSE)
+bb[bb$code == "syntaxon", c("name", "scope", "version", "n_names")]
+#>     name                               scope version n_names
+#> 20   evc European vegetation units (syntaxa)       4    7542
+#> 21 vegcz    Czech vegetation units (syntaxa) 2026.10    2258
+```
+
+A backbone of vegetation units is used only when it is named in
+`backbone`. The default call reads names as taxa, and one call cannot
+mix the two kinds of backbone.
+
+## Matching unit names
+
+The names below are the kind found in the header data of vegetation
+plots:
+
+``` r
+
+plots <- c(
+  "Fagion sylvaticae Luquet 1926",
+  "Mesobromion erecti",
+  "Fagion silvaticae",
+  "TDA - Arrhenatherion elatioris",
+  "Cynosurion",
+  "Brachypodietalia pinnata",
+  "Carpinion"
+)
+res <- taxify(plots, backbone = "evc", verbose = FALSE)
+#> Warning: 1 of 7 names resolve to more than one accepted ID (Carpinion).
+#> `accepted_id` holds one and `accepted_ids` all of them; list them with
+#> taxify_ids() before requesting data by ID.
+res[, c("input_name", "accepted_name", "match_type", "is_synonym")]
+#>                       input_name            accepted_name match_type is_synonym
+#> 1  Fagion sylvaticae Luquet 1926        Fagion sylvaticae      exact      FALSE
+#> 2             Mesobromion erecti           Bromion erecti short_name       TRUE
+#> 3              Fagion silvaticae        Fagion sylvaticae   exact_ci      FALSE
+#> 4 TDA - Arrhenatherion elatioris Arrhenatherion elatioris      exact      FALSE
+#> 5                     Cynosurion      Cynosurion cristati short_name      FALSE
+#> 6       Brachypodietalia pinnata Brachypodietalia pinnati      fuzzy      FALSE
+#> 7                      Carpinion                     <NA>       none         NA
+#> Sources: EVC 4 | cite() for full citations
+```
+
+Each row reaches its unit by a different route:
+
+- `Fagion sylvaticae Luquet 1926` matches with its author citation
+  removed.
+
+- `Mesobromion erecti` is a synonym of *Bromion erecti*. The
+  EuroVegChecklist lists the synonym without its epithet, as
+  *Mesobromion*, so the row has `match_type = "short_name"` and
+  `is_synonym = TRUE`.
+
+- `Fagion silvaticae` is an older spelling of the epithet. Matching
+  compares names with spelling variants of Latin, such as `i` and `y`,
+  made equal, and the row has `match_type = "exact_ci"`.
+
+- `TDA - Arrhenatherion elatioris` matches once the code in front is
+  removed.
+
+- `Cynosurion` is written without its epithet, a short form often used
+  for *Cynosurion cristati*. It resolves with
+  `match_type = "short_name"` because its stem names one unit.
+
+- `Brachypodietalia pinnata` is misspelt and is matched by fuzzy
+  matching.
+
+- `Carpinion` is the stem of three alliances, so it stays unresolved.
+  The warning above the table names it.
+
+The candidates of an unresolved short form are listed in `accepted_ids`:
+
+``` r
+
+res[res$input_name == "Carpinion", c("input_name", "n_ids", "accepted_ids")]
+#>   input_name n_ids      accepted_ids
+#> 7  Carpinion     3 CA03A|CB01G|CA03C
+#> Sources: EVC 4 | cite() for full citations
+```
+
+An author citation in the input chooses among such candidates, as in
+`Fagion Luquet 1926`.
+
+Fuzzy matching keeps the rank, so a suballiance never matches an
+alliance, and it keeps the plant names a unit is named after.
+`Vaccinio-Piceion` is two letters from `Vaccinio-Pinion`, a different
+alliance, and is not matched to it.
+
+## The units above each name
+
+A result for vegetation units has the columns of a result for taxa
+except those only a taxon has: `family`, `genus`, `epithet`, the genus
+register’s columns and the hybrid and aggregate columns. In their place
+it carries the hierarchy of the accepted unit, `class`, `order`,
+`alliance` and `association`:
+
+``` r
+
+res[, c("accepted_name", "class", "order", "alliance")]
+#>              accepted_name                      class
+#> 1        Fagion sylvaticae Carpino-Fagetea sylvaticae
+#> 2           Bromion erecti           Festuco-Brometea
+#> 3        Fagion sylvaticae Carpino-Fagetea sylvaticae
+#> 4 Arrhenatherion elatioris    Molinio-Arrhenatheretea
+#> 5      Cynosurion cristati    Molinio-Arrhenatheretea
+#> 6 Brachypodietalia pinnati           Festuco-Brometea
+#> 7                     <NA>                       <NA>
+#>                         order                 alliance
+#> 1        Fagetalia sylvaticae        Fagion sylvaticae
+#> 2    Brachypodietalia pinnati           Bromion erecti
+#> 3        Fagetalia sylvaticae        Fagion sylvaticae
+#> 4 Arrhenatheretalia elatioris Arrhenatherion elatioris
+#> 5 Arrhenatheretalia elatioris      Cynosurion cristati
+#> 6    Brachypodietalia pinnati                     <NA>
+#> 7                        <NA>                     <NA>
+#> Sources: EVC 4 | cite() for full citations
+```
+
+Every matched name, synonym or not, is placed in the ranks above it.
+
+## From a national association to a European alliance
+
+An association has no counterpart in the EuroVegChecklist. The national
+classification places it in an alliance:
+
+``` r
+
+cz <- taxify(
+  c("Pastinaco sativae-Arrhenatheretum elatioris",
+    "Arrhenatheretum elatioris Braun 1915"),
+  backbone = "vegcz", verbose = FALSE
+)
+#> Warning: 1 of 2 names resolve to more than one accepted ID (Arrhenatheretum
+#> elatioris Braun 1915). `accepted_id` holds one and `accepted_ids` all of them;
+#> list them with taxify_ids() before requesting data by ID.
+cz[, c("input_name", "accepted_name", "alliance", "class")]
+#>                                    input_name
+#> 1 Pastinaco sativae-Arrhenatheretum elatioris
+#> 2        Arrhenatheretum elatioris Braun 1915
+#>                                 accepted_name                 alliance
+#> 1 Pastinaco sativae-Arrhenatheretum elatioris Arrhenatherion elatioris
+#> 2 Pastinaco sativae-Arrhenatheretum elatioris Arrhenatherion elatioris
+#>                     class
+#> 1 Molinio-Arrhenatheretea
+#> 2 Molinio-Arrhenatheretea
+#> Sources: VEGCZ 2026.10 | cite() for full citations
+```
+
+*Arrhenatheretum elatioris* is a synonym of two associations, under
+Braun 1915 and under Scherrer 1925. The author citation in the second
+name picks the association of Braun 1915, which is the first in
+`accepted_ids`; the warning names the row because both remain listed
+there.
+
+The alliance then resolves against the EuroVegChecklist:
+
+``` r
+
+eu <- taxify(cz$alliance, backbone = "evc", verbose = FALSE)
+eu[, c("input_name", "accepted_name", "order", "class")]
+#>                 input_name            accepted_name                       order
+#> 1 Arrhenatherion elatioris Arrhenatherion elatioris Arrhenatheretalia elatioris
+#> 2 Arrhenatherion elatioris Arrhenatherion elatioris Arrhenatheretalia elatioris
+#>                     class
+#> 1 Molinio-Arrhenatheretea
+#> 2 Molinio-Arrhenatheretea
+#> Sources: EVC 4 | cite() for full citations
+```
+
+The two backbones can also form a fallback chain,
+`backbone = c("vegcz", "evc")`, so that each name is resolved by the
+national classification where it holds the name and by the
+EuroVegChecklist otherwise.
+
+## Mixing taxa and vegetation units
+
+A call that names a backbone of taxa and one of vegetation units stops
+with an error, since the two follow different codes of nomenclature:
+
+``` r
+
+taxify("Fagion sylvaticae", backbone = c("evc", "col"))
+#> Error:
+#> ! Backbones of different nomenclature codes cannot be combined: evc (syntaxon), col (taxon). Match taxon names and syntaxon names in separate calls.
+```
+
+Taxa and vegetation units are matched in separate calls.
+
+## How the backbones were built
+
+`evc` is built from the FloraVeg.EU list of European vegetation units
+(version 4, 2025-06-17) and the synonyms on each unit’s FloraVeg.EU
+nomenclature page. A few dozen of those pages fail partway through; for
+those units the synonym lists printed in Mucina et al. (2016), published
+under CC BY 4.0, supply the missing entries.
+
+`vegcz` is built from the Pladias list of the vegetation units of the
+Czech Republic and the synonyms on each unit’s Pladias nomenclature
+page. Pladias data are free for research, teaching and conservation;
+commercial use needs the approval of the Pladias board.
+
+A name either source cites in another author’s sense (`sensu`, `auct.`)
+is kept with `taxonomic_status = "MISAPPLIED"`, and ranks below the
+synonyms when a name points to more than one unit.
+
+## Where next
+
+- [How names are
+  matched](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
+  the match stages and the fuzzy threshold.
+
+- [Choosing and combining
+  backbones](https://gillescolling.com/taxify/articles/backbones.md):
+  fallback chains and backbone versions.
+
+## References
+
+Chytrý M (ed.) (2007-2013). *Vegetace České republiky 1-4 \[Vegetation
+of the Czech Republic 1-4\]*. Academia, Praha.
+
+Chytrý M, Danihelka J, Kaplan Z, Wild J, Holubová D, Novotný P, et
+al. (2021). Pladias Database of the Czech Flora and Vegetation.
+*Preslia* 93: 1-87. <https://doi.org/10.23855/preslia.2021.001>
+
+Chytrý M, Řezníčková M, Novotný P, Holubová D, Preislerová Z, Attorre F,
+et al. (2024). FloraVeg.EU: an online database of European vegetation,
+habitats and flora. *Applied Vegetation Science* 27: e12798.
+<https://doi.org/10.1111/avsc.12798>
+
+Mucina L, Bültmann H, Dierßen K, Theurillat J-P, Raus T, Čarni A, et
+al. (2016). Vegetation of Europe: hierarchical floristic classification
+system of vascular plant, bryophyte, lichen, and algal communities.
+*Applied Vegetation Science* 19 (Suppl. 1): 3-264.
+<https://doi.org/10.1111/avsc.12257>

@@ -21,6 +21,7 @@ on:
     paths:
       - 'inst/manifest.json'
       - 'README.md'
+      - 'README.Rmd'
       - 'vignettes/**'
       - 'R/backbones.R'
       - 'scripts/manifest-stats.R'
@@ -29,6 +30,7 @@ on:
     paths:
       - 'inst/manifest.json'
       - 'README.md'
+      - 'README.Rmd'
       - 'vignettes/**'
       - 'R/backbones.R'
       - 'scripts/manifest-stats.R'

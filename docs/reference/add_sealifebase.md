@@ -109,7 +109,7 @@ Non-fish aquatic life only.
 
 The `sb_lw_*` columns give one representative length-weight fit per
 species from the POPLW table, so a length can be converted to a mass
-where `sb_body_mass_g` (a record maximum) is not what you want.
+where `sb_body_mass_g` (a record maximum) does not fit the analysis.
 
 The build-from-source fallback requires the rfishbase package (available
 on CRAN). Pre-built `.vtr` files do not require rfishbase.

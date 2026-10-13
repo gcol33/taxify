@@ -1,17 +1,32 @@
 # Getting started with taxify
 
+## Installation
+
+``` r
+
+install.packages("taxify")
+```
+
+Or the development version from GitHub:
+
+``` r
+
+install.packages("pak")
+pak::pak("gcol33/taxify")          # vectra is installed automatically
+```
+
 This vignette runs a messy list of species names through taxify, from
 raw strings to an analysis on attached traits. Before any analysis, the
 names in a biodiversity dataset have to resolve to one accepted name per
 taxon, and they rarely line up on their own: authorship, field
 qualifiers, capitalization, historical synonyms, hybrids, and plain
 typos all keep two records of the same species apart, and a bare
-[`merge()`](https://rdrr.io/r/base/merge.html) on raw strings silently
-drops every row that disagrees.
+[`merge()`](https://rdrr.io/r/base/merge.html) on raw strings drops
+every row that disagrees.
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) takes
 a character vector and returns one standardized table: each name
-cleaned, matched against a backbone you keep on disk, synonyms resolved
-to the accepted name. Matching runs in C through the
+cleaned, matched against a backbone kept on disk, synonyms resolved to
+the accepted name. Matching runs in C through the
 [vectra](https://github.com/gcol33/vectra) engine, so there are no web
 services and no rate limits, and the same input gives the same output on
 any machine. 19 Darwin Core backbones are available (WFO, COL, COL XR,
@@ -30,7 +45,7 @@ After that, nothing touches the network.
 2.  **Check** the batch with
     [`summary()`](https://rdrr.io/r/base/summary.html).
 
-3.  **Join** your own attributes with
+3.  **Join** custom attributes with
     [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md).
 
 4.  **Enrich** the result with the published `add_*()` layers, listed by
@@ -126,7 +141,7 @@ alternative backbone. The match types and the multi-backbone fallback
 (`backbone = c("col", "gbif", "itis")`) are covered in the [backbones
 vignette](https://gillescolling.com/taxify/articles/backbones.html).
 
-### Adding your own attributes
+### Adding custom attributes
 
 Once names resolve to an accepted name, any table keyed on species joins
 cleanly.

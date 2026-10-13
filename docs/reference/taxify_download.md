@@ -23,10 +23,9 @@ taxify_download(
 
 - backbone:
 
-  Character. A backbone name (e.g. `"wfo"`, `"col"`, `"gbif"`, ...; see
-  the backbones in
-  [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)'s
-  companion manifest) or `"register"` for the genus register. Multiple
+  Character. A backbone name (e.g. `"wfo"`, `"col"`, `"gbif"`;
+  [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
+  lists them all) or `"register"` for the genus register. Multiple
   backbones can be given as a character vector.
 
 - version:
@@ -38,7 +37,7 @@ taxify_download(
 
 - content_id:
 
-  Character or `NULL` (default). The content id of one exact build – the
+  Character or `NULL` (default). The content id of one exact build, the
   md5 of its `.vtr`, as recorded by
   [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
   and by the manifest. Given one, taxify fetches that build from the
@@ -67,6 +66,6 @@ building from source via
 [`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md)
 to build a backbone from source via `taxifydb`,
 [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
-for enrichment layers,
+for published datasets,
 [`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
 for the builds already on disk.

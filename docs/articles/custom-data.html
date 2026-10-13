@@ -5,13 +5,18 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Joining custom data with add_data() • taxify</title>
+<title>Joining your own data • taxify</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Joining custom data with add_data()">
+<meta property="og:title" content="Joining your own data">
 <script>
 (function () {
   var D = String.fromCharCode(36);
@@ -35,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,32 +49,31 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
-    <li><a class="dropdown-item" href="../articles/quickstart.html">Getting started with taxify</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Databases</h6></li>
-    <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
-    <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
-    <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
-    <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
+    <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
+    <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-data.html">Joining your own data</a></li>
+    <li><a class="dropdown-item" href="../articles/exploring.html">Exploring the backbone</a></li>
     <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
+    <li><a class="dropdown-item" href="../articles/vegetation-units.html">Matching vegetation units</a></li>
+    <li><a class="dropdown-item" href="../articles/large-scale.html">Matching large lists</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
-    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Background</h6></li>
+    <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
-    <li><a class="dropdown-item" href="../articles/large-scale.html">Working with large species lists</a></li>
+    <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -96,8 +100,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Joining custom data with add_data()</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Joining your own data</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/vignettes/custom-data.Rmd" class="external-link"><code>vignettes/custom-data.Rmd</code></a></small>
@@ -106,420 +109,288 @@
 
     
     
-<p>This vignette shows how to attach trait data, occurrence records, or
-measurement tables from external sources to a <code><a href="../reference/taxify.html">taxify()</a></code>
-result. External datasets rarely use the same names as the backbone. A
-CSV of leaf trait measurements might record <em>Pinus nigra</em> subsp.
-<em>laricio</em> while the backbone stores the accepted name as
-<em>Pinus nigra</em>, and a colleague’s spreadsheet might list <em>Picea
-excelsa</em>, a synonym retired decades ago, where COL recognises
-<em>Picea abies</em>. A join on the raw species strings misses these
-rows and leaves <code>NA</code>s where values should exist.
-<code><a href="../reference/add_data.html">add_data()</a></code> runs the external names through the backbone,
-resolves each to its accepted taxon, and joins on that, in a single pipe
-step.</p>
+<p>This article shows how to join a table of your own, such as trait
+measurements or plot records, to a <code><a href="../reference/taxify.html">taxify()</a></code> result when the
+two write species names differently. <code><a href="../reference/add_data.html">add_data()</a></code> matches the
+table’s names against the same backbones as the result and joins on the
+accepted taxon, so a synonym in the table still reaches its row. It ends
+with the joined table written to a file with <code><a href="../reference/export_data.html">export_data()</a></code>.
+Installation is covered in <a href="taxify.html">Get started</a>.</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>Match</strong> the species list with
-<code><a href="../reference/taxify.html">taxify()</a></code>.</li>
-<li>
-<strong>Read</strong> the external data by passing a data.frame or a
-file path (<code>.csv</code>, <code>.tsv</code>, <code>.xlsx</code>,
-<code>.sqlite</code>, <code>.vtr</code>) to
-<code><a href="../reference/add_data.html">add_data()</a></code>.</li>
-<li>
-<strong>Identify</strong> the species column with
-<code>species_col</code>, or let <code><a href="../reference/add_data.html">add_data()</a></code> detect it.</li>
-<li>
-<strong>Select</strong> the columns to join with
-<code>cols</code>.</li>
-<li>
-<strong>Resolve</strong> the duplicates and column name collisions
-<code><a href="../reference/add_data.html">add_data()</a></code> reports.</li>
-<li>
-<strong>Export</strong> the joined result with
-<code><a href="../reference/export_data.html">export_data()</a></code>.</li>
+<li><p><strong>Match</strong> the species list with
+<code><a href="../reference/taxify.html">taxify()</a></code>.</p></li>
+<li><p><strong>Join</strong> a data frame or a file with
+<code><a href="../reference/add_data.html">add_data()</a></code>, naming the species column with
+<code>species_col</code> or letting <code><a href="../reference/add_data.html">add_data()</a></code> find
+it.</p></li>
+<li><p><strong>Select</strong> columns with <code>cols</code>, and
+settle repeated species.</p></li>
+<li><p><strong>Export</strong> the joined result with
+<code><a href="../reference/export_data.html">export_data()</a></code>.</p></li>
 </ol>
-<div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
-<p>Or the development version from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
-</h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="joining-a-data-frame">Joining a data.frame<a class="anchor" aria-label="anchor" href="#joining-a-data-frame"></a>
-</h3>
-<p>The most common case is a table of trait measurements already in the
-R session. Here a small table holds specific leaf area (SLA) and maximum
-height for five European tree species.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Our taxify result</span></span>
-<span><span class="va">species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Picea abies"</span>,</span>
+<div class="section level2">
+<h2 id="joining-a-data-frame">Joining a data frame<a class="anchor" aria-label="anchor" href="#joining-a-data-frame"></a>
+</h2>
+<p>The species list has five plants, matched against the Catalogue of
+Life (COL):</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Reynoutria japonica"</span>,</span>
 <span>  <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species</span>, backbone <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># External trait data: note one synonym</span></span>
-<span><span class="va">traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  taxon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Picea excelsa"</span>,</span>
-<span>    <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  sla <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.2</span>, <span class="fl">24.1</span>, <span class="fl">6.5</span>, <span class="fl">8.0</span>, <span class="fl">22.3</span><span class="op">)</span>,</span>
-<span>  max_height_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">35</span>, <span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">30</span>, <span class="fl">25</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>The trait table holds specific leaf area (SLA) and maximum height.
+Its author wrote Japanese knotweed under the synonym <em>Fallopia
+japonica</em>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  taxon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Fallopia japonica"</span>,</span>
+<span>            <span class="st">"Pinus sylvestris"</span>, <span class="st">"Betula pendula"</span><span class="op">)</span>,</span>
+<span>  sla <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.2</span>, <span class="fl">24.1</span>, <span class="fl">21.0</span>, <span class="fl">8.0</span>, <span class="fl">22.3</span><span class="op">)</span>,</span>
+<span>  max_height_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">35</span>, <span class="fl">40</span>, <span class="fl">3</span>, <span class="fl">30</span>, <span class="fl">25</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Join: "Picea excelsa" resolves to "Picea abies" through the backbone</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/add_data.html">add_data()</a></code> takes the names from the <code>taxon</code>
-column, runs them through the same backbone(s) used in the original
-<code><a href="../reference/taxify.html">taxify()</a></code> call, resolves each to its accepted taxon, and
-left-joins on it. <em>Picea excelsa</em> is a synonym of <em>Picea
-abies</em> in COL, so its SLA and height land on the <em>Picea
-abies</em> row even though the strings differ. The result gains two
-columns, <code>sla</code> and <code>max_height_m</code>.</p>
+<span><span class="va">joined</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 5 names from 'taxon' through COL backbone...</span></span>
+<span><span class="co">#&gt; Matching 5 names...</span></span>
+<span><span class="co">#&gt; add_data: 5 of 5 species matched (100.0%). 0 names in data unmatched.</span></span>
+<span><span class="va">joined</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"sla"</span>, <span class="st">"max_height_m"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;            input_name       accepted_name  sla max_height_m</span></span>
+<span><span class="co">#&gt; 1       Quercus robur       Quercus robur 18.2           35</span></span>
+<span><span class="co">#&gt; 2     Fagus sylvatica     Fagus sylvatica 24.1           40</span></span>
+<span><span class="co">#&gt; 3 Reynoutria japonica Reynoutria japonica 21.0            3</span></span>
+<span><span class="co">#&gt; 4    Pinus sylvestris    Pinus sylvestris  8.0           30</span></span>
+<span><span class="co">#&gt; 5      Betula pendula      Betula pendula 22.3           25</span></span>
+<span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
+<p><code><a href="../reference/add_data.html">add_data()</a></code> matched the names in <code>taxon</code>
+against COL, the backbone the result records, and joined on the accepted
+taxon, so the knotweed values reach the <em>Reynoutria japonica</em>
+row. The message reports how many rows of the result received values and
+how many names of the table matched nothing. Every row of the result is
+kept, with <code>NA</code> where the table has no value; species only in
+the table are left out.</p>
+<p>A name with more than one accepted taxon behind it joins on the pick
+that <code><a href="../reference/taxify.html">taxify()</a></code> would make, which can be the wrong taxon when
+the name was written without its author. <a href="fuzzy-matching.html#names-with-more-than-one-accepted-taxon">How
+names are matched</a> shows how to check such names.</p>
 </div>
-<div class="section level3">
-<h3 id="joining-from-a-csv-file">Joining from a CSV file<a class="anchor" aria-label="anchor" href="#joining-from-a-csv-file"></a>
-</h3>
-<p>A file path can be passed directly. <code>.csv</code> and
-<code>.csv.gz</code> files are read with vectra’s CSV reader, and a
-<code>.csv.gz</code> path is decompressed transparently.</p>
+<div class="section level2">
+<h2 id="joining-a-file">Joining a file<a class="anchor" aria-label="anchor" href="#joining-a-file"></a>
+</h2>
+<p>A file path takes the place of the data frame. The example writes the
+trait table to a temporary CSV file first, with the species in a column
+called <code>latin_name</code> and a column of site codes:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">csv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>latin_name <span class="op">=</span> <span class="va">traits</span><span class="op">$</span><span class="va">taxon</span>, site <span class="op">=</span> <span class="st">"A"</span>, sla <span class="op">=</span> <span class="va">traits</span><span class="op">$</span><span class="va">sla</span><span class="op">)</span>,</span>
+<span>  <span class="va">csv</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">from_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">csv</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Auto-detecting species column among 2 character columns...</span></span>
+<span><span class="co">#&gt;   'latin_name': 5/5 matched (100%)</span></span>
+<span><span class="co">#&gt;   'site': 0/5 matched (0%)</span></span>
+<span><span class="co">#&gt; Detected species column: 'latin_name' (100% match rate)</span></span>
+<span><span class="co">#&gt; Matching 5 names from 'latin_name' through COL backbone...</span></span>
+<span><span class="co">#&gt; Matching 5 names...</span></span>
+<span><span class="co">#&gt; add_data: 5 of 5 species matched (100.0%). 0 names in data unmatched.</span></span>
+<span><span class="va">from_file</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"sla"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;            input_name  sla</span></span>
+<span><span class="co">#&gt; 1       Quercus robur 18.2</span></span>
+<span><span class="co">#&gt; 2     Fagus sylvatica 24.1</span></span>
+<span><span class="co">#&gt; 3 Reynoutria japonica 21.0</span></span>
+<span><span class="co">#&gt; 4    Pinus sylvestris  8.0</span></span>
+<span><span class="co">#&gt; 5      Betula pendula 22.3</span></span>
+<span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
+<p>Without <code>species_col</code>, <code><a href="../reference/add_data.html">add_data()</a></code> matches the
+first ten names of each text column against the backbone and takes the
+column with the most matches, if at least half match. Here
+<code>latin_name</code> matched all five and <code>site</code> none. For
+your own file, only the path changes, and <code>species_col</code> names
+the column when the guess fails.</p>
+<p>The file type is read from the extension:</p>
+<ul>
+<li><p><code>.csv</code>, <code>.csv.gz</code>, <code>.tsv</code> and
+<code>.tsv.gz</code>: delimited text.</p></li>
+<li><p><code>.xlsx</code>: an Excel workbook, which needs the openxlsx2
+package. <code>sheet</code> and <code>start_row</code> select the sheet
+and the header row; left out, <code><a href="../reference/add_data.html">add_data()</a></code> searches the
+sheets and the first 20 rows for the species column.</p></li>
+<li><p><code>.sqlite</code> and <code>.db</code>: a SQLite database,
+which needs DBI and RSQLite. <code>table</code> names the
+table.</p></li>
+<li><p><code>.vtr</code>: a table in the format of vectra, the package
+taxify reads backbones with.</p></li>
+</ul>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species</span>, backbone <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"path/to/leaf_traits.csv"</span><span class="op">)</span></span></code></pre></div>
-<p>If the file has a single obvious species-name column, auto-detection
-picks it up. When there are several plausible character columns, or the
-names sit in a column with an unusual name like
-<code>latin_binomial</code>, <code>species_col</code> removes the
-ambiguity.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"measurements"</span>, start_row <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="st">"traits.sqlite"</span>, table <span class="op">=</span> <span class="st">"plant_traits"</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span></code></pre></div>
+<p>Other formats, such as <code>.parquet</code> or <code>.rds</code>,
+are read into a data frame first.</p>
+</div>
+<div class="section level2">
+<h2 id="choosing-columns">Choosing columns<a class="anchor" aria-label="anchor" href="#choosing-columns"></a>
+</h2>
+<p><code><a href="../reference/add_data.html">add_data()</a></code> joins every column except the species column.
+<code>cols</code> names the ones to keep:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"leaf_traits.csv"</span>, species_col <span class="op">=</span> <span class="st">"latin_binomial"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">slim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span>, cols <span class="op">=</span> <span class="st">"sla"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 5 names from 'taxon' through COL backbone...</span></span>
+<span><span class="co">#&gt; Matching 5 names...</span></span>
+<span><span class="co">#&gt; add_data: 5 of 5 species matched (100.0%). 0 names in data unmatched.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">slim</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "sla"</span></span></code></pre></div>
+<p>A column whose name the result already uses is added with the prefix
+<code>data_</code>, and the result’s own column is unchanged:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"global_leaf_traits.csv.gz"</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="joining-from-a-tsv-file">Joining from a TSV file<a class="anchor" aria-label="anchor" href="#joining-from-a-tsv-file"></a>
-</h3>
-<p>Tab-separated files work the same way; <code>.tsv</code> and
-<code>.tsv.gz</code> files are read with <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim()</a></code>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"leaf_traits.tsv"</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"leaf_traits.tsv.gz"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="joining-from-an-excel-file">Joining from an Excel file<a class="anchor" aria-label="anchor" href="#joining-from-an-excel-file"></a>
-</h3>
-<p>Spreadsheets are common in ecology, especially for hand-curated trait
-databases shared among collaborators. <code><a href="../reference/add_data.html">add_data()</a></code> reads
-<code>.xlsx</code> files with the openxlsx2 package, which must be
-installed separately.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("openxlsx2")  # if not already installed</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span><span class="op">)</span></span></code></pre></div>
-<p>When <code>sheet</code>, <code>start_row</code>, and
-<code>species_col</code> are all left at their defaults,
-<code><a href="../reference/add_data.html">add_data()</a></code> scans the workbook for the right combination. It
-tests each sheet and up to 20 candidate header rows, probing character
-columns against the backbone until it finds species names. This handles
-the common case of a spreadsheet with a title block, column
-descriptions, or notes above the data table. The scan reports what it
-found:</p>
-<pre><code>Scanning Excel layout...
-  Detected: sheet 'measurements', header row 3, species column 'latin_name' (90% match rate)</code></pre>
-<p>Any combination of <code>sheet</code>, <code>start_row</code>, and
-<code>species_col</code> given explicitly skips that part of the
-detection:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Specific sheet by name or number</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"measurements"</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Known header row (e.g., rows 1-2 are title/notes)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, start_row <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># All three specified: no scanning at all</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="fl">1</span>, start_row <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>                   species_col <span class="op">=</span> <span class="st">"latin_name"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="joining-from-a-sqlite-database">Joining from a SQLite database<a class="anchor" aria-label="anchor" href="#joining-from-a-sqlite-database"></a>
-</h3>
-<p>A table in a SQLite database is read with vectra’s SQLite reader,
-which depends on DBI and RSQLite. A single <code>.sqlite</code> or
-<code>.db</code> file can hold many tables, so the <code>table</code>
-argument is mandatory here, and omitting it raises an error.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># SQLite: requires DBI and RSQLite</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span></span>
-<span>  <span class="st">"traits.sqlite"</span>,</span>
-<span>  table <span class="op">=</span> <span class="st">"plant_traits"</span>,</span>
-<span>  species_col <span class="op">=</span> <span class="st">"species"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>A relational database of measurements maintained across projects can
-be joined this way without exporting to CSV first, and the backbone
-matching runs the same way as for any other format.</p>
-</div>
-<div class="section level3">
-<h3 id="joining-a-vectra-file">Joining a vectra file<a class="anchor" aria-label="anchor" href="#joining-a-vectra-file"></a>
-</h3>
-<p>Pre-built <code>.vtr</code> files (the columnar format taxify uses
-internally for backbone storage) can be passed directly. vectra reads
-them with near-zero overhead, because no parsing or type inference is
-needed.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"prebuilt_traits.vtr"</span>, species_col <span class="op">=</span> <span class="st">"canonical_name"</span><span class="op">)</span></span></code></pre></div>
-<p>This is mainly useful for sharing processed trait tables between team
-members or across projects: a <code>.vtr</code> file produced by one
-workflow can be reused in another without converting back through CSV.
-<code><a href="../reference/export_data.html">export_data()</a></code> writes one:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Save a taxify result (with enrichments) as .vtr</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/export_data.html">export_data</a></span><span class="op">(</span><span class="st">"processed_traits.vtr"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># A colleague can load it directly</span></span>
-<span><span class="va">other_result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="st">"processed_traits.vtr"</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/export_data.html">export_data()</a></code> also writes <code>.csv</code>,
-<code>.tsv</code>, and <code>.xlsx</code> for tools outside R.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/export_data.html">export_data</a></span><span class="op">(</span><span class="st">"for_excel_users.xlsx"</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/export_data.html">export_data</a></span><span class="op">(</span><span class="st">"for_python.csv"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="other-file-formats">Other file formats<a class="anchor" aria-label="anchor" href="#other-file-formats"></a>
-</h3>
-<p>Formats <code><a href="../reference/add_data.html">add_data()</a></code> does not read directly
-(<code>.parquet</code>, <code>.rds</code>) can be read into a data.frame
-first and passed in that form.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"legacy_traits.rds"</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">my_data</span>, species_col <span class="op">=</span> <span class="st">"sp"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="detecting-the-species-column">Detecting the species column<a class="anchor" aria-label="anchor" href="#detecting-the-species-column"></a>
-</h3>
-<p>Without <code>species_col</code>, <code><a href="../reference/add_data.html">add_data()</a></code> probes each
-character column of the external data and picks the one whose first 10
-names match the backbone best (see <a href="#how-the-join-works">How the
-join works</a>).</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Auto-detection in action</span></span>
-<span><span class="va">traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  site <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span><span class="op">)</span>,</span>
-<span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>,</span>
-<span>              <span class="st">"Betula pendula"</span>, <span class="st">"Picea abies"</span><span class="op">)</span>,</span>
-<span>  habitat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forest"</span>, <span class="st">"forest"</span>, <span class="st">"forest edge"</span>, <span class="st">"boreal"</span><span class="op">)</span>,</span>
-<span>  sla <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.2</span>, <span class="fl">24.1</span>, <span class="fl">22.3</span>, <span class="fl">6.5</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Three character columns: site, species, habitat</span></span>
-<span><span class="co"># Only "species" will produce &gt;50% backbone matches</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span><span class="op">)</span></span></code></pre></div>
-<p>Detection works well when the species column contains clean binomials
-and the other character columns hold obviously non-taxonomic strings
-(site codes, habitat descriptions, observer names). It can fail when
-column names are ambiguous, or when species names are heavily misspelled
-or given as common names, and then an explicit <code>species_col</code>
-avoids the error.</p>
-</div>
-<div class="section level3">
-<h3 id="selecting-columns-with-cols">Selecting columns with <code>cols</code><a class="anchor" aria-label="anchor" href="#selecting-columns-with-cols"></a>
-</h3>
-<p>By default <code><a href="../reference/add_data.html">add_data()</a></code> joins every column of the external
-data except the species column. When the external table has dozens of
-columns and only two or three are needed, <code>cols</code> names
-them.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Full trait table with many columns</span></span>
-<span><span class="va">big_traits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span>,</span>
-<span>  sla <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.2</span>, <span class="fl">24.1</span><span class="op">)</span>,</span>
-<span>  max_height_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">35</span>, <span class="fl">40</span><span class="op">)</span>,</span>
-<span>  leaf_nitrogen <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.1</span>, <span class="fl">2.4</span><span class="op">)</span>,</span>
-<span>  wood_density <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.56</span>, <span class="fl">0.58</span><span class="op">)</span>,</span>
-<span>  seed_mass_mg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3500</span>, <span class="fl">220</span><span class="op">)</span>,</span>
-<span>  bark_thickness_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">8</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Only join SLA and wood density</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">big_traits</span>, species_col <span class="op">=</span> <span class="st">"species"</span>,</span>
-<span>                   cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sla"</span>, <span class="st">"wood_density"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><code>cols</code> can also leave out columns that would collide with
-existing ones.</p>
-</div>
-<div class="section level3">
-<h3 id="column-name-collisions">Column name collisions<a class="anchor" aria-label="anchor" href="#column-name-collisions"></a>
-</h3>
-<p>When the external data has columns named like columns already in the
-<code><a href="../reference/taxify.html">taxify()</a></code> result, <code><a href="../reference/add_data.html">add_data()</a></code> prefixes the
-incoming columns with <code>data_</code> and prints a message listing
-them. The existing columns of the result are never changed.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># The taxify result already has a "family" column</span></span>
-<span><span class="co"># External data also has a "family" column (taxonomic family from a</span></span>
-<span><span class="co"># different source) plus a "leaf_area" column</span></span>
-<span><span class="va">external</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">families</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span>,</span>
 <span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fagaceae"</span>, <span class="st">"Fagaceae"</span><span class="op">)</span>,</span>
 <span>  leaf_area <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">45.2</span>, <span class="fl">38.7</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">external</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
-<span><span class="co"># Output gains "data_family" (from external) and "leaf_area" (no collision)</span></span></code></pre></div>
-<p>If the conflicting column is not needed, leaving it out through
-<code>cols</code> avoids the rename.</p>
+<span><span class="va">coll</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">families</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 2 names from 'species' through COL backbone...</span></span>
+<span><span class="co">#&gt; Matching 2 names...</span></span>
+<span><span class="co">#&gt; Prefixing colliding column(s) with 'data_': family</span></span>
+<span><span class="co">#&gt; add_data: 2 of 5 species matched (40.0%). 0 names in data unmatched.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">coll</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "data_family" "leaf_area"</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="duplicate-species">Duplicate species<a class="anchor" aria-label="anchor" href="#duplicate-species"></a>
-</h3>
-<p>External datasets sometimes list the same species more than once:
-repeated measurements across sites, several literature sources compiled
-into one table, or subspecies that resolve to the same accepted species.
-<code><a href="../reference/add_data.html">add_data()</a></code> separates two cases.</p>
-<p>Exact duplicates have identical trait values across the repeated
-rows. They are collapsed into a single row with a warning.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Harmless: same species, same values (perhaps from two sites)</span></span>
-<span><span class="va">dup_ok</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<div class="section level2">
+<h2 id="repeated-species">Repeated species<a class="anchor" aria-label="anchor" href="#repeated-species"></a>
+</h2>
+<p>A table can hold the same species more than once: measurements from
+several sites, or two names that resolve to one accepted taxon. The
+check runs after matching, on the accepted taxon. Rows with identical
+values are merged, with a warning:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">same</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span>,</span>
 <span>  sla <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.2</span>, <span class="fl">18.2</span>, <span class="fl">24.1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">dup_ok</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
-<span><span class="co"># Warning: 1 duplicate rows ... deduplicated.</span></span></code></pre></div>
-<p>Conflicting duplicates differ in at least one of the selected columns
-between two rows that resolve to the same accepted taxon. The comparison
-runs column by column and treats two <code>NA</code> values as equal.
-Two rows for <em>Quercus robur</em> with SLA values of 18.2 and 21.5
-conflict; so do two rows that agree on an SLA of 18.2 when one has
-<code>NA</code> for wood density and the other 0.56. The duplicates
-count as identical only when every selected column matches across all
-rows of a species. <code><a href="../reference/add_data.html">add_data()</a></code> cannot decide which value is
-correct, so it raises an error that names the offending species.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Conflicting: same species, different SLA values</span></span>
-<span><span class="va">dup_bad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span><span class="va">merged</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">same</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 3 names from 'species' through COL backbone...</span></span>
+<span><span class="co">#&gt; Matching 3 names...</span></span>
+<span><span class="co">#&gt; Warning: 1 duplicate rows in data (same taxon, identical values) --</span></span>
+<span><span class="co">#&gt; deduplicated.</span></span>
+<span><span class="co">#&gt; add_data: 2 of 5 species matched (40.0%). 0 names in data unmatched.</span></span></code></pre></div>
+<p>Rows with different values stop the join, because
+<code><a href="../reference/add_data.html">add_data()</a></code> cannot tell which value is right:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">differ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span>,</span>
+<span>  country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span>, <span class="st">"AT"</span><span class="op">)</span>,</span>
 <span>  sla <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18.2</span>, <span class="fl">21.5</span>, <span class="fl">24.1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">dup_bad</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
-<span><span class="co"># Error: 1 species in data resolved to the same accepted name but have</span></span>
-<span><span class="co">#   different trait values.</span></span>
-<span><span class="co">#   Examples: 'Quercus robur'</span></span></code></pre></div>
-<p>The fix depends on the data. Within-species variation (measurements
-from different populations) can be aggregated before joining; data entry
-errors can be removed. When only some columns conflict,
-<code>cols</code> can select the non-conflicting subset so the join
-proceeds.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Aggregate first, then join</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
-<span><span class="va">dup_agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="va">sla</span> <span class="op">~</span> <span class="va">species</span>, data <span class="op">=</span> <span class="va">dup_bad</span>, FUN <span class="op">=</span> <span class="va">mean</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">dup_agg</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span></code></pre></div>
-<p>When the repeated rows are meant to stay apart, one per country or
-region, <code>group_col</code> names the grouping column and the output
-is pivoted to one column per group (<code>sla_AT</code>,
-<code>sla_DE</code>), with the conflict check applied within each group.
-The error message suggests <code>group_col</code> when a column looks
-like a country or region code.</p>
-<p>Duplicates are checked after backbone resolution, not on the raw
-names. If the external data lists both <em>Picea excelsa</em> and
-<em>Picea abies</em> with different SLA values, the two names resolve to
-the same accepted species and trigger the conflicting-duplicate error,
-because conflicting values for one join key cannot coexist.</p>
+<span><span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">differ</span>, species_col <span class="op">=</span> <span class="st">"species"</span>, cols <span class="op">=</span> <span class="st">"sla"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 3 names from 'species' through COL backbone...</span></span>
+<span><span class="co">#&gt; Matching 3 names...</span></span>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! 1 species in data resolved to the same accepted name but have different trait values.</span></span>
+<span><span class="co">#&gt;   Examples: 'Quercus robur'</span></span></code></pre></div>
+<p>Two values count as different when any selected column differs, with
+two <code>NA</code> values counted as equal. Averaging the rows before
+the join is one fix. When the rows belong to different groups, such as
+countries, <code>group_col</code> keeps them apart, with one column per
+group:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">by_country</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">differ</span>, species_col <span class="op">=</span> <span class="st">"species"</span>,</span>
+<span>                       group_col <span class="op">=</span> <span class="st">"country"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 3 names from 'species' through COL backbone...</span></span>
+<span><span class="co">#&gt; Matching 3 names...</span></span>
+<span><span class="co">#&gt; Tip: pipe into taxify_long() to reshape wide columns to long format.</span></span>
+<span><span class="co">#&gt; add_data: 2 of 5 species matched (40.0%). 2 groups. 0 names in data unmatched.</span></span>
+<span><span class="va">by_country</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"sla_AT"</span>, <span class="st">"sla_DE"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;            input_name sla_AT sla_DE</span></span>
+<span><span class="co">#&gt; 1       Quercus robur   18.2   21.5</span></span>
+<span><span class="co">#&gt; 2     Fagus sylvatica   24.1     NA</span></span>
+<span><span class="co">#&gt; 3 Reynoutria japonica     NA     NA</span></span>
+<span><span class="co">#&gt; 4    Pinus sylvestris     NA     NA</span></span>
+<span><span class="co">#&gt; 5      Betula pendula     NA     NA</span></span>
+<span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
+<p><code><a href="../reference/taxify_long.html">taxify_long()</a></code> turns the group columns into rows.</p>
 </div>
-<div class="section level3">
-<h3 id="controlling-fuzzy-matching">Controlling fuzzy matching<a class="anchor" aria-label="anchor" href="#controlling-fuzzy-matching"></a>
-</h3>
-<p><code><a href="../reference/add_data.html">add_data()</a></code> resolves the external names with the same
-fuzzy matching as <code><a href="../reference/taxify.html">taxify()</a></code>. Fuzzy matching catches typos
-and minor spelling differences, and can produce false matches between
-short or similar names. <code>fuzzy_threshold</code> sets how permissive
-it is, with lower values stricter, and <code>fuzzy = FALSE</code> turns
-it off.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Strict: only very close matches</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Exact matching only (no fuzzy)</span></span>
-<span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p>Exact matching suits external data that is already well curated,
-where an approximate string match would risk attaching one species’
-values to another.</p>
+<div class="section level2">
+<h2 id="matching-options">Matching options<a class="anchor" aria-label="anchor" href="#matching-options"></a>
+</h2>
+<p><code><a href="../reference/add_data.html">add_data()</a></code> matches the table’s names with fuzzy
+matching, as <code><a href="../reference/taxify.html">taxify()</a></code> does. <code>fuzzy_threshold</code>
+sets the tolerance, and <code>fuzzy = FALSE</code> accepts only exact
+matches, for a table whose names are already checked:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="combining-add_data-with-enrichments">Combining add_data() with enrichments<a class="anchor" aria-label="anchor" href="#combining-add_data-with-enrichments"></a>
-</h3>
-<p><code><a href="../reference/add_data.html">add_data()</a></code> sits in a pipe chain alongside the built-in
-enrichment functions. Custom data and pre-built enrichments join on the
-same accepted taxon, so they can be stacked in any order.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species</span>, backbone <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_iucn.html">add_iucn</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<div class="section level2">
+<h2 id="combining-with-published-data">Combining with published data<a class="anchor" aria-label="anchor" href="#combining-with-published-data"></a>
+</h2>
+<p><code><a href="../reference/add_data.html">add_data()</a></code> and the <code>add_&lt;source&gt;()</code>
+functions join on the same accepted taxon, so they can be chained in any
+order:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">both</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span><span class="op">)</span></span></code></pre></div>
-<p>Each step appends columns. The final data.frame holds the core
-<code><a href="../reference/taxify.html">taxify()</a></code> output, IUCN conservation status, woodiness
-classification, and the custom SLA and height measurements, all aligned
-by accepted species.</p>
+<span>  <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span>, cols <span class="op">=</span> <span class="st">"sla"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 5 names from 'taxon' through COL backbone...</span></span>
+<span><span class="co">#&gt; Matching 5 names...</span></span>
+<span><span class="co">#&gt; add_data: 5 of 5 species matched (100.0%). 0 names in data unmatched.</span></span>
+<span><span class="va">both</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"woodiness"</span>, <span class="st">"sla"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;         accepted_name woodiness  sla</span></span>
+<span><span class="co">#&gt; 1       Quercus robur     woody 18.2</span></span>
+<span><span class="co">#&gt; 2     Fagus sylvatica     woody 24.1</span></span>
+<span><span class="co">#&gt; 3 Reynoutria japonica      &lt;NA&gt; 21.0</span></span>
+<span><span class="co">#&gt; 4    Pinus sylvestris     woody  8.0</span></span>
+<span><span class="co">#&gt; 5      Betula pendula     woody 22.3</span></span>
+<span><span class="co">#&gt; Sources: COL 2026.09, Zanne et al. 2014 2026.08 | cite() for full citations</span></span></code></pre></div>
 </div>
+<div class="section level2">
+<h2 id="exporting-the-result">Exporting the result<a class="anchor" aria-label="anchor" href="#exporting-the-result"></a>
+</h2>
+<p><code><a href="../reference/export_data.html">export_data()</a></code> writes the joined table to
+<code>.csv</code>, <code>.tsv</code>, <code>.xlsx</code> or
+<code>.vtr</code>, chosen by the extension:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/export_data.html">export_data</a></span><span class="op">(</span><span class="va">joined</span>, <span class="va">out</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"sla"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            input_name       accepted_name  sla</span></span>
+<span><span class="co">#&gt; 1       Quercus robur       Quercus robur 18.2</span></span>
+<span><span class="co">#&gt; 2     Fagus sylvatica     Fagus sylvatica 24.1</span></span>
+<span><span class="co">#&gt; 3 Reynoutria japonica Reynoutria japonica 21.0</span></span></code></pre></div>
+<p>A <code>.vtr</code> file written this way can be passed to
+<code><a href="../reference/add_data.html">add_data()</a></code> in another project.</p>
 </div>
 <div class="section level2">
 <h2 id="how-the-join-works">How the join works<a class="anchor" aria-label="anchor" href="#how-the-join-works"></a>
 </h2>
-<p>The pipeline inside <code><a href="../reference/add_data.html">add_data()</a></code> has five steps:</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Read</strong> the external data. File paths are
-dispatched by extension (<code>.csv</code>, <code>.csv.gz</code>,
-<code>.tsv</code>, <code>.tsv.gz</code>, <code>.xlsx</code>,
-<code>.sqlite</code>, <code>.db</code>, <code>.vtr</code>); data.frames
-pass through directly. Format detection relies on the file extension
-alone, so a misnamed file (e.g., a tab-separated file saved as
-<code>.csv</code>) produces a read error rather than a silent
-misparse.</p></li>
-<li><p><strong>Identify</strong> the species column, from
-<code>species_col</code> or by auto-detection. Auto-detection takes the
-first 10 rows of every character column and runs each sample through
-<code><a href="../reference/taxify.html">taxify()</a></code> against the same backbone(s). The column with the
-highest match rate wins, provided it reaches 50%; otherwise
-<code><a href="../reference/add_data.html">add_data()</a></code> stops and asks for <code>species_col</code>.
-Site codes, habitat labels, and observer names rarely match a backbone
-entry, so the species column tends to stand out.</p></li>
-<li><p><strong>Match</strong> the species names through the backbone(s)
-of the original <code><a href="../reference/taxify.html">taxify()</a></code> call, which
-<code><a href="../reference/add_data.html">add_data()</a></code> reads from the <code>taxify_meta</code>
-attribute <code><a href="../reference/taxify.html">taxify()</a></code> attaches to its output, so they need not
-be given again. This produces an accepted taxon for each row of the
-external data. Fuzzy matching is on by default (<code>fuzzy</code>,
-<code>fuzzy_threshold</code>). Names that fail to resolve are dropped
-from the joinable pool, and their count appears in the summary message.
-If none resolve, no columns are added.</p></li>
-<li><p><strong>Check for duplicates.</strong> Rows of the external data
-that resolve to the same accepted name are compared. Exact duplicates
-(identical values in all selected columns) are collapsed with a warning;
-conflicting duplicates raise an error.</p></li>
-<li><p><strong>Left join</strong> on the accepted taxon. The key is the
-<code>accepted_id</code> together with the backbone that issued it,
-since backbone IDs are bare integers in most backbones and mean nothing
-outside the one they came from. Where the result and the external data
-were matched by different backbones, the accepted name is the key
-instead. Every row of the result with a match receives the trait
-columns, rows without a match get <code>NA</code>, and colliding column
-names are prefixed with <code>data_</code>.</p></li>
+<li><p><strong>Read</strong> the table: a data frame as it is, a file by
+its extension.</p></li>
+<li><p><strong>Find</strong> the species column, from
+<code>species_col</code> or by matching samples of each text
+column.</p></li>
+<li><p><strong>Match</strong> the names against the backbones of the
+result, which <code><a href="../reference/add_data.html">add_data()</a></code> reads from the result’s metadata.
+Names that match nothing are counted in the message and left
+out.</p></li>
+<li><p><strong>Check</strong> for repeated accepted taxa: identical rows
+are merged, different rows stop the join.</p></li>
+<li><p><strong>Join</strong> on the accepted ID together with the
+backbone that issued it, since an ID means something only within its
+backbone. When the result and the table were matched by different
+backbones, the accepted name is the key instead.</p></li>
 </ol>
-<p>The join keeps every row of the original result. Species present in
-the external data but absent from the result are ignored. A summary
-message reports how many species were matched and how many names in the
-external data could not be resolved through the backbone.</p>
+</div>
+<div class="section level2">
+<h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>
+</h2>
+<ul>
+<li><p><a href="enrichments.html">Attaching published data</a>: the
+<code>add_&lt;source&gt;()</code> functions and
+<code><a href="../reference/add_trait.html">add_trait()</a></code>.</p></li>
+<li><p><a href="taxify.html#recording-what-was-used">Recording what was
+used</a>: citing and locking the versions behind a result.</p></li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

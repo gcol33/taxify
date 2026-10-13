@@ -1,7 +1,7 @@
 # List the higher classification (ancestors) of a taxon
 
-Returns the lineage above `taxon` – its genus, family, order, class,
-phylum, and kingdom, for whichever of those ranks the backbone stores –
+Returns the lineage above `taxon` (its genus, family, order, class,
+phylum, and kingdom, for whichever of those ranks the backbone stores)
 as a tidy frame with one row per ancestor rank. Where
 [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
 reaches down to descendants, `upstream()` reaches up to ancestors; where
@@ -33,7 +33,7 @@ upstream(taxon, backbone = NULL, to = NULL, ..., verbose = TRUE)
 
 - to:
 
-  Optional rank (or ranks) to restrict the output to – e.g.
+  Optional rank (or ranks) to restrict the output to, e.g.
   `to = "family"` answers "what family is this in?" with a single row.
   `NULL` (default) returns the whole lineage.
 

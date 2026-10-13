@@ -31,10 +31,13 @@ blocks <- list(
   "enrichment-count" = as.character(stats$n_enrichments)
 )
 
-targets <- c("README.md",
-             file.path("vignettes", c("backbones.Rmd", "large-scale.Rmd",
-                                      "enrichments.Rmd", "quickstart.Rmd",
-                                      "migration.Rmd")))
+# Sources and their rendered copies both carry the markers: README.Rmd and the
+# vignette sources (*.Rmd.orig) are knitted into README.md and vignettes/*.Rmd,
+# and a block rewritten in only one of the pair comes back stale at the next
+# knit.
+targets <- c("README.Rmd", "README.md",
+             list.files("vignettes", pattern = "\\.Rmd(\\.orig)?$",
+                        full.names = TRUE))
 
 # Scalars appear mid-sentence, so they are replaced inline; tables get their own
 # lines. Both use the same marker pair, and an HTML comment renders invisibly in

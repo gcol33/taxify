@@ -106,7 +106,7 @@ Source: FishBase via rfishbase (Froese & Pauly, CC BY-NC 4.0). Coverage:
 
 The `fb_lw_*` columns give one representative length-weight fit per
 species from the POPLW table, so a length can be converted to a mass
-where `fb_body_mass_g` (a record maximum) is not what you want.
+where `fb_body_mass_g` (a record maximum) does not fit the analysis.
 FishBase's Bayesian congeneric estimates are not included; `fb_lw_*` are
 measured fits.
 

@@ -42,7 +42,7 @@ German carabid species, 382 of them with traits. Ground beetles are one
 of the most intensively sampled insect groups in ecology, and this is
 the largest openly reachable block of carabid traits.
 
-`wing_morph` is three-state – long-winged, short-winged, and the 83
+`wing_morph` is three-state: long-winged, short-winged, and the 83
 dimorphic species that produce both forms. Dimorphism is the trait of
 interest in carabid dispersal ecology, so it is never collapsed into a
 flight-capable/flightless binary.
@@ -53,8 +53,8 @@ IUCN letter codes and is **not** a global IUCN assessment: it maps
 deterministically onto `red_list_germany` (`*` to LC, 1 to CR, 2 to EN,
 3 to VU, V to NT), with no off-diagonal case in all 382 species. A
 species can be critically endangered at its German range edge and of
-least concern globally, so these columns stay on this door and out of
-the global `conservation_status` trait.
+least concern globally, so these columns stay in this function and out
+of the global `conservation_status` trait.
 
 `occupancy_trend` is the paper's own result: the modelled change in
 occupancy probability over two years, negative for a declining species.

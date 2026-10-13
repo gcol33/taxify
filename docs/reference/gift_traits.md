@@ -1,7 +1,7 @@
 # Browse the bundled GIFT trait columns
 
 Returns the species-level trait columns available from the bundled GIFT
-enrichment, so you can pick which to attach in
+dataset, for picking which to attach in
 [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md).
 Read offline from the local `.vtr` (downloaded or built once); the first
 call may trigger that one-time download.

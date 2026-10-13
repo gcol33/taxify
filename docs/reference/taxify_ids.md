@@ -47,6 +47,14 @@ first):
 
   An accepted ID the name resolves to.
 
+- gbif_key:
+
+  The legacy GBIF taxon key(s) of that taxon, the keys GBIF serves
+  occurrence records for: the ID itself on the `gbif` backbone, and on a
+  backbone whose build carries a crosswalk (COL XR) the `|`-delimited
+  set of GBIF keys for the same name, several when GBIF files it under
+  more than one. `NA` on a backbone with no crosswalk.
+
 - accepted_name:
 
   The name of that accepted taxon.
@@ -80,6 +88,29 @@ first):
   Logical. Is this the `accepted_id`
   [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   reported?
+
+- role:
+
+  What the ID is to the queried name: `"pick"` (the `accepted_id`
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  reported), `"same_name"` (another record of the same taxon, or a
+  record keeping the queried name as its own concept, as GBIF's doubtful
+  homonym records of *Pinus sylvestris* do) or `"other_taxon"` (the
+  accepted taxon of a synonym record under another author, a different
+  species: GBIF files *Absinthium vulgare* Dulac under *Artemisia
+  vulgaris* subsp. *vulgaris* while the pick, Lam., goes to *A.
+  absinthium*).
+
+- pick_basis:
+
+  What decided the pick over the name's other accepted IDs, the same on
+  every row of a name: `"status"`, `"priority"` (publication year),
+  `"occurrences"`, `"validity"`, `"fuzzy"`, or `"id"` when only the
+  lowest taxon ID separated them, which settles nothing about the taxon
+  the name denotes; `"authorship"`, `"basionym"` or `"kingdom"` when the
+  input's author, the record's basionym link or the `kingdom` argument
+  of [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  moved the pick. `NA` for a name with one ID.
 
 Unmatched names contribute no rows.
 

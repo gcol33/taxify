@@ -8,16 +8,18 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/gcol33/taxify/blob/HEAD/DESCRIPTION)
+[`inst/CITATION`](https://github.com/gcol33/taxify/blob/HEAD/inst/CITATION)
 
 Colling G (2026). *taxify: Offline Taxonomic Name Matching Against
-Darwin Core Backbones*. R package version 0.6.0,
-<https://gillescolling.com/taxify/>.
+Darwin Core Backbones*.
+[doi:10.32614/CRAN.package.taxify](https://doi.org/10.32614/CRAN.package.taxify).
+R package version 0.7.0, <https://gillescolling.com/taxify/>.
 
-    @Manual{,
+    @Manual{colling2026taxify,
       title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
       author = {Gilles Colling},
       year = {2026},
-      note = {R package version 0.6.0},
+      note = {R package version 0.7.0},
+      doi = {10.32614/CRAN.package.taxify},
       url = {https://gillescolling.com/taxify/},
     }

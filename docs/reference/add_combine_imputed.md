@@ -50,7 +50,7 @@ Source: COMBINE (Soria et al. 2021, Ecology, CC0), imputed table
 (`trait_data_imputed.csv`). Same species set and column meanings as
 [`add_combine_reported()`](https://gillescolling.com/taxify/reference/add_combine_reported.md);
 the difference is coverage. Because imputation only fills gaps, applying
-both doors and comparing `combine_*` with `combine_imputed_*` shows
+both functions and comparing `combine_*` with `combine_imputed_*` shows
 which values are measured versus estimated.
 
 ## References

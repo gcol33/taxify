@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Hybrids and aggregates • taxify</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -35,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,32 +49,31 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
-    <li><a class="dropdown-item" href="../articles/quickstart.html">Getting started with taxify</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Databases</h6></li>
-    <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
-    <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
-    <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
-    <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
+    <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
+    <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-data.html">Joining your own data</a></li>
+    <li><a class="dropdown-item" href="../articles/exploring.html">Exploring the backbone</a></li>
     <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
+    <li><a class="dropdown-item" href="../articles/vegetation-units.html">Matching vegetation units</a></li>
+    <li><a class="dropdown-item" href="../articles/large-scale.html">Matching large lists</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
-    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Background</h6></li>
+    <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
-    <li><a class="dropdown-item" href="../articles/large-scale.html">Working with large species lists</a></li>
+    <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -96,8 +100,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Hybrids and aggregates</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Hybrids and aggregates</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/vignettes/hybrids-and-aggregates.Rmd" class="external-link"><code>vignettes/hybrids-and-aggregates.Rmd</code></a></small>
@@ -106,617 +109,262 @@
 
     
     
-<p>This vignette shows how taxify matches hybrid and aggregate names and
-how it attaches traits to them. Both need handling in matching and again
-in trait resolution. A hybrid names a cross between two taxa, sometimes
-as a nothospecies (<code>Mentha ×piperita</code>) and sometimes as a
-formula that spells out both parents
-(<code>Salix alba × Salix fragilis</code>). An aggregate names a group
-of closely related microspecies under one label
-(<code>Rubus fruticosus agg.</code>, <code>Galium mollugo s.l.</code>),
-one step above the binomial. taxify treats the two with a parallel
-fallback: where a hybrid formula has no record of its own, it resolves
-through its two parents; where an aggregate has no record of its own, it
-falls back to the nominal binomial.</p>
+<p>This article shows how taxify matches the names of hybrids and
+aggregates, and how it attaches trait values to them when the published
+datasets hold none for the name itself. A hybrid formula with no record
+of its own resolves through its two parents; an aggregate with no record
+of its own falls back to its binomial. Installation is covered in <a href="taxify.html">Get started</a>. The examples match against World
+Flora Online (WFO) and Euro+Med PlantBase.</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>Match</strong> the list with <code><a href="../reference/taxify.html">taxify()</a></code>, which
+<li><p><strong>Match</strong> the list with <code><a href="../reference/taxify.html">taxify()</a></code>, which
 records hybrids in <code>is_hybrid</code> and <code>hybrid_type</code>
 and aggregates in <code>qualifier</code> and
-<code>aggregate_fallback</code>.</li>
-<li>
-<strong>Parse</strong> the parents of a hybrid formula with
-<code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>.</li>
-<li>
-<strong>Choose</strong> whether an aggregate keeps its own concept
-with the <code>aggregates</code> argument of <code><a href="../reference/taxify.html">taxify()</a></code>.</li>
-<li>
-<strong>Attach</strong> traits with <code><a href="../reference/add_trait.html">add_trait()</a></code> or an
-<code>add_&lt;source&gt;()</code> door, which fall back to a hybrid’s
-parents and an aggregate’s binomial.</li>
+<code>aggregate_fallback</code>.</p></li>
+<li><p><strong>Parse</strong> the parents of a hybrid formula with
+<code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>.</p></li>
+<li><p><strong>Choose</strong> whether an aggregate keeps its own
+concept with the <code>aggregates</code> argument.</p></li>
+<li><p><strong>Attach</strong> traits with <code><a href="../reference/add_trait.html">add_trait()</a></code> or
+an <code>add_&lt;source&gt;()</code> function, which fall back to a
+hybrid’s parents and an aggregate’s binomial.</p></li>
 </ol>
-<div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
-<p>Or the development version from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
-</h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="matching-a-mixed-species-list">Matching a mixed species list<a class="anchor" aria-label="anchor" href="#matching-a-mixed-species-list"></a>
-</h3>
-<p>Botanical nomenclature marks a hybrid with the multiplication sign
-(×, U+00D7) in one of three positions. A nothogenus places it before the
-genus name, for an intergeneric cross (between species in two different
-genera), as in Leyland cypress:</p>
-<blockquote>
-<p>×Cupressocyparis leylandii</p>
-</blockquote>
-<p>A nothospecies places it before the specific epithet, with the same
-genus on both sides of the cross. Peppermint (<em>Mentha ×piperita</em>,
-a cross of <em>M. aquatica</em> and <em>M. spicata</em>) is the classic
-case:</p>
-<blockquote>
-<p>Mentha ×piperita</p>
-</blockquote>
-<p>A hybrid formula names both parent species, joined by the sign:</p>
-<blockquote>
-<p>Salix alba × Salix fragilis</p>
-</blockquote>
-<p>The list below mixes an ordinary species with a nothospecies, a
-nothogenus, a formula and a second nothospecies, written with the plain
-“x” most data use in place of the sign, and matches them in a single
-call:</p>
+<div class="section level2">
+<h2 id="hybrid-names">Hybrid names<a class="anchor" aria-label="anchor" href="#hybrid-names"></a>
+</h2>
+<p>Botanical names mark a hybrid with the multiplication sign (×) in one
+of three places:</p>
+<ul>
+<li><p>before the genus, for a cross between two genera (a nothogenus):
+×<em>Cupressocyparis leylandii</em>, the Leyland cypress;</p></li>
+<li><p>before the epithet, for a cross within one genus (a
+nothospecies): <em>Mentha</em> ×<em>piperita</em>, peppermint;</p></li>
+<li><p>between two parent names (a hybrid formula): <em>Salix alba</em>
+× <em>Salix fragilis</em>.</p></li>
+</ul>
+<p>Most data write a plain <code>x</code> in place of the sign. The list
+below has one name of each kind, a second nothospecies, a nothospecies
+with an author, and a species that is no hybrid:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hybrids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Quercus robur"</span>, <span class="st">"Mentha x piperita"</span>, <span class="st">"x Cupressocyparis leylandii"</span>,</span>
+<span>  <span class="st">"Salix alba x Salix fragilis"</span>, <span class="st">"Platanus x hispanica"</span>,</span>
+<span>  <span class="st">"Mentha x piperita L."</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">hybrids</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"hybrid_type"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                    input_name               accepted_name  hybrid_type</span></span>
+<span><span class="co">#&gt; 1               Quercus robur               Quercus robur         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2           Mentha x piperita           Mentha × piperita nothospecies</span></span>
+<span><span class="co">#&gt; 3 x Cupressocyparis leylandii  × Hesperotropsis leylandii   nothogenus</span></span>
+<span><span class="co">#&gt; 4 Salix alba x Salix fragilis Salix alba × Salix fragilis      formula</span></span>
+<span><span class="co">#&gt; 5        Platanus x hispanica          Platanus hispanica nothospecies</span></span>
+<span><span class="co">#&gt; 6        Mentha x piperita L.           Mentha × piperita nothospecies</span></span>
+<span><span class="co">#&gt;       match_type</span></span>
+<span><span class="co">#&gt; 1          exact</span></span>
+<span><span class="co">#&gt; 2          exact</span></span>
+<span><span class="co">#&gt; 3          exact</span></span>
+<span><span class="co">#&gt; 4 hybrid_formula</span></span>
+<span><span class="co">#&gt; 5          exact</span></span>
+<span><span class="co">#&gt; 6          exact</span></span>
+<span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
+<p><code>is_hybrid</code> (not shown) is <code>TRUE</code> on the five
+hybrid rows, and <code>hybrid_type</code> names the kind. Both describe
+the input and are set during cleaning, so they are filled whether or not
+the name matched.</p>
+<p>The two nothospecies and the author-bearing <em>Mentha</em> match WFO
+records. ×<em>Cupressocyparis leylandii</em> matches too, and WFO
+resolves it to ×<em>Hesperotropsis leylandii</em>. WFO holds no record
+for the <em>Salix</em> cross, so the row resolves through its two
+parents, with <code>match_type = "hybrid_formula"</code>:
+<code>accepted_name</code> holds the cross of the accepted parent names,
+and <code>matched_name</code> the cross of the parents as written. The
+two differ only when a parent is a synonym. The ID, rank and
+classification columns of a formula row stay <code>NA</code>, and when a
+parent does not match, <code>accepted_name</code> stays <code>NA</code>
+as well.</p>
+</div>
+<div class="section level2">
+<h2 id="hybrid-parents">Hybrid parents<a class="anchor" aria-label="anchor" href="#hybrid-parents"></a>
+</h2>
+<p><code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> parses the two parents of each hybrid
+formula and resolves them against the backbones of the result. It adds
+the parents as written, their accepted names and their backbone IDs:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">info</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="va">info</span><span class="op">[</span><span class="va">info</span><span class="op">$</span><span class="va">hybrid_type</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"formula"</span>,</span>
+<span>     <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hybrid_parent_1"</span>, <span class="st">"hybrid_parent_1_accepted"</span>,</span>
+<span>       <span class="st">"hybrid_parent_2"</span>, <span class="st">"hybrid_parent_2_accepted"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;   hybrid_parent_1 hybrid_parent_1_accepted hybrid_parent_2</span></span>
+<span><span class="co">#&gt; 4      Salix alba               Salix alba  Salix fragilis</span></span>
+<span><span class="co">#&gt;   hybrid_parent_2_accepted</span></span>
+<span><span class="co">#&gt; 4           Salix fragilis</span></span>
+<span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
+<p>The parent columns are <code>NA</code> for a nothospecies or a
+nothogenus, whose name does not say which species were crossed: the
+parents of <em>Mentha</em> ×<em>piperita</em>, <em>M. aquatica</em> and
+<em>M. spicata</em>, appear nowhere in it.</p>
+<p>Formulas are written in several ways. An abbreviated genus in the
+second parent is expanded from the first parent, and a bare epithet is
+read as a species of the first parent’s genus:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Quercus robur"</span>,</span>
-<span>  <span class="st">"Mentha x piperita"</span>,</span>
-<span>  <span class="st">"x Cupressocyparis leylandii"</span>,</span>
-<span>  <span class="st">"Salix alba x Salix fragilis"</span>,</span>
-<span>  <span class="st">"Platanus x hispanica"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"is_hybrid"</span>, <span class="st">"hybrid_type"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<p>The expected output looks roughly like this:</p>
-<table class="table">
-<colgroup>
-<col width="30%">
-<col width="28%">
-<col width="11%">
-<col width="14%">
-<col width="16%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">input_name</th>
-<th align="left">accepted_name</th>
-<th align="left">is_hybrid</th>
-<th align="left">hybrid_type</th>
-<th align="left">match_type</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Quercus robur</td>
-<td align="left">Quercus robur</td>
-<td align="left">FALSE</td>
-<td align="left">NA</td>
-<td align="left">exact</td>
-</tr>
-<tr class="even">
-<td align="left">Mentha x piperita</td>
-<td align="left">Mentha × piperita</td>
-<td align="left">TRUE</td>
-<td align="left">nothospecies</td>
-<td align="left">exact</td>
-</tr>
-<tr class="odd">
-<td align="left">x Cupressocyparis leylandii</td>
-<td align="left">Hesperotropsis leylandii</td>
-<td align="left">TRUE</td>
-<td align="left">nothogenus</td>
-<td align="left">exact</td>
-</tr>
-<tr class="even">
-<td align="left">Salix alba x Salix fragilis</td>
-<td align="left">Salix alba × Salix fragilis</td>
-<td align="left">TRUE</td>
-<td align="left">formula</td>
-<td align="left">hybrid_formula</td>
-</tr>
-<tr class="odd">
-<td align="left">Platanus x hispanica</td>
-<td align="left">Platanus × hispanica</td>
-<td align="left">TRUE</td>
-<td align="left">nothospecies</td>
-<td align="left">exact</td>
-</tr>
-</tbody>
-</table>
-<p>The two nothospecies (<em>Mentha</em>, <em>Platanus</em>) matched
-because WFO stores them as accepted names with the × in the canonical
-name. The nothogenus ×<em>Cupressocyparis</em> matched too: taxify tries
-the sign-retained forms, and WFO resolves the cross to its accepted
-genus (<em>Hesperotropsis</em>). WFO carries no single record for the
-<em>Salix</em> cross, so it resolves through its two parents with
-<code>match_type = "hybrid_formula"</code>. Both parents resolve against
-WFO, so <code>accepted_name</code> holds the accepted-parent cross
-“Salix alba × Salix fragilis” and <code>matched_name</code> the
-input-parent cross. When a parent cannot be matched, both stay
-<code>NA</code>.</p>
-<p><code>is_hybrid</code> is <code>TRUE</code> for all four hybrid
-inputs, and <code>hybrid_type</code> names the kind, whether or not the
-name matched: both describe the input itself and are set during
-cleaning, before any backbone match.</p>
-</div>
-<div class="section level3">
-<h3 id="hybrid-parents-with-add_hybrid_info">Hybrid parents with <code>add_hybrid_info()</code><a class="anchor" aria-label="anchor" href="#hybrid-parents-with-add_hybrid_info"></a>
-</h3>
-<p><code>hybrid_type</code> is already in the <code><a href="../reference/taxify.html">taxify()</a></code>
-output. <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> goes further for hybrid formulas:
-it parses the <code>input_name</code> column for the two parents and
-resolves each against the same backbone(s) used for the result. It adds
-these columns:</p>
-<ul>
-<li>
-<code>hybrid_parent_1</code>: the first parent binomial (for
-formulas) or NA</li>
-<li>
-<code>hybrid_parent_2</code>: the second parent binomial (for
-formulas, with abbreviated or omitted genera expanded) or NA</li>
-<li>
-<code>hybrid_parent_1_accepted</code>,
-<code>hybrid_parent_2_accepted</code>: the accepted name each parent
-resolves to, or NA if it did not match</li>
-<li>
-<code>hybrid_parent_1_id</code>, <code>hybrid_parent_2_id</code>:
-the backbone <code>taxon_id</code> of the accepted taxon each parent
-resolves to, ready for <code><a href="../reference/id2name.html">id2name()</a></code>, or NA if it did not
-match</li>
-</ul>
-<p>For nothogenus and nothospecies names the parent columns are NA,
-because the name string does not encode the parents: those of <em>Mentha
-×piperita</em> (<em>Mentha aquatica</em> and <em>Mentha spicata</em>)
-appear nowhere in it. Only hybrid formulas carry both parent names.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>The new columns for the five-name example:</p>
-<table class="table">
-<colgroup>
-<col width="28%">
-<col width="14%">
-<col width="16%">
-<col width="24%">
-<col width="16%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">input_name</th>
-<th align="left">hybrid_type</th>
-<th align="left">hybrid_parent_1</th>
-<th align="left">hybrid_parent_1_accepted</th>
-<th align="left">hybrid_parent_2</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Quercus robur</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Mentha x piperita</td>
-<td align="left">nothospecies</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="odd">
-<td align="left">x Cupressocyparis leylandii</td>
-<td align="left">nothogenus</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-<tr class="even">
-<td align="left">Salix alba x Salix fragilis</td>
-<td align="left">formula</td>
-<td align="left">Salix alba</td>
-<td align="left">Salix alba</td>
-<td align="left">Salix fragilis</td>
-</tr>
-<tr class="odd">
-<td align="left">Platanus x hispanica</td>
-<td align="left">nothospecies</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="parsing-hybrid-formulas">Parsing hybrid formulas<a class="anchor" aria-label="anchor" href="#parsing-hybrid-formulas"></a>
-</h3>
-<p>Field botanists record hybrid formulas when the parentage of a
-specimen is known or suspected, so they appear in botanical and
-horticultural datasets. The notation varies: some records spell out both
-genera in full, others abbreviate the second genus.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">formulas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Salix alba x Salix fragilis"</span>,</span>
-<span>  <span class="st">"Quercus pyrenaica x Q. petraea"</span>,</span>
-<span>  <span class="st">"Populus nigra x Populus deltoides"</span>,</span>
-<span>  <span class="st">"Rosa canina x R. gallica"</span></span>
+<span>  <span class="st">"Quercus pyrenaica x Q. petraea"</span>, <span class="st">"Populus nigra x Populus deltoides"</span>,</span>
+<span>  <span class="st">"Rosa canina x R. gallica"</span>, <span class="st">"Salix alba x fragilis"</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">formula_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">formulas</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
-<span><span class="va">formula_result</span> <span class="op">&lt;-</span> <span class="va">formula_result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">formula_result</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"hybrid_type"</span>,</span>
-<span>                    <span class="st">"hybrid_parent_1"</span>, <span class="st">"hybrid_parent_2"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="40%">
-<col width="14%">
-<col width="22%">
-<col width="23%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">input_name</th>
-<th align="left">hybrid_type</th>
-<th align="left">hybrid_parent_1</th>
-<th align="left">hybrid_parent_2</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Salix alba x Salix fragilis</td>
-<td align="left">formula</td>
-<td align="left">Salix alba</td>
-<td align="left">Salix fragilis</td>
-</tr>
-<tr class="even">
-<td align="left">Quercus pyrenaica x Q. petraea</td>
-<td align="left">formula</td>
-<td align="left">Quercus pyrenaica</td>
-<td align="left">Quercus petraea</td>
-</tr>
-<tr class="odd">
-<td align="left">Populus nigra x Populus deltoides</td>
-<td align="left">formula</td>
-<td align="left">Populus nigra</td>
-<td align="left">Populus deltoides</td>
-</tr>
-<tr class="even">
-<td align="left">Rosa canina x R. gallica</td>
-<td align="left">formula</td>
-<td align="left">Rosa canina</td>
-<td align="left">Rosa gallica</td>
-</tr>
-</tbody>
-</table>
-<p>The abbreviation “Q.” in the second row was expanded to “Quercus”,
-and “R.” to “Rosa” in the fourth. The expansion is purely textual: when
-the second parent’s genus is a single capital letter followed by a
-period, it is replaced with the first token of the first parent.</p>
+<span><span class="va">fo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">formulas</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fo</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"hybrid_parent_1"</span>, <span class="st">"hybrid_parent_2"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                          input_name   hybrid_parent_1   hybrid_parent_2</span></span>
+<span><span class="co">#&gt; 1    Quercus pyrenaica x Q. petraea Quercus pyrenaica   Quercus petraea</span></span>
+<span><span class="co">#&gt; 2 Populus nigra x Populus deltoides     Populus nigra Populus deltoides</span></span>
+<span><span class="co">#&gt; 3          Rosa canina x R. gallica       Rosa canina      Rosa gallica</span></span>
+<span><span class="co">#&gt; 4             Salix alba x fragilis        Salix alba    Salix fragilis</span></span>
+<span><span class="co">#&gt; Sources: WFO | cite() for full citations</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="traits-for-hybrids">Traits for hybrids<a class="anchor" aria-label="anchor" href="#traits-for-hybrids"></a>
-</h3>
-<p>Trait enrichment is hybrid-aware. When traits are attached to a
-result that contains a hybrid formula, each trait is resolved with a
-ladder:</p>
-<ol style="list-style-type: decimal">
-<li>the hybrid directly: if the cross resolved to a nothospecies and
-that name carries the trait, it is used as-is;</li>
-<li>the average of both parents: otherwise the two parents are resolved
-and their trait values combined: numeric traits are averaged, and a
-categorical trait is taken as the shared value, or reported as
-<code>"A x B"</code> when the parents disagree (an
-<code>add_&lt;source&gt;()</code> door also warns);</li>
-<li>the single available parent: if only one parent carries the trait,
-its value is used.</li>
-</ol>
-<p>This happens automatically inside every
-<code>add_&lt;source&gt;()</code> door and inside
-<code><a href="../reference/add_trait.html">add_trait()</a></code>; no extra call is needed.</p>
+<div class="section level2">
+<h2 id="how-hybrids-are-detected">How hybrids are detected<a class="anchor" aria-label="anchor" href="#how-hybrids-are-detected"></a>
+</h2>
+<p>Detection runs during cleaning, before any backbone is read. The sign
+<code>×</code> is replaced with a space-padded <code>x</code>, and an
+<code>x</code> counts as a hybrid marker only when it stands alone
+between spaces, so the <em>x</em> inside <em>Saxifraga</em> is never
+one. A sign misread as <code>Ã—</code> or <code>Ã\u0097</code>, which
+happens when text in UTF-8 is read as Latin-1, is repaired first.</p>
+<p>A nothospecies or nothogenus is matched with the sign removed and
+with the sign kept in each of its spellings
+(<code>Mentha × piperita</code>, <code>×Cupressocyparis</code>), because
+backbones differ in how they store it. A hybrid formula is first matched
+as a whole, since some backbones store a cross as a synonym of the
+nothospecies it produces; only when that fails are the parents resolved
+one by one.</p>
+<p>The parser expects a binomial on each side of the sign. A formula
+with a subspecies or variety on one side is still detected, and the rank
+and infraspecific epithet stay part of that parent’s name.</p>
+</div>
+<div class="section level2">
+<h2 id="aggregates">Aggregates<a class="anchor" aria-label="anchor" href="#aggregates"></a>
+</h2>
+<p>An aggregate groups closely related species under one name, as in
+apomictic groups such as <em>Rubus fruticosus</em> and <em>Taraxacum
+officinale</em>, where field data often record the group and leave the
+species open. It is written with <code>agg.</code> or <code>s.l.</code>
+(<em>sensu lato</em>, in the broad sense). taxify reads the variants a
+source may use (<code>aggr.</code>, <code>agg</code>, <code>-agg</code>,
+<code>coll. sp.</code>, <code>sensu lato</code>) as <code>agg.</code> or
+<code>s.l.</code> and records the marker in <code>qualifier</code>. The
+opposite marker <code>s.str.</code> (<em>sensu stricto</em>, in the
+narrow sense) is recorded in <code>qualifier</code> and the name is
+matched as written.</p>
+<p>Some backbones hold an aggregate as a taxon of its own, others hold
+only the binomial. WFO holds none:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Rubus fruticosus agg."</span>, <span class="st">"Taraxacum officinale agg."</span>,</span>
+<span>  <span class="st">"Galium mollugo s.l."</span>, <span class="st">"Quercus robur"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">wfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">aggs</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">wfo</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"qualifier"</span>, <span class="st">"aggregate_fallback"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                  input_name        accepted_name qualifier aggregate_fallback</span></span>
+<span><span class="co">#&gt; 1     Rubus fruticosus agg.     Rubus fruticosus      agg.               TRUE</span></span>
+<span><span class="co">#&gt; 2 Taraxacum officinale agg. Taraxacum officinale      agg.               TRUE</span></span>
+<span><span class="co">#&gt; 3       Galium mollugo s.l.       Galium mollugo      s.l.               TRUE</span></span>
+<span><span class="co">#&gt; 4             Quercus robur        Quercus robur      &lt;NA&gt;                 NA</span></span>
+<span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
+<p>The three aggregates resolve to their binomials, and
+<code>aggregate_fallback = TRUE</code> records that the group itself was
+not found. The species without a marker has <code>NA</code> in both
+columns.</p>
+<p>Euro+Med PlantBase holds aggregates as taxa:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">em</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">aggs</span>, backbone <span class="op">=</span> <span class="st">"euromed"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">em</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"aggregate_fallback"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                  input_name             accepted_name aggregate_fallback</span></span>
+<span><span class="co">#&gt; 1     Rubus fruticosus agg.            Rubus plicatus               TRUE</span></span>
+<span><span class="co">#&gt; 2 Taraxacum officinale agg. Taraxacum sect. Taraxacum              FALSE</span></span>
+<span><span class="co">#&gt; 3       Galium mollugo s.l.            Galium mollugo               TRUE</span></span>
+<span><span class="co">#&gt; 4             Quercus robur             Quercus robur                 NA</span></span>
+<span><span class="co">#&gt; Sources: EUROMED 2026.08 | cite() for full citations</span></span></code></pre></div>
+<p><em>Taraxacum officinale</em> agg. matches the Euro+Med aggregate,
+which Euro+Med treats as a synonym of <em>Taraxacum</em> sect.
+<em>Taraxacum</em>, so <code>aggregate_fallback</code> is
+<code>FALSE</code>. The other two fall back to their binomials. Euro+Med
+treats the binomial <em>Rubus fruticosus</em> as a synonym of <em>Rubus
+plicatus</em>, and the row follows it.</p>
+<p><code>aggregates = "preserve"</code>, the default, is what both calls
+above did: the aggregate is matched as a taxon where the backbone has
+one. <code>aggregates = "collapse"</code> removes the marker before
+matching, so the binomial is matched like any other name and
+<code>aggregate_fallback</code> stays <code>NA</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># A hybrid formula with no direct trait record inherits from its parents</span></span>
-<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Salix alba x Salix fragilis"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"plant_height"</span><span class="op">)</span></span></code></pre></div>
-<p>If the parents have first been materialized with
-<code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>, the <code>add_&lt;source&gt;()</code>
-doors additionally expose each parent’s own value as
-<code>&lt;trait&gt;_parent1</code> / <code>&lt;trait&gt;_parent2</code>,
-so the components of the average sit beside the combined value.</p>
+<code class="sourceCode R"><span><span class="va">col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">aggs</span>, backbone <span class="op">=</span> <span class="st">"euromed"</span>, aggregates <span class="op">=</span> <span class="st">"collapse"</span>,</span>
+<span>              verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">col</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"aggregate_fallback"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                  input_name        accepted_name aggregate_fallback</span></span>
+<span><span class="co">#&gt; 1     Rubus fruticosus agg.       Rubus plicatus                 NA</span></span>
+<span><span class="co">#&gt; 2 Taraxacum officinale agg. Taraxacum officinale                 NA</span></span>
+<span><span class="co">#&gt; 3       Galium mollugo s.l.       Galium mollugo                 NA</span></span>
+<span><span class="co">#&gt; 4             Quercus robur        Quercus robur                 NA</span></span>
+<span><span class="co">#&gt; Sources: EUROMED 2026.08 | cite() for full citations</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="an-aggregate-species-list">An aggregate species list<a class="anchor" aria-label="anchor" href="#an-aggregate-species-list"></a>
-</h3>
-<p>An aggregate is marked either <em>agg.</em> (aggregate) or
-<em>s.l.</em> (<em>sensu lato</em>, “in the broad sense”). Matched
-against WFO, which carries no aggregate taxa, each aggregate falls back
-to its binomial and is flagged:</p>
+<div class="section level2">
+<h2 id="traits-for-hybrids-and-aggregates">Traits for hybrids and aggregates<a class="anchor" aria-label="anchor" href="#traits-for-hybrids-and-aggregates"></a>
+</h2>
+<p>Published datasets rarely hold a value for a hybrid formula or an
+aggregate. <code><a href="../reference/add_trait.html">add_trait()</a></code> and every
+<code>add_&lt;source&gt;()</code> function fill those rows from related
+names.</p>
+<p>For a hybrid formula, a value recorded for the hybrid itself is used
+first. Without one, the values of the two parents are combined: numbers
+are averaged, and a category is kept when the parents agree and written
+as <code>"A x B"</code> when they differ, with a warning. When only one
+parent has a value, that value is used. After
+<code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>, an <code>add_&lt;source&gt;()</code>
+function also adds each parent’s value as
+<code>&lt;trait&gt;_parent1</code> and
+<code>&lt;trait&gt;_parent2</code>.</p>
+<p>For an aggregate, the value recorded for the aggregate is used first,
+and the binomial’s value otherwise. A species without a value of its own
+takes its aggregate’s value where the dataset records the trait only for
+the group.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">agg_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Rubus fruticosus agg."</span>,</span>
-<span>  <span class="st">"Taraxacum officinale agg."</span>,</span>
-<span>  <span class="st">"Galium mollugo s.l."</span>,</span>
-<span>  <span class="st">"Quercus robur"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">agg_names</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span>
-<span><span class="va">res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"qualifier"</span>,</span>
-<span>        <span class="st">"aggregate_fallback"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="29%">
-<col width="23%">
-<col width="11%">
-<col width="21%">
-<col width="13%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">input_name</th>
-<th align="left">accepted_name</th>
-<th align="left">qualifier</th>
-<th align="left">aggregate_fallback</th>
-<th align="left">match_type</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">Rubus fruticosus agg.</td>
-<td align="left">Rubus fruticosus</td>
-<td align="left">agg.</td>
-<td align="left">TRUE</td>
-<td align="left">exact</td>
-</tr>
-<tr class="even">
-<td align="left">Taraxacum officinale agg.</td>
-<td align="left">Taraxacum officinale</td>
-<td align="left">agg.</td>
-<td align="left">TRUE</td>
-<td align="left">exact</td>
-</tr>
-<tr class="odd">
-<td align="left">Galium mollugo s.l.</td>
-<td align="left">Galium mollugo</td>
-<td align="left">s.l.</td>
-<td align="left">TRUE</td>
-<td align="left">exact</td>
-</tr>
-<tr class="even">
-<td align="left">Quercus robur</td>
-<td align="left">Quercus robur</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">exact</td>
-</tr>
-</tbody>
-</table>
-<p>The three aggregates resolve to their binomials with
-<code>aggregate_fallback = TRUE</code>, and the plain species carries
-<code>NA</code> in both qualifier columns. Against Euro+Med, where
-<em>Rubus fruticosus</em> aggr. is a stored taxon, the same query would
-resolve to the aggregate itself with
-<code>aggregate_fallback = FALSE</code>.</p>
-</div>
-<div class="section level3">
-<h3 id="traits-for-aggregates">Traits for aggregates<a class="anchor" aria-label="anchor" href="#traits-for-aggregates"></a>
-</h3>
-<p>Trait enrichment is aggregate-aware in the same way. The join
-resolves an aggregate through the taxonomic hierarchy:</p>
-<ul>
-<li>a species query takes its own value first, and inherits its
-aggregate’s value where the source records the trait only at the
-aggregate level;</li>
-<li>an aggregate query takes the aggregate-level value first, and where
-the source carries none it falls back to the nominal binomial’s value,
-so the species’ own measurement stands in for the group where no
-aggregate-level figure exists.</li>
-</ul>
-<p>This happens automatically inside every
-<code>add_&lt;source&gt;()</code> door and inside
-<code><a href="../reference/add_trait.html">add_trait()</a></code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Rubus fruticosus agg. takes the aggregate's trait where the source records</span></span>
-<span><span class="co"># one, otherwise the nominal Rubus fruticosus value.</span></span>
-<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Rubus fruticosus agg."</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"plant_height"</span><span class="op">)</span></span></code></pre></div>
-<p>The binomial fallback is on by default. Turning it off, per call or
-globally, keeps an aggregate without aggregate-level data as
-<code>NA</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Rubus fruticosus agg."</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"plant_height"</span>, aggregate_trait_fallback <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.aggregate_trait_fallback <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p>With <code>options(taxify.trait_provenance = TRUE)</code>, each
-enrichment adds a <code>&lt;enrichment&gt;_basis</code> column recording
-where each value came from: <code>"primary"</code> for a same-level hit,
-<code>"aggregate"</code> for a species inheriting its aggregate’s value,
-and <code>"binomial"</code> for an aggregate standing in on its
-binomial.</p>
-</div>
+<code class="sourceCode R"><span><span class="va">salix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Salix alba"</span>, <span class="st">"Salix fragilis"</span>, <span class="st">"Salix alba x Salix fragilis"</span><span class="op">)</span></span>
+<span><span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">salix</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="st">"plant_height"</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; add_trait('plant_height'): gift 3, diaz 3, austraits 2, bien 3, brot 0 (of 3 resolved names).</span></span>
+<span><span class="va">tr</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"plant_height_gift"</span>, <span class="st">"plant_height_diaz"</span>,</span>
+<span>       <span class="st">"plant_height_austraits"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                    input_name plant_height_gift plant_height_diaz</span></span>
+<span><span class="co">#&gt; 1                  Salix alba              30.0          17.36306</span></span>
+<span><span class="co">#&gt; 2              Salix fragilis              25.0          14.94508</span></span>
+<span><span class="co">#&gt; 3 Salix alba x Salix fragilis              27.5          16.15407</span></span>
+<span><span class="co">#&gt;   plant_height_austraits</span></span>
+<span><span class="co">#&gt; 1                     20</span></span>
+<span><span class="co">#&gt; 2                     NA</span></span>
+<span><span class="co">#&gt; 3                     20</span></span>
+<span><span class="co">#&gt; Sources: WFO 2026.06, GIFT (Weigelt et al. 2020) 2026.08, Diaz et al. 2022 2026.08, AusTraits (Falster et al. 2021) 2026.08, BIEN (Maitner et al. 2018) 2026.08 | cite() for full citations</span></span></code></pre></div>
+<p><code>mode = "wide"</code> keeps one column per dataset, so the
+combination can be read row by row. The cross has no value of its own in
+any of these datasets. In GIFT and in the data of Díaz et al. its height
+is the mean of the two parents; AusTraits has a height for <em>Salix
+alba</em> only, and the cross takes it.</p>
+<p><code>aggregate_trait_fallback = FALSE</code>, or
+<code>options(taxify.aggregate_trait_fallback = FALSE)</code> for a
+session, leaves such rows <code>NA</code>. With
+<code>options(taxify.trait_provenance = TRUE)</code>, an
+<code>add_&lt;source&gt;()</code> function adds a
+<code>&lt;source&gt;_basis</code> column that records whether each value
+is the name’s own, an aggregate’s, or a binomial’s.</p>
 </div>
 <div class="section level2">
-<h2 id="how-taxify-detects-hybrids">How taxify detects hybrids<a class="anchor" aria-label="anchor" href="#how-taxify-detects-hybrids"></a>
-</h2>
-<p>Detection happens during name cleaning, before any backbone matching.
-Each name is tokenized, the hybrid marker is looked for in specific
-positions, and the result is classified as nothogenus, nothospecies,
-formula, or non-hybrid. <code>is_hybrid</code> (logical) records whether
-a marker was found in the original input and is present whether or not
-the name matched a backbone record; <code>hybrid_type</code> records the
-finer classification (<code>"nothogenus"</code>,
-<code>"nothospecies"</code>, <code>"formula"</code>, or
-<code>NA</code>).</p>
-<p>In real-world data the multiplication sign is frequently replaced by
-a lowercase or uppercase “x”, since herbarium databases, spreadsheet
-exports and OCR output rarely preserve the Unicode character. Data
-arrive in three forms:</p>
-<ol style="list-style-type: decimal">
-<li>the Unicode character itself, <code>×</code> (common in well-curated
-databases)</li>
-<li>a lowercase <code>x</code> surrounded by spaces (common in
-spreadsheets and field data)</li>
-<li>an uppercase <code>X</code> surrounded by spaces (less common, found
-in older databases and OCR output)</li>
-</ol>
-<p>The Unicode multiplication sign is the character the International
-Code of Nomenclature prescribes. taxify replaces every occurrence of it
-with a space-padded “x” and works on the resulting uniform token stream,
-so the downstream logic handles one representation. A standalone “x”
-counts as a marker only with whitespace boundaries around it, which
-keeps “Saxifraga” from triggering detection: its “x” sits inside the
-word.</p>
-<p>When UTF-8 text containing × is read with a Latin-1 or Windows-1252
-encoding, the two-byte sequence can come out as “0c3097” or “0c3014”.
-The name cleaning pipeline repairs both misreadings before hybrid
-detection runs, so names corrupted this way are still handled.</p>
-<p>After detection, the marker is handled by type. For a nothospecies
-like “Mentha ×piperita”, the cleaned form becomes “Mentha piperita”, and
-taxify also tries the sign-retained form “Mentha × piperita” (some
-backbones store the × in the canonical name). For a nothogenus like
-“×Cupressocyparis leylandii”, taxify tries the sign-retained “×
-Cupressocyparis leylandii” and the no-space “×Cupressocyparis leylandii”
-alongside the stripped binomial, so a backbone that keeps the sign still
-matches.</p>
-<p>A hybrid formula is not a single taxon name. taxify first tries the
-full parent-expanded formula (“Salix alba × Salix fragilis”) against the
-backbone: some backbones store a cross as a name or synonym of the
-resulting nothospecies (here <em>Salix × rubens</em>), and when they do,
-the formula resolves normally. If the backbone does not store it, taxify
-parses the parents. When both parents resolve, <code>matched_name</code>
-holds the input-parent formula and <code>accepted_name</code> the
-accepted-parent formula; the two differ only when a parent is a synonym,
-mirroring an ordinary synonym row. If either parent fails to resolve,
-both stay <code>NA</code>, and the row is still flagged
-<code>is_hybrid = TRUE</code> with
-<code>match_type = "hybrid_formula"</code>. That is as far as matching
-can go without a full parentage crosswalk. The parents remain
-recoverable through <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code>, and trait joins fall
-back to them automatically.</p>
-<p>The same-genus shorthand is recognized too:
-<code>"Salix alba × fragilis"</code>, with the second parent written as
-a bare epithet, parses to parents “Salix alba” and “Salix fragilis”.</p>
-</div>
-<div class="section level2">
-<h2 id="what-matches-and-what-does-not">What matches and what does not<a class="anchor" aria-label="anchor" href="#what-matches-and-what-does-not"></a>
-</h2>
-<p>The three hybrid types have different matching profiles against
-backbones.</p>
-<p>Nothospecies are the best-supported form. WFO and COL both store many
-nothospecies as accepted names, with the × as part of the canonical
-name; <em>Mentha ×piperita</em>, <em>Platanus ×hispanica</em> and
-<em>Narcissus ×medioluteus</em> appear in both. taxify tries the
-stripped form (“Mentha piperita”) and the form with the × reinserted
-(“Mentha × piperita”), and at least one of these typically matches.</p>
-<p>Nothogenera go through the same sign-aware logic, so coverage follows
-the backbone. taxify tries “× Cupressocyparis leylandii”,
-“×Cupressocyparis leylandii” and the stripped “Cupressocyparis
-leylandii”, so a backbone that stores the sign form (as WFO and COL do)
-resolves the cross. When a nothogenus is genuinely absent, the row has
-<code>match_type = "none"</code> and <code>accepted_name = NA</code>,
-with <code>is_hybrid</code> still <code>TRUE</code>.</p>
-<p>Hybrid formulas are tried against the backbone as a whole first. When
-that misses, the row is marked
-<code>match_type = "hybrid_formula"</code>, the ID, rank and
-classification columns stay <code>NA</code>, and the cross is named by
-its two parents in <code>matched_name</code> and
-<code>accepted_name</code>, never collapsed to one parent. To work with
-the parents, <code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> resolves both against the
-same backbone:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">info</span> <span class="op">&lt;-</span> <span class="va">result</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_hybrid_info.html">add_hybrid_info</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">formula_rows</span> <span class="op">&lt;-</span> <span class="va">info</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">info</span><span class="op">$</span><span class="va">hybrid_type</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">info</span><span class="op">$</span><span class="va">hybrid_type</span> <span class="op">==</span> <span class="st">"formula"</span>, <span class="op">]</span></span>
-<span><span class="va">formula_rows</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"hybrid_parent_1"</span>, <span class="st">"hybrid_parent_1_accepted"</span>,</span>
-<span>                 <span class="st">"hybrid_parent_2"</span>, <span class="st">"hybrid_parent_2_accepted"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="practical-notes">Practical notes<a class="anchor" aria-label="anchor" href="#practical-notes"></a>
-</h2>
-<p>WFO has the broadest coverage of plant nothospecies and nothogenera,
-reflecting its focus on the world flora. COL includes hybrids across all
-kingdoms, with uneven coverage. GBIF aggregates many sources and
-includes hybrid names where the contributing checklists provide them.
-ITIS, NCBI and OTT have minimal hybrid coverage.</p>
-<p>Hybrid detection is input-side only. taxify detects hybrids in the
-supplied names and does not scan the backbone for hybrid records. If a
-backbone stores “Mentha × piperita” as an accepted name, taxify matches
-the input against it, but the backbone record’s own hybrid status is not
-exposed as a separate field; the <code>is_hybrid</code> column reflects
-the input.</p>
-<p>The formula parser expects binomials (genus plus epithet) on both
-sides of the × marker. A formula that includes a subspecies or variety
-rank (e.g., “Salix alba var. vitellina × Salix fragilis”) is still
-detected as a formula, but the parent extraction may include the rank
-and infraspecific epithet in the parent name. This is generally the
-desired behavior, since the full trinomial identifies the parent more
-precisely than the binomial alone.</p>
-<p>Hybrid names sometimes carry authorship strings (“Mentha ×piperita
-L.”). The cleaning pipeline strips authorship before matching, so an
-author string does not interfere with hybrid detection or matching:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Authorship is stripped; hybrid detection still works</span></span>
-<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Mentha x piperita L."</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/add_hybrid_info.html">add_hybrid_info()</a></code> parses the parents from the
-<code>input_name</code> column and resolves each against the backbone(s)
-used for the result, making one backbone lookup for the set of unique
-parents (memoized within a session). The parse itself is pure string
-work; the parent resolution reuses the matching engine of
-<code><a href="../reference/taxify.html">taxify()</a></code>.</p>
-</div>
-<div class="section level2">
-<h2 id="how-taxify-matches-aggregates">How taxify matches aggregates<a class="anchor" aria-label="anchor" href="#how-taxify-matches-aggregates"></a>
-</h2>
-<p>An aggregate groups several closely related microspecies under one
-name. Apomictic complexes are the usual reason: <em>Rubus
-fruticosus</em>, <em>Taraxacum officinale</em> and <em>Hieracium</em>
-each cover hundreds of near-indistinguishable segregates, and field data
-routinely records the aggregate and leaves the microspecies open.
-<em>agg.</em> is the explicit marker; <em>s.l.</em> widens a name to
-include taxa a narrow reading would split off. Both mean the same thing
-for matching: the name refers to the whole group. taxify folds the
-spelling variants a source might use (<code>agg.</code>,
-<code>aggr.</code>, <code>agg</code>, <code>-agg</code>,
-<code>coll. sp.</code>, <code>sensu lato</code>) to a canonical
-<code>agg.</code> or <code>s.l.</code> marker, recorded in the
-<code>qualifier</code> column. The opposite marker, <em>s.str.</em>
-(<em>sensu stricto</em>, “in the narrow sense”), narrows a name to its
-core binomial, so it is recorded in <code>qualifier</code> and matched
-as an ordinary name.</p>
-<p>A backbone may or may not carry a dedicated taxon for the aggregate.
-Only the aggregate-bearing backbones, Euro+Med and WoRMS, store
-<code>"&lt;binomial&gt; aggr."</code> as a concept of its own; the
-others record the binomial alone, without the group above it. The
-<code>aggregates</code> argument sets what happens in each case.</p>
-<p><code>aggregates = "preserve"</code> (the default) keeps the
-aggregate as its own concept. It matches the backbone’s aggregate taxon
-where one exists and otherwise falls back to the nominal binomial. The
-<code>aggregate_fallback</code> column records which happened:
-<code>FALSE</code> when the dedicated aggregate taxon was found,
-<code>TRUE</code> when it fell back to the binomial, and <code>NA</code>
-for non-aggregate names.</p>
-<p><code>aggregates = "collapse"</code> strips the marker up front and
-matches the binomial the way any name is matched. The qualifier is still
-recorded, but there is no fallback to flag, so
-<code>aggregate_fallback</code> stays <code>NA</code>.</p>
-</div>
-<div class="section level2">
-<h2 id="where-to-go-next">Where to go next<a class="anchor" aria-label="anchor" href="#where-to-go-next"></a>
+<h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>
 </h2>
 <ul>
-<li>
-<a href="https://gillescolling.com/taxify/articles/enrichments.html">Enrichments</a>
-for the enrichment join and the provenance columns in general.</li>
+<li><p><a href="fuzzy-matching.html">How names are matched</a>: the
+other match stages.</p></li>
+<li><p><a href="enrichments.html">Attaching published data</a>:
+<code><a href="../reference/add_trait.html">add_trait()</a></code> and the <code>add_&lt;source&gt;()</code>
+functions in full.</p></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

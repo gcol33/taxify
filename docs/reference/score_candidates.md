@@ -43,7 +43,8 @@ score_candidates(candidates)
   column, else the first year in `name_published_in`; `Inf` where
   unknown, 0 throughout when both columns are absent); it orders after
   `epithet_score` and before `occ_score`, so the earliest of several
-  same-name homonyms wins before the count is read.
+  same-name homonyms wins before the count is read, where
+  `year_where_priority()` lets it order at all.
 
 ## Value
 

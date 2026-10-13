@@ -84,7 +84,7 @@ taxify(
   geographic constraint. Botanical (WCVP, vascular plants): TDWG Level 3
   codes (`"BGM"`, `c("BGM", "GER")`) or region names at any level,
   matched case- and accent-insensitively against the bundled WGSRPD
-  crosswalk – a Level 3 name (`"Belgium"`), a Level 2 region
+  crosswalk: a Level 3 name (`"Belgium"`), a Level 2 region
   (`"Middle Europe"`), or a Level 1 continent (`"Europe"`, which expands
   to all its codes). Marine (only when the `marine_distribution` asset
   is installed): a MEOW ecoregion `ECO_CODE`, or an ecoregion / province
@@ -120,7 +120,7 @@ taxify(
 
   Character. Which range statuses count as in-region when `region` or
   `coords` is set. `"present"` (default) accepts any record (native,
-  introduced, extinct, or unknown status) – the right choice for name
+  introduced, extinct, or unknown status), the right choice for name
   disambiguation. `"native"` accepts only native records, `"introduced"`
   only introduced (alien) records; both fold an ecological filter into
   matching and are for callers who want that. Ignored when no region is
@@ -141,7 +141,7 @@ taxify(
   the in-kingdom treatment wins. The kingdom is read from the backbone
   where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a backbone that
   does not (WFO, GBIF), it falls back to the genus register's kingdom,
-  which cannot split a genus that is itself homonymous across kingdoms –
+  which cannot split a genus that is itself homonymous across kingdoms;
   name a kingdom-appropriate `backbone` for those.
 
 - mode:
@@ -305,19 +305,20 @@ A data.frame with one row per input name and the following columns:
 
 - n_ids:
 
-  Integer, present only when some name has more than one accepted ID
-  (the call then warns, see Details). How many distinct accepted taxa
-  the backbone files the matched name under, across every record of it
-  (accepted, doubtful, unplaced, synonym). `1` for a name with one
-  accepted ID; more for a homonym or a name the backbone holds twice,
-  e.g. GBIF's *Karwinskia mollis*, kept both as the accepted Schltdl.
-  name and as a doubtful Standl. one. `NA` when nothing matched.
+  Integer. How many distinct accepted taxa the backbone files the
+  matched name under, across every record of it (accepted, doubtful,
+  unplaced, synonym). `1` for a name with one accepted ID; more for a
+  homonym or a name the backbone holds twice, e.g. GBIF's *Karwinskia
+  mollis*, kept both as the accepted Schltdl. name and as a doubtful
+  Standl. one. `NA` when nothing matched.
 
 - accepted_ids:
 
-  Character, present alongside `n_ids`. Those accepted IDs, `|`-joined,
-  the one in `accepted_id` first. List them with their names, status and
-  GBIF occurrence counts through
+  Character. Those accepted IDs, `|`-joined, the one in `accepted_id`
+  first (`accepted_id` itself for a name with one). Both columns are in
+  every result; printing leaves them out when no row has more than one
+  ID. List them with their names, status and GBIF occurrence counts
+  through
   [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md).
 
 - backbone:

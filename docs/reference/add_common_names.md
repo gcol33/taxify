@@ -48,13 +48,13 @@ The same data.frame with an additional column:
 
 Common names are merged from three sources:
 
-- GBIF backbone vernacular names (CC0) — multi-language via ISO 639-1
+- GBIF backbone vernacular names (CC0), multi-language via ISO 639-1
   codes.
 
-- NCBI Taxonomy common names (public domain) — no language tag
+- NCBI Taxonomy common names (public domain), no language tag
   (`lang = NA`).
 
-- Open Tree of Life common names (CC0) — no language tag (`lang = NA`).
+- Open Tree of Life common names (CC0), no language tag (`lang = NA`).
 
 When multiple common names exist for a species in the requested
 language, the first (most commonly used) is returned.

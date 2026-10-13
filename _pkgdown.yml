@@ -2,6 +2,8 @@ url: https://gillescolling.com/taxify/
 redirects:
 - - articles/backends.html
   - articles/backbones.html
+- - articles/quickstart.html
+  - articles/taxify.html
 template:
   bootstrap: 5
   bootswatch: sandstone
@@ -32,38 +34,34 @@ navbar:
     - intro
     - reference
     - articles
+    - news
     right:
     - search
     - github
     - lightswitch
 articles:
-- title: Getting started
-  navbar: Getting started
-  contents:
-  - quickstart
-  - migration
-- title: Databases
-  navbar: Databases
-  contents:
-  - articles/databases
-- title: Core features
-  navbar: Core features
+- title: Workflows
+  navbar: Workflows
   contents:
   - backbones
-  - fuzzy-matching
+  - inspecting-names
   - regions
   - enrichments
   - custom-data
+  - exploring
   - gbif-requests
-- title: Special topics
-  navbar: Special topics
-  contents:
-  - inspecting-names
-  - hybrids-and-aggregates
+  - vegetation-units
   - large-scale
+- title: Background
+  navbar: Background
+  contents:
+  - fuzzy-matching
+  - hybrids-and-aggregates
+  - articles/databases
+  - migration
 reference:
 - title: Match and inspect names
-  desc: Resolve a vector of names against local backbones and check a list before you trust it.
+  desc: Resolve a vector of names against local backbones and check the matches.
   contents:
   - taxify
   - parse_name
@@ -77,7 +75,7 @@ reference:
   - export_data
   - cite
 - title: Explore the backbone
-  desc: Read the backbone the other ways — list synonyms, list the taxa within or beneath a group, attach the full classification, build a taxonomy tree.
+  desc: List synonyms, the taxa within or beneath a group, the classification of a name, and a taxonomy tree, from the backbone files.
   contents:
   - synonyms
   - children
@@ -108,7 +106,7 @@ reference:
   - taxify_restore
   - taxify_pin
   - taxify_store
-- title: Backend-specific columns
+- title: Backbone-specific columns
   desc: Attach extra columns from the backbone that matched.
   contents:
   - add_col_info
@@ -122,7 +120,7 @@ reference:
   - list_traits
   - trait_info
 - title: Browse and discover
-  desc: See every backbone, enrichment, and trait taxify offers, and join your own table.
+  desc: List every backbone, published dataset and trait taxify offers, and join your own table.
   contents:
   - taxify_databases
   - list_backbones
@@ -130,7 +128,7 @@ reference:
   - enrichment_cols
   - enrichment_groups
   - add_data
-- title: Enrichments — distribution and status
+- title: "Published data: distribution and status"
   contents:
   - add_iucn
   - add_griis
@@ -143,7 +141,7 @@ reference:
   - euromed_areas
   - add_common_names
   - add_globi
-- title: Enrichments — plants
+- title: "Published data: plants"
   contents:
   - add_zanne
   - add_eive
@@ -170,7 +168,7 @@ reference:
   - add_pignatti
   - add_gift
   - gift_traits
-- title: Enrichments — fungi, algae, lichens, and microbes
+- title: "Published data: fungi, algae, lichens, and microbes"
   contents:
   - add_fungal_traits
   - add_fungalroot
@@ -184,7 +182,7 @@ reference:
   - add_rimet_phyto
   - add_edwards_phyto
   - add_ramond
-- title: Enrichments — birds and mammals
+- title: "Published data: birds and mammals"
   contents:
   - add_avonet
   - add_birdbase
@@ -200,7 +198,7 @@ reference:
   - add_tetradensity
   - add_eurobat
   - add_gmpd
-- title: Enrichments — reptiles, amphibians, and fish
+- title: "Published data: reptiles, amphibians, and fish"
   contents:
   - add_repttraits
   - add_chelonians
@@ -215,7 +213,7 @@ reference:
   - add_parravicini
   - add_pelagic
   - add_sharkipedia
-- title: Enrichments — invertebrates and aquatic life
+- title: "Published data: invertebrates and aquatic life"
   contents:
   - add_arthropod_traits
   - add_spider_traits
@@ -253,7 +251,7 @@ reference:
   - add_epa_freshwater
   - add_cefas_btrait
   - add_sealifebase
-- title: Enrichments — cross-taxon
+- title: "Published data: cross-taxon"
   contents:
   - add_amniote
   - add_anage
@@ -273,3 +271,6 @@ reference:
   - normalize_aggregate_name
   - normalize_kingdom_group
   - backbone_fixed_kingdom
+- title: Package
+  contents:
+  - taxify-package

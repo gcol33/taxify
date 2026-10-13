@@ -1,6 +1,6 @@
 # List available enrichments
 
-Returns a summary of all enrichment layers available in the taxify
+Returns a summary of all published datasets available in the taxify
 manifest, including version, row count, whether the dataset is static,
 and which trait columns are provided.
 

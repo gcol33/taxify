@@ -1,0 +1,255 @@
+---
+title: "Exploring the backbone"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Exploring the backbone}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+`taxify()` reads a backbone in one direction, from a name to its accepted taxon. This article shows the functions that read it in the others: the synonyms of a taxon, the species of a genus, the ranks above a species, the taxon behind an ID, the parts of a name, and common names. It ends with a taxonomy tree of a species list. Installation is covered in [Get started](taxify.html). Every example reads the Catalogue of Life (COL); `backbone` names another.
+
+1. **List** synonyms with `synonyms()`, and the taxa below a genus or family with `children()` and `downstream()`.
+
+2. **Climb** to the ranks above a taxon with `upstream()` and `add_classification()`.
+
+3. **Look up** IDs with `id2name()` and `taxify_ids()`, and the parts of a name with `parse_name()`.
+
+4. **Translate** common names with `comm2sci()` and `sci2comm()`.
+
+5. **Compare** a list with `lowest_common()` and `class2tree()`.
+
+
+``` r
+library(taxify)
+```
+
+## Synonyms
+
+`synonyms()` resolves each name to its accepted taxon and lists every synonym the backbone points to it:
+
+
+``` r
+syn <- synonyms("Picea abies", backbone = "col", verbose = FALSE)
+nrow(syn)
+#> [1] 169
+head(syn[, c("synonym", "authorship")])
+#>                 synonym         authorship
+#> 1           Abies abies         (L.) Druce
+#> 2       Abies carpatica (Loudon) Ravenscr.
+#> 3         Abies cinerea             Borkh.
+#> 4  Abies clambrasiliana           Lavallée
+#> 5 Abies clanbrassiliana           P.Lawson
+#> 6    Abies coerulescens             K.Koch
+```
+
+The input can itself be a synonym: `synonyms("Pinus abies")` lists the same set, through the accepted *Picea abies*.
+
+## Taxa below a genus or family
+
+`children()` lists the accepted species of a genus, or of a family:
+
+
+``` r
+spruces <- children("Picea", backbone = "col", verbose = FALSE)
+nrow(spruces)
+#> [1] 42
+head(spruces[, c("name", "authorship", "rank")])
+#>                    name                      authorship    rank
+#> 1           Picea abies                   (L.) H.Karst. SPECIES
+#> 2      Picea albertiana                           S.Br. SPECIES
+#> 3      Picea alcoquiana (H.J.Veitch ex Lindl.) Carrière SPECIES
+#> 4        Picea asperata                           Mast. SPECIES
+#> 5      Picea aurantiaca                           Mast. SPECIES
+#> 6 Picea austropanlanica                           Silba SPECIES
+```
+
+`downstream()` does the same from any higher taxon to any rank below it. The genera of the pine family:
+
+
+``` r
+genera <- downstream("Pinaceae", backbone = "col", downto = "genus",
+                     verbose = FALSE)
+genera$name
+#>  [1] "Abies"       "Cathaya"     "Cedrus"      "Keteleeria"  "Larix"      
+#>  [6] "Nothotsuga"  "Picea"       "Pinus"       "Pseudolarix" "Pseudotsuga"
+#> [11] "Tsuga"
+```
+
+Both return accepted taxa only, and never the parent itself. A genus name used in two kingdoms, such as *Prunella*, is split with `kingdom`, as in `taxify()`.
+
+## Ranks above a taxon
+
+`upstream()` returns the classification of one taxon, one row per rank. A synonym or misspelling is resolved first:
+
+
+``` r
+upstream("Pinus abies", backbone = "col", verbose = FALSE)
+#>    input_name accepted_name    rank         name backbone
+#> 1 Pinus abies   Picea abies kingdom      Plantae      col
+#> 2 Pinus abies   Picea abies  phylum Tracheophyta      col
+#> 3 Pinus abies   Picea abies   class    Pinopsida      col
+#> 4 Pinus abies   Picea abies   order      Pinales      col
+#> 5 Pinus abies   Picea abies  family     Pinaceae      col
+#> 6 Pinus abies   Picea abies   genus        Picea      col
+```
+
+`to = "family"` returns only that rank. For a whole result, `add_classification()` adds kingdom, phylum, class and order as columns:
+
+
+``` r
+res <- taxify(c("Picea abies", "Panthera leo"), backbone = "col",
+              verbose = FALSE)
+cls <- add_classification(res, verbose = FALSE)
+cls[, c("input_name", "kingdom", "phylum", "class", "order", "family")]
+#>     input_name  kingdom       phylum     class     order   family
+#> 1  Picea abies  Plantae Tracheophyta Pinopsida   Pinales Pinaceae
+#> 2 Panthera leo Animalia     Chordata  Mammalia Carnivora  Felidae
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
+## IDs
+
+`id2name()` turns backbone IDs, such as those in the `taxon_id` and `accepted_id` columns, into names, ranks and accepted names:
+
+
+``` r
+id2name(c("4HPZF", "KQB98"), backbone = "col", verbose = FALSE)
+#>      id             name        authorship    rank is_synonym    accepted_name
+#> 1 4HPZF      Picea abies     (L.) H.Karst. SPECIES      FALSE      Picea abies
+#> 2 KQB98 Osphranter rufus (Desmarest, 1822) SPECIES      FALSE Osphranter rufus
+#>         family      genus backbone
+#> 1     Pinaceae      Picea      col
+#> 2 Macropodidae Osphranter      col
+```
+
+An ID is meaningful only within its backbone: GBIF keys, ITIS TSNs and WoRMS AphiaIDs are read against `"gbif"`, `"itis"` and `"worms"`.
+
+`taxify_ids()` lists every accepted taxon behind each matched name, one row per name and ID, with the pick marked:
+
+
+``` r
+pa <- taxify("Pinus abies", backbone = "col", verbose = FALSE)
+ids <- taxify_ids(pa, verbose = FALSE)
+ids[, c("accepted_id", "accepted_name", "family", "is_pick")]
+#>   accepted_id           accepted_name       family is_pick
+#> 1       4HPZF             Picea abies     Pinaceae    TRUE
+#> 2        8K9Y              Abies alba     Pinaceae   FALSE
+#> 3       6BRMR Cunninghamia lanceolata Cupressaceae   FALSE
+#> 4       4HQ4F            Picea polita     Pinaceae   FALSE
+```
+
+*Pinus abies* was used for four species. The pick is *Picea abies*; [How names are matched](fuzzy-matching.html#names-with-more-than-one-accepted-taxon) explains how it is chosen.
+
+## The parts of a name
+
+`parse_name()` splits a name into its parts without matching it against a backbone:
+
+
+``` r
+parse_name(c(
+  "Quercus robur L.", "cf. Betula pendula Roth",
+  "Abies alba subsp. borisii-regis (Mattf.) Kozuharov",
+  "Mentha x piperita L."
+))
+#>                                           input_name   genus specific_epithet
+#> 1                                   Quercus robur L. Quercus            robur
+#> 2                            cf. Betula pendula Roth  Betula          pendula
+#> 3 Abies alba subsp. borisii-regis (Mattf.) Kozuharov   Abies             alba
+#> 4                               Mentha x piperita L.  Mentha         piperita
+#>   infrasp_rank infrasp_epithet         authorship qualifier is_hybrid
+#> 1         <NA>            <NA>                 L.      <NA>     FALSE
+#> 2         <NA>            <NA>               Roth       cf.     FALSE
+#> 3       subsp.   borisii-regis (Mattf.) Kozuharov      <NA>     FALSE
+#> 4         <NA>            <NA>                 L.      <NA>      TRUE
+#>    hybrid_type         rank                       canonical
+#> 1         <NA>      species                   Quercus robur
+#> 2         <NA>      species                  Betula pendula
+#> 3         <NA> infraspecies Abies alba subsp. borisii-regis
+#> 4 nothospecies      species                 Mentha piperita
+```
+
+`canonical` is the cleaned name that `taxify()` matches. `parse_name(code = "syntaxon")` parses the names of vegetation units, as shown in [Matching vegetation units](vegetation-units.html).
+
+## Common names
+
+`sci2comm()` returns the common names of each taxon, from the vernacular names that GBIF, NCBI and the Open Tree of Life publish. `lang` takes two-letter language codes, and `name_rank` orders the names of a language by how many sources give them:
+
+
+``` r
+cn <- sci2comm("Picea abies", lang = c("en", "de"), backbone = "col",
+               verbose = FALSE)
+cn[cn$name_rank <= 2, c("common_name", "lang", "name_rank")]
+#>          common_name lang name_rank
+#> 1     Gemeine Fichte   de         1
+#> 2 Gewöhnliche Fichte   de         2
+#> 5      Norway Spruce   en         1
+#> 6       White Spruce   en         2
+```
+
+`comm2sci()` goes the other way, with capitals ignored. A common name is often given to several taxa, so it returns every scientific name that carries it:
+
+
+``` r
+sp <- comm2sci("Norway spruce", lang = "en", verbose = FALSE)
+nrow(sp)
+#> [1] 31
+head(sp$accepted_name)
+#> [1] "Abies dicksonii"                 "Abies excelsa var. attenuata"   
+#> [3] "Abies excelsa var. aurea"        "Abies excelsa var. brevifolia"  
+#> [5] "Abies excelsa var. eremita"      "Abies excelsa var. finedonensis"
+```
+
+With `output = "result"`, the names are matched with `taxify()`, and `query_common` keeps the common name of each row:
+
+
+``` r
+sp_res <- comm2sci("Norway spruce", lang = "en", output = "result",
+                   backbone = "col", verbose = FALSE)
+table(sp_res$accepted_name)
+#> 
+#>                          Abies alba Abies sachalinensis var. nemorensis 
+#>                                   2                                   1 
+#>                         Picea abies              Picea abies var. abies 
+#>                                  19                                   6 
+#>          Picea abies var. acuminata 
+#>                                   2
+```
+
+Of the 31 names that carry "Norway spruce", 30 match COL, and 27 of those resolve to *Picea abies* or one of its varieties. The others are names a source attached the common name to in another sense, which is why the lookup returns every name rather than one. `add_common_names()` attaches the first common name of each language as columns of a result.
+
+## Comparing a list
+
+`lowest_common()` returns the lowest rank a set of names shares:
+
+
+``` r
+conifers <- c("Picea abies", "Pinus sylvestris", "Abies alba")
+lowest_common(conifers, backbone = "col", verbose = FALSE)
+#>     rank     name n_taxa
+#> 1 family Pinaceae      3
+lowest_common(c("Picea abies", "Quercus robur"), backbone = "col",
+              verbose = FALSE)
+#>     rank         name n_taxa
+#> 1 phylum Tracheophyta      2
+```
+
+`class2tree()` builds a taxonomy tree from the classifications, as a Newick string, and as a `phylo` object when the ape package is installed:
+
+
+``` r
+trees <- c(conifers, "Quercus robur", "Fagus sylvatica")
+tree <- class2tree(trees, backbone = "col", verbose = FALSE)
+tree$newick
+#> [1] "(((((((Picea_abies)Picea,(Pinus_sylvestris)Pinus,(Abies_alba)Abies)Pinaceae)Pinales)Pinopsida,((((Quercus_robur)Quercus,(Fagus_sylvatica)Fagus)Fagaceae)Fagales)Magnoliopsida)Tracheophyta)Plantae)root;"
+```
+
+The tree follows the ranks of the backbone's classification; it is not a phylogeny, and branch lengths carry no meaning.
+
+## Where next
+
+- [How names are matched](fuzzy-matching.html): the forward direction, from a name to its accepted taxon.
+
+- [Requesting GBIF data for a species list](gbif-requests.html): `taxify_ids()` in a download of occurrence records.

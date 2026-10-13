@@ -47,7 +47,7 @@ Individual-level observations aggregated to species medians.
 
 ## References
 
-Herberstein ME et al. (2022) AnimalTraits – a curated animal trait
+Herberstein ME et al. (2022) AnimalTraits: a curated animal trait
 database for body mass, metabolic rate and brain size. Scientific Data
 9:265.
 

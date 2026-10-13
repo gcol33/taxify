@@ -3,9 +3,9 @@
 Attaches a single harmonized trait (e.g. woodiness, plant height) to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result, pulling from every enrichment source that provides it and
-reconciling their differing vocabularies and units. Where the per-source
-`add_*()` doors each join one dataset, `add_trait()` is the cross-source
-verb: you name the trait, it gathers the sources.
+reconciling their differing vocabularies and units. Each
+`add_<source>()` function joins one dataset; `add_trait()` takes the
+name of a trait and gathers it from every source that carries it.
 
 ## Usage
 
@@ -112,7 +112,7 @@ The same data.frame with added columns.
   the comma-separated contributing sources with an aggregating
   `combine`); `<trait>_n` (how many sources backed the value); for
   numeric traits, `<trait>_min` and `<trait>_max` (the range of values
-  behind the headline – across the contributing sources, and across a
+  behind the headline, across the contributing sources, and across a
   source's own records where that spread was recorded at build time, so
   a life-stage or population span stays visible); and, only when a
   source measured the trait differently, `<trait>_caution` explaining
@@ -134,7 +134,7 @@ rows absent from a source get `NA`.
 ## Details
 
 Each source keeps its provenance. The default `"coalesce"` mode reduces
-the sources to one value per row plus the columns that document it – its
+the sources to one value per row plus the columns that document it: its
 unit, the sources that contributed, how many, and a caution when the
 sources measure the trait by different methods. The opt-in `"wide"` mode
 instead gives every source its own column (`<trait>_<source>`), so
@@ -174,7 +174,7 @@ sources that are available.
 [`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md)
 to see available traits,
 [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
-for a trait's sources and units. The per-source doors
+for a trait's sources and units. The per-source functions
 ([`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md),
 [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md),
 [`add_diaz_traits()`](https://gillescolling.com/taxify/reference/add_diaz_traits.md),

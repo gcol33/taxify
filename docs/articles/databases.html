@@ -5,13 +5,18 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Databases: every backbone, enrichment, and trait • taxify</title>
+<title>The backbones and datasets • taxify</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Databases: every backbone, enrichment, and trait">
+<meta property="og:title" content="The backbones and datasets">
 <script>
 (function () {
   var D = String.fromCharCode(36);
@@ -35,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,32 +49,31 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
-    <li><a class="dropdown-item" href="../articles/quickstart.html">Getting started with taxify</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Databases</h6></li>
-    <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
-    <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
-    <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
-    <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
+    <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
+    <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-data.html">Joining your own data</a></li>
+    <li><a class="dropdown-item" href="../articles/exploring.html">Exploring the backbone</a></li>
     <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
+    <li><a class="dropdown-item" href="../articles/vegetation-units.html">Matching vegetation units</a></li>
+    <li><a class="dropdown-item" href="../articles/large-scale.html">Matching large lists</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
-    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Background</h6></li>
+    <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
-    <li><a class="dropdown-item" href="../articles/large-scale.html">Working with large species lists</a></li>
+    <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -96,8 +100,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Databases: every backbone, enrichment, and trait</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>The backbones and datasets</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/vignettes/articles/databases.Rmd" class="external-link"><code>vignettes/articles/databases.Rmd</code></a></small>
@@ -106,1007 +109,1421 @@
 
     
     
-<div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
-<p>Or the development version from GitHub:</p>
 <style>
-/* This page only: the manifest tables are wide, so widen the layout and let the
-   tables use the extra room. The max-width cap is a no-op on narrow screens
-   (the container is already smaller than the cap there), so no media query is
-   needed. Prose keeps a readable line length. */
-/* !important overrides Bootstrap's responsive .container max-width, which is set
-   inside a min-width media query and would otherwise cap this page. */
+/* The tables on this page are wide: widen the layout and let them use the
+   room, while the prose keeps a readable line length. !important overrides
+   the max-width Bootstrap sets on .container inside a media query. */
 .container.template-article { max-width: 1560px !important; }
+.template-article main { max-width: none !important; }
 .template-article main > p,
 .template-article main > div.sourceCode { max-width: 900px; }
-.template-article main table { width: 100%; }
+.template-article main table {
+  display: block; width: 100%; max-width: 100%; overflow-x: auto;
+}
 </style>
-<p>taxify resolves names against local taxonomic
-<strong>backbones</strong> and joins external
-<strong>enrichment</strong> datasets that carry <strong>traits</strong>.
-This page lists all three, straight from the manifest this version
-ships. In an R session, the same content is one call away:</p>
+<p>This page lists every backbone taxify matches names against and every
+published dataset it can attach, with the version, size, licence and
+reference of each. The tables are generated from the manifest of this
+taxify version when the site is built. Installation is covered in <a href="../taxify.html">Get started</a>; how to choose backbones is in <a href="../backbones.html">Choosing and combining backbones</a>, and how
+to attach datasets in <a href="../enrichments.html">Attaching published
+data</a>.</p>
+<p>In R, the same lists are returned by these functions:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_databases.html">taxify_databases</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># backbones + enrichments in one frame</span></span>
-<span><span class="fu"><a href="../reference/list_backbones.html">list_backbones</a></span><span class="op">(</span><span class="op">)</span>     <span class="co"># the taxonomic backbones</span></span>
-<span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># the trait / status datasets</span></span>
-<span><span class="fu"><a href="../reference/list_traits.html">list_traits</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># the cross-source trait vocabulary add_trait() draws on</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_backbones.html">list_backbones</a></span><span class="op">(</span><span class="op">)</span>     <span class="co"># the backbones</span></span>
+<span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># the published datasets</span></span>
+<span><span class="fu"><a href="../reference/list_traits.html">list_traits</a></span><span class="op">(</span><span class="op">)</span>        <span class="co"># the traits add_trait() gathers across datasets</span></span>
+<span><span class="fu"><a href="../reference/taxify_databases.html">taxify_databases</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># backbones and datasets in one table</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="taxonomic-backbones">Taxonomic backbones<a class="anchor" aria-label="anchor" href="#taxonomic-backbones"></a>
+<h2 id="backbones">Backbones<a class="anchor" aria-label="anchor" href="#backbones"></a>
 </h2>
-<p>Each is a pre-built <code>.vtr</code> downloaded once and matched
-locally. Pass several to <code><a href="../reference/taxify.html">taxify()</a></code> and they form a fallback
-chain.</p>
-<table class="table">
+<p>A backbone is downloaded once, on first use, and read from disk after
+that. <code>Names</code> counts accepted names and synonyms
+together.</p>
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="16%">
-<col width="41%">
-<col width="13%">
 <col width="8%">
-<col width="10%">
-<col width="9%">
+<col width="33%">
+<col width="21%">
+<col width="6%">
+<col width="3%">
+<col width="4%">
+<col width="6%">
+<col width="15%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Backbone</th>
+<th align="left">Full name</th>
 <th align="left">Scope</th>
 <th align="right">Names</th>
 <th align="right">MB</th>
 <th align="left">Version</th>
-<th align="left"></th>
+<th align="left">Licence</th>
+<th align="left">Reference</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">wfo</td>
+<td align="left"><code>wfo</code></td>
+<td align="left">World Flora Online</td>
 <td align="left">Vascular plants</td>
 <td align="right">1,664,014</td>
 <td align="right">785</td>
 <td align="left">2026.06</td>
-<td align="left"><a href="https://www.worldfloraonline.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"><a href="https://doi.org/10.1002/tax.12373" class="external-link">Borsch et
+al. 2020</a></td>
 </tr>
 <tr class="even">
-<td align="left">col</td>
+<td align="left"><code>col</code></td>
+<td align="left">Catalogue of Life</td>
 <td align="left">All kingdoms</td>
 <td align="right">5,432,444</td>
 <td align="right">1,997</td>
 <td align="left">2026.09</td>
-<td align="left"><a href="https://www.catalogueoflife.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"><a href="https://doi.org/10.48580/d4t2" class="external-link">Banki et
+al. 2024</a></td>
 </tr>
 <tr class="odd">
-<td align="left">colxr</td>
+<td align="left"><code>colxr</code></td>
+<td align="left">Catalogue of Life Extended Release</td>
 <td align="left">All kingdoms</td>
 <td align="right">8,479,599</td>
 <td align="right">1,393</td>
 <td align="left">2026.09</td>
-<td align="left"><a href="https://www.catalogueoflife.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"><a href="https://doi.org/10.48580/dgykv" class="external-link">Banki et
+al. 2026</a></td>
 </tr>
 <tr class="even">
-<td align="left">gbif</td>
+<td align="left"><code>gbif</code></td>
+<td align="left">GBIF Backbone Taxonomy</td>
 <td align="left">All kingdoms</td>
 <td align="right">6,404,001</td>
 <td align="right">1,622</td>
 <td align="left">2023.08</td>
-<td align="left"><a href="https://www.gbif.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"><a href="https://doi.org/10.15468/39omei" class="external-link">GBIF
+Secretariat 2024</a></td>
 </tr>
 <tr class="odd">
-<td align="left">itis</td>
+<td align="left"><code>itis</code></td>
+<td align="left">Integrated Taxonomic Information System</td>
 <td align="left">US focus, freshwater/marine</td>
 <td align="right">1,000,552</td>
 <td align="right">197</td>
 <td align="left">2026.09</td>
-<td align="left"><a href="https://www.itis.gov" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"><a href="https://doi.org/10.5066/F7KH0KBK" class="external-link">ITIS
+2025</a></td>
 </tr>
 <tr class="even">
-<td align="left">ncbi</td>
+<td align="left"><code>ncbi</code></td>
+<td align="left">NCBI Taxonomy</td>
 <td align="left">All life</td>
 <td align="right">2,952,424</td>
 <td align="right">524</td>
 <td align="left">2026.09</td>
-<td align="left"><a href="https://www.ncbi.nlm.nih.gov/taxonomy" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">ott</td>
+<td align="left"><code>ott</code></td>
+<td align="left">Open Tree of Life Taxonomy</td>
 <td align="left">All life (synthetic)</td>
 <td align="right">3,690,217</td>
 <td align="right">728</td>
 <td align="left">2026.09</td>
-<td align="left"><a href="https://opentreeoflife.github.io/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left">worms</td>
+<td align="left"><code>worms</code></td>
+<td align="left">World Register of Marine Species</td>
 <td align="left">Marine/aquatic</td>
 <td align="right">1,565,652</td>
 <td align="right">290</td>
 <td align="left">2026.09</td>
-<td align="left"><a href="https://www.marinespecies.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">euromed</td>
+<td align="left"><code>euromed</code></td>
+<td align="left">Euro+Med PlantBase</td>
 <td align="left">European/Mediterranean plants</td>
 <td align="right">146,922</td>
 <td align="right">33</td>
 <td align="left">2026.08</td>
-<td align="left"><a href="https://europlusmed.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"><a href="https://europlusmed.org" class="external-link">Euro+Med
+2026</a></td>
 </tr>
 <tr class="even">
-<td align="left">fungorum</td>
+<td align="left"><code>fungorum</code></td>
+<td align="left">Species Fungorum Plus</td>
 <td align="left">Fungi</td>
 <td align="right">315,037</td>
 <td align="right">68</td>
 <td align="left">2026.08</td>
-<td align="left"><a href="https://www.speciesfungorum.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">algaebase</td>
+<td align="left"><code>algaebase</code></td>
+<td align="left">AlgaeBase</td>
 <td align="left">Algae</td>
 <td align="right">172,351</td>
 <td align="right">34</td>
 <td align="left">2026.09</td>
-<td align="left"><a href="https://www.algaebase.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left">fishbase</td>
+<td align="left"><code>fishbase</code></td>
+<td align="left">FishBase</td>
 <td align="left">Fishes</td>
 <td align="right">102,703</td>
 <td align="right">18</td>
 <td align="left">2026.08</td>
-<td align="left"><a href="https://www.fishbase.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">sealifebase</td>
+<td align="left"><code>sealifebase</code></td>
+<td align="left">SeaLifeBase</td>
 <td align="left">Non-fish marine/aquatic</td>
 <td align="right">134,031</td>
 <td align="right">27</td>
 <td align="left">2026.08</td>
-<td align="left"><a href="https://www.sealifebase.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left">reptiledb</td>
+<td align="left"><code>reptiledb</code></td>
+<td align="left">Reptile Database</td>
 <td align="left">Reptiles</td>
 <td align="right">50,043</td>
 <td align="right">9</td>
 <td align="left">2026.07</td>
-<td align="left"><a href="http://www.reptile-database.org/" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="http://www.reptile-database.org" class="external-link">Uetz et
+al. 2026</a></td>
 </tr>
 <tr class="odd">
-<td align="left">lcvp</td>
+<td align="left"><code>lcvp</code></td>
+<td align="left">Leipzig Catalogue of Vascular Plants</td>
 <td align="left">Vascular plants</td>
 <td align="right">1,337,891</td>
 <td align="right">241</td>
 <td align="left">2026.08</td>
-<td align="left"><a href="https://github.com/idiv-biodiversity/LCVP" class="external-link">source</a></td>
+<td align="left">MIT</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-020-00702-z" class="external-link">Freiberg et
+al. 2020</a></td>
 </tr>
 <tr class="even">
-<td align="left">wcvp</td>
+<td align="left"><code>wcvp</code></td>
+<td align="left">World Checklist of Vascular Plants</td>
 <td align="left">Vascular plants</td>
 <td align="right">1,448,984</td>
 <td align="right">326</td>
 <td align="left">2026.06</td>
-<td align="left"><a href="https://powo.science.kew.org/" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-021-00997-6" class="external-link">Govaerts et
+al. 2021</a></td>
 </tr>
 <tr class="odd">
-<td align="left">mdd</td>
+<td align="left"><code>mdd</code></td>
+<td align="left">Mammal Diversity Database</td>
 <td align="left">Mammals</td>
 <td align="right">61,862</td>
 <td align="right">10</td>
 <td align="left">2026.08</td>
-<td align="left"><a href="https://www.mammaldiversity.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left">avilist</td>
+<td align="left"><code>avilist</code></td>
+<td align="left">AviList Global Avian Checklist</td>
 <td align="left">Birds</td>
 <td align="right">40,572</td>
 <td align="right">8</td>
 <td align="left">2026.08</td>
-<td align="left"><a href="https://www.avilist.org/" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">lpsn</td>
+<td align="left"><code>lpsn</code></td>
+<td align="left">List of Prokaryotic names with Standing in
+Nomenclature</td>
 <td align="left">Prokaryotes (Bacteria/Archaea)</td>
 <td align="right">44,885</td>
 <td align="right">12</td>
 <td align="left">2026.08</td>
-<td align="left"><a href="https://lpsn.dsmz.de" class="external-link">source</a></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"><code>evc</code></td>
+<td align="left">EuroVegChecklist</td>
+<td align="left">European vegetation units (syntaxa)</td>
+<td align="right">7,542</td>
+<td align="right">2</td>
+<td align="left">4</td>
+<td align="left"></td>
+<td align="left"><a href="https://doi.org/10.1111/avsc.12257" class="external-link">Mucina et
+al. 2016</a></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>vegcz</code></td>
+<td align="left">Vegetation of the Czech Republic</td>
+<td align="left">Czech vegetation units (syntaxa)</td>
+<td align="right">2,258</td>
+<td align="right">1</td>
+<td align="left">2026.10</td>
+<td align="left"></td>
+<td align="left">Chytrý M (ed.) 2007-2013</td>
 </tr>
 </tbody>
 </table>
+<p>The licence of a backbone without one in the table is set by its
+source; the <code>source</code> link of <code><a href="../reference/list_backbones.html">list_backbones()</a></code>
+leads to it. AlgaeBase, FishBase and SeaLifeBase are licensed for
+non-commercial use only.</p>
 </div>
 <div class="section level2">
-<h2 id="enrichment-datasets">Enrichment datasets<a class="anchor" aria-label="anchor" href="#enrichment-datasets"></a>
+<h2 id="published-datasets">Published datasets<a class="anchor" aria-label="anchor" href="#published-datasets"></a>
 </h2>
-<p>Each <code>add_&lt;source&gt;()</code> door joins one dataset to a
-<code><a href="../reference/taxify.html">taxify()</a></code> result on the accepted name.
-<code><a href="../reference/add_trait.html">add_trait()</a></code> gathers a single trait across every source that
-carries it. Browse a dataset’s columns in R with
-<code>enrichment_cols("&lt;name&gt;")</code>.</p>
+<p>Each dataset is attached by its <code>add_&lt;source&gt;()</code>
+function, whose help page lists its columns and reference.
+<code>Rows</code> counts the rows of the built dataset, which holds a
+row under every accepted name any backbone gives a species, so it is
+larger than the number of species in the source. A dataset marked
+<code>fixed</code> is a single release that is never updated; the others
+are updated when their source publishes a new version.</p>
 <table class="table">
 <colgroup>
-<col width="50%">
-<col width="12%">
-<col width="15%">
-<col width="12%">
-<col width="10%">
+<col width="3%">
+<col width="4%">
+<col width="0%">
+<col width="0%">
+<col width="1%">
+<col width="66%">
+<col width="21%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">Enrichment</th>
+<th align="left">Dataset</th>
+<th align="left">Function</th>
 <th align="left">Version</th>
+<th align="left">Release</th>
 <th align="right">Rows</th>
-<th align="right">Columns</th>
-<th align="left"></th>
+<th align="left">Licence</th>
+<th align="left">Reference</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">algae_traits</td>
+<td align="left"><a href="../reference/add_algae_traits.html"><code>add_algae_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">3,754</td>
-<td align="right">47</td>
-<td align="left"><a href="https://mda.vliz.be/download.php?file=VLIZ_00000308_62bf06138859e409561556" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5194/essd-15-2711-2023" class="external-link">Vranken et
+al. 2023</a></td>
 </tr>
 <tr class="even">
 <td align="left">alien_first_records</td>
+<td align="left"><a href="../reference/add_alien_first_records.html"><code>add_alien_first_records()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">340,104</td>
-<td align="right">15</td>
-<td align="left"><a href="https://zenodo.org/api/records/18759840/files/FirstRecords_dataset_public_v4.0.csv/content" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.18759840" class="external-link">Seebens 2026</a></td>
 </tr>
 <tr class="odd">
 <td align="left">alpine_carabids</td>
+<td align="left"><a href="../reference/add_alpine_carabids.html"><code>add_alpine_carabids()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">209</td>
-<td align="right">2</td>
-<td align="left"><a href="https://doi.org/10.5061/dryad.fn2z34tq1" class="external-link">source</a></td>
+<td align="left">CC0 1.0</td>
+<td align="left"><a href="https://doi.org/10.1111/jbi.13792" class="external-link">Chamberlain
+et al. 2020</a></td>
 </tr>
 <tr class="even">
 <td align="left">amniote</td>
+<td align="left"><a href="../reference/add_amniote.html"><code>add_amniote()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">36,706</td>
-<td align="right">34</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/8067269" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1890/15-0846R.1" class="external-link">Myhrvold
+et al. 2015</a></td>
 </tr>
 <tr class="odd">
 <td align="left">amphibio</td>
+<td align="left"><a href="../reference/add_amphibio.html"><code>add_amphibio()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">8,901</td>
-<td align="right">35</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/8828578" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/sdata.2017.123" class="external-link">Oliveira et
+al. 2017</a></td>
 </tr>
 <tr class="even">
 <td align="left">anage</td>
+<td align="left"><a href="../reference/add_anage.html"><code>add_anage()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">11,859</td>
-<td align="right">29</td>
-<td align="left"><a href="https://genomics.senescence.info/species/dataset.zip" class="external-link">source</a></td>
+<td align="left">CC BY</td>
+<td align="left"><a href="https://doi.org/10.1093/nar/gkx1042" class="external-link">Tacutu et
+al. 2018</a></td>
 </tr>
 <tr class="odd">
 <td align="left">animaltraits</td>
+<td align="left"><a href="../reference/add_animaltraits.html"><code>add_animaltraits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">5,106</td>
-<td align="right">77</td>
-<td align="left"><a href="https://zenodo.org/record/6468938/files/observations.csv?download=1" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-022-01364-9" class="external-link">Herberstein et
+al. 2022</a></td>
 </tr>
 <tr class="even">
 <td align="left">arctic_traits</td>
+<td align="left"><a href="../reference/add_arctic_traits.html"><code>add_arctic_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">644</td>
-<td align="right">20</td>
-<td align="left"><a href="https://phaidra.univie.ac.at/api/object/o:861474/octets" class="external-link">source</a></td>
+<td align="left">CC BY-NC 4.0</td>
+<td align="left"><a href="https://doi.org/10.25365/phaidra.49" class="external-link">Degen et
+al. 2018</a></td>
 </tr>
 <tr class="odd">
 <td align="left">arthropod_traits</td>
+<td align="left"><a href="../reference/add_arthropod_traits.html"><code>add_arthropod_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">6,822</td>
-<td align="right">29</td>
-<td align="left"><a href="https://ipt.biodiversity.be/archive.do?r=arthropod-trait-dataset&amp;v=1.1" class="external-link">source</a></td>
+<td align="left">CC BY-NC</td>
+<td align="left"><a href="https://doi.org/10.3897/BDJ.13.e146785" class="external-link">Logghe
+et al. 2025</a></td>
 </tr>
 <tr class="even">
 <td align="left">austraits</td>
+<td align="left"><a href="../reference/add_austraits.html"><code>add_austraits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">54,995</td>
-<td align="right">2,203</td>
-<td align="left"><a href="https://zenodo.org/api/records/15718081/files/austraits-7.0.0.zip/content" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-021-01006-6" class="external-link">Falster et
+al. 2021</a></td>
 </tr>
 <tr class="odd">
 <td align="left">avonet</td>
+<td align="left"><a href="../reference/add_avonet.html"><code>add_avonet()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">17,205</td>
-<td align="right">35</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/34480856" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1111/ele.13898" class="external-link">Tobias et
+al. 2022</a></td>
 </tr>
 <tr class="even">
 <td align="left">bacdive</td>
+<td align="left"><a href="../reference/add_bacdive.html"><code>add_bacdive()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">21,375</td>
-<td align="right">26</td>
-<td align="left"><a href="https://github.com/gcol33/taxifydb/releases/download/crawl-snapshots-2026.07/bacdive.jsonl.gz" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1093/nar/gkab961" class="external-link">Reimer et
+al. 2022</a></td>
 </tr>
 <tr class="odd">
 <td align="left">baseflor</td>
+<td align="left"><a href="../reference/add_baseflor.html"><code>add_baseflor()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">28,259</td>
-<td align="right">109</td>
-<td align="left"><a href="http://web.archive.org/web/20231002005253id_/https://philippe.julve.pagesperso-orange.fr/baseflor.xlsx" class="external-link">source</a></td>
+<td align="left">ODbL 1.0 / CC BY-SA 2.0</td>
+<td align="left">Julve 1998</td>
 </tr>
 <tr class="even">
 <td align="left">bee_ostwald</td>
+<td align="left"><a href="../reference/add_bee_ostwald.html"><code>add_bee_ostwald()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">2,602</td>
-<td align="right">38</td>
-<td align="left"><a href="https://zenodo.org/records/13366989/files/Sup%20Table%204%20Morphological%20Dataset%20Revised.csv?download=1" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.13366989" class="external-link">Madeleine Ostwald
+2024</a></td>
 </tr>
 <tr class="odd">
 <td align="left">bet</td>
+<td align="left"><a href="../reference/add_bet.html"><code>add_bet()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">3,981</td>
-<td align="right">98</td>
-<td align="left"><a href="https://www.envidat.ch/dataset/4865a082-169d-40d1-920b-fc20ad0acad2/resource/d2d2f958-051c-4638-a808-88547cc64d92/download/betdata.txt" class="external-link">source</a></td>
+<td align="left">CC BY-SA 4.0</td>
+<td align="left"><a href="https://doi.org/10.16904/envidat.348" class="external-link">Van
+Zuijlen et al. 2023</a></td>
 </tr>
 <tr class="even">
 <td align="left">betsi_collembola_body_length</td>
+<td align="left"><a href="../reference/add_betsi_collembola_body_length.html"><code>add_betsi_collembola_body_length()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,443</td>
-<td align="right">5</td>
-<td align="left"><a href="https://zenodo.org/api/records/1292461/files/BETSI_Trait%20data%20request_Collembola_Body%20length_01062017.xlsx/content" class="external-link">source</a></td>
+<td align="left">CC BY-NC 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.1292461" class="external-link">Bonfanti 2018</a></td>
 </tr>
 <tr class="odd">
 <td align="left">betsi_collembola_traits</td>
+<td align="left"><a href="../reference/add_betsi_collembola_traits.html"><code>add_betsi_collembola_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">38</td>
-<td align="right">9</td>
-<td align="left"><a href="https://doi.org/10.1002/eap.70034" class="external-link">source</a></td>
+<td align="left">Extracted trait values (facts); mixed provenance (see
+meta.json), served for non-commercial scientific reuse (informed-risk,
+#42)</td>
+<td align="left"><a href="https://doi.org/10.1002/eap.70034" class="external-link">Lu J-Z et
+al. 2025</a></td>
 </tr>
 <tr class="even">
 <td align="left">betsi_earthworm_traits</td>
+<td align="left"><a href="../reference/add_betsi_earthworm_traits.html"><code>add_betsi_earthworm_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">47</td>
-<td align="right">22</td>
-<td align="left"><a href="https://doi.org/10.1016/j.apsoil.2013.10.005" class="external-link">source</a></td>
+<td align="left">Extracted trait values (facts); BETSI-derived, served
+for non-commercial scientific reuse (informed-risk, #42)</td>
+<td align="left"><a href="https://doi.org/10.1016/j.apsoil.2013.10.005" class="external-link">Pelosi et
+al. 2014</a></td>
 </tr>
 <tr class="odd">
 <td align="left">beukhof</td>
+<td align="left"><a href="../reference/add_beukhof.html"><code>add_beukhof()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">2,138</td>
-<td align="right">70</td>
-<td align="left"><a href="https://doi.pangaea.de/10.1594/PANGAEA.900866?format=textfile" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1594/PANGAEA.900866" class="external-link">Beukhof et
+al. 2019</a></td>
 </tr>
 <tr class="even">
 <td align="left">bien</td>
+<td align="left"><a href="../reference/add_bien.html"><code>add_bien()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">202,121</td>
-<td align="right">175</td>
-<td align="left"><a href="https://bien.nceas.ucsb.edu" class="external-link">source</a></td>
+<td align="left">CC BY</td>
+<td align="left"><a href="https://doi.org/10.1111/2041-210X.12861" class="external-link">Maitner et
+al. 2017</a></td>
 </tr>
 <tr class="odd">
 <td align="left">birdbase</td>
+<td align="left"><a href="../reference/add_birdbase.html"><code>add_birdbase()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">18,244</td>
-<td align="right">95</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/55634729" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-025-05615-3" class="external-link">Şekercioğlu et
+al. 2025</a></td>
 </tr>
 <tr class="even">
 <td align="left">blanchard</td>
+<td align="left"><a href="../reference/add_blanchard.html"><code>add_blanchard()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">599</td>
-<td align="right">19</td>
-<td align="left"><a href="https://doi.org/10.5061/dryad.st6sc" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.5061/dryad.st6sc" class="external-link">Blanchard
+2016</a></td>
 </tr>
 <tr class="odd">
 <td align="left">brot</td>
+<td align="left"><a href="../reference/add_brot.html"><code>add_brot()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">10,584</td>
-<td align="right">133</td>
-<td align="left"><a href="https://api.figshare.com/v2/articles/5280868" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6084/m9.figshare.c.3843841" class="external-link">G. Pausas
+2018</a></td>
 </tr>
 <tr class="even">
 <td align="left">cefas_btrait</td>
+<td align="left"><a href="../reference/add_cefas_btrait.html"><code>add_cefas_btrait()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,166</td>
-<td align="right">10</td>
-<td align="left"><a href="https://data-api.cefas.co.uk/api/export/11935?format=csv" class="external-link">source</a></td>
+<td align="left">OGL v3.0</td>
+<td align="left"><a href="https://doi.org/10.14466/CefasDataHub.123" class="external-link">Centre for Environment
+2022</a></td>
 </tr>
 <tr class="odd">
 <td align="left">chelonians</td>
+<td align="left"><a href="../reference/add_chelonians.html"><code>add_chelonians()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">558</td>
-<td align="right">79</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/53840531" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6084/m9.figshare.28828241" class="external-link">Wang et
+al. 2025</a></td>
 </tr>
 <tr class="even">
 <td align="left">chowdhury</td>
+<td align="left"><a href="../reference/add_chowdhury.html"><code>add_chowdhury()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">428</td>
-<td align="right">10</td>
-<td align="left"><a href="https://onlinelibrary.wiley.com/doi/10.1111/ddi.70112" class="external-link">source</a></td>
+<td align="left">No separate licence stated for the Supporting
+Information; article is CC BY 4.0. Reuse basis: public scientific
+supporting data offered as the paper’s trait dataset.</td>
+<td align="left"><a href="https://doi.org/10.1111/ddi.70112" class="external-link">Chowdhury
+et al. 2025</a></td>
 </tr>
 <tr class="odd">
 <td align="left">combine</td>
+<td align="left"><a href="../reference/add_combine.html"><code>add_combine()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">15,034</td>
-<td align="right">57</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/27703263" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1002/ecy.3344" class="external-link">Soria et
+al. 2021</a></td>
 </tr>
 <tr class="even">
 <td align="left">combine_imputed</td>
+<td align="left"><a href="../reference/add_combine_imputed.html"><code>add_combine_imputed()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">15,034</td>
-<td align="right">69</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/27703266" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1002/ecy.3344" class="external-link">Soria et
+al. 2021</a></td>
 </tr>
 <tr class="odd">
 <td align="left">common_names</td>
+<td align="left"><a href="../reference/add_common_names.html"><code>add_common_names()</code></a></td>
 <td align="left">2026.10</td>
+<td align="left">updated</td>
 <td align="right">2,012,878</td>
-<td align="right">3</td>
-<td align="left"><a href="https://hosted-datasets.gbif.org/datasets/backbone/current/backbone.zip%20;%20https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_archive/new_taxdump_2026-10-01.zip%20;%20https://files.opentreeoflife.org/ott/ott3.7.3/ott3.7.3.tgz" class="external-link">source</a></td>
+<td align="left">CC0 (GBIF, OTT) / public domain (NCBI)</td>
+<td align="left"><a href="https://doi.org/10.15468/39omei" class="external-link">GBIF
+Secretariat 2024</a></td>
 </tr>
 <tr class="even">
 <td align="left">copepod_traits</td>
+<td align="left"><a href="../reference/add_copepod_traits.html"><code>add_copepod_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,675</td>
-<td align="right">17</td>
-<td align="left"><a href="https://store.pangaea.de/Publications/BrunP-etal_2016/Brun-etal_2016_Copepode_trait.xlsx" class="external-link">source</a></td>
+<td align="left">CC BY 3.0</td>
+<td align="left"><a href="https://doi.org/10.5194/essd-9-99-2017" class="external-link">Brun
+et al. 2017</a></td>
 </tr>
 <tr class="odd">
 <td align="left">coral_traits</td>
+<td align="left"><a href="../reference/add_coral_traits.html"><code>add_coral_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,934</td>
-<td align="right">257</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/3678603" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/sdata.2016.17" class="external-link">Madin
+et al. 2016</a></td>
 </tr>
 <tr class="even">
 <td align="left">diaz_traits</td>
+<td align="left"><a href="../reference/add_diaz_traits.html"><code>add_diaz_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">111,713</td>
-<td align="right">29</td>
-<td align="left"><a href="https://raw.githubusercontent.com/kydahl/biodiv-hotspots/main/data/raw/Trait_data_TRY_Diaz_2022/Dataset/Species_mean_traits.xlsx" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-022-01774-9" class="external-link">Diaz et
+al. 2022</a></td>
 </tr>
 <tr class="odd">
 <td align="left">disperse</td>
+<td align="left"><a href="../reference/add_disperse.html"><code>add_disperse()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">564</td>
-<td align="right">12</td>
-<td align="left"><a href="https://api.figshare.com/v2/articles/12417251" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6084/m9.figshare.c.5000633" class="external-link">Sarremejane et
+al. 2020</a></td>
 </tr>
 <tr class="even">
 <td align="left">eberswalde</td>
+<td align="left"><a href="../reference/add_eberswalde.html"><code>add_eberswalde()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">30</td>
-<td align="right">8</td>
-<td align="left"><a href="https://pubdata.leuphana.de/server/api/core/bitstreams/1abc1f9b-d416-4ec8-8139-a3730724e77c/content" class="external-link">source</a></td>
+<td align="left">CC BY-SA 4.0</td>
+<td align="left"><a href="https://doi.org/10.48548/pubdata-46" class="external-link">Weiss et
+al. 2024</a></td>
 </tr>
 <tr class="odd">
 <td align="left">ecoflora</td>
+<td align="left"><a href="../reference/add_ecoflora.html"><code>add_ecoflora()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">15,727</td>
-<td align="right">18</td>
-<td align="left"><a href="https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/ecoflora_raw_2026-06-23.csv" class="external-link">source</a></td>
+<td align="left">CC BY-NC-SA 4.0</td>
+<td align="left">Fitter 1994</td>
 </tr>
 <tr class="even">
 <td align="left">ecomorphosis</td>
+<td align="left"><a href="../reference/add_ecomorphosis.html"><code>add_ecomorphosis()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">57</td>
-<td align="right">3</td>
-<td align="left"><a href="https://zenodo.org/api/records/7194559/files/Annex_ASE_Online_db.xlsx/content" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.7194559" class="external-link">Bonfanti 2022</a></td>
 </tr>
 <tr class="odd">
 <td align="left">edwards_phyto</td>
+<td align="left"><a href="../reference/add_edwards_phyto.html"><code>add_edwards_phyto()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">243</td>
-<td align="right">108</td>
-<td align="left"><a href="https://esapubs.org/archive/ecol/E096/202/" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1890/14-2252.1" class="external-link">Edwards et
+al. 2015</a></td>
 </tr>
 <tr class="even">
 <td align="left">eive</td>
+<td align="left"><a href="../reference/add_eive.html"><code>add_eive()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">44,811</td>
-<td align="right">18</td>
-<td align="left"><a href="https://zenodo.org/records/7534792/files/EIVE_Paper_1.0_SM_08.xlsx?download=1" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.3897/VCS.98324" class="external-link">Dengler et
+al. 2023</a></td>
 </tr>
 <tr class="odd">
 <td align="left">ellers_collembola</td>
+<td align="left"><a href="../reference/add_ellers_collembola.html"><code>add_ellers_collembola()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">366</td>
-<td align="right">6</td>
-<td align="left"><a href="https://zenodo.org/api/records/4934993/files/Collembola_trait_data.csv/content" class="external-link">source</a></td>
+<td align="left">CC0 1.0</td>
+<td align="left"><a href="https://doi.org/10.1111/1365-2656.12838." class="external-link">Ellers et
+al. 2018</a></td>
 </tr>
 <tr class="even">
 <td align="left">elton_traits</td>
+<td align="left"><a href="../reference/add_elton_traits.html"><code>add_elton_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">29,052</td>
-<td align="right">48</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/5631081" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1890/13-1917.1" class="external-link">Wilman et
+al. 2014</a></td>
 </tr>
 <tr class="odd">
 <td align="left">epa_freshwater</td>
+<td align="left"><a href="../reference/add_epa_freshwater.html"><code>add_epa_freshwater()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">3,081</td>
-<td align="right">9</td>
-<td align="left"><a href="https://ofmpub.epa.gov/eims/eimscomm.getfile?p_download_id=526642" class="external-link">source</a></td>
+<td align="left">Public domain (U.S. Government work)</td>
+<td align="left">U.S. Environmental Protection Agency 2012</td>
 </tr>
 <tr class="even">
 <td align="left">eupolltrait</td>
+<td align="left"><a href="../reference/add_eupolltrait.html"><code>add_eupolltrait()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">3,637</td>
-<td align="right">57</td>
-<td align="left"><a href="https://zenodo.org/api/records/18032357" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.18032357" class="external-link">Miličić et
+al. 2025</a></td>
 </tr>
 <tr class="odd">
 <td align="left">eurobat</td>
+<td align="left"><a href="../reference/add_eurobat.html"><code>add_eurobat()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">139</td>
-<td align="right">83</td>
-<td align="left"><a href="https://api.figshare.com/v2/articles/21777161" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6084/m9.figshare.21777161" class="external-link">Froidevaux et
+al. 2023</a></td>
 </tr>
 <tr class="even">
 <td align="left">euromed_distribution</td>
+<td align="left"><a href="../reference/add_euromed_distribution.html"><code>add_euromed_distribution()</code></a></td>
 <td align="left">2026.09</td>
+<td align="left">fixed</td>
 <td align="right">1,594,402</td>
-<td align="right">7</td>
-<td align="left"><a href="https://github.com/gcol33/taxifydb/releases/download/euromed-snapshot-2026.09/euromed_distribution.jsonl" class="external-link">source</a></td>
+<td align="left">CC BY-SA</td>
+<td align="left">Euro+Med PlantBase</td>
 </tr>
 <tr class="odd">
 <td align="left">faprotax</td>
+<td align="left"><a href="../reference/add_faprotax.html"><code>add_faprotax()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">5,391</td>
-<td align="right">2</td>
-<td align="left"><a href="https://pages.uoregon.edu/slouca/LoucaLab/archive/FAPROTAX/SECTION_Download/MODULE_Downloads/CLASS_Latest%20release/UNIT_FAPROTAX_1.2.12/FAPROTAX_1.2.12.zip" class="external-link">source</a></td>
+<td align="left">BSD-style. Copyright (c) 2025 Stilianos Louca, all
+rights reserved. Verbatim: ‘Use and redistributions of the FAPROTAX
+database, including any associated software, with or without
+modification, are permitted provided that the following conditions are
+met’ – redistributions must retain the copyright notice, conditions and
+disclaimer; the author’s name may not be used to endorse derived
+products; and modification must be clearly indicated. taxifydb reshapes
+the grouped list into a per-taxon table, which is a modification and is
+stated as such here.</td>
+<td align="left"><a href="https://doi.org/10.1126/science.aaf4507" class="external-link">Louca
+et al. 2016</a></td>
 </tr>
 <tr class="even">
 <td align="left">finand</td>
+<td align="left"><a href="../reference/add_finand.html"><code>add_finand()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">40</td>
-<td align="right">5</td>
-<td align="left"><a href="https://zenodo.org/api/records/17184995/files/Species_traits_zenodo.xlsx/content" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.17184995" class="external-link">Finand 2025</a></td>
 </tr>
 <tr class="odd">
 <td align="left">fishbase</td>
+<td align="left"><a href="../reference/add_fishbase.html"><code>add_fishbase()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">43,578</td>
-<td align="right">246</td>
-<td align="left"><a href="https://fishbase.ropensci.org" class="external-link">source</a></td>
+<td align="left">CC BY-NC 4.0</td>
+<td align="left"><a href="https://www.fishbase.org" class="external-link">Froese 2024</a></td>
 </tr>
 <tr class="even">
 <td align="left">fishmorph</td>
+<td align="left"><a href="../reference/add_fishmorph.html"><code>add_fishmorph()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">11,008</td>
-<td align="right">15</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/28672242" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1111/geb.13395" class="external-link">Brosse et
+al. 2021</a></td>
 </tr>
 <tr class="odd">
 <td align="left">fishtraits</td>
+<td align="left"><a href="../reference/add_fishtraits.html"><code>add_fishtraits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,144</td>
-<td align="right">28</td>
-<td align="left"><a href="https://web.archive.org/web/20250204085643id_/https://www.sciencebase.gov/catalog/file/get/5a7c6e8ce4b00f54eb2318c0" class="external-link">source</a></td>
+<td align="left">Public domain (U.S. Government work)</td>
+<td align="left">Frimpong 2009</td>
 </tr>
 <tr class="even">
 <td align="left">floraweb</td>
+<td align="left"><a href="../reference/add_floraweb.html"><code>add_floraweb()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">22,354</td>
-<td align="right">59</td>
-<td align="left"><a href="https://github.com/gcol33/taxifydb/releases/download/scrape-snapshots-2026.06/floraweb_raw_2026-06-24.csv" class="external-link">source</a></td>
+<td align="left">free use with acknowledgement + citation (BioFresh
+metadata statement)</td>
+<td align="left">Klotz et al. 2002</td>
 </tr>
 <tr class="odd">
 <td align="left">freshwater_insects_conus</td>
+<td align="left"><a href="../reference/add_freshwater_insects_conus.html"><code>add_freshwater_insects_conus()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,262</td>
-<td align="right">14</td>
-<td align="left"><a href="https://pasta.lternet.edu/package/data/eml/edi/481/5/3a88bfdfefcfe6dcafb27afd3ce4e90c" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6073/pasta/8238ea9bc15840844b3a023b6b6ed158" class="external-link">Twardochleb
+et al. 2021</a></td>
 </tr>
 <tr class="even">
 <td align="left">frugivoria</td>
+<td align="left"><a href="../reference/add_frugivoria.html"><code>add_frugivoria()</code></a></td>
 <td align="left">2026.10</td>
+<td align="left">fixed</td>
 <td align="right">3,032</td>
-<td align="right">90</td>
-<td align="left"><a href="https://pasta.lternet.edu/package/data/eml/edi/1220/6/3c655f2ab1d525d1b1f05ee78153e875%20;%20https://pasta.lternet.edu/package/data/eml/edi/1220/6/5a86fde71322a1ff64d94ace0ed1982c" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6073/pasta/frugivoria" class="external-link">Gerstner BE et
+al. (2023) Frugivoria: a trait database for birds and mammals exhibiting
+frugivory across contiguous Neotropical moist forests. EDI (edi.1220.5)
+et al. 1.220.5</a></td>
 </tr>
 <tr class="odd">
 <td align="left">fungal_traits</td>
+<td align="left"><a href="../reference/add_fungal_traits.html"><code>add_fungal_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">11,129</td>
-<td align="right">27</td>
-<td align="left"><a href="https://static-content.springer.com/esm/art%3A10.1007%2Fs13225-020-00466-2/MediaObjects/13225_2020_466_MOESM4_ESM.xlsx" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1007/s13225-020-00466-2" class="external-link">Polme et
+al. 2020</a></td>
 </tr>
 <tr class="even">
 <td align="left">fungalroot</td>
+<td align="left"><a href="../reference/add_fungalroot.html"><code>add_fungalroot()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">5,647</td>
-<td align="right">42</td>
-<td align="left"><a href="https://orphans.gbif.org/EE/744edc21-8dd2-474e-8a0b-b8c3d56a3c2d.232.zip" class="external-link">source</a></td>
+<td align="left">CC BY-NC 4.0</td>
+<td align="left"><a href="https://doi.org/10.1111/nph.16569" class="external-link">Soudzilovskaia et
+al. 2020</a></td>
 </tr>
 <tr class="odd">
 <td align="left">funguild</td>
+<td align="left"><a href="../reference/add_funguild.html"><code>add_funguild()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">18,659</td>
-<td align="right">9</td>
-<td align="left"><a href="http://www.stbates.org/funguild_db_2.php" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1016/j.funeco.2015.06.006" class="external-link">Nguyen et
+al. 2016</a></td>
 </tr>
 <tr class="even">
 <td align="left">gidias</td>
+<td align="left"><a href="../reference/add_gidias.html"><code>add_gidias()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">19,493</td>
-<td align="right">15</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/53894801" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-025-05184-5" class="external-link">Bacher et
+al. 2025</a></td>
 </tr>
 <tr class="odd">
 <td align="left">gift</td>
+<td align="left"><a href="../reference/add_gift.html"><code>add_gift()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">420,049</td>
-<td align="right">218</td>
-<td align="left"><a href="https://gift.uni-goettingen.de" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1111/jbi.13623" class="external-link">Weigelt et
+al. 2020</a></td>
 </tr>
 <tr class="even">
 <td align="left">globi</td>
+<td align="left"><a href="../reference/add_globi.html"><code>add_globi()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">547,125</td>
-<td align="right">3</td>
-<td align="left"><a href="https://github.com/gcol33/taxifydb/releases/download/crawl-snapshots-2026.07/globi_edges.tsv.gz" class="external-link">source</a></td>
+<td align="left">CC BY 4.0 (derived counts; source records carry
+contributor licenses)</td>
+<td align="left"><a href="https://doi.org/10.1016/j.ecoinf.2014.08.005" class="external-link">Poelen et
+al. 2014</a></td>
 </tr>
 <tr class="odd">
 <td align="left">globtherm</td>
+<td align="left"><a href="../reference/add_globtherm.html"><code>add_globtherm()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">5,013</td>
-<td align="right">42</td>
-<td align="left"><a href="https://doi.org/10.5061/dryad.1cv08" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1038/sdata.2018.22" class="external-link">Bennett
+et al. 2018</a></td>
 </tr>
 <tr class="even">
 <td align="left">glonaf</td>
+<td align="left"><a href="../reference/add_glonaf.html"><code>add_glonaf()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,543,250</td>
-<td align="right">6</td>
-<td align="left"><a href="https://zenodo.org/api/records/17105725" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1002/ecy.70245" class="external-link">Davis et
+al. 2025</a></td>
 </tr>
 <tr class="odd">
 <td align="left">griis</td>
+<td align="left"><a href="../reference/add_griis.html"><code>add_griis()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">437,664</td>
-<td align="right">13</td>
-<td align="left"><a href="https://zenodo.org/records/6348164/files/GRIIS%20-%20Country%20Compendium%20V1_0.csv?download=1" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/sdata.2017.202" class="external-link">Pagad
+et al. 2018</a></td>
 </tr>
 <tr class="even">
 <td align="left">groot</td>
+<td align="left"><a href="../reference/add_groot.html"><code>add_groot()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">26,275</td>
-<td align="right">38</td>
-<td align="left"><a href="https://raw.githubusercontent.com/GRooT-Database/GRooT-Data/master/DataFiles/GRooTAggregateSpeciesVersion.zip" class="external-link">source</a></td>
+<td align="left">Free use with data-paper citation (no formal license
+stated)</td>
+<td align="left"><a href="https://doi.org/10.1111/geb.13179" class="external-link">Guerrero-Ramirez NR et al. et
+al. 2021</a></td>
 </tr>
 <tr class="odd">
 <td align="left">gwdd</td>
+<td align="left"><a href="../reference/add_gwdd.html"><code>add_gwdd()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">34,850</td>
-<td align="right">15</td>
-<td align="left"><a href="https://zenodo.org/api/records/18262736/files/gwddagg_v2.2_species.csv/content" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1111/nph.70860" class="external-link">Fischer et
+al. 2026</a></td>
 </tr>
 <tr class="even">
 <td align="left">homerange</td>
+<td align="left"><a href="../reference/add_homerange.html"><code>add_homerange()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">4,805</td>
-<td align="right">77</td>
-<td align="left"><a href="https://doi.org/10.5061/dryad.d2547d85x" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.5061/dryad.d2547d85x" class="external-link">Broekman et
+al. 2023</a></td>
 </tr>
 <tr class="odd">
 <td align="left">hosts</td>
+<td align="left"><a href="../reference/add_hosts.html"><code>add_hosts()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">22,776</td>
-<td align="right">2</td>
-<td align="left"><a href="https://data.nhm.ac.uk/dataset/hosts-a-database-of-the-world-s-lepidopteran-hostplants" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://data.nhm.ac.uk/dataset/hosts" class="external-link">Robinson
+et al. 2010</a></td>
 </tr>
 <tr class="even">
 <td align="left">huang_amph</td>
+<td align="left"><a href="../reference/add_huang_amph.html"><code>add_huang_amph()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">5,736</td>
-<td align="right">331</td>
-<td align="left"><a href="https://api.figshare.com/v2/articles/21159229" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6084/m9.figshare.21159229" class="external-link">anonymous
+2022</a></td>
 </tr>
 <tr class="odd">
 <td align="left">hydraulics</td>
+<td align="left"><a href="../reference/add_hydraulics.html"><code>add_hydraulics()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">6,267</td>
-<td align="right">7</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/23745155" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1111/ele.13584" class="external-link">Sanchez-Martinez et
+al. 2020</a></td>
 </tr>
 <tr class="even">
 <td align="left">imageomics_neon</td>
+<td align="left"><a href="../reference/add_imageomics_neon.html"><code>add_imageomics_neon()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">86</td>
-<td align="right">3</td>
-<td align="left"><a href="https://huggingface.co/datasets/imageomics/2018-NEON-beetles/resolve/main/BeetleMeasurements.csv" class="external-link">source</a></td>
+<td align="left">CC BY-SA 4.0</td>
+<td align="left">Fluck et al. 2024</td>
 </tr>
 <tr class="odd">
 <td align="left">inrae_collembola_traits</td>
+<td align="left"><a href="../reference/add_inrae_collembola_traits.html"><code>add_inrae_collembola_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">186</td>
-<td align="right">16</td>
-<td align="left"><a href="https://doi.org/10.15454/UU2FQT%20;%20https://doi.org/10.15454/UCYSLH" class="external-link">source</a></td>
+<td align="left">Extracted trait values (facts); BETSI-derived, served
+for non-commercial scientific reuse (informed-risk, #42)</td>
+<td align="left"><a href="https://doi.org/10.15454/UU2FQT" class="external-link">Joimel S,
+Chassain C, Artige E, Barda L, Balvay S, Belnou T, Bur T, Cortet J,
+Coussin-Grellier S, Hedde M et al</a></td>
 </tr>
 <tr class="even">
 <td align="left">invacost</td>
+<td align="left"><a href="../reference/add_invacost.html"><code>add_invacost()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">3,194</td>
-<td align="right">3</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/33669518" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-020-00586-z" class="external-link">Diagne et
+al. 2020</a></td>
 </tr>
 <tr class="odd">
 <td align="left">italic</td>
+<td align="left"><a href="../reference/add_italic.html"><code>add_italic()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">3,580</td>
-<td align="right">4</td>
-<td align="left"><a href="https://github.com/gcol33/taxifydb/releases/download/crawl-snapshots-2026.07/italic.jsonl" class="external-link">source</a></td>
+<td align="left">CC BY-SA 4.0</td>
+<td align="left"><a href="https://doi.org/10.3390/jof9050556" class="external-link">Martellos
+et al. 2023</a></td>
 </tr>
 <tr class="even">
 <td align="left">iucn</td>
+<td align="left"><a href="../reference/add_iucn.html"><code>add_iucn()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">254,965</td>
-<td align="right">1</td>
-<td align="left"><a href="https://hosted-datasets.gbif.org/datasets/iucn/iucn-latest.zip" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://www.iucnredlist.org" class="external-link">IUCN
+2025</a></td>
 </tr>
 <tr class="odd">
 <td align="left">kew_cvalues</td>
+<td align="left"><a href="../reference/add_kew_cvalues.html"><code>add_kew_cvalues()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">35,469</td>
-<td align="right">14</td>
-<td align="left"><a href="https://cvalues.science.kew.org/search" class="external-link">source</a></td>
+<td align="left">CC BY</td>
+<td align="left">Pellicer 2020</td>
 </tr>
 <tr class="even">
 <td align="left">kew_sid</td>
+<td align="left"><a href="../reference/add_kew_sid.html"><code>add_kew_sid()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">106,119</td>
-<td align="right">13</td>
-<td align="left"><a href="https://ser-sid.org/" class="external-link">source</a></td>
+<td align="left">CC BY 2.0</td>
+<td align="left"><a href="https://ser-sid.org/" class="external-link">Royal Botanic Gardens
+Kew 2024</a></td>
 </tr>
 <tr class="odd">
 <td align="left">leda</td>
+<td align="left"><a href="../reference/add_leda.html"><code>add_leda()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">23,748</td>
-<td align="right">87</td>
-<td align="left"><a href="https://uol.de/f/5/inst/biologie/ag/landeco/download/LEDA/Data_files/" class="external-link">source</a></td>
+<td align="left">Free for academic use</td>
+<td align="left"><a href="https://doi.org/10.1111/j.1365-2745.2008.01430.x" class="external-link">Kleyer et
+al. 2008</a></td>
 </tr>
 <tr class="even">
 <td align="left">leptraits</td>
+<td align="left"><a href="../reference/add_leptraits.html"><code>add_leptraits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">15,323</td>
-<td align="right">97</td>
-<td align="left"><a href="https://raw.githubusercontent.com/RiesLabGU/LepTraits/main/consensus/consensus.csv" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-022-01473-5" class="external-link">Shirey et
+al. 2022</a></td>
 </tr>
 <tr class="odd">
 <td align="left">madin</td>
+<td align="left"><a href="../reference/add_madin.html"><code>add_madin()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">17,710</td>
-<td align="right">76</td>
-<td align="left"><a href="https://raw.githubusercontent.com/bacteria-archaea-traits/bacteria-archaea-traits/master/output/condensed_species_NCBI.csv" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-020-0497-4" class="external-link">Madin et
+al. 2020</a></td>
 </tr>
 <tr class="even">
 <td align="left">marine_distribution</td>
+<td align="left"></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">2,552,415</td>
-<td align="right">4</td>
-<td align="left"><a href="https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/worms_distributions.jsonl%20;%20https://github.com/gcol33/taxifydb/releases/download/marine-snapshots-2026.07/mrgid_meow.tsv" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.14284/170" class="external-link">WoRMS Editorial
+Board 2026</a></td>
 </tr>
 <tr class="odd">
 <td align="left">monograph_collembola_body_length</td>
+<td align="left"><a href="../reference/add_monograph_collembola_body_length.html"><code>add_monograph_collembola_body_length()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">577</td>
-<td align="right">5</td>
-<td align="left"><a href="https://github.com/gcol33/taxifydb/releases/download/monograph-snapshots-2026.08/collembola_monograph_bodylength_2026-08-05.csv" class="external-link">source</a></td>
+<td align="left">Extracted measurements (facts); source monographs
+copyright their publishers, served for non-commercial scientific reuse
+(informed-risk, #42)</td>
+<td align="left">Body length</td>
 </tr>
 <tr class="even">
 <td align="left">nesttrait</td>
+<td align="left"><a href="../reference/add_nesttrait.html"><code>add_nesttrait()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">17,413</td>
-<td align="right">34</td>
-<td align="left"><a href="https://zenodo.org/records/10128906/files/NestTrait_v2.csv?download=1" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-023-02837-1" class="external-link">Chia et
+al. 2023</a></td>
 </tr>
 <tr class="odd">
 <td align="left">noddb</td>
+<td align="left"><a href="../reference/add_noddb.html"><code>add_noddb()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">857</td>
-<td align="right">8</td>
-<td align="left"><a href="https://s3.hpc.ut.ee/plutof-public/original/3094fbed-e384-457d-af3f-694ef97e8df8.xlsx" class="external-link">source</a></td>
+<td align="left">CC BY-SA 4.0</td>
+<td align="left"><a href="https://doi.org/10.1111/jvs.12627" class="external-link">Tedersoo et
+al. 2018</a></td>
 </tr>
 <tr class="even">
 <td align="left">nztd</td>
+<td align="left"><a href="../reference/add_nztd.html"><code>add_nztd()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">409</td>
-<td align="right">18</td>
-<td align="left"><a href="https://api.figshare.com/v2/articles/21939647" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6084/m9.figshare.21939647" class="external-link">Lam-Gordillo
+2023</a></td>
 </tr>
 <tr class="odd">
 <td align="left">octocoral</td>
+<td align="left"><a href="../reference/add_octocoral.html"><code>add_octocoral()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">4,448</td>
-<td align="right">322</td>
-<td align="left"><a href="https://zenodo.org/records/14228404/files/OctocoralTraits_v2_2.zip?download=1" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.14228404" class="external-link">Gómez-Gras et
+al. 2024</a></td>
 </tr>
 <tr class="even">
 <td align="left">odonata</td>
+<td align="left"><a href="../reference/add_odonata.html"><code>add_odonata()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,748</td>
-<td align="right">42</td>
-<td align="left"><a href="https://doi.org/10.5061/dryad.15pm5qc" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5061/dryad.15pm5qc" class="external-link">Waller
+et al. 2020</a></td>
 </tr>
 <tr class="odd">
 <td align="left">pantheria</td>
+<td align="left"><a href="../reference/add_pantheria.html"><code>add_pantheria()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">13,802</td>
-<td align="right">53</td>
-<td align="left"><a href="https://esapubs.org/archive/ecol/E090/184/PanTHERIA_1-0_WR05_Aug2008.txt" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1890/08-1494.1" class="external-link">Jones et
+al. 2009</a></td>
 </tr>
 <tr class="even">
 <td align="left">parravicini</td>
+<td align="left"><a href="../reference/add_parravicini.html"><code>add_parravicini()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">7,498</td>
-<td align="right">34</td>
-<td align="left"><a href="https://raw.githubusercontent.com/valerianoparravicini/Trophic_Fish_2020/master/data/converted_experts_classification.csv" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1371/journal.pbio.3000702" class="external-link">Parravicini et
+al. 2020</a></td>
 </tr>
 <tr class="odd">
 <td align="left">pelagic</td>
+<td align="left"><a href="../reference/add_pelagic.html"><code>add_pelagic()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">772</td>
-<td align="right">171</td>
-<td align="left"><a href="https://borealisdata.ca/api/datasets/:persistentId?persistentId=doi:10.5683/SP3/0YFJED" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5683/SP3/0YFJED" class="external-link">Gleiber et
+al. 2022</a></td>
 </tr>
 <tr class="even">
 <td align="left">phylacine</td>
+<td align="left"><a href="../reference/add_phylacine.html"><code>add_phylacine()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">14,477</td>
-<td align="right">24</td>
-<td align="left"><a href="https://raw.githubusercontent.com/MegaPast2Future/PHYLACINE_1.2/master/Data/Traits/Trait_data.csv" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1002/ecy.2443" class="external-link">Faurby et
+al. 2018</a></td>
 </tr>
 <tr class="odd">
 <td align="left">plazi_collembola_body_length</td>
+<td align="left"><a href="../reference/add_plazi_collembola_body_length.html"><code>add_plazi_collembola_body_length()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,056</td>
-<td align="right">5</td>
-<td align="left"><a href="https://api.gbif.org/v1/dataset/search?publishingOrg=7ce8aef0-9e92-11dc-8738-b8a03c50a862&amp;taxonKey=10713444" class="external-link">source</a></td>
+<td align="left">CC0 1.0</td>
+<td align="left">Plazi TreatmentBank</td>
 </tr>
 <tr class="even">
 <td align="left">pottier</td>
+<td align="left"><a href="../reference/add_pottier.html"><code>add_pottier()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">929</td>
-<td align="right">176</td>
-<td align="left"><a href="https://zenodo.org/api/records/6565454" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-022-01704-9" class="external-link">Pottier et
+al. 2022</a></td>
 </tr>
 <tr class="odd">
 <td align="left">quimbayo</td>
+<td align="left"><a href="../reference/add_quimbayo.html"><code>add_quimbayo()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">2,614</td>
-<td align="right">60</td>
-<td align="left"><a href="https://zenodo.org/api/records/4455016" class="external-link">source</a></td>
+<td align="left">Open (ESA Ecology data policy)</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.4455016" class="external-link">Quimbayo et
+al. 2021</a></td>
 </tr>
 <tr class="even">
 <td align="left">ramond</td>
+<td align="left"><a href="../reference/add_ramond.html"><code>add_ramond()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,631</td>
-<td align="right">53</td>
-<td align="left"><a href="https://www.seanoe.org/data/00405/51662/" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.17882/51662" class="external-link">Ramond et
+al. 2018</a></td>
 </tr>
 <tr class="odd">
 <td align="left">repttraits</td>
+<td align="left"><a href="../reference/add_repttraits.html"><code>add_repttraits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">14,553</td>
-<td align="right">47</td>
-<td align="left"><a href="https://ndownloader.figshare.com/files/45408133" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-024-03079-5" class="external-link">Oskyrko et
+al. 2024</a></td>
 </tr>
 <tr class="even">
 <td align="left">rimet_phyto</td>
+<td align="left"><a href="../reference/add_rimet_phyto.html"><code>add_rimet_phyto()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,927</td>
-<td align="right">107</td>
-<td align="left"><a href="https://zenodo.org/records/1164834/files/Appendix-1-Phytoplankton%20metrics%20database-revised.xlsx?download=1" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.1164834" class="external-link">Frédéric 2018</a></td>
 </tr>
 <tr class="odd">
 <td align="left">saproxylic</td>
+<td align="left"><a href="../reference/add_saproxylic.html"><code>add_saproxylic()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,356</td>
-<td align="right">57</td>
-<td align="left"><a href="https://doi.org/10.5061/dryad.2fqz612p3" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.5061/dryad.2fqz612p3" class="external-link">Hagge
+et al. 2021</a></td>
 </tr>
 <tr class="even">
 <td align="left">sealifebase</td>
+<td align="left"><a href="../reference/add_sealifebase.html"><code>add_sealifebase()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">126,916</td>
-<td align="right">257</td>
-<td align="left"><a href="https://sealifebase.ropensci.org" class="external-link">source</a></td>
+<td align="left">CC BY-NC 4.0</td>
+<td align="left"><a href="https://www.sealifebase.org" class="external-link">Palomares
+2024</a></td>
 </tr>
 <tr class="odd">
 <td align="left">sharkipedia</td>
+<td align="left"><a href="../reference/add_sharkipedia.html"><code>add_sharkipedia()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">216</td>
-<td align="right">175</td>
-<td align="left"><a href="https://zenodo.org/records/6656525/files/Sharkipedia-Traits-v1.0-22-01-25.csv?download=1" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-022-01655-1" class="external-link">Mull et
+al. 2022</a></td>
 </tr>
 <tr class="even">
 <td align="left">sheld</td>
+<td align="left"><a href="../reference/add_sheld.html"><code>add_sheld()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">456</td>
-<td align="right">105</td>
-<td align="left"><a href="https://api.figshare.com/v2/articles/24115998" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-023-02635-9" class="external-link">Hopper et
+al. 2023</a></td>
 </tr>
 <tr class="odd">
 <td align="left">spider_traits</td>
+<td align="left"><a href="../reference/add_spider_traits.html"><code>add_spider_traits()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">10,320</td>
-<td align="right">547</td>
-<td align="left"><a href="https://spidertraits.sci.muni.cz/backend/data/export/csv/family/*/genus/*/species/*/original-name/*/trait-category/*/trait/*/method/*/location/*/country/*/dataset/*/authors/*/reference/*/row-link/*" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1093/database/baab064" class="external-link">Pekar et
+al. 2021</a></td>
 </tr>
 <tr class="even">
 <td align="left">sworm</td>
+<td align="left"><a href="../reference/add_sworm.html"><code>add_sworm()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">346</td>
-<td align="right">1</td>
-<td align="left"><a href="https://idata.idiv.de/ddm/Data/DownloadZip/1880?version=4881" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-021-00912-z" class="external-link">Phillips et
+al. 2021</a></td>
 </tr>
 <tr class="odd">
 <td align="left">tetradensity</td>
+<td align="left"><a href="../reference/add_tetradensity.html"><code>add_tetradensity()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">4,711</td>
-<td align="right">28</td>
-<td align="left"><a href="https://api.figshare.com/v2/articles/5371633" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.6084/m9.figshare.5371633" class="external-link">Santini et
+al. 2019</a></td>
 </tr>
 <tr class="even">
 <td align="left">thermofresh</td>
+<td align="left"><a href="../reference/add_thermofresh.html"><code>add_thermofresh()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">1,252</td>
-<td align="right">20</td>
-<td align="left"><a href="https://zenodo.org/api/records/16959762/files/hsbayat%2FThermoFresh-v1.0.zip/content" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.16959762" class="external-link">ThermoFresh v1</a></td>
 </tr>
 <tr class="odd">
 <td align="left">tree_of_sex</td>
+<td align="left"><a href="../reference/add_tree_of_sex.html"><code>add_tree_of_sex()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">54,318</td>
-<td align="right">116</td>
-<td align="left"><a href="https://doi.org/10.5061/dryad.v1908" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1038/sdata.2014.15" class="external-link">The
+Tree of Sex Consortium et al. 2014</a></td>
 </tr>
 <tr class="even">
 <td align="left">usda_fungus_host</td>
+<td align="left"><a href="../reference/add_usda_fungus_host.html"><code>add_usda_fungus_host()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">81,263</td>
-<td align="right">2</td>
-<td align="left"><a href="https://api.figshare.com/v2/articles/24855585" class="external-link">source</a></td>
+<td align="left">U.S. Public Domain</td>
+<td align="left"><a href="https://doi.org/10.15482/USDA.ADC/1524414" class="external-link">Farr et
+al. 2021</a></td>
 </tr>
 <tr class="odd">
 <td align="left">useful_plants</td>
+<td align="left"><a href="../reference/add_useful_plants.html"><code>add_useful_plants()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">96,022</td>
-<td align="right">11</td>
-<td align="left"><a href="https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn:uuid:e576e4b7-845a-422a-8472-b5eb078e08eb" class="external-link">source</a></td>
+<td align="left">CC BY 4.0</td>
+<td align="left"><a href="https://doi.org/10.5063/F1CV4G34" class="external-link">Diazgranados
+et al. 2020</a></td>
 </tr>
 <tr class="even">
 <td align="left">virion</td>
+<td align="left"><a href="../reference/add_virion.html"><code>add_virion()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">10,864</td>
-<td align="right">4</td>
-<td align="left"><a href="https://zenodo.org/api/records/21636520" class="external-link">source</a></td>
+<td align="left">ODbL-1.0</td>
+<td align="left"><a href="https://doi.org/10.1128/mbio.02985-21" class="external-link">Carlson
+et al. 2022</a></td>
 </tr>
 <tr class="odd">
 <td align="left">wcvp</td>
+<td align="left"><a href="../reference/add_wcvp.html"><code>add_wcvp()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">updated</td>
 <td align="right">4,909,534</td>
-<td align="right">34</td>
-<td align="left"><a href="https://sftp.kew.org/pub/data-repositories/WCVP/wcvp.zip" class="external-link">source</a></td>
+<td align="left">CC BY</td>
+<td align="left"><a href="https://doi.org/10.1038/s41597-021-00997-6" class="external-link">Govaerts et
+al. 2021</a></td>
 </tr>
 <tr class="even">
 <td align="left">zanne</td>
+<td align="left"><a href="../reference/add_zanne.html"><code>add_zanne()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">101,237</td>
-<td align="right">2</td>
-<td align="left"><a href="https://raw.githubusercontent.com/ejedwards/reanalysis_zanne2014/master/dryad/GlobalWoodinessDatabase.csv" class="external-link">source</a></td>
+<td align="left">CC0</td>
+<td align="left"><a href="https://doi.org/10.1038/nature12872" class="external-link">Zanne et
+al. 2014</a></td>
 </tr>
 <tr class="odd">
 <td align="left">zooplankton</td>
+<td align="left"><a href="../reference/add_zooplankton.html"><code>add_zooplankton()</code></a></td>
 <td align="left">2026.08</td>
+<td align="left">fixed</td>
 <td align="right">5,064</td>
-<td align="right">86</td>
-<td align="left"><a href="https://zenodo.org/api/records/8102913" class="external-link">source</a></td>
+<td align="left">CC BY-SA 4.0</td>
+<td align="left"><a href="https://doi.org/10.5281/zenodo.8102913" class="external-link">Pata
+2023</a></td>
 </tr>
 </tbody>
 </table>
+<p>A dataset without a function of its own is attached through
+<code><a href="../reference/add_trait.html">add_trait()</a></code>, which reads it as one source of a trait.</p>
 </div>
 <div class="section level2">
-<h2 id="cross-source-traits">Cross-source traits<a class="anchor" aria-label="anchor" href="#cross-source-traits"></a>
+<h2 id="traits-across-datasets">Traits across datasets<a class="anchor" aria-label="anchor" href="#traits-across-datasets"></a>
 </h2>
-<p>Name one trait; <code><a href="../reference/add_trait.html">add_trait()</a></code> finds and harmonizes it from
-the sources below.</p>
+<p><code><a href="../reference/add_trait.html">add_trait()</a></code> gathers one trait from every dataset in the
+<code>From</code> column, in one unit and one vocabulary.</p>
 <table class="table">
 <colgroup>
 <col width="7%">
@@ -1114,7 +1531,7 @@ the sources below.</p>
 <col width="2%">
 <col width="6%">
 <col width="1%">
-<col width="71%">
+<col width="70%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Trait</th>
@@ -1126,7 +1543,7 @@ the sources below.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">activity_time</td>
+<td align="left"><code>activity_time</code></td>
 <td align="left">Diel activity time</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1135,7 +1552,7 @@ the sources below.</p>
 spider_traits</td>
 </tr>
 <tr class="even">
-<td align="left">age_at_first_reproduction</td>
+<td align="left"><code>age_at_first_reproduction</code></td>
 <td align="left">Age at first reproduction</td>
 <td align="left">numeric</td>
 <td align="left">yr</td>
@@ -1143,7 +1560,7 @@ spider_traits</td>
 <td align="left">combine</td>
 </tr>
 <tr class="odd">
-<td align="left">age_at_maturity</td>
+<td align="left"><code>age_at_maturity</code></td>
 <td align="left">Age at female maturity</td>
 <td align="left">numeric</td>
 <td align="left">yr</td>
@@ -1152,7 +1569,7 @@ spider_traits</td>
 fishtraits, sheld</td>
 </tr>
 <tr class="even">
-<td align="left">air_breathing</td>
+<td align="left"><code>air_breathing</code></td>
 <td align="left">Air breathing (fish)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1160,7 +1577,7 @@ fishtraits, sheld</td>
 <td align="left">fishbase</td>
 </tr>
 <tr class="odd">
-<td align="left">algal_life_cycle</td>
+<td align="left"><code>algal_life_cycle</code></td>
 <td align="left">Life-cycle ploidy phase (algae)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1168,7 +1585,7 @@ fishtraits, sheld</td>
 <td align="left">algae_traits</td>
 </tr>
 <tr class="even">
-<td align="left">algal_substrate</td>
+<td align="left"><code>algal_substrate</code></td>
 <td align="left">Attachment substrate (algae)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1176,7 +1593,7 @@ fishtraits, sheld</td>
 <td align="left">algae_traits</td>
 </tr>
 <tr class="odd">
-<td align="left">antenna_length</td>
+<td align="left"><code>antenna_length</code></td>
 <td align="left">Antenna length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1184,7 +1601,7 @@ fishtraits, sheld</td>
 <td align="left">saproxylic</td>
 </tr>
 <tr class="even">
-<td align="left">aspect_ratio</td>
+<td align="left"><code>aspect_ratio</code></td>
 <td align="left">Caudal fin aspect ratio</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -1192,7 +1609,7 @@ fishtraits, sheld</td>
 <td align="left">beukhof, quimbayo</td>
 </tr>
 <tr class="odd">
-<td align="left">bark_thickness</td>
+<td align="left"><code>bark_thickness</code></td>
 <td align="left">Bark thickness</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1200,7 +1617,7 @@ fishtraits, sheld</td>
 <td align="left">austraits</td>
 </tr>
 <tr class="even">
-<td align="left">beak_depth</td>
+<td align="left"><code>beak_depth</code></td>
 <td align="left">Beak depth</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1208,7 +1625,7 @@ fishtraits, sheld</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="odd">
-<td align="left">beak_length</td>
+<td align="left"><code>beak_length</code></td>
 <td align="left">Beak length (culmen)</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1216,7 +1633,7 @@ fishtraits, sheld</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="even">
-<td align="left">beak_width</td>
+<td align="left"><code>beak_width</code></td>
 <td align="left">Beak width</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1224,7 +1641,7 @@ fishtraits, sheld</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="odd">
-<td align="left">bioluminescence</td>
+<td align="left"><code>bioluminescence</code></td>
 <td align="left">Bioluminescence (zooplankton)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1232,7 +1649,7 @@ fishtraits, sheld</td>
 <td align="left">zooplankton</td>
 </tr>
 <tr class="even">
-<td align="left">bioturbation</td>
+<td align="left"><code>bioturbation</code></td>
 <td align="left">Bioturbation mode (benthic invertebrate)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1240,7 +1657,7 @@ fishtraits, sheld</td>
 <td align="left">arctic_traits, nztd</td>
 </tr>
 <tr class="odd">
-<td align="left">body_elongation</td>
+<td align="left"><code>body_elongation</code></td>
 <td align="left">Body elongation (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -1248,7 +1665,7 @@ fishtraits, sheld</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="even">
-<td align="left">body_lateral_shape</td>
+<td align="left"><code>body_lateral_shape</code></td>
 <td align="left">Body lateral shape (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -1256,7 +1673,7 @@ fishtraits, sheld</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="odd">
-<td align="left">body_length</td>
+<td align="left"><code>body_length</code></td>
 <td align="left">Body length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1268,7 +1685,7 @@ plazi_collembola_body_length, monograph_collembola_body_length,
 ellers_collembola, betsi_collembola_traits</td>
 </tr>
 <tr class="even">
-<td align="left">body_mass</td>
+<td align="left"><code>body_mass</code></td>
 <td align="left">Body mass</td>
 <td align="left">numeric</td>
 <td align="left">g</td>
@@ -1278,7 +1695,7 @@ anage, phylacine, repttraits, fishbase, sealifebase, frugivoria,
 pottier, animaltraits, homerange, eurobat</td>
 </tr>
 <tr class="odd">
-<td align="left">body_shape</td>
+<td align="left"><code>body_shape</code></td>
 <td align="left">Body shape (fish)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1286,7 +1703,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">beukhof, quimbayo, pelagic</td>
 </tr>
 <tr class="even">
-<td align="left">brain_mass</td>
+<td align="left"><code>brain_mass</code></td>
 <td align="left">Brain mass</td>
 <td align="left">numeric</td>
 <td align="left">g</td>
@@ -1294,7 +1711,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">combine, animaltraits</td>
 </tr>
 <tr class="odd">
-<td align="left">bryophyte_life_form</td>
+<td align="left"><code>bryophyte_life_form</code></td>
 <td align="left">Bryophyte life form</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1302,7 +1719,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">bet</td>
 </tr>
 <tr class="even">
-<td align="left">calcification</td>
+<td align="left"><code>calcification</code></td>
 <td align="left">Calcification (algae)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1310,7 +1727,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">algae_traits</td>
 </tr>
 <tr class="odd">
-<td align="left">carapace_length</td>
+<td align="left"><code>carapace_length</code></td>
 <td align="left">Carapace length (turtle)</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1318,7 +1735,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">chelonians</td>
 </tr>
 <tr class="even">
-<td align="left">caudal_fin_shape</td>
+<td align="left"><code>caudal_fin_shape</code></td>
 <td align="left">Caudal fin shape (fish)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1326,7 +1743,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">beukhof, quimbayo</td>
 </tr>
 <tr class="odd">
-<td align="left">caudal_peduncle_throttling</td>
+<td align="left"><code>caudal_peduncle_throttling</code></td>
 <td align="left">Caudal peduncle throttling (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -1334,7 +1751,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="even">
-<td align="left">cell_biovolume</td>
+<td align="left"><code>cell_biovolume</code></td>
 <td align="left">Cell biovolume (microalgae)</td>
 <td align="left">numeric</td>
 <td align="left">um3</td>
@@ -1342,7 +1759,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">rimet_phyto</td>
 </tr>
 <tr class="odd">
-<td align="left">cell_length</td>
+<td align="left"><code>cell_length</code></td>
 <td align="left">Cell length</td>
 <td align="left">numeric</td>
 <td align="left">um</td>
@@ -1350,7 +1767,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">rimet_phyto, bacdive</td>
 </tr>
 <tr class="even">
-<td align="left">cell_shape</td>
+<td align="left"><code>cell_shape</code></td>
 <td align="left">Cell shape (prokaryote)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1358,7 +1775,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">madin, bacdive</td>
 </tr>
 <tr class="odd">
-<td align="left">cell_surface_area</td>
+<td align="left"><code>cell_surface_area</code></td>
 <td align="left">Cell surface area (microalgae)</td>
 <td align="left">numeric</td>
 <td align="left">um2</td>
@@ -1366,7 +1783,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">rimet_phyto</td>
 </tr>
 <tr class="even">
-<td align="left">cell_thickness</td>
+<td align="left"><code>cell_thickness</code></td>
 <td align="left">Cell thickness (microalgae)</td>
 <td align="left">numeric</td>
 <td align="left">um</td>
@@ -1374,7 +1791,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">rimet_phyto</td>
 </tr>
 <tr class="odd">
-<td align="left">cell_width</td>
+<td align="left"><code>cell_width</code></td>
 <td align="left">Cell width</td>
 <td align="left">numeric</td>
 <td align="left">um</td>
@@ -1382,7 +1799,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">rimet_phyto, bacdive</td>
 </tr>
 <tr class="even">
-<td align="left">chromosome_number</td>
+<td align="left"><code>chromosome_number</code></td>
 <td align="left">Chromosome number (2n)</td>
 <td align="left">numeric</td>
 <td align="left">count</td>
@@ -1390,7 +1807,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">kew_cvalues</td>
 </tr>
 <tr class="odd">
-<td align="left">climatic_temp_max</td>
+<td align="left"><code>climatic_temp_max</code></td>
 <td align="left">Warmest-month temperature of range</td>
 <td align="left">numeric</td>
 <td align="left">deg C</td>
@@ -1398,7 +1815,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">fishtraits</td>
 </tr>
 <tr class="even">
-<td align="left">climatic_temp_mean</td>
+<td align="left"><code>climatic_temp_mean</code></td>
 <td align="left">Mean annual temperature of range</td>
 <td align="left">numeric</td>
 <td align="left">deg C</td>
@@ -1406,7 +1823,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">arthropod_traits, repttraits, hydraulics</td>
 </tr>
 <tr class="odd">
-<td align="left">climatic_temp_min</td>
+<td align="left"><code>climatic_temp_min</code></td>
 <td align="left">Coldest-month temperature of range</td>
 <td align="left">numeric</td>
 <td align="left">deg C</td>
@@ -1414,7 +1831,7 @@ pottier, animaltraits, homerange, eurobat</td>
 <td align="left">fishtraits</td>
 </tr>
 <tr class="even">
-<td align="left">clutch_litter_size</td>
+<td align="left"><code>clutch_litter_size</code></td>
 <td align="left">Clutch or litter size</td>
 <td align="left">numeric</td>
 <td align="left">offspring per clutch/litter</td>
@@ -1423,7 +1840,7 @@ pottier, animaltraits, homerange, eurobat</td>
 amphibio, chelonians, birdbase, eurobat, zooplankton</td>
 </tr>
 <tr class="odd">
-<td align="left">coloniality</td>
+<td align="left"><code>coloniality</code></td>
 <td align="left">Coloniality</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1431,7 +1848,7 @@ amphibio, chelonians, birdbase, eurobat, zooplankton</td>
 <td align="left">coral_traits, octocoral</td>
 </tr>
 <tr class="even">
-<td align="left">colony_diameter</td>
+<td align="left"><code>colony_diameter</code></td>
 <td align="left">Colony maximum diameter (coral)</td>
 <td align="left">numeric</td>
 <td align="left">cm</td>
@@ -1439,7 +1856,7 @@ amphibio, chelonians, birdbase, eurobat, zooplankton</td>
 <td align="left">coral_traits</td>
 </tr>
 <tr class="odd">
-<td align="left">colony_growth_form</td>
+<td align="left"><code>colony_growth_form</code></td>
 <td align="left">Colony growth form (octocoral)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1447,7 +1864,7 @@ amphibio, chelonians, birdbase, eurobat, zooplankton</td>
 <td align="left">octocoral</td>
 </tr>
 <tr class="even">
-<td align="left">colour_lightness</td>
+<td align="left"><code>colour_lightness</code></td>
 <td align="left">Body colour lightness (beetle)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -1455,7 +1872,7 @@ amphibio, chelonians, birdbase, eurobat, zooplankton</td>
 <td align="left">saproxylic</td>
 </tr>
 <tr class="odd">
-<td align="left">conservation_status</td>
+<td align="left"><code>conservation_status</code></td>
 <td align="left">IUCN Red List status</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1464,7 +1881,7 @@ amphibio, chelonians, birdbase, eurobat, zooplankton</td>
 pelagic, pottier</td>
 </tr>
 <tr class="even">
-<td align="left">corallite_width</td>
+<td align="left"><code>corallite_width</code></td>
 <td align="left">Corallite width (coral)</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1472,7 +1889,7 @@ pelagic, pottier</td>
 <td align="left">coral_traits</td>
 </tr>
 <tr class="odd">
-<td align="left">deciduousness</td>
+<td align="left"><code>deciduousness</code></td>
 <td align="left">Leaf deciduousness</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1480,7 +1897,7 @@ pelagic, pottier</td>
 <td align="left">gift, austraits</td>
 </tr>
 <tr class="even">
-<td align="left">depth_max</td>
+<td align="left"><code>depth_max</code></td>
 <td align="left">Maximum depth</td>
 <td align="left">numeric</td>
 <td align="left">m</td>
@@ -1489,7 +1906,7 @@ pelagic, pottier</td>
 octocoral</td>
 </tr>
 <tr class="odd">
-<td align="left">depth_min</td>
+<td align="left"><code>depth_min</code></td>
 <td align="left">Minimum depth</td>
 <td align="left">numeric</td>
 <td align="left">m</td>
@@ -1498,7 +1915,7 @@ octocoral</td>
 octocoral</td>
 </tr>
 <tr class="even">
-<td align="left">diel_vertical_migration</td>
+<td align="left"><code>diel_vertical_migration</code></td>
 <td align="left">Diel vertical migration (zooplankton)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1506,7 +1923,7 @@ octocoral</td>
 <td align="left">zooplankton</td>
 </tr>
 <tr class="odd">
-<td align="left">diet_breadth</td>
+<td align="left"><code>diet_breadth</code></td>
 <td align="left">Diet breadth</td>
 <td align="left">numeric</td>
 <td align="left">count</td>
@@ -1514,7 +1931,7 @@ octocoral</td>
 <td align="left">combine, pantheria, birdbase</td>
 </tr>
 <tr class="even">
-<td align="left">diet_guild</td>
+<td align="left"><code>diet_guild</code></td>
 <td align="left">Diet guild</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1524,7 +1941,7 @@ blanchard, parravicini, eurobat, zooplankton, birdbase,
 arthropod_traits, chowdhury, finand</td>
 </tr>
 <tr class="odd">
-<td align="left">dispersal_syndrome</td>
+<td align="left"><code>dispersal_syndrome</code></td>
 <td align="left">Dispersal syndrome</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1532,7 +1949,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">gift, austraits, leda, baseflor, brot</td>
 </tr>
 <tr class="even">
-<td align="left">earthworm_ecological_group</td>
+<td align="left"><code>earthworm_ecological_group</code></td>
 <td align="left">Earthworm ecological group</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1540,7 +1957,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">sworm</td>
 </tr>
 <tr class="odd">
-<td align="left">egg_length</td>
+<td align="left"><code>egg_length</code></td>
 <td align="left">Egg length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1548,7 +1965,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">amniote, repttraits, chelonians</td>
 </tr>
 <tr class="even">
-<td align="left">egg_mass</td>
+<td align="left"><code>egg_mass</code></td>
 <td align="left">Egg mass</td>
 <td align="left">numeric</td>
 <td align="left">g</td>
@@ -1556,7 +1973,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">amniote</td>
 </tr>
 <tr class="odd">
-<td align="left">egg_width</td>
+<td align="left"><code>egg_width</code></td>
 <td align="left">Egg width</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1564,7 +1981,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">amniote, repttraits, chelonians</td>
 </tr>
 <tr class="even">
-<td align="left">eive_light</td>
+<td align="left"><code>eive_light</code></td>
 <td align="left">EIVE light (L)</td>
 <td align="left">numeric</td>
 <td align="left">0-10 (EIVE)</td>
@@ -1572,7 +1989,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">eive</td>
 </tr>
 <tr class="odd">
-<td align="left">eive_moisture</td>
+<td align="left"><code>eive_moisture</code></td>
 <td align="left">EIVE moisture (M)</td>
 <td align="left">numeric</td>
 <td align="left">0-10 (EIVE)</td>
@@ -1580,7 +1997,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">eive</td>
 </tr>
 <tr class="even">
-<td align="left">eive_nutrients</td>
+<td align="left"><code>eive_nutrients</code></td>
 <td align="left">EIVE nutrients (N)</td>
 <td align="left">numeric</td>
 <td align="left">0-10 (EIVE)</td>
@@ -1588,7 +2005,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">eive</td>
 </tr>
 <tr class="odd">
-<td align="left">eive_reaction</td>
+<td align="left"><code>eive_reaction</code></td>
 <td align="left">EIVE reaction (R)</td>
 <td align="left">numeric</td>
 <td align="left">0-10 (EIVE)</td>
@@ -1596,7 +2013,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">eive</td>
 </tr>
 <tr class="even">
-<td align="left">eive_temperature</td>
+<td align="left"><code>eive_temperature</code></td>
 <td align="left">EIVE temperature (T)</td>
 <td align="left">numeric</td>
 <td align="left">0-10 (EIVE)</td>
@@ -1604,7 +2021,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">eive</td>
 </tr>
 <tr class="odd">
-<td align="left">elevation_max</td>
+<td align="left"><code>elevation_max</code></td>
 <td align="left">Maximum elevation</td>
 <td align="left">numeric</td>
 <td align="left">m</td>
@@ -1612,7 +2029,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">birdbase, repttraits, globtherm</td>
 </tr>
 <tr class="even">
-<td align="left">elevation_min</td>
+<td align="left"><code>elevation_min</code></td>
 <td align="left">Minimum elevation</td>
 <td align="left">numeric</td>
 <td align="left">m</td>
@@ -1620,7 +2037,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">birdbase, repttraits, globtherm</td>
 </tr>
 <tr class="odd">
-<td align="left">ellenberg_light</td>
+<td align="left"><code>ellenberg_light</code></td>
 <td align="left">Ellenberg light (L)</td>
 <td align="left">numeric</td>
 <td align="left">1-9 (classic)</td>
@@ -1628,7 +2045,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">floraweb, ecoflora, bet</td>
 </tr>
 <tr class="even">
-<td align="left">ellenberg_moisture</td>
+<td align="left"><code>ellenberg_moisture</code></td>
 <td align="left">Ellenberg moisture (F)</td>
 <td align="left">numeric</td>
 <td align="left">1-12 (classic)</td>
@@ -1636,7 +2053,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">floraweb, ecoflora, bet</td>
 </tr>
 <tr class="odd">
-<td align="left">ellenberg_nitrogen</td>
+<td align="left"><code>ellenberg_nitrogen</code></td>
 <td align="left">Ellenberg nutrients / nitrogen (N)</td>
 <td align="left">numeric</td>
 <td align="left">1-9 (classic)</td>
@@ -1644,7 +2061,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">floraweb, ecoflora, bet</td>
 </tr>
 <tr class="even">
-<td align="left">ellenberg_reaction</td>
+<td align="left"><code>ellenberg_reaction</code></td>
 <td align="left">Ellenberg reaction (R)</td>
 <td align="left">numeric</td>
 <td align="left">1-9 (classic)</td>
@@ -1652,7 +2069,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">floraweb, ecoflora, bet</td>
 </tr>
 <tr class="odd">
-<td align="left">ellenberg_salt</td>
+<td align="left"><code>ellenberg_salt</code></td>
 <td align="left">Ellenberg salt (S)</td>
 <td align="left">numeric</td>
 <td align="left">0-9 (classic)</td>
@@ -1660,7 +2077,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">floraweb, ecoflora, baseflor</td>
 </tr>
 <tr class="even">
-<td align="left">ellenberg_temperature</td>
+<td align="left"><code>ellenberg_temperature</code></td>
 <td align="left">Ellenberg temperature (T)</td>
 <td align="left">numeric</td>
 <td align="left">1-9 (classic)</td>
@@ -1668,7 +2085,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">floraweb, bet</td>
 </tr>
 <tr class="odd">
-<td align="left">elytra_length</td>
+<td align="left"><code>elytra_length</code></td>
 <td align="left">Elytra length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1676,7 +2093,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">saproxylic, imageomics_neon</td>
 </tr>
 <tr class="even">
-<td align="left">elytra_width</td>
+<td align="left"><code>elytra_width</code></td>
 <td align="left">Elytra width</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1684,7 +2101,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">imageomics_neon</td>
 </tr>
 <tr class="odd">
-<td align="left">environmental_impact</td>
+<td align="left"><code>environmental_impact</code></td>
 <td align="left">Environmental impact (EICAT)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1692,7 +2109,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">gidias</td>
 </tr>
 <tr class="even">
-<td align="left">feeding_guild</td>
+<td align="left"><code>feeding_guild</code></td>
 <td align="left">Feeding guild (benthic invertebrate)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1700,7 +2117,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">arctic_traits, nztd</td>
 </tr>
 <tr class="odd">
-<td align="left">feeding_mode</td>
+<td align="left"><code>feeding_mode</code></td>
 <td align="left">Feeding mode (fish)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1708,7 +2125,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">beukhof</td>
 </tr>
 <tr class="even">
-<td align="left">flight_mode</td>
+<td align="left"><code>flight_mode</code></td>
 <td align="left">Flight mode (odonate)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1716,7 +2133,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">odonata</td>
 </tr>
 <tr class="odd">
-<td align="left">flightless</td>
+<td align="left"><code>flightless</code></td>
 <td align="left">Flightlessness (bird)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1724,7 +2141,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">birdbase</td>
 </tr>
 <tr class="even">
-<td align="left">flower_colour</td>
+<td align="left"><code>flower_colour</code></td>
 <td align="left">Flower colour</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1732,7 +2149,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">gift, baseflor, bien</td>
 </tr>
 <tr class="odd">
-<td align="left">flowering_end</td>
+<td align="left"><code>flowering_end</code></td>
 <td align="left">Flowering end (month)</td>
 <td align="left">numeric</td>
 <td align="left">month (1-12)</td>
@@ -1740,7 +2157,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">baseflor, ecoflora, austraits</td>
 </tr>
 <tr class="even">
-<td align="left">flowering_start</td>
+<td align="left"><code>flowering_start</code></td>
 <td align="left">Flowering start (month)</td>
 <td align="left">numeric</td>
 <td align="left">month (1-12)</td>
@@ -1748,7 +2165,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">baseflor, ecoflora, austraits</td>
 </tr>
 <tr class="odd">
-<td align="left">foraging_mode</td>
+<td align="left"><code>foraging_mode</code></td>
 <td align="left">Foraging mode</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1756,7 +2173,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">repttraits, chelonians</td>
 </tr>
 <tr class="even">
-<td align="left">forearm_length</td>
+<td align="left"><code>forearm_length</code></td>
 <td align="left">Forearm length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1764,7 +2181,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">combine, pantheria, eurobat</td>
 </tr>
 <tr class="odd">
-<td align="left">forelimb_length</td>
+<td align="left"><code>forelimb_length</code></td>
 <td align="left">Forelimb length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1772,7 +2189,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">huang_amph</td>
 </tr>
 <tr class="even">
-<td align="left">freshwater</td>
+<td align="left"><code>freshwater</code></td>
 <td align="left">Freshwater habitat</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1780,7 +2197,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">sealifebase, combine, phylacine</td>
 </tr>
 <tr class="odd">
-<td align="left">fruit_type</td>
+<td align="left"><code>fruit_type</code></td>
 <td align="left">Fruit type</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1788,7 +2205,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">gift, baseflor, austraits</td>
 </tr>
 <tr class="even">
-<td align="left">fungal_trophic_mode</td>
+<td align="left"><code>fungal_trophic_mode</code></td>
 <td align="left">Fungal trophic mode</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1796,7 +2213,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">funguild, fungal_traits</td>
 </tr>
 <tr class="odd">
-<td align="left">gamete_type</td>
+<td align="left"><code>gamete_type</code></td>
 <td align="left">Gamete type (algae)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1804,7 +2221,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">algae_traits</td>
 </tr>
 <tr class="even">
-<td align="left">gc_content</td>
+<td align="left"><code>gc_content</code></td>
 <td align="left">Genome GC content (prokaryote)</td>
 <td align="left">numeric</td>
 <td align="left">%</td>
@@ -1812,7 +2229,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">madin</td>
 </tr>
 <tr class="odd">
-<td align="left">generation_length</td>
+<td align="left"><code>generation_length</code></td>
 <td align="left">Generation length</td>
 <td align="left">numeric</td>
 <td align="left">yr</td>
@@ -1820,7 +2237,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">bet, frugivoria, combine</td>
 </tr>
 <tr class="even">
-<td align="left">genome_size</td>
+<td align="left"><code>genome_size</code></td>
 <td align="left">Genome size (prokaryote)</td>
 <td align="left">numeric</td>
 <td align="left">bp</td>
@@ -1828,7 +2245,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">madin</td>
 </tr>
 <tr class="odd">
-<td align="left">gestation_incubation</td>
+<td align="left"><code>gestation_incubation</code></td>
 <td align="left">Gestation or incubation length</td>
 <td align="left">numeric</td>
 <td align="left">days</td>
@@ -1836,7 +2253,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">anage, combine, pantheria, amniote</td>
 </tr>
 <tr class="even">
-<td align="left">gram_stain</td>
+<td align="left"><code>gram_stain</code></td>
 <td align="left">Gram stain (prokaryote)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1844,7 +2261,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">madin, bacdive</td>
 </tr>
 <tr class="odd">
-<td align="left">growth_form</td>
+<td align="left"><code>growth_form</code></td>
 <td align="left">Growth form</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1852,7 +2269,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">gift, austraits, bien, brot</td>
 </tr>
 <tr class="even">
-<td align="left">habitat_breadth</td>
+<td align="left"><code>habitat_breadth</code></td>
 <td align="left">Habitat breadth</td>
 <td align="left">numeric</td>
 <td align="left">count</td>
@@ -1860,7 +2277,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">birdbase, combine, frugivoria, pantheria</td>
 </tr>
 <tr class="odd">
-<td align="left">hand_wing_index</td>
+<td align="left"><code>hand_wing_index</code></td>
 <td align="left">Hand-wing index</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -1868,7 +2285,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="even">
-<td align="left">head_length</td>
+<td align="left"><code>head_length</code></td>
 <td align="left">Head length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1876,7 +2293,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">huang_amph, saproxylic</td>
 </tr>
 <tr class="odd">
-<td align="left">head_width</td>
+<td align="left"><code>head_width</code></td>
 <td align="left">Head width</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1884,7 +2301,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">huang_amph, saproxylic</td>
 </tr>
 <tr class="even">
-<td align="left">hindlimb_length</td>
+<td align="left"><code>hindlimb_length</code></td>
 <td align="left">Hindlimb length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1892,7 +2309,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">huang_amph</td>
 </tr>
 <tr class="odd">
-<td align="left">home_range</td>
+<td align="left"><code>home_range</code></td>
 <td align="left">Home range</td>
 <td align="left">numeric</td>
 <td align="left">km2</td>
@@ -1900,7 +2317,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">combine, homerange, pantheria</td>
 </tr>
 <tr class="even">
-<td align="left">huber_value</td>
+<td align="left"><code>huber_value</code></td>
 <td align="left">Huber value</td>
 <td align="left">numeric</td>
 <td align="left">index (m2/m2)</td>
@@ -1908,7 +2325,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">hydraulics, austraits</td>
 </tr>
 <tr class="odd">
-<td align="left">hunting_guild</td>
+<td align="left"><code>hunting_guild</code></td>
 <td align="left">Hunting guild (spider)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1916,7 +2333,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">spider_traits</td>
 </tr>
 <tr class="even">
-<td align="left">hydraulic_safety_margin</td>
+<td align="left"><code>hydraulic_safety_margin</code></td>
 <td align="left">Hydraulic safety margin</td>
 <td align="left">numeric</td>
 <td align="left">MPa</td>
@@ -1924,7 +2341,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">hydraulics</td>
 </tr>
 <tr class="odd">
-<td align="left">incubation_period</td>
+<td align="left"><code>incubation_period</code></td>
 <td align="left">Egg incubation period</td>
 <td align="left">numeric</td>
 <td align="left">days</td>
@@ -1932,7 +2349,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">amniote, chelonians</td>
 </tr>
 <tr class="even">
-<td align="left">interbirth_interval</td>
+<td align="left"><code>interbirth_interval</code></td>
 <td align="left">Interbirth or inter-litter interval</td>
 <td align="left">numeric</td>
 <td align="left">yr</td>
@@ -1940,7 +2357,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">pantheria, combine, amniote, anage</td>
 </tr>
 <tr class="odd">
-<td align="left">itd</td>
+<td align="left"><code>itd</code></td>
 <td align="left">Inter-tegular distance (bee body size)</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1948,7 +2365,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">bee_ostwald, eupolltrait</td>
 </tr>
 <tr class="even">
-<td align="left">kipps_distance</td>
+<td align="left"><code>kipps_distance</code></td>
 <td align="left">Kipp’s distance</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1956,7 +2373,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="odd">
-<td align="left">larval_development_mode</td>
+<td align="left"><code>larval_development_mode</code></td>
 <td align="left">Larval development mode</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1964,7 +2381,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">coral_traits</td>
 </tr>
 <tr class="even">
-<td align="left">larval_nutrition</td>
+<td align="left"><code>larval_nutrition</code></td>
 <td align="left">Larval nutrition (bee)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -1972,7 +2389,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">eupolltrait</td>
 </tr>
 <tr class="odd">
-<td align="left">ldmc</td>
+<td align="left"><code>ldmc</code></td>
 <td align="left">Leaf dry matter content</td>
 <td align="left">numeric</td>
 <td align="left">mg/g</td>
@@ -1980,7 +2397,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">leda, gift, brot, diaz_traits</td>
 </tr>
 <tr class="even">
-<td align="left">leaf_area</td>
+<td align="left"><code>leaf_area</code></td>
 <td align="left">Leaf area</td>
 <td align="left">numeric</td>
 <td align="left">mm2</td>
@@ -1988,7 +2405,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">austraits, bien, brot</td>
 </tr>
 <tr class="odd">
-<td align="left">leaf_length</td>
+<td align="left"><code>leaf_length</code></td>
 <td align="left">Leaf length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -1996,7 +2413,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">austraits</td>
 </tr>
 <tr class="even">
-<td align="left">leaf_lifespan</td>
+<td align="left"><code>leaf_lifespan</code></td>
 <td align="left">Leaf lifespan</td>
 <td align="left">numeric</td>
 <td align="left">months</td>
@@ -2004,7 +2421,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">austraits, brot, bien</td>
 </tr>
 <tr class="odd">
-<td align="left">leaf_n</td>
+<td align="left"><code>leaf_n</code></td>
 <td align="left">Leaf nitrogen per dry mass</td>
 <td align="left">numeric</td>
 <td align="left">mg/g</td>
@@ -2012,7 +2429,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">austraits, bien</td>
 </tr>
 <tr class="even">
-<td align="left">leaf_p</td>
+<td align="left"><code>leaf_p</code></td>
 <td align="left">Leaf phosphorus per dry mass</td>
 <td align="left">numeric</td>
 <td align="left">mg/g</td>
@@ -2020,7 +2437,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">austraits, bien</td>
 </tr>
 <tr class="odd">
-<td align="left">leaf_specific_conductivity</td>
+<td align="left"><code>leaf_specific_conductivity</code></td>
 <td align="left">Leaf specific hydraulic conductivity</td>
 <td align="left">numeric</td>
 <td align="left">kg m-1 s-1 MPa-1</td>
@@ -2028,7 +2445,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">hydraulics</td>
 </tr>
 <tr class="even">
-<td align="left">leaf_thickness</td>
+<td align="left"><code>leaf_thickness</code></td>
 <td align="left">Leaf thickness</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2036,7 +2453,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">bien, gift</td>
 </tr>
 <tr class="odd">
-<td align="left">leaf_type</td>
+<td align="left"><code>leaf_type</code></td>
 <td align="left">Leaf type</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2044,7 +2461,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">austraits, diaz_traits</td>
 </tr>
 <tr class="even">
-<td align="left">leaf_width</td>
+<td align="left"><code>leaf_width</code></td>
 <td align="left">Leaf width</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2052,7 +2469,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">austraits</td>
 </tr>
 <tr class="odd">
-<td align="left">lecty</td>
+<td align="left"><code>lecty</code></td>
 <td align="left">Pollen host breadth (bee lecty)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2060,7 +2477,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">eupolltrait</td>
 </tr>
 <tr class="even">
-<td align="left">lichen_growth_form</td>
+<td align="left"><code>lichen_growth_form</code></td>
 <td align="left">Lichen growth form (thallus)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2068,7 +2485,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">italic</td>
 </tr>
 <tr class="odd">
-<td align="left">life_form</td>
+<td align="left"><code>life_form</code></td>
 <td align="left">Raunkiaer life form</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2076,7 +2493,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">gift, ecoflora, floraweb</td>
 </tr>
 <tr class="even">
-<td align="left">life_history</td>
+<td align="left"><code>life_history</code></td>
 <td align="left">Life history</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2084,7 +2501,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">gift, austraits</td>
 </tr>
 <tr class="odd">
-<td align="left">linear_extension_rate</td>
+<td align="left"><code>linear_extension_rate</code></td>
 <td align="left">Coral linear extension rate</td>
 <td align="left">numeric</td>
 <td align="left">mm/yr</td>
@@ -2092,7 +2509,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">coral_traits</td>
 </tr>
 <tr class="even">
-<td align="left">living_habit</td>
+<td align="left"><code>living_habit</code></td>
 <td align="left">Living habit (benthic invertebrate)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2100,7 +2517,7 @@ arthropod_traits, chowdhury, finand</td>
 <td align="left">arctic_traits, nztd</td>
 </tr>
 <tr class="odd">
-<td align="left">longevity</td>
+<td align="left"><code>longevity</code></td>
 <td align="left">Maximum longevity</td>
 <td align="left">numeric</td>
 <td align="left">yr</td>
@@ -2109,7 +2526,7 @@ arthropod_traits, chowdhury, finand</td>
 chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 </tr>
 <tr class="even">
-<td align="left">male_maturity</td>
+<td align="left"><code>male_maturity</code></td>
 <td align="left">Age at male maturity</td>
 <td align="left">numeric</td>
 <td align="left">yr</td>
@@ -2117,7 +2534,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">anage, amniote, combine</td>
 </tr>
 <tr class="odd">
-<td align="left">marine</td>
+<td align="left"><code>marine</code></td>
 <td align="left">Marine habitat</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2125,7 +2542,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">sealifebase, combine, phylacine</td>
 </tr>
 <tr class="even">
-<td align="left">mate_guarding</td>
+<td align="left"><code>mate_guarding</code></td>
 <td align="left">Mate guarding (odonate)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2133,7 +2550,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">odonata</td>
 </tr>
 <tr class="odd">
-<td align="left">metabolic_rate</td>
+<td align="left"><code>metabolic_rate</code></td>
 <td align="left">Metabolic rate</td>
 <td align="left">numeric</td>
 <td align="left">W</td>
@@ -2141,7 +2558,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">anage, animaltraits</td>
 </tr>
 <tr class="even">
-<td align="left">migration</td>
+<td align="left"><code>migration</code></td>
 <td align="left">Migratory behaviour (bird)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2149,7 +2566,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="odd">
-<td align="left">min_water_potential</td>
+<td align="left"><code>min_water_potential</code></td>
 <td align="left">Minimum midday water potential</td>
 <td align="left">numeric</td>
 <td align="left">MPa</td>
@@ -2157,7 +2574,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">hydraulics</td>
 </tr>
 <tr class="even">
-<td align="left">motility</td>
+<td align="left"><code>motility</code></td>
 <td align="left">Motility (prokaryote)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2165,7 +2582,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">madin, bacdive</td>
 </tr>
 <tr class="odd">
-<td align="left">mouth_position</td>
+<td align="left"><code>mouth_position</code></td>
 <td align="left">Mouth position (fish)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2173,7 +2590,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">quimbayo</td>
 </tr>
 <tr class="even">
-<td align="left">mycorrhizal_type</td>
+<td align="left"><code>mycorrhizal_type</code></td>
 <td align="left">Mycorrhizal type</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2181,7 +2598,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">fungalroot</td>
 </tr>
 <tr class="odd">
-<td align="left">neonate_mass</td>
+<td align="left"><code>neonate_mass</code></td>
 <td align="left">Neonate body mass</td>
 <td align="left">numeric</td>
 <td align="left">g</td>
@@ -2189,7 +2606,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">amniote, combine, pantheria, anage</td>
 </tr>
 <tr class="even">
-<td align="left">nest_attachment</td>
+<td align="left"><code>nest_attachment</code></td>
 <td align="left">Nest attachment (birds)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2197,7 +2614,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">nesttrait</td>
 </tr>
 <tr class="odd">
-<td align="left">nest_site</td>
+<td align="left"><code>nest_site</code></td>
 <td align="left">Nest site (birds)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2205,7 +2622,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">nesttrait</td>
 </tr>
 <tr class="even">
-<td align="left">nest_structure</td>
+<td align="left"><code>nest_structure</code></td>
 <td align="left">Nest structure (birds)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2213,7 +2630,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">nesttrait</td>
 </tr>
 <tr class="odd">
-<td align="left">nesting_strategy</td>
+<td align="left"><code>nesting_strategy</code></td>
 <td align="left">Nesting strategy (bee)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2221,7 +2638,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">eupolltrait</td>
 </tr>
 <tr class="even">
-<td align="left">nitrogen_fixation</td>
+<td align="left"><code>nitrogen_fixation</code></td>
 <td align="left">Root-nodule nitrogen fixation</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2229,7 +2646,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">noddb</td>
 </tr>
 <tr class="odd">
-<td align="left">optimal_growth_ph</td>
+<td align="left"><code>optimal_growth_ph</code></td>
 <td align="left">Optimal growth pH (prokaryote)</td>
 <td align="left">numeric</td>
 <td align="left">pH</td>
@@ -2237,7 +2654,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">madin, bacdive</td>
 </tr>
 <tr class="even">
-<td align="left">optimal_growth_temperature</td>
+<td align="left"><code>optimal_growth_temperature</code></td>
 <td align="left">Optimal growth temperature (prokaryote)</td>
 <td align="left">numeric</td>
 <td align="left">deg C</td>
@@ -2245,7 +2662,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">madin, bacdive</td>
 </tr>
 <tr class="odd">
-<td align="left">oral_gape_position</td>
+<td align="left"><code>oral_gape_position</code></td>
 <td align="left">Oral gape position (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -2253,7 +2670,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="even">
-<td align="left">oxygen_metabolism</td>
+<td align="left"><code>oxygen_metabolism</code></td>
 <td align="left">Oxygen metabolism (prokaryote)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2261,7 +2678,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">madin, bacdive</td>
 </tr>
 <tr class="odd">
-<td align="left">p50</td>
+<td align="left"><code>p50</code></td>
 <td align="left">Xylem embolism resistance (P50)</td>
 <td align="left">numeric</td>
 <td align="left">MPa</td>
@@ -2269,7 +2686,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">hydraulics, austraits, brot</td>
 </tr>
 <tr class="even">
-<td align="left">parental_care</td>
+<td align="left"><code>parental_care</code></td>
 <td align="left">Parental care (fish)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2277,7 +2694,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">beukhof</td>
 </tr>
 <tr class="odd">
-<td align="left">pectoral_fin_position</td>
+<td align="left"><code>pectoral_fin_position</code></td>
 <td align="left">Pectoral fin position (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -2285,7 +2702,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="even">
-<td align="left">pectoral_fin_size</td>
+<td align="left"><code>pectoral_fin_size</code></td>
 <td align="left">Pectoral fin size (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -2293,7 +2710,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="odd">
-<td align="left">photobiont</td>
+<td align="left"><code>photobiont</code></td>
 <td align="left">Lichen photobiont</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2301,7 +2718,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">italic</td>
 </tr>
 <tr class="even">
-<td align="left">photosynthetic_pathway</td>
+<td align="left"><code>photosynthetic_pathway</code></td>
 <td align="left">Photosynthetic pathway</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2309,7 +2726,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">gift, austraits, ecoflora</td>
 </tr>
 <tr class="odd">
-<td align="left">plant_height</td>
+<td align="left"><code>plant_height</code></td>
 <td align="left">Plant height</td>
 <td align="left">numeric</td>
 <td align="left">m</td>
@@ -2317,7 +2734,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">gift, diaz, austraits, bien, brot</td>
 </tr>
 <tr class="even">
-<td align="left">plant_lifespan</td>
+<td align="left"><code>plant_lifespan</code></td>
 <td align="left">Whole-plant lifespan</td>
 <td align="left">numeric</td>
 <td align="left">yr</td>
@@ -2325,7 +2742,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">bien, gift, austraits</td>
 </tr>
 <tr class="odd">
-<td align="left">pollination_vector</td>
+<td align="left"><code>pollination_vector</code></td>
 <td align="left">Pollination vector</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2333,7 +2750,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">baseflor, ecoflora, floraweb, austraits</td>
 </tr>
 <tr class="even">
-<td align="left">polyp_retractability</td>
+<td align="left"><code>polyp_retractability</code></td>
 <td align="left">Polyp retractability</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2341,7 +2758,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">octocoral</td>
 </tr>
 <tr class="odd">
-<td align="left">population_density</td>
+<td align="left"><code>population_density</code></td>
 <td align="left">Population density</td>
 <td align="left">numeric</td>
 <td align="left">individuals/km2</td>
@@ -2349,7 +2766,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">pantheria, combine, tetradensity</td>
 </tr>
 <tr class="even">
-<td align="left">primary_habitat</td>
+<td align="left"><code>primary_habitat</code></td>
 <td align="left">Primary habitat</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2357,7 +2774,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">birdbase, chowdhury, finand</td>
 </tr>
 <tr class="odd">
-<td align="left">pronotum_length</td>
+<td align="left"><code>pronotum_length</code></td>
 <td align="left">Pronotum length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2365,7 +2782,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">saproxylic</td>
 </tr>
 <tr class="even">
-<td align="left">range_size</td>
+<td align="left"><code>range_size</code></td>
 <td align="left">Geographic range size</td>
 <td align="left">numeric</td>
 <td align="left">km2</td>
@@ -2373,7 +2790,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">avonet, chelonians, coral_traits</td>
 </tr>
 <tr class="odd">
-<td align="left">relative_eye_size</td>
+<td align="left"><code>relative_eye_size</code></td>
 <td align="left">Relative eye size (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -2381,7 +2798,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="even">
-<td align="left">relative_maxillary_length</td>
+<td align="left"><code>relative_maxillary_length</code></td>
 <td align="left">Relative maxillary length (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -2389,7 +2806,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="odd">
-<td align="left">reproductive_frequency</td>
+<td align="left"><code>reproductive_frequency</code></td>
 <td align="left">Litters or clutches per year</td>
 <td align="left">numeric</td>
 <td align="left">per year</td>
@@ -2398,7 +2815,7 @@ chelonians, amphibio, beukhof, fishtraits, eurobat, sheld</td>
 chelonians</td>
 </tr>
 <tr class="even">
-<td align="left">reproductive_mode</td>
+<td align="left"><code>reproductive_mode</code></td>
 <td align="left">Reproductive (parity) mode</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2406,7 +2823,7 @@ chelonians</td>
 <td align="left">repttraits, sharkipedia</td>
 </tr>
 <tr class="odd">
-<td align="left">reproductive_strategy</td>
+<td align="left"><code>reproductive_strategy</code></td>
 <td align="left">Reproductive strategy (sexual / asexual)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2414,7 +2831,7 @@ chelonians</td>
 <td align="left">italic</td>
 </tr>
 <tr class="even">
-<td align="left">resprouting</td>
+<td align="left"><code>resprouting</code></td>
 <td align="left">Resprouting after fire</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2422,7 +2839,7 @@ chelonians</td>
 <td align="left">austraits, brot</td>
 </tr>
 <tr class="odd">
-<td align="left">root_diameter</td>
+<td align="left"><code>root_diameter</code></td>
 <td align="left">Root diameter</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2430,7 +2847,7 @@ chelonians</td>
 <td align="left">groot, austraits</td>
 </tr>
 <tr class="even">
-<td align="left">root_dry_matter_content</td>
+<td align="left"><code>root_dry_matter_content</code></td>
 <td align="left">Root dry matter content</td>
 <td align="left">numeric</td>
 <td align="left">g/g</td>
@@ -2438,7 +2855,7 @@ chelonians</td>
 <td align="left">groot, austraits</td>
 </tr>
 <tr class="odd">
-<td align="left">root_mass_fraction</td>
+<td align="left"><code>root_mass_fraction</code></td>
 <td align="left">Root mass fraction</td>
 <td align="left">numeric</td>
 <td align="left">g/g</td>
@@ -2446,7 +2863,7 @@ chelonians</td>
 <td align="left">groot, austraits</td>
 </tr>
 <tr class="even">
-<td align="left">root_mycorrhizal_colonization</td>
+<td align="left"><code>root_mycorrhizal_colonization</code></td>
 <td align="left">Root mycorrhizal colonization</td>
 <td align="left">numeric</td>
 <td align="left">percent</td>
@@ -2454,7 +2871,7 @@ chelonians</td>
 <td align="left">groot</td>
 </tr>
 <tr class="odd">
-<td align="left">root_n_concentration</td>
+<td align="left"><code>root_n_concentration</code></td>
 <td align="left">Root nitrogen concentration</td>
 <td align="left">numeric</td>
 <td align="left">mg/g</td>
@@ -2462,7 +2879,7 @@ chelonians</td>
 <td align="left">groot, austraits</td>
 </tr>
 <tr class="even">
-<td align="left">root_tissue_density</td>
+<td align="left"><code>root_tissue_density</code></td>
 <td align="left">Root tissue density</td>
 <td align="left">numeric</td>
 <td align="left">g/cm3</td>
@@ -2470,7 +2887,7 @@ chelonians</td>
 <td align="left">groot</td>
 </tr>
 <tr class="odd">
-<td align="left">rooting_depth</td>
+<td align="left"><code>rooting_depth</code></td>
 <td align="left">Rooting depth</td>
 <td align="left">numeric</td>
 <td align="left">m</td>
@@ -2478,7 +2895,7 @@ chelonians</td>
 <td align="left">groot, brot</td>
 </tr>
 <tr class="even">
-<td align="left">sapwood_conductivity</td>
+<td align="left"><code>sapwood_conductivity</code></td>
 <td align="left">Sapwood specific hydraulic conductivity</td>
 <td align="left">numeric</td>
 <td align="left">kg m-1 s-1 MPa-1</td>
@@ -2486,7 +2903,7 @@ chelonians</td>
 <td align="left">hydraulics, austraits</td>
 </tr>
 <tr class="odd">
-<td align="left">secondary1</td>
+<td align="left"><code>secondary1</code></td>
 <td align="left">First-secondary length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2494,7 +2911,7 @@ chelonians</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="even">
-<td align="left">seed_length</td>
+<td align="left"><code>seed_length</code></td>
 <td align="left">Seed length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2502,7 +2919,7 @@ chelonians</td>
 <td align="left">austraits, leda, gift, bien</td>
 </tr>
 <tr class="odd">
-<td align="left">seed_mass</td>
+<td align="left"><code>seed_mass</code></td>
 <td align="left">Seed mass</td>
 <td align="left">numeric</td>
 <td align="left">mg</td>
@@ -2511,7 +2928,7 @@ chelonians</td>
 leda</td>
 </tr>
 <tr class="even">
-<td align="left">self_compatibility</td>
+<td align="left"><code>self_compatibility</code></td>
 <td align="left">Self-compatibility</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2519,7 +2936,7 @@ leda</td>
 <td align="left">tree_of_sex</td>
 </tr>
 <tr class="odd">
-<td align="left">serotiny</td>
+<td align="left"><code>serotiny</code></td>
 <td align="left">Serotiny</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2527,7 +2944,7 @@ leda</td>
 <td align="left">austraits</td>
 </tr>
 <tr class="even">
-<td align="left">sexual_system</td>
+<td align="left"><code>sexual_system</code></td>
 <td align="left">Sexual system</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2536,7 +2953,7 @@ leda</td>
 sheld</td>
 </tr>
 <tr class="odd">
-<td align="left">shoot_length</td>
+<td align="left"><code>shoot_length</code></td>
 <td align="left">Shoot length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2544,7 +2961,7 @@ sheld</td>
 <td align="left">bet</td>
 </tr>
 <tr class="even">
-<td align="left">skeletal_rigidity</td>
+<td align="left"><code>skeletal_rigidity</code></td>
 <td align="left">Skeletal rigidity (octocoral)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2552,7 +2969,7 @@ sheld</td>
 <td align="left">octocoral</td>
 </tr>
 <tr class="odd">
-<td align="left">sla</td>
+<td align="left"><code>sla</code></td>
 <td align="left">Specific leaf area</td>
 <td align="left">numeric</td>
 <td align="left">mm2/mg</td>
@@ -2560,7 +2977,7 @@ sheld</td>
 <td align="left">leda, gift, bien, brot</td>
 </tr>
 <tr class="even">
-<td align="left">sociality</td>
+<td align="left"><code>sociality</code></td>
 <td align="left">Sociality (bee)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2568,7 +2985,7 @@ sheld</td>
 <td align="left">eupolltrait</td>
 </tr>
 <tr class="odd">
-<td align="left">socioeconomic_impact</td>
+<td align="left"><code>socioeconomic_impact</code></td>
 <td align="left">Socio-economic impact (SEICAT)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2576,7 +2993,7 @@ sheld</td>
 <td align="left">gidias</td>
 </tr>
 <tr class="even">
-<td align="left">soil_seed_bank</td>
+<td align="left"><code>soil_seed_bank</code></td>
 <td align="left">Soil seed-bank persistence</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2584,7 +3001,7 @@ sheld</td>
 <td align="left">austraits, brot</td>
 </tr>
 <tr class="odd">
-<td align="left">specific_root_area</td>
+<td align="left"><code>specific_root_area</code></td>
 <td align="left">Specific root area</td>
 <td align="left">numeric</td>
 <td align="left">cm2/g</td>
@@ -2592,7 +3009,7 @@ sheld</td>
 <td align="left">groot</td>
 </tr>
 <tr class="even">
-<td align="left">specific_root_length</td>
+<td align="left"><code>specific_root_length</code></td>
 <td align="left">Specific root length</td>
 <td align="left">numeric</td>
 <td align="left">m/g</td>
@@ -2600,7 +3017,7 @@ sheld</td>
 <td align="left">groot, austraits</td>
 </tr>
 <tr class="odd">
-<td align="left">spore_diameter</td>
+<td align="left"><code>spore_diameter</code></td>
 <td align="left">Spore diameter</td>
 <td align="left">numeric</td>
 <td align="left">um</td>
@@ -2608,7 +3025,7 @@ sheld</td>
 <td align="left">bet</td>
 </tr>
 <tr class="even">
-<td align="left">sporulation</td>
+<td align="left"><code>sporulation</code></td>
 <td align="left">Sporulation (prokaryote)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2616,7 +3033,7 @@ sheld</td>
 <td align="left">madin</td>
 </tr>
 <tr class="odd">
-<td align="left">substrate</td>
+<td align="left"><code>substrate</code></td>
 <td align="left">Substrate</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2624,7 +3041,7 @@ sheld</td>
 <td align="left">italic, bet</td>
 </tr>
 <tr class="even">
-<td align="left">substrate_attachment</td>
+<td align="left"><code>substrate_attachment</code></td>
 <td align="left">Substrate attachment</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2632,7 +3049,7 @@ sheld</td>
 <td align="left">coral_traits</td>
 </tr>
 <tr class="odd">
-<td align="left">tail_length</td>
+<td align="left"><code>tail_length</code></td>
 <td align="left">Tail length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2640,7 +3057,7 @@ sheld</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="even">
-<td align="left">tarsus_length</td>
+<td align="left"><code>tarsus_length</code></td>
 <td align="left">Tarsus length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2648,7 +3065,7 @@ sheld</td>
 <td align="left">avonet</td>
 </tr>
 <tr class="odd">
-<td align="left">teat_number</td>
+<td align="left"><code>teat_number</code></td>
 <td align="left">Teat or nipple number</td>
 <td align="left">numeric</td>
 <td align="left">count</td>
@@ -2656,7 +3073,7 @@ sheld</td>
 <td align="left">pantheria, combine</td>
 </tr>
 <tr class="even">
-<td align="left">territoriality</td>
+<td align="left"><code>territoriality</code></td>
 <td align="left">Territoriality (odonate)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2664,7 +3081,7 @@ sheld</td>
 <td align="left">odonata</td>
 </tr>
 <tr class="odd">
-<td align="left">thermal_max</td>
+<td align="left"><code>thermal_max</code></td>
 <td align="left">Upper thermal limit</td>
 <td align="left">numeric</td>
 <td align="left">deg C</td>
@@ -2672,7 +3089,7 @@ sheld</td>
 <td align="left">globtherm, pottier, thermofresh</td>
 </tr>
 <tr class="even">
-<td align="left">thermal_min</td>
+<td align="left"><code>thermal_min</code></td>
 <td align="left">Lower thermal limit</td>
 <td align="left">numeric</td>
 <td align="left">deg C</td>
@@ -2680,7 +3097,7 @@ sheld</td>
 <td align="left">globtherm, thermofresh</td>
 </tr>
 <tr class="odd">
-<td align="left">tongue_length</td>
+<td align="left"><code>tongue_length</code></td>
 <td align="left">Tongue length (bee)</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2688,7 +3105,7 @@ sheld</td>
 <td align="left">bee_ostwald, eupolltrait</td>
 </tr>
 <tr class="even">
-<td align="left">trophic_level</td>
+<td align="left"><code>trophic_level</code></td>
 <td align="left">Trophic level</td>
 <td align="left">numeric</td>
 <td align="left">trophic level (~1-5)</td>
@@ -2697,7 +3114,7 @@ sheld</td>
 sealifebase</td>
 </tr>
 <tr class="odd">
-<td align="left">turgor_loss_point</td>
+<td align="left"><code>turgor_loss_point</code></td>
 <td align="left">Leaf turgor loss point</td>
 <td align="left">numeric</td>
 <td align="left">MPa</td>
@@ -2705,7 +3122,7 @@ sealifebase</td>
 <td align="left">austraits</td>
 </tr>
 <tr class="even">
-<td align="left">venomous</td>
+<td align="left"><code>venomous</code></td>
 <td align="left">Venomous (reptile)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2713,7 +3130,7 @@ sealifebase</td>
 <td align="left">repttraits</td>
 </tr>
 <tr class="odd">
-<td align="left">vertical_eye_position</td>
+<td align="left"><code>vertical_eye_position</code></td>
 <td align="left">Vertical eye position (fish)</td>
 <td align="left">numeric</td>
 <td align="left">index</td>
@@ -2721,7 +3138,7 @@ sealifebase</td>
 <td align="left">fishmorph</td>
 </tr>
 <tr class="even">
-<td align="left">voltinism</td>
+<td align="left"><code>voltinism</code></td>
 <td align="left">Voltinism (generations per year)</td>
 <td align="left">numeric</td>
 <td align="left">per year</td>
@@ -2729,7 +3146,7 @@ sealifebase</td>
 <td align="left">arthropod_traits, eupolltrait</td>
 </tr>
 <tr class="odd">
-<td align="left">von_bertalanffy_k</td>
+<td align="left"><code>von_bertalanffy_k</code></td>
 <td align="left">Von Bertalanffy growth coefficient (K)</td>
 <td align="left">numeric</td>
 <td align="left">per yr</td>
@@ -2737,7 +3154,7 @@ sealifebase</td>
 <td align="left">beukhof, sharkipedia</td>
 </tr>
 <tr class="even">
-<td align="left">von_bertalanffy_linf</td>
+<td align="left"><code>von_bertalanffy_linf</code></td>
 <td align="left">Von Bertalanffy asymptotic length (Linf)</td>
 <td align="left">numeric</td>
 <td align="left">cm</td>
@@ -2745,7 +3162,7 @@ sealifebase</td>
 <td align="left">beukhof, sharkipedia</td>
 </tr>
 <tr class="odd">
-<td align="left">vulnerability</td>
+<td align="left"><code>vulnerability</code></td>
 <td align="left">Vulnerability to fishing</td>
 <td align="left">numeric</td>
 <td align="left">0-100 index</td>
@@ -2753,7 +3170,7 @@ sealifebase</td>
 <td align="left">fishbase, sealifebase, quimbayo</td>
 </tr>
 <tr class="even">
-<td align="left">water_clarity</td>
+<td align="left"><code>water_clarity</code></td>
 <td align="left">Water clarity preference</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2761,7 +3178,7 @@ sealifebase</td>
 <td align="left">coral_traits, octocoral</td>
 </tr>
 <tr class="odd">
-<td align="left">wave_exposure</td>
+<td align="left"><code>wave_exposure</code></td>
 <td align="left">Wave exposure preference</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2769,7 +3186,7 @@ sealifebase</td>
 <td align="left">coral_traits, octocoral</td>
 </tr>
 <tr class="even">
-<td align="left">weaning_age</td>
+<td align="left"><code>weaning_age</code></td>
 <td align="left">Weaning age</td>
 <td align="left">numeric</td>
 <td align="left">days</td>
@@ -2777,7 +3194,7 @@ sealifebase</td>
 <td align="left">amniote, anage, pantheria</td>
 </tr>
 <tr class="odd">
-<td align="left">web_building</td>
+<td align="left"><code>web_building</code></td>
 <td align="left">Web building (spider)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2785,7 +3202,7 @@ sealifebase</td>
 <td align="left">spider_traits</td>
 </tr>
 <tr class="even">
-<td align="left">wing_length</td>
+<td align="left"><code>wing_length</code></td>
 <td align="left">Wing length</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2793,7 +3210,7 @@ sealifebase</td>
 <td align="left">avonet, saproxylic</td>
 </tr>
 <tr class="odd">
-<td align="left">wing_morph</td>
+<td align="left"><code>wing_morph</code></td>
 <td align="left">Wing morphology</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2801,7 +3218,7 @@ sealifebase</td>
 <td align="left">chowdhury, finand, alpine_carabids</td>
 </tr>
 <tr class="even">
-<td align="left">wingspan</td>
+<td align="left"><code>wingspan</code></td>
 <td align="left">Wingspan (butterfly)</td>
 <td align="left">numeric</td>
 <td align="left">mm</td>
@@ -2809,7 +3226,7 @@ sealifebase</td>
 <td align="left">leptraits</td>
 </tr>
 <tr class="odd">
-<td align="left">wood_density</td>
+<td align="left"><code>wood_density</code></td>
 <td align="left">Wood density</td>
 <td align="left">numeric</td>
 <td align="left">g/cm3</td>
@@ -2817,7 +3234,7 @@ sealifebase</td>
 <td align="left">gwdd, austraits, bien, gift, leda</td>
 </tr>
 <tr class="even">
-<td align="left">woodiness</td>
+<td align="left"><code>woodiness</code></td>
 <td align="left">Woodiness</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>
@@ -2825,7 +3242,7 @@ sealifebase</td>
 <td align="left">zanne, gift, austraits, bien</td>
 </tr>
 <tr class="odd">
-<td align="left">zooxanthellate</td>
+<td align="left"><code>zooxanthellate</code></td>
 <td align="left">Zooxanthellate symbiosis (coral)</td>
 <td align="left">categorical</td>
 <td align="left">NA</td>

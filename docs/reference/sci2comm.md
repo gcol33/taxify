@@ -10,9 +10,9 @@ Where
 attaches vernaculars to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result as columns, `sci2comm()` takes bare names and returns the long
-lookup table – one row per (name, vernacular). A name maps to many
-common names (across languages and synonyms), so a query can carry
-several rows.
+lookup table, one row per (name, vernacular). A name maps to many common
+names (across languages and synonyms), so a query can carry several
+rows.
 
 ## Usage
 
@@ -79,6 +79,13 @@ A data.frame with one row per (query, vernacular):
 - lang:
 
   Language tag (`NA` for NCBI/Open Tree).
+
+- name_rank:
+
+  Rank of the name among the taxon's names in that language, 1 being the
+  one most source records give (the name
+  [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
+  reports).
 
 A query with no vernacular contributes no rows.
 

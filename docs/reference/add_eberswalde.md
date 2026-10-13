@@ -44,8 +44,8 @@ Source: Weiss, von Wehrden & Linde (2024), 27 species pitfall-trapped on
 the data confirm: over the 19 species shared with
 [`add_chowdhury()`](https://gillescolling.com/taxify/reference/add_chowdhury.md)
 every size is exactly equal and every wing class agrees. They are
-surfaced here because a door should show what its source carries, and
-they are kept out of
+surfaced here because each `add_<source>()` function shows what its
+source carries, and they are kept out of
 [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md),
 where they would double-count one lineage.
 

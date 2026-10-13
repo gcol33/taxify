@@ -5,13 +5,18 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Working with large species lists • taxify</title>
+<title>Matching large lists • taxify</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Working with large species lists">
+<meta property="og:title" content="Matching large lists">
 <script>
 (function () {
   var D = String.fromCharCode(36);
@@ -35,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,32 +49,31 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Getting started</h6></li>
-    <li><a class="dropdown-item" href="../articles/quickstart.html">Getting started with taxify</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Migrating from taxize, WorldFlora, and related tools</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Databases</h6></li>
-    <li><a class="dropdown-item" href="../articles/databases.html">Databases: every backbone, enrichment, and trait</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Core features</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
-    <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">Fuzzy matching: methods, thresholds, and tuning</a></li>
-    <li><a class="dropdown-item" href="../articles/regions.html">Constraining matches to a geographic region</a></li>
-    <li><a class="dropdown-item" href="../articles/enrichments.html">Enriching results with trait and status data</a></li>
-    <li><a class="dropdown-item" href="../articles/custom-data.html">Joining custom data with add_data()</a></li>
+    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
+    <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
+    <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-data.html">Joining your own data</a></li>
+    <li><a class="dropdown-item" href="../articles/exploring.html">Exploring the backbone</a></li>
     <li><a class="dropdown-item" href="../articles/gbif-requests.html">Requesting GBIF data for a species list</a></li>
+    <li><a class="dropdown-item" href="../articles/vegetation-units.html">Matching vegetation units</a></li>
+    <li><a class="dropdown-item" href="../articles/large-scale.html">Matching large lists</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Special topics</h6></li>
-    <li><a class="dropdown-item" href="../articles/inspecting-names.html">Inspecting a name list with inspect()</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Background</h6></li>
+    <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
-    <li><a class="dropdown-item" href="../articles/large-scale.html">Working with large species lists</a></li>
+    <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -96,8 +100,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Working with large species lists</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Matching large lists</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/vignettes/large-scale.Rmd" class="external-link"><code>vignettes/large-scale.Rmd</code></a></small>
@@ -106,968 +109,245 @@
 
     
     
-<p>This vignette shows how to tune a taxify workflow for speed, memory
-and disk use when the list runs from a few hundred names to a few
-hundred thousand. The underlying engine (vectra) stores backbone
-databases in a columnar binary format (.vtr) that supports memory-mapped
-access, hash-indexed lookups, and OpenMP-parallel fuzzy joins. None of
-this requires special configuration, but knowing how the pieces fit
-together helps at scale. The worked examples cover exact vs. fuzzy
-matching, multi-backbone fallback ordering, batch processing of very
-large lists, and pre-downloading resources before a batch run; the
-sections after them describe the internals, measured sizes and memory
-costs, and timing guidance by list size.</p>
+<p>This article shows how long <code><a href="../reference/taxify.html">taxify()</a></code> takes on lists from
+a thousand to a hundred thousand names, how much memory a backbone
+takes, and how to run a list too long for one call in parts that can
+resume after an interruption. Installation is covered in <a href="taxify.html">Get started</a>.</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>Choose</strong> exact-only or fuzzy matching with the
-<code>fuzzy</code> and <code>fuzzy_threshold</code> arguments of
-<code><a href="../reference/taxify.html">taxify()</a></code>.</li>
-<li>
-<strong>Order</strong> the backbones in <code>backbone</code> so the
-one covering the dominant taxon group comes first.</li>
-<li>
-<strong>Chunk</strong> very large lists and write each chunk’s
-result to disk.</li>
-<li>
-<strong>Pre-download</strong> backbones and enrichments with
-<code><a href="../reference/taxify_download.html">taxify_download()</a></code> and
-<code><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment()</a></code>.</li>
-<li>
-<strong>Free</strong> memory between phases with
-<code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code>.</li>
+<li><p><strong>Turn off</strong> fuzzy matching for checked lists with
+<code>fuzzy = FALSE</code>, or run it on the unmatched names
+only.</p></li>
+<li><p><strong>Order</strong> the backbones so the one that resolves
+most names comes first.</p></li>
+<li><p><strong>Split</strong> a very long list into parts and write each
+result to disk.</p></li>
+<li><p><strong>Download</strong> backbones and datasets before a run,
+and free memory after it.</p></li>
 </ol>
-<div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"taxify"</span><span class="op">)</span></span></code></pre></div>
-<p>Or the development version from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span>          <span class="co"># vectra is installed automatically</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="how-long-matching-takes">How long matching takes<a class="anchor" aria-label="anchor" href="#how-long-matching-takes"></a>
+</h2>
+<p><code>scripts/benchmark-scale.R</code> in the taxify repository
+matches lists of accepted species names drawn from World Flora Online
+(WFO), as they are and with one letter changed in every tenth name. Each
+list runs in a new R session, after one call that loads the backbone.
+The run recorded in <code>scripts/benchmark-scale-results.json</code>
+used taxify 0.7.0 and vectra 0.13.0 under R 4.6.0, on Intel(R) Core(TM)
+i9-14900K with 32 logical cores, on 2026-10-13:</p>
+<table class="table">
+<thead><tr class="header">
+<th align="right">Names</th>
+<th align="right">All spelt correctly (s)</th>
+<th align="right">One in ten misspelt (s)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">1,000</td>
+<td align="right">0.9</td>
+<td align="right">3.3</td>
+</tr>
+<tr class="even">
+<td align="right">10,000</td>
+<td align="right">1.8</td>
+<td align="right">11.1</td>
+</tr>
+<tr class="odd">
+<td align="right">100,000</td>
+<td align="right">14.1</td>
+<td align="right">36.8</td>
+</tr>
+</tbody>
+</table>
+<p>Loading the backbone took about 2.1 s and is paid once per session;
+every later call reuses it. A misspelt name costs more than a correct
+one, because it goes through fuzzy matching after every exact stage has
+missed it.</p>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="lists-that-need-no-fuzzy-matching">Lists that need no fuzzy matching<a class="anchor" aria-label="anchor" href="#lists-that-need-no-fuzzy-matching"></a>
 </h2>
+<p>A list taken from a curated database or from an earlier taxify run is
+spelt as the backbone spells it. <code>fuzzy = FALSE</code> skips fuzzy
+matching, and the names that find no exact match come back as
+<code>none</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">checked</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span>, <span class="st">"Betula pendula"</span>,</span>
+<span>             <span class="st">"Pinus sylvestris"</span>, <span class="st">"Acer pseudoplatanus"</span>, <span class="st">"Qurecus petraea"</span><span class="op">)</span></span>
+<span><span class="va">exact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">checked</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">exact</span><span class="op">$</span><span class="va">match_type</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; exact  none </span></span>
+<span><span class="co">#&gt;     5     1</span></span></code></pre></div>
+<p>For a list with some misspellings, the fuzzy stage can run on the
+unmatched names alone, and the results are joined back by input
+name:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="exact-vs--fuzzy-matching">Exact vs. fuzzy matching<a class="anchor" aria-label="anchor" href="#exact-vs--fuzzy-matching"></a>
-</h3>
-<p>The simplest performance lever is the <code>fuzzy</code> argument.
-When input names are clean (e.g., names from a curated database, an
-existing taxonomic checklist, or the output of a previous taxify run),
-disabling fuzzy matching skips the string-distance computation
-entirely.</p>
-<p>Consider a list of 10,000 plant names extracted from an herbarium
-database where names are already in standard binomial form. We time both
-modes:</p>
+<code class="sourceCode R"><span><span class="va">missed</span> <span class="op">&lt;-</span> <span class="va">exact</span><span class="op">$</span><span class="va">input_name</span><span class="op">[</span><span class="va">exact</span><span class="op">$</span><span class="va">match_type</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">]</span></span>
+<span><span class="va">second</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">missed</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">second</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"matched_name"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;        input_name    matched_name match_type</span></span>
+<span><span class="co">#&gt; 1 Qurecus petraea Quercus petraea      fuzzy</span></span>
+<span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
+<p>The backbone stays loaded between the two calls, so the second one
+does not load it again.</p>
+</div>
+<div class="section level2">
+<h2 id="ordering-the-backbones">Ordering the backbones<a class="anchor" aria-label="anchor" href="#ordering-the-backbones"></a>
+</h2>
+<p>In a fallback chain, the first backbone receives every name and each
+later one only the names still unmatched. A chain that leads with the
+backbone holding most of the list sends fewer names to the others, and a
+smaller backbone is faster to search. The sizes:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Assume `species_list` is a character vector of 10,000 plant names</span></span>
-<span></span>
-<span><span class="co"># Exact + fuzzy (default)</span></span>
-<span><span class="va">t_fuzzy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">result_fuzzy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Exact only</span></span>
-<span><span class="va">t_exact</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">result_exact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">t_fuzzy</span><span class="op">[</span><span class="st">"elapsed"</span><span class="op">]</span></span>
-<span><span class="va">t_exact</span><span class="op">[</span><span class="st">"elapsed"</span><span class="op">]</span></span></code></pre></div>
-<p>The timings depend on the list and the machine, so run the pair on
-the target data; <code>scripts/benchmark-worldflora.R</code> in the
-taxify repository is the measured reference. The shape is consistent:
-the exact-only run is roughly an order of magnitude faster. The exact
-pass matches most names on the first try through its five passes
-(described under <a href="#how-taxify-scales">How taxify scales</a>).
-Fuzzy matching picks up the remaining names with minor misspellings, at
-a cost that scales with the number of unmatched names times the average
-genus size in the backbone.</p>
-<p>The ratio between the two modes depends on input quality. For a list
-of names extracted from a curated database (GBIF occurrence records, a
-published checklist, or a previous taxify run), the exact pass resolves
-95-99% of names and the fuzzy pass adds very little. For OCR-transcribed
-herbarium labels or citizen science data with frequent misspellings, the
-exact pass might resolve only 70-80% and the fuzzy pass becomes
-essential.</p>
-<p>A practical two-pass pattern for large lists: run exact-only first,
-inspect the unmatched names, and decide whether the fuzzy pass is worth
-the time.</p>
+<code class="sourceCode R"><span><span class="va">bb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/list_backbones.html">list_backbones</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">bb</span> <span class="op">&lt;-</span> <span class="va">bb</span><span class="op">[</span><span class="va">bb</span><span class="op">$</span><span class="va">code</span> <span class="op">==</span> <span class="st">"taxon"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span>, <span class="st">"n_names"</span>, <span class="st">"size_mb"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">bb</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">bb</span><span class="op">$</span><span class="va">n_names</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;           name n_names size_mb</span></span>
+<span><span class="co">#&gt; 18     avilist   40572       8</span></span>
+<span><span class="co">#&gt; 19        lpsn   44885      12</span></span>
+<span><span class="co">#&gt; 14   reptiledb   50043       9</span></span>
+<span><span class="co">#&gt; 17         mdd   61862      10</span></span>
+<span><span class="co">#&gt; 12    fishbase  102703      18</span></span>
+<span><span class="co">#&gt; 13 sealifebase  134031      27</span></span>
+<span><span class="co">#&gt; 9      euromed  146922      33</span></span>
+<span><span class="co">#&gt; 11   algaebase  172351      34</span></span>
+<span><span class="co">#&gt; 10    fungorum  315037      68</span></span>
+<span><span class="co">#&gt; 5         itis 1000552     197</span></span>
+<span><span class="co">#&gt; 15        lcvp 1337891     241</span></span>
+<span><span class="co">#&gt; 16        wcvp 1448984     326</span></span>
+<span><span class="co">#&gt; 8        worms 1565652     290</span></span>
+<span><span class="co">#&gt; 1          wfo 1664014     785</span></span>
+<span><span class="co">#&gt; 6         ncbi 2952424     524</span></span>
+<span><span class="co">#&gt; 7          ott 3690217     728</span></span>
+<span><span class="co">#&gt; 2          col 5432444    1997</span></span>
+<span><span class="co">#&gt; 4         gbif 6404001    1622</span></span>
+<span><span class="co">#&gt; 3        colxr 8479599    1393</span></span></code></pre></div>
+<p>The order also decides the accepted name of a name both backbones
+hold, as described in <a href="backbones.html">Choosing and combining
+backbones</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="long-lists-in-parts">Long lists in parts<a class="anchor" aria-label="anchor" href="#long-lists-in-parts"></a>
+</h2>
+<p>A single call matches a list of any length, and loses everything if
+the session ends during the run. Splitting the list into parts and
+writing each result to disk lets a run resume from the last finished
+part. The example uses a short list and parts of three names, written to
+a temporary directory; a real run uses parts of tens of thousands:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Pass 1: exact only</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">all_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">checked</span>, <span class="st">"Fraxinus excelsior"</span>, <span class="st">"Tilia cordata"</span>,</span>
+<span>               <span class="st">"Sorbus aucuparia"</span><span class="op">)</span></span>
+<span><span class="va">parts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">all_names</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">all_names</span><span class="op">)</span> <span class="op">/</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"taxify-parts"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">out_dir</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># How many names remain unmatched?</span></span>
-<span><span class="va">n_unmatched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">match_type</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="va">n_unmatched</span>, <span class="st">" names unmatched after exact pass"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Pass 2: fuzzy only on the unmatched subset</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">n_unmatched</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">unmatched_names</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">$</span><span class="va">input_name</span><span class="op">[</span><span class="va">result</span><span class="op">$</span><span class="va">match_type</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">]</span></span>
-<span>  <span class="va">fuzzy_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">unmatched_names</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="co"># Merge back</span></span>
-<span>  <span class="va">matched_rows</span> <span class="op">&lt;-</span> <span class="va">fuzzy_result</span><span class="op">$</span><span class="va">match_type</span> <span class="op">!=</span> <span class="st">"none"</span></span>
-<span>  <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">fuzzy_result</span><span class="op">$</span><span class="va">input_name</span><span class="op">[</span><span class="va">matched_rows</span><span class="op">]</span>,</span>
-<span>               <span class="va">result</span><span class="op">$</span><span class="va">input_name</span><span class="op">)</span></span>
-<span>  <span class="va">result</span><span class="op">[</span><span class="va">idx</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">fuzzy_result</span><span class="op">[</span><span class="va">matched_rows</span>, <span class="op">]</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>This pattern is especially useful when only 1-5% of names need fuzzy
-matching. The exact pass finishes in seconds even for 100,000 names, and
-the fuzzy pass operates on a much smaller subset. The total wall time is
-often less than half of what a single <code>fuzzy = TRUE</code> call
-would take, because the fuzzy engine does not need to allocate working
-memory or build query tables for the names that already matched
-exactly.</p>
-<p>The second call to <code><a href="../reference/taxify.html">taxify()</a></code> does not re-materialize the
-backbone. The session cache from the first call is still active, so the
-fuzzy-only pass starts immediately with the string-distance computation,
-and splitting the work into two calls carries no penalty.</p>
-</div>
-<div class="section level3">
-<h3 id="multi-backbone-fallback-ordering">Multi-backbone fallback ordering<a class="anchor" aria-label="anchor" href="#multi-backbone-fallback-ordering"></a>
-</h3>
-<p>When <code><a href="../reference/taxify.html">taxify()</a></code> receives multiple backbones, it processes
-them as a sequential fallback chain. Names matched by an earlier
-backbone are excluded from later ones. The order matters for
-performance: the first backbone sees all names, the second sees only
-those that failed, and so on.</p>
-<p>Suppose we have a mixed-kingdom species list from a freshwater
-ecology survey: mostly aquatic plants, some fish, a handful of
-invertebrates. WFO covers the plants, COL covers everything but is
-larger and slower to search. Putting WFO first means the plant names
-(the majority) are resolved quickly, and only the animal names fall
-through to COL.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 8,000 names: ~6,000 plants, ~1,500 fish, ~500 invertebrates</span></span>
-<span><span class="va">t_wfo_first</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">result_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey_names</span>,</span>
-<span>                     backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span>,</span>
-<span>                     fuzzy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">t_wfo_first</span><span class="op">[</span><span class="st">"elapsed"</span><span class="op">]</span></span>
-<span></span>
-<span><span class="co"># Reversed order: COL first, WFO second</span></span>
-<span><span class="va">t_col_first</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">result_b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey_names</span>,</span>
-<span>                     backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"wfo"</span><span class="op">)</span>,</span>
-<span>                     fuzzy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">t_col_first</span><span class="op">[</span><span class="st">"elapsed"</span><span class="op">]</span></span></code></pre></div>
-<p>WFO first is faster, because WFO’s smaller backbone (1.6 million
-rows) resolves most of the list before COL’s larger one (5.3 million
-rows) is ever touched. The saving comes from two sources: the exact pass
-against WFO is faster (smaller hash table), and the fuzzy pass against
-COL runs on 2,000 names instead of 8,000. Since fuzzy matching cost
-scales linearly with the number of unmatched names, resolving 6,000
-names via WFO’s fast exact pass eliminates the need for 6,000 fuzzy
-comparisons against COL’s much larger genus blocks. The order also
-decides the answer for names both backbones hold: the accepted name
-comes from the first backbone that matched, so where WFO and COL treat a
-plant differently, <code>result_a</code> and <code>result_b</code>
-report different accepted names.</p>
-<p>The <code>backbone</code> column in the output records which backbone
-resolved each name. This is useful for quality control: if a name was
-resolved by the second backbone in the chain, the first backbone either
-did not contain it or matched it differently. Inspecting the
-<code>backbone</code> column after a multi-backbone run can reveal
-patterns in taxonomic coverage gaps.</p>
-<p>General guidelines for backbone ordering:</p>
-<ul>
-<li>Plant-only lists: <code>"wfo"</code> alone is sufficient. WFO has
-the most complete plant synonym coverage and a compact backbone.</li>
-<li>Marine lists: <code>"worms"</code> first, then <code>"col"</code> or
-<code>"gbif"</code> for anything WoRMS misses.</li>
-<li>Mixed-kingdom lists: put the backbone that covers the dominant
-kingdom first. For a list that is 80% plants and 20% animals,
-<code>c("wfo", "col")</code> is faster than
-<code>c("col", "wfo")</code>.</li>
-<li>Maximizing coverage: <code>c("col", "gbif", "wfo")</code> casts the
-widest net but involves three backbone loads. For lists under 10,000
-names the extra loading time is negligible. For 100,000+ names, the
-extra fuzzy passes add up.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="setting-the-fuzzy-threshold">Setting the fuzzy threshold<a class="anchor" aria-label="anchor" href="#setting-the-fuzzy-threshold"></a>
-</h3>
-<p>The default fuzzy threshold is 0.2 (normalized Damerau-Levenshtein
-distance: edits divided by the maximum of the two name lengths). A
-threshold of 0.2 allows roughly one edit per five characters, which
-catches single-character typos in binomials of typical length (15-25
-characters).</p>
-<p>For large lists with noisy input (OCR, handwriting transcription), a
-slightly higher threshold like 0.25 catches more misspellings but also
-increases false positives. For clean input where fuzzy matching serves
-only as a safety net, a lower threshold like 0.1 or 0.15 reduces the
-risk of incorrect matches without sacrificing much recall.</p>
-<p>The threshold also affects performance. A higher threshold means more
-backbone entries pass the distance filter, which means more candidate
-matches to evaluate and rank. The difference is modest for most inputs
-but can be noticeable for very large genera: at threshold 0.2, a query
-against <em>Astragalus</em> (~3,000 WFO entries) might return 5
-candidates; at 0.3, it might return 20.</p>
-<p>An alternative mode uses integer thresholds. Setting
-<code>fuzzy_threshold = 2L</code> allows at most 2 raw edit operations
-regardless of name length. This is useful for long infraspecific names
-where a normalized threshold of 0.2 might allow too many edits. Integer
-thresholds are not supported with the Jaro-Winkler method
-(<code>fuzzy_method = "jw"</code>).</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Tight threshold for clean input</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">clean_names</span>, backbone <span class="op">=</span> <span class="st">"col"</span>,</span>
-<span>                 fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Integer threshold: at most 2 edits, period</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">noisy_names</span>, backbone <span class="op">=</span> <span class="st">"col"</span>,</span>
-<span>                 fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, fuzzy_threshold <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="batch-processing-a-very-large-list">Batch processing a very large list<a class="anchor" aria-label="anchor" href="#batch-processing-a-very-large-list"></a>
-</h3>
-<p>Lists above 100,000 names are common in biodiversity informatics. A
-national herbarium digitization project might produce 500,000 label
-transcriptions. A metabarcoding pipeline might output 200,000 OTU
-labels. A single <code><a href="../reference/taxify.html">taxify()</a></code> call on 500,000 names handles the
-full vector internally and produces correct results, but two practical
-issues arise at this scale. First, the fuzzy-join working set grows with
-input size: 500,000 names with 10% unmatched means 50,000 fuzzy
-comparisons, each scanning a genus block. The temporary
-<code>.vtr</code> files and distance matrices for this many comparisons
-can spike memory by several hundred MB. Second, if the R process is
-interrupted mid-run (Ctrl+C, OOM kill, session timeout), the entire
-result is lost. Chunking at 50,000-100,000 names keeps peak memory
-predictable, gives progress monitoring, and provides natural restart
-points.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 300,000 names from a herbarium digitization project</span></span>
-<span><span class="va">all_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="st">"herbarium_names.txt"</span><span class="op">)</span></span>
-<span><span class="va">chunk_size</span> <span class="op">&lt;-</span> <span class="fl">50000</span></span>
-<span></span>
-<span><span class="co"># Split into chunks</span></span>
-<span><span class="va">chunks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">all_names</span>,</span>
-<span>                <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">all_names</span><span class="op">)</span> <span class="op">/</span> <span class="va">chunk_size</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Process each chunk</span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Chunk %d/%d (%d names)..."</span>,</span>
-<span>                  <span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Combine</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">results</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 300000</span></span></code></pre></div>
-<p>The backbone stays in memory across chunks (the session cache is not
-cleared between calls), so each chunk after the first skips the
-initialization overhead. Only the fuzzy-join working set is allocated
-and freed per chunk.</p>
-<p>For lists in the millions (e.g., processing all occurrence records
-from a GBIF download), write results to disk after each chunk instead of
-accumulating them in memory:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">output_dir</span> <span class="op">&lt;-</span> <span class="st">"results"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">output_dir</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Chunk %d/%d"</span>, <span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>,</span>
-<span>                fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">res</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">output_dir</span>,</span>
-<span>                         <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"chunk_%04d.rds"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">parts</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"part_%04d.rds"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span><span class="op">)</span> <span class="kw">next</span></span>
+<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">parts</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">file</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># Combine when needed</span></span>
-<span><span class="va">all_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">output_dir</span>, pattern <span class="op">=</span> <span class="st">"\\.rds$"</span>,</span>
-<span>                        full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">all_files</span>, <span class="va">readRDS</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>This keeps R’s memory usage bounded by a single chunk regardless of
-total list size. It also makes the workflow resumable: if the process
-dies at chunk 47 of 60, we can check which <code>.rds</code> files exist
-and restart from chunk 48. A skip condition handles this:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">out_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">output_dir</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"chunk_%04d.rds"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="va">out_file</span><span class="op">)</span><span class="op">)</span> <span class="kw">next</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Chunk %d/%d"</span>, <span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>,</span>
-<span>                fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">out_file</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>The chunk boundaries are arbitrary and do not affect matching
-quality. Each chunk is matched independently against the backbone, and a
-name that appears in chunk 3 gets the same result as if it appeared in
-chunk 7, because the backbone is deterministic and the matching logic is
-stateless across calls. The only state shared between chunks is the
-session cache (the materialized backbone block), which saves the
-repeated initialization.</p>
+<span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">out_dir</span>, pattern <span class="op">=</span> <span class="st">"\\.rds$"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">files</span>, <span class="va">readRDS</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 9</span></span></code></pre></div>
+<p>A part that already has a file is skipped, so running the loop again
+after an interruption continues where it stopped. Each name is matched
+on its own, so the result does not depend on how the list is split.
+Attaching published data inside the loop, before <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>,
+keeps only one part in memory at a time.</p>
 </div>
-<div class="section level3">
-<h3 id="pre-downloading-resources">Pre-downloading resources<a class="anchor" aria-label="anchor" href="#pre-downloading-resources"></a>
-</h3>
-<p>For a reproducible batch pipeline (e.g., a Makefile or targets plan),
-it is cleaner to separate the download step from the analysis step.
-Downloads can fail due to network issues, and that is worth knowing
-before a 2-hour matching run starts.</p>
-<p><code><a href="../reference/taxify_download.html">taxify_download()</a></code> downloads one or more backbone
-<code>.vtr</code> files. <code><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment()</a></code> does
-the same for enrichment layers. Both are idempotent: if the file already
-exists and the version is current, they return immediately.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Pre-download everything needed for a multi-kingdom analysis</span></span>
-<span><span class="co"># with conservation status and trait enrichments</span></span>
-<span></span>
-<span><span class="co"># Backbones</span></span>
-<span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Enrichments</span></span>
-<span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"iucn"</span>,</span>
-<span>  <span class="st">"zanne"</span>,</span>
-<span>  <span class="st">"eive"</span>,</span>
-<span>  <span class="st">"elton_traits"</span></span>
-<span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Now the analysis can run fully offline</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_iucn.html">add_iucn</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-<p>In a CI/CD or cluster environment, the download step can run in a
-setup script or container build phase. The matching step then operates
-entirely from local disk, with no network dependency and no risk of
-mid-run download failures. This separation also makes the pipeline
-reproducible: the download step pins a specific backbone version
-(recorded in the <code>meta.json</code> sidecar file), and the matching
-step uses whatever version is on disk.</p>
-<p>For a targets or drake plan, the download calls fit as upstream
-targets that the matching targets depend on. The return value (the
-<code>.vtr</code> path) can be passed through the dependency graph,
-though in practice the path is resolved internally by
-<code>ensure_backbone()</code> and does not need to be passed
-explicitly.</p>
-<p>To see which enrichments are available and their current
-versions:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/list_enrichments.html">list_enrichments</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                name version    nrow static</span></span>
-<span><span class="co">#&gt; 1 iucn 2026.04   59583  FALSE</span></span>
-<span><span class="co">#&gt; 2               griis 2026.04   98131  FALSE</span></span>
-<span><span class="co">#&gt; 3                wcvp 2026.04 1973234  FALSE</span></span>
-<span><span class="co">#&gt; 4                eive     1.0   14835   TRUE</span></span>
-<span><span class="co">#&gt; 5        elton_traits     1.0   15394   TRUE</span></span>
-<span><span class="co">#&gt; 6              avonet     1.0   11009   TRUE</span></span>
-<span><span class="co">#&gt; ...</span></span></code></pre></div>
-<p>Static enrichments (those based on published, version-locked datasets
-like EltonTraits 1.0 or PanTHERIA 1.0) are never re-downloaded after the
-initial fetch. Non-static enrichments (iucn, griis, wcvp, common_names)
-are checked once per session and updated if a newer build is
-available.</p>
+<div class="section level2">
+<h2 id="memory">Memory<a class="anchor" aria-label="anchor" href="#memory"></a>
+</h2>
+<p><code>scripts/benchmark-memory.R</code> measures the memory of the R
+process, including what the backbone occupies outside R’s own objects,
+which <code><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc()</a></code> does not report. Each stage runs in a new
+session. The run recorded in
+<code>scripts/benchmark-memory-results.json</code> used taxify 0.7.0
+under R 4.6.0 on 2026-10-13, matching 5,000 names; values are megabytes
+above an R session with taxify loaded:</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Backbone</th>
+<th align="right">File (MB)</th>
+<th align="right">Loaded</th>
+<th align="right">Exact match</th>
+<th align="right">Fuzzy match</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">COL</td>
+<td align="right">2,056</td>
+<td align="right">4,283</td>
+<td align="right">5,161</td>
+<td align="right">7,096</td>
+</tr>
+<tr class="even">
+<td align="left">GBIF</td>
+<td align="right">1,701</td>
+<td align="right">4,491</td>
+<td align="right">5,453</td>
+<td align="right">7,223</td>
+</tr>
+<tr class="odd">
+<td align="left">WFO</td>
+<td align="right">775</td>
+<td align="right">1,477</td>
+<td align="right">1,728</td>
+<td align="right">3,043</td>
+</tr>
+</tbody>
+</table>
+<p>A loaded backbone takes two to three times its file size, for its
+indexes and its text, and stays loaded for the session. Fuzzy matching
+adds a working buffer that grows with the number of unmatched names, and
+is released after each call; the fuzzy column is the case in which every
+name needs it.</p>
+<p><code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code> releases the loaded backbones, for
+example before fitting a model on the matched result. The files stay on
+disk, and the next call loads them again.</p>
 </div>
-<div class="section level3">
-<h3 id="freeing-memory-between-phases">Freeing memory between phases<a class="anchor" aria-label="anchor" href="#freeing-memory-between-phases"></a>
-</h3>
-<p><code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code> removes all loaded backbone paths
-from memory. The next <code><a href="../reference/taxify.html">taxify()</a></code> call will re-read from disk
-and re-materialize. This is useful after a large matching run when the
-backbone is no longer needed: save the result, release the backbone,
-then run downstream models.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Match names</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">species_list</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save result</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">result</span>, <span class="st">"matched_names.rds"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Free the backbone from memory</span></span>
-<span><span class="fu"><a href="../reference/taxify_clear_cache.html">taxify_clear_cache</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Clearing the cache does not delete any files from disk. The
-<code>.vtr</code> files remain in <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code> and
-will be reloaded on the next use, at the same initialization cost the
-first call in a session pays (about 5 seconds for WFO in the benchmark
-run). For a workflow where matching is done in one phase and downstream
-modelling in another, that reload is the price of returning the loaded
-block’s memory (about 1.4 GB above an idle R process for WFO, see <a href="#memory-footprint">Memory footprint</a>) to a memory-intensive
-ordination or species distribution model.</p>
-<p><code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code> is a narrower operation: it
-invalidates the cached copy of the remote manifest (the JSON file
-listing the latest version of each backbone and enrichment). This forces
-the next <code><a href="../reference/taxify.html">taxify()</a></code> call to re-check for updates. Normally
-the manifest is fetched once per session and cached. In a long-running R
-session (e.g., an RStudio session that stays open for days), calling
-<code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code> before a batch run ensures the
-run works against the latest backbone version. If a new backbone release
-was published since the session started, the version check will detect
-it and trigger an automatic download.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="downloads-before-a-run">Downloads before a run<a class="anchor" aria-label="anchor" href="#downloads-before-a-run"></a>
+</h2>
+<p>A run on a server or a cluster can download what it needs first, so
+that the matching step does not depend on the network:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"iucn"</span>, <span class="st">"zanne"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>TAXIFY_OFFLINE <span class="op">=</span> <span class="st">"1"</span><span class="op">)</span></span></code></pre></div>
+<p>With <code>TAXIFY_OFFLINE</code> set, or
+<code>options(taxify.offline = TRUE)</code>, taxify uses the files on
+disk and does not check for newer versions.
+<code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code> makes the next call in a long
+session check again.</p>
 </div>
-<div class="section level3">
-<h3 id="disk-storage-and-sharing-across-projects">Disk storage and sharing across projects<a class="anchor" aria-label="anchor" href="#disk-storage-and-sharing-across-projects"></a>
-</h3>
-<p>All taxify data lives under <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "C:/Users/jane/AppData/Local/R/taxify"</span></span></code></pre></div>
-<p>By default this is the platform-specific user data directory
-<code>tools::R_user_dir("taxify", "data")</code>: typically
-<code>~/.local/share/R/taxify</code> on Linux and
-<code>~/Library/Application Support/R/taxify</code> on macOS. The
+<div class="section level2">
+<h2 id="where-the-files-are">Where the files are<a class="anchor" aria-label="anchor" href="#where-the-files-are"></a>
+</h2>
+<p><code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code> returns the directory that holds every
+backbone and dataset. It is shared by all R projects of a user, so a
+backbone is downloaded once per machine. The
 <code>taxify.data_dir</code> option or the <code>TAXIFY_DATA_DIR</code>
-environment variable overrides it. The layout is:</p>
-<pre><code><span><span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span><span class="op">/</span></span>
-<span>  <span class="va">wfo</span><span class="op">/</span></span>
-<span>    <span class="va">latest</span><span class="op">/</span></span>
-<span>      <span class="va">wfo.vtr</span>          <span class="co"># the backbone</span></span>
-<span>      <span class="va">wfo.meta</span>         <span class="co"># download provenance</span></span>
-<span>      <span class="va">meta.json</span>        <span class="co"># version metadata</span></span>
-<span>  <span class="va">col</span><span class="op">/</span></span>
-<span>    <span class="va">latest</span><span class="op">/</span></span>
-<span>      <span class="va">col.vtr</span></span>
-<span>      <span class="va">...</span></span>
-<span>  <span class="va">enrichment</span><span class="op">/</span></span>
-<span>    <span class="va">iucn</span><span class="op">/</span></span>
-<span>      <span class="va">latest</span><span class="op">/</span></span>
-<span>        <span class="va">iucn.vtr</span></span>
-<span>        <span class="va">meta.json</span></span>
-<span>    <span class="va">zanne</span><span class="op">/</span></span>
-<span>      <span class="va">latest</span><span class="op">/</span></span>
-<span>        <span class="va">zanne.vtr</span></span>
-<span>        <span class="va">meta.json</span></span>
-<span>    <span class="va">...</span></span></code></pre>
-<p>This directory is per-user and shared across all R projects on the
-machine, so a backbone downloaded once is available everywhere without
-duplication. There is no need to copy <code>.vtr</code> files into a
-project directory or version-control them.</p>
-<p>If multiple users on a shared server need the same backbones, one
-user can download them and the others can point at that location with
-the <code>R_USER_DATA_DIR</code> environment variable, the
-<code>TAXIFY_DATA_DIR</code> environment variable, or a symlink of
-<code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>. The <code>.vtr</code> files are
-read-only at query time, so concurrent access from multiple R sessions
-is safe and needs no file locking.</p>
-<p>To check how much disk space taxify is currently using:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Total size of all backbones and enrichments</span></span>
-<span><span class="va">data_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">total_mb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.info.html" class="external-link">file.size</a></span><span class="op">(</span><span class="va">files</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1048576</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"taxify data: %.0f MB across %d files"</span>,</span>
-<span>                <span class="va">total_mb</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">files</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>To remove a specific backbone (e.g., GBIF after finishing a project
-that needed it), delete its directory:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Remove GBIF backbone (frees ~1.6 GB)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="../reference/taxify_data_dir.html">taxify_data_dir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"gbif"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Clear the session cache so taxify() doesn't try to use the old path</span></span>
-<span><span class="fu"><a href="../reference/taxify_clear_cache.html">taxify_clear_cache</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Deleting a backbone directory is safe. The next <code><a href="../reference/taxify.html">taxify()</a></code>
-call for that backbone will re-download it if needed.</p>
-</div>
+environment variable sets another directory, for example one shared by
+several users of a server; the files are only read during matching, so
+several sessions can use them at once. <code><a href="../reference/taxify_store.html">taxify_store()</a></code> lists
+the builds on disk. Deleting a backbone’s directory removes it, and the
+next call that needs it downloads it again.</p>
 </div>
 <div class="section level2">
-<h2 id="how-taxify-scales">How taxify scales<a class="anchor" aria-label="anchor" href="#how-taxify-scales"></a>
+<h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>
 </h2>
-<div class="section level3">
-<h3 id="the--vtr-columnar-format">The .vtr columnar format<a class="anchor" aria-label="anchor" href="#the--vtr-columnar-format"></a>
-</h3>
-<p>Every backbone ships as a <code>.vtr</code> file: a binary columnar
-format written by the vectra C11 engine. Unlike CSV or TSV, the
-<code>.vtr</code> format stores each column contiguously on disk with
-lightweight compression. taxify never parses text at query time: there
-is no <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> step, no string splitting, no quote
-escaping, because the backbone is already in a query-ready binary
-layout.</p>
-<p>Backbones are distributed as pre-built <code>.vtr</code> files
-(published as GitHub Releases on taxifydb), so users download a single
-binary file that is ready to query immediately. The <code>.vtr</code>
-files are typically 30-50% smaller than the original Darwin Core CSV
-because the columnar layout compresses string columns more efficiently
-than row-oriented text.</p>
-</div>
-<div class="section level3">
-<h3 id="exact-matching-hash-indexed-lookups">Exact matching: hash-indexed lookups<a class="anchor" aria-label="anchor" href="#exact-matching-hash-indexed-lookups"></a>
-</h3>
-<p>When a backbone is first used in a session, vectra materializes it
-into an in-memory columnar block with hash indexes on the name and genus
-columns. Exact matching uses <code>block_lookup()</code>, which resolves
-each input name via a hash index. This is an O(1) operation per name and
-the reason exact matching scales linearly with list size: a list of
-100,000 clean plant names matches against WFO in seconds.</p>
-<p>The exact pipeline runs five passes in sequence, each catching a
-different class of name variation:</p>
-<ol style="list-style-type: decimal">
-<li>Case-sensitive exact match against the canonical name column.</li>
-<li>Case-insensitive match against a precomputed lowercased key.</li>
-<li>Latin orthographic normalization that maps common epithet variants
-(e.g., <em>-ii</em> to <em>-i</em>, <em>-anum</em> to <em>-ana</em>) to
-a canonical form.</li>
-<li>Infraspecific-to-species fallback that strips variety/subspecies
-qualifiers and matches against the binomial.</li>
-<li>Hybrid name normalization that resolves nothospecies formatting
-differences (e.g., <em>Salix x rubens</em> vs. <em>Salix
-xrubens</em>).</li>
-</ol>
-<p>All five passes use hash lookups. A name that matches in pass 1 is
-never tested in passes 2-5. In practice, pass 1 resolves 85-95% of names
-from clean input, and passes 2-4 pick up another 2-5%. The total cost of
-exact matching is dominated by the hash lookups, which are O(1) per name
-regardless of backbone size.</p>
-</div>
-<div class="section level3">
-<h3 id="fuzzy-matching-genus-blocked-string-distance">Fuzzy matching: genus-blocked string distance<a class="anchor" aria-label="anchor" href="#fuzzy-matching-genus-blocked-string-distance"></a>
-</h3>
-<p>Fuzzy matching is more expensive. For each unmatched name, vectra
-computes string distances (Damerau-Levenshtein by default) against all
-backbone entries that share the same genus. This genus-blocking strategy
-reduces the search space from millions of backbone entries to a few
-hundred or thousand (the typical number of species per genus). The
-computation is parallelized across cores via OpenMP, using 4 threads by
-default.</p>
-<p>Fuzzy matching 5,000 names against WFO, where every name carries a
-typo, took 27 seconds in the repository’s benchmark run. Large genera
-such as <em>Carex</em> or <em>Astragalus</em> are more expensive per
-name than small ones, and the cost grows with the number of names that
-fail the exact pass and in proportion to the size of the backbone.</p>
-<p>A secondary fuzzy pass handles misspelled genera. When the genus
-itself is wrong (e.g., <em>Qurecus</em> instead of <em>Quercus</em>),
-the genus-blocked join misses the name entirely. taxify runs a fallback
-pass that blocks on the first two characters of the name instead of the
-full genus. This catches most single- character genus typos while
-keeping the search space much smaller than a full cross-join.</p>
-<p>Exact-only matching is therefore fast at any scale, and fuzzy
-matching is the setting that controls how long a run takes.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="backbone-loading-and-the-session-cache">Backbone loading and the session cache<a class="anchor" aria-label="anchor" href="#backbone-loading-and-the-session-cache"></a>
-</h2>
-<p>The first time <code><a href="../reference/taxify.html">taxify()</a></code> is called for a given backbone,
-the function resolves the backbone path through a four-step fallback:
-session cache, versioned directory on disk, legacy flat directory, and
-finally auto-download from the manifest if no local copy exists. Once
-the path is known, vectra materializes the <code>.vtr</code> into an
-in-memory columnar block and builds hash indexes on the name and genus
-columns. This initialization step took about 5 seconds for WFO (1.6
-million rows) in the repository’s benchmark run, and scales with
-backbone size from there. Every subsequent <code><a href="../reference/taxify.html">taxify()</a></code> call in
-the same R session reuses the materialized block, with no repeated file
-I/O.</p>
-<p>Two caches operate in parallel. The path cache
-(<code>.taxify_cache</code>) maps backbone names to <code>.vtr</code>
-file paths on disk. Once a path is resolved, it stays cached so that
-<code>ensure_backbone()</code> does not re-scan the file system. The
-data cache (<code>.taxify_env</code>) holds the materialized columnar
-block itself, keyed by file path. It also stores the session manifest,
-version-check flags, enrichment paths, and coverage data for the genus
-register. Both are package-level environments that persist until the R
-session ends or <code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code> is called, and are
-shared across all <code><a href="../reference/taxify.html">taxify()</a></code> calls.</p>
-<p>The first <code><a href="../reference/taxify.html">taxify()</a></code> call in a session also triggers a
-version check. taxify fetches a manifest from GitHub (a small JSON file
-listing the latest version of each backbone) and compares it against the
-locally installed version. If a newer backbone is available, it is
-downloaded automatically. This check runs once per backbone per session,
-and later calls skip it. If the network is unavailable, the check is
-skipped and the local copy is used as-is.</p>
-</div>
-<div class="section level2">
-<h2 id="backbone-sizes-on-disk">Backbone sizes on disk<a class="anchor" aria-label="anchor" href="#backbone-sizes-on-disk"></a>
-</h2>
-<p>Each backbone’s <code>.vtr</code> file is a one-time download stored
-in <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>. The sizes below are approximate and
-depend on the backbone version.</p>
-<!-- manifest:backbone-sizes -->
-<table class="table">
-<thead><tr class="header">
-<th>Backbone</th>
-<th>Names</th>
-<th>Download</th>
-<th>Version</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>WFO</td>
-<td>1.7M</td>
-<td>823 MB</td>
-<td>2026.06</td>
-</tr>
-<tr class="even">
-<td>COL</td>
-<td>5.4M</td>
-<td>2.1 GB</td>
-<td>2026.09</td>
-</tr>
-<tr class="odd">
-<td>COL Extended Release</td>
-<td>8.5M</td>
-<td>1.5 GB</td>
-<td>2026.09</td>
-</tr>
-<tr class="even">
-<td>GBIF Backbone Taxonomy (legacy)</td>
-<td>6.4M</td>
-<td>1.7 GB</td>
-<td>2023.08</td>
-</tr>
-<tr class="odd">
-<td>ITIS</td>
-<td>1.0M</td>
-<td>206 MB</td>
-<td>2026.09</td>
-</tr>
-<tr class="even">
-<td>NCBI</td>
-<td>3.0M</td>
-<td>549 MB</td>
-<td>2026.09</td>
-</tr>
-<tr class="odd">
-<td>OTT</td>
-<td>3.7M</td>
-<td>763 MB</td>
-<td>2026.09</td>
-</tr>
-<tr class="even">
-<td>WoRMS</td>
-<td>1.6M</td>
-<td>304 MB</td>
-<td>2026.09</td>
-</tr>
-<tr class="odd">
-<td>Euro+Med</td>
-<td>147k</td>
-<td>35 MB</td>
-<td>2026.08</td>
-</tr>
-<tr class="even">
-<td>Species Fungorum</td>
-<td>315k</td>
-<td>71 MB</td>
-<td>2026.08</td>
-</tr>
-<tr class="odd">
-<td>AlgaeBase</td>
-<td>172k</td>
-<td>36 MB</td>
-<td>2026.09</td>
-</tr>
-<tr class="even">
-<td>FishBase</td>
-<td>103k</td>
-<td>19 MB</td>
-<td>2026.08</td>
-</tr>
-<tr class="odd">
-<td>SeaLifeBase</td>
-<td>134k</td>
-<td>29 MB</td>
-<td>2026.08</td>
-</tr>
-<tr class="even">
-<td>Reptile Database</td>
-<td>50k</td>
-<td>10 MB</td>
-<td>2026.07</td>
-</tr>
-<tr class="odd">
-<td>LCVP</td>
-<td>1.3M</td>
-<td>252 MB</td>
-<td>2026.08</td>
-</tr>
-<tr class="even">
-<td>WCVP</td>
-<td>1.4M</td>
-<td>342 MB</td>
-<td>2026.06</td>
-</tr>
-<tr class="odd">
-<td>Mammal Diversity Database</td>
-<td>62k</td>
-<td>11 MB</td>
-<td>2026.08</td>
-</tr>
-<tr class="even">
-<td>AviList</td>
-<td>41k</td>
-<td>8 MB</td>
-<td>2026.08</td>
-</tr>
-<tr class="odd">
-<td>LPSN</td>
-<td>45k</td>
-<td>12 MB</td>
-<td>2026.08</td>
-</tr>
-<tr class="even">
-<td><strong>All 19</strong></td>
-<td><strong>35.0M</strong></td>
-<td><strong>8.7 GB</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<!-- /manifest:backbone-sizes --><p>A full installation of all
-<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
-backbones occupies several GB. Most workflows need only one or two. The
-WFO backbone alone covers the vast majority of plant taxonomy use cases
-in under a gigabyte.</p>
-<p>The download sizes are comparable to the on-disk sizes since the
-<code>.vtr</code> format is already compressed. No decompression step
-runs after download: the file that arrives on disk is the file that
-vectra reads at query time.</p>
-<p>Enrichment files are much smaller. The largest enrichment is WCVP
-(native range data, ~2 million rows) at roughly 30-40 MB. Most
-enrichments are under 5 MB. A full set of
-<!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count -->
-enrichments adds a few hundred MB to disk usage.</p>
-</div>
-<div class="section level2">
-<h2 id="memory-footprint">Memory footprint<a class="anchor" aria-label="anchor" href="#memory-footprint"></a>
-</h2>
-<p><code>scripts/benchmark-memory.R</code> in the taxify repository
-measures this, and <code>scripts/benchmark-memory-results.json</code>
-records the run. It reports resident set size rather than the R heap:
-vectra reads a <code>.vtr</code> through the operating system instead of
-materializing it as R objects, so <code><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc()</a></code> sees only a fraction
-of what a backbone actually costs. Each stage runs in a fresh R process,
-because resident size never falls back after a peak.</p>
-<p>Matching 5,000 names on Windows 11, R 4.6.0, taxify 0.3.21, in
-megabytes above an idle R process:</p>
-<table class="table">
-<thead><tr class="header">
-<th>Backbone</th>
-<th><code>.vtr</code></th>
-<th>After load</th>
-<th>Exact, 5,000</th>
-<th>Fuzzy, 5,000</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>WFO</td>
-<td>797</td>
-<td>1,443</td>
-<td>1,732</td>
-<td>2,760</td>
-</tr>
-<tr class="even">
-<td>COL</td>
-<td>1,958</td>
-<td>3,751</td>
-<td>4,544</td>
-<td>6,128</td>
-</tr>
-<tr class="odd">
-<td>GBIF</td>
-<td>1,855</td>
-<td>4,024</td>
-<td>4,703</td>
-<td>5,910</td>
-</tr>
-</tbody>
-</table>
-<p>Opening a backbone costs about 1.8 to 2.2 times its <code>.vtr</code>
-size, because the columnar block carries hash indexes and decompressed
-string data alongside the stored columns. The block persists for the
-session and every <code><a href="../reference/taxify.html">taxify()</a></code> call reuses it. A second
-backbone (during a multi-backbone fallback, say) adds its own block; the
-two coexist independently.</p>
-<p>Fuzzy matching dominates the transient cost. For each fuzzy pass
-taxify writes a temporary <code>.vtr</code> of the unmatched names and
-their genera and hands it to vectra’s <code>fuzzy_join()</code>, which
-allocates a working buffer proportional to the number of unmatched names
-times the average genus block size. In the worst case above, 5,000 names
-that all need fuzzy resolution, that buffer reaches 1.3 GB against WFO
-and 2.4 GB against COL, several times what the same names cost on the
-exact path. A realistic list, where most names match exactly, pays a
-fraction of it, since the buffer scales with the unmatched remainder.
-The temporary files and buffers are freed after each pass.</p>
-<p>Enrichment <code>.vtr</code> files are loaded on demand and are far
-smaller. An enrichment join builds a temporary <code>.vtr</code> of
-unique accepted names, runs an <code>inner_join()</code> against the
-enrichment <code>.vtr</code>, and fills the result via
-<code><a href="https://rdrr.io/r/base/match.html" class="external-link">match()</a></code>. The enrichment is never fully materialized; only
-the joined subset is collected, so the cost is proportional to the
-number of unique accepted names in the result, typically much smaller
-than the input list, since synonyms collapse onto shared accepted
-names.</p>
-<p>If memory is tight, three strategies help:</p>
-<ol style="list-style-type: decimal">
-<li>Use a smaller backbone. WFO costs roughly a third of what GBIF
-costs, and for plant-only lists there is no coverage penalty.</li>
-<li>Clear the cache between phases. Once matching is done and the result
-is saved, release the backbone before running downstream models (see <a href="#freeing-memory-between-phases">Freeing memory between
-phases</a>).</li>
-<li>Enrich inside the matching loop (the chunk-and-write pattern in <a href="#practical-scaling-guidance">Practical scaling guidance</a>)
-rather than accumulating the full result and enriching afterwards.</li>
-</ol>
-</div>
-<div class="section level2">
-<h2 id="practical-scaling-guidance">Practical scaling guidance<a class="anchor" aria-label="anchor" href="#practical-scaling-guidance"></a>
-</h2>
-<p>These settings are guidelines by list size, not hard thresholds. The
-actual performance depends on input cleanliness (how many names need
-fuzzy matching), backbone size (WFO vs. GBIF), and hardware (number of
-cores, available RAM, disk speed).</p>
-<div class="section level3">
-<h3 id="under-1000-names">Under 1,000 names<a class="anchor" aria-label="anchor" href="#under-1000-names"></a>
-</h3>
-<p>The defaults work well. <code>taxify(names)</code> with
-<code>fuzzy = TRUE</code> and a single backbone completes in a few
-seconds, with negligible memory use. This is the regime for most
-interactive analysis: a field survey, a thesis species list, a table
-extracted from a paper.</p>
-</div>
-<div class="section level3">
-<h3 id="to-50000-names">1,000 to 50,000 names<a class="anchor" aria-label="anchor" href="#to-50000-names"></a>
-</h3>
-<p>If the input is clean (names from a curated database, a previous
-taxify run, or a standard checklist), consider
-<code>fuzzy = FALSE</code>. The exact pipeline handles case differences,
-Latin orthographic variants (e.g., <em>-ii</em> vs. <em>-i</em>
-endings), and infraspecific-to-species fallback without string-distance
-computation. Enabling fuzzy on a clean list of 50,000 names might add
-30-60 seconds for no practical gain. If the input has known quality
-issues (OCR transcriptions, citizen science data), leave fuzzy on and
-expect 1-3 minutes against WFO.</p>
-</div>
-<div class="section level3">
-<h3 id="to-500000-names">50,000 to 500,000 names<a class="anchor" aria-label="anchor" href="#to-500000-names"></a>
-</h3>
-<p>Backbone ordering starts to matter. Put the backbone that covers the
-dominant taxon group first. For a plant list, <code>"wfo"</code> alone
-suffices. For mixed-kingdom lists, <code>c("wfo", "col")</code> resolves
-most names on the faster WFO pass. Consider the two-pass pattern (exact
-first, fuzzy on unmatched) if only a small fraction of names have
-quality issues. The GBIF backbone at 6.4 million rows is the most
-expensive for fuzzy matching; avoid it as the first backbone unless the
-list is primarily non-plant, non-marine taxa not covered by COL.</p>
-</div>
-<div class="section level3">
-<h3 id="over-500000-names">Over 500,000 names<a class="anchor" aria-label="anchor" href="#over-500000-names"></a>
-</h3>
-<p>Batch in chunks of 50,000-100,000 names. The backbone stays cached
-across chunks, so there is no repeated initialization cost. Write
-results to disk per chunk if total memory is a concern. Clear the cache
-between analysis phases (matching, enrichment, downstream modelling) to
-keep memory usage bounded. If enriching with multiple layers, apply all
-enrichments to each chunk before writing rather than accumulating the
-full result in memory and enriching after.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Pattern for 500,000+ names with enrichments</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">chunks</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>,</span>
-<span>                fuzzy <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_iucn.html">add_iucn</a></span><span class="op">(</span><span class="va">res</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="va">res</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">res</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"results/chunk_%04d.rds"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="backbone-choice-by-list-composition">Backbone choice by list composition<a class="anchor" aria-label="anchor" href="#backbone-choice-by-list-composition"></a>
-</h3>
-<table class="table">
-<thead><tr class="header">
-<th>List composition</th>
-<th>Recommended backbone(s)</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>Plants only</td>
-<td><code>"wfo"</code></td>
-</tr>
-<tr class="even">
-<td>Plants + animals</td>
-<td><code>c("wfo", "col")</code></td>
-</tr>
-<tr class="odd">
-<td>Marine taxa</td>
-<td><code>c("worms", "col")</code></td>
-</tr>
-<tr class="even">
-<td>Fungi</td>
-<td><code>c("fungorum", "col")</code></td>
-</tr>
-<tr class="odd">
-<td>Algae</td>
-<td><code>c("algaebase", "col")</code></td>
-</tr>
-<tr class="even">
-<td>All kingdoms, maximum coverage</td>
-<td><code>c("col", "gbif", "wfo")</code></td>
-</tr>
-<tr class="odd">
-<td>Molecular/genomic taxa</td>
-<td><code>c("ncbi", "col")</code></td>
-</tr>
-<tr class="even">
-<td>North American biodiversity</td>
-<td><code>c("itis", "col")</code></td>
-</tr>
-</tbody>
-</table>
-<p>For any single-kingdom list, starting with the specialist backbone
-(WFO for plants, WoRMS for marine, NCBI for molecular) and falling back
-to COL or GBIF gives the best balance of speed and coverage. The
-specialist backbone resolves most names quickly (smaller backbone,
-faster exact pass), and the generalist backbone catches the
-remainder.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="summary-of-performance-relevant-functions">Summary of performance-relevant functions<a class="anchor" aria-label="anchor" href="#summary-of-performance-relevant-functions"></a>
-</h2>
-<table class="table">
-<colgroup>
-<col width="52%">
-<col width="47%">
-</colgroup>
-<thead><tr class="header">
-<th>Function</th>
-<th>Purpose</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>taxify(..., fuzzy = FALSE)</code></td>
-<td>Skip fuzzy matching for clean input</td>
-</tr>
-<tr class="even">
-<td><code>taxify(..., backbone = c("col", "wfo"))</code></td>
-<td>Multi-backbone fallback chain</td>
-</tr>
-<tr class="odd">
-<td><code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code></td>
-<td>Find where backbones are stored</td>
-</tr>
-<tr class="even">
-<td><code><a href="../reference/taxify_download.html">taxify_download()</a></code></td>
-<td>Pre-download backbone <code>.vtr</code> files</td>
-</tr>
-<tr class="odd">
-<td><code><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment()</a></code></td>
-<td>Pre-download enrichment <code>.vtr</code> files</td>
-</tr>
-<tr class="even">
-<td><code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code></td>
-<td>Free backbone memory after matching</td>
-</tr>
-<tr class="odd">
-<td><code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code></td>
-<td>Force re-check for backbone updates</td>
-</tr>
-<tr class="even">
-<td><code><a href="../reference/list_enrichments.html">list_enrichments()</a></code></td>
-<td>See available enrichments and versions</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li><p><a href="backbones.html">Choosing and combining backbones</a>:
+versions, pinning and the fallback chain.</p></li>
+<li><p><a href="fuzzy-matching.html">How names are matched</a>: the
+fuzzy stage and its threshold.</p></li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -2,8 +2,8 @@
 
 Joins GRIIS (Global Register of Introduced and Invasive Species) status
 to a [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result, filtered by country. This is the source-named door for GRIIS;
-GloNAF
+result, filtered by country. This function is named after its source,
+GRIIS; GloNAF
 ([`add_glonaf()`](https://gillescolling.com/taxify/reference/add_glonaf.md))
 carries related naturalized-alien status.
 

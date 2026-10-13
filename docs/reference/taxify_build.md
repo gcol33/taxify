@@ -36,7 +36,7 @@ The path to the `.vtr` file (invisibly).
 
 ## Details
 
-For everyday use you do not need this:
+Everyday use does not need this:
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 auto-downloads the pre-built `.vtr` on first use, and
 [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)

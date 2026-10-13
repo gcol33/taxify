@@ -70,7 +70,7 @@ another backbone offers for it. Those names are listed as `refused` in
 the `wcvp` entry of `attr(x, "taxify_meta")$enrichments` (the queried
 and refused name, the reason, the backbones offering it and the number
 of regions it would have filled), and counted by
-[`summary()`](https://rdrr.io/r/base/summary.html).
+[`base::summary()`](https://rdrr.io/r/base/summary.html).
 
 ## Examples
 

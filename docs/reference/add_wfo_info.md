@@ -30,9 +30,11 @@ The same data.frame with additional columns:
 
   WFO parentNameUsageID.
 
-- namePublishedIn:
+- name_published_in:
 
-  Publication reference.
+  Publication reference, under the name every backbone's `.vtr` and
+  [`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
+  use.
 
 - higherClassification:
 

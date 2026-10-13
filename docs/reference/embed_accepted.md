@@ -14,8 +14,8 @@ embed_accepted(
   id_col,
   acc_id_col,
   name_col,
-  family_col,
-  genus_col,
+  family_col = NULL,
+  genus_col = NULL,
   status_col,
   synonym_pattern = "SYNONYM",
   authorship_col = NULL
@@ -42,11 +42,12 @@ embed_accepted(
 
 - family_col:
 
-  Name of the family column.
+  Name of the family column, or `NULL` for a backbone without one (a
+  syntaxon backbone); `accepted_family` is then not added.
 
 - genus_col:
 
-  Name of the genus column.
+  Name of the genus column, or `NULL` likewise.
 
 - status_col:
 

@@ -1,7 +1,8 @@
 # Cite data sources used in a taxify result
 
 Prints formatted citations for the taxonomic backbone(s), enrichment
-layers, and the taxify package itself. Optionally writes a BibTeX file.
+datasets, and the taxify package itself. Optionally writes a BibTeX
+file.
 
 ## Usage
 
@@ -50,8 +51,8 @@ columns the source's reference table carries.
 Given reference ids instead of a result, `cite()` resolves them to the
 works a trait value was taken from: the per-value references
 [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
-returns with `provenance = TRUE` (`<trait>_refs`), or a door's
-`<col>_source` column read with `source =`.
+returns with `provenance = TRUE` (`<trait>_refs`), or the `<col>_source`
+column of an `add_<source>()` function read with `source =`.
 
 ## Examples
 

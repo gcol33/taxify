@@ -3,8 +3,8 @@
 A pinned build stays active: the version check that
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
 [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
-and the `add_*()` doors run against the manifest leaves it in place
-instead of replacing it with the current release. Pin the builds a
+and the `add_<source>()` functions run against the manifest leaves it in
+place instead of replacing it with the current release. Pin the builds a
 project was run against to keep a shared data directory from moving
 under it, and release them when the project is done. The pin is recorded
 in the build's `meta.json` together with its content id (the md5 of its

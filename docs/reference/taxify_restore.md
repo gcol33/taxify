@@ -3,8 +3,8 @@
 Reads a lockfile written by
 [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
 and reports, for each backbone and enrichment it pins, whether the
-currently installed asset matches – by version and byte-identity
-(content id) – or has drifted, or is missing.
+currently installed asset matches (by version and byte-identity, the
+content id), has drifted, or is missing.
 
 ## Usage
 
@@ -55,8 +55,8 @@ not refresh it away from the lock. Release a pin with
 [`taxify_pin()`](https://gillescolling.com/taxify/reference/taxify_pin.md).
 
 A build published before taxifydb began uploading an immutable copy
-cannot be recovered – the re-cut replaced it in place – and its row
-keeps reporting drift after the install pass.
+cannot be recovered (the re-cut replaced it in place), and its row keeps
+reporting drift after the install pass.
 
 ## See also
 

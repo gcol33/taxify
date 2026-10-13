@@ -4,6 +4,7 @@
 <url><loc>https://gillescolling.com/taxify/articles/custom-data.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/databases.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/enrichments.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/articles/exploring.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/fuzzy-matching.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/gbif-requests.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html</loc></url>
@@ -11,8 +12,9 @@
 <url><loc>https://gillescolling.com/taxify/articles/inspecting-names.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/large-scale.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/migration.html</loc></url>
-<url><loc>https://gillescolling.com/taxify/articles/quickstart.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/regions.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/articles/taxify.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/articles/vegetation-units.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/authors.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/CODE_OF_CONDUCT.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/CONTRIBUTING.html</loc></url>
@@ -70,6 +72,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_epa_freshwater.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_eupolltrait.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_eurobat.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/add_euromed_distribution.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_faprotax.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_finand.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_fishbase.html</loc></url>
@@ -141,6 +144,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/add_wfo_info.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_zanne.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/add_zooplankton.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/backbone_code.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/backbone_fixed_kingdom.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/basionym_placement.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/candidate_order.html</loc></url>
@@ -153,6 +157,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/enrichment_authorship_col.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/enrichment_cols.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/enrichment_groups.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/euromed_areas.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/export_data.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/gbif_backmatch.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/gbif_fetch.html</loc></url>
@@ -171,14 +176,17 @@
 <url><loc>https://gillescolling.com/taxify/reference/normalize_aggregate_name.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/normalize_epithets.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/normalize_kingdom_group.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/normalize_syntaxon_name.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/parse_name.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/precompute_keys.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/print.taxify_gbif_keys.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/print.taxify_inspection.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/print.taxify_result.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/reconcile.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/region-filter.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/sci2comm.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/score_candidates.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/sub-.taxify_inspection.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/sub-.taxify_result.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/summary.taxify_result.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/synonyms.html</loc></url>

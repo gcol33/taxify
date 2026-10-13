@@ -1,0 +1,220 @@
+---
+title: "Attaching published data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Attaching published data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
+options(width = 80)
+```
+
+This article shows how to attach published trait, status and range data to matched names: one dataset with its `add_<source>()` function, one trait from every dataset that has it with `add_trait()`, and the datasets that hold one value per country, region or language. It ends with how the values are joined, where each one came from and how to cite them. Installation is covered in [Get started](taxify.html). The source, size and licence of every dataset are listed in [The backbones and datasets](articles/databases.html).
+
+1. **Find** a dataset with `list_enrichments()`, or a trait with `list_traits()`.
+
+2. **Attach** one dataset with its `add_<source>()` function.
+
+3. **Gather** one trait from several datasets with `add_trait()`.
+
+4. **Check** coverage and versions with `summary()`, and cite the sources with `cite()`.
+
+```{r setup}
+library(taxify)
+```
+
+## Finding a dataset
+
+taxify can attach <!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count --> published datasets. `list_enrichments()` lists them with their version, number of rows and whether the dataset is a fixed release:
+
+```{r list}
+datasets <- list_enrichments(verbose = FALSE)
+head(datasets[, c("name", "version", "nrow", "static")])
+```
+
+Each dataset has its own function, named after its source, and a help page with its columns, licence and reference: `?add_zanne` for the woodiness compiled by Zanne et al. ([2014](https://doi.org/10.1038/nature12872)), `?add_eive` for the Ecological Indicator Values for Europe (Dengler et al. [2023](https://doi.org/10.3897/VCS.98324)).
+
+## Attaching one dataset
+
+The examples use five plants matched against the Catalogue of Life (COL):
+
+```{r match}
+plants <- c(
+  "Quercus robur", "Fagus sylvatica", "Abies alba",
+  "Arrhenatherum elatius", "Plantago lanceolata"
+)
+res <- taxify(plants, backbone = "col", verbose = FALSE)
+```
+
+`add_zanne()` adds the woodiness of each species:
+
+```{r zanne}
+wood <- add_zanne(res)
+wood[, c("input_name", "woodiness")]
+```
+
+The message says that one of the dataset's two columns was attached. `enrichment_cols()` lists them all, and `cols` chooses: a vector of names, or `"all"`:
+
+```{r cols}
+enrichment_cols("zanne")
+wood_all <- add_zanne(res, cols = "all")
+setdiff(names(wood_all), names(res))
+```
+
+The functions return the result with the new columns on the right, so they can be chained:
+
+```{r chain}
+both <- res |> add_zanne() |> add_eive()
+both[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
+```
+
+## Datasets with one value per place or language
+
+Some datasets hold a value for each country, region or language. Their function takes the place or language as an argument. `add_griis()` reads the Global Register of Introduced and Invasive Species (GRIIS) for countries given as two-letter ISO codes:
+
+```{r griis}
+aliens <- c(
+  "Robinia pseudoacacia", "Ailanthus altissima", "Impatiens glandulifera",
+  "Reynoutria japonica", "Quercus robur"
+)
+al <- taxify(aliens, backbone = "col", verbose = FALSE)
+gr <- add_griis(al, country = c("AT", "DE", "GB"))
+gr[, c("input_name", "invasive_status_AT", "invasive_status_DE",
+       "invasive_status_GB")]
+```
+
+One code gives one column, `invasive_status`; several give a column each, with the code as suffix. *Quercus robur* is native in all three countries. GRIIS focuses on introduced and invasive species, so it has no record for the oak, and its rows are `NA`: an `NA` means that the dataset has no record, not that the species is native. `enrichment_groups("griis")` lists the codes, and `country = "all"` takes every country.
+
+`taxify_long()` turns the suffixed columns into rows, one per species and country:
+
+```{r long}
+long <- taxify_long(gr)
+head(long[, c("input_name", "country_code", "invasive_status")])
+```
+
+`add_wcvp()` works the same way for the botanical regions of the World Checklist of Vascular Plants (WCVP), coded as in [Matching within a region](regions.html), and `add_common_names()` for languages:
+
+```{r wcvp}
+trees <- c("Quercus robur", "Nothofagus pumilio", "Sequoiadendron giganteum")
+tr <- taxify(trees, backbone = "col", verbose = FALSE)
+wc <- add_wcvp(tr, region = c("GER", "AGS"))
+wc[, c("input_name", "native_status_GER", "native_status_AGS")]
+```
+
+*Nothofagus pumilio* is native to southern Argentina (`AGS`). The giant sequoia, native to California, is recorded in Germany as introduced.
+
+```{r common}
+cn <- add_common_names(res, lang = "de")
+cn[, c("input_name", "common_name")]
+```
+
+## One trait from several datasets
+
+`add_trait()` gathers one trait from every dataset that has it and returns it in one unit and one vocabulary. `list_traits()` lists the traits it knows:
+
+```{r traits}
+traits <- list_traits()
+nrow(traits)
+head(traits[order(-traits$n_sources), c("trait", "unit", "n_sources")])
+```
+
+By default the sources are combined into one value per row, with columns for the unit, the sources used, their number, and the smallest and largest value:
+
+```{r coalesce}
+seed <- add_trait(res, "seed_mass")
+seed[, c("accepted_name", "seed_mass", "seed_mass_sources", "seed_mass_n",
+         "seed_mass_min", "seed_mass_max")]
+```
+
+A numeric trait is reported in one unit: GIFT records seed mass in grams and the data of Díaz et al. in milligrams, and both are converted to milligrams. Several sources measuring the same quantity are combined by their median. `trait_info()` lists the sources of a trait in their default order, the column each is read from and the conversion applied; the first two are shown here:
+
+```{r info}
+info <- trait_info("seed_mass")
+info[1:2, c("source", "column", "note")]
+```
+
+`mode = "wide"` keeps one column per source, after the conversion:
+
+```{r wide}
+wd <- add_trait(res, "woodiness", mode = "wide")
+wd[, c("accepted_name", "woodiness_zanne", "woodiness_gift",
+       "woodiness_bien")]
+```
+
+Each source's own words for woodiness are translated into one vocabulary: Zanne et al. write *herbaceous*, as `add_zanne()` showed, and `add_trait()` reports *non-woody*.
+
+Sources that measure a trait by different methods are not averaged. When one source of a trait carries a `caution` in `trait_info()`, `add_trait()` reports the values of the most complete source and adds a `<trait>_caution` column, so a value never mixes two methods. `sources` restricts a trait to some of its sources, `priority` sets their order, and `combine` sets how they are combined (`"median"`, `"mean"`, `"first"`, `"complete"`, `"vote"`, `"min"` or `"max"`).
+
+## Where each value came from
+
+With `provenance = TRUE`, `add_trait()` adds a `<trait>_refs` column listing the references behind each value, as `<dataset>:<id>`:
+
+```{r refs}
+seed_refs <- add_trait(res, "seed_mass", provenance = TRUE,
+                       verbose = FALSE)
+seed_refs$seed_mass_refs[3]
+```
+
+`cite()` on those identifiers prints the references:
+
+```{r cite-refs}
+refs <- cite(seed_refs$seed_mass_refs[3])
+```
+
+The references are those the source datasets record for each value, as they record them.
+
+## Coverage
+
+A dataset covers a group of taxa, often a region, and never every species. A mixed list shows the pattern:
+
+```{r coverage}
+mixed <- c("Quercus robur", "Parus major", "Vulpes vulpes", "Bufo bufo",
+           "Amanita muscaria", "Salmo trutta")
+mx <- taxify(mixed, backbone = "col", verbose = FALSE)
+mx <- mx |> add_zanne() |> add_avonet() |> add_pantheria() |>
+  add_amphibio() |> add_fungal_traits() |> add_fishbase()
+mx[, c("input_name", "woodiness", "avonet_body_mass_g",
+       "pantheria_body_mass_g", "body_size_mm", "primary_lifestyle",
+       "fb_trophic_level")]
+```
+
+Each species has values only from the datasets that cover its group. A column with `NA` in every row usually means the dataset does not cover the group; an `NA` in some rows means the species is not in the dataset, was described after it was compiled, or was recorded at another rank. `summary()` counts the rows each dataset filled, with its version and licence:
+
+```{r summary}
+summary(both)
+```
+
+## How the values are joined
+
+Each function joins the dataset on the accepted name of each row. A name entered as a synonym therefore receives the values the dataset holds for its accepted name, and an unmatched name receives none.
+
+Backbones can accept different names for one species. When a dataset is built, every name in it is matched against each of the <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones, and the dataset holds a row under every accepted name any backbone gives, so the join works whichever backbone matched the result. When a row still finds nothing, it is matched again against the other installed backbones and the join is retried under their accepted names; the message reports how many rows were recovered this way, and `options(taxify.cross_backbone_recovery = FALSE)` turns it off. A dataset that holds values only for a broader taxon than the matched one, or for a taxon the matched backbone accepts separately, leaves the row empty and says so in its message.
+
+Some datasets are keyed on the genus, such as FungalTraits (Polme et al. [2020](https://doi.org/10.1007/s13225-020-00466-2)), and join on the genus of each row. Hybrids and aggregates take values from their parents or their binomial, as described in [Hybrids and aggregates](hybrids-and-aggregates.html).
+
+## Downloads and versions
+
+Each dataset is downloaded on first use into `taxify_data_dir()` and read from disk after that. `taxify_download_enrichment()` fetches datasets ahead of time:
+
+```{r download, eval = FALSE}
+taxify_download_enrichment(c("zanne", "eive", "griis"))
+```
+
+A dataset with `static = TRUE` in `list_enrichments()` is a fixed release and is never updated. The others are checked against the published version once per session and replaced when a newer one exists; the replaced build is kept, so `taxify_restore()` can reinstall it. The version used is shown by `summary()`, cited by `cite()` and written by `taxify_lock()`, as in [Get started](taxify.html#recording-what-was-used).
+
+## Where next
+
+- [The backbones and datasets](articles/databases.html): every dataset with its scope, version, licence and reference.
+
+- [Joining your own data](custom-data.html): `add_data()` for tables of your own.
+
+- [Hybrids and aggregates](hybrids-and-aggregates.html): values for hybrid and aggregate names.
+
+## References
+
+Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al. (2023). Ecological Indicator Values for Europe (EIVE) 1.0. *Vegetation Classification and Survey* 4: 7-29. <https://doi.org/10.3897/VCS.98324>
+
+Zanne AE, Tank DC, Cornwell WK, Eastman JM, Smith SA, FitzJohn RG, McGlinn DJ, O'Meara BC, Moles AT, Reich PB, et al. (2014). Three keys to the radiation of angiosperms into freezing environments. *Nature* 506: 89-92. <https://doi.org/10.1038/nature12872>

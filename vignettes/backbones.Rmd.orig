@@ -1,0 +1,199 @@
+---
+title: "Choosing and combining backbones"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Choosing and combining backbones}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(width = 80)
+```
+
+This article shows how taxify decides which backbone resolves each name, how to name the backbones yourself, how to compare their answers for the same names, and how to download and pin backbone versions. It ends with a list of backbone choices for common kinds of name lists. Installation is covered in [Get started](taxify.html).
+
+1. **Match** with the default fallback chain, or name the backbones in `backbone`.
+
+2. **Compare** the backbones' answers with `mode = "wide"` or `mode = "agreement"`.
+
+3. **Check** names a backbone does not cover with `lookup_genus()` and `taxify_register_coverage()`.
+
+4. **Download** and pin versions with `taxify_download()`, and list them with `list_backbones()`.
+
+```{r setup}
+library(taxify)
+```
+
+## The default fallback chain
+
+A backbone is a published taxonomic database stored as a file on your disk. taxify supports <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones of taxa, and two of vegetation units described in [Matching vegetation units](vegetation-units.html). `list_backbones()` reports each one's scope, version, number of names and whether it is installed:
+
+```{r list}
+bb <- list_backbones(verbose = FALSE)
+bb[, c("name", "scope", "version", "n_names", "installed")]
+```
+
+Without a `backbone` argument, `taxify()` uses every installed backbone of taxa as a fallback chain: each name is matched against the first backbone, the names left unmatched go to the second, and so on. The order is fixed by priority. The Catalogue of Life (COL) and its Extended Release (COL XR) come first, then the backbones of one group (marine species, plants, fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the broad compilations GBIF, ITIS, NCBI and OTT. On a new setup the first call installs COL, GBIF and the Integrated Taxonomic Information System (ITIS); every backbone downloaded later joins the chain at its place in that order.
+
+The list below mixes a plant, two animals renamed since their description, a fungus, a fish, a bacterium and a brown alga:
+
+```{r default, warning = FALSE}
+mixed <- c(
+  "Quercus robur", "Panthera leo", "Amanita muscaria", "Salmo trutta",
+  "Escherichia coli", "Macropus rufus", "Fucus vesiculosus",
+  "Parus caeruleus"
+)
+res <- taxify(mixed, verbose = FALSE)
+res[, c("input_name", "accepted_name", "backbone")]
+```
+
+All 19 backbones are installed on the machine that built this page, so the chain starts with COL XR. It resolves all eight names, and the other 18 backbones are skipped. The `backbone` column records which backbone matched each row, and the line under the table names the backbones to cite for this result: only those that matched a row. *Macropus rufus* and *Parus caeruleus* are synonyms in COL XR, and their rows carry its accepted names *Osphranter rufus* and *Cyanistes caeruleus*.
+
+The first backbone that matches a name decides its accepted name. taxify does not take a vote across backbones: several backbones copy their treatment from one another, so a majority can follow the oldest treatment. [Comparing backbones](#comparing-backbones) shows how to see where they disagree.
+
+`options(taxify.backbone_priority = )` changes the order for a session, and `options(taxify.default_backbones = )` the set installed on first use.
+
+## Naming the backbones
+
+A `backbone` vector replaces the default chain with your own. A plant list resolved against World Flora Online (WFO) first, with COL for the rest:
+
+```{r wfo-col, warning = FALSE}
+res <- taxify(mixed, backbone = c("wfo", "col"))
+res[, c("input_name", "accepted_name", "match_type", "backbone")]
+```
+
+The progress lines show the chain: WFO matched *Quercus robur*, and COL received six of the seven remaining names. A name present in both backbones takes the treatment of the one listed first, including its accepted name, family and synonym resolution. Fuzzy matching runs inside each backbone before the name moves on, so a misspelt plant name is compared with WFO's names before it reaches COL.
+
+*Fucus vesiculosus* was not sent to COL. Its genus is in the genus register, an index of the genera of every backbone, and the register records that neither WFO nor COL holds it, so the row has `match_type = "out_of_scope"`. The register is described in [How names are matched](fuzzy-matching.html). Adding AlgaeBase, the backbone for algae, resolves it:
+
+```{r algae, warning = FALSE}
+res <- taxify(mixed, backbone = c("wfo", "algaebase", "col"),
+              verbose = FALSE)
+res[res$input_name == "Fucus vesiculosus",
+    c("input_name", "accepted_name", "match_type", "backbone")]
+```
+
+## Checking names outside a backbone
+
+`lookup_genus()` returns the genus register's entry for a genus, and `taxify_register_coverage()` lists the backbones that hold it:
+
+```{r scope}
+lookup_genus("Fucus")[, c("genus", "kingdom", "family", "life_form")]
+taxify_register_coverage("Fucus")
+```
+
+*Fucus* is a brown alga, held by eight backbones. The COL release used here is not one of them, while COL XR, which adds names from further sources, is. An `out_of_scope` row therefore points to a backbone to add to the chain, where `match_type = "none"` leaves open whether the name is misspelt or exists in no backbone.
+
+## Comparing backbones
+
+`mode = "wide"` matches every name against every backbone in `backbone` and adds one `accepted_<backbone>` column per backbone, plus `all_agree`:
+
+```{r wide, warning = FALSE}
+names3 <- c("Macropus rufus", "Parus caeruleus", "Quercus robur")
+wide <- taxify(names3, backbone = c("col", "gbif", "itis"),
+               mode = "wide", verbose = FALSE)
+wide[, c("input_name", "accepted_col", "accepted_gbif", "accepted_itis",
+         "all_agree")]
+```
+
+COL and ITIS place the red kangaroo in *Osphranter*; the GBIF Backbone Taxonomy keeps it in *Macropus*. `accepted_name` is still the pick of the fallback chain, here COL's, so the result passes to the `add_*()` functions unchanged.
+
+`mode = "agreement"` reports the same comparison as counts:
+
+```{r agreement, warning = FALSE}
+agr <- taxify(names3, backbone = c("col", "gbif", "itis"),
+              mode = "agreement", verbose = FALSE)
+agr[, c("input_name", "n_backbones_matched", "n_distinct_accepted",
+        "all_agree")]
+```
+
+`all_agree` is `NA` when fewer than two backbones matched a name.
+
+## Columns from one backbone
+
+The output columns are the same for every backbone. Three functions add the columns that only one backbone carries, and fill them on the rows that backbone matched; other rows get `NA`:
+
+- `add_wfo_info()`: the place of publication, the parent name and WFO's higher classification.
+
+- `add_col_info()`: COL's classification from kingdom to order, nomenclatural code and status, and whether the species is extinct, marine, freshwater or terrestrial.
+
+- `add_gbif_info()`: the hybrid type, nomenclatural status, basionym author and year, and how the name entered the GBIF backbone.
+
+```{r col-info, warning = FALSE}
+crab <- taxify(c("Carcinus maenas", "Quercus robur"), backbone = "col",
+               verbose = FALSE)
+crab <- add_col_info(crab)
+crab[, c("input_name", "kingdom", "is_marine", "is_terrestrial")]
+```
+
+COL records the shore crab as marine and not terrestrial. It records neither for the oak, so both columns are `NA` there.
+
+## How the backbones differ in output
+
+The columns hold the same kind of value for every backbone, with these differences:
+
+- **Identifiers.** `taxon_id` and `accepted_id` use each backbone's own system: WFO IDs, opaque COL IDs (`4R5YN` for *Quercus robur*), GBIF integer keys, ITIS TSNs, NCBI Taxonomy IDs, WoRMS AphiaIDs. An ID is meaningful only within its backbone.
+
+- **Authorship.** NCBI and OTT record no authors, so `authorship` is `NA` on their rows.
+
+- **Synonyms.** Each source encodes synonyms its own way; all are converted when the backbone is built to `is_synonym`, `accepted_name` and `accepted_id`. A synonym that points to another synonym is followed to the accepted name at build time.
+
+The source, licence and citation of each backbone are listed in [The backbones and datasets](articles/databases.html).
+
+## Downloading and pinning versions
+
+Each backbone is downloaded once, on first use, into `taxify_data_dir()`, and read from disk after that. `taxify_download()` fetches backbones ahead of time, for a server or a session without network access:
+
+```{r download, eval = FALSE}
+taxify_download(c("wfo", "worms"))
+```
+
+The download goes into a `latest` folder that is replaced when a newer version is released. taxify compares the local versions with the published ones once per session, at the first call, and updates `latest` then; the version never changes during a session. Without network access, or with `options(taxify.offline = TRUE)` or the environment variable `TAXIFY_OFFLINE` set, it uses the files on disk.
+
+A version string downloads into a folder of its own that is never replaced:
+
+```{r pin, eval = FALSE}
+taxify_download("wfo", version = "2024.01")
+```
+
+Every row records the backbone version that matched it:
+
+```{r version}
+unique(res$backbone_version)
+```
+
+`taxify_lock()` writes these versions with a checksum of each file to a JSON file, and `taxify_restore(install = TRUE)` reinstalls the same builds on another machine, as shown in [Get started](taxify.html#recording-what-was-used). `taxify_build()` builds a backbone from its source files instead of downloading it, which needs the taxifydb package.
+
+## Choosing backbones for a list
+
+Lead with the backbone whose treatment you want for most of the names, and add broader backbones after it for the rest:
+
+- **Vascular plants**: `"wfo"`, or `c("wfo", "col")` for cultivars, names from older floras and recently moved genera that WFO lacks. The World Checklist of Vascular Plants (`"wcvp"`) and the Leipzig Catalogue of Vascular Plants (`"lcvp"`) are alternatives with their own treatment.
+
+- **European vegetation data**: `c("euromed", "wfo")`. Euro+Med PlantBase covers the native and introduced vascular plants of Europe, the Mediterranean and the Caucasus, and WFO resolves the names outside it.
+
+- **Marine and aquatic species**: `"worms"`, the World Register of Marine Species, with `"col"` after it for the terrestrial taxa of an estuarine list.
+
+- **Fungi**: `c("fungorum", "col")`, Species Fungorum first.
+
+- **Algae**: `c("algaebase", "col")`. AlgaeBase is licensed for non-commercial use only (CC BY-NC).
+
+- **Fishes, reptiles, mammals, birds, prokaryotes**: `"fishbase"`, `"reptiledb"`, `"mdd"`, `"avilist"` or `"lpsn"`, each followed by `"col"`.
+
+- **Sequence-linked lists** (metabarcoding, eDNA): `c("ncbi", "col")`. NCBI Taxonomy IDs link to GenBank records, and NCBI covers bacteria, archaea and viruses.
+
+- **Phylogenetic work**: `"ott"`, the Open Tree of Life taxonomy, which cross-references NCBI, GBIF, WoRMS and other sources.
+
+- **Lists of unknown composition**: the default chain, or `c("col", "gbif")`.
+
+## Where next
+
+- [How names are matched](fuzzy-matching.html): the match stages, the fuzzy threshold and the genus register.
+
+- [Matching within a region](regions.html): restricting matches to species present in a region.
+
+- [Matching large lists](large-scale.html): timings and memory for lists of many names.
+
+- [The backbones and datasets](articles/databases.html): the source, size and licence of every backbone.

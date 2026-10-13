@@ -1,0 +1,227 @@
+---
+title: "How names are matched"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How names are matched}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
+options(width = 80)
+```
+
+This article explains the stages `taxify()` runs to bring an input name to a backbone record: cleaning, exact matching, fuzzy matching, the choice among several records with the same name, and the fallbacks for names no backbone holds. It shows what each stage writes into the result and which arguments change it. Installation is covered in [Get started](taxify.html). Most examples match against World Flora Online (WFO), so that every row comes from the same backbone.
+
+```{r setup}
+library(taxify)
+```
+
+## The stages
+
+Each name passes through these stages in order and leaves at the first one that resolves it. `match_type` records which one did:
+
+- `exact`: the cleaned name equals a backbone name.
+
+- `exact_ci`: the names are equal after capitals and spelling variants of Latin are made equal.
+
+- `abbrev`: an abbreviated genus and the epithet identify one species.
+
+- `fuzzy`: the closest backbone name within the fuzzy threshold.
+
+- `rank_fallback`: an infraspecific name no backbone holds, resolved to its species.
+
+- `basionym`: an unplaced record resolved through the name it was based on.
+
+- `none` and `out_of_scope`: no match, described in [Names no backbone matches](#names-no-backbone-matches).
+
+Names of hybrids and aggregates go through two further stages, described in [Hybrids and aggregates](hybrids-and-aggregates.html).
+
+## Cleaning
+
+Names in data carry authors, qualifiers, extra spaces and capitals that backbone names do not. Cleaning removes them before any comparison:
+
+```{r clean}
+raw <- c(
+  "Quercus robur L.", "Quercus robur (L.) Sm.", "  Quercus  robur  ",
+  "cf. Betula pendula", "Betula pendula s.str.", "QUERCUS ROBUR",
+  "Q. petraea"
+)
+res <- taxify(raw, backbone = "wfo", verbose = FALSE)
+res[, c("input_name", "matched_name", "match_type", "qualifier")]
+```
+
+The first three names match exactly once the author and the spaces are gone. The qualifiers `cf.` and `s.str.` are removed from the name and kept in `qualifier`. `QUERCUS ROBUR` matches with capitals ignored, as `exact_ci`. `Q. petraea` has an abbreviated genus; *Quercus* is the only genus starting with Q that has the epithet *petraea*, so the row has `match_type = "abbrev"`.
+
+The `exact_ci` stage also makes spelling variants of Latin equal: *ae* and *oe* with *i*, *y* with *i*, *ph* with *f*, *rh* with *r*, *th* with *t*, and a final *ii* with *i*. An epithet written *sylvestris* in one source and *silvestris* in another therefore matches without fuzzy matching.
+
+An infraspecific rank stays part of the name. `ssp.` and `Var.` are written as `subsp.` and `var.`, and the cleaned name keeps the rank and its epithet.
+
+## Fuzzy matching
+
+A name with no exact match is compared with the backbone names of the same genus, and the closest one within `fuzzy_threshold` is taken. The list below has typing errors of several kinds:
+
+```{r fuzzy}
+messy <- c(
+  "Qurecus robur", "Taraxacum officianle", "Plantago lanceoalata",
+  "Trifolium repnes", "Lolium perrene", "Achillea millefolum",
+  "Betual pendula", "Ranunculus acris"
+)
+res <- taxify(messy, backbone = "wfo", verbose = FALSE)
+res[, c("input_name", "matched_name", "match_type", "fuzzy_dist")]
+```
+
+`fuzzy_dist` is the number of edits between the two names divided by the length of the longer one. *Taraxacum officianle* has two letters swapped, one edit on 20 characters, so its distance is 0.05. *Lolium perrene* needs two edits to become *Lolium perenne*, 2 / 14 = 0.143. *Ranunculus acris* is spelt correctly and matches exactly, so its `fuzzy_dist` is `NA`.
+
+A fuzzy match runs only for names that every exact stage missed, so it never replaces an exact match.
+
+### Distance methods
+
+`fuzzy_method` chooses how edits are counted:
+
+- `"dl"` (Damerau-Levenshtein, the default) counts an insertion, a deletion, a substitution and a swap of two neighbouring letters as one edit each.
+
+- `"levenshtein"` counts a swap as two edits, a deletion and an insertion.
+
+- `"jw"` (Jaro-Winkler) gives a similarity between 0 and 1 that weights agreement at the start of the name; the distance is one minus that similarity.
+
+The same names under each method:
+
+```{r methods}
+dist_of <- function(method) {
+  r <- taxify(messy, backbone = "wfo", fuzzy_method = method,
+              verbose = FALSE)
+  round(r$fuzzy_dist, 3)
+}
+data.frame(
+  input = messy,
+  dl = dist_of("dl"),
+  levenshtein = dist_of("levenshtein"),
+  jw = dist_of("jw")
+)
+```
+
+The Levenshtein distance is twice the Damerau-Levenshtein distance for the names with swapped letters (*Qurecus*, *officianle*, *repnes*, *Betual*) and the same for the others. The Jaro-Winkler distances are smaller throughout, because the shared genus at the start of each name raises the similarity, so a threshold set for `"dl"` is much looser under `"jw"`.
+
+### The threshold
+
+`fuzzy_threshold = 0.2`, the default, accepts a distance up to 0.2: one edit on a 5-letter name, two on a 12-letter name, four on a 20-letter name. A lower value is stricter:
+
+```{r threshold}
+poa <- c("Poa anua", "Poa pratenss", "Poa trialis")
+strict <- taxify(poa, backbone = "wfo", fuzzy_threshold = 0.15,
+                 verbose = FALSE)
+strict[, c("input_name", "matched_name", "match_type", "fuzzy_dist")]
+```
+
+*Poa trialis* needs two edits on 13 characters to become *Poa trivialis*, a distance of 0.154, which the default threshold accepts and 0.15 rejects.
+
+A whole number caps the edits themselves, whatever the length of the name. `fuzzy_threshold = 1` accepts one edit, which fits data whose errors are known to be single letters, such as an optical character recognition (OCR) process that drops or doubles a character:
+
+```{r threshold-int}
+one_edit <- taxify(poa, backbone = "wfo", fuzzy_threshold = 1,
+                   verbose = FALSE)
+one_edit[, c("input_name", "matched_name", "match_type")]
+```
+
+Jaro-Winkler counts no edits, so it takes only a fractional threshold.
+
+### Misspelt genera
+
+The comparison is made within the genus, which keeps it fast on backbones with millions of names and keeps a misspelt epithet from matching a species of another genus. A misspelt genus has no names to be compared with, so for WFO, the Catalogue of Life (COL), COL's Extended Release and the GBIF Backbone Taxonomy a second pass compares the remaining names with all names that start with the same two letters. *Betual pendula* above was matched in that pass. A typing error in the first two letters is not found:
+
+```{r genus-typo}
+taxify("Qeurcus robru", backbone = "wfo", verbose = FALSE)[
+  , c("input_name", "matched_name", "match_type")]
+```
+
+### Checking fuzzy matches
+
+A fuzzy match finds the closest name in spelling, which is not always the intended taxon. Two cases from the backbones:
+
+```{r review}
+check <- c("Quercus fantasia", "Quercus robur var. robur")
+res <- taxify(check, backbone = "wfo", verbose = FALSE)
+res[, c("input_name", "matched_name", "accepted_name", "fuzzy_dist")]
+```
+
+*Quercus fantasia* is an invented name within the threshold of *Quercus matasii*. *Quercus robur* var. *robur* is not in WFO, and the fuzzy stage reaches var. *robusta*, three edits away, before the fallback to the species can run. Sorting the fuzzy rows by `fuzzy_dist`, largest first, puts such matches at the top of a list to check by hand. `inspect()` labels them as likely misspellings, as shown in [Checking a name list](inspecting-names.html).
+
+`fuzzy = FALSE` turns the stage off, for a list that has already been checked:
+
+```{r no-fuzzy}
+exact_only <- taxify(messy, backbone = "wfo", fuzzy = FALSE,
+                     verbose = FALSE)
+table(exact_only$match_type)
+```
+
+## Names with more than one accepted taxon
+
+Some spellings belong to more than one taxon. *Pinus abies* was published by Linnaeus for the Norway spruce and again by Thunberg for a Japanese spruce:
+
+```{r homonym, warning = TRUE}
+pa <- c("Pinus abies", "Pinus abies L.", "Pinus abies Thunb.")
+res <- taxify(pa, backbone = "col", verbose = FALSE)
+res[, c("input_name", "accepted_name", "n_ids", "accepted_ids")]
+```
+
+`n_ids` counts the accepted taxa the spelling leads to, and `accepted_ids` lists their IDs, the pick first. The warning names every row with more than one. Without an author, the pick follows the backbone records: an accepted record before an unplaced one before a synonym, then the species rank, then the lowest ID. When the input carries an author, the record with that author is picked: `Pinus abies Thunb.` resolves to *Picea polita*. `taxify_ids()` lists every candidate of a row with its name, author and status, as shown in [Requesting GBIF data for a species list](gbif-requests.html).
+
+A genus name can also be used in two kingdoms. *Prunella* is a bird genus (the accentors) and a plant genus (self-heal), and COL accepts both. Without further information the pick follows the lowest ID, here the bird. `kingdom` keeps only the records in the named kingdom:
+
+```{r kingdom}
+cols <- c("input_name", "accepted_name", "family", "n_ids", "pick_basis")
+default <- taxify("Prunella", backbone = "col", verbose = FALSE)
+plant <- taxify("Prunella", backbone = "col", kingdom = "plants",
+                verbose = FALSE)
+rbind(default[, cols], plant[, cols])
+```
+
+With `kingdom = "plants"` the row moves to the plant genus in Lamiaceae, and `pick_basis` records that the kingdom decided it. A name with no record in the named kingdom is unmatched, and in a fallback chain it goes on to the next backbone.
+
+## Synonyms and basionyms
+
+A synonym row carries the accepted name its record points to, with `is_synonym = TRUE`:
+
+```{r synonym}
+syn <- taxify(c("Lycopsis orientalis", "Pinus sylvestris"), backbone = "wfo",
+              verbose = FALSE)
+syn[, c("input_name", "accepted_name", "is_synonym", "taxonomic_status")]
+```
+
+When a name has both a synonym record and an unplaced record, the synonym is picked if it shares its type with its accepted name: the accepted name keeps the synonym's final epithet and names its author in parentheses. *Lycopsis orientalis* L. is such a synonym of *Anchusa arvensis* subsp. *orientalis* (L.) Nordh., and it is picked over the unplaced *Lycopsis orientalis* of another author.
+
+The last stage handles a name that matched only an unplaced record. When that record names the name it was based on (its basionym), and the basionym is placed in the backbone, the row takes the basionym's accepted taxon, with `match_type = "basionym"`. The other columns still describe the record that was matched.
+
+## Infraspecific names
+
+A subspecies or variety that a backbone holds matches as written. One that no backbone holds resolves to its species in the last stage:
+
+```{r rank-fallback}
+infra <- c("Quercus robur ssp. robur", "Quercus robur subsp. imaginaria")
+res <- taxify(infra, backbone = "wfo", verbose = FALSE)
+res[, c("input_name", "matched_name", "match_type", "rank")]
+```
+
+`ssp.` is read as `subsp.`, so the first name matches exactly. The invented subspecies resolves to *Quercus robur* with `match_type = "rank_fallback"`; `rank` is the rank of the matched record.
+
+## Names no backbone matches
+
+A name that reaches no record has `match_type = "none"` or `"out_of_scope"`:
+
+```{r unmatched}
+un <- taxify(c("Blorbus maximus", "Carcinus maenas"), backbone = "wfo",
+             verbose = FALSE)
+un[, c("input_name", "match_type", "life_form")]
+```
+
+The genus register decides between the two. It is an index of the genera in all <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones, each with its kingdom, family and life form, built over a fixed set of backbones and downloaded like a backbone, so every machine reports the same labels. *Blorbus* is in no backbone, so the row is `none`: the name may be misspelt or invented. *Carcinus* is a crab genus held by other backbones but not by WFO, so the row is `out_of_scope` and is not compared by fuzzy matching. The register also fills `kingdom_group`, `taxon_group` and `life_form` on every matched row, whichever backbone matched it. [Choosing and combining backbones](backbones.html#checking-names-outside-a-backbone) shows how to find a backbone that holds a genus.
+
+## Where next
+
+- [Hybrids and aggregates](hybrids-and-aggregates.html): names with a hybrid sign or an aggregate marker.
+
+- [Matching within a region](regions.html): restricting fuzzy matches to species present in a region.
+
+- [Checking a name list](inspecting-names.html): every label `inspect()` gives a matched list.

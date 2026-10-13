@@ -1,0 +1,411 @@
+# Get started
+
+This article resolves a short list of plant names to accepted names,
+joins a trait table and two published datasets onto the result, and
+records which backbone versions produced it. It assumes basic R and data
+frames. At the end you have a data frame with one row per input name,
+its accepted name, how it was matched, and the attached traits.
+
+1.  **Match** the names with
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+2.  **Check** the matches that need a decision with
+    [`summary()`](https://rdrr.io/r/base/summary.html) and
+    [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md).
+
+3.  **Join** your own data with
+    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md),
+    and published data with an `add_<source>()` function.
+
+4.  **Record** the data versions with
+    [`cite()`](https://gillescolling.com/taxify/reference/cite.md) and
+    [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md).
+
+## Installation
+
+``` r
+
+install.packages("taxify")
+
+# or the development version
+# install.packages("pak")
+pak::pak("gcol33/taxify")
+```
+
+``` r
+
+library(taxify)
+```
+
+taxify matches names against backbones: published taxonomic databases
+such as the Catalogue of Life (COL), the GBIF Backbone Taxonomy and the
+Integrated Taxonomic Information System (ITIS), stored as files on your
+disk. The first call to
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+downloads COL, GBIF and ITIS, about 4 GB, into
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
+Later calls read these files and need no network.
+
+## Matching a list of names
+
+The example list has nine names as they might come from field sheets.
+Each one reaches its accepted name by a different route: an author
+abbreviation, a typo, a field qualifier (`cf.`), capitals, an
+abbreviated genus, two old synonyms, a second typo, and a name that
+exists in no backbone.
+
+``` r
+
+field_names <- c(
+  "Quercus robur L.", "Quercus robus", "cf. Betula pendula",
+  "FAGUS SYLVATICA", "Q. petraea", "Pinus abies",
+  "Fallopia japonica", "Festuca rubrra", "Quercus fantasia"
+)
+res <- taxify(field_names, verbose = FALSE)
+#> Warning: 1 of 9 names resolve to more than one accepted ID (Pinus abies).
+#> `accepted_id` holds one and `accepted_ids` all of them; list them with
+#> taxify_ids() before requesting data by ID.
+res[, c("input_name", "accepted_name", "match_type", "is_synonym",
+        "fuzzy_dist")]
+#>           input_name       accepted_name match_type is_synonym fuzzy_dist
+#> 1   Quercus robur L.       Quercus robur      exact      FALSE         NA
+#> 2      Quercus robus       Quercus robur      fuzzy      FALSE 0.07692308
+#> 3 cf. Betula pendula      Betula pendula      exact      FALSE         NA
+#> 4    FAGUS SYLVATICA     Fagus sylvatica   exact_ci      FALSE         NA
+#> 5         Q. petraea     Quercus petraea     abbrev      FALSE         NA
+#> 6        Pinus abies         Picea abies      exact       TRUE         NA
+#> 7  Fallopia japonica Reynoutria japonica      exact       TRUE         NA
+#> 8     Festuca rubrra       Festuca rubra      fuzzy      FALSE 0.07142857
+#> 9   Quercus fantasia      Quercus glauca      fuzzy       TRUE 0.18750000
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+returns one row per input name, in input order, with `input_name`
+unchanged. `accepted_name` is the name the backbone currently accepts
+for the taxon, and `match_type` says how the input reached it:
+
+- `exact`: the cleaned name equals a backbone name. Cleaning removed the
+  author from `Quercus robur L.` and the qualifier from
+  `cf. Betula pendula`; the qualifier is kept in the `qualifier` column.
+
+- `exact_ci`: equal after ignoring capitalisation (`FAGUS SYLVATICA`).
+
+- `abbrev`: the genus initial and the epithet identify one species
+  (`Q. petraea`).
+
+- `fuzzy`: no exact match, so the name was compared with backbone names
+  of the same genus, and the closest one within the threshold was taken.
+  `fuzzy_dist` is the edit distance divided by the name length: one
+  changed letter in `Quercus robus` gives 0.077.
+
+`Pinus abies` and `Fallopia japonica` are synonyms: the backbone holds
+them, and points from them to the accepted names *Picea abies* and
+*Reynoutria japonica*. `is_synonym` is `TRUE` on those rows.
+
+`Quercus fantasia` exists in no backbone. Its epithet is close enough to
+a real name, *Quercus matasii*, to fall within the default fuzzy
+threshold, and that name is itself a synonym, so the row ends at
+*Quercus glauca*. A fuzzy match is a candidate to check, and the next
+section finds it.
+
+The warning names the input that matched a spelling with more than one
+accepted taxon behind it. The pick is in `accepted_name` and
+`accepted_id`; `n_ids` counts the candidates and `accepted_ids` lists
+them.
+
+``` r
+
+res[res$n_ids > 1, c("input_name", "accepted_name", "n_ids", "accepted_ids")]
+#>    input_name accepted_name n_ids           accepted_ids
+#> 6 Pinus abies   Picea abies     4 4HPZF|8K9Y|6BRMR|4HQ4F
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
+## Checking the matches
+
+[`summary()`](https://rdrr.io/r/base/summary.html) counts how the batch
+resolved and names the backbone version.
+
+``` r
+
+summary(res)
+#> ── taxify results ────────────────────────────────────────────────────────────
+#>   backbone: COL v2026.09 + GBIF + ITIS  |  9 names submitted
+#> 
+#>   matched         9  (exact: 4, case-insensitive: 1, fuzzy: 3, abbrev: 1)
+#>   multiple ids    1  (more than one accepted ID; see taxify_ids())
+#>   ────────────────────────────────────────────────────────────
+#>   taxon groups: angiosperm: 8  gymnosperm: 1
+```
+
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+returns only the rows that need a look, each with the name to use, what
+stood out and a tier: `review` for a decision you have to make, `note`
+for a change you can accept as it is.
+
+``` r
+
+inspect(res)
+#> ── taxify inspection ──────────────────────────────────────────
+#>   9 names inspected  |  6 with anomalies
+#>   backbones: col, gbif, itis
+#>   review: 4   note: 2
+#>   ────────────────────────────────────────────────────────────
+#>   [review] Festuca rubrra     ->  Festuca rubra        likely misspelling
+#>   [review] Pinus abies        ->  Picea abies          ambiguous (targets: 4HPZF|8K9Y|6BRMR|4HQ4F); outdated synonym
+#>   [review] Quercus fantasia   ->  Quercus glauca       likely misspelling; range outside the list's main area (EUROPE); outdated synonym
+#>   [review] Quercus robus      ->  Quercus robur        likely misspelling
+#>   [note  ] FAGUS SYLVATICA    ->  Fagus sylvatica      case mismatch
+#>   [note  ] Fallopia japonica  ->  Reynoutria japonica  outdated synonym
+```
+
+Both typos and the invented name are marked as likely misspellings;
+`Quercus fantasia` is also outside the area where the rest of the list
+occurs. Set aside the rows you do not accept and keep the others:
+
+``` r
+
+rejected <- c("Quercus fantasia")
+kept <- res[!res$input_name %in% rejected, ]
+kept[, c("input_name", "accepted_name", "family")]
+#>           input_name       accepted_name       family
+#> 1   Quercus robur L.       Quercus robur     Fagaceae
+#> 2      Quercus robus       Quercus robur     Fagaceae
+#> 3 cf. Betula pendula      Betula pendula   Betulaceae
+#> 4    FAGUS SYLVATICA     Fagus sylvatica     Fagaceae
+#> 5         Q. petraea     Quercus petraea     Fagaceae
+#> 6        Pinus abies         Picea abies     Pinaceae
+#> 7  Fallopia japonica Reynoutria japonica Polygonaceae
+#> 8     Festuca rubrra       Festuca rubra      Poaceae
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
+`kept` is the table most analyses start from: every input that survived
+your check, with one accepted name per row.
+
+## Joining your own data
+
+Trait tables write names the way their authors did. The table below uses
+the synonym *Fallopia japonica* where `kept` has *Reynoutria japonica*,
+so a join on the name columns would miss that row.
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+matches the table’s names against the same backbones and joins on the
+accepted name.
+
+``` r
+
+heights <- data.frame(
+  species = c("Fallopia japonica", "Picea abies", "Betula pendula"),
+  height_m = c(3, 50, 25)
+)
+with_height <- add_data(kept, heights, species_col = "species")
+#> Matching 3 names from 'species' through COL + GBIF + ITIS backbone...
+#> Matching 3 names against 3 backbones: col -> gbif -> itis
+#>   [col] Matching 3 names...
+#>   [gbif] Skipped (all names matched)
+#>   [itis] Skipped (all names matched)
+#> add_data: 3 of 8 species matched (37.5%). 0 names in data unmatched.
+with_height[, c("input_name", "accepted_name", "height_m")]
+#>           input_name       accepted_name height_m
+#> 1   Quercus robur L.       Quercus robur       NA
+#> 2      Quercus robus       Quercus robur       NA
+#> 3 cf. Betula pendula      Betula pendula       25
+#> 4    FAGUS SYLVATICA     Fagus sylvatica       NA
+#> 5         Q. petraea     Quercus petraea       NA
+#> 6        Pinus abies         Picea abies       50
+#> 7  Fallopia japonica Reynoutria japonica        3
+#> 8     Festuca rubrra       Festuca rubra       NA
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+reports the backbones it matched the table’s names against, how many
+rows of `kept` received a value, and how many of the table’s names found
+no match. A row of `kept` with no counterpart in `heights` gets `NA`.
+
+## Joining published data
+
+Each published dataset taxify can attach has its own function, named
+after its source.
+[`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md)
+adds the woodiness compiled by Zanne et
+al. ([2014](https://doi.org/10.1038/nature12872)), and
+[`add_eive()`](https://gillescolling.com/taxify/reference/add_eive.md)
+the Ecological Indicator Values for Europe (EIVE, Dengler et
+al. [2023](https://doi.org/10.3897/VCS.98324)). Both join on the
+accepted name the same way
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+does, and each is downloaded on first use.
+
+``` r
+
+traits <- kept |> add_zanne() |> add_eive()
+#> add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").
+#> add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").
+traits[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
+#>         accepted_name  woodiness eive_light eive_moisture
+#> 1       Quercus robur      woody   6.241077      4.802554
+#> 2       Quercus robur      woody   6.241077      4.802554
+#> 3      Betula pendula      woody   6.840881      4.445677
+#> 4     Fagus sylvatica      woody   3.003906      4.570789
+#> 5     Quercus petraea      woody   5.826045      4.200698
+#> 6         Picea abies      woody   4.362537      4.976672
+#> 7 Reynoutria japonica       <NA>   7.278168      6.042765
+#> 8       Festuca rubra herbaceous   7.137641      4.686280
+#> Sources: COL 2026.09, Zanne et al. 2014 2026.08, EIVE 1.0 2026.08 | cite() for full citations
+```
+
+The message of each function says how many of the source’s columns were
+attached; `cols = "all"` attaches the rest.
+[`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
+lists every dataset, and
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
+gathers one trait from all sources that carry it, as described in
+[Attaching published
+data](https://gillescolling.com/taxify/articles/enrichments.md).
+
+## Recording what was used
+
+Every row carries the backbone that matched it and that backbone’s
+version.
+
+``` r
+
+unique(traits[, c("backbone", "backbone_version")])
+#>   backbone         backbone_version
+#> 1      col col:2026.09 (2026-09-14)
+#> Sources: COL 2026.09, Zanne et al. 2014 2026.08, EIVE 1.0 2026.08 | cite() for full citations
+```
+
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md) prints
+the reference for each backbone and dataset in a result, for a methods
+section.
+[`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+writes the same versions with a checksum of each file to a JSON file;
+[`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+reads it on another machine and reinstalls those exact versions.
+
+``` r
+
+cite(traits)
+#> ── taxify citations ────────────────────────────────────────────────────────────
+#>   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones (version 0.7.0). doi:10.32614/CRAN.package.taxify
+#>   [2] Banki O, Roskov Y, Doring M, Ower G, Hernandez Robles DR, Plata Corredor CA, Stjernegaard Jeppesen T, Orrell TM, Pugh D, Kostichka J, et al. (2024). Catalogue of Life Checklist. doi:10.48580/d4t2
+#>   [3] Zanne AE, Tank DC, Cornwell WK, Eastman JM, Smith SA, FitzJohn RG, McGlinn DJ, O'Meara BC, Moles AT, Reich PB, et al. (2014). Three keys to the radiation of angiosperms into freezing environments. Nature 506:89-92. doi:10.1038/nature12872
+#>   [4] Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al. (2023). Ecological Indicator Values for Europe (EIVE) 1.0. Vegetation Classification and Survey 4:7-29. doi:10.3897/VCS.98324
+#>   ────────────────────────────────────────────────────────────
+```
+
+``` r
+
+lock <- tempfile(fileext = ".json")
+taxify_lock(traits, lock)
+writeLines(readLines(lock))
+#> {
+#>   "taxify_version": "0.7.0",
+#>   "created": "2026-10-13",
+#>   "r_version": "R version 4.6.0 (2026-04-24 ucrt)",
+#>   "backbones": [
+#>     {
+#>       "name": "col",
+#>       "version": "2026.09",
+#>       "content_id": "c2999654decfc2a45771631a59ca7ba5",
+#>       "downloaded_at": "2026-09-14",
+#>       "installed": true
+#>     }
+#>   ],
+#>   "enrichments": [
+#>     {
+#>       "name": "zanne",
+#>       "source": "Zanne et al. 2014",
+#>       "version": "2026.08",
+#>       "license": "CC0",
+#>       "content_id": "0caefc8d2229f59f6bafac436b3d8dd0",
+#>       "downloaded_at": "2026-09-23",
+#>       "installed": true
+#>     },
+#>     {
+#>       "name": "eive",
+#>       "source": "EIVE 1.0",
+#>       "version": "2026.08",
+#>       "license": "CC BY 4.0",
+#>       "content_id": "3ab5bb17891b3e182fb6a4a38efae32a",
+#>       "downloaded_at": "2026-09-23",
+#>       "installed": true
+#>     }
+#>   ]
+#> }
+```
+
+## Common errors
+
+Names often arrive as a column of a data frame.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) takes
+a character vector of names, such as that column:
+
+``` r
+
+survey <- data.frame(plot = 1:2, species = c("Quercus robur", "Fagus sylvatica"))
+taxify(survey)
+#> Error:
+#> ! x must be a character vector
+```
+
+``` r
+
+taxify(survey$species, verbose = FALSE)[, c("input_name", "accepted_name")]
+#>        input_name   accepted_name
+#> 1   Quercus robur   Quercus robur
+#> 2 Fagus sylvatica Fagus sylvatica
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
+A backbone name has to be one of those
+[`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
+reports. A misspelt one stops with the list of valid names:
+
+``` r
+
+taxify("Quercus robur", backbone = "catalogue of life")
+#> Error:
+#> ! Unknown backbone 'catalogue of life'. Available: wfo, col, colxr, gbif, itis, ncbi, ott, worms, euromed, fungorum, algaebase, fishbase, sealifebase, reptiledb, lcvp, wcvp, mdd, avilist, lpsn, evc, vegcz
+```
+
+``` r
+
+taxify("Quercus robur", backbone = "col", verbose = FALSE)[
+  , c("input_name", "accepted_name", "backbone")]
+#>      input_name accepted_name backbone
+#> 1 Quercus robur Quercus robur      col
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
+## Where next
+
+- [Choosing and combining
+  backbones](https://gillescolling.com/taxify/articles/backbones.md):
+  the nineteen backbones, fallback chains, downloads and version
+  pinning.
+
+- [Checking a name
+  list](https://gillescolling.com/taxify/articles/inspecting-names.md):
+  every label
+  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+  reports, and
+  [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+  for a checklist.
+
+- [How names are
+  matched](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
+  cleaning, the fuzzy threshold, homonyms and the `n_ids` columns.
+
+- [Attaching published
+  data](https://gillescolling.com/taxify/articles/enrichments.md) and
+  [Joining your own
+  data](https://gillescolling.com/taxify/articles/custom-data.md): the
+  two kinds of join in full.
+
+- [Coming from taxize and
+  WorldFlora](https://gillescolling.com/taxify/articles/migration.md):
+  function mapping and side-by-side examples.

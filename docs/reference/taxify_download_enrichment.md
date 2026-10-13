@@ -26,7 +26,7 @@ taxify_download_enrichment(
 
 - content_id:
 
-  Character or `NULL` (default). The content id of one exact build – the
+  Character or `NULL` (default). The content id of one exact build, the
   md5 of its `.vtr`, as recorded by
   [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
   and by the manifest. Given one, taxify fetches that build from the

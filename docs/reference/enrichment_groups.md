@@ -1,7 +1,7 @@
 # Browse the group values a grouped enrichment can filter on
 
-Some enrichment doors attach data per group: GRIIS invasive status by
-country
+Some `add_<source>()` functions attach data per group: GRIIS invasive
+status by country
 ([`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md)),
 WCVP native ranges by TDWG region
 ([`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)),
@@ -9,12 +9,12 @@ vernacular names by language
 ([`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)),
 alien first records by location
 ([`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md)).
-This lists the valid group values for such a door, the way
+This lists the valid group values for such a function, the way
 [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
-lists a door's columns, so a country, region, or language code need not
-be guessed. Read offline from the local `.vtr` metadata (falling back to
-the manifest, then a scan of the `.vtr`); the first call may trigger the
-one-time download.
+lists a dataset's columns, so a country, region, or language code need
+not be guessed. Read offline from the local `.vtr` metadata (falling
+back to the manifest, then a scan of the `.vtr`); the first call may
+trigger the one-time download.
 
 ## Usage
 

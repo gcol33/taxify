@@ -49,8 +49,8 @@ The same data.frame with additional columns. The default set:
 ## Details
 
 Source: CCDB (ccdb.tau.ac.il), citation requested, no explicit licence,
-so taxify publishes no pre-built copy. The data is built on your machine
-from the original source, which needs taxifydb installed:
+so taxify publishes no pre-built copy. The data is built on the user's
+machine from the original source, which needs taxifydb installed:
 `remotes::install_github("gcol33/taxifydb")`.
 
 CCDB's service reports gametic numbers, which taxifydb doubles to the

@@ -101,8 +101,8 @@ The same data.frame with additional columns:
 
 ## Details
 
-The layer carries a per-species distribution signal – biogeographic
-realm, elevation range and mean climate – alongside body-size and
+The dataset carries a per-species distribution signal (biogeographic
+realm, elevation range and mean climate) alongside body-size and
 life-history traits, across all reptiles (snakes, lizards,
 amphisbaenians, turtles, crocodiles and the tuatara), not lizards only.
 

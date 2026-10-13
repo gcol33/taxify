@@ -1,0 +1,158 @@
+---
+title: "Matching large lists"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Matching large lists}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
+options(width = 80)
+scale <- jsonlite::read_json("../scripts/benchmark-scale-results.json")
+mem <- jsonlite::read_json("../scripts/benchmark-memory-results.json")
+fmt <- function(x, d = 1) format(round(x, d), nsmall = d, big.mark = ",")
+```
+
+This article shows how long `taxify()` takes on lists from a thousand to a hundred thousand names, how much memory a backbone takes, and how to run a list too long for one call in parts that can resume after an interruption. Installation is covered in [Get started](taxify.html).
+
+1. **Turn off** fuzzy matching for checked lists with `fuzzy = FALSE`, or run it on the unmatched names only.
+
+2. **Order** the backbones so the one that resolves most names comes first.
+
+3. **Split** a very long list into parts and write each result to disk.
+
+4. **Download** backbones and datasets before a run, and free memory after it.
+
+```{r setup}
+library(taxify)
+```
+
+## How long matching takes
+
+`scripts/benchmark-scale.R` in the taxify repository matches lists of accepted species names drawn from World Flora Online (WFO), as they are and with one letter changed in every tenth name. Each list runs in a new R session, after one call that loads the backbone. The run recorded in `scripts/benchmark-scale-results.json` used taxify `r scale$platform$taxify` and vectra `r scale$platform$vectra` under R `r scale$platform$r`, on `r scale$platform$cpu` with `r scale$platform$cores` logical cores, on `r substr(scale$generated_at, 1, 10)`:
+
+```{r timings, echo = FALSE}
+runs <- do.call(rbind, lapply(scale$runs, function(r) {
+  data.frame(names = r$n_names, typos = r$typos, seconds = r$match_s)
+}))
+tab <- data.frame(
+  Names = format(runs$names[!runs$typos], big.mark = ","),
+  `All spelt correctly (s)` = fmt(runs$seconds[!runs$typos]),
+  `One in ten misspelt (s)` = fmt(runs$seconds[runs$typos]),
+  check.names = FALSE
+)
+knitr::kable(tab, align = c("r", "r", "r"))
+```
+
+Loading the backbone took about `r fmt(scale$runs[[1]]$load_s)` s and is paid once per session; every later call reuses it. A misspelt name costs more than a correct one, because it goes through fuzzy matching after every exact stage has missed it.
+
+## Lists that need no fuzzy matching
+
+A list taken from a curated database or from an earlier taxify run is spelt as the backbone spells it. `fuzzy = FALSE` skips fuzzy matching, and the names that find no exact match come back as `none`:
+
+```{r exact}
+checked <- c("Quercus robur", "Fagus sylvatica", "Betula pendula",
+             "Pinus sylvestris", "Acer pseudoplatanus", "Qurecus petraea")
+exact <- taxify(checked, backbone = "wfo", fuzzy = FALSE, verbose = FALSE)
+table(exact$match_type)
+```
+
+For a list with some misspellings, the fuzzy stage can run on the unmatched names alone, and the results are joined back by input name:
+
+```{r two-pass}
+missed <- exact$input_name[exact$match_type == "none"]
+second <- taxify(missed, backbone = "wfo", verbose = FALSE)
+second[, c("input_name", "matched_name", "match_type")]
+```
+
+The backbone stays loaded between the two calls, so the second one does not load it again.
+
+## Ordering the backbones
+
+In a fallback chain, the first backbone receives every name and each later one only the names still unmatched. A chain that leads with the backbone holding most of the list sends fewer names to the others, and a smaller backbone is faster to search. The sizes:
+
+```{r sizes}
+bb <- list_backbones(verbose = FALSE)
+bb <- bb[bb$code == "taxon", c("name", "n_names", "size_mb")]
+bb[order(bb$n_names), ]
+```
+
+The order also decides the accepted name of a name both backbones hold, as described in [Choosing and combining backbones](backbones.html).
+
+## Long lists in parts
+
+A single call matches a list of any length, and loses everything if the session ends during the run. Splitting the list into parts and writing each result to disk lets a run resume from the last finished part. The example uses a short list and parts of three names, written to a temporary directory; a real run uses parts of tens of thousands:
+
+```{r chunks}
+all_names <- c(checked, "Fraxinus excelsior", "Tilia cordata",
+               "Sorbus aucuparia")
+parts <- split(all_names, ceiling(seq_along(all_names) / 3))
+out_dir <- file.path(tempdir(), "taxify-parts")
+dir.create(out_dir, showWarnings = FALSE)
+
+for (i in seq_along(parts)) {
+  file <- file.path(out_dir, sprintf("part_%04d.rds", i))
+  if (file.exists(file)) next
+  res <- taxify(parts[[i]], backbone = "wfo", verbose = FALSE)
+  saveRDS(res, file)
+}
+
+files <- list.files(out_dir, pattern = "\\.rds$", full.names = TRUE)
+matched <- do.call(rbind, lapply(files, readRDS))
+nrow(matched)
+```
+
+A part that already has a file is skipped, so running the loop again after an interruption continues where it stopped. Each name is matched on its own, so the result does not depend on how the list is split. Attaching published data inside the loop, before `saveRDS()`, keeps only one part in memory at a time.
+
+## Memory
+
+`scripts/benchmark-memory.R` measures the memory of the R process, including what the backbone occupies outside R's own objects, which `gc()` does not report. Each stage runs in a new session. The run recorded in `scripts/benchmark-memory-results.json` used taxify `r mem$platform$taxify` under R `r mem$platform$r` on `r substr(mem$generated_at, 1, 10)`, matching `r format(mem$n_names, big.mark = ",")` names; values are megabytes above an R session with taxify loaded:
+
+```{r memory, echo = FALSE}
+st <- do.call(rbind, lapply(mem$stages, function(s) {
+  data.frame(backbone = s$backbone, stage = s$stage, vtr = s$vtr_mb,
+             base = s$baseline_mb,
+             load = suppressWarnings(as.numeric(s$after_load_mb)),
+             match = suppressWarnings(as.numeric(s$after_match_mb)))
+}))
+by_bb <- split(st, st$backbone)
+tab <- do.call(rbind, lapply(names(by_bb), function(n) {
+  s <- by_bb[[n]]
+  pick <- function(stage, col) s[[col]][s$stage == stage] - s$base[s$stage == stage]
+  data.frame(Backbone = toupper(n),
+             `File (MB)` = fmt(s$vtr[1], 0),
+             `Loaded` = fmt(pick("load", "load"), 0),
+             `Exact match` = fmt(pick("match", "match"), 0),
+             `Fuzzy match` = fmt(pick("fuzzy", "match"), 0),
+             check.names = FALSE)
+}))
+knitr::kable(tab, align = c("l", "r", "r", "r", "r"))
+```
+
+A loaded backbone takes two to three times its file size, for its indexes and its text, and stays loaded for the session. Fuzzy matching adds a working buffer that grows with the number of unmatched names, and is released after each call; the fuzzy column is the case in which every name needs it.
+
+`taxify_clear_cache()` releases the loaded backbones, for example before fitting a model on the matched result. The files stay on disk, and the next call loads them again.
+
+## Downloads before a run
+
+A run on a server or a cluster can download what it needs first, so that the matching step does not depend on the network:
+
+```{r download, eval = FALSE}
+taxify_download(c("col", "wfo"))
+taxify_download_enrichment(c("iucn", "zanne"))
+Sys.setenv(TAXIFY_OFFLINE = "1")
+```
+
+With `TAXIFY_OFFLINE` set, or `options(taxify.offline = TRUE)`, taxify uses the files on disk and does not check for newer versions. `taxify_refresh_manifest()` makes the next call in a long session check again.
+
+## Where the files are
+
+`taxify_data_dir()` returns the directory that holds every backbone and dataset. It is shared by all R projects of a user, so a backbone is downloaded once per machine. The `taxify.data_dir` option or the `TAXIFY_DATA_DIR` environment variable sets another directory, for example one shared by several users of a server; the files are only read during matching, so several sessions can use them at once. `taxify_store()` lists the builds on disk. Deleting a backbone's directory removes it, and the next call that needs it downloads it again.
+
+## Where next
+
+- [Choosing and combining backbones](backbones.html): versions, pinning and the fallback chain.
+
+- [How names are matched](fuzzy-matching.html): the fuzzy stage and its threshold.

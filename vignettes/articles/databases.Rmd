@@ -1,115 +1,160 @@
 ---
-title: "Databases: every backbone, enrichment, and trait"
+title: "The backbones and datasets"
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", echo = FALSE)
 library(taxify)
 
-# Render from the manifest that ships with this build, so the tables always match
-# the installed package and need no network. list_backbones() / list_enrichments()
-# read the session manifest cache; point it at the bundled copy.
+# The tables are built from the manifest that ships with this build, so they
+# match the installed package and need no network. list_backbones() and
+# list_enrichments() read the session manifest cache; point it at that copy.
 mp <- system.file("manifest.json", package = "taxify")
-if (nzchar(mp)) {
-  bundled <- jsonlite::read_json(mp, simplifyVector = FALSE)
-  assign("manifest", bundled, envir = taxify:::.taxify_env)
+manifest <- jsonlite::read_json(mp, simplifyVector = FALSE)
+assign("manifest", manifest, envir = taxify:::.taxify_env)
+
+# A source_url is a full URL or a bare DOI; both become an absolute link.
+href <- function(url) {
+  ifelse(is.na(url) | grepl("^https?://", url), url,
+         ifelse(grepl("^10\\.[0-9]", url), paste0("https://doi.org/", url),
+                paste0("https://", url)))
 }
 
-link <- function(url) {
-  # Some source_url values are bare DOIs (10.xxxx/...) rather than full URLs;
-  # render those through doi.org so the link is absolute, not relative to /articles/.
-  href <- ifelse(is.na(url) | grepl("^https?://", url), url,
-          ifelse(grepl("^10\\.[0-9]", url), paste0("https://doi.org/", url),
-                 paste0("https://", url)))
-  ifelse(is.na(url) | !nzchar(url), "", sprintf("[source](%s)", href))
+# "Authors year" from the first citation of a manifest entry, linked to its
+# DOI where it has one.
+short_ref <- function(entry) {
+  cit <- entry$citation
+  if (is.null(cit) || length(cit) == 0L) return("")
+  if (is.character(cit)) return(short_ref_text(cit[[1L]]))
+  c1 <- if (!is.null(cit$authors)) cit else cit[[1L]]
+  if (is.character(c1)) return(short_ref_text(c1))
+  first <- sub(",.*$", "", c1$authors %||% "")
+  n_auth <- length(strsplit(c1$authors %||% "", ",\\s*")[[1L]])
+  who <- if (n_auth > 2L || grepl("et al", c1$authors %||% "")) {
+    paste(sub(" [A-Z-]+$", "", first), "et al.")
+  } else {
+    sub(" [A-Z-]+$", "", first)
+  }
+  txt <- trimws(paste(who, c1$year %||% ""))
+  if (!is.null(c1$doi) && nzchar(c1$doi)) {
+    sprintf("[%s](https://doi.org/%s)", txt, c1$doi)
+  } else if (!is.null(c1$url) && nzchar(c1$url)) {
+    sprintf("[%s](%s)", txt, c1$url)
+  } else {
+    txt
+  }
 }
-```
+`%||%` <- function(a, b) if (is.null(a)) b else a
 
-## Installation
-
-```{r, eval = FALSE}
-install.packages("taxify")
-```
-
-Or the development version from GitHub:
-
-```{r, eval = FALSE}
-install.packages("pak")
-pak::pak("gcol33/taxify")          # vectra is installed automatically
+# The same for a citation written as one string: the authors and year before
+# the first "(year)", else the text before the first full stop, linked to the
+# first DOI in the string.
+short_ref_text <- function(txt) {
+  m <- regmatches(txt, regexec("^([^()]+?) \\((\\d{4})\\)", txt))[[1L]]
+  label <- if (length(m)) {
+    who <- trimws(m[2L])
+    if (grepl(",", who) && !grepl("et al", who)) {
+      who <- paste(sub(",.*$", "", who), "et al.")
+    }
+    sub(" [A-Z-]+ et al\\.$", " et al.", paste(who, m[3L]))
+  } else {
+    sub("[.(].*$", "", txt)
+  }
+  label <- sub("^([^ ]+) [A-Z]{1,3}( et al\\.)? ", "\\1\\2 ", label)
+  doi <- regmatches(txt, regexpr("10\\.[0-9]{4,}/[^ ),;]+", txt))
+  if (length(doi)) sprintf("[%s](https://doi.org/%s)", trimws(label), doi)
+  else trimws(label)
+}
 ```
 
 ```{=html}
 <style>
-/* This page only: the manifest tables are wide, so widen the layout and let the
-   tables use the extra room. The max-width cap is a no-op on narrow screens
-   (the container is already smaller than the cap there), so no media query is
-   needed. Prose keeps a readable line length. */
-/* !important overrides Bootstrap's responsive .container max-width, which is set
-   inside a min-width media query and would otherwise cap this page. */
+/* The tables on this page are wide: widen the layout and let them use the
+   room, while the prose keeps a readable line length. !important overrides
+   the max-width Bootstrap sets on .container inside a media query. */
 .container.template-article { max-width: 1560px !important; }
+.template-article main { max-width: none !important; }
 .template-article main > p,
 .template-article main > div.sourceCode { max-width: 900px; }
-.template-article main table { width: 100%; }
+.template-article main table {
+  display: block; width: 100%; max-width: 100%; overflow-x: auto;
+}
 </style>
 ```
 
-taxify resolves names against local taxonomic **backbones** and joins external
-**enrichment** datasets that carry **traits**. This page lists all three, straight
-from the manifest this version ships. In an R session, the same content is one call
-away:
+This page lists every backbone taxify matches names against and every published dataset it can attach, with the version, size, licence and reference of each. The tables are generated from the manifest of this taxify version when the site is built. Installation is covered in [Get started](../taxify.html); how to choose backbones is in [Choosing and combining backbones](../backbones.html), and how to attach datasets in [Attaching published data](../enrichments.html).
 
-```{r echo = TRUE, eval = FALSE}
-taxify_databases()   # backbones + enrichments in one frame
-list_backbones()     # the taxonomic backbones
-list_enrichments()   # the trait / status datasets
-list_traits()        # the cross-source trait vocabulary add_trait() draws on
+In R, the same lists are returned by these functions:
+
+```{r calls, echo = TRUE, eval = FALSE}
+list_backbones()     # the backbones
+list_enrichments()   # the published datasets
+list_traits()        # the traits add_trait() gathers across datasets
+taxify_databases()   # backbones and datasets in one table
 ```
 
-## Taxonomic backbones
+## Backbones
 
-Each is a pre-built `.vtr` downloaded once and matched locally. Pass several to
-`taxify()` and they form a fallback chain.
+A backbone is downloaded once, on first use, and read from disk after that. `Names` counts accepted names and synonyms together.
 
-```{r}
+```{r backbones}
 bb <- list_backbones(verbose = FALSE)
-bb$source <- link(bb$source)
+bb$ref <- vapply(bb$name, function(n) short_ref(manifest$backends[[n]]),
+                 character(1))
+bb$licence <- vapply(bb$name, function(n) {
+  manifest$backends[[n]]$license %||% ""
+}, character(1))
+bb$name <- sprintf("`%s`", bb$name)
 knitr::kable(
-  bb[, c("name", "scope", "n_names", "size_mb", "version", "source")],
-  col.names = c("Backbone", "Scope", "Names", "MB", "Version", ""),
+  bb[, c("name", "title", "scope", "n_names", "size_mb", "version",
+         "licence", "ref")],
+  col.names = c("Backbone", "Full name", "Scope", "Names", "MB", "Version",
+                "Licence", "Reference"),
   format.args = list(big.mark = ","),
-  align = c("l", "l", "r", "r", "l", "l")
-)
-```
-
-## Enrichment datasets
-
-Each `add_<source>()` door joins one dataset to a `taxify()` result on the accepted
-name. `add_trait()` gathers a single trait across every source that carries it. Browse
-a dataset's columns in R with `enrichment_cols("<name>")`.
-
-```{r}
-en <- list_enrichments(verbose = FALSE)
-en <- en[order(en$name), ]
-tc <- ifelse(is.na(en$trait_cols), "", en$trait_cols)
-en$n_cols <- vapply(strsplit(tc, ",\\s*"),
-                    function(x) sum(nzchar(x)), integer(1))
-en$source_url <- link(en$source_url)
-knitr::kable(
-  en[, c("name", "version", "nrow", "n_cols", "source_url")],
-  col.names = c("Enrichment", "Version", "Rows", "Columns", ""),
-  format.args = list(big.mark = ","),
-  align = c("l", "l", "r", "r", "l"),
+  align = c("l", "l", "l", "r", "r", "l", "l", "l"),
   row.names = FALSE
 )
 ```
 
-## Cross-source traits
+The licence of a backbone without one in the table is set by its source; the `source` link of `list_backbones()` leads to it. AlgaeBase, FishBase and SeaLifeBase are licensed for non-commercial use only.
 
-Name one trait; `add_trait()` finds and harmonizes it from the sources below.
+## Published datasets
 
-```{r}
+Each dataset is attached by its `add_<source>()` function, whose help page lists its columns and reference. `Rows` counts the rows of the built dataset, which holds a row under every accepted name any backbone gives a species, so it is larger than the number of species in the source. A dataset marked `fixed` is a single release that is never updated; the others are updated when their source publishes a new version.
+
+```{r datasets}
+en <- list_enrichments(verbose = FALSE)
+en <- en[order(en$name), ]
+exports <- getNamespaceExports("taxify")
+fn <- paste0("add_", en$name)
+en$fun <- ifelse(fn %in% exports,
+                 sprintf("[`%s()`](../reference/%s.html)", fn, fn), "")
+en$licence <- vapply(en$name, function(n) {
+  manifest$enrichments[[n]]$license %||% ""
+}, character(1))
+en$ref <- vapply(en$name, function(n) short_ref(manifest$enrichments[[n]]),
+                 character(1))
+en$release <- ifelse(en$static, "fixed", "updated")
+knitr::kable(
+  en[, c("name", "fun", "version", "release", "nrow", "licence", "ref")],
+  col.names = c("Dataset", "Function", "Version", "Release", "Rows",
+                "Licence", "Reference"),
+  format.args = list(big.mark = ","),
+  align = c("l", "l", "l", "l", "r", "l", "l"),
+  row.names = FALSE
+)
+```
+
+A dataset without a function of its own is attached through `add_trait()`, which reads it as one source of a trait.
+
+## Traits across datasets
+
+`add_trait()` gathers one trait from every dataset in the `From` column, in one unit and one vocabulary.
+
+```{r traits}
 tr <- list_traits()
 tr <- tr[order(tr$trait), ]
+tr$trait <- sprintf("`%s`", tr$trait)
 knitr::kable(
   tr[, c("trait", "label", "kind", "unit", "n_sources", "sources")],
   col.names = c("Trait", "Label", "Kind", "Unit", "Sources", "From"),

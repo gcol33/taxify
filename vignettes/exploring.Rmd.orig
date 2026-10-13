@@ -1,0 +1,167 @@
+---
+title: "Exploring the backbone"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Exploring the backbone}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
+options(width = 80)
+```
+
+`taxify()` reads a backbone in one direction, from a name to its accepted taxon. This article shows the functions that read it in the others: the synonyms of a taxon, the species of a genus, the ranks above a species, the taxon behind an ID, the parts of a name, and common names. It ends with a taxonomy tree of a species list. Installation is covered in [Get started](taxify.html). Every example reads the Catalogue of Life (COL); `backbone` names another.
+
+1. **List** synonyms with `synonyms()`, and the taxa below a genus or family with `children()` and `downstream()`.
+
+2. **Climb** to the ranks above a taxon with `upstream()` and `add_classification()`.
+
+3. **Look up** IDs with `id2name()` and `taxify_ids()`, and the parts of a name with `parse_name()`.
+
+4. **Translate** common names with `comm2sci()` and `sci2comm()`.
+
+5. **Compare** a list with `lowest_common()` and `class2tree()`.
+
+```{r setup}
+library(taxify)
+```
+
+## Synonyms
+
+`synonyms()` resolves each name to its accepted taxon and lists every synonym the backbone points to it:
+
+```{r synonyms}
+syn <- synonyms("Picea abies", backbone = "col", verbose = FALSE)
+nrow(syn)
+head(syn[, c("synonym", "authorship")])
+```
+
+The input can itself be a synonym: `synonyms("Pinus abies")` lists the same set, through the accepted *Picea abies*.
+
+## Taxa below a genus or family
+
+`children()` lists the accepted species of a genus, or of a family:
+
+```{r children}
+spruces <- children("Picea", backbone = "col", verbose = FALSE)
+nrow(spruces)
+head(spruces[, c("name", "authorship", "rank")])
+```
+
+`downstream()` does the same from any higher taxon to any rank below it. The genera of the pine family:
+
+```{r downstream}
+genera <- downstream("Pinaceae", backbone = "col", downto = "genus",
+                     verbose = FALSE)
+genera$name
+```
+
+Both return accepted taxa only, and never the parent itself. A genus name used in two kingdoms, such as *Prunella*, is split with `kingdom`, as in `taxify()`.
+
+## Ranks above a taxon
+
+`upstream()` returns the classification of one taxon, one row per rank. A synonym or misspelling is resolved first:
+
+```{r upstream}
+upstream("Pinus abies", backbone = "col", verbose = FALSE)
+```
+
+`to = "family"` returns only that rank. For a whole result, `add_classification()` adds kingdom, phylum, class and order as columns:
+
+```{r classification}
+res <- taxify(c("Picea abies", "Panthera leo"), backbone = "col",
+              verbose = FALSE)
+cls <- add_classification(res, verbose = FALSE)
+cls[, c("input_name", "kingdom", "phylum", "class", "order", "family")]
+```
+
+## IDs
+
+`id2name()` turns backbone IDs, such as those in the `taxon_id` and `accepted_id` columns, into names, ranks and accepted names:
+
+```{r id2name}
+id2name(c("4HPZF", "KQB98"), backbone = "col", verbose = FALSE)
+```
+
+An ID is meaningful only within its backbone: GBIF keys, ITIS TSNs and WoRMS AphiaIDs are read against `"gbif"`, `"itis"` and `"worms"`.
+
+`taxify_ids()` lists every accepted taxon behind each matched name, one row per name and ID, with the pick marked:
+
+```{r taxify-ids}
+pa <- taxify("Pinus abies", backbone = "col", verbose = FALSE)
+ids <- taxify_ids(pa, verbose = FALSE)
+ids[, c("accepted_id", "accepted_name", "family", "is_pick")]
+```
+
+*Pinus abies* was used for four species. The pick is *Picea abies*; [How names are matched](fuzzy-matching.html#names-with-more-than-one-accepted-taxon) explains how it is chosen.
+
+## The parts of a name
+
+`parse_name()` splits a name into its parts without matching it against a backbone:
+
+```{r parse}
+parse_name(c(
+  "Quercus robur L.", "cf. Betula pendula Roth",
+  "Abies alba subsp. borisii-regis (Mattf.) Kozuharov",
+  "Mentha x piperita L."
+))
+```
+
+`canonical` is the cleaned name that `taxify()` matches. `parse_name(code = "syntaxon")` parses the names of vegetation units, as shown in [Matching vegetation units](vegetation-units.html).
+
+## Common names
+
+`sci2comm()` returns the common names of each taxon, from the vernacular names that GBIF, NCBI and the Open Tree of Life publish. `lang` takes two-letter language codes, and `name_rank` orders the names of a language by how many sources give them:
+
+```{r sci2comm}
+cn <- sci2comm("Picea abies", lang = c("en", "de"), backbone = "col",
+               verbose = FALSE)
+cn[cn$name_rank <= 2, c("common_name", "lang", "name_rank")]
+```
+
+`comm2sci()` goes the other way, with capitals ignored. A common name is often given to several taxa, so it returns every scientific name that carries it:
+
+```{r comm2sci}
+sp <- comm2sci("Norway spruce", lang = "en", verbose = FALSE)
+nrow(sp)
+head(sp$accepted_name)
+```
+
+With `output = "result"`, the names are matched with `taxify()`, and `query_common` keeps the common name of each row:
+
+```{r comm2sci-result}
+sp_res <- comm2sci("Norway spruce", lang = "en", output = "result",
+                   backbone = "col", verbose = FALSE)
+table(sp_res$accepted_name)
+```
+
+Of the 31 names that carry "Norway spruce", 30 match COL, and 27 of those resolve to *Picea abies* or one of its varieties. The others are names a source attached the common name to in another sense, which is why the lookup returns every name rather than one. `add_common_names()` attaches the first common name of each language as columns of a result.
+
+## Comparing a list
+
+`lowest_common()` returns the lowest rank a set of names shares:
+
+```{r lowest-common}
+conifers <- c("Picea abies", "Pinus sylvestris", "Abies alba")
+lowest_common(conifers, backbone = "col", verbose = FALSE)
+lowest_common(c("Picea abies", "Quercus robur"), backbone = "col",
+              verbose = FALSE)
+```
+
+`class2tree()` builds a taxonomy tree from the classifications, as a Newick string, and as a `phylo` object when the ape package is installed:
+
+```{r tree}
+trees <- c(conifers, "Quercus robur", "Fagus sylvatica")
+tree <- class2tree(trees, backbone = "col", verbose = FALSE)
+tree$newick
+```
+
+The tree follows the ranks of the backbone's classification; it is not a phylogeny, and branch lengths carry no meaning.
+
+## Where next
+
+- [How names are matched](fuzzy-matching.html): the forward direction, from a name to its accepted taxon.
+
+- [Requesting GBIF data for a species list](gbif-requests.html): `taxify_ids()` in a download of occurrence records.

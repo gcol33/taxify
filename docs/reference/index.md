@@ -2,8 +2,7 @@
 
 ## Match and inspect names
 
-Resolve a vector of names against local backbones and check a list
-before you trust it.
+Resolve a vector of names against local backbones and check the matches.
 
 - [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) :
   Match taxonomic names against local backbone databases
@@ -42,9 +41,8 @@ before you trust it.
 
 ## Explore the backbone
 
-Read the backbone the other ways — list synonyms, list the taxa within
-or beneath a group, attach the full classification, build a taxonomy
-tree.
+List synonyms, the taxa within or beneath a group, the classification of
+a name, and a taxonomy tree, from the backbone files.
 
 - [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
   : List the synonyms of a name
@@ -108,7 +106,7 @@ register.
 - [`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
   : Builds of a taxify asset held on disk
 
-## Backend-specific columns
+## Backbone-specific columns
 
 Attach extra columns from the backbone that matched.
 
@@ -135,8 +133,8 @@ it.
 
 ## Browse and discover
 
-See every backbone, enrichment, and trait taxify offers, and join your
-own table.
+List every backbone, published dataset and trait taxify offers, and join
+your own table.
 
 - [`taxify_databases()`](https://gillescolling.com/taxify/reference/taxify_databases.md)
   : One overview of every database taxify knows about
@@ -145,13 +143,13 @@ own table.
 - [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
   : List available enrichments
 - [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
-  : Browse the trait columns an enrichment door can attach
+  : Browse the columns a published dataset can attach
 - [`enrichment_groups()`](https://gillescolling.com/taxify/reference/enrichment_groups.md)
   : Browse the group values a grouped enrichment can filter on
 - [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
   : Add custom data by taxonomic matching
 
-## Enrichments — distribution and status
+## Published data: distribution and status
 
 - [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md)
   : Add IUCN Red List conservation status
@@ -167,12 +165,16 @@ own table.
   : Add alien species first record years
 - [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
   : Add WCVP native range status
+- [`add_euromed_distribution()`](https://gillescolling.com/taxify/reference/add_euromed_distribution.md)
+  : Add Euro+Med PlantBase distribution status
+- [`euromed_areas()`](https://gillescolling.com/taxify/reference/euromed_areas.md)
+  : Euro+Med areas and their country codes
 - [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
   : Add common (vernacular) names
 - [`add_globi()`](https://gillescolling.com/taxify/reference/add_globi.md)
   : Add biotic interaction degree (GloBI)
 
-## Enrichments — plants
+## Published data: plants
 
 - [`add_zanne()`](https://gillescolling.com/taxify/reference/add_zanne.md)
   : Add woodiness (Zanne et al. 2014)
@@ -225,7 +227,7 @@ own table.
 - [`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md)
   : Browse the bundled GIFT trait columns
 
-## Enrichments — fungi, algae, lichens, and microbes
+## Published data: fungi, algae, lichens, and microbes
 
 - [`add_fungal_traits()`](https://gillescolling.com/taxify/reference/add_fungal_traits.md)
   : Add fungal lifestyle and trait data (FungalTraits)
@@ -252,7 +254,7 @@ own table.
 - [`add_ramond()`](https://gillescolling.com/taxify/reference/add_ramond.md)
   : Add marine protist functional traits (Ramond et al.)
 
-## Enrichments — birds and mammals
+## Published data: birds and mammals
 
 - [`add_avonet()`](https://gillescolling.com/taxify/reference/add_avonet.md)
   : Add bird morphology and migration (AVONET)
@@ -283,7 +285,7 @@ own table.
 - [`add_gmpd()`](https://gillescolling.com/taxify/reference/add_gmpd.md)
   : Add mammal parasite burden (GMPD 2.0)
 
-## Enrichments — reptiles, amphibians, and fish
+## Published data: reptiles, amphibians, and fish
 
 - [`add_repttraits()`](https://gillescolling.com/taxify/reference/add_repttraits.md)
   : Add reptile ecological traits and distribution (ReptTraits)
@@ -312,7 +314,7 @@ own table.
 - [`add_sharkipedia()`](https://gillescolling.com/taxify/reference/add_sharkipedia.md)
   : Add elasmobranch life-history traits (Sharkipedia)
 
-## Enrichments — invertebrates and aquatic life
+## Published data: invertebrates and aquatic life
 
 - [`add_arthropod_traits()`](https://gillescolling.com/taxify/reference/add_arthropod_traits.md)
   : Add arthropod life-history traits (NW European Arthropods)
@@ -389,7 +391,7 @@ own table.
 - [`add_sealifebase()`](https://gillescolling.com/taxify/reference/add_sealifebase.md)
   : Add aquatic-life traits (SeaLifeBase)
 
-## Enrichments — cross-taxon
+## Published data: cross-taxon
 
 - [`add_amniote()`](https://gillescolling.com/taxify/reference/add_amniote.md)
   : Add amniote life-history traits (Amniote Life History Database)
@@ -426,3 +428,9 @@ Exported internals for power users and custom pipelines.
   : Normalize a kingdom string to the coarse kingdom-group vocabulary
 - [`backbone_fixed_kingdom()`](https://gillescolling.com/taxify/reference/backbone_fixed_kingdom.md)
   : The single kingdom a backbone's rows always belong to, or NA
+
+## Package
+
+- [`taxify-package`](https://gillescolling.com/taxify/reference/taxify-package.md)
+  : taxify: Offline Taxonomic Name Matching Against Darwin Core
+  Backbones

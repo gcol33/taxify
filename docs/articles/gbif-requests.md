@@ -1,346 +1,288 @@
 # Requesting GBIF data for a species list
 
-You have a list of species names and you want their occurrence records
-from GBIF, the Global Biodiversity Information Facility. GBIF does not
-serve records by name. It serves them by *taxon key*, an integer
-identifying one taxon in the GBIF backbone, so the list has to be
-resolved to keys before anything can be requested.
+This article shows how to request occurrence records from the Global
+Biodiversity Information Facility (GBIF) for a species list. GBIF
+identifies each taxon in its backbone by an integer, the taxon key.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+matches the names to keys offline,
+[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+asks GBIF for the records under those keys, and
+[`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
+downloads them with the input names attached. It ends with the records
+and the DOI to cite them by. Installation is covered in [Get
+started](https://gillescolling.com/taxify/articles/taxify.md). Sending a
+request needs the [rgbif](https://docs.ropensci.org/rgbif/) package and,
+for a download, a free GBIF account; the examples that contact GBIF are
+shown without their output.
 
-taxify does that in four steps: your list, matched, requested, and
-linked back to your names.
+1.  **Match** the names against the GBIF backbone with
+    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+
+2.  **Check** the keys behind each name with
+    [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md),
+    and the size of the request with `dry_run = TRUE`.
+
+3.  **Request** the records with
+    [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+    and download them with
+    [`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md).
+
+4.  **Cite** the download with
+    [`cite()`](https://gillescolling.com/taxify/reference/cite.md).
 
 ``` r
 
 library(taxify)
-
-spp <- c("Quercus robur", "Pinus sylvestris", "Bellis perennis", "Morus alba")
-
-dl   <- gbif_request(spp)   # match, then ask GBIF for every key
-recs <- gbif_fetch(dl)      # wait, download, import, attach your names
 ```
 
-[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
-matches the names against the local GBIF backbone, collects every
-accepted key they resolve to, and hands those to
-[rgbif](https://CRAN.R-project.org/package=rgbif).
-[`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
-waits for the download and returns the records with your queried name on
-every row. rgbif is needed only for the request; matching the names and
-reading off their keys works offline without it.
+## Matching the names to keys
 
-The rest of this article is what those two calls do, and what to check
-before sending a request for four million records.
+The list has four plants:
 
 ``` r
 
-gbif_request(spp, dry_run = TRUE)
+spp <- c("Quercus robur", "Pinus sylvestris", "Bellis perennis", "Morus alba")
+matched <- taxify(spp, backbone = "gbif", verbose = FALSE)
+matched[, c("input_name", "accepted_name", "accepted_id", "n_ids")]
+#>         input_name    accepted_name accepted_id n_ids
+#> 1    Quercus robur    Quercus robur     2878688     3
+#> 2 Pinus sylvestris Pinus sylvestris     5285637     6
+#> 3  Bellis perennis  Bellis perennis     3117424     1
+#> 4       Morus alba       Morus alba     5361889     1
+#> Sources: GBIF 2023.08 | cite() for full citations
+```
+
+`accepted_id` holds the GBIF key of each accepted taxon. `n_ids` counts
+the keys of the name: *Quercus robur* has three, *Pinus sylvestris* six.
+
+## Several keys for one name
+
+A name has several keys when the GBIF backbone holds several records of
+it: doubtful duplicates beside the accepted record, or the same name
+used by different authors for different taxa.
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+lists one row per name and key, with the number of records GBIF held
+under each key when the backbone was built:
+
+``` r
+
+ids <- taxify_ids(matched, verbose = FALSE)
+ids[, c("input_name", "accepted_id", "taxonomic_status", "n_occurrences",
+        "role")]
+#>          input_name accepted_id taxonomic_status n_occurrences      role
+#> 1     Quercus robur     2878688         ACCEPTED       1725528      pick
+#> 2     Quercus robur     7586523         DOUBTFUL             9 same_name
+#> 3     Quercus robur     7911626         DOUBTFUL             2 same_name
+#> 4  Pinus sylvestris     5285637         ACCEPTED       1204947      pick
+#> 5  Pinus sylvestris     7718215         DOUBTFUL             0 same_name
+#> 6  Pinus sylvestris     8116613         DOUBTFUL             0 same_name
+#> 7  Pinus sylvestris     9079676         DOUBTFUL             0 same_name
+#> 8  Pinus sylvestris     8251433         DOUBTFUL             0 same_name
+#> 9  Pinus sylvestris     7393648         DOUBTFUL             0 same_name
+#> 10  Bellis perennis     3117424         ACCEPTED       1107989      pick
+#> 11       Morus alba     5361889         ACCEPTED         51610      pick
+```
+
+`role` says what each key is to the name. `pick` is the key in
+`accepted_id`. `same_name` is another record of the same taxon, here
+GBIF’s doubtful records of *Quercus robur* and *Pinus sylvestris*. A
+third role, `other_taxon`, is a record of the name that leads to a
+different species. *Absinthium vulgare* was published by Lamarck and
+again by Dulac, and GBIF files the two under different species:
+
+``` r
+
+abs <- taxify("Absinthium vulgare", backbone = "gbif", verbose = FALSE)
+taxify_ids(abs, verbose = FALSE)[
+  , c("accepted_name", "n_occurrences", "role", "pick_basis")]
+#>                        accepted_name n_occurrences        role pick_basis
+#> 1               Artemisia absinthium        109694        pick   priority
+#> 2 Artemisia vulgaris subsp. vulgaris         35385 other_taxon   priority
+```
+
+`pick_basis` says what decided the pick: here `priority`, Lamarck’s name
+of 1779 before Dulac’s of 1867. The count of an accepted key includes
+the records of its synonyms and of the taxa below it, which is what a
+request by that key returns.
+
+## What a request covers
+
+`dry_run = TRUE` returns the keys a request would send, and the message
+estimates the number of records from the counts above, without
+contacting GBIF:
+
+``` r
+
+gbif_request(matched, dry_run = TRUE)
+#> 4 name(s): 4 picked key(s) and 7 other key(s) of the same taxa requested.
 #> 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.
-#>  [1] 2878688 7911626 7586523 5285637 7718215 8116613 9079676 8251433 7393648
+#>  [1] 2878688 7586523 7911626 5285637 7718215 8116613 9079676 8251433 7393648
 #> [10] 3117424 5361889
 ```
 
-Four names, eleven keys.
-
-## Why one name gives several keys
-
-GBIF files a name under more than one key in two situations: a homonym,
-where two authors published the same name for different taxa, and a name
-held once as an accepted record and again as a doubtful or duplicate
-one.
-[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
-lays those out, one row per name and key, with the occurrence count each
-key carries:
+By default (`keys = "taxon"`) the request covers the `pick` and
+`same_name` keys and leaves out `other_taxon` keys. `keys = "pick"`
+sends only the picked key of each name, and `keys = "all"` adds the
+other taxa:
 
 ``` r
 
-taxify(spp, backbone = "gbif") |>
-  taxify_ids()
-#>          input_name accepted_id    accepted_name taxonomic_status n_occurrences is_pick
-#> 1     Quercus robur     2878688    Quercus robur         ACCEPTED       1725528    TRUE
-#> 2     Quercus robur     7911626    Quercus robur         DOUBTFUL             2   FALSE
-#> 3     Quercus robur     7586523    Quercus robur         DOUBTFUL             9   FALSE
-#> 4  Pinus sylvestris     5285637 Pinus sylvestris         ACCEPTED       1204947    TRUE
-#> 5  Pinus sylvestris     7718215 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 6  Pinus sylvestris     8116613 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 7  Pinus sylvestris     9079676 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 8  Pinus sylvestris     8251433 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 9  Pinus sylvestris     7393648 Pinus sylvestris         DOUBTFUL             0   FALSE
-#> 10  Bellis perennis     3117424  Bellis perennis         ACCEPTED       1107989    TRUE
-#> 11       Morus alba     5361889       Morus alba         ACCEPTED         51610    TRUE
-```
-
-`is_pick` marks the key
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-reported in `accepted_id`. The rest are the other records of the same
-name. Requesting only the pick would have missed the eleven records
-sitting under the two doubtful *Quercus robur* keys.
-
-`n_occurrences` is the count taken when the backbone was built. For an
-accepted key it includes the records of that taxon’s synonyms and
-descendants, which is what a download by that key returns, so it is a
-good guide to the size of a request and not an exact promise.
-
-## Choosing what to request
-
-Every key is requested by default. `strict = TRUE` narrows the request
-to the single key
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-reported:
-
-``` r
-
-gbif_request(spp, strict = TRUE, dry_run = TRUE)
+gbif_request(matched, keys = "pick", dry_run = TRUE)
+#> 4 name(s): 4 picked key(s) and 0 other key(s) of the same taxa requested. Left out under keys = "pick": 7 same-taxon key(s) (Quercus robur, Pinus sylvestris).
 #> 4 GBIF key(s) from 4 matched name(s). About 4,090,074 occurrence record(s) across them.
 #> [1] 2878688 5285637 3117424 5361889
 ```
 
-For this list the two choices differ by 11 records out of 4.09 million,
-so asking for every key costs almost nothing and picks up records that
-would otherwise be dropped. The balance shifts for a list full of
-homonyms, which is what
-[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
-is there to show you.
+For this list the two choices differ by eleven records under the
+doubtful *Quercus robur* keys, so sending every key of the taxon costs
+little and keeps those records.
 
-`dry_run = TRUE` returns the keys and contacts nothing, so it is the way
-to see what a request would cover before committing to it.
+## Results matched against another backbone
+
+The default chain of
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+starts with the Catalogue of Life Extended Release (COL XR), whose IDs
+are not GBIF keys. COL XR records the GBIF key of each record, so
+[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+reads the key from there and, with the GBIF backbone installed, adds
+GBIF’s other records of the same taxon:
+
+``` r
+
+default <- taxify(spp, verbose = FALSE)
+gbif_request(default, dry_run = TRUE)
+#> 4 name(s): 4 picked key(s) and 7 other key(s) of the same taxa requested. Left out under keys = "taxon": 6 other-taxon key(s) (Quercus robur, Pinus sylvestris).
+#> 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.
+#>  [1] 2878688 7911626 7586523 5285637 8116613 8251433 7393648 9079676 7718215
+#> [10] 3117424 5361889
+```
+
+The request is the same as from the GBIF match, and the message names
+the other-taxon keys it leaves out: COL XR lists *Pinus sylvestris* and
+*Quercus robur* as synonyms of other species under other authors. A row
+whose backbone records no GBIF key is matched again against GBIF by its
+accepted name. `attr(x, "taxa")$key_source` records where each key came
+from (`backbone`, `crosswalk` or `rematch`).
 
 ## Setting up rgbif
 
-Everything so far ran offline against the local backbone. Sending the
-request is the part that needs rgbif:
+A request needs rgbif:
 
 ``` r
 
 install.packages("rgbif")
 ```
 
-`method = "search"` works with nothing further. `method = "download"` is
-an authenticated call and needs a GBIF account, which is free: register
-at [gbif.org](https://www.gbif.org/).
-
-rgbif reads that account from three environment variables. Its own
-documentation recommends keeping them in `.Renviron` rather than passing
-them as arguments, which also keeps them out of your scripts:
+`method = "search"` needs nothing further. `method = "download"`, the
+default, needs a GBIF account, which is free at
+[gbif.org](https://www.gbif.org/). rgbif reads the account from three
+environment variables, which its documentation recommends keeping in
+`.Renviron`:
 
 ``` r
 
 usethis::edit_r_environ()
 ```
 
-Add the three lines, with no quotes and no spaces around the `=`:
-
     GBIF_USER=yourname
     GBIF_PWD=yourpassword
-    GBIF_EMAIL=you@example.org
+    GBIF_EMAIL=name@example.org
 
-Save, then restart R so the file is read. rgbif also accepts the
-lower-case names `gbif_user`, `gbif_pwd` and `gbif_email` in `.Rprofile`
-if you prefer that; see
-[`?rgbif::occ_download`](https://docs.ropensci.org/rgbif/reference/occ_download.html).
-
-To confirm GBIF accepts the account, ask it for your own past downloads.
-That call is authenticated, so it only succeeds when the credentials are
-right:
-
-``` r
-
-rgbif::occ_download_list(limit = 5)
-```
-
-If a variable is missing,
+Restart R after saving so the file is read.
+`rgbif::occ_download_list(limit = 5)` lists the account’s past downloads
+and succeeds only when the credentials are right. When a variable is
+missing,
 [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
-stops before contacting GBIF and names which one. If the password is
-wrong, GBIF answers 401.
+stops before contacting GBIF and names it.
 
 ## Sending the request
 
-Two methods, for two situations.
-
-`method = "search"` sends unauthenticated searches and returns the
-records directly. It needs no account, and the GBIF search API limits
-how deep it will page, so it suits a look at a few taxa:
-
-``` r
-
-recs <- gbif_request(spp, method = "search", strict = TRUE, limit = 50)
-nrow(recs)
-#> [1] 200
-```
-
-The records come back as one data frame with a `taxon_key_requested`
-column, so a row can be traced back to the key that asked for it.
-
-`method = "download"` is the default. It submits an asynchronous GBIF
-download, which has no record cap and is issued a DOI you can cite. It
-needs a GBIF account:
-
-``` r
-
-dl <- gbif_request(spp, method = "download")
-recs <- gbif_fetch(dl)
-```
-
-[`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
-waits for the download, retrieves it, imports it, and attaches your
-queried names.
-
-All of the keys go into one download, not one download per key: they are
-sent as a single `taxonKey IN (...)` predicate, so the whole list comes
-back as one dataset under one DOI. A download of four million records is
-prepared on GBIF’s servers and takes a while, which is why the call
-returns as soon as the request is queued rather than waiting for it.
-
-### Lists too long for one query
-
-GBIF caps a download query at 12,000 characters. A taxonKey predicate
-costs about 10 characters per key, so roughly 1,187 keys fit, and a
-checklist of a few hundred names can pass that once its homonyms are
-counted.
-
-Above the limit
+A download has no limit on the number of records and receives a DOI.
 [`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
-splits the keys into chunks of 1,000 and submits them through rgbif’s
-`occ_download_queue()`, which respects GBIF’s rule of three concurrent
-downloads per user:
-
-``` r
-
-dl <- gbif_request(long_species_list, method = "download")
-#> 2,431 keys exceed GBIF's query limit; splitting into 3 downloads of up to
-#> 1000 keys. Each gets its own DOI.
-```
-
-`dl` is then a vector of download keys rather than one, and
+submits it and returns at once, since GBIF prepares the file on its own
+servers;
 [`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
-waits for all of them and stacks the records, so fetching a split
-request looks the same as fetching a single one:
+waits for it, downloads it, imports the records and adds the input
+names:
 
 ``` r
 
+dl <- gbif_request(matched)
 recs <- gbif_fetch(dl)
 ```
 
-The record count itself is not a limit. GBIF prepares downloads of tens
-of millions of records server-side; only the query naming the keys is
-capped.
-
-## Linking the records back to your names
-
-The records come back keyed by GBIF taxon, not by the name you asked
-for, so they have to be traced back before you can count or group by
-species.
-[`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
-does that, adding `requested_key`, `input_name` and `accepted_name`:
+`method = "search"` returns records at once, without an account, up to
+`limit` records per key. GBIF’s search limits how deep it pages, so it
+suits a look at a few taxa:
 
 ``` r
 
-recs <- gbif_request(spp, method = "search", limit = 100)
-recs <- gbif_backmatch(recs, recs)
-
-table(recs$input_name, useNA = "ifany")
+recs <- gbif_request(matched, method = "search", keys = "pick", limit = 50)
 ```
 
+The records carry a `taxon_key_requested` column with the key that
+returned each row.
+
+A download query is limited to 12,000 characters, about 1,187 keys.
+Above 1,000 keys
+[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
+splits them into several downloads, each with its own DOI, submitted
+through rgbif’s queue, which runs at most three at a time.
 [`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
-calls it for you, so this is only needed when you fetched the records
-some other way or asked it not to:
+waits for all of them and returns the records in one table.
+
+## Linking records to the requested names
+
+A record’s `taxonKey` is the key of the taxon it was identified as,
+which can lie below the requested key: a record of *Pinus nigra* subsp.
+*salzmannii* carries that subspecies’ key when *Pinus nigra* was
+requested.
+[`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
+therefore links each record through
+[`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md),
+which reads `taxonKey`, `acceptedTaxonKey`, `speciesKey`, `genusKey` and
+`familyKey` in that order and takes the first requested key. It adds
+`requested_key`, `input_name` and `accepted_name`. A record that carries
+no requested key keeps `NA` in all three, and the message counts such
+records.
+
+For records fetched another way,
+[`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
+takes the request, a
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+table or the
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+result:
 
 ``` r
 
 recs <- gbif_fetch(dl, backmatch = FALSE)
-recs <- gbif_backmatch(recs, dl)
-```
-
-It takes the object
-[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
-returned, which carries the key table as an attribute. A
-[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
-table or a
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result works too, so records imported by hand can still be linked back:
-
-``` r
-
-matched <- taxify(spp, backbone = "gbif")
 recs <- gbif_backmatch(recs, matched)
 ```
 
-### Why not just join on taxonKey
-
-Because it loses records without saying so. GBIF returns the records of
-a key’s descendants along with its own, and a record identified below
-species level carries its own key. Requesting *Pinus nigra* (5284809)
-returns records whose `taxonKey` is 5686674, *P. nigra* subsp.
-*salzmannii*; those rows carry the requested key in `speciesKey` and
-nowhere else.
-
-In a 300-record sample of that request, 50 rows are identified to a
-subspecies. Joining on `taxonKey` matches 250 of 300.
-[`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)
-matches all 300, because it tries the record’s keys from the most
-specific outwards and takes the first that is one of the keys you
-requested.
-
-Rows matching no requested key keep `NA` in the three added columns and
-are counted in a message rather than dropped.
-
 ## Citing the download
 
-A GBIF download gets a DOI once it is ready, and citing it is what lets
-someone else retrieve the same records. The download key travels with
-the records, so
-[`cite()`](https://gillescolling.com/taxify/reference/cite.md) reports
-the DOI next to the backbone the names were matched against:
+A download is cited by its DOI, which GBIF issues once the file is
+ready. [`cite()`](https://gillescolling.com/taxify/reference/cite.md) on
+the records lists the DOI next to the GBIF backbone and taxify:
 
 ``` r
-
-recs <- gbif_fetch(dl)
 
 cite(recs)
-#> ── taxify citations ────────────────────────────────────────────────
-#>   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching (version 0.6.0).
-#>   [2] GBIF Secretariat (2024). GBIF Backbone Taxonomy. doi:10.15468/39omei
-#>   [3] GBIF.org (2026-09-23) GBIF Occurrence Download https://doi.org/10.15468/dl.ckzs32
-#>   ────────────────────────────────────────────────────────────
+cite(recs, file = "refs.bib")
 ```
 
-The DOI is read from GBIF when you call
-[`cite()`](https://gillescolling.com/taxify/reference/cite.md), not
-stored when the request was made, because GBIF issues it only once the
-download has finished preparing. A download still running is reported as
-having no DOI yet.
+A download still being prepared is listed without a DOI. `file` writes
+the same entries as BibTeX.
 
-`cite(recs, file = "refs.bib")` writes the same entries as BibTeX, the
-download included.
+## Where next
 
-## Starting from an already matched list
+- [Exploring the
+  backbone](https://gillescolling.com/taxify/articles/exploring.md):
+  [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md),
+  [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md)
+  and the other functions that read the backbone.
 
-[`gbif_request()`](https://gillescolling.com/taxify/reference/gbif_request.md)
-takes a
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result as well as a character vector, so matching arguments belong in
-the [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-call:
-
-``` r
-
-taxify(spp, backbone = "gbif", kingdom = "Plantae") |>
-  gbif_request()
-```
-
-taxify’s default backbone chain starts at COL XR, so a plain
-`taxify(spp)` resolves most names against something other than GBIF and
-the result carries no GBIF keys. Passing one of those is fine: the names
-are re-matched against GBIF, with a message, because GBIF only accepts
-its own keys. In a result that has GBIF rows and others, the others are
-dropped and reported.
-
-## See also
-
-- [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
-  for the keys and their occurrence counts on their own.
-
-- [`vignette("large-scale")`](https://gillescolling.com/taxify/articles/large-scale.md)
-  for matching lists too large to hold in memory.
-
-- [`vignette("quickstart")`](https://gillescolling.com/taxify/articles/quickstart.md)
-  for the matching itself.
+- [Matching large
+  lists](https://gillescolling.com/taxify/articles/large-scale.md): long
+  species lists.

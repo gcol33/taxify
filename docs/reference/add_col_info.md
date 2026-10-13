@@ -36,7 +36,7 @@ The same data.frame with additional columns:
 
   Nomenclatural status.
 
-- namePublishedIn:
+- name_published_in:
 
   Original publication reference.
 

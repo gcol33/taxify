@@ -2,8 +2,8 @@
 
 Joins FISHMORPH morphological trait data to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result by looking up `accepted_name`. This is the source-named door for
-FISHMORPH; for the fish reference database FishBase see
+result by looking up `accepted_name`. This function is named after its
+source, FISHMORPH; for the fish reference database FishBase see
 [`add_fishbase()`](https://gillescolling.com/taxify/reference/add_fishbase.md).
 
 ## Usage

@@ -1,7 +1,7 @@
 # Record the exact backbone and enrichment versions behind a result
 
 Writes a machine-readable lockfile pinning which backbone and enrichment
-assets – name, version, and byte-identity (content id) – produced a
+assets (name, version, and byte-identity, the content id) produced a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result. Where
 [`cite()`](https://gillescolling.com/taxify/reference/cite.md) prints
@@ -21,8 +21,8 @@ taxify_lock(x = NULL, file = NULL, verbose = TRUE)
 - x:
 
   A [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  result (its resolved backbones and any `add_*()` enrichment layers are
-  locked), or `NULL` (default) to snapshot every installed backbone.
+  result (its resolved backbones and any `add_*()` published datasets
+  are locked), or `NULL` (default) to snapshot every installed backbone.
 
 - file:
 

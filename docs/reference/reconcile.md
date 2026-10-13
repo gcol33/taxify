@@ -5,8 +5,8 @@ accepts, so a checklist assembled at one time can be checked against the
 taxonomy as it stands now. Where
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 returns the resolved match per name, `reconcile()` adds the editorial
-verdict – unchanged, now a synonym, a misspelling, ambiguous, or
-unresolved – and flags names that merge onto a single accepted taxon.
+verdict (unchanged, now a synonym, a misspelling, ambiguous, or
+unresolved) and flags names that merge onto a single accepted taxon.
 
 ## Usage
 

@@ -2,8 +2,8 @@
 
 A quality-control pass over a name list. By default `inspect()` does not
 match names against backbones: on a plain character vector it runs the
-checks that need no matching – the genus register and the rest of the
-batch – and is fast and offline. To also surface the match-based
+checks that need no matching (the genus register and the rest of the
+batch) and is fast and offline. To also surface the match-based
 anomalies (`typo`, `synonym`, `ambiguous`, `geographic`), either set
 `backbones = TRUE` (matches against every installed backbone, listed in
 the report) or match yourself first and inspect the result
@@ -35,9 +35,9 @@ inspect(
 - backbones:
 
   Logical. When `x` is a character vector, `TRUE` matches it against
-  every installed backbone (via
-  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)) so
-  the match-based labels are available; `FALSE` (default) runs the
+  every installed backbone, in the order of the default fallback chain
+  of [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
+  so the match-based labels are available; `FALSE` (default) runs the
   register and list checks only, with no matching. The backbones used
   are printed in the report header. Ignored when `x` is already a
   `taxify_result` (it was matched already).
@@ -77,9 +77,9 @@ Checks that need no matching (run on a character vector or a result):
 
 - `unknown`:
 
-  The genus is not in the genus register – the union of all 13
-  backbones' genera – so no backbone recognises it. The strong "probably
-  not a real name" signal.
+  The genus is not in the genus register, the union of the genera of
+  every backbone, so no backbone recognises it. The strong "probably not
+  a real name" signal.
 
 - `near_duplicate`:
 
@@ -90,12 +90,12 @@ Checks that need no matching (run on a character vector or a result):
 - `outlier_group`:
 
   The name's kingdom group (from the register) is a tiny minority of an
-  otherwise group-coherent list – the lone animal or fungus among
-  plants, typically a cross-kingdom homonym typo.
+  otherwise group-coherent list: the lone animal or fungus among plants,
+  typically a cross-kingdom homonym typo.
 
 Checks read from a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result (only present when you inspect one):
+result (only present when the input is one):
 
 - `typo`:
 
@@ -136,8 +136,8 @@ result (only present when you inspect one):
 Rows with no anomaly are dropped.
 
 Each row gets a `tier` describing what it needs, not how bad it is:
-`unresolved` (no usable name – act on it), `review` (a name is there but
-its identity is uncertain – verify it), or `note` (correct, optional
+`unresolved` (no usable name: act on it), `review` (a name is there but
+its identity is uncertain: verify it), or `note` (correct, optional
 cleanup). `unknown` is `unresolved`; the identity-uncertain labels are
 `review`; `case` and `synonym` are `note`. An anomaly may be intended,
 so the tier is a triage hint, not a verdict.

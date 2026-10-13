@@ -1,298 +1,264 @@
-# Inspecting a name list with inspect()
+# Checking a name list
 
-This vignette shows how to screen a species list for the names that need
-attention before analysis. A field list reaches you as a column of
-strings, and some of those strings are wrong: a genus is misspelled, an
-animal sits in a list of plants, a synonym slipped in from an old data
-sheet, the same species appears under two spellings.
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-resolves what it can and returns a row for every name, matched or not,
-so the problems are spread through a wide table.
+This article shows how to find the names in a list that need a decision
+before analysis: a genus no backbone knows, a misspelling, a species
+from another kingdom, a synonym, a species outside the study region.
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-returns one row per anomalous name, ordered most-notable first, each
-labelled with what stands out and, where known, the name to use instead.
-Clean names are dropped, so a short report means a clean list.
+returns one row per such name, with a label for what stands out and,
+where it can, the name to use instead. At the end the article compares a
+whole checklist with a backbone’s current treatment using
+[`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md).
+Installation is covered in [Get
+started](https://gillescolling.com/taxify/articles/taxify.md).
 
-1.  **Screen** the raw names against the genus register and the rest of
-    the list with
-    [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md).
+1.  **Screen** the raw names with
+    [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md),
+    which needs no matching.
 
-2.  **Match** them to pick up typos, synonyms and ambiguity, with
-    `backbones = TRUE` or by piping in a
+2.  **Match** them as well, with `backbones = TRUE` or by passing a
     [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-    result.
+    result, to find misspellings, synonyms and names with several
+    accepted taxa.
 
-3.  **Place** the matched species against a declared `region`, `coords`
-    or `range`.
+3.  **Place** the matched species against a `region`.
 
-4.  **Filter** the report to the rows that need action with `min_tier`.
+4.  **Filter** the report with `min_tier`, and apply its suggestions.
 
-5.  **Apply** the confident `suggestion`s and re-run
-    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-    on the corrected list.
-
-## Example
+5.  **Compare** a checklist with a backbone’s treatment with
+    [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md).
 
 ``` r
 
 library(taxify)
 ```
 
-### A first look, without matching
+## Checks without matching
 
-By default
-[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-runs only the checks that need no backbone; it matches nothing unless
-you ask. On a plain character vector it asks the genus register whether
-each genus is a real one and compares each name against the rest of the
-batch. Both are fast and offline.
+The list below is a plant list with four problems: an animal, a genus
+that does not exist, a name written with one extra letter, and an old
+synonym.
 
 ``` r
 
-names <- c(
-  "Quercus robur",
-  "Panthera leo",         # an animal among plants
-  "Bogusia fakensis",     # not a real genus
-  "Festuca rubra",
-  "Festuca rubra",
-  "Festuca rubraa",       # one stray letter
-  "Pinus sylvestris",
-  "Pinus abies"           # a synonym of Picea abies
+plants <- c(
+  "Quercus robur", "Panthera leo", "Xyzzia fakensis", "Festuca rubra",
+  "Festuca rubra", "Festuca rubraa", "Pinus sylvestris", "Pinus abies"
 )
-
-inspect(names)
+inspect(plants)
+#> ── taxify inspection ──────────────────────────────────────────
+#>   8 names inspected  |  3 with anomalies
+#>   backbones: none (register + list checks only)
+#>   unresolved: 1   review: 2
+#>   ────────────────────────────────────────────────────────────
+#>   [unresolved] Xyzzia fakensis  ->  ?              genus 'Xyzzia' is not in the taxonomic register
+#>   [review    ] Festuca rubraa   ->  Festuca rubra  near-duplicate of more frequent 'Festuca rubra'
+#>   [review    ] Panthera leo     ->  ?              animalia outlier (list is mostly plantae)
 ```
 
-    #> ── taxify inspection ──────────────────────────────────────
-    #>   8 names inspected  |  3 with anomalies
-    #>   backbones: none (register + list checks only)
-    #>   unresolved: 1   review: 2
-    #>   ────────────────────────────────────────────────────────────
-    #>   [unresolved] Bogusia fakensis  ->  ?               genus 'Bogusia' is not in the taxonomic register
-    #>   [review    ] Festuca rubraa    ->  Festuca rubra   near-duplicate of more frequent 'Festuca rubra'
-    #>   [review    ] Panthera leo      ->  ?               animalia outlier (list is mostly plantae)
-
-Three names surface. *Bogusia fakensis* uses a genus no backbone
-recognises. *Festuca rubraa* is one letter off *Festuca rubra*, which
-appears twice in the same list, so it looks like a slip of that name.
-*Panthera leo* is the lone animal among plants, and a cross-kingdom
-homonym typo often shows up exactly this way.
-
-*Pinus abies* slips past this first pass. It is a well-formed binomial,
-and its synonymy with *Picea abies* surfaces only when a backbone is
-matched. That check is opt-in.
-
-### Turning on matching
-
-To pick up typos, synonyms, and ambiguity, let
+Without matching,
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-match. The simplest route is `backbones = TRUE`, which runs the names
-through every installed backbone and records which ones it used in the
-report header.
+runs the checks that need only the genus register, an index of the
+genera of every backbone, and the list itself. Three names stand out.
+*Xyzzia* is in no backbone. *Festuca rubraa* is one letter from *Festuca
+rubra*, which appears twice in the list, so it is likely a slip of that
+name. *Panthera leo* is the only animal in a list of plants. *Pinus
+abies* is a well-formed name of a real genus and passes these checks;
+its synonymy shows only when it is matched.
+
+## Checks on matched names
+
+`backbones = TRUE` matches the names against every installed backbone,
+in the order of the default fallback chain of
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md), and
+adds the checks that read the match:
 
 ``` r
 
-inspect(names, backbones = TRUE)
+report <- inspect(plants, backbones = TRUE, verbose = FALSE)
+report
+#> ── taxify inspection ──────────────────────────────────────────
+#>   8 names inspected  |  4 with anomalies
+#>   backbones: colxr, col, worms, wcvp, euromed, lcvp, wfo, fungorum, algaebase, fishbase, sealifebase, reptiledb, mdd, avilist, lpsn, gbif, itis, ncbi, ott
+#>   unresolved: 1   review: 3
+#>   ────────────────────────────────────────────────────────────
+#>   [unresolved] Xyzzia fakensis  ->  ?              genus 'Xyzzia' is not in the taxonomic register
+#>   [review    ] Festuca rubraa   ->  Festuca rubra  likely misspelling; near-duplicate of more frequent 'Festuca rubra'
+#>   [review    ] Panthera leo     ->  Panthera leo   animalia outlier (list is mostly plantae)
+#>   [review    ] Pinus abies      ->  Picea abies    ambiguous (targets: 4HPZF|4HQ46|8K9Y|6BRMR|4HQ4F|4HQ48); outdated synonym
 ```
 
-    #> ── taxify inspection ──────────────────────────────────────
-    #>   8 names inspected  |  4 with anomalies
-    #>   backbones: COL, GBIF, ITIS
-    #>   unresolved: 1   review: 2   note: 1
-    #>   ────────────────────────────────────────────────────────────
-    #>   [unresolved] Bogusia fakensis  ->  ?              genus 'Bogusia' is not in the taxonomic register
-    #>   [review    ] Festuca rubraa    ->  Festuca rubra  likely misspelling; near-duplicate of more frequent 'Festuca rubra'
-    #>   [review    ] Panthera leo      ->  Panthera leo   animalia outlier (list is mostly plantae)
-    #>   [note      ] Pinus abies       ->  Picea abies    outdated synonym
+*Pinus abies* is now recognised as a synonym of *Picea abies*, and as a
+name with more than one accepted taxon behind it. *Festuca rubraa*
+carries the label of the fuzzy match as well as the list check.
+*Panthera leo* matches a backbone, so it is reported only as the animal
+in a plant list. The header names the backbones used.
 
-Now *Pinus abies* is recognised as a synonym and resolved to *Picea
-abies*, and *Festuca rubraa* carries both its list-context label and the
-fuzzy `typo` label that confirms it. *Panthera leo* now matches in GBIF,
-so the candidate-typo label drops. It stays a kingdom-group outlier in a
-plant list.
-
-If you have already matched the list, inspect the result instead of
-asking
-[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) to
-match again. This reuses the exact backbone, region, and options of your
-original call.
+A list that is already matched is passed to
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+directly, which keeps the backbones and options of that call:
 
 ``` r
 
-taxify(names, backbone = c("col", "gbif")) |>
+taxify(plants, backbone = c("col", "gbif")) |>
   inspect()
 ```
 
-The two routes return the same kind of report. Pass `backbones = TRUE`
-for a quick standalone check; pipe a result in when matching is already
-part of the workflow.
+## Labels and tiers
 
-### Geographic checks
+Each row has one or more labels in `anomalies`. Three need no matching:
 
-When a list is regionally coherent, a species whose range sits elsewhere
-is worth a second look. With a declared `region`,
+- `unknown`: the genus is in no backbone.
+
+- `near_duplicate`: a near-identical spelling of a name that occurs more
+  often in the same list.
+
+- `outlier_group`: the name’s kingdom is a small minority in a list that
+  is otherwise of one kingdom.
+
+The others read the match:
+
+- `typo`: resolved only by fuzzy matching; `suggestion` holds the
+  corrected name.
+
+- `synonym`: an outdated synonym, or an unplaced name whose basionym the
+  backbone places; `suggestion` holds the accepted name.
+
+- `case`: resolved only after capitals were ignored.
+
+- `rank_fallback`: an infraspecific name no backbone holds, resolved to
+  its species.
+
+- `ambiguous`: a name with more than one accepted taxon, which is not
+  itself the accepted name.
+
+- `geographic`: the species has no record in the declared region.
+
+- `out_of_range`: without a declared region, the species occurs on none
+  of the continents that hold most of the list.
+
+The `tier` names the action a row needs. `unresolved` means no usable
+name came back (`unknown`). `review` means a name is there but its
+identity is uncertain (`typo`, `near_duplicate`, `rank_fallback`,
+`ambiguous`, `geographic`, `out_of_range`, `outlier_group`). `note`
+means the name is correct and the change is optional (`case`,
+`synonym`). A row takes the highest tier of its labels, so *Pinus abies*
+is `review` because it is also `ambiguous`. A label can describe
+something intended, such as one animal kept on purpose in a plant list.
+
+## Checks against a region
+
+A species far from the study region is worth a second look even when its
+name is correct. With a declared `region`,
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-flags matched species that WCVP does not record there.
+reports matched species with no record there in the World Checklist of
+Vascular Plants (WCVP):
 
 ``` r
 
-alpine <- taxify(c("Gentiana lutea", "Primula veris", "Banksia serrata")) |>
+alpine <- c("Gentiana lutea", "Primula veris", "Banksia serrata")
+taxify(alpine, backbone = "wcvp", verbose = FALSE) |>
   inspect(region = "Europe")
+#> ── taxify inspection ──────────────────────────────────────────
+#>   3 names inspected  |  1 with anomalies
+#>   backbones: wcvp
+#>   review: 1
+#>   ────────────────────────────────────────────────────────────
+#>   [review] Banksia serrata  ->  Banksia serrata  outside region per WCVP
 ```
 
-    #> ── taxify inspection ──────────────────────────────────────
-    #>   3 names inspected  |  1 with anomalies
-    #>   backbones: COL
-    #>   review: 1
-    #>   ────────────────────────────────────────────────────────────
-    #>   [review] Banksia serrata  ->  Banksia serrata  outside region per WCVP
+*Banksia serrata* is an Australian shrub. Its name is correct, so only
+the region check reports it. `coords` and `range` work as in
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
+described in [Matching within a
+region](https://gillescolling.com/taxify/articles/regions.md). Both
+geographic checks cover vascular plants only, since they read WCVP.
 
-*Banksia serrata* is a real, well-matched name, so nothing else flags
-it. It is the geographic context that makes it stand out: an Australian
-shrub in a European list. The same check accepts `coords` instead of a
-region name, and a `range` argument to count only native or only
-introduced records. The [geographic constraints
-vignette](https://gillescolling.com/taxify/articles/regions.html) covers
-those inputs in full. The geographic arguments act on matched names, so
-on a character vector inspected without matching they have no effect.
+Without a declared region, `out_of_range` compares each species with the
+rest of the list: it finds the continents that hold most of the matched
+species and reports a species found on none of them. A list spread over
+many continents has no such core, and the check reports nothing.
 
-Without a declared region, the `out_of_range` check does the comparison
-from the list itself: it finds the continents that hold the bulk of the
-matched species and flags any species occurring on none of them. A
-globally spread list needs too many continents to reach that bulk, fails
-the coherence test, and flags nothing, so the check stays quiet unless
-the list is regionally tight. Both geographic checks use WCVP, which
-covers vascular plants only.
+## Using the report
 
-### Reporting fewer rows
-
-On a long list even the `note` rows add up. `min_tier` raises the floor
-so the report keeps only what needs action.
+The report is a data frame with the columns `input_name`, `suggestion`,
+`anomalies`, `tier`, `reason`, `fuzzy_dist` and `backbone`. `min_tier`
+drops the lower tiers:
 
 ``` r
 
-# only names that need a decision or a second look
-inspect(names, backbones = TRUE, min_tier = "review")
+inspect(plants, backbones = TRUE, min_tier = "review", verbose = FALSE)
+#> ── taxify inspection ──────────────────────────────────────────
+#>   8 names inspected  |  4 with anomalies
+#>   backbones: colxr, col, worms, wcvp, euromed, lcvp, wfo, fungorum, algaebase, fishbase, sealifebase, reptiledb, mdd, avilist, lpsn, gbif, itis, ncbi, ott
+#>   unresolved: 1   review: 3
+#>   ────────────────────────────────────────────────────────────
+#>   [unresolved] Xyzzia fakensis  ->  ?              genus 'Xyzzia' is not in the taxonomic register
+#>   [review    ] Festuca rubraa   ->  Festuca rubra  likely misspelling; near-duplicate of more frequent 'Festuca rubra'
+#>   [review    ] Panthera leo     ->  Panthera leo   animalia outlier (list is mostly plantae)
+#>   [review    ] Pinus abies      ->  Picea abies    ambiguous (targets: 4HPZF|4HQ46|8K9Y|6BRMR|4HQ4F|4HQ48); outdated synonym
 ```
 
-    #> ── taxify inspection ──────────────────────────────────────
-    #>   8 names inspected  |  3 with anomalies
-    #>   backbones: COL, GBIF, ITIS
-    #>   unresolved: 1   review: 2
-    #>   ────────────────────────────────────────────────────────────
-    #>   [unresolved] Bogusia fakensis  ->  ?              genus 'Bogusia' is not in the taxonomic register
-    #>   [review    ] Festuca rubraa    ->  Festuca rubra  likely misspelling; near-duplicate of more frequent 'Festuca rubra'
-    #>   [review    ] Panthera leo      ->  Panthera leo   animalia outlier (list is mostly plantae)
-
-`min_tier = "review"` drops the `note`-tier synonym;
-`min_tier = "unresolved"` would leave only the unknown name.
-
-### Using the report in a cleaning script
-
-The printed view is a convenience. The object underneath is an ordinary
-data.frame with columns `input_name`, `suggestion`, `anomalies`, `tier`,
-`reason`, `fuzzy_dist`, and `backbone`.
+`tier` is an ordered factor, so `report[report$tier >= "review", ]`
+selects the same rows from an existing report. The suggestions can
+replace the input names before the list is matched again:
 
 ``` r
 
-report <- inspect(names, backbones = TRUE)
-
-# the names that came back with a confident replacement
 fixes <- report[!is.na(report$suggestion), c("input_name", "suggestion")]
 fixes
+#>       input_name    suggestion
+#> 2 Festuca rubraa Festuca rubra
+#> 3   Panthera leo  Panthera leo
+#> 4    Pinus abies   Picea abies
 ```
 
-    #>      input_name    suggestion
-    #> 1 Festuca rubraa Festuca rubra
-    #> 2    Pinus abies   Picea abies
-
-`tier` is an ordered factor (`note` \< `review` \< `unresolved`), so
-`report[report$tier >= "review", ]` keeps the rows worth a person’s
-time. A typical loop is to run
-[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md),
-apply the confident `suggestion`s, decide the handful of `unresolved`
-names by hand, then re-run
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) on
-the corrected list.
-
-## The labels
-
-Each flagged name carries one or more labels in its `anomalies` column.
-The list-only checks need no matching:
-
-| Label | Meaning |
-|----|----|
-| `unknown` | The genus is not in the register, the union of every backbone’s genera. No backbone recognises it. |
-| `near_duplicate` | A near-identical spelling of a more frequent name in the same list, so probably a misspelling of it. Caught from the list alone, even for names no backbone holds. |
-| `outlier_group` | The name’s kingdom group is a tiny minority of an otherwise coherent list, typically a cross-kingdom homonym typo. |
-
-The remaining labels read from a
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-result and only appear once matching has run:
-
-| Label | Meaning |
-|----|----|
-| `typo` | Resolved only after fuzzy correction. The input most likely contains a spelling error; `suggestion` holds the corrected name. |
-| `synonym` | The input is an outdated synonym, or an unplaced name whose basionym the backbone places; `suggestion` holds the current accepted name. |
-| `case` | Resolved only after ignoring case. |
-| `rank_fallback` | An infraspecific name the backbone does not carry, resolved to its species. |
-| `ambiguous` | A homonym resolving to more than one accepted taxon. |
-| `geographic` | The matched species is real but has no record in a declared region (vascular plants, via WCVP). |
-| `out_of_range` | No region declared, yet the species’ range falls outside the list’s main continents. |
-
-## Tiers
-
-Every flagged row also gets a `tier`. A tier names the action a row
-needs before analysis, from a required decision down to optional
-cleanup:
-
-- `unresolved`: no usable name came back, so the row needs a decision
-  before analysis. `unknown` lands here.
-- `review`: a name is there, but its identity is uncertain. The identity
-  checks (`typo`, `near_duplicate`, `rank_fallback`, `ambiguous`,
-  `geographic`, `out_of_range`, `outlier_group`) land here.
-- `note`: the name is correct, the change is optional cleanup. `case`
-  and `synonym` land here.
-
-An anomaly can be intended. A list may genuinely include one animal
-among plants, or deliberately keep a synonym. The tier is a triage hint,
-so treat it as a starting point.
-
-## What needs a batch, and what needs the register
-
-The list-context labels (`near_duplicate`, `outlier_group`,
-`out_of_range`) weigh a name against the rest of the batch, so they
-cannot apply to a single name.
+The checks that compare a name with the rest of the list need more than
+one name;
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md) on
-one name warns and reports only the per-name labels.
+a single name warns and runs only the others. A check that could not
+run, such as the region check without the WCVP range data, is named on a
+`not checked` line in the header, so an empty report always means that
+the checks that ran found nothing.
+
+## Comparing a checklist with a backbone
+
+A checklist compiled years ago follows an older treatment.
+[`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+reports for each name whether the backbone still accepts it, and which
+names now fall together:
 
 ``` r
 
-inspect("Quercus robber", backbones = TRUE)
-#> Warning: list-context anomaly checks need a batch of names; with a single
-#> name only the per-name checks run.
+checklist <- c(
+  "Quercus robur", "Pinus abies", "Picea abies", "Festuca rubraa",
+  "Prunella"
+)
+rec <- reconcile(checklist, backbone = "col")
+#> Matching 5 names...
+#>   Fuzzy matching 1 unmatched...
+rec[, c("input_name", "accepted_name", "status", "merged_with")]
+#>       input_name accepted_name      status merged_with
+#> 1  Quercus robur Quercus robur   unchanged        <NA>
+#> 2    Pinus abies   Picea abies   ambiguous Picea abies
+#> 3    Picea abies   Picea abies   unchanged Pinus abies
+#> 4 Festuca rubraa Festuca rubra misspelling        <NA>
+#> 5       Prunella      Prunella   unchanged        <NA>
 ```
 
-The register checks (`unknown`, and the register-derived
-`outlier_group`) need the genus register installed, and the range checks
-need the WCVP range data. A check that could not run is named on a
-`not checked` line in the report header, so an empty report is never
-mistaken for a clean one, and the rest of the checks still run.
+`status` is `unchanged` for a name the backbone accepts, `synonym` for
+one it treats as a synonym, `misspelling` for one matched by fuzzy
+matching, `ambiguous` for a synonym with more than one accepted taxon,
+and `unresolved` for a name with no match. *Pinus abies* and *Picea
+abies* now name the same species, so each lists the other in
+`merged_with`. *Prunella* is the accepted name of two genera and stays
+`unchanged`; `n_ids` (not shown) counts them.
 
-## Where to go next
+## Where next
 
-- [Geographic
-  constraints](https://gillescolling.com/taxify/articles/regions.html)
-  for the `region`, `coords`, and `range` arguments the geographic
-  checks share with
-  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
+- [How names are
+  matched](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
+  how the fuzzy matches behind `typo` are made.
 
-- [Fuzzy
-  matching](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
-  for how the `typo` label is produced and tuned.
-
-- [Getting
-  started](https://gillescolling.com/taxify/articles/quickstart.html)
-  for the matching pipeline
-  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-  sits on top of.
+- [Matching within a
+  region](https://gillescolling.com/taxify/articles/regions.md): the
+  `region`, `coords` and `range` arguments.

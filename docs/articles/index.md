@@ -1,37 +1,33 @@
 # Articles
 
-### Getting started
-
-- [Getting started with
-  taxify](https://gillescolling.com/taxify/articles/quickstart.md):
-- [Migrating from taxize, WorldFlora, and related
-  tools](https://gillescolling.com/taxify/articles/migration.md):
-
-### Databases
-
-- [Databases: every backbone, enrichment, and
-  trait](https://gillescolling.com/taxify/articles/databases.md):
-
-### Core features
+### Workflows
 
 - [Choosing and combining
   backbones](https://gillescolling.com/taxify/articles/backbones.md):
-- [Fuzzy matching: methods, thresholds, and
-  tuning](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
-- [Constraining matches to a geographic
+- [Checking a name
+  list](https://gillescolling.com/taxify/articles/inspecting-names.md):
+- [Matching within a
   region](https://gillescolling.com/taxify/articles/regions.md):
-- [Enriching results with trait and status
+- [Attaching published
   data](https://gillescolling.com/taxify/articles/enrichments.md):
-- [Joining custom data with
-  add_data()](https://gillescolling.com/taxify/articles/custom-data.md):
+- [Joining your own
+  data](https://gillescolling.com/taxify/articles/custom-data.md):
+- [Exploring the
+  backbone](https://gillescolling.com/taxify/articles/exploring.md):
 - [Requesting GBIF data for a species
   list](https://gillescolling.com/taxify/articles/gbif-requests.md):
+- [Matching vegetation
+  units](https://gillescolling.com/taxify/articles/vegetation-units.md):
+- [Matching large
+  lists](https://gillescolling.com/taxify/articles/large-scale.md):
 
-### Special topics
+### Background
 
-- [Inspecting a name list with
-  inspect()](https://gillescolling.com/taxify/articles/inspecting-names.md):
+- [How names are
+  matched](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
 - [Hybrids and
   aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.md):
-- [Working with large species
-  lists](https://gillescolling.com/taxify/articles/large-scale.md):
+- [The backbones and
+  datasets](https://gillescolling.com/taxify/articles/databases.md):
+- [Coming from taxize and
+  WorldFlora](https://gillescolling.com/taxify/articles/migration.md):

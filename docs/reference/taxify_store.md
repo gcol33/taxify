@@ -5,7 +5,7 @@ one under `latest/`, and each build it replaced in a directory named for
 that build's content id (the md5 of its `.vtr`, the same string
 [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
 records). Backbones are listed the same way, though by default only the
-active build of a backbone is kept – see `taxify.keep_backbone_versions`
+active build of a backbone is kept (see `taxify.keep_backbone_versions`)
 below.
 
 ## Usage
@@ -24,7 +24,7 @@ taxify_store(asset = NULL)
 ## Value
 
 A data.frame with one row per build on disk, columns: `component`,
-`type` (`"backbone"`/`"enrichment"`), `slot` (the store directory –
+`type` (`"backbone"`/`"enrichment"`), `slot` (the store directory:
 `"latest"` for the active build, else its content id), `active`,
 `version`, `content_id`, `pinned`, `size_mb`, `downloaded_at`.
 

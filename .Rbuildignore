@@ -34,3 +34,5 @@
 ^dev_notes$
 ^scripts$
 ^\.code-review-graph$
+^sidecars$
+^vignettes/.*\.orig$

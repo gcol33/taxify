@@ -1,0 +1,145 @@
+---
+title: "Hybrids and aggregates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hybrids and aggregates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
+options(width = 80)
+```
+
+This article shows how taxify matches the names of hybrids and aggregates, and how it attaches trait values to them when the published datasets hold none for the name itself. A hybrid formula with no record of its own resolves through its two parents; an aggregate with no record of its own falls back to its binomial. Installation is covered in [Get started](taxify.html). The examples match against World Flora Online (WFO) and Euro+Med PlantBase.
+
+1. **Match** the list with `taxify()`, which records hybrids in `is_hybrid` and `hybrid_type` and aggregates in `qualifier` and `aggregate_fallback`.
+
+2. **Parse** the parents of a hybrid formula with `add_hybrid_info()`.
+
+3. **Choose** whether an aggregate keeps its own concept with the `aggregates` argument.
+
+4. **Attach** traits with `add_trait()` or an `add_<source>()` function, which fall back to a hybrid's parents and an aggregate's binomial.
+
+```{r setup}
+library(taxify)
+```
+
+## Hybrid names
+
+Botanical names mark a hybrid with the multiplication sign (×) in one of three places:
+
+- before the genus, for a cross between two genera (a nothogenus): ×*Cupressocyparis leylandii*, the Leyland cypress;
+
+- before the epithet, for a cross within one genus (a nothospecies): *Mentha* ×*piperita*, peppermint;
+
+- between two parent names (a hybrid formula): *Salix alba* × *Salix fragilis*.
+
+Most data write a plain `x` in place of the sign. The list below has one name of each kind, a second nothospecies, a nothospecies with an author, and a species that is no hybrid:
+
+```{r match}
+hybrids <- c(
+  "Quercus robur", "Mentha x piperita", "x Cupressocyparis leylandii",
+  "Salix alba x Salix fragilis", "Platanus x hispanica",
+  "Mentha x piperita L."
+)
+res <- taxify(hybrids, backbone = "wfo", verbose = FALSE)
+res[, c("input_name", "accepted_name", "hybrid_type", "match_type")]
+```
+
+`is_hybrid` (not shown) is `TRUE` on the five hybrid rows, and `hybrid_type` names the kind. Both describe the input and are set during cleaning, so they are filled whether or not the name matched.
+
+The two nothospecies and the author-bearing *Mentha* match WFO records. ×*Cupressocyparis leylandii* matches too, and WFO resolves it to ×*Hesperotropsis leylandii*. WFO holds no record for the *Salix* cross, so the row resolves through its two parents, with `match_type = "hybrid_formula"`: `accepted_name` holds the cross of the accepted parent names, and `matched_name` the cross of the parents as written. The two differ only when a parent is a synonym. The ID, rank and classification columns of a formula row stay `NA`, and when a parent does not match, `accepted_name` stays `NA` as well.
+
+## Hybrid parents
+
+`add_hybrid_info()` parses the two parents of each hybrid formula and resolves them against the backbones of the result. It adds the parents as written, their accepted names and their backbone IDs:
+
+```{r parents}
+info <- add_hybrid_info(res)
+info[info$hybrid_type %in% "formula",
+     c("hybrid_parent_1", "hybrid_parent_1_accepted",
+       "hybrid_parent_2", "hybrid_parent_2_accepted")]
+```
+
+The parent columns are `NA` for a nothospecies or a nothogenus, whose name does not say which species were crossed: the parents of *Mentha* ×*piperita*, *M. aquatica* and *M. spicata*, appear nowhere in it.
+
+Formulas are written in several ways. An abbreviated genus in the second parent is expanded from the first parent, and a bare epithet is read as a species of the first parent's genus:
+
+```{r formulas}
+formulas <- c(
+  "Quercus pyrenaica x Q. petraea", "Populus nigra x Populus deltoides",
+  "Rosa canina x R. gallica", "Salix alba x fragilis"
+)
+fo <- add_hybrid_info(taxify(formulas, backbone = "wfo", verbose = FALSE))
+fo[, c("input_name", "hybrid_parent_1", "hybrid_parent_2")]
+```
+
+## How hybrids are detected
+
+Detection runs during cleaning, before any backbone is read. The sign `×` is replaced with a space-padded `x`, and an `x` counts as a hybrid marker only when it stands alone between spaces, so the *x* inside *Saxifraga* is never one. A sign misread as `Ã—` or `Ã\u0097`, which happens when text in UTF-8 is read as Latin-1, is repaired first.
+
+A nothospecies or nothogenus is matched with the sign removed and with the sign kept in each of its spellings (`Mentha × piperita`, `×Cupressocyparis`), because backbones differ in how they store it. A hybrid formula is first matched as a whole, since some backbones store a cross as a synonym of the nothospecies it produces; only when that fails are the parents resolved one by one.
+
+The parser expects a binomial on each side of the sign. A formula with a subspecies or variety on one side is still detected, and the rank and infraspecific epithet stay part of that parent's name.
+
+## Aggregates
+
+An aggregate groups closely related species under one name, as in apomictic groups such as *Rubus fruticosus* and *Taraxacum officinale*, where field data often record the group and leave the species open. It is written with `agg.` or `s.l.` (*sensu lato*, in the broad sense). taxify reads the variants a source may use (`aggr.`, `agg`, `-agg`, `coll. sp.`, `sensu lato`) as `agg.` or `s.l.` and records the marker in `qualifier`. The opposite marker `s.str.` (*sensu stricto*, in the narrow sense) is recorded in `qualifier` and the name is matched as written.
+
+Some backbones hold an aggregate as a taxon of its own, others hold only the binomial. WFO holds none:
+
+```{r agg-wfo}
+aggs <- c(
+  "Rubus fruticosus agg.", "Taraxacum officinale agg.",
+  "Galium mollugo s.l.", "Quercus robur"
+)
+wfo <- taxify(aggs, backbone = "wfo", verbose = FALSE)
+wfo[, c("input_name", "accepted_name", "qualifier", "aggregate_fallback")]
+```
+
+The three aggregates resolve to their binomials, and `aggregate_fallback = TRUE` records that the group itself was not found. The species without a marker has `NA` in both columns.
+
+Euro+Med PlantBase holds aggregates as taxa:
+
+```{r agg-euromed}
+em <- taxify(aggs, backbone = "euromed", verbose = FALSE)
+em[, c("input_name", "accepted_name", "aggregate_fallback")]
+```
+
+*Taraxacum officinale* agg. matches the Euro+Med aggregate, which Euro+Med treats as a synonym of *Taraxacum* sect. *Taraxacum*, so `aggregate_fallback` is `FALSE`. The other two fall back to their binomials. Euro+Med treats the binomial *Rubus fruticosus* as a synonym of *Rubus plicatus*, and the row follows it.
+
+`aggregates = "preserve"`, the default, is what both calls above did: the aggregate is matched as a taxon where the backbone has one. `aggregates = "collapse"` removes the marker before matching, so the binomial is matched like any other name and `aggregate_fallback` stays `NA`:
+
+```{r agg-collapse}
+col <- taxify(aggs, backbone = "euromed", aggregates = "collapse",
+              verbose = FALSE)
+col[, c("input_name", "accepted_name", "aggregate_fallback")]
+```
+
+## Traits for hybrids and aggregates
+
+Published datasets rarely hold a value for a hybrid formula or an aggregate. `add_trait()` and every `add_<source>()` function fill those rows from related names.
+
+For a hybrid formula, a value recorded for the hybrid itself is used first. Without one, the values of the two parents are combined: numbers are averaged, and a category is kept when the parents agree and written as `"A x B"` when they differ, with a warning. When only one parent has a value, that value is used. After `add_hybrid_info()`, an `add_<source>()` function also adds each parent's value as `<trait>_parent1` and `<trait>_parent2`.
+
+For an aggregate, the value recorded for the aggregate is used first, and the binomial's value otherwise. A species without a value of its own takes its aggregate's value where the dataset records the trait only for the group.
+
+```{r traits}
+salix <- c("Salix alba", "Salix fragilis", "Salix alba x Salix fragilis")
+tr <- taxify(salix, backbone = "wfo", verbose = FALSE) |>
+  add_trait("plant_height", mode = "wide")
+tr[, c("input_name", "plant_height_gift", "plant_height_diaz",
+       "plant_height_austraits")]
+```
+
+`mode = "wide"` keeps one column per dataset, so the combination can be read row by row. The cross has no value of its own in any of these datasets. In GIFT and in the data of Díaz et al. its height is the mean of the two parents; AusTraits has a height for *Salix alba* only, and the cross takes it.
+
+`aggregate_trait_fallback = FALSE`, or `options(taxify.aggregate_trait_fallback = FALSE)` for a session, leaves such rows `NA`. With `options(taxify.trait_provenance = TRUE)`, an `add_<source>()` function adds a `<source>_basis` column that records whether each value is the name's own, an aggregate's, or a binomial's.
+
+## Where next
+
+- [How names are matched](fuzzy-matching.html): the other match stages.
+
+- [Attaching published data](enrichments.html): `add_trait()` and the `add_<source>()` functions in full.

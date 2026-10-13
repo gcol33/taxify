@@ -1,0 +1,192 @@
+---
+title: "Joining your own data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Joining your own data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
+options(width = 80)
+```
+
+This article shows how to join a table of your own, such as trait measurements or plot records, to a `taxify()` result when the two write species names differently. `add_data()` matches the table's names against the same backbones as the result and joins on the accepted taxon, so a synonym in the table still reaches its row. It ends with the joined table written to a file with `export_data()`. Installation is covered in [Get started](taxify.html).
+
+1. **Match** the species list with `taxify()`.
+
+2. **Join** a data frame or a file with `add_data()`, naming the species column with `species_col` or letting `add_data()` find it.
+
+3. **Select** columns with `cols`, and settle repeated species.
+
+4. **Export** the joined result with `export_data()`.
+
+```{r setup}
+library(taxify)
+```
+
+## Joining a data frame
+
+The species list has five plants, matched against the Catalogue of Life (COL):
+
+```{r match}
+species <- c(
+  "Quercus robur", "Fagus sylvatica", "Reynoutria japonica",
+  "Pinus sylvestris", "Betula pendula"
+)
+res <- taxify(species, backbone = "col", verbose = FALSE)
+```
+
+The trait table holds specific leaf area (SLA) and maximum height. Its author wrote Japanese knotweed under the synonym *Fallopia japonica*:
+
+```{r traits}
+traits <- data.frame(
+  taxon = c("Quercus robur", "Fagus sylvatica", "Fallopia japonica",
+            "Pinus sylvestris", "Betula pendula"),
+  sla = c(18.2, 24.1, 21.0, 8.0, 22.3),
+  max_height_m = c(35, 40, 3, 30, 25)
+)
+joined <- add_data(res, traits, species_col = "taxon")
+joined[, c("input_name", "accepted_name", "sla", "max_height_m")]
+```
+
+`add_data()` matched the names in `taxon` against COL, the backbone the result records, and joined on the accepted taxon, so the knotweed values reach the *Reynoutria japonica* row. The message reports how many rows of the result received values and how many names of the table matched nothing. Every row of the result is kept, with `NA` where the table has no value; species only in the table are left out.
+
+A name with more than one accepted taxon behind it joins on the pick that `taxify()` would make, which can be the wrong taxon when the name was written without its author. [How names are matched](fuzzy-matching.html#names-with-more-than-one-accepted-taxon) shows how to check such names.
+
+## Joining a file
+
+A file path takes the place of the data frame. The example writes the trait table to a temporary CSV file first, with the species in a column called `latin_name` and a column of site codes:
+
+```{r csv}
+csv <- tempfile(fileext = ".csv")
+write.csv(
+  data.frame(latin_name = traits$taxon, site = "A", sla = traits$sla),
+  csv, row.names = FALSE
+)
+from_file <- add_data(res, csv)
+from_file[, c("input_name", "sla")]
+```
+
+Without `species_col`, `add_data()` matches the first ten names of each text column against the backbone and takes the column with the most matches, if at least half match. Here `latin_name` matched all five and `site` none. For your own file, only the path changes, and `species_col` names the column when the guess fails.
+
+The file type is read from the extension:
+
+- `.csv`, `.csv.gz`, `.tsv` and `.tsv.gz`: delimited text.
+
+- `.xlsx`: an Excel workbook, which needs the openxlsx2 package. `sheet` and `start_row` select the sheet and the header row; left out, `add_data()` searches the sheets and the first 20 rows for the species column.
+
+- `.sqlite` and `.db`: a SQLite database, which needs DBI and RSQLite. `table` names the table.
+
+- `.vtr`: a table in the format of vectra, the package taxify reads backbones with.
+
+```{r formats, eval = FALSE}
+add_data(res, "bird_morphometry.xlsx", sheet = "measurements", start_row = 3)
+add_data(res, "traits.sqlite", table = "plant_traits", species_col = "species")
+```
+
+Other formats, such as `.parquet` or `.rds`, are read into a data frame first.
+
+## Choosing columns
+
+`add_data()` joins every column except the species column. `cols` names the ones to keep:
+
+```{r cols}
+slim <- add_data(res, traits, species_col = "taxon", cols = "sla")
+setdiff(names(slim), names(res))
+```
+
+A column whose name the result already uses is added with the prefix `data_`, and the result's own column is unchanged:
+
+```{r collision}
+families <- data.frame(
+  species = c("Quercus robur", "Fagus sylvatica"),
+  family = c("Fagaceae", "Fagaceae"),
+  leaf_area = c(45.2, 38.7)
+)
+coll <- add_data(res, families, species_col = "species")
+setdiff(names(coll), names(res))
+```
+
+## Repeated species
+
+A table can hold the same species more than once: measurements from several sites, or two names that resolve to one accepted taxon. The check runs after matching, on the accepted taxon. Rows with identical values are merged, with a warning:
+
+```{r dup-same, warning = TRUE}
+same <- data.frame(
+  species = c("Quercus robur", "Quercus robur", "Fagus sylvatica"),
+  sla = c(18.2, 18.2, 24.1)
+)
+merged <- add_data(res, same, species_col = "species")
+```
+
+Rows with different values stop the join, because `add_data()` cannot tell which value is right:
+
+```{r dup-diff, error = TRUE}
+differ <- data.frame(
+  species = c("Quercus robur", "Quercus robur", "Fagus sylvatica"),
+  country = c("AT", "DE", "AT"),
+  sla = c(18.2, 21.5, 24.1)
+)
+add_data(res, differ, species_col = "species", cols = "sla")
+```
+
+Two values count as different when any selected column differs, with two `NA` values counted as equal. Averaging the rows before the join is one fix. When the rows belong to different groups, such as countries, `group_col` keeps them apart, with one column per group:
+
+```{r group}
+by_country <- add_data(res, differ, species_col = "species",
+                       group_col = "country")
+by_country[, c("input_name", "sla_AT", "sla_DE")]
+```
+
+`taxify_long()` turns the group columns into rows.
+
+## Matching options
+
+`add_data()` matches the table's names with fuzzy matching, as `taxify()` does. `fuzzy_threshold` sets the tolerance, and `fuzzy = FALSE` accepts only exact matches, for a table whose names are already checked:
+
+```{r fuzzy, eval = FALSE}
+add_data(res, traits, species_col = "taxon", fuzzy = FALSE)
+```
+
+## Combining with published data
+
+`add_data()` and the `add_<source>()` functions join on the same accepted taxon, so they can be chained in any order:
+
+```{r chain}
+both <- res |>
+  add_zanne() |>
+  add_data(traits, species_col = "taxon", cols = "sla")
+both[, c("accepted_name", "woodiness", "sla")]
+```
+
+## Exporting the result
+
+`export_data()` writes the joined table to `.csv`, `.tsv`, `.xlsx` or `.vtr`, chosen by the extension:
+
+```{r export}
+out <- tempfile(fileext = ".csv")
+export_data(joined, out)
+head(read.csv(out)[, c("input_name", "accepted_name", "sla")], 3)
+```
+
+A `.vtr` file written this way can be passed to `add_data()` in another project.
+
+## How the join works
+
+1. **Read** the table: a data frame as it is, a file by its extension.
+
+2. **Find** the species column, from `species_col` or by matching samples of each text column.
+
+3. **Match** the names against the backbones of the result, which `add_data()` reads from the result's metadata. Names that match nothing are counted in the message and left out.
+
+4. **Check** for repeated accepted taxa: identical rows are merged, different rows stop the join.
+
+5. **Join** on the accepted ID together with the backbone that issued it, since an ID means something only within its backbone. When the result and the table were matched by different backbones, the accepted name is the key instead.
+
+## Where next
+
+- [Attaching published data](enrichments.html): the `add_<source>()` functions and `add_trait()`.
+
+- [Recording what was used](taxify.html#recording-what-was-used): citing and locking the versions behind a result.
