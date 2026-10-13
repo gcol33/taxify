@@ -231,6 +231,12 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 ### vig.vegunits.build  [A8]  (section)
 - job: How both backbones were built, the Mucina et al. fill-in, Pladias terms, misapplied names.
 
+### vig.vegunits.where-next  (list)
+- job: The matching and backbones articles, labelled by job.
+
+### vig.vegunits.references  (list)
+- job: Mucina et al. 2016, Chytrý et al. 2021 and 2024, Chytrý 2007-2013, copied from the manifest citations.
+
 ## vignettes/fuzzy-matching.Rmd (How names are matched)
 
 ### vig.fuzzy.opener  [A1]
@@ -335,6 +341,12 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 ### vig.regions.marine  [A5]  (section, code)
 - job: MEOW ecoregions, provinces and realms; points at sea; the precision of WoRMS records.
 
+### vig.regions.where-next  (list)
+- job: The checking and matching articles, labelled by job.
+
+### vig.regions.references  (list)
+- job: Brummitt 2001, Govaerts et al. 2021, Spalding et al. 2007, copied from the old regions vignette.
+
 ## vignettes/custom-data.Rmd (Joining your own data)
 
 ### vig.customdata.opener  [A4]
@@ -418,6 +430,12 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 
 ### vig.enrich.versions  [A2]  (section, code)
 - job: Download on first use, `taxify_download_enrichment()`, fixed vs updated releases, kept builds.
+
+### vig.enrich.where-next  (list)
+- job: The catalogue, custom data and hybrids articles, labelled by job.
+
+### vig.enrich.references  (list)
+- job: Dengler et al. 2023 and Zanne et al. 2014, copied from the manifest citations.
 
 ## vignettes/articles/databases.Rmd (The backbones and datasets)
 
