@@ -15,7 +15,7 @@
 - maintainers: Roeland Kindt
 
 ### taxify
-- released: on CRAN since 0.6.0 (2026-09-30, doi:10.32614/CRAN.package.taxify); repository at 0.7.1
+- released: on CRAN since 0.6.0 (2026-09-30, doi:10.32614/CRAN.package.taxify); repository at 0.7.0
 - review: none yet
 - use:
 - validation: the testthat suite; `scripts/agreement-worldflora.R` (300 WFO names, accepted names compared with WorldFlora); the knitted articles, run against the installed backbones
