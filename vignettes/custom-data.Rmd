@@ -104,7 +104,7 @@ The file type is read from the extension:
 
 - `.sqlite` and `.db`: a SQLite database, which needs DBI and RSQLite. `table` names the table.
 
-- `.vtr`: a table in the format of vectra, the package taxify reads backbones with.
+- `.vtr`: a table in the format of [vectra](https://gillescolling.com/vectra/), the package taxify reads backbones with.
 
 
 ``` r
@@ -221,6 +221,7 @@ add_data(res, traits, species_col = "taxon", fuzzy = FALSE)
 both <- res |>
   add_zanne() |>
   add_data(traits, species_col = "taxon", cols = "sla")
+#> add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").
 #> Matching 5 names from 'taxon' through COL backbone...
 #> Matching 5 names...
 #> add_data: 5 of 5 species matched (100.0%). 0 names in data unmatched.

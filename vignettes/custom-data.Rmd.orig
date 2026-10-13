@@ -79,7 +79,7 @@ The file type is read from the extension:
 
 - `.sqlite` and `.db`: a SQLite database, which needs DBI and RSQLite. `table` names the table.
 
-- `.vtr`: a table in the format of vectra, the package taxify reads backbones with.
+- `.vtr`: a table in the format of [vectra](https://gillescolling.com/vectra/), the package taxify reads backbones with.
 
 ```{r formats, eval = FALSE}
 add_data(res, "bird_morphometry.xlsx", sheet = "measurements", start_row = 3)

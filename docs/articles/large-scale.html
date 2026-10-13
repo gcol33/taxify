@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -134,8 +134,9 @@ matches lists of accepted species names drawn from World Flora Online
 (WFO), as they are and with one letter changed in every tenth name. Each
 list runs in a new R session, after one call that loads the backbone.
 The run recorded in <code>scripts/benchmark-scale-results.json</code>
-used taxify 0.7.0 and vectra 0.13.0 under R 4.6.0, on Intel(R) Core(TM)
-i9-14900K with 32 logical cores, on 2026-10-13:</p>
+used taxify 0.7.0 and <a href="https://gillescolling.com/vectra/" class="external-link">vectra</a> 0.13.0 under R
+4.6.0, on Intel(R) Core(TM) i9-14900K with 32 logical cores, on
+2026-10-13:</p>
 <table class="table">
 <thead><tr class="header">
 <th align="right">Names</th>

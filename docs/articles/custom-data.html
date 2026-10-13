@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -220,8 +220,8 @@ sheets and the first 20 rows for the species column.</p></li>
 <li><p><code>.sqlite</code> and <code>.db</code>: a SQLite database,
 which needs DBI and RSQLite. <code>table</code> names the
 table.</p></li>
-<li><p><code>.vtr</code>: a table in the format of vectra, the package
-taxify reads backbones with.</p></li>
+<li><p><code>.vtr</code>: a table in the format of <a href="https://gillescolling.com/vectra/" class="external-link">vectra</a>, the package taxify
+reads backbones with.</p></li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="st">"bird_morphometry.xlsx"</span>, sheet <span class="op">=</span> <span class="st">"measurements"</span>, start_row <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
@@ -331,6 +331,7 @@ order:</p>
 <code class="sourceCode R"><span><span class="va">both</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span>, cols <span class="op">=</span> <span class="st">"sla"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").</span></span>
 <span><span class="co">#&gt; Matching 5 names from 'taxon' through COL backbone...</span></span>
 <span><span class="co">#&gt; Matching 5 names...</span></span>
 <span><span class="co">#&gt; add_data: 5 of 5 species matched (100.0%). 0 names in data unmatched.</span></span>

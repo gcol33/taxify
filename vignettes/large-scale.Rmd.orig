@@ -31,7 +31,7 @@ library(taxify)
 
 ## How long matching takes
 
-`scripts/benchmark-scale.R` in the taxify repository matches lists of accepted species names drawn from World Flora Online (WFO), as they are and with one letter changed in every tenth name. Each list runs in a new R session, after one call that loads the backbone. The run recorded in `scripts/benchmark-scale-results.json` used taxify `r scale$platform$taxify` and vectra `r scale$platform$vectra` under R `r scale$platform$r`, on `r scale$platform$cpu` with `r scale$platform$cores` logical cores, on `r substr(scale$generated_at, 1, 10)`:
+`scripts/benchmark-scale.R` in the taxify repository matches lists of accepted species names drawn from World Flora Online (WFO), as they are and with one letter changed in every tenth name. Each list runs in a new R session, after one call that loads the backbone. The run recorded in `scripts/benchmark-scale-results.json` used taxify `r scale$platform$taxify` and [vectra](https://gillescolling.com/vectra/) `r scale$platform$vectra` under R `r scale$platform$r`, on `r scale$platform$cpu` with `r scale$platform$cores` logical cores, on `r substr(scale$generated_at, 1, 10)`:
 
 ```{r timings, echo = FALSE}
 runs <- do.call(rbind, lapply(scale$runs, function(r) {
