@@ -9,10 +9,11 @@ Ecologists, botanists, zoologists and data managers with a species list (a field
 ## Relation
 - to: taxize (web-service name resolution) and WorldFlora (matching against a local World Flora Online file); also lcvplants, rWCVP, taxadb, Taxonstand, U.Taxonstand, TNRS, rgbif/worrms/ritis name lookups
 - phrase: the name-resolution step of taxize and WorldFlora, run offline against local backbone files
-- same: the input (a vector of names) and the answer (matched name, accepted name, IDs, status); WorldFlora reads the same WFO snapshot when `backbone = "wfo"`
+- same: the input (a vector of names) and the answer (matched name, accepted name, IDs, status); with `backbone = "wfo"`, 277 of 300 sampled WFO names get the same accepted name as in WorldFlora (scripts/agreement-worldflora-results.json), though the two may read different WFO releases
 - differs: local versioned files instead of web services (no rate limits, the version recorded per row); nineteen taxon backbones and two vegetation-unit backbones behind one call, chained as a fallback; one output schema whatever the backbone; trait and status joins on the accepted name; a different matching engine (C, genus-blocked fuzzy joins)
 - status: taxify does not wrap or call any of these packages; a taxize user maps each call through the table in the comparison article. Which package to keep using is the reader's call; the comparison article says where the others are the better choice (live data on the day, a service taxify has no backbone for)
-- home: vignettes/migration.Rmd ("Coming from taxize and WorldFlora")
+- home: vignettes/migration.Rmd ("Compatibility with taxize and WorldFlora")
+- context: sidecars/context.md (standing, debt, discrepancies, evidence scope, framing)
 
 ## Arcs
 

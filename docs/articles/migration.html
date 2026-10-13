@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Coming from taxize and WorldFlora • taxify</title>
+<title>Compatibility with taxize and WorldFlora • taxify</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Coming from taxize and WorldFlora">
+<meta property="og:title" content="Compatibility with taxize and WorldFlora">
 <script>
 (function () {
   var D = String.fromCharCode(36);
@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -100,7 +100,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>Coming from taxize and WorldFlora</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>Compatibility with taxize and WorldFlora</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/gcol33/taxify/blob/HEAD/vignettes/migration.Rmd" class="external-link"><code>vignettes/migration.Rmd</code></a></small>
@@ -109,42 +109,138 @@
 
     
     
-<p>This article maps the name-resolution functions of <a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a>, <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a> and
-related packages to their taxify counterparts, and runs a WorldFlora
-task side by side. taxify performs the name-resolution step of taxize
-and WorldFlora, run offline against local backbone files. It ends with
-the tasks for which another package is the better choice. Installation
-is covered in <a href="taxify.html">Get started</a>.</p>
+<p><a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a> (Chamberlain
+and Szöcs <a href="https://f1000research.com/articles/2-191/v2" class="external-link">2013</a>) gives R a
+set of verbs for taxonomic names, answered by about twenty web services:
+resolving a name, listing its synonyms, its children and the ranks above
+it, translating common names. <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a>
+(Kindt <a href="https://doi.org/10.1002/aps3.11388" class="external-link">2020</a>) matches
+plant names, exactly and by spelling distance, against the World Flora
+Online (WFO) backbone, and reduces the candidates to one row per name.
+taxify uses taxize’s verbs, with the same names and tasks, and
+WorldFlora’s workflow of matching exactly, then by spelling distance,
+and keeping one row per name. It performs the name-resolution step of
+taxize and WorldFlora, run offline against local backbone files, for
+<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
+backbones in one call.</p>
+<p>This article runs the same tasks in WorldFlora and taxify and
+measures where they agree, maps the functions of both packages to
+taxify’s, and lists the cases where taxize or WorldFlora is the better
+choice. taxify aims to give the same accepted names as WorldFlora on the
+same WFO release, with documented differences in how one record is
+chosen when a name has several. Installation is covered in <a href="taxify.html">Get started</a>.</p>
 <ol style="list-style-type: decimal">
-<li><p><strong>Map</strong> each call to its taxify counterpart with the
-tables below.</p></li>
-<li><p><strong>Match</strong> the names with <code><a href="../reference/taxify.html">taxify()</a></code>,
-naming the <code>backbone</code> the old call read.</p></li>
-<li><p><strong>Join</strong> the data the old workflow attached with an
-<code>add_&lt;source&gt;()</code> function or
-<code><a href="../reference/add_data.html">add_data()</a></code>.</p></li>
+<li><p><strong>Match</strong> the same names in both packages and
+compare the accepted names.</p></li>
+<li><p><strong>Map</strong> each taxize and WorldFlora function to its
+taxify counterpart.</p></li>
+<li><p><strong>Check</strong> the agreement on your own list before
+relying on either result.</p></li>
 </ol>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
-<h2 id="how-the-packages-differ">How the packages differ<a class="anchor" aria-label="anchor" href="#how-the-packages-differ"></a>
+<h2 id="matching-the-same-names-in-both-packages">Matching the same names in both packages<a class="anchor" aria-label="anchor" href="#matching-the-same-names-in-both-packages"></a>
 </h2>
-<p>taxize queries web services, about twenty of them, one per call and
-at the time of the call; version 0.10.1 is on CRAN. WorldFlora matches
-names against a World Flora Online (WFO) table that the user downloads
-and reads into memory; version 1.14-5 is on CRAN. taxify downloads each
-backbone once as a file and matches against it on disk, for
-<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
-backbones of all groups of organisms, and returns one row per input name
-with the same columns whichever backbone matched it.</p>
-<p>A web service returns the current treatment of a name on the day of
-the query, including names added to it since taxify’s copy was built.
-taxify returns the treatment of the backbone version on disk, recorded
-in every row, and the same answer on every run until the backbone is
-updated.</p>
+<p>WorldFlora reads the WFO classification file into memory and matches
+with fuzzy matching on:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">WorldFlora</span><span class="op">)</span></span>
+<span><span class="va">wfo_data</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"classification.csv"</span>, encoding <span class="op">=</span> <span class="st">"UTF-8"</span><span class="op">)</span></span>
+<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>, <span class="st">"Pinus silvestris"</span>,</span>
+<span>           <span class="st">"Rosa canina"</span><span class="op">)</span></span>
+<span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match</a></span><span class="op">(</span>spec.data <span class="op">=</span> <span class="va">names</span>, WFO.data <span class="op">=</span> <span class="va">wfo_data</span>, Fuzzy <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">best</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span></code></pre></div>
+<p><code>scripts/agreement-worldflora.R</code> in the taxify repository
+runs this code; the accepted name WorldFlora returned for each input, in
+<code>scientificName</code>, and whether the match was fuzzy:</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Input</th>
+<th align="left">WorldFlora accepted name</th>
+<th align="left">Fuzzy</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Quercus robur</td>
+<td align="left">Quercus robur</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">Quercus pedonculata</td>
+<td align="left">Quercus robur</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">Pinus silvestris</td>
+<td align="left">Pinus sylvestris</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">Rosa canina</td>
+<td align="left">Rosa canina</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
+<p>taxify matches the same names against its WFO backbone:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>, <span class="st">"Pinus silvestris"</span>,</span>
+<span>           <span class="st">"Rosa canina"</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;            input_name    accepted_name match_type</span></span>
+<span><span class="co">#&gt; 1       Quercus robur    Quercus robur      exact</span></span>
+<span><span class="co">#&gt; 2 Quercus pedonculata    Quercus robur      fuzzy</span></span>
+<span><span class="co">#&gt; 3    Pinus silvestris Pinus sylvestris   exact_ci</span></span>
+<span><span class="co">#&gt; 4         Rosa canina      Rosa canina      exact</span></span>
+<span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
+<p>Both packages give the same four accepted names. <em>Quercus
+pedonculata</em> is a misspelling of <em>Quercus pedunculata</em>, which
+WFO treats as a synonym of <em>Quercus robur</em>, and both reach
+<em>Quercus robur</em> through a fuzzy match. <em>Pinus silvestris</em>
+is fuzzy in WorldFlora; taxify reads the epithet’s <em>i</em> and
+<em>y</em> as the same letter and matches it with
+<code>match_type = "exact_ci"</code>.</p>
+<p>The second task, the synonyms of one accepted name, is
+<code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.synonyms()</a></code> in WorldFlora and <code><a href="../reference/synonyms.html">synonyms()</a></code> in
+taxify:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">syn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/synonyms.html">synonyms</a></span><span class="op">(</span><span class="st">"Picea abies"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">syn</span><span class="op">$</span><span class="va">synonym</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 164</span></span></code></pre></div>
+<p>For <em>Picea abies</em>, WorldFlora listed 171 synonyms and taxify
+164, of which 163 appear in both.</p>
 </div>
 <div class="section level2">
-<h2 id="from-taxize">From taxize<a class="anchor" aria-label="anchor" href="#from-taxize"></a>
+<h2 id="agreement-on-a-sample-of-wfo-names">Agreement on a sample of WFO names<a class="anchor" aria-label="anchor" href="#agreement-on-a-sample-of-wfo-names"></a>
+</h2>
+<p>The same script draws 300 names of species rank from taxify’s WFO
+backbone with a fixed seed (97 accepted, 172 synonyms, 31 unchecked),
+matches them in both packages without fuzzy matching, and compares the
+accepted names:</p>
+<ul>
+<li><p>277 names have the same accepted name in both.</p></li>
+<li><p>18 have different accepted names. For 13 of them, taxify reports
+more than one accepted taxon behind the spelling (<code>n_ids</code>
+above 1), and the two packages chose different records.</p></li>
+<li><p>5 names found no match in WorldFlora’s file.</p></li>
+</ul>
+<p>The run used taxify 0.7.0 with its WFO backbone 2026.06, and
+WorldFlora 1.14.5 with the WFO classification file of the Zenodo release
+named in <code>scripts/benchmark-worldflora.R</code>. The two can be
+different WFO releases, so part of the difference may come from the data
+rather than the matching. The comparison covers exact matching of
+species names; it does not show agreement on misspelt names,
+infraspecific names or names outside WFO.</p>
+<p>To check your own list, run it through both packages and compare
+<code>accepted_name</code> from <code>taxify(backbone = "wfo")</code>
+with <code>scientificName</code> from <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one()</a></code>. For the
+names that differ, <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> lists every accepted taxon
+taxify found behind the name, as shown in <a href="exploring.html">Exploring the backbone</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="functions-of-taxize">Functions of taxize<a class="anchor" aria-label="anchor" href="#functions-of-taxize"></a>
 </h2>
 <table class="table">
 <colgroup>
@@ -235,11 +331,12 @@ Life</td>
 </tr>
 </tbody>
 </table>
-<p>The functions with the same name in both packages do the same task,
-against a local backbone in taxify. They are shown in <a href="exploring.html">Exploring the backbone</a>.</p>
+<p>The table maps taxize 0.10.1. taxize answers from the web service
+named in each call, at the time of the call; taxify answers from the
+backbone version on disk, recorded in every row.</p>
 </div>
 <div class="section level2">
-<h2 id="from-worldflora">From WorldFlora<a class="anchor" aria-label="anchor" href="#from-worldflora"></a>
+<h2 id="functions-of-worldflora">Functions of WorldFlora<a class="anchor" aria-label="anchor" href="#functions-of-worldflora"></a>
 </h2>
 <table class="table">
 <colgroup>
@@ -263,8 +360,7 @@ against a local backbone in taxify. They are shown in <a href="exploring.html">E
 <tr class="even">
 <td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one()</a></code></td>
 <td><code><a href="../reference/taxify.html">taxify()</a></code></td>
-<td>
-<code><a href="../reference/taxify.html">taxify()</a></code> returns one row per name directly</td>
+<td>One row per name</td>
 </tr>
 <tr class="odd">
 <td><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.synonyms()</a></code></td>
@@ -273,49 +369,41 @@ against a local backbone in taxify. They are shown in <a href="exploring.html">E
 </tr>
 </tbody>
 </table>
-<p><code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code> returns the WFO columns under their WFO
-names (<code>scientificName</code>, <code>taxonID</code>,
-<code>taxonomicStatus</code>, <code>acceptedNameUsageID</code>) and
-several candidate rows per name, which <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one()</a></code> reduces to
-one. <code><a href="../reference/taxify.html">taxify()</a></code> returns <code>matched_name</code>,
-<code>taxon_id</code>, <code>taxonomic_status</code> and
-<code>accepted_id</code> with one row per name, and
-<code><a href="../reference/add_wfo_info.html">add_wfo_info()</a></code> adds WFO’s own further columns. A WorldFlora
-workflow reads the backbone file first:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">WorldFlora</span><span class="op">)</span></span>
-<span><span class="va">wfo_data</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"classification.csv"</span>, encoding <span class="op">=</span> <span class="st">"UTF-8"</span><span class="op">)</span></span>
-<span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match</a></span><span class="op">(</span>spec.data <span class="op">=</span> <span class="va">names</span>, WFO.data <span class="op">=</span> <span class="va">wfo_data</span>, Fuzzy <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
-<span><span class="va">best</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one</a></span><span class="op">(</span><span class="va">matched</span><span class="op">)</span></span></code></pre></div>
-<p>In taxify the backbone is downloaded on the first call:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus pedonculata"</span>, <span class="st">"Pinus silvestris"</span>,</span>
-<span>           <span class="st">"Rosa canina"</span><span class="op">)</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"matched_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;            input_name        matched_name    accepted_name match_type</span></span>
-<span><span class="co">#&gt; 1       Quercus robur       Quercus robur    Quercus robur      exact</span></span>
-<span><span class="co">#&gt; 2 Quercus pedonculata Quercus pedunculata    Quercus robur      fuzzy</span></span>
-<span><span class="co">#&gt; 3    Pinus silvestris    Pinus sylvestris Pinus sylvestris   exact_ci</span></span>
-<span><span class="co">#&gt; 4         Rosa canina         Rosa canina      Rosa canina      exact</span></span>
-<span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
-<p><em>Quercus pedonculata</em> is a misspelling of <em>Quercus
-pedunculata</em>, which WFO treats as a synonym of <em>Quercus
-robur</em>: the fuzzy match finds the synonym, and the row carries its
-accepted name. <em>Pinus silvestris</em> is a spelling of the epithet
-that the exact stage reads as <em>sylvestris</em>.</p>
-<div class="section level3">
-<h3 id="timings">Timings<a class="anchor" aria-label="anchor" href="#timings"></a>
-</h3>
+<p>The table maps WorldFlora 1.14-5. <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code> returns
+the WFO columns under their WFO names and every candidate within the
+fuzzy threshold; <code><a href="../reference/taxify.html">taxify()</a></code> returns
+<code>matched_name</code>, <code>taxon_id</code>,
+<code>taxonomic_status</code> and <code>accepted_id</code>, and
+<code><a href="../reference/add_wfo_info.html">add_wfo_info()</a></code> adds WFO’s further columns.</p>
+</div>
+<div class="section level2">
+<h2 id="differences">Differences<a class="anchor" aria-label="anchor" href="#differences"></a>
+</h2>
+<p><strong>Choosing one record.</strong> When a spelling leads to
+several accepted taxa, <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.one()</a></code> keeps one candidate row
+and taxify keeps one pick with the others in <code>accepted_ids</code>.
+The two rules can choose different records, which is where most of the
+differences in the sample come from. taxify’s order of choice is
+described in <a href="fuzzy-matching.html#names-with-more-than-one-accepted-taxon">How
+names are matched</a>.</p>
+<p><strong>Spelling distance.</strong> WorldFlora’s <code>Fuzzy</code>
+argument and taxify’s <code>fuzzy_threshold</code> measure the distance
+between spellings differently, so the same number does not select the
+same candidates. taxify also makes spelling variants of Latin equal
+before fuzzy matching, as for <em>Pinus silvestris</em> above.</p>
+<p><strong>The data.</strong> WorldFlora matches against the WFO file a
+user downloads; taxify against its WFO backbone, built from a WFO
+release and recorded in <code>backbone_version</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="timings-against-worldflora">Timings against WorldFlora<a class="anchor" aria-label="anchor" href="#timings-against-worldflora"></a>
+</h2>
 <p><code>scripts/benchmark-worldflora.R</code> in the taxify repository
-times both packages on names drawn from the WFO backbone: accepted
-binomials, and the same names with one letter of each epithet changed so
-that they need fuzzy matching. The run recorded in
-<code>scripts/benchmark-worldflora-results.json</code> used taxify
-0.7.0, vectra 0.13.0 and WorldFlora 1.14.5 under R 4.6.0 on Windows 11
-x64 (build 26200), on 2026-10-13. taxify read its WFO backbone 2026.06;
-WorldFlora read the WFO classification file of the Zenodo release in the
-script.</p>
+times both packages on accepted WFO binomials, as they are and with one
+letter of each epithet changed so that they need fuzzy matching. The run
+recorded in <code>scripts/benchmark-worldflora-results.json</code> used
+taxify 0.7.0, vectra 0.13.0 and WorldFlora 1.14.5 under R 4.6.0 on
+Windows 11 x64 (build 26200), on 2026-10-13:</p>
 <table class="table">
 <thead><tr class="header">
 <th>Task</th>
@@ -340,63 +428,31 @@ script.</p>
 </tr>
 </tbody>
 </table>
-<p>WorldFlora’s fuzzy matching ran with <code>Fuzzy = 0.1</code>. The
-two packages differ in more than speed: WorldFlora returns every
-candidate within the threshold for a person to choose from, and taxify
-returns one pick per name with the others listed in
-<code>accepted_ids</code>.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="from-other-packages">From other packages<a class="anchor" aria-label="anchor" href="#from-other-packages"></a>
-</h2>
-<ul>
-<li><p><a href="https://docs.ropensci.org/rgbif/" class="external-link">rgbif</a>, <a href="https://docs.ropensci.org/worrms/" class="external-link">worrms</a> and <a href="https://docs.ropensci.org/ritis/" class="external-link">ritis</a> query the live
-services of GBIF, WoRMS and ITIS.
-<code>taxify(backbone = "gbif")</code>, <code>"worms"</code> and
-<code>"itis"</code> match against local copies of the same
-backbones.</p></li>
-<li><p><a href="https://docs.ropensci.org/taxadb/" class="external-link">taxadb</a> also keeps
-local snapshots of backbones and looks names up in them with
-<code>filter_name()</code> and IDs with <code>filter_id()</code>. Its
-fuzzy functions match names that start with or contain a string;
-taxify’s fuzzy matching measures the distance between
-spellings.</p></li>
-<li><p>lcvplants matches against the Leipzig Catalogue of Vascular
-Plants with <code>lcvp_search()</code>;
-<code>taxify(backbone = "lcvp")</code> matches against the same
-catalogue.</p></li>
-<li><p>rWCVP, archived on CRAN in 2025, matched names against the World
-Checklist of Vascular Plants; <code>taxify(backbone = "wcvp")</code>
-matches against it, and <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code> attaches the native and
-introduced range by botanical region.</p></li>
-<li><p>Taxonstand, archived on CRAN in 2023 at its maintainer’s request,
-matched against The Plant List, which has not been updated since 2013.
-WFO and the World Checklist of Vascular Plants continue it:
-<code>taxify(backbone = c("wcvp", "wfo"))</code>.</p></li>
-</ul>
+<p>The timings measure how long each package takes for these names on
+one machine; whether the results agree is the subject of the agreement
+section above. WorldFlora’s fuzzy matching (<code>Fuzzy = 0.1</code>)
+returns every candidate within the threshold, which is more work than
+taxify’s single pick.</p>
 </div>
 <div class="section level2">
-<h2 id="when-another-package-fits-better">When another package fits better<a class="anchor" aria-label="anchor" href="#when-another-package-fits-better"></a>
+<h2 id="when-taxize-or-worldflora-fits-better">When taxize or WorldFlora fits better<a class="anchor" aria-label="anchor" href="#when-taxize-or-worldflora-fits-better"></a>
 </h2>
 <ul>
-<li><p><strong>Names added to a backbone since its last
-release.</strong> taxify matches against the version on disk; a web
-service through taxize, rgbif, worrms or ritis has the current
-one.</p></li>
-<li><p><strong>Choosing among candidates by hand.</strong> taxify picks
-one taxon per name and lists the others; WorldFlora and taxize show
-every candidate for a person to choose.</p></li>
-<li><p><strong>Distribution queries.</strong> <code><a href="../reference/add_wcvp.html">add_wcvp()</a></code>
-attaches the range by region; checklists and occurrence matrices built
-from WCVP regions are outside taxify.</p></li>
-<li><p><strong>Phylogenies.</strong> <code><a href="../reference/class2tree.html">class2tree()</a></code> builds a
-tree from the classification, without branch lengths; <a href="https://docs.ropensci.org/rotl/" class="external-link">rotl</a> reads the synthetic tree
-of the Open Tree of Life.</p></li>
-<li><p><strong>Occurrence and sequence records.</strong> taxify requests
-GBIF records by key, as shown in <a href="gbif-requests.html">Requesting
-GBIF data for a species list</a>; rgbif covers the rest of GBIF’s
-interface, and other packages cover sequence databases.</p></li>
+<li><p><strong>A name added since the last backbone release.</strong>
+taxize, and the clients of single services (<a href="https://docs.ropensci.org/rgbif/" class="external-link">rgbif</a>, <a href="https://docs.ropensci.org/worrms/" class="external-link">worrms</a>, <a href="https://docs.ropensci.org/ritis/" class="external-link">ritis</a>), query the current
+version.</p></li>
+<li><p><strong>Choosing among candidates by hand.</strong> WorldFlora
+and taxize return every candidate for a person to choose from.</p></li>
+<li><p><strong>A method with a peer-reviewed description.</strong>
+WorldFlora is described in a peer-reviewed paper (Kindt 2020); taxify’s
+checks are its own test suite and the comparisons above.</p></li>
+<li><p><strong>Other packages.</strong> <a href="https://docs.ropensci.org/taxadb/" class="external-link">taxadb</a> keeps local backbone
+snapshots and looks names up with <code>filter_name()</code>; lcvplants
+matches the Leipzig Catalogue of Vascular Plants with
+<code>lcvp_search()</code>, as <code>taxify(backbone = "lcvp")</code>
+does. rWCVP (archived on CRAN in 2025) and Taxonstand (archived in 2023,
+The Plant List) are continued by <code>taxify(backbone = "wcvp")</code>
+and <code>taxify(backbone = c("wcvp", "wfo"))</code>.</p></li>
 </ul>
 </div>
 <div class="section level2">
@@ -407,9 +463,18 @@ interface, and other packages cover sequence databases.</p></li>
 joining data in one session.</p></li>
 <li><p><a href="exploring.html">Exploring the backbone</a>: the
 functions that correspond to taxize’s.</p></li>
-<li><p><a href="backbones.html">Choosing and combining backbones</a>:
-the backbones and the fallback chain.</p></li>
+<li><p><a href="fuzzy-matching.html">How names are matched</a>: the
+stages and the choice of one record.</p></li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Chamberlain S, Szöcs E (2013). taxize: taxonomic search and retrieval
+in R. <em>F1000Research</em> 2: 191. <a href="https://f1000research.com/articles/2-191/v2" class="external-link uri">https://f1000research.com/articles/2-191/v2</a></p>
+<p>Kindt R (2020). WorldFlora: An R package for exact and fuzzy matching
+of plant names against the World Flora Online taxonomic backbone data.
+<em>Applications in Plant Sciences</em> 8(9): e11388. <a href="https://doi.org/10.1002/aps3.11388" class="external-link uri">https://doi.org/10.1002/aps3.11388</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

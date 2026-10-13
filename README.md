@@ -243,9 +243,9 @@ path from a messy list to accepted names with traits attached.
   aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html):
   the matching rules in detail.
 
-- [Coming from taxize and
+- [Compatibility with taxize and
   WorldFlora](https://gillescolling.com/taxify/articles/migration.html):
-  function mapping, side-by-side examples and timings.
+  agreement with WorldFlora, function mapping and timings.
 
 - [The backbones and
   datasets](https://gillescolling.com/taxify/articles/databases.html):

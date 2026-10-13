@@ -1,0 +1,188 @@
+{
+  "generated_at": "2026-10-13T02:49:32",
+  "script": "scripts/agreement-worldflora.R",
+  "seed": 20261013,
+  "n_names": 300,
+  "status_mix": {
+    "ACCEPTED": 97,
+    "SYNONYM": 172,
+    "UNCHECKED": 31
+  },
+  "n_agree": 277,
+  "n_differ": 18,
+  "n_worldflora_none": 5,
+  "n_taxify_none": 0,
+  "n_differ_multiple_ids": 13,
+  "differences": [
+    {
+      "input": "Bellevalia sartoriana",
+      "status": "SYNONYM",
+      "taxify": "Muscari comosum",
+      "worldflora": "Leopoldia comosa"
+    },
+    {
+      "input": "Jovibarba globiferum",
+      "status": "UNCHECKED",
+      "taxify": "Jovibarba globiferum"
+    },
+    {
+      "input": "Rosa balearica",
+      "status": "UNCHECKED",
+      "taxify": "Rosa balearica",
+      "worldflora": "Rosa sempervirens"
+    },
+    {
+      "input": "Conceveiba africana",
+      "status": "SYNONYM",
+      "taxify": "Aubletiana macrostachys",
+      "worldflora": "Neoboutonia mannii"
+    },
+    {
+      "input": "Gnaphalium saxatile",
+      "status": "SYNONYM",
+      "taxify": "Phagnalon saxatile",
+      "worldflora": "Anaphalis saxatilis"
+    },
+    {
+      "input": "Sorghum annuum",
+      "status": "SYNONYM",
+      "taxify": "Sorghum annuum",
+      "worldflora": "Parahyparrhenia annua"
+    },
+    {
+      "input": "Thalictrum altissimum",
+      "status": "UNCHECKED",
+      "taxify": "Thalictrum altissimum",
+      "worldflora": "Thalictrum speciosissimum"
+    },
+    {
+      "input": "Pelea sessilis",
+      "status": "SYNONYM",
+      "taxify": "Melicope sessilis",
+      "worldflora": "Pelea sessilis"
+    },
+    {
+      "input": "Crotalaria canescens",
+      "status": "SYNONYM",
+      "taxify": "Crotalaria ferruginea",
+      "worldflora": "Crotalaria lejoloba"
+    },
+    {
+      "input": "Urginavia micrantha",
+      "status": "ACCEPTED",
+      "taxify": "Urginavia micrantha",
+      "worldflora": "Drimia altissima"
+    },
+    {
+      "input": "Myrcia formosiana",
+      "status": "SYNONYM",
+      "taxify": "Myrcia splendens",
+      "worldflora": "Myrcia hilariana"
+    },
+    {
+      "input": "Hieracium rasile",
+      "status": "ACCEPTED",
+      "taxify": "Hieracium rasile"
+    },
+    {
+      "input": "Hieracium delineatum",
+      "status": "ACCEPTED",
+      "taxify": "Hieracium delineatum"
+    },
+    {
+      "input": "Stereisporites antiquasporites",
+      "status": "UNCHECKED",
+      "taxify": "Stereisporites antiquasporites"
+    },
+    {
+      "input": "Myrsine floridana",
+      "status": "UNCHECKED",
+      "taxify": "Myrsine floridana",
+      "worldflora": "Myrsine cubana"
+    },
+    {
+      "input": "Oxytropis hookeriana",
+      "status": "SYNONYM",
+      "taxify": "Oxytropis lambertii var. lambertii",
+      "worldflora": "Oxytropis lambertii"
+    },
+    {
+      "input": "Hierochloe alpina",
+      "status": "SYNONYM",
+      "taxify": "Hierochloe alpina",
+      "worldflora": "Anthoxanthum monticola"
+    },
+    {
+      "input": "Fedia eriocarpa",
+      "status": "SYNONYM",
+      "taxify": "Valeriana eriocarpa",
+      "worldflora": "Valerianella muricata"
+    },
+    {
+      "input": "Indigofera roxburghii",
+      "status": "SYNONYM",
+      "taxify": "Indigofera roxburghii",
+      "worldflora": "Indigofera linifolia"
+    },
+    {
+      "input": "Justicia pubescens",
+      "status": "SYNONYM",
+      "taxify": "Gymnostachyum pubescens",
+      "worldflora": "Dicliptera pubescens"
+    },
+    {
+      "input": "Ipomoea elliptica",
+      "status": "SYNONYM",
+      "taxify": "Argyreia elliptica",
+      "worldflora": "Ipomoea elliptica"
+    },
+    {
+      "input": "Begonia bacsonensis",
+      "status": "ACCEPTED",
+      "taxify": "Begonia bacsonensis"
+    },
+    {
+      "input": "Rosa repens",
+      "status": "UNCHECKED",
+      "taxify": "Rosa repens",
+      "worldflora": "Rosa gallica"
+    }
+  ],
+  "example": [
+    {
+      "input": "Quercus robur",
+      "accepted": "Quercus robur",
+      "fuzzy": false
+    },
+    {
+      "input": "Quercus pedonculata",
+      "accepted": "Quercus robur",
+      "fuzzy": true
+    },
+    {
+      "input": "Pinus silvestris",
+      "accepted": "Pinus sylvestris",
+      "fuzzy": true
+    },
+    {
+      "input": "Rosa canina",
+      "accepted": "Rosa canina",
+      "fuzzy": false
+    }
+  ],
+  "synonyms": {
+    "taxon": "Picea abies",
+    "n_worldflora": 171,
+    "n_taxify": 164,
+    "n_shared": 163
+  },
+  "snapshot": {
+    "taxify_backbone_version": "2026.06",
+    "worldflora_file": "classification.csv"
+  },
+  "platform": {
+    "r": "4.6.0",
+    "taxify": "0.7.0",
+    "worldflora": "1.14.5"
+  }
+}

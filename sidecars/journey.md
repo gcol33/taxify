@@ -506,25 +506,38 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 ### vig.gbif.cite  [A2 A4]  (section, code)
 - job: `cite()` lists the download DOI.
 
-## vignettes/migration.Rmd (Coming from taxize and WorldFlora)
+## vignettes/migration.Rmd (Compatibility with taxize and WorldFlora)
 
-### vig.migration.opener  [A0]
-- job: The relation phrase, the function maps, and the cases for another package.
+### vig.migration.credit  [A0]
+- job: What taxize and WorldFlora supply, with their citations; the relation phrase.
+- leaves: taxify uses taxize's verbs and WorldFlora's matching workflow
 
-### vig.migration.differ  [A2]  (section)
-- job: Web services vs a file in memory vs files on disk; current treatment vs the version on disk.
+### vig.migration.scope  [A0]
+- job: What the article runs and maps; the hedged aim (same accepted names on the same WFO release, documented differences).
+
+### vig.migration.same-names  [A1]  (section, code, table)
+- job: WorldFlora's closest equivalent (WFO.match + WFO.one) and taxify on the same four names; the same accepted names; *Pinus silvestris* exact_ci vs fuzzy; synonyms of *Picea abies* in both, counts read from the agreement file.
+
+### vig.migration.agreement  [A1]  (section, list)
+- job: 300 sampled WFO names: agree, differ (most with several accepted taxa), none in WorldFlora; versions; what the comparison does and does not show; how to check one's own list.
 
 ### vig.migration.taxize  (section, table)
-- job: taxize 0.10.1 functions mapped to taxify.
+- job: taxize 0.10.1 functions mapped to taxify; web service at call time vs backbone version on disk.
 
-### vig.migration.worldflora  [A1]  (section, table, code)
-- job: WorldFlora 1.14-5 functions mapped; output columns compared; the same four names in taxify.
+### vig.migration.worldflora  (section, table)
+- job: WorldFlora 1.14-5 functions mapped; output columns compared.
+
+### vig.migration.differences  [A1]  (section)
+- job: Design differences: choosing one record, spelling distance, the data each reads.
 
 ### vig.migration.timings  [A7]  (section, table)
-- job: Times read from `scripts/benchmark-worldflora-results.json`, with versions and date; the two packages return different things.
-
-### vig.migration.others  (section, list)
-- job: rgbif, worrms, ritis, taxadb, lcvplants, rWCVP and Taxonstand, with their CRAN status where archived.
+- job: Times read from `scripts/benchmark-worldflora-results.json`, with versions and date, and the scope sentence (time only; WorldFlora returns every candidate).
 
 ### vig.migration.better  (section, list)
-- job: Recent names, choosing by hand, distribution queries, phylogenies, occurrence and sequence records.
+- job: When taxize or WorldFlora fits better (recent names, choosing by hand, a peer-reviewed method), and the other packages.
+
+### vig.migration.where-next  (list)
+- job: Get started, exploring, matching, labelled by job.
+
+### vig.migration.references  (list)
+- job: Chamberlain and Szöcs 2013 and Kindt 2020, from the packages' citation() and Crossref.

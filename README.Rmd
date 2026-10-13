@@ -136,7 +136,7 @@ Start with [Get started](https://gillescolling.com/taxify/articles/taxify.html):
 
 - [How names are matched](https://gillescolling.com/taxify/articles/fuzzy-matching.html) and [Hybrids and aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html): the matching rules in detail.
 
-- [Coming from taxize and WorldFlora](https://gillescolling.com/taxify/articles/migration.html): function mapping, side-by-side examples and timings.
+- [Compatibility with taxize and WorldFlora](https://gillescolling.com/taxify/articles/migration.html): agreement with WorldFlora, function mapping and timings.
 
 - [The backbones and datasets](https://gillescolling.com/taxify/articles/databases.html): every backbone and dataset with its version, licence and reference.
 

@@ -177,4 +177,4 @@ taxify("Quercus robur", backbone = "col", verbose = FALSE)[
 
 - [Attaching published data](enrichments.html) and [Joining your own data](custom-data.html): the two kinds of join in full.
 
-- [Coming from taxize and WorldFlora](migration.html): function mapping and side-by-side examples.
+- [Compatibility with taxize and WorldFlora](migration.html): agreement with WorldFlora and the function mapping.

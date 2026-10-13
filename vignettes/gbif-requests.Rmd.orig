@@ -128,7 +128,7 @@ A download query is limited to 12,000 characters, about 1,187 keys. Above 1,000 
 
 ## Linking records to the requested names
 
-A record's `taxonKey` is the key of the taxon it was identified as, which can lie below the requested key: a record of *Pinus nigra* subsp. *salzmannii* carries that subspecies' key when *Pinus nigra* was requested. `gbif_fetch()` therefore links each record through `gbif_backmatch()`, which reads `taxonKey`, `acceptedTaxonKey`, `speciesKey`, `genusKey` and `familyKey` in that order and takes the first requested key. It adds `requested_key`, `input_name` and `accepted_name`. A record that carries no requested key keeps `NA` in all three, and the message counts such records.
+A record's `taxonKey` is the key of the taxon it was identified as, which can lie below the requested key: a record of *Pinus nigra* subsp. *salzmannii* carries that subspecies' key when *Pinus nigra* was requested. `gbif_fetch()` therefore links each record through `gbif_backmatch()`. It reads the record's keys from the most specific outwards (taxon, accepted taxon, species, genus, family) and takes the first one that was requested. The record then carries the requested key, the input name and the accepted name. A record that carries no requested key keeps `NA` in those three columns, and the message counts such records.
 
 For records fetched another way, `gbif_backmatch()` takes the request, a `taxify_ids()` table or the `taxify()` result:
 
