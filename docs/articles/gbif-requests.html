@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -298,13 +298,13 @@ them and returns the records in one table.</p>
 identified as, which can lie below the requested key: a record of
 <em>Pinus nigra</em> subsp. <em>salzmannii</em> carries that subspecies’
 key when <em>Pinus nigra</em> was requested. <code><a href="../reference/gbif_fetch.html">gbif_fetch()</a></code>
-therefore links each record through <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code>, which
-reads <code>taxonKey</code>, <code>acceptedTaxonKey</code>,
-<code>speciesKey</code>, <code>genusKey</code> and
-<code>familyKey</code> in that order and takes the first requested key.
-It adds <code>requested_key</code>, <code>input_name</code> and
-<code>accepted_name</code>. A record that carries no requested key keeps
-<code>NA</code> in all three, and the message counts such records.</p>
+therefore links each record through <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code>. It
+reads the record’s keys from the most specific outwards (taxon, accepted
+taxon, species, genus, family) and takes the first one that was
+requested. The record then carries the requested key, the input name and
+the accepted name. A record that carries no requested key keeps
+<code>NA</code> in those three columns, and the message counts such
+records.</p>
 <p>For records fetched another way, <code><a href="../reference/gbif_backmatch.html">gbif_backmatch()</a></code> takes
 the request, a <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> table or the
 <code><a href="../reference/taxify.html">taxify()</a></code> result:</p>

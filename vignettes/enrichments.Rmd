@@ -61,6 +61,7 @@ res <- taxify(plants, backbone = "col", verbose = FALSE)
 
 ``` r
 wood <- add_zanne(res)
+#> add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").
 wood[, c("input_name", "woodiness")]
 #>              input_name  woodiness
 #> 1         Quercus robur      woody
@@ -89,6 +90,7 @@ The functions return the result with the new columns on the right, so they can b
 
 ``` r
 both <- res |> add_zanne() |> add_eive()
+#> add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").
 both[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
 #>           accepted_name  woodiness eive_light eive_moisture
 #> 1         Quercus robur      woody   6.241077      4.802554
@@ -256,7 +258,9 @@ wd[, c("accepted_name", "woodiness_zanne", "woodiness_gift",
 
 Each source's own words for woodiness are translated into one vocabulary: Zanne et al. write *herbaceous*, as `add_zanne()` showed, and `add_trait()` reports *non-woody*.
 
-Sources that measure a trait by different methods are not averaged. When one source of a trait carries a `caution` in `trait_info()`, `add_trait()` reports the values of the most complete source and adds a `<trait>_caution` column, so a value never mixes two methods. `sources` restricts a trait to some of its sources, `priority` sets their order, and `combine` sets how they are combined (`"median"`, `"mean"`, `"first"`, `"complete"`, `"vote"`, `"min"` or `"max"`).
+Sources that measure a trait by different methods are not averaged. When `trait_info()` notes a caution for one of the sources, the values of the most complete source are reported, with a caution column beside them, so a value never mixes two methods.
+
+Three arguments change how sources are used. `sources` restricts a trait to some of them, and `priority` sets their order. `combine` sets how they are combined: the median, the mean, the first or the most complete source, a vote, the smallest or the largest value.
 
 ## Where each value came from
 

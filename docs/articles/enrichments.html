@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -169,6 +169,7 @@ for the woodiness compiled by Zanne et al. (<a href="https://doi.org/10.1038/na
 <p><code><a href="../reference/add_zanne.html">add_zanne()</a></code> adds the woodiness of each species:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wood</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").</span></span>
 <span><span class="va">wood</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"woodiness"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;              input_name  woodiness</span></span>
 <span><span class="co">#&gt; 1         Quercus robur      woody</span></span>
@@ -192,6 +193,7 @@ chooses: a vector of names, or <code>"all"</code>:</p>
 they can be chained:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">both</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").</span></span>
 <span><span class="va">both</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"woodiness"</span>, <span class="st">"eive_light"</span>, <span class="st">"eive_moisture"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;           accepted_name  woodiness eive_light eive_moisture</span></span>
 <span><span class="co">#&gt; 1         Quercus robur      woody   6.241077      4.802554</span></span>
@@ -357,15 +359,14 @@ vocabulary: Zanne et al. write <em>herbaceous</em>, as
 <code><a href="../reference/add_zanne.html">add_zanne()</a></code> showed, and <code><a href="../reference/add_trait.html">add_trait()</a></code> reports
 <em>non-woody</em>.</p>
 <p>Sources that measure a trait by different methods are not averaged.
-When one source of a trait carries a <code>caution</code> in
-<code><a href="../reference/trait_info.html">trait_info()</a></code>, <code><a href="../reference/add_trait.html">add_trait()</a></code> reports the values
-of the most complete source and adds a
-<code>&lt;trait&gt;_caution</code> column, so a value never mixes two
-methods. <code>sources</code> restricts a trait to some of its sources,
-<code>priority</code> sets their order, and <code>combine</code> sets
-how they are combined (<code>"median"</code>, <code>"mean"</code>,
-<code>"first"</code>, <code>"complete"</code>, <code>"vote"</code>,
-<code>"min"</code> or <code>"max"</code>).</p>
+When <code><a href="../reference/trait_info.html">trait_info()</a></code> notes a caution for one of the sources,
+the values of the most complete source are reported, with a caution
+column beside them, so a value never mixes two methods.</p>
+<p>Three arguments change how sources are used. <code>sources</code>
+restricts a trait to some of them, and <code>priority</code> sets their
+order. <code>combine</code> sets how they are combined: the median, the
+mean, the first or the most complete source, a vote, the smallest or the
+largest value.</p>
 </div>
 <div class="section level2">
 <h2 id="where-each-value-came-from">Where each value came from<a class="anchor" aria-label="anchor" href="#where-each-value-came-from"></a>
