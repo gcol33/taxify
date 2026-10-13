@@ -91,6 +91,45 @@ res[res$n_ids > 1, c("input_name", "accepted_name", "n_ids", "accepted_ids")]
 #> Sources: COL 2026.09 | cite() for full citations
 ```
 
+## Common errors when matching
+
+Names often arrive as a column of a data frame. `taxify()` takes a character vector of names, such as that column:
+
+
+``` r
+survey <- data.frame(plot = 1:2, species = c("Quercus robur", "Fagus sylvatica"))
+taxify(survey)
+#> Error:
+#> ! x must be a character vector
+```
+
+
+``` r
+taxify(survey$species, verbose = FALSE)[, c("input_name", "accepted_name")]
+#>        input_name   accepted_name
+#> 1   Quercus robur   Quercus robur
+#> 2 Fagus sylvatica Fagus sylvatica
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
+A backbone name has to be one of those `list_backbones()` reports. A misspelt one stops with the list of valid names:
+
+
+``` r
+taxify("Quercus robur", backbone = "catalogue of life")
+#> Error:
+#> ! Unknown backbone 'catalogue of life'. Available: wfo, col, colxr, gbif, itis, ncbi, ott, worms, euromed, fungorum, algaebase, fishbase, sealifebase, reptiledb, lcvp, wcvp, mdd, avilist, lpsn, evc, vegcz
+```
+
+
+``` r
+taxify("Quercus robur", backbone = "col", verbose = FALSE)[
+  , c("input_name", "accepted_name", "backbone")]
+#>      input_name accepted_name backbone
+#> 1 Quercus robur Quercus robur      col
+#> Sources: COL 2026.09 | cite() for full citations
+```
+
 ## Checking the matches
 
 `summary()` counts how the batch resolved and names the backbone version.
@@ -148,16 +187,24 @@ kept[, c("input_name", "accepted_name", "family")]
 
 ## Joining your own data
 
-Trait tables write names the way their authors did. The table below uses the synonym *Fallopia japonica* where `kept` has *Reynoutria japonica*, so a join on the name columns would miss that row. `add_data()` matches the table's names against the same backbones and joins on the accepted name.
+Trait tables write names the way their authors did, and usually arrive as a file. The table below uses the synonym *Fallopia japonica* where `kept` has *Reynoutria japonica*, so a join on the name columns would miss that row. It is written to a temporary CSV file first, with the names in a column called `latin_name`, so the example reads a file the way your own data would be read:
 
 
 ``` r
 heights <- data.frame(
-  species = c("Fallopia japonica", "Picea abies", "Betula pendula"),
+  latin_name = c("Fallopia japonica", "Picea abies", "Betula pendula"),
   height_m = c(3, 50, 25)
 )
-with_height <- add_data(kept, heights, species_col = "species")
-#> Matching 3 names from 'species' through COL + GBIF + ITIS backbone...
+heights_csv <- tempfile(fileext = ".csv")
+write.csv(heights, heights_csv, row.names = FALSE)
+```
+
+`add_data()` reads the file, matches the names in `latin_name` against the same backbones as `kept`, and joins on the accepted name:
+
+
+``` r
+with_height <- add_data(kept, heights_csv, species_col = "latin_name")
+#> Matching 3 names from 'latin_name' through COL + GBIF + ITIS backbone...
 #> Matching 3 names against 3 backbones: col -> gbif -> itis
 #>   [col] Matching 3 names...
 #>   [gbif] Skipped (all names matched)
@@ -176,7 +223,7 @@ with_height[, c("input_name", "accepted_name", "height_m")]
 #> Sources: COL 2026.09 | cite() for full citations
 ```
 
-`add_data()` reports the backbones it matched the table's names against, how many rows of `kept` received a value, and how many of the table's names found no match. A row of `kept` with no counterpart in `heights` gets `NA`.
+`add_data()` reports the backbones it matched the table's names against, how many rows of `kept` received a value, and how many of the table's names found no match. A row of `kept` with no counterpart in the file gets `NA`. For your own file, only the path and `species_col` change; `.tsv`, `.xlsx` and data frames are read the same way, as described in [Joining your own data](custom-data.html).
 
 ## Joining published data
 
@@ -266,45 +313,6 @@ writeLines(readLines(lock))
 #>     }
 #>   ]
 #> }
-```
-
-## Common errors
-
-Names often arrive as a column of a data frame. `taxify()` takes a character vector of names, such as that column:
-
-
-``` r
-survey <- data.frame(plot = 1:2, species = c("Quercus robur", "Fagus sylvatica"))
-taxify(survey)
-#> Error:
-#> ! x must be a character vector
-```
-
-
-``` r
-taxify(survey$species, verbose = FALSE)[, c("input_name", "accepted_name")]
-#>        input_name   accepted_name
-#> 1   Quercus robur   Quercus robur
-#> 2 Fagus sylvatica Fagus sylvatica
-#> Sources: COL 2026.09 | cite() for full citations
-```
-
-A backbone name has to be one of those `list_backbones()` reports. A misspelt one stops with the list of valid names:
-
-
-``` r
-taxify("Quercus robur", backbone = "catalogue of life")
-#> Error:
-#> ! Unknown backbone 'catalogue of life'. Available: wfo, col, colxr, gbif, itis, ncbi, ott, worms, euromed, fungorum, algaebase, fishbase, sealifebase, reptiledb, lcvp, wcvp, mdd, avilist, lpsn, evc, vegcz
-```
-
-
-``` r
-taxify("Quercus robur", backbone = "col", verbose = FALSE)[
-  , c("input_name", "accepted_name", "backbone")]
-#>      input_name accepted_name backbone
-#> 1 Quercus robur Quercus robur      col
-#> Sources: COL 2026.09 | cite() for full citations
 ```
 
 ## Where next

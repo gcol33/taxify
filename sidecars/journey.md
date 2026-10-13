@@ -154,21 +154,21 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 ### vig.taxify.ids  [A1]  (code)
 - job: Explains the warning and shows `n_ids` / `accepted_ids` for the row it names.
 
+### vig.taxify.errors  (section, code)
+- job: Right after the first call it troubleshoots: a data frame passed instead of its column, and a misspelt backbone name, each with the real error and the corrected call.
+
 ### vig.taxify.check  [A5]  (section, code)
 - job: `summary()` counts and names the version; `inspect()` lists the rows to look at with tiers; the reader drops the rows they reject and keeps `kept`.
 - leaves: `kept`, the table most analyses start from
 
 ### vig.taxify.own-data  [A4]  (section, code)
-- job: A trait table written with a synonym joins through `add_data()`; the report line explained.
+- job: A trait table with a synonym, written to a temporary CSV with its own column name, joins through `add_data()`; the report line explained; which lines change for the reader's own file.
 
 ### vig.taxify.enrich  [A4]  (section, code)
 - job: `add_zanne()` and `add_eive()` join on the accepted name; `cols = "all"`, `list_enrichments()`, `add_trait()` routed.
 
 ### vig.taxify.record  [A2]  (section, code)
 - job: `backbone_version` on every row; `cite()` for the references; `taxify_lock()` writes the versions and checksums; `taxify_restore()` reinstalls them.
-
-### vig.taxify.errors  (section, code)
-- job: A data frame passed instead of its column, and a misspelt backbone name, each with the real error and the corrected call.
 
 ### vig.taxify.where-next  (list)
 - job: Five articles labelled by job.

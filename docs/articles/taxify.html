@@ -213,11 +213,40 @@ and <code>accepted_ids</code> lists them.</p>
 <span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="common-errors-when-matching">Common errors when matching<a class="anchor" aria-label="anchor" href="#common-errors-when-matching"></a>
+</h2>
+<p>Names often arrive as a column of a data frame. <code><a href="../reference/taxify.html">taxify()</a></code>
+takes a character vector of names, such as that column:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">survey</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>plot <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! x must be a character vector</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey</span><span class="op">$</span><span class="va">species</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;        input_name   accepted_name</span></span>
+<span><span class="co">#&gt; 1   Quercus robur   Quercus robur</span></span>
+<span><span class="co">#&gt; 2 Fagus sylvatica Fagus sylvatica</span></span>
+<span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
+<p>A backbone name has to be one of those <code><a href="../reference/list_backbones.html">list_backbones()</a></code>
+reports. A misspelt one stops with the list of valid names:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"catalogue of life"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! Unknown backbone 'catalogue of life'. Available: wfo, col, colxr, gbif, itis, ncbi, ott, worms, euromed, fungorum, algaebase, fishbase, sealifebase, reptiledb, lcvp, wcvp, mdd, avilist, lpsn, evc, vegcz</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span></span>
+<span>  , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;      input_name accepted_name backbone</span></span>
+<span><span class="co">#&gt; 1 Quercus robur Quercus robur      col</span></span>
+<span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="checking-the-matches">Checking the matches<a class="anchor" aria-label="anchor" href="#checking-the-matches"></a>
 </h2>
 <p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> counts how the batch resolved and names the
 backbone version.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify results ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   backbone: COL v2026.09 + GBIF + ITIS  |  9 names submitted</span></span>
@@ -230,7 +259,7 @@ backbone version.</p>
 with the name to use, what stood out and a tier: <code>review</code> for
 a decision you have to make, <code>note</code> for a change you can
 accept as it is.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   9 names inspected  |  6 with anomalies</span></span>
@@ -247,7 +276,7 @@ accept as it is.</p>
 <code>Quercus fantasia</code> is also outside the area where the rest of
 the list occurs. Set aside the rows you do not accept and keep the
 others:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rejected</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus fantasia"</span><span class="op">)</span></span>
 <span><span class="va">kept</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">[</span><span class="op">!</span><span class="va">res</span><span class="op">$</span><span class="va">input_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">rejected</span>, <span class="op">]</span></span>
 <span><span class="va">kept</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"family"</span><span class="op">)</span><span class="op">]</span></span>
@@ -267,18 +296,26 @@ that survived your check, with one accepted name per row.</p>
 <div class="section level2">
 <h2 id="joining-your-own-data">Joining your own data<a class="anchor" aria-label="anchor" href="#joining-your-own-data"></a>
 </h2>
-<p>Trait tables write names the way their authors did. The table below
-uses the synonym <em>Fallopia japonica</em> where <code>kept</code> has
-<em>Reynoutria japonica</em>, so a join on the name columns would miss
-that row. <code><a href="../reference/add_data.html">add_data()</a></code> matches the table’s names against the
-same backbones and joins on the accepted name.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p>Trait tables write names the way their authors did, and usually
+arrive as a file. The table below uses the synonym <em>Fallopia
+japonica</em> where <code>kept</code> has <em>Reynoutria japonica</em>,
+so a join on the name columns would miss that row. It is written to a
+temporary CSV file first, with the names in a column called
+<code>latin_name</code>, so the example reads a file the way your own
+data would be read:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">heights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fallopia japonica"</span>, <span class="st">"Picea abies"</span>, <span class="st">"Betula pendula"</span><span class="op">)</span>,</span>
+<span>  latin_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fallopia japonica"</span>, <span class="st">"Picea abies"</span>, <span class="st">"Betula pendula"</span><span class="op">)</span>,</span>
 <span>  height_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">50</span>, <span class="fl">25</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">with_height</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">kept</span>, <span class="va">heights</span>, species_col <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Matching 3 names from 'species' through COL + GBIF + ITIS backbone...</span></span>
+<span><span class="va">heights_csv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">heights</span>, <span class="va">heights_csv</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/add_data.html">add_data()</a></code> reads the file, matches the names in
+<code>latin_name</code> against the same backbones as <code>kept</code>,
+and joins on the accepted name:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">with_height</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">kept</span>, <span class="va">heights_csv</span>, species_col <span class="op">=</span> <span class="st">"latin_name"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 3 names from 'latin_name' through COL + GBIF + ITIS backbone...</span></span>
 <span><span class="co">#&gt; Matching 3 names against 3 backbones: col -&gt; gbif -&gt; itis</span></span>
 <span><span class="co">#&gt;   [col] Matching 3 names...</span></span>
 <span><span class="co">#&gt;   [gbif] Skipped (all names matched)</span></span>
@@ -298,7 +335,10 @@ same backbones and joins on the accepted name.</p>
 <p><code><a href="../reference/add_data.html">add_data()</a></code> reports the backbones it matched the table’s
 names against, how many rows of <code>kept</code> received a value, and
 how many of the table’s names found no match. A row of <code>kept</code>
-with no counterpart in <code>heights</code> gets <code>NA</code>.</p>
+with no counterpart in the file gets <code>NA</code>. For your own file,
+only the path and <code>species_col</code> change; <code>.tsv</code>,
+<code>.xlsx</code> and data frames are read the same way, as described
+in <a href="custom-data.html">Joining your own data</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="joining-published-data">Joining published data<a class="anchor" aria-label="anchor" href="#joining-published-data"></a>
@@ -310,7 +350,7 @@ by Zanne et al. (<a href="https://doi.org/10.1038/nature12872" class="external-
 (EIVE, Dengler et al. <a href="https://doi.org/10.3897/VCS.98324" class="external-link">2023</a>). Both join on the
 accepted name the same way <code><a href="../reference/add_data.html">add_data()</a></code> does, and each is
 downloaded on first use.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">traits</span> <span class="op">&lt;-</span> <span class="va">kept</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").</span></span>
 <span><span class="co">#&gt; add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").</span></span>
@@ -337,7 +377,7 @@ data</a>.</p>
 </h2>
 <p>Every row carries the backbone that matched it and that backbone’s
 version.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">traits</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"backbone"</span>, <span class="st">"backbone_version"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   backbone         backbone_version</span></span>
 <span><span class="co">#&gt; 1      col col:2026.09 (2026-09-14)</span></span>
@@ -347,7 +387,7 @@ dataset in a result, for a methods section. <code><a href="../reference/taxify_l
 writes the same versions with a checksum of each file to a JSON file;
 <code><a href="../reference/taxify_restore.html">taxify_restore()</a></code> reads it on another machine and reinstalls
 those exact versions.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="va">traits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify citations ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones (version 0.7.0). doi:10.32614/CRAN.package.taxify</span></span>
@@ -355,7 +395,7 @@ those exact versions.</p>
 <span><span class="co">#&gt;   [3] Zanne AE, Tank DC, Cornwell WK, Eastman JM, Smith SA, FitzJohn RG, McGlinn DJ, O'Meara BC, Moles AT, Reich PB, et al. (2014). Three keys to the radiation of angiosperms into freezing environments. Nature 506:89-92. doi:10.1038/nature12872</span></span>
 <span><span class="co">#&gt;   [4] Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al. (2023). Ecological Indicator Values for Europe (EIVE) 1.0. Vegetation Classification and Survey 4:7-29. doi:10.3897/VCS.98324</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lock</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".json"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/taxify_lock.html">taxify_lock</a></span><span class="op">(</span><span class="va">traits</span>, <span class="va">lock</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">lock</span><span class="op">)</span><span class="op">)</span></span>
@@ -393,35 +433,6 @@ those exact versions.</p>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;   ]</span></span>
 <span><span class="co">#&gt; }</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="common-errors">Common errors<a class="anchor" aria-label="anchor" href="#common-errors"></a>
-</h2>
-<p>Names often arrive as a column of a data frame. <code><a href="../reference/taxify.html">taxify()</a></code>
-takes a character vector of names, such as that column:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">survey</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>plot <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Fagus sylvatica"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! x must be a character vector</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey</span><span class="op">$</span><span class="va">species</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;        input_name   accepted_name</span></span>
-<span><span class="co">#&gt; 1   Quercus robur   Quercus robur</span></span>
-<span><span class="co">#&gt; 2 Fagus sylvatica Fagus sylvatica</span></span>
-<span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
-<p>A backbone name has to be one of those <code><a href="../reference/list_backbones.html">list_backbones()</a></code>
-reports. A misspelt one stops with the list of valid names:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"catalogue of life"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error:</span></span>
-<span><span class="co">#&gt; ! Unknown backbone 'catalogue of life'. Available: wfo, col, colxr, gbif, itis, ncbi, ott, worms, euromed, fungorum, algaebase, fishbase, sealifebase, reptiledb, lcvp, wcvp, mdd, avilist, lpsn, evc, vegcz</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span></span>
-<span>  , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;      input_name accepted_name backbone</span></span>
-<span><span class="co">#&gt; 1 Quercus robur Quercus robur      col</span></span>
-<span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>
