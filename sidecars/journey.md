@@ -55,7 +55,7 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 
 ### readme.trust  [A2]
 - idea: the backbone's opinion, disagreement visible, versions, citations, lock
-- job: Says the accepted name is the backbone's, `mode = "wide"` shows disagreement, and the version record, `cite()` and `taxify_lock()` make the result citable and rerunnable.
+- job: Says the accepted name is the backbone's, `mode = "wide"` shows disagreement, and the version record, `cite()` and `taxify_lock()` make the result citable and rerunnable; the WorldFlora agreement (277 of 300, scripts/agreement-worldflora-results.json) states what the comparison measures and links the compatibility article.
 - leaves: what a methods section names, and why the answer can be trusted
 
 ### readme.install  (section)

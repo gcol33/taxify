@@ -58,12 +58,16 @@ taxify supports:
   EuroVegChecklist and the Czech national classification, resolve
   alliance and association names the way species names are resolved.
 
-The accepted name is the backbone’s; taxify adds no taxonomic opinion.
-Where backbones disagree, `mode = "wide"` shows each one’s answer side
-by side. Every row records the backbone and its version, `cite()` prints
-the references of every backbone and dataset a result used, and
-`taxify_lock()` saves the versions so the analysis can be rerun on the
-same data.
+The accepted name is the backbone’s own, and where backbones disagree,
+`mode = "wide"` shows each one’s answer side by side. Every row records
+the backbone and its version, `cite()` prints the references of every
+backbone and dataset a result used, and `taxify_lock()` saves the
+versions so the analysis can be rerun on the same data. A script in the
+repository matches 300 World Flora Online names in taxify and in
+WorldFlora; 277 get the same accepted name, and [Compatibility with
+taxize and
+WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
+shows where and why the others differ.
 
 ## Installation
 
@@ -93,7 +97,14 @@ library(taxify)
 
 names <- c("Quercus robur", "Quercus robus", "Pinus abies",
            "Fallopia japonica")
-res <- taxify(names, verbose = FALSE)
+res <- taxify(names)
+#> Matching 4 names against 3 backbones: col -> gbif -> itis
+#>   [col] Matching 4 names...
+#>   [gbif] Matching 1 remaining names...
+#>   [itis] Matching 1 remaining names...
+#>   [col] Fuzzy matching 1 unmatched...
+#>   [gbif] Skipped (all names matched)
+#>   [itis] Skipped (all names matched)
 #> Warning: 1 of 4 names resolve to more than one accepted ID (Pinus abies).
 #> `accepted_id` holds one and `accepted_ids` all of them; list them with
 #> taxify_ids() before requesting data by ID.

@@ -130,6 +130,13 @@ Anchors: `@p:readme.<slug>`, `@p:desc.<slug>`, `@p:vig.<article>.<slug>`, `?fn` 
 - home: vignettes/large-scale.Rmd, read at knit time
 - note: the old large-scale vignette attributed the 2026-07 run to taxify 0.3.21; the file recorded 0.3.6. Re-run 2026-10-13.
 
+### agreement-worldflora
+- metric: accepted names equal in taxify and WorldFlora for the same names
+- population: 300 species-rank WFO names, seed 20261013, exact matching
+- value: 277 agree, 18 differ (13 with n_ids > 1), 5 unmatched in WorldFlora
+- source: scripts/agreement-worldflora.R; scripts/agreement-worldflora-results.json
+- stated-at: @p:readme.trust; vignettes/migration.Rmd (read from the file at knit time)
+
 ## Defaults
 
 ### fuzzy-threshold

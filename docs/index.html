@@ -114,7 +114,7 @@
 <li><p><strong>Checking a list.</strong> <a href="https://gillescolling.com/taxify/reference/inspect.html"><code>inspect()</code></a> returns only the names that need a look (typos, outdated synonyms, spellings shared by several taxa, unknown genera, an animal in a plant list), each with the name to use.</p></li>
 <li><p><strong>Vegetation units.</strong> Two vegetation classifications, the EuroVegChecklist and the Czech national classification, resolve alliance and association names the way species names are resolved.</p></li>
 </ul>
-<p>The accepted name is the backbone’s; taxify adds no taxonomic opinion. Where backbones disagree, <code>mode = "wide"</code> shows each one’s answer side by side. Every row records the backbone and its version, <code><a href="reference/cite.html">cite()</a></code> prints the references of every backbone and dataset a result used, and <code><a href="reference/taxify_lock.html">taxify_lock()</a></code> saves the versions so the analysis can be rerun on the same data.</p>
+<p>The accepted name is the backbone’s own, and where backbones disagree, <code>mode = "wide"</code> shows each one’s answer side by side. Every row records the backbone and its version, <code><a href="reference/cite.html">cite()</a></code> prints the references of every backbone and dataset a result used, and <code><a href="reference/taxify_lock.html">taxify_lock()</a></code> saves the versions so the analysis can be rerun on the same data. A script in the repository matches 300 World Flora Online names in taxify and in WorldFlora; 277 get the same accepted name, and <a href="https://gillescolling.com/taxify/articles/migration.html">Compatibility with taxize and WorldFlora</a> shows where and why the others differ.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -139,7 +139,14 @@
 <span></span>
 <span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus robus"</span>, <span class="st">"Pinus abies"</span>,</span>
 <span>           <span class="st">"Fallopia japonica"</span><span class="op">)</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">names</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Matching 4 names against 3 backbones: col -&gt; gbif -&gt; itis</span></span>
+<span><span class="co">#&gt;   [col] Matching 4 names...</span></span>
+<span><span class="co">#&gt;   [gbif] Matching 1 remaining names...</span></span>
+<span><span class="co">#&gt;   [itis] Matching 1 remaining names...</span></span>
+<span><span class="co">#&gt;   [col] Fuzzy matching 1 unmatched...</span></span>
+<span><span class="co">#&gt;   [gbif] Skipped (all names matched)</span></span>
+<span><span class="co">#&gt;   [itis] Skipped (all names matched)</span></span>
 <span><span class="co">#&gt; Warning: 1 of 4 names resolve to more than one accepted ID (Pinus abies).</span></span>
 <span><span class="co">#&gt; `accepted_id` holds one and `accepted_ids` all of them; list them with</span></span>
 <span><span class="co">#&gt; taxify_ids() before requesting data by ID.</span></span>

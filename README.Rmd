@@ -33,7 +33,7 @@ The package performs the name-resolution step of [taxize](https://docs.ropensci.
 
 - **Vegetation units.** Two vegetation classifications, the EuroVegChecklist and the Czech national classification, resolve alliance and association names the way species names are resolved.
 
-The accepted name is the backbone's; taxify adds no taxonomic opinion. Where backbones disagree, `mode = "wide"` shows each one's answer side by side. Every row records the backbone and its version, `cite()` prints the references of every backbone and dataset a result used, and `taxify_lock()` saves the versions so the analysis can be rerun on the same data.
+The accepted name is the backbone's own, and where backbones disagree, `mode = "wide"` shows each one's answer side by side. Every row records the backbone and its version, `cite()` prints the references of every backbone and dataset a result used, and `taxify_lock()` saves the versions so the analysis can be rerun on the same data. A script in the repository matches 300 World Flora Online names in taxify and in WorldFlora; 277 get the same accepted name, and [Compatibility with taxize and WorldFlora](https://gillescolling.com/taxify/articles/migration.html) shows where and why the others differ.
 
 ## Installation
 
@@ -60,7 +60,7 @@ library(taxify)
 
 names <- c("Quercus robur", "Quercus robus", "Pinus abies",
            "Fallopia japonica")
-res <- taxify(names, verbose = FALSE)
+res <- taxify(names)
 res[, c("input_name", "accepted_name", "match_type", "is_synonym")]
 ```
 
