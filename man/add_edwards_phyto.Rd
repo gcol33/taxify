@@ -39,8 +39,8 @@ carbon content) to a \code{\link[=taxify]{taxify()}} result by looking up \code{
 \details{
 Source: Edwards et al. (2015, Ecology, CC BY 4.0), a compilation of
 phytoplankton nutrient-utilization traits for ~130 species. Single-source
-physiological data with no cross-source analogue, so it is surfaced through
-this door rather than the cross-source \code{\link[=add_trait]{add_trait()}} verb.
+physiological data with no cross-source analogue, so it is attached by
+this function and not registered with \code{\link[=add_trait]{add_trait()}}.
 }
 \examples{
 \dontrun{

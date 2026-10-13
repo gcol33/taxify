@@ -1,7 +1,7 @@
 #' Add plant hydraulic traits (Sanchez-Martinez et al.)
 #'
-#' Joins the drought-mortality trait block -- xylem embolism resistance, xylem
-#' and leaf conductivity, sapwood-to-leaf allocation and drought exposure -- to
+#' Joins the drought-mortality trait block (xylem embolism resistance, xylem
+#' and leaf conductivity, sapwood-to-leaf allocation and drought exposure) to
 #' a [taxify()] result by accepted name.
 #'
 #' @param x A data.frame returned by [taxify()].
@@ -22,7 +22,7 @@
 #'   they overlap they often carry the same primary record: 63% of the P50
 #'   values shared with AusTraits and 65% of the Ks values are equal to the last
 #'   digit. Agreement between them is not independent corroboration. The overlap
-#'   is small against what this adds -- 74 of its 894 P50 species appear in
+#'   is small against what this adds: 74 of its 894 P50 species appear in
 #'   either incumbent.
 #'
 #'   `huber_value_cm2_m2` is square centimetres of sapwood per square metre of

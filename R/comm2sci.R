@@ -76,7 +76,7 @@ common_name_variants <- function(s) {
 #' # against the full download this is where "pedunculate oak" would resolve.
 #' comm2sci("example_common_name")
 #'
-#' # Resolve straight to a taxify_result you can enrich
+#' # Resolve straight to a taxify_result, ready for add_*() functions
 #' comm2sci("example_common_name", output = "result", backbone = "wfo")
 #'
 #' options(old)
@@ -195,7 +195,7 @@ comm2sci <- function(x, lang = NULL, output = c("lookup", "result"),
 #' (GBIF, NCBI, and Open Tree vernaculars) offline; the first call may trigger
 #' the one-time download. Where [add_common_names()] attaches vernaculars to a
 #' [taxify()] result as columns, `sci2comm()` takes bare names and returns the
-#' long lookup table -- one row per (name, vernacular). A name maps to many
+#' long lookup table, one row per (name, vernacular). A name maps to many
 #' common names (across languages and synonyms), so a query can carry several
 #' rows.
 #'

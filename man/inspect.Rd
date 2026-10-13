@@ -18,7 +18,8 @@ inspect(
 \item{x}{A character vector of names, or a \code{taxify_result} from \code{\link[=taxify]{taxify()}}.}
 
 \item{backbones}{Logical. When \code{x} is a character vector, \code{TRUE} matches it
-against every installed backbone (via \code{\link[=taxify]{taxify()}}) so the match-based labels
+against every installed backbone, in the order of the default fallback
+chain of \code{\link[=taxify]{taxify()}}, so the match-based labels
 are available; \code{FALSE} (default) runs the register and list checks only, with
 no matching. The backbones used are printed in the report header. Ignored
 when \code{x} is already a \code{taxify_result} (it was matched already).}
@@ -47,7 +48,7 @@ Zero rows means nothing stood out among the checks that ran; the header's
 \description{
 A quality-control pass over a name list. By default \code{inspect()} does not match
 names against backbones: on a plain character vector it runs the checks that
-need no matching -- the genus register and the rest of the batch -- and is fast
+need no matching (the genus register and the rest of the batch) and is fast
 and offline. To also surface the match-based anomalies (\code{typo}, \code{synonym},
 \code{ambiguous}, \code{geographic}), either set \code{backbones = TRUE} (matches against
 every installed backbone, listed in the report) or match yourself first and
@@ -58,17 +59,17 @@ the name to use instead.
 \details{
 Checks that need no matching (run on a character vector or a result):
 \describe{
-\item{\code{unknown}}{The genus is not in the genus register -- the union of all
-13 backbones' genera -- so no backbone recognises it. The strong "probably
+\item{\code{unknown}}{The genus is not in the genus register, the union of the
+genera of every backbone, so no backbone recognises it. The strong "probably
 not a real name" signal.}
 \item{\code{near_duplicate}}{A near-twin of a more frequent name in the same list
 (small edit distance), so probably a misspelling of it. Computed from the
 list alone, so it catches typos in names no backbone contains.}
 \item{\code{outlier_group}}{The name's kingdom group (from the register) is a tiny
-minority of an otherwise group-coherent list -- the lone animal or fungus
+minority of an otherwise group-coherent list: the lone animal or fungus
 among plants, typically a cross-kingdom homonym typo.}
 }
-Checks read from a \code{taxify()} result (only present when you inspect one):
+Checks read from a \code{taxify()} result (only present when the input is one):
 \describe{
 \item{\code{typo}}{Resolved only after fuzzy correction (\code{match_type = "fuzzy"}):
 the input most likely contains a spelling error; \code{suggestion} is the name.}
@@ -90,8 +91,8 @@ keeps unplaced whose basionym it places (\code{match_type = "basionym"});
 Rows with no anomaly are dropped.
 
 Each row gets a \code{tier} describing what it needs, not how bad it is:
-\code{unresolved} (no usable name -- act on it), \code{review} (a name is there but its
-identity is uncertain -- verify it), or \code{note} (correct, optional cleanup).
+\code{unresolved} (no usable name: act on it), \code{review} (a name is there but its
+identity is uncertain: verify it), or \code{note} (correct, optional cleanup).
 \code{unknown} is \code{unresolved}; the identity-uncertain labels are \code{review}; \code{case}
 and \code{synonym} are \code{note}. An anomaly may be intended, so the tier is a triage
 hint, not a verdict.

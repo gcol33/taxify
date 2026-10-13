@@ -21,7 +21,7 @@ new_backend <- function(name, ..., class = character()) {
 #' delegating to the sibling `taxifydb` package (which must be installed). This
 #' is the from-source path, for rebuilding a backbone locally.
 #'
-#' For everyday use you do not need this: [taxify()] auto-downloads the pre-built
+#' Everyday use does not need this: [taxify()] auto-downloads the pre-built
 #' `.vtr` on first use, and [taxify_download()] fetches a pre-built backbone
 #' directly without `taxifydb`.
 #'

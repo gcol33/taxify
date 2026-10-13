@@ -18,7 +18,7 @@
 #'   a confirmed record from a phylogenetic inference (`Rhizobia` against
 #'   `likely_Rhizobia`) and carries their negative calls as `unlikely_Rhizobia`
 #'   and `unlikely_Frankia`. `nodulation_type` collapses that to the symbiont
-#'   involved -- `rhizobia`, `frankia`, `nostocaceae`, `present`, `none` --
+#'   involved (`rhizobia`, `frankia`, `nostocaceae`, `present`, `none`)
 #'   reading both `unlikely_` verdicts as `none`.
 #'
 #'   `positive_reports` and `negative_reports` are the counts of published

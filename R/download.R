@@ -385,8 +385,8 @@ has_xdelta3 <- function() {
 #' If no pre-built `.vtr` is available for a backbone, it falls back to building
 #' from source via [taxify_build()] (which requires `taxifydb`).
 #'
-#' @param backbone Character. A backbone name (e.g. `"wfo"`, `"col"`, `"gbif"`,
-#'   ...; see the backbones in [list_enrichments()]'s companion manifest) or
+#' @param backbone Character. A backbone name (e.g. `"wfo"`, `"col"`, `"gbif"`;
+#'   [list_backbones()] lists them all) or
 #'   `"register"` for the genus register. Multiple backbones can be given as a
 #'   character vector.
 #' @param version Character. `"latest"` (default) downloads into
@@ -394,7 +394,7 @@ has_xdelta3 <- function() {
 #'   A specific version string (e.g., `"2024.01"`) downloads into a pinned
 #'   folder that is never overwritten.
 #' @param content_id Character or `NULL` (default). The content id of one exact
-#'   build -- the md5 of its `.vtr`, as recorded by [taxify_lock()] and by the
+#'   build, the md5 of its `.vtr`, as recorded by [taxify_lock()] and by the
 #'   manifest. Given one, taxify fetches that build from the immutable copy
 #'   published beside the rolling asset, verifies the bytes hash back to the id,
 #'   and makes it the active backbone; the build it replaces is kept under its
@@ -402,7 +402,7 @@ has_xdelta3 <- function() {
 #' @param verbose Logical. Default `TRUE`.
 #' @return The path(s) to the downloaded `.vtr` file(s) (invisibly).
 #' @seealso [taxify_build()] to build a backbone from source via `taxifydb`,
-#'   [taxify_download_enrichment()] for enrichment layers, [taxify_store()] for
+#'   [taxify_download_enrichment()] for published datasets, [taxify_store()] for
 #'   the builds already on disk.
 #' @export
 taxify_download <- function(backbone = "wfo",

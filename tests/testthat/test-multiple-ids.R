@@ -316,6 +316,18 @@ test_that("verbs built on taxify() do not repeat the warning", {
   })
 })
 
+test_that("add_data() does not warn about the names of the joined table", {
+  with_gbif_like({
+    res <- taxify("Houstonia caerulea", backbone = "gbif", fuzzy = FALSE,
+                  verbose = FALSE)
+    dat <- data.frame(species = c("Houstonia caerulea", "Karwinskia mollis"),
+                      x = 1:2)
+    expect_no_warning(add_data(res, dat, species_col = "species",
+                               fuzzy = FALSE, verbose = FALSE),
+                      class = "taxify_multiple_ids")
+  })
+})
+
 test_that("summary() counts the names with several accepted IDs", {
   with_gbif_like({
     res <- suppressWarnings(

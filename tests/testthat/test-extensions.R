@@ -21,6 +21,7 @@ test_that("add_hybrid_info adds columns for formula hybrid", {
   expect_equal(result$hybrid_type, "formula")
   expect_equal(result$hybrid_parent_1, "Quercus pyrenaica")
   expect_equal(result$hybrid_parent_2, "Quercus petraea")
+  expect_null(attr(result, "taxify_meta")$enrichments)
 })
 
 test_that("add_hybrid_info adds NA for non-hybrids", {
@@ -109,6 +110,25 @@ test_that("add_gbif_info attaches GBIF columns and fills from the backbone", {
                     "origin", "infra_specific_epithet") %in% names(result)))
   expect_equal(result$origin[1L], "SOURCE")
   expect_equal(result$gbif_year[1L], "1753")
+})
+
+test_that("add_gbif_info cites its columns through the backbone only", {
+  use_mock_cache("gbif", mock_gbif_backbone_vtr())
+  x <- data.frame(
+    input_name = "Quercus robur", matched_name = "Quercus robur",
+    taxon_id = "2878688", backbone = "gbif", stringsAsFactors = FALSE
+  )
+  attr(x, "taxify_meta") <- list(backbone = "gbif",
+                                 version = c(gbif = "2023.08"))
+  result <- add_gbif_info(x)
+
+  expect_null(attr(result, "taxify_meta")$enrichments)
+  expect_equal(cite_footer(attr(result, "taxify_meta")), "GBIF 2023.08")
+})
+
+test_that("the sources line leaves out a missing backbone version", {
+  meta <- list(backbone = "wfo", version = c(wfo = NA_character_))
+  expect_equal(cite_footer(meta), "WFO")
 })
 
 test_that("add_gbif_info only enriches GBIF rows and keeps originals", {

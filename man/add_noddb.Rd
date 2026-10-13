@@ -31,7 +31,7 @@ Source: Tedersoo et al. (2018), 824 plant genera. CC BY-SA 4.0.
 a confirmed record from a phylogenetic inference (\code{Rhizobia} against
 \code{likely_Rhizobia}) and carries their negative calls as \code{unlikely_Rhizobia}
 and \code{unlikely_Frankia}. \code{nodulation_type} collapses that to the symbiont
-involved -- \code{rhizobia}, \code{frankia}, \code{nostocaceae}, \code{present}, \code{none} --
+involved (\code{rhizobia}, \code{frankia}, \code{nostocaceae}, \code{present}, \code{none})
 reading both \code{unlikely_} verdicts as \code{none}.
 
 \code{positive_reports} and \code{negative_reports} are the counts of published

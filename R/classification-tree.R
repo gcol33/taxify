@@ -63,7 +63,7 @@ resolve_classification_frame <- function(x, backbone = NULL, ...,
 #' Lowest common taxon of a set of names
 #'
 #' Resolves the names and reports the deepest Linnaean rank at which they all
-#' share one classification value -- their most recent common ancestor in the
+#' share one classification value: their most recent common ancestor in the
 #' backbone's hierarchy. Two congeners return their shared genus; two plants in
 #' different families return a shared order or class; unrelated taxa share only a
 #' kingdom (or nothing).

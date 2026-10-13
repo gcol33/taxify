@@ -18,7 +18,7 @@ taxify_download_enrichment(
 \item{version}{Character. \code{"latest"} (default) or a specific version string.}
 
 \item{content_id}{Character or \code{NULL} (default). The content id of one exact
-build -- the md5 of its \code{.vtr}, as recorded by \code{\link[=taxify_lock]{taxify_lock()}} and by the
+build, the md5 of its \code{.vtr}, as recorded by \code{\link[=taxify_lock]{taxify_lock()}} and by the
 manifest. Given one, taxify fetches that build from the immutable copy
 published beside the rolling asset, verifies the bytes hash back to the id,
 and makes it the active build; the build it replaces is kept on disk under

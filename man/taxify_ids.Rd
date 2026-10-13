@@ -47,8 +47,9 @@ author, a different species: GBIF files \emph{Absinthium vulgare} Dulac under
 IDs, the same on every row of a name: \code{"status"}, \code{"priority"}
 (publication year), \code{"occurrences"}, \code{"validity"}, \code{"fuzzy"}, or \code{"id"}
 when only the lowest taxon ID separated them, which settles nothing
-about the taxon the name denotes; \code{"authorship"} or \code{"basionym"} when
-the input's author or the record's basionym link moved the pick. \code{NA}
+about the taxon the name denotes; \code{"authorship"}, \code{"basionym"} or
+\code{"kingdom"} when the input's author, the record's basionym link or the
+\code{kingdom} argument of \code{\link[=taxify]{taxify()}} moved the pick. \code{NA}
 for a name with one ID.}
 }
 Unmatched names contribute no rows.

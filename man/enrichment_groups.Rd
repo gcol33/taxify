@@ -17,11 +17,11 @@ pointer to \code{\link[=enrichment_cols]{enrichment_cols()}} when \code{source} 
 enrichment, which has no group values.
 }
 \description{
-Some enrichment doors attach data per group: GRIIS invasive status by country
+Some \verb{add_<source>()} functions attach data per group: GRIIS invasive status by country
 (\code{\link[=add_griis]{add_griis()}}), WCVP native ranges by TDWG region (\code{\link[=add_wcvp]{add_wcvp()}}), vernacular
 names by language (\code{\link[=add_common_names]{add_common_names()}}), alien first records by location
 (\code{\link[=add_alien_first_records]{add_alien_first_records()}}). This lists the valid group values for such a
-door, the way \code{\link[=enrichment_cols]{enrichment_cols()}} lists a door's columns, so a country,
+function, the way \code{\link[=enrichment_cols]{enrichment_cols()}} lists a dataset's columns, so a country,
 region, or language code need not be guessed. Read offline from the local
 \code{.vtr} metadata (falling back to the manifest, then a scan of the \code{.vtr}); the
 first call may trigger the one-time download.

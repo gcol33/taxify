@@ -288,8 +288,8 @@ request_breakdown <- function(long, keys) {
 #'
 #' Takes a list of names, matches it against the GBIF backbone and requests
 #' occurrence data for every accepted taxon key the matches resolve to. A name
-#' GBIF files under more than one key -- a homonym published by two authors, or
-#' a name held once as accepted and again as a doubtful record -- contributes
+#' GBIF files under more than one key (a homonym published by two authors, or
+#' a name held once as accepted and again as a doubtful record) contributes
 #' all of its keys, so the request covers the whole matched concept rather than
 #' whichever key [taxify()] reported first.
 #'
@@ -331,7 +331,8 @@ request_breakdown <- function(long, keys) {
 #'   `region`, ...); only when `x` is a character vector, and must be named.
 #' @param verbose Logical. Default `TRUE`.
 #'
-#' @return With `dry_run = TRUE`, an integer vector of GBIF taxon keys. With
+#' @return With `dry_run = TRUE`, an integer vector of GBIF taxon keys, which
+#'   prints as the keys alone. With
 #'   `method = "download"`, the object rgbif's `occ_download()` returns (the
 #'   download key, to be passed to `occ_download_wait()`). With
 #'   `method = "search"`, a data.frame of occurrence records, empty if none
@@ -394,7 +395,10 @@ gbif_request <- function(x,
                       taxa[taxa$requested & !duplicated(taxa$gbif_key), ,
                            drop = FALSE])))
   }
-  if (isTRUE(dry_run)) return(keys)
+  if (isTRUE(dry_run)) {
+    class(keys) <- c("taxify_gbif_keys", class(keys))
+    return(keys)
+  }
 
   require_rgbif(sprintf("gbif_request(method = \"%s\")", method))
 
@@ -684,7 +688,7 @@ rbind_union <- function(parts) {
 #' @param backmatch Logical. Attach the queried names with [gbif_backmatch()].
 #'   Default `TRUE`.
 #' @param path Directory to download into. Defaults to a session temp
-#'   directory, so nothing is written outside it unless you ask.
+#'   directory, so nothing is written outside it unless `path` is set.
 #' @param verbose Logical. Default `TRUE`.
 #'
 #' @return A data.frame of occurrence records, carrying the same `keys`,
@@ -731,4 +735,20 @@ gbif_fetch <- function(x, backmatch = TRUE, path = tempdir(), verbose = TRUE) {
     out <- gbif_backmatch(out, x, verbose = verbose)
   }
   out
+}
+
+
+#' Print the keys of a dry-run GBIF request
+#'
+#' Shows the keys alone. The `taxa` table and the match metadata stay attached
+#' for [gbif_backmatch()] and [cite()]; `attr(x, "taxa")` shows the table.
+#'
+#' @param x The value of `gbif_request(dry_run = TRUE)`.
+#' @param ... Passed to [print()].
+#' @return `x`, invisibly.
+#' @keywords internal
+#' @export
+print.taxify_gbif_keys <- function(x, ...) {
+  print(as.integer(unclass(x)), ...)
+  invisible(x)
 }

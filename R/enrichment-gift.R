@@ -25,7 +25,7 @@
 #' Browse the bundled GIFT trait columns
 #'
 #' Returns the species-level trait columns available from the bundled GIFT
-#' enrichment, so you can pick which to attach in [add_gift()]. Read offline
+#' dataset, for picking which to attach in [add_gift()]. Read offline
 #' from the local `.vtr` (downloaded or built once); the first call may trigger
 #' that one-time download.
 #'
@@ -51,8 +51,8 @@ gift_traits <- function() {
 #' Joins species-level plant traits from GIFT, the Global Inventory of Floras
 #' and Traits (Weigelt et al. 2020), to a [taxify()] result by `accepted_name`.
 #' GIFT aggregates published trait records to one value per species (mean for
-#' numeric traits, most frequent entry for categorical ones). You choose which
-#' traits to attach with `cols`; browse the available columns with
+#' numeric traits, most frequent entry for categorical ones). `cols` chooses which
+#' traits to attach; browse the available columns with
 #' [gift_traits()].
 #'
 #' @param x A data.frame returned by [taxify()].
@@ -80,7 +80,7 @@ gift_traits <- function() {
 #' the redistributable subset of its data (CC BY 4.0; references whose
 #' underlying source is restricted are excluded), and that subset is what is
 #' bundled here. Cite GIFT and, where applicable, the underlying references
-#' (`GIFT::GIFT_references()`) when you use the values.
+#' (`GIFT::GIFT_references()`) for the values used.
 #'
 #' @references
 #' Weigelt P, Konig C, Kreft H (2020) GIFT - A Global Inventory of Floras and

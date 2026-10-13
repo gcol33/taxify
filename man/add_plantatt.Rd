@@ -42,9 +42,9 @@ indicator values \code{\link[=add_eive]{add_eive()}}.
 
 This source states no licence (it is copyright the Biological Records
 Centre), so taxify ships no pre-built copy of it. The first call builds it
-from the original source on your own machine, which requires the taxifydb
+from the original source on the user's machine, which requires the taxifydb
 package (\code{remotes::install_github("gcol33/taxifydb")}). taxify redistributes
-none of the data. Cite Hill et al. (2004) when you use it.
+none of the data. Cite Hill et al. (2004) for the data.
 }
 \examples{
 \dontrun{

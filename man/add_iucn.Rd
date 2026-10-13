@@ -25,7 +25,7 @@ The same data.frame with an additional column:
 }
 \description{
 Joins IUCN Red List conservation status to a \code{\link[=taxify]{taxify()}} result by looking up
-\code{accepted_name}. This is the source-named door for the IUCN Red List; for
+\code{accepted_name}. This function is named after its source, the IUCN Red List; for
 conservation status reconciled across sources, use \code{\link[=add_trait]{add_trait()}} once more
 than one source is registered for it.
 }

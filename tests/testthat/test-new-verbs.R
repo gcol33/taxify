@@ -304,3 +304,62 @@ test_that("kingdom = trusts a single-kingdom backbone's scope over a colliding r
   expect_equal(dropped$match_type, "none")
   expect_true(is.na(dropped$accepted_name))
 })
+
+test_that("kingdom = moves a cross-kingdom homonym to its in-kingdom record", {
+  # One genus name accepted in two kingdoms (as Prunella is in COL: a bird
+  # genus and a plant genus). The default pick is the lower ID, the animal; a
+  # plant filter has to land on the plant record, not drop the name.
+  df <- data.frame(
+    taxon_id = c("a1", "p1"),
+    canonical_name = c("Homonymus", "Homonymus"),
+    taxon_rank = c("GENUS", "GENUS"),
+    taxonomic_status = c("ACCEPTED", "ACCEPTED"),
+    accepted_name_usage_id = NA_character_,
+    family = c("Animalidae", "Plantaceae"),
+    genus = c("Homonymus", "Homonymus"),
+    specific_epithet = NA_character_,
+    authorship = c("Vieillot", "L."),
+    infraspecific_epithet = NA_character_,
+    kingdom = c("Animalia", "Plantae"),
+    stringsAsFactors = FALSE
+  )
+  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
+  df <- embed_accepted(
+    df,
+    id_col         = "taxon_id",
+    acc_id_col     = "accepted_name_usage_id",
+    name_col       = "canonical_name",
+    family_col     = "family",
+    genus_col      = "genus",
+    status_col     = "taxonomic_status",
+    authorship_col = "authorship"
+  )
+  vtr_path <- tempfile(fileext = ".vtr")
+  vectra::write_vtr(df, vtr_path, batch_size = 50000L)
+  on.exit(unlink(vtr_path), add = TRUE)
+
+  set_backbone_path("col", vtr_path)
+  on.exit(set_backbone_path("col", NULL), add = TRUE)
+  prev_checked <- .taxify_env[[".version_checked.col"]]
+  .taxify_env[[".version_checked.col"]] <- TRUE
+  on.exit(assign(".version_checked.col", prev_checked, envir = .taxify_env),
+          add = TRUE)
+
+  plain <- suppressWarnings(
+    taxify("Homonymus", backbone = "col", fuzzy = FALSE, verbose = FALSE))
+  expect_equal(plain$accepted_id, "a1")
+
+  plant <- suppressWarnings(
+    taxify("Homonymus", backbone = "col", fuzzy = FALSE, kingdom = "plants",
+           verbose = FALSE))
+  expect_equal(plant$match_type, "exact")
+  expect_equal(plant$accepted_id, "p1")
+  expect_equal(plant$family, "Plantaceae")
+  expect_equal(plant$accepted_authorship, "L.")
+  expect_equal(plant$accepted_ids, "p1|a1")
+  expect_equal(plant$pick_basis, "kingdom")
+
+  fungus <- taxify("Homonymus", backbone = "col", fuzzy = FALSE,
+                   kingdom = "fungi", verbose = FALSE)
+  expect_equal(fungus$match_type, "none")
+})

@@ -6,7 +6,7 @@
 #' on the accepted taxon --- so synonyms in either dataset resolve to the same
 #' key. The key is the `accepted_id` together with the backbone that issued it,
 #' falling back to `accepted_name` where the two sides were matched by different
-#' backbones: backend ids are bare integers in most backbones and mean nothing
+#' backbones: backbone IDs are bare integers in most backbones and mean nothing
 #' outside the one they came from.
 #'
 #' @param x A data.frame returned by [taxify()].
@@ -52,13 +52,13 @@
 #' 3. Match species names through the same backbone(s) as the original
 #'    `taxify()` call, obtaining `accepted_id` for each row.
 #' 4. Check for conflicting duplicates: if multiple rows in `data` resolve
-#'    to the same accepted name with different values, an error is raised --
-#'    with `group_col` set, within each group.
+#'    to the same accepted name with different values, an error is raised
+#'    (with `group_col` set, within each group).
 #'    Exact duplicates produce a warning and are deduplicated.
 #' 5. Left-join on the accepted taxon.
 #'
 #' ## Grouped data
-#' When your data has multiple rows per species (e.g., one row per species
+#' When `data` has multiple rows per species (e.g., one row per species
 #' per country), set `group_col` to produce wide output with suffixed
 #' columns. This is the same format as the built-in grouped enrichments.
 #'
@@ -195,7 +195,7 @@ add_data <- function(x, data,
                     paste(toupper(backbone), collapse = " + ")))
   }
 
-  data_matched <- taxify(species_names, backbone = backbone,
+  data_matched <- taxify_internal(species_names, backbone = backbone,
                          fuzzy = fuzzy, fuzzy_threshold = fuzzy_threshold,
                          verbose = verbose)
 
@@ -217,7 +217,7 @@ add_data <- function(x, data,
     if (verbose) {
       message("0 names in data matched the backbone -- no columns added.")
     }
-    return(register_enrichment(x, data_label, data_label, NA_character_, 0L))
+    return(register_user_data(x, data_label, 0L))
   }
 
   # One lookup key per row of x, resolved once and used by both joins below.
@@ -313,8 +313,7 @@ add_data <- function(x, data,
       ))
     }
 
-    x <- register_enrichment(x, data_label, data_label, NA_character_,
-                              n_enriched)
+    x <- register_user_data(x, data_label, n_enriched)
 
     # Stamp reshape metadata for taxify_long() auto-detection
     reshape_entry <- list(cols = names(value_cols), group_col = group_col)
@@ -375,7 +374,31 @@ add_data <- function(x, data,
     ))
   }
 
-  register_enrichment(x, data_label, data_label, NA_character_, n_joined)
+  register_user_data(x, data_label, n_joined)
+}
+
+
+#' Record a table joined by add_data() in the result's metadata
+#'
+#' The table is kept under `taxify_meta$user_data`, apart from
+#' `taxify_meta$enrichments`: [cite()] and [taxify_lock()] read the
+#' enrichments as published datasets with a manifest entry, a citation and a
+#' content id to reinstall, none of which a table of the user's own has.
+#'
+#' @param x The result being joined to.
+#' @param label The table's name: the file name, or the expression passed as
+#'   `data`.
+#' @param n_matched Rows of `x` that received a value.
+#' @return `x` with the table recorded.
+#' @noRd
+register_user_data <- function(x, label, n_matched) {
+  meta <- attr(x, "taxify_meta")
+  if (is.null(meta)) meta <- list()
+  meta$user_data <- c(meta$user_data, list(list(
+    name = label, n_matched = as.integer(n_matched)
+  )))
+  attr(x, "taxify_meta") <- meta
+  x
 }
 
 
@@ -565,7 +588,7 @@ detect_species_col <- function(data, backbone, verbose = TRUE) {
     if (length(probe_names) == 0L) next
 
     probe_result <- tryCatch(
-      taxify(probe_names, backbone = backbone, verbose = FALSE),
+      taxify_internal(probe_names, backbone = backbone, verbose = FALSE),
       error = function(e) NULL
     )
     if (is.null(probe_result)) next
@@ -658,7 +681,7 @@ detect_xlsx_layout <- function(path, backbone, sheet = NULL, start_row = NULL,
         if (length(probe) < 2L) next
 
         result <- tryCatch(
-          taxify(probe, backbone = backbone, verbose = FALSE),
+          taxify_internal(probe, backbone = backbone, verbose = FALSE),
           error = function(e) NULL
         )
         if (is.null(result)) next

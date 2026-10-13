@@ -30,9 +30,9 @@
 #'
 #' This source states no licence (it is copyright the Biological Records
 #' Centre), so taxify ships no pre-built copy of it. The first call builds it
-#' from the original source on your own machine, which requires the taxifydb
+#' from the original source on the user's machine, which requires the taxifydb
 #' package (`remotes::install_github("gcol33/taxifydb")`). taxify redistributes
-#' none of the data. Cite Hill et al. (2004) when you use it.
+#' none of the data. Cite Hill et al. (2004) for the data.
 #'
 #' @references
 #' Hill MO, Preston CD, Roy DB (2004) PLANTATT: Attributes of British and Irish

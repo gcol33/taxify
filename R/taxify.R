@@ -51,7 +51,7 @@
 #' @param region Region(s) to constrain fuzzy matching to, or `NULL` (default)
 #'   for no geographic constraint. Botanical (WCVP, vascular plants): TDWG Level
 #'   3 codes (`"BGM"`, `c("BGM", "GER")`) or region names at any level, matched
-#'   case- and accent-insensitively against the bundled WGSRPD crosswalk -- a
+#'   case- and accent-insensitively against the bundled WGSRPD crosswalk: a
 #'   Level 3 name (`"Belgium"`), a Level 2 region (`"Middle Europe"`), or a Level
 #'   1 continent (`"Europe"`, which expands to all its codes). Marine (only when
 #'   the `marine_distribution` asset is installed): a MEOW ecoregion `ECO_CODE`,
@@ -79,7 +79,7 @@
 #'   `options(taxify.pip_engine = "terra" | "sf" | "native")`.
 #' @param range Character. Which range statuses count as in-region when `region`
 #'   or `coords` is set. `"present"` (default) accepts any record (native,
-#'   introduced, extinct, or unknown status) -- the right choice for name
+#'   introduced, extinct, or unknown status), the right choice for name
 #'   disambiguation. `"native"` accepts only native records, `"introduced"` only
 #'   introduced (alien) records; both fold an ecological filter into matching and
 #'   are for callers who want that. Ignored when no region is set.
@@ -96,7 +96,7 @@
 #'   from the backbone where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a
 #'   backbone that does not (WFO, GBIF), it falls back to the genus register's
 #'   kingdom, which cannot split a genus that is itself homonymous across
-#'   kingdoms -- name a kingdom-appropriate `backbone` for those.
+#'   kingdoms; name a kingdom-appropriate `backbone` for those.
 #' @param mode Character. How to combine results when `backbone` names more than
 #'   one backbone. `"fallback"` (default) is the fallback chain described above:
 #'   one answer per name, from the first backbone that matched. `"wide"` and
@@ -1087,7 +1087,7 @@ is_backbone_match <- function(match_type) {
 #' A name the backbone files under several accepted taxa comes back with one of
 #' them in `accepted_id`, and a caller requesting data by that ID gets only that
 #' taxon's share. Every result carries `n_ids` and `accepted_ids` (completed by
-#' [complete_id_sets()]), whatever its values, so two results always bind. When
+#' `complete_id_sets()`), whatever its values, so two results always bind. When
 #' any row has several, one warning is raised per call, never one per name: on
 #' a long list a per-name warning buries everything else. It carries the
 #' affected rows in `rows` and the class `taxify_multiple_ids`, so it can be
@@ -1275,8 +1275,9 @@ backbone_kingdom_values <- function(vtr_path, ids) {
 #' Resolves each matched row's kingdom with `row_kingdom_groups()`, reading the
 #' backbone's `kingdom` column for the matched accepted ids where it stores one
 #' (COL/ITIS/NCBI/OTT/WoRMS). A row whose resolved kingdom is known and outside
-#' `kingdom_set` is demoted (see `demote_match_rows()`); an unknown kingdom is
-#' always kept.
+#' `kingdom_set` first moves to another record of its matched name in the
+#' requested kingdom (`repick_in_kingdom()`); a row with none is demoted (see
+#' `demote_match_rows()`). An unknown kingdom is always kept.
 #'
 #' @param result The match result data.frame (post `run_match_stages()`).
 #' @param vtr_path Path to the backbone `.vtr`.
@@ -1302,7 +1303,64 @@ filter_result_by_kingdom <- function(result, vtr_path, kingdom_set, bb_name) {
     n = length(matched))
 
   bad <- matched[!is.na(kg) & !(kg %in% kingdom_set)]
-  demote_match_rows(result, bad)
+  moved <- repick_in_kingdom(result, bad, vtr_path, kingdom_set, bb_name)
+  demote_match_rows(moved$result, setdiff(bad, moved$rows))
+}
+
+
+#' Move out-of-kingdom rows to an in-kingdom record of the same name
+#'
+#' A spelling used in two kingdoms (*Prunella*, a bird genus and a plant genus)
+#' leads to several accepted taxa, listed in `accepted_ids`. When the pick lies
+#' outside `kingdom_set` but another record of the matched name leads to a taxon
+#' inside it, the row moves to that record, keeping the order of
+#' `accepted_ids` among several. Rows with no such record are left for the
+#' caller to demote.
+#'
+#' @param result The match result data.frame.
+#' @param rows Integer rows whose pick is out of kingdom.
+#' @param vtr_path Path to the backbone `.vtr`.
+#' @param kingdom_set Coarse kingdom-group vector.
+#' @param bb_name Backbone name, used to look up a fixed scope.
+#' @return A list: `result`, with moved rows rewritten, and `rows`, the moved
+#'   row indices.
+#' @noRd
+repick_in_kingdom <- function(result, rows, vtr_path, kingdom_set, bb_name) {
+  none <- list(result = result, rows = integer(0L))
+  if (!all(c("n_ids", "accepted_ids", "matched_name") %in% names(result))) {
+    return(none)
+  }
+  rows <- rows[!is.na(result$n_ids[rows]) & result$n_ids[rows] > 1L]
+  if (length(rows) == 0L) return(none)
+
+  recs <- name_records(vtr_path, unique(result$matched_name[rows]))
+  if (is.null(recs) || nrow(recs) == 0L) return(none)
+  recs <- recs[!is.na(recs$accepted_taxon_id), , drop = FALSE]
+  recs$kingdom_group <- row_kingdom_groups(
+    bb_name,
+    kingdom = backbone_kingdom_values(vtr_path, recs$accepted_taxon_id),
+    genus = if ("accepted_genus" %in% names(recs)) recs$accepted_genus else NULL,
+    n = nrow(recs))
+  recs <- recs[!is.na(recs$kingdom_group) &
+                 recs$kingdom_group %in% kingdom_set, , drop = FALSE]
+
+  moved <- integer(0L)
+  for (i in rows) {
+    cand <- recs[recs$lookup == result$matched_name[i], , drop = FALSE]
+    if (nrow(cand) == 0L) next
+    ids <- strsplit(result$accepted_ids[i], "|", fixed = TRUE)[[1L]]
+    pos <- match(cand$accepted_taxon_id, ids)
+    status <- if ("taxonomic_status" %in% names(cand)) {
+      status_score_vec(cand$taxonomic_status, cand$is_synonym)
+    } else {
+      integer(nrow(cand))
+    }
+    cand <- cand[order(is.na(pos), pos, status), , drop = FALSE]
+    result <- rewrite_pick(result, i, cand[1L, , drop = FALSE],
+                           basis = "kingdom")
+    moved <- c(moved, i)
+  }
+  list(result = result, rows = moved)
 }
 
 

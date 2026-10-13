@@ -14,7 +14,7 @@ A data.frame with columns: \code{name}, \code{version}, \code{nrow}, \code{stati
 \code{trait_cols} (comma-separated), and \code{source_url}.
 }
 \description{
-Returns a summary of all enrichment layers available in the taxify manifest,
+Returns a summary of all published datasets available in the taxify manifest,
 including version, row count, whether the dataset is static, and which
 trait columns are provided.
 }

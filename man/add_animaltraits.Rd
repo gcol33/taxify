@@ -40,6 +40,6 @@ options(old)
 
 }
 \references{
-Herberstein ME et al. (2022) AnimalTraits -- a curated animal trait database
+Herberstein ME et al. (2022) AnimalTraits: a curated animal trait database
 for body mass, metabolic rate and brain size. Scientific Data 9:265.
 }

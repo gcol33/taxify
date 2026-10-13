@@ -40,8 +40,6 @@ add_wfo_info <- function(x) {
   )
   enrich_from_backbone(
     x, wfo_backend(), col_map,
-    enrichment_name = "wfo_info", label = "WFO",
-    probe_cols = c("scientificNameID", "name_published_in",
-                   "higherClassification")
+    label = "WFO"
   )
 }

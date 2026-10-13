@@ -40,7 +40,7 @@ when \code{taxon} is not found, its rank is one the backbone does not store as a
 column (e.g. subfamily, tribe), or it has no descendants at \code{downto}.
 }
 \description{
-Returns every accepted taxon at \code{downto} rank that sits beneath \code{taxon} --
+Returns every accepted taxon at \code{downto} rank that sits beneath \code{taxon},
 for example every species in an order or family. The parent's rank is
 detected from the backbone, then descendants are read from the denormalized
 classification the backbone stores. \code{\link[=children]{children()}} is the same query for a

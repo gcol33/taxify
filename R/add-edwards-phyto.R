@@ -26,8 +26,8 @@
 #'
 #' @details Source: Edwards et al. (2015, Ecology, CC BY 4.0), a compilation of
 #'   phytoplankton nutrient-utilization traits for ~130 species. Single-source
-#'   physiological data with no cross-source analogue, so it is surfaced through
-#'   this door rather than the cross-source [add_trait()] verb.
+#'   physiological data with no cross-source analogue, so it is attached by
+#'   this function and not registered with [add_trait()].
 #'
 #' @references
 #' Edwards KF, Thomas MK, Klausmeier CA, Litchman E (2015) Phytoplankton growth

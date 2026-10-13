@@ -60,7 +60,7 @@ the \code{qualifier} column.}
 \item{region}{Region(s) to constrain fuzzy matching to, or \code{NULL} (default)
 for no geographic constraint. Botanical (WCVP, vascular plants): TDWG Level
 3 codes (\code{"BGM"}, \code{c("BGM", "GER")}) or region names at any level, matched
-case- and accent-insensitively against the bundled WGSRPD crosswalk -- a
+case- and accent-insensitively against the bundled WGSRPD crosswalk: a
 Level 3 name (\code{"Belgium"}), a Level 2 region (\code{"Middle Europe"}), or a Level
 1 continent (\code{"Europe"}, which expands to all its codes). Marine (only when
 the \code{marine_distribution} asset is installed): a MEOW ecoregion \code{ECO_CODE},
@@ -90,7 +90,7 @@ native fallback; force the engine with
 
 \item{range}{Character. Which range statuses count as in-region when \code{region}
 or \code{coords} is set. \code{"present"} (default) accepts any record (native,
-introduced, extinct, or unknown status) -- the right choice for name
+introduced, extinct, or unknown status), the right choice for name
 disambiguation. \code{"native"} accepts only native records, \code{"introduced"} only
 introduced (alien) records; both fold an ecological filter into matching and
 are for callers who want that. Ignored when no region is set.}
@@ -108,7 +108,7 @@ the next backbone, so the in-kingdom treatment wins. The kingdom is read
 from the backbone where it stores one (COL, ITIS, NCBI, OTT, WoRMS); for a
 backbone that does not (WFO, GBIF), it falls back to the genus register's
 kingdom, which cannot split a genus that is itself homonymous across
-kingdoms -- name a kingdom-appropriate \code{backbone} for those.}
+kingdoms; name a kingdom-appropriate \code{backbone} for those.}
 
 \item{mode}{Character. How to combine results when \code{backbone} names more than
 one backbone. \code{"fallback"} (default) is the fallback chain described above:

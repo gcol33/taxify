@@ -64,7 +64,7 @@ old <- options(taxify.data_dir = taxify_example_data())
 # against the full download this is where "pedunculate oak" would resolve.
 comm2sci("example_common_name")
 
-# Resolve straight to a taxify_result you can enrich
+# Resolve straight to a taxify_result, ready for add_*() functions
 comm2sci("example_common_name", output = "result", backbone = "wfo")
 
 options(old)

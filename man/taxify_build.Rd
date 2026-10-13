@@ -26,7 +26,7 @@ delegating to the sibling \code{taxifydb} package (which must be installed). Thi
 is the from-source path, for rebuilding a backbone locally.
 }
 \details{
-For everyday use you do not need this: \code{\link[=taxify]{taxify()}} auto-downloads the pre-built
+Everyday use does not need this: \code{\link[=taxify]{taxify()}} auto-downloads the pre-built
 \code{.vtr} on first use, and \code{\link[=taxify_download]{taxify_download()}} fetches a pre-built backbone
 directly without \code{taxifydb}.
 }

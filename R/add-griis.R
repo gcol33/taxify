@@ -1,8 +1,8 @@
 #' Add invasive species status (GRIIS)
 #'
 #' Joins GRIIS (Global Register of Introduced and Invasive Species) status to a
-#' [taxify()] result, filtered by country. This is the source-named door for
-#' GRIIS; GloNAF ([add_glonaf()]) carries related naturalized-alien status.
+#' [taxify()] result, filtered by country. This function is named after
+#' its source, GRIIS; GloNAF ([add_glonaf()]) carries related naturalized-alien status.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param country Character. ISO 3166-1 alpha-2 country code(s), or `"all"`.

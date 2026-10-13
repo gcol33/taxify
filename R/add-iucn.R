@@ -1,7 +1,7 @@
 #' Add IUCN Red List conservation status
 #'
 #' Joins IUCN Red List conservation status to a [taxify()] result by looking up
-#' `accepted_name`. This is the source-named door for the IUCN Red List; for
+#' `accepted_name`. This function is named after its source, the IUCN Red List; for
 #' conservation status reconciled across sources, use [add_trait()] once more
 #' than one source is registered for it.
 #'

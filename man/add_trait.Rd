@@ -74,7 +74,7 @@ The same data.frame with added columns.
 it came from, or the comma-separated contributing sources with an
 aggregating \code{combine}); \verb{<trait>_n} (how many sources backed the value);
 for numeric traits, \verb{<trait>_min} and \verb{<trait>_max} (the range of
-values behind the headline -- across the contributing sources, and
+values behind the headline, across the contributing sources, and
 across a source's own records where that spread was recorded at build
 time, so a life-stage or population span stays visible); and, only when
 a source measured the trait differently, \verb{<trait>_caution} explaining
@@ -92,13 +92,13 @@ Numeric traits are returned in the trait's canonical unit (see
 \description{
 Attaches a single harmonized trait (e.g. woodiness, plant height) to a
 \code{\link[=taxify]{taxify()}} result, pulling from every enrichment source that provides it and
-reconciling their differing vocabularies and units. Where the per-source
-\verb{add_*()} doors each join one dataset, \code{add_trait()} is the cross-source
-verb: you name the trait, it gathers the sources.
+reconciling their differing vocabularies and units. Each \verb{add_<source>()}
+function joins one dataset; \code{add_trait()} takes the name of a trait and
+gathers it from every source that carries it.
 }
 \details{
 Each source keeps its provenance. The default \code{"coalesce"} mode reduces the
-sources to one value per row plus the columns that document it -- its unit,
+sources to one value per row plus the columns that document it: its unit,
 the sources that contributed, how many, and a caution when the sources
 measure the trait by different methods. The opt-in \code{"wide"} mode instead
 gives every source its own column (\verb{<trait>_<source>}), so per-source
@@ -152,6 +152,6 @@ options(old)
 }
 \seealso{
 \code{\link[=list_traits]{list_traits()}} to see available traits, \code{\link[=trait_info]{trait_info()}} for a
-trait's sources and units. The per-source doors (\code{\link[=add_zanne]{add_zanne()}},
+trait's sources and units. The per-source functions (\code{\link[=add_zanne]{add_zanne()}},
 \code{\link[=add_gift]{add_gift()}}, \code{\link[=add_diaz_traits]{add_diaz_traits()}}, \code{\link[=add_leda]{add_leda()}}) join one dataset each.
 }

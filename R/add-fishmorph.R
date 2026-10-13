@@ -1,7 +1,7 @@
 #' Add freshwater fish morphological traits (FISHMORPH)
 #'
 #' Joins FISHMORPH morphological trait data to a [taxify()] result by
-#' looking up `accepted_name`. This is the source-named door for FISHMORPH;
+#' looking up `accepted_name`. This function is named after its source, FISHMORPH;
 #' for the fish reference database FishBase see [add_fishbase()].
 #'
 #' @param x A data.frame returned by [taxify()].

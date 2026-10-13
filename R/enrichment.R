@@ -21,7 +21,7 @@
 #' taxify only ships a pre-built `.vtr` for a source whose licence permits
 #' redistribution. These sources do not qualify -- their terms are citation-only
 #' or unstated -- so no asset is published, they carry no manifest entry, and no
-#' version can be checked. Their doors reach them through taxifydb, which builds
+#' version can be checked. Their `add_<source>()` functions reach them through taxifydb, which builds
 #' the `.vtr` from the original source on the user's own machine. taxify
 #' redistributes none of the data.
 #'
@@ -543,7 +543,7 @@ resolve_enrichment_entry <- function(manifest, name) {
 #'   `"iucn"`, `"griis"`, `"zanne"`).
 #' @param version Character. `"latest"` (default) or a specific version string.
 #' @param content_id Character or `NULL` (default). The content id of one exact
-#'   build -- the md5 of its `.vtr`, as recorded by [taxify_lock()] and by the
+#'   build, the md5 of its `.vtr`, as recorded by [taxify_lock()] and by the
 #'   manifest. Given one, taxify fetches that build from the immutable copy
 #'   published beside the rolling asset, verifies the bytes hash back to the id,
 #'   and makes it the active build; the build it replaces is kept on disk under
@@ -1022,10 +1022,10 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 }
 
 
-#' Browse the trait columns an enrichment door can attach
+#' Browse the columns a published dataset can attach
 #'
-#' Lists the columns available from an enrichment's pre-built `.vtr`, so you can
-#' choose which to attach through the doors that accept a `cols` argument (such
+#' Lists the columns available from a published dataset's pre-built `.vtr`, for
+#' choosing which to attach through the functions that accept a `cols` argument (such
 #' as [add_gift()] and [add_floraweb()]). Read offline from the local `.vtr`;
 #' the first call may trigger the one-time download.
 #'
@@ -1052,11 +1052,11 @@ enrichment_cols <- function(source) {
 
 #' Browse the group values a grouped enrichment can filter on
 #'
-#' Some enrichment doors attach data per group: GRIIS invasive status by country
+#' Some `add_<source>()` functions attach data per group: GRIIS invasive status by country
 #' ([add_griis()]), WCVP native ranges by TDWG region ([add_wcvp()]), vernacular
 #' names by language ([add_common_names()]), alien first records by location
 #' ([add_alien_first_records()]). This lists the valid group values for such a
-#' door, the way [enrichment_cols()] lists a door's columns, so a country,
+#' function, the way [enrichment_cols()] lists a dataset's columns, so a country,
 #' region, or language code need not be guessed. Read offline from the local
 #' `.vtr` metadata (falling back to the manifest, then a scan of the `.vtr`); the
 #' first call may trigger the one-time download.
@@ -1174,7 +1174,7 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
   key    <- paste0(be_key, "_", paste(sort(parents), collapse = "|"))
   cached <- memo_get(".pres", key)
   if (!is.null(cached)) return(cached)
-  pr  <- taxify(parents, backbone = backbone, verbose = FALSE)
+  pr  <- taxify_internal(parents, backbone = backbone, verbose = FALSE)
   out <- data.frame(
     input_name    = pr$input_name,
     accepted_name = pr$accepted_name,
@@ -1283,7 +1283,7 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
   # reading as a coverage result, one level below where #55 did exactly that.
   failed <- character(0L)
   per_be <- lapply(bbs, function(bb) {
-    r <- tryCatch(taxify(q, backbone = bb, fuzzy = FALSE, verbose = FALSE),
+    r <- tryCatch(taxify_internal(q, backbone = bb, fuzzy = FALSE, verbose = FALSE),
                   error = function(e) {
                     failed <<- c(failed, sprintf("%s (%s)", bb,
                                                  conditionMessage(e)))
@@ -3206,7 +3206,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 
 #' List available enrichments
 #'
-#' Returns a summary of all enrichment layers available in the taxify manifest,
+#' Returns a summary of all published datasets available in the taxify manifest,
 #' including version, row count, whether the dataset is static, and which
 #' trait columns are provided.
 #'

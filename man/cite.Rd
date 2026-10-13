@@ -34,12 +34,12 @@ columns the source's reference table carries.
 }
 \description{
 Prints formatted citations for the taxonomic backbone(s), enrichment
-layers, and the taxify package itself. Optionally writes a BibTeX file.
+datasets, and the taxify package itself. Optionally writes a BibTeX file.
 }
 \details{
 Given reference ids instead of a result, \code{cite()} resolves them to the works
 a trait value was taken from: the per-value references \code{\link[=add_trait]{add_trait()}} returns
-with \code{provenance = TRUE} (\verb{<trait>_refs}), or a door's \verb{<col>_source} column
+with \code{provenance = TRUE} (\verb{<trait>_refs}), or the \verb{<col>_source} column of an \verb{add_<source>()} function
 read with \verb{source =}.
 }
 \examples{

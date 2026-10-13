@@ -28,6 +28,19 @@
       "fungorum", "algaebase", "fishbase", "sealifebase", "reptiledb",
       "lcvp", "wcvp", "mdd", "avilist", "lpsn", "evc", "vegcz"
     ),
+    title = c(
+      "World Flora Online", "Catalogue of Life",
+      "Catalogue of Life Extended Release", "GBIF Backbone Taxonomy",
+      "Integrated Taxonomic Information System", "NCBI Taxonomy",
+      "Open Tree of Life Taxonomy", "World Register of Marine Species",
+      "Euro+Med PlantBase", "Species Fungorum Plus", "AlgaeBase", "FishBase",
+      "SeaLifeBase", "Reptile Database",
+      "Leipzig Catalogue of Vascular Plants",
+      "World Checklist of Vascular Plants", "Mammal Diversity Database",
+      "AviList Global Avian Checklist",
+      "List of Prokaryotic names with Standing in Nomenclature",
+      "EuroVegChecklist", "Vegetation of the Czech Republic"
+    ),
     scope = c(
       "Vascular plants", "All kingdoms", "All kingdoms", "All kingdoms",
       "US focus, freshwater/marine", "All life", "All life (synthetic)",
@@ -376,8 +389,9 @@ install_backbones <- function(backbones = NULL, verbose = TRUE) {
 #' [list_enrichments()] for the backbone side.
 #'
 #' @param verbose Logical. Default `TRUE`.
-#' @return A data.frame with columns: `name`, `scope`, `n_names`, `size_mb`,
-#'   `version`, `source_date`, `installed`, `code`, `source`. `code` is the
+#' @return A data.frame with columns: `name`, `title` (the source's full
+#'   name), `scope`, `n_names`, `size_mb`, `version`, `source_date`,
+#'   `installed`, `code`, `source`. `code` is the
 #'   nomenclature the backbone's names follow: `"taxon"` for the taxonomic
 #'   backbones, `"syntaxon"` for a backbone of vegetation units (`"evc"`, the
 #'   EuroVegChecklist), which is matched only when named in
@@ -414,6 +428,7 @@ list_backbones <- function(verbose = TRUE) {
 
   data.frame(
     name    = reg$name,
+    title   = reg$title,
     scope   = reg$scope,
     n_names = vapply(reg$name, function(n) {
       as.integer(field(n, "nrow", NA_integer_))

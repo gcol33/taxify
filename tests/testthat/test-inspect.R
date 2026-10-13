@@ -189,7 +189,7 @@ test_that("inspect does not match a character vector by default", {
 })
 
 
-test_that("backbones = TRUE matches against all installed backbones", {
+test_that("backbones = TRUE matches all installed backbones in chain order", {
   seen <- NULL
   with_mocked_bindings(
     installed_backbones = function() c("wfo", "col"),
@@ -206,7 +206,8 @@ test_that("backbones = TRUE matches against all installed backbones", {
     with_no_register(inspect(c("Aaa bbb", "Ccc ddd"), backbones = TRUE,
                              verbose = FALSE))
   )
-  expect_equal(seen, c("wfo", "col"))
+  # The order of taxify()'s default chain, COL before WFO.
+  expect_equal(seen, c("col", "wfo"))
 })
 
 
@@ -547,4 +548,15 @@ test_that("region and coords are not resolved when no check reads them", {
             region = "Belgium", verbose = FALSE)
   ))
   expect_s3_class(out, "taxify_inspection")
+})
+
+
+test_that("a subset of a report is a plain data frame", {
+  rep <- with_no_register(inspect(c("Aaa bbb", "Ccc ddd", "Ccc ddd", "Ccc dde"),
+                                  verbose = FALSE))
+  sub <- rep[!is.na(rep$suggestion), c("input_name", "suggestion")]
+  expect_false(inherits(sub, "taxify_inspection"))
+  expect_null(attr(sub, "taxify_inspection_meta"))
+  expect_equal(names(sub), c("input_name", "suggestion"))
+  expect_equal(rep[["input_name"]], rep$input_name)
 })

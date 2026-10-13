@@ -43,7 +43,7 @@
 #'
 #' The \code{sb_lw_*} columns give one representative length-weight fit per
 #' species from the POPLW table, so a length can be converted to a mass where
-#' \code{sb_body_mass_g} (a record maximum) is not what you want.
+#' \code{sb_body_mass_g} (a record maximum) does not fit the analysis.
 #'
 #' The build-from-source fallback requires the \pkg{rfishbase} package
 #' (available on CRAN). Pre-built `.vtr` files do not require rfishbase.

@@ -13,7 +13,7 @@ gbif_fetch(x, backmatch = TRUE, path = tempdir(), verbose = TRUE)
 Default \code{TRUE}.}
 
 \item{path}{Directory to download into. Defaults to a session temp
-directory, so nothing is written outside it unless you ask.}
+directory, so nothing is written outside it unless \code{path} is set.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

@@ -15,7 +15,7 @@ A data.frame with one row per trait column:
 }
 \description{
 Returns the species-level trait columns available from the bundled GIFT
-enrichment, so you can pick which to attach in \code{\link[=add_gift]{add_gift()}}. Read offline
+dataset, for picking which to attach in \code{\link[=add_gift]{add_gift()}}. Read offline
 from the local \code{.vtr} (downloaded or built once); the first call may trigger
 that one-time download.
 }

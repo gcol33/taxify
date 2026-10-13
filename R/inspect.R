@@ -2,7 +2,7 @@
 #'
 #' A quality-control pass over a name list. By default `inspect()` does not match
 #' names against backbones: on a plain character vector it runs the checks that
-#' need no matching -- the genus register and the rest of the batch -- and is fast
+#' need no matching (the genus register and the rest of the batch) and is fast
 #' and offline. To also surface the match-based anomalies (`typo`, `synonym`,
 #' `ambiguous`, `geographic`), either set `backbones = TRUE` (matches against
 #' every installed backbone, listed in the report) or match yourself first and
@@ -12,17 +12,17 @@
 #'
 #' Checks that need no matching (run on a character vector or a result):
 #' \describe{
-#'   \item{`unknown`}{The genus is not in the genus register -- the union of all
-#'     13 backbones' genera -- so no backbone recognises it. The strong "probably
+#'   \item{`unknown`}{The genus is not in the genus register, the union of the
+#'     genera of every backbone, so no backbone recognises it. The strong "probably
 #'     not a real name" signal.}
 #'   \item{`near_duplicate`}{A near-twin of a more frequent name in the same list
 #'     (small edit distance), so probably a misspelling of it. Computed from the
 #'     list alone, so it catches typos in names no backbone contains.}
 #'   \item{`outlier_group`}{The name's kingdom group (from the register) is a tiny
-#'     minority of an otherwise group-coherent list -- the lone animal or fungus
+#'     minority of an otherwise group-coherent list: the lone animal or fungus
 #'     among plants, typically a cross-kingdom homonym typo.}
 #' }
-#' Checks read from a `taxify()` result (only present when you inspect one):
+#' Checks read from a `taxify()` result (only present when the input is one):
 #' \describe{
 #'   \item{`typo`}{Resolved only after fuzzy correction (`match_type = "fuzzy"`):
 #'     the input most likely contains a spelling error; `suggestion` is the name.}
@@ -44,8 +44,8 @@
 #' Rows with no anomaly are dropped.
 #'
 #' Each row gets a `tier` describing what it needs, not how bad it is:
-#' `unresolved` (no usable name -- act on it), `review` (a name is there but its
-#' identity is uncertain -- verify it), or `note` (correct, optional cleanup).
+#' `unresolved` (no usable name: act on it), `review` (a name is there but its
+#' identity is uncertain: verify it), or `note` (correct, optional cleanup).
 #' `unknown` is `unresolved`; the identity-uncertain labels are `review`; `case`
 #' and `synonym` are `note`. An anomaly may be intended, so the tier is a triage
 #' hint, not a verdict.
@@ -60,7 +60,8 @@
 #'
 #' @param x A character vector of names, or a `taxify_result` from [taxify()].
 #' @param backbones Logical. When `x` is a character vector, `TRUE` matches it
-#'   against every installed backbone (via [taxify()]) so the match-based labels
+#'   against every installed backbone, in the order of the default fallback
+#'   chain of [taxify()], so the match-based labels
 #'   are available; `FALSE` (default) runs the register and list checks only, with
 #'   no matching. The backbones used are printed in the report header. Ignored
 #'   when `x` is already a `taxify_result` (it was matched already).
@@ -128,17 +129,18 @@ inspect <- function(x,
   if (is_result) {
     res <- x
   } else if (isTRUE(backbones)) {
-    # Opt-in matching: run taxify() against every installed backbone so the
-    # match-derived labels (typo, synonym, ...) become available. The report
-    # header records which backbones were used.
-    inst <- installed_backbones()
+    # Opt-in matching: run taxify() against every installed backbone, in the
+    # priority order of its default chain, so the match-derived labels (typo,
+    # synonym, ...) are the ones taxify() itself would give. The report header
+    # records which backbones were used.
+    inst <- order_by_priority(installed_backbones())
     if (length(inst) == 0L) {
       warning("inspect(): backbones = TRUE but none are installed; running ",
               "the register and list checks only.", call. = FALSE)
       res <- bare_taxify_result(x)
     } else {
       res <- tryCatch(
-        taxify(x, backbone = inst, region = region_codes, range = range,
+        taxify_internal(x, backbone = inst, region = region_codes, range = range,
                verbose = verbose),
         error = function(e) {
           warning("inspect(): backbone matching failed (",
@@ -570,6 +572,27 @@ range_outlier_rows <- function(acc, matched, min_batch, verbose = FALSE) {
   reason <- rep(NA_character_, n)
   reason[mask] <- sprintf("range outside the list's main area (%s)", core)
   list(mask = mask, reason = reason)
+}
+
+
+#' Subset a taxify inspection report
+#'
+#' A subset is returned as a plain data.frame. The report header counts the
+#' names inspected and flagged in the whole report, which a subset of its rows or
+#' columns no longer matches; `min_tier` in [inspect()] filters a report while
+#' keeping it one.
+#'
+#' @param x A `taxify_inspection` object.
+#' @param ... Row/column indices passed to the data.frame `[` method.
+#' @return A data.frame, or the bare column when `drop = TRUE` collapses it to
+#'   one.
+#' @method [ taxify_inspection
+#' @keywords internal
+#' @export
+`[.taxify_inspection` <- function(x, ...) {
+  class(x) <- setdiff(class(x), "taxify_inspection")
+  attr(x, "taxify_inspection_meta") <- NULL
+  NextMethod()
 }
 
 

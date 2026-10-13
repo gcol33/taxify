@@ -44,7 +44,8 @@ Ignored by \code{"search"}.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-With \code{dry_run = TRUE}, an integer vector of GBIF taxon keys. With
+With \code{dry_run = TRUE}, an integer vector of GBIF taxon keys, which
+prints as the keys alone. With
 \code{method = "download"}, the object rgbif's \code{occ_download()} returns (the
 download key, to be passed to \code{occ_download_wait()}). With
 \code{method = "search"}, a data.frame of occurrence records, empty if none
@@ -56,8 +57,8 @@ is what lets \code{\link[=cite]{cite()}} report the download's DOI beside the ba
 \description{
 Takes a list of names, matches it against the GBIF backbone and requests
 occurrence data for every accepted taxon key the matches resolve to. A name
-GBIF files under more than one key -- a homonym published by two authors, or
-a name held once as accepted and again as a doubtful record -- contributes
+GBIF files under more than one key (a homonym published by two authors, or
+a name held once as accepted and again as a doubtful record) contributes
 all of its keys, so the request covers the whole matched concept rather than
 whichever key \code{\link[=taxify]{taxify()}} reported first.
 }

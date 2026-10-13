@@ -2,12 +2,12 @@
 #'
 #' Attaches a single harmonized trait (e.g. woodiness, plant height) to a
 #' [taxify()] result, pulling from every enrichment source that provides it and
-#' reconciling their differing vocabularies and units. Where the per-source
-#' `add_*()` doors each join one dataset, `add_trait()` is the cross-source
-#' verb: you name the trait, it gathers the sources.
+#' reconciling their differing vocabularies and units. Each `add_<source>()`
+#' function joins one dataset; `add_trait()` takes the name of a trait and
+#' gathers it from every source that carries it.
 #'
 #' Each source keeps its provenance. The default `"coalesce"` mode reduces the
-#' sources to one value per row plus the columns that document it -- its unit,
+#' sources to one value per row plus the columns that document it: its unit,
 #' the sources that contributed, how many, and a caution when the sources
 #' measure the trait by different methods. The opt-in `"wide"` mode instead
 #' gives every source its own column (`<trait>_<source>`), so per-source
@@ -60,7 +60,7 @@
 #'       it came from, or the comma-separated contributing sources with an
 #'       aggregating `combine`); `<trait>_n` (how many sources backed the value);
 #'       for numeric traits, `<trait>_min` and `<trait>_max` (the range of
-#'       values behind the headline -- across the contributing sources, and
+#'       values behind the headline, across the contributing sources, and
 #'       across a source's own records where that spread was recorded at build
 #'       time, so a life-stage or population span stays visible); and, only when
 #'       a source measured the trait differently, `<trait>_caution` explaining
@@ -103,7 +103,7 @@
 #' are available.
 #'
 #' @seealso [list_traits()] to see available traits, [trait_info()] for a
-#'   trait's sources and units. The per-source doors ([add_zanne()],
+#'   trait's sources and units. The per-source functions ([add_zanne()],
 #'   [add_gift()], [add_diaz_traits()], [add_leda()]) join one dataset each.
 #'
 #' @examples
@@ -352,7 +352,7 @@ list_traits <- function() {
 #'
 #' Prints the kind, canonical unit, and (for categorical traits) the shared
 #' vocabulary of a trait, and returns a data.frame of the sources
-#' [add_trait()] draws from -- one row per source, with its enrichment, source
+#' [add_trait()] draws from: one row per source, with its enrichment, source
 #' column, citation, and the harmonization note (unit conversion or vocabulary
 #' mapping).
 #'

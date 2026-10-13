@@ -1,3 +1,39 @@
+#' @description
+#' taxify matches taxonomic names to their accepted names against local
+#' copies of published backbones, such as the Catalogue of Life, World Flora
+#' Online and WoRMS. It performs the name-resolution step of 'taxize' and
+#' 'WorldFlora', run offline against local backbone files. Each backbone is
+#' downloaded once and recorded by version on every result row.
+#'
+#' @section Functions by task:
+#' \describe{
+#'   \item{Matching}{[taxify()] matches a character vector of names and returns
+#'     one row per name with its accepted name, how it was matched and the
+#'     backbone version; [summary()][summary.taxify_result] counts how a batch
+#'     resolved.}
+#'   \item{Checking}{[inspect()] returns only the names that need a look;
+#'     [reconcile()] reports how a checklist maps onto a backbone's current
+#'     treatment.}
+#'   \item{Joining data}{[add_data()] joins a table the user supplies on the
+#'     accepted name; each published dataset has its own `add_<source>()`
+#'     function, listed by [list_enrichments()]; [add_trait()] gathers one trait
+#'     from every dataset that carries it.}
+#'   \item{Exploring the backbone}{[synonyms()], [children()], [downstream()],
+#'     [upstream()], [add_classification()], [class2tree()], [id2name()],
+#'     [parse_name()], [comm2sci()] and [sci2comm()].}
+#'   \item{Backbones and versions}{[list_backbones()], [install_backbones()],
+#'     [taxify_download()], [taxify_lock()], [taxify_restore()] and [cite()].}
+#' }
+#'
+#' @section Where to start:
+#' `vignette("taxify")` goes from a messy list of names to accepted names with
+#' traits attached. The articles at <https://gillescolling.com/taxify/> cover
+#' each task in full.
+#'
+#' @section Citation:
+#' `citation("taxify")` gives the reference of the package; [cite()] on a
+#' result lists the references of every backbone and dataset it used.
+#'
 #' @keywords internal
 "_PACKAGE"
 

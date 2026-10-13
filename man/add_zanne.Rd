@@ -22,8 +22,8 @@ or \code{NA} if not in the dataset.}
 }
 \description{
 Joins the woody / herbaceous classification of Zanne et al. (2014) to a
-\code{\link[=taxify]{taxify()}} result by looking up \code{accepted_name}. This is the source-named
-door for the Zanne Global Woodiness Database; for woodiness reconciled across
+\code{\link[=taxify]{taxify()}} result by looking up \code{accepted_name}. This function is named
+after its source, the Zanne Global Woodiness Database; for woodiness reconciled across
 every source that carries it (Zanne, GIFT), use \code{\link[=add_trait]{add_trait()}} with
 \code{"woodiness"}.
 }

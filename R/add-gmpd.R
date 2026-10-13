@@ -29,12 +29,12 @@
 #' accumulates more recorded parasites than a rarely sampled one, so the values
 #' reflect research effort as well as biology.
 #'
-#' This source states no licence -- it is distributed under the journal's
-#' version-of-record terms with a citation request -- so taxify ships no
+#' This source states no licence. It is distributed under the journal's
+#' version-of-record terms with a citation request, and taxify ships no
 #' pre-built copy of it. The first call builds it from the original source on
-#' your own machine, which requires the taxifydb package
+#' the user's machine, which requires the taxifydb package
 #' (`remotes::install_github("gcol33/taxifydb")`). taxify redistributes none of
-#' the data. Cite Stephens et al. (2017) when you use it.
+#' the data. Cite Stephens et al. (2017) for the data.
 #'
 #' @references
 #' Stephens PR, Pappalardo P, Huang S, et al. (2017) Global Mammal Parasite

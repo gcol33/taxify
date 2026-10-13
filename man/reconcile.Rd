@@ -51,8 +51,8 @@ or \code{NA}.}
 Classifies each name in a list against what a backbone currently accepts, so a
 checklist assembled at one time can be checked against the taxonomy as it
 stands now. Where \code{\link[=taxify]{taxify()}} returns the resolved match per name,
-\code{reconcile()} adds the editorial verdict -- unchanged, now a synonym, a
-misspelling, ambiguous, or unresolved -- and flags names that merge onto a
+\code{reconcile()} adds the editorial verdict (unchanged, now a synonym, a
+misspelling, ambiguous, or unresolved) and flags names that merge onto a
 single accepted taxon.
 }
 \examples{

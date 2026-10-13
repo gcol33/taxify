@@ -12,7 +12,7 @@ taxify_store(asset = NULL)
 }
 \value{
 A data.frame with one row per build on disk, columns: \code{component},
-\code{type} (\code{"backbone"}/\code{"enrichment"}), \code{slot} (the store directory --
+\code{type} (\code{"backbone"}/\code{"enrichment"}), \code{slot} (the store directory:
 \code{"latest"} for the active build, else its content id), \code{active},
 \code{version}, \code{content_id}, \code{pinned}, \code{size_mb}, \code{downloaded_at}.
 }
@@ -21,7 +21,7 @@ taxify keeps every build it has downloaded of an enrichment: the active one
 under \verb{latest/}, and each build it replaced in a directory named for that
 build's content id (the md5 of its \code{.vtr}, the same string \code{\link[=taxify_lock]{taxify_lock()}}
 records). Backbones are listed the same way, though by default only the
-active build of a backbone is kept -- see \code{taxify.keep_backbone_versions}
+active build of a backbone is kept (see \code{taxify.keep_backbone_versions})
 below.
 }
 \details{

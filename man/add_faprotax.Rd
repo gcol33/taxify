@@ -19,9 +19,9 @@ The same data.frame with \code{faprotax_functions} (a \code{|}-delimited set)
 and \code{faprotax_n_functions}.
 }
 \description{
-Joins the function groups a prokaryotic taxon is known to perform --
+Joins the function groups a prokaryotic taxon is known to perform (
 methanogenesis, denitrification, nitrogen fixation, chitinolysis, human gut
-association and 87 others -- to a \code{\link[=taxify]{taxify()}} result.
+association and 87 others) to a \code{\link[=taxify]{taxify()}} result.
 }
 \details{
 Source: Louca et al. (2016), 92 function groups over 4470 taxa

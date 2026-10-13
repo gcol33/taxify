@@ -34,8 +34,8 @@ or \code{NA} if not recorded for that country.}
 }
 \description{
 Joins GRIIS (Global Register of Introduced and Invasive Species) status to a
-\code{\link[=taxify]{taxify()}} result, filtered by country. This is the source-named door for
-GRIIS; GloNAF (\code{\link[=add_glonaf]{add_glonaf()}}) carries related naturalized-alien status.
+\code{\link[=taxify]{taxify()}} result, filtered by country. This function is named after
+its source, GRIIS; GloNAF (\code{\link[=add_glonaf]{add_glonaf()}}) carries related naturalized-alien status.
 }
 \details{
 Source: GRIIS (Zenodo combined CSV, CC BY 4.0, 196 countries).

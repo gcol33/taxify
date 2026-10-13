@@ -45,7 +45,6 @@ add_gbif_info <- function(x) {
   )
   enrich_from_backbone(
     x, gbif_backend(), col_map,
-    enrichment_name = "gbif_info", label = "GBIF",
-    probe_cols = c("notho_type", "nom_status", "origin", "name_published_in")
+    label = "GBIF"
   )
 }

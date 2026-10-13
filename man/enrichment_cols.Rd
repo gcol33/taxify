@@ -2,7 +2,7 @@
 % Please edit documentation in R/enrichment.R
 \name{enrichment_cols}
 \alias{enrichment_cols}
-\title{Browse the trait columns an enrichment door can attach}
+\title{Browse the columns a published dataset can attach}
 \usage{
 enrichment_cols(source)
 }
@@ -14,8 +14,8 @@ A data.frame with one row per column: \code{column} (the name) and \code{type}
 (\code{"numeric"} or \code{"character"}).
 }
 \description{
-Lists the columns available from an enrichment's pre-built \code{.vtr}, so you can
-choose which to attach through the doors that accept a \code{cols} argument (such
+Lists the columns available from a published dataset's pre-built \code{.vtr}, for
+choosing which to attach through the functions that accept a \code{cols} argument (such
 as \code{\link[=add_gift]{add_gift()}} and \code{\link[=add_floraweb]{add_floraweb()}}). Read offline from the local \code{.vtr};
 the first call may trigger the one-time download.
 }

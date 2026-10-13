@@ -47,7 +47,7 @@ common name(s) it is known by. Reads the bundled \code{common_names} enrichment
 (GBIF, NCBI, and Open Tree vernaculars) offline; the first call may trigger
 the one-time download. Where \code{\link[=add_common_names]{add_common_names()}} attaches vernaculars to a
 \code{\link[=taxify]{taxify()}} result as columns, \code{sci2comm()} takes bare names and returns the
-long lookup table -- one row per (name, vernacular). A name maps to many
+long lookup table, one row per (name, vernacular). A name maps to many
 common names (across languages and synonyms), so a query can carry several
 rows.
 }

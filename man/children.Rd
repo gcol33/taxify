@@ -36,8 +36,8 @@ A data.frame of accepted taxa, columns: \code{name}, \code{authorship}, \code{ra
 (\code{"genus"} or \code{"family"}), \code{backbone}. Empty if the parent is not found.
 }
 \description{
-Returns the accepted taxa a backbone places inside a genus or family, so you
-can build a checklist from the backbone rather than only validating one. The
+Returns the accepted taxa a backbone places inside a genus or family, so a
+checklist can be built from the backbone as well as checked against it. The
 parent's rank is read from the backbone, as in \code{\link[=downstream]{downstream()}}, restricted to
 genus and family: \code{children()} is \code{\link[=downstream]{downstream()}} for a genus or family parent.
 }

@@ -72,14 +72,14 @@ nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
 #' Record the exact backbone and enrichment versions behind a result
 #'
 #' Writes a machine-readable lockfile pinning which backbone and enrichment
-#' assets -- name, version, and byte-identity (content id) -- produced a
+#' assets (name, version, and byte-identity, the content id) produced a
 #' [taxify()] result. Where [cite()] prints prose citations, `taxify_lock()`
 #' records the reproducible counterpart, so a manuscript's Methods can state
 #' exactly what was matched against and [taxify_restore()] can later verify an
 #' install still matches.
 #'
 #' @param x A [taxify()] result (its resolved backbones and any `add_*()`
-#'   enrichment layers are locked), or `NULL` (default) to snapshot every
+#'   published datasets are locked), or `NULL` (default) to snapshot every
 #'   installed backbone.
 #' @param file Optional path to write the lockfile to (JSON). When `NULL`
 #'   (default) nothing is written and the lock is only returned.
@@ -288,8 +288,8 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #' Check an install against a lockfile, and optionally reinstall what drifted
 #'
 #' Reads a lockfile written by [taxify_lock()] and reports, for each backbone
-#' and enrichment it pins, whether the currently installed asset matches -- by
-#' version and byte-identity (content id) -- or has drifted, or is missing.
+#' and enrichment it pins, whether the currently installed asset matches (by
+#' version and byte-identity, the content id), has drifted, or is missing.
 #'
 #' With `install = TRUE` it also fetches the exact build each row pins, from the
 #' immutable copy published beside the rolling asset, and makes it the active
@@ -301,7 +301,7 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #' a pin with [taxify_pin()].
 #'
 #' A build published before taxifydb began uploading an immutable copy cannot be
-#' recovered -- the re-cut replaced it in place -- and its row keeps reporting
+#' recovered (the re-cut replaced it in place), and its row keeps reporting
 #' drift after the install pass.
 #'
 #' @param file Path to a lockfile written by [taxify_lock()], or the lock list
@@ -415,7 +415,7 @@ taxify_restore <- function(file, install = FALSE, verbose = TRUE) {
 #' Pin or release installed taxify assets
 #'
 #' A pinned build stays active: the version check that [taxify()],
-#' [install_backbones()] and the `add_*()` doors run against the manifest leaves
+#' [install_backbones()] and the `add_<source>()` functions run against the manifest leaves
 #' it in place instead of replacing it with the current release. Pin the builds a
 #' project was run against to keep a shared data directory from moving under it,
 #' and release them when the project is done. The pin is recorded in the build's

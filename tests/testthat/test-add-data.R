@@ -356,7 +356,7 @@ test_that("add_data errors on unsupported file format", {
 
 # ---- Enrichment metadata ----
 
-test_that("add_data registers in taxify_meta enrichments", {
+test_that("add_data records the table apart from the published datasets", {
   setup_mock_backend()
   result <- taxify("Quercus robur", verbose = FALSE)
 
@@ -369,8 +369,10 @@ test_that("add_data registers in taxify_meta enrichments", {
   enriched <- add_data(result, traits, species_col = "species",
                        verbose = FALSE)
   meta <- attr(enriched, "taxify_meta")
-  expect_true(length(meta$enrichments) > 0L)
-  expect_equal(meta$enrichments[[length(meta$enrichments)]]$n_matched, 1L)
+  expect_equal(meta$user_data[[1L]]$name, "traits")
+  expect_equal(meta$user_data[[1L]]$n_matched, 1L)
+  # cite() and taxify_lock() read enrichments as published datasets.
+  expect_null(meta$enrichments)
 })
 
 

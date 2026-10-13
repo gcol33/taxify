@@ -14,7 +14,7 @@ synonyms and typos are resolved first).}
 (default) uses the highest-priority installed backbone; name one that
 stores the higher ranks (e.g. \code{"col"}) for a full lineage.}
 
-\item{to}{Optional rank (or ranks) to restrict the output to -- e.g.
+\item{to}{Optional rank (or ranks) to restrict the output to, e.g.
 \code{to = "family"} answers "what family is this in?" with a single row.
 \code{NULL} (default) returns the whole lineage.}
 
@@ -30,8 +30,8 @@ name as supplied), \code{accepted_name} (what it resolved to), \code{rank}, \cod
 the backbone stores no ranks above it.
 }
 \description{
-Returns the lineage above \code{taxon} -- its genus, family, order, class, phylum,
-and kingdom, for whichever of those ranks the backbone stores -- as a tidy
+Returns the lineage above \code{taxon} (its genus, family, order, class, phylum,
+and kingdom, for whichever of those ranks the backbone stores) as a tidy
 frame with one row per ancestor rank. Where \code{\link[=downstream]{downstream()}} reaches down to
 descendants, \code{upstream()} reaches up to ancestors; where \code{\link[=add_classification]{add_classification()}}
 attaches the ranks to an existing \code{\link[=taxify]{taxify()}} result, \code{upstream()} takes a bare

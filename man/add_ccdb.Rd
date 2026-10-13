@@ -31,7 +31,7 @@ and reduced to a per-species median with its observed range.
 }
 \details{
 Source: CCDB (ccdb.tau.ac.il), citation requested, no explicit licence, so
-taxify publishes no pre-built copy. The data is built on your machine from
+taxify publishes no pre-built copy. The data is built on the user's machine from
 the original source, which needs taxifydb installed:
 \code{remotes::install_github("gcol33/taxifydb")}.
 

@@ -10,8 +10,9 @@ list_backbones(verbose = TRUE)
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-A data.frame with columns: \code{name}, \code{scope}, \code{n_names}, \code{size_mb},
-\code{version}, \code{source_date}, \code{installed}, \code{code}, \code{source}. \code{code} is the
+A data.frame with columns: \code{name}, \code{title} (the source's full
+name), \code{scope}, \code{n_names}, \code{size_mb}, \code{version}, \code{source_date},
+\code{installed}, \code{code}, \code{source}. \code{code} is the
 nomenclature the backbone's names follow: \code{"taxon"} for the taxonomic
 backbones, \code{"syntaxon"} for a backbone of vegetation units (\code{"evc"}, the
 EuroVegChecklist), which is matched only when named in

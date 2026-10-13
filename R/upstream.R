@@ -24,8 +24,8 @@
 
 #' List the higher classification (ancestors) of a taxon
 #'
-#' Returns the lineage above `taxon` -- its genus, family, order, class, phylum,
-#' and kingdom, for whichever of those ranks the backbone stores -- as a tidy
+#' Returns the lineage above `taxon` (its genus, family, order, class, phylum,
+#' and kingdom, for whichever of those ranks the backbone stores) as a tidy
 #' frame with one row per ancestor rank. Where [downstream()] reaches down to
 #' descendants, `upstream()` reaches up to ancestors; where [add_classification()]
 #' attaches the ranks to an existing [taxify()] result, `upstream()` takes a bare
@@ -37,7 +37,7 @@
 #' @param backbone A single backbone name or a `taxify_backend` object. `NULL`
 #'   (default) uses the highest-priority installed backbone; name one that
 #'   stores the higher ranks (e.g. `"col"`) for a full lineage.
-#' @param to Optional rank (or ranks) to restrict the output to -- e.g.
+#' @param to Optional rank (or ranks) to restrict the output to, e.g.
 #'   `to = "family"` answers "what family is this in?" with a single row.
 #'   `NULL` (default) returns the whole lineage.
 #' @param ... Matching arguments passed to [taxify()] when resolving `taxon`

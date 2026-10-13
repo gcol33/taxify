@@ -207,7 +207,7 @@ collect_descendants <- function(taxon, backbone, target_rank, kingdom,
 
 #' List all descendants of a taxon down to a target rank
 #'
-#' Returns every accepted taxon at `downto` rank that sits beneath `taxon` --
+#' Returns every accepted taxon at `downto` rank that sits beneath `taxon`,
 #' for example every species in an order or family. The parent's rank is
 #' detected from the backbone, then descendants are read from the denormalized
 #' classification the backbone stores. [children()] is the same query for a

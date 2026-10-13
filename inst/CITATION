@@ -1,0 +1,12 @@
+citHeader("If you use taxify, please cite the package and the backbones and datasets your results come from. cite() on a taxify result lists their references.")
+
+bibentry(
+  bibtype = "Manual",
+  key     = "colling2026taxify",
+  title   = paste0("taxify: ", meta$Title),
+  author  = person("Gilles", "Colling"),
+  year    = "2026",
+  note    = paste("R package version", meta$Version),
+  doi     = "10.32614/CRAN.package.taxify",
+  url     = "https://gillescolling.com/taxify/"
+)

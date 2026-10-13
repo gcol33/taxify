@@ -32,7 +32,7 @@ on 13 forest plots near Eberswalde between 1999 and 2022.
 (Homburg et al. 2014) verbatim, which the deposit's README states and the
 data confirm: over the 19 species shared with \code{\link[=add_chowdhury]{add_chowdhury()}} every size
 is exactly equal and every wing class agrees. They are surfaced here
-because a door should show what its source carries, and they are kept out
+because each \verb{add_<source>()} function shows what its source carries, and they are kept out
 of \code{\link[=add_trait]{add_trait()}}, where they would double-count one lineage.
 
 What belongs to this deposit alone is the monitoring result:

@@ -44,7 +44,7 @@ options(old)
 
 }
 \references{
-Dengler J et al. (2023) EIVE 1.0 -- a standardized set of Ecological
+Dengler J et al. (2023) EIVE 1.0: a standardized set of Ecological
 Indicator Values for Europe. Vegetation Classification and Survey 4:7-29.
 doi:10.3897/VCS.98324
 }

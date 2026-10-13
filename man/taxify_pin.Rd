@@ -24,7 +24,7 @@ A data.frame with one row per name: \code{component}, \code{type}, \code{version
 }
 \description{
 A pinned build stays active: the version check that \code{\link[=taxify]{taxify()}},
-\code{\link[=install_backbones]{install_backbones()}} and the \verb{add_*()} doors run against the manifest leaves
+\code{\link[=install_backbones]{install_backbones()}} and the \verb{add_<source>()} functions run against the manifest leaves
 it in place instead of replacing it with the current release. Pin the builds a
 project was run against to keep a shared data directory from moving under it,
 and release them when the project is done. The pin is recorded in the build's

@@ -20,8 +20,8 @@
 #'   species loses nothing.
 #'
 #'   Abundance and wet biomass are not carried: both ship several units in one
-#'   column -- individuals, individuals per m2 and per m3; grams, g/m2 and mg/m2
-#'   -- mixing a per-individual measure with a per-area density, so neither
+#'   column (individuals, individuals per m2 and per m3; grams, g/m2 and mg/m2),
+#'   mixing a per-individual measure with a per-area density, so neither
 #'   survives aggregation to the species. The native/non-native flag is a status
 #'   at a site rather than a property of the species; [add_griis()] covers
 #'   introduction status per country.

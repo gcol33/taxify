@@ -7,11 +7,11 @@
 #' Cite data sources used in a taxify result
 #'
 #' Prints formatted citations for the taxonomic backbone(s), enrichment
-#' layers, and the taxify package itself. Optionally writes a BibTeX file.
+#' datasets, and the taxify package itself. Optionally writes a BibTeX file.
 #'
 #' Given reference ids instead of a result, `cite()` resolves them to the works
 #' a trait value was taken from: the per-value references [add_trait()] returns
-#' with `provenance = TRUE` (`<trait>_refs`), or a door's `<col>_source` column
+#' with `provenance = TRUE` (`<trait>_refs`), or the `<col>_source` column of an `add_<source>()` function
 #' read with `source =`.
 #'
 #' @param x A `taxify_result` object, or a character vector of reference ids
@@ -53,7 +53,8 @@ cite.default <- function(x, file = NULL, ...) {
          call. = FALSE)
   }
 
-  citations <- if (is.null(meta)) list() else collect_citations(meta)
+  citations <- if (is.null(meta)) list() else
+    collect_citations(meta, backbones = cited_backbones(meta, x))
 
   # Console output
   rule <- strrep("\u2500", 60)
@@ -139,36 +140,72 @@ cite.character <- function(x, file = NULL, source = NULL, ...) {
 
 # ---- Internal helpers ----
 
+#' The package's own citation entry, read from inst/CITATION
+#'
+#' @return A citation list in the shape `collect_citations()` builds.
+#' @noRd
+taxify_self_citation <- function() {
+  ver <- as.character(utils::packageVersion("taxify"))
+  cit <- utils::citation("taxify")[[1L]]
+  authors <- vapply(cit$author, function(p) {
+    initials <- paste(substr(p$given, 1L, 1L), collapse = "")
+    paste(p$family, initials)
+  }, character(1L))
+  list(
+    key     = cit$key,
+    type    = "misc",
+    authors = paste(authors, collapse = ", "),
+    year    = cit$year,
+    title   = sprintf("%s (version %s)", cit$title, ver),
+    doi     = cit$doi,
+    url     = cit$url
+  )
+}
+
+#' Backbones a result cites
+#'
+#' A fallback chain cites the backbones that matched at least one row of `x`:
+#' a backbone that matched nothing contributed nothing to cite. Without a
+#' `backbone` column, those recorded with a version in the metadata, which are
+#' the ones that matched when the result was made. A `mode = "wide"` or
+#' `"agreement"` result reports every backbone's answer, so it cites all of
+#' them.
+#'
+#' @param meta The `taxify_meta` attribute list.
+#' @param x The result the metadata belongs to.
+#' @return Character vector of backbone names, in chain order.
+#' @noRd
+cited_backbones <- function(meta, x) {
+  bb <- meta$backbone
+  if (is.null(bb) || !is.null(meta$mode)) return(bb)
+  if ("backbone" %in% names(x)) {
+    return(intersect(bb, x$backbone[!is.na(x$backbone)]))
+  }
+  # A column subset without `backbone`: as_taxify_result() records a version
+  # only for the backbones that matched a row.
+  ver <- meta$version
+  matched <- names(ver)[!is.na(ver)]
+  if (length(matched)) intersect(bb, matched) else bb
+}
+
 #' Collect citation objects for all sources used in a result
 #'
 #' @param meta The `taxify_meta` attribute list.
+#' @param backbones The backbones to cite (see `cited_backbones()`).
 #' @return A list of citation lists, each with at least `key`, `type`,
 #'   `authors`, `year`, `title`, and either `doi`/`journal` or `url`.
 #' @noRd
-collect_citations <- function(meta) {
+collect_citations <- function(meta, backbones = meta$backbone) {
   citations <- list()
 
-  # 1. taxify itself
-  pkg_ver <- tryCatch(
-    as.character(utils::packageVersion("taxify")),
-    error = function(e) "dev"
-  )
-  citations <- c(citations, list(list(
-    key     = paste0("taxify", gsub("\\.", "", pkg_ver)),
-    type    = "misc",
-    authors = "Colling G",
-    year    = format(Sys.Date(), "%Y"),
-    title   = sprintf("taxify: Offline Taxonomic Name Matching (version %s)",
-                      pkg_ver),
-    url     = "https://github.com/gcol33/taxify"
-  )))
+  # 1. taxify itself, from inst/CITATION
+  citations <- c(citations, list(taxify_self_citation()))
 
   # Fetch manifest for citation metadata
   manifest <- tryCatch(fetch_manifest(), error = function(e) NULL)
 
-  # 2. Backends
-  backbones <- meta$backbone
-  if (!is.null(backbones) && length(backbones) > 0L) {
+  # 2. Backbones
+  if (length(backbones) > 0L) {
     for (be in backbones) {
       cits <- extract_manifest_citations(manifest, "backends", be)
       if (length(cits) > 0L) {
@@ -367,20 +404,24 @@ format_bibtex_entry <- function(cit) {
 #' Build a compact citation footer for print.taxify_result()
 #'
 #' @param meta The `taxify_meta` attribute list.
+#' @param backbones The backbones to name (see `cited_backbones()`).
 #' @return Character string, e.g., `"WFO 2024-12, EIVE 1.0"`.
 #' @noRd
-cite_footer <- function(meta) {
+cite_footer <- function(meta, backbones = meta$backbone) {
   parts <- character(0L)
 
-  # Backends
-  backbones <- meta$backbone
-  if (!is.null(backbones)) {
-    version <- meta$version %||% ""
-    if (length(backbones) == 1L && nzchar(version)) {
-      parts <- c(parts, sprintf("%s %s", toupper(backbones), version))
+  # Backbones: one is shown with its version, several as a chain.
+  if (length(backbones) == 1L) {
+    ver <- meta$version
+    ver <- if (backbones %in% names(ver)) ver[[backbones]] else
+      if (length(ver) == 1L) ver[[1L]] else NA_character_
+    parts <- if (!is.na(ver) && nzchar(ver)) {
+      sprintf("%s %s", toupper(backbones), ver)
     } else {
-      parts <- c(parts, paste(toupper(backbones), collapse = " + "))
+      toupper(backbones)
     }
+  } else if (length(backbones) > 1L) {
+    parts <- paste(toupper(backbones), collapse = " + ")
   }
 
   # Enrichments -- only those that contributed a value (drop 0-match sources),

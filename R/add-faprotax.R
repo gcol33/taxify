@@ -1,8 +1,8 @@
 #' Add prokaryote metabolic and ecological functions (FAPROTAX)
 #'
-#' Joins the function groups a prokaryotic taxon is known to perform --
+#' Joins the function groups a prokaryotic taxon is known to perform (
 #' methanogenesis, denitrification, nitrogen fixation, chitinolysis, human gut
-#' association and 87 others -- to a [taxify()] result.
+#' association and 87 others) to a [taxify()] result.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param cols Which columns to attach: \code{NULL} (default) both, or a

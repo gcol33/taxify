@@ -37,7 +37,7 @@ estimates, not measurements, so they are attached under their own
 Source: COMBINE (Soria et al. 2021, Ecology, CC0), imputed table
 (\code{trait_data_imputed.csv}). Same species set and column meanings as
 \code{\link[=add_combine_reported]{add_combine_reported()}}; the difference is coverage. Because imputation only
-fills gaps, applying both doors and comparing \verb{combine_*} with
+fills gaps, applying both functions and comparing \verb{combine_*} with
 \verb{combine_imputed_*} shows which values are measured versus estimated.
 }
 \examples{

@@ -92,16 +92,7 @@ disambiguate_by_authorship <- function(result, vtr_path,
   if (length(rows) == 0L) return(result)
 
   names_to_look <- unique(result$matched_name[rows])
-  want_cols <- c("canonical_name", "authorship", "taxon_id",
-                 "accepted_taxon_id", "accepted_name", "accepted_authorship",
-                 "is_synonym", "taxonomic_status", "taxon_rank",
-                 "accepted_family", "accepted_genus", hierarchy)
-  available <- tryCatch(vtr_schema(vtr_path), error = function(e) NULL)
-  if (is.null(available)) return(result)
-  joined <- tryCatch(
-    backbone_join(vtr_path, names_to_look, bb_key = "canonical_name",
-                  select_cols = intersect(want_cols, available)),
-    error = function(e) NULL)
+  joined <- name_records(vtr_path, names_to_look, hierarchy)
   if (is.null(joined) || nrow(joined) == 0L ||
       !"authorship" %in% names(joined)) return(result)
   joined$auth_key <- normalize_authorship(joined$authorship)
@@ -109,8 +100,6 @@ disambiguate_by_authorship <- function(result, vtr_path,
   # One split, not a scan per row: the pass now sees every author-bearing input,
   # so a linear filter inside the loop would be quadratic on a large query set.
   by_name <- split(seq_len(nrow(joined)), joined$lookup)
-
-  has_col <- function(nm) nm %in% names(result)
 
   for (k in seq_along(rows)) {
     i  <- rows[k]
@@ -131,32 +120,80 @@ disambiguate_by_authorship <- function(result, vtr_path,
     targets <- targets[!is.na(targets)]
     if (length(targets) != 1L) next
 
-    w <- hit[1L]
-    result <- promote_accepted_id(result, i, cand$accepted_taxon_id[w],
-                                  basis = "authorship")
-    if (has_col("taxon_id"))       result$taxon_id[i]       <- cand$taxon_id[w]
-    if (has_col("authorship"))     result$authorship[i]     <- cand$authorship[w]
-    if (has_col("accepted_id"))    result$accepted_id[i]    <- cand$accepted_taxon_id[w]
-    if (has_col("accepted_name"))  result$accepted_name[i]  <- cand$accepted_name[w]
-    # `accepted_name` and `accepted_authorship` are one citation: writing the
-    # name without its author would leave the rejected homonym's author beside
-    # the selected name.
-    if (has_col("accepted_authorship") && "accepted_authorship" %in% names(cand))
-      result$accepted_authorship[i] <- cand$accepted_authorship[w]
-    if (has_col("is_synonym"))     result$is_synonym[i]     <- cand$is_synonym[w]
-    if (has_col("taxonomic_status") && "taxonomic_status" %in% names(cand))
-      result$taxonomic_status[i] <- cand$taxonomic_status[w]
-    if (has_col("rank") && "taxon_rank" %in% names(cand))
-      result$rank[i] <- tolower(cand$taxon_rank[w])
-    # Family/genus of the ACCEPTED taxon. `cand`/`w` is the matched synonym row,
-    # so its own family/genus belong to the rejected homonym; embed_accepted()
-    # carries the accepted taxon's classification on the accepted_* columns.
-    if (has_col("family") && "accepted_family" %in% names(cand))
-      result$family[i] <- cand$accepted_family[w]
-    if (has_col("genus") && "accepted_genus" %in% names(cand))
-      result$genus[i] <- cand$accepted_genus[w]
-    for (h in intersect(hierarchy, intersect(names(cand), names(result))))
-      result[[h]][i] <- cand[[h]][w]
+    result <- rewrite_pick(result, i, cand[hit[1L], , drop = FALSE],
+                           hierarchy = hierarchy, basis = "authorship")
   }
+  result
+}
+
+
+#' Every backbone record carrying one of a set of names
+#'
+#' The columns a post-pick stage needs to move a row to another record of the
+#' same name: the record's own name and status, and its accepted taxon with that
+#' taxon's author, family and genus. Shared by the authorship tiebreak and the
+#' kingdom filter.
+#'
+#' @param vtr_path Path to the backbone `.vtr`.
+#' @param names Canonical names to look up.
+#' @param hierarchy Hierarchy columns of the backbone, or `NULL`.
+#' @return A data.frame with a `lookup` column (the name asked for), or `NULL`
+#'   when the backbone cannot be read.
+#' @noRd
+name_records <- function(vtr_path, names, hierarchy = NULL) {
+  want_cols <- c("canonical_name", "authorship", "taxon_id",
+                 "accepted_taxon_id", "accepted_name", "accepted_authorship",
+                 "is_synonym", "taxonomic_status", "taxon_rank",
+                 "accepted_family", "accepted_genus", hierarchy)
+  available <- tryCatch(vtr_schema(vtr_path), error = function(e) NULL)
+  if (is.null(available)) return(NULL)
+  tryCatch(
+    backbone_join(vtr_path, names, bb_key = "canonical_name",
+                  select_cols = intersect(want_cols, available)),
+    error = function(e) NULL)
+}
+
+
+#' Move a matched row to another record of the same name
+#'
+#' Rewrites row `i` of `result` to the backbone record `rec` (one row of
+#' `name_records()`): the record's own ID, author, status and rank, and its
+#' accepted taxon. The new accepted ID goes to the front of `accepted_ids`; the
+#' previous target stays listed, since the backbone still holds it under the
+#' name.
+#'
+#' @param result The match result data.frame.
+#' @param i Row index to rewrite.
+#' @param rec A one-row data.frame from `name_records()`.
+#' @param hierarchy Hierarchy columns to rewrite, or `NULL`.
+#' @param basis The stage that moved the row, recorded as its `pick_basis`.
+#' @return `result` with row `i` rewritten.
+#' @noRd
+rewrite_pick <- function(result, i, rec, hierarchy = NULL, basis) {
+  has_col <- function(nm) nm %in% names(result)
+  result <- promote_accepted_id(result, i, rec$accepted_taxon_id, basis = basis)
+  if (has_col("taxon_id"))       result$taxon_id[i]       <- rec$taxon_id
+  if (has_col("authorship"))     result$authorship[i]     <- rec$authorship
+  if (has_col("accepted_id"))    result$accepted_id[i]    <- rec$accepted_taxon_id
+  if (has_col("accepted_name"))  result$accepted_name[i]  <- rec$accepted_name
+  # `accepted_name` and `accepted_authorship` are one citation: writing the
+  # name without its author would leave the rejected homonym's author beside
+  # the selected name.
+  if (has_col("accepted_authorship") && "accepted_authorship" %in% names(rec))
+    result$accepted_authorship[i] <- rec$accepted_authorship
+  if (has_col("is_synonym"))     result$is_synonym[i]     <- rec$is_synonym
+  if (has_col("taxonomic_status") && "taxonomic_status" %in% names(rec))
+    result$taxonomic_status[i] <- rec$taxonomic_status
+  if (has_col("rank") && "taxon_rank" %in% names(rec))
+    result$rank[i] <- tolower(rec$taxon_rank)
+  # Family/genus of the ACCEPTED taxon. `rec` may be a synonym record, whose
+  # own family/genus belong to the rejected homonym; embed_accepted() carries
+  # the accepted taxon's classification on the accepted_* columns.
+  if (has_col("family") && "accepted_family" %in% names(rec))
+    result$family[i] <- rec$accepted_family
+  if (has_col("genus") && "accepted_genus" %in% names(rec))
+    result$genus[i] <- rec$accepted_genus
+  for (h in intersect(hierarchy, intersect(names(rec), names(result))))
+    result[[h]][i] <- rec[[h]]
   result
 }

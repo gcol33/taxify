@@ -153,8 +153,8 @@ normalize_authorship <- function(x) {
 #' Decomposes each name into genus, specific epithet, infraspecific rank and
 #' epithet, authorship, hybrid status, and any open-nomenclature qualifier,
 #' without matching against a backbone. Where [taxify()] cleans a name and then
-#' resolves it, `parse_name()` returns the cleaning step itself -- the parts of
-#' the name -- for callers who need the decomposition rather than a match (the
+#' resolves it, `parse_name()` returns the cleaning step itself (the parts of
+#' the name) for callers who need the decomposition rather than a match (the
 #' role `rgbif::name_parse()` or gnparser fill). The same cleaning pipeline the
 #' matcher uses drives the parse, so a name breaks apart the way it matches.
 #'

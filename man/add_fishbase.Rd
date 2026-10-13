@@ -53,7 +53,7 @@ Coverage: ~35k fish species. Fishes only.
 
 The \code{fb_lw_*} columns give one representative length-weight fit per
 species from the POPLW table, so a length can be converted to a mass where
-\code{fb_body_mass_g} (a record maximum) is not what you want. FishBase's
+\code{fb_body_mass_g} (a record maximum) does not fit the analysis. FishBase's
 Bayesian congeneric estimates are not included; \code{fb_lw_*} are measured
 fits.
 

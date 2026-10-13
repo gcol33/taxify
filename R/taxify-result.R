@@ -26,7 +26,7 @@ print.taxify_result <- function(x, ...) {
   print(shown, ...)
   meta <- attr(x, "taxify_meta")
   if (!is.null(meta)) {
-    footer <- cite_footer(meta)
+    footer <- cite_footer(meta, backbones = cited_backbones(meta, x))
     if (nzchar(footer)) {
       cat(sprintf("Sources: %s | cite() for full citations\n", footer))
     }
@@ -38,9 +38,9 @@ print.taxify_result <- function(x, ...) {
 #' Subset a taxify_result, preserving its metadata
 #'
 #' The default data.frame `[` method drops the `taxify_meta` attribute that the
-#' downstream doors ([add_data()], [cite()], [base::summary()], [taxify_lock()]) read.
+#' downstream functions ([add_data()], [cite()], [base::summary()], [taxify_lock()]) read.
 #' This method carries `taxify_meta` and the `taxify_result` class through
-#' row/column subsetting, so a subset (including one taken internally by a door
+#' row/column subsetting, so a subset (including one taken internally by an `add_<source>()` function
 #' that reorders columns) still exposes its provenance. A subset that collapses
 #' to a single column via `drop = TRUE` returns the bare vector, as it would for
 #' a plain data.frame.

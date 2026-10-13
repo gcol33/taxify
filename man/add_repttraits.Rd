@@ -45,8 +45,8 @@ Reptile Database taxonomy, so it joins cleanly against the \code{reptiledb}
 backbone (and any backbone that resolves to Reptile Database accepted names).
 }
 \details{
-The layer carries a per-species distribution signal -- biogeographic realm,
-elevation range and mean climate -- alongside body-size and life-history
+The dataset carries a per-species distribution signal (biogeographic realm,
+elevation range and mean climate) alongside body-size and life-history
 traits, across all reptiles (snakes, lizards, amphisbaenians, turtles,
 crocodiles and the tuatara), not lizards only.
 

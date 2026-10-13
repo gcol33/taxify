@@ -68,8 +68,7 @@ add_col_info <- function(x) {
 
   enrich_from_backbone(
     x, col_backend(), col_map,
-    enrichment_name = "col_info", label = "COL",
-    probe_cols = c("notho", "nomenclaturalCode", "kingdom", "is_extinct"),
+    label = "COL",
     extra_vtr = extra_vtr
   )
 }

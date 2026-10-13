@@ -30,12 +30,12 @@
 #' @details
 #' 2,909 species of the Central European flora.
 #'
-#' This source states no licence -- it is an Ecological Society of America data
-#' paper, free to use with citation -- so taxify ships no pre-built copy of it.
-#' The first call builds it from the original source on your own machine, which
+#' This source states no licence. It is an Ecological Society of America data
+#' paper, free to use with citation, and taxify ships no pre-built copy of it.
+#' The first call builds it from the original source on the user's machine, which
 #' requires the taxifydb package (`remotes::install_github("gcol33/taxifydb")`).
-#' taxify redistributes none of the data. Cite Klimesova et al. (2017) when you
-#' use it.
+#' taxify redistributes none of the data. Cite Klimesova et al. (2017) for
+#' the data.
 #'
 #' @references
 #' Klimesova J, Danihelka J, Chrtek J, de Bello F, Herben T (2017) CLO-PLA: a

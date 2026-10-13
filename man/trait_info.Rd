@@ -19,7 +19,7 @@ priority, vocabulary) is printed as a message.
 \description{
 Prints the kind, canonical unit, and (for categorical traits) the shared
 vocabulary of a trait, and returns a data.frame of the sources
-\code{\link[=add_trait]{add_trait()}} draws from -- one row per source, with its enrichment, source
+\code{\link[=add_trait]{add_trait()}} draws from: one row per source, with its enrichment, source
 column, citation, and the harmonization note (unit conversion or vocabulary
 mapping).
 }

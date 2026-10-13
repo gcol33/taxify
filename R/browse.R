@@ -90,8 +90,24 @@ taxify_input <- function(x, backbone, ..., verbose) {
     stop("Arguments passed on to taxify() must be named ",
          "(e.g. fuzzy = FALSE).", call. = FALSE)
   }
+  taxify_internal(x, backbone = backbone, ..., verbose = verbose)
+}
+
+
+#' Run taxify() on names the caller did not pass in
+#'
+#' Matching done inside another function (the data side of [add_data()], the
+#' cross-backbone recovery of an enrichment join, [inspect()]'s opt-in
+#' matching, the verbs behind `taxify_input()`) muffles the
+#' `taxify_multiple_ids` warning: it would point the caller at `accepted_ids`
+#' of rows they never see.
+#'
+#' @param ... Passed to [taxify()].
+#' @return A `taxify_result`.
+#' @noRd
+taxify_internal <- function(...) {
   withCallingHandlers(
-    taxify(x, backbone = backbone, ..., verbose = verbose),
+    taxify(...),
     taxify_multiple_ids = function(w) invokeRestart("muffleWarning"))
 }
 
@@ -146,7 +162,7 @@ backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
 }
 
 
-#' Attach backbone columns to a taxify result (backbone-info doors)
+#' Attach backbone columns to a taxify result (backbone-specific columns)
 #'
 #' Shared engine behind [add_wfo_info()], [add_gbif_info()] and [add_col_info()]:
 #' for the rows a given backbone matched, look up their `taxon_id` in that
@@ -159,16 +175,16 @@ backbone_join <- function(bb, values, bb_key, select_cols, pre = NULL) {
 #' @param backbone A `taxify_backend` object.
 #' @param col_map Named character vector: output column -> backbone source
 #'   column. Output columns are attached as character.
-#' @param enrichment_name,label Identifiers passed to `register_enrichment()`.
-#' @param probe_cols Output columns whose non-NA state counts as enriched.
+#' @param label Backbone label used in the error message when the backbone is
+#'   not installed.
 #' @param extra_vtr `NULL`, or a list with `suffix` (appended to the backbone
 #'   path in place of `.vtr`), `key` (join column in the sidecar), `col_map`
 #'   (output -> source), `na` (the sentinel the outputs are initialized to) and
 #'   `transform` (applied to each filled value vector).
-#' @return `x` with the attached columns and the enrichment registered.
+#' @return `x` with the attached columns.
 #' @noRd
-enrich_from_backbone <- function(x, backbone, col_map, enrichment_name, label,
-                                 probe_cols, extra_vtr = NULL) {
+enrich_from_backbone <- function(x, backbone, col_map, label,
+                                 extra_vtr = NULL) {
   if (!"taxon_id" %in% names(x)) {
     stop("x must be a data.frame with a 'taxon_id' column (from taxify())",
          call. = FALSE)
@@ -243,10 +259,10 @@ enrich_from_backbone <- function(x, backbone, col_map, enrichment_name, label,
     }
   }
 
-  bb_meta <- read_backbone_meta(vtr_path)
-  ver <- if (!is.null(bb_meta)) bb_meta$version else be$version
-  n_enriched <- sum(rowSums(!is.na(x[, probe_cols, drop = FALSE])) > 0L)
-  register_enrichment(x, enrichment_name, label, ver, n_enriched)
+  # The columns come from a backbone the result already records in
+  # taxify_meta$backbone, so cite() and taxify_lock() cover them there; they
+  # are not registered as a separate enrichment.
+  x
 }
 
 
@@ -464,8 +480,9 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 #'     IDs, the same on every row of a name: `"status"`, `"priority"`
 #'     (publication year), `"occurrences"`, `"validity"`, `"fuzzy"`, or `"id"`
 #'     when only the lowest taxon ID separated them, which settles nothing
-#'     about the taxon the name denotes; `"authorship"` or `"basionym"` when
-#'     the input's author or the record's basionym link moved the pick. `NA`
+#'     about the taxon the name denotes; `"authorship"`, `"basionym"` or
+#'     `"kingdom"` when the input's author, the record's basionym link or the
+#'     `kingdom` argument of [taxify()] moved the pick. `NA`
 #'     for a name with one ID.}
 #' }
 #' Unmatched names contribute no rows.
@@ -586,8 +603,8 @@ id_roles <- function(tab, x, rows) {
 
 #' List the accepted taxa within a genus or family
 #'
-#' Returns the accepted taxa a backbone places inside a genus or family, so you
-#' can build a checklist from the backbone rather than only validating one. The
+#' Returns the accepted taxa a backbone places inside a genus or family, so a
+#' checklist can be built from the backbone as well as checked against it. The
 #' parent's rank is read from the backbone, as in [downstream()], restricted to
 #' genus and family: `children()` is [downstream()] for a genus or family parent.
 #'

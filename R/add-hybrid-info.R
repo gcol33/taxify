@@ -70,6 +70,8 @@ add_hybrid_info <- function(x) {
     x$hybrid_parent_2_id <- unname(id[x$hybrid_parent_2])
   }
 
-  n_enriched <- sum(!is.na(x$hybrid_type))
-  register_enrichment(x, "hybrid_info", "taxify", NA_character_, n_enriched)
+  # The parents are resolved against the result's own backbones, which
+  # taxify_meta already records for cite() and taxify_lock(); no dataset is
+  # added, so nothing is registered.
+  x
 }

@@ -12,8 +12,8 @@ taxify_download(
 )
 }
 \arguments{
-\item{backbone}{Character. A backbone name (e.g. \code{"wfo"}, \code{"col"}, \code{"gbif"},
-...; see the backbones in \code{\link[=list_enrichments]{list_enrichments()}}'s companion manifest) or
+\item{backbone}{Character. A backbone name (e.g. \code{"wfo"}, \code{"col"}, \code{"gbif"};
+\code{\link[=list_backbones]{list_backbones()}} lists them all) or
 \code{"register"} for the genus register. Multiple backbones can be given as a
 character vector.}
 
@@ -23,7 +23,7 @@ A specific version string (e.g., \code{"2024.01"}) downloads into a pinned
 folder that is never overwritten.}
 
 \item{content_id}{Character or \code{NULL} (default). The content id of one exact
-build -- the md5 of its \code{.vtr}, as recorded by \code{\link[=taxify_lock]{taxify_lock()}} and by the
+build, the md5 of its \code{.vtr}, as recorded by \code{\link[=taxify_lock]{taxify_lock()}} and by the
 manifest. Given one, taxify fetches that build from the immutable copy
 published beside the rolling asset, verifies the bytes hash back to the id,
 and makes it the active backbone; the build it replaces is kept under its
@@ -47,6 +47,6 @@ from source via \code{\link[=taxify_build]{taxify_build()}} (which requires \cod
 }
 \seealso{
 \code{\link[=taxify_build]{taxify_build()}} to build a backbone from source via \code{taxifydb},
-\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} for enrichment layers, \code{\link[=taxify_store]{taxify_store()}} for
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} for published datasets, \code{\link[=taxify_store]{taxify_store()}} for
 the builds already on disk.
 }

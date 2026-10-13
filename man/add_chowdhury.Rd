@@ -30,7 +30,7 @@ Source: Supporting Information Data S1 of Chowdhury et al. (2025),
 of the most intensively sampled insect groups in ecology, and this is the
 largest openly reachable block of carabid traits.
 
-\code{wing_morph} is three-state -- long-winged, short-winged, and the 83
+\code{wing_morph} is three-state: long-winged, short-winged, and the 83
 dimorphic species that produce both forms. Dimorphism is the trait of
 interest in carabid dispersal ecology, so it is never collapsed into a
 flight-capable/flightless binary.
@@ -41,7 +41,7 @@ letter codes and is \strong{not} a global IUCN assessment: it maps
 deterministically onto \code{red_list_germany} (\code{*} to LC, 1 to CR, 2 to EN, 3
 to VU, V to NT), with no off-diagonal case in all 382 species. A species can
 be critically endangered at its German range edge and of least concern
-globally, so these columns stay on this door and out of the global
+globally, so these columns stay in this function and out of the global
 \code{conservation_status} trait.
 
 \code{occupancy_trend} is the paper's own result: the modelled change in

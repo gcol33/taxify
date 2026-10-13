@@ -8,7 +8,7 @@ taxify_lock(x = NULL, file = NULL, verbose = TRUE)
 }
 \arguments{
 \item{x}{A \code{\link[=taxify]{taxify()}} result (its resolved backbones and any \verb{add_*()}
-enrichment layers are locked), or \code{NULL} (default) to snapshot every
+published datasets are locked), or \code{NULL} (default) to snapshot every
 installed backbone.}
 
 \item{file}{Optional path to write the lockfile to (JSON). When \code{NULL}
@@ -22,7 +22,7 @@ A lock list (invisibly when \code{file} is written), with elements
 }
 \description{
 Writes a machine-readable lockfile pinning which backbone and enrichment
-assets -- name, version, and byte-identity (content id) -- produced a
+assets (name, version, and byte-identity, the content id) produced a
 \code{\link[=taxify]{taxify()}} result. Where \code{\link[=cite]{cite()}} prints prose citations, \code{taxify_lock()}
 records the reproducible counterpart, so a manuscript's Methods can state
 exactly what was matched against and \code{\link[=taxify_restore]{taxify_restore()}} can later verify an

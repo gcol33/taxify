@@ -74,6 +74,8 @@ test_that("every key of the same taxon is requested, deduplicated, as integers",
   expect_equal(as.integer(keys), c(2878688L, 7911626L, 3117424L))
   expect_equal(nrow(attr(keys, "taxa")), 3L)
   expect_equal(attr(keys, "taxa")$key_source, rep("backbone", 3L))
+  printed <- capture.output(print(keys))
+  expect_false(any(grepl("attr", printed)))
 })
 
 

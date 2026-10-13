@@ -33,8 +33,8 @@ rest character. Rows with no value in GIFT get \code{NA}. With the default
 Joins species-level plant traits from GIFT, the Global Inventory of Floras
 and Traits (Weigelt et al. 2020), to a \code{\link[=taxify]{taxify()}} result by \code{accepted_name}.
 GIFT aggregates published trait records to one value per species (mean for
-numeric traits, most frequent entry for categorical ones). You choose which
-traits to attach with \code{cols}; browse the available columns with
+numeric traits, most frequent entry for categorical ones). \code{cols} chooses which
+traits to attach; browse the available columns with
 \code{\link[=gift_traits]{gift_traits()}}.
 }
 \details{
@@ -44,7 +44,7 @@ or builds it from source if \code{taxifydb} is installed). GIFT's API exposes on
 the redistributable subset of its data (CC BY 4.0; references whose
 underlying source is restricted are excluded), and that subset is what is
 bundled here. Cite GIFT and, where applicable, the underlying references
-(\code{GIFT::GIFT_references()}) when you use the values.
+(\code{GIFT::GIFT_references()}) for the values used.
 }
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())

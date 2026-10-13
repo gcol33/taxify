@@ -21,8 +21,8 @@ The same data.frame with \code{hyd_} columns: \code{p50_mpa},
 \code{mean_annual_temp_c}.
 }
 \description{
-Joins the drought-mortality trait block -- xylem embolism resistance, xylem
-and leaf conductivity, sapwood-to-leaf allocation and drought exposure -- to
+Joins the drought-mortality trait block (xylem embolism resistance, xylem
+and leaf conductivity, sapwood-to-leaf allocation and drought exposure) to
 a \code{\link[=taxify]{taxify()}} result by accepted name.
 }
 \details{
@@ -35,7 +35,7 @@ This is a literature compilation and so are AusTraits and BROT, so where
 they overlap they often carry the same primary record: 63\% of the P50
 values shared with AusTraits and 65\% of the Ks values are equal to the last
 digit. Agreement between them is not independent corroboration. The overlap
-is small against what this adds -- 74 of its 894 P50 species appear in
+is small against what this adds: 74 of its 894 P50 species appear in
 either incumbent.
 
 \code{huber_value_cm2_m2} is square centimetres of sapwood per square metre of

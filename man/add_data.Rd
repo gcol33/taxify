@@ -77,7 +77,7 @@ backbone(s) used in the original \code{taxify()} call, and the join is performed
 on the accepted taxon --- so synonyms in either dataset resolve to the same
 key. The key is the \code{accepted_id} together with the backbone that issued it,
 falling back to \code{accepted_name} where the two sides were matched by different
-backbones: backend ids are bare integers in most backbones and mean nothing
+backbones: backbone IDs are bare integers in most backbones and mean nothing
 outside the one they came from.
 }
 \details{
@@ -88,14 +88,14 @@ The workflow:
 \item Match species names through the same backbone(s) as the original
 \code{taxify()} call, obtaining \code{accepted_id} for each row.
 \item Check for conflicting duplicates: if multiple rows in \code{data} resolve
-to the same accepted name with different values, an error is raised --
-with \code{group_col} set, within each group.
+to the same accepted name with different values, an error is raised
+(with \code{group_col} set, within each group).
 Exact duplicates produce a warning and are deduplicated.
 \item Left-join on the accepted taxon.
 }
 \subsection{Grouped data}{
 
-When your data has multiple rows per species (e.g., one row per species
+When \code{data} has multiple rows per species (e.g., one row per species
 per country), set \code{group_col} to produce wide output with suffixed
 columns. This is the same format as the built-in grouped enrichments.
 }

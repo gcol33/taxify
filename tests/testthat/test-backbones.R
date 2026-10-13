@@ -30,12 +30,13 @@ test_that("resolve_backend error lists the registry backbones", {
 test_that("list_backbones returns one row per backbone with scope and installed flag", {
   bb <- list_backbones(verbose = FALSE)
   expect_equal(nrow(bb), 21L)
-  expect_true(all(c("name", "scope", "n_names", "size_mb", "version",
+  expect_true(all(c("name", "title", "scope", "n_names", "size_mb", "version",
                     "source_date", "installed", "code", "source") %in%
                     names(bb)))
   expect_type(bb$installed, "logical")
   expect_false(any(is.na(bb$installed)))
   expect_setequal(bb$name, taxify:::backbone_names())
+  expect_false(any(is.na(bb$title) | !nzchar(bb$title)))
 })
 
 test_that("taxify_databases stacks backbones and enrichments under a type column", {

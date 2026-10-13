@@ -95,7 +95,7 @@ add_combine_reported <- function(x, cols = NULL, verbose = TRUE) {
 #' Source: COMBINE (Soria et al. 2021, Ecology, CC0), imputed table
 #' (`trait_data_imputed.csv`). Same species set and column meanings as
 #' [add_combine_reported()]; the difference is coverage. Because imputation only
-#' fills gaps, applying both doors and comparing `combine_*` with
+#' fills gaps, applying both functions and comparing `combine_*` with
 #' `combine_imputed_*` shows which values are measured versus estimated.
 #'
 #' @references
@@ -136,13 +136,13 @@ add_combine_imputed <- function(x, cols = NULL, verbose = TRUE) {
 
 #' Add mammal traits (COMBINE)
 #'
-#' The default COMBINE door. Attaches the reported (measured or literature
+#' The default COMBINE function. Attaches the reported (measured or literature
 #' compiled) trait values and fills each still-missing cell from COMBINE's
 #' phylogenetically imputed table, so a single call reaches the fullest coverage
 #' COMBINE offers. A measurement is never overwritten: the reported value wins
 #' wherever it exists and the imputed model only fills gaps. Beside every trait
-#' sits a `<trait>_src` column recording where that cell came from -- `"reported"`,
-#' `"imputed"`, or `NA` when neither table has it -- so a model estimate is
+#' sits a `<trait>_src` column recording where that cell came from (`"reported"`,
+#' `"imputed"`, or `NA` when neither table has it), so a model estimate is
 #' always distinguishable from a measurement.
 #'
 #' For a single-table view use [add_combine_reported()] (measured values only)

@@ -38,7 +38,7 @@ peduncle depth / caudal fin depth).}
 }
 \description{
 Joins FISHMORPH morphological trait data to a \code{\link[=taxify]{taxify()}} result by
-looking up \code{accepted_name}. This is the source-named door for FISHMORPH;
+looking up \code{accepted_name}. This function is named after its source, FISHMORPH;
 for the fish reference database FishBase see \code{\link[=add_fishbase]{add_fishbase()}}.
 }
 \details{

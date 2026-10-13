@@ -661,7 +661,7 @@ download_content_build <- function(name, content_id,
 #' under `latest/`, and each build it replaced in a directory named for that
 #' build's content id (the md5 of its `.vtr`, the same string [taxify_lock()]
 #' records). Backbones are listed the same way, though by default only the
-#' active build of a backbone is kept -- see `taxify.keep_backbone_versions`
+#' active build of a backbone is kept (see `taxify.keep_backbone_versions`)
 #' below.
 #'
 #' Use this to see which pinned builds a lockfile could be restored to without
@@ -671,7 +671,7 @@ download_content_build <- function(name, content_id,
 #'   `NULL` (default) lists every asset in the data directory.
 #'
 #' @return A data.frame with one row per build on disk, columns: `component`,
-#'   `type` (`"backbone"`/`"enrichment"`), `slot` (the store directory --
+#'   `type` (`"backbone"`/`"enrichment"`), `slot` (the store directory:
 #'   `"latest"` for the active build, else its content id), `active`,
 #'   `version`, `content_id`, `pinned`, `size_mb`, `downloaded_at`.
 #'

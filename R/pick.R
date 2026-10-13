@@ -472,9 +472,13 @@ pick_basis <- function(keys, grp, id) {
   out <- rep(NA_character_, length(ug))
   if (is.null(id)) return(out)
   id <- as.character(id)
+  # Groups are contiguous, so each one spans from its first row to the row
+  # before the next group's first; a scan of `grp` per group would make the
+  # loop quadratic in the number of candidates.
   first <- match(ug, grp)
+  last  <- c(first[-1L] - 1L, length(grp))
   for (g in seq_along(ug)) {
-    rows <- which(grp == ug[g])
+    rows <- first[g]:last[g]
     p <- first[g]
     rival <- rows[!is.na(id[rows]) & id[rows] != id[p]]
     if (!length(rival) || is.na(id[p])) next

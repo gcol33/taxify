@@ -5,8 +5,47 @@
 \alias{taxify-package}
 \title{taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones}
 \description{
-Match taxonomic names against locally stored Darwin Core backbone databases ('WFO', 'COL', 'GBIF', 'ITIS', 'NCBI Taxonomy', 'Open Tree of Life', 'WoRMS', 'Euro+Med', 'Species Fungorum', 'AlgaeBase', 'FishBase', 'SeaLifeBase', 'Reptile Database', 'LCVP', 'WCVP', 'Mammal Diversity Database', 'AviList', 'LPSN'). Provides offline fuzzy and exact matching with synonym resolution, hybrid name detection, and a unified output schema across all sources. All heavy computation runs in the 'vectra' C11 columnar engine.
+taxify matches taxonomic names to their accepted names against local
+copies of published backbones, such as the Catalogue of Life, World Flora
+Online and WoRMS. It performs the name-resolution step of 'taxize' and
+'WorldFlora', run offline against local backbone files. Each backbone is
+downloaded once and recorded by version on every result row.
 }
+\section{Functions by task}{
+
+\describe{
+\item{Matching}{\code{\link[=taxify]{taxify()}} matches a character vector of names and returns
+one row per name with its accepted name, how it was matched and the
+backbone version; \link[=summary.taxify_result]{summary()} counts how a batch
+resolved.}
+\item{Checking}{\code{\link[=inspect]{inspect()}} returns only the names that need a look;
+\code{\link[=reconcile]{reconcile()}} reports how a checklist maps onto a backbone's current
+treatment.}
+\item{Joining data}{\code{\link[=add_data]{add_data()}} joins a table the user supplies on the
+accepted name; each published dataset has its own \verb{add_<source>()}
+function, listed by \code{\link[=list_enrichments]{list_enrichments()}}; \code{\link[=add_trait]{add_trait()}} gathers one trait
+from every dataset that carries it.}
+\item{Exploring the backbone}{\code{\link[=synonyms]{synonyms()}}, \code{\link[=children]{children()}}, \code{\link[=downstream]{downstream()}},
+\code{\link[=upstream]{upstream()}}, \code{\link[=add_classification]{add_classification()}}, \code{\link[=class2tree]{class2tree()}}, \code{\link[=id2name]{id2name()}},
+\code{\link[=parse_name]{parse_name()}}, \code{\link[=comm2sci]{comm2sci()}} and \code{\link[=sci2comm]{sci2comm()}}.}
+\item{Backbones and versions}{\code{\link[=list_backbones]{list_backbones()}}, \code{\link[=install_backbones]{install_backbones()}},
+\code{\link[=taxify_download]{taxify_download()}}, \code{\link[=taxify_lock]{taxify_lock()}}, \code{\link[=taxify_restore]{taxify_restore()}} and \code{\link[=cite]{cite()}}.}
+}
+}
+
+\section{Where to start}{
+
+\code{vignette("taxify")} goes from a messy list of names to accepted names with
+traits attached. The articles at \url{https://gillescolling.com/taxify/} cover
+each task in full.
+}
+
+\section{Citation}{
+
+\code{citation("taxify")} gives the reference of the package; \code{\link[=cite]{cite()}} on a
+result lists the references of every backbone and dataset it used.
+}
+
 \seealso{
 Useful links:
 \itemize{
