@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -209,29 +209,28 @@ plots:</p>
 <span><span class="co">#&gt; 6       Brachypodietalia pinnata Brachypodietalia pinnati      fuzzy      FALSE</span></span>
 <span><span class="co">#&gt; 7                      Carpinion                     &lt;NA&gt;       none         NA</span></span>
 <span><span class="co">#&gt; Sources: EVC 4 | cite() for full citations</span></span></code></pre></div>
-<p>Each row reaches its unit by a different route:</p>
+<p>Before matching, the author citation and any code written in front of
+a name are removed, and spelling variants of Latin, such as
+<code>i</code> and <code>y</code>, are made equal. A name written
+without its epithet, the short form, is resolved through its stem when
+the stem names one unit. Each row reaches its unit by one of these
+routes:</p>
 <ul>
 <li><p><code>Fagion sylvaticae Luquet 1926</code> matches with its
 author citation removed.</p></li>
 <li><p><code>Mesobromion erecti</code> is a synonym of <em>Bromion
-erecti</em>. The EuroVegChecklist lists the synonym without its epithet,
-as <em>Mesobromion</em>, so the row has
-<code>match_type = "short_name"</code> and
-<code>is_synonym = TRUE</code>.</p></li>
+erecti</em>, listed in the EuroVegChecklist without its epithet, as
+<em>Mesobromion</em>.</p></li>
 <li><p><code>Fagion silvaticae</code> is an older spelling of the
-epithet. Matching compares names with spelling variants of Latin, such
-as <code>i</code> and <code>y</code>, made equal, and the row has
-<code>match_type = "exact_ci"</code>.</p></li>
+epithet.</p></li>
 <li><p><code>TDA - Arrhenatherion elatioris</code> matches once the code
 in front is removed.</p></li>
-<li><p><code>Cynosurion</code> is written without its epithet, a short
-form often used for <em>Cynosurion cristati</em>. It resolves with
-<code>match_type = "short_name"</code> because its stem names one
-unit.</p></li>
+<li><p><code>Cynosurion</code> is the short form of <em>Cynosurion
+cristati</em>.</p></li>
 <li><p><code>Brachypodietalia pinnata</code> is misspelt and is matched
 by fuzzy matching.</p></li>
 <li><p><code>Carpinion</code> is the stem of three alliances, so it
-stays unresolved. The warning above the table names it.</p></li>
+stays unresolved.</p></li>
 </ul>
 <p>The candidates of an unresolved short form are listed in
 <code>accepted_ids</code>:</p>
@@ -282,8 +281,11 @@ it.</p>
 <div class="section level2">
 <h2 id="from-a-national-association-to-a-european-alliance">From a national association to a European alliance<a class="anchor" aria-label="anchor" href="#from-a-national-association-to-a-european-alliance"></a>
 </h2>
-<p>An association has no counterpart in the EuroVegChecklist. The
-national classification places it in an alliance:</p>
+<p>Plot data from the Czech Republic often record an association, a rank
+the EuroVegChecklist does not cover. The national classification places
+each association in an alliance. <em>Arrhenatheretum elatioris</em> is a
+synonym of two associations, under Braun 1915 and under Scherrer 1925,
+so an author citation in the input chooses between them:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cz</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Pastinaco sativae-Arrhenatheretum elatioris"</span>,</span>
@@ -293,22 +295,17 @@ national classification places it in an alliance:</p>
 <span><span class="co">#&gt; Warning: 1 of 2 names resolve to more than one accepted ID (Arrhenatheretum</span></span>
 <span><span class="co">#&gt; elatioris Braun 1915). `accepted_id` holds one and `accepted_ids` all of them;</span></span>
 <span><span class="co">#&gt; list them with taxify_ids() before requesting data by ID.</span></span>
-<span><span class="va">cz</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"alliance"</span>, <span class="st">"class"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">cz</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"alliance"</span>, <span class="st">"accepted_ids"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;                                    input_name</span></span>
 <span><span class="co">#&gt; 1 Pastinaco sativae-Arrhenatheretum elatioris</span></span>
 <span><span class="co">#&gt; 2        Arrhenatheretum elatioris Braun 1915</span></span>
 <span><span class="co">#&gt;                                 accepted_name                 alliance</span></span>
 <span><span class="co">#&gt; 1 Pastinaco sativae-Arrhenatheretum elatioris Arrhenatherion elatioris</span></span>
 <span><span class="co">#&gt; 2 Pastinaco sativae-Arrhenatheretum elatioris Arrhenatherion elatioris</span></span>
-<span><span class="co">#&gt;                     class</span></span>
-<span><span class="co">#&gt; 1 Molinio-Arrhenatheretea</span></span>
-<span><span class="co">#&gt; 2 Molinio-Arrhenatheretea</span></span>
 <span><span class="co">#&gt; Sources: VEGCZ 2026.10 | cite() for full citations</span></span></code></pre></div>
-<p><em>Arrhenatheretum elatioris</em> is a synonym of two associations,
-under Braun 1915 and under Scherrer 1925. The author citation in the
-second name picks the association of Braun 1915, which is the first in
-<code>accepted_ids</code>; the warning names the row because both remain
-listed there.</p>
+<p>The second name, cited with Braun 1915, resolves to that author’s
+association, which is listed first in <code>accepted_ids</code>; the
+other association stays listed, so the warning names the row.</p>
 <p>The alliance then resolves against the EuroVegChecklist:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">cz</span><span class="op">$</span><span class="va">alliance</span>, backbone <span class="op">=</span> <span class="st">"evc"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -335,7 +332,6 @@ nomenclature:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Fagion sylvaticae"</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"evc"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error:</span></span>
 <span><span class="co">#&gt; ! Backbones of different nomenclature codes cannot be combined: evc (syntaxon), col (taxon). Match taxon names and syntaxon names in separate calls.</span></span></code></pre></div>
-<p>Taxa and vegetation units are matched in separate calls.</p>
 </div>
 <div class="section level2">
 <h2 id="how-the-backbones-were-built">How the backbones were built<a class="anchor" aria-label="anchor" href="#how-the-backbones-were-built"></a>

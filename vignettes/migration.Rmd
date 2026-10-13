@@ -78,7 +78,7 @@ length(unique(syn$synonym))
 #> [1] 164
 ```
 
-For *Picea abies*, WorldFlora listed 171 synonyms and taxify 164, of which 163 appear in both.
+For *Picea abies*, the script recorded 171 synonyms from WorldFlora and 164 from taxify, of which 163 appear in both.
 
 ## Agreement on a sample of WFO names
 
@@ -90,7 +90,7 @@ The same script draws 300 names of species rank from taxify's WFO backbone with 
 
 - 5 names found no match in WorldFlora's file.
 
-The run used taxify 0.7.0 with its WFO backbone 2026.06, and WorldFlora 1.14.5 with the WFO classification file of the Zenodo release named in `scripts/benchmark-worldflora.R`. The two can be different WFO releases, so part of the difference may come from the data rather than the matching. The comparison covers exact matching of species names; it does not show agreement on misspelt names, infraspecific names or names outside WFO.
+The run used taxify 0.7.0 with its WFO backbone 2026.06, and WorldFlora 1.14.5 with the WFO classification file of the Zenodo release named in `scripts/benchmark-worldflora.R`. The two can be different WFO releases; this run does not separate differences in the data from differences in the matching. The comparison covers exact matching of species names; it does not show agreement on misspelt names, infraspecific names or names outside WFO.
 
 To check your own list, run it through both packages and compare `accepted_name` from `taxify(backbone = "wfo")` with `scientificName` from `WFO.one()`. For the names that differ, `taxify_ids()` lists every accepted taxon taxify found behind the name, as shown in [Exploring the backbone](exploring.html).
 
@@ -121,7 +121,7 @@ The table maps taxize 0.10.1. taxize answers from the web service named in each 
 | `WFO.one()` | `taxify()` | One row per name |
 | `WFO.synonyms()` | `synonyms(backbone = "wfo")` | The synonyms of a taxon |
 
-The table maps WorldFlora 1.14-5. `WFO.match()` returns the WFO columns under their WFO names and every candidate within the fuzzy threshold; `taxify()` returns `matched_name`, `taxon_id`, `taxonomic_status` and `accepted_id`, and `add_wfo_info()` adds WFO's further columns.
+The table maps WorldFlora 1.14.5. `WFO.match()` returns the WFO columns under their WFO names and every candidate within the fuzzy threshold; `taxify()` returns `matched_name`, `taxon_id`, `taxonomic_status` and `accepted_id`, and `add_wfo_info()` adds WFO's further columns.
 
 ## Differences
 
@@ -141,7 +141,7 @@ The table maps WorldFlora 1.14-5. `WFO.match()` returns the WFO columns under th
 | 1000 names, exact | 1.0 | 14.2 |
 | 1000 names, fuzzy | 9.7 | 3881.9 |
 
-The timings measure how long each package takes for these names on one machine; whether the results agree is the subject of the agreement section above. WorldFlora's fuzzy matching (`Fuzzy = 0.1`) returns every candidate within the threshold, which is more work than taxify's single pick.
+The timings measure how long each package takes for these names on one machine; they say nothing about which result is right. WorldFlora's fuzzy matching (`Fuzzy = 0.1`) returns every candidate within the threshold, and taxify returns one pick per name.
 
 ## When taxize or WorldFlora fits better
 

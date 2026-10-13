@@ -31,7 +31,7 @@ library(taxify)
 
 ## How long matching takes
 
-`scripts/benchmark-scale.R` in the taxify repository matches lists of accepted species names drawn from World Flora Online (WFO), as they are and with one letter changed in every tenth name. Each list runs in a new R session, after one call that loads the backbone. The run recorded in `scripts/benchmark-scale-results.json` used taxify `r scale$platform$taxify` and [vectra](https://gillescolling.com/vectra/) `r scale$platform$vectra` under R `r scale$platform$r`, on `r scale$platform$cpu` with `r scale$platform$cores` logical cores, on `r substr(scale$generated_at, 1, 10)`:
+`scripts/benchmark-scale.R` in the taxify repository matches lists of accepted species names drawn from World Flora Online (WFO), as they are and with one letter changed in every tenth name. Each list runs in a new R session, after one call that loads the backbone. The run recorded in `scripts/benchmark-scale-results.json` used taxify `r scale$platform$taxify` and [vectra](https://gillescolling.com/vectra/) `r scale$platform$vectra` under R `r scale$platform$r`, on `r scale$platform$cpu` with `r scale$platform$cores` logical cores, on `r substr(scale$generated_at, 1, 10)`. A misspelt name goes through fuzzy matching after every exact stage has missed it, so a list with misspellings takes longer:
 
 ```{r timings, echo = FALSE}
 runs <- do.call(rbind, lapply(scale$runs, function(r) {
@@ -46,7 +46,7 @@ tab <- data.frame(
 knitr::kable(tab, align = c("r", "r", "r"))
 ```
 
-Loading the backbone took about `r fmt(scale$runs[[1]]$load_s)` s and is paid once per session; every later call reuses it. A misspelt name costs more than a correct one, because it goes through fuzzy matching after every exact stage has missed it.
+Loading the backbone took about `r fmt(scale$runs[[1]]$load_s)` s and is paid once per session; every later call reuses it.
 
 ## Lists that need no fuzzy matching
 
@@ -59,12 +59,14 @@ exact <- taxify(checked, backbone = "wfo", fuzzy = FALSE, verbose = FALSE)
 table(exact$match_type)
 ```
 
-For a list with some misspellings, the fuzzy stage can run on the unmatched names alone, and the results are joined back by input name:
+For a list with some misspellings, the fuzzy stage can run on the unmatched names alone; its rows replace the `none` rows of the first result, matched by input name:
 
 ```{r two-pass}
 missed <- exact$input_name[exact$match_type == "none"]
 second <- taxify(missed, backbone = "wfo", verbose = FALSE)
-second[, c("input_name", "matched_name", "match_type")]
+rows <- match(second$input_name, exact$input_name)
+exact[rows, ] <- second
+exact[, c("input_name", "matched_name", "match_type")]
 ```
 
 The backbone stays loaded between the two calls, so the second one does not load it again.
@@ -108,7 +110,7 @@ A part that already has a file is skipped, so running the loop again after an in
 
 ## Memory
 
-`scripts/benchmark-memory.R` measures the memory of the R process, including what the backbone occupies outside R's own objects, which `gc()` does not report. Each stage runs in a new session. The run recorded in `scripts/benchmark-memory-results.json` used taxify `r mem$platform$taxify` under R `r mem$platform$r` on `r substr(mem$generated_at, 1, 10)`, matching `r format(mem$n_names, big.mark = ",")` names; values are megabytes above an R session with taxify loaded:
+`scripts/benchmark-memory.R` measures the memory of the R process, including what the backbone occupies outside R's own objects, which `gc()` does not report. Each stage runs in a new session. The run recorded in `scripts/benchmark-memory-results.json` used taxify `r mem$platform$taxify` under R `r mem$platform$r` on `r substr(mem$generated_at, 1, 10)`, matching `r format(mem$n_names, big.mark = ",")` names. `File` is the size on disk of the backbone that run read, in megabytes of 10^6 bytes, so it differs from the sizes `list_backbones()` reports from the manifest. The other values are megabytes above an R session with taxify loaded; the fuzzy column is the case in which every name needs fuzzy matching:
 
 ```{r memory, echo = FALSE}
 st <- do.call(rbind, lapply(mem$stages, function(s) {
@@ -133,7 +135,7 @@ tab <- do.call(rbind, lapply(names(by_bb), function(n) {
 knitr::kable(tab, align = c("l", "r", "r", "r", "r"))
 ```
 
-A loaded backbone takes two to three times its file size, for its indexes and its text, and stays loaded for the session. Fuzzy matching adds a working buffer that grows with the number of unmatched names, and is released after each call; the fuzzy column is the case in which every name needs it.
+A loaded backbone takes between 1.9 and 2.6 times its file size here, for its indexes and its text, and stays loaded for the session. Fuzzy matching adds a working buffer that grows with the number of unmatched names, and is released after each call.
 
 `taxify_clear_cache()` releases the loaded backbones, for example before fitting a model on the matched result. The files stay on disk, and the next call loads them again.
 

@@ -30,7 +30,7 @@ library(taxify)
 
 ## Synonyms
 
-`synonyms()` resolves each name to its accepted taxon and lists every synonym the backbone points to it:
+A species list can hold old names for a taxon. `synonyms()` resolves each name to its accepted taxon and lists every synonym the backbone points to it:
 
 ```{r synonyms}
 syn <- synonyms("Picea abies", backbone = "col", verbose = FALSE)
@@ -42,7 +42,7 @@ The input can itself be a synonym: `synonyms("Pinus abies")` lists the same set,
 
 ## Taxa below a genus or family
 
-`children()` lists the accepted species of a genus, or of a family:
+To complete a checklist, the species of a genus are needed. `children()` lists the accepted species of a genus, or of a family:
 
 ```{r children}
 spruces <- children("Picea", backbone = "col", verbose = FALSE)
@@ -62,7 +62,7 @@ Both return accepted taxa only, and never the parent itself. A genus name used i
 
 ## Ranks above a taxon
 
-`upstream()` returns the classification of one taxon, one row per rank. A synonym or misspelling is resolved first:
+Grouping species by family or order needs their classification. `upstream()` returns the classification of one taxon, one row per rank. A synonym or misspelling is resolved first:
 
 ```{r upstream}
 upstream("Pinus abies", backbone = "col", verbose = FALSE)
@@ -79,7 +79,7 @@ cls[, c("input_name", "kingdom", "phylum", "class", "order", "family")]
 
 ## IDs
 
-`id2name()` turns backbone IDs, such as those in the `taxon_id` and `accepted_id` columns, into names, ranks and accepted names:
+A table that stores only backbone IDs can be read back with `id2name()`, which turns backbone IDs, such as those in the `taxon_id` and `accepted_id` columns, into names, ranks and accepted names:
 
 ```{r id2name}
 id2name(c("4HPZF", "KQB98"), backbone = "col", verbose = FALSE)
@@ -99,7 +99,7 @@ ids[, c("accepted_id", "accepted_name", "family", "is_pick")]
 
 ## The parts of a name
 
-`parse_name()` splits a name into its parts without matching it against a backbone:
+Names from field sheets mix authors, qualifiers and hybrid signs into one string. `parse_name()` splits a name into its parts without matching it against a backbone:
 
 ```{r parse}
 parse_name(c(
@@ -137,11 +137,11 @@ sp_res <- comm2sci("Norway spruce", lang = "en", output = "result",
 table(sp_res$accepted_name)
 ```
 
-Of the 31 names that carry "Norway spruce", 30 match COL, and 27 of those resolve to *Picea abies* or one of its varieties. The others are names a source attached the common name to in another sense, which is why the lookup returns every name rather than one. `add_common_names()` attaches the first common name of each language as columns of a result.
+Of the 31 names that carry "Norway spruce", 30 match COL, and 27 of those resolve to *Picea abies* or one of its varieties. The other three resolve to *Abies alba* and *Abies sachalinensis* var. *nemorensis*, so a common-name lookup gives candidates to check rather than one answer. `add_common_names()` attaches the first common name of each language as columns of a result.
 
 ## Comparing a list
 
-`lowest_common()` returns the lowest rank a set of names shares:
+How closely the species of a list are related is the lowest rank they share, which `lowest_common()` returns:
 
 ```{r lowest-common}
 conifers <- c("Picea abies", "Pinus sylvestris", "Abies alba")

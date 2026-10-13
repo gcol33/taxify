@@ -209,8 +209,8 @@ taxify:</p>
 <code class="sourceCode R"><span><span class="va">syn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/synonyms.html">synonyms</a></span><span class="op">(</span><span class="st">"Picea abies"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">syn</span><span class="op">$</span><span class="va">synonym</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 164</span></span></code></pre></div>
-<p>For <em>Picea abies</em>, WorldFlora listed 171 synonyms and taxify
-164, of which 163 appear in both.</p>
+<p>For <em>Picea abies</em>, the script recorded 171 synonyms from
+WorldFlora and 164 from taxify, of which 163 appear in both.</p>
 </div>
 <div class="section level2">
 <h2 id="agreement-on-a-sample-of-wfo-names">Agreement on a sample of WFO names<a class="anchor" aria-label="anchor" href="#agreement-on-a-sample-of-wfo-names"></a>
@@ -229,9 +229,9 @@ above 1), and the two packages chose different records.</p></li>
 <p>The run used taxify 0.7.0 with its WFO backbone 2026.06, and
 WorldFlora 1.14.5 with the WFO classification file of the Zenodo release
 named in <code>scripts/benchmark-worldflora.R</code>. The two can be
-different WFO releases, so part of the difference may come from the data
-rather than the matching. The comparison covers exact matching of
-species names; it does not show agreement on misspelt names,
+different WFO releases; this run does not separate differences in the
+data from differences in the matching. The comparison covers exact
+matching of species names; it does not show agreement on misspelt names,
 infraspecific names or names outside WFO.</p>
 <p>To check your own list, run it through both packages and compare
 <code>accepted_name</code> from <code>taxify(backbone = "wfo")</code>
@@ -369,7 +369,7 @@ backbone version on disk, recorded in every row.</p>
 </tr>
 </tbody>
 </table>
-<p>The table maps WorldFlora 1.14-5. <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code> returns
+<p>The table maps WorldFlora 1.14.5. <code><a href="https://rdrr.io/pkg/WorldFlora/man/WFO.match.html" class="external-link">WFO.match()</a></code> returns
 the WFO columns under their WFO names and every candidate within the
 fuzzy threshold; <code><a href="../reference/taxify.html">taxify()</a></code> returns
 <code>matched_name</code>, <code>taxon_id</code>,
@@ -429,10 +429,9 @@ Windows 11 x64 (build 26200), on 2026-10-13:</p>
 </tbody>
 </table>
 <p>The timings measure how long each package takes for these names on
-one machine; whether the results agree is the subject of the agreement
-section above. WorldFlora’s fuzzy matching (<code>Fuzzy = 0.1</code>)
-returns every candidate within the threshold, which is more work than
-taxify’s single pick.</p>
+one machine; they say nothing about which result is right. WorldFlora’s
+fuzzy matching (<code>Fuzzy = 0.1</code>) returns every candidate within
+the threshold, and taxify returns one pick per name.</p>
 </div>
 <div class="section level2">
 <h2 id="when-taxize-or-worldflora-fits-better">When taxize or WorldFlora fits better<a class="anchor" aria-label="anchor" href="#when-taxize-or-worldflora-fits-better"></a>

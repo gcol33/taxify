@@ -59,6 +59,8 @@ A name with more than one accepted taxon behind it joins on the pick that `taxif
 
 A file path takes the place of the data frame. The example writes the trait table to a temporary CSV file first, with the species in a column called `latin_name` and a column of site codes:
 
+The call gives no `species_col`, so `add_data()` matches the first ten names of each text column against the backbone and takes the column with the most matches, if at least half match:
+
 ```{r csv}
 csv <- tempfile(fileext = ".csv")
 write.csv(
@@ -69,7 +71,7 @@ from_file <- add_data(res, csv)
 from_file[, c("input_name", "sla")]
 ```
 
-Without `species_col`, `add_data()` matches the first ten names of each text column against the backbone and takes the column with the most matches, if at least half match. Here `latin_name` matched all five and `site` none. For your own file, only the path changes, and `species_col` names the column when the guess fails.
+The site codes match no backbone name, so the column holding names wins. For your own file, only the path changes, and `species_col` names the column when the guess fails.
 
 The file type is read from the extension:
 
@@ -121,7 +123,7 @@ same <- data.frame(
 merged <- add_data(res, same, species_col = "species")
 ```
 
-Rows with different values stop the join, because `add_data()` cannot tell which value is right:
+Rows with different values in any selected column stop the join, two `NA` values counting as equal, because `add_data()` cannot tell which value is right:
 
 ```{r dup-diff, error = TRUE}
 differ <- data.frame(
@@ -132,7 +134,7 @@ differ <- data.frame(
 add_data(res, differ, species_col = "species", cols = "sla")
 ```
 
-Two values count as different when any selected column differs, with two `NA` values counted as equal. Averaging the rows before the join is one fix. When the rows belong to different groups, such as countries, `group_col` keeps them apart, with one column per group:
+Averaging the rows before the join is one fix. When the rows belong to different groups, such as countries, `group_col` keeps them apart, with one column per group:
 
 ```{r group}
 by_country <- add_data(res, differ, species_col = "species",

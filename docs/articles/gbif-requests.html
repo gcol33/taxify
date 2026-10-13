@@ -199,20 +199,19 @@ the taxa below it, which is what a request by that key returns.</p>
 <div class="section level2">
 <h2 id="what-a-request-covers">What a request covers<a class="anchor" aria-label="anchor" href="#what-a-request-covers"></a>
 </h2>
-<p><code>dry_run = TRUE</code> returns the keys a request would send,
-and the message estimates the number of records from the counts above,
-without contacting GBIF:</p>
+<p>By default (<code>keys = "taxon"</code>) a request covers the
+<code>pick</code> and <code>same_name</code> keys and leaves out
+<code>other_taxon</code> keys. <code>dry_run = TRUE</code> returns the
+keys a request would send, and the message estimates the number of
+records from the counts above, without contacting GBIF:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">matched</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 4 name(s): 4 picked key(s) and 7 other key(s) of the same taxa requested.</span></span>
 <span><span class="co">#&gt; 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.</span></span>
 <span><span class="co">#&gt;  [1] 2878688 7586523 7911626 5285637 7718215 8116613 9079676 8251433 7393648</span></span>
 <span><span class="co">#&gt; [10] 3117424 5361889</span></span></code></pre></div>
-<p>By default (<code>keys = "taxon"</code>) the request covers the
-<code>pick</code> and <code>same_name</code> keys and leaves out
-<code>other_taxon</code> keys. <code>keys = "pick"</code> sends only the
-picked key of each name, and <code>keys = "all"</code> adds the other
-taxa:</p>
+<p><code>keys = "pick"</code> sends only the picked key of each name,
+and <code>keys = "all"</code> adds the other taxa:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gbif_request.html">gbif_request</a></span><span class="op">(</span><span class="va">matched</span>, keys <span class="op">=</span> <span class="st">"pick"</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 4 name(s): 4 picked key(s) and 0 other key(s) of the same taxa requested. Left out under keys = "pick": 7 same-taxon key(s) (Quercus robur, Pinus sylvestris).</span></span>
@@ -237,13 +236,13 @@ GBIF’s other records of the same taxon:</p>
 <span><span class="co">#&gt; 11 GBIF key(s) from 4 matched name(s). About 4,090,085 occurrence record(s) across them.</span></span>
 <span><span class="co">#&gt;  [1] 2878688 7911626 7586523 5285637 8116613 8251433 7393648 9079676 7718215</span></span>
 <span><span class="co">#&gt; [10] 3117424 5361889</span></span></code></pre></div>
-<p>The request is the same as from the GBIF match, and the message names
-the other-taxon keys it leaves out: COL XR lists <em>Pinus
-sylvestris</em> and <em>Quercus robur</em> as synonyms of other species
-under other authors. A row whose backbone records no GBIF key is matched
-again against GBIF by its accepted name.
-<code>attr(x, "taxa")$key_source</code> records where each key came from
-(<code>backbone</code>, <code>crosswalk</code> or
+<p>The request is the same as from the GBIF match, and the message
+counts the other-taxon keys it leaves out and names the input names they
+belong to: COL XR lists <em>Pinus sylvestris</em> and <em>Quercus
+robur</em> as synonyms of other species under other authors. A row whose
+backbone records no GBIF key is matched again against GBIF by its
+accepted name. <code>attr(x, "taxa")$key_source</code> records where
+each key came from (<code>backbone</code>, <code>crosswalk</code> or
 <code>rematch</code>).</p>
 </div>
 <div class="section level2">

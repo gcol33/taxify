@@ -34,7 +34,7 @@ Botanical names mark a hybrid with the multiplication sign (×) in one of three 
 
 - between two parent names (a hybrid formula): *Salix alba* × *Salix fragilis*.
 
-Most data write a plain `x` in place of the sign. The list below has one name of each kind, a second nothospecies, a nothospecies with an author, and a species that is no hybrid:
+Most data write a plain `x` in place of the sign. A hybrid name is recognised during cleaning, before any backbone is read, and a formula is first matched as a whole before its parents are resolved one by one (both described in [How hybrids are detected](#how-hybrids-are-detected)). The list below has one name of each kind, a second nothospecies, a nothospecies with an author, and a species that is no hybrid:
 
 
 ``` r
@@ -64,11 +64,11 @@ res[, c("input_name", "accepted_name", "hybrid_type", "match_type")]
 
 `is_hybrid` (not shown) is `TRUE` on the five hybrid rows, and `hybrid_type` names the kind. Both describe the input and are set during cleaning, so they are filled whether or not the name matched.
 
-The two nothospecies and the author-bearing *Mentha* match WFO records. ×*Cupressocyparis leylandii* matches too, and WFO resolves it to ×*Hesperotropsis leylandii*. WFO holds no record for the *Salix* cross, so the row resolves through its two parents, with `match_type = "hybrid_formula"`: `accepted_name` holds the cross of the accepted parent names, and `matched_name` the cross of the parents as written. The two differ only when a parent is a synonym. The ID, rank and classification columns of a formula row stay `NA`, and when a parent does not match, `accepted_name` stays `NA` as well.
+WFO places the Leyland cypress in a different nothogenus. WFO holds no record for the *Salix* cross, so the row resolves through its two parents, with `match_type = "hybrid_formula"`: `accepted_name` holds the cross of the accepted parent names, and `matched_name` the cross of the parents as written. The two differ only when a parent is a synonym. The ID, rank and classification columns of a formula row stay `NA`, and when a parent does not match, `accepted_name` stays `NA` as well.
 
 ## Hybrid parents
 
-`add_hybrid_info()` parses the two parents of each hybrid formula and resolves them against the backbones of the result. It adds the parents as written, their accepted names and their backbone IDs:
+A formula row has no backbone record of its own, so its parents are what can be looked up. `add_hybrid_info()` parses the two parents of each hybrid formula and resolves them against the backbones of the result. It adds the parents as written, their accepted names and their backbone IDs:
 
 
 ``` r
@@ -115,7 +115,7 @@ The parser expects a binomial on each side of the sign. A formula with a subspec
 
 An aggregate groups closely related species under one name, as in apomictic groups such as *Rubus fruticosus* and *Taraxacum officinale*, where field data often record the group and leave the species open. It is written with `agg.` or `s.l.` (*sensu lato*, in the broad sense). taxify reads the variants a source may use (`aggr.`, `agg`, `-agg`, `coll. sp.`, `sensu lato`) as `agg.` or `s.l.` and records the marker in `qualifier`. The opposite marker `s.str.` (*sensu stricto*, in the narrow sense) is recorded in `qualifier` and the name is matched as written.
 
-Some backbones hold an aggregate as a taxon of its own, others hold only the binomial. WFO holds none:
+Some backbones hold an aggregate as a taxon of its own, others hold only the binomial. By default (`aggregates = "preserve"`) an aggregate is matched as a taxon where the backbone has one, and falls back to its binomial otherwise. WFO holds no aggregates:
 
 
 ``` r
@@ -133,7 +133,7 @@ wfo[, c("input_name", "accepted_name", "qualifier", "aggregate_fallback")]
 #> Sources: WFO 2026.06 | cite() for full citations
 ```
 
-The three aggregates resolve to their binomials, and `aggregate_fallback = TRUE` records that the group itself was not found. The species without a marker has `NA` in both columns.
+The three aggregates resolve to their binomials, and `aggregate_fallback = TRUE` records that the group itself was not found. 
 
 Euro+Med PlantBase holds aggregates as taxa:
 
@@ -149,9 +149,9 @@ em[, c("input_name", "accepted_name", "aggregate_fallback")]
 #> Sources: EUROMED 2026.08 | cite() for full citations
 ```
 
-*Taraxacum officinale* agg. matches the Euro+Med aggregate, which Euro+Med treats as a synonym of *Taraxacum* sect. *Taraxacum*, so `aggregate_fallback` is `FALSE`. The other two fall back to their binomials. Euro+Med treats the binomial *Rubus fruticosus* as a synonym of *Rubus plicatus*, and the row follows it.
+*Taraxacum officinale* agg. matches the Euro+Med aggregate, which Euro+Med treats as a synonym of *Taraxacum* sect. *Taraxacum*, so `aggregate_fallback` is `FALSE`. Euro+Med treats the binomial *Rubus fruticosus* as a synonym of *Rubus plicatus*, and the row follows it.
 
-`aggregates = "preserve"`, the default, is what both calls above did: the aggregate is matched as a taxon where the backbone has one. `aggregates = "collapse"` removes the marker before matching, so the binomial is matched like any other name and `aggregate_fallback` stays `NA`:
+`aggregates = "collapse"` removes the marker before matching, so the binomial is matched like any other name and `aggregate_fallback` stays `NA`:
 
 
 ``` r
@@ -174,6 +174,8 @@ For a hybrid formula, a value recorded for the hybrid itself is used first. With
 
 For an aggregate, the value recorded for the aggregate is used first, and the binomial's value otherwise. A species without a value of its own takes its aggregate's value where the dataset records the trait only for the group.
 
+The next chunk attaches plant height to two willows and their cross. `mode = "wide"` keeps one column per dataset, so the cross can be compared with its parents row by row:
+
 
 ``` r
 salix <- c("Salix alba", "Salix fragilis", "Salix alba x Salix fragilis")
@@ -193,7 +195,7 @@ tr[, c("input_name", "plant_height_gift", "plant_height_diaz",
 #> Sources: WFO 2026.06, GIFT (Weigelt et al. 2020) 2026.08, Diaz et al. 2022 2026.08, AusTraits (Falster et al. 2021) 2026.08, BIEN (Maitner et al. 2018) 2026.08 | cite() for full citations
 ```
 
-`mode = "wide"` keeps one column per dataset, so the combination can be read row by row. The cross has no value of its own in any of these datasets. In GIFT and in the data of Díaz et al. its height is the mean of the two parents; AusTraits has a height for *Salix alba* only, and the cross takes it.
+The cross has no value of its own in any of these datasets. In GIFT and in the data of Díaz et al. its height is the mean of the two parents; AusTraits has a height for *Salix alba* only, and the cross takes it.
 
 `aggregate_trait_fallback = FALSE`, or `options(taxify.aggregate_trait_fallback = FALSE)` for a session, leaves such rows `NA`. With `options(taxify.trait_provenance = TRUE)`, an `add_<source>()` function adds a `<source>_basis` column that records whether each value is the name's own, an aggregate's, or a binomial's.
 

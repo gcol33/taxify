@@ -56,7 +56,7 @@ wood <- add_zanne(res)
 wood[, c("input_name", "woodiness")]
 ```
 
-The message says that one of the dataset's two columns was attached. `enrichment_cols()` lists them all, and `cols` chooses: a vector of names, or `"all"`:
+`enrichment_cols()` lists all of a dataset's columns, and `cols` chooses: a vector of names, or `"all"`:
 
 ```{r cols}
 enrichment_cols("zanne")
@@ -73,7 +73,7 @@ both[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
 
 ## Datasets with one value per place or language
 
-Some datasets hold a value for each country, region or language. Their function takes the place or language as an argument. `add_griis()` reads the Global Register of Introduced and Invasive Species (GRIIS) for countries given as two-letter ISO codes:
+Some datasets hold a value for each country, region or language. Their function takes the place or language as an argument. `add_griis()` reads the Global Register of Introduced and Invasive Species (GRIIS) for countries given as two-letter ISO codes. One code gives one column, `invasive_status`; several give a column each, with the code as suffix:
 
 ```{r griis}
 aliens <- c(
@@ -86,7 +86,7 @@ gr[, c("input_name", "invasive_status_AT", "invasive_status_DE",
        "invasive_status_GB")]
 ```
 
-One code gives one column, `invasive_status`; several give a column each, with the code as suffix. *Quercus robur* is native in all three countries. GRIIS focuses on introduced and invasive species, so it has no record for the oak, and its rows are `NA`: an `NA` means that the dataset has no record, not that the species is native. `enrichment_groups("griis")` lists the codes, and `country = "all"` takes every country.
+*Quercus robur* is native in all three countries. GRIIS focuses on introduced and invasive species, so it has no record for the oak, and its rows are `NA`: an `NA` means that the dataset has no record, not that the species is native. `enrichment_groups("griis")` lists the codes, and `country = "all"` takes every country.
 
 `taxify_long()` turns the suffixed columns into rows, one per species and country:
 
@@ -106,6 +106,8 @@ wc[, c("input_name", "native_status_GER", "native_status_AGS")]
 
 *Nothofagus pumilio* is native to southern Argentina (`AGS`). The giant sequoia, native to California, is recorded in Germany as introduced.
 
+`add_common_names()` takes a language code and adds one name per species in that language:
+
 ```{r common}
 cn <- add_common_names(res, lang = "de")
 cn[, c("input_name", "common_name")]
@@ -121,22 +123,22 @@ nrow(traits)
 head(traits[order(-traits$n_sources), c("trait", "unit", "n_sources")])
 ```
 
-By default the sources are combined into one value per row, with columns for the unit, the sources used, their number, and the smallest and largest value:
+By default the sources are combined by their median into one value per row, with columns for the unit, the sources used, their number, and the smallest and largest value:
 
 ```{r coalesce}
 seed <- add_trait(res, "seed_mass")
-seed[, c("accepted_name", "seed_mass", "seed_mass_sources", "seed_mass_n",
+seed[, c("accepted_name", "seed_mass", "seed_mass_unit", "seed_mass_n",
          "seed_mass_min", "seed_mass_max")]
 ```
 
-A numeric trait is reported in one unit: GIFT records seed mass in grams and the data of Díaz et al. in milligrams, and both are converted to milligrams. Several sources measuring the same quantity are combined by their median. `trait_info()` lists the sources of a trait in their default order, the column each is read from and the conversion applied; the first two are shown here:
+A numeric trait is reported in one unit: GIFT records seed mass in grams and the data of Díaz et al. in milligrams, and both are converted to milligrams. `trait_info()` lists the sources of a trait in their default order, the column each is read from and the conversion applied; the first two are shown here:
 
 ```{r info}
 info <- trait_info("seed_mass")
 info[1:2, c("source", "column", "note")]
 ```
 
-`mode = "wide"` keeps one column per source, after the conversion:
+`mode = "wide"` keeps one column per source, after each source's units and terms are converted to one unit and one vocabulary:
 
 ```{r wide}
 wd <- add_trait(res, "woodiness", mode = "wide")
@@ -170,7 +172,7 @@ The references are those the source datasets record for each value, as they reco
 
 ## Coverage
 
-A dataset covers a group of taxa, often a region, and never every species. A mixed list shows the pattern:
+Six species from six groups (an oak, a bird, a mammal, a toad, a fungus, a fish) each get one dataset per group:
 
 ```{r coverage}
 mixed <- c("Quercus robur", "Parus major", "Vulpes vulpes", "Bufo bufo",
@@ -186,7 +188,7 @@ mx[, c("input_name", "woodiness", "avonet_body_mass_g",
 Each species has values only from the datasets that cover its group. A column with `NA` in every row usually means the dataset does not cover the group; an `NA` in some rows means the species is not in the dataset, was described after it was compiled, or was recorded at another rank. `summary()` counts the rows each dataset filled, with its version and licence:
 
 ```{r summary}
-summary(both)
+summary(mx)
 ```
 
 ## How the values are joined

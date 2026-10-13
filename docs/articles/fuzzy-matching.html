@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -193,7 +193,10 @@ epithet.</p>
 </h2>
 <p>A name with no exact match is compared with the backbone names of the
 same genus, and the closest one within <code>fuzzy_threshold</code> is
-taken. The list below has typing errors of several kinds:</p>
+taken; a name whose genus is misspelt is compared with the names that
+share its first two letters, as described in <a href="#misspelt-genera">Misspelt genera</a>. <code>fuzzy_dist</code> is
+the number of edits between the two names divided by the length of the
+longer one. The list below has typing errors of several kinds:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">messy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Qurecus robur"</span>, <span class="st">"Taraxacum officianle"</span>, <span class="st">"Plantago lanceoalata"</span>,</span>
@@ -212,12 +215,10 @@ taken. The list below has typing errors of several kinds:</p>
 <span><span class="co">#&gt; 7       Betual pendula       Betula pendula      fuzzy 0.07142857</span></span>
 <span><span class="co">#&gt; 8     Ranunculus acris     Ranunculus acris      exact         NA</span></span>
 <span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
-<p><code>fuzzy_dist</code> is the number of edits between the two names
-divided by the length of the longer one. <em>Taraxacum officianle</em>
-has two letters swapped, one edit on 20 characters, so its distance is
-0.05. <em>Lolium perrene</em> needs two edits to become <em>Lolium
-perenne</em>, 2 / 14 = 0.143. <em>Ranunculus acris</em> is spelt
-correctly and matches exactly, so its <code>fuzzy_dist</code> is
+<p><em>Taraxacum officianle</em> has two letters swapped, one edit on 20
+characters, so its distance is 0.05. <em>Lolium perrene</em> needs two
+edits to become <em>Lolium perenne</em>, 2 / 14 = 0.143. A name matched
+by an exact stage has no distance, so <code>fuzzy_dist</code> is
 <code>NA</code>.</p>
 <p>A fuzzy match runs only for names that every exact stage missed, so
 it never replaces an exact match.</p>
@@ -335,10 +336,9 @@ the intended taxon. Two cases from the backbones:</p>
 <p><em>Quercus fantasia</em> is an invented name within the threshold of
 <em>Quercus matasii</em>. <em>Quercus robur</em> var. <em>robur</em> is
 not in WFO, and the fuzzy stage reaches var. <em>robusta</em>, three
-edits away, before the fallback to the species can run. Sorting the
-fuzzy rows by <code>fuzzy_dist</code>, largest first, puts such matches
-at the top of a list to check by hand. <code><a href="../reference/inspect.html">inspect()</a></code> labels
-them as likely misspellings, as shown in <a href="inspecting-names.html">Checking a name list</a>.</p>
+edits away, before the fallback to the species can run.
+<code><a href="../reference/inspect.html">inspect()</a></code> labels them as likely misspellings, as shown in
+<a href="inspecting-names.html">Checking a name list</a>.</p>
 <p><code>fuzzy = FALSE</code> turns the stage off, for a list that has
 already been checked:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -353,9 +353,12 @@ already been checked:</p>
 <div class="section level2">
 <h2 id="names-with-more-than-one-accepted-taxon">Names with more than one accepted taxon<a class="anchor" aria-label="anchor" href="#names-with-more-than-one-accepted-taxon"></a>
 </h2>
-<p>Some spellings belong to more than one taxon. <em>Pinus abies</em>
-was published by Linnaeus for the Norway spruce and again by Thunberg
-for a Japanese spruce:</p>
+<p>Some spellings belong to more than one taxon. When a spelling leads
+to several records, one is picked: the record with the input’s author
+when the input carries one, otherwise an accepted record before an
+unplaced one before a synonym, then the species rank, then the lowest
+ID. <em>Pinus abies</em> was published by Linnaeus for the Norway spruce
+and again by Thunberg for a Japanese spruce:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Pinus abies"</span>, <span class="st">"Pinus abies L."</span>, <span class="st">"Pinus abies Thunb."</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">pa</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -370,14 +373,11 @@ for a Japanese spruce:</p>
 <span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
 <p><code>n_ids</code> counts the accepted taxa the spelling leads to,
 and <code>accepted_ids</code> lists their IDs, the pick first. The
-warning names every row with more than one. Without an author, the pick
-follows the backbone records: an accepted record before an unplaced one
-before a synonym, then the species rank, then the lowest ID. When the
-input carries an author, the record with that author is picked:
-<code>Pinus abies Thunb.</code> resolves to <em>Picea polita</em>.
-<code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> lists every candidate of a row with its name,
-author and status, as shown in <a href="gbif-requests.html">Requesting
-GBIF data for a species list</a>.</p>
+warning names every row with more than one. The author picks the record
+in the third row: <code>Pinus abies Thunb.</code> resolves to <em>Picea
+polita</em>. <code><a href="../reference/taxify_ids.html">taxify_ids()</a></code> lists every candidate of a row
+with its name, author and status, as shown in <a href="gbif-requests.html">Requesting GBIF data for a species
+list</a>.</p>
 <p>A genus name can also be used in two kingdoms. <em>Prunella</em> is a
 bird genus (the accentors) and a plant genus (self-heal), and COL
 accepts both. Without further information the pick follows the lowest
@@ -401,8 +401,12 @@ in a fallback chain it goes on to the next backbone.</p>
 <div class="section level2">
 <h2 id="synonyms-and-basionyms">Synonyms and basionyms<a class="anchor" aria-label="anchor" href="#synonyms-and-basionyms"></a>
 </h2>
-<p>A synonym row carries the accepted name its record points to, with
-<code>is_synonym = TRUE</code>:</p>
+<p>A name list often contains names a backbone treats as synonyms, and
+such a row carries the accepted name its record points to, with
+<code>is_synonym = TRUE</code>. When a name has both a synonym record
+and an unplaced record, the synonym is picked if it shares its type with
+its accepted name: the accepted name keeps the synonym’s final epithet
+and names its author in parentheses.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">syn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Lycopsis orientalis"</span>, <span class="st">"Pinus sylvestris"</span><span class="op">)</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>,</span>
 <span>              verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -414,13 +418,9 @@ in a fallback chain it goes on to the next backbone.</p>
 <span><span class="co">#&gt; 1          SYNONYM</span></span>
 <span><span class="co">#&gt; 2         ACCEPTED</span></span>
 <span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
-<p>When a name has both a synonym record and an unplaced record, the
-synonym is picked if it shares its type with its accepted name: the
-accepted name keeps the synonym’s final epithet and names its author in
-parentheses. <em>Lycopsis orientalis</em> L. is such a synonym of
-<em>Anchusa arvensis</em> subsp. <em>orientalis</em> (L.) Nordh., and it
-is picked over the unplaced <em>Lycopsis orientalis</em> of another
-author.</p>
+<p><em>Lycopsis orientalis</em> L. is such a synonym of <em>Anchusa
+arvensis</em> subsp. <em>orientalis</em> (L.) Nordh., and it is picked
+over the unplaced <em>Lycopsis orientalis</em> of another author.</p>
 <p>The last stage handles a name that matched only an unplaced record.
 When that record names the name it was based on (its basionym), and the
 basionym is placed in the backbone, the row takes the basionym’s
@@ -431,7 +431,8 @@ columns still describe the record that was matched.</p>
 <h2 id="infraspecific-names">Infraspecific names<a class="anchor" aria-label="anchor" href="#infraspecific-names"></a>
 </h2>
 <p>A subspecies or variety that a backbone holds matches as written. One
-that no backbone holds resolves to its species in the last stage:</p>
+that no backbone holds resolves to its species in the
+<code>rank_fallback</code> stage:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">infra</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur ssp. robur"</span>, <span class="st">"Quercus robur subsp. imaginaria"</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">infra</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -444,15 +445,20 @@ that no backbone holds resolves to its species in the last stage:</p>
 <span><span class="co">#&gt; 2    species</span></span>
 <span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
 <p><code>ssp.</code> is read as <code>subsp.</code>, so the first name
-matches exactly. The invented subspecies resolves to <em>Quercus
-robur</em> with <code>match_type = "rank_fallback"</code>;
-<code>rank</code> is the rank of the matched record.</p>
+matches exactly. <code>rank</code> is the rank of the matched record, so
+the fallback row shows <code>species</code> although the input named a
+subspecies.</p>
 </div>
 <div class="section level2">
 <h2 id="names-no-backbone-matches">Names no backbone matches<a class="anchor" aria-label="anchor" href="#names-no-backbone-matches"></a>
 </h2>
 <p>A name that reaches no record has <code>match_type = "none"</code> or
-<code>"out_of_scope"</code>:</p>
+<code>"out_of_scope"</code>. The genus register decides between the two:
+an index of the genera in all
+<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
+backbones, each with its kingdom, family and life form, built over a
+fixed set of backbones and downloaded like a backbone, so every machine
+reports the same labels.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">un</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Blorbus maximus"</span>, <span class="st">"Carcinus maenas"</span><span class="op">)</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>,</span>
 <span>             verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -461,18 +467,13 @@ robur</em> with <code>match_type = "rank_fallback"</code>;
 <span><span class="co">#&gt; 1 Blorbus maximus         none      &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 2 Carcinus maenas out_of_scope    animal</span></span>
 <span><span class="co">#&gt; Sources: WFO | cite() for full citations</span></span></code></pre></div>
-<p>The genus register decides between the two. It is an index of the
-genera in all
-<!-- manifest:backbone-count -->19<!-- /manifest:backbone-count -->
-backbones, each with its kingdom, family and life form, built over a
-fixed set of backbones and downloaded like a backbone, so every machine
-reports the same labels. <em>Blorbus</em> is in no backbone, so the row
-is <code>none</code>: the name may be misspelt or invented.
-<em>Carcinus</em> is a crab genus held by other backbones but not by
-WFO, so the row is <code>out_of_scope</code> and is not compared by
-fuzzy matching. The register also fills <code>kingdom_group</code>,
-<code>taxon_group</code> and <code>life_form</code> on every matched
-row, whichever backbone matched it. <a href="backbones.html#checking-names-outside-a-backbone">Choosing and
+<p><em>Blorbus</em> is in no backbone, so the row is <code>none</code>:
+the name may be misspelt or invented. <em>Carcinus</em> is a crab genus
+held by other backbones but not by WFO, so the row is
+<code>out_of_scope</code> and is not compared by fuzzy matching. The
+register also fills <code>kingdom_group</code>, <code>taxon_group</code>
+and <code>life_form</code> on every matched row, whichever backbone
+matched it. <a href="backbones.html#checking-names-outside-a-backbone">Choosing and
 combining backbones</a> shows how to find a backbone that holds a
 genus.</p>
 </div>

@@ -136,7 +136,8 @@ list runs in a new R session, after one call that loads the backbone.
 The run recorded in <code>scripts/benchmark-scale-results.json</code>
 used taxify 0.7.0 and <a href="https://gillescolling.com/vectra/" class="external-link">vectra</a> 0.13.0 under R
 4.6.0, on Intel(R) Core(TM) i9-14900K with 32 logical cores, on
-2026-10-13:</p>
+2026-10-13. A misspelt name goes through fuzzy matching after every
+exact stage has missed it, so a list with misspellings takes longer:</p>
 <table class="table">
 <thead><tr class="header">
 <th align="right">Names</th>
@@ -162,9 +163,7 @@ used taxify 0.7.0 and <a href="https://gillescolling.com/vectra/" class="externa
 </tbody>
 </table>
 <p>Loading the backbone took about 2.1 s and is paid once per session;
-every later call reuses it. A misspelt name costs more than a correct
-one, because it goes through fuzzy matching after every exact stage has
-missed it.</p>
+every later call reuses it.</p>
 </div>
 <div class="section level2">
 <h2 id="lists-that-need-no-fuzzy-matching">Lists that need no fuzzy matching<a class="anchor" aria-label="anchor" href="#lists-that-need-no-fuzzy-matching"></a>
@@ -182,14 +181,21 @@ matching, and the names that find no exact match come back as
 <span><span class="co">#&gt; exact  none </span></span>
 <span><span class="co">#&gt;     5     1</span></span></code></pre></div>
 <p>For a list with some misspellings, the fuzzy stage can run on the
-unmatched names alone, and the results are joined back by input
-name:</p>
+unmatched names alone; its rows replace the <code>none</code> rows of
+the first result, matched by input name:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">missed</span> <span class="op">&lt;-</span> <span class="va">exact</span><span class="op">$</span><span class="va">input_name</span><span class="op">[</span><span class="va">exact</span><span class="op">$</span><span class="va">match_type</span> <span class="op">==</span> <span class="st">"none"</span><span class="op">]</span></span>
 <span><span class="va">second</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">missed</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">second</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"matched_name"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;        input_name    matched_name match_type</span></span>
-<span><span class="co">#&gt; 1 Qurecus petraea Quercus petraea      fuzzy</span></span>
+<span><span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">second</span><span class="op">$</span><span class="va">input_name</span>, <span class="va">exact</span><span class="op">$</span><span class="va">input_name</span><span class="op">)</span></span>
+<span><span class="va">exact</span><span class="op">[</span><span class="va">rows</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">second</span></span>
+<span><span class="va">exact</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"matched_name"</span>, <span class="st">"match_type"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;            input_name        matched_name match_type</span></span>
+<span><span class="co">#&gt; 1       Quercus robur       Quercus robur      exact</span></span>
+<span><span class="co">#&gt; 2     Fagus sylvatica     Fagus sylvatica      exact</span></span>
+<span><span class="co">#&gt; 3      Betula pendula      Betula pendula      exact</span></span>
+<span><span class="co">#&gt; 4    Pinus sylvestris    Pinus sylvestris      exact</span></span>
+<span><span class="co">#&gt; 5 Acer pseudoplatanus Acer pseudoplatanus      exact</span></span>
+<span><span class="co">#&gt; 6     Qurecus petraea     Quercus petraea      fuzzy</span></span>
 <span><span class="co">#&gt; Sources: WFO 2026.06 | cite() for full citations</span></span></code></pre></div>
 <p>The backbone stays loaded between the two calls, so the second one
 does not load it again.</p>
@@ -269,8 +275,12 @@ process, including what the backbone occupies outside R’s own objects,
 which <code><a href="https://rdrr.io/r/base/gc.html" class="external-link">gc()</a></code> does not report. Each stage runs in a new
 session. The run recorded in
 <code>scripts/benchmark-memory-results.json</code> used taxify 0.7.0
-under R 4.6.0 on 2026-10-13, matching 5,000 names; values are megabytes
-above an R session with taxify loaded:</p>
+under R 4.6.0 on 2026-10-13, matching 5,000 names. <code>File</code> is
+the size on disk of the backbone that run read, in megabytes of 10^6
+bytes, so it differs from the sizes <code><a href="../reference/list_backbones.html">list_backbones()</a></code>
+reports from the manifest. The other values are megabytes above an R
+session with taxify loaded; the fuzzy column is the case in which every
+name needs fuzzy matching:</p>
 <table class="table">
 <thead><tr class="header">
 <th align="left">Backbone</th>
@@ -303,11 +313,10 @@ above an R session with taxify loaded:</p>
 </tr>
 </tbody>
 </table>
-<p>A loaded backbone takes two to three times its file size, for its
-indexes and its text, and stays loaded for the session. Fuzzy matching
-adds a working buffer that grows with the number of unmatched names, and
-is released after each call; the fuzzy column is the case in which every
-name needs it.</p>
+<p>A loaded backbone takes between 1.9 and 2.6 times its file size here,
+for its indexes and its text, and stays loaded for the session. Fuzzy
+matching adds a working buffer that grows with the number of unmatched
+names, and is released after each call.</p>
 <p><code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code> releases the loaded backbones, for
 example before fitting a model on the matched result. The files stay on
 disk, and the next call loads them again.</p>

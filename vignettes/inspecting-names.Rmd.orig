@@ -30,7 +30,7 @@ library(taxify)
 
 ## Checks without matching
 
-The list below is a plant list with four problems: an animal, a genus that does not exist, a name written with one extra letter, and an old synonym.
+A list straight from field sheets can be screened before anything is matched. Without matching, `inspect()` checks each genus against the genus register, an index of the genera of every backbone, and compares each name with the rest of the list. The list below is a plant list with four problems: an animal, a genus that does not exist, a name written with one extra letter, and an old synonym.
 
 ```{r list}
 plants <- c(
@@ -40,18 +40,18 @@ plants <- c(
 inspect(plants)
 ```
 
-Without matching, `inspect()` runs the checks that need only the genus register, an index of the genera of every backbone, and the list itself. Three names stand out. *Xyzzia* is in no backbone. *Festuca rubraa* is one letter from *Festuca rubra*, which appears twice in the list, so it is likely a slip of that name. *Panthera leo* is the only animal in a list of plants. *Pinus abies* is a well-formed name of a real genus and passes these checks; its synonymy shows only when it is matched.
+*Festuca rubraa* is flagged because the correct spelling occurs twice in the same list. *Pinus abies* is a well-formed name of a real genus and passes these checks; its synonymy shows only when it is matched.
 
 ## Checks on matched names
 
-`backbones = TRUE` matches the names against every installed backbone, in the order of the default fallback chain of `taxify()`, and adds the checks that read the match:
+Some problems, such as an outdated synonym, show only once a name is matched. `backbones = TRUE` matches the names against every installed backbone, in the order of the default fallback chain of `taxify()`, and adds the checks that read the match:
 
 ```{r matched}
 report <- inspect(plants, backbones = TRUE, verbose = FALSE)
 report
 ```
 
-*Pinus abies* is now recognised as a synonym of *Picea abies*, and as a name with more than one accepted taxon behind it. *Festuca rubraa* carries the label of the fuzzy match as well as the list check. *Panthera leo* matches a backbone, so it is reported only as the animal in a plant list. The header names the backbones used.
+*Pinus abies* is now recognised as a synonym of *Picea abies*, and as a name with more than one accepted taxon behind it. *Festuca rubraa* carries the label of the fuzzy match as well as the list check. *Panthera leo* matches a backbone, so it is reported only as the animal in a plant list.
 
 A list that is already matched is passed to `inspect()` directly, which keeps the backbones and options of that call:
 
@@ -90,7 +90,7 @@ The `tier` names the action a row needs. `unresolved` means no usable name came 
 
 ## Checks against a region
 
-A species far from the study region is worth a second look even when its name is correct. With a declared `region`, `inspect()` reports matched species with no record there in the World Checklist of Vascular Plants (WCVP):
+A species far from the study region is worth a second look even when its name is correct. The list `alpine` holds two European mountain plants and one Australian shrub. With a declared `region`, `inspect()` reports matched species with no record there in the World Checklist of Vascular Plants (WCVP):
 
 ```{r region}
 alpine <- c("Gentiana lutea", "Primula veris", "Banksia serrata")
@@ -104,24 +104,38 @@ Without a declared region, `out_of_range` compares each species with the rest of
 
 ## Using the report
 
-The report is a data frame with the columns `input_name`, `suggestion`, `anomalies`, `tier`, `reason`, `fuzzy_dist` and `backbone`. `min_tier` drops the lower tiers:
+A report is used to decide what to change. It is a data frame with the columns `input_name`, `suggestion`, `anomalies`, `tier`, `reason`, `fuzzy_dist` and `backbone`. `min_tier` drops the lower tiers:
 
 ```{r min-tier}
 inspect(plants, backbones = TRUE, min_tier = "review", verbose = FALSE)
 ```
 
-`tier` is an ordered factor, so `report[report$tier >= "review", ]` selects the same rows from an existing report. The suggestions can replace the input names before the list is matched again:
+Nothing is dropped here: the one `note` label, `synonym` on *Pinus abies*, sits beside the `review` label `ambiguous`, and a row takes its highest tier. `tier` is an ordered factor, so `report[report$tier >= "review", ]` selects the same rows from an existing report. The suggestions can replace the input names before the list is matched again:
 
 ```{r fixes}
 fixes <- report[!is.na(report$suggestion), c("input_name", "suggestion")]
 fixes
 ```
 
+*Panthera leo* keeps its own name as the suggestion: the outlier check questions whether it belongs in the list, not how it is spelt.
+
 The checks that compare a name with the rest of the list need more than one name; `inspect()` on a single name warns and runs only the others. A check that could not run, such as the region check without the WCVP range data, is named on a `not checked` line in the header, so an empty report always means that the checks that ran found nothing.
 
 ## Comparing a checklist with a backbone
 
-A checklist compiled years ago follows an older treatment. `reconcile()` reports for each name whether the backbone still accepts it, and which names now fall together:
+A checklist compiled years ago follows an older treatment. `reconcile()` reports for each name whether the backbone still accepts it, as one `status`, and which names now fall together:
+
+- `unchanged`: the backbone accepts the name.
+
+- `synonym`: the backbone treats it as a synonym.
+
+- `misspelling`: matched only by fuzzy matching.
+
+- `ambiguous`: a synonym with more than one accepted taxon.
+
+- `unresolved`: no match.
+
+The checklist below holds a synonym and its accepted name, a misspelling and a genus name:
 
 ```{r reconcile}
 checklist <- c(
@@ -132,7 +146,7 @@ rec <- reconcile(checklist, backbone = "col")
 rec[, c("input_name", "accepted_name", "status", "merged_with")]
 ```
 
-`status` is `unchanged` for a name the backbone accepts, `synonym` for one it treats as a synonym, `misspelling` for one matched by fuzzy matching, `ambiguous` for a synonym with more than one accepted taxon, and `unresolved` for a name with no match. *Pinus abies* and *Picea abies* now name the same species, so each lists the other in `merged_with`. *Prunella* is the accepted name of two genera and stays `unchanged`; `n_ids` (not shown) counts them.
+*Pinus abies* and *Picea abies* now name the same species, so each lists the other in `merged_with`. *Prunella* is the accepted name of two genera and stays `unchanged`; `n_ids` (not shown) counts them.
 
 ## Where next
 

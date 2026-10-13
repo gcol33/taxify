@@ -60,13 +60,13 @@ taxify_ids(abs, verbose = FALSE)[
 
 ## What a request covers
 
-`dry_run = TRUE` returns the keys a request would send, and the message estimates the number of records from the counts above, without contacting GBIF:
+By default (`keys = "taxon"`) a request covers the `pick` and `same_name` keys and leaves out `other_taxon` keys. `dry_run = TRUE` returns the keys a request would send, and the message estimates the number of records from the counts above, without contacting GBIF:
 
 ```{r dry-run}
 gbif_request(matched, dry_run = TRUE)
 ```
 
-By default (`keys = "taxon"`) the request covers the `pick` and `same_name` keys and leaves out `other_taxon` keys. `keys = "pick"` sends only the picked key of each name, and `keys = "all"` adds the other taxa:
+`keys = "pick"` sends only the picked key of each name, and `keys = "all"` adds the other taxa:
 
 ```{r pick}
 gbif_request(matched, keys = "pick", dry_run = TRUE)
@@ -83,7 +83,7 @@ default <- taxify(spp, verbose = FALSE)
 gbif_request(default, dry_run = TRUE)
 ```
 
-The request is the same as from the GBIF match, and the message names the other-taxon keys it leaves out: COL XR lists *Pinus sylvestris* and *Quercus robur* as synonyms of other species under other authors. A row whose backbone records no GBIF key is matched again against GBIF by its accepted name. `attr(x, "taxa")$key_source` records where each key came from (`backbone`, `crosswalk` or `rematch`).
+The request is the same as from the GBIF match, and the message counts the other-taxon keys it leaves out and names the input names they belong to: COL XR lists *Pinus sylvestris* and *Quercus robur* as synonyms of other species under other authors. A row whose backbone records no GBIF key is matched again against GBIF by its accepted name. `attr(x, "taxa")$key_source` records where each key came from (`backbone`, `crosswalk` or `rematch`).
 
 ## Setting up rgbif
 

@@ -57,13 +57,15 @@ The thistle now matches *Cirsium acaulon*, at a larger distance that is still wi
 
 ## How the region filter decides
 
-For each name, the fuzzy candidates are looked up in the range data of the region, and a candidate outside the region is dropped when another candidate is inside it. Three rules follow:
+When a region changes a match, as it did for the thistle, one rule decides it. For each name, the fuzzy candidates are looked up in the range data of the region, and a candidate outside the region is dropped when another candidate is inside it. Three rules follow:
 
 - Exact matches, including those with capitals ignored, are never filtered.
 
-- A candidate with no range data is kept. WCVP covers vascular plants and WoRMS marine species; a name outside both is matched as without a region, so a list of several groups can carry a region.
+- A candidate with no range data is kept.
 
 - When every candidate of a name lies outside the region, all are kept.
+
+WCVP covers vascular plants and WoRMS marine species; a name outside both is matched as without a region, so a list of several groups can carry a region.
 
 ## Naming the region
 
@@ -86,7 +88,7 @@ x <- taxify("Cirsium acule", backbone = "wcvp", region = "GRE",
 #> codes and names.
 ```
 
-Greece is `GRC`, not `GRE`. The number of country-level regions in each continent:
+Greece is `GRC`, not `GRE`. With no search term, `taxify_regions()` returns every region `region` accepts; the table counts the country-level regions in each continent:
 
 
 ``` r
@@ -119,7 +121,7 @@ brussels[, c("input_name", "matched_name")]
 #> Sources: WCVP 2026.08 | cite() for full citations
 ```
 
-A two-column matrix or data frame of points works too, as do an sf object and a terra `SpatVector`, which are reprojected to longitude and latitude. Points and a region name can be combined. The boundary file is downloaded once. The point-in-polygon test uses terra or sf when one is installed and its own code otherwise; `options(taxify.pip_engine = "terra")`, `"sf"` or `"native"` chooses.
+The Brussels point lies in Belgium, so the thistle resolves to *Cirsium acaulon*, as it did with `region = "Europe"`. A two-column matrix or data frame of points works too, as do an sf object and a terra `SpatVector`, which are reprojected to longitude and latitude. Points and a region name can be combined. The WGSRPD boundary polygons that place a point are downloaded once. The point-in-polygon test uses terra or sf when one is installed and its own code otherwise; `options(taxify.pip_engine = "terra")`, `"sf"` or `"native"` chooses.
 
 ## Native or introduced records
 
@@ -153,7 +155,7 @@ head(taxify_regions("Temperate Northern Atlantic", scheme = "meow"))
 #> 6 Temperate Northern Atlantic   meow
 ```
 
-A point at sea is placed in the MEOW ecoregion that contains it, as well as in a WGSRPD region on land, so one `coords` argument serves a list of plants and marine animals. MEOW covers coastal and shelf waters; a point over the deep ocean lies in no ecoregion and leaves marine names unconstrained. A WoRMS distribution record is as precise as the locality it was recorded against, which ranges from a bay to an ocean basin.
+Searching the realm name returns its ecoregions, with the province in `level2_name`, so `region = "Temperate Northern Atlantic"` covers all of them. A point at sea is placed in the MEOW ecoregion that contains it, as well as in a WGSRPD region on land, so one `coords` argument serves a list of plants and marine animals. MEOW covers coastal and shelf waters; a point over the deep ocean lies in no ecoregion and leaves marine names unconstrained. A WoRMS distribution record is as precise as the locality it was recorded against, which ranges from a bay to an ocean basin.
 
 ## Where next
 

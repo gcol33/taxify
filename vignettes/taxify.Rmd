@@ -9,7 +9,7 @@ vignette: >
 
 
 
-This article resolves a short list of plant names to accepted names, joins a trait table and two published datasets onto the result, and records which backbone versions produced it. It assumes basic R and data frames. At the end you have a data frame with one row per input name, its accepted name, how it was matched, and the attached traits.
+This article resolves a short list of plant names to accepted names, joins a trait table and two published datasets onto the result, and records which backbone versions produced it. It assumes basic R and data frames. At the end you have a data frame with one row per name you kept, its accepted name, how it was matched, and the attached traits.
 
 1. **Match** the names with `taxify()`.
 
@@ -69,17 +69,19 @@ res[, c("input_name", "accepted_name", "match_type", "is_synonym",
 
 `taxify()` returns one row per input name, in input order, with `input_name` unchanged. `accepted_name` is the name the backbone currently accepts for the taxon, and `match_type` says how the input reached it:
 
-- `exact`: the cleaned name equals a backbone name. Cleaning removed the author from `Quercus robur L.` and the qualifier from `cf. Betula pendula`; the qualifier is kept in the `qualifier` column.
+- `exact`: the cleaned name equals a backbone name (`Quercus robur L.`, `cf. Betula pendula`).
 
 - `exact_ci`: equal after ignoring capitalisation (`FAGUS SYLVATICA`).
 
 - `abbrev`: the genus initial and the epithet identify one species (`Q. petraea`).
 
-- `fuzzy`: no exact match, so the name was compared with backbone names of the same genus, and the closest one within the threshold was taken. `fuzzy_dist` is the edit distance divided by the name length: one changed letter in `Quercus robus` gives 0.077.
+- `fuzzy`: the closest backbone name of the same genus within the threshold (`Quercus robus`).
 
-`Pinus abies` and `Fallopia japonica` are synonyms: the backbone holds them, and points from them to the accepted names *Picea abies* and *Reynoutria japonica*. `is_synonym` is `TRUE` on those rows.
+Cleaning removes authors and qualifiers before matching; the qualifier is kept in the `qualifier` column. `fuzzy_dist` is the edit distance divided by the name length: one changed letter in `Quercus robus` gives 0.077.
 
-`Quercus fantasia` exists in no backbone. Its epithet is close enough to a real name, *Quercus matasii*, to fall within the default fuzzy threshold, and that name is itself a synonym, so the row ends at *Quercus glauca*. A fuzzy match is a candidate to check, and the next section finds it.
+`Pinus abies` and `Fallopia japonica` are synonyms: the backbone holds them, and points from them to the accepted names *Picea abies* and *Reynoutria japonica*.
+
+`Quercus fantasia` exists in no backbone. Its epithet is close enough to a real name, *Quercus matasii*, to fall within the default fuzzy threshold, and that name is itself a synonym, so the row ends at *Quercus glauca*. A fuzzy match is a candidate to check, and `inspect()` flags it in [Checking the matches](#checking-the-matches).
 
 The warning names the input that matched a spelling with more than one accepted taxon behind it. The pick is in `accepted_name` and `accepted_id`; `n_ids` counts the candidates and `accepted_ids` lists them.
 
@@ -103,6 +105,8 @@ taxify(survey)
 #> ! x must be a character vector
 ```
 
+Passing the column instead of the data frame matches both names:
+
 
 ``` r
 taxify(survey$species, verbose = FALSE)[, c("input_name", "accepted_name")]
@@ -121,6 +125,8 @@ taxify("Quercus robur", backbone = "catalogue of life")
 #> ! Unknown backbone 'catalogue of life'. Available: wfo, col, colxr, gbif, itis, ncbi, ott, worms, euromed, fungorum, algaebase, fishbase, sealifebase, reptiledb, lcvp, wcvp, mdd, avilist, lpsn, evc, vegcz
 ```
 
+With a name from that list, the call runs:
+
 
 ``` r
 taxify("Quercus robur", backbone = "col", verbose = FALSE)[
@@ -132,7 +138,7 @@ taxify("Quercus robur", backbone = "col", verbose = FALSE)[
 
 ## Checking the matches
 
-`summary()` counts how the batch resolved and names the backbone version.
+Before analysing `res`, look at the matches that were not exact. `summary()` counts how the batch resolved and names the backbone version.
 
 
 ``` r
@@ -223,11 +229,11 @@ with_height[, c("input_name", "accepted_name", "height_m")]
 #> Sources: COL 2026.09 | cite() for full citations
 ```
 
-`add_data()` reports the backbones it matched the table's names against, how many rows of `kept` received a value, and how many of the table's names found no match. A row of `kept` with no counterpart in the file gets `NA`. For your own file, only the path and `species_col` change; `.tsv`, `.xlsx` and data frames are read the same way, as described in [Joining your own data](custom-data.html).
+The *Fallopia japonica* row of the file joined onto *Reynoutria japonica* in `kept`, because both sides were matched to the accepted name first. A row of `kept` with no counterpart in the file gets `NA`. For your own file, only the path and `species_col` change; `.tsv`, `.xlsx` and data frames are read the same way, as described in [Joining your own data](custom-data.html).
 
 ## Joining published data
 
-Each published dataset taxify can attach has its own function, named after its source. `add_zanne()` adds the woodiness compiled by Zanne et al. ([2014](https://doi.org/10.1038/nature12872)), and `add_eive()` the Ecological Indicator Values for Europe (EIVE, Dengler et al. [2023](https://doi.org/10.3897/VCS.98324)). Both join on the accepted name the same way `add_data()` does, and each is downloaded on first use.
+Traits you did not measure can come from published datasets. Each one taxify can attach has its own function, named after its source. `add_zanne()` adds the woodiness compiled by Zanne et al. ([2014](https://doi.org/10.1038/nature12872)), and `add_eive()` the Ecological Indicator Values for Europe (EIVE, Dengler et al. [2023](https://doi.org/10.3897/VCS.98324)). Both join on the accepted name the same way `add_data()` does, and each is downloaded on first use.
 
 
 ``` r
@@ -251,7 +257,7 @@ The message of each function says how many of the source's columns were attached
 
 ## Recording what was used
 
-Every row carries the backbone that matched it and that backbone's version.
+A methods section, and a rerun on another machine, both need the data versions behind a result. Every row carries the backbone that matched it and that backbone's version.
 
 
 ``` r
@@ -273,6 +279,8 @@ cite(traits)
 #>   [4] Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al. (2023). Ecological Indicator Values for Europe (EIVE) 1.0. Vegetation Classification and Survey 4:7-29. doi:10.3897/VCS.98324
 #>   ────────────────────────────────────────────────────────────
 ```
+
+`taxify_lock()` writes the versions to a file; `content_id` is each file's checksum:
 
 
 ``` r
@@ -317,7 +325,7 @@ writeLines(readLines(lock))
 
 ## Where next
 
-- [Choosing and combining backbones](backbones.html): the nineteen backbones, fallback chains, downloads and version pinning.
+- [Choosing and combining backbones](backbones.html): the 19 backbones of taxa, fallback chains, downloads and version pinning.
 
 - [Checking a name list](inspecting-names.html): every label `inspect()` reports, and `reconcile()` for a checklist.
 

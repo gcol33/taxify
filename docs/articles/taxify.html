@@ -112,7 +112,7 @@
 <p>This article resolves a short list of plant names to accepted names,
 joins a trait table and two published datasets onto the result, and
 records which backbone versions produced it. It assumes basic R and data
-frames. At the end you have a data frame with one row per input name,
+frames. At the end you have a data frame with one row per name you kept,
 its accepted name, how it was matched, and the attached traits.</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Match</strong> the names with
@@ -179,29 +179,28 @@ with <code>input_name</code> unchanged. <code>accepted_name</code> is
 the name the backbone currently accepts for the taxon, and
 <code>match_type</code> says how the input reached it:</p>
 <ul>
-<li><p><code>exact</code>: the cleaned name equals a backbone name.
-Cleaning removed the author from <code>Quercus robur L.</code> and the
-qualifier from <code>cf. Betula pendula</code>; the qualifier is kept in
-the <code>qualifier</code> column.</p></li>
+<li><p><code>exact</code>: the cleaned name equals a backbone name
+(<code>Quercus robur L.</code>,
+<code>cf. Betula pendula</code>).</p></li>
 <li><p><code>exact_ci</code>: equal after ignoring capitalisation
 (<code>FAGUS SYLVATICA</code>).</p></li>
 <li><p><code>abbrev</code>: the genus initial and the epithet identify
 one species (<code>Q. petraea</code>).</p></li>
-<li><p><code>fuzzy</code>: no exact match, so the name was compared with
-backbone names of the same genus, and the closest one within the
-threshold was taken. <code>fuzzy_dist</code> is the edit distance
-divided by the name length: one changed letter in
-<code>Quercus robus</code> gives 0.077.</p></li>
+<li><p><code>fuzzy</code>: the closest backbone name of the same genus
+within the threshold (<code>Quercus robus</code>).</p></li>
 </ul>
+<p>Cleaning removes authors and qualifiers before matching; the
+qualifier is kept in the <code>qualifier</code> column.
+<code>fuzzy_dist</code> is the edit distance divided by the name length:
+one changed letter in <code>Quercus robus</code> gives 0.077.</p>
 <p><code>Pinus abies</code> and <code>Fallopia japonica</code> are
 synonyms: the backbone holds them, and points from them to the accepted
-names <em>Picea abies</em> and <em>Reynoutria japonica</em>.
-<code>is_synonym</code> is <code>TRUE</code> on those rows.</p>
+names <em>Picea abies</em> and <em>Reynoutria japonica</em>.</p>
 <p><code>Quercus fantasia</code> exists in no backbone. Its epithet is
 close enough to a real name, <em>Quercus matasii</em>, to fall within
 the default fuzzy threshold, and that name is itself a synonym, so the
 row ends at <em>Quercus glauca</em>. A fuzzy match is a candidate to
-check, and the next section finds it.</p>
+check, and <code><a href="../reference/inspect.html">inspect()</a></code> flags it in <a href="#checking-the-matches">Checking the matches</a>.</p>
 <p>The warning names the input that matched a spelling with more than
 one accepted taxon behind it. The pick is in <code>accepted_name</code>
 and <code>accepted_id</code>; <code>n_ids</code> counts the candidates
@@ -222,6 +221,7 @@ takes a character vector of names, such as that column:</p>
 <span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error:</span></span>
 <span><span class="co">#&gt; ! x must be a character vector</span></span></code></pre></div>
+<p>Passing the column instead of the data frame matches both names:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">survey</span><span class="op">$</span><span class="va">species</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;        input_name   accepted_name</span></span>
@@ -234,6 +234,7 @@ reports. A misspelt one stops with the list of valid names:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"catalogue of life"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error:</span></span>
 <span><span class="co">#&gt; ! Unknown backbone 'catalogue of life'. Available: wfo, col, colxr, gbif, itis, ncbi, ott, worms, euromed, fungorum, algaebase, fishbase, sealifebase, reptiledb, lcvp, wcvp, mdd, avilist, lpsn, evc, vegcz</span></span></code></pre></div>
+<p>With a name from that list, the call runs:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span></span>
 <span>  , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"accepted_name"</span>, <span class="st">"backbone"</span><span class="op">)</span><span class="op">]</span></span>
@@ -244,8 +245,9 @@ reports. A misspelt one stops with the list of valid names:</p>
 <div class="section level2">
 <h2 id="checking-the-matches">Checking the matches<a class="anchor" aria-label="anchor" href="#checking-the-matches"></a>
 </h2>
-<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> counts how the batch resolved and names the
-backbone version.</p>
+<p>Before analysing <code>res</code>, look at the matches that were not
+exact. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> counts how the batch resolved and names
+the backbone version.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify results ────────────────────────────────────────────────────────────</span></span>
@@ -332,20 +334,20 @@ and joins on the accepted name:</p>
 <span><span class="co">#&gt; 7  Fallopia japonica Reynoutria japonica        3</span></span>
 <span><span class="co">#&gt; 8     Festuca rubrra       Festuca rubra       NA</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
-<p><code><a href="../reference/add_data.html">add_data()</a></code> reports the backbones it matched the table’s
-names against, how many rows of <code>kept</code> received a value, and
-how many of the table’s names found no match. A row of <code>kept</code>
-with no counterpart in the file gets <code>NA</code>. For your own file,
-only the path and <code>species_col</code> change; <code>.tsv</code>,
+<p>The <em>Fallopia japonica</em> row of the file joined onto
+<em>Reynoutria japonica</em> in <code>kept</code>, because both sides
+were matched to the accepted name first. A row of <code>kept</code> with
+no counterpart in the file gets <code>NA</code>. For your own file, only
+the path and <code>species_col</code> change; <code>.tsv</code>,
 <code>.xlsx</code> and data frames are read the same way, as described
 in <a href="custom-data.html">Joining your own data</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="joining-published-data">Joining published data<a class="anchor" aria-label="anchor" href="#joining-published-data"></a>
 </h2>
-<p>Each published dataset taxify can attach has its own function, named
-after its source. <code><a href="../reference/add_zanne.html">add_zanne()</a></code> adds the woodiness compiled
-by Zanne et al. (<a href="https://doi.org/10.1038/nature12872" class="external-link">2014</a>), and
+<p>Traits you did not measure can come from published datasets. Each one
+taxify can attach has its own function, named after its source.
+<code><a href="../reference/add_zanne.html">add_zanne()</a></code> adds the woodiness compiled by Zanne et al. (<a href="https://doi.org/10.1038/nature12872" class="external-link">2014</a>), and
 <code><a href="../reference/add_eive.html">add_eive()</a></code> the Ecological Indicator Values for Europe
 (EIVE, Dengler et al. <a href="https://doi.org/10.3897/VCS.98324" class="external-link">2023</a>). Both join on the
 accepted name the same way <code><a href="../reference/add_data.html">add_data()</a></code> does, and each is
@@ -375,8 +377,9 @@ data</a>.</p>
 <div class="section level2">
 <h2 id="recording-what-was-used">Recording what was used<a class="anchor" aria-label="anchor" href="#recording-what-was-used"></a>
 </h2>
-<p>Every row carries the backbone that matched it and that backbone’s
-version.</p>
+<p>A methods section, and a rerun on another machine, both need the data
+versions behind a result. Every row carries the backbone that matched it
+and that backbone’s version.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">traits</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"backbone"</span>, <span class="st">"backbone_version"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   backbone         backbone_version</span></span>
@@ -395,6 +398,8 @@ those exact versions.</p>
 <span><span class="co">#&gt;   [3] Zanne AE, Tank DC, Cornwell WK, Eastman JM, Smith SA, FitzJohn RG, McGlinn DJ, O'Meara BC, Moles AT, Reich PB, et al. (2014). Three keys to the radiation of angiosperms into freezing environments. Nature 506:89-92. doi:10.1038/nature12872</span></span>
 <span><span class="co">#&gt;   [4] Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al. (2023). Ecological Indicator Values for Europe (EIVE) 1.0. Vegetation Classification and Survey 4:7-29. doi:10.3897/VCS.98324</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span></code></pre></div>
+<p><code><a href="../reference/taxify_lock.html">taxify_lock()</a></code> writes the versions to a file;
+<code>content_id</code> is each file’s checksum:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lock</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".json"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/taxify_lock.html">taxify_lock</a></span><span class="op">(</span><span class="va">traits</span>, <span class="va">lock</span><span class="op">)</span></span>
@@ -439,7 +444,7 @@ those exact versions.</p>
 </h2>
 <ul>
 <li><p><a href="backbones.html">Choosing and combining backbones</a>:
-the nineteen backbones, fallback chains, downloads and version
+the 19 backbones of taxa, fallback chains, downloads and version
 pinning.</p></li>
 <li><p><a href="inspecting-names.html">Checking a name list</a>: every
 label <code><a href="../reference/inspect.html">inspect()</a></code> reports, and <code><a href="../reference/reconcile.html">reconcile()</a></code> for a

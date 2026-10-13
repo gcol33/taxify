@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -135,9 +135,12 @@ with <code><a href="../reference/reconcile.html">reconcile()</a></code>.</p></li
 <div class="section level2">
 <h2 id="checks-without-matching">Checks without matching<a class="anchor" aria-label="anchor" href="#checks-without-matching"></a>
 </h2>
-<p>The list below is a plant list with four problems: an animal, a genus
-that does not exist, a name written with one extra letter, and an old
-synonym.</p>
+<p>A list straight from field sheets can be screened before anything is
+matched. Without matching, <code><a href="../reference/inspect.html">inspect()</a></code> checks each genus
+against the genus register, an index of the genera of every backbone,
+and compares each name with the rest of the list. The list below is a
+plant list with four problems: an animal, a genus that does not exist, a
+name written with one extra letter, and an old synonym.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plants</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>, <span class="st">"Panthera leo"</span>, <span class="st">"Xyzzia fakensis"</span>, <span class="st">"Festuca rubra"</span>,</span>
@@ -152,19 +155,16 @@ synonym.</p>
 <span><span class="co">#&gt;   [unresolved] Xyzzia fakensis  -&gt;  ?              genus 'Xyzzia' is not in the taxonomic register</span></span>
 <span><span class="co">#&gt;   [review    ] Festuca rubraa   -&gt;  Festuca rubra  near-duplicate of more frequent 'Festuca rubra'</span></span>
 <span><span class="co">#&gt;   [review    ] Panthera leo     -&gt;  ?              animalia outlier (list is mostly plantae)</span></span></code></pre></div>
-<p>Without matching, <code><a href="../reference/inspect.html">inspect()</a></code> runs the checks that need
-only the genus register, an index of the genera of every backbone, and
-the list itself. Three names stand out. <em>Xyzzia</em> is in no
-backbone. <em>Festuca rubraa</em> is one letter from <em>Festuca
-rubra</em>, which appears twice in the list, so it is likely a slip of
-that name. <em>Panthera leo</em> is the only animal in a list of plants.
-<em>Pinus abies</em> is a well-formed name of a real genus and passes
-these checks; its synonymy shows only when it is matched.</p>
+<p><em>Festuca rubraa</em> is flagged because the correct spelling
+occurs twice in the same list. <em>Pinus abies</em> is a well-formed
+name of a real genus and passes these checks; its synonymy shows only
+when it is matched.</p>
 </div>
 <div class="section level2">
 <h2 id="checks-on-matched-names">Checks on matched names<a class="anchor" aria-label="anchor" href="#checks-on-matched-names"></a>
 </h2>
-<p><code>backbones = TRUE</code> matches the names against every
+<p>Some problems, such as an outdated synonym, show only once a name is
+matched. <code>backbones = TRUE</code> matches the names against every
 installed backbone, in the order of the default fallback chain of
 <code><a href="../reference/taxify.html">taxify()</a></code>, and adds the checks that read the match:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -183,8 +183,7 @@ installed backbone, in the order of the default fallback chain of
 abies</em>, and as a name with more than one accepted taxon behind it.
 <em>Festuca rubraa</em> carries the label of the fuzzy match as well as
 the list check. <em>Panthera leo</em> matches a backbone, so it is
-reported only as the animal in a plant list. The header names the
-backbones used.</p>
+reported only as the animal in a plant list.</p>
 <p>A list that is already matched is passed to <code><a href="../reference/inspect.html">inspect()</a></code>
 directly, which keeps the backbones and options of that call:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -238,9 +237,10 @@ such as one animal kept on purpose in a plant list.</p>
 <h2 id="checks-against-a-region">Checks against a region<a class="anchor" aria-label="anchor" href="#checks-against-a-region"></a>
 </h2>
 <p>A species far from the study region is worth a second look even when
-its name is correct. With a declared <code>region</code>,
-<code><a href="../reference/inspect.html">inspect()</a></code> reports matched species with no record there in
-the World Checklist of Vascular Plants (WCVP):</p>
+its name is correct. The list <code>alpine</code> holds two European
+mountain plants and one Australian shrub. With a declared
+<code>region</code>, <code><a href="../reference/inspect.html">inspect()</a></code> reports matched species with
+no record there in the World Checklist of Vascular Plants (WCVP):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">alpine</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gentiana lutea"</span>, <span class="st">"Primula veris"</span>, <span class="st">"Banksia serrata"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">alpine</span>, backbone <span class="op">=</span> <span class="st">"wcvp"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -264,10 +264,11 @@ reports nothing.</p>
 <div class="section level2">
 <h2 id="using-the-report">Using the report<a class="anchor" aria-label="anchor" href="#using-the-report"></a>
 </h2>
-<p>The report is a data frame with the columns <code>input_name</code>,
-<code>suggestion</code>, <code>anomalies</code>, <code>tier</code>,
-<code>reason</code>, <code>fuzzy_dist</code> and <code>backbone</code>.
-<code>min_tier</code> drops the lower tiers:</p>
+<p>A report is used to decide what to change. It is a data frame with
+the columns <code>input_name</code>, <code>suggestion</code>,
+<code>anomalies</code>, <code>tier</code>, <code>reason</code>,
+<code>fuzzy_dist</code> and <code>backbone</code>. <code>min_tier</code>
+drops the lower tiers:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">plants</span>, backbones <span class="op">=</span> <span class="cn">TRUE</span>, min_tier <span class="op">=</span> <span class="st">"review"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────────</span></span>
@@ -279,7 +280,10 @@ reports nothing.</p>
 <span><span class="co">#&gt;   [review    ] Festuca rubraa   -&gt;  Festuca rubra  likely misspelling; near-duplicate of more frequent 'Festuca rubra'</span></span>
 <span><span class="co">#&gt;   [review    ] Panthera leo     -&gt;  Panthera leo   animalia outlier (list is mostly plantae)</span></span>
 <span><span class="co">#&gt;   [review    ] Pinus abies      -&gt;  Picea abies    ambiguous (targets: 4HPZF|4HQ46|8K9Y|6BRMR|4HQ4F|4HQ48); outdated synonym</span></span></code></pre></div>
-<p><code>tier</code> is an ordered factor, so
+<p>Nothing is dropped here: the one <code>note</code> label,
+<code>synonym</code> on <em>Pinus abies</em>, sits beside the
+<code>review</code> label <code>ambiguous</code>, and a row takes its
+highest tier. <code>tier</code> is an ordered factor, so
 <code>report[report$tier &gt;= "review", ]</code> selects the same rows
 from an existing report. The suggestions can replace the input names
 before the list is matched again:</p>
@@ -290,6 +294,9 @@ before the list is matched again:</p>
 <span><span class="co">#&gt; 2 Festuca rubraa Festuca rubra</span></span>
 <span><span class="co">#&gt; 3   Panthera leo  Panthera leo</span></span>
 <span><span class="co">#&gt; 4    Pinus abies   Picea abies</span></span></code></pre></div>
+<p><em>Panthera leo</em> keeps its own name as the suggestion: the
+outlier check questions whether it belongs in the list, not how it is
+spelt.</p>
 <p>The checks that compare a name with the rest of the list need more
 than one name; <code><a href="../reference/inspect.html">inspect()</a></code> on a single name warns and runs
 only the others. A check that could not run, such as the region check
@@ -302,7 +309,20 @@ found nothing.</p>
 </h2>
 <p>A checklist compiled years ago follows an older treatment.
 <code><a href="../reference/reconcile.html">reconcile()</a></code> reports for each name whether the backbone
-still accepts it, and which names now fall together:</p>
+still accepts it, as one <code>status</code>, and which names now fall
+together:</p>
+<ul>
+<li><p><code>unchanged</code>: the backbone accepts the name.</p></li>
+<li><p><code>synonym</code>: the backbone treats it as a
+synonym.</p></li>
+<li><p><code>misspelling</code>: matched only by fuzzy
+matching.</p></li>
+<li><p><code>ambiguous</code>: a synonym with more than one accepted
+taxon.</p></li>
+<li><p><code>unresolved</code>: no match.</p></li>
+</ul>
+<p>The checklist below holds a synonym and its accepted name, a
+misspelling and a genus name:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">checklist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quercus robur"</span>, <span class="st">"Pinus abies"</span>, <span class="st">"Picea abies"</span>, <span class="st">"Festuca rubraa"</span>,</span>
@@ -318,15 +338,10 @@ still accepts it, and which names now fall together:</p>
 <span><span class="co">#&gt; 3    Picea abies   Picea abies   unchanged Pinus abies</span></span>
 <span><span class="co">#&gt; 4 Festuca rubraa Festuca rubra misspelling        &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 5       Prunella      Prunella   unchanged        &lt;NA&gt;</span></span></code></pre></div>
-<p><code>status</code> is <code>unchanged</code> for a name the backbone
-accepts, <code>synonym</code> for one it treats as a synonym,
-<code>misspelling</code> for one matched by fuzzy matching,
-<code>ambiguous</code> for a synonym with more than one accepted taxon,
-and <code>unresolved</code> for a name with no match. <em>Pinus
-abies</em> and <em>Picea abies</em> now name the same species, so each
-lists the other in <code>merged_with</code>. <em>Prunella</em> is the
-accepted name of two genera and stays <code>unchanged</code>;
-<code>n_ids</code> (not shown) counts them.</p>
+<p><em>Pinus abies</em> and <em>Picea abies</em> now name the same
+species, so each lists the other in <code>merged_with</code>.
+<em>Prunella</em> is the accepted name of two genera and stays
+<code>unchanged</code>; <code>n_ids</code> (not shown) counts them.</p>
 </div>
 <div class="section level2">
 <h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>

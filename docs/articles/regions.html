@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -167,19 +167,20 @@ are never filtered; <em>Primula elatour</em> matches the European
 <div class="section level2">
 <h2 id="how-the-region-filter-decides">How the region filter decides<a class="anchor" aria-label="anchor" href="#how-the-region-filter-decides"></a>
 </h2>
-<p>For each name, the fuzzy candidates are looked up in the range data
-of the region, and a candidate outside the region is dropped when
-another candidate is inside it. Three rules follow:</p>
+<p>When a region changes a match, as it did for the thistle, one rule
+decides it. For each name, the fuzzy candidates are looked up in the
+range data of the region, and a candidate outside the region is dropped
+when another candidate is inside it. Three rules follow:</p>
 <ul>
 <li><p>Exact matches, including those with capitals ignored, are never
 filtered.</p></li>
-<li><p>A candidate with no range data is kept. WCVP covers vascular
-plants and WoRMS marine species; a name outside both is matched as
-without a region, so a list of several groups can carry a
-region.</p></li>
+<li><p>A candidate with no range data is kept.</p></li>
 <li><p>When every candidate of a name lies outside the region, all are
 kept.</p></li>
 </ul>
+<p>WCVP covers vascular plants and WoRMS marine species; a name outside
+both is matched as without a region, so a list of several groups can
+carry a region.</p>
 </div>
 <div class="section level2">
 <h2 id="naming-the-region">Naming the region<a class="anchor" aria-label="anchor" href="#naming-the-region"></a>
@@ -203,8 +204,10 @@ it:</p>
 <span>            verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Unrecognized region(s) dropped: GRE. See taxify_regions() for valid</span></span>
 <span><span class="co">#&gt; codes and names.</span></span></code></pre></div>
-<p>Greece is <code>GRC</code>, not <code>GRE</code>. The number of
-country-level regions in each continent:</p>
+<p>Greece is <code>GRC</code>, not <code>GRE</code>. With no search
+term, <code><a href="../reference/taxify_regions.html">taxify_regions()</a></code> returns every region
+<code>region</code> accepts; the table counts the country-level regions
+in each continent:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wgsrpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify_regions.html">taxify_regions</a></span><span class="op">(</span>scheme <span class="op">=</span> <span class="st">"wgsrpd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">wgsrpd</span><span class="op">$</span><span class="va">level1_name</span><span class="op">)</span></span>
@@ -232,13 +235,15 @@ that order. Each point is placed in its WGSRPD region:</p>
 <span><span class="co">#&gt; 2 Gentiana acaulis Gentiana acaulis</span></span>
 <span><span class="co">#&gt; 3  Primula elatour  Primula elatior</span></span>
 <span><span class="co">#&gt; Sources: WCVP 2026.08 | cite() for full citations</span></span></code></pre></div>
-<p>A two-column matrix or data frame of points works too, as do an sf
+<p>The Brussels point lies in Belgium, so the thistle resolves to
+<em>Cirsium acaulon</em>, as it did with <code>region = "Europe"</code>.
+A two-column matrix or data frame of points works too, as do an sf
 object and a terra <code>SpatVector</code>, which are reprojected to
 longitude and latitude. Points and a region name can be combined. The
-boundary file is downloaded once. The point-in-polygon test uses terra
-or sf when one is installed and its own code otherwise;
-<code>options(taxify.pip_engine = "terra")</code>, <code>"sf"</code> or
-<code>"native"</code> chooses.</p>
+WGSRPD boundary polygons that place a point are downloaded once. The
+point-in-polygon test uses terra or sf when one is installed and its own
+code otherwise; <code>options(taxify.pip_engine = "terra")</code>,
+<code>"sf"</code> or <code>"native"</code> chooses.</p>
 </div>
 <div class="section level2">
 <h2 id="native-or-introduced-records">Native or introduced records<a class="anchor" aria-label="anchor" href="#native-or-introduced-records"></a>
@@ -276,8 +281,11 @@ realm stands for its ecoregions:</p>
 <span><span class="co">#&gt; 4 Temperate Northern Atlantic   meow</span></span>
 <span><span class="co">#&gt; 5 Temperate Northern Atlantic   meow</span></span>
 <span><span class="co">#&gt; 6 Temperate Northern Atlantic   meow</span></span></code></pre></div>
-<p>A point at sea is placed in the MEOW ecoregion that contains it, as
-well as in a WGSRPD region on land, so one <code>coords</code> argument
+<p>Searching the realm name returns its ecoregions, with the province in
+<code>level2_name</code>, so
+<code>region = "Temperate Northern Atlantic"</code> covers all of them.
+A point at sea is placed in the MEOW ecoregion that contains it, as well
+as in a WGSRPD region on land, so one <code>coords</code> argument
 serves a list of plants and marine animals. MEOW covers coastal and
 shelf waters; a point over the deep ocean lies in no ecoregion and
 leaves marine names unconstrained. A WoRMS distribution record is as

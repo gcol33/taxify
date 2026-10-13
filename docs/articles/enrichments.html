@@ -169,7 +169,6 @@ for the woodiness compiled by Zanne et al. (<a href="https://doi.org/10.1038/na
 <p><code><a href="../reference/add_zanne.html">add_zanne()</a></code> adds the woodiness of each species:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wood</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
-<span><span class="co">#&gt; add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").</span></span>
 <span><span class="va">wood</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"woodiness"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;              input_name  woodiness</span></span>
 <span><span class="co">#&gt; 1         Quercus robur      woody</span></span>
@@ -178,9 +177,8 @@ for the woodiness compiled by Zanne et al. (<a href="https://doi.org/10.1038/na
 <span><span class="co">#&gt; 4 Arrhenatherum elatius herbaceous</span></span>
 <span><span class="co">#&gt; 5   Plantago lanceolata herbaceous</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09, Zanne et al. 2014 2026.08 | cite() for full citations</span></span></code></pre></div>
-<p>The message says that one of the dataset’s two columns was attached.
-<code><a href="../reference/enrichment_cols.html">enrichment_cols()</a></code> lists them all, and <code>cols</code>
-chooses: a vector of names, or <code>"all"</code>:</p>
+<p><code><a href="../reference/enrichment_cols.html">enrichment_cols()</a></code> lists all of a dataset’s columns, and
+<code>cols</code> chooses: a vector of names, or <code>"all"</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enrichment_cols.html">enrichment_cols</a></span><span class="op">(</span><span class="st">"zanne"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            column      type</span></span>
@@ -193,7 +191,6 @@ chooses: a vector of names, or <code>"all"</code>:</p>
 they can be chained:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">both</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").</span></span>
 <span><span class="va">both</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"woodiness"</span>, <span class="st">"eive_light"</span>, <span class="st">"eive_moisture"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;           accepted_name  woodiness eive_light eive_moisture</span></span>
 <span><span class="co">#&gt; 1         Quercus robur      woody   6.241077      4.802554</span></span>
@@ -209,8 +206,9 @@ they can be chained:</p>
 <p>Some datasets hold a value for each country, region or language.
 Their function takes the place or language as an argument.
 <code><a href="../reference/add_griis.html">add_griis()</a></code> reads the Global Register of Introduced and
-Invasive Species (GRIIS) for countries given as two-letter ISO
-codes:</p>
+Invasive Species (GRIIS) for countries given as two-letter ISO codes.
+One code gives one column, <code>invasive_status</code>; several give a
+column each, with the code as suffix:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aliens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Robinia pseudoacacia"</span>, <span class="st">"Ailanthus altissima"</span>, <span class="st">"Impatiens glandulifera"</span>,</span>
@@ -218,7 +216,6 @@ codes:</p>
 <span><span class="op">)</span></span>
 <span><span class="va">al</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">aliens</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_griis.html">add_griis</a></span><span class="op">(</span><span class="va">al</span>, country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span>, <span class="st">"GB"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Tip: pipe into taxify_long() to reshape wide columns to long format.</span></span>
 <span><span class="va">gr</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"invasive_status_AT"</span>, <span class="st">"invasive_status_DE"</span>,</span>
 <span>       <span class="st">"invasive_status_GB"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;               input_name invasive_status_AT invasive_status_DE</span></span>
@@ -234,12 +231,10 @@ codes:</p>
 <span><span class="co">#&gt; 4           invasive</span></span>
 <span><span class="co">#&gt; 5               &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09, GRIIS 2026.08 | cite() for full citations</span></span></code></pre></div>
-<p>One code gives one column, <code>invasive_status</code>; several give
-a column each, with the code as suffix. <em>Quercus robur</em> is native
-in all three countries. GRIIS focuses on introduced and invasive
-species, so it has no record for the oak, and its rows are
-<code>NA</code>: an <code>NA</code> means that the dataset has no
-record, not that the species is native.
+<p><em>Quercus robur</em> is native in all three countries. GRIIS
+focuses on introduced and invasive species, so it has no record for the
+oak, and its rows are <code>NA</code>: an <code>NA</code> means that the
+dataset has no record, not that the species is native.
 <code>enrichment_groups("griis")</code> lists the codes, and
 <code>country = "all"</code> takes every country.</p>
 <p><code><a href="../reference/taxify_long.html">taxify_long()</a></code> turns the suffixed columns into rows, one
@@ -271,6 +266,8 @@ of the World Checklist of Vascular Plants (WCVP), coded as in <a href="regions.h
 <p><em>Nothofagus pumilio</em> is native to southern Argentina
 (<code>AGS</code>). The giant sequoia, native to California, is recorded
 in Germany as introduced.</p>
+<p><code><a href="../reference/add_common_names.html">add_common_names()</a></code> takes a language code and adds one
+name per species in that language:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_common_names.html">add_common_names</a></span><span class="op">(</span><span class="va">res</span>, lang <span class="op">=</span> <span class="st">"de"</span><span class="op">)</span></span>
 <span><span class="va">cn</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"common_name"</span><span class="op">)</span><span class="op">]</span></span>
@@ -300,26 +297,20 @@ has it and returns it in one unit and one vocabulary.
 <span><span class="co">#&gt; 14          longevity                          yr        11</span></span>
 <span><span class="co">#&gt; 16 clutch_litter_size offspring per clutch/litter        10</span></span>
 <span><span class="co">#&gt; 2           seed_mass                          mg         8</span></span></code></pre></div>
-<p>By default the sources are combined into one value per row, with
-columns for the unit, the sources used, their number, and the smallest
-and largest value:</p>
+<p>By default the sources are combined by their median into one value
+per row, with columns for the unit, the sources used, their number, and
+the smallest and largest value:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="va">res</span>, <span class="st">"seed_mass"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; add_trait('seed_mass'): diaz 5, gift 5, austraits 1, bien 5, brot 4, ecoflora 5, kew_sid 5, leda 5 (of 5 resolved names).</span></span>
-<span><span class="va">seed</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"seed_mass"</span>, <span class="st">"seed_mass_sources"</span>, <span class="st">"seed_mass_n"</span>,</span>
+<span><span class="va">seed</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"seed_mass"</span>, <span class="st">"seed_mass_unit"</span>, <span class="st">"seed_mass_n"</span>,</span>
 <span>         <span class="st">"seed_mass_min"</span>, <span class="st">"seed_mass_max"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;           accepted_name   seed_mass</span></span>
-<span><span class="co">#&gt; 1         Quercus robur 3489.136038</span></span>
-<span><span class="co">#&gt; 2       Fagus sylvatica  211.702128</span></span>
-<span><span class="co">#&gt; 3            Abies alba   55.100000</span></span>
-<span><span class="co">#&gt; 4 Arrhenatherum elatius    2.756200</span></span>
-<span><span class="co">#&gt; 5   Plantago lanceolata    1.393807</span></span>
-<span><span class="co">#&gt;                                     seed_mass_sources seed_mass_n seed_mass_min</span></span>
-<span><span class="co">#&gt; 1           diaz,gift,bien,brot,ecoflora,kew_sid,leda           7     1444.9500</span></span>
-<span><span class="co">#&gt; 2           diaz,gift,bien,brot,ecoflora,kew_sid,leda           7      127.5600</span></span>
-<span><span class="co">#&gt; 3           diaz,gift,bien,brot,ecoflora,kew_sid,leda           7       38.3608</span></span>
-<span><span class="co">#&gt; 4                diaz,gift,bien,ecoflora,kew_sid,leda           6        1.5984</span></span>
-<span><span class="co">#&gt; 5 diaz,gift,austraits,bien,brot,ecoflora,kew_sid,leda           8        0.2900</span></span>
+<span><span class="co">#&gt;           accepted_name   seed_mass seed_mass_unit seed_mass_n seed_mass_min</span></span>
+<span><span class="co">#&gt; 1         Quercus robur 3489.136038             mg           7     1444.9500</span></span>
+<span><span class="co">#&gt; 2       Fagus sylvatica  211.702128             mg           7      127.5600</span></span>
+<span><span class="co">#&gt; 3            Abies alba   55.100000             mg           7       38.3608</span></span>
+<span><span class="co">#&gt; 4 Arrhenatherum elatius    2.756200             mg           6        1.5984</span></span>
+<span><span class="co">#&gt; 5   Plantago lanceolata    1.393807             mg           8        0.2900</span></span>
 <span><span class="co">#&gt;   seed_mass_max</span></span>
 <span><span class="co">#&gt; 1     5000.0000</span></span>
 <span><span class="co">#&gt; 2      410.0000</span></span>
@@ -329,9 +320,8 @@ and largest value:</p>
 <span><span class="co">#&gt; Sources: COL 2026.09, Diaz et al. 2022 2026.08, GIFT (Weigelt et al. 2020) 2026.08, AusTraits (Falster et al. 2021) 2026.08, BIEN (Maitner et al. 2018) 2026.08, BROT 2.0 (Tavsanoglu &amp; Pausas 2018) 2026.08, Ecoflora (Fitter &amp; Peat 1994) 2026.08, Kew SID (RBG Kew) 2026.08, LEDA Traitbase (Kleyer et al. 2008) 2026.08 | cite() for full citations</span></span></code></pre></div>
 <p>A numeric trait is reported in one unit: GIFT records seed mass in
 grams and the data of Díaz et al. in milligrams, and both are converted
-to milligrams. Several sources measuring the same quantity are combined
-by their median. <code><a href="../reference/trait_info.html">trait_info()</a></code> lists the sources of a trait
-in their default order, the column each is read from and the conversion
+to milligrams. <code><a href="../reference/trait_info.html">trait_info()</a></code> lists the sources of a trait in
+their default order, the column each is read from and the conversion
 applied; the first two are shown here:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">info</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trait_info.html">trait_info</a></span><span class="op">(</span><span class="st">"seed_mass"</span><span class="op">)</span></span>
@@ -340,8 +330,9 @@ applied; the first two are shown here:</p>
 <span><span class="co">#&gt;   source              column                                        note</span></span>
 <span><span class="co">#&gt; 1   diaz        seed_mass_mg                                 Milligrams.</span></span>
 <span><span class="co">#&gt; 2   gift gift_seed_mass_mean GIFT grams converted to milligrams (x1000).</span></span></code></pre></div>
-<p><code>mode = "wide"</code> keeps one column per source, after the
-conversion:</p>
+<p><code>mode = "wide"</code> keeps one column per source, after each
+source’s units and terms are converted to one unit and one
+vocabulary:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="va">res</span>, <span class="st">"woodiness"</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; add_trait('woodiness'): zanne 5, gift 5, austraits 3, bien 5 (of 5 resolved names).</span></span>
@@ -394,8 +385,8 @@ as they record them.</p>
 <div class="section level2">
 <h2 id="coverage">Coverage<a class="anchor" aria-label="anchor" href="#coverage"></a>
 </h2>
-<p>A dataset covers a group of taxa, often a region, and never every
-species. A mixed list shows the pattern:</p>
+<p>Six species from six groups (an oak, a bird, a mammal, a toad, a
+fungus, a fish) each get one dataset per group:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Parus major"</span>, <span class="st">"Vulpes vulpes"</span>, <span class="st">"Bufo bufo"</span>,</span>
 <span>           <span class="st">"Amanita muscaria"</span>, <span class="st">"Salmo trutta"</span><span class="op">)</span></span>
@@ -432,18 +423,21 @@ species is not in the dataset, was described after it was compiled, or
 was recorded at another rank. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> counts the rows
 each dataset filled, with its version and licence:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">both</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mx</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify results ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   backbone: COL v2026.09  |  5 names submitted</span></span>
+<span><span class="co">#&gt;   backbone: COL v2026.09  |  6 names submitted</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   matched         5  (exact: 5, case-insensitive: 0, fuzzy: 0, abbrev: 0)</span></span>
-<span><span class="co">#&gt;   multiple ids    1  (more than one accepted ID; see taxify_ids())</span></span>
+<span><span class="co">#&gt;   matched         6  (exact: 6, case-insensitive: 0, fuzzy: 0, abbrev: 0)</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   taxon groups: angiosperm: 4  gymnosperm: 1</span></span>
+<span><span class="co">#&gt;   taxon groups: animal: 4  angiosperm: 1  fungus: 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   enrichments:</span></span>
-<span><span class="co">#&gt;     zanne  (Zanne et al. 2014 2026.08) — 5 of 5 matched [CC0]</span></span>
-<span><span class="co">#&gt;     eive   (EIVE 1.0 2026.08)          — 5 of 5 matched [CC BY 4.0]</span></span></code></pre></div>
+<span><span class="co">#&gt;     zanne          (Zanne et al. 2014 2026.08) — 1 of 6 matched [CC0]</span></span>
+<span><span class="co">#&gt;     avonet         (AVONET 2026.08)            — 1 of 6 matched [CC BY 4.0]</span></span>
+<span><span class="co">#&gt;     pantheria      (PanTHERIA 2026.08)         — 1 of 6 matched [CC0]</span></span>
+<span><span class="co">#&gt;     amphibio       (AmphiBIO 2026.08)          — 1 of 6 matched [CC BY 4.0]</span></span>
+<span><span class="co">#&gt;     fungal_traits  (FungalTraits 2026.08)      — 1 of 6 matched [CC BY 4.0]</span></span>
+<span><span class="co">#&gt;     fishbase       (FishBase 2026.08)          — 1 of 6 matched [CC BY-NC 4.0]</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="how-the-values-are-joined">How the values are joined<a class="anchor" aria-label="anchor" href="#how-the-values-are-joined"></a>

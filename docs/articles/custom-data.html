@@ -181,6 +181,10 @@ names are matched</a> shows how to check such names.</p>
 <p>A file path takes the place of the data frame. The example writes the
 trait table to a temporary CSV file first, with the species in a column
 called <code>latin_name</code> and a column of site codes:</p>
+<p>The call gives no <code>species_col</code>, so
+<code><a href="../reference/add_data.html">add_data()</a></code> matches the first ten names of each text column
+against the backbone and takes the column with the most matches, if at
+least half match:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">csv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span></span>
@@ -203,12 +207,9 @@ called <code>latin_name</code> and a column of site codes:</p>
 <span><span class="co">#&gt; 4    Pinus sylvestris  8.0</span></span>
 <span><span class="co">#&gt; 5      Betula pendula 22.3</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
-<p>Without <code>species_col</code>, <code><a href="../reference/add_data.html">add_data()</a></code> matches the
-first ten names of each text column against the backbone and takes the
-column with the most matches, if at least half match. Here
-<code>latin_name</code> matched all five and <code>site</code> none. For
-your own file, only the path changes, and <code>species_col</code> names
-the column when the guess fails.</p>
+<p>The site codes match no backbone name, so the column holding names
+wins. For your own file, only the path changes, and
+<code>species_col</code> names the column when the guess fails.</p>
 <p>The file type is read from the extension:</p>
 <ul>
 <li><p><code>.csv</code>, <code>.csv.gz</code>, <code>.tsv</code> and
@@ -275,7 +276,8 @@ values are merged, with a warning:</p>
 <span><span class="co">#&gt; Warning: 1 duplicate rows in data (same taxon, identical values) --</span></span>
 <span><span class="co">#&gt; deduplicated.</span></span>
 <span><span class="co">#&gt; add_data: 2 of 5 species matched (40.0%). 0 names in data unmatched.</span></span></code></pre></div>
-<p>Rows with different values stop the join, because
+<p>Rows with different values in any selected column stop the join, two
+<code>NA</code> values counting as equal, because
 <code><a href="../reference/add_data.html">add_data()</a></code> cannot tell which value is right:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">differ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -289,11 +291,9 @@ values are merged, with a warning:</p>
 <span><span class="co">#&gt; Error:</span></span>
 <span><span class="co">#&gt; ! 1 species in data resolved to the same accepted name but have different trait values.</span></span>
 <span><span class="co">#&gt;   Examples: 'Quercus robur'</span></span></code></pre></div>
-<p>Two values count as different when any selected column differs, with
-two <code>NA</code> values counted as equal. Averaging the rows before
-the join is one fix. When the rows belong to different groups, such as
-countries, <code>group_col</code> keeps them apart, with one column per
-group:</p>
+<p>Averaging the rows before the join is one fix. When the rows belong
+to different groups, such as countries, <code>group_col</code> keeps
+them apart, with one column per group:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">by_country</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">res</span>, <span class="va">differ</span>, species_col <span class="op">=</span> <span class="st">"species"</span>,</span>
 <span>                       group_col <span class="op">=</span> <span class="st">"country"</span><span class="op">)</span></span>
@@ -331,7 +331,6 @@ order:</p>
 <code class="sourceCode R"><span><span class="va">both</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_data.html">add_data</a></span><span class="op">(</span><span class="va">traits</span>, species_col <span class="op">=</span> <span class="st">"taxon"</span>, cols <span class="op">=</span> <span class="st">"sla"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").</span></span>
 <span><span class="co">#&gt; Matching 5 names from 'taxon' through COL backbone...</span></span>
 <span><span class="co">#&gt; Matching 5 names...</span></span>
 <span><span class="co">#&gt; add_data: 5 of 5 species matched (100.0%). 0 names in data unmatched.</span></span>

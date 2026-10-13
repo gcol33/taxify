@@ -70,7 +70,7 @@
     <li><a class="dropdown-item" href="../articles/fuzzy-matching.html">How names are matched</a></li>
     <li><a class="dropdown-item" href="../articles/hybrids-and-aggregates.html">Hybrids and aggregates</a></li>
     <li><a class="dropdown-item" href="../articles/databases.html">The backbones and datasets</a></li>
-    <li><a class="dropdown-item" href="../articles/migration.html">Coming from taxize and WorldFlora</a></li>
+    <li><a class="dropdown-item" href="../articles/migration.html">Compatibility with taxize and WorldFlora</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -165,13 +165,14 @@ of names and whether it is installed:</p>
 <p>Without a <code>backbone</code> argument, <code><a href="../reference/taxify.html">taxify()</a></code> uses
 every installed backbone of taxa as a fallback chain: each name is
 matched against the first backbone, the names left unmatched go to the
-second, and so on. The order is fixed by priority. The Catalogue of Life
-(COL) and its Extended Release (COL XR) come first, then the backbones
-of one group (marine species, plants, fungi, algae, fishes, reptiles,
-mammals, birds, prokaryotes), then the broad compilations GBIF, ITIS,
-NCBI and OTT. On a new setup the first call installs COL, GBIF and the
-Integrated Taxonomic Information System (ITIS); every backbone
-downloaded later joins the chain at its place in that order.</p>
+second, and so on. The order is fixed by priority. The Extended Release
+of the Catalogue of Life (COL XR) comes first, then the Catalogue of
+Life (COL), then the backbones of one group (marine species, plants,
+fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the
+broad compilations GBIF, ITIS, NCBI and OTT. On a new setup the first
+call installs COL, GBIF and the Integrated Taxonomic Information System
+(ITIS); every backbone downloaded later joins the chain at its place in
+that order.</p>
 <p>The list below mixes a plant, two animals renamed since their
 description, a fungus, a fish, a bacterium and a brown alga:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -212,9 +213,13 @@ set installed on first use.</p>
 <div class="section level2">
 <h2 id="naming-the-backbones">Naming the backbones<a class="anchor" aria-label="anchor" href="#naming-the-backbones"></a>
 </h2>
-<p>A <code>backbone</code> vector replaces the default chain with your
-own. A plant list resolved against World Flora Online (WFO) first, with
-COL for the rest:</p>
+<p>When most names of a list belong to one group, that group’s backbone
+can come first. A <code>backbone</code> vector replaces the default
+chain with your own; here the mixed list is resolved against World Flora
+Online (WFO) first, with COL for the rest. Before a name moves on,
+taxify checks the genus register, an index of the genera of every
+backbone, and does not send a name to a backbone that holds none of its
+genus:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">mixed</span>, backbone <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"col"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Matching 8 names against 2 backbones: wfo -&gt; col</span></span>
@@ -238,9 +243,8 @@ including its accepted name, family and synonym resolution. Fuzzy
 matching runs inside each backbone before the name moves on, so a
 misspelt plant name is compared with WFO’s names before it reaches
 COL.</p>
-<p><em>Fucus vesiculosus</em> was not sent to COL. Its genus is in the
-genus register, an index of the genera of every backbone, and the
-register records that neither WFO nor COL holds it, so the row has
+<p><em>Fucus vesiculosus</em> was not sent to COL, because the register
+records that neither WFO nor COL holds its genus; the row has
 <code>match_type = "out_of_scope"</code>. The register is described in
 <a href="fuzzy-matching.html">How names are matched</a>. Adding
 AlgaeBase, the backbone for algae, resolves it:</p>
@@ -256,9 +260,11 @@ AlgaeBase, the backbone for algae, resolves it:</p>
 <div class="section level2">
 <h2 id="checking-names-outside-a-backbone">Checking names outside a backbone<a class="anchor" aria-label="anchor" href="#checking-names-outside-a-backbone"></a>
 </h2>
-<p><code><a href="../reference/lookup_genus.html">lookup_genus()</a></code> returns the genus register’s entry for a
-genus, and <code><a href="../reference/taxify_register_coverage.html">taxify_register_coverage()</a></code> lists the backbones
-that hold it:</p>
+<p>A row that comes back <code>out_of_scope</code> needs a backbone that
+holds its genus. <code><a href="../reference/lookup_genus.html">lookup_genus()</a></code> returns the genus
+register’s entry for a genus, and
+<code><a href="../reference/taxify_register_coverage.html">taxify_register_coverage()</a></code> lists the backbones that hold
+it:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lookup_genus.html">lookup_genus</a></span><span class="op">(</span><span class="st">"Fucus"</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"genus"</span>, <span class="st">"kingdom"</span>, <span class="st">"family"</span>, <span class="st">"life_form"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;        genus   kingdom   family  life_form</span></span>
@@ -273,18 +279,18 @@ that hold it:</p>
 <span><span class="co">#&gt; 6 Fucus        gbif 2023.08 2026-09-22</span></span>
 <span><span class="co">#&gt; 7 Fucus       colxr 2026.08 2026-09-23</span></span>
 <span><span class="co">#&gt; 8 Fucus   algaebase 2026.09 2026-09-14</span></span></code></pre></div>
-<p><em>Fucus</em> is a brown alga, held by eight backbones. The COL
-release used here is not one of them, while COL XR, which adds names
-from further sources, is. An <code>out_of_scope</code> row therefore
-points to a backbone to add to the chain, where
+<p>The COL release used here is not among them, while COL XR, which adds
+names from further sources, is. An <code>out_of_scope</code> row
+therefore points to a backbone to add to the chain, where
 <code>match_type = "none"</code> leaves open whether the name is
 misspelt or exists in no backbone.</p>
 </div>
 <div class="section level2">
 <h2 id="comparing-backbones">Comparing backbones<a class="anchor" aria-label="anchor" href="#comparing-backbones"></a>
 </h2>
-<p><code>mode = "wide"</code> matches every name against every backbone
-in <code>backbone</code> and adds one
+<p>Backbones can treat the same name differently, and the fallback chain
+shows only the first one’s answer. <code>mode = "wide"</code> matches
+every name against every backbone in <code>backbone</code> and adds one
 <code>accepted_&lt;backbone&gt;</code> column per backbone, plus
 <code>all_agree</code>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -347,8 +353,8 @@ backbone.</p></li>
 <span><span class="co">#&gt; 1 Carcinus maenas Animalia      TRUE          FALSE</span></span>
 <span><span class="co">#&gt; 2   Quercus robur  Plantae        NA             NA</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
-<p>COL records the shore crab as marine and not terrestrial. It records
-neither for the oak, so both columns are <code>NA</code> there.</p>
+<p>COL matched the oak as well but records no habitat for it, so
+<code>NA</code> there means not recorded, not unmatched.</p>
 </div>
 <div class="section level2">
 <h2 id="how-the-backbones-differ-in-output">How the backbones differ in output<a class="anchor" aria-label="anchor" href="#how-the-backbones-differ-in-output"></a>
@@ -359,16 +365,16 @@ these differences:</p>
 <li><p><strong>Identifiers.</strong> <code>taxon_id</code> and
 <code>accepted_id</code> use each backbone’s own system: WFO IDs, opaque
 COL IDs (<code>4R5YN</code> for <em>Quercus robur</em>), GBIF integer
-keys, ITIS TSNs, NCBI Taxonomy IDs, WoRMS AphiaIDs. An ID is meaningful
-only within its backbone.</p></li>
+keys, ITIS TSNs, NCBI Taxonomy IDs, WoRMS AphiaIDs.</p></li>
 <li><p><strong>Authorship.</strong> NCBI and OTT record no authors, so
 <code>authorship</code> is <code>NA</code> on their rows.</p></li>
-<li><p><strong>Synonyms.</strong> Each source encodes synonyms its own
-way; all are converted when the backbone is built to
-<code>is_synonym</code>, <code>accepted_name</code> and
-<code>accepted_id</code>. A synonym that points to another synonym is
-followed to the accepted name at build time.</p></li>
+<li><p><strong>Synonyms.</strong> Each source encodes synonyms in its
+own way.</p></li>
 </ul>
+<p>An ID is meaningful only within its backbone. When a backbone is
+built, its synonyms are converted to <code>is_synonym</code>,
+<code>accepted_name</code> and <code>accepted_id</code>, and a synonym
+that points to another synonym is followed to the accepted name.</p>
 <p>The source, licence and citation of each backbone are listed in <a href="articles/databases.html">The backbones and datasets</a>.</p>
 </div>
 <div class="section level2">
@@ -406,8 +412,8 @@ instead of downloading it, which needs the taxifydb package.</p>
 <div class="section level2">
 <h2 id="choosing-backbones-for-a-list">Choosing backbones for a list<a class="anchor" aria-label="anchor" href="#choosing-backbones-for-a-list"></a>
 </h2>
-<p>Lead with the backbone whose treatment you want for most of the
-names, and add broader backbones after it for the rest:</p>
+<p>The first backbone in the vector sets the treatment for most names,
+and broader backbones after it resolve the rest:</p>
 <ul>
 <li><p><strong>Vascular plants</strong>: <code>"wfo"</code>, or
 <code>c("wfo", "col")</code> for cultivars, names from older floras and
