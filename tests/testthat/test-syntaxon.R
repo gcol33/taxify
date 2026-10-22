@@ -134,6 +134,28 @@ test_that("fuzzy matching does not cross a rank suffix", {
   expect_equal(res$match_type, "fuzzy")
 })
 
+test_that("fuzzy matching does not reach a name without a rank suffix", {
+  names_df <- clean_syntaxon_names(c("Deschampsietum caespitosae",
+                                     "Deschampsiatum caespitosae"))
+  matches <- data.frame(row_idx = 1:2,
+                        canonical_name = "Deschampsiosum cespitosae",
+                        stringsAsFactors = FALSE)
+  kept <- filter_fuzzy_syntaxon(matches, names_df, "canonical_name")
+  # an -etum query has a rank, the -osum name has none; a query whose suffix
+  # is misspelt has no rank either and keeps the candidate
+  expect_equal(kept$row_idx, 2L)
+})
+
+test_that("a fuzzy match on a misspelt first word keeps the hierarchy", {
+  local_mock_evc()
+  # Magnokaricion misses the first-word block and is reached by the prefix pass
+  res <- taxify("Magnokaricion gracilis", backbone = "evc", verbose = FALSE)
+  expect_equal(res$match_type, "fuzzy")
+  expect_equal(res$accepted_name, "Magnocaricion gracilis")
+  expect_equal(res$class, "Phragmito-Magnocaricetea")
+  expect_equal(res$alliance, "Magnocaricion gracilis")
+})
+
 test_that("an input author settles a syntaxon homonym", {
   local_mock_evc()
   res <- suppressWarnings(taxify(c("Cynosurion", "Cynosurion Tx. 1947",

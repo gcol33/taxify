@@ -1,3 +1,12 @@
+# taxify (development version)
+
+* A fuzzy syntaxon match whose first word is misspelt carries the accepted
+  unit's `class`, `order`, `alliance` and `association`, as every other match
+  does (#97).
+* A syntaxon whose suffix gives its rank no longer fuzzy-matches a name that
+  carries no rank suffix: `Deschampsietum caespitosae` is not matched to
+  `Deschampsiosum cespitosae` (#97).
+
 # taxify 0.7.0
 
 ## Vegetation units (syntaxa)

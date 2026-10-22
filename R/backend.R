@@ -799,7 +799,7 @@ get_fuzzy_bb <- function(vtr_path, col_map) {
   # fuzzy_block is precomputed at build time by precompute_keys().
   keep_cols <- unique(c(
     col_map$name, col_map$genus, col_map$id, col_map$rank,
-    col_map$status, col_map$epithet, col_map$authorship,
+    col_map$status, col_map$epithet, col_map$authorship, col_map$hierarchy,
     "accepted_name", "accepted_family", "accepted_genus",
     "accepted_taxon_id", "accepted_authorship", "is_synonym", "fuzzy_block",
     "n_occurrences", "year", "bracket_authorship",

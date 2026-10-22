@@ -577,8 +577,11 @@ normalized_edit_distance <- function(x, y) {
 #' the hierarchy. And a whole-name distance lets a long name absorb a
 #' different plant stem (`Vaccinio-Piceion` is two edits from
 #' `Vaccinio-Pinion`, a different alliance), so every stem, and every epithet
-#' both names write, must also be close to its counterpart. Where either rank
-#' is unknown the rank filter keeps the candidate.
+#' both names write, must also be close to its counterpart. Where the query's
+#' rank is unknown the rank filter keeps the candidate. Where the query's
+#' suffix gives a rank, a candidate whose name carries no rank suffix is
+#' dropped: `Deschampsietum caespitosae` (an association) is two edits from
+#' `Deschampsiosum cespitosae`, a name not built on any rank suffix.
 #'
 #' @param matches `fuzzy_join()` output with `row_idx` and the backbone name.
 #' @param names_df The cleaned-names frame (carries `syntaxon_rank`).
@@ -593,7 +596,7 @@ filter_fuzzy_syntaxon <- function(matches, names_df, name_col) {
   q <- names_df$syntaxon_rank %||% rep(NA_character_, nrow(names_df))
   q <- q[matches$row_idx]
   b <- syntaxon_rank_of(cand)
-  keep <- is.na(q) | is.na(b) | q == b
+  keep <- is.na(q) | (!is.na(b) & q == b)
 
   gq <- syntaxon_groups(query)
   gc <- syntaxon_groups(cand)
