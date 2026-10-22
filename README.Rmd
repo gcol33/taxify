@@ -7,6 +7,7 @@ output:
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 options(width = 80)
+suppressPackageStartupMessages(library(taxify))
 ```
 
 # taxify <img src="man/figures/logo.svg" align="right" height="139" alt="taxify logo" />
@@ -166,10 +167,17 @@ The backbones and datasets are the work of the institutions and authors who comp
 
 ## License
 
-MIT.
+taxify is licensed under MIT. Each backbone and dataset keeps the licence of its publisher, listed in [The backbones and datasets](https://gillescolling.com/taxify/articles/databases.html).
 
 ## Citation
 
-```{r citation, echo = FALSE, comment = ""}
-print(citation("taxify"), bibtex = TRUE)
+```{r citation, echo = FALSE, results = "asis"}
+cit <- citation("taxify")
+fence <- function(lang, x) cat("```", lang, "\n", paste(x, collapse = "\n\n"), "\n```\n\n", sep = "")
+cat(attr(cit, "mheader"), "\n\n", sep = "")
+fence("text", format(cit, style = "text"))
+cat("BibTeX:\n\n")
+fence("bibtex", format(cit, style = "bibtex"))
 ```
+
+Download the citation as [BibTeX](https://gillescolling.com/taxify/taxify.bib) or [RIS](https://gillescolling.com/taxify/taxify.ris).

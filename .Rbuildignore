@@ -36,3 +36,4 @@
 ^\.code-review-graph$
 ^sidecars$
 ^vignettes/.*\.orig$
+^CITATION\.cff$

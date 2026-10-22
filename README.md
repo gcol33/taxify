@@ -299,26 +299,36 @@ a result used.
 
 ## License
 
-MIT.
+taxify is licensed under MIT. Each backbone and dataset keeps the
+licence of its publisher, listed in [The backbones and
+datasets](https://gillescolling.com/taxify/articles/databases.html).
 
 ## Citation
 
-    If you use taxify, please cite the package and the backbones and
-    datasets your results come from. cite() on a taxify result lists their
-    references.
+If you use taxify, please cite the package and the backbones and
+datasets your results come from. cite() on a taxify result lists their
+references.
 
-      Colling G (2026). _taxify: Offline Taxonomic Name Matching Against
-      Darwin Core Backbones_. doi:10.32614/CRAN.package.taxify
-      <https://doi.org/10.32614/CRAN.package.taxify>. R package version
-      0.7.0, <https://gillescolling.com/taxify/>.
+``` text
+Colling G (2026). _taxify: Offline Taxonomic Name Matching Against
+Darwin Core Backbones_. doi:10.32614/CRAN.package.taxify
+<https://doi.org/10.32614/CRAN.package.taxify>. R package version
+0.7.0, <https://gillescolling.com/taxify/>.
+```
 
-    A BibTeX entry for LaTeX users is
+BibTeX:
 
-      @Manual{colling2026taxify,
-        title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
-        author = {Gilles Colling},
-        year = {2026},
-        note = {R package version 0.7.0},
-        doi = {10.32614/CRAN.package.taxify},
-        url = {https://gillescolling.com/taxify/},
-      }
+``` bibtex
+@Manual{colling2026taxify,
+  title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
+  author = {Gilles Colling},
+  year = {2026},
+  note = {R package version 0.7.0},
+  doi = {10.32614/CRAN.package.taxify},
+  url = {https://gillescolling.com/taxify/},
+}
+```
+
+Download the citation as
+[BibTeX](https://gillescolling.com/taxify/taxify.bib) or
+[RIS](https://gillescolling.com/taxify/taxify.ris).
