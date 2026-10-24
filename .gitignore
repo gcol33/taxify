@@ -10,6 +10,7 @@ data-raw/*
 !data-raw/exampledb/
 !data-raw/extract_syntaxon_examples.R
 !data-raw/syntaxa/
+!data-raw/logo.R
 docs/euro-med-plan.md
 inst/doc
 .claude/

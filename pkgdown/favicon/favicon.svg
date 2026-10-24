@@ -1,50 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 600" width="520" height="600" role="img" aria-label="taxify logo"><metadata><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><rdf:Description><dc:creator>RealFaviconGenerator</dc:creator><dc:source>https://realfavicongenerator.net</dc:source></rdf:Description></rdf:RDF></metadata><title>taxify logo</title><style>
 .grat { fill: none; stroke: #BCC2C9; stroke-width: 2; }
 .branch { fill: none; stroke: #5C6166; stroke-width: 4.5; stroke-linecap: round; }
-.ring { fill: none; stroke: #B5342B; stroke-width: 5; transform-box: fill-box; transform-origin: center;
-  animation: pulse 3s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.22); opacity: 0.45; } }
-.moving { transform-box: view-box; transform-origin: 260.0px 330.0px; animation: turn 6s linear infinite; }
-@keyframes turn { from { transform: rotate(0deg); } to { transform: rotate(-15deg); } }
 .still { display: none; }
 @media (prefers-reduced-motion: reduce) {
-  .moving { display: none; animation: none; }
-  .still { display: inline; }
-  .ring { animation: none; } }
+  .moving { display: none; }
+  .still { display: inline; } }
 </style><defs>
 <clipPath id="inner"><polygon points="260.0,12.0 10.6,156.0 10.6,444.0 260.0,588.0 509.4,444.0 509.4,156.0"></polygon></clipPath>
 </defs><polygon points="260.0,12.0 10.6,156.0 10.6,444.0 260.0,588.0 509.4,444.0 509.4,156.0" fill="#F5F6F8"></polygon><g clip-path="url(#inner)">
-<path class="grat" d="M222.0,330.0a38,38 0 1 0 76,0a38,38 0 1 0 -76,0M184.0,330.0a76,76 0 1 0 152,0a76,76 0 1 0 -152,0M146.0,330.0a114,114 0 1 0 228,0a114,114 0 1 0 -228,0M108.0,330.0a152,152 0 1 0 304,0a152,152 0 1 0 -304,0M70.0,330.0a190,190 0 1 0 380,0a190,190 0 1 0 -380,0M32.0,330.0a228,228 0 1 0 456,0a228,228 0 1 0 -456,0M-6.0,330.0a266,266 0 1 0 532,0a266,266 0 1 0 -532,0M-44.0,330.0a304,304 0 1 0 608,0a304,304 0 1 0 -608,0M-82.0,330.0a342,342 0 1 0 684,0a342,342 0 1 0 -684,0"></path>
-<path class="grat moving" d="M260.0,330.0L780.0,330.0M260.0,330.0L762.3,195.4M260.0,330.0L710.3,70.0M260.0,330.0L627.7,-37.7M260.0,330.0L520.0,-120.3M260.0,330.0L394.6,-172.3M260.0,330.0L260.0,-190.0M260.0,330.0L125.4,-172.3M260.0,330.0L0.0,-120.3M260.0,330.0L-107.7,-37.7M260.0,330.0L-190.3,70.0M260.0,330.0L-242.3,195.4M260.0,330.0L-260.0,330.0M260.0,330.0L-242.3,464.6M260.0,330.0L-190.3,590.0M260.0,330.0L-107.7,697.7M260.0,330.0L-0.0,780.3M260.0,330.0L125.4,832.3M260.0,330.0L260.0,850.0M260.0,330.0L394.6,832.3M260.0,330.0L520.0,780.3M260.0,330.0L627.7,697.7M260.0,330.0L710.3,590.0M260.0,330.0L762.3,464.6"></path>
+<path class="grat" d="M227.0,330.0a33,33 0 1 0 66,0a33,33 0 1 0 -66,0M194.0,330.0a66,66 0 1 0 132,0a66,66 0 1 0 -132,0M161.0,330.0a99,99 0 1 0 198,0a99,99 0 1 0 -198,0M128.0,330.0a132,132 0 1 0 264,0a132,132 0 1 0 -264,0M95.0,330.0a165,165 0 1 0 330,0a165,165 0 1 0 -330,0M62.0,330.0a198,198 0 1 0 396,0a198,198 0 1 0 -396,0M29.0,330.0a231,231 0 1 0 462,0a231,231 0 1 0 -462,0M-4.0,330.0a264,264 0 1 0 528,0a264,264 0 1 0 -528,0M-37.0,330.0a297,297 0 1 0 594,0a297,297 0 1 0 -594,0"></path>
+<g class="grat moving"><path d="M260.0,330.0L780.0,330.0M260.0,330.0L762.3,195.4M260.0,330.0L710.3,70.0M260.0,330.0L627.7,-37.7M260.0,330.0L520.0,-120.3M260.0,330.0L394.6,-172.3M260.0,330.0L260.0,-190.0M260.0,330.0L125.4,-172.3M260.0,330.0L0.0,-120.3M260.0,330.0L-107.7,-37.7M260.0,330.0L-190.3,70.0M260.0,330.0L-242.3,195.4M260.0,330.0L-260.0,330.0M260.0,330.0L-242.3,464.6M260.0,330.0L-190.3,590.0M260.0,330.0L-107.7,697.7M260.0,330.0L-0.0,780.3M260.0,330.0L125.4,832.3M260.0,330.0L260.0,850.0M260.0,330.0L394.6,832.3M260.0,330.0L520.0,780.3M260.0,330.0L627.7,697.7M260.0,330.0L710.3,590.0M260.0,330.0L762.3,464.6"></path><animateTransform attributeName="transform" type="rotate" from="0 260.0 330.0" to="-15 260.0 330.0" dur="6s" repeatCount="indefinite"></animateTransform></g>
 <path class="grat still" d="M260.0,330.0L780.0,330.0M260.0,330.0L762.3,195.4M260.0,330.0L710.3,70.0M260.0,330.0L627.7,-37.7M260.0,330.0L520.0,-120.3M260.0,330.0L394.6,-172.3M260.0,330.0L260.0,-190.0M260.0,330.0L125.4,-172.3M260.0,330.0L0.0,-120.3M260.0,330.0L-107.7,-37.7M260.0,330.0L-190.3,70.0M260.0,330.0L-242.3,195.4M260.0,330.0L-260.0,330.0M260.0,330.0L-242.3,464.6M260.0,330.0L-190.3,590.0M260.0,330.0L-107.7,697.7M260.0,330.0L-0.0,780.3M260.0,330.0L125.4,832.3M260.0,330.0L260.0,850.0M260.0,330.0L394.6,832.3M260.0,330.0L520.0,780.3M260.0,330.0L627.7,697.7M260.0,330.0L710.3,590.0M260.0,330.0L762.3,464.6"></path>
-<path class="branch" d="M260.0,330.0L222.2,325.7M260.0,330.0L243.9,295.6M260.0,330.0L292.4,310.1M222.2,334.0L184.4,337.9M222.7,322.9L185.3,315.9M243.9,295.6L227.8,261.1M276.1,295.6L292.2,261.1M293.7,312.5L327.5,295.0M297.8,334.0L335.6,337.9M222.2,334.0A38,38 0 0 1 222.7,322.9M276.1,295.6A38,38 0 0 1 297.8,334.0M184.4,337.9L146.6,341.9M185.3,315.9L148.0,308.8M218.2,266.5L197.3,234.8M271.0,254.8L276.6,217.2M292.2,261.1L308.3,226.7M306.3,269.8L329.5,239.6M318.3,281.2L347.4,256.9M331.8,305.2L367.8,292.8M335.9,326.9L373.9,325.3M335.6,337.9L373.4,341.9M218.2,266.5A76,76 0 0 1 271.0,254.8M306.3,269.8A76,76 0 0 1 335.9,326.9M146.6,341.9L108.8,345.9M146.1,325.3L108.1,323.8M148.0,308.8L110.6,301.8M152.2,292.8L116.3,280.4M158.8,277.6L125.0,260.1M178.1,250.7L150.8,224.2M211.7,226.7L195.7,192.3M243.4,217.2L237.9,179.6M276.6,217.2L282.1,179.6M308.3,226.7L324.3,192.3M329.5,239.6L352.7,209.5M347.4,256.9L376.6,232.5M367.8,292.8L403.7,280.4M373.9,325.3L411.9,323.8M373.4,341.9L411.2,345.9M146.1,325.3A114,114 0 0 1 152.2,292.8M158.8,277.6A114,114 0 0 1 243.4,217.2M108.8,345.9L71.0,349.9M108.1,323.8L70.2,322.2M110.6,301.8L73.3,294.7M116.3,280.4L80.4,268.0M125.0,260.1L91.3,242.6M136.6,241.2L105.8,219.0M158.8,216.6L133.5,188.2M185.8,197.3L167.3,164.2M205.9,188.0L192.3,152.5M237.9,179.6L232.4,142.0M282.1,179.6L287.6,142.0M324.3,192.3L340.4,157.9M352.7,209.5L375.8,179.4M369.2,224.2L396.5,197.8M383.4,241.2L414.2,219.0M395.0,260.1L428.7,242.6M403.7,280.4L439.6,268.0M409.4,301.8L446.7,294.7M411.9,323.8L449.8,322.2M411.2,345.9L449.0,349.9M136.6,241.2A152,152 0 0 1 158.8,216.6M185.8,197.3A152,152 0 0 1 205.9,188.0M369.2,224.2A152,152 0 0 1 383.4,241.2M395.0,260.1A152,152 0 0 1 409.4,301.8M71.0,349.9L33.2,353.8M70.2,322.2L32.2,320.7M73.3,294.7L36.0,287.7M80.4,268.0L44.5,255.6M91.3,242.6L57.6,225.1M105.8,219.0L74.9,196.8M123.5,197.8L96.2,171.4M144.2,179.4L121.0,149.3M167.3,164.2L148.7,131.0M192.3,152.5L178.8,117.0M218.8,144.5L210.6,107.4M246.2,140.5L243.4,102.6M273.8,140.5L276.6,102.6M301.2,144.5L309.4,107.4M327.7,152.5L341.2,117.0M352.7,164.2L371.3,131.0M375.8,179.4L399.0,149.3M396.5,197.8L423.8,171.4M414.2,219.0L445.1,196.8M428.7,242.6L462.4,225.1M439.6,268.0L475.5,255.6M446.7,294.7L484.0,287.7M449.8,322.2L487.8,320.7M449.0,349.9L486.8,353.8M123.5,197.8A190,190 0 0 1 144.2,179.4M218.8,144.5A190,190 0 0 1 246.2,140.5M273.8,140.5A190,190 0 0 1 301.2,144.5M327.7,152.5A190,190 0 0 1 352.7,164.2"></path>
+<path class="branch" d="M260.0,330.0L232.6,311.7M260.0,330.0L260.0,297.0M260.0,330.0L287.4,311.7M228.1,321.5L196.2,312.9M235.9,307.4L211.8,284.9M260.0,297.0L260.0,264.0M280.1,303.8L300.2,277.6M290.1,316.4L320.1,302.8M228.1,321.5A33,33 0 0 1 235.9,307.4M280.1,303.8A33,33 0 0 1 290.1,316.4M196.2,312.9L164.4,304.4M211.8,284.9L187.7,262.3M249.2,264.9L243.9,232.3M281.2,267.5L291.8,236.3M300.2,277.6L320.3,251.5M314.9,293.3L342.3,275.0M323.8,312.9L355.6,304.4M249.2,264.9A66,66 0 0 1 281.2,267.5M314.9,293.3A66,66 0 0 1 323.8,312.9M164.4,304.4L132.5,295.8M177.7,275.0L150.2,256.7M199.7,251.5L179.6,225.3M228.2,236.3L217.6,205.0M260.0,231.0L260.0,198.0M291.8,236.3L302.4,205.0M320.3,251.5L340.4,225.3M342.3,275.0L369.8,256.7M355.6,304.4L387.5,295.8M177.7,275.0A99,99 0 0 1 199.7,251.5M228.2,236.3A99,99 0 0 1 260.0,231.0M132.5,295.8L100.6,287.3M150.2,256.7L122.8,238.3M179.6,225.3L159.6,199.1M217.6,205.0L207.0,173.8M260.0,198.0L260.0,165.0M302.4,205.0L313.0,173.8M340.4,225.3L360.4,199.1M369.8,256.7L397.2,238.3M387.5,295.8L419.4,287.3M100.6,287.3L68.7,278.8M122.8,238.3L95.4,220.0M159.6,199.1L139.5,172.9M207.0,173.8L196.4,142.5M260.0,165.0L260.0,132.0M313.0,173.8L323.6,142.5M360.4,199.1L380.5,172.9M397.2,238.3L424.6,220.0M419.4,287.3L451.3,278.8"></path>
 <circle cx="260.0" cy="330.0" r="9" fill="#5C6166"></circle>
-<circle cx="33.2" cy="353.8" r="11" fill="#7A4F9E"></circle>
-<circle cx="32.2" cy="320.7" r="11" fill="#7A4F9E"></circle>
-<circle cx="36.0" cy="287.7" r="11" fill="#7A4F9E"></circle>
-<circle cx="44.5" cy="255.6" r="11" fill="#7A4F9E"></circle>
-<circle cx="57.6" cy="225.1" r="11" fill="#3F7A3D"></circle>
-<circle cx="74.9" cy="196.8" r="11" fill="#3F7A3D"></circle>
-<circle cx="96.2" cy="171.4" r="11" fill="#3F7A3D"></circle>
-<circle cx="121.0" cy="149.3" r="11" fill="#3F7A3D"></circle>
-<circle cx="148.7" cy="131.0" r="11" fill="#3F7A3D"></circle>
-<circle cx="178.8" cy="117.0" r="11" fill="#3F7A3D"></circle>
-<circle cx="210.6" cy="107.4" r="11" fill="#3F7A3D"></circle>
-<circle cx="243.4" cy="102.6" r="11" fill="#3F7A3D"></circle>
-<circle cx="276.6" cy="102.6" r="11" fill="#3F7A3D"></circle>
-<circle cx="309.4" cy="107.4" r="11" fill="#3F7A3D"></circle>
-<circle cx="341.2" cy="117.0" r="11" fill="#9E5E0F"></circle>
-<circle cx="371.3" cy="131.0" r="11" fill="#9E5E0F"></circle>
-<circle cx="399.0" cy="149.3" r="11" fill="#9E5E0F"></circle>
-<circle cx="423.8" cy="171.4" r="11" fill="#9E5E0F"></circle>
-<circle cx="445.1" cy="196.8" r="11" fill="#9E5E0F"></circle>
-<circle cx="462.4" cy="225.1" r="11" fill="#9E5E0F"></circle>
-<circle cx="475.5" cy="255.6" r="11" fill="#9E5E0F"></circle>
-<circle cx="484.0" cy="287.7" r="11" fill="#9E5E0F"></circle>
-<circle cx="487.8" cy="320.7" r="11" fill="#9E5E0F"></circle>
-<circle cx="486.8" cy="353.8" r="11" fill="#9E5E0F"></circle>
-<circle class="ring" cx="44.5" cy="255.6" r="21" style="animation-delay:-0.9s"></circle>
-<circle class="ring" cx="121.0" cy="149.3" r="21" style="animation-delay:-1.8s"></circle>
-<circle class="ring" cx="475.5" cy="255.6" r="21" style="animation-delay:-2.7s"></circle>
-<text x="260.0" y="505" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="bold" font-size="86" fill="#2E6F9E" stroke="#F5F6F8" stroke-width="8" stroke-linejoin="round" paint-order="stroke">taxify</text>
+<g class="moving">
+<circle cx="68.7" cy="278.8" r="12" fill="#7A4F9E"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-1.85s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+<circle cx="95.4" cy="220.0" r="12" fill="#7A4F9E"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.71s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+<circle cx="139.5" cy="172.9" r="12" fill="#7A4F9E"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-2.56s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+<circle cx="196.4" cy="142.5" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-1.42s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+<circle cx="260.0" cy="132.0" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.27s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+<circle cx="323.6" cy="142.5" r="12" fill="#3F7A3D"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-2.12s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+<circle cx="380.5" cy="172.9" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-0.98s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+<circle cx="424.6" cy="220.0" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-2.83s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+<circle cx="451.3" cy="278.8" r="12" fill="#9E5E0F"><animate attributeName="r" values="12;14.4;12" dur="3s" begin="-1.69s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"></animate></circle>
+</g>
+<g class="still">
+<circle cx="68.7" cy="278.8" r="12" fill="#7A4F9E"></circle>
+<circle cx="95.4" cy="220.0" r="12" fill="#7A4F9E"></circle>
+<circle cx="139.5" cy="172.9" r="12" fill="#7A4F9E"></circle>
+<circle cx="196.4" cy="142.5" r="12" fill="#3F7A3D"></circle>
+<circle cx="260.0" cy="132.0" r="12" fill="#3F7A3D"></circle>
+<circle cx="323.6" cy="142.5" r="12" fill="#3F7A3D"></circle>
+<circle cx="380.5" cy="172.9" r="12" fill="#9E5E0F"></circle>
+<circle cx="424.6" cy="220.0" r="12" fill="#9E5E0F"></circle>
+<circle cx="451.3" cy="278.8" r="12" fill="#9E5E0F"></circle>
+</g>
+<text x="260.0" y="472" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="bold" font-size="78" fill="#2E6F9E" stroke="#F5F6F8" stroke-width="10" stroke-linejoin="round" paint-order="stroke">taxify</text>
 </g><polygon points="260.0,9.0 8.0,154.5 8.0,445.5 260.0,591.0 512.0,445.5 512.0,154.5" fill="none" stroke="#2B3A4A" stroke-width="18" stroke-linejoin="round"></polygon></svg>
