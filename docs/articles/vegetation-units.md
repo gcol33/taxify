@@ -115,32 +115,29 @@ res[, c("input_name", "accepted_name", "match_type", "is_synonym")]
 #> Sources: EVC 4 | cite() for full citations
 ```
 
-Each row reaches its unit by a different route:
+Before matching, the author citation and any code written in front of a
+name are removed, and spelling variants of Latin, such as `i` and `y`,
+are made equal. A name written without its epithet, the short form, is
+resolved through its stem when the stem names one unit. Each row reaches
+its unit by one of these routes:
 
 - `Fagion sylvaticae Luquet 1926` matches with its author citation
   removed.
 
-- `Mesobromion erecti` is a synonym of *Bromion erecti*. The
-  EuroVegChecklist lists the synonym without its epithet, as
-  *Mesobromion*, so the row has `match_type = "short_name"` and
-  `is_synonym = TRUE`.
+- `Mesobromion erecti` is a synonym of *Bromion erecti*, listed in the
+  EuroVegChecklist without its epithet, as *Mesobromion*.
 
-- `Fagion silvaticae` is an older spelling of the epithet. Matching
-  compares names with spelling variants of Latin, such as `i` and `y`,
-  made equal, and the row has `match_type = "exact_ci"`.
+- `Fagion silvaticae` is an older spelling of the epithet.
 
 - `TDA - Arrhenatherion elatioris` matches once the code in front is
   removed.
 
-- `Cynosurion` is written without its epithet, a short form often used
-  for *Cynosurion cristati*. It resolves with
-  `match_type = "short_name"` because its stem names one unit.
+- `Cynosurion` is the short form of *Cynosurion cristati*.
 
 - `Brachypodietalia pinnata` is misspelt and is matched by fuzzy
   matching.
 
 - `Carpinion` is the stem of three alliances, so it stays unresolved.
-  The warning above the table names it.
 
 The candidates of an unresolved short form are listed in `accepted_ids`:
 
@@ -194,8 +191,11 @@ Every matched name, synonym or not, is placed in the ranks above it.
 
 ## From a national association to a European alliance
 
-An association has no counterpart in the EuroVegChecklist. The national
-classification places it in an alliance:
+Plot data from the Czech Republic often record an association, a rank
+the EuroVegChecklist does not cover. The national classification places
+each association in an alliance. *Arrhenatheretum elatioris* is a
+synonym of two associations, under Braun 1915 and under Scherrer 1925,
+so an author citation in the input chooses between them:
 
 ``` r
 
@@ -207,24 +207,19 @@ cz <- taxify(
 #> Warning: 1 of 2 names resolve to more than one accepted ID (Arrhenatheretum
 #> elatioris Braun 1915). `accepted_id` holds one and `accepted_ids` all of them;
 #> list them with taxify_ids() before requesting data by ID.
-cz[, c("input_name", "accepted_name", "alliance", "class")]
+cz[, c("input_name", "accepted_name", "alliance", "accepted_ids")]
 #>                                    input_name
 #> 1 Pastinaco sativae-Arrhenatheretum elatioris
 #> 2        Arrhenatheretum elatioris Braun 1915
 #>                                 accepted_name                 alliance
 #> 1 Pastinaco sativae-Arrhenatheretum elatioris Arrhenatherion elatioris
 #> 2 Pastinaco sativae-Arrhenatheretum elatioris Arrhenatherion elatioris
-#>                     class
-#> 1 Molinio-Arrhenatheretea
-#> 2 Molinio-Arrhenatheretea
 #> Sources: VEGCZ 2026.10 | cite() for full citations
 ```
 
-*Arrhenatheretum elatioris* is a synonym of two associations, under
-Braun 1915 and under Scherrer 1925. The author citation in the second
-name picks the association of Braun 1915, which is the first in
-`accepted_ids`; the warning names the row because both remain listed
-there.
+The second name, cited with Braun 1915, resolves to that author’s
+association, which is listed first in `accepted_ids`; the other
+association stays listed, so the warning names the row.
 
 The alliance then resolves against the EuroVegChecklist:
 
@@ -257,8 +252,6 @@ taxify("Fagion sylvaticae", backbone = c("evc", "col"))
 #> Error:
 #> ! Backbones of different nomenclature codes cannot be combined: evc (syntaxon), col (taxon). Match taxon names and syntaxon names in separate calls.
 ```
-
-Taxa and vegetation units are matched in separate calls.
 
 ## How the backbones were built
 

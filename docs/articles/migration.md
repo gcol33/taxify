@@ -1,46 +1,139 @@
-# Coming from taxize and WorldFlora
+# Compatibility with taxize and WorldFlora
 
-This article maps the name-resolution functions of
-[taxize](https://docs.ropensci.org/taxize/),
-[WorldFlora](https://cran.r-project.org/package=WorldFlora) and related
-packages to their taxify counterparts, and runs a WorldFlora task side
-by side. taxify performs the name-resolution step of taxize and
-WorldFlora, run offline against local backbone files. It ends with the
-tasks for which another package is the better choice. Installation is
-covered in [Get
+[taxize](https://docs.ropensci.org/taxize/) (Chamberlain and Szöcs
+[2013](https://f1000research.com/articles/2-191/v2)) gives R a set of
+verbs for taxonomic names, answered by about twenty web services:
+resolving a name, listing its synonyms, its children and the ranks above
+it, translating common names.
+[WorldFlora](https://cran.r-project.org/package=WorldFlora) (Kindt
+[2020](https://doi.org/10.1002/aps3.11388)) matches plant names, exactly
+and by spelling distance, against the World Flora Online (WFO) backbone,
+and reduces the candidates to one row per name. taxify uses taxize’s
+verbs, with the same names and tasks, and WorldFlora’s workflow of
+matching exactly, then by spelling distance, and keeping one row per
+name. It performs the name-resolution step of taxize and WorldFlora, run
+offline against local backbone files, for 19 backbones in one call.
+
+This article runs the same tasks in WorldFlora and taxify and measures
+where they agree, maps the functions of both packages to taxify’s, and
+lists the cases where taxize or WorldFlora is the better choice. taxify
+aims to give the same accepted names as WorldFlora on the same WFO
+release, with documented differences in how one record is chosen when a
+name has several. Installation is covered in [Get
 started](https://gillescolling.com/taxify/articles/taxify.md).
 
-1.  **Map** each call to its taxify counterpart with the tables below.
+1.  **Match** the same names in both packages and compare the accepted
+    names.
 
-2.  **Match** the names with
-    [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
-    naming the `backbone` the old call read.
+2.  **Map** each taxize and WorldFlora function to its taxify
+    counterpart.
 
-3.  **Join** the data the old workflow attached with an `add_<source>()`
-    function or
-    [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md).
+3.  **Check** the agreement on your own list before relying on either
+    result.
 
 ``` r
 
 library(taxify)
 ```
 
-## How the packages differ
+## Matching the same names in both packages
 
-taxize queries web services, about twenty of them, one per call and at
-the time of the call; version 0.10.1 is on CRAN. WorldFlora matches
-names against a World Flora Online (WFO) table that the user downloads
-and reads into memory; version 1.14-5 is on CRAN. taxify downloads each
-backbone once as a file and matches against it on disk, for 19 backbones
-of all groups of organisms, and returns one row per input name with the
-same columns whichever backbone matched it.
+WorldFlora reads the WFO classification file into memory and matches
+with fuzzy matching on:
 
-A web service returns the current treatment of a name on the day of the
-query, including names added to it since taxify’s copy was built. taxify
-returns the treatment of the backbone version on disk, recorded in every
-row, and the same answer on every run until the backbone is updated.
+``` r
 
-## From taxize
+library(WorldFlora)
+wfo_data <- data.table::fread("classification.csv", encoding = "UTF-8")
+names <- c("Quercus robur", "Quercus pedonculata", "Pinus silvestris",
+           "Rosa canina")
+matched <- WFO.match(spec.data = names, WFO.data = wfo_data, Fuzzy = 0.1)
+best <- WFO.one(matched)
+```
+
+`scripts/agreement-worldflora.R` in the taxify repository runs this
+code; the accepted name WorldFlora returned for each input, in
+`scientificName`, and whether the match was fuzzy:
+
+| Input               | WorldFlora accepted name | Fuzzy |
+|:--------------------|:-------------------------|:------|
+| Quercus robur       | Quercus robur            | FALSE |
+| Quercus pedonculata | Quercus robur            | TRUE  |
+| Pinus silvestris    | Pinus sylvestris         | TRUE  |
+| Rosa canina         | Rosa canina              | FALSE |
+
+taxify matches the same names against its WFO backbone:
+
+``` r
+
+names <- c("Quercus robur", "Quercus pedonculata", "Pinus silvestris",
+           "Rosa canina")
+res <- taxify(names, backbone = "wfo", verbose = FALSE)
+res[, c("input_name", "accepted_name", "match_type")]
+#>            input_name    accepted_name match_type
+#> 1       Quercus robur    Quercus robur      exact
+#> 2 Quercus pedonculata    Quercus robur      fuzzy
+#> 3    Pinus silvestris Pinus sylvestris   exact_ci
+#> 4         Rosa canina      Rosa canina      exact
+#> Sources: WFO 2026.06 | cite() for full citations
+```
+
+Both packages give the same four accepted names. *Quercus pedonculata*
+is a misspelling of *Quercus pedunculata*, which WFO treats as a synonym
+of *Quercus robur*, and both reach *Quercus robur* through a fuzzy
+match. *Pinus silvestris* is fuzzy in WorldFlora; taxify reads the
+epithet’s *i* and *y* as the same letter and matches it with
+`match_type = "exact_ci"`.
+
+The second task, the synonyms of one accepted name, is
+[`WFO.synonyms()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) in
+WorldFlora and
+[`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
+in taxify:
+
+``` r
+
+syn <- synonyms("Picea abies", backbone = "wfo", verbose = FALSE)
+length(unique(syn$synonym))
+#> [1] 164
+```
+
+For *Picea abies*, the script recorded 171 synonyms from WorldFlora and
+164 from taxify, of which 163 appear in both.
+
+## Agreement on a sample of WFO names
+
+The same script draws 300 names of species rank from taxify’s WFO
+backbone with a fixed seed (97 accepted, 172 synonyms, 31 unchecked),
+matches them in both packages without fuzzy matching, and compares the
+accepted names:
+
+- 277 names have the same accepted name in both.
+
+- 18 have different accepted names. For 13 of them, taxify reports more
+  than one accepted taxon behind the spelling (`n_ids` above 1), and the
+  two packages chose different records.
+
+- 5 names found no match in WorldFlora’s file.
+
+The run used taxify 0.7.0 with its WFO backbone 2026.06, and WorldFlora
+1.14.5 with the WFO classification file of the Zenodo release named in
+`scripts/benchmark-worldflora.R`. The two can be different WFO releases;
+this run does not separate differences in the data from differences in
+the matching. The comparison covers exact matching of species names; it
+does not show agreement on misspelt names, infraspecific names or names
+outside WFO.
+
+To check your own list, run it through both packages and compare
+`accepted_name` from `taxify(backbone = "wfo")` with `scientificName`
+from [`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html).
+For the names that differ,
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+lists every accepted taxon taxify found behind the name, as shown in
+[Exploring the
+backbone](https://gillescolling.com/taxify/articles/exploring.md).
+
+## Functions of taxize
 
 | taxize | taxify | Notes |
 |----|----|----|
@@ -57,70 +150,56 @@ row, and the same answer on every run until the backbone is updated.
 | [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md) | [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md) | A taxonomy tree from the classifications |
 | [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md) | [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md) | The lowest rank a set of names shares |
 
-The functions with the same name in both packages do the same task,
-against a local backbone in taxify. They are shown in [Exploring the
-backbone](https://gillescolling.com/taxify/articles/exploring.md).
+The table maps taxize 0.10.1. taxize answers from the web service named
+in each call, at the time of the call; taxify answers from the backbone
+version on disk, recorded in every row.
 
-## From WorldFlora
+## Functions of WorldFlora
 
 | WorldFlora | taxify | Notes |
 |----|----|----|
 | [`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html), [`WFO.match.fuzzyjoin()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match2.html) | `taxify(backbone = "wfo")` | Exact and fuzzy matching in one call |
-| [`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) returns one row per name directly |
+| [`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | One row per name |
 | [`WFO.synonyms()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) | `synonyms(backbone = "wfo")` | The synonyms of a taxon |
 
+The table maps WorldFlora 1.14.5.
 [`WFO.match()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html)
-returns the WFO columns under their WFO names (`scientificName`,
-`taxonID`, `taxonomicStatus`, `acceptedNameUsageID`) and several
-candidate rows per name, which
-[`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) reduces
-to one.
+returns the WFO columns under their WFO names and every candidate within
+the fuzzy threshold;
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-returns `matched_name`, `taxon_id`, `taxonomic_status` and `accepted_id`
-with one row per name, and
+returns `matched_name`, `taxon_id`, `taxonomic_status` and
+`accepted_id`, and
 [`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md)
-adds WFO’s own further columns. A WorldFlora workflow reads the backbone
-file first:
+adds WFO’s further columns.
 
-``` r
+## Differences
 
-library(WorldFlora)
-wfo_data <- data.table::fread("classification.csv", encoding = "UTF-8")
-matched <- WFO.match(spec.data = names, WFO.data = wfo_data, Fuzzy = 0.1)
-best <- WFO.one(matched)
-```
+**Choosing one record.** When a spelling leads to several accepted taxa,
+[`WFO.one()`](https://rdrr.io/pkg/WorldFlora/man/WFO.match.html) keeps
+one candidate row and taxify keeps one pick with the others in
+`accepted_ids`. The two rules can choose different records, which is
+where most of the differences in the sample come from. taxify’s order of
+choice is described in [How names are
+matched](https://gillescolling.com/taxify/articles/fuzzy-matching.html#names-with-more-than-one-accepted-taxon).
 
-In taxify the backbone is downloaded on the first call:
+**Spelling distance.** WorldFlora’s `Fuzzy` argument and taxify’s
+`fuzzy_threshold` measure the distance between spellings differently, so
+the same number does not select the same candidates. taxify also makes
+spelling variants of Latin equal before fuzzy matching, as for *Pinus
+silvestris* above.
 
-``` r
+**The data.** WorldFlora matches against the WFO file a user downloads;
+taxify against its WFO backbone, built from a WFO release and recorded
+in `backbone_version`.
 
-names <- c("Quercus robur", "Quercus pedonculata", "Pinus silvestris",
-           "Rosa canina")
-res <- taxify(names, backbone = "wfo", verbose = FALSE)
-res[, c("input_name", "matched_name", "accepted_name", "match_type")]
-#>            input_name        matched_name    accepted_name match_type
-#> 1       Quercus robur       Quercus robur    Quercus robur      exact
-#> 2 Quercus pedonculata Quercus pedunculata    Quercus robur      fuzzy
-#> 3    Pinus silvestris    Pinus sylvestris Pinus sylvestris   exact_ci
-#> 4         Rosa canina         Rosa canina      Rosa canina      exact
-#> Sources: WFO 2026.06 | cite() for full citations
-```
-
-*Quercus pedonculata* is a misspelling of *Quercus pedunculata*, which
-WFO treats as a synonym of *Quercus robur*: the fuzzy match finds the
-synonym, and the row carries its accepted name. *Pinus silvestris* is a
-spelling of the epithet that the exact stage reads as *sylvestris*.
-
-### Timings
+## Timings against WorldFlora
 
 `scripts/benchmark-worldflora.R` in the taxify repository times both
-packages on names drawn from the WFO backbone: accepted binomials, and
-the same names with one letter of each epithet changed so that they need
-fuzzy matching. The run recorded in
-`scripts/benchmark-worldflora-results.json` used taxify 0.7.0, vectra
+packages on accepted WFO binomials, as they are and with one letter of
+each epithet changed so that they need fuzzy matching. The run recorded
+in `scripts/benchmark-worldflora-results.json` used taxify 0.7.0, vectra
 0.13.0 and WorldFlora 1.14.5 under R 4.6.0 on Windows 11 x64 (build
-26200), on 2026-10-13. taxify read its WFO backbone 2026.06; WorldFlora
-read the WFO classification file of the Zenodo release in the script.
+26200), on 2026-10-13:
 
 | Task              | taxify (s) | WorldFlora (s) |
 |-------------------|------------|----------------|
@@ -128,66 +207,32 @@ read the WFO classification file of the Zenodo release in the script.
 | 1000 names, exact | 1.0        | 14.2           |
 | 1000 names, fuzzy | 9.7        | 3881.9         |
 
-WorldFlora’s fuzzy matching ran with `Fuzzy = 0.1`. The two packages
-differ in more than speed: WorldFlora returns every candidate within the
-threshold for a person to choose from, and taxify returns one pick per
-name with the others listed in `accepted_ids`.
+The timings measure how long each package takes for these names on one
+machine; they say nothing about which result is right. WorldFlora’s
+fuzzy matching (`Fuzzy = 0.1`) returns every candidate within the
+threshold, and taxify returns one pick per name.
 
-## From other packages
+## When taxize or WorldFlora fits better
 
-- [rgbif](https://docs.ropensci.org/rgbif/),
-  [worrms](https://docs.ropensci.org/worrms/) and
-  [ritis](https://docs.ropensci.org/ritis/) query the live services of
-  GBIF, WoRMS and ITIS. `taxify(backbone = "gbif")`, `"worms"` and
-  `"itis"` match against local copies of the same backbones.
+- **A name added since the last backbone release.** taxize, and the
+  clients of single services ([rgbif](https://docs.ropensci.org/rgbif/),
+  [worrms](https://docs.ropensci.org/worrms/),
+  [ritis](https://docs.ropensci.org/ritis/)), query the current version.
 
-- [taxadb](https://docs.ropensci.org/taxadb/) also keeps local snapshots
-  of backbones and looks names up in them with `filter_name()` and IDs
-  with `filter_id()`. Its fuzzy functions match names that start with or
-  contain a string; taxify’s fuzzy matching measures the distance
-  between spellings.
+- **Choosing among candidates by hand.** WorldFlora and taxize return
+  every candidate for a person to choose from.
 
-- lcvplants matches against the Leipzig Catalogue of Vascular Plants
-  with `lcvp_search()`; `taxify(backbone = "lcvp")` matches against the
-  same catalogue.
+- **A method with a peer-reviewed description.** WorldFlora is described
+  in a peer-reviewed paper (Kindt 2020); taxify’s checks are its own
+  test suite and the comparisons above.
 
-- rWCVP, archived on CRAN in 2025, matched names against the World
-  Checklist of Vascular Plants; `taxify(backbone = "wcvp")` matches
-  against it, and
-  [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
-  attaches the native and introduced range by botanical region.
-
-- Taxonstand, archived on CRAN in 2023 at its maintainer’s request,
-  matched against The Plant List, which has not been updated since 2013.
-  WFO and the World Checklist of Vascular Plants continue it:
+- **Other packages.** [taxadb](https://docs.ropensci.org/taxadb/) keeps
+  local backbone snapshots and looks names up with `filter_name()`;
+  lcvplants matches the Leipzig Catalogue of Vascular Plants with
+  `lcvp_search()`, as `taxify(backbone = "lcvp")` does. rWCVP (archived
+  on CRAN in 2025) and Taxonstand (archived in 2023, The Plant List) are
+  continued by `taxify(backbone = "wcvp")` and
   `taxify(backbone = c("wcvp", "wfo"))`.
-
-## When another package fits better
-
-- **Names added to a backbone since its last release.** taxify matches
-  against the version on disk; a web service through taxize, rgbif,
-  worrms or ritis has the current one.
-
-- **Choosing among candidates by hand.** taxify picks one taxon per name
-  and lists the others; WorldFlora and taxize show every candidate for a
-  person to choose.
-
-- **Distribution queries.**
-  [`add_wcvp()`](https://gillescolling.com/taxify/reference/add_wcvp.md)
-  attaches the range by region; checklists and occurrence matrices built
-  from WCVP regions are outside taxify.
-
-- **Phylogenies.**
-  [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md)
-  builds a tree from the classification, without branch lengths;
-  [rotl](https://docs.ropensci.org/rotl/) reads the synthetic tree of
-  the Open Tree of Life.
-
-- **Occurrence and sequence records.** taxify requests GBIF records by
-  key, as shown in [Requesting GBIF data for a species
-  list](https://gillescolling.com/taxify/articles/gbif-requests.md);
-  rgbif covers the rest of GBIF’s interface, and other packages cover
-  sequence databases.
 
 ## Where next
 
@@ -198,6 +243,16 @@ name with the others listed in `accepted_ids`.
   backbone](https://gillescolling.com/taxify/articles/exploring.md): the
   functions that correspond to taxize’s.
 
-- [Choosing and combining
-  backbones](https://gillescolling.com/taxify/articles/backbones.md):
-  the backbones and the fallback chain.
+- [How names are
+  matched](https://gillescolling.com/taxify/articles/fuzzy-matching.md):
+  the stages and the choice of one record.
+
+## References
+
+Chamberlain S, Szöcs E (2013). taxize: taxonomic search and retrieval in
+R. *F1000Research* 2: 191. <https://f1000research.com/articles/2-191/v2>
+
+Kindt R (2020). WorldFlora: An R package for exact and fuzzy matching of
+plant names against the World Flora Online taxonomic backbone data.
+*Applications in Plant Sciences* 8(9): e11388.
+<https://doi.org/10.1002/aps3.11388>

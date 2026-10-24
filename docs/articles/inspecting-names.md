@@ -34,8 +34,13 @@ library(taxify)
 
 ## Checks without matching
 
-The list below is a plant list with four problems: an animal, a genus
-that does not exist, a name written with one extra letter, and an old
+A list straight from field sheets can be screened before anything is
+matched. Without matching,
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+checks each genus against the genus register, an index of the genera of
+every backbone, and compares each name with the rest of the list. The
+list below is a plant list with four problems: an animal, a genus that
+does not exist, a name written with one extra letter, and an old
 synonym.
 
 ``` r
@@ -55,20 +60,15 @@ inspect(plants)
 #>   [review    ] Panthera leo     ->  ?              animalia outlier (list is mostly plantae)
 ```
 
-Without matching,
-[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-runs the checks that need only the genus register, an index of the
-genera of every backbone, and the list itself. Three names stand out.
-*Xyzzia* is in no backbone. *Festuca rubraa* is one letter from *Festuca
-rubra*, which appears twice in the list, so it is likely a slip of that
-name. *Panthera leo* is the only animal in a list of plants. *Pinus
-abies* is a well-formed name of a real genus and passes these checks;
-its synonymy shows only when it is matched.
+*Festuca rubraa* is flagged because the correct spelling occurs twice in
+the same list. *Pinus abies* is a well-formed name of a real genus and
+passes these checks; its synonymy shows only when it is matched.
 
 ## Checks on matched names
 
-`backbones = TRUE` matches the names against every installed backbone,
-in the order of the default fallback chain of
+Some problems, such as an outdated synonym, show only once a name is
+matched. `backbones = TRUE` matches the names against every installed
+backbone, in the order of the default fallback chain of
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md), and
 adds the checks that read the match:
 
@@ -91,7 +91,7 @@ report
 name with more than one accepted taxon behind it. *Festuca rubraa*
 carries the label of the fuzzy match as well as the list check.
 *Panthera leo* matches a backbone, so it is reported only as the animal
-in a plant list. The header names the backbones used.
+in a plant list.
 
 A list that is already matched is passed to
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
@@ -148,7 +148,8 @@ something intended, such as one animal kept on purpose in a plant list.
 ## Checks against a region
 
 A species far from the study region is worth a second look even when its
-name is correct. With a declared `region`,
+name is correct. The list `alpine` holds two European mountain plants
+and one Australian shrub. With a declared `region`,
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
 reports matched species with no record there in the World Checklist of
 Vascular Plants (WCVP):
@@ -180,9 +181,9 @@ many continents has no such core, and the check reports nothing.
 
 ## Using the report
 
-The report is a data frame with the columns `input_name`, `suggestion`,
-`anomalies`, `tier`, `reason`, `fuzzy_dist` and `backbone`. `min_tier`
-drops the lower tiers:
+A report is used to decide what to change. It is a data frame with the
+columns `input_name`, `suggestion`, `anomalies`, `tier`, `reason`,
+`fuzzy_dist` and `backbone`. `min_tier` drops the lower tiers:
 
 ``` r
 
@@ -198,9 +199,12 @@ inspect(plants, backbones = TRUE, min_tier = "review", verbose = FALSE)
 #>   [review    ] Pinus abies      ->  Picea abies    ambiguous (targets: 4HPZF|4HQ46|8K9Y|6BRMR|4HQ4F|4HQ48); outdated synonym
 ```
 
-`tier` is an ordered factor, so `report[report$tier >= "review", ]`
-selects the same rows from an existing report. The suggestions can
-replace the input names before the list is matched again:
+Nothing is dropped here: the one `note` label, `synonym` on *Pinus
+abies*, sits beside the `review` label `ambiguous`, and a row takes its
+highest tier. `tier` is an ordered factor, so
+`report[report$tier >= "review", ]` selects the same rows from an
+existing report. The suggestions can replace the input names before the
+list is matched again:
 
 ``` r
 
@@ -211,6 +215,9 @@ fixes
 #> 3   Panthera leo  Panthera leo
 #> 4    Pinus abies   Picea abies
 ```
+
+*Panthera leo* keeps its own name as the suggestion: the outlier check
+questions whether it belongs in the list, not how it is spelt.
 
 The checks that compare a name with the rest of the list need more than
 one name;
@@ -224,8 +231,21 @@ the checks that ran found nothing.
 
 A checklist compiled years ago follows an older treatment.
 [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
-reports for each name whether the backbone still accepts it, and which
-names now fall together:
+reports for each name whether the backbone still accepts it, as one
+`status`, and which names now fall together:
+
+- `unchanged`: the backbone accepts the name.
+
+- `synonym`: the backbone treats it as a synonym.
+
+- `misspelling`: matched only by fuzzy matching.
+
+- `ambiguous`: a synonym with more than one accepted taxon.
+
+- `unresolved`: no match.
+
+The checklist below holds a synonym and its accepted name, a misspelling
+and a genus name:
 
 ``` r
 
@@ -245,13 +265,9 @@ rec[, c("input_name", "accepted_name", "status", "merged_with")]
 #> 5       Prunella      Prunella   unchanged        <NA>
 ```
 
-`status` is `unchanged` for a name the backbone accepts, `synonym` for
-one it treats as a synonym, `misspelling` for one matched by fuzzy
-matching, `ambiguous` for a synonym with more than one accepted taxon,
-and `unresolved` for a name with no match. *Pinus abies* and *Picea
-abies* now name the same species, so each lists the other in
-`merged_with`. *Prunella* is the accepted name of two genera and stays
-`unchanged`; `n_ids` (not shown) counts them.
+*Pinus abies* and *Picea abies* now name the same species, so each lists
+the other in `merged_with`. *Prunella* is the accepted name of two
+genera and stays `unchanged`; `n_ids` (not shown) counts them.
 
 ## Where next
 

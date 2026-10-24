@@ -2,83 +2,14 @@
 
 ## taxify (development version)
 
-### Documentation
-
-- The README and every article were rewritten. Get started is now
-  [`vignette("taxify")`](https://gillescolling.com/taxify/articles/taxify.md)
-  (the old `quickstart` URL redirects), and the articles are grouped
-  into workflows and background. New articles cover exploring the
-  backbone
-  ([`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
-  [`children()`](https://gillescolling.com/taxify/reference/children.md),
-  [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md),
-  …) and matching vegetation units. The per-source detail of every
-  published dataset moved to The backbones and datasets.
-- The output shown in the README and the articles comes from running
-  their code against the installed backbones
-  (`data-raw/precompute_vignettes.R` knits `vignettes/*.Rmd.orig`), so
-  it no longer drifts from what the functions return.
-- `citation("taxify")` now reads `inst/CITATION`, with the CRAN DOI, and
-  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) takes
-  the package’s own entry from it.
-
-### Bug fixes
-
-- [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md),
-  the cross-backbone recovery of the `add_<source>()` functions and
-  `inspect(backbones = TRUE)` no longer repeat the `taxify_multiple_ids`
-  warning for names they match internally (the joined table’s names, a
-  dataset’s names); the warning still names the inputs of the
-  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  call itself.
-- `taxify(kingdom = )` now moves a name used in two kingdoms to its
-  record in the requested kingdom instead of leaving it unmatched:
-  `Prunella` with `kingdom = "plants"` matched the bird genus, dropped
-  it, and returned nothing, although COL also accepts the plant genus.
-  The row’s `pick_basis` is `"kingdom"`.
-- [`cite()`](https://gillescolling.com/taxify/reference/cite.md) and the
-  “Sources:” line under a printed result name only the backbones that
-  matched a row, not every backbone of the fallback chain, and the line
-  no longer prints `NA` for a backbone without a version.
-- [`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md),
-  [`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md),
-  [`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
-  and
-  [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
-  no longer register themselves as published datasets, which made
-  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) list an
-  empty entry (“COL (2025). col_info.”) and
-  [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
-  record a dataset
-  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
-  could never find. Their columns come from a backbone the result
-  already cites.
-- [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-  records the joined table under `taxify_meta$user_data` instead of
-  among the published datasets, so
-  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) no
-  longer lists it and
-  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
-  no longer reports it as missing.
-- Exact matching of long lists is several times faster: choosing the
-  pick of each name scanned the whole candidate table once per name, so
-  100,000 names took about four times as long as needed.
-- `inspect(backbones = TRUE)` matches in the order of the default
-  fallback chain, so its labels are the ones
-  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  gives.
-- A subset of an
-  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
-  report is a plain data frame; it printed as an empty report.
-- `gbif_request(dry_run = TRUE)` prints the keys alone instead of the
-  key table and the match metadata attached to them.
-- [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
-  gains a `title` column with each backbone’s full name.
-- The benchmark scripts `scripts/benchmark-memory.R` and
-  `scripts/benchmark-worldflora.R` called
-  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-  with an argument it no longer has; `scripts/benchmark-scale.R` is new
-  and times lists of 1,000 to 100,000 names.
+- A fuzzy syntaxon match whose first word is misspelt carries the
+  accepted unit’s `class`, `order`, `alliance` and `association`, as
+  every other match does
+  ([\#97](https://github.com/gcol33/taxify/issues/97)).
+- A syntaxon whose suffix gives its rank no longer fuzzy-matches a name
+  that carries no rank suffix: `Deschampsietum caespitosae` is not
+  matched to `Deschampsiosum cespitosae`
+  ([\#97](https://github.com/gcol33/taxify/issues/97)).
 
 ## taxify 0.7.0
 
@@ -175,6 +106,88 @@
   [`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
   uses; it reads the unified column taxifydb now writes for every
   backbone (gcol33/taxifydb#60).
+
+### Documentation
+
+- The README and every article were rewritten. Get started is now
+  [`vignette("taxify")`](https://gillescolling.com/taxify/articles/taxify.md)
+  (the old `quickstart` URL redirects), and the articles are grouped
+  into workflows and background. New articles cover exploring the
+  backbone
+  ([`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+  [`children()`](https://gillescolling.com/taxify/reference/children.md),
+  [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md),
+  …) and matching vegetation units. The per-source detail of every
+  published dataset moved to The backbones and datasets.
+- The output shown in the README and the articles comes from running
+  their code against the installed backbones
+  (`data-raw/precompute_vignettes.R` knits `vignettes/*.Rmd.orig`), so
+  it no longer drifts from what the functions return.
+- `citation("taxify")` now reads `inst/CITATION`, with the CRAN DOI, and
+  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) takes
+  the package’s own entry from it.
+- `scripts/benchmark-scale.R` times lists of 1,000 to 100,000 names; the
+  memory and WorldFlora benchmark scripts, which called
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  with an argument it no longer has, run again, and all three results
+  were measured for the articles that quote them.
+
+### New features and speed
+
+- [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
+  gains a `title` column with each backbone’s full name.
+- Exact matching of 100,000 WFO names takes 14 s instead of 61 s,
+  measured with `scripts/benchmark-scale.R` before and after the change:
+  choosing the pick of each name scanned the whole candidate table once
+  per name.
+
+### Bug fixes
+
+- [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md),
+  the cross-backbone recovery of the `add_<source>()` functions and
+  `inspect(backbones = TRUE)` no longer repeat the `taxify_multiple_ids`
+  warning for names they match internally (the joined table’s names, a
+  dataset’s names); the warning still names the inputs of the
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  call itself.
+- `taxify(kingdom = )` now moves a name used in two kingdoms to its
+  record in the requested kingdom instead of leaving it unmatched:
+  `Prunella` with `kingdom = "plants"` matched the bird genus, dropped
+  it, and returned nothing, although COL also accepts the plant genus.
+  The row’s `pick_basis` is `"kingdom"`.
+- [`cite()`](https://gillescolling.com/taxify/reference/cite.md) and the
+  “Sources:” line under a printed result name only the backbones that
+  matched a row, not every backbone of the fallback chain, and the line
+  no longer prints `NA` for a backbone without a version.
+- [`add_col_info()`](https://gillescolling.com/taxify/reference/add_col_info.md),
+  [`add_wfo_info()`](https://gillescolling.com/taxify/reference/add_wfo_info.md),
+  [`add_gbif_info()`](https://gillescolling.com/taxify/reference/add_gbif_info.md)
+  and
+  [`add_hybrid_info()`](https://gillescolling.com/taxify/reference/add_hybrid_info.md)
+  no longer register themselves as published datasets, which made
+  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) list an
+  empty entry (“COL (2025). col_info.”) and
+  [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
+  record a dataset
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+  could never find. Their columns come from a backbone the result
+  already cites.
+- [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+  records the joined table under `taxify_meta$user_data` instead of
+  among the published datasets, so
+  [`cite()`](https://gillescolling.com/taxify/reference/cite.md) no
+  longer lists it and
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
+  no longer reports it as missing.
+- `inspect(backbones = TRUE)` matches in the order of the default
+  fallback chain, so its labels are the ones
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  gives.
+- A subset of an
+  [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
+  report is a plain data frame; it printed as an empty report.
+- `gbif_request(dry_run = TRUE)` prints the keys alone instead of the
+  key table and the match metadata attached to them.
 
 ## taxify 0.6.0
 

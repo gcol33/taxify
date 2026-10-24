@@ -91,6 +91,11 @@ A file path takes the place of the data frame. The example writes the
 trait table to a temporary CSV file first, with the species in a column
 called `latin_name` and a column of site codes:
 
+The call gives no `species_col`, so
+[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
+matches the first ten names of each text column against the backbone and
+takes the column with the most matches, if at least half match:
+
 ``` r
 
 csv <- tempfile(fileext = ".csv")
@@ -116,13 +121,9 @@ from_file[, c("input_name", "sla")]
 #> Sources: COL 2026.09 | cite() for full citations
 ```
 
-Without `species_col`,
-[`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-matches the first ten names of each text column against the backbone and
-takes the column with the most matches, if at least half match. Here
-`latin_name` matched all five and `site` none. For your own file, only
-the path changes, and `species_col` names the column when the guess
-fails.
+The site codes match no backbone name, so the column holding names wins.
+For your own file, only the path changes, and `species_col` names the
+column when the guess fails.
 
 The file type is read from the extension:
 
@@ -136,7 +137,8 @@ The file type is read from the extension:
 - `.sqlite` and `.db`: a SQLite database, which needs DBI and RSQLite.
   `table` names the table.
 
-- `.vtr`: a table in the format of vectra, the package taxify reads
+- `.vtr`: a table in the format of
+  [vectra](https://gillescolling.com/vectra/), the package taxify reads
   backbones with.
 
 ``` r
@@ -204,7 +206,8 @@ merged <- add_data(res, same, species_col = "species")
 #> add_data: 2 of 5 species matched (40.0%). 0 names in data unmatched.
 ```
 
-Rows with different values stop the join, because
+Rows with different values in any selected column stop the join, two
+`NA` values counting as equal, because
 [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
 cannot tell which value is right:
 
@@ -223,10 +226,9 @@ add_data(res, differ, species_col = "species", cols = "sla")
 #>   Examples: 'Quercus robur'
 ```
 
-Two values count as different when any selected column differs, with two
-`NA` values counted as equal. Averaging the rows before the join is one
-fix. When the rows belong to different groups, such as countries,
-`group_col` keeps them apart, with one column per group:
+Averaging the rows before the join is one fix. When the rows belong to
+different groups, such as countries, `group_col` keeps them apart, with
+one column per group:
 
 ``` r
 

@@ -45,6 +45,7 @@ library(taxify)
 
 ## Synonyms
 
+A species list can hold old names for a taxon.
 [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
 resolves each name to its accepted taxon and lists every synonym the
 backbone points to it:
@@ -69,6 +70,7 @@ same set, through the accepted *Picea abies*.
 
 ## Taxa below a genus or family
 
+To complete a checklist, the species of a genus are needed.
 [`children()`](https://gillescolling.com/taxify/reference/children.md)
 lists the accepted species of a genus, or of a family:
 
@@ -108,6 +110,7 @@ as in
 
 ## Ranks above a taxon
 
+Grouping species by family or order needs their classification.
 [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
 returns the classification of one taxon, one row per rank. A synonym or
 misspelling is resolved first:
@@ -142,9 +145,10 @@ cls[, c("input_name", "kingdom", "phylum", "class", "order", "family")]
 
 ## IDs
 
-[`id2name()`](https://gillescolling.com/taxify/reference/id2name.md)
-turns backbone IDs, such as those in the `taxon_id` and `accepted_id`
-columns, into names, ranks and accepted names:
+A table that stores only backbone IDs can be read back with
+[`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+which turns backbone IDs, such as those in the `taxon_id` and
+`accepted_id` columns, into names, ranks and accepted names:
 
 ``` r
 
@@ -183,6 +187,8 @@ explains how it is chosen.
 
 ## The parts of a name
 
+Names from field sheets mix authors, qualifiers and hybrid signs into
+one string.
 [`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md)
 splits a name into its parts without matching it against a backbone:
 
@@ -270,16 +276,18 @@ table(sp_res$accepted_name)
 ```
 
 Of the 31 names that carry “Norway spruce”, 30 match COL, and 27 of
-those resolve to *Picea abies* or one of its varieties. The others are
-names a source attached the common name to in another sense, which is
-why the lookup returns every name rather than one.
+those resolve to *Picea abies* or one of its varieties. The other three
+resolve to *Abies alba* and *Abies sachalinensis* var. *nemorensis*, so
+a common-name lookup gives candidates to check rather than one answer.
 [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
 attaches the first common name of each language as columns of a result.
 
 ## Comparing a list
 
+How closely the species of a list are related is the lowest rank they
+share, which
 [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md)
-returns the lowest rank a set of names shares:
+returns:
 
 ``` r
 

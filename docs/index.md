@@ -41,13 +41,18 @@ taxify supports:
   EuroVegChecklist and the Czech national classification, resolve
   alliance and association names the way species names are resolved.
 
-The accepted name is the backbone’s; taxify adds no taxonomic opinion.
-Where backbones disagree, `mode = "wide"` shows each one’s answer side
-by side. Every row records the backbone and its version,
+The accepted name is the backbone’s own, and where backbones disagree,
+`mode = "wide"` shows each one’s answer side by side. Every row records
+the backbone and its version,
 [`cite()`](https://gillescolling.com/taxify/reference/cite.md) prints
 the references of every backbone and dataset a result used, and
 [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
-saves the versions so the analysis can be rerun on the same data.
+saves the versions so the analysis can be rerun on the same data. A
+script in the repository matches 300 World Flora Online names in taxify
+and in WorldFlora; 277 get the same accepted name, and [Compatibility
+with taxize and
+WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
+shows where and why the others differ.
 
 ## Installation
 
@@ -85,7 +90,14 @@ library(taxify)
 
 names <- c("Quercus robur", "Quercus robus", "Pinus abies",
            "Fallopia japonica")
-res <- taxify(names, verbose = FALSE)
+res <- taxify(names)
+#> Matching 4 names against 3 backbones: col -> gbif -> itis
+#>   [col] Matching 4 names...
+#>   [gbif] Matching 1 remaining names...
+#>   [itis] Matching 1 remaining names...
+#>   [col] Fuzzy matching 1 unmatched...
+#>   [gbif] Skipped (all names matched)
+#>   [itis] Skipped (all names matched)
 #> Warning: 1 of 4 names resolve to more than one accepted ID (Pinus abies).
 #> `accepted_id` holds one and `accepted_ids` all of them; list them with
 #> taxify_ids() before requesting data by ID.
@@ -247,9 +259,9 @@ path from a messy list to accepted names with traits attached.
   aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html):
   the matching rules in detail.
 
-- [Coming from taxize and
+- [Compatibility with taxize and
   WorldFlora](https://gillescolling.com/taxify/articles/migration.html):
-  function mapping, side-by-side examples and timings.
+  agreement with WorldFlora, function mapping and timings.
 
 - [The backbones and
   datasets](https://gillescolling.com/taxify/articles/databases.html):
@@ -293,28 +305,36 @@ reference for each one a result used.
 
 ## License
 
-MIT.
+taxify is licensed under MIT. Each backbone and dataset keeps the
+licence of its publisher, listed in [The backbones and
+datasets](https://gillescolling.com/taxify/articles/databases.html).
 
 ## Citation
 
-``` R
 If you use taxify, please cite the package and the backbones and
 datasets your results come from. cite() on a taxify result lists their
 references.
 
-  Colling G (2026). _taxify: Offline Taxonomic Name Matching Against
-  Darwin Core Backbones_. doi:10.32614/CRAN.package.taxify
-  <https://doi.org/10.32614/CRAN.package.taxify>. R package version
-  0.7.0, <https://gillescolling.com/taxify/>.
-
-A BibTeX entry for LaTeX users is
-
-  @Manual{colling2026taxify,
-    title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
-    author = {Gilles Colling},
-    year = {2026},
-    note = {R package version 0.7.0},
-    doi = {10.32614/CRAN.package.taxify},
-    url = {https://gillescolling.com/taxify/},
-  }
+``` text
+Colling G (2026). _taxify: Offline Taxonomic Name Matching Against
+Darwin Core Backbones_. doi:10.32614/CRAN.package.taxify
+<https://doi.org/10.32614/CRAN.package.taxify>. R package version
+0.7.0, <https://gillescolling.com/taxify/>.
 ```
+
+BibTeX:
+
+``` bibtex
+@Manual{colling2026taxify,
+  title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
+  author = {Gilles Colling},
+  year = {2026},
+  note = {R package version 0.7.0},
+  doi = {10.32614/CRAN.package.taxify},
+  url = {https://gillescolling.com/taxify/},
+}
+```
+
+Download the citation as
+[BibTeX](https://gillescolling.com/taxify/taxify.bib) or
+[RIS](https://gillescolling.com/taxify/taxify.ris).

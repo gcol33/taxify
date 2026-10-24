@@ -91,9 +91,9 @@ wood[, c("input_name", "woodiness")]
 #> Sources: COL 2026.09, Zanne et al. 2014 2026.08 | cite() for full citations
 ```
 
-The message says that one of the dataset’s two columns was attached.
 [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
-lists them all, and `cols` chooses: a vector of names, or `"all"`:
+lists all of a dataset’s columns, and `cols` chooses: a vector of names,
+or `"all"`:
 
 ``` r
 
@@ -128,7 +128,8 @@ Some datasets hold a value for each country, region or language. Their
 function takes the place or language as an argument.
 [`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md)
 reads the Global Register of Introduced and Invasive Species (GRIIS) for
-countries given as two-letter ISO codes:
+countries given as two-letter ISO codes. One code gives one column,
+`invasive_status`; several give a column each, with the code as suffix:
 
 ``` r
 
@@ -138,7 +139,6 @@ aliens <- c(
 )
 al <- taxify(aliens, backbone = "col", verbose = FALSE)
 gr <- add_griis(al, country = c("AT", "DE", "GB"))
-#> Tip: pipe into taxify_long() to reshape wide columns to long format.
 gr[, c("input_name", "invasive_status_AT", "invasive_status_DE",
        "invasive_status_GB")]
 #>               input_name invasive_status_AT invasive_status_DE
@@ -156,13 +156,11 @@ gr[, c("input_name", "invasive_status_AT", "invasive_status_DE",
 #> Sources: COL 2026.09, GRIIS 2026.08 | cite() for full citations
 ```
 
-One code gives one column, `invasive_status`; several give a column
-each, with the code as suffix. *Quercus robur* is native in all three
-countries. GRIIS focuses on introduced and invasive species, so it has
-no record for the oak, and its rows are `NA`: an `NA` means that the
-dataset has no record, not that the species is native.
-`enrichment_groups("griis")` lists the codes, and `country = "all"`
-takes every country.
+*Quercus robur* is native in all three countries. GRIIS focuses on
+introduced and invasive species, so it has no record for the oak, and
+its rows are `NA`: an `NA` means that the dataset has no record, not
+that the species is native. `enrichment_groups("griis")` lists the
+codes, and `country = "all"` takes every country.
 
 [`taxify_long()`](https://gillescolling.com/taxify/reference/taxify_long.md)
 turns the suffixed columns into rows, one per species and country:
@@ -204,6 +202,9 @@ wc[, c("input_name", "native_status_GER", "native_status_AGS")]
 *Nothofagus pumilio* is native to southern Argentina (`AGS`). The giant
 sequoia, native to California, is recorded in Germany as introduced.
 
+[`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md)
+takes a language code and adds one name per species in that language:
+
 ``` r
 
 cn <- add_common_names(res, lang = "de")
@@ -240,28 +241,22 @@ head(traits[order(-traits$n_sources), c("trait", "unit", "n_sources")])
 #> 2           seed_mass                          mg         8
 ```
 
-By default the sources are combined into one value per row, with columns
-for the unit, the sources used, their number, and the smallest and
-largest value:
+By default the sources are combined by their median into one value per
+row, with columns for the unit, the sources used, their number, and the
+smallest and largest value:
 
 ``` r
 
 seed <- add_trait(res, "seed_mass")
 #> add_trait('seed_mass'): diaz 5, gift 5, austraits 1, bien 5, brot 4, ecoflora 5, kew_sid 5, leda 5 (of 5 resolved names).
-seed[, c("accepted_name", "seed_mass", "seed_mass_sources", "seed_mass_n",
+seed[, c("accepted_name", "seed_mass", "seed_mass_unit", "seed_mass_n",
          "seed_mass_min", "seed_mass_max")]
-#>           accepted_name   seed_mass
-#> 1         Quercus robur 3489.136038
-#> 2       Fagus sylvatica  211.702128
-#> 3            Abies alba   55.100000
-#> 4 Arrhenatherum elatius    2.756200
-#> 5   Plantago lanceolata    1.393807
-#>                                     seed_mass_sources seed_mass_n seed_mass_min
-#> 1           diaz,gift,bien,brot,ecoflora,kew_sid,leda           7     1444.9500
-#> 2           diaz,gift,bien,brot,ecoflora,kew_sid,leda           7      127.5600
-#> 3           diaz,gift,bien,brot,ecoflora,kew_sid,leda           7       38.3608
-#> 4                diaz,gift,bien,ecoflora,kew_sid,leda           6        1.5984
-#> 5 diaz,gift,austraits,bien,brot,ecoflora,kew_sid,leda           8        0.2900
+#>           accepted_name   seed_mass seed_mass_unit seed_mass_n seed_mass_min
+#> 1         Quercus robur 3489.136038             mg           7     1444.9500
+#> 2       Fagus sylvatica  211.702128             mg           7      127.5600
+#> 3            Abies alba   55.100000             mg           7       38.3608
+#> 4 Arrhenatherum elatius    2.756200             mg           6        1.5984
+#> 5   Plantago lanceolata    1.393807             mg           8        0.2900
 #>   seed_mass_max
 #> 1     5000.0000
 #> 2      410.0000
@@ -273,8 +268,7 @@ seed[, c("accepted_name", "seed_mass", "seed_mass_sources", "seed_mass_n",
 
 A numeric trait is reported in one unit: GIFT records seed mass in grams
 and the data of Díaz et al. in milligrams, and both are converted to
-milligrams. Several sources measuring the same quantity are combined by
-their median.
+milligrams.
 [`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
 lists the sources of a trait in their default order, the column each is
 read from and the conversion applied; the first two are shown here:
@@ -289,7 +283,8 @@ info[1:2, c("source", "column", "note")]
 #> 2   gift gift_seed_mass_mean GIFT grams converted to milligrams (x1000).
 ```
 
-`mode = "wide"` keeps one column per source, after the conversion:
+`mode = "wide"` keeps one column per source, after each source’s units
+and terms are converted to one unit and one vocabulary:
 
 ``` r
 
@@ -314,14 +309,15 @@ showed, and
 reports *non-woody*.
 
 Sources that measure a trait by different methods are not averaged. When
-one source of a trait carries a `caution` in
-[`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md),
-[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md)
-reports the values of the most complete source and adds a
-`<trait>_caution` column, so a value never mixes two methods. `sources`
-restricts a trait to some of its sources, `priority` sets their order,
-and `combine` sets how they are combined (`"median"`, `"mean"`,
-`"first"`, `"complete"`, `"vote"`, `"min"` or `"max"`).
+[`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
+notes a caution for one of the sources, the values of the most complete
+source are reported, with a caution column beside them, so a value never
+mixes two methods.
+
+Three arguments change how sources are used. `sources` restricts a trait
+to some of them, and `priority` sets their order. `combine` sets how
+they are combined: the median, the mean, the first or the most complete
+source, a vote, the smallest or the largest value.
 
 ## Where each value came from
 
@@ -357,8 +353,8 @@ they record them.
 
 ## Coverage
 
-A dataset covers a group of taxa, often a region, and never every
-species. A mixed list shows the pattern:
+Six species from six groups (an oak, a bird, a mammal, a toad, a fungus,
+a fish) each get one dataset per group:
 
 ``` r
 
@@ -401,18 +397,21 @@ dataset filled, with its version and licence:
 
 ``` r
 
-summary(both)
+summary(mx)
 #> ── taxify results ────────────────────────────────────────────────────────────
-#>   backbone: COL v2026.09  |  5 names submitted
+#>   backbone: COL v2026.09  |  6 names submitted
 #> 
-#>   matched         5  (exact: 5, case-insensitive: 0, fuzzy: 0, abbrev: 0)
-#>   multiple ids    1  (more than one accepted ID; see taxify_ids())
+#>   matched         6  (exact: 6, case-insensitive: 0, fuzzy: 0, abbrev: 0)
 #>   ────────────────────────────────────────────────────────────
-#>   taxon groups: angiosperm: 4  gymnosperm: 1
+#>   taxon groups: animal: 4  angiosperm: 1  fungus: 1
 #> 
 #>   enrichments:
-#>     zanne  (Zanne et al. 2014 2026.08) — 5 of 5 matched [CC0]
-#>     eive   (EIVE 1.0 2026.08)          — 5 of 5 matched [CC BY 4.0]
+#>     zanne          (Zanne et al. 2014 2026.08) — 1 of 6 matched [CC0]
+#>     avonet         (AVONET 2026.08)            — 1 of 6 matched [CC BY 4.0]
+#>     pantheria      (PanTHERIA 2026.08)         — 1 of 6 matched [CC0]
+#>     amphibio       (AmphiBIO 2026.08)          — 1 of 6 matched [CC BY 4.0]
+#>     fungal_traits  (FungalTraits 2026.08)      — 1 of 6 matched [CC BY 4.0]
+#>     fishbase       (FishBase 2026.08)          — 1 of 6 matched [CC BY-NC 4.0]
 ```
 
 ## How the values are joined

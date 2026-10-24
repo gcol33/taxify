@@ -70,13 +70,14 @@ Without a `backbone` argument,
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) uses
 every installed backbone of taxa as a fallback chain: each name is
 matched against the first backbone, the names left unmatched go to the
-second, and so on. The order is fixed by priority. The Catalogue of Life
-(COL) and its Extended Release (COL XR) come first, then the backbones
-of one group (marine species, plants, fungi, algae, fishes, reptiles,
-mammals, birds, prokaryotes), then the broad compilations GBIF, ITIS,
-NCBI and OTT. On a new setup the first call installs COL, GBIF and the
-Integrated Taxonomic Information System (ITIS); every backbone
-downloaded later joins the chain at its place in that order.
+second, and so on. The order is fixed by priority. The Extended Release
+of the Catalogue of Life (COL XR) comes first, then the Catalogue of
+Life (COL), then the backbones of one group (marine species, plants,
+fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the
+broad compilations GBIF, ITIS, NCBI and OTT. On a new setup the first
+call installs COL, GBIF and the Integrated Taxonomic Information System
+(ITIS); every backbone downloaded later joins the chain at its place in
+that order.
 
 The list below mixes a plant, two animals renamed since their
 description, a fungus, a fish, a bacterium and a brown alga:
@@ -122,9 +123,12 @@ use.
 
 ## Naming the backbones
 
-A `backbone` vector replaces the default chain with your own. A plant
-list resolved against World Flora Online (WFO) first, with COL for the
-rest:
+When most names of a list belong to one group, that group’s backbone can
+come first. A `backbone` vector replaces the default chain with your
+own; here the mixed list is resolved against World Flora Online (WFO)
+first, with COL for the rest. Before a name moves on, taxify checks the
+genus register, an index of the genera of every backbone, and does not
+send a name to a backbone that holds none of its genus:
 
 ``` r
 
@@ -152,9 +156,8 @@ accepted name, family and synonym resolution. Fuzzy matching runs inside
 each backbone before the name moves on, so a misspelt plant name is
 compared with WFO’s names before it reaches COL.
 
-*Fucus vesiculosus* was not sent to COL. Its genus is in the genus
-register, an index of the genera of every backbone, and the register
-records that neither WFO nor COL holds it, so the row has
+*Fucus vesiculosus* was not sent to COL, because the register records
+that neither WFO nor COL holds its genus; the row has
 `match_type = "out_of_scope"`. The register is described in [How names
 are
 matched](https://gillescolling.com/taxify/articles/fuzzy-matching.md).
@@ -173,6 +176,8 @@ res[res$input_name == "Fucus vesiculosus",
 
 ## Checking names outside a backbone
 
+A row that comes back `out_of_scope` needs a backbone that holds its
+genus.
 [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
 returns the genus register’s entry for a genus, and
 [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
@@ -195,17 +200,17 @@ taxify_register_coverage("Fucus")
 #> 8 Fucus   algaebase 2026.09 2026-09-14
 ```
 
-*Fucus* is a brown alga, held by eight backbones. The COL release used
-here is not one of them, while COL XR, which adds names from further
-sources, is. An `out_of_scope` row therefore points to a backbone to add
-to the chain, where `match_type = "none"` leaves open whether the name
-is misspelt or exists in no backbone.
+The COL release used here is not among them, while COL XR, which adds
+names from further sources, is. An `out_of_scope` row therefore points
+to a backbone to add to the chain, where `match_type = "none"` leaves
+open whether the name is misspelt or exists in no backbone.
 
 ## Comparing backbones
 
-`mode = "wide"` matches every name against every backbone in `backbone`
-and adds one `accepted_<backbone>` column per backbone, plus
-`all_agree`:
+Backbones can treat the same name differently, and the fallback chain
+shows only the first one’s answer. `mode = "wide"` matches every name
+against every backbone in `backbone` and adds one `accepted_<backbone>`
+column per backbone, plus `all_agree`:
 
 ``` r
 
@@ -278,8 +283,8 @@ crab[, c("input_name", "kingdom", "is_marine", "is_terrestrial")]
 #> Sources: COL 2026.09 | cite() for full citations
 ```
 
-COL records the shore crab as marine and not terrestrial. It records
-neither for the oak, so both columns are `NA` there.
+COL matched the oak as well but records no habitat for it, so `NA` there
+means not recorded, not unmatched.
 
 ## How the backbones differ in output
 
@@ -288,16 +293,17 @@ differences:
 
 - **Identifiers.** `taxon_id` and `accepted_id` use each backbone’s own
   system: WFO IDs, opaque COL IDs (`4R5YN` for *Quercus robur*), GBIF
-  integer keys, ITIS TSNs, NCBI Taxonomy IDs, WoRMS AphiaIDs. An ID is
-  meaningful only within its backbone.
+  integer keys, ITIS TSNs, NCBI Taxonomy IDs, WoRMS AphiaIDs.
 
 - **Authorship.** NCBI and OTT record no authors, so `authorship` is
   `NA` on their rows.
 
-- **Synonyms.** Each source encodes synonyms its own way; all are
-  converted when the backbone is built to `is_synonym`, `accepted_name`
-  and `accepted_id`. A synonym that points to another synonym is
-  followed to the accepted name at build time.
+- **Synonyms.** Each source encodes synonyms in its own way.
+
+An ID is meaningful only within its backbone. When a backbone is built,
+its synonyms are converted to `is_synonym`, `accepted_name` and
+`accepted_id`, and a synonym that points to another synonym is followed
+to the accepted name.
 
 The source, licence and citation of each backbone are listed in [The
 backbones and
@@ -352,8 +358,8 @@ needs the taxifydb package.
 
 ## Choosing backbones for a list
 
-Lead with the backbone whose treatment you want for most of the names,
-and add broader backbones after it for the rest:
+The first backbone in the vector sets the treatment for most names, and
+broader backbones after it resolve the rest:
 
 - **Vascular plants**: `"wfo"`, or `c("wfo", "col")` for cultivars,
   names from older floras and recently moved genera that WFO lacks. The

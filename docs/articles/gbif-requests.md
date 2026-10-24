@@ -107,9 +107,10 @@ request by that key returns.
 
 ## What a request covers
 
-`dry_run = TRUE` returns the keys a request would send, and the message
-estimates the number of records from the counts above, without
-contacting GBIF:
+By default (`keys = "taxon"`) a request covers the `pick` and
+`same_name` keys and leaves out `other_taxon` keys. `dry_run = TRUE`
+returns the keys a request would send, and the message estimates the
+number of records from the counts above, without contacting GBIF:
 
 ``` r
 
@@ -120,10 +121,8 @@ gbif_request(matched, dry_run = TRUE)
 #> [10] 3117424 5361889
 ```
 
-By default (`keys = "taxon"`) the request covers the `pick` and
-`same_name` keys and leaves out `other_taxon` keys. `keys = "pick"`
-sends only the picked key of each name, and `keys = "all"` adds the
-other taxa:
+`keys = "pick"` sends only the picked key of each name, and
+`keys = "all"` adds the other taxa:
 
 ``` r
 
@@ -157,12 +156,13 @@ gbif_request(default, dry_run = TRUE)
 #> [10] 3117424 5361889
 ```
 
-The request is the same as from the GBIF match, and the message names
-the other-taxon keys it leaves out: COL XR lists *Pinus sylvestris* and
-*Quercus robur* as synonyms of other species under other authors. A row
-whose backbone records no GBIF key is matched again against GBIF by its
-accepted name. `attr(x, "taxa")$key_source` records where each key came
-from (`backbone`, `crosswalk` or `rematch`).
+The request is the same as from the GBIF match, and the message counts
+the other-taxon keys it leaves out and names the input names they belong
+to: COL XR lists *Pinus sylvestris* and *Quercus robur* as synonyms of
+other species under other authors. A row whose backbone records no GBIF
+key is matched again against GBIF by its accepted name.
+`attr(x, "taxa")$key_source` records where each key came from
+(`backbone`, `crosswalk` or `rematch`).
 
 ## Setting up rgbif
 
@@ -239,12 +239,12 @@ which can lie below the requested key: a record of *Pinus nigra* subsp.
 requested.
 [`gbif_fetch()`](https://gillescolling.com/taxify/reference/gbif_fetch.md)
 therefore links each record through
-[`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md),
-which reads `taxonKey`, `acceptedTaxonKey`, `speciesKey`, `genusKey` and
-`familyKey` in that order and takes the first requested key. It adds
-`requested_key`, `input_name` and `accepted_name`. A record that carries
-no requested key keeps `NA` in all three, and the message counts such
-records.
+[`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md).
+It reads the record’s keys from the most specific outwards (taxon,
+accepted taxon, species, genus, family) and takes the first one that was
+requested. The record then carries the requested key, the input name and
+the accepted name. A record that carries no requested key keeps `NA` in
+those three columns, and the message counts such records.
 
 For records fetched another way,
 [`gbif_backmatch()`](https://gillescolling.com/taxify/reference/gbif_backmatch.md)

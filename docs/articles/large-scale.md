@@ -29,9 +29,11 @@ library(taxify)
 accepted species names drawn from World Flora Online (WFO), as they are
 and with one letter changed in every tenth name. Each list runs in a new
 R session, after one call that loads the backbone. The run recorded in
-`scripts/benchmark-scale-results.json` used taxify 0.7.0 and vectra
-0.13.0 under R 4.6.0, on Intel(R) Core(TM) i9-14900K with 32 logical
-cores, on 2026-10-13:
+`scripts/benchmark-scale-results.json` used taxify 0.7.0 and
+[vectra](https://gillescolling.com/vectra/) 0.13.0 under R 4.6.0, on
+Intel(R) Core(TM) i9-14900K with 32 logical cores, on 2026-10-13. A
+misspelt name goes through fuzzy matching after every exact stage has
+missed it, so a list with misspellings takes longer:
 
 |   Names | All spelt correctly (s) | One in ten misspelt (s) |
 |--------:|------------------------:|------------------------:|
@@ -40,9 +42,7 @@ cores, on 2026-10-13:
 | 100,000 |                    14.1 |                    36.8 |
 
 Loading the backbone took about 2.1 s and is paid once per session;
-every later call reuses it. A misspelt name costs more than a correct
-one, because it goes through fuzzy matching after every exact stage has
-missed it.
+every later call reuses it.
 
 ## Lists that need no fuzzy matching
 
@@ -62,15 +62,23 @@ table(exact$match_type)
 ```
 
 For a list with some misspellings, the fuzzy stage can run on the
-unmatched names alone, and the results are joined back by input name:
+unmatched names alone; its rows replace the `none` rows of the first
+result, matched by input name:
 
 ``` r
 
 missed <- exact$input_name[exact$match_type == "none"]
 second <- taxify(missed, backbone = "wfo", verbose = FALSE)
-second[, c("input_name", "matched_name", "match_type")]
-#>        input_name    matched_name match_type
-#> 1 Qurecus petraea Quercus petraea      fuzzy
+rows <- match(second$input_name, exact$input_name)
+exact[rows, ] <- second
+exact[, c("input_name", "matched_name", "match_type")]
+#>            input_name        matched_name match_type
+#> 1       Quercus robur       Quercus robur      exact
+#> 2     Fagus sylvatica     Fagus sylvatica      exact
+#> 3      Betula pendula      Betula pendula      exact
+#> 4    Pinus sylvestris    Pinus sylvestris      exact
+#> 5 Acer pseudoplatanus Acer pseudoplatanus      exact
+#> 6     Qurecus petraea     Quercus petraea      fuzzy
 #> Sources: WFO 2026.06 | cite() for full citations
 ```
 
@@ -158,8 +166,13 @@ including what the backbone occupies outside R’s own objects, which
 [`gc()`](https://rdrr.io/r/base/gc.html) does not report. Each stage
 runs in a new session. The run recorded in
 `scripts/benchmark-memory-results.json` used taxify 0.7.0 under R 4.6.0
-on 2026-10-13, matching 5,000 names; values are megabytes above an R
-session with taxify loaded:
+on 2026-10-13, matching 5,000 names. `File` is the size on disk of the
+backbone that run read, in megabytes of 10^6 bytes, so it differs from
+the sizes
+[`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)
+reports from the manifest. The other values are megabytes above an R
+session with taxify loaded; the fuzzy column is the case in which every
+name needs fuzzy matching:
 
 | Backbone | File (MB) | Loaded | Exact match | Fuzzy match |
 |:---------|----------:|-------:|------------:|------------:|
@@ -167,11 +180,10 @@ session with taxify loaded:
 | GBIF     |     1,701 |  4,491 |       5,453 |       7,223 |
 | WFO      |       775 |  1,477 |       1,728 |       3,043 |
 
-A loaded backbone takes two to three times its file size, for its
-indexes and its text, and stays loaded for the session. Fuzzy matching
-adds a working buffer that grows with the number of unmatched names, and
-is released after each call; the fuzzy column is the case in which every
-name needs it.
+A loaded backbone takes between 1.9 and 2.6 times its file size here,
+for its indexes and its text, and stays loaded for the session. Fuzzy
+matching adds a working buffer that grows with the number of unmatched
+names, and is released after each call.
 
 [`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md)
 releases the loaded backbones, for example before fitting a model on the

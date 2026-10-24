@@ -29,5 +29,5 @@
   aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.md):
 - [The backbones and
   datasets](https://gillescolling.com/taxify/articles/databases.md):
-- [Coming from taxize and
+- [Compatibility with taxize and
   WorldFlora](https://gillescolling.com/taxify/articles/migration.md):

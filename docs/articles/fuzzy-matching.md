@@ -88,8 +88,12 @@ its epithet.
 ## Fuzzy matching
 
 A name with no exact match is compared with the backbone names of the
-same genus, and the closest one within `fuzzy_threshold` is taken. The
-list below has typing errors of several kinds:
+same genus, and the closest one within `fuzzy_threshold` is taken; a
+name whose genus is misspelt is compared with the names that share its
+first two letters, as described in [Misspelt genera](#misspelt-genera).
+`fuzzy_dist` is the number of edits between the two names divided by the
+length of the longer one. The list below has typing errors of several
+kinds:
 
 ``` r
 
@@ -112,12 +116,10 @@ res[, c("input_name", "matched_name", "match_type", "fuzzy_dist")]
 #> Sources: WFO 2026.06 | cite() for full citations
 ```
 
-`fuzzy_dist` is the number of edits between the two names divided by the
-length of the longer one. *Taraxacum officianle* has two letters
-swapped, one edit on 20 characters, so its distance is 0.05. *Lolium
-perrene* needs two edits to become *Lolium perenne*, 2 / 14 = 0.143.
-*Ranunculus acris* is spelt correctly and matches exactly, so its
-`fuzzy_dist` is `NA`.
+*Taraxacum officianle* has two letters swapped, one edit on 20
+characters, so its distance is 0.05. *Lolium perrene* needs two edits to
+become *Lolium perenne*, 2 / 14 = 0.143. A name matched by an exact
+stage has no distance, so `fuzzy_dist` is `NA`.
 
 A fuzzy match runs only for names that every exact stage missed, so it
 never replaces an exact match.
@@ -251,8 +253,7 @@ res[, c("input_name", "matched_name", "accepted_name", "fuzzy_dist")]
 *Quercus fantasia* is an invented name within the threshold of *Quercus
 matasii*. *Quercus robur* var. *robur* is not in WFO, and the fuzzy
 stage reaches var. *robusta*, three edits away, before the fallback to
-the species can run. Sorting the fuzzy rows by `fuzzy_dist`, largest
-first, puts such matches at the top of a list to check by hand.
+the species can run.
 [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)
 labels them as likely misspellings, as shown in [Checking a name
 list](https://gillescolling.com/taxify/articles/inspecting-names.md).
@@ -272,9 +273,12 @@ table(exact_only$match_type)
 
 ## Names with more than one accepted taxon
 
-Some spellings belong to more than one taxon. *Pinus abies* was
-published by Linnaeus for the Norway spruce and again by Thunberg for a
-Japanese spruce:
+Some spellings belong to more than one taxon. When a spelling leads to
+several records, one is picked: the record with the input’s author when
+the input carries one, otherwise an accepted record before an unplaced
+one before a synonym, then the species rank, then the lowest ID. *Pinus
+abies* was published by Linnaeus for the Norway spruce and again by
+Thunberg for a Japanese spruce:
 
 ``` r
 
@@ -293,11 +297,8 @@ res[, c("input_name", "accepted_name", "n_ids", "accepted_ids")]
 
 `n_ids` counts the accepted taxa the spelling leads to, and
 `accepted_ids` lists their IDs, the pick first. The warning names every
-row with more than one. Without an author, the pick follows the backbone
-records: an accepted record before an unplaced one before a synonym,
-then the species rank, then the lowest ID. When the input carries an
-author, the record with that author is picked: `Pinus abies Thunb.`
-resolves to *Picea polita*.
+row with more than one. The author picks the record in the third row:
+`Pinus abies Thunb.` resolves to *Picea polita*.
 [`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
 lists every candidate of a row with its name, author and status, as
 shown in [Requesting GBIF data for a species
@@ -328,8 +329,12 @@ goes on to the next backbone.
 
 ## Synonyms and basionyms
 
-A synonym row carries the accepted name its record points to, with
-`is_synonym = TRUE`:
+A name list often contains names a backbone treats as synonyms, and such
+a row carries the accepted name its record points to, with
+`is_synonym = TRUE`. When a name has both a synonym record and an
+unplaced record, the synonym is picked if it shares its type with its
+accepted name: the accepted name keeps the synonym’s final epithet and
+names its author in parentheses.
 
 ``` r
 
@@ -345,12 +350,9 @@ syn[, c("input_name", "accepted_name", "is_synonym", "taxonomic_status")]
 #> Sources: WFO 2026.06 | cite() for full citations
 ```
 
-When a name has both a synonym record and an unplaced record, the
-synonym is picked if it shares its type with its accepted name: the
-accepted name keeps the synonym’s final epithet and names its author in
-parentheses. *Lycopsis orientalis* L. is such a synonym of *Anchusa
-arvensis* subsp. *orientalis* (L.) Nordh., and it is picked over the
-unplaced *Lycopsis orientalis* of another author.
+*Lycopsis orientalis* L. is such a synonym of *Anchusa arvensis* subsp.
+*orientalis* (L.) Nordh., and it is picked over the unplaced *Lycopsis
+orientalis* of another author.
 
 The last stage handles a name that matched only an unplaced record. When
 that record names the name it was based on (its basionym), and the
@@ -361,7 +363,8 @@ describe the record that was matched.
 ## Infraspecific names
 
 A subspecies or variety that a backbone holds matches as written. One
-that no backbone holds resolves to its species in the last stage:
+that no backbone holds resolves to its species in the `rank_fallback`
+stage:
 
 ``` r
 
@@ -377,15 +380,17 @@ res[, c("input_name", "matched_name", "match_type", "rank")]
 #> Sources: WFO 2026.06 | cite() for full citations
 ```
 
-`ssp.` is read as `subsp.`, so the first name matches exactly. The
-invented subspecies resolves to *Quercus robur* with
-`match_type = "rank_fallback"`; `rank` is the rank of the matched
-record.
+`ssp.` is read as `subsp.`, so the first name matches exactly. `rank` is
+the rank of the matched record, so the fallback row shows `species`
+although the input named a subspecies.
 
 ## Names no backbone matches
 
 A name that reaches no record has `match_type = "none"` or
-`"out_of_scope"`:
+`"out_of_scope"`. The genus register decides between the two: an index
+of the genera in all 19 backbones, each with its kingdom, family and
+life form, built over a fixed set of backbones and downloaded like a
+backbone, so every machine reports the same labels.
 
 ``` r
 
@@ -398,15 +403,12 @@ un[, c("input_name", "match_type", "life_form")]
 #> Sources: WFO | cite() for full citations
 ```
 
-The genus register decides between the two. It is an index of the genera
-in all 19 backbones, each with its kingdom, family and life form, built
-over a fixed set of backbones and downloaded like a backbone, so every
-machine reports the same labels. *Blorbus* is in no backbone, so the row
-is `none`: the name may be misspelt or invented. *Carcinus* is a crab
-genus held by other backbones but not by WFO, so the row is
-`out_of_scope` and is not compared by fuzzy matching. The register also
-fills `kingdom_group`, `taxon_group` and `life_form` on every matched
-row, whichever backbone matched it. [Choosing and combining
+*Blorbus* is in no backbone, so the row is `none`: the name may be
+misspelt or invented. *Carcinus* is a crab genus held by other backbones
+but not by WFO, so the row is `out_of_scope` and is not compared by
+fuzzy matching. The register also fills `kingdom_group`, `taxon_group`
+and `life_form` on every matched row, whichever backbone matched it.
+[Choosing and combining
 backbones](https://gillescolling.com/taxify/articles/backbones.html#checking-names-outside-a-backbone)
 shows how to find a backbone that holds a genus.
 
