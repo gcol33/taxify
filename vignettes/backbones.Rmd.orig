@@ -35,7 +35,7 @@ bb <- list_backbones(verbose = FALSE)
 bb[, c("name", "scope", "version", "n_names", "installed")]
 ```
 
-Without a `backbone` argument, `taxify()` uses every installed backbone of taxa as a fallback chain: each name is matched against the first backbone, the names left unmatched go to the second, and so on. The order is fixed by priority. The Extended Release of the Catalogue of Life (COL XR) comes first, then the Catalogue of Life (COL), then the backbones of one group (marine species, plants, fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the broad compilations GBIF, ITIS, NCBI and OTT. On a new setup the first call installs COL, GBIF and the Integrated Taxonomic Information System (ITIS); every backbone downloaded later joins the chain at its place in that order.
+Without a `backbone` argument, `taxify()` uses every installed backbone of taxa as a fallback chain: each name is matched against the first backbone, the names left unmatched go to the second, and so on. The order is fixed by priority. The Extended Release of the Catalogue of Life (COL XR) comes first, then the Catalogue of Life (COL), then the backbones of one group (marine species, plants, fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the broad compilations GBIF, ITIS, NCBI and OTT. On a new setup `install_backbones()` installs COL, GBIF and the Integrated Taxonomic Information System (ITIS); every backbone downloaded later joins the chain at its place in that order.
 
 The list below mixes a plant, two animals renamed since their description, a fungus, a fish, a bacterium and a brown alga:
 
@@ -53,7 +53,7 @@ All 19 backbones are installed on the machine that built this page, so the chain
 
 The first backbone that matches a name decides its accepted name. taxify does not take a vote across backbones: several backbones copy their treatment from one another, so a majority can follow the oldest treatment. [Comparing backbones](#comparing-backbones) shows how to see where they disagree.
 
-`options(taxify.backbone_priority = )` changes the order for a session, and `options(taxify.default_backbones = )` the set installed on first use.
+`options(taxify.backbone_priority = )` changes the order for a session, and `options(taxify.default_backbones = )` the set `install_backbones()` installs when called without arguments.
 
 ## Naming the backbones
 
@@ -146,13 +146,15 @@ The source, licence and citation of each backbone are listed in [The backbones a
 
 ## Downloading and pinning versions
 
-Each backbone is downloaded once, on first use, into `taxify_data_dir()`, and read from disk after that. `taxify_download()` fetches backbones ahead of time, for a server or a session without network access:
+Each backbone is downloaded once into `taxify_data_dir()` and read from disk after that. `install_backbones()` and `taxify_download()` fetch backbones ahead of time, for a server or a session without network access. A function that needs a backbone that is not on disk asks before downloading it in an interactive session; in a script it stops with an error naming the `install_backbones()` call, unless `options(taxify.auto_download = TRUE)` or the environment variable `TAXIFY_AUTO_DOWNLOAD` allows the download:
 
 ```{r download, eval = FALSE}
 taxify_download(c("wfo", "worms"))
 ```
 
-The download goes into a `latest` folder that is replaced when a newer version is released. taxify compares the local versions with the published ones once per session, at the first call, and updates `latest` then; the version never changes during a session. Without network access, or with `options(taxify.offline = TRUE)` or the environment variable `TAXIFY_OFFLINE` set, it uses the files on disk.
+The download goes into a `latest` folder that is replaced when a newer version is released. taxify compares the local versions with the published ones once per session, at the first call, and updates `latest` then; the version never changes during a session. The replaced version is deleted. Without network access, or with `options(taxify.offline = TRUE)` or the environment variable `TAXIFY_OFFLINE` set, it uses the files on disk.
+
+`taxify_store()` lists the builds on disk with their sizes. `taxify_clean()` removes builds taxify no longer reads and files left by an interrupted download; `taxify_clean("gbif")` removes one backbone, and `taxify_clean("all")` the whole data directory.
 
 A version string downloads into a folder of its own that is never replaced:
 

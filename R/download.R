@@ -42,6 +42,89 @@ taxify_offline <- function() {
 }
 
 
+# ---- Download consent ----
+
+#' Are backbone installs allowed without asking?
+#'
+#' `options(taxify.auto_download = TRUE)` for a session, or the
+#' `TAXIFY_AUTO_DOWNLOAD` environment variable (`true`, `1` or `yes`) for a
+#' process such as a scheduled pipeline. The option wins when both are set.
+#'
+#' @return Logical scalar.
+#' @noRd
+auto_download_allowed <- function() {
+  opt <- getOption("taxify.auto_download", NULL)
+  if (!is.null(opt)) return(isTRUE(opt))
+  tolower(Sys.getenv("TAXIFY_AUTO_DOWNLOAD")) %in% c("true", "1", "yes")
+}
+
+
+#' Evaluate code with consent to install backbones
+#'
+#' The installing verbs ([install_backbones()], [taxify_download()]) are the
+#' request itself, so the backbones they fetch need no further confirmation.
+#'
+#' @param code Expression to evaluate.
+#' @return The value of `code`.
+#' @noRd
+with_download_consent <- function(code) {
+  old <- .taxify_env$download_consent
+  .taxify_env$download_consent <- TRUE
+  on.exit(.taxify_env$download_consent <- old, add = TRUE)
+  force(code)
+}
+
+
+#' Ask the user a yes/no question; `FALSE` in a non-interactive session
+#' @noRd
+confirm_download <- function(question) {
+  interactive() && isTRUE(utils::askYesNo(question))
+}
+
+
+#' Confirm the install of a backbone the caller did not ask for by name
+#'
+#' A backbone is hundreds of megabytes to gigabytes. A route that reaches one
+#' not on disk without going through an installing verb (a first `taxify()`
+#' call on an empty data directory, a browse verb naming a backbone) asks in an
+#' interactive session and refuses in a non-interactive one, unless
+#' [auto_download_allowed()]. A script, a scheduled job or `R CMD check`
+#' therefore never fills the user data directory unasked. Refreshing a backbone
+#' already installed replaces it in place and does not come through here.
+#'
+#' @param backbones Character vector of backbone names about to be installed.
+#' @return `TRUE` invisibly; otherwise signals a `taxify_download_declined`
+#'   error.
+#' @noRd
+require_download_consent <- function(backbones) {
+  if (isTRUE(.taxify_env$download_consent) || auto_download_allowed()) {
+    return(invisible(TRUE))
+  }
+  what <- sprintf("%s backbone%s%s",
+                  paste(toupper(backbones), collapse = ", "),
+                  if (length(backbones) > 1L) "s" else "",
+                  default_set_size_note(backbones))
+  if (confirm_download(sprintf("Download the %s into %s?",
+                               what, taxify_data_dir()))) {
+    return(invisible(TRUE))
+  }
+  call_txt <- if (length(backbones) == 1L) {
+    sprintf("install_backbones(\"%s\")", backbones)
+  } else {
+    sprintf("install_backbones(c(%s))",
+            paste0("\"", backbones, "\"", collapse = ", "))
+  }
+  stop(structure(
+    class = c("taxify_download_declined", "error", "condition"),
+    list(message = sprintf(paste0(
+      "The %s %s not installed. Install with %s, or allow installs on first ",
+      "use with options(taxify.auto_download = TRUE)."),
+      what, if (length(backbones) > 1L) "are" else "is", call_txt),
+      call = NULL)
+  ))
+}
+
+
 # ---- Version meta.json (per versioned folder) ----
 
 #' Write a meta.json for a downloaded backbone version
@@ -168,6 +251,9 @@ download_backbone <- function(backbone_name,
       backbone_name
     ), call. = FALSE)
   }
+  if (!file.exists(vtr_path) && backbone_name %in% backbone_names()) {
+    require_download_consent(backbone_name)
+  }
   url <- manifest_url(backbone_name, version)
 
   if (verbose) {
@@ -197,10 +283,9 @@ download_backbone <- function(backbone_name,
   # the build being replaced (which moves everything out of the version
   # directory) cannot sweep the download in progress along with it.
   store_root <- asset_store_root(backbone_name, "backbone")
-  dir.create(store_root, recursive = TRUE, showWarnings = FALSE)
+  tmp_path <- asset_tmp_path(store_root)
+  on.exit(unlink_download(tmp_path), add = TRUE)
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
-  tmp_path <- tempfile(tmpdir = store_root, fileext = ".vtr.tmp")
-  on.exit(if (file.exists(tmp_path)) unlink(tmp_path), add = TRUE)
 
   # The manifest's content id describes the build `latest` serves; a pinned
   # version is a different build, which the manifest does not identify.
@@ -410,7 +495,7 @@ taxify_download <- function(backbone = "wfo",
                             content_id = NULL,
                             verbose = TRUE) {
   content_id <- recycle_content_ids(content_id, backbone, "backbone")
-  paths <- vapply(seq_along(backbone), function(i) {
+  paths <- with_download_consent(vapply(seq_along(backbone), function(i) {
     be <- backbone[[i]]
     if (!is.null(content_id)) {
       return(download_content_build(be, content_id[[i]], "backbone",
@@ -437,7 +522,7 @@ taxify_download <- function(backbone = "wfo",
         taxify_build(be, verbose = verbose)
       }
     )
-  }, character(1L))
+  }, character(1L)))
   names(paths) <- backbone
   invisible(paths)
 }

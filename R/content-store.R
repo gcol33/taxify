@@ -164,17 +164,18 @@ local_content_path <- function(name, content_id,
 
 #' Should a routine refresh keep the build it replaces?
 #'
-#' Enrichments keep it: they are megabytes, and a re-cut under an unchanged tag
-#' is exactly what destroyed a locked build before. Backbones do not: a routine
-#' GBIF refresh would otherwise hold several gigabytes of superseded backbone
-#' forever. Both are overridable, and the restore path archives regardless of
-#' either -- activating a pinned build must never destroy the current one.
+#' No, for either kind: a refresh replaces the build in place, so the data
+#' directory holds one build per asset. A lockfile that pinned the replaced
+#' build still restores it, because every build is published under its content
+#' id and [download_content_build()] fetches it back by that id. Both are
+#' overridable, and the restore path archives regardless of either --
+#' activating a pinned build must never destroy the current one.
 #'
 #' @noRd
 keep_superseded_builds <- function(kind = c("enrichment", "backbone")) {
   kind <- match.arg(kind)
   if (kind == "enrichment") {
-    isTRUE(getOption("taxify.keep_enrichment_versions", TRUE))
+    isTRUE(getOption("taxify.keep_enrichment_versions", FALSE))
   } else {
     isTRUE(getOption("taxify.keep_backbone_versions", FALSE))
   }
@@ -394,6 +395,54 @@ invalidate_asset_cache <- function(name, kind = c("enrichment", "backbone")) {
 }
 
 
+#' Downloads an earlier session left behind
+#'
+#' A download writes `<random>.vtr.tmp` in the asset's store root (a reference
+#' table `<random>.refs.tmp` in the version directory), and curl
+#' streams into `<that>.curltmp` beside it until the transfer completes. An
+#' interrupted or killed session leaves both behind, each up to the size of the
+#' asset. A file not written to for an hour belongs to no transfer still in
+#' progress, so a concurrent download in another session is never touched.
+#' Older taxify versions wrote the temp file inside the version directory, so
+#' those are scanned too.
+#'
+#' @param root Character. An asset's store root.
+#' @return Character vector of paths.
+#' @noRd
+stale_download_files <- function(root) {
+  if (!dir.exists(root)) return(character(0L))
+  dirs <- c(root, list.dirs(root, recursive = FALSE))
+  f <- unlist(lapply(dirs, list.files, pattern = "[.](tmp|curltmp)$",
+                     full.names = TRUE), use.names = FALSE)
+  if (!length(f)) return(character(0L))
+  age <- difftime(Sys.time(), file.mtime(f), units = "hours")
+  f[!is.na(age) & age > 1]
+}
+
+
+#' A temp path for a download into an asset's store root
+#'
+#' Clears what interrupted downloads left in the same root first, so a failed
+#' transfer costs disk only until the next attempt.
+#'
+#' @param root Character. The asset's store root (created if missing).
+#' @return Character path. Callers remove it, and its `.curltmp` companion,
+#'   with [unlink_download()] on exit.
+#' @noRd
+asset_tmp_path <- function(root) {
+  dir.create(root, recursive = TRUE, showWarnings = FALSE)
+  unlink(stale_download_files(root))
+  tempfile(tmpdir = root, fileext = ".vtr.tmp")
+}
+
+
+#' Remove a download's temp file and curl's partial-transfer companion
+#' @noRd
+unlink_download <- function(tmp_path) {
+  unlink(c(tmp_path, paste0(tmp_path, ".curltmp")))
+}
+
+
 #' Fetch one file into a temporary path, from the network or a file:// URL
 #'
 #' The single fetch used by the backbone, enrichment and content-pinned
@@ -490,7 +539,7 @@ download_asset_extras <- function(entry, dest_dir, verbose = TRUE) {
         install_vtr_file(ex_tmp, ex_path)
       },
       error = function(e) {
-        if (file.exists(ex_tmp)) unlink(ex_tmp)
+        unlink_download(ex_tmp)
         warning(sprintf("Failed to download sidecar '%s': %s",
                         ex_name, conditionMessage(e)), call. = FALSE)
       }
@@ -583,10 +632,8 @@ download_content_build <- function(name, content_id,
                     substr(content_id, 1L, 10L), name))
   }
 
-  root <- asset_store_root(name, kind)
-  dir.create(root, recursive = TRUE, showWarnings = FALSE)
-  tmp_path <- tempfile(tmpdir = root, fileext = ".vtr.tmp")
-  on.exit(if (file.exists(tmp_path)) unlink(tmp_path), add = TRUE)
+  tmp_path <- asset_tmp_path(asset_store_root(name, kind))
+  on.exit(unlink_download(tmp_path), add = TRUE)
 
   tryCatch(
     fetch_asset_file(url, tmp_path, sprintf("build %s of '%s'",
@@ -657,15 +704,15 @@ download_content_build <- function(name, content_id,
 
 #' Builds of a taxify asset held on disk
 #'
-#' taxify keeps every build it has downloaded of an enrichment: the active one
-#' under `latest/`, and each build it replaced in a directory named for that
-#' build's content id (the md5 of its `.vtr`, the same string [taxify_lock()]
-#' records). Backbones are listed the same way, though by default only the
-#' active build of a backbone is kept (see `taxify.keep_backbone_versions`)
-#' below.
+#' Lists each backbone and enrichment build in the data directory: the active
+#' one under `latest/`, and any other build in a directory named for its
+#' content id (the md5 of its `.vtr`, the same string [taxify_lock()] records).
+#' By default a refresh replaces a build in place, so an asset has one build;
+#' the others come from restoring a pinned build or from the
+#' `taxify.keep_*_versions` options below. [taxify_clean()] removes them.
 #'
 #' Use this to see which pinned builds a lockfile could be restored to without
-#' a download.
+#' a download, and how much disk each asset takes.
 #'
 #' @param asset Character. One or more backbone or enrichment names to list.
 #'   `NULL` (default) lists every asset in the data directory.
@@ -676,14 +723,13 @@ download_content_build <- function(name, content_id,
 #'   `version`, `content_id`, `pinned`, `size_mb`, `downloaded_at`.
 #'
 #' @section Options:
-#' `taxify.keep_enrichment_versions` (default `TRUE`) keeps the build an
-#' enrichment refresh replaces; `taxify.keep_backbone_versions` (default
-#' `FALSE`) does the same for backbones, off because a superseded backbone is
-#' gigabytes. Restoring a pinned build archives the build it replaces either
-#' way.
+#' `taxify.keep_enrichment_versions` and `taxify.keep_backbone_versions` (both
+#' default `FALSE`) keep the build a refresh replaces, under its content id.
+#' Restoring a pinned build archives the build it replaces either way.
 #'
 #' @seealso [taxify_lock()] to record a build, [taxify_restore()] to check or
-#'   reinstall one, [taxify_download_enrichment()] to fetch one by content id.
+#'   reinstall one, [taxify_download_enrichment()] to fetch one by content id,
+#'   [taxify_clean()] to remove builds.
 #'
 #' @examples
 #' # Runs offline against the bundled example database.
@@ -743,4 +789,121 @@ taxify_store <- function(asset = NULL) {
   )
   rownames(out) <- NULL
   out
+}
+
+
+#' Remove downloaded taxify data
+#'
+#' Frees disk space in the data directory ([taxify_data_dir()]). Called with no
+#' arguments it removes what taxify no longer reads: builds replaced by a newer
+#' one or kept by version, and files left by an interrupted download. The
+#' active build of every backbone and enrichment stays. Name assets to remove
+#' them completely, or pass `"all"` to delete the data directory.
+#'
+#' A removed backbone or enrichment downloads again when it is next installed;
+#' a lockfile pin is restored by [taxify_restore()] from the published copy of
+#' that build.
+#'
+#' @param assets `NULL` (default) for superseded builds and interrupted
+#'   downloads, a character vector of backbone or enrichment names to remove
+#'   completely, or `"all"` for the whole data directory.
+#' @param dry_run Logical. List what would be removed, without removing it.
+#' @param verbose Logical. Report the space freed.
+#'
+#' @return Invisibly, a data.frame with one row per path removed (or, with
+#'   `dry_run = TRUE`, that would be removed): `component`, `type`
+#'   (`"backbone"`/`"enrichment"`/`"directory"`), `reason` (`"superseded"`,
+#'   `"interrupted"`, `"removed"`), `size_mb` and `path`.
+#'
+#' @seealso [taxify_store()] for the builds on disk, [install_backbones()].
+#'
+#' @examples
+#' old <- options(taxify.data_dir = file.path(tempdir(), "taxify_clean_demo"))
+#' taxify_clean(dry_run = TRUE)
+#' options(old)
+#'
+#' @export
+taxify_clean <- function(assets = NULL, dry_run = FALSE, verbose = TRUE) {
+  if (is_example_data_dir()) {
+    stop("The active data directory is the read-only example database; ",
+         "set taxify.data_dir to the directory to clean.", call. = FALSE)
+  }
+  dd <- taxify_data_dir()
+  rows <- list()
+  add <- function(component, type, reason, path) {
+    rows[[length(rows) + 1L]] <<- data.frame(
+      component = component, type = type, reason = reason,
+      size_mb = round(path_size(path) / 1048576, 1), path = path,
+      stringsAsFactors = FALSE
+    )
+  }
+
+  en_root <- file.path(dd, "enrichment")
+  bb_on_disk <- if (dir.exists(dd)) {
+    setdiff(basename(list.dirs(dd, recursive = FALSE)), "enrichment")
+  } else character(0L)
+  en_on_disk <- if (dir.exists(en_root)) {
+    basename(list.dirs(en_root, recursive = FALSE))
+  } else character(0L)
+
+  if (identical(assets, "all")) {
+    if (dir.exists(dd)) add("all", "directory", "removed", dd)
+  } else if (!is.null(assets)) {
+    assets <- as.character(assets)
+    unknown <- setdiff(assets, c(bb_on_disk, en_on_disk))
+    if (length(unknown)) {
+      warning(sprintf("Not in the data directory: %s.",
+                      paste(unknown, collapse = ", ")), call. = FALSE)
+    }
+    for (nm in intersect(assets, bb_on_disk)) {
+      add(nm, "backbone", "removed", asset_store_root(nm, "backbone"))
+    }
+    for (nm in intersect(assets, en_on_disk)) {
+      add(nm, "enrichment", "removed", asset_store_root(nm, "enrichment"))
+    }
+  } else {
+    # Only directories taxify itself lays out are swept; anything else a user
+    # keeps in the data directory is left alone.
+    managed <- union(backbone_names(),
+                     names(tryCatch(local_manifest()$backends,
+                                    error = function(e) NULL)))
+    sweep <- function(nm, kind) {
+      root <- asset_store_root(nm, kind)
+      for (d in setdiff(list.dirs(root, recursive = FALSE),
+                        file.path(root, "latest"))) {
+        add(nm, kind, "superseded", d)
+      }
+      for (f in stale_download_files(root)) add(nm, kind, "interrupted", f)
+    }
+    for (nm in intersect(bb_on_disk, managed)) sweep(nm, "backbone")
+    for (nm in en_on_disk) sweep(nm, "enrichment")
+  }
+
+  out <- if (length(rows)) do.call(rbind, rows) else data.frame(
+    component = character(0L), type = character(0L), reason = character(0L),
+    size_mb = numeric(0L), path = character(0L), stringsAsFactors = FALSE
+  )
+  rownames(out) <- NULL
+
+  if (!dry_run && nrow(out)) {
+    unlink(out$path, recursive = TRUE)
+    taxify_clear_cache()
+  }
+  if (verbose) {
+    message(sprintf("%s %.1f MB in %d path%s from %s.",
+                    if (dry_run) "Would remove" else "Removed",
+                    sum(out$size_mb), nrow(out),
+                    if (nrow(out) == 1L) "" else "s", dd))
+  }
+  invisible(out)
+}
+
+
+#' Total size in bytes of a file or a directory tree
+#' @noRd
+path_size <- function(path) {
+  if (!file.exists(path)) return(0)
+  if (!dir.exists(path)) return(as.numeric(file.size(path)))
+  f <- list.files(path, recursive = TRUE, full.names = TRUE, all.files = TRUE)
+  sum(as.numeric(file.size(f)), na.rm = TRUE)
 }

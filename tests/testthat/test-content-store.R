@@ -1,6 +1,6 @@
 # The content-addressed store: resolving a recorded content_id back to bytes,
-# and keeping the build a refresh replaces instead of overwriting the only copy
-# on disk (taxify#54).
+# and, when taxify.keep_enrichment_versions asks for it, keeping the build a
+# refresh replaces instead of overwriting it (taxify#54).
 
 df <- data.frame(canonical_name = c("Aaa", "Bbb"),
                  trait = c(1, 2), stringsAsFactors = FALSE)
@@ -202,12 +202,13 @@ test_that("content_id is recycled over names, or must match one for one", {
 
 # ---- Local store: a refetch adds a directory ------------------------------
 
-test_that("refreshing an enrichment keeps the build it replaces", {
+test_that("a refresh keeps the build it replaces when asked to", {
   dd <- local_store()
   src <- tempfile("src_")
   a <- stage_asset(src, "demo", df)
   mp <- write_manifest(src, "demo", "2026.08", file_url(a$path), a$md5)
-  old <- options(taxify.manifest_path = mp)
+  old <- options(taxify.manifest_path = mp,
+                 taxify.keep_enrichment_versions = TRUE)
   on.exit(options(old), add = TRUE)
   taxify:::taxify_refresh_manifest()
 
@@ -228,13 +229,13 @@ test_that("refreshing an enrichment keeps the build it replaces", {
   expect_identical(basename(dirname(kept)), a$md5)
 })
 
-test_that("archiving can be switched off", {
+test_that("a refresh replaces the build in place by default", {
   dd <- local_store()
   src <- tempfile("src_")
   a <- stage_asset(src, "demo", df)
   mp <- write_manifest(src, "demo", "2026.08", file_url(a$path), a$md5)
   old <- options(taxify.manifest_path = mp,
-                 taxify.keep_enrichment_versions = FALSE)
+                 taxify.keep_enrichment_versions = NULL)
   on.exit(options(old), add = TRUE)
   taxify:::taxify_refresh_manifest()
 
@@ -252,7 +253,8 @@ test_that("a build already on disk is activated without a download", {
   src <- tempfile("src_")
   a <- stage_asset(src, "demo", df)
   mp <- write_manifest(src, "demo", "2026.08", file_url(a$path), a$md5)
-  old <- options(taxify.manifest_path = mp)
+  old <- options(taxify.manifest_path = mp,
+                 taxify.keep_enrichment_versions = TRUE)
   on.exit(options(old), add = TRUE)
   taxify:::taxify_refresh_manifest()
   taxify:::download_enrichment("demo", verbose = FALSE)
@@ -300,7 +302,8 @@ test_that("taxify_store lists every build on disk", {
   src <- tempfile("src_")
   a <- stage_asset(src, "demo", df)
   mp <- write_manifest(src, "demo", "2026.08", file_url(a$path), a$md5)
-  old <- options(taxify.manifest_path = mp)
+  old <- options(taxify.manifest_path = mp,
+                 taxify.keep_enrichment_versions = TRUE)
   on.exit(options(old), add = TRUE)
   taxify:::taxify_refresh_manifest()
   taxify:::download_enrichment("demo", verbose = FALSE)
@@ -329,7 +332,8 @@ test_that("taxify_restore(install = TRUE) puts the locked build back", {
   a <- stage_asset(src, "demo", df)
   mp <- write_manifest(src, "demo", "2026.08", file_url(a$path), a$md5,
                        content_url = file_url(a$path))
-  old <- options(taxify.manifest_path = mp)
+  old <- options(taxify.manifest_path = mp,
+                 taxify.keep_enrichment_versions = TRUE)
   on.exit(options(old), add = TRUE)
   taxify:::taxify_refresh_manifest()
   taxify:::download_enrichment("demo", verbose = FALSE)

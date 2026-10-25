@@ -25,8 +25,8 @@ taxify(
 \item{backbone}{Character vector of backbone names (e.g., \code{"wfo"}, \code{"col"},
 \code{"gbif"}) or a single \code{taxify_backend} object. Several are tried in order
 as a fallback chain. \code{NULL} (default) uses every installed backbone in
-priority order, installing the default set (COL, GBIF, ITIS) on first use;
-override the priority with \code{options(taxify.backbone_priority = ...)} and the
+priority order, offering the default set (COL, GBIF, ITIS) when none is
+installed; override the priority with \code{options(taxify.backbone_priority = ...)} and the
 first-run set with \code{options(taxify.default_backbones = ...)}.}
 
 \item{fuzzy}{Logical. Enable fuzzy matching for names that fail exact
@@ -239,9 +239,9 @@ round again for a fuzzy one. A name is therefore resolved by the
 highest-priority backbone that matches it \emph{at the best quality any backbone
 reaches}, so a near neighbour in an early backbone does not settle a name a
 later backbone holds exactly. Names matched earlier are not re-matched later.
-On a fresh setup with nothing installed yet, the first call downloads a
-default set (COL, GBIF, ITIS) once; pre-install a different set with
-\code{\link[=install_backbones]{install_backbones()}}. Name a backbone (or several) explicitly to match only
+On a fresh setup with nothing installed yet, \code{\link[=install_backbones]{install_backbones()}} installs
+the default set (COL, GBIF, ITIS); a first call without it asks before
+downloading in an interactive session and stops otherwise. Name a backbone (or several) explicitly to match only
 against that one, or those in that order.
 }
 \section{Names with several accepted IDs}{

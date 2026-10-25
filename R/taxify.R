@@ -14,17 +14,17 @@
 #' highest-priority backbone that matches it *at the best quality any backbone
 #' reaches*, so a near neighbour in an early backbone does not settle a name a
 #' later backbone holds exactly. Names matched earlier are not re-matched later.
-#' On a fresh setup with nothing installed yet, the first call downloads a
-#' default set (COL, GBIF, ITIS) once; pre-install a different set with
-#' [install_backbones()]. Name a backbone (or several) explicitly to match only
+#' On a fresh setup with nothing installed yet, [install_backbones()] installs
+#' the default set (COL, GBIF, ITIS); a first call without it asks before
+#' downloading in an interactive session and stops otherwise. Name a backbone (or several) explicitly to match only
 #' against that one, or those in that order.
 #'
 #' @param x Character vector of taxonomic names.
 #' @param backbone Character vector of backbone names (e.g., `"wfo"`, `"col"`,
 #'   `"gbif"`) or a single `taxify_backend` object. Several are tried in order
 #'   as a fallback chain. `NULL` (default) uses every installed backbone in
-#'   priority order, installing the default set (COL, GBIF, ITIS) on first use;
-#'   override the priority with `options(taxify.backbone_priority = ...)` and the
+#'   priority order, offering the default set (COL, GBIF, ITIS) when none is
+#'   installed; override the priority with `options(taxify.backbone_priority = ...)` and the
 #'   first-run set with `options(taxify.default_backbones = ...)`.
 #' @param fuzzy Logical. Enable fuzzy matching for names that fail exact
 #'   match. Default `TRUE`.

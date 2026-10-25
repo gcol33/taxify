@@ -320,6 +320,9 @@ ensure_backbone <- function(backend, version = "latest", verbose = TRUE) {
   path <- tryCatch(
     download_backbone(bb_name, version = version, verbose = verbose),
     error = function(e) {
+      # A declined install is an answer, not a missing asset: building from
+      # source would fetch the raw data the user just declined.
+      if (inherits(e, "taxify_download_declined")) stop(e)
       # If pre-built download fails, fall back to build-from-source
       if (verbose) {
         message(sprintf(

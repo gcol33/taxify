@@ -17,24 +17,22 @@ A data.frame with one row per build on disk, columns: \code{component},
 \code{version}, \code{content_id}, \code{pinned}, \code{size_mb}, \code{downloaded_at}.
 }
 \description{
-taxify keeps every build it has downloaded of an enrichment: the active one
-under \verb{latest/}, and each build it replaced in a directory named for that
-build's content id (the md5 of its \code{.vtr}, the same string \code{\link[=taxify_lock]{taxify_lock()}}
-records). Backbones are listed the same way, though by default only the
-active build of a backbone is kept (see \code{taxify.keep_backbone_versions})
-below.
+Lists each backbone and enrichment build in the data directory: the active
+one under \verb{latest/}, and any other build in a directory named for its
+content id (the md5 of its \code{.vtr}, the same string \code{\link[=taxify_lock]{taxify_lock()}} records).
+By default a refresh replaces a build in place, so an asset has one build;
+the others come from restoring a pinned build or from the
+\verb{taxify.keep_*_versions} options below. \code{\link[=taxify_clean]{taxify_clean()}} removes them.
 }
 \details{
 Use this to see which pinned builds a lockfile could be restored to without
-a download.
+a download, and how much disk each asset takes.
 }
 \section{Options}{
 
-\code{taxify.keep_enrichment_versions} (default \code{TRUE}) keeps the build an
-enrichment refresh replaces; \code{taxify.keep_backbone_versions} (default
-\code{FALSE}) does the same for backbones, off because a superseded backbone is
-gigabytes. Restoring a pinned build archives the build it replaces either
-way.
+\code{taxify.keep_enrichment_versions} and \code{taxify.keep_backbone_versions} (both
+default \code{FALSE}) keep the build a refresh replaces, under its content id.
+Restoring a pinned build archives the build it replaces either way.
 }
 
 \examples{
@@ -46,5 +44,6 @@ options(old)
 }
 \seealso{
 \code{\link[=taxify_lock]{taxify_lock()}} to record a build, \code{\link[=taxify_restore]{taxify_restore()}} to check or
-reinstall one, \code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} to fetch one by content id.
+reinstall one, \code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} to fetch one by content id,
+\code{\link[=taxify_clean]{taxify_clean()}} to remove builds.
 }

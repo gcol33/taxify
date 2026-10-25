@@ -1,13 +1,25 @@
-# taxify (development version)
-
-* A fuzzy syntaxon match whose first word is misspelt carries the accepted
-  unit's `class`, `order`, `alliance` and `association`, as every other match
-  does (#97).
-* A syntaxon whose suffix gives its rank no longer fuzzy-matches a name that
-  carries no rank suffix: `Deschampsietum caespitosae` is not matched to
-  `Deschampsiosum cespitosae` (#97).
-
 # taxify 0.7.0
+
+## Data directory
+
+* A backbone is installed only when asked for. `install_backbones()` and
+  `taxify_download()` install as before; any other function that needs a
+  backbone not on disk (a first `taxify()` call on a new setup, a browse verb
+  naming a backbone) asks before downloading in an interactive session and
+  stops with an error naming the `install_backbones()` call otherwise.
+  `options(taxify.auto_download = TRUE)` or the environment variable
+  `TAXIFY_AUTO_DOWNLOAD` restores downloading on first use for scripts and
+  pipelines.
+* A refreshed enrichment replaces the build it supersedes, as backbones
+  already did; `options(taxify.keep_enrichment_versions = TRUE)` keeps the old
+  build. A lockfile pin is restored from the published copy of that build.
+* `taxify_clean()` frees disk space: by default it removes builds taxify no
+  longer reads and files left by an interrupted download, keeping the active
+  build of every asset; it also removes named backbones or enrichments, or the
+  whole data directory with `"all"`.
+* Every download clears what an interrupted one left in the same directory
+  (curl's partial `.curltmp` file was never removed and could reach the size
+  of the backbone).
 
 ## Vegetation units (syntaxa)
 
@@ -39,6 +51,12 @@
   (`backbone_code()`, the `code` column of `list_backbones()`), and the name
   cleaner, normalization key and stages a backbone runs are read from that
   code.
+* A fuzzy syntaxon match whose first word is misspelt carries the accepted
+  unit's `class`, `order`, `alliance` and `association`, as every other match
+  does (#97).
+* A syntaxon whose suffix gives its rank no longer fuzzy-matches a name that
+  carries no rank suffix: `Deschampsietum caespitosae` is not matched to
+  `Deschampsiosum cespitosae` (#97).
 
 ## Accepted-ID columns
 

@@ -1,65 +1,57 @@
 ## Submission
 
-This is version 0.6.0 of taxify, currently on CRAN at 0.5.5 (published
-2026-09-18). The release adds two features, corrects the kingdom labels of
-the genus register, and completes one rename:
+This is version 0.7.0 of taxify, currently on CRAN at 0.6.0 (published
+2026-09-30). It is submitted 25 days after 0.6.0 because CRAN asked for it:
+Prof. Ripley reported on 2026-10-25 that taxify had stored 4.4 GB in
+`~/.local/share/R/taxify` on his check server (the COL, GBIF and WFO
+backbones), which does not comply with the policy that user data directories
+be kept as small as possible by default and actively managed, and scheduled
+the package for archival on 2026-11-02.
 
-* Requesting GBIF occurrence data for a matched name list. GBIF serves records
-  by taxon key rather than by name, and a name it files under several keys (a
-  homonym, or a name held once as accepted and again as a doubtful record)
-  needs all of them. `gbif_request()` matches a list, collects every accepted
-  key the matches resolve to and submits one asynchronous GBIF download
-  covering them as a single predicate, so the list returns as one dataset
-  under one citable DOI; `gbif_fetch()` waits for it, imports it and attaches
-  the queried names; `gbif_backmatch()` links the returned records back to
-  those names, which a join on `taxonKey` alone cannot do, because GBIF
-  returns a key's descendants too and a record identified below species level
-  carries its own key. A list whose keys exceed GBIF's 12,000-character query
-  limit is split across downloads automatically. `cite()` reports the
-  download's DOI beside the backbone citations.
-* rgbif moves into Suggests. Resolving names and reading off their keys is
-  offline work and does not need it; only sending the request does, and every
-  call site guards it with `requireNamespace()`.
-* `add_euromed_distribution()` attaches the status Euro+Med PlantBase states
-  for a taxon in each of its areas (native, naturalised, introduced, casual,
-  cultivated, doubtful, extinct), with the citing references of each record;
-  `euromed_areas()` lists the areas.
-* The genus register behind the `kingdom_group`, `taxon_group` and
-  `life_form` output columns is rebuilt: kingdoms are read from accepted
-  records first, and a genus spelling shared by two kingdoms takes the kingdom
-  of the record actually matched. Genera without a kingdom fall from 44,024 to
-  2,978 of 502,381. The register is a downloaded data file, not part of the
-  package sources.
-* Breaking: `taxify_candidates()` is removed in favour of `taxify_ids()`,
-  which returns one row per name and accepted ID with the name, authorship,
-  rank, status, family and occurrence count of each. In the `taxify()` output,
-  `is_ambiguous` and `ambiguous_targets` are replaced by `n_ids` and
-  `accepted_ids`.
+Those files were written by the checks of taxify 0.2.12 / 0.3.4 (June/July
+2026), whose tests ran against the real data directory and let a version
+check download the full backbones. A check of the 0.3.4 tarball with
+`R_USER_DATA_DIR` pointed at an empty directory reproduces it: `col.vtr`,
+`gbif.vtr` and `wfo.vtr` appear there. Since 0.4.0 the tests run offline in a
+directory under `tempdir()`, and the same sandboxed check of the CRAN version
+0.6.0 and of this version (`--as-cran --run-donttest`) leaves the user data
+directory empty.
 
-Seven new exported functions (`gbif_request`, `gbif_fetch`, `gbif_backmatch`,
-`taxify_ids`, `enrichment_authorship_col`, `add_euromed_distribution`,
-`euromed_areas`); one removed (`taxify_candidates`).
-The package has no reverse dependencies, so the removal breaks nothing on
-CRAN.
+This version changes the defaults so that the data directory stays small and
+is managed:
 
-taxify matches taxonomic names against locally stored Darwin Core backbone
-databases. The backbone and enrichment data are downloaded on demand from
-GitHub Releases into the per-user directory returned by
-`tools::R_user_dir("taxify", "data")`, only when the user explicitly calls a
-matching or enrichment function. Nothing is written outside the session temp
-directory and that per-user directory, and no download happens at load, check
-or example time:
+* No backbone is downloaded unless the user asks for it. `install_backbones()`
+  and `taxify_download()` install; any other function that needs a backbone
+  that is not on disk asks via `utils::askYesNo()` in an interactive session
+  and stops with an error naming the `install_backbones()` call in a
+  non-interactive one. Scripts can opt in with
+  `options(taxify.auto_download = TRUE)`.
+* A refresh replaces the installed build in place for enrichments too (it did
+  so already for backbones); superseded builds are no longer kept by default.
+* Downloads clear the partial files an interrupted download left behind.
+* The new `taxify_clean()` removes superseded builds and interrupted
+  downloads, named backbones or enrichments, or the whole data directory.
+  `taxify_store()` lists what is on disk with sizes, and the README and the
+  backbones vignette say where the data lives and how to remove it.
 
+The release also carries the changes made since 0.6.0 (two vegetation-unit
+backbones, `n_ids`/`accepted_ids` in every result, GBIF request options); see
+NEWS.md. One new exported function, `taxify_clean()`, is added for the data
+directory.
+
+What is written where:
+
+* Data are downloaded from GitHub Releases into
+  `tools::R_user_dir("taxify", "data")`, only on an explicit install or after
+  the user confirms. Nothing is written outside that directory and the session
+  temp directory, and no download happens at load, check or example time.
 * Examples that execute use the bundled example database (a handful of species
-  per backbone). Examples needing a full backbone are wrapped in `\dontrun{}`:
-  they cannot run on a check machine, because the backbone files they need are
-  downloads far too large to fetch during a check. The same applies to the
-  examples that contact GBIF, which additionally need an account.
-* Tests use small bundled fixtures and a local test manifest; no network.
-* Vignettes do not download data. The chunks that run read only what ships
-  with the package (the trait registry, the bundled WGSRPD region table) or
-  build small illustrative tables; every chunk that needs a backbone is
-  `eval = FALSE`.
+  per backbone), read-only inside the package installation. Examples needing a
+  full backbone are wrapped in `\dontrun{}`, as are the examples that contact
+  GBIF, which additionally need an account.
+* Tests run offline against small fixtures in a directory under `tempdir()`.
+* Vignettes are precomputed; the chunks that run read only what ships with the
+  package, and every chunk that needs a backbone is `eval = FALSE`.
 
 taxifydb is the optional companion package that builds the backbone and
 enrichment data from source. It is used strictly conditionally (every call site
@@ -88,8 +80,9 @@ confirmed available via Additional_repositories in the same check output
 conditionally, guarded by `requireNamespace()`, and taxify is fully functional
 without it. The same note was present in the accepted 0.5.5 submission.
 
-A "Days since last update" note is expected on the incoming checks, 0.5.5
-having been published on 2026-09-18.
+A "Days since last update" note is expected on the incoming checks, 0.6.0
+having been published on 2026-09-30; the submission answers CRAN's request
+above.
 
 Both win-builder flavours have previously flagged URLs/DOIs that respond
 normally to a plain request from here and are intermittent automated-request

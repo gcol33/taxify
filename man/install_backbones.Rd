@@ -21,9 +21,14 @@ previous build is still usable.
 \description{
 Downloads the pre-built \code{.vtr} for each named backbone into the taxify data
 directory (\code{\link[=taxify_data_dir]{taxify_data_dir()}}), so subsequent \code{\link[=taxify]{taxify()}} calls match against
-them offline. taxify installs its default set automatically on first use
-(COL, GBIF, ITIS); call this to pre-install a specific set, add a backbone to
-the default, or refresh to the latest release.
+them offline. Called without arguments it installs the default set (COL,
+GBIF, ITIS, about 4 GB); name backbones to install a different set, add a
+backbone, or refresh to the latest release. Calling it is the consent to
+download: other functions that reach a backbone not on disk ask first in an
+interactive session and stop with an error otherwise, unless
+\code{options(taxify.auto_download = TRUE)} (or the \code{TAXIFY_AUTO_DOWNLOAD}
+environment variable) allows the download. \code{\link[=taxify_clean]{taxify_clean()}} removes
+backbones again.
 }
 \details{
 An installed backbone is compared against the manifest by the same check

@@ -37,3 +37,4 @@
 ^sidecars$
 ^vignettes/.*\.orig$
 ^CITATION\.cff$
+^agent-notes$

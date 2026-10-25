@@ -207,7 +207,7 @@ Each dataset is downloaded on first use into `taxify_data_dir()` and read from d
 taxify_download_enrichment(c("zanne", "eive", "griis"))
 ```
 
-A dataset with `static = TRUE` in `list_enrichments()` is a fixed release and is never updated. The others are checked against the published version once per session and replaced when a newer one exists; the replaced build is kept, so `taxify_restore()` can reinstall it. The version used is shown by `summary()`, cited by `cite()` and written by `taxify_lock()`, as in [Get started](taxify.html#recording-what-was-used).
+A dataset with `static = TRUE` in `list_enrichments()` is a fixed release and is never updated. The others are checked against the published version once per session and replaced when a newer one exists; the replaced build is deleted, and `taxify_restore()` reinstalls it from its published copy when a lockfile names it. The version used is shown by `summary()`, cited by `cite()` and written by `taxify_lock()`, as in [Get started](taxify.html#recording-what-was-used).
 
 ## Where next
 

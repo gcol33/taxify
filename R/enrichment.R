@@ -392,7 +392,7 @@ download_enrichment_references <- function(entry, dest_dir, verbose = TRUE) {
   if (is.null(refs$url)) return(invisible(FALSE))
   dest <- file.path(dest_dir, basename(refs$url))
   tmp  <- tempfile(tmpdir = dest_dir, fileext = ".refs.tmp")
-  on.exit(if (file.exists(tmp)) unlink(tmp), add = TRUE)
+  on.exit(unlink_download(tmp), add = TRUE)
   ok <- tryCatch({
     fetch_asset_file(refs$content_url %||% refs$url, tmp,
                      sprintf("reference table '%s'", basename(refs$url)),
@@ -470,10 +470,9 @@ download_enrichment <- function(name, version = "latest", verbose = TRUE) {
   # archiving the build being replaced (which moves everything out of the
   # version directory) cannot sweep the download in progress along with it.
   store_root <- asset_store_root(name, "enrichment")
-  dir.create(store_root, recursive = TRUE, showWarnings = FALSE)
+  tmp_path <- asset_tmp_path(store_root)
+  on.exit(unlink_download(tmp_path), add = TRUE)
   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
-  tmp_path <- tempfile(tmpdir = store_root, fileext = ".vtr.tmp")
-  on.exit(if (file.exists(tmp_path)) unlink(tmp_path), add = TRUE)
 
   fetch_asset_file(url, tmp_path, sprintf("enrichment '%s'", name),
                    verbose = verbose)

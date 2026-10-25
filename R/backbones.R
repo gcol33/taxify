@@ -264,7 +264,9 @@ default_set_size_note <- function(set) {
 #' Resolve the default backbone when `taxify(backbone = NULL)` is called
 #'
 #' Every installed backbone, in priority order. On a fresh setup with none
-#' installed, downloads the default set (`.default_backbone_set()`) first.
+#' installed, offers the default set (`.default_backbone_set()`): asked for in
+#' an interactive session, an error naming `install_backbones()` otherwise
+#' (see `require_download_consent()`).
 #'
 #' @param verbose Logical.
 #' @return Character vector of backbone names in priority order.
@@ -274,15 +276,14 @@ resolve_default_backend <- function(verbose = TRUE) {
   if (length(inst) > 0L) return(order_by_priority(inst))
 
   set <- .default_backbone_set()
-  if (verbose) {
+  if (verbose && (interactive() || auto_download_allowed())) {
     message(sprintf(paste0(
-      "No taxonomic backbone installed yet -- downloading the default set: ",
-      "%s%s.\nThis runs once; files are cached in %s. Pre-install a different ",
-      "set with install_backbones(), or set it via ",
+      "No taxonomic backbone is installed yet. The default set is %s; ",
+      "install_backbones() installs a different one, or set it via ",
       "options(taxify.default_backbones = ...)."),
-      paste(toupper(set), collapse = ", "),
-      default_set_size_note(set), taxify_data_dir()))
+      paste(toupper(set), collapse = ", ")))
   }
+  require_download_consent(set)
   install_backbones(set, verbose = verbose)
 
   inst <- order_by_priority(intersect(set, installed_backbones()))
@@ -300,7 +301,7 @@ resolve_default_backend <- function(verbose = TRUE) {
 #' The browse and lookup verbs ([synonyms()], [children()], [downstream()],
 #' [upstream()], [id2name()]) read one backbone directly rather than running the
 #' whole fallback chain, so `backbone = NULL` resolves to the highest-priority
-#' installed backbone -- installing the default set on a fresh machine exactly as
+#' installed backbone -- offering the default set on a fresh machine exactly as
 #' [taxify()] does, never a specific backbone the user did not ask for. A name or
 #' a `taxify_backend` object is returned unchanged.
 #'
@@ -318,9 +319,14 @@ resolve_single_backend <- function(backbone, verbose = TRUE) {
 #'
 #' Downloads the pre-built `.vtr` for each named backbone into the taxify data
 #' directory ([taxify_data_dir()]), so subsequent [taxify()] calls match against
-#' them offline. taxify installs its default set automatically on first use
-#' (COL, GBIF, ITIS); call this to pre-install a specific set, add a backbone to
-#' the default, or refresh to the latest release.
+#' them offline. Called without arguments it installs the default set (COL,
+#' GBIF, ITIS, about 4 GB); name backbones to install a different set, add a
+#' backbone, or refresh to the latest release. Calling it is the consent to
+#' download: other functions that reach a backbone not on disk ask first in an
+#' interactive session and stop with an error otherwise, unless
+#' `options(taxify.auto_download = TRUE)` (or the `TAXIFY_AUTO_DOWNLOAD`
+#' environment variable) allows the download. [taxify_clean()] removes
+#' backbones again.
 #'
 #' An installed backbone is compared against the manifest by the same check
 #' [taxify()] runs once per session: by content id where both sides record
@@ -357,7 +363,7 @@ install_backbones <- function(backbones = NULL, verbose = TRUE) {
 
   ok <- character(0)
   for (nm in order_by_priority(unique(backbones))) {
-    installed <- tryCatch({
+    installed <- with_download_consent(tryCatch({
       if (file.exists(versioned_vtr_path(nm, "latest"))) {
         state <- refresh_backbone(nm, verbose = verbose)
         if (identical(state, "pinned")) {
@@ -374,7 +380,7 @@ install_backbones <- function(backbones = NULL, verbose = TRUE) {
       warning(sprintf("Could not install backbone '%s': %s", nm,
                       conditionMessage(e)), call. = FALSE)
       FALSE
-    })
+    }))
     if (isTRUE(installed)) ok <- c(ok, nm)
   }
   invisible(order_by_priority(ok))
