@@ -1,6 +1,6 @@
 #  Audit upstream vs local enrichment versions
 #
-#  - Reads taxify/inst/manifest.json for each enrichment's source spec
+#  - Reads taxify/inst/manifest_v3.json for each enrichment's source spec
 #  - Reads installed meta.json (under taxify_data_dir) for the locally built version
 #  - Probes upstream for the latest available version
 #  - Prints a table: name | local | upstream | status
@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
 
 `%||%` <- function(a, b) if (is.null(a) || length(a) == 0L || is.na(a[1])) b else a
 
-manifest_path <- "inst/manifest.json"
+manifest_path <- "inst/manifest_v3.json"
 manifest <- jsonlite::read_json(manifest_path, simplifyVector = FALSE)
 enrichments <- manifest$enrichments
 

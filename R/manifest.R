@@ -1,21 +1,28 @@
 # ---- Manifest: remote version catalogue ----
 #
-# The manifest.json is shipped with the package (inst/manifest.json) and also
+# The manifest is shipped with the package (inst/manifest_v3.json) and also
 # hosted at the GitHub raw URL below. It records the latest available version
-# and download URL for each backbone and the genus register.
+# and download URL for each backbone, enrichment and the genus register.
+#
+# The file is named for its schema. Schema 3 points at stores in vectra's
+# TDCF format (`<name>.tdcf.vtr`), which vectra < 0.14.0 cannot read; the
+# schema 2 manifest.json beside it is what taxify < 0.7.0 fetches, and keeps
+# pointing those installs at the stores they can read.
 #
 # fetch_manifest() is called once per R session; the result is cached in
 # .taxify_env$manifest so subsequent calls in the same session are free.
 
+.manifest_file <- "manifest_v3.json"
+
 .manifest_url <- paste0(
-  "https://raw.githubusercontent.com/gcol33/taxify/main/inst/manifest.json"
+  "https://raw.githubusercontent.com/gcol33/taxify/main/inst/", .manifest_file
 )
 
 
 #' Fetch the remote manifest, with session-level caching
 #'
 #' Returns the parsed manifest list. On network failure, falls back to the
-#' bundled `inst/manifest.json`. Never throws — returns the fallback
+#' bundled `inst/manifest_v3.json`. Never throws — returns the fallback
 #' with a warning so callers can decide whether to proceed.
 #'
 #' @return A named list with one entry per backbone (e.g., `$wfo$latest`,
@@ -61,9 +68,10 @@ fetch_manifest <- function() {
 #' @noRd
 local_manifest <- function() {
   path <- getOption("taxify.manifest_path",
-                    system.file("manifest.json", package = "taxify"))
+                    system.file(.manifest_file, package = "taxify"))
   if (!nzchar(path) || !file.exists(path)) {
-    stop("inst/manifest.json not found in package installation.", call. = FALSE)
+    stop(sprintf("inst/%s not found in package installation.", .manifest_file),
+         call. = FALSE)
   }
   read_json_bom(path, simplifyVector = FALSE)
 }
@@ -209,13 +217,30 @@ pinned_asset_url <- function(base_url, name, version, latest = NULL) {
              "downloaded."),
       version, name, base_url %||% "<none>"), call. = FALSE)
   }
-  if (!asset_url_exists(url)) {
-    stop(sprintf(
-      paste0("Version '%s' of '%s' is not published.\n  Tried: %s\n",
-             "  The current release is '%s'."),
-      version, name, url, latest %||% "unknown"), call. = FALSE)
-  }
-  url
+  if (asset_url_exists(url)) return(url)
+  # A version published before its store was written in the current format
+  # carries only the plain-named asset, which vectra still reads.
+  plain <- paste0(sub("[^/]+$", "", url), local_asset_name(url))
+  if (!identical(plain, url) && asset_url_exists(plain)) return(plain)
+  stop(sprintf(
+    paste0("Version '%s' of '%s' is not published.\n  Tried: %s\n",
+           "  The current release is '%s'."),
+    version, name, url, latest %||% "unknown"), call. = FALSE)
+}
+
+
+#' Local file name of a published store asset
+#'
+#' A store's release asset carries its store format in the name
+#' (`leda_references.tdcf.vtr`); the local copy keeps the plain name
+#' (`leda_references.vtr`) every reader looks it up by. A name without a format
+#' qualifier is returned as it stands.
+#'
+#' @param url Character. Asset URL or file name.
+#' @return Character.
+#' @noRd
+local_asset_name <- function(url) {
+  sub("\\.[A-Za-z0-9]+(\\.vtr)$", "\\1", basename(url))
 }
 
 

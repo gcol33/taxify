@@ -42,7 +42,7 @@ test_that("add_invacost() leaves a species absent from InvaCost all-NA", {
 test_that("InvaCost is registered in the bundled manifest as a static enrichment", {
   # Read the shipped manifest directly (offline, deterministic) rather than
   # list_enrichments(), which would fetch the remote main-branch manifest first.
-  mpath <- system.file("manifest.json", package = "taxify")
+  mpath <- system.file("manifest_v3.json", package = "taxify")
   skip_if_not(nzchar(mpath) && file.exists(mpath), "bundled manifest not found")
   m <- jsonlite::read_json(mpath, simplifyVector = FALSE)
   expect_true("invacost" %in% names(m$enrichments))

@@ -526,7 +526,7 @@ download_asset_extras <- function(entry, dest_dir, verbose = TRUE) {
   extras <- entry$extras
   if (is.null(extras) || length(extras) == 0L) return(invisible(NULL))
   for (ex in extras) {
-    ex_name <- ex$name %||% basename(ex$url %||% "")
+    ex_name <- ex$name %||% local_asset_name(ex$url %||% "")
     ex_url  <- ex$url
     if (is.null(ex_name) || !nzchar(ex_name) || is.null(ex_url)) next
     ex_path <- file.path(dest_dir, ex_name)

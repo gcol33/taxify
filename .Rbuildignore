@@ -38,3 +38,4 @@
 ^vignettes/.*\.orig$
 ^CITATION\.cff$
 ^agent-notes$
+^inst/manifest\.json$

@@ -368,7 +368,7 @@ build_enrichment_meta <- function(entry, actual_version, pinned, vtr_path) {
   if (!is.null(entry$license))          meta$license          <- entry$license
   if (!is.null(entry$citation))         meta$citation         <- entry$citation
   if (!is.null(entry$references$url)) {
-    meta$references <- list(file       = basename(entry$references$url),
+    meta$references <- list(file       = local_asset_name(entry$references$url),
                             content_id = entry$references$content_id,
                             nrow       = entry$references$nrow)
   }
@@ -390,7 +390,7 @@ build_enrichment_meta <- function(entry, actual_version, pinned, vtr_path) {
 download_enrichment_references <- function(entry, dest_dir, verbose = TRUE) {
   refs <- entry$references
   if (is.null(refs$url)) return(invisible(FALSE))
-  dest <- file.path(dest_dir, basename(refs$url))
+  dest <- file.path(dest_dir, local_asset_name(refs$url))
   tmp  <- tempfile(tmpdir = dest_dir, fileext = ".refs.tmp")
   on.exit(unlink_download(tmp), add = TRUE)
   ok <- tryCatch({

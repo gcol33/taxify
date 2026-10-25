@@ -1,7 +1,7 @@
 # Rewrite the manifest-derived blocks of README.md and the vignettes.
 #
 # Row counts, download sizes and the backbone/enrichment totals are all in
-# inst/manifest.json already, and a hand-kept second copy drifts every release.
+# inst/manifest_v3.json already, and a hand-kept second copy drifts every release.
 # Each generated block is delimited by a pair of HTML comments:
 #
 #   <!-- manifest:backbone-table -->
@@ -22,7 +22,7 @@ check_only <- "--check" %in% commandArgs(trailingOnly = TRUE)
 
 source(file.path(repo, "scripts", "manifest-stats.R"))
 
-stats <- manifest_stats(file.path(repo, "inst", "manifest.json"))
+stats <- manifest_stats(file.path(repo, "inst", "manifest_v3.json"))
 
 blocks <- list(
   "backbone-table"   = readme_backbone_table(stats),

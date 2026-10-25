@@ -6,7 +6,13 @@ Prof. Ripley reported on 2026-10-25 that taxify had stored 4.4 GB in
 `~/.local/share/R/taxify` on his check server (the COL, GBIF and WFO
 backbones), which does not comply with the policy that user data directories
 be kept as small as possible by default and actively managed, and scheduled
-the package for archival on 2026-11-02.
+the package for archival on 2026-11-02. I am aware of the request to reduce
+the update frequency; this release answers the report above and would not
+have been submitted otherwise.
+
+It requires vectra 0.14.0 (submitted 2026-10-25 for the same reason): its new
+storage format makes the backbone data taxify downloads several times
+smaller, so what a user stores is smaller as well as managed.
 
 Those files were written by the checks of taxify 0.2.12 / 0.3.4 (June/July
 2026), whose tests ran against the real data directory and let a version

@@ -1,7 +1,7 @@
 # Manifest-derived figures for the generated documentation blocks.
 #
 # Sourced by scripts/sync-readme-stats.R. Every number here comes from
-# inst/manifest.json; every label comes from taxify's own backbone registry, so
+# inst/manifest_v3.json; every label comes from taxify's own backbone registry, so
 # a backbone added to the package appears in the docs without a second edit.
 
 manifest_stats <- function(manifest_path) {

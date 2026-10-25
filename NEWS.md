@@ -2,6 +2,16 @@
 
 ## Data directory
 
+* Backbones and enrichments are downloaded in the storage format of vectra
+  0.14.0, which taxify now requires, and take about a quarter of the space:
+  the nineteen taxon and two syntaxon backbones together 2.1 GB instead of
+  8.3 GB, the first-run set (COL, GBIF, ITIS) 1.1 GB instead of 3.8 GB, WFO
+  120 MB instead of 785 MB. The data are unchanged; each store was re-encoded
+  from the published one and compared with it column by column. A backbone or
+  enrichment already installed is replaced by its new copy at the next
+  version check, unless it was pinned by `taxify_restore()`. taxify reads its catalogue from `inst/manifest_v3.json`;
+  releases before 0.7.0 keep reading the earlier stores through
+  `inst/manifest.json`.
 * A backbone is installed only when asked for. `install_backbones()` and
   `taxify_download()` install as before; any other function that needs a
   backbone not on disk (a first `taxify()` call on a new setup, a browse verb

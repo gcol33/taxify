@@ -85,7 +85,7 @@ test_that("add_cefas_btrait() joins genus-level benthic traits on genus", {
 })
 
 test_that("the five new enrichments are registered in the bundled manifest", {
-  mpath <- system.file("manifest.json", package = "taxify")
+  mpath <- system.file("manifest_v3.json", package = "taxify")
   skip_if_not(nzchar(mpath) && file.exists(mpath), "bundled manifest not found")
   m <- jsonlite::read_json(mpath, simplifyVector = FALSE)
   for (nm in c("kew_cvalues", "copepod_traits", "fishtraits",

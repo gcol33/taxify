@@ -259,7 +259,7 @@ test_that("an entry without a citation yields none", {
 })
 
 test_that("the bundled manifest cites both GloNAF versions and both FirstRecords works", {
-  mf <- jsonlite::read_json(system.file("manifest.json", package = "taxify"))
+  mf <- jsonlite::read_json(system.file("manifest_v3.json", package = "taxify"))
   glonaf <- extract_manifest_citations(mf, "enrichments", "glonaf")
   expect_identical(vapply(glonaf, `[[`, "", "doi"),
                    c("10.1002/ecy.70245", "10.1002/ecy.2542"))

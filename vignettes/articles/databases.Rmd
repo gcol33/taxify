@@ -9,7 +9,7 @@ library(taxify)
 # The tables are built from the manifest that ships with this build, so they
 # match the installed package and need no network. list_backbones() and
 # list_enrichments() read the session manifest cache; point it at that copy.
-mp <- system.file("manifest.json", package = "taxify")
+mp <- system.file("manifest_v3.json", package = "taxify")
 manifest <- jsonlite::read_json(mp, simplifyVector = FALSE)
 assign("manifest", manifest, envir = taxify:::.taxify_env)
 

@@ -99,7 +99,7 @@ Anchors: `@p:readme.<slug>`, `@p:desc.<slug>`, `@p:vig.<article>.<slug>`, `?fn` 
 
 ### enrichment-count
 - metric: number of published datasets in the manifest
-- source: `list_enrichments()`; `inst/manifest.json`; the `manifest:enrichment-count` marker in README
+- source: `list_enrichments()`; `inst/manifest_v3.json`; the `manifest:enrichment-count` marker in README
 - note: computed at render time in README.Rmd, never typed
 
 ### default-download

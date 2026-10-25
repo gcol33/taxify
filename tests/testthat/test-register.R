@@ -333,7 +333,7 @@ test_that("both register assets have a manifest entry", {
   expect_true("genus_register" %in% names(m$backends))
   expect_true("backend_coverage" %in% names(m$backends))
   for (nm in c("genus_register", "backend_coverage")) {
-    expect_true(endsWith(m$backends[[nm]]$full_url, paste0(nm, ".vtr")))
+    expect_identical(local_asset_name(m$backends[[nm]]$full_url), paste0(nm, ".vtr"))
     expect_true(nzchar(m$backends[[nm]]$latest))
   }
 })

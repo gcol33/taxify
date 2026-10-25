@@ -96,7 +96,7 @@ test_that("build-only enrichments are absent from the bundled manifest", {
   # These sources are built locally by taxifydb and never redistributed, so a
   # manifest entry (which exists to point at a published asset) would be wrong.
   mf <- jsonlite::read_json(
-    system.file("manifest.json", package = "taxify"), simplifyVector = TRUE
+    system.file("manifest_v3.json", package = "taxify"), simplifyVector = TRUE
   )
   for (nm in taxify:::.build_only_enrichments()) {
     expect_false(nm %in% names(mf$enrichments),
@@ -129,7 +129,7 @@ test_that("every grouped enrichment declares its group column in the manifest", 
   )
 
   mf <- jsonlite::read_json(
-    system.file("manifest.json", package = "taxify"), simplifyVector = TRUE
+    system.file("manifest_v3.json", package = "taxify"), simplifyVector = TRUE
   )
   for (nm in names(grouped)) {
     entry <- mf$enrichments[[nm]]

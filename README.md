@@ -83,7 +83,7 @@ pak::pak("gcol33/taxify")
 
 `install_backbones()` downloads the Catalogue of Life (COL), the GBIF
 Backbone Taxonomy and the Integrated Taxonomic Information System
-(ITIS), about 4 GB in all, and `taxify()` reads them from disk after
+(ITIS), about 1.1 GB in all, and `taxify()` reads them from disk after
 that. `taxify_clean()` removes them again.
 
 ## Usage

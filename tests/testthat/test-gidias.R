@@ -187,7 +187,7 @@ test_that("environmental_impact / socioeconomic_impact are registered traits", {
 })
 
 test_that("GIDIAS is registered in the bundled manifest as a static enrichment", {
-  mpath <- system.file("manifest.json", package = "taxify")
+  mpath <- system.file("manifest_v3.json", package = "taxify")
   skip_if_not(nzchar(mpath) && file.exists(mpath), "bundled manifest not found")
   m <- jsonlite::read_json(mpath, simplifyVector = FALSE)
   expect_true("gidias" %in% names(m$enrichments))
