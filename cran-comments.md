@@ -71,15 +71,17 @@ repository declared in `Additional_repositories`
 
 ## Test environments
 
-* Local: Windows 11, R 4.6.0 (R CMD check --as-cran)
-* win-builder: R-devel
+* Local: Windows 11, R-devel (2026-09-29 r90598 ucrt), R CMD check --as-cran,
+  with R_USER_DATA_DIR pointed at an empty directory (still empty afterwards).
+  The win-builder R-devel queue did not move on 2026-10-26 from 17:38 to past
+  21:30 (server time), for every package in it, so R-devel was checked
+  locally.
 * win-builder: R-release
 
 ## R CMD check results
 
-* Local (--as-cran): 0 errors | 0 warnings | 0 notes
+* Local R-devel (--as-cran): Status OK
 * win-builder (R-release, 4.6.1): 0 errors | 0 warnings | 1 note
-* win-builder (R-devel, 2026-09-25 r90590): 0 errors | 0 warnings | 1 note
 
 The note is "Suggests or Enhances not in mainstream repositories: taxifydb",
 confirmed available via Additional_repositories in the same check output
