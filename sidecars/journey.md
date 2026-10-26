@@ -59,7 +59,7 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 - leaves: what a methods section names, and why the answer can be trusted
 
 ### readme.install  (section)
-- job: CRAN and development install; the first call downloads COL, GBIF and ITIS (about 4 GB).
+- job: CRAN and development install; the first call downloads COL, GBIF and ITIS (about 1.1 GB).
 - leaves: what the first run costs
 
 ### readme.steps  [A1 A4 A5]  (list)
@@ -132,7 +132,7 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 
 ### vig.taxify.backbones  [A3 A2]
 - idea: what a backbone is; the first-run download
-- job: Defines backbone with the three default examples, says the first call downloads them (about 4 GB) and later calls need no network.
+- job: Defines backbone with the three default examples, says the first call downloads them (about 1.1 GB) and later calls need no network.
 - leaves: the term and the cost of the first call
 
 ### vig.taxify.match  [A1]  (section, code)

@@ -48,7 +48,7 @@ Anchors: `@p:readme.<slug>`, `@p:desc.<slug>`, `@p:vig.<article>.<slug>`, `?fn` 
 
 ### default-backbones
 - forms: the default set; COL, GBIF and ITIS
-- as: what the first `taxify()` call installs when nothing is installed; about 4 GB
+- as: what the first `taxify()` call installs when nothing is installed; about 1.1 GB
 - home: ?taxify (`backbone`); stated-at: @p:readme.install-note; @p:vig.taxify.backbones
 
 ### multiple-ids
@@ -104,8 +104,8 @@ Anchors: `@p:readme.<slug>`, `@p:desc.<slug>`, `@p:vig.<article>.<slug>`, `?fn` 
 
 ### default-download
 - metric: size of the first-run install (COL + GBIF + ITIS)
-- value: about 4 GB
-- source: manifest sizes (COL 2.1 GB, GBIF 1.7 GB, ITIS 206 MB in the README backbone table)
+- value: about 1.1 GB
+- source: inst/manifest_v3.json full_size (COL, GBIF, ITIS TDCF stores)
 
 ### worldflora-benchmark
 - metric: wall time to load WFO and match 1,000 accepted binomials exactly and with one substituted character per epithet; peak R heap

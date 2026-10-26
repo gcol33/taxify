@@ -31,7 +31,7 @@ Ecologists, botanists, zoologists and data managers with a species list (a field
 - answer: Backbones are versioned files downloaded once; every row records the backbone and its version, `taxify_lock()` writes the versions and content hashes to a file, `taxify_restore()` reinstalls the exact builds, and `cite()` prints the references of every source used.
 - payoff: A methods section names the backbone versions, and a colleague reruns the analysis on the same data.
 - evidence: ?taxify_lock; ?taxify_restore; ?cite; vignettes/backbones.Rmd (Versions and reproducibility)
-- limits: the first download needs the network (about 4 GB for the default set); a backbone is as current as its release, not the source's live website
+- limits: the first download needs the network (about 1.1 GB for the default set); a backbone is as current as its release, not the source's live website
 - home: vignettes/backbones.Rmd
 - also: DESCRIPTION, README, Get started
 

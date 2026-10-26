@@ -35,7 +35,7 @@ pak::pak("gcol33/taxify")
 library(taxify)
 ```
 
-taxify matches names against backbones: published taxonomic databases such as the Catalogue of Life (COL), the GBIF Backbone Taxonomy and the Integrated Taxonomic Information System (ITIS), stored as files on your disk. `install_backbones()` downloads COL, GBIF and ITIS, about 4 GB, into `taxify_data_dir()`. `taxify()` reads these files and needs no network.
+taxify matches names against backbones: published taxonomic databases such as the Catalogue of Life (COL), the GBIF Backbone Taxonomy and the Integrated Taxonomic Information System (ITIS), stored as files on your disk. `install_backbones()` downloads COL, GBIF and ITIS, about 1.1 GB, into `taxify_data_dir()`. `taxify()` reads these files and needs no network.
 
 ## Matching a list of names
 

@@ -22,7 +22,7 @@ previous build is still usable.
 Downloads the pre-built \code{.vtr} for each named backbone into the taxify data
 directory (\code{\link[=taxify_data_dir]{taxify_data_dir()}}), so subsequent \code{\link[=taxify]{taxify()}} calls match against
 them offline. Called without arguments it installs the default set (COL,
-GBIF, ITIS, about 4 GB); name backbones to install a different set, add a
+GBIF, ITIS, about 1.1 GB); name backbones to install a different set, add a
 backbone, or refresh to the latest release. Calling it is the consent to
 download: other functions that reach a backbone not on disk ask first in an
 interactive session and stop with an error otherwise, unless
