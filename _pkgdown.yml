@@ -106,6 +106,7 @@ reference:
   - taxify_restore
   - taxify_pin
   - taxify_store
+  - taxify_clean
 - title: Backbone-specific columns
   desc: Attach extra columns from the backbone that matched.
   contents:
