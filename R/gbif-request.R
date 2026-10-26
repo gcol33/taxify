@@ -706,13 +706,13 @@ rbind_union <- function(parts) {
 #'
 #' @export
 gbif_fetch <- function(x, backmatch = TRUE, path = tempdir(), verbose = TRUE) {
-  require_rgbif("gbif_fetch()")
   keys <- attr(x, "gbif_download") %||% as.character(x)
   keys <- keys[!is.na(keys) & nzchar(keys)]
   if (length(keys) == 0L) {
     stop("x carries no GBIF download key; was it made by ",
          "gbif_request(method = \"download\")?", call. = FALSE)
   }
+  require_rgbif("gbif_fetch()")
 
   parts <- vector("list", length(keys))
   for (i in seq_along(keys)) {
