@@ -10,7 +10,8 @@ the package for archival on 2026-11-02. I am aware of the request to reduce
 the update frequency; this release answers the report above and would not
 have been submitted otherwise.
 
-It requires vectra 0.14.0 (submitted 2026-10-25 for the same reason): its new
+It requires vectra 0.14.0 (on CRAN since 2026-10-26, submitted for the same
+reason): its new
 storage format makes the backbone data taxify downloads several times
 smaller, so what a user stores is smaller as well as managed.
 
