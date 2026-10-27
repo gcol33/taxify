@@ -9,6 +9,15 @@ This is a resubmission of 0.7.0, answering the incoming check of 2026-10-26:
   https://gillescolling.com/taxify/articles/databases.html. Nothing else
   changed.
 
+The resubmitted tarball was checked locally on R-devel (2026-09-29 r90598
+ucrt) with `R CMD check --as-cran` and
+`_R_CHECK_CRAN_INCOMING_CHECK_FILE_URIS_=TRUE`: Status OK, no file URIs
+reported, user data directory empty afterwards. The win-builder R-devel queue
+stalled again on 2026-10-27: taxify_0.7.0 was taken from the queue at 13:50
+UTC and no result came back, and a minimal probe package uploaded at 14:58 UTC
+was still waiting at 15:18 UTC, while the same probe on R-release was checked
+by 15:10 UTC.
+
 ## Submission
 
 This is version 0.7.0 of taxify, currently on CRAN at 0.6.0 (published
