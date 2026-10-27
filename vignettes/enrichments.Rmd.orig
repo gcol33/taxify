@@ -12,7 +12,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
 options(width = 80)
 ```
 
-This article shows how to attach published trait, status and range data to matched names: one dataset with its `add_<source>()` function, one trait from every dataset that has it with `add_trait()`, and the datasets that hold one value per country, region or language. It ends with how the values are joined, where each one came from and how to cite them. Installation is covered in [Get started](taxify.html). The source, size and licence of every dataset are listed in [The backbones and datasets](articles/databases.html).
+This article shows how to attach published trait, status and range data to matched names: one dataset with its `add_<source>()` function, one trait from every dataset that has it with `add_trait()`, and the datasets that hold one value per country, region or language. It ends with how the values are joined, where each one came from and how to cite them. Installation is covered in [Get started](taxify.html). The source, size and licence of every dataset are listed in [The backbones and datasets](https://gillescolling.com/taxify/articles/databases.html).
 
 1. **Find** a dataset with `list_enrichments()`, or a trait with `list_traits()`.
 
@@ -211,7 +211,7 @@ A dataset with `static = TRUE` in `list_enrichments()` is a fixed release and is
 
 ## Where next
 
-- [The backbones and datasets](articles/databases.html): every dataset with its scope, version, licence and reference.
+- [The backbones and datasets](https://gillescolling.com/taxify/articles/databases.html): every dataset with its scope, version, licence and reference.
 
 - [Joining your own data](custom-data.html): `add_data()` for tables of your own.
 

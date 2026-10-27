@@ -142,7 +142,7 @@ The columns hold the same kind of value for every backbone, with these differenc
 
 An ID is meaningful only within its backbone. When a backbone is built, its synonyms are converted to `is_synonym`, `accepted_name` and `accepted_id`, and a synonym that points to another synonym is followed to the accepted name.
 
-The source, licence and citation of each backbone are listed in [The backbones and datasets](articles/databases.html).
+The source, licence and citation of each backbone are listed in [The backbones and datasets](https://gillescolling.com/taxify/articles/databases.html).
 
 ## Downloading and pinning versions
 
@@ -200,4 +200,4 @@ The first backbone in the vector sets the treatment for most names, and broader 
 
 - [Matching large lists](large-scale.html): timings and memory for lists of many names.
 
-- [The backbones and datasets](articles/databases.html): the source, size and licence of every backbone.
+- [The backbones and datasets](https://gillescolling.com/taxify/articles/databases.html): the source, size and licence of every backbone.
