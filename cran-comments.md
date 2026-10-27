@@ -1,3 +1,14 @@
+## Resubmission
+
+This is a resubmission of 0.7.0, answering the incoming check of 2026-10-26:
+
+* "Found the following (possibly) invalid file URIs: articles/databases.html
+  From: inst/doc/backbones.html, inst/doc/enrichments.html". That article is
+  part of the package website only and is not installed with the package. The
+  two vignettes now link to it by its absolute URL,
+  https://gillescolling.com/taxify/articles/databases.html. Nothing else
+  changed.
+
 ## Submission
 
 This is version 0.7.0 of taxify, currently on CRAN at 0.6.0 (published
