@@ -3,8 +3,8 @@
 # A polar classification tree of nine genera across plants, animals and fungi,
 # kingdom -> phylum -> class -> order -> family -> genus, with each genus's
 # classification read from taxify's published genus register. Behind it a
-# polar graticule: one ring per rank and spokes from the root. The spokes turn
-# slowly about the root, one step (15 degrees) every twelve seconds, so the
+# polar graticule: a ring every second rank and spokes from the root. The spokes turn
+# slowly about the root, one step (30 degrees) every twelve seconds, so the
 # end frame is the start frame and the loop never jumps, and the leaves pulse
 # gently out of step with each other. Under prefers-reduced-motion still
 # copies of the spokes and leaves replace the moving ones.
@@ -83,16 +83,15 @@ for (d in seq_along(ranks)) {
 
 leaf <- polar(length(ranks) * ring_r, reg$angle)
 reg$x <- leaf[, 1]; reg$y <- leaf[, 2]
-# Leaves breathe: the radius swells by about a fifth and back over three
-# seconds, eased, each leaf at its own phase (golden-ratio steps, so
-# neighbours never pulse together). SMIL, like the spokes, with a still copy
-# for reduced motion.
-t_pulse <- 3
+# Leaves breathe: the radius swells to 1.12x and back over four seconds,
+# eased, each leaf at its own phase (golden-ratio steps, so neighbours never
+# pulse together). SMIL, like the spokes, with a still copy for reduced motion.
+t_pulse <- 4
 leaf_r <- 12
 dot <- function(i, animate) {
   anim <- if (animate) {
     sprintf('<animate attributeName="r" values="%g;%g;%g" dur="%gs" begin="-%.2fs" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1"/>',
-            leaf_r, 1.2 * leaf_r, leaf_r, t_pulse, t_pulse * ((i * 0.618034) %% 1))
+            leaf_r, 1.12 * leaf_r, leaf_r, t_pulse, t_pulse * ((i * 0.618034) %% 1))
   } else ""
   sprintf('<circle cx="%.1f" cy="%.1f" r="%g" fill="%s">%s</circle>',
           reg$x[i], reg$y[i], leaf_r, col[[reg$kingdom[i]]], anim)
@@ -100,13 +99,13 @@ dot <- function(i, animate) {
 leaves_moving <- vapply(seq_len(n), dot, "", animate = TRUE)
 leaves_still <- vapply(seq_len(n), dot, "", animate = FALSE)
 
-# Graticule: one ring per rank (still) and spokes every 15 degrees from the
+# Graticule: a ring every second rank (still) and spokes every 30 degrees from the
 # root, long enough to reach every corner of the hex. The turning copy rotates
 # by exactly one spoke step per cycle, linear in time, so the loop is seamless.
 # The turn is SMIL (animateTransform), which runs inside an <img> in every
 # browser and can be seeked for the frame check.
-step <- 15
-rings_d <- paste(vapply(seq_len(length(ranks) + 3), function(d) {
+step <- 30
+rings_d <- paste(vapply(seq(2, length(ranks) + 4, by = 2), function(d) {
   r <- d * ring_r
   sprintf("M%.1f,%.1fa%g,%g 0 1 0 %g,0a%g,%g 0 1 0 %g,0", ox - r, oy, r, r, 2 * r, r, r, -2 * r)
 }, ""), collapse = "")
@@ -115,7 +114,7 @@ spokes_d <- paste(vapply(seq(0, 360 - step, by = step), function(a) {
   p <- polar(spoke_len, a)
   sprintf("M%.1f,%.1fL%.1f,%.1f", ox, oy, p[1], p[2])
 }, ""), collapse = "")
-t_turn <- 6
+t_turn <- 12
 
 css <- sprintf('
 .grat { fill: none; stroke: %1$s; stroke-width: 2; }
