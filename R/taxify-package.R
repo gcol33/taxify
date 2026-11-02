@@ -121,4 +121,5 @@ utils::globalVariables(c(
 .onLoad <- function(libname, pkgname) {
   .taxify_cache <<- new.env(parent = emptyenv())
   .taxify_env   <<- new.env(parent = emptyenv())
+  sweep_unused_builds()
 }

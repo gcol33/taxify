@@ -765,13 +765,9 @@ taxify_store <- function(asset = NULL) {
     invisible(NULL)
   }
 
-  bb_names <- if (dir.exists(dd)) {
-    setdiff(basename(list.dirs(dd, recursive = FALSE)), "enrichment")
-  } else character(0L)
-  en_root <- file.path(dd, "enrichment")
-  en_names <- if (dir.exists(en_root)) {
-    basename(list.dirs(en_root, recursive = FALSE))
-  } else character(0L)
+  on_disk <- assets_on_disk(dd)
+  bb_names <- on_disk$backbone
+  en_names <- on_disk$enrichment
 
   if (!is.null(asset)) {
     bb_names <- intersect(bb_names, asset)
@@ -797,33 +793,47 @@ taxify_store <- function(asset = NULL) {
 #' Frees disk space in the data directory ([taxify_data_dir()]). Called with no
 #' arguments it removes what taxify no longer reads: builds replaced by a newer
 #' one or kept by version, and files left by an interrupted download. The
-#' active build of every backbone and enrichment stays. Name assets to remove
-#' them completely, or pass `"all"` to delete the data directory.
+#' active build of every backbone and enrichment stays, unless `unused_days`
+#' is given. Name assets to remove them completely, or pass `"all"` to delete
+#' the data directory.
 #'
 #' A removed backbone or enrichment downloads again when it is next installed;
 #' a lockfile pin is restored by [taxify_restore()] from the published copy of
 #' that build.
 #'
+#' @section Builds left unused:
+#' Every time a session first reads a build, taxify records the time. When the
+#' package is loaded it removes, from the data directory, every build
+#' that has not been read or downloaded for `getOption("taxify.max_unused_days")`
+#' days (default 90), and the files of interrupted downloads, so a backbone
+#' installed once and then left alone does not stay on disk. Set the option to
+#' `Inf` to keep every build. `taxify_clean(unused_days = )` applies the same
+#' rule on demand to the data directory in use.
+#'
 #' @param assets `NULL` (default) for superseded builds and interrupted
 #'   downloads, a character vector of backbone or enrichment names to remove
 #'   completely, or `"all"` for the whole data directory.
+#' @param unused_days Number or `NULL`. With `assets = NULL`, also remove every
+#'   build, the active one included, not read or downloaded for this many days.
 #' @param dry_run Logical. List what would be removed, without removing it.
 #' @param verbose Logical. Report the space freed.
 #'
 #' @return Invisibly, a data.frame with one row per path removed (or, with
 #'   `dry_run = TRUE`, that would be removed): `component`, `type`
 #'   (`"backbone"`/`"enrichment"`/`"directory"`), `reason` (`"superseded"`,
-#'   `"interrupted"`, `"removed"`), `size_mb` and `path`.
+#'   `"unused"`, `"interrupted"`, `"removed"`), `size_mb` and `path`.
 #'
 #' @seealso [taxify_store()] for the builds on disk, [install_backbones()].
 #'
 #' @examples
 #' old <- options(taxify.data_dir = file.path(tempdir(), "taxify_clean_demo"))
 #' taxify_clean(dry_run = TRUE)
+#' taxify_clean(unused_days = 30, dry_run = TRUE)
 #' options(old)
 #'
 #' @export
-taxify_clean <- function(assets = NULL, dry_run = FALSE, verbose = TRUE) {
+taxify_clean <- function(assets = NULL, unused_days = NULL, dry_run = FALSE,
+                         verbose = TRUE) {
   if (is_example_data_dir()) {
     stop("The active data directory is the read-only example database; ",
          "set taxify.data_dir to the directory to clean.", call. = FALSE)
@@ -831,20 +841,16 @@ taxify_clean <- function(assets = NULL, dry_run = FALSE, verbose = TRUE) {
   dd <- taxify_data_dir()
   rows <- list()
   add <- function(component, type, reason, path) {
-    rows[[length(rows) + 1L]] <<- data.frame(
-      component = component, type = type, reason = reason,
-      size_mb = round(path_size(path) / 1048576, 1), path = path,
-      stringsAsFactors = FALSE
-    )
+    rows[[length(rows) + 1L]] <<- clean_rows(component, type, reason, path)
   }
 
-  en_root <- file.path(dd, "enrichment")
-  bb_on_disk <- if (dir.exists(dd)) {
-    setdiff(basename(list.dirs(dd, recursive = FALSE)), "enrichment")
-  } else character(0L)
-  en_on_disk <- if (dir.exists(en_root)) {
-    basename(list.dirs(en_root, recursive = FALSE))
-  } else character(0L)
+  on_disk <- assets_on_disk(dd)
+  bb_on_disk <- on_disk$backbone
+  en_on_disk <- on_disk$enrichment
+
+  if (!is.null(unused_days) && !is.null(assets)) {
+    stop("unused_days applies only when assets is NULL.", call. = FALSE)
+  }
 
   if (identical(assets, "all")) {
     if (dir.exists(dd)) add("all", "directory", "removed", dd)
@@ -861,34 +867,16 @@ taxify_clean <- function(assets = NULL, dry_run = FALSE, verbose = TRUE) {
     for (nm in intersect(assets, en_on_disk)) {
       add(nm, "enrichment", "removed", asset_store_root(nm, "enrichment"))
     }
-  } else {
-    # Only directories taxify itself lays out are swept; anything else a user
-    # keeps in the data directory is left alone.
-    managed <- union(backbone_names(),
-                     names(tryCatch(local_manifest()$backends,
-                                    error = function(e) NULL)))
-    sweep <- function(nm, kind) {
-      root <- asset_store_root(nm, kind)
-      for (d in setdiff(list.dirs(root, recursive = FALSE),
-                        file.path(root, "latest"))) {
-        add(nm, kind, "superseded", d)
-      }
-      for (f in stale_download_files(root)) add(nm, kind, "interrupted", f)
-    }
-    for (nm in intersect(bb_on_disk, managed)) sweep(nm, "backbone")
-    for (nm in en_on_disk) sweep(nm, "enrichment")
   }
 
-  out <- if (length(rows)) do.call(rbind, rows) else data.frame(
-    component = character(0L), type = character(0L), reason = character(0L),
-    size_mb = numeric(0L), path = character(0L), stringsAsFactors = FALSE
-  )
+  out <- if (length(rows)) do.call(rbind, rows) else clean_rows()
+  if (is.null(assets)) {
+    out <- rbind(out, outdated_builds(dd, superseded = TRUE,
+                                      unused_days = unused_days))
+  }
   rownames(out) <- NULL
 
-  if (!dry_run && nrow(out)) {
-    unlink(out$path, recursive = TRUE)
-    taxify_clear_cache()
-  }
+  if (!dry_run && nrow(out)) remove_store_paths(out$path, dd)
   if (verbose) {
     message(sprintf("%s %.1f MB in %d path%s from %s.",
                     if (dry_run) "Would remove" else "Removed",
@@ -906,4 +894,189 @@ path_size <- function(path) {
   if (!dir.exists(path)) return(as.numeric(file.size(path)))
   f <- list.files(path, recursive = TRUE, full.names = TRUE, all.files = TRUE)
   sum(as.numeric(file.size(f)), na.rm = TRUE)
+}
+
+
+# ---- Builds left unused ----
+#
+# A build records its last use as the modification time of the newest file in
+# its directory: a download or rebuild writes the files, and the first read of a
+# build in a session rewrites the `.last_used` stamp beside them. Builds whose
+# newest file is older than `taxify.max_unused_days` are removed when the
+# package loads, so a data directory nobody reads empties itself.
+
+#' Rows of the table `taxify_clean()` returns
+#' @noRd
+clean_rows <- function(component = character(0L), type = character(0L),
+                       reason = character(0L), path = character(0L)) {
+  data.frame(
+    component = component, type = type, reason = reason,
+    size_mb = round(vapply(path, path_size, numeric(1L)) / 1048576, 1),
+    path = path, stringsAsFactors = FALSE, row.names = NULL
+  )
+}
+
+
+#' Backbone and enrichment names with a store directory under a data directory
+#' @noRd
+assets_on_disk <- function(dd) {
+  en_root <- file.path(dd, "enrichment")
+  list(
+    backbone = if (dir.exists(dd)) {
+      setdiff(basename(list.dirs(dd, recursive = FALSE)), "enrichment")
+    } else character(0L),
+    enrichment = if (dir.exists(en_root)) {
+      basename(list.dirs(en_root, recursive = FALSE))
+    } else character(0L)
+  )
+}
+
+
+#' Record that a build was read in this session
+#'
+#' Rewrites the `.last_used` stamp in the build's directory, once per session
+#' and directory, and only for a build inside the data directory: the
+#' read-only example database and paths elsewhere are never written to.
+#'
+#' @param path Character. Path to a build's `.vtr`.
+#' @return `path`, invisibly.
+#' @noRd
+mark_build_used <- function(path) {
+  if (!is.character(path) || length(path) != 1L || is.na(path) ||
+      is_example_data_dir()) {
+    return(invisible(path))
+  }
+  dir <- tryCatch(normalizePath(dirname(path), winslash = "/", mustWork = TRUE),
+                  error = function(e) NULL)
+  if (is.null(dir)) return(invisible(path))
+  stamped <- .taxify_env$stamped_builds %||% character(0L)
+  if (dir %in% stamped) return(invisible(path))
+  dd <- tryCatch(normalizePath(taxify_data_dir(), winslash = "/",
+                               mustWork = TRUE),
+                 error = function(e) NULL)
+  if (!is.null(dd) && startsWith(dir, paste0(dd, "/"))) {
+    file.create(file.path(dir, ".last_used"), showWarnings = FALSE)
+  }
+  .taxify_env$stamped_builds <- c(stamped, dir)
+  invisible(path)
+}
+
+
+#' Days since a build was last read or written
+#'
+#' @param dir Character. A build directory.
+#' @return Numeric scalar, `NA` for an empty directory.
+#' @noRd
+build_unused_days <- function(dir) {
+  f <- list.files(dir, full.names = TRUE, all.files = TRUE, no.. = TRUE)
+  f <- f[!dir.exists(f)]
+  if (!length(f)) return(NA_real_)
+  as.numeric(difftime(Sys.time(), max(file.mtime(f), na.rm = TRUE),
+                      units = "days"))
+}
+
+
+#' Builds and partial downloads taxify no longer reads
+#'
+#' Only directories taxify itself lays out are considered; anything else a user
+#' keeps in the data directory is left alone.
+#'
+#' @param dd Character. The data directory.
+#' @param superseded Logical. Include every build other than the active one.
+#' @param unused_days Number or `NULL`. Include builds not read or written for
+#'   this many days.
+#' @return A data.frame in the shape of [clean_rows()].
+#' @noRd
+outdated_builds <- function(dd, superseded = TRUE, unused_days = NULL) {
+  on_disk <- assets_on_disk(dd)
+  managed <- union(backbone_names(),
+                   names(tryCatch(local_manifest()$backends,
+                                  error = function(e) NULL)))
+  roots <- c(
+    stats::setNames(file.path(dd, intersect(on_disk$backbone, managed)),
+                    intersect(on_disk$backbone, managed)),
+    stats::setNames(file.path(dd, "enrichment", on_disk$enrichment),
+                    on_disk$enrichment)
+  )
+  kinds <- rep(c("backbone", "enrichment"),
+               c(length(intersect(on_disk$backbone, managed)),
+                 length(on_disk$enrichment)))
+  check_unused <- is.numeric(unused_days) && length(unused_days) == 1L &&
+    !is.na(unused_days) && is.finite(unused_days)
+
+  out <- list()
+  for (i in seq_along(roots)) {
+    root <- roots[[i]]
+    nm <- names(roots)[i]
+    for (d in list.dirs(root, recursive = FALSE)) {
+      reason <- if (superseded && basename(d) != "latest") {
+        "superseded"
+      } else if (check_unused && isTRUE(build_unused_days(d) > unused_days)) {
+        "unused"
+      } else {
+        NA_character_
+      }
+      if (!is.na(reason)) out[[length(out) + 1L]] <- clean_rows(nm, kinds[i], reason, d)
+    }
+    f <- stale_download_files(root)
+    if (length(f)) {
+      out[[length(out) + 1L]] <- clean_rows(nm, kinds[i], "interrupted", f)
+    }
+  }
+  if (length(out)) do.call(rbind, out) else clean_rows()
+}
+
+
+#' Delete store paths, then the store directories they leave empty
+#'
+#' @param paths Character. Files or directories under `dd`.
+#' @param dd Character. The data directory, removed too once empty.
+#' @noRd
+remove_store_paths <- function(paths, dd) {
+  # Normalized while they exist, so short and long forms of one path compare
+  # equal.
+  dd <- normalizePath(dd, winslash = "/", mustWork = FALSE)
+  parents <- unique(normalizePath(dirname(paths), winslash = "/",
+                                  mustWork = FALSE))
+  unlink(paths, recursive = TRUE)
+  is_empty <- function(d) {
+    dir.exists(d) && !length(list.files(d, all.files = TRUE, no.. = TRUE))
+  }
+  for (d in parents) {
+    while (startsWith(d, paste0(dd, "/")) && is_empty(d)) {
+      unlink(d, recursive = TRUE)
+      d <- dirname(d)
+    }
+  }
+  if (is_empty(dd)) unlink(dd, recursive = TRUE)
+  taxify_clear_cache()
+  .taxify_env$stamped_builds <- NULL
+  invisible(NULL)
+}
+
+
+#' Remove builds left unused, when the package loads
+#'
+#' Applies `taxify.max_unused_days` (default 90; `Inf` keeps everything) and
+#' clears interrupted downloads in the data directory. Never fails the load.
+#'
+#' @return `NULL`, invisibly.
+#' @noRd
+sweep_unused_builds <- function() {
+  days <- getOption("taxify.max_unused_days", 90)
+  if (!is.numeric(days) || length(days) != 1L || is.na(days) ||
+      !is.finite(days) || is_example_data_dir()) {
+    return(invisible(NULL))
+  }
+  dd <- taxify_data_dir()
+  if (!dir.exists(dd)) return(invisible(NULL))
+  out <- tryCatch(outdated_builds(dd, superseded = FALSE, unused_days = days),
+                  error = function(e) NULL)
+  if (is.null(out) || !nrow(out)) return(invisible(NULL))
+  tryCatch(remove_store_paths(out$path, dd), error = function(e) NULL)
+  packageStartupMessage(sprintf(
+    paste0("taxify removed %.1f MB of data not used for %g days from %s ",
+           "(options(taxify.max_unused_days = Inf) keeps it)."),
+    sum(out$size_mb), days, dd))
+  invisible(NULL)
 }

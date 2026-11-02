@@ -143,7 +143,7 @@ meow_table <- function() {
   if (!is.null(cached)) return(cached)
   if (!marine_region_active()) return(NULL)
 
-  path <- enrichment_vtr_path("marine_distribution")
+  path <- mark_build_used(enrichment_vtr_path("marine_distribution"))
   sel <- c("region_code", "ecoregion", "province", "realm")
   tab <- tryCatch(
     vectra::collect(
@@ -415,6 +415,7 @@ species_range_continents <- function(accepted_names, verbose = FALSE) {
     if (verbose) message("  Range outlier check skipped: WCVP not installed.")
     return(NULL)
   }
+  mark_build_used(vtr_path)
 
   schema <- tryCatch(vectra::collect(utils::head(vectra::tbl(vtr_path), 1L)),
                      error = function(e) NULL)
@@ -563,7 +564,7 @@ assemble_polygons <- function(df) {
 #' @noRd
 ensure_boundary_vtr <- function(scheme, download = TRUE, verbose = FALSE) {
   path <- versioned_vtr_path(scheme, "latest")
-  if (file.exists(path)) return(path)
+  if (file.exists(path)) return(mark_build_used(path))
   if (!download) return(NULL)
 
   dl <- tryCatch(download_backbone(scheme, verbose = verbose),

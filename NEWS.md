@@ -1,3 +1,17 @@
+# taxify 0.7.1
+
+## Data directory
+
+* taxify removes data it no longer uses on its own. Each session records when
+  it first reads a backbone or enrichment build, and when the package is
+  loaded, every build that has not been read or downloaded for
+  `getOption("taxify.max_unused_days")` days (default 90) is deleted, with the
+  files of interrupted downloads and any directory this leaves empty. A
+  backbone installed once and never used again, such as one written by an
+  earlier version's checks, therefore leaves the disk at the next load.
+  `options(taxify.max_unused_days = Inf)` keeps every build.
+* `taxify_clean(unused_days = )` applies the same rule on demand.
+
 # taxify 0.7.0
 
 ## Data directory

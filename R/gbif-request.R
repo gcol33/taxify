@@ -197,7 +197,7 @@ gbif_keys_of <- function(x, keys = "taxon", verbose = TRUE) {
 complete_crosswalk_keys <- function(long) {
   xw <- long$key_source == "crosswalk"
   if (!any(xw) || !"gbif" %in% installed_backbones()) return(long)
-  bb <- versioned_vtr_path("gbif", "latest")
+  bb <- mark_build_used(versioned_vtr_path("gbif", "latest"))
   schema <- vtr_schema(bb)
 
   pick <- long[xw & long$role == "pick", , drop = FALSE]

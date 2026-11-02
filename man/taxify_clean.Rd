@@ -4,12 +4,20 @@
 \alias{taxify_clean}
 \title{Remove downloaded taxify data}
 \usage{
-taxify_clean(assets = NULL, dry_run = FALSE, verbose = TRUE)
+taxify_clean(
+  assets = NULL,
+  unused_days = NULL,
+  dry_run = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{assets}{\code{NULL} (default) for superseded builds and interrupted
 downloads, a character vector of backbone or enrichment names to remove
 completely, or \code{"all"} for the whole data directory.}
+
+\item{unused_days}{Number or \code{NULL}. With \code{assets = NULL}, also remove every
+build, the active one included, not read or downloaded for this many days.}
 
 \item{dry_run}{Logical. List what would be removed, without removing it.}
 
@@ -19,23 +27,36 @@ completely, or \code{"all"} for the whole data directory.}
 Invisibly, a data.frame with one row per path removed (or, with
 \code{dry_run = TRUE}, that would be removed): \code{component}, \code{type}
 (\code{"backbone"}/\code{"enrichment"}/\code{"directory"}), \code{reason} (\code{"superseded"},
-\code{"interrupted"}, \code{"removed"}), \code{size_mb} and \code{path}.
+\code{"unused"}, \code{"interrupted"}, \code{"removed"}), \code{size_mb} and \code{path}.
 }
 \description{
 Frees disk space in the data directory (\code{\link[=taxify_data_dir]{taxify_data_dir()}}). Called with no
 arguments it removes what taxify no longer reads: builds replaced by a newer
 one or kept by version, and files left by an interrupted download. The
-active build of every backbone and enrichment stays. Name assets to remove
-them completely, or pass \code{"all"} to delete the data directory.
+active build of every backbone and enrichment stays, unless \code{unused_days}
+is given. Name assets to remove them completely, or pass \code{"all"} to delete
+the data directory.
 }
 \details{
 A removed backbone or enrichment downloads again when it is next installed;
 a lockfile pin is restored by \code{\link[=taxify_restore]{taxify_restore()}} from the published copy of
 that build.
 }
+\section{Builds left unused}{
+
+Every time a session first reads a build, taxify records the time. When the
+package is loaded it removes, from the data directory, every build
+that has not been read or downloaded for \code{getOption("taxify.max_unused_days")}
+days (default 90), and the files of interrupted downloads, so a backbone
+installed once and then left alone does not stay on disk. Set the option to
+\code{Inf} to keep every build. \code{taxify_clean(unused_days = )} applies the same
+rule on demand to the data directory in use.
+}
+
 \examples{
 old <- options(taxify.data_dir = file.path(tempdir(), "taxify_clean_demo"))
 taxify_clean(dry_run = TRUE)
+taxify_clean(unused_days = 30, dry_run = TRUE)
 options(old)
 
 }

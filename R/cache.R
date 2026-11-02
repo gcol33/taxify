@@ -53,6 +53,7 @@ set_backbone_path <- function(backbone_name, path) {
     }
   } else {
     assign(slot, path, envir = .taxify_cache)
+    mark_build_used(path)
   }
 }
 

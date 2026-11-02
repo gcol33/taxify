@@ -57,6 +57,7 @@ ensure_register_asset <- function(asset, verbose = TRUE) {
   if (file.exists(path)) {
     # Once per session, pick up a newer published build.
     ensure_backbones_current(name, verbose = verbose)
+    mark_build_used(path)
     return(path)
   }
 
