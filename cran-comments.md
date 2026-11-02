@@ -60,20 +60,26 @@ repository declared in `Additional_repositories`
 
 ## Test environments
 
-* Local: Windows 11, R-devel, R CMD check --as-cran with
-  `_R_CHECK_CRAN_INCOMING_CHECK_FILE_URIS_=TRUE`, R_USER_DATA_DIR pointed at an
-  empty directory (still empty afterwards).
-* win-builder: R-devel, R-release
+* Local: Windows 11, R-devel (2026-10-26 r90766 ucrt), R CMD check --as-cran
+  --run-donttest with `_R_CHECK_CRAN_INCOMING_CHECK_FILE_URIS_=TRUE`, and
+  R_USER_DATA_DIR / R_USER_CACHE_DIR pointed at empty directories (still empty
+  afterwards).
+* win-builder R-devel (2026-11-01 r90825 ucrt): Status 1 NOTE, check time
+  248 s, for a first build of 0.7.1 whose rule removed every build left unused.
+  This version narrows the rule to outdated builds (one R function and its
+  tests); the local R-devel check above is of this version.
 
 ## R CMD check results
 
 0 errors | 0 warnings | 1 note
 
-The note is "Suggests or Enhances not in mainstream repositories: taxifydb",
-confirmed available via Additional_repositories in the same check output
-("taxifydb   yes   https://gcol33.r-universe.dev"). taxifydb is used strictly
-conditionally, guarded by `requireNamespace()`, and taxify is fully functional
-without it. The same note was present in the accepted 0.7.0 submission.
+The note is the incoming-feasibility note: "New submission / Package was
+archived on CRAN" (answered above), and "Suggests or Enhances not in
+mainstream repositories: taxifydb", confirmed available via
+Additional_repositories in the same check output ("taxifydb   yes
+https://gcol33.r-universe.dev"). taxifydb is used strictly conditionally,
+guarded by `requireNamespace()`, and taxify is fully functional without it.
+The same note was present in the accepted 0.7.0 submission.
 
 The database names in the Description (WFO, COL, GBIF, etc.) are single-quoted.
 
