@@ -2,13 +2,14 @@
 
 ## Data directory
 
-* taxify removes data it no longer uses on its own. Each session records when
-  it first reads a backbone or enrichment build, and when the package is
-  loaded, every build that has not been read or downloaded for
+* taxify removes outdated data on its own. Each session records when it first
+  reads a backbone or enrichment build, and when the package is loaded, every
+  outdated build that has not been read or downloaded for
   `getOption("taxify.max_unused_days")` days (default 90) is deleted, with the
-  files of interrupted downloads and any directory this leaves empty. A
-  backbone installed once and never used again, such as one written by an
-  earlier version's checks, therefore leaves the disk at the next load.
+  files of interrupted downloads and any directory this leaves empty. A build
+  is outdated when it is stored in the format used before 0.7.0 or a newer
+  build of it has been published. The current build of a backbone or
+  enrichment stays however long it is unused, and so does a pinned build.
   `options(taxify.max_unused_days = Inf)` keeps every build.
 * `taxify_clean(unused_days = )` applies the same rule on demand.
 

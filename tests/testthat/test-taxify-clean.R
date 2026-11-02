@@ -61,9 +61,25 @@ age_build <- function(dir, days) {
   Sys.setFileTime(f, Sys.time() - days * 86400)
 }
 
-test_that("loading removes builds left unused, active ones included", {
+# Rewrite a fixture build as one store format and download record.
+as_build <- function(vtr, magic = "TDCF", content_id = NULL, pinned = FALSE) {
+  writeBin(c(charToRaw(magic), as.raw(rep(1L, 1020))), vtr)
+  meta <- list(pinned = pinned)
+  meta$content_id <- content_id
+  jsonlite::write_json(meta, file.path(dirname(vtr), "meta.json"),
+                       auto_unbox = TRUE)
+  vtr
+}
+
+served_id <- function(name) {
+  taxify:::resolve_manifest_entry(taxify:::local_manifest(), name)$content_id
+}
+
+test_that("loading removes outdated builds left unused, active ones included", {
   s <- local_store()
   p <- s$paths
+  as_build(p$col_active, magic = "TDC1")
+  as_build(p$en_archived, content_id = strrep("b", 32))
   age_build(dirname(p$col_active), 200)
   age_build(dirname(p$en_archived), 200)
   withr::local_options(taxify.max_unused_days = 90)
@@ -77,9 +93,24 @@ test_that("loading removes builds left unused, active ones included", {
                                 p$col_fresh_tmp))))
 })
 
-test_that("a build read in a session is not removed", {
+test_that("a current or pinned build stays however long it is unused", {
   s <- local_store()
   p <- s$paths
+  as_build(p$col_active, content_id = served_id("col"))
+  as_build(p$col_version, magic = "TDC1", pinned = TRUE)
+  as_build(p$en_active)
+  age_build(dirname(p$col_active), 2000)
+  age_build(dirname(p$col_version), 2000)
+  age_build(dirname(p$en_active), 2000)
+  withr::local_options(taxify.max_unused_days = 90)
+  taxify:::sweep_unused_builds()
+  expect_true(all(file.exists(c(p$col_active, p$col_version, p$en_active))))
+})
+
+test_that("an outdated build read in a session is not removed", {
+  s <- local_store()
+  p <- s$paths
+  as_build(p$col_active, magic = "TDC1")
   age_build(dirname(p$col_active), 200)
   taxify:::mark_build_used(p$col_active)
   withr::local_options(taxify.max_unused_days = 90)
@@ -89,6 +120,7 @@ test_that("a build read in a session is not removed", {
 
 test_that("taxify.max_unused_days = Inf keeps every build", {
   s <- local_store()
+  as_build(s$paths$col_active, magic = "TDC1")
   age_build(dirname(s$paths$col_active), 2000)
   withr::local_options(taxify.max_unused_days = Inf)
   expect_silent(taxify:::sweep_unused_builds())
@@ -101,7 +133,7 @@ test_that("a data directory left with nothing is removed", {
   withr::local_options(taxify.data_dir = dd, taxify.max_unused_days = 90)
   vtr <- file.path(dd, "gbif", "latest", "gbif.vtr")
   dir.create(dirname(vtr), recursive = TRUE)
-  writeBin(as.raw(1:10), vtr)
+  as_build(vtr, magic = "TDC1")
   age_build(dirname(vtr), 120)
   suppressMessages(taxify:::sweep_unused_builds())
   expect_false(dir.exists(dd))
@@ -109,6 +141,7 @@ test_that("a data directory left with nothing is removed", {
 
 test_that("taxify_clean(unused_days =) applies the same rule on demand", {
   s <- local_store()
+  as_build(s$paths$col_active, magic = "TDC1")
   age_build(dirname(s$paths$col_active), 40)
   listed <- taxify_clean(unused_days = 30, dry_run = TRUE, verbose = FALSE)
   expect_true("unused" %in% listed$reason)

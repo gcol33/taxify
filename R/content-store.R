@@ -801,12 +801,15 @@ taxify_store <- function(asset = NULL) {
 #' a lockfile pin is restored by [taxify_restore()] from the published copy of
 #' that build.
 #'
-#' @section Builds left unused:
+#' @section Outdated builds left unused:
 #' Every time a session first reads a build, taxify records the time. When the
-#' package is loaded it removes, from the data directory, every build
-#' that has not been read or downloaded for `getOption("taxify.max_unused_days")`
-#' days (default 90), and the files of interrupted downloads, so a backbone
-#' installed once and then left alone does not stay on disk. Set the option to
+#' package is loaded it removes from the data directory every outdated build
+#' that has not been read or downloaded for
+#' `getOption("taxify.max_unused_days")` days (default 90), and the files of
+#' interrupted downloads. A build is outdated when it is stored in the format
+#' used before taxify 0.7.0, or when a newer build of it has been published.
+#' The current build of a backbone or enrichment stays however long it is left
+#' unused, and so does a build pinned by [taxify_restore()]. Set the option to
 #' `Inf` to keep every build. `taxify_clean(unused_days = )` applies the same
 #' rule on demand to the data directory in use.
 #'
@@ -814,7 +817,8 @@ taxify_store <- function(asset = NULL) {
 #'   downloads, a character vector of backbone or enrichment names to remove
 #'   completely, or `"all"` for the whole data directory.
 #' @param unused_days Number or `NULL`. With `assets = NULL`, also remove every
-#'   build, the active one included, not read or downloaded for this many days.
+#'   outdated build, the active one included, not read or downloaded for this
+#'   many days.
 #' @param dry_run Logical. List what would be removed, without removing it.
 #' @param verbose Logical. Report the space freed.
 #'
@@ -897,13 +901,15 @@ path_size <- function(path) {
 }
 
 
-# ---- Builds left unused ----
+# ---- Outdated builds left unused ----
 #
 # A build records its last use as the modification time of the newest file in
 # its directory: a download or rebuild writes the files, and the first read of a
-# build in a session rewrites the `.last_used` stamp beside them. Builds whose
-# newest file is older than `taxify.max_unused_days` are removed when the
-# package loads, so a data directory nobody reads empties itself.
+# build in a session rewrites the `.last_used` stamp beside them. A build that
+# is outdated (stored in the earlier format, or no longer the build the bundled
+# manifest serves) and whose newest file is older than
+# `taxify.max_unused_days` is removed when the package loads. A current build
+# stays however long it sits unused, and so does a pinned one.
 
 #' Rows of the table `taxify_clean()` returns
 #' @noRd
@@ -976,6 +982,42 @@ build_unused_days <- function(dir) {
 }
 
 
+#' Is a build outdated?
+#'
+#' Outdated means the store is in the format before vectra 0.14.0 (file magic
+#' `TDC1`; every published store is now `TDCF`), or its recorded content id
+#' differs from the one the bundled manifest serves. A pinned build, a build
+#' the manifest does not describe (a build-only enrichment) and a build with
+#' no recorded content id in the current format are never outdated: there is
+#' nothing to compare them with, and a pin is the user's choice.
+#'
+#' @param dir Character. A build directory.
+#' @param name Character. Asset name.
+#' @param kind Character. `"backbone"` or `"enrichment"`.
+#' @return Logical scalar.
+#' @noRd
+is_outdated_build <- function(dir, name, kind) {
+  meta <- read_store_meta(dir)
+  if (isTRUE(as.logical(meta$pinned))) return(FALSE)
+  vtr <- file.path(dir, paste0(name, ".vtr"))
+  if (!file.exists(vtr)) return(FALSE)
+  magic <- tryCatch(readBin(vtr, "raw", 4L), error = function(e) raw(0L))
+  if (identical(magic, charToRaw("TDC1"))) return(TRUE)
+  manifest <- tryCatch(local_manifest(), error = function(e) NULL)
+  if (is.null(manifest)) return(FALSE)
+  entry <- tryCatch(
+    if (kind == "backbone") resolve_manifest_entry(manifest, name)
+    else resolve_enrichment_entry(manifest, name),
+    error = function(e) NULL)
+  served <- entry$content_id
+  local  <- meta$content_id
+  if (is.null(served) || is.null(local) || !nzchar(served) || !nzchar(local)) {
+    return(FALSE)
+  }
+  !identical(as.character(local), as.character(served))
+}
+
+
 #' Builds and partial downloads taxify no longer reads
 #'
 #' Only directories taxify itself lays out are considered; anything else a user
@@ -983,8 +1025,8 @@ build_unused_days <- function(dir) {
 #'
 #' @param dd Character. The data directory.
 #' @param superseded Logical. Include every build other than the active one.
-#' @param unused_days Number or `NULL`. Include builds not read or written for
-#'   this many days.
+#' @param unused_days Number or `NULL`. Include outdated builds
+#'   ([is_outdated_build()]) not read or written for this many days.
 #' @return A data.frame in the shape of [clean_rows()].
 #' @noRd
 outdated_builds <- function(dd, superseded = TRUE, unused_days = NULL) {
@@ -1011,7 +1053,8 @@ outdated_builds <- function(dd, superseded = TRUE, unused_days = NULL) {
     for (d in list.dirs(root, recursive = FALSE)) {
       reason <- if (superseded && basename(d) != "latest") {
         "superseded"
-      } else if (check_unused && isTRUE(build_unused_days(d) > unused_days)) {
+      } else if (check_unused && isTRUE(build_unused_days(d) > unused_days) &&
+                 is_outdated_build(d, nm, kinds[i])) {
         "unused"
       } else {
         NA_character_
@@ -1055,10 +1098,11 @@ remove_store_paths <- function(paths, dd) {
 }
 
 
-#' Remove builds left unused, when the package loads
+#' Remove outdated builds left unused, when the package loads
 #'
-#' Applies `taxify.max_unused_days` (default 90; `Inf` keeps everything) and
-#' clears interrupted downloads in the data directory. Never fails the load.
+#' Applies `taxify.max_unused_days` (default 90; `Inf` keeps everything) to
+#' outdated builds and clears interrupted downloads in the data directory.
+#' Never fails the load.
 #'
 #' @return `NULL`, invisibly.
 #' @noRd
@@ -1075,8 +1119,8 @@ sweep_unused_builds <- function() {
   if (is.null(out) || !nrow(out)) return(invisible(NULL))
   tryCatch(remove_store_paths(out$path, dd), error = function(e) NULL)
   packageStartupMessage(sprintf(
-    paste0("taxify removed %.1f MB of data not used for %g days from %s ",
-           "(options(taxify.max_unused_days = Inf) keeps it)."),
+    paste0("taxify removed %.1f MB of outdated data not used for %g days ",
+           "from %s (options(taxify.max_unused_days = Inf) keeps it)."),
     sum(out$size_mb), days, dd))
   invisible(NULL)
 }

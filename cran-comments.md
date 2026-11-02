@@ -12,16 +12,20 @@ deleted them. This version does:
 
 * Each session records when it first reads a backbone or enrichment build (a
   `.last_used` stamp in the build's directory).
-* When the package is loaded, every build in the data directory that has not
-  been read or downloaded for `getOption("taxify.max_unused_days")` days
-  (default 90) is deleted, together with the files of interrupted downloads
-  and the directories this leaves empty, and a startup message reports the
-  space freed. `options(taxify.max_unused_days = Inf)` turns this off.
+* When the package is loaded, every outdated build in the data directory that
+  has not been read or downloaded for `getOption("taxify.max_unused_days")`
+  days (default 90) is deleted, together with the files of interrupted
+  downloads and the directories this leaves empty, and a startup message
+  reports the space freed. A build is outdated when it is stored in the
+  uncompressed format used before 0.7.0, or when a newer build of it has been
+  published. The current build of a backbone stays, so a user who has not run
+  taxify for a few months does not have to download it again.
+  `options(taxify.max_unused_days = Inf)` turns this off.
 * On the check server, the first check of this version loads the package with
-  the files from June/July in place (more than 90 days old, never read since),
-  removes them, and removes the empty `~/.local/share/R/taxify` directory.
-  A test reproduces this on a data directory with a build aged 120 days
-  (tests/testthat/test-taxify-clean.R).
+  the files from June/July in place (old format, more than 90 days old, never
+  read since), removes them, and removes the empty `~/.local/share/R/taxify`
+  directory. A test reproduces this on a data directory with an old-format
+  build aged 120 days (tests/testthat/test-taxify-clean.R).
 * `taxify_clean(unused_days = )` applies the same rule on demand.
 
 The behaviour of 0.7.0 stays in place: no backbone is downloaded unless the

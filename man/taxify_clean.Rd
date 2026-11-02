@@ -17,7 +17,8 @@ downloads, a character vector of backbone or enrichment names to remove
 completely, or \code{"all"} for the whole data directory.}
 
 \item{unused_days}{Number or \code{NULL}. With \code{assets = NULL}, also remove every
-build, the active one included, not read or downloaded for this many days.}
+outdated build, the active one included, not read or downloaded for this
+many days.}
 
 \item{dry_run}{Logical. List what would be removed, without removing it.}
 
@@ -42,13 +43,16 @@ A removed backbone or enrichment downloads again when it is next installed;
 a lockfile pin is restored by \code{\link[=taxify_restore]{taxify_restore()}} from the published copy of
 that build.
 }
-\section{Builds left unused}{
+\section{Outdated builds left unused}{
 
 Every time a session first reads a build, taxify records the time. When the
-package is loaded it removes, from the data directory, every build
-that has not been read or downloaded for \code{getOption("taxify.max_unused_days")}
-days (default 90), and the files of interrupted downloads, so a backbone
-installed once and then left alone does not stay on disk. Set the option to
+package is loaded it removes from the data directory every outdated build
+that has not been read or downloaded for
+\code{getOption("taxify.max_unused_days")} days (default 90), and the files of
+interrupted downloads. A build is outdated when it is stored in the format
+used before taxify 0.7.0, or when a newer build of it has been published.
+The current build of a backbone or enrichment stays however long it is left
+unused, and so does a build pinned by \code{\link[=taxify_restore]{taxify_restore()}}. Set the option to
 \code{Inf} to keep every build. \code{taxify_clean(unused_days = )} applies the same
 rule on demand to the data directory in use.
 }
