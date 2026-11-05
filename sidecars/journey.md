@@ -59,13 +59,13 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 - leaves: what a methods section names, and why the answer can be trusted
 
 ### readme.install  (section)
-- job: CRAN and development install; the first call downloads COL, GBIF and ITIS (about 1.1 GB).
+- job: CRAN and development install; `install_backbones()` downloads COL, GBIF and ITIS (about 1.1 GB), matching reads them from disk, `taxify_clean()` removes them.
 - leaves: what the first run costs
 
 ### readme.steps  [A1 A4 A5]  (list)
 - idea: match, inspect, join
 - job: Names the three verbs in the order a user calls them.
-- leaves: `taxify()`, `inspect()`, `add_data()` / `add_<source>()`
+- leaves: `taxify()`, `inspect()`, `add_data()` / a dataset's own function such as `add_iucn()`
 
 ### readme.example  [A1]  (code)
 - idea: smallest call, output shown
@@ -105,8 +105,8 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 ### readme.documentation  (section)
 - job: Starting point and every article by its job.
 
-### readme.help, readme.contributing, readme.support, readme.acknowledgements, readme.license, readme.citation  (sections)
-- job: Channels, the shared footer, credit to the data providers, MIT, the generated citation.
+### readme.help, readme.contributing, readme.support, readme.license, readme.citation  (sections)
+- job: Channels, the shared footer, MIT with each source keeping its publisher's licence, the generated citation.
 
 ## ?taxify-package
 
