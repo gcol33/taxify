@@ -5,7 +5,7 @@ Anchors: `@p:readme.<slug>`, `@p:desc.<slug>`, `@p:vig.<article>.<slug>`, `?fn` 
 ## Relation
 
 ### taxize-worldflora
-- forms: the name-resolution step of taxize and WorldFlora, run offline against local backbone files
+- forms: there are already R packages for name matching, such as taxize and WorldFlora; taxify works offline, against backbone files on disk, and searches every backbone in one call
 - as: the same task (a vector of names in, matched and accepted names out) done against downloaded, versioned files
 - avoid: "replaces taxize" (taxify does not cover taxize's non-name functions, and the reader decides what to replace); "a faster WorldFlora"; "unlike taxize, ..." in the README or Get started; any wording that casts the other packages as slow, outdated or broken (`docs-style`, Voice)
 - stated-at: @p:desc.claim; @p:readme.relation; ?taxify-package; @p:vig.migration.opener

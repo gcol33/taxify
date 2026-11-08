@@ -13,9 +13,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
-taxify matches taxonomic names, such as a field survey’s species list or the species column of a trait table, to the name each taxon currently carries, its accepted name.
+taxify matches taxonomic names, such as a field survey’s species list or the species column of a trait table, to their currently accepted names.
 
-The package performs the name-resolution step of [taxize](https://docs.ropensci.org/taxize/) and [WorldFlora](https://cran.r-project.org/package=WorldFlora), run offline against local backbone files. A backbone is a published taxonomic database, such as the Catalogue of Life or World Flora Online, downloaded once and stored on your disk. Each name comes back with its accepted name, how it was matched, and the backbone version that matched it, so you can review the uncertain matches and decide which to keep. taxify supports:
+There are already R packages for name matching, such as [taxize](https://docs.ropensci.org/taxize/) and [WorldFlora](https://cran.r-project.org/package=WorldFlora). taxify works offline, against backbone files on your disk, and searches <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones in one call. A backbone is a published taxonomic database, such as the Catalogue of Life or World Flora Online, downloaded once. For each name, taxify reports the accepted name, how the name was matched and which backbone version matched it, so you can review the uncertain matches and decide which to keep. taxify supports:
 
 - **Backbones for every group.** taxify reads <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> taxon backbones: global checklists (the Catalogue of Life, the GBIF Backbone Taxonomy of the Global Biodiversity Information Facility, the Integrated Taxonomic Information System (ITIS), the NCBI Taxonomy of the US National Center for Biotechnology Information and the Open Tree of Life) and the authorities of single groups (World Flora Online, the World Register of Marine Species (WoRMS), Species Fungorum, AlgaeBase, FishBase, the Mammal Diversity Database, AviList and others), all returning the same columns. Several backbones form a fallback chain, so a name one backbone lacks is matched by the next.
 

@@ -106,7 +106,7 @@
 <p><em>species names matched to their accepted names, offline</em></p>
 <!-- badges: start -->
 
-<p>taxify matches taxonomic names, such as a field survey’s species list or the species column of a trait table, to the name each taxon currently carries, its accepted name.</p>
+<p>taxify matches taxonomic names, such as a field survey’s species list or the species column of a trait table, to their currently accepted names.</p>
 <p>The package performs the name-resolution step of <a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a> and <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a>, run offline against local backbone files. A backbone is a published taxonomic database, such as the Catalogue of Life or World Flora Online, downloaded once and stored on your disk. Each name comes back with its accepted name, how it was matched, and the backbone version that matched it, so you can review the uncertain matches and decide which to keep. taxify supports:</p>
 <ul>
 <li><p><strong>Backbones for every group.</strong> taxify reads <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> taxon backbones: global checklists (Catalogue of Life, GBIF, ITIS, NCBI, Open Tree of Life) and the authorities of single groups (World Flora Online, WoRMS, Species Fungorum, AlgaeBase, FishBase, the Mammal Diversity Database, AviList and others), all returning the same columns. Several backbones form a fallback chain, so a name one backbone lacks is matched by the next.</p></li>

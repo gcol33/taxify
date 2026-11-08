@@ -33,7 +33,7 @@
 - A species list matched against several backbones at once, from local files, with one accepted name per row and the backbone version recorded, then joined to published datasets on the accepted name.
 
 ### novelty claims
-- claim: "run offline against local backbone files" (relation phrase)
+- claim: "offline, against backbone files on disk" (relation phrase)
 - parent-does: WorldFlora also matches against a local WFO file read into memory; taxize queries web services.
 - precise-form: the README and the comparison article name the backbone count (19) and the single call; neither says WorldFlora needs the network.
 

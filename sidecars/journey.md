@@ -10,7 +10,7 @@ Anchors are `<doc>.<slug>`; the documents carry no `@p:` markers, so entries are
 - leaves: what goes in, what comes out, which data sources
 
 ### desc.relation  [A2]
-- idea: the name-resolution step of taxize and WorldFlora, run offline
+- idea: there are already R packages for name matching (taxize, WorldFlora); taxify works offline and searches every backbone in one call
 - job: States the relation phrase.
 - leaves: where it fits for a user of either package
 
