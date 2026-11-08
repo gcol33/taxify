@@ -174,6 +174,30 @@ test_that("abbreviated genus with no candidate epithet stays unmatched", {
 
 # -- Pipeline integration --
 
+test_that("a backbone row with an empty genus field takes its genus from its name", {
+  be <- ott_backend()
+  df <- mock_abbrev_backbone_df()
+  df <- rbind(df, data.frame(
+    taxon_id = c("8", "9"), canonical_name = c("Carex bicknellii", "bicknellii"),
+    taxon_rank = "SPECIES", taxonomic_status = "ACCEPTED", accepted_name_usage_id = NA,
+    family = NA, genus = NA, specific_epithet = "bicknellii", authorship = NA,
+    infraspecific_epithet = NA, stringsAsFactors = FALSE
+  ))
+  df <- precompute_keys(df, "canonical_name", "genus", "specific_epithet")
+  df <- embed_accepted(df, id_col = "taxon_id", acc_id_col = "accepted_name_usage_id",
+                       name_col = "canonical_name", family_col = "family",
+                       genus_col = "genus", status_col = "taxonomic_status")
+  vtr_path <- tempfile(fileext = ".vtr")
+  vectra::write_vtr(df, vtr_path, batch_size = 50000L)
+  names_df <- clean_names(c("C. bicknellii", "x bicknellii", "Q. robur"))
+
+  result <- match_exact(be, names_df, vtr_path)
+  result <- match_abbrev_genus(be, result, names_df, vtr_path)
+  expect_equal(result$accepted_name[1L], "Carex bicknellii")
+  expect_true(is.na(result$match_type[2L]))
+  expect_equal(result$accepted_name[3L], "Quercus robur")
+})
+
 test_that("run_match_stages handles normal and abbreviated names together", {
   be <- ott_backend()
   vtr_path <- mock_abbrev_backbone_vtr()

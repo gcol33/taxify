@@ -1,3 +1,13 @@
+# taxify (development version)
+
+## Bug fixes
+
+* Abbreviated-genus matching no longer stops with "missing value where
+  TRUE/FALSE needed" on backbones whose genus field is empty on some rows
+  (ITIS leaves it empty on many species rows; "x bicknellii" hit it). Such a
+  row takes its genus from the first word of its name, so "P. bicknellii" now
+  reaches *Panicum bicknellii* on ITIS (#98).
+
 # taxify 0.7.1
 
 ## Data directory

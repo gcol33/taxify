@@ -992,9 +992,14 @@ match_abbrev_genus <- function(backend, result, names_df, vtr_path,
                                    ci = TRUE)
   if (nrow(cand_all) == 0L) return(result)
 
-  cand_initial <- tolower(substr(cand_all[[col_map$genus]], 1L, 1L))
+  # A row whose genus field is empty (ITIS leaves it empty on many species
+  # rows) takes its genus from the first word of its name.
+  cand_genus   <- cand_all[[col_map$genus]]
+  no_genus     <- is.na(cand_genus) | !nzchar(cand_genus)
+  cand_genus[no_genus] <- sub(" .*$", "", cand_all[[col_map$name]][no_genus])
+  cand_genus   <- tolower(cand_genus)
+  cand_initial <- substr(cand_genus, 1L, 1L)
   cand_epithet <- tolower(cand_all[[col_map$epithet]])
-  cand_genus   <- tolower(cand_all[[col_map$genus]])
   # The epithet lookup also returns the infraspecific names built on that
   # species; "Q. robur" names the binomial, not Quercus robur subsp. robur, so a
   # candidate has to have as many words as the query.
@@ -1004,8 +1009,9 @@ match_abbrev_genus <- function(backend, result, names_df, vtr_path,
 
   cand_list <- vector("list", length(rows))
   for (k in seq_along(rows)) {
-    hit <- !is.na(cand_epithet) & cand_initial == initial[k] &
-           cand_epithet == epithet[k] & cand_words == query_words[k]
+    # A row still lacking a genus or epithet is no candidate.
+    hit <- (cand_initial == initial[k] & cand_epithet == epithet[k] &
+            cand_words == query_words[k]) %in% TRUE
     if (!any(hit)) next
     cand <- cand_all[hit, , drop = FALSE]
 
