@@ -42,9 +42,29 @@ jobs:
         continue-on-error: true
         uses: r-lib/actions/setup-pandoc@v2
 
-      - name: Setup pandoc (retry)
+      # A GitHub release-download outage lasts minutes, so the retry waits first
+      # and the last resort installs pandoc from the OS package manager.
+      - name: Wait before pandoc retry
         if: steps.pandoc.outcome == 'failure'
+        shell: bash
+        run: sleep 90
+
+      - name: Setup pandoc (retry)
+        id: pandoc-retry
+        if: steps.pandoc.outcome == 'failure'
+        continue-on-error: true
         uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Setup pandoc (package manager)
+        if: steps.pandoc.outcome == 'failure' && steps.pandoc-retry.outcome == 'failure'
+        shell: bash
+        run: |
+          case "$RUNNER_OS" in
+            macOS)   brew install pandoc ;;
+            Linux)   sudo apt-get update && sudo apt-get install -y pandoc ;;
+            Windows) choco install pandoc -y --no-progress && echo "C:/Program Files/Pandoc" >> "$GITHUB_PATH" ;;
+          esac
+          pandoc --version | head -1
 
       # Posit Package Manager's macOS binaries of vectra link libomp, which the
       # runner does not provide; macOS takes CRAN binaries instead.
