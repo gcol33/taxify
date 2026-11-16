@@ -4,12 +4,16 @@
 \alias{add_fungalroot}
 \title{Add mycorrhizal type from FungalRoot}
 \usage{
-add_fungalroot(x, verbose = TRUE)
+add_fungalroot(x, verbose = TRUE, cols = NULL)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
+
+\item{cols}{Which columns to attach. \code{NULL} (the default) attaches the
+curated set; a character vector of column names attaches just those, and
+\code{"all"} attaches every column the source carries (see \code{\link[=enrichment_cols]{enrichment_cols()}}).}
 }
 \value{
 The same data.frame with three additional columns:

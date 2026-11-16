@@ -16,6 +16,9 @@
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param verbose Logical. Default `TRUE`.
+#' @param cols Which columns to attach. `NULL` (the default) attaches the
+#'   curated set; a character vector of column names attaches just those, and
+#'   `"all"` attaches every column the source carries (see [enrichment_cols()]).
 #' @return The same data.frame with three additional columns:
 #' \describe{
 #'   \item{mycorrhizal_type}{Genus-level majority-consensus type, one of `AM`
@@ -47,13 +50,14 @@
 #' }
 #'
 #' @export
-add_fungalroot <- function(x, verbose = TRUE) {
+add_fungalroot <- function(x, verbose = TRUE, cols = NULL) {
   enrich_simple(
     x,
     enrichment_name = "fungalroot",
     col_map         = stats::setNames(.fungalroot_cols, .fungalroot_cols),
     source_label    = "FungalRoot (Soudzilovskaia et al. 2020)",
     join_col        = "genus",
+    cols            = cols,
     verbose         = verbose
   )
 }

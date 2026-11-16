@@ -4,7 +4,7 @@
 \alias{add_glonaf}
 \title{Add naturalized alien flora status (GloNAF)}
 \usage{
-add_glonaf(x, region, verbose = TRUE)
+add_glonaf(x, region, verbose = TRUE, cols = NULL)
 }
 \arguments{
 \item{x}{A data.frame returned by \code{\link[=taxify]{taxify()}}.}
@@ -20,6 +20,10 @@ California). List them with \code{enrichment_groups("glonaf")}.
 }}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
+
+\item{cols}{Which columns to attach. \code{NULL} (the default) attaches the
+curated set; a character vector of column names attaches just those, and
+\code{"all"} attaches every column the source carries (see \code{\link[=enrichment_cols]{enrichment_cols()}}).}
 }
 \value{
 The same data.frame with additional column(s):

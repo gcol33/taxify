@@ -985,9 +985,10 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 
 # Resolve a user `cols` selection to a subset of `col_map` (names = the output
 # columns a door attaches). NULL -> default_cols, or every column when no
-# default; "all" -> every column; a character vector -> those columns, tolerant
-# of a missing `prefix` (so gift's "plant_height_max" resolves to
-# "gift_plant_height_max"). Errors with a browse pointer on unknown names.
+# default; "all" -> every column; a character vector -> those columns, matched
+# on the output name, then the output name with `prefix` (so gift's
+# "plant_height_max" resolves to "gift_plant_height_max"), then the source
+# column name. Errors with a browse pointer on unknown names.
 .apply_col_selection <- function(col_map, cols, default_cols, prefix,
                                  enrichment_name) {
   out <- names(col_map)
@@ -1004,6 +1005,13 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
   if (!is.null(prefix) && anyNA(idx)) {
     miss <- is.na(idx)
     idx[miss] <- match(tolower(paste0(prefix, want[miss])), tolower(out))
+  }
+  # Then the source column name, which is what enrichment_cols() lists: a
+  # curated column renamed on output (AVONET body_mass_g -> avonet_body_mass_g)
+  # is reachable under either name.
+  if (anyNA(idx)) {
+    miss <- is.na(idx)
+    idx[miss] <- match(tolower(want[miss]), tolower(unname(col_map)))
   }
   if (anyNA(idx)) {
     stop(sprintf(paste0(

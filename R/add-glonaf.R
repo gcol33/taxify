@@ -14,6 +14,9 @@
 #'     \item `"all"`: adds one column per region in the dataset.
 #'   }
 #' @param verbose Logical. Default `TRUE`.
+#' @param cols Which columns to attach. `NULL` (the default) attaches the
+#'   curated set; a character vector of column names attaches just those, and
+#'   `"all"` attaches every column the source carries (see [enrichment_cols()]).
 #' @return The same data.frame with additional column(s):
 #' \describe{
 #'   \item{naturalized}{`1` if the species is recorded as
@@ -45,7 +48,7 @@
 #' options(old)
 #'
 #' @export
-add_glonaf <- function(x, region, verbose = TRUE) {
+add_glonaf <- function(x, region, verbose = TRUE, cols = NULL) {
   if (missing(region)) {
     stop("'region' is required. Use a GloNAF region code or \"all\".",
          call. = FALSE)
@@ -57,6 +60,7 @@ add_glonaf <- function(x, region, verbose = TRUE) {
     groups          = region,
     value_cols      = c(naturalized = "naturalized"),
     source_label    = "GloNAF",
+    cols            = cols,
     verbose         = verbose
   )
 }
