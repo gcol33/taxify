@@ -73,4 +73,13 @@ options(old)
 \seealso{
 \code{\link[=add_common_names]{add_common_names()}} for the forward direction (scientific ->
 common), \code{\link[=taxify]{taxify()}}.
+
+Other Match and inspect names:
+\code{\link[=cite]{cite()}},
+\code{\link[=id2name]{id2name()}},
+\code{\link[=inspect]{inspect()}},
+\code{\link[=parse_name]{parse_name()}},
+\code{\link[=reconcile]{reconcile()}},
+\code{\link[=sci2comm]{sci2comm()}}
 }
+\concept{Match and inspect names}

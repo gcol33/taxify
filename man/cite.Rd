@@ -52,3 +52,13 @@ result |> cite(file = tempfile(fileext = ".bib"))
 options(old)
 
 }
+\seealso{
+Other Match and inspect names:
+\code{\link[=comm2sci]{comm2sci()}},
+\code{\link[=id2name]{id2name()}},
+\code{\link[=inspect]{inspect()}},
+\code{\link[=parse_name]{parse_name()}},
+\code{\link[=reconcile]{reconcile()}},
+\code{\link[=sci2comm]{sci2comm()}}
+}
+\concept{Match and inspect names}

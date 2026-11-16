@@ -37,6 +37,7 @@
 #'
 #' options(old)
 #'
+#' @family Match and inspect names
 #' @export
 cite <- function(x, ...) {
   UseMethod("cite")

@@ -19,6 +19,12 @@ choosing which to attach through the functions that accept a \code{cols} argumen
 as \code{\link[=add_gift]{add_gift()}} and \code{\link[=add_floraweb]{add_floraweb()}}). Read offline from the local \code{.vtr};
 the first call may trigger the one-time download.
 }
+\details{
+\code{column} contains source names. A source function can rename them in its
+output; its help page lists the names its \code{cols} selector accepts. For
+example, \code{\link[=add_avonet]{add_avonet()}} exposes source \code{body_mass_g} as
+\code{avonet_body_mass_g}.
+}
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())
 enrichment_cols("gift")
@@ -26,4 +32,9 @@ options(old)
 }
 \seealso{
 \code{\link[=add_gift]{add_gift()}}, \code{\link[=add_floraweb]{add_floraweb()}}, \code{\link[=list_enrichments]{list_enrichments()}}
+
+Other Browse and discover:
+\code{\link[=enrichment_groups]{enrichment_groups()}},
+\code{\link[=list_enrichments]{list_enrichments()}}
 }
+\concept{Browse and discover}

@@ -31,4 +31,20 @@ trailing \code{ii} -> \code{i}, \code{y} -> \code{i}, \code{ph} -> \code{f}, \co
 Step 2 runs before step 3, so ae-ligature -> \code{ae} -> \code{i} and oe-ligature
 -> \code{oe} -> \code{i} fold into the same key as the de-ligatured forms.
 }
+\examples{
+normalize_epithets(c("Pinus sylvestris", "Pinus silvestris", NA))
+
+}
+\seealso{
+Other Low-level building blocks:
+\code{\link[=basionym_placement]{basionym_placement()}},
+\code{\link[=candidate_order]{candidate_order()}},
+\code{\link[=embed_accepted]{embed_accepted()}},
+\code{\link[=enrichment_authorship_col]{enrichment_authorship_col()}},
+\code{\link[=is_aggregate_name]{is_aggregate_name()}},
+\code{\link[=normalize_aggregate_name]{normalize_aggregate_name()}},
+\code{\link[=precompute_keys]{precompute_keys()}},
+\code{\link[=score_candidates]{score_candidates()}}
+}
+\concept{Low-level building blocks}
 \keyword{internal}

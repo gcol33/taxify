@@ -101,6 +101,7 @@ Ecologists, botanists, zoologists and data managers with a species list (a field
 - ?taxify-package: claim, verb map, routing, citation pointer
 - taxify.Rmd (Get started): tutorial from a messy list to an accepted-name table with traits attached, with one taste of `inspect()` and the version record
 - backbones: how-to choose, chain, download and pin backbones (A2, A3 home)
+- reproducibility: how-to record builds, compare a lock with an installation, pin and release builds (A2); uses temporary copies of bundled data
 - fuzzy-matching: explanation of the matching pipeline (A1 home)
 - regions: how-to steer matches by region (A5)
 - inspecting-names: how-to check a list (A5 home)

@@ -26,4 +26,24 @@ accepted, or a plain synonym, with an accepted taxon other than the record
 itself. A basionym that is itself unplaced, misapplied or absent settles
 nothing.
 }
+\examples{
+records <- data.frame(taxon_id = "2", taxonomic_status = "UNPLACED",
+                      original_name_usage_id = "1", is_synonym = FALSE)
+basionyms <- data.frame(taxon_id = "1", taxonomic_status = "ACCEPTED",
+                       accepted_taxon_id = "1", is_synonym = FALSE)
+basionym_placement(records, basionyms)
+
+}
+\seealso{
+Other Low-level building blocks:
+\code{\link[=candidate_order]{candidate_order()}},
+\code{\link[=embed_accepted]{embed_accepted()}},
+\code{\link[=enrichment_authorship_col]{enrichment_authorship_col()}},
+\code{\link[=is_aggregate_name]{is_aggregate_name()}},
+\code{\link[=normalize_aggregate_name]{normalize_aggregate_name()}},
+\code{\link[=normalize_epithets]{normalize_epithets()}},
+\code{\link[=precompute_keys]{precompute_keys()}},
+\code{\link[=score_candidates]{score_candidates()}}
+}
+\concept{Low-level building blocks}
 \keyword{internal}

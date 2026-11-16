@@ -7,10 +7,37 @@
 taxify_refresh_manifest()
 }
 \value{
-No return value, called for side effects.
+\code{NULL}, invisibly.
 }
 \description{
-Forces the next \code{fetch_manifest()} call to re-fetch from the network.
-Useful after the maintainer updates the manifest between R sessions without
-restarting R.
+Clears the in-memory catalogue of published builds. The next catalogue
+request loads it again, using local metadata when offline mode is active.
+Existing assets and their session version-check flags are unchanged.
 }
+\examples{
+old <- options(taxify.offline = TRUE)
+taxify_refresh_manifest()
+head(list_backbones(verbose = FALSE)[, c("name", "version")])
+options(old)
+
+}
+\seealso{
+\code{\link[=list_backbones]{list_backbones()}}, \code{\link[=list_enrichments]{list_enrichments()}}, \code{\link[=taxify_clear_cache]{taxify_clear_cache()}}
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build]{taxify_build()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clean]{taxify_clean()}},
+\code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
+\code{\link[=taxify_data_dir]{taxify_data_dir()}},
+\code{\link[=taxify_download]{taxify_download()}},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_load_register]{taxify_load_register()}},
+\code{\link[=taxify_lock]{taxify_lock()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
+}
+\concept{Backbone data and cache}

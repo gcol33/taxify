@@ -90,6 +90,7 @@ resolve_classification_frame <- function(x, backbone = NULL, ...,
 #'
 #' options(old)
 #'
+#' @family Explore the backbone
 #' @export
 lowest_common <- function(x, backbone = NULL, ..., verbose = TRUE) {
   cf <- resolve_classification_frame(x, backbone = backbone, ...,
@@ -201,6 +202,7 @@ newick_from_paths <- function(paths, labels) {
 #'
 #' options(old)
 #'
+#' @family Explore the backbone
 #' @export
 class2tree <- function(x, backbone = NULL, ..., verbose = TRUE) {
   cf <- resolve_classification_frame(x, backbone = backbone, ...,

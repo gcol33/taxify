@@ -290,6 +290,10 @@ canon_agg_marker <- function(x) {
 #' @param x Character vector of canonical names.
 #' @return Logical vector; `FALSE` for `NA`.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' is_aggregate_name(c("Rubus fruticosus agg.", "Quercus robur", NA))
+#'
 #' @export
 is_aggregate_name <- function(x) {
   !is.na(x) & strip_agg_marker(x) != x
@@ -317,6 +321,10 @@ is_aggregate_name <- function(x) {
 #'   `name`. When supplied, aggregate-rank rows without a marker are suffixed.
 #' @return `name` with aggregate markers normalized to `" aggr."`.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' normalize_aggregate_name(c("Rubus fruticosus agg.", "Quercus robur"))
+#'
 #' @export
 normalize_aggregate_name <- function(name, rank = NULL) {
   out <- canon_agg_marker(name)
@@ -646,6 +654,10 @@ strip_qualifier <- function(name) {
 #' @param names Character vector of cleaned taxonomic names (genus + epithet).
 #' @return Character vector of normalized forms.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' normalize_epithets(c("Pinus sylvestris", "Pinus silvestris", NA))
+#'
 #' @export
 normalize_epithets <- function(names) {
   genus <- sub(" .*", "", names)

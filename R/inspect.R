@@ -99,6 +99,7 @@
 #' options(old)
 #'
 #' @seealso [taxify()], [taxify_regions()]
+#' @family Match and inspect names
 #' @export
 inspect <- function(x,
                     backbones = FALSE,

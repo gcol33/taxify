@@ -40,6 +40,7 @@
 #' old <- options(taxify.data_dir = taxify_example_data())
 #' gift_traits()
 #' options(old)
+#' @family Published data: plants
 #' @export
 gift_traits <- function() {
   enrichment_cols("gift")

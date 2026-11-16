@@ -87,6 +87,19 @@ nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
 #'
 #' @return A lock list (invisibly when `file` is written), with elements
 #'   `taxify_version`, `created`, `r_version`, `backbones`, and `enrichments`.
+#'   Each backbone entry contains `name`, `version`, `content_id`,
+#'   `downloaded_at` and `installed`; enrichment entries also contain
+#'   `source` and `license`. Only enrichments that supplied values are included.
+#'
+#' @details
+#' Create the lock immediately after matching and enrichment. Backbone
+#' identities are read from the active installation when the lock is made.
+#' Writing a lock leaves refresh settings unchanged; [taxify_pin()] or
+#' `taxify_restore(install = TRUE)` pins installed builds.
+#'
+#' The lock records backbone and contributing enrichment assets. Save the
+#' input names, matching arguments and R package environment with your script;
+#' the lock does not record those or the register and region-boundary assets.
 #'
 #' @seealso [taxify_restore()] to check an install against a lockfile, [cite()]
 #'   for prose citations.
@@ -101,6 +114,7 @@ nz_or <- function(x, y) if (length(x) == 0L || is.null(x)) y else x
 #'
 #' options(old)
 #'
+#' @family Backbone data and cache
 #' @export
 taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
   if (!is.null(x)) {
@@ -335,6 +349,7 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #'
 #' options(old)
 #'
+#' @family Backbone data and cache
 #' @export
 taxify_restore <- function(file, install = FALSE, verbose = TRUE) {
   lock <- if (is.list(file) && !is.null(file$backbones)) {
@@ -446,11 +461,14 @@ taxify_restore <- function(file, install = FALSE, verbose = TRUE) {
 #'   [taxify_store()] to list the builds on disk and whether each is pinned.
 #'
 #' @examples
-#' \dontrun{
-#' taxify_pin(c("wfo", "col"))
-#' taxify_pin("iucn", kind = "enrichment")
-#' taxify_pin(c("wfo", "col"), pin = FALSE)
-#' }
+#' demo <- tempfile("taxify-pin-")
+#' dir.create(demo)
+#' file.copy(file.path(taxify_example_data(), "wfo"), demo, recursive = TRUE)
+#' old <- options(taxify.data_dir = demo, taxify.offline = TRUE)
+#' taxify_pin("wfo", verbose = FALSE)[, c("component", "pinned")]
+#' taxify_pin("wfo", pin = FALSE, verbose = FALSE)[, c("component", "pinned")]
+#' options(old)
+#' unlink(demo, recursive = TRUE)
 #'
 #' @export
 taxify_pin <- function(name, pin = TRUE, kind = NULL, verbose = TRUE) {

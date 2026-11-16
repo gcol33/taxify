@@ -59,4 +59,13 @@ options(old)
 \seealso{
 \code{\link[=children]{children()}} for a genus or family parent, \code{\link[=upstream]{upstream()}} for the
 ancestors, \code{\link[=taxify]{taxify()}}, \code{\link[=synonyms]{synonyms()}}.
+
+Other Explore the backbone:
+\code{\link[=children]{children()}},
+\code{\link[=class2tree]{class2tree()}},
+\code{\link[=lowest_common]{lowest_common()}},
+\code{\link[=synonyms]{synonyms()}},
+\code{\link[=taxify_ids]{taxify_ids()}},
+\code{\link[=upstream]{upstream()}}
 }
+\concept{Explore the backbone}

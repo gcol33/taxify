@@ -32,7 +32,9 @@ own content id. Pass one id per \code{backbone}, or one shared by all of them.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The path(s) to the downloaded \code{.vtr} file(s) (invisibly).
+Invisibly, a character vector of file paths, named by \code{backbone}
+and in the requested order. \code{"register"} returns the genus-register
+path after resolving both the register and its coverage table.
 }
 \description{
 Downloads a pre-built \code{.vtr} backbone from GitHub Releases using the taxify
@@ -45,8 +47,33 @@ prompts are shown, so calling this function is consent.
 If no pre-built \code{.vtr} is available for a backbone, it falls back to building
 from source via \code{\link[=taxify_build]{taxify_build()}} (which requires \code{taxifydb}).
 }
+\examples{
+old <- options(taxify.data_dir = taxify_example_data(),
+               taxify.offline = TRUE)
+path <- taxify_download("register", verbose = FALSE)
+file.exists(path)
+options(old)
+
+}
 \seealso{
 \code{\link[=taxify_build]{taxify_build()}} to build a backbone from source via \code{taxifydb},
 \code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} for published datasets, \code{\link[=taxify_store]{taxify_store()}} for
 the builds already on disk.
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build]{taxify_build()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clean]{taxify_clean()}},
+\code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
+\code{\link[=taxify_data_dir]{taxify_data_dir()}},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_load_register]{taxify_load_register()}},
+\code{\link[=taxify_lock]{taxify_lock()}},
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
 }
+\concept{Backbone data and cache}

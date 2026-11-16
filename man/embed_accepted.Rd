@@ -50,4 +50,23 @@ For every synonym row, resolves the accepted taxon and embeds its name,
 family, genus, and (when \code{authorship_col} is supplied) authorship directly.
 Handles synonym chains by iterating until stable (max 10 hops).
 }
+\examples{
+df <- data.frame(id = c("1", "2"), accepted = c("1", "1"),
+                 name = c("Picea abies", "Pinus abies"),
+                 status = c("ACCEPTED", "SYNONYM"))
+embed_accepted(df, "id", "accepted", "name", status_col = "status")
+
+}
+\seealso{
+Other Low-level building blocks:
+\code{\link[=basionym_placement]{basionym_placement()}},
+\code{\link[=candidate_order]{candidate_order()}},
+\code{\link[=enrichment_authorship_col]{enrichment_authorship_col()}},
+\code{\link[=is_aggregate_name]{is_aggregate_name()}},
+\code{\link[=normalize_aggregate_name]{normalize_aggregate_name()}},
+\code{\link[=normalize_epithets]{normalize_epithets()}},
+\code{\link[=precompute_keys]{precompute_keys()}},
+\code{\link[=score_candidates]{score_candidates()}}
+}
+\concept{Low-level building blocks}
 \keyword{internal}

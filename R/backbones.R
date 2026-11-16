@@ -416,9 +416,10 @@ install_backbones <- function(backbones = NULL, verbose = TRUE) {
 #' @seealso [list_enrichments()], [list_traits()], [taxify_databases()].
 #'
 #' @examples
-#' \dontrun{
-#' list_backbones()
-#' }
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' head(list_backbones(verbose = FALSE))
+#' options(old)
 #'
 #' @export
 list_backbones <- function(verbose = TRUE) {
@@ -477,14 +478,17 @@ list_backbones <- function(verbose = TRUE) {
 #'   `name`, `scope` (taxonomic scope for backbones; provided trait columns for
 #'   enrichments), `n_rows`, `version`, `source_date` (the date of the upstream
 #'   data, where recorded, which can be much earlier than the release `version`
-#'   that packaged it), `installed`, `source`.
+#'   that packaged it), `installed`, `source`. `installed` is logical for
+#'   backbone rows and `NA` for enrichment rows. Use [taxify_store()] to
+#'   inspect locally installed enrichments.
 #'
 #' @seealso [list_backbones()], [list_enrichments()], [list_traits()].
 #'
 #' @examples
-#' \dontrun{
-#' taxify_databases()
-#' }
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' head(taxify_databases(verbose = FALSE))
+#' options(old)
 #'
 #' @export
 taxify_databases <- function(verbose = TRUE) {

@@ -20,9 +20,10 @@ completely, or \code{"all"} for the whole data directory.}
 outdated build, the active one included, not read or downloaded for this
 many days.}
 
-\item{dry_run}{Logical. List what would be removed, without removing it.}
+\item{dry_run}{Logical. \code{FALSE} (default) removes the selected paths.
+\code{TRUE} returns the removal plan and leaves files in place.}
 
-\item{verbose}{Logical. Report the space freed.}
+\item{verbose}{Logical. \code{TRUE} (default) reports the space freed or planned.}
 }
 \value{
 Invisibly, a data.frame with one row per path removed (or, with
@@ -66,4 +67,21 @@ options(old)
 }
 \seealso{
 \code{\link[=taxify_store]{taxify_store()}} for the builds on disk, \code{\link[=install_backbones]{install_backbones()}}.
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build]{taxify_build()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
+\code{\link[=taxify_data_dir]{taxify_data_dir()}},
+\code{\link[=taxify_download]{taxify_download()}},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_load_register]{taxify_load_register()}},
+\code{\link[=taxify_lock]{taxify_lock()}},
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
 }
+\concept{Backbone data and cache}

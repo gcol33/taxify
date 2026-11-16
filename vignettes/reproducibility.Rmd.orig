@@ -1,0 +1,143 @@
+---
+title: "Recording and restoring data versions"
+description: "Record the data behind a result, compare installations, and control updates with persistent pins."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Recording and restoring data versions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", error = FALSE)
+options(width = 80)
+```
+
+A species list can resolve differently after a database update. To repeat an analysis, keep a record of the data builds used for matching and enrichment. This article writes that record, checks it against an installation, and pins the installed builds so later sessions keep using them. The examples run offline with a temporary copy of the bundled miniature databases. Installation is covered in [Get started](taxify.html).
+
+1. Pin the example builds and match a species list.
+2. Record the builds with `taxify_lock()` and their citations with `cite()`.
+3. Compare an installation with `taxify_restore()`.
+4. Inspect the stored builds and release their pins when updates are wanted.
+
+```{r setup}
+library(taxify)
+demo <- tempfile("taxify-reproducibility-")
+dir.create(demo)
+files <- list.files(taxify_example_data(), full.names = TRUE)
+invisible(file.copy(files, demo, recursive = TRUE))
+old <- options(taxify.data_dir = demo, taxify.offline = TRUE)
+```
+
+The data directory is where taxify stores downloaded databases. Setting the R option above selects the temporary copy for this example. For a project, set that option to its data directory before matching; [Choosing and combining backbones](backbones.html#managing-data-on-disk) describes the directory settings and cleanup.
+
+## Pinning the installed builds
+
+A backbone is a published taxonomic database used to resolve names. An enrichment is a dataset joined onto those names, such as woodiness. A pin keeps an installed build active during automatic version checks. Here the World Flora Online (WFO) backbone and the Zanne woodiness dataset are pinned:
+
+```{r pin}
+pinned <- taxify_pin(c("wfo", "zanne"), verbose = FALSE)
+pinned[, c("component", "type", "version", "pinned")]
+```
+
+Pins are stored in the data directory and persist across R sessions. If a name is installed as both a backbone and an enrichment, supply `kind = "backbone"` or `kind = "enrichment"`. This applies, for example, to the World Checklist of Vascular Plants, whose name is `"wcvp"` in both roles.
+
+The miniature WFO data include the oak *Quercus robur* and the fir *Abies alba*. Matching these names and adding woodiness gives a result whose data sources can be recorded:
+
+```{r match}
+res <- taxify(c("Quercus robur", "Abies alba"), backbone = "wfo",
+              verbose = FALSE)
+res <- add_zanne(res, verbose = FALSE)
+res[, c("input_name", "accepted_name", "woodiness")]
+```
+
+## Writing the record and citations
+
+A lockfile is a JSON file listing the backbone and contributing enrichment builds. Each entry records a version and, when available, a content ID: the MD5 checksum identifying the database file's bytes. Create the lock immediately after matching and enrichment, while those backbones are still active.
+
+```{r lock}
+lock_path <- tempfile(fileext = ".json")
+lock <- taxify_lock(res, file = lock_path, verbose = FALSE)
+names(lock)
+vapply(lock$backbones, function(x) x$name, character(1))
+vapply(lock$enrichments, function(x) x$name, character(1))
+```
+
+The lock records the backbones that matched rows and enrichments that supplied values. Calling `taxify_lock()` without a result records installed taxon backbones and leaves the enrichment list empty. Writing a lock leaves the installation's pin settings as they are.
+
+Keep the input data, matching arguments and R package versions with the script. The lock describes backbone and enrichment assets; genus-register, coverage and region-boundary files need their own record when they affect the analysis. Backbone identities are read from the active installation when the lock is created, so activating another build before locking can record that newer build.
+
+`cite()` prints the references for the sources used by the result. Its file argument also writes BibTeX entries for a manuscript:
+
+```{r citations}
+bib_path <- tempfile(fileext = ".bib")
+invisible(cite(res, file = bib_path))
+file.exists(bib_path)
+```
+
+Save the lockfile and citation file with the analysis. References attached to individual trait values can also be resolved with `cite()`, as shown in [Attaching published data](enrichments.html#where-each-value-came-from).
+
+## Checking an installation
+
+By default, `taxify_restore()` compares the lock with the active installation and returns one row per recorded asset:
+
+```{r check}
+report <- taxify_restore(lock_path, verbose = FALSE)
+report[, c("component", "type", "status")]
+```
+
+The status says what could be verified:
+
+| Status | Meaning |
+|---|---|
+| `ok` | The comparable content IDs or versions agree. |
+| `content_drift` | Both content IDs exist and differ. |
+| `version_drift` | Versions differ, or a recorded identity has no comparable installed value. |
+| `missing` | The asset file is absent. |
+| `unverified` | The available metadata provide no identity that can be compared. |
+
+The report compares recorded metadata. Its content-ID columns show shortened IDs for readability; the lock retains the full IDs. A matching version alone verifies the version label when comparable content IDs are unavailable.
+
+An empty data directory produces a missing-asset report. The following chunk temporarily selects one and then returns to the example directory:
+
+```{r missing}
+empty_dir <- tempfile("taxify-empty-")
+dir.create(empty_dir)
+options(taxify.data_dir = empty_dir)
+missing <- taxify_restore(lock_path, verbose = FALSE)
+missing[, c("component", "status")]
+options(taxify.data_dir = demo)
+```
+
+With `install = TRUE`, restoration retrieves drifted or missing builds by content ID, activates them, and pins every asset that matches the lock afterwards. The example builds are already present, so this call exercises the pinning step offline:
+
+```{r restore}
+restored <- taxify_restore(lock_path, install = TRUE, verbose = FALSE)
+restored[, c("component", "status", "restored", "pinned")]
+```
+
+For published data, the same call can download an absent build. Recovery requires the recorded content ID and an available immutable copy of that build; a local copy can also satisfy the request. Check the returned status after restoration, since a failed retrieval leaves the difference in the report. The miniature example files used here are local teaching data.
+
+## Inspecting builds and releasing pins
+
+`taxify_store()` lists local builds. The `active` column identifies the build in the `latest` directory; `pinned` shows whether automatic refresh leaves it in place. The listing also includes archived builds kept during restoration or through the version-retention options described in the function's help page.
+
+```{r store}
+builds <- taxify_store(c("wfo", "zanne"))
+builds[, c("component", "type", "active", "pinned", "size_mb")]
+```
+
+Release a pin when the analysis is ready to use updates. Releasing permits the next version check to consider the published build; it leaves the current bytes in place:
+
+```{r release}
+released <- taxify_pin(c("wfo", "zanne"), pin = FALSE, verbose = FALSE)
+released[, c("component", "pinned")]
+```
+
+The final chunk restores the session's directory settings and removes the temporary files created by this example.
+
+```{r cleanup}
+options(old)
+unlink(c(demo, empty_dir), recursive = TRUE)
+unlink(c(lock_path, bib_path))
+```

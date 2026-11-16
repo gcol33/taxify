@@ -125,6 +125,7 @@
 #'
 #' options(old)
 #'
+#' @family Traits across sources
 #' @export
 add_trait <- function(x, trait, sources = "all",
                       mode = c("coalesce", "wide"),
@@ -332,6 +333,7 @@ add_trait <- function(x, trait, sources = "all",
 #' @seealso [add_trait()], [trait_info()]
 #' @examples
 #' list_traits()
+#' @family Traits across sources
 #' @export
 list_traits <- function() {
   reg <- .trait_registry()
@@ -365,6 +367,7 @@ list_traits <- function() {
 #' @seealso [add_trait()], [list_traits()]
 #' @examples
 #' trait_info("woodiness")
+#' @family Traits across sources
 #' @export
 trait_info <- function(trait) {
   reg   <- .trait_registry()

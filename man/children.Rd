@@ -53,4 +53,13 @@ options(old)
 \seealso{
 \code{\link[=downstream]{downstream()}} to reach below a higher rank, \code{\link[=synonyms]{synonyms()}},
 \code{\link[=taxify]{taxify()}}.
+
+Other Explore the backbone:
+\code{\link[=class2tree]{class2tree()}},
+\code{\link[=downstream]{downstream()}},
+\code{\link[=lowest_common]{lowest_common()}},
+\code{\link[=synonyms]{synonyms()}},
+\code{\link[=taxify_ids]{taxify_ids()}},
+\code{\link[=upstream]{upstream()}}
 }
+\concept{Explore the backbone}

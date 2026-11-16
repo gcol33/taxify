@@ -154,4 +154,9 @@ options(old)
 \code{\link[=list_traits]{list_traits()}} to see available traits, \code{\link[=trait_info]{trait_info()}} for a
 trait's sources and units. The per-source functions (\code{\link[=add_zanne]{add_zanne()}},
 \code{\link[=add_gift]{add_gift()}}, \code{\link[=add_diaz_traits]{add_diaz_traits()}}, \code{\link[=add_leda]{add_leda()}}) join one dataset each.
+
+Other Traits across sources:
+\code{\link[=list_traits]{list_traits()}},
+\code{\link[=trait_info]{trait_info()}}
 }
+\concept{Traits across sources}

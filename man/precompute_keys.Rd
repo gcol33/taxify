@@ -37,4 +37,22 @@ the fuzzy pass groups candidates by, and \code{key_stem}, the name's plant-name
 stems without their epithets, which resolves a unit written in short form;
 a syntaxon has no genus or epithet.
 }
+\examples{
+df <- data.frame(name = "Pinus sylvestris", genus = "Pinus",
+                 epithet = "sylvestris")
+precompute_keys(df, "name", "genus", "epithet")
+
+}
+\seealso{
+Other Low-level building blocks:
+\code{\link[=basionym_placement]{basionym_placement()}},
+\code{\link[=candidate_order]{candidate_order()}},
+\code{\link[=embed_accepted]{embed_accepted()}},
+\code{\link[=enrichment_authorship_col]{enrichment_authorship_col()}},
+\code{\link[=is_aggregate_name]{is_aggregate_name()}},
+\code{\link[=normalize_aggregate_name]{normalize_aggregate_name()}},
+\code{\link[=normalize_epithets]{normalize_epithets()}},
+\code{\link[=score_candidates]{score_candidates()}}
+}
+\concept{Low-level building blocks}
 \keyword{internal}

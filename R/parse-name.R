@@ -228,6 +228,7 @@ normalize_authorship <- function(x) {
 #'              "Conioselinion tatarici Golub et al. 2003 nom. inval. (5a)"),
 #'            code = "syntaxon")
 #'
+#' @family Match and inspect names
 #' @export
 parse_name <- function(x, code = c("taxon", "syntaxon")) {
   if (!is.character(x)) {

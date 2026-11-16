@@ -2,14 +2,47 @@
 % Please edit documentation in R/cache.R
 \name{taxify_clear_cache}
 \alias{taxify_clear_cache}
-\title{Clear all cached backbones}
+\title{Clear cached backbone paths and matching data}
 \usage{
 taxify_clear_cache()
 }
 \value{
-No return value, called for side effects.
+\code{NULL}, invisibly.
 }
 \description{
-Removes all loaded backbone handles from memory. The next call to
-\code{\link[=taxify]{taxify()}} will re-load from disk.
+Clears the session's backbone paths, fuzzy-match blocks and temporary fuzzy
+files. The next match reads the downloaded backbone files again.
 }
+\details{
+Downloaded builds stay on disk. The genus register, enrichment caches and
+manifest cache are separate session state.
+}
+\examples{
+old <- options(taxify.data_dir = taxify_example_data(),
+               taxify.offline = TRUE)
+taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
+taxify_clear_cache()
+options(old)
+
+}
+\seealso{
+\code{\link[=taxify_clean]{taxify_clean()}} to remove downloaded builds,
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}} to clear the manifest cache.
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build]{taxify_build()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clean]{taxify_clean()}},
+\code{\link[=taxify_data_dir]{taxify_data_dir()}},
+\code{\link[=taxify_download]{taxify_download()}},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_load_register]{taxify_load_register()}},
+\code{\link[=taxify_lock]{taxify_lock()}},
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
+}
+\concept{Backbone data and cache}

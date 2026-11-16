@@ -104,6 +104,12 @@ ensure_coverage <- function(verbose = TRUE) {
 #' @return Path to `genus_register.vtr` (invisibly).
 #' @seealso [taxify_load_register()] to load it into memory,
 #'   [taxify_register_coverage()] to query backbone coverage for a genus.
+#' @family Backbone data and cache
+#' @examples
+#' \dontrun{
+#' taxify_build_register()
+#' }
+#'
 #' @export
 taxify_build_register <- function(verbose = TRUE) {
   require_taxifydb("Building the genus register")
@@ -116,18 +122,30 @@ taxify_build_register <- function(verbose = TRUE) {
 
 #' Load the unified genus register into memory
 #'
-#' Reads `genus_register.vtr` and caches it as a data.frame in
-#' `.taxify_env$register`, downloading it on first use. Subsequent calls reuse
+#' Reads the published genus index and caches it for the session, downloading
+#' it on first use. Subsequent calls reuse
 #' the cached version unless `force = TRUE`.
 #'
 #' The register contains one row per genus with columns `genus`, `kingdom`,
 #' `phylum`, `class`, `order`, `family`, `kingdom_group`, `taxon_group` and
-#' `life_form`.
+#' `life_form`, plus `multi_kingdom` when supplied by the build. The latter
+#' flags genera recorded in more than one kingdom.
 #'
 #' @param force Logical. If `TRUE`, reloads from disk even if already cached.
 #'   Default `FALSE`.
 #' @param verbose Logical. Print progress messages. Default `TRUE`.
-#' @return The register data.frame (invisibly).
+#' @return Invisibly, the full register data.frame, with the classification
+#'   and group columns described above. Missing classifications are `NA`.
+#' @seealso [lookup_genus()], [taxify_register_coverage()],
+#'   [taxify_download()] with `backbone = "register"`.
+#' @family Backbone data and cache
+#' @examples
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' reg <- taxify_load_register(force = TRUE, verbose = FALSE)
+#' head(reg[, c("genus", "kingdom", "family")])
+#' options(old)
+#'
 #' @export
 taxify_load_register <- function(force = FALSE, verbose = TRUE) {
   if (!force && !is.null(.taxify_env$register)) {
@@ -158,9 +176,22 @@ taxify_load_register <- function(force = FALSE, verbose = TRUE) {
 #' Returns the register row for the given genus, or `NULL` if not found.
 #' Auto-loads the register on first call.
 #'
-#' @param genus Character scalar. The genus name to look up.
+#' @param genus Character scalar. The genus name to look up, with the same
+#'   capitalization as in the register (for example `"Quercus"`).
 #' @return A one-row data.frame, or `NULL` if the genus is not in the register
-#'   (including `NA`).
+#'   (including `NA`). Columns include `genus`, `kingdom`, `phylum`, `class`,
+#'   `order`, `family`, `kingdom_group`, `taxon_group` and `life_form`; builds
+#'   may also supply `multi_kingdom`. Missing classification values are `NA`.
+#' @seealso [taxify_load_register()], [taxify_register_coverage()]
+#' @family Backbone data and cache
+#' @examples
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' taxify_load_register(force = TRUE, verbose = FALSE)
+#' lookup_genus("Quercus")
+#' lookup_genus(NA_character_)
+#' options(old)
+#'
 #' @export
 lookup_genus <- function(genus) {
   if (!is.character(genus) || length(genus) != 1L) {
@@ -186,7 +217,17 @@ lookup_genus <- function(genus) {
 #' @param genus Character scalar. The genus name to query.
 #' @return A data.frame with columns `genus`, `backbone`, `version`,
 #'   `date_added`. Returns a zero-row data.frame if the genus is not found
-#'   in any backbone.
+#'   in any backbone. `version` and `date_added` describe the indexed
+#'   backbone when the coverage table was built; they do not report the
+#'   locally installed build.
+#' @seealso [lookup_genus()], [list_backbones()], [taxify_load_register()]
+#' @family Backbone data and cache
+#' @examples
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' taxify_register_coverage("Quercus")
+#' options(old)
+#'
 #' @export
 taxify_register_coverage <- function(genus) {
   if (!is.character(genus) || length(genus) != 1L) {

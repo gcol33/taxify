@@ -65,6 +65,26 @@ name's parenthetical author and the accepted name keeps its final epithet
 (\verb{Lycopsis orientalis} L. -> \verb{Anchusa arvensis subsp. orientalis} (L.)
 Nordh.). That outranks a record the backbone keeps unplaced under the same
 string, which is a different type: a homonym, not the name the placed
-record carries (#81).
+record carries.
 }
+\examples{
+candidates <- data.frame(
+  taxonID = c("2", "1"), taxonomicStatus = c("SYNONYM", "ACCEPTED"),
+  taxonRank = "SPECIES", is_synonym = c(TRUE, FALSE)
+)
+score_candidates(candidates)
+
+}
+\seealso{
+Other Low-level building blocks:
+\code{\link[=basionym_placement]{basionym_placement()}},
+\code{\link[=candidate_order]{candidate_order()}},
+\code{\link[=embed_accepted]{embed_accepted()}},
+\code{\link[=enrichment_authorship_col]{enrichment_authorship_col()}},
+\code{\link[=is_aggregate_name]{is_aggregate_name()}},
+\code{\link[=normalize_aggregate_name]{normalize_aggregate_name()}},
+\code{\link[=normalize_epithets]{normalize_epithets()}},
+\code{\link[=precompute_keys]{precompute_keys()}}
+}
+\concept{Low-level building blocks}
 \keyword{internal}

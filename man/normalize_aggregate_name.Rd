@@ -30,4 +30,20 @@ gets \code{" aggr."} appended.
 Exported for the taxifydb build pipeline so the build and runtime sides share
 one definition.
 }
+\examples{
+normalize_aggregate_name(c("Rubus fruticosus agg.", "Quercus robur"))
+
+}
+\seealso{
+Other Low-level building blocks:
+\code{\link[=basionym_placement]{basionym_placement()}},
+\code{\link[=candidate_order]{candidate_order()}},
+\code{\link[=embed_accepted]{embed_accepted()}},
+\code{\link[=enrichment_authorship_col]{enrichment_authorship_col()}},
+\code{\link[=is_aggregate_name]{is_aggregate_name()}},
+\code{\link[=normalize_epithets]{normalize_epithets()}},
+\code{\link[=precompute_keys]{precompute_keys()}},
+\code{\link[=score_candidates]{score_candidates()}}
+}
+\concept{Low-level building blocks}
 \keyword{internal}

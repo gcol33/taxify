@@ -285,7 +285,7 @@ publication_year <- function(year, published_in) {
 #' (`Lycopsis orientalis` L. -> `Anchusa arvensis subsp. orientalis` (L.)
 #' Nordh.). That outranks a record the backbone keeps unplaced under the same
 #' string, which is a different type: a homonym, not the name the placed
-#' record carries (#81).
+#' record carries.
 #'
 #' @param candidates A data.frame with `taxonomicStatus` and `taxonRank`, and
 #'   optionally `is_synonym` (the backbone's normalized synonym flag),
@@ -314,6 +314,14 @@ publication_year <- function(year, published_in) {
 #'   character `tier` signature (`"dist/status/rank/epithet"`) per row, in input
 #'   order.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' candidates <- data.frame(
+#'   taxonID = c("2", "1"), taxonomicStatus = c("SYNONYM", "ACCEPTED"),
+#'   taxonRank = "SPECIES", is_synonym = c(TRUE, FALSE)
+#' )
+#' score_candidates(candidates)
+#'
 #' @export
 score_candidates <- function(candidates) {
   status_score <- as.numeric(status_score_vec(candidates$taxonomicStatus,
@@ -409,7 +417,8 @@ score_candidates <- function(candidates) {
 #'
 #' The single source of truth for the candidate sort: the fuzzy distance,
 #' whether the key has occurrence records, the remaining concept scores of
-#' [score_candidates()] in tier order, the occurrence count, then the
+#' [score_candidates()] in tier order, publication priority where applicable,
+#' the occurrence count, then the
 #' nomenclatural-validity tiebreak, then the lowest `taxonID`. Pass `group_col` to sort within groups first, so
 #' the first row of each group is that group's best candidate.
 #'
@@ -420,6 +429,14 @@ score_candidates <- function(candidates) {
 #' @param group_col Character or `NULL`. Column to sort by ahead of the scores.
 #' @return An integer permutation of `seq_len(nrow(candidates))`.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' candidates <- data.frame(
+#'   taxonID = c("2", "1"), taxonomicStatus = c("SYNONYM", "ACCEPTED"),
+#'   taxonRank = "SPECIES", is_synonym = c(TRUE, FALSE)
+#' )
+#' candidates[candidate_order(candidates), ]
+#'
 #' @export
 candidate_order <- function(candidates, scores = NULL, group_col = NULL) {
   s <- scores %||% score_candidates(candidates)

@@ -81,6 +81,7 @@ common_name_variants <- function(s) {
 #'
 #' options(old)
 #'
+#' @family Match and inspect names
 #' @export
 comm2sci <- function(x, lang = NULL, output = c("lookup", "result"),
                      backbone = NULL, ..., verbose = TRUE) {
@@ -239,6 +240,7 @@ comm2sci <- function(x, lang = NULL, output = c("lookup", "result"),
 #'
 #' options(old)
 #'
+#' @family Match and inspect names
 #' @export
 sci2comm <- function(x, lang = NULL, resolve = TRUE, backbone = NULL, ...,
                      verbose = TRUE) {

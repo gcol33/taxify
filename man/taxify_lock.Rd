@@ -19,6 +19,9 @@ installed backbone.}
 \value{
 A lock list (invisibly when \code{file} is written), with elements
 \code{taxify_version}, \code{created}, \code{r_version}, \code{backbones}, and \code{enrichments}.
+Each backbone entry contains \code{name}, \code{version}, \code{content_id},
+\code{downloaded_at} and \code{installed}; enrichment entries also contain
+\code{source} and \code{license}. Only enrichments that supplied values are included.
 }
 \description{
 Writes a machine-readable lockfile pinning which backbone and enrichment
@@ -27,6 +30,16 @@ assets (name, version, and byte-identity, the content id) produced a
 records the reproducible counterpart, so a manuscript's Methods can state
 exactly what was matched against and \code{\link[=taxify_restore]{taxify_restore()}} can later verify an
 install still matches.
+}
+\details{
+Create the lock immediately after matching and enrichment. Backbone
+identities are read from the active installation when the lock is made.
+Writing a lock leaves refresh settings unchanged; \code{\link[=taxify_pin]{taxify_pin()}} or
+\code{taxify_restore(install = TRUE)} pins installed builds.
+
+The lock records backbone and contributing enrichment assets. Save the
+input names, matching arguments and R package environment with your script;
+the lock does not record those or the register and region-boundary assets.
 }
 \examples{
 # Runs offline against the bundled example database.
@@ -42,4 +55,21 @@ options(old)
 \seealso{
 \code{\link[=taxify_restore]{taxify_restore()}} to check an install against a lockfile, \code{\link[=cite]{cite()}}
 for prose citations.
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build]{taxify_build()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clean]{taxify_clean()}},
+\code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
+\code{\link[=taxify_data_dir]{taxify_data_dir()}},
+\code{\link[=taxify_download]{taxify_download()}},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_load_register]{taxify_load_register()}},
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
 }
+\concept{Backbone data and cache}

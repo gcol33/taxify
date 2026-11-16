@@ -64,4 +64,13 @@ options(old)
 \seealso{
 \code{\link[=comm2sci]{comm2sci()}} for the reverse direction (common -> scientific),
 \code{\link[=add_common_names]{add_common_names()}} to attach vernaculars to a \code{\link[=taxify]{taxify()}} result.
+
+Other Match and inspect names:
+\code{\link[=cite]{cite()}},
+\code{\link[=comm2sci]{comm2sci()}},
+\code{\link[=id2name]{id2name()}},
+\code{\link[=inspect]{inspect()}},
+\code{\link[=parse_name]{parse_name()}},
+\code{\link[=reconcile]{reconcile()}}
 }
+\concept{Match and inspect names}

@@ -42,11 +42,14 @@ and a build fetched with \code{taxify_download(content_id = )} or
 \code{taxify_download_enrichment(content_id = )} is pinned when it is activated.
 }
 \examples{
-\dontrun{
-taxify_pin(c("wfo", "col"))
-taxify_pin("iucn", kind = "enrichment")
-taxify_pin(c("wfo", "col"), pin = FALSE)
-}
+demo <- tempfile("taxify-pin-")
+dir.create(demo)
+file.copy(file.path(taxify_example_data(), "wfo"), demo, recursive = TRUE)
+old <- options(taxify.data_dir = demo, taxify.offline = TRUE)
+taxify_pin("wfo", verbose = FALSE)[, c("component", "pinned")]
+taxify_pin("wfo", pin = FALSE, verbose = FALSE)[, c("component", "pinned")]
+options(old)
+unlink(demo, recursive = TRUE)
 
 }
 \seealso{

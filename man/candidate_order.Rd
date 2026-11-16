@@ -21,8 +21,29 @@ An integer permutation of \code{seq_len(nrow(candidates))}.
 \description{
 The single source of truth for the candidate sort: the fuzzy distance,
 whether the key has occurrence records, the remaining concept scores of
-\code{\link[=score_candidates]{score_candidates()}} in tier order, the occurrence count, then the
+\code{\link[=score_candidates]{score_candidates()}} in tier order, publication priority where applicable,
+the occurrence count, then the
 nomenclatural-validity tiebreak, then the lowest \code{taxonID}. Pass \code{group_col} to sort within groups first, so
 the first row of each group is that group's best candidate.
 }
+\examples{
+candidates <- data.frame(
+  taxonID = c("2", "1"), taxonomicStatus = c("SYNONYM", "ACCEPTED"),
+  taxonRank = "SPECIES", is_synonym = c(TRUE, FALSE)
+)
+candidates[candidate_order(candidates), ]
+
+}
+\seealso{
+Other Low-level building blocks:
+\code{\link[=basionym_placement]{basionym_placement()}},
+\code{\link[=embed_accepted]{embed_accepted()}},
+\code{\link[=enrichment_authorship_col]{enrichment_authorship_col()}},
+\code{\link[=is_aggregate_name]{is_aggregate_name()}},
+\code{\link[=normalize_aggregate_name]{normalize_aggregate_name()}},
+\code{\link[=normalize_epithets]{normalize_epithets()}},
+\code{\link[=precompute_keys]{precompute_keys()}},
+\code{\link[=score_candidates]{score_candidates()}}
+}
+\concept{Low-level building blocks}
 \keyword{internal}

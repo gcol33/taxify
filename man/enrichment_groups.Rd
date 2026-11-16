@@ -34,4 +34,9 @@ options(old)
 \seealso{
 \code{\link[=enrichment_cols]{enrichment_cols()}}, \code{\link[=list_enrichments]{list_enrichments()}}, \code{\link[=add_griis]{add_griis()}},
 \code{\link[=add_wcvp]{add_wcvp()}}, \code{\link[=add_common_names]{add_common_names()}}, \code{\link[=add_alien_first_records]{add_alien_first_records()}}
+
+Other Browse and discover:
+\code{\link[=enrichment_cols]{enrichment_cols()}},
+\code{\link[=list_enrichments]{list_enrichments()}}
 }
+\concept{Browse and discover}

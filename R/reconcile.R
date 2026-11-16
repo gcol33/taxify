@@ -68,6 +68,7 @@
 #'
 #' options(old)
 #'
+#' @family Match and inspect names
 #' @export
 reconcile <- function(x, backbone = NULL, ..., verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {

@@ -12,7 +12,7 @@ Character string. Path to the data directory.
 \description{
 Returns the directory where taxify stores downloaded backbone and
 enrichment \code{.vtr} files. By default this is the platform-appropriate
-per-user cache returned by \code{\link[tools:R_user_dir]{tools::R_user_dir()}} (available since R 4.0).
+per-user data directory returned by \code{\link[tools:R_user_dir]{tools::R_user_dir()}}.
 }
 \details{
 The location can be overridden, in order of precedence, by the
@@ -21,3 +21,30 @@ The location can be overridden, in order of precedence, by the
 a shared cache, or at the small bundled example database returned by
 \code{\link[=taxify_example_data]{taxify_example_data()}}.
 }
+\examples{
+old <- options(taxify.data_dir = taxify_example_data(),
+               taxify.offline = TRUE)
+identical(taxify_data_dir(), taxify_example_data())
+options(old)
+
+}
+\seealso{
+\code{\link[=taxify_store]{taxify_store()}} to inspect builds, \code{\link[=taxify_clean]{taxify_clean()}} to remove them.
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build]{taxify_build()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clean]{taxify_clean()}},
+\code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
+\code{\link[=taxify_download]{taxify_download()}},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_load_register]{taxify_load_register()}},
+\code{\link[=taxify_lock]{taxify_lock()}},
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
+}
+\concept{Backbone data and cache}

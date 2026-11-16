@@ -1,5 +1,6 @@
 ---
 title: "Attaching published data"
+description: "Join published datasets, choose sources for harmonized traits, and inspect each value's provenance."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Attaching published data}
@@ -151,6 +152,40 @@ Each source's own words for woodiness are translated into one vocabulary: Zanne 
 Sources that measure a trait by different methods are not averaged. When `trait_info()` notes a caution for one of the sources, the values of the most complete source are reported, with a caution column beside them, so a value never mixes two methods.
 
 Three arguments change how sources are used. `sources` restricts a trait to some of them, and `priority` sets their order. `combine` sets how they are combined: the median, the mean, the first or the most complete source, a vote, the smallest or the largest value.
+
+For a project that uses only the seed-mass measurements from LEDA and the data of Díaz et al., select those sources by the names in `trait_info()`. The wide result shows their values in the same unit:
+
+```{r selected-sources, results='hide'}
+selected <- add_trait(res, "seed_mass",
+                      sources = c("leda", "diaz"),
+                      mode = "wide", verbose = FALSE)
+selected[, c("accepted_name", "seed_mass_leda", "seed_mass_diaz")]
+```
+
+```{r selected-sources-table, echo=FALSE}
+knitr::kable(as.data.frame(selected)[,
+  c("accepted_name", "seed_mass_leda", "seed_mass_diaz")],
+  col.names = c("Name", "LEDA (mg)", "Díaz (mg)"), digits = 3)
+```
+
+To use LEDA wherever it supplies a value and Díaz et al. for the remaining rows, choose `combine = "first"` and set the priority explicitly. The source column records which dataset supplied each value:
+
+```{r source-priority, results='hide'}
+preferred <- add_trait(res, "seed_mass",
+                       sources = c("leda", "diaz"),
+                       combine = "first",
+                       priority = c("leda", "diaz"),
+                       verbose = FALSE)
+preferred[, c("accepted_name", "seed_mass", "seed_mass_sources")]
+```
+
+```{r source-priority-table, echo=FALSE}
+knitr::kable(as.data.frame(preferred)[,
+  c("accepted_name", "seed_mass", "seed_mass_sources")],
+  col.names = c("Name", "Mass (mg)", "Source"), digits = 3)
+```
+
+A missing value in both sources remains `NA`. Choosing sources makes the data used by the analysis explicit; [Recording and restoring data versions](reproducibility.html) shows how to record their builds with the matched result.
 
 ## Where each value came from
 

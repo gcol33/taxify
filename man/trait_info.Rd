@@ -28,4 +28,9 @@ trait_info("woodiness")
 }
 \seealso{
 \code{\link[=add_trait]{add_trait()}}, \code{\link[=list_traits]{list_traits()}}
+
+Other Traits across sources:
+\code{\link[=add_trait]{add_trait()}},
+\code{\link[=list_traits]{list_traits()}}
 }
+\concept{Traits across sources}

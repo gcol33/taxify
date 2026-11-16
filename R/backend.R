@@ -34,6 +34,12 @@ new_backend <- function(name, ..., class = character()) {
 #' @return The path to the `.vtr` file (invisibly).
 #' @seealso [taxify_download()] to fetch a pre-built backbone, [taxify()]
 #'   which downloads on first use.
+#' @family Backbone data and cache
+#' @examples
+#' \dontrun{
+#' taxify_build("wfo", dest = tempfile("taxify-build-"))
+#' }
+#'
 #' @export
 taxify_build <- function(backend, dest = NULL, verbose = TRUE, ...) {
   if (is.character(backend)) {
@@ -177,6 +183,13 @@ match_fuzzy.taxify_backend <- function(backend, unmatched_df, vtr_path,
 #' @return The data.frame with added columns: accepted_name, accepted_family,
 #'   accepted_genus, accepted_taxon_id, accepted_authorship, is_synonym.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' df <- data.frame(id = c("1", "2"), accepted = c("1", "1"),
+#'                  name = c("Picea abies", "Pinus abies"),
+#'                  status = c("ACCEPTED", "SYNONYM"))
+#' embed_accepted(df, "id", "accepted", "name", status_col = "status")
+#'
 #' @export
 embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col = NULL,
                            genus_col = NULL, status_col,
@@ -270,6 +283,12 @@ embed_accepted <- function(df, id_col, acc_id_col, name_col, family_col = NULL,
 #'   `"syntaxon"`.
 #' @return The data.frame with added key columns.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' df <- data.frame(name = "Pinus sylvestris", genus = "Pinus",
+#'                  epithet = "sylvestris")
+#' precompute_keys(df, "name", "genus", "epithet")
+#'
 #' @export
 precompute_keys <- function(df, name_col, genus_col = NULL, epithet_col = NULL,
                             code = "taxon") {

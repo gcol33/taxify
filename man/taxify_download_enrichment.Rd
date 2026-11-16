@@ -28,29 +28,41 @@ bytes. Pass one id per \code{enrichment}, or one shared by all of them.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The path(s) to the downloaded \code{.vtr} file(s) (invisibly).
+Invisibly, a character vector of file paths, named by \code{enrichment}
+and in the requested order.
 }
 \description{
 Downloads pre-built enrichment \code{.vtr} files from the taxify manifest.
 }
 \details{
-Available enrichments:
-\describe{
-\item{iucn}{IUCN conservation status (LC/NT/VU/EN/CR/EW/EX)}
-\item{griis}{GRIIS invasive species status by country}
-\item{zanne}{Zanne et al. 2014 woody/herbaceous classification}
-\item{wcvp}{WCVP native range by TDWG botanical region}
-\item{eive}{EIVE 1.0 ecological indicator values (European plants)}
-\item{diaz_traits}{Diaz et al. 2022 seed mass and plant height}
-\item{elton_traits}{EltonTraits 1.0 diet and foraging (birds + mammals)}
-\item{avonet}{AVONET bird morphology and migration}
-\item{pantheria}{PanTHERIA mammal life-history traits}
-\item{common_names}{GBIF vernacular names (multi-language)}
-\item{amphibio}{AmphiBIO amphibian life-history and ecological traits}
-\item{leda}{LEDA Traitbase NW European plant traits (Kleyer et al. 2008)}
+\code{\link[=list_enrichments]{list_enrichments()}} lists available datasets and versions. Downloads
+require network access unless a specifically named version is already present.
+Use \code{\link[=taxify_example_data]{taxify_example_data()}} to run enrichment examples offline.
 }
+\examples{
+\dontrun{
+taxify_download_enrichment(c("zanne", "eive"))
+}
+
 }
 \seealso{
 \code{\link[=taxify_store]{taxify_store()}} for the builds already on disk, \code{\link[=taxify_restore]{taxify_restore()}}
 to reinstall everything a lockfile pins.
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build]{taxify_build()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clean]{taxify_clean()}},
+\code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
+\code{\link[=taxify_data_dir]{taxify_data_dir()}},
+\code{\link[=taxify_download]{taxify_download()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_load_register]{taxify_load_register()}},
+\code{\link[=taxify_lock]{taxify_lock()}},
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
 }
+\concept{Backbone data and cache}

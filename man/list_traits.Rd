@@ -26,4 +26,9 @@ list_traits()
 }
 \seealso{
 \code{\link[=add_trait]{add_trait()}}, \code{\link[=trait_info]{trait_info()}}
+
+Other Traits across sources:
+\code{\link[=add_trait]{add_trait()}},
+\code{\link[=trait_info]{trait_info()}}
 }
+\concept{Traits across sources}

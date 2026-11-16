@@ -246,6 +246,7 @@ collect_descendants <- function(taxon, backbone, target_rank, kingdom,
 #'
 #' options(old)
 #'
+#' @family Explore the backbone
 #' @export
 downstream <- function(taxon, backbone = NULL, downto = "species",
                        kingdom = NULL, verbose = TRUE) {

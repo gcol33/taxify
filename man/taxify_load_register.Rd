@@ -13,15 +13,46 @@ Default \code{FALSE}.}
 \item{verbose}{Logical. Print progress messages. Default \code{TRUE}.}
 }
 \value{
-The register data.frame (invisibly).
+Invisibly, the full register data.frame, with the classification
+and group columns described above. Missing classifications are \code{NA}.
 }
 \description{
-Reads \code{genus_register.vtr} and caches it as a data.frame in
-\code{.taxify_env$register}, downloading it on first use. Subsequent calls reuse
+Reads the published genus index and caches it for the session, downloading
+it on first use. Subsequent calls reuse
 the cached version unless \code{force = TRUE}.
 }
 \details{
 The register contains one row per genus with columns \code{genus}, \code{kingdom},
 \code{phylum}, \code{class}, \code{order}, \code{family}, \code{kingdom_group}, \code{taxon_group} and
-\code{life_form}.
+\code{life_form}, plus \code{multi_kingdom} when supplied by the build. The latter
+flags genera recorded in more than one kingdom.
 }
+\examples{
+old <- options(taxify.data_dir = taxify_example_data(),
+               taxify.offline = TRUE)
+reg <- taxify_load_register(force = TRUE, verbose = FALSE)
+head(reg[, c("genus", "kingdom", "family")])
+options(old)
+
+}
+\seealso{
+\code{\link[=lookup_genus]{lookup_genus()}}, \code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_download]{taxify_download()}} with \code{backbone = "register"}.
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build]{taxify_build()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clean]{taxify_clean()}},
+\code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
+\code{\link[=taxify_data_dir]{taxify_data_dir()}},
+\code{\link[=taxify_download]{taxify_download()}},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_lock]{taxify_lock()}},
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
+}
+\concept{Backbone data and cache}

@@ -1,5 +1,17 @@
 # Journey: taxify
 
+## November 2026 documentation additions
+
+- reproducibility.opening: Repeat a species-list analysis after database updates; offline temporary-copy setup and prerequisites.
+- reproducibility.pin: Define backbones, enrichments and persistent pins; show pinning and a matched result with woodiness.
+- reproducibility.lock: Define a lockfile and content ID; write and inspect the record immediately after matching; describe the assets and analysis settings it records.
+- reproducibility.citations: Print source citations and write a BibTeX file; link to per-value references.
+- reproducibility.check: Compare an installation, define every status, and show a missing-asset report in an empty directory.
+- reproducibility.restore: Run the install option against matching local data, inspect restoration and pin flags, and state retrieval requirements for published builds.
+- reproducibility.store: Inspect active builds and release their pins; restore session options and remove the temporary example files.
+- backbones.disk: Explain directory precedence; inspect a copied miniature backbone, preview named-asset cleanup, remove the copy and confirm the empty store; distinguish disk and session operations.
+- enrichments.selection: Inspect two seed-mass sources in wide form, then select values with an explicit source priority and inspect the reported source.
+
 Anchors are `<doc>.<slug>`; the documents carry no `@p:` markers, so entries are matched by order and first words. Articles are mapped per paragraph, code block and section; the opener of each is its own entry. README.md and the shipped vignettes are rendered from README.Rmd and vignettes/*.Rmd.orig by data-raw/precompute_vignettes.R, so the entries describe the sources.
 
 ## DESCRIPTION

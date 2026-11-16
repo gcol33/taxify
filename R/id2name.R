@@ -73,6 +73,7 @@ id_as_text <- function(id) {
 #'
 #' options(old)
 #'
+#' @family Match and inspect names
 #' @export
 id2name <- function(id, backbone = NULL, verbose = TRUE) {
   if (length(id) == 0L) {

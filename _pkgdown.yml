@@ -44,6 +44,7 @@ articles:
   navbar: Workflows
   contents:
   - backbones
+  - reproducibility
   - inspecting-names
   - regions
   - enrichments
@@ -272,6 +273,11 @@ reference:
   - normalize_aggregate_name
   - normalize_kingdom_group
   - backbone_fixed_kingdom
+  - backbone_code
+  - normalize_syntaxon_name
+  - candidate_order
+  - basionym_placement
+  - enrichment_authorship_col
 - title: Package
   contents:
   - taxify-package

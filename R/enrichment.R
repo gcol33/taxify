@@ -549,27 +549,22 @@ resolve_enrichment_entry <- function(manifest, name) {
 #'   its own content id. This is what turns a lockfile's recorded id back into
 #'   bytes. Pass one id per `enrichment`, or one shared by all of them.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The path(s) to the downloaded `.vtr` file(s) (invisibly).
+#' @return Invisibly, a character vector of file paths, named by `enrichment`
+#'   and in the requested order.
 #'
 #' @details
-#' Available enrichments:
-#' \describe{
-#'   \item{iucn}{IUCN conservation status (LC/NT/VU/EN/CR/EW/EX)}
-#'   \item{griis}{GRIIS invasive species status by country}
-#'   \item{zanne}{Zanne et al. 2014 woody/herbaceous classification}
-#'   \item{wcvp}{WCVP native range by TDWG botanical region}
-#'   \item{eive}{EIVE 1.0 ecological indicator values (European plants)}
-#'   \item{diaz_traits}{Diaz et al. 2022 seed mass and plant height}
-#'   \item{elton_traits}{EltonTraits 1.0 diet and foraging (birds + mammals)}
-#'   \item{avonet}{AVONET bird morphology and migration}
-#'   \item{pantheria}{PanTHERIA mammal life-history traits}
-#'   \item{common_names}{GBIF vernacular names (multi-language)}
-#'   \item{amphibio}{AmphiBIO amphibian life-history and ecological traits}
-#'   \item{leda}{LEDA Traitbase NW European plant traits (Kleyer et al. 2008)}
-#' }
+#' [list_enrichments()] lists available datasets and versions. Downloads
+#' require network access unless a specifically named version is already present.
+#' Use [taxify_example_data()] to run enrichment examples offline.
 #'
 #' @seealso [taxify_store()] for the builds already on disk, [taxify_restore()]
 #'   to reinstall everything a lockfile pins.
+#' @family Backbone data and cache
+#' @examples
+#' \dontrun{
+#' taxify_download_enrichment(c("zanne", "eive"))
+#' }
+#'
 #' @export
 taxify_download_enrichment <- function(enrichment,
                                        version = "latest",
@@ -1036,6 +1031,12 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 #' old <- options(taxify.data_dir = taxify_example_data())
 #' enrichment_cols("gift")
 #' options(old)
+#' @family Browse and discover
+#' @details
+#' `column` contains source names. A source function can rename them in its
+#' output; its help page lists the names its `cols` selector accepts. For
+#' example, [add_avonet()] exposes source `body_mass_g` as
+#' `avonet_body_mass_g`.
 #' @export
 enrichment_cols <- function(source) {
   ac <- .enrichment_available_cols(source, verbose = FALSE)
@@ -1071,6 +1072,7 @@ enrichment_cols <- function(source) {
 #' old <- options(taxify.data_dir = taxify_example_data())
 #' enrichment_groups("griis")   # ISO country codes GRIIS covers
 #' options(old)
+#' @family Browse and discover
 #' @export
 enrichment_groups <- function(source, verbose = TRUE) {
   vtr_path <- ensure_enrichment(source, verbose = verbose)
@@ -2047,6 +2049,11 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
 #' @return The matching column name, or `NULL` if none of the aliases is
 #'   present.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' enrichment_authorship_col(c("canonical_name", "authorship", "author"))
+#' enrichment_authorship_col(c("canonical_name", "height"))
+#'
 #' @export
 enrichment_authorship_col <- function(schema_names) {
   aliases <- c("taxon_authors", "scientificNameAuthorship", "authorship",
@@ -3218,6 +3225,7 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 #' list_enrichments()
 #' }
 #'
+#' @family Browse and discover
 #' @export
 list_enrichments <- function(verbose = TRUE) {
   manifest <- fetch_manifest()

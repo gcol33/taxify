@@ -28,6 +28,14 @@
 #' @return Integer vector along `records`: the row of `basionyms` whose accepted
 #'   taxon the record belongs to, or `NA`.
 #' @keywords internal
+#' @family Low-level building blocks
+#' @examples
+#' records <- data.frame(taxon_id = "2", taxonomic_status = "UNPLACED",
+#'                       original_name_usage_id = "1", is_synonym = FALSE)
+#' basionyms <- data.frame(taxon_id = "1", taxonomic_status = "ACCEPTED",
+#'                        accepted_taxon_id = "1", is_synonym = FALSE)
+#' basionym_placement(records, basionyms)
+#'
 #' @export
 basionym_placement <- function(records, basionyms) {
   out <- rep(NA_integer_, nrow(records))

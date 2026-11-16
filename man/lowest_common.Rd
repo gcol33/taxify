@@ -41,4 +41,13 @@ options(old)
 }
 \seealso{
 \code{\link[=class2tree]{class2tree()}}, \code{\link[=add_classification]{add_classification()}}, \code{\link[=taxify]{taxify()}}.
+
+Other Explore the backbone:
+\code{\link[=children]{children()}},
+\code{\link[=class2tree]{class2tree()}},
+\code{\link[=downstream]{downstream()}},
+\code{\link[=synonyms]{synonyms()}},
+\code{\link[=taxify_ids]{taxify_ids()}},
+\code{\link[=upstream]{upstream()}}
 }
+\concept{Explore the backbone}

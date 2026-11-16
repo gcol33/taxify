@@ -299,11 +299,19 @@ resolve_manifest_entry <- function(manifest, backbone_name) {
 
 #' Invalidate the session manifest cache
 #'
-#' Forces the next `fetch_manifest()` call to re-fetch from the network.
-#' Useful after the maintainer updates the manifest between R sessions without
-#' restarting R.
+#' Clears the in-memory catalogue of published builds. The next catalogue
+#' request loads it again, using local metadata when offline mode is active.
+#' Existing assets and their session version-check flags are unchanged.
 #'
-#' @return No return value, called for side effects.
+#' @return `NULL`, invisibly.
+#' @seealso [list_backbones()], [list_enrichments()], [taxify_clear_cache()]
+#' @family Backbone data and cache
+#' @examples
+#' old <- options(taxify.offline = TRUE)
+#' taxify_refresh_manifest()
+#' head(list_backbones(verbose = FALSE)[, c("name", "version")])
+#' options(old)
+#'
 #' @export
 taxify_refresh_manifest <- function() {
   .taxify_env$manifest <- NULL

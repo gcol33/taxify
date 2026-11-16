@@ -186,12 +186,25 @@ format_backbone_version <- function(vtr_path, backbone_name, version) {
 }
 
 
-#' Clear all cached backbones
+#' Clear cached backbone paths and matching data
 #'
-#' Removes all loaded backbone handles from memory. The next call to
-#' [taxify()] will re-load from disk.
+#' Clears the session's backbone paths, fuzzy-match blocks and temporary fuzzy
+#' files. The next match reads the downloaded backbone files again.
 #'
-#' @return No return value, called for side effects.
+#' Downloaded builds stay on disk. The genus register, enrichment caches and
+#' manifest cache are separate session state.
+#'
+#' @return `NULL`, invisibly.
+#' @seealso [taxify_clean()] to remove downloaded builds,
+#'   [taxify_refresh_manifest()] to clear the manifest cache.
+#' @family Backbone data and cache
+#' @examples
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
+#' taxify_clear_cache()
+#' options(old)
+#'
 #' @export
 taxify_clear_cache <- function() {
   rm(list = ls(.taxify_cache), envir = .taxify_cache)
@@ -204,7 +217,7 @@ taxify_clear_cache <- function() {
 #'
 #' Returns the directory where taxify stores downloaded backbone and
 #' enrichment `.vtr` files. By default this is the platform-appropriate
-#' per-user cache returned by [tools::R_user_dir()] (available since R 4.0).
+#' per-user data directory returned by [tools::R_user_dir()].
 #'
 #' The location can be overridden, in order of precedence, by the
 #' `taxify.data_dir` option (`getOption("taxify.data_dir")`) or the
@@ -213,6 +226,14 @@ taxify_clear_cache <- function() {
 #' [taxify_example_data()].
 #'
 #' @return Character string. Path to the data directory.
+#' @family Backbone data and cache
+#' @seealso [taxify_store()] to inspect builds, [taxify_clean()] to remove them.
+#' @examples
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' identical(taxify_data_dir(), taxify_example_data())
+#' options(old)
+#'
 #' @export
 taxify_data_dir <- function() {
   opt <- getOption("taxify.data_dir")
@@ -244,6 +265,14 @@ taxify_data_dir <- function() {
 #' @return Character string. Path to the bundled example database directory,
 #'   or `""` if it is not installed.
 #' @seealso [taxify_data_dir()]
+#' @family Backbone data and cache
+#' @examples
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' res <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
+#' res[, c("input_name", "accepted_name")]
+#' options(old)
+#'
 #' @export
 taxify_example_data <- function() {
   system.file("exampledb", package = "taxify")

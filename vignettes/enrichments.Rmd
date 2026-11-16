@@ -1,5 +1,6 @@
 ---
 title: "Attaching published data"
+description: "Join published datasets, choose sources for harmonized traits, and inspect each value's provenance."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Attaching published data}
@@ -61,6 +62,7 @@ res <- taxify(plants, backbone = "col", verbose = FALSE)
 
 ``` r
 wood <- add_zanne(res)
+#> add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").
 wood[, c("input_name", "woodiness")]
 #>              input_name  woodiness
 #> 1         Quercus robur      woody
@@ -89,6 +91,7 @@ The functions return the result with the new columns on the right, so they can b
 
 ``` r
 both <- res |> add_zanne() |> add_eive()
+#> add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").
 both[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
 #>           accepted_name  woodiness eive_light eive_moisture
 #> 1         Quercus robur      woody   6.241077      4.802554
@@ -111,6 +114,7 @@ aliens <- c(
 )
 al <- taxify(aliens, backbone = "col", verbose = FALSE)
 gr <- add_griis(al, country = c("AT", "DE", "GB"))
+#> Tip: pipe into taxify_long() to reshape wide columns to long format.
 gr[, c("input_name", "invasive_status_AT", "invasive_status_DE",
        "invasive_status_GB")]
 #>               input_name invasive_status_AT invasive_status_DE
@@ -254,6 +258,54 @@ Each source's own words for woodiness are translated into one vocabulary: Zanne 
 Sources that measure a trait by different methods are not averaged. When `trait_info()` notes a caution for one of the sources, the values of the most complete source are reported, with a caution column beside them, so a value never mixes two methods.
 
 Three arguments change how sources are used. `sources` restricts a trait to some of them, and `priority` sets their order. `combine` sets how they are combined: the median, the mean, the first or the most complete source, a vote, the smallest or the largest value.
+
+For a project that uses only the seed-mass measurements from LEDA and the data of Díaz et al., select those sources by the names in `trait_info()`. The wide result shows their values in the same unit:
+
+
+``` r
+selected <- add_trait(res, "seed_mass",
+                      sources = c("leda", "diaz"),
+                      mode = "wide", verbose = FALSE)
+selected[, c("accepted_name", "seed_mass_leda", "seed_mass_diaz")]
+```
+
+
+
+|Name                  | LEDA (mg)| Díaz (mg)|
+|:---------------------|---------:|---------:|
+|Quercus robur         |  3413.000|  3048.021|
+|Fagus sylvatica       |   158.000|   186.985|
+|Abies alba            |    79.200|    62.007|
+|Arrhenatherum elatius |     2.774|     2.738|
+|Plantago lanceolata   |     1.809|     1.363|
+
+
+
+To use LEDA wherever it supplies a value and Díaz et al. for the remaining rows, choose `combine = "first"` and set the priority explicitly. The source column records which dataset supplied each value:
+
+
+``` r
+preferred <- add_trait(res, "seed_mass",
+                       sources = c("leda", "diaz"),
+                       combine = "first",
+                       priority = c("leda", "diaz"),
+                       verbose = FALSE)
+preferred[, c("accepted_name", "seed_mass", "seed_mass_sources")]
+```
+
+
+
+|Name                  | Mass (mg)|Source |
+|:---------------------|---------:|:------|
+|Quercus robur         |  3413.000|leda   |
+|Fagus sylvatica       |   158.000|leda   |
+|Abies alba            |    79.200|leda   |
+|Arrhenatherum elatius |     2.774|leda   |
+|Plantago lanceolata   |     1.809|leda   |
+
+
+
+A missing value in both sources remains `NA`. Choosing sources makes the data used by the analysis explicit; [Recording and restoring data versions](reproducibility.html) shows how to record their builds with the matched result.
 
 ## Where each value came from
 

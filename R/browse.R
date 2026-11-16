@@ -306,6 +306,7 @@ enrich_from_backbone <- function(x, backbone, col_map, label,
 #'
 #' options(old)
 #'
+#' @family Explore the backbone
 #' @export
 synonyms <- function(x, backbone = NULL, ..., verbose = TRUE) {
   if (!is.character(x) || length(x) == 0L) {
@@ -498,6 +499,7 @@ add_classification <- function(x, ranks = c("kingdom", "phylum", "class", "order
 #'
 #' options(old)
 #'
+#' @family Explore the backbone
 #' @export
 taxify_ids <- function(x, verbose = TRUE) {
   req <- c("input_name", "backbone", "accepted_id")
@@ -636,6 +638,7 @@ id_roles <- function(tab, x, rows) {
 #'
 #' options(old)
 #'
+#' @family Explore the backbone
 #' @export
 children <- function(taxon, backbone = NULL, rank = "species", kingdom = NULL,
                      verbose = TRUE) {

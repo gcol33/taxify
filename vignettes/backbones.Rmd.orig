@@ -1,5 +1,6 @@
 ---
 title: "Choosing and combining backbones"
+description: "Choose and compare taxonomic backbones, manage downloaded files, and prepare an offline installation."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Choosing and combining backbones}
@@ -168,7 +169,48 @@ Every row records the backbone version that matched it:
 unique(res$backbone_version)
 ```
 
-`taxify_lock()` writes these versions with a checksum of each file to a JSON file, and `taxify_restore(install = TRUE)` reinstalls the same builds on another machine, as shown in [Get started](taxify.html#recording-what-was-used). `taxify_build()` builds a backbone from its source files instead of downloading it, which needs the taxifydb package.
+`taxify_lock()` writes a build record to a JSON file. [Recording and restoring data versions](reproducibility.html) shows how to check that record, restore available builds and pin the active installation. `taxify_build()` builds a backbone from its source files, which needs the taxifydb package.
+
+## Managing data on disk
+
+An installation can accumulate archived builds and files left by interrupted downloads. `taxify_store()` lists the builds present, and `taxify_clean(dry_run = TRUE)` returns a removal plan. Start by checking the data directory: the `taxify.data_dir` R option takes precedence over the `TAXIFY_DATA_DIR` environment variable, followed by the platform's per-user data directory.
+
+The example copies the miniature WFO backbone into a temporary directory. Cleanup below operates on this copy.
+
+```{r cleanup-setup}
+demo_dir <- tempfile("taxify-disk-")
+dir.create(demo_dir)
+example_wfo <- file.path(taxify_example_data(), "wfo")
+invisible(file.copy(example_wfo, demo_dir, recursive = TRUE))
+old_dir <- options(taxify.data_dir = demo_dir)
+```
+
+The store reports one row per build, including whether it is active and its size in MiB (shown in the `size_mb` column):
+
+```{r disk-store}
+stored <- taxify_store("wfo")
+stored[, c("component", "slot", "active", "size_mb")]
+```
+
+With no asset names, cleanup selects superseded builds and interrupted downloads. Naming an asset selects every stored build of that asset, including its active build. Assign the invisible return value to inspect the planned removals:
+
+```{r disk-preview}
+plan <- taxify_clean("wfo", dry_run = TRUE, verbose = FALSE)
+plan[, c("component", "type", "reason", "size_mb")]
+```
+
+After reviewing the plan, the same call with `dry_run = FALSE` removes the selected paths. The store then confirms that this temporary directory has no WFO build:
+
+```{r disk-remove}
+removed <- taxify_clean("wfo", dry_run = FALSE, verbose = FALSE)
+nrow(taxify_store("wfo"))
+options(old_dir)
+unlink(demo_dir, recursive = TRUE)
+```
+
+`unused_days` adds an age condition for outdated builds when `assets` is left `NULL`. `assets = "all"` selects the entire data directory. Explicitly selecting an asset can remove a pinned build, so keep the lockfile and check that its recorded build can be retrieved before removing it.
+
+`taxify_clear_cache()` clears session backbone paths and matching data while keeping downloaded builds on disk. `taxify_refresh_manifest()` clears the in-memory catalogue of published builds. With offline mode enabled, the next catalogue request reads local metadata.
 
 ## Choosing backbones for a list
 

@@ -35,9 +35,10 @@ download size, and whether it is already installed locally. The counterpart to
 \code{\link[=list_enrichments]{list_enrichments()}} for the backbone side.
 }
 \examples{
-\dontrun{
-list_backbones()
-}
+old <- options(taxify.data_dir = taxify_example_data(),
+               taxify.offline = TRUE)
+head(list_backbones(verbose = FALSE))
+options(old)
 
 }
 \seealso{

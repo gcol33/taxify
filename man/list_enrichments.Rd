@@ -24,3 +24,9 @@ list_enrichments()
 }
 
 }
+\seealso{
+Other Browse and discover:
+\code{\link[=enrichment_cols]{enrichment_cols()}},
+\code{\link[=enrichment_groups]{enrichment_groups()}}
+}
+\concept{Browse and discover}

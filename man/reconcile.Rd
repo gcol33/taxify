@@ -71,4 +71,13 @@ options(old)
 \seealso{
 \code{\link[=taxify]{taxify()}}, \code{\link[=taxify_ids]{taxify_ids()}} to expand the ambiguous rows,
 \code{\link[=synonyms]{synonyms()}}.
+
+Other Match and inspect names:
+\code{\link[=cite]{cite()}},
+\code{\link[=comm2sci]{comm2sci()}},
+\code{\link[=id2name]{id2name()}},
+\code{\link[=inspect]{inspect()}},
+\code{\link[=parse_name]{parse_name()}},
+\code{\link[=sci2comm]{sci2comm()}}
 }
+\concept{Match and inspect names}

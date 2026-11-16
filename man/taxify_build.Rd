@@ -30,7 +30,30 @@ Everyday use does not need this: \code{\link[=taxify]{taxify()}} auto-downloads 
 \code{.vtr} on first use, and \code{\link[=taxify_download]{taxify_download()}} fetches a pre-built backbone
 directly without \code{taxifydb}.
 }
+\examples{
+\dontrun{
+taxify_build("wfo", dest = tempfile("taxify-build-"))
+}
+
+}
 \seealso{
 \code{\link[=taxify_download]{taxify_download()}} to fetch a pre-built backbone, \code{\link[=taxify]{taxify()}}
 which downloads on first use.
+
+Other Backbone data and cache:
+\code{\link[=lookup_genus]{lookup_genus()}},
+\code{\link[=taxify_build_register]{taxify_build_register()}},
+\code{\link[=taxify_clean]{taxify_clean()}},
+\code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
+\code{\link[=taxify_data_dir]{taxify_data_dir()}},
+\code{\link[=taxify_download]{taxify_download()}},
+\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
+\code{\link[=taxify_example_data]{taxify_example_data()}},
+\code{\link[=taxify_load_register]{taxify_load_register()}},
+\code{\link[=taxify_lock]{taxify_lock()}},
+\code{\link[=taxify_refresh_manifest]{taxify_refresh_manifest()}},
+\code{\link[=taxify_register_coverage]{taxify_register_coverage()}},
+\code{\link[=taxify_restore]{taxify_restore()}},
+\code{\link[=taxify_store]{taxify_store()}}
 }
+\concept{Backbone data and cache}

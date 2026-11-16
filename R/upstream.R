@@ -64,6 +64,7 @@
 #'
 #' options(old)
 #'
+#' @family Explore the backbone
 #' @export
 upstream <- function(taxon, backbone = NULL, to = NULL, ..., verbose = TRUE) {
   if (!is.character(taxon) || length(taxon) != 1L || is.na(taxon) ||

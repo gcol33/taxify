@@ -88,7 +88,7 @@ confirm_download <- function(question) {
 #' not on disk without going through an installing verb (a first `taxify()`
 #' call on an empty data directory, a browse verb naming a backbone) asks in an
 #' interactive session and refuses in a non-interactive one, unless
-#' [auto_download_allowed()]. A script, a scheduled job or `R CMD check`
+#' `auto_download_allowed()`. A script, a scheduled job or `R CMD check`
 #' therefore never fills the user data directory unasked. Refreshing a backbone
 #' already installed replaces it in place and does not come through here.
 #'
@@ -485,10 +485,20 @@ has_xdelta3 <- function() {
 #'   and makes it the active backbone; the build it replaces is kept under its
 #'   own content id. Pass one id per `backbone`, or one shared by all of them.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The path(s) to the downloaded `.vtr` file(s) (invisibly).
+#' @return Invisibly, a character vector of file paths, named by `backbone`
+#'   and in the requested order. `"register"` returns the genus-register
+#'   path after resolving both the register and its coverage table.
 #' @seealso [taxify_build()] to build a backbone from source via `taxifydb`,
 #'   [taxify_download_enrichment()] for published datasets, [taxify_store()] for
 #'   the builds already on disk.
+#' @family Backbone data and cache
+#' @examples
+#' old <- options(taxify.data_dir = taxify_example_data(),
+#'                taxify.offline = TRUE)
+#' path <- taxify_download("register", verbose = FALSE)
+#' file.exists(path)
+#' options(old)
+#'
 #' @export
 taxify_download <- function(backbone = "wfo",
                             version = "latest",

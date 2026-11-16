@@ -167,7 +167,7 @@ local_content_path <- function(name, content_id,
 #' No, for either kind: a refresh replaces the build in place, so the data
 #' directory holds one build per asset. A lockfile that pinned the replaced
 #' build still restores it, because every build is published under its content
-#' id and [download_content_build()] fetches it back by that id. Both are
+#' id and `download_content_build()` fetches it back by that id. Both are
 #' overridable, and the restore path archives regardless of either --
 #' activating a pinned build must never destroy the current one.
 #'
@@ -427,7 +427,7 @@ stale_download_files <- function(root) {
 #'
 #' @param root Character. The asset's store root (created if missing).
 #' @return Character path. Callers remove it, and its `.curltmp` companion,
-#'   with [unlink_download()] on exit.
+#'   with `unlink_download()` on exit.
 #' @noRd
 asset_tmp_path <- function(root) {
   dir.create(root, recursive = TRUE, showWarnings = FALSE)
@@ -737,6 +737,7 @@ download_content_build <- function(name, content_id,
 #' head(taxify_store())
 #' options(old)
 #'
+#' @family Backbone data and cache
 #' @export
 taxify_store <- function(asset = NULL) {
   dd <- taxify_data_dir()
@@ -819,8 +820,9 @@ taxify_store <- function(asset = NULL) {
 #' @param unused_days Number or `NULL`. With `assets = NULL`, also remove every
 #'   outdated build, the active one included, not read or downloaded for this
 #'   many days.
-#' @param dry_run Logical. List what would be removed, without removing it.
-#' @param verbose Logical. Report the space freed.
+#' @param dry_run Logical. `FALSE` (default) removes the selected paths.
+#'   `TRUE` returns the removal plan and leaves files in place.
+#' @param verbose Logical. `TRUE` (default) reports the space freed or planned.
 #'
 #' @return Invisibly, a data.frame with one row per path removed (or, with
 #'   `dry_run = TRUE`, that would be removed): `component`, `type`
@@ -835,6 +837,7 @@ taxify_store <- function(asset = NULL) {
 #' taxify_clean(unused_days = 30, dry_run = TRUE)
 #' options(old)
 #'
+#' @family Backbone data and cache
 #' @export
 taxify_clean <- function(assets = NULL, unused_days = NULL, dry_run = FALSE,
                          verbose = TRUE) {
@@ -1026,8 +1029,8 @@ is_outdated_build <- function(dir, name, kind) {
 #' @param dd Character. The data directory.
 #' @param superseded Logical. Include every build other than the active one.
 #' @param unused_days Number or `NULL`. Include outdated builds
-#'   ([is_outdated_build()]) not read or written for this many days.
-#' @return A data.frame in the shape of [clean_rows()].
+#'   (`is_outdated_build()`) not read or written for this many days.
+#' @return A data.frame in the shape of `clean_rows()`.
 #' @noRd
 outdated_builds <- function(dd, superseded = TRUE, unused_days = NULL) {
   on_disk <- assets_on_disk(dd)

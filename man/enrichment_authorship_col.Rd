@@ -23,4 +23,21 @@ likely it is to be the taxon's own authorship rather than something else.
 taxifydb reads the same column at build time, so that the row it keys under
 a name is the one this guard will accept.
 }
+\examples{
+enrichment_authorship_col(c("canonical_name", "authorship", "author"))
+enrichment_authorship_col(c("canonical_name", "height"))
+
+}
+\seealso{
+Other Low-level building blocks:
+\code{\link[=basionym_placement]{basionym_placement()}},
+\code{\link[=candidate_order]{candidate_order()}},
+\code{\link[=embed_accepted]{embed_accepted()}},
+\code{\link[=is_aggregate_name]{is_aggregate_name()}},
+\code{\link[=normalize_aggregate_name]{normalize_aggregate_name()}},
+\code{\link[=normalize_epithets]{normalize_epithets()}},
+\code{\link[=precompute_keys]{precompute_keys()}},
+\code{\link[=score_candidates]{score_candidates()}}
+}
+\concept{Low-level building blocks}
 \keyword{internal}

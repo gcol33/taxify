@@ -15,7 +15,9 @@ A data.frame with columns: \code{type} (\code{"backbone"} or \code{"enrichment"}
 \code{name}, \code{scope} (taxonomic scope for backbones; provided trait columns for
 enrichments), \code{n_rows}, \code{version}, \code{source_date} (the date of the upstream
 data, where recorded, which can be much earlier than the release \code{version}
-that packaged it), \code{installed}, \code{source}.
+that packaged it), \code{installed}, \code{source}. \code{installed} is logical for
+backbone rows and \code{NA} for enrichment rows. Use \code{\link[=taxify_store]{taxify_store()}} to
+inspect locally installed enrichments.
 }
 \description{
 Stacks the taxonomic backbones (from \code{\link[=list_backbones]{list_backbones()}}) and the trait/status
@@ -25,9 +27,10 @@ to know three separate discovery verbs. The cross-source trait vocabulary is
 summarised in the message footer; browse it with \code{\link[=list_traits]{list_traits()}}.
 }
 \examples{
-\dontrun{
-taxify_databases()
-}
+old <- options(taxify.data_dir = taxify_example_data(),
+               taxify.offline = TRUE)
+head(taxify_databases(verbose = FALSE))
+options(old)
 
 }
 \seealso{
