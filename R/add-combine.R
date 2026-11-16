@@ -57,15 +57,7 @@
 #'
 #' @export
 add_combine_reported <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "combine",
-    col_map         = .combine_col_map(),
-    prefix          = "combine_reported_",
-    source_label    = "COMBINE (reported)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_combine_reported, cols = cols, verbose = verbose)
 }
 
 
@@ -112,15 +104,7 @@ add_combine_reported <- function(x, cols = NULL, verbose = TRUE) {
 #'
 #' @export
 add_combine_imputed <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- .combine_col_map()
-  enrich_simple(
-    x,
-    enrichment_name = "combine_imputed",
-    col_map         = col_map,
-    source_label    = "COMBINE (imputed)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_combine_imputed, cols = cols, verbose = verbose)
 }
 
 
@@ -215,22 +199,39 @@ add_combine <- function(x, cols = NULL, verbose = TRUE) {
 
 
 # Curated COMBINE source columns shared by the reported and imputed doors.
-.combine_col_map <- function() {
-  c(
-    adult_mass_g          = "adult_mass_g",
-    adult_body_length_mm  = "adult_body_length_mm",
-    litter_size_n         = "litter_size_n",
-    litters_per_year_n    = "litters_per_year_n",
-    max_longevity_d       = "max_longevity_d",
-    gestation_length_d    = "gestation_length_d",
-    weaning_age_d         = "weaning_age_d",
-    generation_length_d   = "generation_length_d",
-    dispersal_km          = "dispersal_km",
-    habitat_breadth_n     = "habitat_breadth_n",
-    diet_breadth_n        = "diet_breadth_n",
-    trophic_level         = "trophic_level",
-    activity_cycle        = "activity_cycle",
-    foraging_stratum      = "foraging_stratum",
+.combine_col_map <- c(
+    adult_mass_g = "adult_mass_g",
+    adult_body_length_mm = "adult_body_length_mm",
+    litter_size_n = "litter_size_n",
+    litters_per_year_n = "litters_per_year_n",
+    max_longevity_d = "max_longevity_d",
+    gestation_length_d = "gestation_length_d",
+    weaning_age_d = "weaning_age_d",
+    generation_length_d = "generation_length_d",
+    dispersal_km = "dispersal_km",
+    habitat_breadth_n = "habitat_breadth_n",
+    diet_breadth_n = "diet_breadth_n",
+    trophic_level = "trophic_level",
+    activity_cycle = "activity_cycle",
+    foraging_stratum = "foraging_stratum",
     biogeographical_realm = "biogeographical_realm"
   )
-}
+
+
+.door_combine_reported <- list(
+  enrichment_name = "combine",
+  col_map = .combine_col_map,
+  prefix = "combine_reported_",
+  source_label = "COMBINE (reported)"
+)
+
+
+.door_combine_imputed <- list(
+  enrichment_name = "combine_imputed",
+  col_map = .combine_col_map,
+  source_label = "COMBINE (imputed)",
+  prefix = "combine_imputed_"
+)
+
+
+.door_combine <- utils::modifyList(.door_combine_reported, list(prefix = "combine_"))

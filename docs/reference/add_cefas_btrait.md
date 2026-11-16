@@ -35,31 +35,31 @@ add_cefas_btrait(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns. The default set:
 
-- cefas_body_size:
+- cefas_btrait_cefas_body_size:
 
   Maximum body-size class.
 
-- cefas_morphology:
+- cefas_btrait_cefas_morphology:
 
   Body morphology.
 
-- cefas_lifespan:
+- cefas_btrait_cefas_lifespan:
 
   Life-span class.
 
-- cefas_living_habit:
+- cefas_btrait_cefas_living_habit:
 
   Living habit.
 
-- cefas_feeding_mode:
+- cefas_btrait_cefas_feeding_mode:
 
   Feeding mode.
 
-- cefas_mobility:
+- cefas_btrait_cefas_mobility:
 
   Mobility.
 
-- cefas_bioturbation:
+- cefas_btrait_cefas_bioturbation:
 
   Bioturbation mode.
 

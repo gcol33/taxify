@@ -32,43 +32,43 @@ add_fishtraits(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns. The default set:
 
-- ft_common_name:
+- fishtraits_ft_common_name:
 
   Common name.
 
-- ft_native:
+- fishtraits_ft_native:
 
   Whether native to the contiguous United States.
 
-- ft_max_length_cm:
+- fishtraits_ft_max_length_cm:
 
   Maximum total length (cm).
 
-- ft_longevity_yr:
+- fishtraits_ft_longevity_yr:
 
   Maximum reported age (years).
 
-- ft_maturity_age_yr:
+- fishtraits_ft_maturity_age_yr:
 
   Age at maturity (years).
 
-- ft_fecundity_max:
+- fishtraits_ft_fecundity_max:
 
   Maximum fecundity.
 
-- ft_repro_guild:
+- fishtraits_ft_repro_guild:
 
   Reproductive guild.
 
-- ft_min_temp_c:
+- fishtraits_ft_min_temp_c:
 
   Lower temperature tolerance (deg C).
 
-- ft_max_temp_c:
+- fishtraits_ft_max_temp_c:
 
   Upper temperature tolerance (deg C).
 
-- ft_extinct:
+- fishtraits_ft_extinct:
 
   Whether recorded as extinct.
 

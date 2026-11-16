@@ -33,12 +33,12 @@
 #'
 #' @export
 add_iucn <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "iucn",
-    col_map         = c(conservation_status = "conservation_status"),
-    source_label    = "IUCN Red List",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_iucn, cols = cols, verbose = verbose)
 }
+
+
+.door_iucn <- list(
+  enrichment_name = "iucn",
+  col_map = c(conservation_status = "conservation_status"),
+  source_label = "IUCN Red List"
+)

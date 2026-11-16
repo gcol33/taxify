@@ -181,6 +181,10 @@ for a trait's sources and units. The per-source functions
 [`add_leda()`](https://gillescolling.com/taxify/reference/add_leda.md))
 join one dataset each.
 
+Other Traits across sources:
+[`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md),
+[`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md)
+
 ## Examples
 
 ``` r
@@ -190,15 +194,75 @@ old <- options(taxify.data_dir = taxify_example_data())
 # One coalesced value plus its provenance (unit, sources, count):
 taxify("Abies alba") |>
   add_trait("seed_mass")
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> add_trait('seed_mass'): diaz 1, gift 1, austraits 0, bien 1, brot 1, ecoflora 0, kew_sid 0, leda 1 (of 1 resolved name).
+#>   input_name matched_name accepted_name   taxon_id accepted_id    rank   family
+#> 1 Abies alba   Abies alba    Abies alba wfo-ex-005  wfo-ex-005 species Pinaceae
+#>   genus epithet authorship accepted_authorship is_synonym taxonomic_status
+#> 1 Abies    alba      Mill.               Mill.      FALSE         ACCEPTED
+#>   is_hybrid match_type fuzzy_dist backbone         backbone_version
+#> 1     FALSE      exact         NA      wfo wfo:example (2026-06-24)
+#>   kingdom_group taxon_group  life_form qualifier qualifier_position
+#> 1       plantae  gymnosperm gymnosperm      <NA>               <NA>
+#>   aggregate_fallback hybrid_type seed_mass seed_mass_unit
+#> 1                 NA        <NA>    62.007             mg
+#>          seed_mass_sources seed_mass_n seed_mass_min seed_mass_max
+#> 1 diaz,gift,bien,brot,leda           5         44.47          79.2
+#> Sources: WFO example, Diaz et al. 2022 example, GIFT (Weigelt et al. 2020) example, BIEN (Maitner et al. 2018) 2026.06, BROT 2.0 (Tavsanoglu & Pausas 2018) 2026.06, LEDA Traitbase (Kleyer et al. 2008) example | cite() for full citations
 
 # One column per source, to inspect agreement and conflict:
 taxify("Abies alba") |>
   add_trait("woodiness", mode = "wide")
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> add_trait('woodiness'): zanne 1, gift 1, austraits 0, bien 1 (of 1 resolved name).
+#>   input_name matched_name accepted_name   taxon_id accepted_id    rank   family
+#> 1 Abies alba   Abies alba    Abies alba wfo-ex-005  wfo-ex-005 species Pinaceae
+#>   genus epithet authorship accepted_authorship is_synonym taxonomic_status
+#> 1 Abies    alba      Mill.               Mill.      FALSE         ACCEPTED
+#>   is_hybrid match_type fuzzy_dist backbone         backbone_version
+#> 1     FALSE      exact         NA      wfo wfo:example (2026-06-24)
+#>   kingdom_group taxon_group  life_form qualifier qualifier_position
+#> 1       plantae  gymnosperm gymnosperm      <NA>               <NA>
+#>   aggregate_fallback hybrid_type woodiness_zanne woodiness_gift
+#> 1                 NA        <NA>           woody          woody
+#>   woodiness_austraits woodiness_bien
+#> 1                <NA>          woody
+#> Sources: WFO example, Zanne et al. 2014 example, GIFT (Weigelt et al. 2020) example, BIEN (Maitner et al. 2018) 2026.06 | cite() for full citations
 
 # The references behind each value, resolved to citations:
 res <- taxify("Abies alba") |>
   add_trait("seed_mass", mode = "wide", provenance = TRUE)
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> add_trait('seed_mass'): diaz 1, gift 1, austraits 0, bien 1, brot 1, ecoflora 0, kew_sid 0, leda 1 (of 1 resolved name).
 cite(res$seed_mass_gift_refs)
+#> ── taxify references ────────────────────────────────────────────────────────────
+#>   [gift:10191] Kleyer, Bekker, Knevel, Bakker, Thompson, Sonnenschein, Poschlod, van Groenendael, Klimeš, Klimešová, Klotz, Rusch, Hermy, Adriaens, Boedeltje, Bossuyt, Dannemann, Endels, Götzenberger, Hodgson, Jackel, Kühn, Kunzmann, Ozinga, Römermann, Stadler, Schlegelmilch, Steendam, Tackenberg, Wilmann, Cornelissen, Eriksson, Garnier & Peco (2008) The LEDA Traitbase: a database of life-history traits of the Northwest European flora. Journal of Ecology 96, 1266–1274.
+#>   [gift:10255] Royal Botanic Gardens Kew (2016) Seed information database (SID). Available at: http://data.kew.org/sid/, last accessed  22/03/2013.
+#>   ────────────────────────────────────────────────────────────
 
 options(old)
 ```

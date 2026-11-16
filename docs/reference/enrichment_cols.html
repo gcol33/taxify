@@ -26,7 +26,7 @@ the first call may trigger the one-time download."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ the first call may trigger the one-time download."><meta property="og:image" con
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -100,19 +101,100 @@ the first call may trigger the one-time download.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data.frame with one row per column: <code>column</code> (the name) and <code>type</code>
+    <p>A data.frame with one row per column: <code>column</code> (source name),
+<code>output</code> (attached name), and <code>type</code>
 (<code>"numeric"</code> or <code>"character"</code>).</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Source outputs start with the source key followed by <code>_</code>. Common names use
+<code>common_</code>. Names already carrying the prefix keep it once. The <code>cols</code>
+selector accepts source names, output names, and output names without the
+prefix. Grouped outputs append the group code when several groups are
+requested. The grouping key is used for filtering and reshaping; it is
+excluded from attached values. Other country, region, or language fields
+receive the source prefix. <code>output</code> is <code>NA</code> for the grouping key.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="add_gift.html">add_gift()</a></code>, <code><a href="add_floraweb.html">add_floraweb()</a></code>, <code><a href="list_enrichments.html">list_enrichments()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="add_gift.html">add_gift()</a></code>, <code><a href="add_floraweb.html">add_floraweb()</a></code>, <code><a href="list_enrichments.html">list_enrichments()</a></code></p>
+<p>Other Browse and discover:
+<code><a href="enrichment_groups.html">enrichment_groups()</a></code>,
+<code><a href="list_enrichments.html">list_enrichments()</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">enrichment_cols</span><span class="op">(</span><span class="st">"gift"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">enrichment_cols</span><span class="op">(</span><span class="st">"gift"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                column                             output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    gift_woodiness_1                   gift_woodiness_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                  gift_growth_form_1                 gift_growth_form_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                    gift_lifecycle_1                   gift_lifecycle_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                    gift_life_form_1                   gift_life_form_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                      gift_climber_1                     gift_climber_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                     gift_epiphyte_1                    gift_epiphyte_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                     gift_parasite_1                    gift_parasite_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                      gift_aquatic_1                     gift_aquatic_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9               gift_plant_height_max              gift_plant_height_max</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10        gift_photosynthetic_pathway        gift_photosynthetic_pathway</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11                gift_seed_mass_mean                gift_seed_mass_mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12          gift_dispersal_syndrome_1          gift_dispersal_syndrome_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13               gift_flowering_start               gift_flowering_start</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14                 gift_flowering_end                 gift_flowering_end</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15               gift_deciduousness_1               gift_deciduousness_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16                      gift_sla_mean                      gift_sla_mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17            gift_woodiness_1_source            gift_woodiness_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18          gift_growth_form_1_source          gift_growth_form_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19            gift_lifecycle_1_source            gift_lifecycle_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20            gift_life_form_1_source            gift_life_form_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21              gift_climber_1_source              gift_climber_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22             gift_epiphyte_1_source             gift_epiphyte_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23             gift_parasite_1_source             gift_parasite_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24              gift_aquatic_1_source              gift_aquatic_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25       gift_plant_height_max_source       gift_plant_height_max_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 gift_photosynthetic_pathway_source gift_photosynthetic_pathway_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27         gift_seed_mass_mean_source         gift_seed_mass_mean_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28   gift_dispersal_syndrome_1_source   gift_dispersal_syndrome_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29        gift_flowering_start_source        gift_flowering_start_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30          gift_flowering_end_source          gift_flowering_end_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31        gift_deciduousness_1_source        gift_deciduousness_1_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32               gift_sla_mean_source               gift_sla_mean_source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    numeric</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11   numeric</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16   numeric</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31 character</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32 character</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

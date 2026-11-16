@@ -26,7 +26,7 @@ all three level names."><meta property="og:image" content="https://gillescolling
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ all three level names."><meta property="og:image" content="https://gillescolling
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -123,11 +124,121 @@ ecoregion is the <code>name</code>, its province the <code>level2_name</code>, a
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">taxify_regions</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co"># \donttest{</span></span>
-<span><span class="fu">taxify_regions</span><span class="op">(</span><span class="st">"belgium"</span><span class="op">)</span></span>
-<span><span class="fu">taxify_regions</span><span class="op">(</span><span class="st">"Europe"</span><span class="op">)</span></span>
-<span><span class="co"># }</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">taxify_regions</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   code                name            level2_name      level1_name scheme</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  ABT             Alberta         Western Canada NORTHERN AMERICA wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  AFG         Afghanistan           Western Asia   ASIA-TEMPERATE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  AGE Argentina Northeast Southern South America SOUTHERN AMERICA wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  AGS     Argentina South Southern South America SOUTHERN AMERICA wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  AGW Argentina Northwest Southern South America SOUTHERN AMERICA wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  ALA             Alabama    Southeastern U.S.A. NORTHERN AMERICA wgsrpd</span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu">taxify_regions</span><span class="op">(</span><span class="st">"belgium"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   code    name   level2_name level1_name scheme</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  BGM Belgium Middle Europe      EUROPE wgsrpd</span>
+<span class="r-in"><span><span class="fu">taxify_regions</span><span class="op">(</span><span class="st">"Europe"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     code                          name            level2_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    ALB                       Albania    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    AUT                       Austria          Middle Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    BAL                      Baleares    Southwestern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    BGM                       Belgium          Middle Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    BLR                       Belarus         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    BLT                 Baltic States         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    BUL                      Bulgaria    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    COR                         Corse    Southwestern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    CZE                Czechoslovakia          Middle Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10   DEN                       Denmark        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11   FIN                       Finland        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12   FOR                       Føroyar        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13   FRA                        France    Southwestern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14   GER                       Germany          Middle Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15   GRB                 Great Britain        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16   GRC                        Greece    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17   HUN                       Hungary          Middle Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18   ICE                       Iceland        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19   IRE                       Ireland        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20   ITA                         Italy    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21   KRI                         Kriti    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22   KRY                          Krym         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23   NET                   Netherlands          Middle Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24   NOR                        Norway        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25   POL                        Poland          Middle Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26   POR                      Portugal    Southwestern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27   ROM                       Romania    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28   RUC       Central European Russia         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29   RUE          East European Russia         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30   RUN         North European Russia         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31   RUS         South European Russia         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32   RUW     Northwest European Russia         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33   SAR                      Sardegna    Southwestern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34   SIC                       Sicilia    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35   SPA                         Spain    Southwestern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36   SVA                      Svalbard        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37   SWE                        Sweden        Northern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38   SWI                   Switzerland          Middle Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39   TUE              Turkey-in-Europe    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40   UKR                       Ukraine         Eastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41   YUG                    Yugoslavia    Southeastern Europe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 42 20021                 Faroe Plateau Northern European Seas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43 20025                     North Sea Northern European Seas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44 20027 South European Atlantic Shelf             Lusitanian</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45 20022               Southern Norway Northern European Seas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 46 20026                   Celtic Seas Northern European Seas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47 20023  Northern Norway and Finnmark Northern European Seas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 48 20020        South and West Iceland Northern European Seas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49 20024                    Baltic Sea Northern European Seas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    level1_name scheme</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                       EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 30                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 31                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 32                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 34                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 36                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 39                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 40                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41                      EUROPE wgsrpd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 42 Temperate Northern Atlantic   meow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 43 Temperate Northern Atlantic   meow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 44 Temperate Northern Atlantic   meow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45 Temperate Northern Atlantic   meow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 46 Temperate Northern Atlantic   meow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47 Temperate Northern Atlantic   meow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 48 Temperate Northern Atlantic   meow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49 Temperate Northern Atlantic   meow</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

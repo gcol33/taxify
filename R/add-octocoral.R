@@ -26,19 +26,27 @@
 #'
 #' @export
 add_octocoral <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("colony_height", "colony_width", "tentacles_per_polyp")
-  cat_cols <- c("growth_form", "type_of_growth", "type_of_skeleton",
-                "polyp_retractability", "polyp_dimorphism", "zooxanthellate",
-                "axis_presence", "feeding_mechanism", "coloniality",
-                "skeletal_rigidity", "calcareous_sclerites_presence")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("octocoral_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "octocoral",
-    col_map         = col_map,
-    source_label    = "Octocoral Trait Database",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_octocoral, cols = cols, verbose = verbose)
 }
+
+
+.door_octocoral <- list(
+  enrichment_name = "octocoral",
+  col_map = c(
+    octocoral_colony_height = "colony_height",
+    octocoral_colony_width = "colony_width",
+    octocoral_tentacles_per_polyp = "tentacles_per_polyp",
+    octocoral_growth_form = "growth_form",
+    octocoral_type_of_growth = "type_of_growth",
+    octocoral_type_of_skeleton = "type_of_skeleton",
+    octocoral_polyp_retractability = "polyp_retractability",
+    octocoral_polyp_dimorphism = "polyp_dimorphism",
+    octocoral_zooxanthellate = "zooxanthellate",
+    octocoral_axis_presence = "axis_presence",
+    octocoral_feeding_mechanism = "feeding_mechanism",
+    octocoral_coloniality = "coloniality",
+    octocoral_skeletal_rigidity = "skeletal_rigidity",
+    octocoral_calcareous_sclerites_presence = "calcareous_sclerites_presence"
+  ),
+  source_label = "Octocoral Trait Database"
+)

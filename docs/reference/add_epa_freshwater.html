@@ -30,7 +30,7 @@ species-level value is never overwritten."><meta property="og:image" content="ht
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@ species-level value is never overwritten."><meta property="og:image" content="ht
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -116,19 +117,19 @@ names. See <code><a href="enrichment_cols.html">enrichment_cols</a></code>.</p><
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns. The default set:</p><dl><dt>epa_feeding_mode</dt>
+    <p>The same data.frame with additional columns. The default set:</p><dl><dt>epa_freshwater_epa_feeding_mode</dt>
 <dd><p>Functional feeding group.</p></dd>
 
-<dt>epa_habit</dt>
+<dt>epa_freshwater_epa_habit</dt>
 <dd><p>Primary habit (e.g. clinger, burrower, swimmer).</p></dd>
 
-<dt>epa_voltinism</dt>
+<dt>epa_freshwater_epa_voltinism</dt>
 <dd><p>Number of generations per year.</p></dd>
 
-<dt>epa_thermal_preference</dt>
+<dt>epa_freshwater_epa_thermal_preference</dt>
 <dd><p>Thermal preference.</p></dd>
 
-<dt>epa_body_size_class</dt>
+<dt>epa_freshwater_epa_body_size_class</dt>
 <dd><p>Maximum body-size class.</p></dd>
 
 
@@ -149,12 +150,13 @@ invertebrate traits for North America, USGS Data Series 187.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="co"># Downloads the enrichment on first use.</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Baetis"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_epa_freshwater</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Downloads the enrichment on first use.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Baetis"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_epa_freshwater</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

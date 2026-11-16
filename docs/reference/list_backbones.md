@@ -49,7 +49,29 @@ has not been recorded.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-list_backbones()
-} # }
+old <- options(taxify.data_dir = taxify_example_data(),
+               taxify.offline = TRUE)
+head(list_backbones(verbose = FALSE))
+#>    name                                   title                       scope
+#> 1   wfo                      World Flora Online             Vascular plants
+#> 2   col                       Catalogue of Life                All kingdoms
+#> 3 colxr      Catalogue of Life Extended Release                All kingdoms
+#> 4  gbif                  GBIF Backbone Taxonomy                All kingdoms
+#> 5  itis Integrated Taxonomic Information System US focus, freshwater/marine
+#> 6  ncbi                           NCBI Taxonomy                    All life
+#>   n_names size_mb version source_date installed  code
+#> 1 1664014     120 2026.06  2026-06-21      TRUE taxon
+#> 2 5432444     573 2026.09  2026-09-11      TRUE taxon
+#> 3 8479599     399 2026.09  2026-09-25     FALSE taxon
+#> 4 6404001     461 2023.08  2023-08-28      TRUE taxon
+#> 5 1000552      52 2026.09  2026-08-27     FALSE taxon
+#> 6 2952424     110 2026.09     2026-09     FALSE taxon
+#>                                  source
+#> 1     https://www.worldfloraonline.org/
+#> 2      https://www.catalogueoflife.org/
+#> 3      https://www.catalogueoflife.org/
+#> 4                 https://www.gbif.org/
+#> 5                  https://www.itis.gov
+#> 6 https://www.ncbi.nlm.nih.gov/taxonomy
+options(old)
 ```

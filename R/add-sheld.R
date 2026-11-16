@@ -25,17 +25,25 @@
 #'
 #' @export
 add_sheld <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("mean_length_mm", "max_length_mm", "mature_age", "max_age",
-                "growth_rate", "fecundity", "n_host_species", "n_host_family")
-  cat_cols <- c("brood", "marsupial_gills", "hermaphrodite", "shell_sculpture")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("sheld_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "sheld",
-    col_map         = col_map,
-    source_label    = "SHELD freshwater mussels",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_sheld, cols = cols, verbose = verbose)
 }
+
+
+.door_sheld <- list(
+  enrichment_name = "sheld",
+  col_map = c(
+    sheld_mean_length_mm = "mean_length_mm",
+    sheld_max_length_mm = "max_length_mm",
+    sheld_mature_age = "mature_age",
+    sheld_max_age = "max_age",
+    sheld_growth_rate = "growth_rate",
+    sheld_fecundity = "fecundity",
+    sheld_n_host_species = "n_host_species",
+    sheld_n_host_family = "n_host_family",
+    sheld_brood = "brood",
+    sheld_marsupial_gills = "marsupial_gills",
+    sheld_hermaphrodite = "hermaphrodite",
+    sheld_shell_sculpture = "shell_sculpture"
+  ),
+  source_label = "SHELD freshwater mussels"
+)

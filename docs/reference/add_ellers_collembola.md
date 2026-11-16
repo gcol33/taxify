@@ -32,27 +32,27 @@ add_ellers_collembola(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- ellers_vertical_distribution:
+- ellers_collembola_ellers_vertical_distribution:
 
   Vertical stratification (soil depth class).
 
-- ellers_body_size_mm:
+- ellers_collembola_ellers_body_size_mm:
 
   Body size (mm).
 
-- ellers_reproduction:
+- ellers_collembola_ellers_reproduction:
 
   Reproduction mode (sexual or asexual).
 
-- ellers_moisture_pref:
+- ellers_collembola_ellers_moisture_pref:
 
   Moisture preference.
 
-- ellers_temperature_pref:
+- ellers_collembola_ellers_temperature_pref:
 
   Temperature preference.
 
-- ellers_thermal_niche_breadth:
+- ellers_collembola_ellers_thermal_niche_breadth:
 
   Thermal niche breadth.
 

@@ -25,17 +25,21 @@
 #'
 #' @export
 add_blanchard <- function(x, cols = NULL, verbose = TRUE) {
-  cat_cols <- c("subfamily", "spines", "sting", "diet", "nesting", "foraging")
-  num_cols <- c("colony_size_workers")
-  all_cols <- c(cat_cols, num_cols)
-  col_map <- stats::setNames(all_cols, paste0("blanchard_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "blanchard",
-    col_map         = col_map,
-    source_label    = "Blanchard ant traits",
-    join_col        = "genus",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_blanchard, cols = cols, verbose = verbose)
 }
+
+
+.door_blanchard <- list(
+  enrichment_name = "blanchard",
+  col_map = c(
+    blanchard_subfamily = "subfamily",
+    blanchard_spines = "spines",
+    blanchard_sting = "sting",
+    blanchard_diet = "diet",
+    blanchard_nesting = "nesting",
+    blanchard_foraging = "foraging",
+    blanchard_colony_size_workers = "colony_size_workers"
+  ),
+  source_label = "Blanchard ant traits",
+  join_col = "genus"
+)

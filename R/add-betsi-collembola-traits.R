@@ -42,16 +42,22 @@
 #'
 #' @export
 add_betsi_collembola_traits <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("body_length_mm", "antenna_body_ratio", "ocelli_number", "furca",
-            "pigment_scaled", "reproduction", "stratification_scaled",
-            "trophic_position", "life_form")
-  col_map <- stats::setNames(base, paste0("betsi_ct_", base))
-  enrich_simple(
-    x,
-    enrichment_name = "betsi_collembola_traits",
-    col_map         = col_map,
-    source_label    = "Collembola traits (Lu et al. 2025)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_betsi_collembola_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_betsi_collembola_traits <- list(
+  enrichment_name = "betsi_collembola_traits",
+  col_map = c(
+    betsi_ct_body_length_mm = "body_length_mm",
+    betsi_ct_antenna_body_ratio = "antenna_body_ratio",
+    betsi_ct_ocelli_number = "ocelli_number",
+    betsi_ct_furca = "furca",
+    betsi_ct_pigment_scaled = "pigment_scaled",
+    betsi_ct_reproduction = "reproduction",
+    betsi_ct_stratification_scaled = "stratification_scaled",
+    betsi_ct_trophic_position = "trophic_position",
+    betsi_ct_life_form = "life_form"
+  ),
+  source_label = "Collembola traits (Lu et al. 2025)"
+)

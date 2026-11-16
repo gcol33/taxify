@@ -35,8 +35,8 @@ taxify(
   Character vector of backbone names (e.g., `"wfo"`, `"col"`, `"gbif"`)
   or a single `taxify_backend` object. Several are tried in order as a
   fallback chain. `NULL` (default) uses every installed backbone in
-  priority order, installing the default set (COL, GBIF, ITIS) on first
-  use; override the priority with
+  priority order, offering the default set (COL, GBIF, ITIS) when none
+  is installed; override the priority with
   `options(taxify.backbone_priority = ...)` and the first-run set with
   `options(taxify.default_backbones = ...)`.
 
@@ -357,11 +357,12 @@ is therefore resolved by the highest-priority backbone that matches it
 *at the best quality any backbone reaches*, so a near neighbour in an
 early backbone does not settle a name a later backbone holds exactly.
 Names matched earlier are not re-matched later. On a fresh setup with
-nothing installed yet, the first call downloads a default set (COL,
-GBIF, ITIS) once; pre-install a different set with
-[`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md).
-Name a backbone (or several) explicitly to match only against that one,
-or those in that order.
+nothing installed yet,
+[`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+installs the default set (COL, GBIF, ITIS); a first call without it asks
+before downloading in an interactive session and stops otherwise. Name a
+backbone (or several) explicitly to match only against that one, or
+those in that order.
 
 ## Names with several accepted IDs
 
@@ -419,14 +420,114 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 # Match a few names
 taxify(c("Quercus robur", "Pinus sylvestris"))
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>         input_name     matched_name    accepted_name   taxon_id accepted_id
+#> 1    Quercus robur    Quercus robur    Quercus robur col-ex-001  col-ex-001
+#> 2 Pinus sylvestris Pinus sylvestris Pinus sylvestris wfo-ex-004  wfo-ex-004
+#>      rank   family   genus    epithet authorship accepted_authorship is_synonym
+#> 1 species Fagaceae Quercus      robur         L.                  L.      FALSE
+#> 2 species Pinaceae   Pinus sylvestris         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA      col
+#> 2         ACCEPTED     FALSE      exact         NA      wfo
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 col:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#> 2 wfo:example (2026-06-24)       plantae  gymnosperm gymnosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#> 2               <NA>                 NA        <NA>
+#> Sources: COL + WFO | cite() for full citations
 
 # Disable fuzzy matching
 taxify("Quercus robus", fuzzy = FALSE)
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Matching 1 remaining names...
+#>   [sealifebase] Matching 1 remaining names...
+#>   [reptiledb] Matching 1 remaining names...
+#>   [gbif] Matching 1 remaining names...
+#>      input_name matched_name accepted_name taxon_id accepted_id rank family
+#> 1 Quercus robus         <NA>          <NA>     <NA>        <NA> <NA>   <NA>
+#>   genus epithet authorship accepted_authorship is_synonym taxonomic_status
+#> 1  <NA>    <NA>       <NA>                <NA>         NA             <NA>
+#>   is_hybrid match_type fuzzy_dist backbone backbone_version kingdom_group
+#> 1     FALSE       none         NA     <NA>             <NA>       plantae
+#>   taxon_group  life_form qualifier qualifier_position aggregate_fallback
+#> 1  angiosperm angiosperm      <NA>               <NA>                 NA
+#>   hybrid_type
+#> 1        <NA>
 
 # Constrain fuzzy candidates to a geographic region: a TDWG Level 3 code,
 # or a region name resolved via the bundled WGSRPD crosswalk
 taxify("Quercus robus", region = "BGM")
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Matching 1 remaining names...
+#>   [sealifebase] Matching 1 remaining names...
+#>   [reptiledb] Matching 1 remaining names...
+#>   [gbif] Matching 1 remaining names...
+#>   [col] Fuzzy matching 1 unmatched...
+#>   [wcvp] Skipped (all names matched)
+#>   [lcvp] Skipped (all names matched)
+#>   [wfo] Skipped (all names matched)
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>      input_name  matched_name accepted_name   taxon_id accepted_id    rank
+#> 1 Quercus robus Quercus robur Quercus robur col-ex-001  col-ex-001 species
+#>     family   genus epithet authorship accepted_authorship is_synonym
+#> 1 Fagaceae Quercus   robur         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      fuzzy 0.07692308      col
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 col:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#> Sources: COL example | cite() for full citations
 taxify("Quercus robus", region = "Belgium")
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Matching 1 remaining names...
+#>   [sealifebase] Matching 1 remaining names...
+#>   [reptiledb] Matching 1 remaining names...
+#>   [gbif] Matching 1 remaining names...
+#>   [col] Fuzzy matching 1 unmatched...
+#>   [wcvp] Skipped (all names matched)
+#>   [lcvp] Skipped (all names matched)
+#>   [wfo] Skipped (all names matched)
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>      input_name  matched_name accepted_name   taxon_id accepted_id    rank
+#> 1 Quercus robus Quercus robur Quercus robur col-ex-001  col-ex-001 species
+#>     family   genus epithet authorship accepted_authorship is_synonym
+#> 1 Fagaceae Quercus   robur         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      fuzzy 0.07692308      col
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 col:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#> Sources: COL example | cite() for full citations
 
 # Constrain by coordinates (downloads WGSRPD boundaries on first use)
 if (FALSE) { # \dontrun{
@@ -436,10 +537,52 @@ taxify("Quercus robus", coords = c(4.35, 50.85))
 # Fallback chain: try WFO first, then COL for unmatched
 taxify(c("Quercus robur", "Panthera leo"),
        backbone = c("wfo", "col"))
+#> Matching 2 names against 2 backbones: wfo -> col
+#>   [wfo] Matching 2 names...
+#>   [col] Matching 1 remaining names...
+#>      input_name  matched_name accepted_name   taxon_id accepted_id    rank
+#> 1 Quercus robur Quercus robur Quercus robur wfo-ex-001  wfo-ex-001 species
+#> 2  Panthera leo  Panthera leo  Panthera leo col-ex-002  col-ex-002 species
+#>     family    genus epithet       authorship accepted_authorship is_synonym
+#> 1 Fagaceae  Quercus   robur               L.                  L.      FALSE
+#> 2  Felidae Panthera     leo (Linnaeus, 1758)    (Linnaeus, 1758)      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA      wfo
+#> 2         ACCEPTED     FALSE      exact         NA      col
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#> 2 col:example (2026-06-24)      animalia     unknown    unknown      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#> 2               <NA>                 NA        <NA>
+#> Sources: WFO + COL | cite() for full citations
 
 # Compare how two backbones resolve the same names, side by side
 taxify(c("Quercus robur", "Pinus sylvestris"),
        backbone = c("wfo", "col"), mode = "wide")
+#> Comparing 2 names across 2 backbones: wfo, col
+#> Matching 2 names...
+#> Matching 2 names...
+#>   Fuzzy matching 1 unmatched...
+#>         input_name     matched_name    accepted_name   taxon_id accepted_id
+#> 1    Quercus robur    Quercus robur    Quercus robur wfo-ex-001  wfo-ex-001
+#> 2 Pinus sylvestris Pinus sylvestris Pinus sylvestris wfo-ex-004  wfo-ex-004
+#>      rank   family   genus    epithet authorship accepted_authorship is_synonym
+#> 1 species Fagaceae Quercus      robur         L.                  L.      FALSE
+#> 2 species Pinaceae   Pinus sylvestris         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA      wfo
+#> 2         ACCEPTED     FALSE      exact         NA      wfo
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#> 2 wfo:example (2026-06-24)       plantae  gymnosperm gymnosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type     accepted_wfo
+#> 1               <NA>                 NA        <NA>    Quercus robur
+#> 2               <NA>                 NA        <NA> Pinus sylvestris
+#>    accepted_col all_agree
+#> 1 Quercus robur      TRUE
+#> 2          <NA>        NA
+#> Sources: WFO + COL | cite() for full citations
 
 options(old)
 ```

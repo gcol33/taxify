@@ -30,10 +30,13 @@ add_beukhof(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `beukhof_` columns: numeric `trophic_level`,
-`aspect_ratio`, `offspring_size`, `age_maturity`, `fecundity`,
-`length_infinity_cm`, `growth_coefficient`, `length_max_cm`; categorical
-`habitat`, `feeding_mode`, `body_shape`, `fin_shape`, `spawning_type`.
+The same data.frame with `beukhof_` columns: numeric
+`beukhof_trophic_level`, `beukhof_aspect_ratio`,
+`beukhof_offspring_size`, `beukhof_age_maturity`, `beukhof_fecundity`,
+`beukhof_length_infinity_cm`, `beukhof_growth_coefficient`,
+`beukhof_length_max_cm`; categorical `beukhof_habitat`,
+`beukhof_feeding_mode`, `beukhof_body_shape`, `beukhof_fin_shape`,
+`beukhof_spawning_type`.
 
 ## Details
 

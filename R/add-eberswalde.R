@@ -44,16 +44,21 @@
 #'
 #' @export
 add_eberswalde <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("body_length_mm", "wing_morph", "feeding_guild",
-                "humidity_pref", "range_centre_lat", "abundance_total",
-                "abundance_trend", "drought_effect")
-  col_map <- stats::setNames(all_cols, paste0("eberswalde_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "eberswalde",
-    col_map         = col_map,
-    source_label    = "Eberswalde carabid monitoring",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_eberswalde, cols = cols, verbose = verbose)
 }
+
+
+.door_eberswalde <- list(
+  enrichment_name = "eberswalde",
+  col_map = c(
+    eberswalde_body_length_mm = "body_length_mm",
+    eberswalde_wing_morph = "wing_morph",
+    eberswalde_feeding_guild = "feeding_guild",
+    eberswalde_humidity_pref = "humidity_pref",
+    eberswalde_range_centre_lat = "range_centre_lat",
+    eberswalde_abundance_total = "abundance_total",
+    eberswalde_abundance_trend = "abundance_trend",
+    eberswalde_drought_effect = "drought_effect"
+  ),
+  source_label = "Eberswalde carabid monitoring"
+)

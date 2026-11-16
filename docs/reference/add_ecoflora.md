@@ -41,52 +41,52 @@ add_ecoflora(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional `_uk` columns:
 
-- height_max_mm_uk, height_min_mm_uk:
+- ecoflora_height_max_mm_uk, ecoflora_height_min_mm_uk:
 
   Typical maximum and minimum plant height (mm; Ecoflora records cm).
 
-- leaf_area_uk:
+- ecoflora_leaf_area_uk:
 
   Leaf area class (cm\\^2\\).
 
-- leaf_longevity_uk:
+- ecoflora_leaf_longevity_uk:
 
   Leaf longevity (e.g. evergreen, deciduous).
 
-- root_system_uk:
+- ecoflora_root_system_uk:
 
   Root system type.
 
-- photosynthetic_pathway_uk:
+- ecoflora_photosynthetic_pathway_uk:
 
   Photosynthetic pathway (C3/C4/CAM).
 
-- life_form_uk:
+- ecoflora_life_form_uk:
 
   Raunkiaer life form.
 
-- reproduction_uk:
+- ecoflora_reproduction_uk:
 
   Reproduction method.
 
-- flower_begin_month_uk, flower_end_month_uk:
+- ecoflora_flower_begin_month_uk, ecoflora_flower_end_month_uk:
 
   Flowering months (1-12).
 
-- pollination_vector_uk:
+- ecoflora_pollination_vector_uk:
 
   Pollen vector(s).
 
-- seed_weight_mg_uk:
+- ecoflora_seed_weight_mg_uk:
 
   Seed weight (mg).
 
-- propagule_uk:
+- ecoflora_propagule_uk:
 
   Propagule / dispersule type.
 
-- ell_light_uk, ell_moisture_uk, ell_reaction_uk, ell_nitrogen_uk,
-  ell_salt_uk:
+- ecoflora_ell_light_uk, ecoflora_ell_moisture_uk,
+  ecoflora_ell_reaction_uk, ecoflora_ell_nitrogen_uk, ell_salt_uk:
 
   Ellenberg indicator values calibrated for the British flora (light,
   moisture, reaction, nitrogen, salt).
@@ -119,6 +119,40 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Bellis perennis") |>
   add_ecoflora()
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>        input_name    matched_name   accepted_name   taxon_id accepted_id
+#> 1 Bellis perennis Bellis perennis Bellis perennis wfo-ex-009  wfo-ex-009
+#>      rank     family  genus  epithet authorship accepted_authorship is_synonym
+#> 1 species Asteraceae Bellis perennis         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA      wfo
+#>           backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 wfo:example (2026-06-24)       plantae     unknown   unknown      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type ecoflora_height_max_mm_uk
+#> 1               <NA>                 NA        <NA>  example_height_max_mm_uk
+#>   ecoflora_height_min_mm_uk ecoflora_leaf_area_uk ecoflora_leaf_longevity_uk
+#> 1  example_height_min_mm_uk  example_leaf_area_uk  example_leaf_longevity_uk
+#>   ecoflora_root_system_uk ecoflora_photosynthetic_pathway_uk
+#> 1  example_root_system_uk  example_photosynthetic_pathway_uk
+#>   ecoflora_life_form_uk ecoflora_reproduction_uk ecoflora_flower_begin_month_uk
+#> 1  example_life_form_uk  example_reproduction_uk  example_flower_begin_month_uk
+#>   ecoflora_flower_end_month_uk ecoflora_pollination_vector_uk
+#> 1  example_flower_end_month_uk  example_pollination_vector_uk
+#>   ecoflora_seed_weight_mg_uk ecoflora_propagule_uk ecoflora_ell_light_uk
+#> 1  example_seed_weight_mg_uk  example_propagule_uk  example_ell_light_uk
+#>   ecoflora_ell_moisture_uk ecoflora_ell_reaction_uk ecoflora_ell_nitrogen_uk
+#> 1  example_ell_moisture_uk  example_ell_reaction_uk  example_ell_nitrogen_uk
+#>   ecoflora_ell_salt_uk
+#> 1  example_ell_salt_uk
+#> Sources: WFO example, Ecoflora (Ecological Flora of the British Isles) example | cite() for full citations
 
 options(old)
 ```

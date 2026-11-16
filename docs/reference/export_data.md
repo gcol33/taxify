@@ -39,6 +39,15 @@ Invisibly returns `path`.
 old <- options(taxify.data_dir = taxify_example_data())
 
 result <- taxify(c("Quercus robur", "Pinus sylvestris"))
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
 result |> export_data(tempfile(fileext = ".vtr"))
 result |> export_data(tempfile(fileext = ".csv"))
 result |> export_data(tempfile(fileext = ".tsv"))

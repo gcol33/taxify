@@ -47,30 +47,29 @@
 #'
 #' @export
 add_bien <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    bien_plant_height_m      = "plant_height_m",
-    bien_max_plant_height_m  = "max_plant_height_m",
-    bien_dbh_cm              = "dbh_cm",
-    bien_sla_mm2_mg          = "sla_mm2_mg",
-    bien_leaf_area_mm2       = "leaf_area_mm2",
-    bien_leaf_dry_mass_mg    = "leaf_dry_mass_mg",
+  enrich_door(x, .door_bien, cols = cols, verbose = verbose)
+}
+
+
+.door_bien <- list(
+  enrichment_name = "bien",
+  col_map = c(
+    bien_plant_height_m = "plant_height_m",
+    bien_max_plant_height_m = "max_plant_height_m",
+    bien_dbh_cm = "dbh_cm",
+    bien_sla_mm2_mg = "sla_mm2_mg",
+    bien_leaf_area_mm2 = "leaf_area_mm2",
+    bien_leaf_dry_mass_mg = "leaf_dry_mass_mg",
     bien_leaf_n_per_dry_mass = "leaf_n_per_dry_mass",
     bien_leaf_p_per_dry_mass = "leaf_p_per_dry_mass",
-    bien_leaf_thickness_mm   = "leaf_thickness_mm",
-    bien_seed_mass_mg        = "seed_mass_mg",
-    bien_wood_density_g_cm3   = "wood_density_g_cm3",
-    bien_leaf_lifespan       = "leaf_lifespan",
-    bien_growth_form         = "growth_form",
-    bien_woodiness           = "woodiness",
-    bien_dispersal_syndrome  = "dispersal_syndrome",
-    bien_flower_color        = "flower_color"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "bien",
-    col_map         = col_map,
-    source_label    = "BIEN",
-    cols            = cols,
-    verbose         = verbose
-  )
-}
+    bien_leaf_thickness_mm = "leaf_thickness_mm",
+    bien_seed_mass_mg = "seed_mass_mg",
+    bien_wood_density_g_cm3 = "wood_density_g_cm3",
+    bien_leaf_lifespan = "leaf_lifespan",
+    bien_growth_form = "growth_form",
+    bien_woodiness = "woodiness",
+    bien_dispersal_syndrome = "dispersal_syndrome",
+    bien_flower_color = "flower_color"
+  ),
+  source_label = "BIEN"
+)

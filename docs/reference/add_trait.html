@@ -28,7 +28,7 @@ gathers it from every source that carries it."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@ gathers it from every source that carries it."><meta property="og:image" content
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -235,29 +236,93 @@ are available.</p>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="list_traits.html">list_traits()</a></code> to see available traits, <code><a href="trait_info.html">trait_info()</a></code> for a
 trait's sources and units. The per-source functions (<code><a href="add_zanne.html">add_zanne()</a></code>,
-<code><a href="add_gift.html">add_gift()</a></code>, <code><a href="add_diaz_traits.html">add_diaz_traits()</a></code>, <code><a href="add_leda.html">add_leda()</a></code>) join one dataset each.</p></div>
+<code><a href="add_gift.html">add_gift()</a></code>, <code><a href="add_diaz_traits.html">add_diaz_traits()</a></code>, <code><a href="add_leda.html">add_leda()</a></code>) join one dataset each.</p>
+<p>Other Traits across sources:
+<code><a href="list_traits.html">list_traits()</a></code>,
+<code><a href="trait_info.html">trait_info()</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># One coalesced value plus its provenance (unit, sources, count):</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"seed_mass"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># One column per source, to inspect agreement and conflict:</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"woodiness"</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># The references behind each value, resolved to citations:</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"seed_mass"</span>, mode <span class="op">=</span> <span class="st">"wide"</span>, provenance <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="cite.html">cite</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">seed_mass_gift_refs</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># One coalesced value plus its provenance (unit, sources, count):</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"seed_mass"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_trait('seed_mass'): diaz 1, gift 1, austraits 0, bien 1, brot 1, ecoflora 0, kew_sid 0, leda 1 (of 1 resolved name).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input_name matched_name accepted_name   taxon_id accepted_id    rank   family</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Abies alba   Abies alba    Abies alba wfo-ex-005  wfo-ex-005 species Pinaceae</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym taxonomic_status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Abies    alba      Mill.               Mill.      FALSE         ACCEPTED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist backbone         backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA      wfo wfo:example (2026-06-24)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group  life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       plantae  gymnosperm gymnosperm      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type seed_mass seed_mass_unit</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;    62.007             mg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          seed_mass_sources seed_mass_n seed_mass_min seed_mass_max</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 diaz,gift,bien,brot,leda           5         44.47          79.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, Diaz et al. 2022 example, GIFT (Weigelt et al. 2020) example, BIEN (Maitner et al. 2018) 2026.06, BROT 2.0 (Tavsanoglu &amp; Pausas 2018) 2026.06, LEDA Traitbase (Kleyer et al. 2008) example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># One column per source, to inspect agreement and conflict:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"woodiness"</span>, mode <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_trait('woodiness'): zanne 1, gift 1, austraits 0, bien 1 (of 1 resolved name).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input_name matched_name accepted_name   taxon_id accepted_id    rank   family</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Abies alba   Abies alba    Abies alba wfo-ex-005  wfo-ex-005 species Pinaceae</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym taxonomic_status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Abies    alba      Mill.               Mill.      FALSE         ACCEPTED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist backbone         backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA      wfo wfo:example (2026-06-24)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group  life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       plantae  gymnosperm gymnosperm      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type woodiness_zanne woodiness_gift</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;           woody          woody</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   woodiness_austraits woodiness_bien</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                &lt;NA&gt;          woody</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, Zanne et al. 2014 example, GIFT (Weigelt et al. 2020) example, BIEN (Maitner et al. 2018) 2026.06 | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The references behind each value, resolved to citations:</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_trait</span><span class="op">(</span><span class="st">"seed_mass"</span>, mode <span class="op">=</span> <span class="st">"wide"</span>, provenance <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_trait('seed_mass'): diaz 1, gift 1, austraits 0, bien 1, brot 1, ecoflora 0, kew_sid 0, leda 1 (of 1 resolved name).</span>
+<span class="r-in"><span><span class="fu"><a href="cite.html">cite</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">seed_mass_gift_refs</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ── taxify references ────────────────────────────────────────────────────────────</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [gift:10191] Kleyer, Bekker, Knevel, Bakker, Thompson, Sonnenschein, Poschlod, van Groenendael, Klimeš, Klimešová, Klotz, Rusch, Hermy, Adriaens, Boedeltje, Bossuyt, Dannemann, Endels, Götzenberger, Hodgson, Jackel, Kühn, Kunzmann, Ozinga, Römermann, Stadler, Schlegelmilch, Steendam, Tackenberg, Wilmann, Cornelissen, Eriksson, Garnier &amp; Peco (2008) The LEDA Traitbase: a database of life-history traits of the Northwest European flora. Journal of Ecology 96, 1266–1274.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [gift:10255] Royal Botanic Gardens Kew (2016) Seed information database (SID). Available at: http://data.kew.org/sid/, last accessed  22/03/2013.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ────────────────────────────────────────────────────────────</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

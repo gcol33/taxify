@@ -24,7 +24,7 @@ up accepted_name."><meta property="og:image" content="https://gillescolling.com/
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,7 @@ up accepted_name."><meta property="og:image" content="https://gillescolling.com/
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -107,34 +108,34 @@ names. See <code><a href="enrichment_cols.html">enrichment_cols</a></code>.</p><
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns. The default set:</p><dl><dt>ft_common_name</dt>
+    <p>The same data.frame with additional columns. The default set:</p><dl><dt>fishtraits_ft_common_name</dt>
 <dd><p>Common name.</p></dd>
 
-<dt>ft_native</dt>
+<dt>fishtraits_ft_native</dt>
 <dd><p>Whether native to the contiguous United States.</p></dd>
 
-<dt>ft_max_length_cm</dt>
+<dt>fishtraits_ft_max_length_cm</dt>
 <dd><p>Maximum total length (cm).</p></dd>
 
-<dt>ft_longevity_yr</dt>
+<dt>fishtraits_ft_longevity_yr</dt>
 <dd><p>Maximum reported age (years).</p></dd>
 
-<dt>ft_maturity_age_yr</dt>
+<dt>fishtraits_ft_maturity_age_yr</dt>
 <dd><p>Age at maturity (years).</p></dd>
 
-<dt>ft_fecundity_max</dt>
+<dt>fishtraits_ft_fecundity_max</dt>
 <dd><p>Maximum fecundity.</p></dd>
 
-<dt>ft_repro_guild</dt>
+<dt>fishtraits_ft_repro_guild</dt>
 <dd><p>Reproductive guild.</p></dd>
 
-<dt>ft_min_temp_c</dt>
+<dt>fishtraits_ft_min_temp_c</dt>
 <dd><p>Lower temperature tolerance (deg C).</p></dd>
 
-<dt>ft_max_temp_c</dt>
+<dt>fishtraits_ft_max_temp_c</dt>
 <dd><p>Upper temperature tolerance (deg C).</p></dd>
 
-<dt>ft_extinct</dt>
+<dt>fishtraits_ft_extinct</dt>
 <dd><p>Whether recorded as extinct.</p></dd>
 
 
@@ -155,12 +156,13 @@ life-history traits of freshwater fishes of the United States. Fisheries
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="co"># Downloads the enrichment on first use.</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Micropterus salmoides"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_fishtraits</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Downloads the enrichment on first use.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Micropterus salmoides"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_fishtraits</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

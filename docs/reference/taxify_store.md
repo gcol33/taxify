@@ -1,12 +1,14 @@
 # Builds of a taxify asset held on disk
 
-taxify keeps every build it has downloaded of an enrichment: the active
-one under `latest/`, and each build it replaced in a directory named for
-that build's content id (the md5 of its `.vtr`, the same string
+Lists each backbone and enrichment build in the data directory: the
+active one under `latest/`, and any other build in a directory named for
+its content id (the md5 of its `.vtr`, the same string
 [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
-records). Backbones are listed the same way, though by default only the
-active build of a backbone is kept (see `taxify.keep_backbone_versions`)
-below.
+records). By default a refresh replaces a build in place, so an asset
+has one build; the others come from restoring a pinned build or from the
+`taxify.keep_*_versions` options below.
+[`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md)
+removes them.
 
 ## Usage
 
@@ -31,14 +33,13 @@ A data.frame with one row per build on disk, columns: `component`,
 ## Details
 
 Use this to see which pinned builds a lockfile could be restored to
-without a download.
+without a download, and how much disk each asset takes.
 
 ## Options
 
-`taxify.keep_enrichment_versions` (default `TRUE`) keeps the build an
-enrichment refresh replaces; `taxify.keep_backbone_versions` (default
-`FALSE`) does the same for backbones, off because a superseded backbone
-is gigabytes. Restoring a pinned build archives the build it replaces
+`taxify.keep_enrichment_versions` and `taxify.keep_backbone_versions`
+(both default `FALSE`) keep the build a refresh replaces, under its
+content id. Restoring a pinned build archives the build it replaces
 either way.
 
 ## See also
@@ -47,8 +48,24 @@ either way.
 to record a build,
 [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
 to check or reinstall one,
-[`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
-to fetch one by content id.
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
+to fetch one by content id,
+[`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md)
+to remove builds.
+
+Other Backbone data and cache:
+[`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md),
+[`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md),
+[`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md),
+[`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md),
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md),
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md),
+[`taxify_example_data()`](https://gillescolling.com/taxify/reference/taxify_example_data.md),
+[`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md),
+[`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md),
+[`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md),
+[`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md),
+[`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
 
 ## Examples
 
@@ -56,5 +73,19 @@ to fetch one by content id.
 # Runs offline against the bundled example database.
 old <- options(taxify.data_dir = taxify_example_data())
 head(taxify_store())
+#>          component     type   slot active version
+#> 1 backend_coverage backbone latest   TRUE 2026.07
+#> 2              col backbone latest   TRUE example
+#> 3              evc backbone latest   TRUE example
+#> 4         fishbase backbone latest   TRUE example
+#> 5             gbif backbone latest   TRUE example
+#> 6   genus_register backbone latest   TRUE 2026.07
+#>                         content_id pinned size_mb downloaded_at
+#> 1 c9be15f2051c6bb97a6df86662a1e1b0  FALSE     0.0    2026-07-22
+#> 2                             <NA>  FALSE     0.0          <NA>
+#> 3                             <NA>  FALSE     0.2          <NA>
+#> 4                             <NA>  FALSE     0.0          <NA>
+#> 5                             <NA>  FALSE     0.0          <NA>
+#> 6 a80a3d2999770a4e73191aa8be7faa85  FALSE     0.0    2026-07-22
 options(old)
 ```

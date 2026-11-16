@@ -33,23 +33,23 @@ add_betsi_collembola_body_length(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- betsi_body_length_mm:
+- betsi_collembola_body_length_betsi_body_length_mm:
 
   Body length (mm), median of the per-source measurements.
 
-- betsi_body_length_min_mm:
+- betsi_collembola_body_length_betsi_body_length_min_mm:
 
   Smallest measurement (mm).
 
-- betsi_body_length_max_mm:
+- betsi_collembola_body_length_betsi_body_length_max_mm:
 
   Largest measurement (mm).
 
-- betsi_body_length_n:
+- betsi_collembola_body_length_betsi_body_length_n:
 
   Number of measurements aggregated.
 
-- betsi_body_length_sources:
+- betsi_collembola_body_length_betsi_body_length_sources:
 
   Number of distinct literature sources.
 

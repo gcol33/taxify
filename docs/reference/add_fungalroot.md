@@ -11,7 +11,7 @@ than `accepted_name`.
 ## Usage
 
 ``` r
-add_fungalroot(x, verbose = TRUE)
+add_fungalroot(x, verbose = TRUE, cols = NULL)
 ```
 
 ## Arguments
@@ -25,23 +25,30 @@ add_fungalroot(x, verbose = TRUE)
 
   Logical. Default `TRUE`.
 
+- cols:
+
+  Which columns to attach. `NULL` (the default) attaches the curated
+  set; a character vector of column names attaches just those, and
+  `"all"` attaches every column the source carries (see
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)).
+
 ## Value
 
 The same data.frame with three additional columns:
 
-- mycorrhizal_type:
+- fungalroot_mycorrhizal_type:
 
   Genus-level majority-consensus type, one of `AM` (arbuscular), `EcM`
   (ecto), `ErM` (ericoid), `OM` (orchid), `NM` (non-mycorrhizal), the
   dual types `EcM-AM` / `ErM-EcM` / `ErM-AM`, `Other`, or `uncertain`.
   `NA` if the genus is not in FungalRoot.
 
-- mycorrhizal_status:
+- fungalroot_mycorrhizal_status:
 
   Coarse status derived from the type: `"mycorrhizal"`,
   `"non-mycorrhizal"`, or `"uncertain"`.
 
-- mycorrhizal_records:
+- fungalroot_mycorrhizal_records:
 
   Number of FungalRoot observations supporting the genus-level
   consensus.

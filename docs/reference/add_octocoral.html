@@ -24,7 +24,7 @@ records reduced to one value per species."><meta property="og:image" content="ht
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,7 @@ records reduced to one value per species."><meta property="og:image" content="ht
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -106,10 +107,10 @@ records reduced to one value per species.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The same data.frame with <code>octocoral_</code> columns: numeric
-<code>colony_height</code>, <code>colony_width</code>, <code>tentacles_per_polyp</code>; categorical
-<code>growth_form</code>, <code>type_of_growth</code>, <code>type_of_skeleton</code>, <code>polyp_retractability</code>,
-<code>polyp_dimorphism</code>, <code>zooxanthellate</code>, <code>axis_presence</code>, <code>feeding_mechanism</code>,
-<code>coloniality</code>, <code>skeletal_rigidity</code>, <code>calcareous_sclerites_presence</code>.</p>
+<code>octocoral_colony_height</code>, <code>octocoral_colony_width</code>, <code>octocoral_tentacles_per_polyp</code>; categorical
+<code>octocoral_growth_form</code>, <code>octocoral_type_of_growth</code>, <code>octocoral_type_of_skeleton</code>, <code>octocoral_polyp_retractability</code>,
+<code>octocoral_polyp_dimorphism</code>, <code>octocoral_zooxanthellate</code>, <code>octocoral_axis_presence</code>, <code>octocoral_feeding_mechanism</code>,
+<code>octocoral_coloniality</code>, <code>octocoral_skeletal_rigidity</code>, <code>octocoral_calcareous_sclerites_presence</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -122,11 +123,12 @@ records reduced to one value per species.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Gorgonia ventalina"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_octocoral</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Gorgonia ventalina"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_octocoral</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

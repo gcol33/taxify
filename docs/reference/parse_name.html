@@ -32,7 +32,7 @@ matcher uses drives the parse, so a name breaks apart the way it matches."><meta
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@ matcher uses drives the parse, so a name breaks apart the way it matches."><meta
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -199,22 +200,60 @@ or <code>NA</code>.</p></dd>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="taxify.html">taxify()</a></code> to match a name; <code>parse_name()</code> exposes the same internal
-cleaning pipeline the matcher runs.</p></div>
+cleaning pipeline the matcher runs.</p>
+<p>Other Match and inspect names:
+<code><a href="cite.html">cite()</a></code>,
+<code><a href="comm2sci.html">comm2sci()</a></code>,
+<code><a href="id2name.html">id2name()</a></code>,
+<code><a href="inspect.html">inspect()</a></code>,
+<code><a href="reconcile.html">reconcile()</a></code>,
+<code><a href="sci2comm.html">sci2comm()</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">parse_name</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur L."</span>,</span>
-<span>             <span class="st">"Poa annua var. annua"</span>,</span>
-<span>             <span class="st">"Q. robur"</span>,</span>
-<span>             <span class="st">"Pinus cf. sylvestris"</span>,</span>
-<span>             <span class="st">"Salix alba x Salix fragilis"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">parse_name</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967"</span>,</span>
-<span>             <span class="st">"TDA - Arrhenatherion elatioris"</span>,</span>
-<span>             <span class="st">"Conioselinion tatarici Golub et al. 2003 nom. inval. (5a)"</span><span class="op">)</span>,</span>
-<span>           code <span class="op">=</span> <span class="st">"syntaxon"</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">parse_name</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur L."</span>,</span></span>
+<span class="r-in"><span>             <span class="st">"Poa annua var. annua"</span>,</span></span>
+<span class="r-in"><span>             <span class="st">"Q. robur"</span>,</span></span>
+<span class="r-in"><span>             <span class="st">"Pinus cf. sylvestris"</span>,</span></span>
+<span class="r-in"><span>             <span class="st">"Salix alba x Salix fragilis"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    input_name   genus specific_epithet infrasp_rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1            Quercus robur L. Quercus            robur         &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        Poa annua var. annua     Poa            annua         var.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                    Q. robur      Q.            robur         &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        Pinus cf. sylvestris   Pinus       sylvestris         &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Salix alba x Salix fragilis    &lt;NA&gt;             &lt;NA&gt;         &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   infrasp_epithet authorship qualifier is_hybrid hybrid_type           rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1            &lt;NA&gt;         L.      &lt;NA&gt;     FALSE        &lt;NA&gt;        species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2           annua       &lt;NA&gt;      &lt;NA&gt;     FALSE        &lt;NA&gt;   infraspecies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3            &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;     FALSE        &lt;NA&gt;        species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4            &lt;NA&gt;       &lt;NA&gt;       cf.     FALSE        &lt;NA&gt;        species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5            &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;      TRUE     formula hybrid_formula</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              canonical</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        Quercus robur</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Poa annua var. annua</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3             Q. robur</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     Pinus sylvestris</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 &lt;NA&gt;</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">parse_name</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967"</span>,</span></span>
+<span class="r-in"><span>             <span class="st">"TDA - Arrhenatherion elatioris"</span>,</span></span>
+<span class="r-in"><span>             <span class="st">"Conioselinion tatarici Golub et al. 2003 nom. inval. (5a)"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           code <span class="op">=</span> <span class="st">"syntaxon"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                  input_name code</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967 &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                            TDA - Arrhenatherion elatioris  TDA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Conioselinion tatarici Golub et al. 2003 nom. inval. (5a) &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       name                         authorship        rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967 suballiance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Arrhenatherion elatioris                               &lt;NA&gt;    alliance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   Conioselinion tatarici                  Golub et al. 2003    alliance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier      name_status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      &lt;NA&gt; nom. inval. (5a)</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

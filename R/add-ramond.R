@@ -40,27 +40,23 @@
 #'
 #' @export
 add_ramond <- function(x, cols = NULL, verbose = TRUE) {
-  cat_cols <- c(
-    ramond_shape      = "shape",
-    ramond_motility   = "motility",
-    ramond_ingestion  = "ingestion",
+  enrich_door(x, .door_ramond, cols = cols, verbose = verbose)
+}
+
+
+.door_ramond <- list(
+  enrichment_name = "ramond",
+  col_map = c(
+    ramond_shape = "shape",
+    ramond_motility = "motility",
+    ramond_ingestion = "ingestion",
     ramond_symbiontic = "symbiontic",
-    ramond_colony     = "colony",
-    ramond_salinity   = "salinity"
-  )
-  num_cols <- c(
+    ramond_colony = "colony",
+    ramond_salinity = "salinity",
     ramond_chloroplast = "chloroplast",
     ramond_size_min_um = "size_min_um",
     ramond_size_max_um = "size_max_um"
-  )
-  col_map  <- c(cat_cols, num_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "ramond",
-    col_map         = col_map,
-    source_label    = "Ramond marine protist traits",
-    join_col        = "genus",
-    cols            = cols,
-    verbose         = verbose
-  )
-}
+  ),
+  source_label = "Ramond marine protist traits",
+  join_col = "genus"
+)

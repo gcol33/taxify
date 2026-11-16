@@ -52,33 +52,32 @@
 #'
 #' @export
 add_elton_traits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    diet_inv           = "diet_inv",
-    diet_vend          = "diet_vend",
-    diet_vect          = "diet_vect",
-    diet_vfish         = "diet_vfish",
-    diet_vunk          = "diet_vunk",
-    diet_scav          = "diet_scav",
-    diet_fruit         = "diet_fruit",
-    diet_nect          = "diet_nect",
-    diet_seed          = "diet_seed",
-    diet_plantother    = "diet_plantother",
-    foraging_water     = "foraging_water",
-    foraging_ground    = "foraging_ground",
-    foraging_understory = "foraging_understory",
-    foraging_midhigh   = "foraging_midhigh",
-    foraging_canopy    = "foraging_canopy",
-    foraging_aerial    = "foraging_aerial",
-    elton_body_mass_g  = "body_mass_g",
-    nocturnal          = "nocturnal",
-    diet_guild         = "diet_guild"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "elton_traits",
-    col_map         = col_map,
-    source_label    = "EltonTraits 1.0",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_elton_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_elton_traits <- list(
+  enrichment_name = "elton_traits",
+  col_map = c(
+    diet_inv = "diet_inv",
+    diet_vend = "diet_vend",
+    diet_vect = "diet_vect",
+    diet_vfish = "diet_vfish",
+    diet_vunk = "diet_vunk",
+    diet_scav = "diet_scav",
+    diet_fruit = "diet_fruit",
+    diet_nect = "diet_nect",
+    diet_seed = "diet_seed",
+    diet_plantother = "diet_plantother",
+    foraging_water = "foraging_water",
+    foraging_ground = "foraging_ground",
+    foraging_understory = "foraging_understory",
+    foraging_midhigh = "foraging_midhigh",
+    foraging_canopy = "foraging_canopy",
+    foraging_aerial = "foraging_aerial",
+    elton_body_mass_g = "body_mass_g",
+    nocturnal = "nocturnal",
+    diet_guild = "diet_guild"
+  ),
+  source_label = "EltonTraits 1.0"
+)

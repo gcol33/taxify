@@ -3,31 +3,34 @@
 *species names matched to their accepted names, offline*
 
 taxify matches taxonomic names, such as a field survey’s species list or
-the species column of a trait table, to the name each taxon currently
-carries, its accepted name.
+the species column of a trait table, to their currently accepted names.
 
-The package performs the name-resolution step of
+There are already R packages for name matching, such as
 [taxize](https://docs.ropensci.org/taxize/) and
-[WorldFlora](https://cran.r-project.org/package=WorldFlora), run offline
-against local backbone files. A backbone is a published taxonomic
-database, such as the Catalogue of Life or World Flora Online,
-downloaded once and stored on your disk. Each name comes back with its
-accepted name, how it was matched, and the backbone version that matched
-it, so you can review the uncertain matches and decide which to keep.
-taxify supports:
+[WorldFlora](https://cran.r-project.org/package=WorldFlora). taxify
+works offline, against backbone files on your disk, and searches 19
+backbones in one call. A backbone is a published taxonomic database,
+such as the Catalogue of Life or World Flora Online, downloaded once.
+For each name, taxify reports the accepted name, how the name was
+matched and which backbone version matched it, so you can review the
+uncertain matches and decide which to keep. taxify supports:
 
 - **Backbones for every group.** taxify reads 19 taxon backbones: global
-  checklists (Catalogue of Life, GBIF, ITIS, NCBI, Open Tree of Life)
-  and the authorities of single groups (World Flora Online, WoRMS,
-  Species Fungorum, AlgaeBase, FishBase, the Mammal Diversity Database,
-  AviList and others), all returning the same columns. Several backbones
-  form a fallback chain, so a name one backbone lacks is matched by the
-  next.
+  checklists (the Catalogue of Life, the GBIF Backbone Taxonomy of the
+  Global Biodiversity Information Facility, the Integrated Taxonomic
+  Information System (ITIS), the NCBI Taxonomy of the US National Center
+  for Biotechnology Information and the Open Tree of Life) and the
+  authorities of single groups (World Flora Online, the World Register
+  of Marine Species (WoRMS), Species Fungorum, AlgaeBase, FishBase, the
+  Mammal Diversity Database, AviList and others), all returning the same
+  columns. Several backbones form a fallback chain, so a name one
+  backbone lacks is matched by the next.
 
 - **Published data on the accepted name.** Trait, status and
-  distribution datasets, 109 of them, from the IUCN Red List to seed
-  mass and fish morphology, are joined by the accepted name, so a
-  dataset that writes a synonym still lines up.
+  distribution datasets, 109 of them, from the Red List of the
+  International Union for Conservation of Nature (IUCN) to seed mass and
+  fish morphology, are joined by the accepted name, so a dataset that
+  writes a synonym still lines up.
   [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.html)
   gathers one trait from every dataset that carries it.
 
@@ -43,14 +46,15 @@ taxify supports:
 
 The accepted name is the backbone’s own, and where backbones disagree,
 `mode = "wide"` shows each one’s answer side by side. Every row records
-the backbone and its version,
-[`cite()`](https://gillescolling.com/taxify/reference/cite.md) prints
-the references of every backbone and dataset a result used, and
+the backbone and its version. The references of every backbone and
+dataset a result used are printed by
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md), and the
+versions are saved by
 [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
-saves the versions so the analysis can be rerun on the same data. A
-script in the repository matches 300 World Flora Online names in taxify
-and in WorldFlora; 277 get the same accepted name, and [Compatibility
-with taxize and
+so the analysis can be rerun on the same data. A script in the
+repository matches 300 World Flora Online names in taxify and in
+WorldFlora; 277 get the same accepted name, and [Compatibility with
+taxize and
 WorldFlora](https://gillescolling.com/taxify/articles/migration.html)
 shows where and why the others differ.
 
@@ -65,11 +69,11 @@ install.packages("taxify")
 pak::pak("gcol33/taxify")
 ```
 
-The first call to
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+[`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
 downloads the Catalogue of Life (COL), the GBIF Backbone Taxonomy and
-the Integrated Taxonomic Information System (ITIS), about 4 GB in all.
-Later calls read them from disk.
+ITIS, about 1.1 GB in all. Matching then reads them from disk, and
+[`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md)
+removes them again.
 
 ## Usage
 
@@ -81,8 +85,9 @@ Later calls read them from disk.
 
 3.  Join data on the accepted name with
     [`add_data()`](https://gillescolling.com/taxify/reference/add_data.md)
-    for your own table, or with an `add_<source>()` function for a
-    published dataset.
+    for your own table, or with a published dataset’s own function, such
+    as
+    [`add_iucn()`](https://gillescolling.com/taxify/reference/add_iucn.md).
 
 ``` r
 
@@ -120,16 +125,18 @@ an input whose spelling belongs to more than one accepted taxon; the
 The input is a character vector of names. Authors, qualifiers such as
 `cf.` and `agg.`, capitals and an abbreviated genus are handled before
 matching. Without `backbone`, every installed backbone is tried in a
-fixed priority order, starting with the Catalogue of Life;
-`backbone = c("wfo", "col")` names the chain.
+fixed priority order, starting with the Catalogue of Life. A vector such
+as `backbone = c("wfo", "col")` names the chain.
 
 ``` r
 
 inspect(res)
+#>   Range outlier check skipped: WCVP not installed.
 #> ── taxify inspection ──────────────────────────────────────────
 #>   4 names inspected  |  3 with anomalies
 #>   backbones: col, gbif, itis
 #>   review: 2   note: 1
+#>   not checked: out_of_range (WCVP range data not installed)
 #>   ────────────────────────────────────────────────────────────
 #>   [review] Pinus abies        ->  Picea abies          ambiguous (targets: 4HPZF|8K9Y|6BRMR|4HQ4F); outdated synonym
 #>   [review] Quercus robus      ->  Quercus robur        likely misspelling
@@ -190,7 +197,7 @@ The backbone files also answer lookups by synonym, rank and lineage:
 ``` r
 
 synonyms("Picea abies")                     # every synonym of a name
-children("Quercus")                         # the species of a genus
+downstream("Quercus")                         # the species of a genus
 upstream("Quercus robur", to = "family")    # the family of a name
 sci2comm("Quercus robur")                   # common names
 parse_name("Quercus robur (L.) H.Karst.")   # genus, epithet, author
@@ -218,7 +225,6 @@ path from a messy list to accepted names with traits attached.
 - [Choosing and combining
   backbones](https://gillescolling.com/taxify/articles/backbones.html):
   which backbone for which group, fallback chains, versions.
-
 - [Checking a name
   list](https://gillescolling.com/taxify/articles/inspecting-names.html):
   every label of
@@ -226,47 +232,37 @@ path from a messy list to accepted names with traits attached.
   and
   [`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
   for a checklist.
-
 - [Matching within a
   region](https://gillescolling.com/taxify/articles/regions.html):
   preferring the species that occur where the list was made.
-
 - [Attaching published
   data](https://gillescolling.com/taxify/articles/enrichments.html) and
   [Joining your own
   data](https://gillescolling.com/taxify/articles/custom-data.html): the
   two kinds of join.
-
 - [Exploring the
   backbone](https://gillescolling.com/taxify/articles/exploring.html):
   synonyms, children, classification and common names.
-
 - [Requesting GBIF data for a species
   list](https://gillescolling.com/taxify/articles/gbif-requests.html):
   from matched names to an occurrence download.
-
 - [Matching vegetation
   units](https://gillescolling.com/taxify/articles/vegetation-units.html):
   alliances and associations against the EuroVegChecklist.
-
 - [Matching large
   lists](https://gillescolling.com/taxify/articles/large-scale.html):
   timings, memory, and long lists run in parts.
-
 - [How names are
   matched](https://gillescolling.com/taxify/articles/fuzzy-matching.html)
   and [Hybrids and
   aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html):
   the matching rules in detail.
-
 - [Compatibility with taxize and
   WorldFlora](https://gillescolling.com/taxify/articles/migration.html):
   agreement with WorldFlora, function mapping and timings.
-
 - [The backbones and
   datasets](https://gillescolling.com/taxify/articles/databases.html):
   every backbone and dataset with its version, licence and reference.
-
 - [Full reference](https://gillescolling.com/taxify/reference/): every
   function, grouped by job.
 
@@ -296,13 +292,6 @@ say thanks. It helps with my coffee addiction.
 [![Buy Me A
 Coffee](https://img.shields.io/badge/-Buy%20me%20a%20coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/gcol33)
 
-## Acknowledgements
-
-The backbones and datasets are the work of the institutions and authors
-who compile and publish them;
-[`cite()`](https://gillescolling.com/taxify/reference/cite.md) lists the
-reference for each one a result used.
-
 ## License
 
 taxify is licensed under MIT. Each backbone and dataset keeps the
@@ -319,7 +308,7 @@ references.
 Colling G (2026). _taxify: Offline Taxonomic Name Matching Against
 Darwin Core Backbones_. doi:10.32614/CRAN.package.taxify
 <https://doi.org/10.32614/CRAN.package.taxify>. R package version
-0.7.0, <https://gillescolling.com/taxify/>.
+0.7.1, <https://gillescolling.com/taxify/>.
 ```
 
 BibTeX:
@@ -329,7 +318,7 @@ BibTeX:
   title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
   author = {Gilles Colling},
   year = {2026},
-  note = {R package version 0.7.0},
+  note = {R package version 0.7.1},
   doi = {10.32614/CRAN.package.taxify},
   url = {https://gillescolling.com/taxify/},
 }
@@ -387,8 +376,6 @@ a name, and a taxonomy tree, from the backbone files.
 
 - [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
   : List the synonyms of a name
-- [`children()`](https://gillescolling.com/taxify/reference/children.md)
-  : List the accepted taxa within a genus or family
 - [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
   : List all descendants of a taxon down to a target rank
 - [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
@@ -418,21 +405,15 @@ register.
 - [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
   : Install taxonomic backbones for offline matching
 - [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
-  : Download a pre-built taxify backbone
-- [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
-  : Download one or more enrichment .vtr files
+  : Download pre-built backbones or published datasets
 - [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
   : Get the taxify data directory
 - [`taxify_example_data()`](https://gillescolling.com/taxify/reference/taxify_example_data.md)
   : Path to the bundled example database
 - [`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md)
-  : Clear all cached backbones
+  : Clear cached backbone paths and matching data
 - [`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md)
   : Invalidate the session manifest cache
-- [`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
-  : Build the genus register from source
-- [`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md)
-  : Load the unified genus register into memory
 - [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
   : Show backbone coverage for a genus
 - [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
@@ -446,6 +427,8 @@ register.
   : Pin or release installed taxify assets
 - [`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
   : Builds of a taxify asset held on disk
+- [`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md)
+  : Remove downloaded taxify data
 
 ## Backbone-specific columns
 
@@ -565,8 +548,6 @@ your own table.
   : Add Italian plant traits from Pignatti (on demand, via TR8)
 - [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
   : Add plant traits from GIFT
-- [`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md)
-  : Browse the bundled GIFT trait columns
 
 ## Published data: fungi, algae, lichens, and microbes
 
@@ -753,14 +734,10 @@ Exported internals for power users and custom pipelines.
 
 - [`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md)
   : Build a backbone database from source
-- [`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md)
-  : Score match candidates by resolution priority
 - [`embed_accepted()`](https://gillescolling.com/taxify/reference/embed_accepted.md)
   : Embed accepted taxon info at build time (synonym self-join)
 - [`precompute_keys()`](https://gillescolling.com/taxify/reference/precompute_keys.md)
   : Precompute matching keys at build time
-- [`normalize_epithets()`](https://gillescolling.com/taxify/reference/normalize_epithets.md)
-  : Vectorized Latin orthographic normalization
 - [`is_aggregate_name()`](https://gillescolling.com/taxify/reference/is_aggregate_name.md)
   : Test whether a canonical name carries an aggregate marker
 - [`normalize_aggregate_name()`](https://gillescolling.com/taxify/reference/normalize_aggregate_name.md)
@@ -769,6 +746,12 @@ Exported internals for power users and custom pipelines.
   : Normalize a kingdom string to the coarse kingdom-group vocabulary
 - [`backbone_fixed_kingdom()`](https://gillescolling.com/taxify/reference/backbone_fixed_kingdom.md)
   : The single kingdom a backbone's rows always belong to, or NA
+- [`candidate_order()`](https://gillescolling.com/taxify/reference/candidate_order.md)
+  : Order match candidates by resolution priority
+- [`basionym_placement()`](https://gillescolling.com/taxify/reference/basionym_placement.md)
+  : Find the placed basionym of each unplaced backbone record
+- [`enrichment_authorship_col()`](https://gillescolling.com/taxify/reference/enrichment_authorship_col.md)
+  : Authorship-like column in an enrichment .vtr schema, if any
 
 ## Package
 
@@ -782,20 +765,40 @@ Exported internals for power users and custom pipelines.
 
 - [Choosing and combining
   backbones](https://gillescolling.com/taxify/articles/backbones.md):
+
+  Choose and compare taxonomic backbones, manage downloaded files, and
+  prepare an offline installation.
+
+- [Recording and restoring data
+  versions](https://gillescolling.com/taxify/articles/reproducibility.md):
+
+  Record the data behind a result, compare installations, and control
+  updates with persistent pins.
+
 - [Checking a name
   list](https://gillescolling.com/taxify/articles/inspecting-names.md):
+
 - [Matching within a
   region](https://gillescolling.com/taxify/articles/regions.md):
+
 - [Attaching published
   data](https://gillescolling.com/taxify/articles/enrichments.md):
+
+  Join published datasets, choose sources for harmonized traits, and
+  inspect each value’s provenance.
+
 - [Joining your own
   data](https://gillescolling.com/taxify/articles/custom-data.md):
+
 - [Exploring the
   backbone](https://gillescolling.com/taxify/articles/exploring.md):
+
 - [Requesting GBIF data for a species
   list](https://gillescolling.com/taxify/articles/gbif-requests.md):
+
 - [Matching vegetation
   units](https://gillescolling.com/taxify/articles/vegetation-units.md):
+
 - [Matching large
   lists](https://gillescolling.com/taxify/articles/large-scale.md):
 

@@ -40,11 +40,12 @@ library(taxify)
 taxify matches names against backbones: published taxonomic databases
 such as the Catalogue of Life (COL), the GBIF Backbone Taxonomy and the
 Integrated Taxonomic Information System (ITIS), stored as files on your
-disk. The first call to
-[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
-downloads COL, GBIF and ITIS, about 4 GB, into
+disk.
+[`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+downloads COL, GBIF and ITIS, about 1.1 GB, into
 [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md).
-Later calls read these files and need no network.
+[`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) reads
+these files and needs no network.
 
 ## Matching a list of names
 
@@ -183,7 +184,7 @@ resolved and names the backbone version.
 summary(res)
 #> ── taxify results ────────────────────────────────────────────────────────────
 #>   backbone: COL v2026.09 + GBIF + ITIS  |  9 names submitted
-#> 
+#>
 #>   matched         9  (exact: 4, case-insensitive: 1, fuzzy: 3, abbrev: 1)
 #>   multiple ids    1  (more than one accepted ID; see taxify_ids())
 #>   ────────────────────────────────────────────────────────────
@@ -307,16 +308,16 @@ does, and each is downloaded on first use.
 traits <- kept |> add_zanne() |> add_eive()
 #> add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").
 #> add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").
-traits[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
-#>         accepted_name  woodiness eive_light eive_moisture
-#> 1       Quercus robur      woody   6.241077      4.802554
-#> 2       Quercus robur      woody   6.241077      4.802554
-#> 3      Betula pendula      woody   6.840881      4.445677
-#> 4     Fagus sylvatica      woody   3.003906      4.570789
-#> 5     Quercus petraea      woody   5.826045      4.200698
-#> 6         Picea abies      woody   4.362537      4.976672
-#> 7 Reynoutria japonica       <NA>   7.278168      6.042765
-#> 8       Festuca rubra herbaceous   7.137641      4.686280
+traits[, c("accepted_name", "zanne_woodiness", "eive_light", "eive_moisture")]
+#>         accepted_name zanne_woodiness eive_light eive_moisture
+#> 1       Quercus robur           woody   6.241077      4.802554
+#> 2       Quercus robur           woody   6.241077      4.802554
+#> 3      Betula pendula           woody   6.840881      4.445677
+#> 4     Fagus sylvatica           woody   3.003906      4.570789
+#> 5     Quercus petraea           woody   5.826045      4.200698
+#> 6         Picea abies           woody   4.362537      4.976672
+#> 7 Reynoutria japonica            <NA>   7.278168      6.042765
+#> 8       Festuca rubra      herbaceous   7.137641      4.686280
 #> Sources: COL 2026.09, Zanne et al. 2014 2026.08, EIVE 1.0 2026.08 | cite() for full citations
 ```
 
@@ -355,7 +356,7 @@ reads it on another machine and reinstalls those exact versions.
 
 cite(traits)
 #> ── taxify citations ────────────────────────────────────────────────────────────
-#>   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones (version 0.7.0). doi:10.32614/CRAN.package.taxify
+#>   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones (version 0.7.1). doi:10.32614/CRAN.package.taxify
 #>   [2] Banki O, Roskov Y, Doring M, Ower G, Hernandez Robles DR, Plata Corredor CA, Stjernegaard Jeppesen T, Orrell TM, Pugh D, Kostichka J, et al. (2024). Catalogue of Life Checklist. doi:10.48580/d4t2
 #>   [3] Zanne AE, Tank DC, Cornwell WK, Eastman JM, Smith SA, FitzJohn RG, McGlinn DJ, O'Meara BC, Moles AT, Reich PB, et al. (2014). Three keys to the radiation of angiosperms into freezing environments. Nature 506:89-92. doi:10.1038/nature12872
 #>   [4] Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al. (2023). Ecological Indicator Values for Europe (EIVE) 1.0. Vegetation Classification and Survey 4:7-29. doi:10.3897/VCS.98324
@@ -371,8 +372,8 @@ lock <- tempfile(fileext = ".json")
 taxify_lock(traits, lock)
 writeLines(readLines(lock))
 #> {
-#>   "taxify_version": "0.7.0",
-#>   "created": "2026-10-13",
+#>   "taxify_version": "0.7.1",
+#>   "created": "2026-11-16",
 #>   "r_version": "R version 4.6.0 (2026-04-24 ucrt)",
 #>   "backbones": [
 #>     {

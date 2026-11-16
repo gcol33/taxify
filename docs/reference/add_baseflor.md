@@ -34,56 +34,56 @@ add_baseflor(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- flower_begin_month:
+- baseflor_flower_begin_month:
 
   First month of flowering (1-12).
 
-- flower_end_month:
+- baseflor_flower_end_month:
 
   Last month of flowering (1-12). A value smaller than
   `flower_begin_month` denotes a flowering period that wraps across the
   new year (e.g. begin 10, end 6).
 
-- pollination_vector:
+- baseflor_pollination_vector:
 
   Pollination vector(s): insect, wind, water, self, apogamy.
   Comma-separated when more than one applies.
 
-- dispersal_mode:
+- baseflor_dispersal_mode:
 
   Diaspore dispersal mode(s): anemochory, barochory, epizoochory,
   endozoochory, myrmecochory, hydrochory, autochory, dyszoochory.
   Comma-separated when more than one applies.
 
-- breeding_system:
+- baseflor_breeding_system:
 
   Sexual system: hermaphroditic, monoecious, dioecious, gynodioecious,
   androdioecious, gynomonoecious, polygamous.
 
-- flower_colour:
+- baseflor_flower_colour:
 
   Flower colour(s): white, yellow, pink, green, blue, brown, black.
   Comma-separated when more than one applies.
 
-- fruit_type:
+- baseflor_fruit_type:
 
   Fruit type: achene, capsule, caryopsis, drupe, legume, silique, berry,
   follicle, cone, samara, pyxid.
 
-- woody_growth_form:
+- baseflor_woody_growth_form:
 
   Woody growth form for woody taxa: tree, small tree, large tree, shrub,
   bush, subshrub, liana, parasite. NA for non-woody (herbaceous) taxa.
 
-- continentality:
+- baseflor_continentality:
 
-  Ellenberg-style continentality indicator value (1-9), the axis absent
-  from EIVE.
+  Ellenberg-style baseflor_continentality indicator value (1-9), the
+  axis absent from EIVE.
 
-- salinity:
+- baseflor_salinity:
 
-  Ellenberg-style salinity indicator value (0-9), the axis absent from
-  EIVE.
+  Ellenberg-style baseflor_salinity indicator value (0-9), the axis
+  absent from EIVE.
 
 ## Details
 
@@ -111,6 +111,32 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Bellis perennis") |>
   add_baseflor()
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>        input_name    matched_name   accepted_name   taxon_id accepted_id
+#> 1 Bellis perennis Bellis perennis Bellis perennis wfo-ex-009  wfo-ex-009
+#>      rank     family  genus  epithet authorship accepted_authorship is_synonym
+#> 1 species Asteraceae Bellis perennis         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA      wfo
+#>           backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 wfo:example (2026-06-24)       plantae     unknown   unknown      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type baseflor_flower_begin_month
+#> 1               <NA>                 NA        <NA>  example_flower_begin_month
+#>   baseflor_flower_end_month baseflor_pollination_vector baseflor_dispersal_mode
+#> 1  example_flower_end_month  example_pollination_vector  example_dispersal_mode
+#>   baseflor_breeding_system baseflor_flower_colour baseflor_fruit_type
+#> 1  example_breeding_system  example_flower_colour  example_fruit_type
+#>   baseflor_woody_growth_form baseflor_continentality baseflor_salinity
+#> 1  example_woody_growth_form  example_continentality  example_salinity
+#> Sources: WFO example, Baseflor (Catminat / Julve) example | cite() for full citations
 
 options(old)
 ```

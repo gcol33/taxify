@@ -41,27 +41,26 @@
 #'
 #' @export
 add_coral_traits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    coral_symbiotic_state         = "symbiotic_state",
-    coral_growth_form             = "growth_form",
-    coral_coloniality             = "coloniality",
-    coral_substrate_attachment    = "substrate_attachment",
-    coral_sexual_system           = "sexual_system",
-    coral_larval_development_mode = "larval_development_mode",
-    coral_symbiont_clade          = "symbiont_clade",
-    coral_corallite_width_max_mm  = "corallite_width_max_mm",
-    coral_colony_max_diameter_cm  = "colony_max_diameter_cm",
-    coral_growth_rate_mm_yr       = "growth_rate_mm_yr",
-    coral_depth_lower_m           = "depth_lower_m",
-    coral_depth_upper_m           = "depth_upper_m",
-    coral_skeletal_density_g_cm3  = "skeletal_density_g_cm3"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "coral_traits",
-    col_map         = col_map,
-    source_label    = "Coral Trait Database",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_coral_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_coral_traits <- list(
+  enrichment_name = "coral_traits",
+  col_map = c(
+    coral_symbiotic_state = "symbiotic_state",
+    coral_growth_form = "growth_form",
+    coral_coloniality = "coloniality",
+    coral_substrate_attachment = "substrate_attachment",
+    coral_sexual_system = "sexual_system",
+    coral_larval_development_mode = "larval_development_mode",
+    coral_symbiont_clade = "symbiont_clade",
+    coral_corallite_width_max_mm = "corallite_width_max_mm",
+    coral_colony_max_diameter_cm = "colony_max_diameter_cm",
+    coral_growth_rate_mm_yr = "growth_rate_mm_yr",
+    coral_depth_lower_m = "depth_lower_m",
+    coral_depth_upper_m = "depth_upper_m",
+    coral_skeletal_density_g_cm3 = "skeletal_density_g_cm3"
+  ),
+  source_label = "Coral Trait Database"
+)

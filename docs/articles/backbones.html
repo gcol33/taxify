@@ -17,6 +17,9 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Choosing and combining backbones">
+<meta name="description" content="Choose and compare taxonomic backbones, manage downloaded files, and prepare an offline installation.">
+<meta property="og:description" content="Choose and compare taxonomic backbones, manage downloaded files, and prepare an offline installation.">
+<meta property="og:image" content="https://gillescolling.com/taxify/logo.svg">
 <script>
 (function () {
   var D = String.fromCharCode(36);
@@ -40,7 +43,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,12 +54,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -169,10 +173,10 @@ second, and so on. The order is fixed by priority. The Extended Release
 of the Catalogue of Life (COL XR) comes first, then the Catalogue of
 Life (COL), then the backbones of one group (marine species, plants,
 fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the
-broad compilations GBIF, ITIS, NCBI and OTT. On a new setup the first
-call installs COL, GBIF and the Integrated Taxonomic Information System
-(ITIS); every backbone downloaded later joins the chain at its place in
-that order.</p>
+broad compilations GBIF, ITIS, NCBI and OTT. On a new setup
+<code><a href="../reference/install_backbones.html">install_backbones()</a></code> installs COL, GBIF and the Integrated
+Taxonomic Information System (ITIS); every backbone downloaded later
+joins the chain at its place in that order.</p>
 <p>The list below mixes a plant, two animals renamed since their
 description, a fungus, a fish, a bacterium and a brown alga:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -192,7 +196,7 @@ description, a fungus, a fish, a bacterium and a brown alga:</p>
 <span><span class="co">#&gt; 6    Macropus rufus    Osphranter rufus    colxr</span></span>
 <span><span class="co">#&gt; 7 Fucus vesiculosus   Fucus vesiculosus    colxr</span></span>
 <span><span class="co">#&gt; 8   Parus caeruleus Cyanistes caeruleus    colxr</span></span>
-<span><span class="co">#&gt; Sources: COLXR 2026.08 | cite() for full citations</span></span></code></pre></div>
+<span><span class="co">#&gt; Sources: COLXR 2026.09 | cite() for full citations</span></span></code></pre></div>
 <p>All 19 backbones are installed on the machine that built this page,
 so the chain starts with COL XR. It resolves all eight names, and the
 other 18 backbones are skipped. The <code>backbone</code> column records
@@ -208,7 +212,8 @@ treatment. <a href="#comparing-backbones">Comparing backbones</a> shows
 how to see where they disagree.</p>
 <p><code>options(taxify.backbone_priority = )</code> changes the order
 for a session, and <code>options(taxify.default_backbones = )</code> the
-set installed on first use.</p>
+set <code><a href="../reference/install_backbones.html">install_backbones()</a></code> installs when called without
+arguments.</p>
 </div>
 <div class="section level2">
 <h2 id="naming-the-backbones">Naming the backbones<a class="anchor" aria-label="anchor" href="#naming-the-backbones"></a>
@@ -267,8 +272,8 @@ register’s entry for a genus, and
 it:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/lookup_genus.html">lookup_genus</a></span><span class="op">(</span><span class="st">"Fucus"</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"genus"</span>, <span class="st">"kingdom"</span>, <span class="st">"family"</span>, <span class="st">"life_form"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;        genus   kingdom   family  life_form</span></span>
-<span><span class="co">#&gt; 176828 Fucus Chromista Fucaceae brown alga</span></span>
+<span><span class="co">#&gt;     genus   kingdom   family  life_form</span></span>
+<span><span class="co">#&gt; 104 Fucus Chromista Fucaceae brown alga</span></span>
 <span><span class="fu"><a href="../reference/taxify_register_coverage.html">taxify_register_coverage</a></span><span class="op">(</span><span class="st">"Fucus"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   genus    backbone version date_added</span></span>
 <span><span class="co">#&gt; 1 Fucus       worms 2026.09 2026-09-14</span></span>
@@ -375,24 +380,35 @@ own way.</p></li>
 built, its synonyms are converted to <code>is_synonym</code>,
 <code>accepted_name</code> and <code>accepted_id</code>, and a synonym
 that points to another synonym is followed to the accepted name.</p>
-<p>The source, licence and citation of each backbone are listed in <a href="articles/databases.html">The backbones and datasets</a>.</p>
+<p>The source, licence and citation of each backbone are listed in <a href="https://gillescolling.com/taxify/articles/databases.html">The
+backbones and datasets</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="downloading-and-pinning-versions">Downloading and pinning versions<a class="anchor" aria-label="anchor" href="#downloading-and-pinning-versions"></a>
 </h2>
-<p>Each backbone is downloaded once, on first use, into
-<code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>, and read from disk after that.
-<code><a href="../reference/taxify_download.html">taxify_download()</a></code> fetches backbones ahead of time, for a
-server or a session without network access:</p>
+<p>Each backbone is downloaded once into <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>
+and read from disk after that. <code><a href="../reference/install_backbones.html">install_backbones()</a></code> and
+<code><a href="../reference/taxify_download.html">taxify_download()</a></code> fetch backbones ahead of time, for a
+server or a session without network access. A function that needs a
+backbone that is not on disk asks before downloading it in an
+interactive session; in a script it stops with an error naming the
+<code><a href="../reference/install_backbones.html">install_backbones()</a></code> call, unless
+<code>options(taxify.auto_download = TRUE)</code> or the environment
+variable <code>TAXIFY_AUTO_DOWNLOAD</code> allows the download:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wfo"</span>, <span class="st">"worms"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The download goes into a <code>latest</code> folder that is replaced
 when a newer version is released. taxify compares the local versions
 with the published ones once per session, at the first call, and updates
 <code>latest</code> then; the version never changes during a session.
-Without network access, or with
+The replaced version is deleted. Without network access, or with
 <code>options(taxify.offline = TRUE)</code> or the environment variable
 <code>TAXIFY_OFFLINE</code> set, it uses the files on disk.</p>
+<p><code><a href="../reference/taxify_store.html">taxify_store()</a></code> lists the builds on disk with their
+sizes. <code><a href="../reference/taxify_clean.html">taxify_clean()</a></code> removes builds taxify no longer reads
+and files left by an interrupted download;
+<code>taxify_clean("gbif")</code> removes one backbone, and
+<code>taxify_clean("all")</code> the whole data directory.</p>
 <p>A version string downloads into a folder of its own that is never
 replaced:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
@@ -401,13 +417,66 @@ replaced:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">backbone_version</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "wfo:2026.06 (2026-09-15)"       "col:2026.09 (2026-09-14)"      </span></span>
-<span><span class="co">#&gt; [3] "algaebase:2026.09 (2026-09-14)"</span></span></code></pre></div>
-<p><code><a href="../reference/taxify_lock.html">taxify_lock()</a></code> writes these versions with a checksum of
-each file to a JSON file, and
-<code>taxify_restore(install = TRUE)</code> reinstalls the same builds
-on another machine, as shown in <a href="taxify.html#recording-what-was-used">Get started</a>.
-<code><a href="../reference/taxify_build.html">taxify_build()</a></code> builds a backbone from its source files
-instead of downloading it, which needs the taxifydb package.</p>
+<span><span class="co">#&gt; [3] "algaebase:2026.09 (2026-11-08)"</span></span></code></pre></div>
+<p><code><a href="../reference/taxify_lock.html">taxify_lock()</a></code> writes a build record to a JSON file. <a href="reproducibility.html">Recording and restoring data versions</a>
+shows how to check that record, restore available builds and pin the
+active installation. <code><a href="../reference/taxify_build.html">taxify_build()</a></code> builds a backbone from
+its source files, which needs the taxifydb package.</p>
+</div>
+<div class="section level2">
+<h2 id="managing-data-on-disk">Managing data on disk<a class="anchor" aria-label="anchor" href="#managing-data-on-disk"></a>
+</h2>
+<p>An installation can accumulate archived builds and files left by
+interrupted downloads. <code><a href="../reference/taxify_store.html">taxify_store()</a></code> lists the builds
+present, and <code>taxify_clean(dry_run = TRUE)</code> returns a removal
+plan. Start by checking the data directory: the
+<code>taxify.data_dir</code> R option takes precedence over the
+<code>TAXIFY_DATA_DIR</code> environment variable, followed by the
+platform’s per-user data directory.</p>
+<p>The example copies the miniature WFO backbone into a temporary
+directory. Cleanup below operates on this copy.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">demo_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"taxify-disk-"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">demo_dir</span><span class="op">)</span></span>
+<span><span class="va">example_wfo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="../reference/taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="va">example_wfo</span>, <span class="va">demo_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">old_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="va">demo_dir</span><span class="op">)</span></span></code></pre></div>
+<p>The store reports one row per build, including whether it is active
+and its size in MiB (shown in the <code>size_mb</code> column):</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">stored</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify_store.html">taxify_store</a></span><span class="op">(</span><span class="st">"wfo"</span><span class="op">)</span></span>
+<span><span class="va">stored</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"component"</span>, <span class="st">"slot"</span>, <span class="st">"active"</span>, <span class="st">"size_mb"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;   component   slot active size_mb</span></span>
+<span><span class="co">#&gt; 1       wfo latest   TRUE       0</span></span></code></pre></div>
+<p>With no asset names, cleanup selects superseded builds and
+interrupted downloads. Naming an asset selects every stored build of
+that asset, including its active build. Assign the invisible return
+value to inspect the planned removals:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify_clean.html">taxify_clean</a></span><span class="op">(</span><span class="st">"wfo"</span>, dry_run <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">plan</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"component"</span>, <span class="st">"type"</span>, <span class="st">"reason"</span>, <span class="st">"size_mb"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;   component     type  reason size_mb</span></span>
+<span><span class="co">#&gt; 1       wfo backbone removed       0</span></span></code></pre></div>
+<p>After reviewing the plan, the same call with
+<code>dry_run = FALSE</code> removes the selected paths. The store then
+confirms that this temporary directory has no WFO build:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">removed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify_clean.html">taxify_clean</a></span><span class="op">(</span><span class="st">"wfo"</span>, dry_run <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/taxify_store.html">taxify_store</a></span><span class="op">(</span><span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old_dir</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">demo_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><code>unused_days</code> adds an age condition for outdated builds
+when <code>assets</code> is left <code>NULL</code>.
+<code>assets = "all"</code> selects the entire data directory.
+Explicitly selecting an asset can remove a pinned build, so keep the
+lockfile and check that its recorded build can be retrieved before
+removing it.</p>
+<p><code><a href="../reference/taxify_clear_cache.html">taxify_clear_cache()</a></code> clears session backbone paths and
+matching data while keeping downloaded builds on disk.
+<code><a href="../reference/taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code> clears the in-memory catalogue of
+published builds. With offline mode enabled, the next catalogue request
+reads local metadata.</p>
 </div>
 <div class="section level2">
 <h2 id="choosing-backbones-for-a-list">Choosing backbones for a list<a class="anchor" aria-label="anchor" href="#choosing-backbones-for-a-list"></a>
@@ -457,8 +526,9 @@ match stages, the fuzzy threshold and the genus register.</p></li>
 matches to species present in a region.</p></li>
 <li><p><a href="large-scale.html">Matching large lists</a>: timings and
 memory for lists of many names.</p></li>
-<li><p><a href="articles/databases.html">The backbones and datasets</a>:
-the source, size and licence of every backbone.</p></li>
+<li><p><a href="https://gillescolling.com/taxify/articles/databases.html">The
+backbones and datasets</a>: the source, size and licence of every
+backbone.</p></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

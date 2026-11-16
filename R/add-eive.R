@@ -37,18 +37,18 @@
 #'
 #' @export
 add_eive <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "eive",
-    col_map         = c(
-      eive_light       = "light",
-      eive_temperature = "temperature",
-      eive_moisture    = "moisture",
-      eive_reaction    = "reaction",
-      eive_nutrients   = "nutrients"
-    ),
-    source_label    = "EIVE 1.0",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_eive, cols = cols, verbose = verbose)
 }
+
+
+.door_eive <- list(
+  enrichment_name = "eive",
+  col_map = c(
+    eive_light = "light",
+    eive_temperature = "temperature",
+    eive_moisture = "moisture",
+    eive_reaction = "reaction",
+    eive_nutrients = "nutrients"
+  ),
+  source_label = "EIVE 1.0"
+)

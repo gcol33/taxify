@@ -5,10 +5,15 @@ data directory
 ([`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)),
 so subsequent
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) calls
-match against them offline. taxify installs its default set
-automatically on first use (COL, GBIF, ITIS); call this to pre-install a
-specific set, add a backbone to the default, or refresh to the latest
-release.
+match against them offline. Called without arguments it installs the
+default set (COL, GBIF, ITIS, about 1.1 GB); name backbones to install a
+different set, add a backbone, or refresh to the latest release. Calling
+it is the consent to download: other functions that reach a backbone not
+on disk ask first in an interactive session and stop with an error
+otherwise, unless `options(taxify.auto_download = TRUE)` (or the
+`TAXIFY_AUTO_DOWNLOAD` environment variable) allows the download.
+[`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md)
+removes backbones again.
 
 ## Usage
 

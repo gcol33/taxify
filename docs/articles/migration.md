@@ -11,8 +11,8 @@ and by spelling distance, against the World Flora Online (WFO) backbone,
 and reduces the candidates to one row per name. taxify uses taxize’s
 verbs, with the same names and tasks, and WorldFlora’s workflow of
 matching exactly, then by spelling distance, and keeping one row per
-name. It performs the name-resolution step of taxize and WorldFlora, run
-offline against local backbone files, for 19 backbones in one call.
+name. taxify does this matching offline, against backbone files on disk,
+and searches 19 backbones in one call.
 
 This article runs the same tasks in WorldFlora and taxify and measures
 where they agree, maps the functions of both packages to taxify’s, and
@@ -142,7 +142,7 @@ backbone](https://gillescolling.com/taxify/articles/exploring.md).
 | `classification()` | [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md), [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md) | One taxon as rows, or a result as columns |
 | `tax_name()` | [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) | `family`, `genus` and `rank` are columns |
 | [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md) | [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md) | Every synonym of the accepted taxon |
-| [`children()`](https://gillescolling.com/taxify/reference/children.md) | [`children()`](https://gillescolling.com/taxify/reference/children.md) | Accepted taxa of a genus or family |
+| `children()` | [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md) | Accepted taxa of a genus or family |
 | [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md) | [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md) | Accepted taxa at any rank below a taxon |
 | [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md) | [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md) | The ranks above a taxon |
 | [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md), [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md) | [`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md), [`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md) | From the vernacular names of GBIF, NCBI and the Open Tree of Life |

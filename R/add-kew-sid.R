@@ -39,22 +39,18 @@
 #'
 #' @export
 add_kew_sid <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c(
-    sid_thousand_seed_weight = "thousand_seed_weight",
-    sid_oil_content_pct      = "oil_content_pct",
-    sid_protein_content_pct  = "protein_content_pct"
-  )
-  cat_cols <- c(
-    sid_storage_behaviour = "storage_behaviour",
-    sid_lifeform          = "lifeform"
-  )
-  col_map <- c(num_cols, cat_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "kew_sid",
-    col_map         = col_map,
-    source_label    = "Kew Seed Information Database (SID)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_kew_sid, cols = cols, verbose = verbose)
 }
+
+
+.door_kew_sid <- list(
+  enrichment_name = "kew_sid",
+  col_map = c(
+    sid_thousand_seed_weight = "thousand_seed_weight",
+    sid_oil_content_pct = "oil_content_pct",
+    sid_protein_content_pct = "protein_content_pct",
+    sid_storage_behaviour = "storage_behaviour",
+    sid_lifeform = "lifeform"
+  ),
+  source_label = "Kew Seed Information Database (SID)"
+)

@@ -28,7 +28,7 @@ summarised in the message footer; browse it with list_traits()."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@ summarised in the message footer; browse it with list_traits()."><meta property=
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -108,7 +109,9 @@ backbones, enrichments, and registered traits.</p></dd>
 <code>name</code>, <code>scope</code> (taxonomic scope for backbones; provided trait columns for
 enrichments), <code>n_rows</code>, <code>version</code>, <code>source_date</code> (the date of the upstream
 data, where recorded, which can be much earlier than the release <code>version</code>
-that packaged it), <code>installed</code>, <code>source</code>.</p>
+that packaged it), <code>installed</code>, <code>source</code>. <code>installed</code> is logical for
+backbone rows and <code>NA</code> for enrichment rows. Use <code><a href="taxify_store.html">taxify_store()</a></code> to
+inspect locally installed enrichments.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -117,10 +120,26 @@ that packaged it), <code>installed</code>, <code>source</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="fu">taxify_databases</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>               taxify.offline <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">taxify_databases</span><span class="op">(</span>verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       type  name                       scope  n_rows version source_date</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 backbone   wfo             Vascular plants 1664014 2026.06  2026-06-21</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 backbone   col                All kingdoms 5432444 2026.09  2026-09-11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 backbone colxr                All kingdoms 8479599 2026.09  2026-09-25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 backbone  gbif                All kingdoms 6404001 2023.08  2023-08-28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 backbone  itis US focus, freshwater/marine 1000552 2026.09  2026-08-27</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 backbone  ncbi                    All life 2952424 2026.09     2026-09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   installed                                source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      TRUE     https://www.worldfloraonline.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      TRUE      https://www.catalogueoflife.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     FALSE      https://www.catalogueoflife.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      TRUE                 https://www.gbif.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     FALSE                  https://www.itis.gov</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     FALSE https://www.ncbi.nlm.nih.gov/taxonomy</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

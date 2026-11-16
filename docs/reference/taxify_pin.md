@@ -53,8 +53,8 @@ installed, or is installed as both a backbone and an enrichment and
 [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
 with `install = TRUE` pins every build matching a lockfile, and a build
 fetched with `taxify_download(content_id = )` or
-`taxify_download_enrichment(content_id = )` is pinned when it is
-activated.
+`taxify_download(kind = "enrichment", content_id = )` is pinned when it
+is activated.
 
 ## See also
 
@@ -66,9 +66,17 @@ to list the builds on disk and whether each is pinned.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-taxify_pin(c("wfo", "col"))
-taxify_pin("iucn", kind = "enrichment")
-taxify_pin(c("wfo", "col"), pin = FALSE)
-} # }
+demo <- tempfile("taxify-pin-")
+dir.create(demo)
+file.copy(file.path(taxify_example_data(), "wfo"), demo, recursive = TRUE)
+#> [1] TRUE
+old <- options(taxify.data_dir = demo, taxify.offline = TRUE)
+taxify_pin("wfo", verbose = FALSE)[, c("component", "pinned")]
+#>   component pinned
+#> 1       wfo   TRUE
+taxify_pin("wfo", pin = FALSE, verbose = FALSE)[, c("component", "pinned")]
+#>   component pinned
+#> 1       wfo  FALSE
+options(old)
+unlink(demo, recursive = TRUE)
 ```

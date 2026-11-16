@@ -40,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,12 +51,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -177,8 +178,8 @@ matching, and the names that find no exact match come back as
 <span>             <span class="st">"Pinus sylvestris"</span>, <span class="st">"Acer pseudoplatanus"</span>, <span class="st">"Qurecus petraea"</span><span class="op">)</span></span>
 <span><span class="va">exact</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">checked</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, fuzzy <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">exact</span><span class="op">$</span><span class="va">match_type</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; exact  none </span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; exact  none</span></span>
 <span><span class="co">#&gt;     5     1</span></span></code></pre></div>
 <p>For a list with some misspellings, the fuzzy stage can run on the
 unmatched names alone; its rows replace the <code>none</code> rows of
@@ -212,25 +213,25 @@ smaller backbone is faster to search. The sizes:</p>
 <span><span class="va">bb</span> <span class="op">&lt;-</span> <span class="va">bb</span><span class="op">[</span><span class="va">bb</span><span class="op">$</span><span class="va">code</span> <span class="op">==</span> <span class="st">"taxon"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span>, <span class="st">"n_names"</span>, <span class="st">"size_mb"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">bb</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">bb</span><span class="op">$</span><span class="va">n_names</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;           name n_names size_mb</span></span>
-<span><span class="co">#&gt; 18     avilist   40572       8</span></span>
-<span><span class="co">#&gt; 19        lpsn   44885      12</span></span>
-<span><span class="co">#&gt; 14   reptiledb   50043       9</span></span>
-<span><span class="co">#&gt; 17         mdd   61862      10</span></span>
-<span><span class="co">#&gt; 12    fishbase  102703      18</span></span>
-<span><span class="co">#&gt; 13 sealifebase  134031      27</span></span>
-<span><span class="co">#&gt; 9      euromed  146922      33</span></span>
-<span><span class="co">#&gt; 11   algaebase  172351      34</span></span>
-<span><span class="co">#&gt; 10    fungorum  315037      68</span></span>
-<span><span class="co">#&gt; 5         itis 1000552     197</span></span>
-<span><span class="co">#&gt; 15        lcvp 1337891     241</span></span>
-<span><span class="co">#&gt; 16        wcvp 1448984     326</span></span>
-<span><span class="co">#&gt; 8        worms 1565652     290</span></span>
-<span><span class="co">#&gt; 1          wfo 1664014     785</span></span>
-<span><span class="co">#&gt; 6         ncbi 2952424     524</span></span>
-<span><span class="co">#&gt; 7          ott 3690217     728</span></span>
-<span><span class="co">#&gt; 2          col 5432444    1997</span></span>
-<span><span class="co">#&gt; 4         gbif 6404001    1622</span></span>
-<span><span class="co">#&gt; 3        colxr 8479599    1393</span></span></code></pre></div>
+<span><span class="co">#&gt; 18     avilist   40572       2</span></span>
+<span><span class="co">#&gt; 19        lpsn   44885       3</span></span>
+<span><span class="co">#&gt; 14   reptiledb   50043       2</span></span>
+<span><span class="co">#&gt; 17         mdd   61862       3</span></span>
+<span><span class="co">#&gt; 12    fishbase  102703       5</span></span>
+<span><span class="co">#&gt; 13 sealifebase  134031       7</span></span>
+<span><span class="co">#&gt; 9      euromed  146922      11</span></span>
+<span><span class="co">#&gt; 11   algaebase  172351       9</span></span>
+<span><span class="co">#&gt; 10    fungorum  315037      18</span></span>
+<span><span class="co">#&gt; 5         itis 1000552      52</span></span>
+<span><span class="co">#&gt; 15        lcvp 1337891      60</span></span>
+<span><span class="co">#&gt; 16        wcvp 1448984      82</span></span>
+<span><span class="co">#&gt; 8        worms 1565652      80</span></span>
+<span><span class="co">#&gt; 1          wfo 1664014     120</span></span>
+<span><span class="co">#&gt; 6         ncbi 2952424     110</span></span>
+<span><span class="co">#&gt; 7          ott 3690217     166</span></span>
+<span><span class="co">#&gt; 2          col 5432444     573</span></span>
+<span><span class="co">#&gt; 4         gbif 6404001     461</span></span>
+<span><span class="co">#&gt; 3        colxr 8479599     399</span></span></code></pre></div>
 <p>The order also decides the accepted name of a name both backbones
 hold, as described in <a href="backbones.html">Choosing and combining
 backbones</a>.</p>
@@ -328,7 +329,7 @@ disk, and the next call loads them again.</p>
 that the matching step does not depend on the network:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"wfo"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"iucn"</span>, <span class="st">"zanne"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span>kind <span class="op">=</span> <span class="st">"enrichment"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"iucn"</span>, <span class="st">"zanne"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>TAXIFY_OFFLINE <span class="op">=</span> <span class="st">"1"</span><span class="op">)</span></span></code></pre></div>
 <p>With <code>TAXIFY_OFFLINE</code> set, or
 <code>options(taxify.offline = TRUE)</code>, taxify uses the files on

@@ -59,24 +59,23 @@
 #'
 #' @export
 add_baseflor <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    flower_begin_month = "flower_begin_month",
-    flower_end_month   = "flower_end_month",
-    pollination_vector = "pollination_vector",
-    dispersal_mode     = "dispersal_mode",
-    breeding_system    = "breeding_system",
-    flower_colour      = "flower_colour",
-    fruit_type         = "fruit_type",
-    woody_growth_form  = "woody_growth_form",
-    continentality     = "continentality",
-    salinity           = "salinity"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "baseflor",
-    col_map         = col_map,
-    source_label    = "Baseflor (Catminat / Julve)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_baseflor, cols = cols, verbose = verbose)
 }
+
+
+.door_baseflor <- list(
+  enrichment_name = "baseflor",
+  col_map = c(
+    flower_begin_month = "flower_begin_month",
+    flower_end_month = "flower_end_month",
+    pollination_vector = "pollination_vector",
+    dispersal_mode = "dispersal_mode",
+    breeding_system = "breeding_system",
+    flower_colour = "flower_colour",
+    fruit_type = "fruit_type",
+    woody_growth_form = "woody_growth_form",
+    continentality = "continentality",
+    salinity = "salinity"
+  ),
+  source_label = "Baseflor (Catminat / Julve)"
+)

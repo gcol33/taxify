@@ -51,18 +51,22 @@
 #'
 #' @export
 add_groot <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c(
-    "root_diameter", "specific_root_length", "root_tissue_density",
-    "root_n_concentration", "root_c_concentration", "root_mass_fraction",
-    "lateral_spread", "root_mycorrhizal_colonization", "rooting_depth"
-  )
-  col_map  <- stats::setNames(base_cols, base_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "groot",
-    col_map         = col_map,
-    source_label    = "GRooT",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_groot, cols = cols, verbose = verbose)
 }
+
+
+.door_groot <- list(
+  enrichment_name = "groot",
+  col_map = c(
+    root_diameter = "root_diameter",
+    specific_root_length = "specific_root_length",
+    root_tissue_density = "root_tissue_density",
+    root_n_concentration = "root_n_concentration",
+    root_c_concentration = "root_c_concentration",
+    root_mass_fraction = "root_mass_fraction",
+    lateral_spread = "lateral_spread",
+    root_mycorrhizal_colonization = "root_mycorrhizal_colonization",
+    rooting_depth = "rooting_depth"
+  ),
+  source_label = "GRooT"
+)

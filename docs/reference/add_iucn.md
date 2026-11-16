@@ -36,7 +36,7 @@ add_iucn(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with an additional column:
 
-- conservation_status:
+- iucn_conservation_status:
 
   IUCN category: `"LC"` (Least Concern), `"NT"` (Near Threatened),
   `"VU"` (Vulnerable), `"EN"` (Endangered), `"CR"` (Critically
@@ -57,6 +57,18 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Panthera tigris", backbone = "gbif") |>
   add_iucn()
+#> Matching 1 names...
+#>        input_name    matched_name   accepted_name    taxon_id accepted_id
+#> 1 Panthera tigris Panthera tigris Panthera tigris gbif-ex-007 gbif-ex-007
+#>      rank  family    genus epithet       authorship accepted_authorship
+#> 1 species Felidae Panthera  tigris (Linnaeus, 1758)    (Linnaeus, 1758)
+#>   is_synonym taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1      FALSE         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 gbif:example (2026-06-24)      animalia     unknown   unknown      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type    iucn_conservation_status
+#> 1               <NA>                 NA        <NA> example_conservation_status
+#> Sources: GBIF example, IUCN Red List example | cite() for full citations
 
 options(old)
 ```

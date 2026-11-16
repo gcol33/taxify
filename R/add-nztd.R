@@ -25,16 +25,22 @@
 #'
 #' @export
 add_nztd <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c("bioturbation", "body_size", "degree_of_attachment", "feeding_mode",
-            "living_habit", "mobility", "morphology", "movement_method",
-            "rigidity")
-  col_map <- stats::setNames(base_cols, paste0("nztd_", base_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "nztd",
-    col_map         = col_map,
-    source_label    = "NZTD",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_nztd, cols = cols, verbose = verbose)
 }
+
+
+.door_nztd <- list(
+  enrichment_name = "nztd",
+  col_map = c(
+    nztd_bioturbation = "bioturbation",
+    nztd_body_size = "body_size",
+    nztd_degree_of_attachment = "degree_of_attachment",
+    nztd_feeding_mode = "feeding_mode",
+    nztd_living_habit = "living_habit",
+    nztd_mobility = "mobility",
+    nztd_morphology = "morphology",
+    nztd_movement_method = "movement_method",
+    nztd_rigidity = "rigidity"
+  ),
+  source_label = "NZTD"
+)

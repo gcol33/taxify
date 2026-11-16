@@ -47,14 +47,22 @@
 #'
 #' @export
 add_plantatt <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("ellenberg_light", "ellenberg_moisture", "ellenberg_reaction",
-            "ellenberg_nitrogen", "ellenberg_salt", "max_height_cm",
-            "life_form", "woodiness", "native_status")
-  col_map <- stats::setNames(base, paste0("plantatt_", base))
-  enrich_simple(
-    x, enrichment_name = "plantatt", col_map = col_map,
-    source_label = "PLANTATT (Hill et al. 2004)",
-    cols = cols,
-    verbose = verbose
-  )
+  enrich_door(x, .door_plantatt, cols = cols, verbose = verbose)
 }
+
+
+.door_plantatt <- list(
+  enrichment_name = "plantatt",
+  col_map = c(
+    plantatt_ellenberg_light = "ellenberg_light",
+    plantatt_ellenberg_moisture = "ellenberg_moisture",
+    plantatt_ellenberg_reaction = "ellenberg_reaction",
+    plantatt_ellenberg_nitrogen = "ellenberg_nitrogen",
+    plantatt_ellenberg_salt = "ellenberg_salt",
+    plantatt_max_height_cm = "max_height_cm",
+    plantatt_life_form = "life_form",
+    plantatt_woodiness = "woodiness",
+    plantatt_native_status = "native_status"
+  ),
+  source_label = "PLANTATT (Hill et al. 2004)"
+)

@@ -32,16 +32,15 @@
 #'
 #' @export
 add_animaltraits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    animaltraits_body_mass_kg     = "body_mass_kg",
-    animaltraits_metabolic_rate_w = "metabolic_rate_w"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "animaltraits",
-    col_map         = col_map,
-    source_label    = "AnimalTraits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_animaltraits, cols = cols, verbose = verbose)
 }
+
+
+.door_animaltraits <- list(
+  enrichment_name = "animaltraits",
+  col_map = c(
+    animaltraits_body_mass_kg = "body_mass_kg",
+    animaltraits_metabolic_rate_w = "metabolic_rate_w"
+  ),
+  source_label = "AnimalTraits"
+)

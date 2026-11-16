@@ -38,22 +38,21 @@
 #'
 #' @export
 add_pantheria <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    pantheria_body_mass_g = "body_mass_g",
-    longevity_mo          = "longevity_mo",
-    litter_size           = "litter_size",
-    gestation_d           = "gestation_d",
-    weaning_d             = "weaning_d",
-    home_range_km2        = "home_range_km2",
-    diet_breadth          = "diet_breadth",
-    habitat_breadth       = "habitat_breadth"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "pantheria",
-    col_map         = col_map,
-    source_label    = "PanTHERIA",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_pantheria, cols = cols, verbose = verbose)
 }
+
+
+.door_pantheria <- list(
+  enrichment_name = "pantheria",
+  col_map = c(
+    pantheria_body_mass_g = "body_mass_g",
+    longevity_mo = "longevity_mo",
+    litter_size = "litter_size",
+    gestation_d = "gestation_d",
+    weaning_d = "weaning_d",
+    home_range_km2 = "home_range_km2",
+    diet_breadth = "diet_breadth",
+    habitat_breadth = "habitat_breadth"
+  ),
+  source_label = "PanTHERIA"
+)

@@ -34,27 +34,27 @@ add_freshwater_insects_conus(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns. The curated set:
 
-- fwinsect_thermal_pref:
+- freshwater_insects_conus_fwinsect_thermal_pref:
 
   Thermal preference class.
 
-- fwinsect_feed_prim:
+- freshwater_insects_conus_fwinsect_feed_prim:
 
   Primary functional feeding group code.
 
-- fwinsect_habit_prim:
+- freshwater_insects_conus_fwinsect_habit_prim:
 
   Primary habit (swimmer, clinger, burrower, ...).
 
-- fwinsect_rheophily:
+- freshwater_insects_conus_fwinsect_rheophily:
 
   Rheophily (current preference) code.
 
-- fwinsect_voltinism:
+- freshwater_insects_conus_fwinsect_voltinism:
 
   Voltinism (generations per year) code.
 
-- fwinsect_max_body_size:
+- freshwater_insects_conus_fwinsect_max_body_size:
 
   Maximum body size class.
 

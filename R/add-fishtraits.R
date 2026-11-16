@@ -43,13 +43,23 @@
 #'
 #' @export
 add_fishtraits <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("common_name", "native", "max_length_cm", "longevity_yr",
-            "maturity_age_yr", "fecundity_max", "repro_guild",
-            "min_temp_c", "max_temp_c", "extinct")
-  col_map <- stats::setNames(base, paste0("ft_", base))
-  enrich_simple(
-    x, enrichment_name = "fishtraits", col_map = col_map,
-    source_label = "FishTraits (Frimpong & Angermeier 2009)",
-    cols = cols, verbose = verbose
-  )
+  enrich_door(x, .door_fishtraits, cols = cols, verbose = verbose)
 }
+
+
+.door_fishtraits <- list(
+  enrichment_name = "fishtraits",
+  col_map = c(
+    ft_common_name = "common_name",
+    ft_native = "native",
+    ft_max_length_cm = "max_length_cm",
+    ft_longevity_yr = "longevity_yr",
+    ft_maturity_age_yr = "maturity_age_yr",
+    ft_fecundity_max = "fecundity_max",
+    ft_repro_guild = "repro_guild",
+    ft_min_temp_c = "min_temp_c",
+    ft_max_temp_c = "max_temp_c",
+    ft_extinct = "extinct"
+  ),
+  source_label = "FishTraits (Frimpong & Angermeier 2009)"
+)

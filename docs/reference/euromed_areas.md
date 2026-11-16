@@ -27,5 +27,11 @@ A data.frame with `area_code`, `area_name`, `area_level` and `iso2`.
 ``` r
 old <- options(taxify.data_dir = taxify_example_data())
 euromed_areas()
+#>   area_code                   area_name             area_level iso2
+#> 1        Au Austria, with Liechtenstein Euro+Med 1. area level <NA>
+#> 2     Au(A)                     Austria Euro+Med 2. area level   AT
+#> 3     Au(L)               Liechtenstein Euro+Med 2. area level   LI
+#> 4     Ga(F)                      France Euro+Med 2. area level   FR
+#> 5        Ge                     Germany Euro+Med 1. area level   DE
 options(old)
 ```

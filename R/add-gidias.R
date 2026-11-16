@@ -98,19 +98,22 @@
 #'
 #' @export
 add_gidias <- function(x, group = "Any", cols = NULL, verbose = TRUE) {
-  base_cols <- c(
-    "gidias_eicat_category", "gidias_eicat_mechanism",
-    "gidias_seicat_category", "gidias_ncp_direction", "gidias_ias_taxon",
-    "gidias_realms", "gidias_n_records", "gidias_n_sources"
-  )
-  enrich_by_group(
-    x,
-    enrichment_name = "gidias",
-    group_col       = "affected_taxon",
-    groups          = group,
-    value_cols      = stats::setNames(base_cols, base_cols),
-    source_label    = "GIDIAS (Bacher et al. 2025)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_gidias, groups = group, cols = cols, verbose = verbose)
 }
+
+
+.door_gidias <- list(
+  enrichment_name = "gidias",
+  group_col = "affected_taxon",
+  value_cols = c(
+    gidias_eicat_category = "gidias_eicat_category",
+    gidias_eicat_mechanism = "gidias_eicat_mechanism",
+    gidias_seicat_category = "gidias_seicat_category",
+    gidias_ncp_direction = "gidias_ncp_direction",
+    gidias_ias_taxon = "gidias_ias_taxon",
+    gidias_realms = "gidias_realms",
+    gidias_n_records = "gidias_n_records",
+    gidias_n_sources = "gidias_n_sources"
+  ),
+  source_label = "GIDIAS (Bacher et al. 2025)"
+)

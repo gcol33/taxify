@@ -43,25 +43,24 @@
 #'
 #' @export
 add_avonet <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    beak_length       = "beak_length",
-    beak_depth        = "beak_depth",
-    wing_length       = "wing_length",
-    tail_length       = "tail_length",
-    tarsus_length     = "tarsus_length",
-    avonet_body_mass_g = "body_mass_g",
-    hand_wing_index   = "hand_wing_index",
-    habitat           = "habitat",
-    trophic_level     = "trophic_level",
-    trophic_niche     = "trophic_niche",
-    migration         = "migration"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "avonet",
-    col_map         = col_map,
-    source_label    = "AVONET",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_avonet, cols = cols, verbose = verbose)
 }
+
+
+.door_avonet <- list(
+  enrichment_name = "avonet",
+  col_map = c(
+    beak_length = "beak_length",
+    beak_depth = "beak_depth",
+    wing_length = "wing_length",
+    tail_length = "tail_length",
+    tarsus_length = "tarsus_length",
+    avonet_body_mass_g = "body_mass_g",
+    hand_wing_index = "hand_wing_index",
+    habitat = "habitat",
+    trophic_level = "trophic_level",
+    trophic_niche = "trophic_niche",
+    migration = "migration"
+  ),
+  source_label = "AVONET"
+)

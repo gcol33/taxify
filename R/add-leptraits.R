@@ -38,23 +38,22 @@
 #'
 #' @export
 add_leptraits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    wingspan_mm           = "wingspan_mm",
-    voltinism             = "voltinism",
-    diapause_stage        = "diapause_stage",
-    canopy_affinity       = "canopy_affinity",
-    edge_affinity         = "edge_affinity",
-    moisture_affinity     = "moisture_affinity",
-    disturbance_affinity  = "disturbance_affinity",
-    n_hostplant_families  = "n_hostplant_families",
-    flight_months         = "flight_months"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "leptraits",
-    col_map         = col_map,
-    source_label    = "LepTraits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_leptraits, cols = cols, verbose = verbose)
 }
+
+
+.door_leptraits <- list(
+  enrichment_name = "leptraits",
+  col_map = c(
+    wingspan_mm = "wingspan_mm",
+    voltinism = "voltinism",
+    diapause_stage = "diapause_stage",
+    canopy_affinity = "canopy_affinity",
+    edge_affinity = "edge_affinity",
+    moisture_affinity = "moisture_affinity",
+    disturbance_affinity = "disturbance_affinity",
+    n_hostplant_families = "n_hostplant_families",
+    flight_months = "flight_months"
+  ),
+  source_label = "LepTraits"
+)

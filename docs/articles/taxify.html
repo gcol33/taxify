@@ -40,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -57,6 +57,7 @@
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -139,9 +140,9 @@ function.</p></li>
 <p>taxify matches names against backbones: published taxonomic databases
 such as the Catalogue of Life (COL), the GBIF Backbone Taxonomy and the
 Integrated Taxonomic Information System (ITIS), stored as files on your
-disk. The first call to <code><a href="../reference/taxify.html">taxify()</a></code> downloads COL, GBIF and
-ITIS, about 4 GB, into <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>. Later calls read
-these files and need no network.</p>
+disk. <code><a href="../reference/install_backbones.html">install_backbones()</a></code> downloads COL, GBIF and ITIS,
+about 1.1 GB, into <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code>. <code><a href="../reference/taxify.html">taxify()</a></code>
+reads these files and needs no network.</p>
 </div>
 <div class="section level2">
 <h2 id="matching-a-list-of-names">Matching a list of names<a class="anchor" aria-label="anchor" href="#matching-a-list-of-names"></a>
@@ -252,7 +253,7 @@ the backbone version.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify results ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   backbone: COL v2026.09 + GBIF + ITIS  |  9 names submitted</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt;   matched         9  (exact: 4, case-insensitive: 1, fuzzy: 3, abbrev: 1)</span></span>
 <span><span class="co">#&gt;   multiple ids    1  (more than one accepted ID; see taxify_ids())</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
@@ -356,16 +357,16 @@ downloaded on first use.</p>
 <code class="sourceCode R"><span><span class="va">traits</span> <span class="op">&lt;-</span> <span class="va">kept</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").</span></span>
 <span><span class="co">#&gt; add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").</span></span>
-<span><span class="va">traits</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"woodiness"</span>, <span class="st">"eive_light"</span>, <span class="st">"eive_moisture"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;         accepted_name  woodiness eive_light eive_moisture</span></span>
-<span><span class="co">#&gt; 1       Quercus robur      woody   6.241077      4.802554</span></span>
-<span><span class="co">#&gt; 2       Quercus robur      woody   6.241077      4.802554</span></span>
-<span><span class="co">#&gt; 3      Betula pendula      woody   6.840881      4.445677</span></span>
-<span><span class="co">#&gt; 4     Fagus sylvatica      woody   3.003906      4.570789</span></span>
-<span><span class="co">#&gt; 5     Quercus petraea      woody   5.826045      4.200698</span></span>
-<span><span class="co">#&gt; 6         Picea abies      woody   4.362537      4.976672</span></span>
-<span><span class="co">#&gt; 7 Reynoutria japonica       &lt;NA&gt;   7.278168      6.042765</span></span>
-<span><span class="co">#&gt; 8       Festuca rubra herbaceous   7.137641      4.686280</span></span>
+<span><span class="va">traits</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"zanne_woodiness"</span>, <span class="st">"eive_light"</span>, <span class="st">"eive_moisture"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;         accepted_name zanne_woodiness eive_light eive_moisture</span></span>
+<span><span class="co">#&gt; 1       Quercus robur           woody   6.241077      4.802554</span></span>
+<span><span class="co">#&gt; 2       Quercus robur           woody   6.241077      4.802554</span></span>
+<span><span class="co">#&gt; 3      Betula pendula           woody   6.840881      4.445677</span></span>
+<span><span class="co">#&gt; 4     Fagus sylvatica           woody   3.003906      4.570789</span></span>
+<span><span class="co">#&gt; 5     Quercus petraea           woody   5.826045      4.200698</span></span>
+<span><span class="co">#&gt; 6         Picea abies           woody   4.362537      4.976672</span></span>
+<span><span class="co">#&gt; 7 Reynoutria japonica            &lt;NA&gt;   7.278168      6.042765</span></span>
+<span><span class="co">#&gt; 8       Festuca rubra      herbaceous   7.137641      4.686280</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09, Zanne et al. 2014 2026.08, EIVE 1.0 2026.08 | cite() for full citations</span></span></code></pre></div>
 <p>The message of each function says how many of the source’s columns
 were attached; <code>cols = "all"</code> attaches the rest.
@@ -393,7 +394,7 @@ those exact versions.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="va">traits</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify citations ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones (version 0.7.0). doi:10.32614/CRAN.package.taxify</span></span>
+<span><span class="co">#&gt;   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones (version 0.7.1). doi:10.32614/CRAN.package.taxify</span></span>
 <span><span class="co">#&gt;   [2] Banki O, Roskov Y, Doring M, Ower G, Hernandez Robles DR, Plata Corredor CA, Stjernegaard Jeppesen T, Orrell TM, Pugh D, Kostichka J, et al. (2024). Catalogue of Life Checklist. doi:10.48580/d4t2</span></span>
 <span><span class="co">#&gt;   [3] Zanne AE, Tank DC, Cornwell WK, Eastman JM, Smith SA, FitzJohn RG, McGlinn DJ, O'Meara BC, Moles AT, Reich PB, et al. (2014). Three keys to the radiation of angiosperms into freezing environments. Nature 506:89-92. doi:10.1038/nature12872</span></span>
 <span><span class="co">#&gt;   [4] Dengler J, Jansen F, Chusova O, Hullbusch E, Novak P, Van Meerbeek K, Axmanova I, Bruun HH, Chytry M, Guarino R, et al. (2023). Ecological Indicator Values for Europe (EIVE) 1.0. Vegetation Classification and Survey 4:7-29. doi:10.3897/VCS.98324</span></span>
@@ -405,8 +406,8 @@ those exact versions.</p>
 <span><span class="fu"><a href="../reference/taxify_lock.html">taxify_lock</a></span><span class="op">(</span><span class="va">traits</span>, <span class="va">lock</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">lock</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; {</span></span>
-<span><span class="co">#&gt;   "taxify_version": "0.7.0",</span></span>
-<span><span class="co">#&gt;   "created": "2026-10-13",</span></span>
+<span><span class="co">#&gt;   "taxify_version": "0.7.1",</span></span>
+<span><span class="co">#&gt;   "created": "2026-11-16",</span></span>
 <span><span class="co">#&gt;   "r_version": "R version 4.6.0 (2026-04-24 ucrt)",</span></span>
 <span><span class="co">#&gt;   "backbones": [</span></span>
 <span><span class="co">#&gt;     {</span></span>

@@ -30,11 +30,13 @@ add_eupolltrait(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `eupolltrait_` columns: numeric `itd_mm`,
-`tongue_length_mm`, `species_temperature_index`,
-`species_continentality_index`, `area_of_occupancy`,
-`extent_of_occurrence`; categorical `sociality`, `nest`,
-`larval_nutrition`, `body_length_category`.
+The same data.frame with `eupolltrait_` columns: numeric
+`eupolltrait_itd_mm`, `eupolltrait_tongue_length_mm`,
+`eupolltrait_species_temperature_index`,
+`eupolltrait_species_continentality_index`,
+`eupolltrait_area_of_occupancy`, `eupolltrait_extent_of_occurrence`;
+categorical `eupolltrait_sociality`, `eupolltrait_nest`,
+`eupolltrait_larval_nutrition`, `eupolltrait_body_length_category`.
 
 ## Details
 

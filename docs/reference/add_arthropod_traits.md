@@ -31,43 +31,43 @@ add_arthropod_traits(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- arthropod_body_size_mm:
+- arthropod_traits_arthropod_body_size_mm:
 
   Body size in mm.
 
-- arthropod_dispersal:
+- arthropod_traits_arthropod_dispersal:
 
   Dispersal ability (0–1 ratio within order).
 
-- arthropod_voltinism:
+- arthropod_traits_arthropod_voltinism:
 
   Mean number of generations per year.
 
-- arthropod_fecundity:
+- arthropod_traits_arthropod_fecundity:
 
   Fecundity (number of eggs/offspring).
 
-- arthropod_development_d:
+- arthropod_traits_arthropod_development_d:
 
   Development time in days.
 
-- arthropod_lifespan_d:
+- arthropod_traits_arthropod_lifespan_d:
 
   Adult lifespan in days.
 
-- arthropod_thermal_mean:
+- arthropod_traits_arthropod_thermal_mean:
 
   Mean thermal niche (degrees C).
 
-- arthropod_diurnality:
+- arthropod_traits_arthropod_diurnality:
 
   Activity period (diurnal/nocturnal/both).
 
-- arthropod_feeding_guild:
+- arthropod_traits_arthropod_feeding_guild:
 
   Feeding guild of adult.
 
-- arthropod_trophic_range:
+- arthropod_traits_arthropod_trophic_range:
 
   Trophic range of adult (specialist/generalist).
 
@@ -91,6 +91,34 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Abax parallelepipedus", backbone = "gbif") |>
   add_arthropod_traits()
+#> Matching 1 names...
+#>              input_name          matched_name         accepted_name    taxon_id
+#> 1 Abax parallelepipedus Abax parallelepipedus Abax parallelepipedus gbif-ex-006
+#>   accepted_id    rank    family genus          epithet
+#> 1 gbif-ex-006 species Carabidae  Abax parallelepipedus
+#>                      authorship           accepted_authorship is_synonym
+#> 1 (Piller & Mitterpacher, 1783) (Piller & Mitterpacher, 1783)      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 gbif:example (2026-06-24)      animalia     unknown   unknown      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#>   arthropod_traits_arthropod_body_size_mm arthropod_traits_arthropod_dispersal
+#> 1                    example_body_size_mm                    example_dispersal
+#>   arthropod_traits_arthropod_voltinism arthropod_traits_arthropod_fecundity
+#> 1                    example_voltinism                    example_fecundity
+#>   arthropod_traits_arthropod_development_d
+#> 1                    example_development_d
+#>   arthropod_traits_arthropod_lifespan_d arthropod_traits_arthropod_thermal_mean
+#> 1                    example_lifespan_d                    example_thermal_mean
+#>   arthropod_traits_arthropod_diurnality
+#> 1                    example_diurnality
+#>   arthropod_traits_arthropod_feeding_guild
+#> 1                    example_feeding_guild
+#>   arthropod_traits_arthropod_trophic_range
+#> 1                    example_trophic_range
+#> Sources: GBIF example, NW European Arthropods example | cite() for full citations
 
 options(old)
 ```

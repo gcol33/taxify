@@ -33,43 +33,43 @@ add_edwards_phyto(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns. The curated set:
 
-- edwards_taxon_group:
+- edwards_phyto_edwards_taxon_group:
 
   Coarse phytoplankton group (diatom, green, ...).
 
-- edwards_habitat_system:
+- edwards_phyto_edwards_habitat_system:
 
   Habitat (marine/freshwater).
 
-- edwards_cell_volume:
+- edwards_phyto_edwards_cell_volume:
 
   Cell volume (micron^3).
 
-- edwards_carbon_per_cell:
+- edwards_phyto_edwards_carbon_per_cell:
 
   Carbon content per cell (pg C).
 
-- edwards_mu_inf_nit:
+- edwards_phyto_edwards_mu_inf_nit:
 
   Maximum growth rate on nitrate (per day).
 
-- edwards_k_nit:
+- edwards_phyto_edwards_k_nit:
 
   Half-saturation constant for growth on nitrate.
 
-- edwards_qmin_nit:
+- edwards_phyto_edwards_qmin_nit:
 
   Minimum cell nitrogen quota.
 
-- edwards_mu_inf_p:
+- edwards_phyto_edwards_mu_inf_p:
 
   Maximum growth rate on phosphorus (per day).
 
-- edwards_k_p:
+- edwards_phyto_edwards_k_p:
 
   Half-saturation constant for growth on phosphorus.
 
-- edwards_qmin_p:
+- edwards_phyto_edwards_qmin_p:
 
   Minimum cell phosphorus quota.
 

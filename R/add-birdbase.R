@@ -45,31 +45,30 @@
 #'
 #' @export
 add_birdbase <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    birdbase_iucn_status        = "iucn_status",
-    birdbase_realm              = "realm",
-    birdbase_latitudinal_zone   = "latitudinal_zone",
-    birdbase_island_endemic     = "island_endemic",
-    birdbase_restricted_range   = "restricted_range",
-    birdbase_elevation_min_m    = "elevation_min_m",
-    birdbase_elevation_max_m    = "elevation_max_m",
-    birdbase_elevation_range_m  = "elevation_range_m",
-    birdbase_primary_habitat    = "primary_habitat",
-    birdbase_habitat_breadth    = "habitat_breadth",
-    birdbase_primary_diet       = "primary_diet",
-    birdbase_diet_breadth       = "diet_breadth",
-    birdbase_specialization_esi = "specialization_esi",
-    birdbase_clutch_min         = "clutch_min",
-    birdbase_clutch_max         = "clutch_max",
-    birdbase_nest_type          = "nest_type",
-    birdbase_flightlessness     = "flightlessness"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "birdbase",
-    col_map         = col_map,
-    source_label    = "BIRDBASE",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_birdbase, cols = cols, verbose = verbose)
 }
+
+
+.door_birdbase <- list(
+  enrichment_name = "birdbase",
+  col_map = c(
+    birdbase_iucn_status = "iucn_status",
+    birdbase_realm = "realm",
+    birdbase_latitudinal_zone = "latitudinal_zone",
+    birdbase_island_endemic = "island_endemic",
+    birdbase_restricted_range = "restricted_range",
+    birdbase_elevation_min_m = "elevation_min_m",
+    birdbase_elevation_max_m = "elevation_max_m",
+    birdbase_elevation_range_m = "elevation_range_m",
+    birdbase_primary_habitat = "primary_habitat",
+    birdbase_habitat_breadth = "habitat_breadth",
+    birdbase_primary_diet = "primary_diet",
+    birdbase_diet_breadth = "diet_breadth",
+    birdbase_specialization_esi = "specialization_esi",
+    birdbase_clutch_min = "clutch_min",
+    birdbase_clutch_max = "clutch_max",
+    birdbase_nest_type = "nest_type",
+    birdbase_flightlessness = "flightlessness"
+  ),
+  source_label = "BIRDBASE"
+)

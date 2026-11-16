@@ -41,15 +41,18 @@
 #'
 #' @export
 add_finand <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("body_length_mm", "wing_morph", "feeding_type",
-                "habitat_pref", "moisture_pref")
-  col_map <- stats::setNames(all_cols, paste0("finand_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "finand",
-    col_map         = col_map,
-    source_label    = "Finand & Kotze Helsinki carabid traits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_finand, cols = cols, verbose = verbose)
 }
+
+
+.door_finand <- list(
+  enrichment_name = "finand",
+  col_map = c(
+    finand_body_length_mm = "body_length_mm",
+    finand_wing_morph = "wing_morph",
+    finand_feeding_type = "feeding_type",
+    finand_habitat_pref = "habitat_pref",
+    finand_moisture_pref = "moisture_pref"
+  ),
+  source_label = "Finand & Kotze Helsinki carabid traits"
+)

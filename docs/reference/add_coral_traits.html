@@ -24,7 +24,7 @@ Database (numeric traits by median, categorical traits by mode)."><meta property
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,7 @@ Database (numeric traits by median, categorical traits by mode)."><meta property
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -105,43 +106,43 @@ Database (numeric traits by median, categorical traits by mode).</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns:</p><dl><dt>coral_symbiotic_state</dt>
+    <p>The same data.frame with additional columns:</p><dl><dt>coral_traits_coral_symbiotic_state</dt>
 <dd><p>Zooxanthellate / azooxanthellate.</p></dd>
 
-<dt>coral_growth_form</dt>
+<dt>coral_traits_coral_growth_form</dt>
 <dd><p>Typical growth form (massive/branching/...).</p></dd>
 
-<dt>coral_coloniality</dt>
+<dt>coral_traits_coral_coloniality</dt>
 <dd><p>Colonial / solitary.</p></dd>
 
-<dt>coral_substrate_attachment</dt>
+<dt>coral_traits_coral_substrate_attachment</dt>
 <dd><p>Attached / unattached.</p></dd>
 
-<dt>coral_sexual_system</dt>
+<dt>coral_traits_coral_sexual_system</dt>
 <dd><p>Hermaphrodite / gonochore.</p></dd>
 
-<dt>coral_larval_development_mode</dt>
+<dt>coral_traits_coral_larval_development_mode</dt>
 <dd><p>Spawner / brooder.</p></dd>
 
-<dt>coral_symbiont_clade</dt>
+<dt>coral_traits_coral_symbiont_clade</dt>
 <dd><p>Symbiodinium clade.</p></dd>
 
-<dt>coral_corallite_width_max_mm</dt>
+<dt>coral_traits_coral_corallite_width_max_mm</dt>
 <dd><p>Maximum corallite width (mm).</p></dd>
 
-<dt>coral_colony_max_diameter_cm</dt>
+<dt>coral_traits_coral_colony_max_diameter_cm</dt>
 <dd><p>Maximum colony diameter (cm).</p></dd>
 
-<dt>coral_growth_rate_mm_yr</dt>
+<dt>coral_traits_coral_growth_rate_mm_yr</dt>
 <dd><p>Linear extension rate (mm/year).</p></dd>
 
-<dt>coral_depth_lower_m</dt>
+<dt>coral_traits_coral_depth_lower_m</dt>
 <dd><p>Lower depth limit (m).</p></dd>
 
-<dt>coral_depth_upper_m</dt>
+<dt>coral_traits_coral_depth_upper_m</dt>
 <dd><p>Upper depth limit (m).</p></dd>
 
-<dt>coral_skeletal_density_g_cm3</dt>
+<dt>coral_traits_coral_skeletal_density_g_cm3</dt>
 <dd><p>Skeletal density (g/cm3).</p></dd>
 
 
@@ -160,11 +161,12 @@ information for coral species from the global oceans. Scientific Data
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Acropora millepora"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_coral_traits</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Acropora millepora"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_coral_traits</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

@@ -25,18 +25,23 @@
 #'
 #' @export
 add_eupolltrait <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("itd_mm", "tongue_length_mm", "species_temperature_index",
-                "species_continentality_index", "area_of_occupancy",
-                "extent_of_occurrence")
-  cat_cols <- c("sociality", "nest", "larval_nutrition", "body_length_category")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("eupolltrait_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "eupolltrait",
-    col_map         = col_map,
-    source_label    = "EuPollTrait",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_eupolltrait, cols = cols, verbose = verbose)
 }
+
+
+.door_eupolltrait <- list(
+  enrichment_name = "eupolltrait",
+  col_map = c(
+    eupolltrait_itd_mm = "itd_mm",
+    eupolltrait_tongue_length_mm = "tongue_length_mm",
+    eupolltrait_species_temperature_index = "species_temperature_index",
+    eupolltrait_species_continentality_index = "species_continentality_index",
+    eupolltrait_area_of_occupancy = "area_of_occupancy",
+    eupolltrait_extent_of_occurrence = "extent_of_occurrence",
+    eupolltrait_sociality = "sociality",
+    eupolltrait_nest = "nest",
+    eupolltrait_larval_nutrition = "larval_nutrition",
+    eupolltrait_body_length_category = "body_length_category"
+  ),
+  source_label = "EuPollTrait"
+)

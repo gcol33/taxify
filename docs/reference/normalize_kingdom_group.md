@@ -28,4 +28,5 @@ Character vector of coarse kingdom groups (or `NA`).
 
 ``` r
 normalize_kingdom_group(c("Animalia", "Viridiplantae", "plants", "unknown"))
+#> [1] "animalia" "plantae"  "plantae"  NA        
 ```

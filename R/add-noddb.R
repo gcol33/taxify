@@ -39,17 +39,22 @@
 #'
 #' @export
 add_noddb <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("nodulation_consensus", "nodulation_type", "nodulation_clade",
-                "nodulation_family", "spp_recognized", "spp_studied",
-                "positive_reports", "negative_reports")
-  col_map <- stats::setNames(all_cols, paste0("noddb_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "noddb",
-    col_map         = col_map,
-    source_label    = "NodDB root-nodule nitrogen fixation (Tedersoo et al.)",
-    cols            = cols,
-    join_col        = "genus",
-    verbose         = verbose
-  )
+  enrich_door(x, .door_noddb, cols = cols, verbose = verbose)
 }
+
+
+.door_noddb <- list(
+  enrichment_name = "noddb",
+  col_map = c(
+    noddb_nodulation_consensus = "nodulation_consensus",
+    noddb_nodulation_type = "nodulation_type",
+    noddb_nodulation_clade = "nodulation_clade",
+    noddb_nodulation_family = "nodulation_family",
+    noddb_spp_recognized = "spp_recognized",
+    noddb_spp_studied = "spp_studied",
+    noddb_positive_reports = "positive_reports",
+    noddb_negative_reports = "negative_reports"
+  ),
+  source_label = "NodDB root-nodule nitrogen fixation (Tedersoo et al.)",
+  join_col = "genus"
+)

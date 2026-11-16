@@ -27,18 +27,24 @@
 #'
 #' @export
 add_zooplankton <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("body_length_max_mm", "carbon_weight_mg", "nitrogen_pdw_pct")
-  cat_cols <- c("vertical_distribution", "reproduction_mode", "trophic_group",
-                "feeding_mode", "myelination", "habitat_association",
-                "diel_vertical_migration", "bioluminescence")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("zooplankton_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "zooplankton",
-    col_map         = col_map,
-    source_label    = "Global Zooplankton Trait Database",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_zooplankton, cols = cols, verbose = verbose)
 }
+
+
+.door_zooplankton <- list(
+  enrichment_name = "zooplankton",
+  col_map = c(
+    zooplankton_body_length_max_mm = "body_length_max_mm",
+    zooplankton_carbon_weight_mg = "carbon_weight_mg",
+    zooplankton_nitrogen_pdw_pct = "nitrogen_pdw_pct",
+    zooplankton_vertical_distribution = "vertical_distribution",
+    zooplankton_reproduction_mode = "reproduction_mode",
+    zooplankton_trophic_group = "trophic_group",
+    zooplankton_feeding_mode = "feeding_mode",
+    zooplankton_myelination = "myelination",
+    zooplankton_habitat_association = "habitat_association",
+    zooplankton_diel_vertical_migration = "diel_vertical_migration",
+    zooplankton_bioluminescence = "bioluminescence"
+  ),
+  source_label = "Global Zooplankton Trait Database"
+)

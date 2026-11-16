@@ -37,25 +37,24 @@
 #'
 #' @export
 add_sharkipedia <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    sharkipedia_lmax_cm                   = "lmax_cm",
-    sharkipedia_vbgf_linf_cm              = "vbgf_linf_cm",
-    sharkipedia_vbgf_k                    = "vbgf_k",
-    sharkipedia_vbgf_t0                   = "vbgf_t0",
-    sharkipedia_length_first_maturity_cm  = "length_first_maturity_cm",
-    sharkipedia_length_birth_cm           = "length_birth_cm",
-    sharkipedia_amax_observed_yr          = "amax_observed_yr",
-    sharkipedia_age_first_maturity_yr     = "age_first_maturity_yr",
-    sharkipedia_uterine_fecundity         = "uterine_fecundity",
-    sharkipedia_gestation_length          = "gestation_length",
-    sharkipedia_natural_mortality         = "natural_mortality"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "sharkipedia",
-    col_map         = col_map,
-    source_label    = "Sharkipedia",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_sharkipedia, cols = cols, verbose = verbose)
 }
+
+
+.door_sharkipedia <- list(
+  enrichment_name = "sharkipedia",
+  col_map = c(
+    sharkipedia_lmax_cm = "lmax_cm",
+    sharkipedia_vbgf_linf_cm = "vbgf_linf_cm",
+    sharkipedia_vbgf_k = "vbgf_k",
+    sharkipedia_vbgf_t0 = "vbgf_t0",
+    sharkipedia_length_first_maturity_cm = "length_first_maturity_cm",
+    sharkipedia_length_birth_cm = "length_birth_cm",
+    sharkipedia_amax_observed_yr = "amax_observed_yr",
+    sharkipedia_age_first_maturity_yr = "age_first_maturity_yr",
+    sharkipedia_uterine_fecundity = "uterine_fecundity",
+    sharkipedia_gestation_length = "gestation_length",
+    sharkipedia_natural_mortality = "natural_mortality"
+  ),
+  source_label = "Sharkipedia"
+)

@@ -32,18 +32,17 @@
 #'
 #' @export
 add_gwdd <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    gwdd_wood_density_g_cm3        = "wood_density_g_cm3",
-    gwdd_wood_density_trunk_g_cm3  = "wood_density_trunk_g_cm3",
-    gwdd_wood_density_branch_g_cm3 = "wood_density_branch_g_cm3",
-    gwdd_n_measurements            = "n_measurements"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "gwdd",
-    col_map         = col_map,
-    source_label    = "Global Wood Density Database v2",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_gwdd, cols = cols, verbose = verbose)
 }
+
+
+.door_gwdd <- list(
+  enrichment_name = "gwdd",
+  col_map = c(
+    gwdd_wood_density_g_cm3 = "wood_density_g_cm3",
+    gwdd_wood_density_trunk_g_cm3 = "wood_density_trunk_g_cm3",
+    gwdd_wood_density_branch_g_cm3 = "wood_density_branch_g_cm3",
+    gwdd_n_measurements = "n_measurements"
+  ),
+  source_label = "Global Wood Density Database v2"
+)

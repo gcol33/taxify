@@ -13,9 +13,11 @@
 <url><loc>https://gillescolling.com/taxify/articles/large-scale.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/migration.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/regions.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/articles/reproducibility.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/taxify.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/articles/vegetation-units.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/authors.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/CLAUDE.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/CODE_OF_CONDUCT.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/CONTRIBUTING.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/index.html</loc></url>
@@ -195,6 +197,7 @@
 <url><loc>https://gillescolling.com/taxify/reference/taxify_build.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_build_register.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_candidates.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/reference/taxify_clean.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_clear_cache.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_databases.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/taxify_data_dir.html</loc></url>
@@ -213,5 +216,6 @@
 <url><loc>https://gillescolling.com/taxify/reference/taxify_store.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/trait_info.html</loc></url>
 <url><loc>https://gillescolling.com/taxify/reference/upstream.html</loc></url>
+<url><loc>https://gillescolling.com/taxify/todo.html</loc></url>
 </urlset>
 

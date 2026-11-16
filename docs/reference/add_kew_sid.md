@@ -32,23 +32,23 @@ add_kew_sid(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns. The curated set:
 
-- sid_thousand_seed_weight:
+- kew_sid_sid_thousand_seed_weight:
 
   Thousand-seed weight (grams per 1000 seeds, median of all records).
 
-- sid_storage_behaviour:
+- kew_sid_sid_storage_behaviour:
 
   Seed storage behaviour (Orthodox/Recalcitrant/Intermediate/Uncertain).
 
-- sid_oil_content_pct:
+- kew_sid_sid_oil_content_pct:
 
   Seed oil content (percent, median).
 
-- sid_protein_content_pct:
+- kew_sid_sid_protein_content_pct:
 
   Seed protein content (percent, median).
 
-- sid_lifeform:
+- kew_sid_sid_lifeform:
 
   Raunkiaer life-form code as recorded by SID.
 
@@ -75,6 +75,25 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Quercus robur", backbone = "gbif") |>
   add_kew_sid()
+#> Matching 1 names...
+#> add_kew_sid(): attaching 5 of 7 columns. Pass cols = "all" for all, or see enrichment_cols("kew_sid").
+#>      input_name  matched_name accepted_name    taxon_id accepted_id    rank
+#> 1 Quercus robur Quercus robur Quercus robur gbif-ex-001 gbif-ex-001 species
+#>     family   genus epithet authorship accepted_authorship is_synonym
+#> 1 Fagaceae Quercus   robur         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 gbif:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#>   kew_sid_sid_thousand_seed_weight kew_sid_sid_oil_content_pct
+#> 1                               11                          11
+#>   kew_sid_sid_protein_content_pct kew_sid_sid_storage_behaviour
+#> 1                              11     example_storage_behaviour
+#>   kew_sid_sid_lifeform
+#> 1     example_lifeform
+#> Sources: GBIF example, Kew Seed Information Database (SID) example | cite() for full citations
 
 options(old)
 ```

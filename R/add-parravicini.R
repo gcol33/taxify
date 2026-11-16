@@ -24,13 +24,12 @@
 #'
 #' @export
 add_parravicini <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(parravicini_trophic_guild = "trophic_guild")
-  enrich_simple(
-    x,
-    enrichment_name = "parravicini",
-    col_map         = col_map,
-    source_label    = "Parravicini reef-fish trophic guilds",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_parravicini, cols = cols, verbose = verbose)
 }
+
+
+.door_parravicini <- list(
+  enrichment_name = "parravicini",
+  col_map = c(parravicini_trophic_guild = "trophic_guild"),
+  source_label = "Parravicini reef-fish trophic guilds"
+)

@@ -41,24 +41,23 @@
 #'
 #' @export
 add_arthropod_traits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    arthropod_body_size_mm  = "body_size_mm",
-    arthropod_dispersal     = "dispersal",
-    arthropod_voltinism     = "voltinism",
-    arthropod_fecundity     = "fecundity",
+  enrich_door(x, .door_arthropod_traits, cols = cols, verbose = verbose)
+}
+
+
+.door_arthropod_traits <- list(
+  enrichment_name = "arthropod_traits",
+  col_map = c(
+    arthropod_body_size_mm = "body_size_mm",
+    arthropod_dispersal = "dispersal",
+    arthropod_voltinism = "voltinism",
+    arthropod_fecundity = "fecundity",
     arthropod_development_d = "development_d",
-    arthropod_lifespan_d    = "lifespan_d",
-    arthropod_thermal_mean  = "thermal_mean",
-    arthropod_diurnality    = "diurnality",
+    arthropod_lifespan_d = "lifespan_d",
+    arthropod_thermal_mean = "thermal_mean",
+    arthropod_diurnality = "diurnality",
     arthropod_feeding_guild = "feeding_guild",
     arthropod_trophic_range = "trophic_range"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "arthropod_traits",
-    col_map         = col_map,
-    source_label    = "NW European Arthropods",
-    cols            = cols,
-    verbose         = verbose
-  )
-}
+  ),
+  source_label = "NW European Arthropods"
+)

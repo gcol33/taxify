@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,6 +35,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -175,13 +176,6 @@
 
         <dt>
 
-          <code><a href="children.html">children()</a></code>
-
-        </dt>
-        <dd>List the accepted taxa within a genus or family</dd>
-
-        <dt>
-
           <code><a href="downstream.html">downstream()</a></code>
 
         </dt>
@@ -264,14 +258,7 @@
           <code><a href="taxify_download.html">taxify_download()</a></code>
 
         </dt>
-        <dd>Download a pre-built taxify backbone</dd>
-
-        <dt>
-
-          <code><a href="taxify_download_enrichment.html">taxify_download_enrichment()</a></code>
-
-        </dt>
-        <dd>Download one or more enrichment .vtr files</dd>
+        <dd>Download pre-built backbones or published datasets</dd>
 
         <dt>
 
@@ -292,7 +279,7 @@
           <code><a href="taxify_clear_cache.html">taxify_clear_cache()</a></code>
 
         </dt>
-        <dd>Clear all cached backbones</dd>
+        <dd>Clear cached backbone paths and matching data</dd>
 
         <dt>
 
@@ -300,20 +287,6 @@
 
         </dt>
         <dd>Invalidate the session manifest cache</dd>
-
-        <dt>
-
-          <code><a href="taxify_build_register.html">taxify_build_register()</a></code>
-
-        </dt>
-        <dd>Build the genus register from source</dd>
-
-        <dt>
-
-          <code><a href="taxify_load_register.html">taxify_load_register()</a></code>
-
-        </dt>
-        <dd>Load the unified genus register into memory</dd>
 
         <dt>
 
@@ -356,6 +329,13 @@
 
         </dt>
         <dd>Builds of a taxify asset held on disk</dd>
+
+        <dt>
+
+          <code><a href="taxify_clean.html">taxify_clean()</a></code>
+
+        </dt>
+        <dd>Remove downloaded taxify data</dd>
       </dl></div><div class="section level2">
       <h2 id="backbone-specific-columns">Backbone-specific columns<a class="anchor" aria-label="anchor" href="#backbone-specific-columns"></a></h2>
 
@@ -737,13 +717,6 @@
 
         </dt>
         <dd>Add plant traits from GIFT</dd>
-
-        <dt>
-
-          <code><a href="gift_traits.html">gift_traits()</a></code>
-
-        </dt>
-        <dd>Browse the bundled GIFT trait columns</dd>
       </dl></div><div class="section level2">
       <h2 id="published-data-fungi-algae-lichens-and-microbes">Published data: fungi, algae, lichens, and microbes<a class="anchor" aria-label="anchor" href="#published-data-fungi-algae-lichens-and-microbes"></a></h2>
 
@@ -1375,13 +1348,6 @@
 
         <dt>
 
-          <code><a href="score_candidates.html">score_candidates()</a></code>
-
-        </dt>
-        <dd>Score match candidates by resolution priority</dd>
-
-        <dt>
-
           <code><a href="embed_accepted.html">embed_accepted()</a></code>
 
         </dt>
@@ -1393,13 +1359,6 @@
 
         </dt>
         <dd>Precompute matching keys at build time</dd>
-
-        <dt>
-
-          <code><a href="normalize_epithets.html">normalize_epithets()</a></code>
-
-        </dt>
-        <dd>Vectorized Latin orthographic normalization</dd>
 
         <dt>
 
@@ -1428,6 +1387,27 @@
 
         </dt>
         <dd>The single kingdom a backbone's rows always belong to, or NA</dd>
+
+        <dt>
+
+          <code><a href="candidate_order.html">candidate_order()</a></code>
+
+        </dt>
+        <dd>Order match candidates by resolution priority</dd>
+
+        <dt>
+
+          <code><a href="basionym_placement.html">basionym_placement()</a></code>
+
+        </dt>
+        <dd>Find the placed basionym of each unplaced backbone record</dd>
+
+        <dt>
+
+          <code><a href="enrichment_authorship_col.html">enrichment_authorship_col()</a></code>
+
+        </dt>
+        <dd>Authorship-like column in an enrichment .vtr schema, if any</dd>
       </dl></div><div class="section level2">
       <h2 id="package">Package<a class="anchor" aria-label="anchor" href="#package"></a></h2>
 

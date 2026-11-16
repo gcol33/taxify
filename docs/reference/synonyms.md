@@ -75,8 +75,15 @@ rows.
 
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md) for
 the forward direction,
-[`children()`](https://gillescolling.com/taxify/reference/children.md)
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
 to list the accepted taxa within a genus or family.
+
+Other Explore the backbone:
+[`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md),
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
+[`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md),
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md),
+[`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
 
 ## Examples
 
@@ -86,6 +93,10 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 # Amphibolurus vitticeps is a synonym of Pogona vitticeps
 synonyms("Pogona vitticeps", backbone = "reptiledb")
+#>         input_name    accepted_name                synonym authorship    rank
+#> 1 Pogona vitticeps Pogona vitticeps Amphibolurus vitticeps       <NA> SPECIES
+#>           taxon_id  backbone
+#> 1 reptiledb-ex-007 reptiledb
 
 options(old)
 ```

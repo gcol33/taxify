@@ -30,8 +30,10 @@ add_frugivoria(x, cols = NULL, verbose = TRUE)
 ## Value
 
 The same data.frame with `frugivoria_` columns: categorical
-`taxon_group`, `diet_category`; numeric `diet_breadth`, `body_mass_g`,
-`body_size_mm`, `longevity`, `generation_time`.
+`frugivoria_taxon_group`, `frugivoria_diet_category`; numeric
+`frugivoria_diet_breadth`, `frugivoria_body_mass_g`,
+`frugivoria_body_size_mm`, `frugivoria_longevity`,
+`frugivoria_generation_time`.
 
 ## Details
 

@@ -38,63 +38,63 @@ add_combine_reported(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns (reported values):
 
-- combine_adult_mass_g:
+- combine_reported_adult_mass_g:
 
   Adult body mass (g).
 
-- combine_adult_body_length_mm:
+- combine_reported_adult_body_length_mm:
 
   Adult head-body length (mm).
 
-- combine_litter_size_n:
+- combine_reported_litter_size_n:
 
   Litter size (count).
 
-- combine_litters_per_year_n:
+- combine_reported_litters_per_year_n:
 
   Litters per year (count).
 
-- combine_max_longevity_d:
+- combine_reported_max_longevity_d:
 
   Maximum longevity (days).
 
-- combine_gestation_length_d:
+- combine_reported_gestation_length_d:
 
   Gestation length (days).
 
-- combine_weaning_age_d:
+- combine_reported_weaning_age_d:
 
   Weaning age (days).
 
-- combine_generation_length_d:
+- combine_reported_generation_length_d:
 
   Generation length (days).
 
-- combine_dispersal_km:
+- combine_reported_dispersal_km:
 
   Natal dispersal distance (km).
 
-- combine_habitat_breadth_n:
+- combine_reported_habitat_breadth_n:
 
   Number of IUCN habitats (count).
 
-- combine_diet_breadth_n:
+- combine_reported_diet_breadth_n:
 
   Number of diet categories (count).
 
-- combine_trophic_level:
+- combine_reported_trophic_level:
 
   Trophic level (1 herbivore, 2 omnivore, 3 carnivore).
 
-- combine_activity_cycle:
+- combine_reported_activity_cycle:
 
   Activity cycle (1 nocturnal, 2 cathemeral, 3 diurnal).
 
-- combine_foraging_stratum:
+- combine_reported_foraging_stratum:
 
   Foraging stratum (G/Ar/A/S/M).
 
-- combine_biogeographical_realm:
+- combine_reported_biogeographical_realm:
 
   Biogeographical realm(s).
 

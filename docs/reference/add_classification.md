@@ -53,6 +53,20 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Naja naja", backbone = "reptiledb") |>
   add_classification()
+#> Matching 1 names...
+#>   input_name matched_name accepted_name         taxon_id      accepted_id
+#> 1  Naja naja    Naja naja     Naja naja reptiledb-ex-003 reptiledb-ex-003
+#>      rank   family genus epithet authorship accepted_authorship is_synonym
+#> 1 species Elapidae  Naja    naja       <NA>                <NA>      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist  backbone
+#> 1         ACCEPTED     FALSE      exact         NA reptiledb
+#>                 backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 reptiledb:example (2026-06-24)      animalia      animal    animal      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type  kingdom   phylum    class
+#> 1               <NA>                 NA        <NA> Animalia Chordata Reptilia
+#>       order
+#> 1 Serpentes
+#> Sources: REPTILEDB example | cite() for full citations
 
 options(old)
 ```

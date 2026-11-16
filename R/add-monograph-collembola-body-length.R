@@ -42,16 +42,18 @@
 #'
 #' @export
 add_monograph_collembola_body_length <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("monograph_body_length_mm", "monograph_body_length_min_mm",
-                "monograph_body_length_max_mm", "monograph_body_length_n",
-                "monograph_body_length_sources")
-  col_map <- stats::setNames(all_cols, all_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "monograph_collembola_body_length",
-    col_map         = col_map,
-    source_label    = "Collembola monograph body length",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_monograph_collembola_body_length, cols = cols, verbose = verbose)
 }
+
+
+.door_monograph_collembola_body_length <- list(
+  enrichment_name = "monograph_collembola_body_length",
+  col_map = c(
+    monograph_body_length_mm = "monograph_body_length_mm",
+    monograph_body_length_min_mm = "monograph_body_length_min_mm",
+    monograph_body_length_max_mm = "monograph_body_length_max_mm",
+    monograph_body_length_n = "monograph_body_length_n",
+    monograph_body_length_sources = "monograph_body_length_sources"
+  ),
+  source_label = "Collembola monograph body length"
+)

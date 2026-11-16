@@ -26,15 +26,18 @@
 #'
 #' @export
 add_rimet_phyto <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c("cell_length_um", "cell_width_um", "cell_thickness_um",
-            "cell_surface_area_um2", "cell_biovolume_um3")
-  col_map <- stats::setNames(base_cols, paste0("rimet_phyto_", base_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "rimet_phyto",
-    col_map         = col_map,
-    source_label    = "Rimet phytoplankton",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_rimet_phyto, cols = cols, verbose = verbose)
 }
+
+
+.door_rimet_phyto <- list(
+  enrichment_name = "rimet_phyto",
+  col_map = c(
+    rimet_phyto_cell_length_um = "cell_length_um",
+    rimet_phyto_cell_width_um = "cell_width_um",
+    rimet_phyto_cell_thickness_um = "cell_thickness_um",
+    rimet_phyto_cell_surface_area_um2 = "cell_surface_area_um2",
+    rimet_phyto_cell_biovolume_um3 = "cell_biovolume_um3"
+  ),
+  source_label = "Rimet phytoplankton"
+)

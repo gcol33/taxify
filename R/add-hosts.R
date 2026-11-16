@@ -33,13 +33,15 @@
 #'
 #' @export
 add_hosts <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "hosts",
-    col_map         = c(host_plant_count  = "host_plant_count",
-                        host_family_count = "host_family_count"),
-    source_label    = "NHM HOSTS (Robinson et al. 2010)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_hosts, cols = cols, verbose = verbose)
 }
+
+
+.door_hosts <- list(
+  enrichment_name = "hosts",
+  col_map = c(
+    host_plant_count = "host_plant_count",
+    host_family_count = "host_family_count"
+  ),
+  source_label = "NHM HOSTS (Robinson et al. 2010)"
+)

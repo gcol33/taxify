@@ -37,3 +37,22 @@ Pipeline:
 Step 2 runs before step 3, so ae-ligature -\> `ae` -\> `i` and
 oe-ligature -\> `oe` -\> `i` fold into the same key as the de-ligatured
 forms.
+
+## See also
+
+Other Low-level building blocks:
+[`basionym_placement()`](https://gillescolling.com/taxify/reference/basionym_placement.md),
+[`candidate_order()`](https://gillescolling.com/taxify/reference/candidate_order.md),
+[`embed_accepted()`](https://gillescolling.com/taxify/reference/embed_accepted.md),
+[`enrichment_authorship_col()`](https://gillescolling.com/taxify/reference/enrichment_authorship_col.md),
+[`is_aggregate_name()`](https://gillescolling.com/taxify/reference/is_aggregate_name.md),
+[`normalize_aggregate_name()`](https://gillescolling.com/taxify/reference/normalize_aggregate_name.md),
+[`precompute_keys()`](https://gillescolling.com/taxify/reference/precompute_keys.md),
+[`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md)
+
+## Examples
+
+``` r
+taxify:::normalize_epithets(c("Pinus sylvestris", "Pinus silvestris", NA))
+#> [1] "pinus silvestris" "pinus silvestris" NA                
+```

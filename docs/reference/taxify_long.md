@@ -1,8 +1,8 @@
 # Reshape grouped enrichment columns to long format
 
 Converts wide-format columns produced by grouped enrichments (e.g.,
-`invasive_status_AT`, `invasive_status_DE`) back to long format with one
-row per species x group combination.
+`griis_invasive_status_AT`, `griis_invasive_status_DE`) back to long
+format with one row per species x group combination.
 
 ## Usage
 
@@ -25,9 +25,9 @@ taxify_long(x, cols = NULL, group_col = NULL, drop_na = FALSE)
 - cols:
 
   Character vector of base column names to reshape. These are the column
-  names without the group suffix (e.g., `"invasive_status"`, not
-  `"invasive_status_AT"`). If omitted, auto-detected from the enrichment
-  metadata stamped by the `add_*()` functions.
+  names without the group suffix (e.g., `"griis_invasive_status"`, not
+  `"griis_invasive_status_AT"`). If omitted, auto-detected from the
+  enrichment metadata stamped by the `add_*()` functions.
 
 - group_col:
 
@@ -79,11 +79,70 @@ old <- options(taxify.data_dir = taxify_example_data())
 taxify("Robinia pseudoacacia") |>
   add_alien_first_records(location = c("AT", "DE")) |>
   taxify_long()
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>             input_name         matched_name        accepted_name   taxon_id
+#> 1 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006
+#> 2 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006
+#>   accepted_id    rank   family   genus      epithet authorship
+#> 1  wfo-ex-006 species Fabaceae Robinia pseudoacacia         L.
+#> 2  wfo-ex-006 species Fabaceae Robinia pseudoacacia         L.
+#>   accepted_authorship is_synonym taxonomic_status is_hybrid match_type
+#> 1                  L.      FALSE         ACCEPTED     FALSE      exact
+#> 2                  L.      FALSE         ACCEPTED     FALSE      exact
+#>   fuzzy_dist backbone         backbone_version kingdom_group taxon_group
+#> 1         NA      wfo wfo:example (2026-06-24)       plantae        <NA>
+#> 2         NA      wfo wfo:example (2026-06-24)       plantae        <NA>
+#>   life_form qualifier qualifier_position aggregate_fallback hybrid_type
+#> 1      <NA>      <NA>               <NA>                 NA        <NA>
+#> 2      <NA>      <NA>               <NA>                 NA        <NA>
+#>   location        alien_first_records_reference
+#> 1       AT example_alien_first_record_reference
+#> 2       DE example_alien_first_record_reference
+#>          alien_first_records_source alien_first_records_year
+#> 1 example_alien_first_record_source                       11
+#> 2 example_alien_first_record_source                       12
+#> Sources: WFO example, Alien first records (Seebens et al.) example | cite() for full citations
 
 # Explicit: override auto-detection
 taxify("Robinia pseudoacacia") |>
   add_griis(country = c("AT", "DE")) |>
-  taxify_long(cols = "invasive_status", group_col = "country")
+  taxify_long(cols = "griis_invasive_status", group_col = "country")
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>             input_name         matched_name        accepted_name   taxon_id
+#> 1 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006
+#> 2 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006
+#>   accepted_id    rank   family   genus      epithet authorship
+#> 1  wfo-ex-006 species Fabaceae Robinia pseudoacacia         L.
+#> 2  wfo-ex-006 species Fabaceae Robinia pseudoacacia         L.
+#>   accepted_authorship is_synonym taxonomic_status is_hybrid match_type
+#> 1                  L.      FALSE         ACCEPTED     FALSE      exact
+#> 2                  L.      FALSE         ACCEPTED     FALSE      exact
+#>   fuzzy_dist backbone         backbone_version kingdom_group taxon_group
+#> 1         NA      wfo wfo:example (2026-06-24)       plantae        <NA>
+#> 2         NA      wfo wfo:example (2026-06-24)       plantae        <NA>
+#>   life_form qualifier qualifier_position aggregate_fallback hybrid_type country
+#> 1      <NA>      <NA>               <NA>                 NA        <NA>      AT
+#> 2      <NA>      <NA>               <NA>                 NA        <NA>      DE
+#>     griis_invasive_status
+#> 1 example_invasive_status
+#> 2 example_invasive_status
+#> Sources: WFO example, GRIIS example | cite() for full citations
 
 options(old)
 ```

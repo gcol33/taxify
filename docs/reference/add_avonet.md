@@ -33,23 +33,23 @@ add_avonet(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- beak_length:
+- avonet_beak_length:
 
   Beak length in mm (culmen, species mean).
 
-- beak_depth:
+- avonet_beak_depth:
 
   Beak depth in mm (species mean).
 
-- wing_length:
+- avonet_wing_length:
 
   Wing length in mm (species mean).
 
-- tail_length:
+- avonet_tail_length:
 
   Tail length in mm (species mean).
 
-- tarsus_length:
+- avonet_tarsus_length:
 
   Tarsus length in mm (species mean).
 
@@ -57,23 +57,23 @@ The same data.frame with additional columns:
 
   Body mass in grams (species mean).
 
-- hand_wing_index:
+- avonet_hand_wing_index:
 
   Hand-wing index (pointedness, species mean).
 
-- habitat:
+- avonet_habitat:
 
-  Primary habitat classification.
+  Primary avonet_habitat classification.
 
-- trophic_level:
+- avonet_trophic_level:
 
   Trophic level classification.
 
-- trophic_niche:
+- avonet_trophic_niche:
 
   Trophic niche classification.
 
-- migration:
+- avonet_migration:
 
   Migration strategy: `"sedentary"`, `"partial"`, or `"full"`.
 
@@ -95,6 +95,24 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Parus major", backbone = "gbif") |>
   add_avonet()
+#> Matching 1 names...
+#>    input_name matched_name accepted_name    taxon_id accepted_id    rank
+#> 1 Parus major  Parus major   Parus major gbif-ex-002 gbif-ex-002 species
+#>    family genus epithet     authorship accepted_authorship is_synonym
+#> 1 Paridae Parus   major Linnaeus, 1758      Linnaeus, 1758      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 gbif:example (2026-06-24)      animalia      animal    animal      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type avonet_beak_length
+#> 1               <NA>                 NA        <NA>                 11
+#>   avonet_beak_depth avonet_wing_length avonet_tail_length avonet_tarsus_length
+#> 1                11                 11                 11                   11
+#>   avonet_body_mass_g avonet_hand_wing_index  avonet_habitat
+#> 1                 11                     11 example_habitat
+#>   avonet_trophic_level  avonet_trophic_niche  avonet_migration
+#> 1                   11 example_trophic_niche example_migration
+#> Sources: GBIF example, AVONET example | cite() for full citations
 
 options(old)
 ```

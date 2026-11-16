@@ -7,7 +7,7 @@ result by `accepted_name`. GIFT aggregates published trait records to
 one value per species (mean for numeric traits, most frequent entry for
 categorical ones). `cols` chooses which traits to attach; browse the
 available columns with
-[`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md).
+[`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md).
 
 ## Usage
 
@@ -28,7 +28,7 @@ add_gift(x, cols = NULL, verbose = TRUE)
   convenient set of well-populated traits; the string `"all"` for every
   bundled trait; or a character vector of `gift_` column names (e.g.
   `"plant_height_max"`, with or without the `gift_` prefix). See
-  [`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md).
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md).
   When left `NULL`, a one-time message notes the default set and how to
   request all traits.
 
@@ -73,7 +73,7 @@ Global Inventory of Floras and Traits. Methods in Ecology and Evolution
 
 ## See also
 
-[`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md)
+[`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
 to browse the available columns.
 
 ## Examples
@@ -83,6 +83,37 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Abies alba") |>
   add_gift()
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> add_gift(): attaching 16 of 32 columns. Pass cols = "all" for all, or see enrichment_cols("gift").
+#>   input_name matched_name accepted_name   taxon_id accepted_id    rank   family
+#> 1 Abies alba   Abies alba    Abies alba wfo-ex-005  wfo-ex-005 species Pinaceae
+#>   genus epithet authorship accepted_authorship is_synonym taxonomic_status
+#> 1 Abies    alba      Mill.               Mill.      FALSE         ACCEPTED
+#>   is_hybrid match_type fuzzy_dist backbone         backbone_version
+#> 1     FALSE      exact         NA      wfo wfo:example (2026-06-24)
+#>   kingdom_group taxon_group  life_form qualifier qualifier_position
+#> 1       plantae  gymnosperm gymnosperm      <NA>               <NA>
+#>   aggregate_fallback hybrid_type gift_woodiness_1 gift_growth_form_1
+#> 1                 NA        <NA>            woody               tree
+#>           gift_lifecycle_1         gift_life_form_1         gift_climber_1
+#> 1 example_gift_lifecycle_1 example_gift_life_form_1 example_gift_climber_1
+#>           gift_epiphyte_1         gift_parasite_1         gift_aquatic_1
+#> 1 example_gift_epiphyte_1 example_gift_parasite_1 example_gift_aquatic_1
+#>   gift_plant_height_max         gift_photosynthetic_pathway gift_seed_mass_mean
+#> 1                    65 example_gift_photosynthetic_pathway           0.0739425
+#>           gift_dispersal_syndrome_1         gift_flowering_start
+#> 1 example_gift_dispersal_syndrome_1 example_gift_flowering_start
+#>           gift_flowering_end         gift_deciduousness_1 gift_sla_mean
+#> 1 example_gift_flowering_end example_gift_deciduousness_1          58.7
+#> Sources: WFO example, GIFT (Weigelt et al. 2020) example | cite() for full citations
 
 options(old)
 ```

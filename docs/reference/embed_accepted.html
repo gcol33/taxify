@@ -26,7 +26,7 @@ Handles synonym chains by iterating until stable (max 10 hops)."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ Handles synonym chains by iterating until stable (max 10 hops)."><meta property=
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -150,7 +151,34 @@ author, not its own). When <code>NULL</code>, <code>accepted_authorship</code> i
     <p>The data.frame with added columns: accepted_name, accepted_family,
 accepted_genus, accepted_taxon_id, accepted_authorship, is_synonym.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other Low-level building blocks:
+<code><a href="basionym_placement.html">basionym_placement()</a></code>,
+<code><a href="candidate_order.html">candidate_order()</a></code>,
+<code><a href="enrichment_authorship_col.html">enrichment_authorship_col()</a></code>,
+<code><a href="is_aggregate_name.html">is_aggregate_name()</a></code>,
+<code><a href="normalize_aggregate_name.html">normalize_aggregate_name()</a></code>,
+<code><a href="normalize_epithets.html">normalize_epithets()</a></code>,
+<code><a href="precompute_keys.html">precompute_keys()</a></code>,
+<code><a href="score_candidates.html">score_candidates()</a></code></p></div>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span><span class="op">)</span>, accepted <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"1"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Picea abies"</span>, <span class="st">"Pinus abies"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 status <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ACCEPTED"</span>, <span class="st">"SYNONYM"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">embed_accepted</span><span class="op">(</span><span class="va">df</span>, <span class="st">"id"</span>, <span class="st">"accepted"</span>, <span class="st">"name"</span>, status_col <span class="op">=</span> <span class="st">"status"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   id accepted        name   status accepted_name accepted_taxon_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1        1 Picea abies ACCEPTED   Picea abies                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  2        1 Pinus abies  SYNONYM   Picea abies                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                &lt;NA&gt;      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                &lt;NA&gt;       TRUE</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -39,23 +39,19 @@
 #'
 #' @export
 add_eurobat <- function(x, cols = NULL, verbose = TRUE) {
-  cat_cols <- c(
-    eurobat_diet_type       = "diet_type",
-    eurobat_first_main_prey = "first_main_prey"
-  )
-  num_cols <- c(
-    eurobat_forearm_length_mm = "forearm_length_mm",
-    eurobat_body_mass_g       = "body_mass_g",
-    eurobat_max_longevity_yr  = "max_longevity_yr",
-    eurobat_litter_size       = "litter_size"
-  )
-  col_map  <- c(cat_cols, num_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "eurobat",
-    col_map         = col_map,
-    source_label    = "EuroBaTrait European bat traits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_eurobat, cols = cols, verbose = verbose)
 }
+
+
+.door_eurobat <- list(
+  enrichment_name = "eurobat",
+  col_map = c(
+    eurobat_diet_type = "diet_type",
+    eurobat_first_main_prey = "first_main_prey",
+    eurobat_forearm_length_mm = "forearm_length_mm",
+    eurobat_body_mass_g = "body_mass_g",
+    eurobat_max_longevity_yr = "max_longevity_yr",
+    eurobat_litter_size = "litter_size"
+  ),
+  source_label = "EuroBaTrait European bat traits"
+)

@@ -30,8 +30,9 @@ add_alpine_carabids(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `alpine_` columns: numeric `body_length_mm`,
-categorical `wing_morph`.
+The same data.frame with `alpine_` columns: numeric
+`alpine_carabids_alpine_body_length_mm`, categorical
+`alpine_carabids_alpine_wing_morph`.
 
 ## Details
 

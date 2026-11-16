@@ -31,12 +31,15 @@ add_octocoral(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `octocoral_` columns: numeric `colony_height`,
-`colony_width`, `tentacles_per_polyp`; categorical `growth_form`,
-`type_of_growth`, `type_of_skeleton`, `polyp_retractability`,
-`polyp_dimorphism`, `zooxanthellate`, `axis_presence`,
-`feeding_mechanism`, `coloniality`, `skeletal_rigidity`,
-`calcareous_sclerites_presence`.
+The same data.frame with `octocoral_` columns: numeric
+`octocoral_colony_height`, `octocoral_colony_width`,
+`octocoral_tentacles_per_polyp`; categorical `octocoral_growth_form`,
+`octocoral_type_of_growth`, `octocoral_type_of_skeleton`,
+`octocoral_polyp_retractability`, `octocoral_polyp_dimorphism`,
+`octocoral_zooxanthellate`, `octocoral_axis_presence`,
+`octocoral_feeding_mechanism`, `octocoral_coloniality`,
+`octocoral_skeletal_rigidity`,
+`octocoral_calcareous_sclerites_presence`.
 
 ## Details
 

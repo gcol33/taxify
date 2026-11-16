@@ -37,15 +37,15 @@
 #'
 #' @export
 add_diaz_traits <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "diaz_traits",
-    col_map         = c(
-      seed_mass_mg   = "seed_mass_mg",
-      plant_height_m = "plant_height_m"
-    ),
-    source_label    = "Diaz et al. 2022",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_diaz_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_diaz_traits <- list(
+  enrichment_name = "diaz_traits",
+  col_map = c(
+    seed_mass_mg = "seed_mass_mg",
+    plant_height_m = "plant_height_m"
+  ),
+  source_label = "Diaz et al. 2022"
+)

@@ -22,7 +22,7 @@ Auto-loads the register on first call."><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,7 @@ Auto-loads the register on first call."><meta property="og:image" content="https
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -89,15 +90,51 @@ Auto-loads the register on first call.</p>
 
 
 <dl><dt id="arg-genus">genus<a class="anchor" aria-label="anchor" href="#arg-genus"></a></dt>
-<dd><p>Character scalar. The genus name to look up.</p></dd>
+<dd><p>Character scalar. The genus name to look up, with the same
+capitalization as in the register (for example <code>"Quercus"</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A one-row data.frame, or <code>NULL</code> if the genus is not in the register
-(including <code>NA</code>).</p>
+(including <code>NA</code>). Columns include <code>genus</code>, <code>kingdom</code>, <code>phylum</code>, <code>class</code>,
+<code>order</code>, <code>family</code>, <code>kingdom_group</code>, <code>taxon_group</code> and <code>life_form</code>; builds
+may also supply <code>multi_kingdom</code>. Missing classification values are <code>NA</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="taxify_load_register.html">taxify_load_register()</a></code>, <code><a href="taxify_register_coverage.html">taxify_register_coverage()</a></code></p>
+<p>Other Backbone data and cache:
+<code><a href="taxify_build.html">taxify_build()</a></code>,
+<code><a href="taxify_clean.html">taxify_clean()</a></code>,
+<code><a href="taxify_clear_cache.html">taxify_clear_cache()</a></code>,
+<code><a href="taxify_data_dir.html">taxify_data_dir()</a></code>,
+<code><a href="taxify_download.html">taxify_download()</a></code>,
+<code><a href="taxify_example_data.html">taxify_example_data()</a></code>,
+<code><a href="taxify_load_register.html">taxify_load_register()</a></code>,
+<code><a href="taxify_lock.html">taxify_lock()</a></code>,
+<code><a href="taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code>,
+<code><a href="taxify_register_coverage.html">taxify_register_coverage()</a></code>,
+<code><a href="taxify_restore.html">taxify_restore()</a></code>,
+<code><a href="taxify_store.html">taxify_store()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>               taxify.offline <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">taxify</span><span class="fu">:::</span><span class="fu"><a href="taxify_load_register.html">taxify_load_register</a></span><span class="op">(</span>force <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">lookup_genus</span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       genus kingdom phylum class   order   family kingdom_group taxon_group</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 185 Quercus Plantae   &lt;NA&gt;  &lt;NA&gt; Fagales Fagaceae       plantae  angiosperm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      life_form</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 185 angiosperm</span>
+<span class="r-in"><span><span class="fu">lookup_genus</span><span class="op">(</span><span class="cn">NA_character_</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -34,11 +34,11 @@ add_hosts(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- host_plant_count:
+- hosts_host_plant_count:
 
   Number of distinct hostplant species recorded.
 
-- host_family_count:
+- hosts_host_family_count:
 
   Number of distinct hostplant families recorded.
 

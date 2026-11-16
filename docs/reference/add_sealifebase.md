@@ -34,50 +34,50 @@ add_sealifebase(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- sb_body_length_cm:
+- sealifebase_sb_body_length_cm:
 
   Maximum body length in centimetres.
 
-- sb_body_mass_g:
+- sealifebase_sb_body_mass_g:
 
   Maximum published weight in grams (SeaLifeBase `SPECIES.Weight`). This
   is a record maximum, not a typical or adult-mean mass.
 
-- sb_trophic_level:
+- sealifebase_sb_trophic_level:
 
   Trophic level.
 
-- sb_depth_min_m:
+- sealifebase_sb_depth_min_m:
 
   Minimum depth in metres.
 
-- sb_depth_max_m:
+- sealifebase_sb_depth_max_m:
 
   Maximum depth in metres.
 
-- sb_vulnerability:
+- sealifebase_sb_vulnerability:
 
   Vulnerability index (0–100).
 
-- sb_habitat:
+- sealifebase_sb_habitat:
 
   Habitat type (e.g. benthic, pelagic).
 
-- sb_importance:
+- sealifebase_sb_importance:
 
   Commercial importance category.
 
-- sb_lw_a:
+- sealifebase_sb_lw_a:
 
   Coefficient `a` of the length-weight relationship `W = a * L^b`
   (weight in g, length in cm of type `sb_lw_type`), from SeaLifeBase's
   POPLW table.
 
-- sb_lw_b:
+- sealifebase_sb_lw_b:
 
   Exponent `b` of the length-weight relationship.
 
-- sb_lw_type:
+- sealifebase_sb_lw_type:
 
   Length convention the coefficients were fitted against (`TL` total,
   `SL` standard, `WD` width, ...). Chosen to match the species'
@@ -85,20 +85,20 @@ The same data.frame with additional columns:
   `sb_body_length_cm`. Applying a coefficient to a different length type
   is a silent error.
 
-- sb_lw_method:
+- sealifebase_sb_lw_method:
 
   How the fit was obtained (e.g. "type I linear regression", "single L-W
   pair with b=3").
 
-- sb_lw_sex:
+- sealifebase_sb_lw_sex:
 
   Sex the fit applies to (unsexed, mixed, female, male, juvenile).
 
-- sb_lw_n:
+- sealifebase_sb_lw_n:
 
   Sample size the fit was based on.
 
-- sb_lw_r2:
+- sealifebase_sb_lw_r2:
 
   Coefficient of determination (`r^2`) of the fit.
 
@@ -127,6 +127,30 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Octopus vulgaris", backbone = "gbif") |>
   add_sealifebase()
+#> Matching 1 names...
+#>         input_name     matched_name    accepted_name    taxon_id accepted_id
+#> 1 Octopus vulgaris Octopus vulgaris Octopus vulgaris gbif-ex-015 gbif-ex-015
+#>      rank      family   genus  epithet   authorship accepted_authorship
+#> 1 species Octopodidae Octopus vulgaris Cuvier, 1797        Cuvier, 1797
+#>   is_synonym taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1      FALSE         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 gbif:example (2026-06-24)      animalia      animal    animal      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#>   sealifebase_sb_body_length_cm sealifebase_sb_body_mass_g
+#> 1                            11                         11
+#>   sealifebase_sb_trophic_level sealifebase_sb_depth_min_m
+#> 1                           11                         11
+#>   sealifebase_sb_depth_max_m sealifebase_sb_vulnerability
+#> 1                         11                           11
+#>   sealifebase_sb_habitat sealifebase_sb_importance sealifebase_sb_lw_a
+#> 1        example_habitat        example_importance               0.485
+#>   sealifebase_sb_lw_b sealifebase_sb_lw_type sealifebase_sb_lw_method
+#> 1               2.908                     ML     nonlinear regression
+#>   sealifebase_sb_lw_sex sealifebase_sb_lw_n sealifebase_sb_lw_r2
+#> 1               unsexed                 800                0.841
+#> Sources: GBIF example, SeaLifeBase example | cite() for full citations
 
 options(old)
 ```

@@ -28,7 +28,7 @@ ape phylo object is included too."><meta property="og:image" content="https://gi
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@ ape phylo object is included too."><meta property="og:image" content="https://gi
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -140,19 +141,36 @@ installed / the string could not be parsed. Its <code>tip.label</code> and
 </dl></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="lowest_common.html">lowest_common()</a></code>, <code><a href="add_classification.html">add_classification()</a></code>, <code><a href="taxify.html">taxify()</a></code>.</p></div>
+    <div class="dont-index"><p><code><a href="lowest_common.html">lowest_common()</a></code>, <code><a href="add_classification.html">add_classification()</a></code>, <code><a href="taxify.html">taxify()</a></code>.</p>
+<p>Other Explore the backbone:
+<code><a href="downstream.html">downstream()</a></code>,
+<code><a href="lowest_common.html">lowest_common()</a></code>,
+<code><a href="synonyms.html">synonyms()</a></code>,
+<code><a href="taxify_ids.html">taxify_ids()</a></code>,
+<code><a href="upstream.html">upstream()</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu">class2tree</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus petraea"</span>, <span class="st">"Quercus pyrenaica"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">tr</span><span class="op">$</span><span class="va">newick</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu">class2tree</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Quercus petraea"</span>, <span class="st">"Quercus pyrenaica"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 3 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 3 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 2 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 2 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 2 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-in"><span><span class="va">tr</span><span class="op">$</span><span class="va">newick</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "(((Quercus_robur,Quercus_petraea,Quercus_pyrenaica)Quercus)Fagaceae)root;"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

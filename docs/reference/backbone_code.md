@@ -21,5 +21,6 @@ Character vector of codes, `NA` for an unknown name.
 ## Examples
 
 ``` r
-backbone_code(c("wfo", "evc"))
+taxify:::backbone_code(c("wfo", "evc"))
+#> [1] "taxon"    "syntaxon"
 ```

@@ -30,9 +30,10 @@ add_nztd(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with categorical `nztd_` columns: `bioturbation`,
-`body_size`, `degree_of_attachment`, `feeding_mode`, `living_habit`,
-`mobility`, `morphology`, `movement_method`, `rigidity`.
+The same data.frame with categorical `nztd_` columns:
+`nztd_bioturbation`, `nztd_body_size`, `nztd_degree_of_attachment`,
+`nztd_feeding_mode`, `nztd_living_habit`, `nztd_mobility`,
+`nztd_morphology`, `nztd_movement_method`, `nztd_rigidity`.
 
 ## Details
 

@@ -46,14 +46,21 @@
 #'
 #' @export
 add_bryoatt <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("ellenberg_light", "ellenberg_moisture", "ellenberg_reaction",
-            "ellenberg_nitrogen", "ellenberg_salt", "life_form",
-            "plant_group", "status")
-  col_map <- stats::setNames(base, paste0("bryoatt_", base))
-  enrich_simple(
-    x, enrichment_name = "bryoatt", col_map = col_map,
-    source_label = "BRYOATT (Hill et al. 2007)",
-    cols = cols,
-    verbose = verbose
-  )
+  enrich_door(x, .door_bryoatt, cols = cols, verbose = verbose)
 }
+
+
+.door_bryoatt <- list(
+  enrichment_name = "bryoatt",
+  col_map = c(
+    bryoatt_ellenberg_light = "ellenberg_light",
+    bryoatt_ellenberg_moisture = "ellenberg_moisture",
+    bryoatt_ellenberg_reaction = "ellenberg_reaction",
+    bryoatt_ellenberg_nitrogen = "ellenberg_nitrogen",
+    bryoatt_ellenberg_salt = "ellenberg_salt",
+    bryoatt_life_form = "life_form",
+    bryoatt_plant_group = "plant_group",
+    bryoatt_status = "status"
+  ),
+  source_label = "BRYOATT (Hill et al. 2007)"
+)

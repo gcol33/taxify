@@ -41,13 +41,19 @@
 #'
 #' @export
 add_epa_freshwater <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("feeding_mode", "habit", "voltinism", "thermal_preference",
-            "body_size_class")
-  col_map <- stats::setNames(base, paste0("epa_", base))
-  enrich_simple(
-    x, enrichment_name = "epa_freshwater", col_map = col_map,
-    source_label = "US EPA Freshwater Biological Traits",
-    genus_fallback = TRUE,
-    cols = cols, verbose = verbose
-  )
+  enrich_door(x, .door_epa_freshwater, cols = cols, verbose = verbose)
 }
+
+
+.door_epa_freshwater <- list(
+  enrichment_name = "epa_freshwater",
+  col_map = c(
+    epa_feeding_mode = "feeding_mode",
+    epa_habit = "habit",
+    epa_voltinism = "voltinism",
+    epa_thermal_preference = "thermal_preference",
+    epa_body_size_class = "body_size_class"
+  ),
+  source_label = "US EPA Freshwater Biological Traits",
+  genus_fallback = TRUE
+)

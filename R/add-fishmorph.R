@@ -51,24 +51,23 @@
 #'
 #' @export
 add_fishmorph <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    fish_max_body_length          = "max_body_length",
-    fish_body_elongation          = "body_elongation",
-    fish_vertical_eye_position    = "vertical_eye_position",
-    fish_relative_eye_size        = "relative_eye_size",
-    fish_oral_gape_position       = "oral_gape_position",
-    fish_relative_maxillary_length = "relative_maxillary_length",
-    fish_body_lateral_shape       = "body_lateral_shape",
-    fish_pectoral_fin_position    = "pectoral_fin_position",
-    fish_pectoral_fin_size        = "pectoral_fin_size",
-    fish_caudal_peduncle_throttling = "caudal_peduncle_throttling"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "fishmorph",
-    col_map         = col_map,
-    source_label    = "FISHMORPH",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_fishmorph, cols = cols, verbose = verbose)
 }
+
+
+.door_fishmorph <- list(
+  enrichment_name = "fishmorph",
+  col_map = c(
+    fish_max_body_length = "max_body_length",
+    fish_body_elongation = "body_elongation",
+    fish_vertical_eye_position = "vertical_eye_position",
+    fish_relative_eye_size = "relative_eye_size",
+    fish_oral_gape_position = "oral_gape_position",
+    fish_relative_maxillary_length = "relative_maxillary_length",
+    fish_body_lateral_shape = "body_lateral_shape",
+    fish_pectoral_fin_position = "pectoral_fin_position",
+    fish_pectoral_fin_size = "pectoral_fin_size",
+    fish_caudal_peduncle_throttling = "caudal_peduncle_throttling"
+  ),
+  source_label = "FISHMORPH"
+)

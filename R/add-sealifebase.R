@@ -63,29 +63,28 @@
 #'
 #' @export
 add_sealifebase <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    sb_body_length_cm = "body_length_cm",
-    sb_body_mass_g    = "body_mass_g",
-    sb_trophic_level  = "trophic_level",
-    sb_depth_min_m    = "depth_min_m",
-    sb_depth_max_m    = "depth_max_m",
-    sb_vulnerability  = "vulnerability",
-    sb_habitat        = "habitat",
-    sb_importance     = "importance",
-    sb_lw_a           = "lw_a",
-    sb_lw_b           = "lw_b",
-    sb_lw_type        = "lw_type",
-    sb_lw_method      = "lw_method",
-    sb_lw_sex         = "lw_sex",
-    sb_lw_n           = "lw_n",
-    sb_lw_r2          = "lw_r2"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "sealifebase",
-    col_map         = col_map,
-    source_label    = "SeaLifeBase",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_sealifebase, cols = cols, verbose = verbose)
 }
+
+
+.door_sealifebase <- list(
+  enrichment_name = "sealifebase",
+  col_map = c(
+    sb_body_length_cm = "body_length_cm",
+    sb_body_mass_g = "body_mass_g",
+    sb_trophic_level = "trophic_level",
+    sb_depth_min_m = "depth_min_m",
+    sb_depth_max_m = "depth_max_m",
+    sb_vulnerability = "vulnerability",
+    sb_habitat = "habitat",
+    sb_importance = "importance",
+    sb_lw_a = "lw_a",
+    sb_lw_b = "lw_b",
+    sb_lw_type = "lw_type",
+    sb_lw_method = "lw_method",
+    sb_lw_sex = "lw_sex",
+    sb_lw_n = "lw_n",
+    sb_lw_r2 = "lw_r2"
+  ),
+  source_label = "SeaLifeBase"
+)

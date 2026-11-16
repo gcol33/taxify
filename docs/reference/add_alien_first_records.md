@@ -39,8 +39,8 @@ add_alien_first_records(x, location, cols = NULL, verbose = TRUE)
 - cols:
 
   Character vector of value columns to attach (from
-  `alien_first_record`, `alien_first_record_source`,
-  `alien_first_record_reference`, plus the dataset's further columns
+  `alien_first_records_year`, `alien_first_records_source`,
+  `alien_first_records_reference`, plus the dataset's further columns
   such as `country_code` and `alien_first_record_status`), or `"all"`.
   `NULL` (default) attaches the first three.
 
@@ -52,16 +52,16 @@ add_alien_first_records(x, location, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional column(s):
 
-- alien_first_record:
+- alien_first_records_year:
 
   Year of the first record (integer), or `NA` if not recorded for that
   location.
 
-- alien_first_record_source:
+- alien_first_records_source:
 
   Database that contributed the record (e.g., `"GAVIA"`, `"CABI ISC"`).
 
-- alien_first_record_reference:
+- alien_first_records_reference:
 
   Original citation or reference for the record.
 
@@ -94,9 +94,74 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Robinia pseudoacacia") |>
   add_alien_first_records(location = "AT")
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>             input_name         matched_name        accepted_name   taxon_id
+#> 1 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006
+#>   accepted_id    rank   family   genus      epithet authorship
+#> 1  wfo-ex-006 species Fabaceae Robinia pseudoacacia         L.
+#>   accepted_authorship is_synonym taxonomic_status is_hybrid match_type
+#> 1                  L.      FALSE         ACCEPTED     FALSE      exact
+#>   fuzzy_dist backbone         backbone_version kingdom_group taxon_group
+#> 1         NA      wfo wfo:example (2026-06-24)       plantae        <NA>
+#>   life_form qualifier qualifier_position aggregate_fallback hybrid_type
+#> 1      <NA>      <NA>               <NA>                 NA        <NA>
+#>   alien_first_records_year        alien_first_records_source
+#> 1                       11 example_alien_first_record_source
+#>          alien_first_records_reference
+#> 1 example_alien_first_record_reference
+#> Sources: WFO example, Alien first records (Seebens et al.) example | cite() for full citations
 
 taxify(c("Robinia pseudoacacia", "Ailanthus altissima")) |>
   add_alien_first_records(location = c("AT", "DE", "Hawaii"))
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 2 remaining names...
+#>   [lcvp] Matching 2 remaining names...
+#>   [wfo] Matching 2 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> Tip: pipe into taxify_long() to reshape wide columns to long format.
+#>             input_name         matched_name        accepted_name   taxon_id
+#> 1 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006
+#> 2  Ailanthus altissima  Ailanthus altissima  Ailanthus altissima wfo-ex-007
+#>   accepted_id    rank        family     genus      epithet      authorship
+#> 1  wfo-ex-006 species      Fabaceae   Robinia pseudoacacia              L.
+#> 2  wfo-ex-007 species Simaroubaceae Ailanthus    altissima (Mill.) Swingle
+#>   accepted_authorship is_synonym taxonomic_status is_hybrid match_type
+#> 1                  L.      FALSE         ACCEPTED     FALSE      exact
+#> 2     (Mill.) Swingle      FALSE         ACCEPTED     FALSE      exact
+#>   fuzzy_dist backbone         backbone_version kingdom_group taxon_group
+#> 1         NA      wfo wfo:example (2026-06-24)       plantae        <NA>
+#> 2         NA      wfo wfo:example (2026-06-24)       plantae  angiosperm
+#>    life_form qualifier qualifier_position aggregate_fallback hybrid_type
+#> 1       <NA>      <NA>               <NA>                 NA        <NA>
+#> 2 angiosperm      <NA>               <NA>                 NA        <NA>
+#>   alien_first_records_year_AT     alien_first_records_source_AT
+#> 1                          11 example_alien_first_record_source
+#> 2                          13 example_alien_first_record_source
+#>       alien_first_records_reference_AT alien_first_records_year_DE
+#> 1 example_alien_first_record_reference                          12
+#> 2 example_alien_first_record_reference                          14
+#>       alien_first_records_source_DE     alien_first_records_reference_DE
+#> 1 example_alien_first_record_source example_alien_first_record_reference
+#> 2 example_alien_first_record_source example_alien_first_record_reference
+#>   alien_first_records_year_Hawaii alien_first_records_source_Hawaii
+#> 1                              15 example_alien_first_record_source
+#> 2                              NA                              <NA>
+#>   alien_first_records_reference_Hawaii
+#> 1 example_alien_first_record_reference
+#> 2                                 <NA>
+#> Sources: WFO example, Alien first records (Seebens et al.) example | cite() for full citations
 
 options(old)
 ```

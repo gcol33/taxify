@@ -45,17 +45,14 @@
 #'
 #' @export
 add_common_names <- function(x, lang = "en", cols = NULL, verbose = TRUE) {
-  enrich_by_group(
-    x,
-    enrichment_name = "common_names",
-    group_col       = "lang",
-    groups          = lang,
-    value_cols      = c(common_name = "common_name"),
-    source_label    = "vernacular names",
-    # The asset keeps every name a taxon has in a language, ranked by how many
-    # records give it; the column shows the first.
-    prefer          = list(col = "name_rank", order = 1L),
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_common_names, groups = lang, cols = cols, verbose = verbose)
 }
+
+
+.door_common_names <- list(
+  enrichment_name = "common_names",
+  group_col = "lang",
+  value_cols = c(common_name = "common_name"),
+  source_label = "vernacular names",
+  prefer = list(col = "name_rank", order = 1L)
+)

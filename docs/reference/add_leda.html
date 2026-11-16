@@ -26,7 +26,7 @@ seed, leaf, and clonality traits."><meta property="og:image" content="https://gi
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ seed, leaf, and clonality traits."><meta property="og:image" content="https://gi
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -108,44 +109,44 @@ seed, leaf, and clonality traits.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns:</p><dl><dt>raunkiaer_life_form</dt>
+    <p>The same data.frame with additional columns:</p><dl><dt>leda_raunkiaer_life_form</dt>
 <dd><p>Most frequent LEDA plant growth form: the
 Raunkiaer classes (Phanerophyte, Chamaephyte, Hemicryptophyte, Geophyte,
 Therophyte, Hydrophyte) plus Liana, Vascular semi-parasite and Vascular
 parasite.</p></dd>
 
-<dt>raunkiaer_variable</dt>
+<dt>leda_raunkiaer_variable</dt>
 <dd><p>1 if the species' records name more than one
 growth form, 0 otherwise.</p></dd>
 
-<dt>dispersal_type</dt>
+<dt>leda_dispersal_type</dt>
 <dd><p>Most frequent dispersal type, as LEDA's -chor term
 (meteorochor, epizoochor, nautochor, ...).</p></dd>
 
-<dt>terminal_velocity_ms</dt>
+<dt>leda_terminal_velocity_ms</dt>
 <dd><p>Diaspore terminal velocity in m/s (species
 median).</p></dd>
 
-<dt>seed_mass_mg</dt>
+<dt>leda_seed_mass_mg</dt>
 <dd><p>Seed mass in mg (species median). Prefixed with
 <code>leda_</code> in the .vtr to avoid collision with Diaz traits.</p></dd>
 
-<dt>canopy_height_m</dt>
+<dt>leda_canopy_height_m</dt>
 <dd><p>Canopy height in metres (species median): the
 height of the highest photosynthetic tissue, which LEDA distinguishes from
 plant height.</p></dd>
 
-<dt>leaf_mass_mg</dt>
+<dt>leda_leaf_mass_mg</dt>
 <dd><p>Leaf dry mass in mg (species median).</p></dd>
 
-<dt>sla_mm2_mg</dt>
+<dt>leda_sla_mm2_mg</dt>
 <dd><p>Specific leaf area in mm\(^2\)/mg (species median).</p></dd>
 
-<dt>clonal_growth_organ</dt>
+<dt>leda_clonal_growth_organ</dt>
 <dd><p>Most frequent primary clonal growth organ
 (epigeogeneous stems, root-splitters, bulbs, ...).</p></dd>
 
-<dt>floating_capacity_1week_pct</dt>
+<dt>leda_floating_capacity_1week_pct</dt>
 <dd><p>Percentage of diaspores still floating
 after one week (species median).</p></dd>
 
@@ -170,14 +171,44 @@ traits of the Northwest European flora. Journal of Ecology 96:1266-1274.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Arrhenatherum elatius"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_leda</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Arrhenatherum elatius"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_leda</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_leda(): attaching 10 of 87 columns. Pass cols = "all" for all, or see enrichment_cols("leda").</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              input_name          matched_name         accepted_name   taxon_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Arrhenatherum elatius Arrhenatherum elatius Arrhenatherum elatius wfo-ex-008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   accepted_id    rank  family         genus epithet</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  wfo-ex-008 species Poaceae Arrhenatherum elatius</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                           authorship                accepted_authorship</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (L.) P.Beauv. ex J.Presl &amp; C.Presl (L.) P.Beauv. ex J.Presl &amp; C.Presl</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_synonym taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      FALSE         ACCEPTED     FALSE      exact         NA      wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type leda_raunkiaer_life_form</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;          Hemicryptophyte</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   leda_raunkiaer_variable leda_dispersal_type leda_terminal_velocity_ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                       0          epizoochor                     2.645</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   leda_seed_mass_mg leda_canopy_height_m leda_leaf_mass_mg leda_sla_mm2_mg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1             2.774                 1.35          30.65406          29.035</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   leda_clonal_growth_organ leda_floating_capacity_1week_pct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      epigeogeneous stems                               25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, LEDA Traitbase example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

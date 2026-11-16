@@ -24,15 +24,18 @@
 #'
 #' @export
 add_odonata <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c("territoriality", "flight_mode", "mate_guarding",
-            "habitat_openness", "has_wing_pigment")
-  col_map <- stats::setNames(base_cols, paste0("odonata_", base_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "odonata",
-    col_map         = col_map,
-    source_label    = "Odonate Phenotypic Database",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_odonata, cols = cols, verbose = verbose)
 }
+
+
+.door_odonata <- list(
+  enrichment_name = "odonata",
+  col_map = c(
+    odonata_territoriality = "territoriality",
+    odonata_flight_mode = "flight_mode",
+    odonata_mate_guarding = "mate_guarding",
+    odonata_habitat_openness = "habitat_openness",
+    odonata_has_wing_pigment = "has_wing_pigment"
+  ),
+  source_label = "Odonate Phenotypic Database"
+)

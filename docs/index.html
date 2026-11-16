@@ -43,7 +43,7 @@
 
     <a class="navbar-brand me-2" href="index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,7 @@
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="articles/enrichments.html">Attaching published data</a></li>
@@ -107,14 +108,14 @@
 <!-- badges: start -->
 
 <p>taxify matches taxonomic names, such as a field survey’s species list or the species column of a trait table, to their currently accepted names.</p>
-<p>The package performs the name-resolution step of <a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a> and <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a>, run offline against local backbone files. A backbone is a published taxonomic database, such as the Catalogue of Life or World Flora Online, downloaded once and stored on your disk. Each name comes back with its accepted name, how it was matched, and the backbone version that matched it, so you can review the uncertain matches and decide which to keep. taxify supports:</p>
+<p>There are already R packages for name matching, such as <a href="https://docs.ropensci.org/taxize/" class="external-link">taxize</a> and <a href="https://cran.r-project.org/package=WorldFlora" class="external-link">WorldFlora</a>. taxify works offline, against backbone files on your disk, and searches <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> backbones in one call. A backbone is a published taxonomic database, such as the Catalogue of Life or World Flora Online, downloaded once. For each name, taxify reports the accepted name, how the name was matched and which backbone version matched it, so you can review the uncertain matches and decide which to keep. taxify supports:</p>
 <ul>
-<li><p><strong>Backbones for every group.</strong> taxify reads <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> taxon backbones: global checklists (Catalogue of Life, GBIF, ITIS, NCBI, Open Tree of Life) and the authorities of single groups (World Flora Online, WoRMS, Species Fungorum, AlgaeBase, FishBase, the Mammal Diversity Database, AviList and others), all returning the same columns. Several backbones form a fallback chain, so a name one backbone lacks is matched by the next.</p></li>
-<li><p><strong>Published data on the accepted name.</strong> Trait, status and distribution datasets, <!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count --> of them, from the IUCN Red List to seed mass and fish morphology, are joined by the accepted name, so a dataset that writes a synonym still lines up. <a href="https://gillescolling.com/taxify/reference/add_trait.html"><code>add_trait()</code></a> gathers one trait from every dataset that carries it.</p></li>
+<li><p><strong>Backbones for every group.</strong> taxify reads <!-- manifest:backbone-count -->19<!-- /manifest:backbone-count --> taxon backbones: global checklists (the Catalogue of Life, the GBIF Backbone Taxonomy of the Global Biodiversity Information Facility, the Integrated Taxonomic Information System (ITIS), the NCBI Taxonomy of the US National Center for Biotechnology Information and the Open Tree of Life) and the authorities of single groups (World Flora Online, the World Register of Marine Species (WoRMS), Species Fungorum, AlgaeBase, FishBase, the Mammal Diversity Database, AviList and others), all returning the same columns. Several backbones form a fallback chain, so a name one backbone lacks is matched by the next.</p></li>
+<li><p><strong>Published data on the accepted name.</strong> Trait, status and distribution datasets, <!-- manifest:enrichment-count -->109<!-- /manifest:enrichment-count --> of them, from the Red List of the International Union for Conservation of Nature (IUCN) to seed mass and fish morphology, are joined by the accepted name, so a dataset that writes a synonym still lines up. <a href="https://gillescolling.com/taxify/reference/add_trait.html"><code>add_trait()</code></a> gathers one trait from every dataset that carries it.</p></li>
 <li><p><strong>Checking a list.</strong> <a href="https://gillescolling.com/taxify/reference/inspect.html"><code>inspect()</code></a> returns only the names that need a look (typos, outdated synonyms, spellings shared by several taxa, unknown genera, an animal in a plant list), each with the name to use.</p></li>
 <li><p><strong>Vegetation units.</strong> Two vegetation classifications, the EuroVegChecklist and the Czech national classification, resolve alliance and association names the way species names are resolved.</p></li>
 </ul>
-<p>The accepted name is the backbone’s own, and where backbones disagree, <code>mode = "wide"</code> shows each one’s answer side by side. Every row records the backbone and its version, <code><a href="reference/cite.html">cite()</a></code> prints the references of every backbone and dataset a result used, and <code><a href="reference/taxify_lock.html">taxify_lock()</a></code> saves the versions so the analysis can be rerun on the same data. A script in the repository matches 300 World Flora Online names in taxify and in WorldFlora; 277 get the same accepted name, and <a href="https://gillescolling.com/taxify/articles/migration.html">Compatibility with taxize and WorldFlora</a> shows where and why the others differ.</p>
+<p>The accepted name is the backbone’s own, and where backbones disagree, <code>mode = "wide"</code> shows each one’s answer side by side. Every row records the backbone and its version. The references of every backbone and dataset a result used are printed by <code><a href="reference/cite.html">cite()</a></code>, and the versions are saved by <code><a href="reference/taxify_lock.html">taxify_lock()</a></code> so the analysis can be rerun on the same data. A script in the repository matches 300 World Flora Online names in taxify and in WorldFlora; 277 get the same accepted name, and <a href="https://gillescolling.com/taxify/articles/migration.html">Compatibility with taxize and WorldFlora</a> shows where and why the others differ.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -124,7 +125,7 @@
 <span><span class="co"># or the development version</span></span>
 <span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"gcol33/taxify"</span><span class="op">)</span></span></code></pre></div>
-<p>The first call to <code><a href="reference/taxify.html">taxify()</a></code> downloads the Catalogue of Life (COL), the GBIF Backbone Taxonomy and the Integrated Taxonomic Information System (ITIS), about 4 GB in all. Later calls read them from disk.</p>
+<p><code><a href="reference/install_backbones.html">install_backbones()</a></code> downloads the Catalogue of Life (COL), the GBIF Backbone Taxonomy and ITIS, about 1.1 GB in all. Matching then reads them from disk, and <code><a href="reference/taxify_clean.html">taxify_clean()</a></code> removes them again.</p>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
@@ -132,7 +133,7 @@
 <ol style="list-style-type: decimal">
 <li><p>Match the names with <code><a href="reference/taxify.html">taxify()</a></code>.</p></li>
 <li><p>Look at the matches that need a decision with <code><a href="reference/inspect.html">inspect()</a></code>.</p></li>
-<li><p>Join data on the accepted name with <code><a href="reference/add_data.html">add_data()</a></code> for your own table, or with an <code>add_&lt;source&gt;()</code> function for a published dataset.</p></li>
+<li><p>Join data on the accepted name with <code><a href="reference/add_data.html">add_data()</a></code> for your own table, or with a published dataset’s own function, such as <code><a href="reference/add_iucn.html">add_iucn()</a></code>.</p></li>
 </ol>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gillescolling.com/taxify/">taxify</a></span><span class="op">)</span></span>
@@ -158,13 +159,15 @@
 <span><span class="co">#&gt; 4 Fallopia japonica Reynoutria japonica      exact       TRUE</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09 | cite() for full citations</span></span></code></pre></div>
 <p><em>Quercus robur</em> is matched as written. <em>Quercus robus</em> has a typo and reaches <em>Q. robur</em> by fuzzy matching, which compares it with the names of its own genus. <em>Pinus abies</em> and <em>Fallopia japonica</em> are outdated synonyms of <em>Picea abies</em> and <em>Reynoutria japonica</em>. The warning names an input whose spelling belongs to more than one accepted taxon; the <code>n_ids</code> and <code>accepted_ids</code> columns count and list them.</p>
-<p>The input is a character vector of names. Authors, qualifiers such as <code>cf.</code> and <code>agg.</code>, capitals and an abbreviated genus are handled before matching. Without <code>backbone</code>, every installed backbone is tried in a fixed priority order, starting with the Catalogue of Life; <code>backbone = c("wfo", "col")</code> names the chain.</p>
+<p>The input is a character vector of names. Authors, qualifiers such as <code>cf.</code> and <code>agg.</code>, capitals and an abbreviated genus are handled before matching. Without <code>backbone</code>, every installed backbone is tried in a fixed priority order, starting with the Catalogue of Life. A vector such as <code>backbone = c("wfo", "col")</code> names the chain.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/inspect.html">inspect</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   Range outlier check skipped: WCVP not installed.</span></span>
 <span><span class="co">#&gt; ── taxify inspection ──────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   4 names inspected  |  3 with anomalies</span></span>
 <span><span class="co">#&gt;   backbones: col, gbif, itis</span></span>
 <span><span class="co">#&gt;   review: 2   note: 1</span></span>
+<span><span class="co">#&gt;   not checked: out_of_range (WCVP range data not installed)</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   [review] Pinus abies        -&gt;  Picea abies          ambiguous (targets: 4HPZF|8K9Y|6BRMR|4HQ4F); outdated synonym</span></span>
 <span><span class="co">#&gt;   [review] Quercus robus      -&gt;  Quercus robur        likely misspelling</span></span>
@@ -195,7 +198,7 @@
 <p>The backbone files also answer lookups by synonym, rank and lineage:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/synonyms.html">synonyms</a></span><span class="op">(</span><span class="st">"Picea abies"</span><span class="op">)</span>                     <span class="co"># every synonym of a name</span></span>
-<span><span class="fu"><a href="reference/children.html">children</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span>                         <span class="co"># the species of a genus</span></span>
+<span><span class="fu"><a href="reference/downstream.html">downstream</a></span><span class="op">(</span><span class="st">"Quercus"</span><span class="op">)</span>                         <span class="co"># the species of a genus</span></span>
 <span><span class="fu"><a href="reference/upstream.html">upstream</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, to <span class="op">=</span> <span class="st">"family"</span><span class="op">)</span>    <span class="co"># the family of a name</span></span>
 <span><span class="fu"><a href="reference/sci2comm.html">sci2comm</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span>                   <span class="co"># common names</span></span>
 <span><span class="fu"><a href="reference/parse_name.html">parse_name</a></span><span class="op">(</span><span class="st">"Quercus robur (L.) H.Karst."</span><span class="op">)</span>   <span class="co"># genus, epithet, author</span></span></code></pre></div>
@@ -211,18 +214,30 @@
 </h2>
 <p>Start with <a href="https://gillescolling.com/taxify/articles/taxify.html">Get started</a>: one path from a messy list to accepted names with traits attached.</p>
 <ul>
-<li><p><a href="https://gillescolling.com/taxify/articles/backbones.html">Choosing and combining backbones</a>: which backbone for which group, fallback chains, versions.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/inspecting-names.html">Checking a name list</a>: every label of <code><a href="reference/inspect.html">inspect()</a></code>, and <code><a href="reference/reconcile.html">reconcile()</a></code> for a checklist.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/regions.html">Matching within a region</a>: preferring the species that occur where the list was made.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/enrichments.html">Attaching published data</a> and <a href="https://gillescolling.com/taxify/articles/custom-data.html">Joining your own data</a>: the two kinds of join.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/exploring.html">Exploring the backbone</a>: synonyms, children, classification and common names.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/gbif-requests.html">Requesting GBIF data for a species list</a>: from matched names to an occurrence download.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/vegetation-units.html">Matching vegetation units</a>: alliances and associations against the EuroVegChecklist.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/large-scale.html">Matching large lists</a>: timings, memory, and long lists run in parts.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/fuzzy-matching.html">How names are matched</a> and <a href="https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html">Hybrids and aggregates</a>: the matching rules in detail.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/migration.html">Compatibility with taxize and WorldFlora</a>: agreement with WorldFlora, function mapping and timings.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/articles/databases.html">The backbones and datasets</a>: every backbone and dataset with its version, licence and reference.</p></li>
-<li><p><a href="https://gillescolling.com/taxify/reference/">Full reference</a>: every function, grouped by job.</p></li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/backbones.html">Choosing and combining backbones</a>: which backbone for which group, fallback chains, versions.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/inspecting-names.html">Checking a name list</a>: every label of <code><a href="reference/inspect.html">inspect()</a></code>, and <code><a href="reference/reconcile.html">reconcile()</a></code> for a checklist.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/regions.html">Matching within a region</a>: preferring the species that occur where the list was made.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/enrichments.html">Attaching published data</a> and <a href="https://gillescolling.com/taxify/articles/custom-data.html">Joining your own data</a>: the two kinds of join.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/exploring.html">Exploring the backbone</a>: synonyms, children, classification and common names.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/gbif-requests.html">Requesting GBIF data for a species list</a>: from matched names to an occurrence download.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/vegetation-units.html">Matching vegetation units</a>: alliances and associations against the EuroVegChecklist.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/large-scale.html">Matching large lists</a>: timings, memory, and long lists run in parts.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/fuzzy-matching.html">How names are matched</a> and <a href="https://gillescolling.com/taxify/articles/hybrids-and-aggregates.html">Hybrids and aggregates</a>: the matching rules in detail.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/migration.html">Compatibility with taxize and WorldFlora</a>: agreement with WorldFlora, function mapping and timings.</li>
+<li>
+<a href="https://gillescolling.com/taxify/articles/databases.html">The backbones and datasets</a>: every backbone and dataset with its version, licence and reference.</li>
+<li>
+<a href="https://gillescolling.com/taxify/reference/">Full reference</a>: every function, grouped by job.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -246,11 +261,6 @@
 <p><a href="https://buymeacoffee.com/gcol33" class="external-link"><img src="https://img.shields.io/badge/-Buy%20me%20a%20coffee-FFDD00?logo=buymeacoffee&amp;logoColor=black" alt="Buy Me A Coffee"></a></p>
 </div>
 <div class="section level2">
-<h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
-</h2>
-<p>The backbones and datasets are the work of the institutions and authors who compile and publish them; <code><a href="reference/cite.html">cite()</a></code> lists the reference for each one a result used.</p>
-</div>
-<div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
 <p>taxify is licensed under MIT. Each backbone and dataset keeps the licence of its publisher, listed in <a href="https://gillescolling.com/taxify/articles/databases.html">The backbones and datasets</a>.</p>
@@ -262,13 +272,13 @@
 <pre class="text"><code>Colling G (2026). _taxify: Offline Taxonomic Name Matching Against
 Darwin Core Backbones_. doi:10.32614/CRAN.package.taxify
 &lt;https://doi.org/10.32614/CRAN.package.taxify&gt;. R package version
-0.7.0, &lt;https://gillescolling.com/taxify/&gt;.</code></pre>
+0.7.1, &lt;https://gillescolling.com/taxify/&gt;.</code></pre>
 <p>BibTeX:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="va">@Manual</span>{<span class="ot">colling2026taxify</span>,</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="dt">title</span> = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},</span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="dt">author</span> = {Gilles Colling},</span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="dt">year</span> = {2026},</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="dt">note</span> = {R package version 0.7.0},</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="dt">note</span> = {R package version 0.7.1},</span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="dt">doi</span> = {10.32614/CRAN.package.taxify},</span>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="dt">url</span> = {https://gillescolling.com/taxify/},</span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>}</span></code></pre></div>

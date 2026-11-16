@@ -67,9 +67,49 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Quercus robur") |>
   add_common_names()
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Skipped (all names matched)
+#>   [lcvp] Skipped (all names matched)
+#>   [wfo] Skipped (all names matched)
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>      input_name  matched_name accepted_name   taxon_id accepted_id    rank
+#> 1 Quercus robur Quercus robur Quercus robur col-ex-001  col-ex-001 species
+#>     family   genus epithet authorship accepted_authorship is_synonym
+#> 1 Fagaceae Quercus   robur         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA      col
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 col:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type         common_name
+#> 1               <NA>                 NA        <NA> example_common_name
+#> Sources: COL example, vernacular names example | cite() for full citations
 
 taxify("Quercus robur") |>
   add_common_names(lang = "de")
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Skipped (all names matched)
+#>   [lcvp] Skipped (all names matched)
+#>   [wfo] Skipped (all names matched)
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>      input_name  matched_name accepted_name   taxon_id accepted_id    rank
+#> 1 Quercus robur Quercus robur Quercus robur col-ex-001  col-ex-001 species
+#>     family   genus epithet authorship accepted_authorship is_synonym
+#> 1 Fagaceae Quercus   robur         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA      col
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 col:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type         common_name
+#> 1               <NA>                 NA        <NA> example_common_name
+#> Sources: COL example, vernacular names example | cite() for full citations
 
 options(old)
 ```

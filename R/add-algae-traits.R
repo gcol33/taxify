@@ -43,22 +43,21 @@
 #'
 #' @export
 add_algae_traits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    algae_body_size_cm  = "body_size_cm",
-    algae_growth_form   = "growth_form",
-    algae_calcification = "calcification",
-    algae_life_span     = "life_span",
-    algae_tidal_zone    = "tidal_zone",
-    algae_wave_exposure = "wave_exposure",
-    algae_environment   = "environment",
-    algae_substrate     = "substrate"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "algae_traits",
-    col_map         = col_map,
-    source_label    = "AlgaeTraits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_algae_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_algae_traits <- list(
+  enrichment_name = "algae_traits",
+  col_map = c(
+    algae_body_size_cm = "body_size_cm",
+    algae_growth_form = "growth_form",
+    algae_calcification = "calcification",
+    algae_life_span = "life_span",
+    algae_tidal_zone = "tidal_zone",
+    algae_wave_exposure = "wave_exposure",
+    algae_environment = "environment",
+    algae_substrate = "substrate"
+  ),
+  source_label = "AlgaeTraits"
+)

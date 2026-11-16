@@ -42,27 +42,23 @@
 #'
 #' @export
 add_edwards_phyto <- function(x, cols = NULL, verbose = TRUE) {
-  cat_cols <- c(
-    edwards_taxon_group    = "taxon_group",
-    edwards_habitat_system = "habitat_system"
-  )
-  num_cols <- c(
-    edwards_cell_volume     = "cell_volume",
-    edwards_carbon_per_cell = "carbon_per_cell",
-    edwards_mu_inf_nit      = "mu_inf_nit",
-    edwards_k_nit           = "k_nit",
-    edwards_qmin_nit        = "qmin_nit",
-    edwards_mu_inf_p        = "mu_inf_p",
-    edwards_k_p             = "k_p",
-    edwards_qmin_p          = "qmin_p"
-  )
-  col_map <- c(cat_cols, num_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "edwards_phyto",
-    col_map         = col_map,
-    source_label    = "Edwards phytoplankton nutrient traits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_edwards_phyto, cols = cols, verbose = verbose)
 }
+
+
+.door_edwards_phyto <- list(
+  enrichment_name = "edwards_phyto",
+  col_map = c(
+    edwards_taxon_group = "taxon_group",
+    edwards_habitat_system = "habitat_system",
+    edwards_cell_volume = "cell_volume",
+    edwards_carbon_per_cell = "carbon_per_cell",
+    edwards_mu_inf_nit = "mu_inf_nit",
+    edwards_k_nit = "k_nit",
+    edwards_qmin_nit = "qmin_nit",
+    edwards_mu_inf_p = "mu_inf_p",
+    edwards_k_p = "k_p",
+    edwards_qmin_p = "qmin_p"
+  ),
+  source_label = "Edwards phytoplankton nutrient traits"
+)

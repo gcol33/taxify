@@ -23,13 +23,12 @@
 #'
 #' @export
 add_tetradensity <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(tetradensity_density_ind_km2 = "density_ind_km2")
-  enrich_simple(
-    x,
-    enrichment_name = "tetradensity",
-    col_map         = col_map,
-    source_label    = "TetraDENSITY",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_tetradensity, cols = cols, verbose = verbose)
 }
+
+
+.door_tetradensity <- list(
+  enrichment_name = "tetradensity",
+  col_map = c(tetradensity_density_ind_km2 = "density_ind_km2"),
+  source_label = "TetraDENSITY"
+)

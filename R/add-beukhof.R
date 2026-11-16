@@ -27,19 +27,26 @@
 #'
 #' @export
 add_beukhof <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("trophic_level", "aspect_ratio", "offspring_size",
-                "age_maturity", "fecundity", "length_infinity_cm",
-                "growth_coefficient", "length_max_cm")
-  cat_cols <- c("habitat", "feeding_mode", "body_shape", "fin_shape",
-                "spawning_type")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("beukhof_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "beukhof",
-    col_map         = col_map,
-    source_label    = "Beukhof marine fish",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_beukhof, cols = cols, verbose = verbose)
 }
+
+
+.door_beukhof <- list(
+  enrichment_name = "beukhof",
+  col_map = c(
+    beukhof_trophic_level = "trophic_level",
+    beukhof_aspect_ratio = "aspect_ratio",
+    beukhof_offspring_size = "offspring_size",
+    beukhof_age_maturity = "age_maturity",
+    beukhof_fecundity = "fecundity",
+    beukhof_length_infinity_cm = "length_infinity_cm",
+    beukhof_growth_coefficient = "growth_coefficient",
+    beukhof_length_max_cm = "length_max_cm",
+    beukhof_habitat = "habitat",
+    beukhof_feeding_mode = "feeding_mode",
+    beukhof_body_shape = "body_shape",
+    beukhof_fin_shape = "fin_shape",
+    beukhof_spawning_type = "spawning_type"
+  ),
+  source_label = "Beukhof marine fish"
+)

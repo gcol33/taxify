@@ -26,7 +26,7 @@ list_enrichments() for the backbone side."><meta property="og:image" content="ht
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ list_enrichments() for the backbone side."><meta property="og:image" content="ht
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -124,10 +125,33 @@ for a backbone whose upstream date has not been recorded.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="fu">list_backbones</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>               taxify.offline <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">list_backbones</span><span class="op">(</span>verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name                                   title                       scope</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   wfo                      World Flora Online             Vascular plants</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   col                       Catalogue of Life                All kingdoms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 colxr      Catalogue of Life Extended Release                All kingdoms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  gbif                  GBIF Backbone Taxonomy                All kingdoms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  itis Integrated Taxonomic Information System US focus, freshwater/marine</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  ncbi                           NCBI Taxonomy                    All life</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_names size_mb version source_date installed  code</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1664014     120 2026.06  2026-06-21      TRUE taxon</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 5432444     573 2026.09  2026-09-11      TRUE taxon</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 8479599     399 2026.09  2026-09-25     FALSE taxon</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 6404001     461 2023.08  2023-08-28      TRUE taxon</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 1000552      52 2026.09  2026-08-27     FALSE taxon</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2952424     110 2026.09     2026-09     FALSE taxon</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                  source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     https://www.worldfloraonline.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      https://www.catalogueoflife.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      https://www.catalogueoflife.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                 https://www.gbif.org/</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                  https://www.itis.gov</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 https://www.ncbi.nlm.nih.gov/taxonomy</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

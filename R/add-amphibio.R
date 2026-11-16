@@ -45,27 +45,26 @@
 #'
 #' @export
 add_amphibio <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    body_size_mm        = "body_size_mm",
-    age_maturity_y      = "age_maturity_y",
-    longevity_yr        = "longevity_yr",
-    litter_size         = "litter_size",
-    reproductive_output = "reproductive_output",
-    offspring_size_mm   = "offspring_size_mm",
-    direct_development  = "direct_development",
-    larval              = "larval",
-    aquatic             = "aquatic",
-    fossorial           = "fossorial",
-    arboreal            = "arboreal",
-    diurnal             = "diurnal",
-    nocturnal_amphibio  = "nocturnal_amphibio"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "amphibio",
-    col_map         = col_map,
-    source_label    = "AmphiBIO",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_amphibio, cols = cols, verbose = verbose)
 }
+
+
+.door_amphibio <- list(
+  enrichment_name = "amphibio",
+  col_map = c(
+    body_size_mm = "body_size_mm",
+    age_maturity_y = "age_maturity_y",
+    longevity_yr = "longevity_yr",
+    litter_size = "litter_size",
+    reproductive_output = "reproductive_output",
+    offspring_size_mm = "offspring_size_mm",
+    direct_development = "direct_development",
+    larval = "larval",
+    aquatic = "aquatic",
+    fossorial = "fossorial",
+    arboreal = "arboreal",
+    diurnal = "diurnal",
+    nocturnal_amphibio = "nocturnal_amphibio"
+  ),
+  source_label = "AmphiBIO"
+)

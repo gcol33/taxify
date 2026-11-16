@@ -40,9 +40,10 @@ The same data.frame with additional columns, mirroring
 [`add_combine_reported()`](https://gillescolling.com/taxify/reference/add_combine_reported.md)
 but named `combine_imputed_*` (e.g. `combine_imputed_adult_mass_g`,
 `combine_imputed_gestation_length_d`). Traits COMBINE does not impute
-(for example `biogeographical_realm` and `habitat_breadth_n`) carry the
-reported coverage; the life-history traits (gestation, weaning,
-longevity, litter size, generation length, ...) are near-complete.
+(for example `combine_imputed_biogeographical_realm` and
+`combine_imputed_habitat_breadth_n`) carry the reported coverage; the
+life-history traits (gestation, weaning, longevity, litter size,
+generation length, ...) are near-complete.
 
 ## Details
 

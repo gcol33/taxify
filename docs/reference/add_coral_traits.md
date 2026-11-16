@@ -33,55 +33,55 @@ add_coral_traits(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- coral_symbiotic_state:
+- coral_traits_coral_symbiotic_state:
 
   Zooxanthellate / azooxanthellate.
 
-- coral_growth_form:
+- coral_traits_coral_growth_form:
 
   Typical growth form (massive/branching/...).
 
-- coral_coloniality:
+- coral_traits_coral_coloniality:
 
   Colonial / solitary.
 
-- coral_substrate_attachment:
+- coral_traits_coral_substrate_attachment:
 
   Attached / unattached.
 
-- coral_sexual_system:
+- coral_traits_coral_sexual_system:
 
   Hermaphrodite / gonochore.
 
-- coral_larval_development_mode:
+- coral_traits_coral_larval_development_mode:
 
   Spawner / brooder.
 
-- coral_symbiont_clade:
+- coral_traits_coral_symbiont_clade:
 
   Symbiodinium clade.
 
-- coral_corallite_width_max_mm:
+- coral_traits_coral_corallite_width_max_mm:
 
   Maximum corallite width (mm).
 
-- coral_colony_max_diameter_cm:
+- coral_traits_coral_colony_max_diameter_cm:
 
   Maximum colony diameter (cm).
 
-- coral_growth_rate_mm_yr:
+- coral_traits_coral_growth_rate_mm_yr:
 
   Linear extension rate (mm/year).
 
-- coral_depth_lower_m:
+- coral_traits_coral_depth_lower_m:
 
   Lower depth limit (m).
 
-- coral_depth_upper_m:
+- coral_traits_coral_depth_upper_m:
 
   Upper depth limit (m).
 
-- coral_skeletal_density_g_cm3:
+- coral_traits_coral_skeletal_density_g_cm3:
 
   Skeletal density (g/cm3).
 

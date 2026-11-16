@@ -82,6 +82,14 @@ name -\> ID,
 [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
 [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md).
 
+Other Match and inspect names:
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md),
+[`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md),
+[`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md),
+[`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md),
+[`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+
 ## Examples
 
 ``` r
@@ -90,7 +98,12 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 # Round-trip: resolve a name, then look its ID back up
 r <- taxify("Quercus robur", backbone = "col")
+#> Matching 1 names...
 id2name(r$taxon_id, backbone = "col")
+#>           id          name authorship    rank is_synonym accepted_name   family
+#> 1 col-ex-001 Quercus robur         L. SPECIES      FALSE Quercus robur Fagaceae
+#>     genus backbone
+#> 1 Quercus      col
 
 options(old)
 ```

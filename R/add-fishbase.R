@@ -63,29 +63,28 @@
 #'
 #' @export
 add_fishbase <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    fb_body_length_cm = "body_length_cm",
-    fb_body_mass_g    = "body_mass_g",
-    fb_trophic_level  = "trophic_level",
-    fb_depth_min_m    = "depth_min_m",
-    fb_depth_max_m    = "depth_max_m",
-    fb_vulnerability  = "vulnerability",
-    fb_habitat        = "habitat",
-    fb_importance     = "importance",
-    fb_lw_a           = "lw_a",
-    fb_lw_b           = "lw_b",
-    fb_lw_type        = "lw_type",
-    fb_lw_method      = "lw_method",
-    fb_lw_sex         = "lw_sex",
-    fb_lw_n           = "lw_n",
-    fb_lw_r2          = "lw_r2"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "fishbase",
-    col_map         = col_map,
-    source_label    = "FishBase",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_fishbase, cols = cols, verbose = verbose)
 }
+
+
+.door_fishbase <- list(
+  enrichment_name = "fishbase",
+  col_map = c(
+    fb_body_length_cm = "body_length_cm",
+    fb_body_mass_g = "body_mass_g",
+    fb_trophic_level = "trophic_level",
+    fb_depth_min_m = "depth_min_m",
+    fb_depth_max_m = "depth_max_m",
+    fb_vulnerability = "vulnerability",
+    fb_habitat = "habitat",
+    fb_importance = "importance",
+    fb_lw_a = "lw_a",
+    fb_lw_b = "lw_b",
+    fb_lw_type = "lw_type",
+    fb_lw_method = "lw_method",
+    fb_lw_sex = "lw_sex",
+    fb_lw_n = "lw_n",
+    fb_lw_r2 = "lw_r2"
+  ),
+  source_label = "FishBase"
+)

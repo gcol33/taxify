@@ -55,20 +55,31 @@
 #'
 #' @export
 add_ecoflora <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c(
-    "height_max_mm_uk", "height_min_mm_uk", "leaf_area_uk", "leaf_longevity_uk",
-    "root_system_uk", "photosynthetic_pathway_uk", "life_form_uk",
-    "reproduction_uk", "flower_begin_month_uk", "flower_end_month_uk",
-    "pollination_vector_uk", "seed_weight_mg_uk", "propagule_uk",
-    "ell_light_uk", "ell_moisture_uk", "ell_reaction_uk", "ell_nitrogen_uk",
-    "ell_salt_uk"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "ecoflora",
-    col_map         = stats::setNames(base_cols, base_cols),
-    source_label    = "Ecoflora (Ecological Flora of the British Isles)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_ecoflora, cols = cols, verbose = verbose)
 }
+
+
+.door_ecoflora <- list(
+  enrichment_name = "ecoflora",
+  col_map = c(
+    height_max_mm_uk = "height_max_mm_uk",
+    height_min_mm_uk = "height_min_mm_uk",
+    leaf_area_uk = "leaf_area_uk",
+    leaf_longevity_uk = "leaf_longevity_uk",
+    root_system_uk = "root_system_uk",
+    photosynthetic_pathway_uk = "photosynthetic_pathway_uk",
+    life_form_uk = "life_form_uk",
+    reproduction_uk = "reproduction_uk",
+    flower_begin_month_uk = "flower_begin_month_uk",
+    flower_end_month_uk = "flower_end_month_uk",
+    pollination_vector_uk = "pollination_vector_uk",
+    seed_weight_mg_uk = "seed_weight_mg_uk",
+    propagule_uk = "propagule_uk",
+    ell_light_uk = "ell_light_uk",
+    ell_moisture_uk = "ell_moisture_uk",
+    ell_reaction_uk = "ell_reaction_uk",
+    ell_nitrogen_uk = "ell_nitrogen_uk",
+    ell_salt_uk = "ell_salt_uk"
+  ),
+  source_label = "Ecoflora (Ecological Flora of the British Isles)"
+)

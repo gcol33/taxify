@@ -41,25 +41,24 @@
 #'
 #' @export
 add_spider_traits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    spider_body_length_mm     = "body_length_mm",
-    spider_prosoma_length_mm  = "prosoma_length_mm",
-    spider_prosoma_width_mm   = "prosoma_width_mm",
-    spider_abdomen_length_mm  = "abdomen_length_mm",
-    spider_leg1_length_mm     = "leg1_length_mm",
-    spider_ballooning         = "ballooning",
-    spider_web_building       = "web_building",
-    spider_hunting_guild      = "hunting_guild",
-    spider_web_type           = "web_type",
-    spider_circadian_activity = "circadian_activity",
-    spider_stratum            = "stratum"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "spider_traits",
-    col_map         = col_map,
-    source_label    = "World Spider Trait Database",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_spider_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_spider_traits <- list(
+  enrichment_name = "spider_traits",
+  col_map = c(
+    spider_body_length_mm = "body_length_mm",
+    spider_prosoma_length_mm = "prosoma_length_mm",
+    spider_prosoma_width_mm = "prosoma_width_mm",
+    spider_abdomen_length_mm = "abdomen_length_mm",
+    spider_leg1_length_mm = "leg1_length_mm",
+    spider_ballooning = "ballooning",
+    spider_web_building = "web_building",
+    spider_hunting_guild = "hunting_guild",
+    spider_web_type = "web_type",
+    spider_circadian_activity = "circadian_activity",
+    spider_stratum = "stratum"
+  ),
+  source_label = "World Spider Trait Database"
+)

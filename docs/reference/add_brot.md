@@ -30,10 +30,10 @@ add_brot(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `brot_` columns: numeric `seed_mass_mg`,
-`sla_mm2_mg`, `height_m`, `leaf_area_mm2`; categorical `resp_fire`,
-`growth_form`, `disp_mode`, `fruit_type`, `soil_seed_bank`,
-`seedling_emergence`.
+The same data.frame with `brot_` columns: numeric `brot_seed_mass_mg`,
+`brot_sla_mm2_mg`, `brot_height_m`, `brot_leaf_area_mm2`; categorical
+`brot_resp_fire`, `brot_growth_form`, `brot_disp_mode`,
+`brot_fruit_type`, `brot_soil_seed_bank`, `brot_seedling_emergence`.
 
 ## Details
 
@@ -52,6 +52,23 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Quercus coccifera", backbone = "gbif") |>
   add_brot()
+#> Matching 1 names...
+#>   Fuzzy matching 1 unmatched...
+#> add_brot(): attaching 10 of 20 columns. Pass cols = "all" for all, or see enrichment_cols("brot").
+#>          input_name matched_name accepted_name taxon_id accepted_id rank family
+#> 1 Quercus coccifera         <NA>          <NA>     <NA>        <NA> <NA>   <NA>
+#>   genus epithet authorship accepted_authorship is_synonym taxonomic_status
+#> 1  <NA>    <NA>       <NA>                <NA>         NA             <NA>
+#>   is_hybrid match_type fuzzy_dist backbone backbone_version kingdom_group
+#> 1     FALSE       none         NA     <NA>             <NA>       plantae
+#>   taxon_group  life_form qualifier qualifier_position aggregate_fallback
+#> 1  angiosperm angiosperm      <NA>               <NA>                 NA
+#>   hybrid_type brot_seed_mass_mg brot_sla_mm2_mg brot_height_m
+#> 1        <NA>                NA              NA            NA
+#>   brot_leaf_area_mm2 brot_resp_fire brot_growth_form brot_disp_mode
+#> 1                 NA           <NA>             <NA>           <NA>
+#>   brot_fruit_type brot_soil_seed_bank brot_seedling_emergence
+#> 1            <NA>                <NA>                    <NA>
 
 options(old)
 ```

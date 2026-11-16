@@ -33,23 +33,23 @@ add_copepod_traits(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns. The default set:
 
-- cop_body_length_mm:
+- copepod_traits_cop_body_length_mm:
 
   Body length (mm).
 
-- cop_egg_diameter_um:
+- copepod_traits_cop_egg_diameter_um:
 
   Egg outer diameter (micrometres).
 
-- cop_clutch_size:
+- copepod_traits_cop_clutch_size:
 
   Clutch size.
 
-- cop_feeding_mode:
+- copepod_traits_cop_feeding_mode:
 
   Feeding mode.
 
-- cop_spawning_strategy:
+- copepod_traits_cop_spawning_strategy:
 
   Spawning strategy.
 

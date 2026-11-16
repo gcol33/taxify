@@ -2,16 +2,127 @@
 
 ## taxify (development version)
 
-- A fuzzy syntaxon match whose first word is misspelt carries the
-  accepted unit’s `class`, `order`, `alliance` and `association`, as
-  every other match does
-  ([\#97](https://github.com/gcol33/taxify/issues/97)).
-- A syntaxon whose suffix gives its rank no longer fuzzy-matches a name
-  that carries no rank suffix: `Deschampsietum caespitosae` is not
-  matched to `Deschampsiosum cespitosae`
-  ([\#97](https://github.com/gcol33/taxify/issues/97)).
+### Breaking changes
+
+- Every source-specific `add_*()` function prefixes its attached columns
+  with its source key, including columns selected with `cols = "all"`.
+  An existing prefix is kept once. Common names use `common_`,
+  preserving `common_name`. Grouped values use the same prefix and
+  append group codes for multiple groups; the grouping key remains a
+  filter and reshape key.
+  [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
+  now reports both source `column` and attached `output` names.
+  Selection accepts the source name, full output name, or output name
+  without its prefix. The internal join engines use one `prefix`
+  argument, replacing `col_prefix` and `out_prefix`.
+- The overlapping `growth_form`, `litter_size`, `longevity_yr`, and
+  `seed_mass_mg` outputs now carry their respective source prefixes.
+  COMBINE outputs use `combine_`, `combine_reported_`, and
+  `combine_imputed_` for the coalesced, reported, and imputed doors.
+  Euro+Med distribution exposes `euromed_status`; alien first records
+  expose `alien_first_records_year`, `alien_first_records_source`, and
+  `alien_first_records_reference`.
+- Removed `gift_traits()`. Use `enrichment_cols("gift")`.
+- Removed `children()`. Use `downstream(taxon, downto = )` for
+  descendants beneath a genus, family, or higher taxon.
+- Made
+  [`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md)
+  internal and removed `taxify_build_register()`. Use
+  [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
+  and
+  [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
+  to query the register, `taxify_download("register")` to download it,
+  or
+  [`taxifydb::build_register()`](https://rdrr.io/pkg/taxifydb/man/build_register.html)
+  to build it from source.
+- Made
+  [`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md),
+  [`normalize_epithets()`](https://gillescolling.com/taxify/reference/normalize_epithets.md),
+  [`normalize_syntaxon_name()`](https://gillescolling.com/taxify/reference/normalize_syntaxon_name.md),
+  and
+  [`backbone_code()`](https://gillescolling.com/taxify/reference/backbone_code.md)
+  internal.
+- Merged `taxify_download_enrichment()` into
+  `taxify_download(name, kind = c("backbone", "enrichment"), ...)`. The
+  first argument is the asset name; `kind` selects its catalogue.
+  Version and content-ID downloads, named path returns, the register
+  alias, and backbone source-build delegation remain available.
+  `force = TRUE` refreshes an installed version.
+  [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+  installs the default set.
+
+### Bug fixes
+
+- Abbreviated-genus matching no longer stops with “missing value where
+  TRUE/FALSE needed” on backbones whose genus field is empty on some
+  rows (ITIS leaves it empty on many species rows; “x bicknellii” hit
+  it). Such a row takes its genus from the first word of its name, so
+  “P. bicknellii” now reaches *Panicum bicknellii* on ITIS
+  ([\#98](https://github.com/gcol33/taxify/issues/98)).
+
+## taxify 0.7.1
+
+CRAN release: 2026-11-02
+
+### Data directory
+
+- taxify removes outdated data on its own. Each session records when it
+  first reads a backbone or enrichment build, and when the package is
+  loaded, every outdated build that has not been read or downloaded for
+  `getOption("taxify.max_unused_days")` days (default 90) is deleted,
+  with the files of interrupted downloads and any directory this leaves
+  empty. A build is outdated when it is stored in the format used before
+  0.7.0 or a newer build of it has been published. The current build of
+  a backbone or enrichment stays however long it is unused, and so does
+  a pinned build. `options(taxify.max_unused_days = Inf)` keeps every
+  build.
+- `taxify_clean(unused_days = )` applies the same rule on demand.
 
 ## taxify 0.7.0
+
+CRAN release: 2026-10-27
+
+### Data directory
+
+- Backbones and enrichments are downloaded in the storage format of
+  vectra 0.14.0, which taxify now requires, and take about a quarter of
+  the space: the nineteen taxon and two syntaxon backbones together 2.1
+  GB instead of 8.3 GB, the first-run set (COL, GBIF, ITIS) 1.1 GB
+  instead of 3.8 GB, WFO 120 MB instead of 785 MB. The data are
+  unchanged; each store was re-encoded from the published one and
+  compared with it column by column. A backbone or enrichment already
+  installed is replaced by its new copy at the next version check,
+  unless it was pinned by
+  [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md).
+  taxify reads its catalogue from `inst/manifest_v3.json`; releases
+  before 0.7.0 keep reading the earlier stores through
+  `inst/manifest.json`.
+- A backbone is installed only when asked for.
+  [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+  and
+  [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
+  install as before; any other function that needs a backbone not on
+  disk (a first
+  [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
+  call on a new setup, a browse verb naming a backbone) asks before
+  downloading in an interactive session and stops with an error naming
+  the
+  [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+  call otherwise. `options(taxify.auto_download = TRUE)` or the
+  environment variable `TAXIFY_AUTO_DOWNLOAD` restores downloading on
+  first use for scripts and pipelines.
+- A refreshed enrichment replaces the build it supersedes, as backbones
+  already did; `options(taxify.keep_enrichment_versions = TRUE)` keeps
+  the old build. A lockfile pin is restored from the published copy of
+  that build.
+- [`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md)
+  frees disk space: by default it removes builds taxify no longer reads
+  and files left by an interrupted download, keeping the active build of
+  every asset; it also removes named backbones or enrichments, or the
+  whole data directory with `"all"`.
+- Every download clears what an interrupted one left in the same
+  directory (curl’s partial `.curltmp` file was never removed and could
+  reach the size of the backbone).
 
 ### Vegetation units (syntaxa)
 
@@ -48,6 +159,14 @@
   [`list_backbones()`](https://gillescolling.com/taxify/reference/list_backbones.md)),
   and the name cleaner, normalization key and stages a backbone runs are
   read from that code.
+- A fuzzy syntaxon match whose first word is misspelt carries the
+  accepted unit’s `class`, `order`, `alliance` and `association`, as
+  every other match does
+  ([\#97](https://github.com/gcol33/taxify/issues/97)).
+- A syntaxon whose suffix gives its rank no longer fuzzy-matches a name
+  that carries no rank suffix: `Deschampsietum caespitosae` is not
+  matched to `Deschampsiosum cespitosae`
+  ([\#97](https://github.com/gcol33/taxify/issues/97)).
 
 ### Accepted-ID columns
 
@@ -115,7 +234,7 @@
   into workflows and background. New articles cover exploring the
   backbone
   ([`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
-  [`children()`](https://gillescolling.com/taxify/reference/children.md),
+  `children()`,
   [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md),
   …) and matching vegetation units. The per-source detail of every
   published dataset moved to The backbones and datasets.
@@ -784,12 +903,10 @@ ids and common names.
   names as regular expressions in one of its two checks; one literal
   predicate now decides both.
 
-- [`children()`](https://gillescolling.com/taxify/reference/children.md)
-  and
+- `children()` and
   [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
   are one query ([\#69](https://github.com/gcol33/taxify/issues/69)).
-  [`children()`](https://gillescolling.com/taxify/reference/children.md)
-  is
+  `children()` is
   [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
   with the parent restricted to a genus or family, so the two no longer
   disagree: under `rank = "any"` / `downto = "any"` neither returns the
@@ -800,9 +917,7 @@ ids and common names.
   [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
   chose the parent’s rank by a vote across the homonyms. Without
   `kingdom`, a result that mixes kingdoms now warns. Both return the
-  same columns, adding `kingdom_group`, and
-  [`children()`](https://gillescolling.com/taxify/reference/children.md)
-  gains `parent`.
+  same columns, adding `kingdom_group`, and `children()` gains `parent`.
 
 - The sibling verbs forward matching arguments the same way
   ([\#70](https://github.com/gcol33/taxify/issues/70)).
@@ -1027,8 +1142,7 @@ CRAN release: 2026-09-02
   [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
   now resolves back to bytes
   ([\#54](https://github.com/gcol33/taxify/issues/54)).
-  [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
-  and
+  `taxify_download_enrichment()` and
   [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
   take a `content_id=`, fetch that exact build from the immutable copy
   published beside the rolling asset – reading the manifest’s
@@ -1592,7 +1706,7 @@ CRAN release: 2026-07-23
   `taxify(backend = "wfo")` is now `taxify(backbone = "wfo")`, and the
   same for
   [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
-  [`children()`](https://gillescolling.com/taxify/reference/children.md),
+  `children()`,
   [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md),
   [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
   [`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
@@ -1701,9 +1815,8 @@ CRAN release: 2026-07-23
 - The build pipeline itself – the thirteen genus extractors, kingdom
   normalization and inference, the GBIF hierarchy walk, and the family
   life-form table – moved to `taxifydb` (about 1,900 lines).
-  [`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
-  remains as an escape hatch that delegates there, and
-  `taxify_download("register")` fetches the published pair.
+  `taxify_build_register()` remains as an escape hatch that delegates
+  there, and `taxify_download("register")` fetches the published pair.
 
 - The register now lives at `<data_dir>/genus_register/latest/` rather
   than `<data_dir>/unified/latest/`, so it follows the same versioned
@@ -1761,7 +1874,7 @@ CRAN release: 2026-07-23
 ### Reverse verbs default to the installed backbone set (issue [\#24](https://github.com/gcol33/taxify/issues/24))
 
 - [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
-  [`children()`](https://gillescolling.com/taxify/reference/children.md),
+  `children()`,
   [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
   [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
   and
@@ -1861,8 +1974,7 @@ CRAN release: 2026-07-23
   and how to read a disagreement.
 - Assertions that could not fail were replaced: the trait-registry
   vocabulary check drove every crosswalk with `NA` only, `test-doors.R`
-  accepted one populated column out of twenty,
-  [`children()`](https://gillescolling.com/taxify/reference/children.md)
+  accepted one populated column out of twenty, `children()`
   case-insensitivity held at zero rows,
   [`summary()`](https://rdrr.io/r/base/summary.html) was matched with
   `grepl("3", .)`, and the multi-backend fallback test used fixtures
@@ -2099,9 +2211,8 @@ CRAN release: 2026-07-23
   emits.
 - [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
   lists every accepted taxon at a chosen rank (species by default)
-  beneath a higher taxon, where
-  [`children()`](https://gillescolling.com/taxify/reference/children.md)
-  gives only the immediate level.
+  beneath a higher taxon, where `children()` gives only the immediate
+  level.
 - [`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md)
   assembles a taxonomy tree (Newick, plus an `ape` `phylo` object when
   `ape` is installed) from a set of resolved names, and
@@ -2151,11 +2262,10 @@ CRAN release: 2026-07-23
 
 ### The genus register is reachable and builds from what you have
 
-- [`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
-  is now exported. It builds the unified genus register from the
-  backbones you have installed and is the front door for the `life_form`
-  / `kingdom_group` / `taxon_group` output columns, out-of-scope
-  detection, and
+- `taxify_build_register()` is now exported. It builds the unified genus
+  register from the backbones you have installed and is the front door
+  for the `life_form` / `kingdom_group` / `taxon_group` output columns,
+  out-of-scope detection, and
   [`inspect()`](https://gillescolling.com/taxify/reference/inspect.md)’s
   no-backbone checks. Previously the only builder was internal, so
   [`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md)
@@ -2646,12 +2756,11 @@ CRAN release: 2026-07-09
   [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md)
   fills the higher ranks (kingdom, phylum, class, order) from the
   matched backbone, complementing the `family` and `genus` already in
-  the core output.
-  [`children()`](https://gillescolling.com/taxify/reference/children.md)
-  lists the accepted taxa within a genus or family, for building a
-  checklist rather than only validating one. `taxify_candidates()`
-  expands an ambiguous match (`is_ambiguous`) into one row per candidate
-  accepted taxon, so homonyms can be resolved by hand.
+  the core output. `children()` lists the accepted taxa within a genus
+  or family, for building a checklist rather than only validating one.
+  `taxify_candidates()` expands an ambiguous match (`is_ambiguous`) into
+  one row per candidate accepted taxon, so homonyms can be resolved by
+  hand.
 - [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
   gains an `aggregate_fallback` column that makes the default
   `aggregates = "preserve"` accountable. Where a backbone carries no
@@ -2891,9 +3000,7 @@ CRAN release: 2026-07-09
   or `"all"`); the default is a convenient set of well-populated ones
   (woodiness, growth form, life cycle and form, habit flags, height,
   photosynthetic pathway, seed mass, dispersal, flowering months,
-  deciduousness, SLA).
-  [`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md)
-  browses the available columns.
+  deciduousness, SLA). `gift_traits()` browses the available columns.
 
 ## taxify 0.3.1
 

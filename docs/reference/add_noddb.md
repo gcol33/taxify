@@ -31,9 +31,10 @@ add_noddb(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `noddb_` columns: `nodulation_consensus`,
-`nodulation_type`, `nodulation_clade`, `nodulation_family`,
-`spp_recognized`, `spp_studied`, `positive_reports`, `negative_reports`.
+The same data.frame with `noddb_` columns: `noddb_nodulation_consensus`,
+`noddb_nodulation_type`, `noddb_nodulation_clade`,
+`noddb_nodulation_family`, `noddb_spp_recognized`, `noddb_spp_studied`,
+`noddb_positive_reports`, `noddb_negative_reports`.
 
 ## Details
 

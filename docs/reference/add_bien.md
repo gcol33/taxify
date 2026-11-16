@@ -117,6 +117,26 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Quercus alba", backbone = "gbif") |>
   add_bien()
+#> Matching 1 names...
+#>   Fuzzy matching 1 unmatched...
+#>     input_name matched_name accepted_name taxon_id accepted_id rank family
+#> 1 Quercus alba         <NA>          <NA>     <NA>        <NA> <NA>   <NA>
+#>   genus epithet authorship accepted_authorship is_synonym taxonomic_status
+#> 1  <NA>    <NA>       <NA>                <NA>         NA             <NA>
+#>   is_hybrid match_type fuzzy_dist backbone backbone_version kingdom_group
+#> 1     FALSE       none         NA     <NA>             <NA>       plantae
+#>   taxon_group  life_form qualifier qualifier_position aggregate_fallback
+#> 1  angiosperm angiosperm      <NA>               <NA>                 NA
+#>   hybrid_type bien_plant_height_m bien_max_plant_height_m bien_dbh_cm
+#> 1        <NA>                  NA                      NA          NA
+#>   bien_sla_mm2_mg bien_leaf_area_mm2 bien_leaf_dry_mass_mg
+#> 1              NA                 NA                    NA
+#>   bien_leaf_n_per_dry_mass bien_leaf_p_per_dry_mass bien_leaf_thickness_mm
+#> 1                       NA                       NA                     NA
+#>   bien_seed_mass_mg bien_wood_density_g_cm3 bien_leaf_lifespan bien_growth_form
+#> 1                NA                      NA                 NA             <NA>
+#>   bien_woodiness bien_dispersal_syndrome bien_flower_color
+#> 1           <NA>                    <NA>              <NA>
 
 options(old)
 ```

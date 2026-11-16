@@ -34,14 +34,16 @@
 #'
 #' @export
 add_ecomorphosis <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("ecomorphosis", "ecomorphosis_area", "ecomorphosis_reference")
-  col_map <- stats::setNames(all_cols, all_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "ecomorphosis",
-    col_map         = col_map,
-    source_label    = "Collembola ecomorphosis (Bonfanti et al. 2022)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_ecomorphosis, cols = cols, verbose = verbose)
 }
+
+
+.door_ecomorphosis <- list(
+  enrichment_name = "ecomorphosis",
+  col_map = c(
+    ecomorphosis = "ecomorphosis",
+    ecomorphosis_area = "ecomorphosis_area",
+    ecomorphosis_reference = "ecomorphosis_reference"
+  ),
+  source_label = "Collembola ecomorphosis (Bonfanti et al. 2022)"
+)

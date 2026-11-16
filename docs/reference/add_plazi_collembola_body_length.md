@@ -33,23 +33,23 @@ add_plazi_collembola_body_length(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- plazi_body_length_mm:
+- plazi_collembola_body_length_plazi_body_length_mm:
 
   Body length (mm), median of the mined measurements.
 
-- plazi_body_length_min_mm:
+- plazi_collembola_body_length_plazi_body_length_min_mm:
 
   Smallest measurement (mm).
 
-- plazi_body_length_max_mm:
+- plazi_collembola_body_length_plazi_body_length_max_mm:
 
   Largest measurement (mm).
 
-- plazi_body_length_n:
+- plazi_collembola_body_length_plazi_body_length_n:
 
   Number of measurements aggregated.
 
-- plazi_body_length_sources:
+- plazi_collembola_body_length_plazi_body_length_sources:
 
   Number of distinct treatment papers.
 

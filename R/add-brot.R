@@ -28,17 +28,23 @@
 #'
 #' @export
 add_brot <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("seed_mass_mg", "sla_mm2_mg", "height_m", "leaf_area_mm2")
-  cat_cols <- c("resp_fire", "growth_form", "disp_mode", "fruit_type",
-                "soil_seed_bank", "seedling_emergence")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("brot_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "brot",
-    col_map         = col_map,
-    source_label    = "BROT 2.0",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_brot, cols = cols, verbose = verbose)
 }
+
+
+.door_brot <- list(
+  enrichment_name = "brot",
+  col_map = c(
+    brot_seed_mass_mg = "seed_mass_mg",
+    brot_sla_mm2_mg = "sla_mm2_mg",
+    brot_height_m = "height_m",
+    brot_leaf_area_mm2 = "leaf_area_mm2",
+    brot_resp_fire = "resp_fire",
+    brot_growth_form = "growth_form",
+    brot_disp_mode = "disp_mode",
+    brot_fruit_type = "fruit_type",
+    brot_soil_seed_bank = "soil_seed_bank",
+    brot_seedling_emergence = "seedling_emergence"
+  ),
+  source_label = "BROT 2.0"
+)

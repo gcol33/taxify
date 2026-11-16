@@ -28,6 +28,7 @@ Character vector of keys; `NA` in, `NA` out.
 ## Examples
 
 ``` r
-normalize_syntaxon_name(c("Fagion silvaticae", "Fagion sylvaticae",
+taxify:::normalize_syntaxon_name(c("Fagion silvaticae", "Fagion sylvaticae",
                           "Thero - Suaedion"))
+#> [1] "fagion silvatici" "fagion silvatici" "tero-suidion"    
 ```

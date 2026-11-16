@@ -26,7 +26,7 @@ backbone (and any backbone that resolves to Reptile Database accepted names)."><
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ backbone (and any backbone that resolves to Reptile Database accepted names)."><
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -108,56 +109,56 @@ backbone (and any backbone that resolves to Reptile Database accepted names).</p
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns:</p><dl><dt>biogeographic_realm</dt>
+    <p>The same data.frame with additional columns:</p><dl><dt>repttraits_biogeographic_realm</dt>
 <dd><p>Main biogeographic realm (e.g. Neotropic,
 Palearctic, Afrotropic, Australo-Pacific, Marine).</p></dd>
 
-<dt>microhabitat</dt>
+<dt>repttraits_microhabitat</dt>
 <dd><p>Microhabitat (e.g. Terrestrial, Saxicolous, Arboreal).</p></dd>
 
-<dt>habitat_type</dt>
+<dt>repttraits_habitat_type</dt>
 <dd><p>Habitat type(s) (e.g. Forest, Desert, Wetlands).</p></dd>
 
-<dt>elevation_min_m</dt>
+<dt>repttraits_elevation_min_m</dt>
 <dd><p>Minimum recorded elevation in metres.</p></dd>
 
-<dt>elevation_max_m</dt>
+<dt>repttraits_elevation_max_m</dt>
 <dd><p>Maximum recorded elevation in metres.</p></dd>
 
-<dt>mean_annual_temp_c</dt>
+<dt>repttraits_mean_annual_temp_c</dt>
 <dd><p>Mean annual temperature across the range
 (degrees Celsius).</p></dd>
 
-<dt>insular_endemic</dt>
+<dt>repttraits_insular_endemic</dt>
 <dd><p>Whether the species is insular/endemic
 (<code>"Yes"</code>/<code>"No"</code>).</p></dd>
 
-<dt>body_mass_g</dt>
+<dt>repttraits_body_mass_g</dt>
 <dd><p>Maximum body mass in grams.</p></dd>
 
-<dt>svl_mm</dt>
+<dt>repttraits_svl_mm</dt>
 <dd><p>Maximum snout-vent length (straight carapace length for
 turtles) in mm.</p></dd>
 
-<dt>total_length_mm</dt>
+<dt>repttraits_total_length_mm</dt>
 <dd><p>Maximum total length in mm.</p></dd>
 
-<dt>longevity_yr</dt>
+<dt>repttraits_longevity_yr</dt>
 <dd><p>Maximum longevity in years.</p></dd>
 
-<dt>diet</dt>
+<dt>repttraits_diet</dt>
 <dd><p>Diet category (e.g. Carnivorous, Herbivorous, Omnivorous).</p></dd>
 
-<dt>reproductive_mode</dt>
+<dt>repttraits_reproductive_mode</dt>
 <dd><p>Reproductive mode (oviparous/viviparous/...).</p></dd>
 
-<dt>clutch_size</dt>
+<dt>repttraits_clutch_size</dt>
 <dd><p>Mean clutch or litter size.</p></dd>
 
-<dt>active_time</dt>
+<dt>repttraits_active_time</dt>
 <dd><p>Activity time (Diurnal/Nocturnal/Cathemeral).</p></dd>
 
-<dt>foraging_mode</dt>
+<dt>repttraits_foraging_mode</dt>
 <dd><p>Foraging mode (ACT active / AMB ambush / Mixed).</p></dd>
 
 
@@ -182,14 +183,39 @@ ecological traits in reptiles. Scientific Data 11:243.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Pogona vitticeps"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_repttraits</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Pogona vitticeps"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_repttraits</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         input_name     matched_name    accepted_name         taxon_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Pogona vitticeps Pogona vitticeps Pogona vitticeps reptiledb-ex-001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        accepted_id    rank   family  genus   epithet authorship</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 reptiledb-ex-001 species Agamidae Pogona vitticeps       &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   accepted_authorship is_synonym taxonomic_status is_hybrid match_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                &lt;NA&gt;      FALSE         ACCEPTED     FALSE      exact</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fuzzy_dist  backbone               backbone_version kingdom_group taxon_group</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         NA reptiledb reptiledb:example (2026-06-24)      animalia      animal</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   life_form qualifier qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    animal      &lt;NA&gt;               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   repttraits_biogeographic_realm repttraits_microhabitat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    example_biogeographic_realm    example_microhabitat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   repttraits_habitat_type repttraits_insular_endemic repttraits_diet</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    example_habitat_type    example_insular_endemic    example_diet</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   repttraits_reproductive_mode repttraits_active_time repttraits_foraging_mode</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    example_reproductive_mode    example_active_time    example_foraging_mode</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   repttraits_elevation_min_m repttraits_elevation_max_m</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         11                         11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   repttraits_mean_annual_temp_c repttraits_body_mass_g repttraits_svl_mm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                            11                     11                11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   repttraits_total_length_mm repttraits_longevity_yr repttraits_clutch_size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         11                      11                     11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: REPTILEDB example, ReptTraits (Oskyrko et al. 2024) example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

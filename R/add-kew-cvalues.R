@@ -46,11 +46,16 @@
 #'
 #' @export
 add_kew_cvalues <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("genome_size_1c_pg", "chromosome_2n", "ploidy_x")
-  col_map <- stats::setNames(base, paste0("cval_", base))
-  enrich_simple(
-    x, enrichment_name = "kew_cvalues", col_map = col_map,
-    source_label = "Kew Plant DNA C-values (Pellicer & Leitch 2020)",
-    cols = cols, verbose = verbose
-  )
+  enrich_door(x, .door_kew_cvalues, cols = cols, verbose = verbose)
 }
+
+
+.door_kew_cvalues <- list(
+  enrichment_name = "kew_cvalues",
+  col_map = c(
+    cval_genome_size_1c_pg = "genome_size_1c_pg",
+    cval_chromosome_2n = "chromosome_2n",
+    cval_ploidy_x = "ploidy_x"
+  ),
+  source_label = "Kew Plant DNA C-values (Pellicer & Leitch 2020)"
+)

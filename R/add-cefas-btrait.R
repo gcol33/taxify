@@ -42,12 +42,21 @@
 #'
 #' @export
 add_cefas_btrait <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("body_size", "morphology", "lifespan", "living_habit",
-            "feeding_mode", "mobility", "bioturbation")
-  col_map <- stats::setNames(base, paste0("cefas_", base))
-  enrich_simple(
-    x, enrichment_name = "cefas_btrait", col_map = col_map,
-    source_label = "Cefas benthic traits", join_col = "genus",
-    cols = cols, verbose = verbose
-  )
+  enrich_door(x, .door_cefas_btrait, cols = cols, verbose = verbose)
 }
+
+
+.door_cefas_btrait <- list(
+  enrichment_name = "cefas_btrait",
+  col_map = c(
+    cefas_body_size = "body_size",
+    cefas_morphology = "morphology",
+    cefas_lifespan = "lifespan",
+    cefas_living_habit = "living_habit",
+    cefas_feeding_mode = "feeding_mode",
+    cefas_mobility = "mobility",
+    cefas_bioturbation = "bioturbation"
+  ),
+  source_label = "Cefas benthic traits",
+  join_col = "genus"
+)

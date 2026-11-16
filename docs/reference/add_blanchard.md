@@ -29,9 +29,10 @@ add_blanchard(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `blanchard_` columns: categorical `subfamily`,
-`spines`, `sting`, `diet`, `nesting`, `foraging`; numeric
-`colony_size_workers` (joined on genus).
+The same data.frame with `blanchard_` columns: categorical
+`blanchard_subfamily`, `blanchard_spines`, `blanchard_sting`,
+`blanchard_diet`, `blanchard_nesting`, `blanchard_foraging`; numeric
+`blanchard_colony_size_workers` (joined on genus).
 
 ## Details
 

@@ -24,7 +24,7 @@ carbon content) to a taxify() result by looking up accepted_name."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,7 @@ carbon content) to a taxify() result by looking up accepted_name."><meta propert
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -105,34 +106,34 @@ carbon content) to a <code><a href="taxify.html">taxify()</a></code> result by l
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns. The curated set:</p><dl><dt>edwards_taxon_group</dt>
+    <p>The same data.frame with additional columns. The curated set:</p><dl><dt>edwards_phyto_edwards_taxon_group</dt>
 <dd><p>Coarse phytoplankton group (diatom, green, ...).</p></dd>
 
-<dt>edwards_habitat_system</dt>
+<dt>edwards_phyto_edwards_habitat_system</dt>
 <dd><p>Habitat (marine/freshwater).</p></dd>
 
-<dt>edwards_cell_volume</dt>
+<dt>edwards_phyto_edwards_cell_volume</dt>
 <dd><p>Cell volume (micron^3).</p></dd>
 
-<dt>edwards_carbon_per_cell</dt>
+<dt>edwards_phyto_edwards_carbon_per_cell</dt>
 <dd><p>Carbon content per cell (pg C).</p></dd>
 
-<dt>edwards_mu_inf_nit</dt>
+<dt>edwards_phyto_edwards_mu_inf_nit</dt>
 <dd><p>Maximum growth rate on nitrate (per day).</p></dd>
 
-<dt>edwards_k_nit</dt>
+<dt>edwards_phyto_edwards_k_nit</dt>
 <dd><p>Half-saturation constant for growth on nitrate.</p></dd>
 
-<dt>edwards_qmin_nit</dt>
+<dt>edwards_phyto_edwards_qmin_nit</dt>
 <dd><p>Minimum cell nitrogen quota.</p></dd>
 
-<dt>edwards_mu_inf_p</dt>
+<dt>edwards_phyto_edwards_mu_inf_p</dt>
 <dd><p>Maximum growth rate on phosphorus (per day).</p></dd>
 
-<dt>edwards_k_p</dt>
+<dt>edwards_phyto_edwards_k_p</dt>
 <dd><p>Half-saturation constant for growth on phosphorus.</p></dd>
 
-<dt>edwards_qmin_p</dt>
+<dt>edwards_phyto_edwards_qmin_p</dt>
 <dd><p>Minimum cell phosphorus quota.</p></dd>
 
 
@@ -156,11 +157,12 @@ community level. Ecology 96(9):2554-2564. <a href="https://doi.org/10.1890/14-22
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Thalassiosira pseudonana"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_edwards_phyto</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Thalassiosira pseudonana"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_edwards_phyto</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

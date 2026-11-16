@@ -32,39 +32,39 @@ add_betsi_collembola_traits(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- betsi_ct_body_length_mm:
+- betsi_collembola_traits_betsi_ct_body_length_mm:
 
   Maximum body length (mm).
 
-- betsi_ct_antenna_body_ratio:
+- betsi_collembola_traits_betsi_ct_antenna_body_ratio:
 
   Antenna to body length ratio.
 
-- betsi_ct_ocelli_number:
+- betsi_collembola_traits_betsi_ct_ocelli_number:
 
   Number of ocelli.
 
-- betsi_ct_furca:
+- betsi_collembola_traits_betsi_ct_furca:
 
   Furca (springing organ) development.
 
-- betsi_ct_pigment_scaled:
+- betsi_collembola_traits_betsi_ct_pigment_scaled:
 
   Pigmentation (scaled).
 
-- betsi_ct_reproduction:
+- betsi_collembola_traits_betsi_ct_reproduction:
 
   Reproduction mode.
 
-- betsi_ct_stratification_scaled:
+- betsi_collembola_traits_betsi_ct_stratification_scaled:
 
   Vertical stratification (scaled).
 
-- betsi_ct_trophic_position:
+- betsi_collembola_traits_betsi_ct_trophic_position:
 
   Trophic position.
 
-- betsi_ct_life_form:
+- betsi_collembola_traits_betsi_ct_life_form:
 
   Life form (after Potapov et al. 2016).
 

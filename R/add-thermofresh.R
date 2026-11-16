@@ -33,19 +33,18 @@
 #'
 #' @export
 add_thermofresh <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c(
+  enrich_door(x, .door_thermofresh, cols = cols, verbose = verbose)
+}
+
+
+.door_thermofresh <- list(
+  enrichment_name = "thermofresh",
+  col_map = c(
     thermofresh_ctmax = "ctmax",
     thermofresh_ctmin = "ctmin",
-    thermofresh_lt50  = "lt50",
+    thermofresh_lt50 = "lt50",
     thermofresh_ltmax = "ltmax",
     thermofresh_ltmin = "ltmin"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "thermofresh",
-    col_map         = num_cols,
-    source_label    = "ThermoFresh freshwater thermal tolerance",
-    cols            = cols,
-    verbose         = verbose
-  )
-}
+  ),
+  source_label = "ThermoFresh freshwater thermal tolerance"
+)

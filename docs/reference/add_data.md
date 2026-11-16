@@ -150,9 +150,45 @@ least 50% matches, an error is raised asking the user to specify
 old <- options(taxify.data_dir = taxify_example_data())
 
 result <- taxify(c("Quercus robur", "Pinus sylvestris"))
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
 traits <- data.frame(species = c("Quercus robur", "Pinus sylvestris"),
                      height = c(30, 25))
 result |> add_data(traits, species_col = "species")
+#> Matching 2 names from 'species' through COL + WCVP + LCVP + WFO + FISHBASE + SEALIFEBASE + REPTILEDB + GBIF backbone...
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> add_data: 2 of 2 species matched (100.0%). 0 names in data unmatched.
+#>         input_name     matched_name    accepted_name   taxon_id accepted_id
+#> 1    Quercus robur    Quercus robur    Quercus robur col-ex-001  col-ex-001
+#> 2 Pinus sylvestris Pinus sylvestris Pinus sylvestris wfo-ex-004  wfo-ex-004
+#>      rank   family   genus    epithet authorship accepted_authorship is_synonym
+#> 1 species Fagaceae Quercus      robur         L.                  L.      FALSE
+#> 2 species Pinaceae   Pinus sylvestris         L.                  L.      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA      col
+#> 2         ACCEPTED     FALSE      exact         NA      wfo
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 col:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#> 2 wfo:example (2026-06-24)       plantae  gymnosperm gymnosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type height
+#> 1               <NA>                 NA        <NA>     30
+#> 2               <NA>                 NA        <NA>     25
+#> Sources: COL + WFO | cite() for full citations
 
 options(old)
 ```

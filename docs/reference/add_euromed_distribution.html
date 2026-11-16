@@ -28,7 +28,7 @@ backbone joins through its accepted name."><meta property="og:image" content="ht
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@ backbone joins through its accepted name."><meta property="og:image" content="ht
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -115,8 +116,8 @@ as the country; anything else must be an area code, as listed by
 <dd><p>Which columns to attach. <code>NULL</code> (the default) attaches
 <code>euromed_status</code>; a character vector attaches just those, and <code>"all"</code>
 attaches every column the source carries (see <code><a href="enrichment_cols.html">enrichment_cols()</a></code>), among
-them <code>euromed_status_detail</code>, <code>euromed_status_source</code>, <code>area_name</code>,
-<code>iso2</code> and the taxon's Euro+Med UUID, <code>taxon_id</code>.</p></dd>
+them <code>euromed_status_detail</code>, <code>euromed_status_source</code>, <code>euromed_area_name</code>,
+<code>euromed_iso2</code> and the taxon's Euro+Med UUID, <code>euromed_taxon_id</code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -151,14 +152,39 @@ level-2 areas.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Solidago canadensis"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_euromed_distribution</span><span class="op">(</span>region <span class="op">=</span> <span class="st">"DE"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Solidago canadensis"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_euromed_distribution</span><span class="op">(</span>region <span class="op">=</span> <span class="st">"DE"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Fuzzy matching 1 unmatched...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Fuzzy matching 1 unmatched...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Fuzzy matching 1 unmatched...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Fuzzy matching 1 unmatched...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Fuzzy matching 1 unmatched...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            input_name matched_name accepted_name taxon_id accepted_id rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Solidago canadensis         &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;        &lt;NA&gt; &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   family genus epithet authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   &lt;NA&gt;  &lt;NA&gt;    &lt;NA&gt;       &lt;NA&gt;                &lt;NA&gt;         NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1             &lt;NA&gt;     FALSE       none         NA     &lt;NA&gt;             &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       plantae     unknown   unknown      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type euromed_status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;           &lt;NA&gt;</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

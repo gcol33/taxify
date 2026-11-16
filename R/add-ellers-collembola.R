@@ -41,16 +41,19 @@
 #'
 #' @export
 add_ellers_collembola <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("ellers_vertical_distribution", "ellers_body_size_mm",
-                "ellers_reproduction", "ellers_moisture_pref",
-                "ellers_temperature_pref", "ellers_thermal_niche_breadth")
-  col_map <- stats::setNames(all_cols, all_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "ellers_collembola",
-    col_map         = col_map,
-    source_label    = "Collembola traits (Ellers et al. 2018)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_ellers_collembola, cols = cols, verbose = verbose)
 }
+
+
+.door_ellers_collembola <- list(
+  enrichment_name = "ellers_collembola",
+  col_map = c(
+    ellers_vertical_distribution = "ellers_vertical_distribution",
+    ellers_body_size_mm = "ellers_body_size_mm",
+    ellers_reproduction = "ellers_reproduction",
+    ellers_moisture_pref = "ellers_moisture_pref",
+    ellers_temperature_pref = "ellers_temperature_pref",
+    ellers_thermal_niche_breadth = "ellers_thermal_niche_breadth"
+  ),
+  source_label = "Collembola traits (Ellers et al. 2018)"
+)

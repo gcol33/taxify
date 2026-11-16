@@ -71,18 +71,17 @@ add_alien_first_records <- function(x, location, cols = NULL, verbose = TRUE) {
                 "\"Hawaii\"), or \"all\"."),
          call. = FALSE)
   }
-  enrich_by_group(
-    x,
-    enrichment_name = "alien_first_records",
-    group_col       = "location",
-    groups          = location,
-    value_cols      = c(
-      year                         = "alien_first_record",
-      source                       = "alien_first_record_source",
-      reference                    = "alien_first_record_reference"
-    ),
-    source_label    = "Alien first records (Seebens et al.)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_alien_first_records, groups = location, cols = cols, verbose = verbose)
 }
+
+
+.door_alien_first_records <- list(
+  enrichment_name = "alien_first_records",
+  group_col = "location",
+  value_cols = c(
+    year = "alien_first_record",
+    source = "alien_first_record_source",
+    reference = "alien_first_record_reference"
+  ),
+  source_label = "Alien first records (Seebens et al.)"
+)

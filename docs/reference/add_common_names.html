@@ -22,7 +22,7 @@ accepted_name, filtered by language."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,7 @@ accepted_name, filtered by language."><meta property="og:image" content="https:/
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -131,17 +132,58 @@ language, the first (most commonly used) is returned.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_common_names</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_common_names</span><span class="op">(</span>lang <span class="op">=</span> <span class="st">"de"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_common_names</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      input_name  matched_name accepted_name   taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Quercus robur Quercus robur Quercus robur col-ex-001  col-ex-001 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     family   genus epithet authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Fagaceae Quercus   robur         L.                  L.      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         ACCEPTED     FALSE      exact         NA      col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 col:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type         common_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt; example_common_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: COL example, vernacular names example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_common_names</span><span class="op">(</span>lang <span class="op">=</span> <span class="st">"de"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      input_name  matched_name accepted_name   taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Quercus robur Quercus robur Quercus robur col-ex-001  col-ex-001 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     family   genus epithet authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Fagaceae Quercus   robur         L.                  L.      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         ACCEPTED     FALSE      exact         NA      col</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group  life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 col:example (2026-06-24)       plantae  angiosperm angiosperm      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type         common_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt; example_common_name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: COL example, vernacular names example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

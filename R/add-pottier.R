@@ -27,14 +27,17 @@
 #'
 #' @export
 add_pottier <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c("heat_tolerance_c", "acclimation_temp_c", "svl_mm", "body_mass_g")
-  col_map <- stats::setNames(base_cols, paste0("pottier_", base_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "pottier",
-    col_map         = col_map,
-    source_label    = "Pottier amphibian heat tolerance",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_pottier, cols = cols, verbose = verbose)
 }
+
+
+.door_pottier <- list(
+  enrichment_name = "pottier",
+  col_map = c(
+    pottier_heat_tolerance_c = "heat_tolerance_c",
+    pottier_acclimation_temp_c = "acclimation_temp_c",
+    pottier_svl_mm = "svl_mm",
+    pottier_body_mass_g = "body_mass_g"
+  ),
+  source_label = "Pottier amphibian heat tolerance"
+)

@@ -28,17 +28,18 @@ add_pignatti(x, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- light_it, temperature_it, continentality_it, moisture_it, reaction_it,
-  nutrients_it, salinity_it:
+- pignatti_light_it, pignatti_temperature_it,
+  pignatti_continentality_it, pignatti_moisture_it,
+  pignatti_reaction_it, pignatti_nutrients_it, pignatti_salinity_it:
 
   Ellenberg-type indicator values calibrated for the Italian flora
   (codes; `X` = indifferent, `0` = not applicable).
 
-- life_form_it:
+- pignatti_life_form_it:
 
   Life form for the Italian flora.
 
-- chorotype_it:
+- pignatti_chorotype_it:
 
   Chorological type (distribution).
 

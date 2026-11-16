@@ -39,15 +39,16 @@
 #'
 #' @export
 add_faprotax <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("faprotax_functions", "faprotax_n_functions")
-  col_map <- stats::setNames(all_cols, all_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "faprotax",
-    col_map         = col_map,
-    source_label    = "FAPROTAX prokaryote functions (Louca et al.)",
-    cols            = cols,
-    genus_fallback  = TRUE,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_faprotax, cols = cols, verbose = verbose)
 }
+
+
+.door_faprotax <- list(
+  enrichment_name = "faprotax",
+  col_map = c(
+    faprotax_functions = "faprotax_functions",
+    faprotax_n_functions = "faprotax_n_functions"
+  ),
+  source_label = "FAPROTAX prokaryote functions (Louca et al.)",
+  genus_fallback = TRUE
+)

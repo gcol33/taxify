@@ -26,7 +26,7 @@ and breeding biology, dispersal mode, and floral and fruit morphology."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ and breeding biology, dispersal mode, and floral and fruit morphology."><meta pr
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -108,46 +109,46 @@ and breeding biology, dispersal mode, and floral and fruit morphology.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns:</p><dl><dt>flower_begin_month</dt>
+    <p>The same data.frame with additional columns:</p><dl><dt>baseflor_flower_begin_month</dt>
 <dd><p>First month of flowering (1-12).</p></dd>
 
-<dt>flower_end_month</dt>
+<dt>baseflor_flower_end_month</dt>
 <dd><p>Last month of flowering (1-12). A value smaller
 than <code>flower_begin_month</code> denotes a flowering period that wraps
 across the new year (e.g. begin 10, end 6).</p></dd>
 
-<dt>pollination_vector</dt>
+<dt>baseflor_pollination_vector</dt>
 <dd><p>Pollination vector(s): insect, wind, water,
 self, apogamy. Comma-separated when more than one applies.</p></dd>
 
-<dt>dispersal_mode</dt>
+<dt>baseflor_dispersal_mode</dt>
 <dd><p>Diaspore dispersal mode(s): anemochory, barochory,
 epizoochory, endozoochory, myrmecochory, hydrochory, autochory,
 dyszoochory. Comma-separated when more than one applies.</p></dd>
 
-<dt>breeding_system</dt>
+<dt>baseflor_breeding_system</dt>
 <dd><p>Sexual system: hermaphroditic, monoecious,
 dioecious, gynodioecious, androdioecious, gynomonoecious, polygamous.</p></dd>
 
-<dt>flower_colour</dt>
+<dt>baseflor_flower_colour</dt>
 <dd><p>Flower colour(s): white, yellow, pink, green, blue,
 brown, black. Comma-separated when more than one applies.</p></dd>
 
-<dt>fruit_type</dt>
+<dt>baseflor_fruit_type</dt>
 <dd><p>Fruit type: achene, capsule, caryopsis, drupe, legume,
 silique, berry, follicle, cone, samara, pyxid.</p></dd>
 
-<dt>woody_growth_form</dt>
+<dt>baseflor_woody_growth_form</dt>
 <dd><p>Woody growth form for woody taxa: tree, small
 tree, large tree, shrub, bush, subshrub, liana, parasite. NA for
 non-woody (herbaceous) taxa.</p></dd>
 
-<dt>continentality</dt>
-<dd><p>Ellenberg-style continentality indicator value
+<dt>baseflor_continentality</dt>
+<dd><p>Ellenberg-style baseflor_continentality indicator value
 (1-9), the axis absent from EIVE.</p></dd>
 
-<dt>salinity</dt>
-<dd><p>Ellenberg-style salinity indicator value (0-9), the axis
+<dt>baseflor_salinity</dt>
+<dd><p>Ellenberg-style baseflor_salinity indicator value (0-9), the axis
 absent from EIVE.</p></dd>
 
 
@@ -170,14 +171,41 @@ de la Flore de France. Programme Catminat.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_baseflor</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_baseflor</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        input_name    matched_name   accepted_name   taxon_id accepted_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Bellis perennis Bellis perennis Bellis perennis wfo-ex-009  wfo-ex-009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      rank     family  genus  epithet authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 species Asteraceae Bellis perennis         L.                  L.      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         ACCEPTED     FALSE      exact         NA      wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae     unknown   unknown      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type baseflor_flower_begin_month</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;  example_flower_begin_month</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   baseflor_flower_end_month baseflor_pollination_vector baseflor_dispersal_mode</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_flower_end_month  example_pollination_vector  example_dispersal_mode</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   baseflor_breeding_system baseflor_flower_colour baseflor_fruit_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_breeding_system  example_flower_colour  example_fruit_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   baseflor_woody_growth_form baseflor_continentality baseflor_salinity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_woody_growth_form  example_continentality  example_salinity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, Baseflor (Catminat / Julve) example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

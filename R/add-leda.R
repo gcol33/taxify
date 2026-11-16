@@ -59,24 +59,23 @@
 #'
 #' @export
 add_leda <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    raunkiaer_life_form  = "raunkiaer_life_form",
-    raunkiaer_variable   = "raunkiaer_variable",
-    dispersal_type       = "dispersal_type",
-    terminal_velocity_ms = "terminal_velocity_ms",
-    seed_mass_mg         = "leda_seed_mass_mg",
-    canopy_height_m      = "canopy_height_m",
-    leaf_mass_mg         = "leaf_mass_mg",
-    sla_mm2_mg           = "sla_mm2_mg",
-    clonal_growth_organ  = "clonal_growth_organ",
-    floating_capacity_1week_pct = "floating_capacity_1week_pct"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "leda",
-    col_map         = col_map,
-    source_label    = "LEDA Traitbase",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_leda, cols = cols, verbose = verbose)
 }
+
+
+.door_leda <- list(
+  enrichment_name = "leda",
+  col_map = c(
+    raunkiaer_life_form = "raunkiaer_life_form",
+    raunkiaer_variable = "raunkiaer_variable",
+    dispersal_type = "dispersal_type",
+    terminal_velocity_ms = "terminal_velocity_ms",
+    seed_mass_mg = "leda_seed_mass_mg",
+    canopy_height_m = "canopy_height_m",
+    leaf_mass_mg = "leaf_mass_mg",
+    sla_mm2_mg = "sla_mm2_mg",
+    clonal_growth_organ = "clonal_growth_organ",
+    floating_capacity_1week_pct = "floating_capacity_1week_pct"
+  ),
+  source_label = "LEDA Traitbase"
+)

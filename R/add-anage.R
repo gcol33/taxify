@@ -40,24 +40,23 @@
 #'
 #' @export
 add_anage <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    max_longevity_yr       = "max_longevity_yr",
-    anage_body_mass_g      = "body_mass_g",
-    metabolic_rate_w       = "metabolic_rate_w",
-    female_maturity_d      = "female_maturity_d",
-    male_maturity_d        = "male_maturity_d",
-    gestation_incubation_d = "gestation_incubation_d",
-    anage_litter_size      = "litter_size",
-    birth_mass_g           = "birth_mass_g",
-    growth_rate            = "growth_rate",
-    temperature_k          = "temperature_k"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "anage",
-    col_map         = col_map,
-    source_label    = "AnAge",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_anage, cols = cols, verbose = verbose)
 }
+
+
+.door_anage <- list(
+  enrichment_name = "anage",
+  col_map = c(
+    max_longevity_yr = "max_longevity_yr",
+    anage_body_mass_g = "body_mass_g",
+    metabolic_rate_w = "metabolic_rate_w",
+    female_maturity_d = "female_maturity_d",
+    male_maturity_d = "male_maturity_d",
+    gestation_incubation_d = "gestation_incubation_d",
+    anage_litter_size = "litter_size",
+    birth_mass_g = "birth_mass_g",
+    growth_rate = "growth_rate",
+    temperature_k = "temperature_k"
+  ),
+  source_label = "AnAge"
+)

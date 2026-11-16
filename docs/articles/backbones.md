@@ -74,8 +74,9 @@ second, and so on. The order is fixed by priority. The Extended Release
 of the Catalogue of Life (COL XR) comes first, then the Catalogue of
 Life (COL), then the backbones of one group (marine species, plants,
 fungi, algae, fishes, reptiles, mammals, birds, prokaryotes), then the
-broad compilations GBIF, ITIS, NCBI and OTT. On a new setup the first
-call installs COL, GBIF and the Integrated Taxonomic Information System
+broad compilations GBIF, ITIS, NCBI and OTT. On a new setup
+[`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+installs COL, GBIF and the Integrated Taxonomic Information System
 (ITIS); every backbone downloaded later joins the chain at its place in
 that order.
 
@@ -100,7 +101,7 @@ res[, c("input_name", "accepted_name", "backbone")]
 #> 6    Macropus rufus    Osphranter rufus    colxr
 #> 7 Fucus vesiculosus   Fucus vesiculosus    colxr
 #> 8   Parus caeruleus Cyanistes caeruleus    colxr
-#> Sources: COLXR 2026.08 | cite() for full citations
+#> Sources: COLXR 2026.09 | cite() for full citations
 ```
 
 All 19 backbones are installed on the machine that built this page, so
@@ -118,8 +119,9 @@ treatment. [Comparing backbones](#comparing-backbones) shows how to see
 where they disagree.
 
 `options(taxify.backbone_priority = )` changes the order for a session,
-and `options(taxify.default_backbones = )` the set installed on first
-use.
+and `options(taxify.default_backbones = )` the set
+[`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+installs when called without arguments.
 
 ## Naming the backbones
 
@@ -186,8 +188,8 @@ lists the backbones that hold it:
 ``` r
 
 lookup_genus("Fucus")[, c("genus", "kingdom", "family", "life_form")]
-#>        genus   kingdom   family  life_form
-#> 176828 Fucus Chromista Fucaceae brown alga
+#>     genus   kingdom   family  life_form
+#> 104 Fucus Chromista Fucaceae brown alga
 taxify_register_coverage("Fucus")
 #>   genus    backbone version date_added
 #> 1 Fucus       worms 2026.09 2026-09-14
@@ -307,16 +309,23 @@ to the accepted name.
 
 The source, licence and citation of each backbone are listed in [The
 backbones and
-datasets](https://gillescolling.com/taxify/articles/articles/databases.md).
+datasets](https://gillescolling.com/taxify/articles/databases.html).
 
 ## Downloading and pinning versions
 
-Each backbone is downloaded once, on first use, into
-[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md),
+Each backbone is downloaded once into
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
 and read from disk after that.
+[`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+and
 [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
-fetches backbones ahead of time, for a server or a session without
-network access:
+fetch backbones ahead of time, for a server or a session without network
+access. A function that needs a backbone that is not on disk asks before
+downloading it in an interactive session; in a script it stops with an
+error naming the
+[`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
+call, unless `options(taxify.auto_download = TRUE)` or the environment
+variable `TAXIFY_AUTO_DOWNLOAD` allows the download:
 
 ``` r
 
@@ -326,9 +335,17 @@ taxify_download(c("wfo", "worms"))
 The download goes into a `latest` folder that is replaced when a newer
 version is released. taxify compares the local versions with the
 published ones once per session, at the first call, and updates `latest`
-then; the version never changes during a session. Without network
-access, or with `options(taxify.offline = TRUE)` or the environment
-variable `TAXIFY_OFFLINE` set, it uses the files on disk.
+then; the version never changes during a session. The replaced version
+is deleted. Without network access, or with
+`options(taxify.offline = TRUE)` or the environment variable
+`TAXIFY_OFFLINE` set, it uses the files on disk.
+
+[`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
+lists the builds on disk with their sizes.
+[`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md)
+removes builds taxify no longer reads and files left by an interrupted
+download; `taxify_clean("gbif")` removes one backbone, and
+`taxify_clean("all")` the whole data directory.
 
 A version string downloads into a folder of its own that is never
 replaced:
@@ -344,17 +361,90 @@ Every row records the backbone version that matched it:
 
 unique(res$backbone_version)
 #> [1] "wfo:2026.06 (2026-09-15)"       "col:2026.09 (2026-09-14)"      
-#> [3] "algaebase:2026.09 (2026-09-14)"
+#> [3] "algaebase:2026.09 (2026-11-08)"
 ```
 
 [`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md)
-writes these versions with a checksum of each file to a JSON file, and
-`taxify_restore(install = TRUE)` reinstalls the same builds on another
-machine, as shown in [Get
-started](https://gillescolling.com/taxify/articles/taxify.html#recording-what-was-used).
+writes a build record to a JSON file. [Recording and restoring data
+versions](https://gillescolling.com/taxify/articles/reproducibility.md)
+shows how to check that record, restore available builds and pin the
+active installation.
 [`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md)
-builds a backbone from its source files instead of downloading it, which
-needs the taxifydb package.
+builds a backbone from its source files, which needs the taxifydb
+package.
+
+## Managing data on disk
+
+An installation can accumulate archived builds and files left by
+interrupted downloads.
+[`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
+lists the builds present, and `taxify_clean(dry_run = TRUE)` returns a
+removal plan. Start by checking the data directory: the
+`taxify.data_dir` R option takes precedence over the `TAXIFY_DATA_DIR`
+environment variable, followed by the platform’s per-user data
+directory.
+
+The example copies the miniature WFO backbone into a temporary
+directory. Cleanup below operates on this copy.
+
+``` r
+
+demo_dir <- tempfile("taxify-disk-")
+dir.create(demo_dir)
+example_wfo <- file.path(taxify_example_data(), "wfo")
+invisible(file.copy(example_wfo, demo_dir, recursive = TRUE))
+old_dir <- options(taxify.data_dir = demo_dir)
+```
+
+The store reports one row per build, including whether it is active and
+its size in MiB (shown in the `size_mb` column):
+
+``` r
+
+stored <- taxify_store("wfo")
+stored[, c("component", "slot", "active", "size_mb")]
+#>   component   slot active size_mb
+#> 1       wfo latest   TRUE       0
+```
+
+With no asset names, cleanup selects superseded builds and interrupted
+downloads. Naming an asset selects every stored build of that asset,
+including its active build. Assign the invisible return value to inspect
+the planned removals:
+
+``` r
+
+plan <- taxify_clean("wfo", dry_run = TRUE, verbose = FALSE)
+plan[, c("component", "type", "reason", "size_mb")]
+#>   component     type  reason size_mb
+#> 1       wfo backbone removed       0
+```
+
+After reviewing the plan, the same call with `dry_run = FALSE` removes
+the selected paths. The store then confirms that this temporary
+directory has no WFO build:
+
+``` r
+
+removed <- taxify_clean("wfo", dry_run = FALSE, verbose = FALSE)
+nrow(taxify_store("wfo"))
+#> [1] 0
+options(old_dir)
+unlink(demo_dir, recursive = TRUE)
+```
+
+`unused_days` adds an age condition for outdated builds when `assets` is
+left `NULL`. `assets = "all"` selects the entire data directory.
+Explicitly selecting an asset can remove a pinned build, so keep the
+lockfile and check that its recorded build can be retrieved before
+removing it.
+
+[`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md)
+clears session backbone paths and matching data while keeping downloaded
+builds on disk.
+[`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md)
+clears the in-memory catalogue of published builds. With offline mode
+enabled, the next catalogue request reads local metadata.
 
 ## Choosing backbones for a list
 
@@ -410,5 +500,5 @@ broader backbones after it resolve the rest:
   timings and memory for lists of many names.
 
 - [The backbones and
-  datasets](https://gillescolling.com/taxify/articles/articles/databases.md):
+  datasets](https://gillescolling.com/taxify/articles/databases.html):
   the source, size and licence of every backbone.

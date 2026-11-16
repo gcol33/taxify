@@ -65,6 +65,13 @@ to attach the ranks to a
 result,
 [`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md).
 
+Other Explore the backbone:
+[`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md),
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
+[`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md),
+[`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md)
+
 ## Examples
 
 ``` r
@@ -73,9 +80,18 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 # The lineage above a species (reptiledb carries the full higher hierarchy)
 upstream("Naja naja", backbone = "reptiledb")
+#>   input_name accepted_name    rank      name  backbone
+#> 1  Naja naja     Naja naja kingdom  Animalia reptiledb
+#> 2  Naja naja     Naja naja  phylum  Chordata reptiledb
+#> 3  Naja naja     Naja naja   class  Reptilia reptiledb
+#> 4  Naja naja     Naja naja   order Serpentes reptiledb
+#> 5  Naja naja     Naja naja  family  Elapidae reptiledb
+#> 6  Naja naja     Naja naja   genus      Naja reptiledb
 
 # Just the family
 upstream("Naja naja", backbone = "reptiledb", to = "family")
+#>   input_name accepted_name   rank     name  backbone
+#> 1  Naja naja     Naja naja family Elapidae reptiledb
 
 options(old)
 ```

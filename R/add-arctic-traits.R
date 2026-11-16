@@ -26,17 +26,27 @@
 #'
 #' @export
 add_arctic_traits <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c("feeding_habit", "skeleton", "reproduction", "larval_development",
-            "size", "living_habit", "body_form", "mobility", "bioturbation",
-            "depth_range", "trophic_level", "fragility", "sociability",
-            "longevity")
-  col_map <- stats::setNames(base_cols, paste0("arctic_traits_", base_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "arctic_traits",
-    col_map         = col_map,
-    source_label    = "Arctic Traits Database",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_arctic_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_arctic_traits <- list(
+  enrichment_name = "arctic_traits",
+  col_map = c(
+    arctic_traits_feeding_habit = "feeding_habit",
+    arctic_traits_skeleton = "skeleton",
+    arctic_traits_reproduction = "reproduction",
+    arctic_traits_larval_development = "larval_development",
+    arctic_traits_size = "size",
+    arctic_traits_living_habit = "living_habit",
+    arctic_traits_body_form = "body_form",
+    arctic_traits_mobility = "mobility",
+    arctic_traits_bioturbation = "bioturbation",
+    arctic_traits_depth_range = "depth_range",
+    arctic_traits_trophic_level = "trophic_level",
+    arctic_traits_fragility = "fragility",
+    arctic_traits_sociability = "sociability",
+    arctic_traits_longevity = "longevity"
+  ),
+  source_label = "Arctic Traits Database"
+)

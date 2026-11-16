@@ -39,25 +39,24 @@
 #'
 #' @export
 add_useful_plants <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    useful_animal_food        = "animal_food",
-    useful_environmental_uses = "environmental_uses",
-    useful_fuels              = "fuels",
-    useful_gene_sources       = "gene_sources",
-    useful_human_food         = "human_food",
-    useful_invertebrate_food  = "invertebrate_food",
-    useful_materials          = "materials",
-    useful_medicines          = "medicines",
-    useful_poisons            = "poisons",
-    useful_social_uses        = "social_uses",
-    useful_crop_wild_relative = "crop_wild_relative"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "useful_plants",
-    col_map         = col_map,
-    source_label    = "World Checklist of Useful Plant Species",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_useful_plants, cols = cols, verbose = verbose)
 }
+
+
+.door_useful_plants <- list(
+  enrichment_name = "useful_plants",
+  col_map = c(
+    useful_animal_food = "animal_food",
+    useful_environmental_uses = "environmental_uses",
+    useful_fuels = "fuels",
+    useful_gene_sources = "gene_sources",
+    useful_human_food = "human_food",
+    useful_invertebrate_food = "invertebrate_food",
+    useful_materials = "materials",
+    useful_medicines = "medicines",
+    useful_poisons = "poisons",
+    useful_social_uses = "social_uses",
+    useful_crop_wild_relative = "crop_wild_relative"
+  ),
+  source_label = "World Checklist of Useful Plant Species"
+)

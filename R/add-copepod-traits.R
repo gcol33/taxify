@@ -37,12 +37,18 @@
 #'
 #' @export
 add_copepod_traits <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("body_length_mm", "egg_diameter_um", "clutch_size",
-            "feeding_mode", "spawning_strategy")
-  col_map <- stats::setNames(base, paste0("cop_", base))
-  enrich_simple(
-    x, enrichment_name = "copepod_traits", col_map = col_map,
-    source_label = "Copepod traits (Brun et al. 2017)",
-    cols = cols, verbose = verbose
-  )
+  enrich_door(x, .door_copepod_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_copepod_traits <- list(
+  enrichment_name = "copepod_traits",
+  col_map = c(
+    cop_body_length_mm = "body_length_mm",
+    cop_egg_diameter_um = "egg_diameter_um",
+    cop_clutch_size = "clutch_size",
+    cop_feeding_mode = "feeding_mode",
+    cop_spawning_strategy = "spawning_strategy"
+  ),
+  source_label = "Copepod traits (Brun et al. 2017)"
+)

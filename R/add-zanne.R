@@ -36,12 +36,12 @@
 #'
 #' @export
 add_zanne <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "zanne",
-    col_map         = c(woodiness = "woodiness"),
-    source_label    = "Zanne et al. 2014",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_zanne, cols = cols, verbose = verbose)
 }
+
+
+.door_zanne <- list(
+  enrichment_name = "zanne",
+  col_map = c(woodiness = "woodiness"),
+  source_label = "Zanne et al. 2014"
+)

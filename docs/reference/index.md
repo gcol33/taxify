@@ -46,8 +46,6 @@ a name, and a taxonomy tree, from the backbone files.
 
 - [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md)
   : List the synonyms of a name
-- [`children()`](https://gillescolling.com/taxify/reference/children.md)
-  : List the accepted taxa within a genus or family
 - [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
   : List all descendants of a taxon down to a target rank
 - [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
@@ -77,21 +75,15 @@ register.
 - [`install_backbones()`](https://gillescolling.com/taxify/reference/install_backbones.md)
   : Install taxonomic backbones for offline matching
 - [`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
-  : Download a pre-built taxify backbone
-- [`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
-  : Download one or more enrichment .vtr files
+  : Download pre-built backbones or published datasets
 - [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
   : Get the taxify data directory
 - [`taxify_example_data()`](https://gillescolling.com/taxify/reference/taxify_example_data.md)
   : Path to the bundled example database
 - [`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md)
-  : Clear all cached backbones
+  : Clear cached backbone paths and matching data
 - [`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md)
   : Invalidate the session manifest cache
-- [`taxify_build_register()`](https://gillescolling.com/taxify/reference/taxify_build_register.md)
-  : Build the genus register from source
-- [`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md)
-  : Load the unified genus register into memory
 - [`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md)
   : Show backbone coverage for a genus
 - [`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md)
@@ -105,6 +97,8 @@ register.
   : Pin or release installed taxify assets
 - [`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
   : Builds of a taxify asset held on disk
+- [`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md)
+  : Remove downloaded taxify data
 
 ## Backbone-specific columns
 
@@ -224,8 +218,6 @@ your own table.
   : Add Italian plant traits from Pignatti (on demand, via TR8)
 - [`add_gift()`](https://gillescolling.com/taxify/reference/add_gift.md)
   : Add plant traits from GIFT
-- [`gift_traits()`](https://gillescolling.com/taxify/reference/gift_traits.md)
-  : Browse the bundled GIFT trait columns
 
 ## Published data: fungi, algae, lichens, and microbes
 
@@ -412,14 +404,10 @@ Exported internals for power users and custom pipelines.
 
 - [`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md)
   : Build a backbone database from source
-- [`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md)
-  : Score match candidates by resolution priority
 - [`embed_accepted()`](https://gillescolling.com/taxify/reference/embed_accepted.md)
   : Embed accepted taxon info at build time (synonym self-join)
 - [`precompute_keys()`](https://gillescolling.com/taxify/reference/precompute_keys.md)
   : Precompute matching keys at build time
-- [`normalize_epithets()`](https://gillescolling.com/taxify/reference/normalize_epithets.md)
-  : Vectorized Latin orthographic normalization
 - [`is_aggregate_name()`](https://gillescolling.com/taxify/reference/is_aggregate_name.md)
   : Test whether a canonical name carries an aggregate marker
 - [`normalize_aggregate_name()`](https://gillescolling.com/taxify/reference/normalize_aggregate_name.md)
@@ -428,6 +416,12 @@ Exported internals for power users and custom pipelines.
   : Normalize a kingdom string to the coarse kingdom-group vocabulary
 - [`backbone_fixed_kingdom()`](https://gillescolling.com/taxify/reference/backbone_fixed_kingdom.md)
   : The single kingdom a backbone's rows always belong to, or NA
+- [`candidate_order()`](https://gillescolling.com/taxify/reference/candidate_order.md)
+  : Order match candidates by resolution priority
+- [`basionym_placement()`](https://gillescolling.com/taxify/reference/basionym_placement.md)
+  : Find the placed basionym of each unplaced backbone record
+- [`enrichment_authorship_col()`](https://gillescolling.com/taxify/reference/enrichment_authorship_col.md)
+  : Authorship-like column in an enrichment .vtr schema, if any
 
 ## Package
 

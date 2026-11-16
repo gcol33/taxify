@@ -34,25 +34,35 @@
 #'
 #' @export
 add_betsi_earthworm_traits <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c(
-    "body_length_mm__20_50", "body_length_mm__50_100", "body_length_mm__100_150",
-    "body_length_mm__150_200", "body_length_mm__200_400",
-    "body_mass_length_ratio__1_7", "body_mass_length_ratio__7_15",
-    "body_mass_length_ratio__gt15",
-    "cocoon_diameter_mm__1_2", "cocoon_diameter_mm__2_4", "cocoon_diameter_mm__4_6",
-    "epithelium__supple", "epithelium__rigid",
-    "typhlosolis__simple", "typhlosolis__large_feather",
-    "carbon_pref_mgkg__lt20", "carbon_pref_mgkg__20_33_3",
-    "carbon_pref_mgkg__33_3_60", "carbon_pref_mgkg__gt60",
-    "vertical_distribution_cm__0_5", "vertical_distribution_cm__5_20",
-    "vertical_distribution_cm__gt20")
-  col_map <- stats::setNames(base, paste0("betsi_ew_", base))
-  enrich_simple(
-    x,
-    enrichment_name = "betsi_earthworm_traits",
-    col_map         = col_map,
-    source_label    = "Earthworm traits (Pelosi et al. 2014)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_betsi_earthworm_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_betsi_earthworm_traits <- list(
+  enrichment_name = "betsi_earthworm_traits",
+  col_map = c(
+    betsi_ew_body_length_mm__20_50 = "body_length_mm__20_50",
+    betsi_ew_body_length_mm__50_100 = "body_length_mm__50_100",
+    betsi_ew_body_length_mm__100_150 = "body_length_mm__100_150",
+    betsi_ew_body_length_mm__150_200 = "body_length_mm__150_200",
+    betsi_ew_body_length_mm__200_400 = "body_length_mm__200_400",
+    betsi_ew_body_mass_length_ratio__1_7 = "body_mass_length_ratio__1_7",
+    betsi_ew_body_mass_length_ratio__7_15 = "body_mass_length_ratio__7_15",
+    betsi_ew_body_mass_length_ratio__gt15 = "body_mass_length_ratio__gt15",
+    betsi_ew_cocoon_diameter_mm__1_2 = "cocoon_diameter_mm__1_2",
+    betsi_ew_cocoon_diameter_mm__2_4 = "cocoon_diameter_mm__2_4",
+    betsi_ew_cocoon_diameter_mm__4_6 = "cocoon_diameter_mm__4_6",
+    betsi_ew_epithelium__supple = "epithelium__supple",
+    betsi_ew_epithelium__rigid = "epithelium__rigid",
+    betsi_ew_typhlosolis__simple = "typhlosolis__simple",
+    betsi_ew_typhlosolis__large_feather = "typhlosolis__large_feather",
+    betsi_ew_carbon_pref_mgkg__lt20 = "carbon_pref_mgkg__lt20",
+    betsi_ew_carbon_pref_mgkg__20_33_3 = "carbon_pref_mgkg__20_33_3",
+    betsi_ew_carbon_pref_mgkg__33_3_60 = "carbon_pref_mgkg__33_3_60",
+    betsi_ew_carbon_pref_mgkg__gt60 = "carbon_pref_mgkg__gt60",
+    betsi_ew_vertical_distribution_cm__0_5 = "vertical_distribution_cm__0_5",
+    betsi_ew_vertical_distribution_cm__5_20 = "vertical_distribution_cm__5_20",
+    betsi_ew_vertical_distribution_cm__gt20 = "vertical_distribution_cm__gt20"
+  ),
+  source_label = "Earthworm traits (Pelosi et al. 2014)"
+)

@@ -37,25 +37,24 @@
 #'
 #' @export
 add_madin <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    madin_gram_stain       = "gram_stain",
-    madin_metabolism       = "metabolism",
-    madin_cell_shape       = "cell_shape",
-    madin_motility         = "motility",
-    madin_sporulation      = "sporulation",
-    madin_isolation_source = "isolation_source",
-    madin_growth_temp_c    = "growth_temp_c",
-    madin_optimum_temp_c   = "optimum_temp_c",
-    madin_optimum_ph       = "optimum_ph",
-    madin_genome_size_bp   = "genome_size_bp",
-    madin_gc_content_pct   = "gc_content_pct"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "madin",
-    col_map         = col_map,
-    source_label    = "Madin bacteria/archaea traits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_madin, cols = cols, verbose = verbose)
 }
+
+
+.door_madin <- list(
+  enrichment_name = "madin",
+  col_map = c(
+    madin_gram_stain = "gram_stain",
+    madin_metabolism = "metabolism",
+    madin_cell_shape = "cell_shape",
+    madin_motility = "motility",
+    madin_sporulation = "sporulation",
+    madin_isolation_source = "isolation_source",
+    madin_growth_temp_c = "growth_temp_c",
+    madin_optimum_temp_c = "optimum_temp_c",
+    madin_optimum_ph = "optimum_ph",
+    madin_genome_size_bp = "genome_size_bp",
+    madin_gc_content_pct = "gc_content_pct"
+  ),
+  source_label = "Madin bacteria/archaea traits"
+)

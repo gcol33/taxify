@@ -32,7 +32,7 @@ nothing."><meta property="og:image" content="https://gillescolling.com/taxify/lo
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@ nothing."><meta property="og:image" content="https://gillescolling.com/taxify/lo
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -118,7 +119,30 @@ nothing.</p>
     <p>Integer vector along <code>records</code>: the row of <code>basionyms</code> whose accepted
 taxon the record belongs to, or <code>NA</code>.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p>Other Low-level building blocks:
+<code><a href="candidate_order.html">candidate_order()</a></code>,
+<code><a href="embed_accepted.html">embed_accepted()</a></code>,
+<code><a href="enrichment_authorship_col.html">enrichment_authorship_col()</a></code>,
+<code><a href="is_aggregate_name.html">is_aggregate_name()</a></code>,
+<code><a href="normalize_aggregate_name.html">normalize_aggregate_name()</a></code>,
+<code><a href="normalize_epithets.html">normalize_epithets()</a></code>,
+<code><a href="precompute_keys.html">precompute_keys()</a></code>,
+<code><a href="score_candidates.html">score_candidates()</a></code></p></div>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">records</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>taxon_id <span class="op">=</span> <span class="st">"2"</span>, taxonomic_status <span class="op">=</span> <span class="st">"UNPLACED"</span>,</span></span>
+<span class="r-in"><span>                      original_name_usage_id <span class="op">=</span> <span class="st">"1"</span>, is_synonym <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">basionyms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>taxon_id <span class="op">=</span> <span class="st">"1"</span>, taxonomic_status <span class="op">=</span> <span class="st">"ACCEPTED"</span>,</span></span>
+<span class="r-in"><span>                       accepted_taxon_id <span class="op">=</span> <span class="st">"1"</span>, is_synonym <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">basionym_placement</span><span class="op">(</span><span class="va">records</span>, <span class="va">basionyms</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

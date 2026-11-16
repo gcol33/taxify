@@ -35,15 +35,15 @@ add_kew_cvalues(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns. The default set:
 
-- cval_genome_size_1c_pg:
+- kew_cvalues_cval_genome_size_1c_pg:
 
   Genome size (1C DNA amount, picograms).
 
-- cval_chromosome_2n:
+- kew_cvalues_cval_chromosome_2n:
 
   Somatic chromosome number (2n), base cytotype.
 
-- cval_ploidy_x:
+- kew_cvalues_cval_ploidy_x:
 
   Ploidy level, base cytotype.
 

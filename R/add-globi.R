@@ -42,16 +42,16 @@
 #'
 #' @export
 add_globi <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "globi",
-    col_map = c(
-      interaction_degree    = "interaction_degree",
-      n_interaction_types   = "n_interaction_types",
-      n_interaction_records = "n_interaction_records"
-    ),
-    source_label = "GloBI (Poelen et al. 2014)",
-    cols         = cols,
-    verbose      = verbose
-  )
+  enrich_door(x, .door_globi, cols = cols, verbose = verbose)
 }
+
+
+.door_globi <- list(
+  enrichment_name = "globi",
+  col_map = c(
+    interaction_degree = "interaction_degree",
+    n_interaction_types = "n_interaction_types",
+    n_interaction_records = "n_interaction_records"
+  ),
+  source_label = "GloBI (Poelen et al. 2014)"
+)

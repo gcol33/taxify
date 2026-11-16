@@ -33,8 +33,29 @@ vocabulary) is printed as a message.
 [`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md),
 [`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md)
 
+Other Traits across sources:
+[`add_trait()`](https://gillescolling.com/taxify/reference/add_trait.md),
+[`list_traits()`](https://gillescolling.com/taxify/reference/list_traits.md)
+
 ## Examples
 
 ``` r
 trait_info("woodiness")
+#> Woodiness (categorical)  |  default priority: zanne > gift > austraits > bien
+#> vocabulary: woody, non-woody, variable
+#>      source enrichment           column                        citation
+#> 1     zanne      zanne        woodiness               Zanne et al. 2014
+#> 2      gift       gift gift_woodiness_1      GIFT (Weigelt et al. 2020)
+#> 3 austraits  austraits        woodiness AusTraits (Falster et al. 2021)
+#> 4      bien       bien        woodiness      BIEN (Maitner et al. 2018)
+#>                                                                           note
+#> 1                            Zanne 'herbaceous' maps to canonical 'non-woody'.
+#> 2                                                GIFT woodiness used verbatim.
+#> 3 Pure 'woody'/'herbaceous' mapped; mixed or semi-woody entries -> 'variable'.
+#> 4                                       BIEN 'herbaceous' maps to 'non-woody'.
+#>   caution
+#> 1    <NA>
+#> 2    <NA>
+#> 3    <NA>
+#> 4    <NA>
 ```

@@ -33,15 +33,17 @@
 #'
 #' @export
 add_virion <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("virus_richness", "virus_family_count", "virus_record_count",
-                "host_class")
-  col_map <- stats::setNames(all_cols, paste0("virion_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "virion",
-    col_map         = col_map,
-    source_label    = "VIRION host-virus associations (Carlson et al.)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_virion, cols = cols, verbose = verbose)
 }
+
+
+.door_virion <- list(
+  enrichment_name = "virion",
+  col_map = c(
+    virion_virus_richness = "virus_richness",
+    virion_virus_family_count = "virus_family_count",
+    virion_virus_record_count = "virus_record_count",
+    virion_host_class = "host_class"
+  ),
+  source_label = "VIRION host-virus associations (Carlson et al.)"
+)

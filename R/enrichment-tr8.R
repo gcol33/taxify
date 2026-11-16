@@ -165,21 +165,22 @@ enrich_via_tr8 <- function(x, db, col_map, source_label, license,
 #'
 #' @export
 add_pignatti <- function(x, verbose = TRUE) {
-  enrich_via_tr8(
-    x, db = "Pignatti",
-    col_map = c(
-      light_it          = "ell_L_it",
-      temperature_it    = "ell_T_it",
-      continentality_it = "ell_C_it",
-      moisture_it       = "ell_U_it",
-      reaction_it       = "ell_R_it",
-      nutrients_it      = "ell_N_it",
-      salinity_it       = "ell_S_it",
-      life_form_it      = "life_form_P",
-      chorotype_it      = "distribution_p"
-    ),
-    source_label = "Pignatti Flora d'Italia (Pignatti et al. 2005)",
-    license  = "copyrighted (not redistributed)",
-    verbose  = verbose
-  )
+  enrich_door(x, .door_pignatti, verbose = verbose)
 }
+
+.door_pignatti <- list(
+  db = "Pignatti",
+  col_map = c(
+    light_it = "ell_L_it",
+    temperature_it = "ell_T_it",
+    continentality_it = "ell_C_it",
+    moisture_it = "ell_U_it",
+    reaction_it = "ell_R_it",
+    nutrients_it = "ell_N_it",
+    salinity_it = "ell_S_it",
+    life_form_it = "life_form_P",
+    chorotype_it = "distribution_p"
+  ),
+  source_label = "Pignatti Flora d'Italia (Pignatti et al. 2005)",
+  license = "copyrighted (not redistributed)"
+)

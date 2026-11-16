@@ -28,4 +28,5 @@ backbone.
 
 ``` r
 backbone_fixed_kingdom(c("wfo", "fungorum", "gbif"))
+#> [1] "plantae" "fungi"   NA       
 ```

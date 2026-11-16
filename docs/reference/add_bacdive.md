@@ -35,32 +35,32 @@ add_bacdive(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- gram_stain:
+- bacdive_gram_stain:
 
   Gram reaction (positive / negative / variable).
 
-- cell_shape:
+- bacdive_cell_shape:
 
   Cell morphology (rod, coccus, ...).
 
-- motility:
+- bacdive_motility:
 
   motile / non-motile.
 
-- oxygen_metabolism:
+- bacdive_oxygen_metabolism:
 
   Oxygen tolerance (aerobe, anaerobe, facultative anaerobe,
   microaerophile, ...).
 
-- cell_length_um, cell_width_um:
+- bacdive_cell_length_um, bacdive_cell_width_um:
 
   Cell dimensions in micrometres.
 
-- optimal_growth_temp_c:
+- bacdive_optimal_growth_temp_c:
 
   Optimal (or reported growth) temperature, C.
 
-- optimal_growth_ph:
+- bacdive_optimal_growth_ph:
 
   Optimal (or reported growth) pH.
 

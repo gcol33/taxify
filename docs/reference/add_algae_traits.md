@@ -33,35 +33,35 @@ add_algae_traits(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- algae_body_size_cm:
+- algae_traits_algae_body_size_cm:
 
   Maximum body size in centimetres.
 
-- algae_growth_form:
+- algae_traits_algae_growth_form:
 
   Growth form / body shape (e.g., filamentous, foliose, crustose).
 
-- algae_calcification:
+- algae_traits_algae_calcification:
 
   Calcification type (e.g., uncalcified, articulated, encrusting).
 
-- algae_life_span:
+- algae_traits_algae_life_span:
 
   Life span category (annual, perennial, etc.).
 
-- algae_tidal_zone:
+- algae_traits_algae_tidal_zone:
 
   Tidal zonation (e.g., supralittoral, eulittoral, sublittoral).
 
-- algae_wave_exposure:
+- algae_traits_algae_wave_exposure:
 
   Wave exposure tolerance (sheltered, moderately exposed, exposed).
 
-- algae_environment:
+- algae_traits_algae_environment:
 
   Habitat environment (marine, brackish, freshwater).
 
-- algae_substrate:
+- algae_traits_algae_substrate:
 
   Environmental position / substrate type.
 
@@ -84,6 +84,26 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Fucus vesiculosus", backbone = "gbif") |>
   add_algae_traits()
+#> Matching 1 names...
+#>          input_name      matched_name     accepted_name    taxon_id accepted_id
+#> 1 Fucus vesiculosus Fucus vesiculosus Fucus vesiculosus gbif-ex-014 gbif-ex-014
+#>      rank   family genus     epithet authorship accepted_authorship is_synonym
+#> 1 species Fucaceae Fucus vesiculosus   Linnaeus            Linnaeus      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 gbif:example (2026-06-24)     chromista  brown_alga brown alga      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#>   algae_traits_algae_body_size_cm algae_traits_algae_growth_form
+#> 1            example_body_size_cm            example_growth_form
+#>   algae_traits_algae_calcification algae_traits_algae_life_span
+#> 1            example_calcification            example_life_span
+#>   algae_traits_algae_tidal_zone algae_traits_algae_wave_exposure
+#> 1            example_tidal_zone            example_wave_exposure
+#>   algae_traits_algae_environment algae_traits_algae_substrate
+#> 1            example_environment            example_substrate
+#> Sources: GBIF example, AlgaeTraits example | cite() for full citations
 
 options(old)
 ```

@@ -35,3 +35,22 @@ normalize_aggregate_name(name, rank = NULL)
 ## Value
 
 `name` with aggregate markers normalized to `" aggr."`.
+
+## See also
+
+Other Low-level building blocks:
+[`basionym_placement()`](https://gillescolling.com/taxify/reference/basionym_placement.md),
+[`candidate_order()`](https://gillescolling.com/taxify/reference/candidate_order.md),
+[`embed_accepted()`](https://gillescolling.com/taxify/reference/embed_accepted.md),
+[`enrichment_authorship_col()`](https://gillescolling.com/taxify/reference/enrichment_authorship_col.md),
+[`is_aggregate_name()`](https://gillescolling.com/taxify/reference/is_aggregate_name.md),
+[`normalize_epithets()`](https://gillescolling.com/taxify/reference/normalize_epithets.md),
+[`precompute_keys()`](https://gillescolling.com/taxify/reference/precompute_keys.md),
+[`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md)
+
+## Examples
+
+``` r
+normalize_aggregate_name(c("Rubus fruticosus agg.", "Quercus robur"))
+#> [1] "Rubus fruticosus aggr." "Quercus robur"         
+```

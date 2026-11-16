@@ -12,8 +12,6 @@ example reads the Catalogue of Life (COL); `backbone` names another.
 1.  **List** synonyms with
     [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
     and the taxa below a genus or family with
-    [`children()`](https://gillescolling.com/taxify/reference/children.md)
-    and
     [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md).
 
 2.  **Climb** to the ranks above a taxon with
@@ -71,12 +69,12 @@ same set, through the accepted *Picea abies*.
 ## Taxa below a genus or family
 
 To complete a checklist, the species of a genus are needed.
-[`children()`](https://gillescolling.com/taxify/reference/children.md)
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md)
 lists the accepted species of a genus, or of a family:
 
 ``` r
 
-spruces <- children("Picea", backbone = "col", verbose = FALSE)
+spruces <- downstream("Picea", backbone = "col", verbose = FALSE)
 nrow(spruces)
 #> [1] 42
 head(spruces[, c("name", "authorship", "rank")])
@@ -98,14 +96,13 @@ the pine family:
 genera <- downstream("Pinaceae", backbone = "col", downto = "genus",
                      verbose = FALSE)
 genera$name
-#>  [1] "Abies"       "Cathaya"     "Cedrus"      "Keteleeria"  "Larix"      
+#>  [1] "Abies"       "Cathaya"     "Cedrus"      "Keteleeria"  "Larix"
 #>  [6] "Nothotsuga"  "Picea"       "Pinus"       "Pseudolarix" "Pseudotsuga"
 #> [11] "Tsuga"
 ```
 
-Both return accepted taxa only, and never the parent itself. A genus
-name used in two kingdoms, such as *Prunella*, is split with `kingdom`,
-as in
+The result contains accepted descendants. A genus name used in two
+kingdoms, such as *Prunella*, is split with `kingdom`, as in
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
 ## Ranks above a taxon
@@ -252,8 +249,8 @@ sp <- comm2sci("Norway spruce", lang = "en", verbose = FALSE)
 nrow(sp)
 #> [1] 31
 head(sp$accepted_name)
-#> [1] "Abies dicksonii"                 "Abies excelsa var. attenuata"   
-#> [3] "Abies excelsa var. aurea"        "Abies excelsa var. brevifolia"  
+#> [1] "Abies dicksonii"                 "Abies excelsa var. attenuata"
+#> [3] "Abies excelsa var. aurea"        "Abies excelsa var. brevifolia"
 #> [5] "Abies excelsa var. eremita"      "Abies excelsa var. finedonensis"
 ```
 
@@ -266,12 +263,12 @@ With `output = "result"`, the names are matched with
 sp_res <- comm2sci("Norway spruce", lang = "en", output = "result",
                    backbone = "col", verbose = FALSE)
 table(sp_res$accepted_name)
-#> 
-#>                          Abies alba Abies sachalinensis var. nemorensis 
-#>                                   2                                   1 
-#>                         Picea abies              Picea abies var. abies 
-#>                                  19                                   6 
-#>          Picea abies var. acuminata 
+#>
+#>                          Abies alba Abies sachalinensis var. nemorensis
+#>                                   2                                   1
+#>                         Picea abies              Picea abies var. abies
+#>                                  19                                   6
+#>          Picea abies var. acuminata
 #>                                   2
 ```
 

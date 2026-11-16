@@ -40,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,12 +51,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -118,7 +119,7 @@ covered in <a href="taxify.html">Get started</a>. Every example reads
 the Catalogue of Life (COL); <code>backbone</code> names another.</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>List</strong> synonyms with <code><a href="../reference/synonyms.html">synonyms()</a></code>, and
-the taxa below a genus or family with <code><a href="../reference/children.html">children()</a></code> and
+the taxa below a genus or family with
 <code><a href="../reference/downstream.html">downstream()</a></code>.</p></li>
 <li><p><strong>Climb</strong> to the ranks above a taxon with
 <code><a href="../reference/upstream.html">upstream()</a></code> and <code><a href="../reference/add_classification.html">add_classification()</a></code>.</p></li>
@@ -158,10 +159,10 @@ accepted <em>Picea abies</em>.</p>
 <h2 id="taxa-below-a-genus-or-family">Taxa below a genus or family<a class="anchor" aria-label="anchor" href="#taxa-below-a-genus-or-family"></a>
 </h2>
 <p>To complete a checklist, the species of a genus are needed.
-<code><a href="../reference/children.html">children()</a></code> lists the accepted species of a genus, or of a
+<code><a href="../reference/downstream.html">downstream()</a></code> lists the accepted species of a genus, or of a
 family:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">spruces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/children.html">children</a></span><span class="op">(</span><span class="st">"Picea"</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">spruces</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/downstream.html">downstream</a></span><span class="op">(</span><span class="st">"Picea"</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">spruces</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 42</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">spruces</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span>, <span class="st">"authorship"</span>, <span class="st">"rank"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
@@ -178,12 +179,12 @@ rank below it. The genera of the pine family:</p>
 <code class="sourceCode R"><span><span class="va">genera</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/downstream.html">downstream</a></span><span class="op">(</span><span class="st">"Pinaceae"</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, downto <span class="op">=</span> <span class="st">"genus"</span>,</span>
 <span>                     verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">genera</span><span class="op">$</span><span class="va">name</span></span>
-<span><span class="co">#&gt;  [1] "Abies"       "Cathaya"     "Cedrus"      "Keteleeria"  "Larix"      </span></span>
+<span><span class="co">#&gt;  [1] "Abies"       "Cathaya"     "Cedrus"      "Keteleeria"  "Larix"</span></span>
 <span><span class="co">#&gt;  [6] "Nothotsuga"  "Picea"       "Pinus"       "Pseudolarix" "Pseudotsuga"</span></span>
 <span><span class="co">#&gt; [11] "Tsuga"</span></span></code></pre></div>
-<p>Both return accepted taxa only, and never the parent itself. A genus
-name used in two kingdoms, such as <em>Prunella</em>, is split with
-<code>kingdom</code>, as in <code><a href="../reference/taxify.html">taxify()</a></code>.</p>
+<p>The result contains accepted descendants. A genus name used in two
+kingdoms, such as <em>Prunella</em>, is split with <code>kingdom</code>,
+as in <code><a href="../reference/taxify.html">taxify()</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="ranks-above-a-taxon">Ranks above a taxon<a class="anchor" aria-label="anchor" href="#ranks-above-a-taxon"></a>
@@ -303,8 +304,8 @@ scientific name that carries it:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 31</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sp</span><span class="op">$</span><span class="va">accepted_name</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Abies dicksonii"                 "Abies excelsa var. attenuata"   </span></span>
-<span><span class="co">#&gt; [3] "Abies excelsa var. aurea"        "Abies excelsa var. brevifolia"  </span></span>
+<span><span class="co">#&gt; [1] "Abies dicksonii"                 "Abies excelsa var. attenuata"</span></span>
+<span><span class="co">#&gt; [3] "Abies excelsa var. aurea"        "Abies excelsa var. brevifolia"</span></span>
 <span><span class="co">#&gt; [5] "Abies excelsa var. eremita"      "Abies excelsa var. finedonensis"</span></span></code></pre></div>
 <p>With <code>output = "result"</code>, the names are matched with
 <code><a href="../reference/taxify.html">taxify()</a></code>, and <code>query_common</code> keeps the common
@@ -313,12 +314,12 @@ name of each row:</p>
 <code class="sourceCode R"><span><span class="va">sp_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/comm2sci.html">comm2sci</a></span><span class="op">(</span><span class="st">"Norway spruce"</span>, lang <span class="op">=</span> <span class="st">"en"</span>, output <span class="op">=</span> <span class="st">"result"</span>,</span>
 <span>                   backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">sp_res</span><span class="op">$</span><span class="va">accepted_name</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                          Abies alba Abies sachalinensis var. nemorensis </span></span>
-<span><span class="co">#&gt;                                   2                                   1 </span></span>
-<span><span class="co">#&gt;                         Picea abies              Picea abies var. abies </span></span>
-<span><span class="co">#&gt;                                  19                                   6 </span></span>
-<span><span class="co">#&gt;          Picea abies var. acuminata </span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt;                          Abies alba Abies sachalinensis var. nemorensis</span></span>
+<span><span class="co">#&gt;                                   2                                   1</span></span>
+<span><span class="co">#&gt;                         Picea abies              Picea abies var. abies</span></span>
+<span><span class="co">#&gt;                                  19                                   6</span></span>
+<span><span class="co">#&gt;          Picea abies var. acuminata</span></span>
 <span><span class="co">#&gt;                                   2</span></span></code></pre></div>
 <p>Of the 31 names that carry “Norway spruce”, 30 match COL, and 27 of
 those resolve to <em>Picea abies</em> or one of its varieties. The other

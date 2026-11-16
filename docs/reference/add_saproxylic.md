@@ -30,10 +30,12 @@ add_saproxylic(x, cols = NULL, verbose = TRUE)
 ## Value
 
 The same data.frame with numeric `saproxylic_` columns:
-`body_length_mm`, `body_width_mm`, `body_height_mm`, `mass_mg`,
-`colour_lightness`, `head_length_mm`, `pronotum_length_mm`,
-`elytra_length_mm`, `wing_length_mm`, `wing_aspect`,
-`antenna_length_mm`, `eye_length_mm`.
+`saproxylic_body_length_mm`, `saproxylic_body_width_mm`,
+`saproxylic_body_height_mm`, `saproxylic_mass_mg`,
+`saproxylic_colour_lightness`, `saproxylic_head_length_mm`,
+`saproxylic_pronotum_length_mm`, `saproxylic_elytra_length_mm`,
+`saproxylic_wing_length_mm`, `saproxylic_wing_aspect`,
+`saproxylic_antenna_length_mm`, `saproxylic_eye_length_mm`.
 
 ## Details
 

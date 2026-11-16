@@ -30,10 +30,12 @@ add_zooplankton(x, cols = NULL, verbose = TRUE)
 ## Value
 
 The same data.frame with `zooplankton_` columns: numeric
-`body_length_max_mm`, `carbon_weight_mg`, `nitrogen_pdw_pct`;
-categorical `vertical_distribution`, `reproduction_mode`,
-`trophic_group`, `feeding_mode`, `myelination`, `habitat_association`,
-`diel_vertical_migration`, `bioluminescence`.
+`zooplankton_body_length_max_mm`, `zooplankton_carbon_weight_mg`,
+`zooplankton_nitrogen_pdw_pct`; categorical
+`zooplankton_vertical_distribution`, `zooplankton_reproduction_mode`,
+`zooplankton_trophic_group`, `zooplankton_feeding_mode`,
+`zooplankton_myelination`, `zooplankton_habitat_association`,
+`zooplankton_diel_vertical_migration`, `zooplankton_bioluminescence`.
 
 ## Details
 

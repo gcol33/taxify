@@ -33,49 +33,49 @@ add_leda(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- raunkiaer_life_form:
+- leda_raunkiaer_life_form:
 
   Most frequent LEDA plant growth form: the Raunkiaer classes
   (Phanerophyte, Chamaephyte, Hemicryptophyte, Geophyte, Therophyte,
   Hydrophyte) plus Liana, Vascular semi-parasite and Vascular parasite.
 
-- raunkiaer_variable:
+- leda_raunkiaer_variable:
 
   1 if the species' records name more than one growth form, 0 otherwise.
 
-- dispersal_type:
+- leda_dispersal_type:
 
   Most frequent dispersal type, as LEDA's -chor term (meteorochor,
   epizoochor, nautochor, ...).
 
-- terminal_velocity_ms:
+- leda_terminal_velocity_ms:
 
   Diaspore terminal velocity in m/s (species median).
 
-- seed_mass_mg:
+- leda_seed_mass_mg:
 
   Seed mass in mg (species median). Prefixed with `leda_` in the .vtr to
   avoid collision with Diaz traits.
 
-- canopy_height_m:
+- leda_canopy_height_m:
 
   Canopy height in metres (species median): the height of the highest
   photosynthetic tissue, which LEDA distinguishes from plant height.
 
-- leaf_mass_mg:
+- leda_leaf_mass_mg:
 
   Leaf dry mass in mg (species median).
 
-- sla_mm2_mg:
+- leda_sla_mm2_mg:
 
   Specific leaf area in mm\\^2\\/mg (species median).
 
-- clonal_growth_organ:
+- leda_clonal_growth_organ:
 
   Most frequent primary clonal growth organ (epigeogeneous stems,
   root-splitters, bulbs, ...).
 
-- floating_capacity_1week_pct:
+- leda_floating_capacity_1week_pct:
 
   Percentage of diaspores still floating after one week (species
   median).
@@ -107,6 +107,35 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Arrhenatherum elatius") |>
   add_leda()
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> add_leda(): attaching 10 of 87 columns. Pass cols = "all" for all, or see enrichment_cols("leda").
+#>              input_name          matched_name         accepted_name   taxon_id
+#> 1 Arrhenatherum elatius Arrhenatherum elatius Arrhenatherum elatius wfo-ex-008
+#>   accepted_id    rank  family         genus epithet
+#> 1  wfo-ex-008 species Poaceae Arrhenatherum elatius
+#>                           authorship                accepted_authorship
+#> 1 (L.) P.Beauv. ex J.Presl & C.Presl (L.) P.Beauv. ex J.Presl & C.Presl
+#>   is_synonym taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1      FALSE         ACCEPTED     FALSE      exact         NA      wfo
+#>           backbone_version kingdom_group taxon_group  life_form qualifier
+#> 1 wfo:example (2026-06-24)       plantae  angiosperm angiosperm      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type leda_raunkiaer_life_form
+#> 1               <NA>                 NA        <NA>          Hemicryptophyte
+#>   leda_raunkiaer_variable leda_dispersal_type leda_terminal_velocity_ms
+#> 1                       0          epizoochor                     2.645
+#>   leda_seed_mass_mg leda_canopy_height_m leda_leaf_mass_mg leda_sla_mm2_mg
+#> 1             2.774                 1.35          30.65406          29.035
+#>   leda_clonal_growth_organ leda_floating_capacity_1week_pct
+#> 1      epigeogeneous stems                               25
+#> Sources: WFO example, LEDA Traitbase example | cite() for full citations
 
 options(old)
 ```

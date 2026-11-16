@@ -31,9 +31,13 @@ add_arctic_traits(x, cols = NULL, verbose = TRUE)
 ## Value
 
 The same data.frame with categorical `arctic_traits_` columns:
-`feeding_habit`, `skeleton`, `reproduction`, `larval_development`,
-`size`, `living_habit`, `body_form`, `mobility`, `bioturbation`,
-`depth_range`, `trophic_level`, `fragility`, `sociability`, `longevity`.
+`arctic_traits_feeding_habit`, `arctic_traits_skeleton`,
+`arctic_traits_reproduction`, `arctic_traits_larval_development`,
+`arctic_traits_size`, `arctic_traits_living_habit`,
+`arctic_traits_body_form`, `arctic_traits_mobility`,
+`arctic_traits_bioturbation`, `arctic_traits_depth_range`,
+`arctic_traits_trophic_level`, `arctic_traits_fragility`,
+`arctic_traits_sociability`, `arctic_traits_longevity`.
 
 ## Details
 

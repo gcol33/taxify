@@ -30,9 +30,10 @@ add_eberswalde(x, cols = NULL, verbose = TRUE)
 ## Value
 
 The same data.frame with `eberswalde_` columns: numeric
-`body_length_mm`, `humidity_pref`, `range_centre_lat`,
-`abundance_total`; categorical `wing_morph`, `feeding_guild`,
-`abundance_trend`, `drought_effect`.
+`eberswalde_body_length_mm`, `eberswalde_humidity_pref`,
+`eberswalde_range_centre_lat`, `eberswalde_abundance_total`; categorical
+`eberswalde_wing_morph`, `eberswalde_feeding_guild`,
+`eberswalde_abundance_trend`, `eberswalde_drought_effect`.
 
 ## Details
 

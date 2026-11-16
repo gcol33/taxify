@@ -31,10 +31,12 @@ add_hydraulics(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `hyd_` columns: `p50_mpa`,
-`sapwood_conductivity`, `leaf_conductivity`, `huber_value_cm2_m2`,
-`min_water_potential_mpa`, `hydraulic_safety_margin_mpa`,
-`mean_annual_temp_c`.
+The same data.frame with `hyd_` columns: `hydraulics_hyd_p50_mpa`,
+`hydraulics_hyd_sapwood_conductivity`,
+`hydraulics_hyd_leaf_conductivity`, `hydraulics_hyd_huber_value_cm2_m2`,
+`hydraulics_hyd_min_water_potential_mpa`,
+`hydraulics_hyd_hydraulic_safety_margin_mpa`,
+`hydraulics_hyd_mean_annual_temp_c`.
 
 ## Details
 

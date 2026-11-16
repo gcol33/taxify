@@ -41,16 +41,18 @@
 #'
 #' @export
 add_betsi_collembola_body_length <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("betsi_body_length_mm", "betsi_body_length_min_mm",
-                "betsi_body_length_max_mm", "betsi_body_length_n",
-                "betsi_body_length_sources")
-  col_map <- stats::setNames(all_cols, all_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "betsi_collembola_body_length",
-    col_map         = col_map,
-    source_label    = "BETSI Collembola body length (Bonfanti 2018)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_betsi_collembola_body_length, cols = cols, verbose = verbose)
 }
+
+
+.door_betsi_collembola_body_length <- list(
+  enrichment_name = "betsi_collembola_body_length",
+  col_map = c(
+    betsi_body_length_mm = "betsi_body_length_mm",
+    betsi_body_length_min_mm = "betsi_body_length_min_mm",
+    betsi_body_length_max_mm = "betsi_body_length_max_mm",
+    betsi_body_length_n = "betsi_body_length_n",
+    betsi_body_length_sources = "betsi_body_length_sources"
+  ),
+  source_label = "BETSI Collembola body length (Bonfanti 2018)"
+)

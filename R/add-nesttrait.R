@@ -27,26 +27,37 @@
 #'
 #' @export
 add_nesttrait <- function(x, cols = NULL, verbose = TRUE) {
-  flag_cols <- c("brood_parasite", "mound_builder", "nestsite_ground",
-            "nestsite_tree", "nestsite_nontree", "nestsite_cliff_bank",
-            "nestsite_underground", "nestsite_waterbody", "nestsite_termite_ant",
-            "neststr_scrape", "neststr_platform", "neststr_cup", "neststr_dome",
-            "neststr_dome_tunnel", "neststr_primary_cavity",
-            "neststr_second_cavity", "nestatt_basal", "nestatt_forked",
-            "nestatt_lateral", "nestatt_pensile")
-  # Collapsed categoricals (pipe-delimited multi-modal) first, then raw flags.
-  col_map <- c(
-    nesttrait_structure  = "nest_structure",
-    nesttrait_site       = "nest_site",
-    nesttrait_attachment = "nest_attachment",
-    stats::setNames(flag_cols, paste0("nesttrait_", flag_cols))
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "nesttrait",
-    col_map         = col_map,
-    source_label    = "NestTrait",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_nesttrait, cols = cols, verbose = verbose)
 }
+
+
+# Collapsed categoricals (pipe-delimited multi-modal) first, then raw flags.
+.door_nesttrait <- list(
+  enrichment_name = "nesttrait",
+  col_map = c(
+    nesttrait_structure = "nest_structure",
+    nesttrait_site = "nest_site",
+    nesttrait_attachment = "nest_attachment",
+    nesttrait_brood_parasite = "brood_parasite",
+    nesttrait_mound_builder = "mound_builder",
+    nesttrait_nestsite_ground = "nestsite_ground",
+    nesttrait_nestsite_tree = "nestsite_tree",
+    nesttrait_nestsite_nontree = "nestsite_nontree",
+    nesttrait_nestsite_cliff_bank = "nestsite_cliff_bank",
+    nesttrait_nestsite_underground = "nestsite_underground",
+    nesttrait_nestsite_waterbody = "nestsite_waterbody",
+    nesttrait_nestsite_termite_ant = "nestsite_termite_ant",
+    nesttrait_neststr_scrape = "neststr_scrape",
+    nesttrait_neststr_platform = "neststr_platform",
+    nesttrait_neststr_cup = "neststr_cup",
+    nesttrait_neststr_dome = "neststr_dome",
+    nesttrait_neststr_dome_tunnel = "neststr_dome_tunnel",
+    nesttrait_neststr_primary_cavity = "neststr_primary_cavity",
+    nesttrait_neststr_second_cavity = "neststr_second_cavity",
+    nesttrait_nestatt_basal = "nestatt_basal",
+    nesttrait_nestatt_forked = "nestatt_forked",
+    nesttrait_nestatt_lateral = "nestatt_lateral",
+    nesttrait_nestatt_pensile = "nestatt_pensile"
+  ),
+  source_label = "NestTrait"
+)

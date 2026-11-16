@@ -35,23 +35,23 @@ add_epa_freshwater(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns. The default set:
 
-- epa_feeding_mode:
+- epa_freshwater_epa_feeding_mode:
 
   Functional feeding group.
 
-- epa_habit:
+- epa_freshwater_epa_habit:
 
   Primary habit (e.g. clinger, burrower, swimmer).
 
-- epa_voltinism:
+- epa_freshwater_epa_voltinism:
 
   Number of generations per year.
 
-- epa_thermal_preference:
+- epa_freshwater_epa_thermal_preference:
 
   Thermal preference.
 
-- epa_body_size_class:
+- epa_freshwater_epa_body_size_class:
 
   Maximum body-size class.
 

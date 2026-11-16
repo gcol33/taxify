@@ -50,33 +50,32 @@
 #'
 #' @export
 add_bet <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    bet_growth_form         = "growth_form",
-    bet_life_form           = "life_form",
-    bet_life_strategy       = "life_strategy",
-    bet_sexual_condition    = "sexual_condition",
-    bet_shoot_size_mm       = "shoot_size_mm",
-    bet_generation_length_y = "generation_length_y",
-    bet_spore_diameter_um   = "spore_diameter_um",
-    bet_ind_light           = "ind_light",
-    bet_ind_temperature     = "ind_temperature",
-    bet_ind_moisture        = "ind_moisture",
-    bet_ind_reaction_ph     = "ind_reaction_ph",
-    bet_ind_nitrogen        = "ind_nitrogen",
-    bet_substrate_soil      = "substrate_soil",
-    bet_substrate_rock      = "substrate_rock",
-    bet_substrate_bark      = "substrate_bark",
-    bet_substrate_deadwood  = "substrate_deadwood",
-    bet_substrate           = "substrate",
-    bet_epiphyte            = "epiphyte",
-    bet_redlist_category    = "redlist_category"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "bet",
-    col_map         = col_map,
-    source_label    = "Bryophytes of Europe Traits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_bet, cols = cols, verbose = verbose)
 }
+
+
+.door_bet <- list(
+  enrichment_name = "bet",
+  col_map = c(
+    bet_growth_form = "growth_form",
+    bet_life_form = "life_form",
+    bet_life_strategy = "life_strategy",
+    bet_sexual_condition = "sexual_condition",
+    bet_shoot_size_mm = "shoot_size_mm",
+    bet_generation_length_y = "generation_length_y",
+    bet_spore_diameter_um = "spore_diameter_um",
+    bet_ind_light = "ind_light",
+    bet_ind_temperature = "ind_temperature",
+    bet_ind_moisture = "ind_moisture",
+    bet_ind_reaction_ph = "ind_reaction_ph",
+    bet_ind_nitrogen = "ind_nitrogen",
+    bet_substrate_soil = "substrate_soil",
+    bet_substrate_rock = "substrate_rock",
+    bet_substrate_bark = "substrate_bark",
+    bet_substrate_deadwood = "substrate_deadwood",
+    bet_substrate = "substrate",
+    bet_epiphyte = "epiphyte",
+    bet_redlist_category = "redlist_category"
+  ),
+  source_label = "Bryophytes of Europe Traits"
+)

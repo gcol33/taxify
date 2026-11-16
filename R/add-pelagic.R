@@ -26,19 +26,26 @@
 #'
 #' @export
 add_pelagic <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("depth_min_m", "depth_max_m", "temp_min_c", "temp_max_c",
-                "temp_mean_c", "length_min_tl_cm", "length_max_tl_cm",
-                "trophic_level")
-  cat_cols <- c("vert_habitat", "horz_habitat", "body_shape", "phys_defense",
-                "gregarious")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("pelagic_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "pelagic",
-    col_map         = col_map,
-    source_label    = "Pelagic Species Trait Database",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_pelagic, cols = cols, verbose = verbose)
 }
+
+
+.door_pelagic <- list(
+  enrichment_name = "pelagic",
+  col_map = c(
+    pelagic_depth_min_m = "depth_min_m",
+    pelagic_depth_max_m = "depth_max_m",
+    pelagic_temp_min_c = "temp_min_c",
+    pelagic_temp_max_c = "temp_max_c",
+    pelagic_temp_mean_c = "temp_mean_c",
+    pelagic_length_min_tl_cm = "length_min_tl_cm",
+    pelagic_length_max_tl_cm = "length_max_tl_cm",
+    pelagic_trophic_level = "trophic_level",
+    pelagic_vert_habitat = "vert_habitat",
+    pelagic_horz_habitat = "horz_habitat",
+    pelagic_body_shape = "body_shape",
+    pelagic_phys_defense = "phys_defense",
+    pelagic_gregarious = "gregarious"
+  ),
+  source_label = "Pelagic Species Trait Database"
+)

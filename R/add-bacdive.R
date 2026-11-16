@@ -40,21 +40,21 @@
 #'
 #' @export
 add_bacdive <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "bacdive",
-    col_map = c(
-      gram_stain            = "gram_stain",
-      cell_shape            = "cell_shape",
-      motility              = "motility",
-      oxygen_metabolism     = "oxygen_metabolism",
-      cell_length_um        = "cell_length_um",
-      cell_width_um         = "cell_width_um",
-      optimal_growth_temp_c = "optimal_growth_temp_c",
-      optimal_growth_ph     = "optimal_growth_ph"
-    ),
-    source_label = "BacDive (DSMZ)",
-    cols         = cols,
-    verbose      = verbose
-  )
+  enrich_door(x, .door_bacdive, cols = cols, verbose = verbose)
 }
+
+
+.door_bacdive <- list(
+  enrichment_name = "bacdive",
+  col_map = c(
+    gram_stain = "gram_stain",
+    cell_shape = "cell_shape",
+    motility = "motility",
+    oxygen_metabolism = "oxygen_metabolism",
+    cell_length_um = "cell_length_um",
+    cell_width_um = "cell_width_um",
+    optimal_growth_temp_c = "optimal_growth_temp_c",
+    optimal_growth_ph = "optimal_growth_ph"
+  ),
+  source_label = "BacDive (DSMZ)"
+)

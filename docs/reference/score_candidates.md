@@ -74,4 +74,53 @@ accepted name's parenthetical author and the accepted name keeps its
 final epithet (`Lycopsis orientalis` L. -\>
 `Anchusa arvensis subsp. orientalis` (L.) Nordh.). That outranks a
 record the backbone keeps unplaced under the same string, which is a
-different type: a homonym, not the name the placed record carries (#81).
+different type: a homonym, not the name the placed record carries.
+
+## See also
+
+Other Low-level building blocks:
+[`basionym_placement()`](https://gillescolling.com/taxify/reference/basionym_placement.md),
+[`candidate_order()`](https://gillescolling.com/taxify/reference/candidate_order.md),
+[`embed_accepted()`](https://gillescolling.com/taxify/reference/embed_accepted.md),
+[`enrichment_authorship_col()`](https://gillescolling.com/taxify/reference/enrichment_authorship_col.md),
+[`is_aggregate_name()`](https://gillescolling.com/taxify/reference/is_aggregate_name.md),
+[`normalize_aggregate_name()`](https://gillescolling.com/taxify/reference/normalize_aggregate_name.md),
+[`normalize_epithets()`](https://gillescolling.com/taxify/reference/normalize_epithets.md),
+[`precompute_keys()`](https://gillescolling.com/taxify/reference/precompute_keys.md)
+
+## Examples
+
+``` r
+candidates <- data.frame(
+  taxonID = c("2", "1"), taxonomicStatus = c("SYNONYM", "ACCEPTED"),
+  taxonRank = "SPECIES", is_synonym = c(TRUE, FALSE)
+)
+taxify:::score_candidates(candidates)
+#> $dist_score
+#> [1] 0 0
+#> 
+#> $data_score
+#> [1] 0 0
+#> 
+#> $year_score
+#> [1] 0 0
+#> 
+#> $occ_score
+#> [1] 0 0
+#> 
+#> $status_score
+#> [1] 2 0
+#> 
+#> $rank_score
+#> [1] 0 0
+#> 
+#> $valid_score
+#> [1] 0 0
+#> 
+#> $epithet_score
+#> [1] 0 0
+#> 
+#> $tier
+#> [1] "0/2/0/0" "0/0/0/0"
+#> 
+```

@@ -1757,6 +1757,18 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
   list(map = col_map, na_types = na_types, n_available = n_available)
 }
 
+enrich_door <- function(x, door, ..., cols = NULL, verbose = TRUE,
+                        available = NULL) {
+  door <- .resolve_door_declaration(door, available)
+  if (!is.null(door$db)) {
+    engine <- enrich_via_tr8
+  } else {
+    engine <- if (is.null(door$group_col)) enrich_simple else enrich_by_group
+    door["cols"] <- list(cols)
+  }
+  do.call(engine, c(list(x = x), door, list(...), list(verbose = verbose)))
+}
+
 enrich_simple <- function(x, enrichment_name, col_map, source_label,
                           na_types = NULL, join_col = "accepted_name",
                           cols = NULL, default_cols = NULL,

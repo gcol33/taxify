@@ -49,13 +49,23 @@
 #'
 #' @export
 add_gmpd <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("parasite_richness", "n_helminth", "n_virus", "n_bacteria",
-            "n_protozoa", "n_arthropod", "n_fungus", "n_prion",
-            "mean_prevalence", "host_group")
-  col_map <- stats::setNames(base, paste0("gmpd_", base))
-  enrich_simple(
-    x, enrichment_name = "gmpd", col_map = col_map,
-    source_label = "Global Mammal Parasite Database 2.0 (Stephens et al. 2017)",
-    cols = cols, verbose = verbose
-  )
+  enrich_door(x, .door_gmpd, cols = cols, verbose = verbose)
 }
+
+
+.door_gmpd <- list(
+  enrichment_name = "gmpd",
+  col_map = c(
+    gmpd_parasite_richness = "parasite_richness",
+    gmpd_n_helminth = "n_helminth",
+    gmpd_n_virus = "n_virus",
+    gmpd_n_bacteria = "n_bacteria",
+    gmpd_n_protozoa = "n_protozoa",
+    gmpd_n_arthropod = "n_arthropod",
+    gmpd_n_fungus = "n_fungus",
+    gmpd_n_prion = "n_prion",
+    gmpd_mean_prevalence = "mean_prevalence",
+    gmpd_host_group = "host_group"
+  ),
+  source_label = "Global Mammal Parasite Database 2.0 (Stephens et al. 2017)"
+)

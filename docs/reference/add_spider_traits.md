@@ -33,47 +33,47 @@ add_spider_traits(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- spider_body_length_mm:
+- spider_traits_spider_body_length_mm:
 
   Body length (mm).
 
-- spider_prosoma_length_mm:
+- spider_traits_spider_prosoma_length_mm:
 
   Cephalothorax (prosoma) length (mm).
 
-- spider_prosoma_width_mm:
+- spider_traits_spider_prosoma_width_mm:
 
   Cephalothorax (prosoma) width (mm).
 
-- spider_abdomen_length_mm:
+- spider_traits_spider_abdomen_length_mm:
 
   Abdomen (opisthosoma) length (mm).
 
-- spider_leg1_length_mm:
+- spider_traits_spider_leg1_length_mm:
 
   Leg I length (mm).
 
-- spider_ballooning:
+- spider_traits_spider_ballooning:
 
   Ballooning (aerial dispersal): yes/no.
 
-- spider_web_building:
+- spider_traits_spider_web_building:
 
   Web building: yes/no.
 
-- spider_hunting_guild:
+- spider_traits_spider_hunting_guild:
 
   Hunting guild.
 
-- spider_web_type:
+- spider_traits_spider_web_type:
 
   Web type.
 
-- spider_circadian_activity:
+- spider_traits_spider_circadian_activity:
 
   Circadian activity (diurnal/nocturnal).
 
-- spider_stratum:
+- spider_traits_spider_stratum:
 
   Vertical stratum (habitat layer).
 

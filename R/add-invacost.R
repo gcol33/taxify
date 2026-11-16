@@ -41,16 +41,16 @@
 #'
 #' @export
 add_invacost <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "invacost",
-    col_map = c(
-      invacost_cost_total_usd = "cost_total_usd",
-      invacost_cost_n         = "cost_n",
-      invacost_cost_type      = "cost_type"
-    ),
-    source_label = "InvaCost (Diagne et al. 2020)",
-    cols    = cols,
-    verbose = verbose
-  )
+  enrich_door(x, .door_invacost, cols = cols, verbose = verbose)
 }
+
+
+.door_invacost <- list(
+  enrichment_name = "invacost",
+  col_map = c(
+    invacost_cost_total_usd = "cost_total_usd",
+    invacost_cost_n = "cost_n",
+    invacost_cost_type = "cost_type"
+  ),
+  source_label = "InvaCost (Diagne et al. 2020)"
+)

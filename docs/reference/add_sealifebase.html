@@ -26,7 +26,7 @@ other aquatic organisms. For fishes, use add_fishbase()."><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,6 +41,7 @@ other aquatic organisms. For fishes, use add_fishbase()."><meta property="og:ima
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -108,59 +109,59 @@ other aquatic organisms. For fishes, use <code><a href="add_fishbase.html">add_f
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns:</p><dl><dt>sb_body_length_cm</dt>
+    <p>The same data.frame with additional columns:</p><dl><dt>sealifebase_sb_body_length_cm</dt>
 <dd><p>Maximum body length in centimetres.</p></dd>
 
-<dt>sb_body_mass_g</dt>
+<dt>sealifebase_sb_body_mass_g</dt>
 <dd><p>Maximum published weight in grams (SeaLifeBase
 <code>SPECIES.Weight</code>). This is a record maximum, not a typical or
 adult-mean mass.</p></dd>
 
-<dt>sb_trophic_level</dt>
+<dt>sealifebase_sb_trophic_level</dt>
 <dd><p>Trophic level.</p></dd>
 
-<dt>sb_depth_min_m</dt>
+<dt>sealifebase_sb_depth_min_m</dt>
 <dd><p>Minimum depth in metres.</p></dd>
 
-<dt>sb_depth_max_m</dt>
+<dt>sealifebase_sb_depth_max_m</dt>
 <dd><p>Maximum depth in metres.</p></dd>
 
-<dt>sb_vulnerability</dt>
+<dt>sealifebase_sb_vulnerability</dt>
 <dd><p>Vulnerability index (0–100).</p></dd>
 
-<dt>sb_habitat</dt>
+<dt>sealifebase_sb_habitat</dt>
 <dd><p>Habitat type (e.g. benthic, pelagic).</p></dd>
 
-<dt>sb_importance</dt>
+<dt>sealifebase_sb_importance</dt>
 <dd><p>Commercial importance category.</p></dd>
 
-<dt>sb_lw_a</dt>
+<dt>sealifebase_sb_lw_a</dt>
 <dd><p>Coefficient <code>a</code> of the length-weight relationship
 <code>W = a * L^b</code> (weight in g, length in cm of type <code>sb_lw_type</code>),
 from SeaLifeBase's POPLW table.</p></dd>
 
-<dt>sb_lw_b</dt>
+<dt>sealifebase_sb_lw_b</dt>
 <dd><p>Exponent <code>b</code> of the length-weight relationship.</p></dd>
 
-<dt>sb_lw_type</dt>
+<dt>sealifebase_sb_lw_type</dt>
 <dd><p>Length convention the coefficients were fitted against
 (<code>TL</code> total, <code>SL</code> standard, <code>WD</code> width, ...). Chosen to
 match the species' maximum-length type where recorded, so it applies to
 <code>sb_body_length_cm</code>. Applying a coefficient to a different length
 type is a silent error.</p></dd>
 
-<dt>sb_lw_method</dt>
+<dt>sealifebase_sb_lw_method</dt>
 <dd><p>How the fit was obtained (e.g. "type I linear
 regression", "single L-W pair with b=3").</p></dd>
 
-<dt>sb_lw_sex</dt>
+<dt>sealifebase_sb_lw_sex</dt>
 <dd><p>Sex the fit applies to (unsexed, mixed, female, male,
 juvenile).</p></dd>
 
-<dt>sb_lw_n</dt>
+<dt>sealifebase_sb_lw_n</dt>
 <dd><p>Sample size the fit was based on.</p></dd>
 
-<dt>sb_lw_r2</dt>
+<dt>sealifebase_sb_lw_r2</dt>
 <dd><p>Coefficient of determination (<code>r^2</code>) of the fit.</p></dd>
 
 
@@ -183,14 +184,39 @@ publication, <a href="https://www.sealifebase.org" class="external-link">https:/
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Octopus vulgaris"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_sealifebase</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Octopus vulgaris"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_sealifebase</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         input_name     matched_name    accepted_name    taxon_id accepted_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Octopus vulgaris Octopus vulgaris Octopus vulgaris gbif-ex-015 gbif-ex-015</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      rank      family   genus  epithet   authorship accepted_authorship</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 species Octopodidae Octopus vulgaris Cuvier, 1797        Cuvier, 1797</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_synonym taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      FALSE         ACCEPTED     FALSE      exact         NA     gbif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            backbone_version kingdom_group taxon_group life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 gbif:example (2026-06-24)      animalia      animal    animal      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sealifebase_sb_body_length_cm sealifebase_sb_body_mass_g</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                            11                         11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sealifebase_sb_trophic_level sealifebase_sb_depth_min_m</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                           11                         11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sealifebase_sb_depth_max_m sealifebase_sb_vulnerability</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         11                           11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sealifebase_sb_habitat sealifebase_sb_importance sealifebase_sb_lw_a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        example_habitat        example_importance               0.485</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sealifebase_sb_lw_b sealifebase_sb_lw_type sealifebase_sb_lw_method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               2.908                     ML     nonlinear regression</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   sealifebase_sb_lw_sex sealifebase_sb_lw_n sealifebase_sb_lw_r2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               unsexed                 800                0.841</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF example, SeaLifeBase example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

@@ -104,12 +104,12 @@
 #'
 #' @export
 add_floraweb <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "floraweb",
-    col_map         = stats::setNames(.floraweb_cols, .floraweb_cols),
-    source_label    = "FloraWeb (BfN; BiolFlor data, Klotz, Kuehn & Durka 2002)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_floraweb, cols = cols, verbose = verbose)
 }
+
+
+.door_floraweb <- list(
+  enrichment_name = "floraweb",
+  col_map = stats::setNames(.floraweb_cols, .floraweb_cols),
+  source_label = "FloraWeb (BfN; BiolFlor data, Klotz, Kuehn & Durka 2002)"
+)

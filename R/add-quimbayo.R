@@ -27,18 +27,27 @@
 #'
 #' @export
 add_quimbayo <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("body_size_max_cm", "aspect_ratio", "trophic_level",
-                "depth_min_m", "depth_max_m", "temp_occurrence_mean_c")
-  cat_cols <- c("home_range", "diel_activity", "water_level", "body_shape",
-                "mouth_position", "diet", "spawning", "size_group")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("quimbayo_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "quimbayo",
-    col_map         = col_map,
-    source_label    = "Quimbayo reef fish",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_quimbayo, cols = cols, verbose = verbose)
 }
+
+
+.door_quimbayo <- list(
+  enrichment_name = "quimbayo",
+  col_map = c(
+    quimbayo_body_size_max_cm = "body_size_max_cm",
+    quimbayo_aspect_ratio = "aspect_ratio",
+    quimbayo_trophic_level = "trophic_level",
+    quimbayo_depth_min_m = "depth_min_m",
+    quimbayo_depth_max_m = "depth_max_m",
+    quimbayo_temp_occurrence_mean_c = "temp_occurrence_mean_c",
+    quimbayo_home_range = "home_range",
+    quimbayo_diel_activity = "diel_activity",
+    quimbayo_water_level = "water_level",
+    quimbayo_body_shape = "body_shape",
+    quimbayo_mouth_position = "mouth_position",
+    quimbayo_diet = "diet",
+    quimbayo_spawning = "spawning",
+    quimbayo_size_group = "size_group"
+  ),
+  source_label = "Quimbayo reef fish"
+)

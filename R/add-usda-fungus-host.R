@@ -34,13 +34,15 @@
 #'
 #' @export
 add_usda_fungus_host <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "usda_fungus_host",
-    col_map         = c(fungus_host_count       = "fungus_host_count",
-                        fungus_host_genus_count = "fungus_host_genus_count"),
-    source_label    = "USDA Fungus-Host (Farr et al. 2021)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_usda_fungus_host, cols = cols, verbose = verbose)
 }
+
+
+.door_usda_fungus_host <- list(
+  enrichment_name = "usda_fungus_host",
+  col_map = c(
+    fungus_host_count = "fungus_host_count",
+    fungus_host_genus_count = "fungus_host_genus_count"
+  ),
+  source_label = "USDA Fungus-Host (Farr et al. 2021)"
+)

@@ -30,7 +30,7 @@ them.'><meta property="og:image" content="https://gillescolling.com/taxify/logo.
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@ them.'><meta property="og:image" content="https://gillescolling.com/taxify/logo.
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -115,32 +116,32 @@ them.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The same data.frame with additional columns (per-species means). The
-default set:</p><dl><dt>root_diameter</dt>
+default set:</p><dl><dt>groot_root_diameter</dt>
 <dd><p>Mean root diameter.</p></dd>
 
-<dt>specific_root_length</dt>
+<dt>groot_specific_root_length</dt>
 <dd><p>Specific root length.</p></dd>
 
-<dt>root_tissue_density</dt>
+<dt>groot_root_tissue_density</dt>
 <dd><p>Root tissue density.</p></dd>
 
-<dt>root_n_concentration</dt>
+<dt>groot_root_n_concentration</dt>
 <dd><p>Root nitrogen concentration.</p></dd>
 
-<dt>root_c_concentration</dt>
+<dt>groot_root_c_concentration</dt>
 <dd><p>Root carbon concentration.</p></dd>
 
-<dt>root_mass_fraction</dt>
+<dt>groot_root_mass_fraction</dt>
 <dd><p>Root mass fraction.</p></dd>
 
-<dt>lateral_spread</dt>
+<dt>groot_lateral_spread</dt>
 <dd><p>Lateral spread.</p></dd>
 
-<dt>root_mycorrhizal_colonization</dt>
+<dt>groot_root_mycorrhizal_colonization</dt>
 <dd><p>Root mycorrhizal colonization
 intensity.</p></dd>
 
-<dt>rooting_depth</dt>
+<dt>groot_rooting_depth</dt>
 <dd><p>Maximum rooting depth.</p></dd>
 
 
@@ -165,14 +166,41 @@ Global Ecology and Biogeography 30:25-37. <a href="https://doi.org/10.1111/geb.1
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_groot</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_groot</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input_name matched_name accepted_name   taxon_id accepted_id    rank   family</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Abies alba   Abies alba    Abies alba wfo-ex-005  wfo-ex-005 species Pinaceae</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym taxonomic_status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Abies    alba      Mill.               Mill.      FALSE         ACCEPTED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist backbone         backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA      wfo wfo:example (2026-06-24)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group  life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       plantae  gymnosperm gymnosperm      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type groot_root_diameter groot_specific_root_length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;                  11                         11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   groot_root_tissue_density groot_root_n_concentration</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                        11                         11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   groot_root_c_concentration groot_root_mass_fraction groot_lateral_spread</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                         11                       11                   11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   groot_root_mycorrhizal_colonization groot_rooting_depth</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                  11                  11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, GRooT example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

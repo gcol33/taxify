@@ -51,6 +51,13 @@ only one resolved).
 [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md),
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
+Other Explore the backbone:
+[`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md),
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
+[`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md),
+[`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
+
 ## Examples
 
 ``` r
@@ -58,6 +65,17 @@ only one resolved).
 old <- options(taxify.data_dir = taxify_example_data())
 
 lowest_common(c("Quercus robur", "Quercus petraea"))
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>    rank    name n_taxa
+#> 1 genus Quercus      2
 
 options(old)
 ```

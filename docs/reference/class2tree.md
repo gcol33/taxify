@@ -68,6 +68,13 @@ An object of class `taxify_tree`: a list with
 [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md),
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md).
 
+Other Explore the backbone:
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
+[`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md),
+[`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md),
+[`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
+
 ## Examples
 
 ``` r
@@ -75,7 +82,17 @@ An object of class `taxify_tree`: a list with
 old <- options(taxify.data_dir = taxify_example_data())
 
 tr <- class2tree(c("Quercus robur", "Quercus petraea", "Quercus pyrenaica"))
+#> Matching 3 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 3 names...
+#>   [wcvp] Matching 2 remaining names...
+#>   [lcvp] Matching 2 remaining names...
+#>   [wfo] Matching 2 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
 tr$newick
+#> [1] "(((Quercus_robur,Quercus_petraea,Quercus_pyrenaica)Quercus)Fagaceae)root;"
 
 options(old)
 ```

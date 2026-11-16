@@ -275,16 +275,17 @@ they can be chained in any order:
 both <- res |>
   add_zanne() |>
   add_data(traits, species_col = "taxon", cols = "sla")
+#> add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").
 #> Matching 5 names from 'taxon' through COL backbone...
 #> Matching 5 names...
 #> add_data: 5 of 5 species matched (100.0%). 0 names in data unmatched.
-both[, c("accepted_name", "woodiness", "sla")]
-#>         accepted_name woodiness  sla
-#> 1       Quercus robur     woody 18.2
-#> 2     Fagus sylvatica     woody 24.1
-#> 3 Reynoutria japonica      <NA> 21.0
-#> 4    Pinus sylvestris     woody  8.0
-#> 5      Betula pendula     woody 22.3
+both[, c("accepted_name", "zanne_woodiness", "sla")]
+#>         accepted_name zanne_woodiness  sla
+#> 1       Quercus robur           woody 18.2
+#> 2     Fagus sylvatica           woody 24.1
+#> 3 Reynoutria japonica            <NA> 21.0
+#> 4    Pinus sylvestris           woody  8.0
+#> 5      Betula pendula           woody 22.3
 #> Sources: COL 2026.09, Zanne et al. 2014 2026.08 | cite() for full citations
 ```
 

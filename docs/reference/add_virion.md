@@ -29,8 +29,9 @@ add_virion(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `virion_` columns: `virus_richness`,
-`virus_family_count`, `virus_record_count`, `host_class`.
+The same data.frame with `virion_` columns: `virion_virus_richness`,
+`virion_virus_family_count`, `virion_virus_record_count`,
+`virion_host_class`.
 
 ## Details
 

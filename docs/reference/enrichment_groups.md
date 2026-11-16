@@ -50,10 +50,16 @@ values.
 [`add_common_names()`](https://gillescolling.com/taxify/reference/add_common_names.md),
 [`add_alien_first_records()`](https://gillescolling.com/taxify/reference/add_alien_first_records.md)
 
+Other Browse and discover:
+[`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md),
+[`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
+
 ## Examples
 
 ``` r
 old <- options(taxify.data_dir = taxify_example_data())
 enrichment_groups("griis")   # ISO country codes GRIIS covers
+#> griis: 2 group value(s) in column 'country_code'.
+#> [1] "AT" "DE"
 options(old)
 ```

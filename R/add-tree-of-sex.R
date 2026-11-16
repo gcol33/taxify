@@ -37,22 +37,21 @@
 #'
 #' @export
 add_tree_of_sex <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    tos_taxon_group     = "taxon_group",
-    tos_sexual_system   = "sexual_system",
-    tos_karyotype       = "karyotype",
-    tos_genotypic       = "genotypic",
-    tos_molecular_basis = "molecular_basis",
-    tos_selfing         = "selfing",
-    tos_environmental_sd = "environmental_sd",
-    tos_haplodiploidy   = "haplodiploidy"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "tree_of_sex",
-    col_map         = col_map,
-    source_label    = "Tree of Sex",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_tree_of_sex, cols = cols, verbose = verbose)
 }
+
+
+.door_tree_of_sex <- list(
+  enrichment_name = "tree_of_sex",
+  col_map = c(
+    tos_taxon_group = "taxon_group",
+    tos_sexual_system = "sexual_system",
+    tos_karyotype = "karyotype",
+    tos_genotypic = "genotypic",
+    tos_molecular_basis = "molecular_basis",
+    tos_selfing = "selfing",
+    tos_environmental_sd = "environmental_sd",
+    tos_haplodiploidy = "haplodiploidy"
+  ),
+  source_label = "Tree of Sex"
+)

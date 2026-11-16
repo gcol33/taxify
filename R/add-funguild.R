@@ -43,18 +43,17 @@
 #'
 #' @export
 add_funguild <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    trophic_mode        = "trophic_mode",
-    guild               = "guild",
-    funguild_growth_form = "growth_morphology",
-    confidence_ranking  = "confidence_ranking"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "funguild",
-    col_map         = col_map,
-    source_label    = "FUNGuild",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_funguild, cols = cols, verbose = verbose)
 }
+
+
+.door_funguild <- list(
+  enrichment_name = "funguild",
+  col_map = c(
+    trophic_mode = "trophic_mode",
+    guild = "guild",
+    funguild_growth_form = "growth_morphology",
+    confidence_ranking = "confidence_ranking"
+  ),
+  source_label = "FUNGuild"
+)

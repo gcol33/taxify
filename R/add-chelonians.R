@@ -43,28 +43,27 @@
 #'
 #' @export
 add_chelonians <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    chelonian_carapace_length_mm = "carapace_length_mm",
-    chelonian_max_mass_g         = "max_mass_g",
-    chelonian_clutch_size_mean   = "clutch_size_mean",
-    chelonian_clutch_size_max    = "clutch_size_max",
-    chelonian_clutches_per_year  = "clutches_per_year",
-    chelonian_incubation_d       = "incubation_d",
-    chelonian_age_maturity_y     = "age_maturity_y",
-    chelonian_max_lifespan_y     = "max_lifespan_y",
-    chelonian_range_size_km2     = "range_size_km2",
-    chelonian_diet               = "diet",
-    chelonian_activity_time      = "activity_time",
-    chelonian_microhabitat       = "microhabitat",
-    chelonian_habitat_type       = "habitat_type",
-    chelonian_shell_type         = "shell_type"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "chelonians",
-    col_map         = col_map,
-    source_label    = "CheloniansTraits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_chelonians, cols = cols, verbose = verbose)
 }
+
+
+.door_chelonians <- list(
+  enrichment_name = "chelonians",
+  col_map = c(
+    chelonian_carapace_length_mm = "carapace_length_mm",
+    chelonian_max_mass_g = "max_mass_g",
+    chelonian_clutch_size_mean = "clutch_size_mean",
+    chelonian_clutch_size_max = "clutch_size_max",
+    chelonian_clutches_per_year = "clutches_per_year",
+    chelonian_incubation_d = "incubation_d",
+    chelonian_age_maturity_y = "age_maturity_y",
+    chelonian_max_lifespan_y = "max_lifespan_y",
+    chelonian_range_size_km2 = "range_size_km2",
+    chelonian_diet = "diet",
+    chelonian_activity_time = "activity_time",
+    chelonian_microhabitat = "microhabitat",
+    chelonian_habitat_type = "habitat_type",
+    chelonian_shell_type = "shell_type"
+  ),
+  source_label = "CheloniansTraits"
+)

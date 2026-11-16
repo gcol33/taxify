@@ -39,14 +39,12 @@
 #'
 #' @export
 add_sworm <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- "ecological_group"
-  col_map <- stats::setNames(all_cols, paste0("sworm_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "sworm",
-    col_map         = col_map,
-    source_label    = "sWorm earthworm ecological groups (Phillips et al.)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_sworm, cols = cols, verbose = verbose)
 }
+
+
+.door_sworm <- list(
+  enrichment_name = "sworm",
+  col_map = c(sworm_ecological_group = "ecological_group"),
+  source_label = "sWorm earthworm ecological groups (Phillips et al.)"
+)

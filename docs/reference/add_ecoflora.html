@@ -34,7 +34,7 @@ collisions when chained with other plant-trait enrichments
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,6 +49,7 @@ collisions when chained with other plant-trait enrichments
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -120,41 +121,41 @@ collisions when chained with other plant-trait enrichments
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional <code>_uk</code> columns:</p><dl><dt>height_max_mm_uk, height_min_mm_uk</dt>
+    <p>The same data.frame with additional <code>_uk</code> columns:</p><dl><dt>ecoflora_height_max_mm_uk, ecoflora_height_min_mm_uk</dt>
 <dd><p>Typical maximum and minimum
 plant height (mm; Ecoflora records cm).</p></dd>
 
-<dt>leaf_area_uk</dt>
+<dt>ecoflora_leaf_area_uk</dt>
 <dd><p>Leaf area class (cm\(^2\)).</p></dd>
 
-<dt>leaf_longevity_uk</dt>
+<dt>ecoflora_leaf_longevity_uk</dt>
 <dd><p>Leaf longevity (e.g. evergreen, deciduous).</p></dd>
 
-<dt>root_system_uk</dt>
+<dt>ecoflora_root_system_uk</dt>
 <dd><p>Root system type.</p></dd>
 
-<dt>photosynthetic_pathway_uk</dt>
+<dt>ecoflora_photosynthetic_pathway_uk</dt>
 <dd><p>Photosynthetic pathway (C3/C4/CAM).</p></dd>
 
-<dt>life_form_uk</dt>
+<dt>ecoflora_life_form_uk</dt>
 <dd><p>Raunkiaer life form.</p></dd>
 
-<dt>reproduction_uk</dt>
+<dt>ecoflora_reproduction_uk</dt>
 <dd><p>Reproduction method.</p></dd>
 
-<dt>flower_begin_month_uk, flower_end_month_uk</dt>
+<dt>ecoflora_flower_begin_month_uk, ecoflora_flower_end_month_uk</dt>
 <dd><p>Flowering months (1-12).</p></dd>
 
-<dt>pollination_vector_uk</dt>
+<dt>ecoflora_pollination_vector_uk</dt>
 <dd><p>Pollen vector(s).</p></dd>
 
-<dt>seed_weight_mg_uk</dt>
+<dt>ecoflora_seed_weight_mg_uk</dt>
 <dd><p>Seed weight (mg).</p></dd>
 
-<dt>propagule_uk</dt>
+<dt>ecoflora_propagule_uk</dt>
 <dd><p>Propagule / dispersule type.</p></dd>
 
-<dt>ell_light_uk, ell_moisture_uk, ell_reaction_uk, ell_nitrogen_uk,
+<dt>ecoflora_ell_light_uk, ecoflora_ell_moisture_uk, ecoflora_ell_reaction_uk, ecoflora_ell_nitrogen_uk,
 ell_salt_uk</dt>
 <dd><p>Ellenberg indicator values calibrated for the British flora
 (light, moisture, reaction, nitrogen, salt).</p></dd>
@@ -178,14 +179,49 @@ time and is redistributed under the source licence (CC BY-NC-SA 4.0). The
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_ecoflora</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_ecoflora</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        input_name    matched_name   accepted_name   taxon_id accepted_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Bellis perennis Bellis perennis Bellis perennis wfo-ex-009  wfo-ex-009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      rank     family  genus  epithet authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 species Asteraceae Bellis perennis         L.                  L.      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         ACCEPTED     FALSE      exact         NA      wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae     unknown   unknown      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type ecoflora_height_max_mm_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;  example_height_max_mm_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ecoflora_height_min_mm_uk ecoflora_leaf_area_uk ecoflora_leaf_longevity_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_height_min_mm_uk  example_leaf_area_uk  example_leaf_longevity_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ecoflora_root_system_uk ecoflora_photosynthetic_pathway_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_root_system_uk  example_photosynthetic_pathway_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ecoflora_life_form_uk ecoflora_reproduction_uk ecoflora_flower_begin_month_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_life_form_uk  example_reproduction_uk  example_flower_begin_month_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ecoflora_flower_end_month_uk ecoflora_pollination_vector_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_flower_end_month_uk  example_pollination_vector_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ecoflora_seed_weight_mg_uk ecoflora_propagule_uk ecoflora_ell_light_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_seed_weight_mg_uk  example_propagule_uk  example_ell_light_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ecoflora_ell_moisture_uk ecoflora_ell_reaction_uk ecoflora_ell_nitrogen_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_ell_moisture_uk  example_ell_reaction_uk  example_ell_nitrogen_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ecoflora_ell_salt_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_ell_salt_uk</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, Ecoflora (Ecological Flora of the British Isles) example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

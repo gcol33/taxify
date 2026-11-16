@@ -31,59 +31,59 @@ add_chelonians(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- chelonian_carapace_length_mm:
+- chelonians_chelonian_carapace_length_mm:
 
   Maximum straight-line carapace length (mm).
 
-- chelonian_max_mass_g:
+- chelonians_chelonian_max_mass_g:
 
   Maximum body mass (g).
 
-- chelonian_clutch_size_mean:
+- chelonians_chelonian_clutch_size_mean:
 
   Mean clutch size (count).
 
-- chelonian_clutch_size_max:
+- chelonians_chelonian_clutch_size_max:
 
   Maximum clutch size (count).
 
-- chelonian_clutches_per_year:
+- chelonians_chelonian_clutches_per_year:
 
   Clutches per year (count).
 
-- chelonian_incubation_d:
+- chelonians_chelonian_incubation_d:
 
   Incubation period (days).
 
-- chelonian_age_maturity_y:
+- chelonians_chelonian_age_maturity_y:
 
   Age at sexual maturity (years).
 
-- chelonian_max_lifespan_y:
+- chelonians_chelonian_max_lifespan_y:
 
   Maximum lifespan (years).
 
-- chelonian_range_size_km2:
+- chelonians_chelonian_range_size_km2:
 
   Range size (km2).
 
-- chelonian_diet:
+- chelonians_chelonian_diet:
 
   Diet (herbivorous/carnivorous/omnivorous).
 
-- chelonian_activity_time:
+- chelonians_chelonian_activity_time:
 
   Activity time.
 
-- chelonian_microhabitat:
+- chelonians_chelonian_microhabitat:
 
   Microhabitat (aquatic/terrestrial/...).
 
-- chelonian_habitat_type:
+- chelonians_chelonian_habitat_type:
 
   Habitat type.
 
-- chelonian_shell_type:
+- chelonians_chelonian_shell_type:
 
   Shell type (hardshell/softshell).
 

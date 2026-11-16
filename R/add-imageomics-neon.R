@@ -39,14 +39,16 @@
 #'
 #' @export
 add_imageomics_neon <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("elytra_length_mm", "elytra_width_mm", "measurement_n")
-  col_map <- stats::setNames(all_cols, paste0("neon_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "imageomics_neon",
-    col_map         = col_map,
-    source_label    = "Imageomics NEON beetle measurements",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_imageomics_neon, cols = cols, verbose = verbose)
 }
+
+
+.door_imageomics_neon <- list(
+  enrichment_name = "imageomics_neon",
+  col_map = c(
+    neon_elytra_length_mm = "elytra_length_mm",
+    neon_elytra_width_mm = "elytra_width_mm",
+    neon_measurement_n = "measurement_n"
+  ),
+  source_label = "Imageomics NEON beetle measurements"
+)

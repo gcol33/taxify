@@ -5,6 +5,7 @@ test_that("source doors declare distinct prefixed output columns", {
   columns <- character()
   for (door in doors) {
     source <- substring(door, 5L)
+    expect_type(taxify:::.door_declaration(source), "list")
     available <- data.frame(column = taxify:::.gift_default_cols)
     spec <- taxify:::.enrichment_door_spec(source, available)
     overrides <- taxify:::.enrichment_prefix_overrides
@@ -16,6 +17,38 @@ test_that("source doors declare distinct prefixed output columns", {
     expect_identical(intersect(columns, names(spec$map)), character(), info = door)
     columns <- c(columns, names(spec$map))
   }
+})
+
+test_that("browsing declarations never executes doors or region resolution", {
+  install_mock_enrichment("gift", data.frame(
+    canonical_name = "Aaa bbb", gift_seed_mass_mean = 1))
+  doors <- grep("^add_", getNamespaceExports("taxify"), value = TRUE)
+  keys <- substring(doors, 5L)
+  declared <- !vapply(keys, function(key) is.null(taxify:::.door_declaration(key)),
+                     logical(1))
+  unavailable <- function(...) stop("Door logic executed while browsing")
+  bindings <- stats::setNames(rep(list(unavailable), sum(declared)), doors[declared])
+  bindings$.euromed_resolve_regions <- unavailable
+  do.call(local_mocked_bindings, c(bindings, list(.package = "taxify")))
+  for (key in keys[declared]) {
+    expect_type(taxify:::.enrichment_door_spec(key,
+      data.frame(column = taxify:::.gift_default_cols))$map, "character")
+  }
+  expect_true(all(startsWith(enrichment_cols("gift")$output, "gift_")))
+  expect_null(taxify:::.door_declaration("unknown_source"))
+  expect_null(taxify:::.enrichment_door_spec("unknown_source"))
+  expect_identical(taxify:::.door_declaration("euromed-distribution"),
+                   taxify:::.door_declaration("euromed_distribution"))
+})
+
+test_that("GIFT column declarations follow the supplied schema", {
+  columns <- c("gift_seed_mass_mean", "gift_extra_trait")
+  spec <- taxify:::.enrichment_door_spec("gift", data.frame(column = columns))
+  expect_identical(spec$map, stats::setNames(columns, columns))
+  expect_identical(spec$default_cols, taxify:::.gift_default_cols)
+  expect_true(is.function(taxify:::.door_declaration("gift")$col_map))
+  expect_identical(taxify:::.enrichment_door_spec("gift",
+    data.frame(column = character()))$map, stats::setNames(character(), character()))
 })
 
 test_that("all selectors reach curated and extra columns in both join paths", {

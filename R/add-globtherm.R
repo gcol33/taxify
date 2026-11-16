@@ -35,20 +35,19 @@
 #'
 #' @export
 add_globtherm <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    globtherm_thermal_max_c      = "thermal_max_c",
-    globtherm_thermal_max_metric = "thermal_max_metric",
-    globtherm_thermal_min_c      = "thermal_min_c",
-    globtherm_thermal_min_metric = "thermal_min_metric",
-    globtherm_thermal_max_error  = "thermal_max_error",
-    globtherm_thermal_min_error  = "thermal_min_error"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "globtherm",
-    col_map         = col_map,
-    source_label    = "GlobTherm",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_globtherm, cols = cols, verbose = verbose)
 }
+
+
+.door_globtherm <- list(
+  enrichment_name = "globtherm",
+  col_map = c(
+    globtherm_thermal_max_c = "thermal_max_c",
+    globtherm_thermal_max_metric = "thermal_max_metric",
+    globtherm_thermal_min_c = "thermal_min_c",
+    globtherm_thermal_min_metric = "thermal_min_metric",
+    globtherm_thermal_max_error = "thermal_max_error",
+    globtherm_thermal_min_error = "thermal_min_error"
+  ),
+  source_label = "GlobTherm"
+)

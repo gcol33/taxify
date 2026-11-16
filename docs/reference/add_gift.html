@@ -4,12 +4,12 @@ and Traits (Weigelt et al. 2020), to a taxify() result by accepted_name.
 GIFT aggregates published trait records to one value per species (mean for
 numeric traits, most frequent entry for categorical ones). cols chooses which
 traits to attach; browse the available columns with
-gift_traits()."><meta property="og:description" content="Joins species-level plant traits from GIFT, the Global Inventory of Floras
+enrichment_cols()."><meta property="og:description" content="Joins species-level plant traits from GIFT, the Global Inventory of Floras
 and Traits (Weigelt et al. 2020), to a taxify() result by accepted_name.
 GIFT aggregates published trait records to one value per species (mean for
 numeric traits, most frequent entry for categorical ones). cols chooses which
 traits to attach; browse the available columns with
-gift_traits()."><meta property="og:image" content="https://gillescolling.com/taxify/logo.svg"><script>
+enrichment_cols()."><meta property="og:image" content="https://gillescolling.com/taxify/logo.svg"><script>
 (function () {
   var D = String.fromCharCode(36);
   window.MathJax = {
@@ -30,7 +30,7 @@ gift_traits()."><meta property="og:image" content="https://gillescolling.com/tax
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@ gift_traits()."><meta property="og:image" content="https://gillescolling.com/tax
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -88,7 +89,7 @@ and Traits (Weigelt et al. 2020), to a <code><a href="taxify.html">taxify()</a><
 GIFT aggregates published trait records to one value per species (mean for
 numeric traits, most frequent entry for categorical ones). <code>cols</code> chooses which
 traits to attach; browse the available columns with
-<code><a href="gift_traits.html">gift_traits()</a></code>.</p>
+<code><a href="enrichment_cols.html">enrichment_cols()</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -109,7 +110,7 @@ traits to attach; browse the available columns with
 for a convenient set of well-populated traits; the string <code>"all"</code> for every
 bundled trait; or a character vector of <code>gift_</code> column names (e.g.
 <code>"plant_height_max"</code>, with or without the <code>gift_</code> prefix). See
-<code><a href="gift_traits.html">gift_traits()</a></code>. When left <code>NULL</code>, a one-time message notes the default set
+<code><a href="enrichment_cols.html">enrichment_cols()</a></code>. When left <code>NULL</code>, a one-time message notes the default set
 and how to request all traits.</p></dd>
 
 
@@ -151,18 +152,50 @@ Inventory of Floras and Traits. Methods in Ecology and Evolution
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="gift_traits.html">gift_traits()</a></code> to browse the available columns.</p></div>
+    <div class="dont-index"><p><code><a href="enrichment_cols.html">enrichment_cols()</a></code> to browse the available columns.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_gift</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Abies alba"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_gift</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> add_gift(): attaching 16 of 32 columns. Pass cols = "all" for all, or see enrichment_cols("gift").</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input_name matched_name accepted_name   taxon_id accepted_id    rank   family</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Abies alba   Abies alba    Abies alba wfo-ex-005  wfo-ex-005 species Pinaceae</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   genus epithet authorship accepted_authorship is_synonym taxonomic_status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Abies    alba      Mill.               Mill.      FALSE         ACCEPTED</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   is_hybrid match_type fuzzy_dist backbone         backbone_version</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     FALSE      exact         NA      wfo wfo:example (2026-06-24)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   kingdom_group taxon_group  life_form qualifier qualifier_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       plantae  gymnosperm gymnosperm      &lt;NA&gt;               &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   aggregate_fallback hybrid_type gift_woodiness_1 gift_growth_form_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 NA        &lt;NA&gt;            woody               tree</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           gift_lifecycle_1         gift_life_form_1         gift_climber_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_gift_lifecycle_1 example_gift_life_form_1 example_gift_climber_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           gift_epiphyte_1         gift_parasite_1         gift_aquatic_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_gift_epiphyte_1 example_gift_parasite_1 example_gift_aquatic_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   gift_plant_height_max         gift_photosynthetic_pathway gift_seed_mass_mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                    65 example_gift_photosynthetic_pathway           0.0739425</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           gift_dispersal_syndrome_1         gift_flowering_start</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_gift_dispersal_syndrome_1 example_gift_flowering_start</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           gift_flowering_end         gift_deciduousness_1 gift_sla_mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 example_gift_flowering_end example_gift_deciduousness_1          58.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, GIFT (Weigelt et al. 2020) example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

@@ -47,16 +47,23 @@
 #'
 #' @export
 add_chowdhury <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("body_length_mm", "wing_morph", "trophic_level", "habitat_pref",
-                "red_list_germany", "red_list_iucn", "threat_status",
-                "occupancy_trend", "trend_status", "trend_significance")
-  col_map <- stats::setNames(all_cols, paste0("chowdhury_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "chowdhury",
-    col_map         = col_map,
-    source_label    = "Chowdhury German carabid traits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_chowdhury, cols = cols, verbose = verbose)
 }
+
+
+.door_chowdhury <- list(
+  enrichment_name = "chowdhury",
+  col_map = c(
+    chowdhury_body_length_mm = "body_length_mm",
+    chowdhury_wing_morph = "wing_morph",
+    chowdhury_trophic_level = "trophic_level",
+    chowdhury_habitat_pref = "habitat_pref",
+    chowdhury_red_list_germany = "red_list_germany",
+    chowdhury_red_list_iucn = "red_list_iucn",
+    chowdhury_threat_status = "threat_status",
+    chowdhury_occupancy_trend = "occupancy_trend",
+    chowdhury_trend_status = "trend_status",
+    chowdhury_trend_significance = "trend_significance"
+  ),
+  source_label = "Chowdhury German carabid traits"
+)

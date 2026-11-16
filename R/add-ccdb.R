@@ -48,13 +48,16 @@
 #'
 #' @export
 add_ccdb <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c("chromosome_number_2n", "chromosome_2n_min", "chromosome_2n_max")
-  col_map <- stats::setNames(
-    base, c("ccdb_chromosome_2n", "ccdb_chromosome_2n_min",
-            "ccdb_chromosome_2n_max"))
-  enrich_simple(
-    x, enrichment_name = "ccdb", col_map = col_map,
-    source_label = "Chromosome Counts Database (Rice et al. 2015)",
-    cols = cols, verbose = verbose
-  )
+  enrich_door(x, .door_ccdb, cols = cols, verbose = verbose)
 }
+
+
+.door_ccdb <- list(
+  enrichment_name = "ccdb",
+  col_map = c(
+    ccdb_chromosome_2n = "chromosome_number_2n",
+    ccdb_chromosome_2n_min = "chromosome_2n_min",
+    ccdb_chromosome_2n_max = "chromosome_2n_max"
+  ),
+  source_label = "Chromosome Counts Database (Rice et al. 2015)"
+)

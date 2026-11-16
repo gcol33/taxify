@@ -135,6 +135,14 @@ columns:
 match a name; `parse_name()` exposes the same internal cleaning pipeline
 the matcher runs.
 
+Other Match and inspect names:
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md),
+[`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+[`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md),
+[`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md),
+[`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+
 ## Examples
 
 ``` r
@@ -143,9 +151,39 @@ parse_name(c("Quercus robur L.",
              "Q. robur",
              "Pinus cf. sylvestris",
              "Salix alba x Salix fragilis"))
+#>                    input_name   genus specific_epithet infrasp_rank
+#> 1            Quercus robur L. Quercus            robur         <NA>
+#> 2        Poa annua var. annua     Poa            annua         var.
+#> 3                    Q. robur      Q.            robur         <NA>
+#> 4        Pinus cf. sylvestris   Pinus       sylvestris         <NA>
+#> 5 Salix alba x Salix fragilis    <NA>             <NA>         <NA>
+#>   infrasp_epithet authorship qualifier is_hybrid hybrid_type           rank
+#> 1            <NA>         L.      <NA>     FALSE        <NA>        species
+#> 2           annua       <NA>      <NA>     FALSE        <NA>   infraspecies
+#> 3            <NA>       <NA>      <NA>     FALSE        <NA>        species
+#> 4            <NA>       <NA>       cf.     FALSE        <NA>        species
+#> 5            <NA>       <NA>      <NA>      TRUE     formula hybrid_formula
+#>              canonical
+#> 1        Quercus robur
+#> 2 Poa annua var. annua
+#> 3             Q. robur
+#> 4     Pinus sylvestris
+#> 5                 <NA>
 
 parse_name(c("Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967",
              "TDA - Arrhenatherion elatioris",
              "Conioselinion tatarici Golub et al. 2003 nom. inval. (5a)"),
            code = "syntaxon")
+#>                                                  input_name code
+#> 1    Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967 <NA>
+#> 2                            TDA - Arrhenatherion elatioris  TDA
+#> 3 Conioselinion tatarici Golub et al. 2003 nom. inval. (5a) <NA>
+#>                       name                         authorship        rank
+#> 1      Caricenion gracilis (Neuhausl 1959) Oberd. et al. 1967 suballiance
+#> 2 Arrhenatherion elatioris                               <NA>    alliance
+#> 3   Conioselinion tatarici                  Golub et al. 2003    alliance
+#>   qualifier      name_status
+#> 1      <NA>             <NA>
+#> 2      <NA>             <NA>
+#> 3      <NA> nom. inval. (5a)
 ```

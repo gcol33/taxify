@@ -59,16 +59,14 @@ add_wcvp <- function(x, region, cols = NULL, verbose = TRUE) {
     stop("'region' is required. Use a TDWG Level 3 code (e.g., \"BGM\") or \"all\".",
          call. = FALSE)
   }
-  enrich_by_group(
-    x,
-    enrichment_name = "wcvp",
-    group_col       = "tdwg_code",
-    groups          = region,
-    value_cols      = c(native_status = "native_status"),
-    source_label    = "WCVP (Kew)",
-    cols            = cols,
-    prefer          = list(col = "native_status",
-                           order = c("native", "introduced", "extinct")),
-    verbose         = verbose
-  )
+  enrich_door(x, .door_wcvp, groups = region, cols = cols, verbose = verbose)
 }
+
+
+.door_wcvp <- list(
+  enrichment_name = "wcvp",
+  group_col = "tdwg_code",
+  value_cols = c(native_status = "native_status"),
+  source_label = "WCVP (Kew)",
+  prefer = list(col = "native_status", order = c("native", "introduced", "extinct"))
+)

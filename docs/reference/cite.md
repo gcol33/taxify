@@ -36,7 +36,7 @@ cite(x, file = NULL, source = NULL, ...)
 
   For a character `x` only: `NULL` (default) when the ids carry their
   enrichment prefix, or the enrichment the bare ids belong to (e.g.
-  `"austraits"` for the `dispersal_syndrome_source` column of
+  `"austraits"` for the `austraits_dispersal_syndrome_source` column of
   `add_austraits(cols = "all")`).
 
 ## Value
@@ -54,14 +54,34 @@ works a trait value was taken from: the per-value references
 returns with `provenance = TRUE` (`<trait>_refs`), or the `<col>_source`
 column of an `add_<source>()` function read with `source =`.
 
+## See also
+
+Other Match and inspect names:
+[`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+[`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md),
+[`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md),
+[`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md),
+[`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+
 ## Examples
 
 ``` r
 old <- options(taxify.data_dir = taxify_example_data())
 
 result <- taxify("Quercus robur", backbone = "wfo")
+#> Matching 1 names...
 result |> cite()
+#> ── taxify citations ────────────────────────────────────────────────────────────
+#>   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones (version 0.7.1). doi:10.32614/CRAN.package.taxify
+#>   [2] Borsch T, Berendsohn W, Dalcin E, Delmas M, Demissew S, Elliott A, Fritsch P, Fuchs A, Geltman D, Guner A, et al. (2020). World Flora Online: Placing taxonomists at the heart of a definitive and comprehensive global resource on the world's plants. Taxon 69:1311-1341. doi:10.1002/tax.12373
+#>   ────────────────────────────────────────────────────────────
 result |> cite(file = tempfile(fileext = ".bib"))
+#> ── taxify citations ────────────────────────────────────────────────────────────
+#>   [1] Colling G (2026). taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones (version 0.7.1). doi:10.32614/CRAN.package.taxify
+#>   [2] Borsch T, Berendsohn W, Dalcin E, Delmas M, Demissew S, Elliott A, Fritsch P, Fuchs A, Geltman D, Guner A, et al. (2020). World Flora Online: Placing taxonomists at the heart of a definitive and comprehensive global resource on the world's plants. Taxon 69:1311-1341. doi:10.1002/tax.12373
+#>   ────────────────────────────────────────────────────────────
+#>   BibTeX written to: C:\Users\GILLES~1\AppData\Local\Temp\RtmpCocUuZ\file1df8f275cfb.bib
 
 options(old)
 ```

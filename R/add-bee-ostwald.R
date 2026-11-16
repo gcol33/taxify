@@ -26,16 +26,21 @@
 #'
 #' @export
 add_bee_ostwald <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c("itd_mm", "forewing_length_mm", "tongue_length_mm",
-            "tongue_width_mm", "body_length_mm", "thorax_length_mm",
-            "hair_length_mm", "hair_coverage_pct")
-  col_map <- stats::setNames(base_cols, paste0("bee_ostwald_", base_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "bee_ostwald",
-    col_map         = col_map,
-    source_label    = "Bee morphology (Ostwald)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_bee_ostwald, cols = cols, verbose = verbose)
 }
+
+
+.door_bee_ostwald <- list(
+  enrichment_name = "bee_ostwald",
+  col_map = c(
+    bee_ostwald_itd_mm = "itd_mm",
+    bee_ostwald_forewing_length_mm = "forewing_length_mm",
+    bee_ostwald_tongue_length_mm = "tongue_length_mm",
+    bee_ostwald_tongue_width_mm = "tongue_width_mm",
+    bee_ostwald_body_length_mm = "body_length_mm",
+    bee_ostwald_thorax_length_mm = "thorax_length_mm",
+    bee_ostwald_hair_length_mm = "hair_length_mm",
+    bee_ostwald_hair_coverage_pct = "hair_coverage_pct"
+  ),
+  source_label = "Bee morphology (Ostwald)"
+)

@@ -26,17 +26,20 @@
 #'
 #' @export
 add_huang_amph <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("svl_mm", "head_length_mm", "head_width_mm", "eye_diameter_mm",
-                "forelimb_length_mm", "hindlimb_length_mm")
-  cat_cols <- c("taxon_order")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("huang_amph_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "huang_amph",
-    col_map         = col_map,
-    source_label    = "Huang amphibian morphology",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_huang_amph, cols = cols, verbose = verbose)
 }
+
+
+.door_huang_amph <- list(
+  enrichment_name = "huang_amph",
+  col_map = c(
+    huang_amph_svl_mm = "svl_mm",
+    huang_amph_head_length_mm = "head_length_mm",
+    huang_amph_head_width_mm = "head_width_mm",
+    huang_amph_eye_diameter_mm = "eye_diameter_mm",
+    huang_amph_forelimb_length_mm = "forelimb_length_mm",
+    huang_amph_hindlimb_length_mm = "hindlimb_length_mm",
+    huang_amph_taxon_order = "taxon_order"
+  ),
+  source_label = "Huang amphibian morphology"
+)

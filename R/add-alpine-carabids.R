@@ -39,14 +39,15 @@
 #'
 #' @export
 add_alpine_carabids <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("body_length_mm", "wing_morph")
-  col_map <- stats::setNames(all_cols, paste0("alpine_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "alpine_carabids",
-    col_map         = col_map,
-    source_label    = "Alpine carabid traits (Chamberlain et al.)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_alpine_carabids, cols = cols, verbose = verbose)
 }
+
+
+.door_alpine_carabids <- list(
+  enrichment_name = "alpine_carabids",
+  col_map = c(
+    alpine_body_length_mm = "body_length_mm",
+    alpine_wing_morph = "wing_morph"
+  ),
+  source_label = "Alpine carabid traits (Chamberlain et al.)"
+)

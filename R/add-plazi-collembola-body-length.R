@@ -39,16 +39,18 @@
 #'
 #' @export
 add_plazi_collembola_body_length <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("plazi_body_length_mm", "plazi_body_length_min_mm",
-                "plazi_body_length_max_mm", "plazi_body_length_n",
-                "plazi_body_length_sources")
-  col_map <- stats::setNames(all_cols, all_cols)
-  enrich_simple(
-    x,
-    enrichment_name = "plazi_collembola_body_length",
-    col_map         = col_map,
-    source_label    = "Plazi Collembola body length",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_plazi_collembola_body_length, cols = cols, verbose = verbose)
 }
+
+
+.door_plazi_collembola_body_length <- list(
+  enrichment_name = "plazi_collembola_body_length",
+  col_map = c(
+    plazi_body_length_mm = "plazi_body_length_mm",
+    plazi_body_length_min_mm = "plazi_body_length_min_mm",
+    plazi_body_length_max_mm = "plazi_body_length_max_mm",
+    plazi_body_length_n = "plazi_body_length_n",
+    plazi_body_length_sources = "plazi_body_length_sources"
+  ),
+  source_label = "Plazi Collembola body length"
+)

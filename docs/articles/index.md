@@ -4,20 +4,40 @@
 
 - [Choosing and combining
   backbones](https://gillescolling.com/taxify/articles/backbones.md):
+
+  Choose and compare taxonomic backbones, manage downloaded files, and
+  prepare an offline installation.
+
+- [Recording and restoring data
+  versions](https://gillescolling.com/taxify/articles/reproducibility.md):
+
+  Record the data behind a result, compare installations, and control
+  updates with persistent pins.
+
 - [Checking a name
   list](https://gillescolling.com/taxify/articles/inspecting-names.md):
+
 - [Matching within a
   region](https://gillescolling.com/taxify/articles/regions.md):
+
 - [Attaching published
   data](https://gillescolling.com/taxify/articles/enrichments.md):
+
+  Join published datasets, choose sources for harmonized traits, and
+  inspect each value’s provenance.
+
 - [Joining your own
   data](https://gillescolling.com/taxify/articles/custom-data.md):
+
 - [Exploring the
   backbone](https://gillescolling.com/taxify/articles/exploring.md):
+
 - [Requesting GBIF data for a species
   list](https://gillescolling.com/taxify/articles/gbif-requests.md):
+
 - [Matching vegetation
   units](https://gillescolling.com/taxify/articles/vegetation-units.md):
+
 - [Matching large
   lists](https://gillescolling.com/taxify/articles/large-scale.md):
 

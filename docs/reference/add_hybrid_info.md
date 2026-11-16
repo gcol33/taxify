@@ -60,6 +60,29 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Quercus pyrenaica x Q. petraea") |>
   add_hybrid_info()
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Matching 1 remaining names...
+#>   [sealifebase] Matching 1 remaining names...
+#>   [reptiledb] Matching 1 remaining names...
+#>   [gbif] Matching 1 remaining names...
+#>                       input_name                        matched_name
+#> 1 Quercus pyrenaica x Q. petraea Quercus pyrenaica × Quercus petraea
+#>                         accepted_name taxon_id accepted_id rank family genus
+#> 1 Quercus pyrenaica × Quercus petraea     <NA>        <NA> <NA>   <NA>  <NA>
+#>   epithet authorship accepted_authorship is_synonym taxonomic_status is_hybrid
+#> 1    <NA>       <NA>                <NA>         NA             <NA>      TRUE
+#>       match_type fuzzy_dist backbone backbone_version kingdom_group taxon_group
+#> 1 hybrid_formula         NA     <NA>             <NA>       plantae  angiosperm
+#>    life_form qualifier qualifier_position aggregate_fallback hybrid_type
+#> 1 angiosperm      <NA>               <NA>                 NA     formula
+#>     hybrid_parent_1 hybrid_parent_2 hybrid_parent_1_accepted
+#> 1 Quercus pyrenaica Quercus petraea        Quercus pyrenaica
+#>   hybrid_parent_2_accepted hybrid_parent_1_id hybrid_parent_2_id
+#> 1          Quercus petraea         wfo-ex-003         wfo-ex-002
 
 options(old)
 ```

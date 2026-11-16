@@ -46,14 +46,13 @@ add_griis <- function(x, country, cols = NULL, verbose = TRUE) {
     stop("'country' is required. Use an ISO 3166-1 alpha-2 code (e.g., \"AT\") or \"all\".",
          call. = FALSE)
   }
-  enrich_by_group(
-    x,
-    enrichment_name = "griis",
-    group_col       = "country_code",
-    groups          = country,
-    value_cols      = c(invasive_status = "invasive_status"),
-    source_label    = "GRIIS",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_griis, groups = country, cols = cols, verbose = verbose)
 }
+
+
+.door_griis <- list(
+  enrichment_name = "griis",
+  group_col = "country_code",
+  value_cols = c(invasive_status = "invasive_status"),
+  source_label = "GRIIS"
+)

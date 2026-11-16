@@ -24,7 +24,7 @@ add_griis(x, country, cols = NULL, verbose = TRUE)
 
   Character. ISO 3166-1 alpha-2 country code(s), or `"all"`.
 
-  - Single code (e.g., `"AT"`): adds `invasive_status` column (no
+  - Single code (e.g., `"AT"`): adds `griis_invasive_status` column (no
     suffix).
 
   - Multiple codes (e.g., `c("AT", "DE")`): adds `invasive_status_AT`,
@@ -49,7 +49,7 @@ add_griis(x, country, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional column(s):
 
-- invasive_status:
+- griis_invasive_status:
 
   One of `"native"`, `"introduced"`, `"invasive"`, or `NA` if not
   recorded for that country.
@@ -67,9 +67,53 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Robinia pseudoacacia") |>
   add_griis(country = "AT")
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>             input_name         matched_name        accepted_name   taxon_id
+#> 1 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006
+#>   accepted_id    rank   family   genus      epithet authorship
+#> 1  wfo-ex-006 species Fabaceae Robinia pseudoacacia         L.
+#>   accepted_authorship is_synonym taxonomic_status is_hybrid match_type
+#> 1                  L.      FALSE         ACCEPTED     FALSE      exact
+#>   fuzzy_dist backbone         backbone_version kingdom_group taxon_group
+#> 1         NA      wfo wfo:example (2026-06-24)       plantae        <NA>
+#>   life_form qualifier qualifier_position aggregate_fallback hybrid_type
+#> 1      <NA>      <NA>               <NA>                 NA        <NA>
+#>     griis_invasive_status
+#> 1 example_invasive_status
+#> Sources: WFO example, GRIIS example | cite() for full citations
 
 taxify("Robinia pseudoacacia") |>
   add_griis(country = c("AT", "DE"))
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>             input_name         matched_name        accepted_name   taxon_id
+#> 1 Robinia pseudoacacia Robinia pseudoacacia Robinia pseudoacacia wfo-ex-006
+#>   accepted_id    rank   family   genus      epithet authorship
+#> 1  wfo-ex-006 species Fabaceae Robinia pseudoacacia         L.
+#>   accepted_authorship is_synonym taxonomic_status is_hybrid match_type
+#> 1                  L.      FALSE         ACCEPTED     FALSE      exact
+#>   fuzzy_dist backbone         backbone_version kingdom_group taxon_group
+#> 1         NA      wfo wfo:example (2026-06-24)       plantae        <NA>
+#>   life_form qualifier qualifier_position aggregate_fallback hybrid_type
+#> 1      <NA>      <NA>               <NA>                 NA        <NA>
+#>   griis_invasive_status_AT griis_invasive_status_DE
+#> 1  example_invasive_status  example_invasive_status
+#> Sources: WFO example, GRIIS example | cite() for full citations
 
 options(old)
 ```

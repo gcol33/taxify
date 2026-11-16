@@ -119,6 +119,13 @@ Unmatched names contribute no rows.
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
 [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md).
 
+Other Explore the backbone:
+[`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md),
+[`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
+[`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md),
+[`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+[`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
+
 ## Examples
 
 ``` r
@@ -127,6 +134,21 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify(c("Quercus robur", "Pinus sylvestris")) |>
   taxify_ids()
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>         input_name backbone accepted_id gbif_key    accepted_name authorship
+#> 1    Quercus robur      col  col-ex-001     <NA>    Quercus robur         L.
+#> 2 Pinus sylvestris      wfo  wfo-ex-004     <NA> Pinus sylvestris         L.
+#>      rank taxonomic_status   family n_occurrences is_pick pick_basis role
+#> 1 species         ACCEPTED Fagaceae            NA    TRUE       <NA> pick
+#> 2 species         ACCEPTED Pinaceae            NA    TRUE       <NA> pick
 
 options(old)
 ```

@@ -51,13 +51,13 @@
 #'
 #' @export
 add_fungalroot <- function(x, verbose = TRUE, cols = NULL) {
-  enrich_simple(
-    x,
-    enrichment_name = "fungalroot",
-    col_map         = stats::setNames(.fungalroot_cols, .fungalroot_cols),
-    source_label    = "FungalRoot (Soudzilovskaia et al. 2020)",
-    join_col        = "genus",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_fungalroot, cols = cols, verbose = verbose)
 }
+
+
+.door_fungalroot <- list(
+  enrichment_name = "fungalroot",
+  col_map = stats::setNames(.fungalroot_cols, .fungalroot_cols),
+  source_label = "FungalRoot (Soudzilovskaia et al. 2020)",
+  join_col = "genus"
+)

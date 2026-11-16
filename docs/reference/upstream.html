@@ -32,7 +32,7 @@ lineage returned is the accepted taxon's."><meta property="og:image" content="ht
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@ lineage returned is the accepted taxon's."><meta property="og:image" content="ht
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -139,22 +140,38 @@ the backbone stores no ranks above it.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="downstream.html">downstream()</a></code> for descendants, <code><a href="add_classification.html">add_classification()</a></code> to attach the
-ranks to a <code><a href="taxify.html">taxify()</a></code> result, <code><a href="lowest_common.html">lowest_common()</a></code>.</p></div>
+ranks to a <code><a href="taxify.html">taxify()</a></code> result, <code><a href="lowest_common.html">lowest_common()</a></code>.</p>
+<p>Other Explore the backbone:
+<code><a href="class2tree.html">class2tree()</a></code>,
+<code><a href="downstream.html">downstream()</a></code>,
+<code><a href="lowest_common.html">lowest_common()</a></code>,
+<code><a href="synonyms.html">synonyms()</a></code>,
+<code><a href="taxify_ids.html">taxify_ids()</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># The lineage above a species (reptiledb carries the full higher hierarchy)</span></span>
-<span><span class="fu">upstream</span><span class="op">(</span><span class="st">"Naja naja"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Just the family</span></span>
-<span><span class="fu">upstream</span><span class="op">(</span><span class="st">"Naja naja"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span>, to <span class="op">=</span> <span class="st">"family"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The lineage above a species (reptiledb carries the full higher hierarchy)</span></span></span>
+<span class="r-in"><span><span class="fu">upstream</span><span class="op">(</span><span class="st">"Naja naja"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input_name accepted_name    rank      name  backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  Naja naja     Naja naja kingdom  Animalia reptiledb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Naja naja     Naja naja  phylum  Chordata reptiledb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  Naja naja     Naja naja   class  Reptilia reptiledb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  Naja naja     Naja naja   order Serpentes reptiledb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  Naja naja     Naja naja  family  Elapidae reptiledb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  Naja naja     Naja naja   genus      Naja reptiledb</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Just the family</span></span></span>
+<span class="r-in"><span><span class="fu">upstream</span><span class="op">(</span><span class="st">"Naja naja"</span>, backbone <span class="op">=</span> <span class="st">"reptiledb"</span>, to <span class="op">=</span> <span class="st">"family"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   input_name accepted_name   rank     name  backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  Naja naja     Naja naja family Elapidae reptiledb</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

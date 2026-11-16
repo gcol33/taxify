@@ -22,7 +22,7 @@ by looking up accepted_name."><meta property="og:image" content="https://gillesc
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,7 @@ by looking up accepted_name."><meta property="og:image" content="https://gillesc
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -102,59 +103,59 @@ by looking up <code>accepted_name</code>.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns:</p><dl><dt>fb_body_length_cm</dt>
+    <p>The same data.frame with additional columns:</p><dl><dt>fishbase_fb_body_length_cm</dt>
 <dd><p>Maximum body length in centimetres.</p></dd>
 
-<dt>fb_body_mass_g</dt>
+<dt>fishbase_fb_body_mass_g</dt>
 <dd><p>Maximum published weight in grams (FishBase
 <code>SPECIES.Weight</code>). This is a record maximum, not a typical or
 adult-mean mass.</p></dd>
 
-<dt>fb_trophic_level</dt>
+<dt>fishbase_fb_trophic_level</dt>
 <dd><p>Trophic level.</p></dd>
 
-<dt>fb_depth_min_m</dt>
+<dt>fishbase_fb_depth_min_m</dt>
 <dd><p>Minimum depth in metres.</p></dd>
 
-<dt>fb_depth_max_m</dt>
+<dt>fishbase_fb_depth_max_m</dt>
 <dd><p>Maximum depth in metres.</p></dd>
 
-<dt>fb_vulnerability</dt>
+<dt>fishbase_fb_vulnerability</dt>
 <dd><p>Vulnerability index (0–100).</p></dd>
 
-<dt>fb_habitat</dt>
+<dt>fishbase_fb_habitat</dt>
 <dd><p>Habitat type (e.g. demersal, pelagic).</p></dd>
 
-<dt>fb_importance</dt>
+<dt>fishbase_fb_importance</dt>
 <dd><p>Commercial importance category.</p></dd>
 
-<dt>fb_lw_a</dt>
+<dt>fishbase_fb_lw_a</dt>
 <dd><p>Coefficient <code>a</code> of the length-weight relationship
 <code>W = a * L^b</code> (weight in g, length in cm of type <code>fb_lw_type</code>),
 from FishBase's POPLW table.</p></dd>
 
-<dt>fb_lw_b</dt>
+<dt>fishbase_fb_lw_b</dt>
 <dd><p>Exponent <code>b</code> of the length-weight relationship.</p></dd>
 
-<dt>fb_lw_type</dt>
+<dt>fishbase_fb_lw_type</dt>
 <dd><p>Length convention the coefficients were fitted against
 (<code>TL</code> total, <code>SL</code> standard, <code>FL</code> fork, <code>WD</code> width,
 ...). Chosen to match the species' maximum-length type where recorded, so
 it applies to <code>fb_body_length_cm</code>. Applying a coefficient to a
 different length type is a silent error.</p></dd>
 
-<dt>fb_lw_method</dt>
+<dt>fishbase_fb_lw_method</dt>
 <dd><p>How the fit was obtained (e.g. "type I linear
 regression", "single L-W pair with b=3").</p></dd>
 
-<dt>fb_lw_sex</dt>
+<dt>fishbase_fb_lw_sex</dt>
 <dd><p>Sex the fit applies to (unsexed, mixed, female, male,
 juvenile).</p></dd>
 
-<dt>fb_lw_n</dt>
+<dt>fishbase_fb_lw_n</dt>
 <dd><p>Sample size the fit was based on.</p></dd>
 
-<dt>fb_lw_r2</dt>
+<dt>fishbase_fb_lw_r2</dt>
 <dd><p>Coefficient of determination (<code>r^2</code>) of the fit.</p></dd>
 
 
@@ -179,14 +180,37 @@ publication, <a href="https://www.fishbase.org" class="external-link">https://ww
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Gadus morhua"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_fishbase</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Gadus morhua"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_fishbase</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     input_name matched_name accepted_name    taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Gadus morhua Gadus morhua  Gadus morhua gbif-ex-010 gbif-ex-010 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    family genus epithet     authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Gadidae Gadus  morhua Linnaeus, 1758      Linnaeus, 1758      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         ACCEPTED     FALSE      exact         NA     gbif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            backbone_version kingdom_group taxon_group life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 gbif:example (2026-06-24)      animalia      animal    animal      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type fishbase_fb_body_length_cm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;                         11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishbase_fb_body_mass_g fishbase_fb_trophic_level fishbase_fb_depth_min_m</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      11                        11                      11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishbase_fb_depth_max_m fishbase_fb_vulnerability fishbase_fb_habitat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                      11                        11     example_habitat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishbase_fb_importance fishbase_fb_lw_a fishbase_fb_lw_b fishbase_fb_lw_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     example_importance           0.0065           3.0982                  TL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      fishbase_fb_lw_method fishbase_fb_lw_sex fishbase_fb_lw_n</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 type I linear regression            unsexed            16665</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishbase_fb_lw_r2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1            0.9929</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF example, FishBase example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

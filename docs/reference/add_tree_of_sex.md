@@ -34,35 +34,35 @@ add_tree_of_sex(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- tos_taxon_group:
+- tree_of_sex_tos_taxon_group:
 
   Source group (plants/vertebrates/invertebrates).
 
-- tos_sexual_system:
+- tree_of_sex_tos_sexual_system:
 
   Sexual system (vocabulary differs by group).
 
-- tos_karyotype:
+- tree_of_sex_tos_karyotype:
 
   Sex-chromosome system (XY/ZW/XO/homomorphic/...).
 
-- tos_genotypic:
+- tree_of_sex_tos_genotypic:
 
   Heterogamety (male/female heterogametic/GSD/...).
 
-- tos_molecular_basis:
+- tree_of_sex_tos_molecular_basis:
 
   Molecular basis (Y dominant/W dominant/dosage).
 
-- tos_selfing:
+- tree_of_sex_tos_selfing:
 
   Selfing (plants; self compatible/incompatible).
 
-- tos_environmental_sd:
+- tree_of_sex_tos_environmental_sd:
 
   Environmental sex determination (vertebrates; TSD/...).
 
-- tos_haplodiploidy:
+- tree_of_sex_tos_haplodiploidy:
 
   Haplodiploidy (invertebrates).
 

@@ -156,6 +156,14 @@ never mistaken for a clean one.
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
 [`taxify_regions()`](https://gillescolling.com/taxify/reference/taxify_regions.md)
 
+Other Match and inspect names:
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md),
+[`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+[`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+[`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md),
+[`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md),
+[`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+
 ## Examples
 
 ``` r
@@ -164,12 +172,67 @@ old <- options(taxify.data_dir = taxify_example_data())
 # On raw names: register + list checks (no matching)
 inspect(c("Quercus robur", "Bogusus fakus", "Carexus mysteriosa",
           "Carexus mysteriosa", "Carexus mysteryosa"))
+#> ── taxify inspection ──────────────────────────────────────────
+#>   5 names inspected  |  4 with anomalies
+#>   backbones: none (register + list checks only)
+#>   unresolved: 4
+#>   ────────────────────────────────────────────────────────────
+#>   [unresolved] Bogusus fakus       ->  ?                   genus 'Bogusus' is not in the taxonomic register
+#>   [unresolved] Carexus mysteriosa  ->  ?                   genus 'Carexus' is not in the taxonomic register
+#>   [unresolved] Carexus mysteriosa  ->  ?                   genus 'Carexus' is not in the taxonomic register
+#>   [unresolved] Carexus mysteryosa  ->  Carexus mysteriosa  genus 'Carexus' is not in the taxonomic register; near-duplicate of more frequent 'Carexus mysteriosa'
 
 # Opt in to matching to also get typos, synonyms, ambiguity
 inspect(c("Quercus robur", "Quercus robus"), backbones = TRUE)
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Matching 1 remaining names...
+#>   [sealifebase] Matching 1 remaining names...
+#>   [reptiledb] Matching 1 remaining names...
+#>   [gbif] Matching 1 remaining names...
+#>   [col] Fuzzy matching 1 unmatched...
+#>   [wcvp] Skipped (all names matched)
+#>   [lcvp] Skipped (all names matched)
+#>   [wfo] Skipped (all names matched)
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> ── taxify inspection ──────────────────────────────────────────
+#>   2 names inspected  |  1 with anomalies
+#>   backbones: col, wcvp, lcvp, wfo, fishbase, sealifebase, reptiledb, gbif
+#>   review: 1
+#>   ────────────────────────────────────────────────────────────
+#>   [review] Quercus robus  ->  Quercus robur  likely misspelling
 
 # Or match yourself and inspect the result
 taxify(c("Quercus robur", "Quercus robus")) |> inspect()
+#> Matching 2 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 2 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Matching 1 remaining names...
+#>   [sealifebase] Matching 1 remaining names...
+#>   [reptiledb] Matching 1 remaining names...
+#>   [gbif] Matching 1 remaining names...
+#>   [col] Fuzzy matching 1 unmatched...
+#>   [wcvp] Skipped (all names matched)
+#>   [lcvp] Skipped (all names matched)
+#>   [wfo] Skipped (all names matched)
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#> ── taxify inspection ──────────────────────────────────────────
+#>   2 names inspected  |  1 with anomalies
+#>   backbones: col, wcvp, lcvp, wfo, fishbase, sealifebase, reptiledb, gbif
+#>   review: 1
+#>   ────────────────────────────────────────────────────────────
+#>   [review] Quercus robus  ->  Quercus robur  likely misspelling
 
 options(old)
 ```

@@ -34,11 +34,11 @@ add_usda_fungus_host(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- fungus_host_count:
+- usda_fungus_host_fungus_host_count:
 
   Number of distinct host plant species recorded.
 
-- fungus_host_genus_count:
+- usda_fungus_host_fungus_host_genus_count:
 
   Number of distinct host plant genera recorded.
 

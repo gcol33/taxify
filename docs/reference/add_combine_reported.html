@@ -32,7 +32,7 @@ distinction between a measured value and a model estimate stays explicit."><meta
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,7 @@ distinction between a measured value and a model estimate stays explicit."><meta
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -119,51 +120,51 @@ names. See <code><a href="enrichment_cols.html">enrichment_cols</a></code>.</p><
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns (reported values):</p><dl><dt>combine_adult_mass_g</dt>
+    <p>The same data.frame with additional columns (reported values):</p><dl><dt>combine_reported_adult_mass_g</dt>
 <dd><p>Adult body mass (g).</p></dd>
 
-<dt>combine_adult_body_length_mm</dt>
+<dt>combine_reported_adult_body_length_mm</dt>
 <dd><p>Adult head-body length (mm).</p></dd>
 
-<dt>combine_litter_size_n</dt>
+<dt>combine_reported_litter_size_n</dt>
 <dd><p>Litter size (count).</p></dd>
 
-<dt>combine_litters_per_year_n</dt>
+<dt>combine_reported_litters_per_year_n</dt>
 <dd><p>Litters per year (count).</p></dd>
 
-<dt>combine_max_longevity_d</dt>
+<dt>combine_reported_max_longevity_d</dt>
 <dd><p>Maximum longevity (days).</p></dd>
 
-<dt>combine_gestation_length_d</dt>
+<dt>combine_reported_gestation_length_d</dt>
 <dd><p>Gestation length (days).</p></dd>
 
-<dt>combine_weaning_age_d</dt>
+<dt>combine_reported_weaning_age_d</dt>
 <dd><p>Weaning age (days).</p></dd>
 
-<dt>combine_generation_length_d</dt>
+<dt>combine_reported_generation_length_d</dt>
 <dd><p>Generation length (days).</p></dd>
 
-<dt>combine_dispersal_km</dt>
+<dt>combine_reported_dispersal_km</dt>
 <dd><p>Natal dispersal distance (km).</p></dd>
 
-<dt>combine_habitat_breadth_n</dt>
+<dt>combine_reported_habitat_breadth_n</dt>
 <dd><p>Number of IUCN habitats (count).</p></dd>
 
-<dt>combine_diet_breadth_n</dt>
+<dt>combine_reported_diet_breadth_n</dt>
 <dd><p>Number of diet categories (count).</p></dd>
 
-<dt>combine_trophic_level</dt>
+<dt>combine_reported_trophic_level</dt>
 <dd><p>Trophic level (1 herbivore, 2 omnivore,
 3 carnivore).</p></dd>
 
-<dt>combine_activity_cycle</dt>
+<dt>combine_reported_activity_cycle</dt>
 <dd><p>Activity cycle (1 nocturnal, 2 cathemeral,
 3 diurnal).</p></dd>
 
-<dt>combine_foraging_stratum</dt>
+<dt>combine_reported_foraging_stratum</dt>
 <dd><p>Foraging stratum (G/Ar/A/S/M).</p></dd>
 
-<dt>combine_biogeographical_realm</dt>
+<dt>combine_reported_biogeographical_realm</dt>
 <dd><p>Biogeographical realm(s).</p></dd>
 
 
@@ -190,11 +191,12 @@ per-trait provenance; <code><a href="add_combine_imputed.html">add_combine_imput
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Vulpes vulpes"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_combine_reported</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="co"># }</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Vulpes vulpes"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_combine_reported</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

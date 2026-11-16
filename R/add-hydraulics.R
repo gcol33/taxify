@@ -48,16 +48,20 @@
 #'
 #' @export
 add_hydraulics <- function(x, cols = NULL, verbose = TRUE) {
-  all_cols <- c("p50_mpa", "sapwood_conductivity", "leaf_conductivity",
-                "huber_value_cm2_m2", "min_water_potential_mpa",
-                "hydraulic_safety_margin_mpa", "mean_annual_temp_c")
-  col_map <- stats::setNames(all_cols, paste0("hyd_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "hydraulics",
-    col_map         = col_map,
-    source_label    = "Plant hydraulic traits (Sanchez-Martinez et al.)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_hydraulics, cols = cols, verbose = verbose)
 }
+
+
+.door_hydraulics <- list(
+  enrichment_name = "hydraulics",
+  col_map = c(
+    hyd_p50_mpa = "p50_mpa",
+    hyd_sapwood_conductivity = "sapwood_conductivity",
+    hyd_leaf_conductivity = "leaf_conductivity",
+    hyd_huber_value_cm2_m2 = "huber_value_cm2_m2",
+    hyd_min_water_potential_mpa = "min_water_potential_mpa",
+    hyd_hydraulic_safety_margin_mpa = "hydraulic_safety_margin_mpa",
+    hyd_mean_annual_temp_c = "mean_annual_temp_c"
+  ),
+  source_label = "Plant hydraulic traits (Sanchez-Martinez et al.)"
+)

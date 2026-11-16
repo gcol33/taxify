@@ -27,27 +27,27 @@ that. `Names` counts accepted names and synonyms together.
 
 | Backbone | Full name | Scope | Names | MB | Version | Licence | Reference |
 |:---|:---|:---|---:|---:|:---|:---|:---|
-| `wfo` | World Flora Online | Vascular plants | 1,664,014 | 785 | 2026.06 |  | [Borsch et al. 2020](https://doi.org/10.1002/tax.12373) |
-| `col` | Catalogue of Life | All kingdoms | 5,432,444 | 1,997 | 2026.09 |  | [Banki et al. 2024](https://doi.org/10.48580/d4t2) |
-| `colxr` | Catalogue of Life Extended Release | All kingdoms | 8,479,599 | 1,393 | 2026.09 |  | [Banki et al. 2026](https://doi.org/10.48580/dgykv) |
-| `gbif` | GBIF Backbone Taxonomy | All kingdoms | 6,404,001 | 1,622 | 2023.08 |  | [GBIF Secretariat 2024](https://doi.org/10.15468/39omei) |
-| `itis` | Integrated Taxonomic Information System | US focus, freshwater/marine | 1,000,552 | 197 | 2026.09 |  | [ITIS 2025](https://doi.org/10.5066/F7KH0KBK) |
-| `ncbi` | NCBI Taxonomy | All life | 2,952,424 | 524 | 2026.09 |  |  |
-| `ott` | Open Tree of Life Taxonomy | All life (synthetic) | 3,690,217 | 728 | 2026.09 |  |  |
-| `worms` | World Register of Marine Species | Marine/aquatic | 1,565,652 | 290 | 2026.09 |  |  |
-| `euromed` | Euro+Med PlantBase | European/Mediterranean plants | 146,922 | 33 | 2026.08 |  | [Euro+Med 2026](https://europlusmed.org) |
-| `fungorum` | Species Fungorum Plus | Fungi | 315,037 | 68 | 2026.08 |  |  |
-| `algaebase` | AlgaeBase | Algae | 172,351 | 34 | 2026.09 |  |  |
-| `fishbase` | FishBase | Fishes | 102,703 | 18 | 2026.08 |  |  |
-| `sealifebase` | SeaLifeBase | Non-fish marine/aquatic | 134,031 | 27 | 2026.08 |  |  |
-| `reptiledb` | Reptile Database | Reptiles | 50,043 | 9 | 2026.07 | CC BY 4.0 | [Uetz et al. 2026](http://www.reptile-database.org) |
-| `lcvp` | Leipzig Catalogue of Vascular Plants | Vascular plants | 1,337,891 | 241 | 2026.08 | MIT | [Freiberg et al. 2020](https://doi.org/10.1038/s41597-020-00702-z) |
-| `wcvp` | World Checklist of Vascular Plants | Vascular plants | 1,448,984 | 326 | 2026.06 | CC BY 4.0 | [Govaerts et al. 2021](https://doi.org/10.1038/s41597-021-00997-6) |
-| `mdd` | Mammal Diversity Database | Mammals | 61,862 | 10 | 2026.08 |  |  |
-| `avilist` | AviList Global Avian Checklist | Birds | 40,572 | 8 | 2026.08 |  |  |
-| `lpsn` | List of Prokaryotic names with Standing in Nomenclature | Prokaryotes (Bacteria/Archaea) | 44,885 | 12 | 2026.08 |  |  |
-| `evc` | EuroVegChecklist | European vegetation units (syntaxa) | 7,542 | 2 | 4 |  | [Mucina et al. 2016](https://doi.org/10.1111/avsc.12257) |
-| `vegcz` | Vegetation of the Czech Republic | Czech vegetation units (syntaxa) | 2,258 | 1 | 2026.10 |  | Chytrý M (ed.) 2007-2013 |
+| `wfo` | World Flora Online | Vascular plants | 1,664,014 | 120 | 2026.06 |  | [Borsch et al. 2020](https://doi.org/10.1002/tax.12373) |
+| `col` | Catalogue of Life | All kingdoms | 5,432,444 | 573 | 2026.09 |  | [Banki et al. 2024](https://doi.org/10.48580/d4t2) |
+| `colxr` | Catalogue of Life Extended Release | All kingdoms | 8,479,599 | 399 | 2026.09 |  | [Banki et al. 2026](https://doi.org/10.48580/dgykv) |
+| `gbif` | GBIF Backbone Taxonomy | All kingdoms | 6,404,001 | 461 | 2023.08 |  | [GBIF Secretariat 2024](https://doi.org/10.15468/39omei) |
+| `itis` | Integrated Taxonomic Information System | US focus, freshwater/marine | 1,000,552 | 52 | 2026.09 |  | [ITIS 2025](https://doi.org/10.5066/F7KH0KBK) |
+| `ncbi` | NCBI Taxonomy | All life | 2,952,424 | 110 | 2026.09 |  |  |
+| `ott` | Open Tree of Life Taxonomy | All life (synthetic) | 3,690,217 | 166 | 2026.09 |  |  |
+| `worms` | World Register of Marine Species | Marine/aquatic | 1,565,652 | 80 | 2026.09 |  |  |
+| `euromed` | Euro+Med PlantBase | European/Mediterranean plants | 146,922 | 11 | 2026.08 |  | [Euro+Med 2026](https://europlusmed.org) |
+| `fungorum` | Species Fungorum Plus | Fungi | 315,037 | 18 | 2026.08 |  |  |
+| `algaebase` | AlgaeBase | Algae | 172,351 | 9 | 2026.09 |  |  |
+| `fishbase` | FishBase | Fishes | 102,703 | 5 | 2026.08 |  |  |
+| `sealifebase` | SeaLifeBase | Non-fish marine/aquatic | 134,031 | 7 | 2026.08 |  |  |
+| `reptiledb` | Reptile Database | Reptiles | 50,043 | 2 | 2026.07 | CC BY 4.0 | [Uetz et al. 2026](http://www.reptile-database.org) |
+| `lcvp` | Leipzig Catalogue of Vascular Plants | Vascular plants | 1,337,891 | 60 | 2026.08 | MIT | [Freiberg et al. 2020](https://doi.org/10.1038/s41597-020-00702-z) |
+| `wcvp` | World Checklist of Vascular Plants | Vascular plants | 1,448,984 | 82 | 2026.06 | CC BY 4.0 | [Govaerts et al. 2021](https://doi.org/10.1038/s41597-021-00997-6) |
+| `mdd` | Mammal Diversity Database | Mammals | 61,862 | 3 | 2026.08 |  |  |
+| `avilist` | AviList Global Avian Checklist | Birds | 40,572 | 2 | 2026.08 |  |  |
+| `lpsn` | List of Prokaryotic names with Standing in Nomenclature | Prokaryotes (Bacteria/Archaea) | 44,885 | 3 | 2026.08 |  |  |
+| `evc` | EuroVegChecklist | European vegetation units (syntaxa) | 7,542 | 1 | 4 |  | [Mucina et al. 2016](https://doi.org/10.1111/avsc.12257) |
+| `vegcz` | Vegetation of the Czech Republic | Czech vegetation units (syntaxa) | 2,258 | 0 | 2026.10 |  | Chytrý M (ed.) 2007-2013 |
 
 The licence of a backbone without one in the table is set by its source;
 the `source` link of

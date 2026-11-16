@@ -39,21 +39,20 @@
 #'
 #' @export
 add_freshwater_insects_conus <- function(x, cols = NULL, verbose = TRUE) {
-  cat_cols <- c(
-    fwinsect_thermal_pref   = "thermal_pref",
-    fwinsect_feed_prim      = "feed_prim_abbrev",
-    fwinsect_habit_prim     = "habit_prim",
-    fwinsect_rheophily      = "rheophily_abbrev",
-    fwinsect_voltinism      = "voltinism_abbrev",
-    fwinsect_max_body_size  = "max_body_size_abbrev"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "freshwater_insects_conus",
-    col_map         = cat_cols,
-    source_label    = "Freshwater Insects CONUS genus traits",
-    join_col        = "genus",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_freshwater_insects_conus, cols = cols, verbose = verbose)
 }
+
+
+.door_freshwater_insects_conus <- list(
+  enrichment_name = "freshwater_insects_conus",
+  col_map = c(
+    fwinsect_thermal_pref = "thermal_pref",
+    fwinsect_feed_prim = "feed_prim_abbrev",
+    fwinsect_habit_prim = "habit_prim",
+    fwinsect_rheophily = "rheophily_abbrev",
+    fwinsect_voltinism = "voltinism_abbrev",
+    fwinsect_max_body_size = "max_body_size_abbrev"
+  ),
+  source_label = "Freshwater Insects CONUS genus traits",
+  join_col = "genus"
+)

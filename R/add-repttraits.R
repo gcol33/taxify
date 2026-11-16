@@ -59,22 +59,29 @@
 #'
 #' @export
 add_repttraits <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("elevation_min_m", "elevation_max_m", "mean_annual_temp_c",
-                "body_mass_g", "svl_mm", "total_length_mm", "longevity_yr",
-                "clutch_size")
-  chr_cols <- c("biogeographic_realm", "microhabitat", "habitat_type",
-                "insular_endemic", "diet", "reproductive_mode", "active_time",
-                "foraging_mode")
-  base_cols <- c(chr_cols, num_cols)
-
-  col_map  <- stats::setNames(base_cols, base_cols)
-
-  enrich_simple(
-    x,
-    enrichment_name = "repttraits",
-    col_map         = col_map,
-    source_label    = "ReptTraits (Oskyrko et al. 2024)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_repttraits, cols = cols, verbose = verbose)
 }
+
+
+.door_repttraits <- list(
+  enrichment_name = "repttraits",
+  col_map = c(
+    biogeographic_realm = "biogeographic_realm",
+    microhabitat = "microhabitat",
+    habitat_type = "habitat_type",
+    insular_endemic = "insular_endemic",
+    diet = "diet",
+    reproductive_mode = "reproductive_mode",
+    active_time = "active_time",
+    foraging_mode = "foraging_mode",
+    elevation_min_m = "elevation_min_m",
+    elevation_max_m = "elevation_max_m",
+    mean_annual_temp_c = "mean_annual_temp_c",
+    body_mass_g = "body_mass_g",
+    svl_mm = "svl_mm",
+    total_length_mm = "total_length_mm",
+    longevity_yr = "longevity_yr",
+    clutch_size = "clutch_size"
+  ),
+  source_label = "ReptTraits (Oskyrko et al. 2024)"
+)

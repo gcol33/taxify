@@ -29,9 +29,9 @@ add_finand(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `finand_` columns: numeric `body_length_mm`;
-categorical `wing_morph`, `feeding_type`, `habitat_pref`,
-`moisture_pref`.
+The same data.frame with `finand_` columns: numeric
+`finand_body_length_mm`; categorical `finand_wing_morph`,
+`finand_feeding_type`, `finand_habitat_pref`, `finand_moisture_pref`.
 
 ## Details
 

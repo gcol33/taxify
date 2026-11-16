@@ -34,23 +34,23 @@ add_monograph_collembola_body_length(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- monograph_body_length_mm:
+- monograph_collembola_body_length_monograph_body_length_mm:
 
   Body length (mm), median of the per-monograph medians.
 
-- monograph_body_length_min_mm:
+- monograph_collembola_body_length_monograph_body_length_min_mm:
 
   Smallest measurement (mm).
 
-- monograph_body_length_max_mm:
+- monograph_collembola_body_length_monograph_body_length_max_mm:
 
   Largest measurement (mm).
 
-- monograph_body_length_n:
+- monograph_collembola_body_length_monograph_body_length_n:
 
   Number of measurements aggregated.
 
-- monograph_body_length_sources:
+- monograph_collembola_body_length_monograph_body_length_sources:
 
   Number of monographs contributing.
 

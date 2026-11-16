@@ -48,24 +48,23 @@
 #'
 #' @export
 add_fungal_traits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    primary_lifestyle                  = "primary_lifestyle",
-    secondary_lifestyle                = "secondary_lifestyle",
-    growth_form                        = "growth_form",
-    fruitbody_type                     = "fruitbody_type",
-    decay_substrate                    = "decay_substrate",
-    plant_pathogenic_capacity          = "plant_pathogenic_capacity",
-    animal_biotrophic_capacity         = "animal_biotrophic_capacity",
-    endophytic_interaction_capability  = "endophytic_interaction_capability",
-    ectomycorrhiza_exploration_type    = "ectomycorrhiza_exploration_type"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "fungal_traits",
-    col_map         = col_map,
-    source_label    = "FungalTraits",
-    join_col        = "genus",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_fungal_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_fungal_traits <- list(
+  enrichment_name = "fungal_traits",
+  col_map = c(
+    primary_lifestyle = "primary_lifestyle",
+    secondary_lifestyle = "secondary_lifestyle",
+    growth_form = "growth_form",
+    fruitbody_type = "fruitbody_type",
+    decay_substrate = "decay_substrate",
+    plant_pathogenic_capacity = "plant_pathogenic_capacity",
+    animal_biotrophic_capacity = "animal_biotrophic_capacity",
+    endophytic_interaction_capability = "endophytic_interaction_capability",
+    ectomycorrhiza_exploration_type = "ectomycorrhiza_exploration_type"
+  ),
+  source_label = "FungalTraits",
+  join_col = "genus"
+)

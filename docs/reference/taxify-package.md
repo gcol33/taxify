@@ -2,8 +2,9 @@
 
 taxify matches taxonomic names to their accepted names against local
 copies of published backbones, such as the Catalogue of Life, World
-Flora Online and WoRMS. It performs the name-resolution step of 'taxize'
-and 'WorldFlora', run offline against local backbone files. Each
+Flora Online and WoRMS. There are already R packages for name matching,
+such as 'taxize' and 'WorldFlora'. taxify works offline, against
+backbone files on disk, and searches 19 backbones in one call. Each
 backbone is downloaded once and recorded by version on every result row.
 
 ## Functions by task
@@ -35,7 +36,6 @@ backbone is downloaded once and recorded by version on every result row.
 - Exploring the backbone:
 
   [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
-  [`children()`](https://gillescolling.com/taxify/reference/children.md),
   [`downstream()`](https://gillescolling.com/taxify/reference/downstream.md),
   [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md),
   [`add_classification()`](https://gillescolling.com/taxify/reference/add_classification.md),

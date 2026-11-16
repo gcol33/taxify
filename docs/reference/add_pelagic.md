@@ -29,11 +29,12 @@ add_pelagic(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `pelagic_` columns: numeric `depth_min_m`,
-`depth_max_m`, `temp_min_c`, `temp_max_c`, `temp_mean_c`,
-`length_min_tl_cm`, `length_max_tl_cm`, `trophic_level`; categorical
-`vert_habitat`, `horz_habitat`, `body_shape`, `phys_defense`,
-`gregarious`.
+The same data.frame with `pelagic_` columns: numeric
+`pelagic_depth_min_m`, `pelagic_depth_max_m`, `pelagic_temp_min_c`,
+`pelagic_temp_max_c`, `pelagic_temp_mean_c`, `pelagic_length_min_tl_cm`,
+`pelagic_length_max_tl_cm`, `pelagic_trophic_level`; categorical
+`pelagic_vert_habitat`, `pelagic_horz_habitat`, `pelagic_body_shape`,
+`pelagic_phys_defense`, `pelagic_gregarious`.
 
 ## Details
 

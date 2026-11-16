@@ -4,8 +4,6 @@ Returns every accepted taxon at `downto` rank that sits beneath `taxon`,
 for example every species in an order or family. The parent's rank is
 detected from the backbone, then descendants are read from the
 denormalized classification the backbone stores.
-[`children()`](https://gillescolling.com/taxify/reference/children.md)
-is the same query for a genus or family parent.
 
 ## Usage
 
@@ -63,12 +61,17 @@ no descendants at `downto`.
 
 ## See also
 
-[`children()`](https://gillescolling.com/taxify/reference/children.md)
-for a genus or family parent,
 [`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
 for the ancestors,
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md),
 [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md).
+
+Other Explore the backbone:
+[`class2tree()`](https://gillescolling.com/taxify/reference/class2tree.md),
+[`lowest_common()`](https://gillescolling.com/taxify/reference/lowest_common.md),
+[`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md),
+[`taxify_ids()`](https://gillescolling.com/taxify/reference/taxify_ids.md),
+[`upstream()`](https://gillescolling.com/taxify/reference/upstream.md)
 
 ## Examples
 
@@ -78,6 +81,10 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 # Every species the backbone places in the genus
 downstream("Quercus", backbone = "col")
+#>            name authorship    rank kingdom_group   family   genus   taxon_id
+#> 1 Quercus robur         L. SPECIES       plantae Fagaceae Quercus col-ex-001
+#>    parent parent_rank backbone
+#> 1 Quercus       genus      col
 
 options(old)
 ```

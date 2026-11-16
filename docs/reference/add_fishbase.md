@@ -31,50 +31,50 @@ add_fishbase(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- fb_body_length_cm:
+- fishbase_fb_body_length_cm:
 
   Maximum body length in centimetres.
 
-- fb_body_mass_g:
+- fishbase_fb_body_mass_g:
 
   Maximum published weight in grams (FishBase `SPECIES.Weight`). This is
   a record maximum, not a typical or adult-mean mass.
 
-- fb_trophic_level:
+- fishbase_fb_trophic_level:
 
   Trophic level.
 
-- fb_depth_min_m:
+- fishbase_fb_depth_min_m:
 
   Minimum depth in metres.
 
-- fb_depth_max_m:
+- fishbase_fb_depth_max_m:
 
   Maximum depth in metres.
 
-- fb_vulnerability:
+- fishbase_fb_vulnerability:
 
   Vulnerability index (0–100).
 
-- fb_habitat:
+- fishbase_fb_habitat:
 
   Habitat type (e.g. demersal, pelagic).
 
-- fb_importance:
+- fishbase_fb_importance:
 
   Commercial importance category.
 
-- fb_lw_a:
+- fishbase_fb_lw_a:
 
   Coefficient `a` of the length-weight relationship `W = a * L^b`
   (weight in g, length in cm of type `fb_lw_type`), from FishBase's
   POPLW table.
 
-- fb_lw_b:
+- fishbase_fb_lw_b:
 
   Exponent `b` of the length-weight relationship.
 
-- fb_lw_type:
+- fishbase_fb_lw_type:
 
   Length convention the coefficients were fitted against (`TL` total,
   `SL` standard, `FL` fork, `WD` width, ...). Chosen to match the
@@ -82,20 +82,20 @@ The same data.frame with additional columns:
   `fb_body_length_cm`. Applying a coefficient to a different length type
   is a silent error.
 
-- fb_lw_method:
+- fishbase_fb_lw_method:
 
   How the fit was obtained (e.g. "type I linear regression", "single L-W
   pair with b=3").
 
-- fb_lw_sex:
+- fishbase_fb_lw_sex:
 
   Sex the fit applies to (unsexed, mixed, female, male, juvenile).
 
-- fb_lw_n:
+- fishbase_fb_lw_n:
 
   Sample size the fit was based on.
 
-- fb_lw_r2:
+- fishbase_fb_lw_r2:
 
   Coefficient of determination (`r^2`) of the fit.
 
@@ -126,6 +126,28 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Gadus morhua", backbone = "gbif") |>
   add_fishbase()
+#> Matching 1 names...
+#>     input_name matched_name accepted_name    taxon_id accepted_id    rank
+#> 1 Gadus morhua Gadus morhua  Gadus morhua gbif-ex-010 gbif-ex-010 species
+#>    family genus epithet     authorship accepted_authorship is_synonym
+#> 1 Gadidae Gadus  morhua Linnaeus, 1758      Linnaeus, 1758      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 gbif:example (2026-06-24)      animalia      animal    animal      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type fishbase_fb_body_length_cm
+#> 1               <NA>                 NA        <NA>                         11
+#>   fishbase_fb_body_mass_g fishbase_fb_trophic_level fishbase_fb_depth_min_m
+#> 1                      11                        11                      11
+#>   fishbase_fb_depth_max_m fishbase_fb_vulnerability fishbase_fb_habitat
+#> 1                      11                        11     example_habitat
+#>   fishbase_fb_importance fishbase_fb_lw_a fishbase_fb_lw_b fishbase_fb_lw_type
+#> 1     example_importance           0.0065           3.0982                  TL
+#>      fishbase_fb_lw_method fishbase_fb_lw_sex fishbase_fb_lw_n
+#> 1 type I linear regression            unsexed            16665
+#>   fishbase_fb_lw_r2
+#> 1            0.9929
+#> Sources: GBIF example, FishBase example | cite() for full citations
 
 options(old)
 ```

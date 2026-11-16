@@ -25,17 +25,20 @@
 #'
 #' @export
 add_frugivoria <- function(x, cols = NULL, verbose = TRUE) {
-  num_cols <- c("diet_breadth", "body_mass_g", "body_size_mm", "longevity",
-                "generation_time")
-  cat_cols <- c("taxon_group", "diet_category")
-  all_cols <- c(num_cols, cat_cols)
-  col_map <- stats::setNames(all_cols, paste0("frugivoria_", all_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "frugivoria",
-    col_map         = col_map,
-    source_label    = "Frugivoria",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_frugivoria, cols = cols, verbose = verbose)
 }
+
+
+.door_frugivoria <- list(
+  enrichment_name = "frugivoria",
+  col_map = c(
+    frugivoria_diet_breadth = "diet_breadth",
+    frugivoria_body_mass_g = "body_mass_g",
+    frugivoria_body_size_mm = "body_size_mm",
+    frugivoria_longevity = "longevity",
+    frugivoria_generation_time = "generation_time",
+    frugivoria_taxon_group = "taxon_group",
+    frugivoria_diet_category = "diet_category"
+  ),
+  source_label = "Frugivoria"
+)

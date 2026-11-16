@@ -33,44 +33,44 @@ add_fishmorph(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- fish_max_body_length:
+- fishmorph_fish_max_body_length:
 
   Maximum body length (cm).
 
-- fish_body_elongation:
+- fishmorph_fish_body_elongation:
 
   Body elongation (body length / body depth).
 
-- fish_vertical_eye_position:
+- fishmorph_fish_vertical_eye_position:
 
   Vertical eye position (eye position / head depth).
 
-- fish_relative_eye_size:
+- fishmorph_fish_relative_eye_size:
 
   Relative eye size (eye diameter / head length).
 
-- fish_oral_gape_position:
+- fishmorph_fish_oral_gape_position:
 
   Oral gape position (mouth position: 0 = inferior, 0.5 = terminal, 1 =
   superior).
 
-- fish_relative_maxillary_length:
+- fishmorph_fish_relative_maxillary_length:
 
   Relative maxillary length (maxillary length / head length).
 
-- fish_body_lateral_shape:
+- fishmorph_fish_body_lateral_shape:
 
   Body lateral shape (body depth / caudal peduncle depth).
 
-- fish_pectoral_fin_position:
+- fishmorph_fish_pectoral_fin_position:
 
   Pectoral fin vertical position (fin insertion depth / body depth).
 
-- fish_pectoral_fin_size:
+- fishmorph_fish_pectoral_fin_size:
 
   Pectoral fin size (fin length / body length).
 
-- fish_caudal_peduncle_throttling:
+- fishmorph_fish_caudal_peduncle_throttling:
 
   Caudal peduncle throttling (caudal peduncle depth / caudal fin depth).
 
@@ -94,6 +94,28 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Salmo trutta", backbone = "gbif") |>
   add_fishmorph()
+#> Matching 1 names...
+#>     input_name matched_name accepted_name    taxon_id accepted_id    rank
+#> 1 Salmo trutta Salmo trutta  Salmo trutta gbif-ex-009 gbif-ex-009 species
+#>       family genus epithet     authorship accepted_authorship is_synonym
+#> 1 Salmonidae Salmo  trutta Linnaeus, 1758      Linnaeus, 1758      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 gbif:example (2026-06-24)      animalia      animal    animal      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type
+#> 1               <NA>                 NA        <NA>
+#>   fishmorph_fish_max_body_length fishmorph_fish_body_elongation
+#> 1        example_max_body_length        example_body_elongation
+#>   fishmorph_fish_vertical_eye_position fishmorph_fish_relative_eye_size
+#> 1        example_vertical_eye_position        example_relative_eye_size
+#>   fishmorph_fish_oral_gape_position fishmorph_fish_relative_maxillary_length
+#> 1        example_oral_gape_position        example_relative_maxillary_length
+#>   fishmorph_fish_body_lateral_shape fishmorph_fish_pectoral_fin_position
+#> 1        example_body_lateral_shape        example_pectoral_fin_position
+#>   fishmorph_fish_pectoral_fin_size fishmorph_fish_caudal_peduncle_throttling
+#> 1        example_pectoral_fin_size        example_caudal_peduncle_throttling
+#> Sources: GBIF example, FISHMORPH example | cite() for full citations
 
 options(old)
 ```

@@ -33,69 +33,69 @@ add_repttraits(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- biogeographic_realm:
+- repttraits_biogeographic_realm:
 
   Main biogeographic realm (e.g. Neotropic, Palearctic, Afrotropic,
   Australo-Pacific, Marine).
 
-- microhabitat:
+- repttraits_microhabitat:
 
   Microhabitat (e.g. Terrestrial, Saxicolous, Arboreal).
 
-- habitat_type:
+- repttraits_habitat_type:
 
   Habitat type(s) (e.g. Forest, Desert, Wetlands).
 
-- elevation_min_m:
+- repttraits_elevation_min_m:
 
   Minimum recorded elevation in metres.
 
-- elevation_max_m:
+- repttraits_elevation_max_m:
 
   Maximum recorded elevation in metres.
 
-- mean_annual_temp_c:
+- repttraits_mean_annual_temp_c:
 
   Mean annual temperature across the range (degrees Celsius).
 
-- insular_endemic:
+- repttraits_insular_endemic:
 
   Whether the species is insular/endemic (`"Yes"`/`"No"`).
 
-- body_mass_g:
+- repttraits_body_mass_g:
 
   Maximum body mass in grams.
 
-- svl_mm:
+- repttraits_svl_mm:
 
   Maximum snout-vent length (straight carapace length for turtles) in
   mm.
 
-- total_length_mm:
+- repttraits_total_length_mm:
 
   Maximum total length in mm.
 
-- longevity_yr:
+- repttraits_longevity_yr:
 
   Maximum longevity in years.
 
-- diet:
+- repttraits_diet:
 
   Diet category (e.g. Carnivorous, Herbivorous, Omnivorous).
 
-- reproductive_mode:
+- repttraits_reproductive_mode:
 
   Reproductive mode (oviparous/viviparous/...).
 
-- clutch_size:
+- repttraits_clutch_size:
 
   Mean clutch or litter size.
 
-- active_time:
+- repttraits_active_time:
 
   Activity time (Diurnal/Nocturnal/Cathemeral).
 
-- foraging_mode:
+- repttraits_foraging_mode:
 
   Foraging mode (ACT active / AMB ambush / Mixed).
 
@@ -126,6 +126,30 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Pogona vitticeps", backbone = "reptiledb") |>
   add_repttraits()
+#> Matching 1 names...
+#>         input_name     matched_name    accepted_name         taxon_id
+#> 1 Pogona vitticeps Pogona vitticeps Pogona vitticeps reptiledb-ex-001
+#>        accepted_id    rank   family  genus   epithet authorship
+#> 1 reptiledb-ex-001 species Agamidae Pogona vitticeps       <NA>
+#>   accepted_authorship is_synonym taxonomic_status is_hybrid match_type
+#> 1                <NA>      FALSE         ACCEPTED     FALSE      exact
+#>   fuzzy_dist  backbone               backbone_version kingdom_group taxon_group
+#> 1         NA reptiledb reptiledb:example (2026-06-24)      animalia      animal
+#>   life_form qualifier qualifier_position aggregate_fallback hybrid_type
+#> 1    animal      <NA>               <NA>                 NA        <NA>
+#>   repttraits_biogeographic_realm repttraits_microhabitat
+#> 1    example_biogeographic_realm    example_microhabitat
+#>   repttraits_habitat_type repttraits_insular_endemic repttraits_diet
+#> 1    example_habitat_type    example_insular_endemic    example_diet
+#>   repttraits_reproductive_mode repttraits_active_time repttraits_foraging_mode
+#> 1    example_reproductive_mode    example_active_time    example_foraging_mode
+#>   repttraits_elevation_min_m repttraits_elevation_max_m
+#> 1                         11                         11
+#>   repttraits_mean_annual_temp_c repttraits_body_mass_g repttraits_svl_mm
+#> 1                            11                     11                11
+#>   repttraits_total_length_mm repttraits_longevity_yr repttraits_clutch_size
+#> 1                         11                      11                     11
+#> Sources: REPTILEDB example, ReptTraits (Oskyrko et al. 2024) example | cite() for full citations
 
 options(old)
 ```

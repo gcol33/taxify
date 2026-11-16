@@ -38,17 +38,17 @@
 #'
 #' @export
 add_italic <- function(x, cols = NULL, verbose = TRUE) {
-  enrich_simple(
-    x,
-    enrichment_name = "italic",
-    col_map = c(
-      growth_form           = "growth_form",
-      substrata             = "substrata",
-      photobiont            = "photobiont",
-      reproductive_strategy = "reproductive_strategy"
-    ),
-    source_label = "ITALIC 8.0 (Italian lichens)",
-    cols         = cols,
-    verbose      = verbose
-  )
+  enrich_door(x, .door_italic, cols = cols, verbose = verbose)
 }
+
+
+.door_italic <- list(
+  enrichment_name = "italic",
+  col_map = c(
+    growth_form = "growth_form",
+    substrata = "substrata",
+    photobiont = "photobiont",
+    reproductive_strategy = "reproductive_strategy"
+  ),
+  source_label = "ITALIC 8.0 (Italian lichens)"
+)

@@ -40,7 +40,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,12 +51,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -139,13 +140,13 @@ data</a>.</p>
 <p>A backbone is downloaded once, on first use, and read from disk after
 that. <code>Names</code> counts accepted names and synonyms
 together.</p>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
 <col width="8%">
-<col width="33%">
-<col width="21%">
+<col width="34%">
+<col width="22%">
 <col width="6%">
-<col width="3%">
+<col width="2%">
 <col width="4%">
 <col width="6%">
 <col width="15%">
@@ -166,7 +167,7 @@ together.</p>
 <td align="left">World Flora Online</td>
 <td align="left">Vascular plants</td>
 <td align="right">1,664,014</td>
-<td align="right">785</td>
+<td align="right">120</td>
 <td align="left">2026.06</td>
 <td align="left"></td>
 <td align="left"><a href="https://doi.org/10.1002/tax.12373" class="external-link">Borsch et
@@ -177,7 +178,7 @@ al. 2020</a></td>
 <td align="left">Catalogue of Life</td>
 <td align="left">All kingdoms</td>
 <td align="right">5,432,444</td>
-<td align="right">1,997</td>
+<td align="right">573</td>
 <td align="left">2026.09</td>
 <td align="left"></td>
 <td align="left"><a href="https://doi.org/10.48580/d4t2" class="external-link">Banki et
@@ -188,7 +189,7 @@ al. 2024</a></td>
 <td align="left">Catalogue of Life Extended Release</td>
 <td align="left">All kingdoms</td>
 <td align="right">8,479,599</td>
-<td align="right">1,393</td>
+<td align="right">399</td>
 <td align="left">2026.09</td>
 <td align="left"></td>
 <td align="left"><a href="https://doi.org/10.48580/dgykv" class="external-link">Banki et
@@ -199,7 +200,7 @@ al. 2026</a></td>
 <td align="left">GBIF Backbone Taxonomy</td>
 <td align="left">All kingdoms</td>
 <td align="right">6,404,001</td>
-<td align="right">1,622</td>
+<td align="right">461</td>
 <td align="left">2023.08</td>
 <td align="left"></td>
 <td align="left"><a href="https://doi.org/10.15468/39omei" class="external-link">GBIF
@@ -210,7 +211,7 @@ Secretariat 2024</a></td>
 <td align="left">Integrated Taxonomic Information System</td>
 <td align="left">US focus, freshwater/marine</td>
 <td align="right">1,000,552</td>
-<td align="right">197</td>
+<td align="right">52</td>
 <td align="left">2026.09</td>
 <td align="left"></td>
 <td align="left"><a href="https://doi.org/10.5066/F7KH0KBK" class="external-link">ITIS
@@ -221,7 +222,7 @@ Secretariat 2024</a></td>
 <td align="left">NCBI Taxonomy</td>
 <td align="left">All life</td>
 <td align="right">2,952,424</td>
-<td align="right">524</td>
+<td align="right">110</td>
 <td align="left">2026.09</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -231,7 +232,7 @@ Secretariat 2024</a></td>
 <td align="left">Open Tree of Life Taxonomy</td>
 <td align="left">All life (synthetic)</td>
 <td align="right">3,690,217</td>
-<td align="right">728</td>
+<td align="right">166</td>
 <td align="left">2026.09</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -241,7 +242,7 @@ Secretariat 2024</a></td>
 <td align="left">World Register of Marine Species</td>
 <td align="left">Marine/aquatic</td>
 <td align="right">1,565,652</td>
-<td align="right">290</td>
+<td align="right">80</td>
 <td align="left">2026.09</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -251,7 +252,7 @@ Secretariat 2024</a></td>
 <td align="left">Euro+Med PlantBase</td>
 <td align="left">European/Mediterranean plants</td>
 <td align="right">146,922</td>
-<td align="right">33</td>
+<td align="right">11</td>
 <td align="left">2026.08</td>
 <td align="left"></td>
 <td align="left"><a href="https://europlusmed.org" class="external-link">Euro+Med
@@ -262,7 +263,7 @@ Secretariat 2024</a></td>
 <td align="left">Species Fungorum Plus</td>
 <td align="left">Fungi</td>
 <td align="right">315,037</td>
-<td align="right">68</td>
+<td align="right">18</td>
 <td align="left">2026.08</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -272,7 +273,7 @@ Secretariat 2024</a></td>
 <td align="left">AlgaeBase</td>
 <td align="left">Algae</td>
 <td align="right">172,351</td>
-<td align="right">34</td>
+<td align="right">9</td>
 <td align="left">2026.09</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -282,7 +283,7 @@ Secretariat 2024</a></td>
 <td align="left">FishBase</td>
 <td align="left">Fishes</td>
 <td align="right">102,703</td>
-<td align="right">18</td>
+<td align="right">5</td>
 <td align="left">2026.08</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -292,7 +293,7 @@ Secretariat 2024</a></td>
 <td align="left">SeaLifeBase</td>
 <td align="left">Non-fish marine/aquatic</td>
 <td align="right">134,031</td>
-<td align="right">27</td>
+<td align="right">7</td>
 <td align="left">2026.08</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -302,7 +303,7 @@ Secretariat 2024</a></td>
 <td align="left">Reptile Database</td>
 <td align="left">Reptiles</td>
 <td align="right">50,043</td>
-<td align="right">9</td>
+<td align="right">2</td>
 <td align="left">2026.07</td>
 <td align="left">CC BY 4.0</td>
 <td align="left"><a href="http://www.reptile-database.org" class="external-link">Uetz et
@@ -313,7 +314,7 @@ al. 2026</a></td>
 <td align="left">Leipzig Catalogue of Vascular Plants</td>
 <td align="left">Vascular plants</td>
 <td align="right">1,337,891</td>
-<td align="right">241</td>
+<td align="right">60</td>
 <td align="left">2026.08</td>
 <td align="left">MIT</td>
 <td align="left"><a href="https://doi.org/10.1038/s41597-020-00702-z" class="external-link">Freiberg et
@@ -324,7 +325,7 @@ al. 2020</a></td>
 <td align="left">World Checklist of Vascular Plants</td>
 <td align="left">Vascular plants</td>
 <td align="right">1,448,984</td>
-<td align="right">326</td>
+<td align="right">82</td>
 <td align="left">2026.06</td>
 <td align="left">CC BY 4.0</td>
 <td align="left"><a href="https://doi.org/10.1038/s41597-021-00997-6" class="external-link">Govaerts et
@@ -335,7 +336,7 @@ al. 2021</a></td>
 <td align="left">Mammal Diversity Database</td>
 <td align="left">Mammals</td>
 <td align="right">61,862</td>
-<td align="right">10</td>
+<td align="right">3</td>
 <td align="left">2026.08</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -345,7 +346,7 @@ al. 2021</a></td>
 <td align="left">AviList Global Avian Checklist</td>
 <td align="left">Birds</td>
 <td align="right">40,572</td>
-<td align="right">8</td>
+<td align="right">2</td>
 <td align="left">2026.08</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -356,7 +357,7 @@ al. 2021</a></td>
 Nomenclature</td>
 <td align="left">Prokaryotes (Bacteria/Archaea)</td>
 <td align="right">44,885</td>
-<td align="right">12</td>
+<td align="right">3</td>
 <td align="left">2026.08</td>
 <td align="left"></td>
 <td align="left"></td>
@@ -366,7 +367,7 @@ Nomenclature</td>
 <td align="left">EuroVegChecklist</td>
 <td align="left">European vegetation units (syntaxa)</td>
 <td align="right">7,542</td>
-<td align="right">2</td>
+<td align="right">1</td>
 <td align="left">4</td>
 <td align="left"></td>
 <td align="left"><a href="https://doi.org/10.1111/avsc.12257" class="external-link">Mucina et
@@ -377,7 +378,7 @@ al. 2016</a></td>
 <td align="left">Vegetation of the Czech Republic</td>
 <td align="left">Czech vegetation units (syntaxa)</td>
 <td align="right">2,258</td>
-<td align="right">1</td>
+<td align="right">0</td>
 <td align="left">2026.10</td>
 <td align="left"></td>
 <td align="left">Chytrý M (ed.) 2007-2013</td>

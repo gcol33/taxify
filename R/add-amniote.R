@@ -42,29 +42,28 @@
 #'
 #' @export
 add_amniote <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    amniote_class               = "taxon_class",
-    amniote_adult_body_mass_g   = "adult_body_mass_g",
-    amniote_no_sex_body_mass_g  = "no_sex_body_mass_g",
-    amniote_female_body_mass_g  = "female_body_mass_g",
-    amniote_male_body_mass_g    = "male_body_mass_g",
-    amniote_adult_svl_cm        = "adult_svl_cm",
-    amniote_maximum_longevity_y = "maximum_longevity_y",
-    amniote_litter_clutch_size  = "litter_clutch_size",
-    amniote_clutches_per_y      = "clutches_per_y",
-    amniote_egg_mass_g          = "egg_mass_g",
-    amniote_incubation_d        = "incubation_d",
-    amniote_female_maturity_d   = "female_maturity_d",
-    amniote_gestation_d         = "gestation_d",
-    amniote_weaning_d           = "weaning_d",
-    amniote_birth_hatching_wt_g = "birth_hatching_wt_g"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "amniote",
-    col_map         = col_map,
-    source_label    = "Amniote Life History Database",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_amniote, cols = cols, verbose = verbose)
 }
+
+
+.door_amniote <- list(
+  enrichment_name = "amniote",
+  col_map = c(
+    amniote_class = "taxon_class",
+    amniote_adult_body_mass_g = "adult_body_mass_g",
+    amniote_no_sex_body_mass_g = "no_sex_body_mass_g",
+    amniote_female_body_mass_g = "female_body_mass_g",
+    amniote_male_body_mass_g = "male_body_mass_g",
+    amniote_adult_svl_cm = "adult_svl_cm",
+    amniote_maximum_longevity_y = "maximum_longevity_y",
+    amniote_litter_clutch_size = "litter_clutch_size",
+    amniote_clutches_per_y = "clutches_per_y",
+    amniote_egg_mass_g = "egg_mass_g",
+    amniote_incubation_d = "incubation_d",
+    amniote_female_maturity_d = "female_maturity_d",
+    amniote_gestation_d = "gestation_d",
+    amniote_weaning_d = "weaning_d",
+    amniote_birth_hatching_wt_g = "birth_hatching_wt_g"
+  ),
+  source_label = "Amniote Life History Database"
+)

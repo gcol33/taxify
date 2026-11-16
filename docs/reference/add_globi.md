@@ -35,17 +35,17 @@ add_globi(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- interaction_degree:
+- globi_interaction_degree:
 
   Number of distinct partner taxa recorded interacting with the species
   (both directions).
 
-- n_interaction_types:
+- globi_n_interaction_types:
 
   Number of distinct interaction types (eats, pollinates, parasitises,
   ...).
 
-- n_interaction_records:
+- globi_n_interaction_records:
 
   Total number of interaction records touching the species.
 

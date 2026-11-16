@@ -30,3 +30,26 @@ basionym_placement(records, basionyms)
 
 Integer vector along `records`: the row of `basionyms` whose accepted
 taxon the record belongs to, or `NA`.
+
+## See also
+
+Other Low-level building blocks:
+[`candidate_order()`](https://gillescolling.com/taxify/reference/candidate_order.md),
+[`embed_accepted()`](https://gillescolling.com/taxify/reference/embed_accepted.md),
+[`enrichment_authorship_col()`](https://gillescolling.com/taxify/reference/enrichment_authorship_col.md),
+[`is_aggregate_name()`](https://gillescolling.com/taxify/reference/is_aggregate_name.md),
+[`normalize_aggregate_name()`](https://gillescolling.com/taxify/reference/normalize_aggregate_name.md),
+[`normalize_epithets()`](https://gillescolling.com/taxify/reference/normalize_epithets.md),
+[`precompute_keys()`](https://gillescolling.com/taxify/reference/precompute_keys.md),
+[`score_candidates()`](https://gillescolling.com/taxify/reference/score_candidates.md)
+
+## Examples
+
+``` r
+records <- data.frame(taxon_id = "2", taxonomic_status = "UNPLACED",
+                      original_name_usage_id = "1", is_synonym = FALSE)
+basionyms <- data.frame(taxon_id = "1", taxonomic_status = "ACCEPTED",
+                       accepted_taxon_id = "1", is_synonym = FALSE)
+basionym_placement(records, basionyms)
+#> [1] 1
+```

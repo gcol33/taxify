@@ -50,26 +50,25 @@
 #'
 #' @export
 add_phylacine <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    phylacine_mass_g                 = "mass_g",
-    phylacine_diet_plant_pct         = "diet_plant_pct",
-    phylacine_diet_vertebrate_pct    = "diet_vertebrate_pct",
-    phylacine_diet_invertebrate_pct  = "diet_invertebrate_pct",
-    phylacine_terrestrial            = "terrestrial",
-    phylacine_marine                 = "marine",
-    phylacine_freshwater             = "freshwater",
-    phylacine_aerial                 = "aerial",
-    phylacine_island_endemicity      = "island_endemicity",
-    phylacine_iucn_status            = "iucn_status",
-    phylacine_mass_method            = "mass_method",
-    phylacine_mass_method_class      = "mass_method_class"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "phylacine",
-    col_map         = col_map,
-    source_label    = "PHYLACINE",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_phylacine, cols = cols, verbose = verbose)
 }
+
+
+.door_phylacine <- list(
+  enrichment_name = "phylacine",
+  col_map = c(
+    phylacine_mass_g = "mass_g",
+    phylacine_diet_plant_pct = "diet_plant_pct",
+    phylacine_diet_vertebrate_pct = "diet_vertebrate_pct",
+    phylacine_diet_invertebrate_pct = "diet_invertebrate_pct",
+    phylacine_terrestrial = "terrestrial",
+    phylacine_marine = "marine",
+    phylacine_freshwater = "freshwater",
+    phylacine_aerial = "aerial",
+    phylacine_island_endemicity = "island_endemicity",
+    phylacine_iucn_status = "iucn_status",
+    phylacine_mass_method = "mass_method",
+    phylacine_mass_method_class = "mass_method_class"
+  ),
+  source_label = "PHYLACINE"
+)

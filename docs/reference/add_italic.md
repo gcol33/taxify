@@ -33,19 +33,19 @@ add_italic(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- growth_form:
+- italic_growth_form:
 
   Thallus growth form (crustose, foliose, fruticose, ...).
 
-- substrata:
+- italic_substrata:
 
   Substrata the species grows on.
 
-- photobiont:
+- italic_photobiont:
 
   Photosynthetic partner.
 
-- reproductive_strategy:
+- italic_reproductive_strategy:
 
   Reproductive strategy.
 

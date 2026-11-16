@@ -29,7 +29,10 @@ A data.frame with columns: `type` (`"backbone"` or `"enrichment"`),
 `name`, `scope` (taxonomic scope for backbones; provided trait columns
 for enrichments), `n_rows`, `version`, `source_date` (the date of the
 upstream data, where recorded, which can be much earlier than the
-release `version` that packaged it), `installed`, `source`.
+release `version` that packaged it), `installed`, `source`. `installed`
+is logical for backbone rows and `NA` for enrichment rows. Use
+[`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
+to inspect locally installed enrichments.
 
 ## See also
 
@@ -40,7 +43,22 @@ release `version` that packaged it), `installed`, `source`.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-taxify_databases()
-} # }
+old <- options(taxify.data_dir = taxify_example_data(),
+               taxify.offline = TRUE)
+head(taxify_databases(verbose = FALSE))
+#>       type  name                       scope  n_rows version source_date
+#> 1 backbone   wfo             Vascular plants 1664014 2026.06  2026-06-21
+#> 2 backbone   col                All kingdoms 5432444 2026.09  2026-09-11
+#> 3 backbone colxr                All kingdoms 8479599 2026.09  2026-09-25
+#> 4 backbone  gbif                All kingdoms 6404001 2023.08  2023-08-28
+#> 5 backbone  itis US focus, freshwater/marine 1000552 2026.09  2026-08-27
+#> 6 backbone  ncbi                    All life 2952424 2026.09     2026-09
+#>   installed                                source
+#> 1      TRUE     https://www.worldfloraonline.org/
+#> 2      TRUE      https://www.catalogueoflife.org/
+#> 3     FALSE      https://www.catalogueoflife.org/
+#> 4      TRUE                 https://www.gbif.org/
+#> 5     FALSE                  https://www.itis.gov
+#> 6     FALSE https://www.ncbi.nlm.nih.gov/taxonomy
+options(old)
 ```

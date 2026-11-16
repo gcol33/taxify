@@ -24,14 +24,15 @@
 #'
 #' @export
 add_homerange <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(homerange_home_range_km2 = "home_range_km2",
-               homerange_body_mass_kg   = "body_mass_kg")
-  enrich_simple(
-    x,
-    enrichment_name = "homerange",
-    col_map         = col_map,
-    source_label    = "HomeRange",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_homerange, cols = cols, verbose = verbose)
 }
+
+
+.door_homerange <- list(
+  enrichment_name = "homerange",
+  col_map = c(
+    homerange_home_range_km2 = "home_range_km2",
+    homerange_body_mass_kg = "body_mass_kg"
+  ),
+  source_label = "HomeRange"
+)

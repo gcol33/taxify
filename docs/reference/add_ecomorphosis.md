@@ -33,9 +33,9 @@ add_ecomorphosis(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- ecomorphosis:
+- ecomorphosis_ecomorphosis:
 
-  Whether the species is known to display ecomorphosis.
+  Whether the species is known to display ecomorphosis_ecomorphosis.
 
 - ecomorphosis_area:
 

@@ -31,10 +31,12 @@ add_quimbayo(x, cols = NULL, verbose = TRUE)
 ## Value
 
 The same data.frame with `quimbayo_` columns: numeric
-`body_size_max_cm`, `aspect_ratio`, `trophic_level`, `depth_min_m`,
-`depth_max_m`, `temp_occurrence_mean_c`; categorical `home_range`,
-`diel_activity`, `water_level`, `body_shape`, `mouth_position`, `diet`,
-`spawning`, `size_group`.
+`quimbayo_body_size_max_cm`, `quimbayo_aspect_ratio`,
+`quimbayo_trophic_level`, `quimbayo_depth_min_m`,
+`quimbayo_depth_max_m`, `quimbayo_temp_occurrence_mean_c`; categorical
+`quimbayo_home_range`, `quimbayo_diel_activity`, `quimbayo_water_level`,
+`quimbayo_body_shape`, `quimbayo_mouth_position`, `quimbayo_diet`,
+`quimbayo_spawning`, `quimbayo_size_group`.
 
 ## Details
 

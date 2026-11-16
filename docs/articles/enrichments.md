@@ -9,8 +9,7 @@ ends with how the values are joined, where each one came from and how to
 cite them. Installation is covered in [Get
 started](https://gillescolling.com/taxify/articles/taxify.md). The
 source, size and licence of every dataset are listed in [The backbones
-and
-datasets](https://gillescolling.com/taxify/articles/articles/databases.md).
+and datasets](https://gillescolling.com/taxify/articles/databases.html).
 
 1.  **Find** a dataset with
     [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md),
@@ -81,29 +80,32 @@ adds the woodiness of each species:
 ``` r
 
 wood <- add_zanne(res)
-wood[, c("input_name", "woodiness")]
-#>              input_name  woodiness
-#> 1         Quercus robur      woody
-#> 2       Fagus sylvatica      woody
-#> 3            Abies alba      woody
-#> 4 Arrhenatherum elatius herbaceous
-#> 5   Plantago lanceolata herbaceous
+#> add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").
+wood[, c("input_name", "zanne_woodiness")]
+#>              input_name zanne_woodiness
+#> 1         Quercus robur           woody
+#> 2       Fagus sylvatica           woody
+#> 3            Abies alba           woody
+#> 4 Arrhenatherum elatius      herbaceous
+#> 5   Plantago lanceolata      herbaceous
 #> Sources: COL 2026.09, Zanne et al. 2014 2026.08 | cite() for full citations
 ```
 
 [`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md)
-lists all of a dataset’s columns, and `cols` chooses: a vector of names,
-or `"all"`:
+lists source columns alongside their attached output names. Attached
+names start with the source key and `_`; common names use `common_`. The
+`cols` selector accepts the source name, the output name with or without
+its prefix, or `"all"`:
 
 ``` r
 
 enrichment_cols("zanne")
-#>            column      type
-#> 1       woodiness character
-#> 2 woodiness_count   numeric
+#>            column                output      type
+#> 1       woodiness       zanne_woodiness character
+#> 2 woodiness_count zanne_woodiness_count   numeric
 wood_all <- add_zanne(res, cols = "all")
 setdiff(names(wood_all), names(res))
-#> [1] "woodiness"       "woodiness_count"
+#> [1] "zanne_woodiness"       "zanne_woodiness_count"
 ```
 
 The functions return the result with the new columns on the right, so
@@ -112,13 +114,14 @@ they can be chained:
 ``` r
 
 both <- res |> add_zanne() |> add_eive()
-both[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
-#>           accepted_name  woodiness eive_light eive_moisture
-#> 1         Quercus robur      woody   6.241077      4.802554
-#> 2       Fagus sylvatica      woody   3.003906      4.570789
-#> 3            Abies alba      woody   3.041214      5.183157
-#> 4 Arrhenatherum elatius herbaceous   7.647964      4.343963
-#> 5   Plantago lanceolata herbaceous   6.668470      4.094346
+#> add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").
+both[, c("accepted_name", "zanne_woodiness", "eive_light", "eive_moisture")]
+#>           accepted_name zanne_woodiness eive_light eive_moisture
+#> 1         Quercus robur           woody   6.241077      4.802554
+#> 2       Fagus sylvatica           woody   3.003906      4.570789
+#> 3            Abies alba           woody   3.041214      5.183157
+#> 4 Arrhenatherum elatius      herbaceous   7.647964      4.343963
+#> 5   Plantago lanceolata      herbaceous   6.668470      4.094346
 #> Sources: COL 2026.09, Zanne et al. 2014 2026.08, EIVE 1.0 2026.08 | cite() for full citations
 ```
 
@@ -129,7 +132,8 @@ function takes the place or language as an argument.
 [`add_griis()`](https://gillescolling.com/taxify/reference/add_griis.md)
 reads the Global Register of Introduced and Invasive Species (GRIIS) for
 countries given as two-letter ISO codes. One code gives one column,
-`invasive_status`; several give a column each, with the code as suffix:
+`griis_invasive_status`; several give a column each, with the code as
+suffix:
 
 ``` r
 
@@ -139,20 +143,21 @@ aliens <- c(
 )
 al <- taxify(aliens, backbone = "col", verbose = FALSE)
 gr <- add_griis(al, country = c("AT", "DE", "GB"))
-gr[, c("input_name", "invasive_status_AT", "invasive_status_DE",
-       "invasive_status_GB")]
-#>               input_name invasive_status_AT invasive_status_DE
-#> 1   Robinia pseudoacacia           invasive           invasive
-#> 2    Ailanthus altissima           invasive           invasive
-#> 3 Impatiens glandulifera           invasive         introduced
-#> 4    Reynoutria japonica           invasive         introduced
-#> 5          Quercus robur               <NA>               <NA>
-#>   invasive_status_GB
-#> 1           invasive
-#> 2           invasive
-#> 3           invasive
-#> 4           invasive
-#> 5               <NA>
+#> Tip: pipe into taxify_long() to reshape wide columns to long format.
+gr[, c("input_name", "griis_invasive_status_AT", "griis_invasive_status_DE",
+       "griis_invasive_status_GB")]
+#>               input_name griis_invasive_status_AT griis_invasive_status_DE
+#> 1   Robinia pseudoacacia                 invasive                 invasive
+#> 2    Ailanthus altissima                 invasive                 invasive
+#> 3 Impatiens glandulifera                 invasive               introduced
+#> 4    Reynoutria japonica                 invasive               introduced
+#> 5          Quercus robur                     <NA>                     <NA>
+#>   griis_invasive_status_GB
+#> 1                 invasive
+#> 2                 invasive
+#> 3                 invasive
+#> 4                 invasive
+#> 5                     <NA>
 #> Sources: COL 2026.09, GRIIS 2026.08 | cite() for full citations
 ```
 
@@ -168,14 +173,14 @@ turns the suffixed columns into rows, one per species and country:
 ``` r
 
 long <- taxify_long(gr)
-head(long[, c("input_name", "country_code", "invasive_status")])
-#>               input_name country_code invasive_status
-#> 1   Robinia pseudoacacia           AT        invasive
-#> 2    Ailanthus altissima           AT        invasive
-#> 3 Impatiens glandulifera           AT        invasive
-#> 4    Reynoutria japonica           AT        invasive
-#> 5          Quercus robur           AT            <NA>
-#> 6   Robinia pseudoacacia           DE        invasive
+head(long[, c("input_name", "country_code", "griis_invasive_status")])
+#>               input_name country_code griis_invasive_status
+#> 1   Robinia pseudoacacia           AT              invasive
+#> 2    Ailanthus altissima           AT              invasive
+#> 3 Impatiens glandulifera           AT              invasive
+#> 4    Reynoutria japonica           AT              invasive
+#> 5          Quercus robur           AT                  <NA>
+#> 6   Robinia pseudoacacia           DE              invasive
 #> Sources: COL 2026.09, GRIIS 2026.08 | cite() for full citations
 ```
 
@@ -192,11 +197,8 @@ trees <- c("Quercus robur", "Nothofagus pumilio", "Sequoiadendron giganteum")
 tr <- taxify(trees, backbone = "col", verbose = FALSE)
 wc <- add_wcvp(tr, region = c("GER", "AGS"))
 wc[, c("input_name", "native_status_GER", "native_status_AGS")]
-#>                 input_name native_status_GER native_status_AGS
-#> 1            Quercus robur            native              <NA>
-#> 2       Nothofagus pumilio              <NA>            native
-#> 3 Sequoiadendron giganteum        introduced              <NA>
-#> Sources: COL 2026.09, WCVP (Kew) 2026.08 | cite() for full citations
+#> Error in `[.data.frame`:
+#> ! undefined columns selected
 ```
 
 *Nothofagus pumilio* is native to southern Argentina (`AGS`). The giant
@@ -319,6 +321,54 @@ to some of them, and `priority` sets their order. `combine` sets how
 they are combined: the median, the mean, the first or the most complete
 source, a vote, the smallest or the largest value.
 
+For a project that uses only the seed-mass measurements from LEDA and
+the data of Díaz et al., select those sources by the names in
+[`trait_info()`](https://gillescolling.com/taxify/reference/trait_info.md).
+The wide result shows their values in the same unit:
+
+``` r
+
+selected <- add_trait(res, "seed_mass",
+                      sources = c("leda", "diaz"),
+                      mode = "wide", verbose = FALSE)
+selected[, c("accepted_name", "seed_mass_leda", "seed_mass_diaz")]
+```
+
+| Name                  | LEDA (mg) | Díaz (mg) |
+|:----------------------|----------:|----------:|
+| Quercus robur         |  3413.000 |  3048.021 |
+| Fagus sylvatica       |   158.000 |   186.985 |
+| Abies alba            |    79.200 |    62.007 |
+| Arrhenatherum elatius |     2.774 |     2.738 |
+| Plantago lanceolata   |     1.809 |     1.363 |
+
+To use LEDA wherever it supplies a value and Díaz et al. for the
+remaining rows, choose `combine = "first"` and set the priority
+explicitly. The source column records which dataset supplied each value:
+
+``` r
+
+preferred <- add_trait(res, "seed_mass",
+                       sources = c("leda", "diaz"),
+                       combine = "first",
+                       priority = c("leda", "diaz"),
+                       verbose = FALSE)
+preferred[, c("accepted_name", "seed_mass", "seed_mass_sources")]
+```
+
+| Name                  | Mass (mg) | Source |
+|:----------------------|----------:|:-------|
+| Quercus robur         |  3413.000 | leda   |
+| Fagus sylvatica       |   158.000 | leda   |
+| Abies alba            |    79.200 | leda   |
+| Arrhenatherum elatius |     2.774 | leda   |
+| Plantago lanceolata   |     1.809 | leda   |
+
+A missing value in both sources remains `NA`. Choosing sources makes the
+data used by the analysis explicit; [Recording and restoring data
+versions](https://gillescolling.com/taxify/articles/reproducibility.md)
+shows how to record their builds with the matched result.
+
 ## Where each value came from
 
 With `provenance = TRUE`,
@@ -368,23 +418,30 @@ mx <- mx |> add_zanne() |> add_avonet() |> add_pantheria() |>
 #> add_amphibio(): attaching 13 of 35 columns. Pass cols = "all" for all, or see enrichment_cols("amphibio").
 #> add_fungal_traits(): attaching 9 of 27 columns. Pass cols = "all" for all, or see enrichment_cols("fungal_traits").
 #> add_fishbase(): attaching 15 of 246 columns. Pass cols = "all" for all, or see enrichment_cols("fishbase").
-mx[, c("input_name", "woodiness", "avonet_body_mass_g",
-       "pantheria_body_mass_g", "body_size_mm", "primary_lifestyle",
-       "fb_trophic_level")]
-#>         input_name woodiness avonet_body_mass_g pantheria_body_mass_g
-#> 1    Quercus robur     woody                 NA                    NA
-#> 2      Parus major      <NA>              16.25                    NA
-#> 3    Vulpes vulpes      <NA>                 NA               4820.36
-#> 4        Bufo bufo      <NA>                 NA                    NA
-#> 5 Amanita muscaria      <NA>                 NA                    NA
-#> 6     Salmo trutta      <NA>                 NA                    NA
-#>   body_size_mm primary_lifestyle fb_trophic_level
-#> 1           NA              <NA>               NA
-#> 2           NA              <NA>               NA
-#> 3           NA              <NA>               NA
-#> 4          150              <NA>               NA
-#> 5           NA   ectomycorrhizal               NA
-#> 6           NA              <NA>             3.36
+mx[, c("input_name", "zanne_woodiness", "avonet_body_mass_g",
+       "pantheria_body_mass_g", "amphibio_body_size_mm", "fungal_traits_primary_lifestyle",
+       "fishbase_fb_trophic_level")]
+#>         input_name zanne_woodiness avonet_body_mass_g pantheria_body_mass_g
+#> 1    Quercus robur           woody                 NA                    NA
+#> 2      Parus major            <NA>              16.25                    NA
+#> 3    Vulpes vulpes            <NA>                 NA               4820.36
+#> 4        Bufo bufo            <NA>                 NA                    NA
+#> 5 Amanita muscaria            <NA>                 NA                    NA
+#> 6     Salmo trutta            <NA>                 NA                    NA
+#>   amphibio_body_size_mm fungal_traits_primary_lifestyle
+#> 1                    NA                            <NA>
+#> 2                    NA                            <NA>
+#> 3                    NA                            <NA>
+#> 4                   150                            <NA>
+#> 5                    NA                 ectomycorrhizal
+#> 6                    NA                            <NA>
+#>   fishbase_fb_trophic_level
+#> 1                        NA
+#> 2                        NA
+#> 3                        NA
+#> 4                        NA
+#> 5                        NA
+#> 6                      3.36
 #> Sources: COL 2026.09, Zanne et al. 2014 2026.08, AVONET 2026.08, PanTHERIA 2026.08, AmphiBIO 2026.08, FungalTraits 2026.08, FishBase 2026.08 | cite() for full citations
 ```
 
@@ -400,11 +457,11 @@ dataset filled, with its version and licence:
 summary(mx)
 #> ── taxify results ────────────────────────────────────────────────────────────
 #>   backbone: COL v2026.09  |  6 names submitted
-#> 
+#>
 #>   matched         6  (exact: 6, case-insensitive: 0, fuzzy: 0, abbrev: 0)
 #>   ────────────────────────────────────────────────────────────
 #>   taxon groups: animal: 4  angiosperm: 1  fungus: 1
-#> 
+#>
 #>   enrichments:
 #>     zanne          (Zanne et al. 2014 2026.08) — 1 of 6 matched [CC0]
 #>     avonet         (AVONET 2026.08)            — 1 of 6 matched [CC BY 4.0]
@@ -442,22 +499,22 @@ aggregates](https://gillescolling.com/taxify/articles/hybrids-and-aggregates.md)
 
 Each dataset is downloaded on first use into
 [`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md)
-and read from disk after that.
-[`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
+and read from disk after that. `taxify_download(kind = "enrichment")`
 fetches datasets ahead of time:
 
 ``` r
 
-taxify_download_enrichment(c("zanne", "eive", "griis"))
+taxify_download(kind = "enrichment", c("zanne", "eive", "griis"))
 ```
 
 A dataset with `static = TRUE` in
 [`list_enrichments()`](https://gillescolling.com/taxify/reference/list_enrichments.md)
 is a fixed release and is never updated. The others are checked against
 the published version once per session and replaced when a newer one
-exists; the replaced build is kept, so
+exists; the replaced build is deleted, and
 [`taxify_restore()`](https://gillescolling.com/taxify/reference/taxify_restore.md)
-can reinstall it. The version used is shown by
+reinstalls it from its published copy when a lockfile names it. The
+version used is shown by
 [`summary()`](https://rdrr.io/r/base/summary.html), cited by
 [`cite()`](https://gillescolling.com/taxify/reference/cite.md) and
 written by
@@ -468,7 +525,7 @@ started](https://gillescolling.com/taxify/articles/taxify.html#recording-what-wa
 ## Where next
 
 - [The backbones and
-  datasets](https://gillescolling.com/taxify/articles/articles/databases.md):
+  datasets](https://gillescolling.com/taxify/articles/databases.html):
   every dataset with its scope, version, licence and reference.
 
 - [Joining your own

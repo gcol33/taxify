@@ -24,7 +24,7 @@ for the fish reference database FishBase see add_fishbase()."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,7 @@ for the fish reference database FishBase see add_fishbase()."><meta property="og
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -105,41 +106,41 @@ for the fish reference database FishBase see <code><a href="add_fishbase.html">a
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns:</p><dl><dt>fish_max_body_length</dt>
+    <p>The same data.frame with additional columns:</p><dl><dt>fishmorph_fish_max_body_length</dt>
 <dd><p>Maximum body length (cm).</p></dd>
 
-<dt>fish_body_elongation</dt>
+<dt>fishmorph_fish_body_elongation</dt>
 <dd><p>Body elongation (body length / body depth).</p></dd>
 
-<dt>fish_vertical_eye_position</dt>
+<dt>fishmorph_fish_vertical_eye_position</dt>
 <dd><p>Vertical eye position (eye position /
 head depth).</p></dd>
 
-<dt>fish_relative_eye_size</dt>
+<dt>fishmorph_fish_relative_eye_size</dt>
 <dd><p>Relative eye size (eye diameter / head
 length).</p></dd>
 
-<dt>fish_oral_gape_position</dt>
+<dt>fishmorph_fish_oral_gape_position</dt>
 <dd><p>Oral gape position (mouth position:
 0 = inferior, 0.5 = terminal, 1 = superior).</p></dd>
 
-<dt>fish_relative_maxillary_length</dt>
+<dt>fishmorph_fish_relative_maxillary_length</dt>
 <dd><p>Relative maxillary length (maxillary
 length / head length).</p></dd>
 
-<dt>fish_body_lateral_shape</dt>
+<dt>fishmorph_fish_body_lateral_shape</dt>
 <dd><p>Body lateral shape (body depth /
 caudal peduncle depth).</p></dd>
 
-<dt>fish_pectoral_fin_position</dt>
+<dt>fishmorph_fish_pectoral_fin_position</dt>
 <dd><p>Pectoral fin vertical position (fin
 insertion depth / body depth).</p></dd>
 
-<dt>fish_pectoral_fin_size</dt>
+<dt>fishmorph_fish_pectoral_fin_size</dt>
 <dd><p>Pectoral fin size (fin length / body
 length).</p></dd>
 
-<dt>fish_caudal_peduncle_throttling</dt>
+<dt>fishmorph_fish_caudal_peduncle_throttling</dt>
 <dd><p>Caudal peduncle throttling (caudal
 peduncle depth / caudal fin depth).</p></dd>
 
@@ -161,14 +162,37 @@ Biogeography 30:2330-2336. <a href="https://doi.org/10.1111/geb.13395" class="ex
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Salmo trutta"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_fishmorph</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Salmo trutta"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_fishmorph</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     input_name matched_name accepted_name    taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Salmo trutta Salmo trutta  Salmo trutta gbif-ex-009 gbif-ex-009 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       family genus epithet     authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Salmonidae Salmo  trutta Linnaeus, 1758      Linnaeus, 1758      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         ACCEPTED     FALSE      exact         NA     gbif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            backbone_version kingdom_group taxon_group life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 gbif:example (2026-06-24)      animalia      animal    animal      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishmorph_fish_max_body_length fishmorph_fish_body_elongation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        example_max_body_length        example_body_elongation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishmorph_fish_vertical_eye_position fishmorph_fish_relative_eye_size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        example_vertical_eye_position        example_relative_eye_size</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishmorph_fish_oral_gape_position fishmorph_fish_relative_maxillary_length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        example_oral_gape_position        example_relative_maxillary_length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishmorph_fish_body_lateral_shape fishmorph_fish_pectoral_fin_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        example_body_lateral_shape        example_pectoral_fin_position</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fishmorph_fish_pectoral_fin_size fishmorph_fish_caudal_peduncle_throttling</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        example_pectoral_fin_size        example_caudal_peduncle_throttling</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF example, FISHMORPH example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

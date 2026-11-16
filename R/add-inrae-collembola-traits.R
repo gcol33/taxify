@@ -36,21 +36,29 @@
 #'
 #' @export
 add_inrae_collembola_traits <- function(x, cols = NULL, verbose = TRUE) {
-  base <- c(
-    "ocelli__1_3", "ocelli__4_7", "ocelli__8", "ocelli__absent",
-    "furca__present", "furca__absent",
-    "post_antennal_organ__present", "post_antennal_organ__absent",
-    "pigmentation__present", "pigmentation__absent",
-    "body_shape__cylindrical", "body_shape__spherical",
-    "scales__present", "scales__absent",
-    "reproduction__sexual", "reproduction__asexual")
-  col_map <- stats::setNames(base, paste0("inrae_", base))
-  enrich_simple(
-    x,
-    enrichment_name = "inrae_collembola_traits",
-    col_map         = col_map,
-    source_label    = "Collembola traits (Data INRAE / Joimel et al. 2021)",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_inrae_collembola_traits, cols = cols, verbose = verbose)
 }
+
+
+.door_inrae_collembola_traits <- list(
+  enrichment_name = "inrae_collembola_traits",
+  col_map = c(
+    inrae_ocelli__1_3 = "ocelli__1_3",
+    inrae_ocelli__4_7 = "ocelli__4_7",
+    inrae_ocelli__8 = "ocelli__8",
+    inrae_ocelli__absent = "ocelli__absent",
+    inrae_furca__present = "furca__present",
+    inrae_furca__absent = "furca__absent",
+    inrae_post_antennal_organ__present = "post_antennal_organ__present",
+    inrae_post_antennal_organ__absent = "post_antennal_organ__absent",
+    inrae_pigmentation__present = "pigmentation__present",
+    inrae_pigmentation__absent = "pigmentation__absent",
+    inrae_body_shape__cylindrical = "body_shape__cylindrical",
+    inrae_body_shape__spherical = "body_shape__spherical",
+    inrae_scales__present = "scales__present",
+    inrae_scales__absent = "scales__absent",
+    inrae_reproduction__sexual = "reproduction__sexual",
+    inrae_reproduction__asexual = "reproduction__asexual"
+  ),
+  source_label = "Collembola traits (Data INRAE / Joimel et al. 2021)"
+)

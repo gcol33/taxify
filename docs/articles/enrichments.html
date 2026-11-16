@@ -17,6 +17,9 @@
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="Attaching published data">
+<meta name="description" content="Join published datasets, choose sources for harmonized traits, and inspect each value's provenance.">
+<meta property="og:description" content="Join published datasets, choose sources for harmonized traits, and inspect each value's provenance.">
+<meta property="og:image" content="https://gillescolling.com/taxify/logo.svg">
 <script>
 (function () {
   var D = String.fromCharCode(36);
@@ -40,7 +43,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,12 +54,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/taxify.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -116,7 +120,8 @@ that has it with <code><a href="../reference/add_trait.html">add_trait()</a></co
 one value per country, region or language. It ends with how the values
 are joined, where each one came from and how to cite them. Installation
 is covered in <a href="taxify.html">Get started</a>. The source, size
-and licence of every dataset are listed in <a href="articles/databases.html">The backbones and datasets</a>.</p>
+and licence of every dataset are listed in <a href="https://gillescolling.com/taxify/articles/databases.html">The
+backbones and datasets</a>.</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Find</strong> a dataset with
 <code><a href="../reference/list_enrichments.html">list_enrichments()</a></code>, or a trait with
@@ -169,35 +174,40 @@ for the woodiness compiled by Zanne et al. (<a href="https://doi.org/10.1038/na
 <p><code><a href="../reference/add_zanne.html">add_zanne()</a></code> adds the woodiness of each species:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wood</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
-<span><span class="va">wood</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"woodiness"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;              input_name  woodiness</span></span>
-<span><span class="co">#&gt; 1         Quercus robur      woody</span></span>
-<span><span class="co">#&gt; 2       Fagus sylvatica      woody</span></span>
-<span><span class="co">#&gt; 3            Abies alba      woody</span></span>
-<span><span class="co">#&gt; 4 Arrhenatherum elatius herbaceous</span></span>
-<span><span class="co">#&gt; 5   Plantago lanceolata herbaceous</span></span>
+<span><span class="co">#&gt; add_zanne(): attaching 1 of 2 columns. Pass cols = "all" for all, or see enrichment_cols("zanne").</span></span>
+<span><span class="va">wood</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"zanne_woodiness"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;              input_name zanne_woodiness</span></span>
+<span><span class="co">#&gt; 1         Quercus robur           woody</span></span>
+<span><span class="co">#&gt; 2       Fagus sylvatica           woody</span></span>
+<span><span class="co">#&gt; 3            Abies alba           woody</span></span>
+<span><span class="co">#&gt; 4 Arrhenatherum elatius      herbaceous</span></span>
+<span><span class="co">#&gt; 5   Plantago lanceolata      herbaceous</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09, Zanne et al. 2014 2026.08 | cite() for full citations</span></span></code></pre></div>
-<p><code><a href="../reference/enrichment_cols.html">enrichment_cols()</a></code> lists all of a dataset’s columns, and
-<code>cols</code> chooses: a vector of names, or <code>"all"</code>:</p>
+<p><code><a href="../reference/enrichment_cols.html">enrichment_cols()</a></code> lists source columns alongside their
+attached output names. Attached names start with the source key and
+<code>_</code>; common names use <code>common_</code>. The
+<code>cols</code> selector accepts the source name, the output name with
+or without its prefix, or <code>"all"</code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/enrichment_cols.html">enrichment_cols</a></span><span class="op">(</span><span class="st">"zanne"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            column      type</span></span>
-<span><span class="co">#&gt; 1       woodiness character</span></span>
-<span><span class="co">#&gt; 2 woodiness_count   numeric</span></span>
+<span><span class="co">#&gt;            column                output      type</span></span>
+<span><span class="co">#&gt; 1       woodiness       zanne_woodiness character</span></span>
+<span><span class="co">#&gt; 2 woodiness_count zanne_woodiness_count   numeric</span></span>
 <span><span class="va">wood_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="va">res</span>, cols <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">wood_all</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "woodiness"       "woodiness_count"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "zanne_woodiness"       "zanne_woodiness_count"</span></span></code></pre></div>
 <p>The functions return the result with the new columns on the right, so
 they can be chained:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">both</span> <span class="op">&lt;-</span> <span class="va">res</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_zanne.html">add_zanne</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/add_eive.html">add_eive</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">both</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"woodiness"</span>, <span class="st">"eive_light"</span>, <span class="st">"eive_moisture"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;           accepted_name  woodiness eive_light eive_moisture</span></span>
-<span><span class="co">#&gt; 1         Quercus robur      woody   6.241077      4.802554</span></span>
-<span><span class="co">#&gt; 2       Fagus sylvatica      woody   3.003906      4.570789</span></span>
-<span><span class="co">#&gt; 3            Abies alba      woody   3.041214      5.183157</span></span>
-<span><span class="co">#&gt; 4 Arrhenatherum elatius herbaceous   7.647964      4.343963</span></span>
-<span><span class="co">#&gt; 5   Plantago lanceolata herbaceous   6.668470      4.094346</span></span>
+<span><span class="co">#&gt; add_eive(): attaching 5 of 18 columns. Pass cols = "all" for all, or see enrichment_cols("eive").</span></span>
+<span><span class="va">both</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"zanne_woodiness"</span>, <span class="st">"eive_light"</span>, <span class="st">"eive_moisture"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;           accepted_name zanne_woodiness eive_light eive_moisture</span></span>
+<span><span class="co">#&gt; 1         Quercus robur           woody   6.241077      4.802554</span></span>
+<span><span class="co">#&gt; 2       Fagus sylvatica           woody   3.003906      4.570789</span></span>
+<span><span class="co">#&gt; 3            Abies alba           woody   3.041214      5.183157</span></span>
+<span><span class="co">#&gt; 4 Arrhenatherum elatius      herbaceous   7.647964      4.343963</span></span>
+<span><span class="co">#&gt; 5   Plantago lanceolata      herbaceous   6.668470      4.094346</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09, Zanne et al. 2014 2026.08, EIVE 1.0 2026.08 | cite() for full citations</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -207,8 +217,8 @@ they can be chained:</p>
 Their function takes the place or language as an argument.
 <code><a href="../reference/add_griis.html">add_griis()</a></code> reads the Global Register of Introduced and
 Invasive Species (GRIIS) for countries given as two-letter ISO codes.
-One code gives one column, <code>invasive_status</code>; several give a
-column each, with the code as suffix:</p>
+One code gives one column, <code>griis_invasive_status</code>; several
+give a column each, with the code as suffix:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aliens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Robinia pseudoacacia"</span>, <span class="st">"Ailanthus altissima"</span>, <span class="st">"Impatiens glandulifera"</span>,</span>
@@ -216,20 +226,21 @@ column each, with the code as suffix:</p>
 <span><span class="op">)</span></span>
 <span><span class="va">al</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">aliens</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">gr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_griis.html">add_griis</a></span><span class="op">(</span><span class="va">al</span>, country <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AT"</span>, <span class="st">"DE"</span>, <span class="st">"GB"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">gr</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"invasive_status_AT"</span>, <span class="st">"invasive_status_DE"</span>,</span>
-<span>       <span class="st">"invasive_status_GB"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;               input_name invasive_status_AT invasive_status_DE</span></span>
-<span><span class="co">#&gt; 1   Robinia pseudoacacia           invasive           invasive</span></span>
-<span><span class="co">#&gt; 2    Ailanthus altissima           invasive           invasive</span></span>
-<span><span class="co">#&gt; 3 Impatiens glandulifera           invasive         introduced</span></span>
-<span><span class="co">#&gt; 4    Reynoutria japonica           invasive         introduced</span></span>
-<span><span class="co">#&gt; 5          Quercus robur               &lt;NA&gt;               &lt;NA&gt;</span></span>
-<span><span class="co">#&gt;   invasive_status_GB</span></span>
-<span><span class="co">#&gt; 1           invasive</span></span>
-<span><span class="co">#&gt; 2           invasive</span></span>
-<span><span class="co">#&gt; 3           invasive</span></span>
-<span><span class="co">#&gt; 4           invasive</span></span>
-<span><span class="co">#&gt; 5               &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; Tip: pipe into taxify_long() to reshape wide columns to long format.</span></span>
+<span><span class="va">gr</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"griis_invasive_status_AT"</span>, <span class="st">"griis_invasive_status_DE"</span>,</span>
+<span>       <span class="st">"griis_invasive_status_GB"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;               input_name griis_invasive_status_AT griis_invasive_status_DE</span></span>
+<span><span class="co">#&gt; 1   Robinia pseudoacacia                 invasive                 invasive</span></span>
+<span><span class="co">#&gt; 2    Ailanthus altissima                 invasive                 invasive</span></span>
+<span><span class="co">#&gt; 3 Impatiens glandulifera                 invasive               introduced</span></span>
+<span><span class="co">#&gt; 4    Reynoutria japonica                 invasive               introduced</span></span>
+<span><span class="co">#&gt; 5          Quercus robur                     &lt;NA&gt;                     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   griis_invasive_status_GB</span></span>
+<span><span class="co">#&gt; 1                 invasive</span></span>
+<span><span class="co">#&gt; 2                 invasive</span></span>
+<span><span class="co">#&gt; 3                 invasive</span></span>
+<span><span class="co">#&gt; 4                 invasive</span></span>
+<span><span class="co">#&gt; 5                     &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09, GRIIS 2026.08 | cite() for full citations</span></span></code></pre></div>
 <p><em>Quercus robur</em> is native in all three countries. GRIIS
 focuses on introduced and invasive species, so it has no record for the
@@ -241,14 +252,14 @@ dataset has no record, not that the species is native.
 per species and country:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">long</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify_long.html">taxify_long</a></span><span class="op">(</span><span class="va">gr</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">long</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"country_code"</span>, <span class="st">"invasive_status"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt;               input_name country_code invasive_status</span></span>
-<span><span class="co">#&gt; 1   Robinia pseudoacacia           AT        invasive</span></span>
-<span><span class="co">#&gt; 2    Ailanthus altissima           AT        invasive</span></span>
-<span><span class="co">#&gt; 3 Impatiens glandulifera           AT        invasive</span></span>
-<span><span class="co">#&gt; 4    Reynoutria japonica           AT        invasive</span></span>
-<span><span class="co">#&gt; 5          Quercus robur           AT            &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 6   Robinia pseudoacacia           DE        invasive</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">long</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"country_code"</span>, <span class="st">"griis_invasive_status"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;               input_name country_code griis_invasive_status</span></span>
+<span><span class="co">#&gt; 1   Robinia pseudoacacia           AT              invasive</span></span>
+<span><span class="co">#&gt; 2    Ailanthus altissima           AT              invasive</span></span>
+<span><span class="co">#&gt; 3 Impatiens glandulifera           AT              invasive</span></span>
+<span><span class="co">#&gt; 4    Reynoutria japonica           AT              invasive</span></span>
+<span><span class="co">#&gt; 5          Quercus robur           AT                  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 6   Robinia pseudoacacia           DE              invasive</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09, GRIIS 2026.08 | cite() for full citations</span></span></code></pre></div>
 <p><code><a href="../reference/add_wcvp.html">add_wcvp()</a></code> works the same way for the botanical regions
 of the World Checklist of Vascular Plants (WCVP), coded as in <a href="regions.html">Matching within a region</a>, and
@@ -258,11 +269,8 @@ of the World Checklist of Vascular Plants (WCVP), coded as in <a href="regions.h
 <span><span class="va">tr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">trees</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">wc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_wcvp.html">add_wcvp</a></span><span class="op">(</span><span class="va">tr</span>, region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GER"</span>, <span class="st">"AGS"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">wc</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"native_status_GER"</span>, <span class="st">"native_status_AGS"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;                 input_name native_status_GER native_status_AGS</span></span>
-<span><span class="co">#&gt; 1            Quercus robur            native              &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 2       Nothofagus pumilio              &lt;NA&gt;            native</span></span>
-<span><span class="co">#&gt; 3 Sequoiadendron giganteum        introduced              &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; Sources: COL 2026.09, WCVP (Kew) 2026.08 | cite() for full citations</span></span></code></pre></div>
+<span><span class="co">#&gt; Error in `[.data.frame`:</span></span>
+<span><span class="co">#&gt; ! undefined columns selected</span></span></code></pre></div>
 <p><em>Nothofagus pumilio</em> is native to southern Argentina
 (<code>AGS</code>). The giant sequoia, native to California, is recorded
 in Germany as introduced.</p>
@@ -358,6 +366,97 @@ restricts a trait to some of them, and <code>priority</code> sets their
 order. <code>combine</code> sets how they are combined: the median, the
 mean, the first or the most complete source, a vote, the smallest or the
 largest value.</p>
+<p>For a project that uses only the seed-mass measurements from LEDA and
+the data of Díaz et al., select those sources by the names in
+<code><a href="../reference/trait_info.html">trait_info()</a></code>. The wide result shows their values in the
+same unit:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">selected</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="va">res</span>, <span class="st">"seed_mass"</span>,</span>
+<span>                      sources <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"leda"</span>, <span class="st">"diaz"</span><span class="op">)</span>,</span>
+<span>                      mode <span class="op">=</span> <span class="st">"wide"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">selected</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"seed_mass_leda"</span>, <span class="st">"seed_mass_diaz"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Name</th>
+<th align="right">LEDA (mg)</th>
+<th align="right">Díaz (mg)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Quercus robur</td>
+<td align="right">3413.000</td>
+<td align="right">3048.021</td>
+</tr>
+<tr class="even">
+<td align="left">Fagus sylvatica</td>
+<td align="right">158.000</td>
+<td align="right">186.985</td>
+</tr>
+<tr class="odd">
+<td align="left">Abies alba</td>
+<td align="right">79.200</td>
+<td align="right">62.007</td>
+</tr>
+<tr class="even">
+<td align="left">Arrhenatherum elatius</td>
+<td align="right">2.774</td>
+<td align="right">2.738</td>
+</tr>
+<tr class="odd">
+<td align="left">Plantago lanceolata</td>
+<td align="right">1.809</td>
+<td align="right">1.363</td>
+</tr>
+</tbody>
+</table>
+<p>To use LEDA wherever it supplies a value and Díaz et al. for the
+remaining rows, choose <code>combine = "first"</code> and set the
+priority explicitly. The source column records which dataset supplied
+each value:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">preferred</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="va">res</span>, <span class="st">"seed_mass"</span>,</span>
+<span>                       sources <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"leda"</span>, <span class="st">"diaz"</span><span class="op">)</span>,</span>
+<span>                       combine <span class="op">=</span> <span class="st">"first"</span>,</span>
+<span>                       priority <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"leda"</span>, <span class="st">"diaz"</span><span class="op">)</span>,</span>
+<span>                       verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">preferred</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"accepted_name"</span>, <span class="st">"seed_mass"</span>, <span class="st">"seed_mass_sources"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Name</th>
+<th align="right">Mass (mg)</th>
+<th align="left">Source</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Quercus robur</td>
+<td align="right">3413.000</td>
+<td align="left">leda</td>
+</tr>
+<tr class="even">
+<td align="left">Fagus sylvatica</td>
+<td align="right">158.000</td>
+<td align="left">leda</td>
+</tr>
+<tr class="odd">
+<td align="left">Abies alba</td>
+<td align="right">79.200</td>
+<td align="left">leda</td>
+</tr>
+<tr class="even">
+<td align="left">Arrhenatherum elatius</td>
+<td align="right">2.774</td>
+<td align="left">leda</td>
+</tr>
+<tr class="odd">
+<td align="left">Plantago lanceolata</td>
+<td align="right">1.809</td>
+<td align="left">leda</td>
+</tr>
+</tbody>
+</table>
+<p>A missing value in both sources remains <code>NA</code>. Choosing
+sources makes the data used by the analysis explicit; <a href="reproducibility.html">Recording and restoring data versions</a>
+shows how to record their builds with the matched result.</p>
 </div>
 <div class="section level2">
 <h2 id="where-each-value-came-from">Where each value came from<a class="anchor" aria-label="anchor" href="#where-each-value-came-from"></a>
@@ -365,13 +464,13 @@ largest value.</p>
 <p>With <code>provenance = TRUE</code>, <code><a href="../reference/add_trait.html">add_trait()</a></code> adds a
 <code>&lt;trait&gt;_refs</code> column listing the references behind
 each value, as <code>&lt;dataset&gt;:&lt;id&gt;</code>:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seed_refs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/add_trait.html">add_trait</a></span><span class="op">(</span><span class="va">res</span>, <span class="st">"seed_mass"</span>, provenance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                       verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">seed_refs</span><span class="op">$</span><span class="va">seed_mass_refs</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] "brot:Peman2012|gift:10191|gift:10255|leda:1ed7e1dccf64"</span></span></code></pre></div>
 <p><code><a href="../reference/cite.html">cite()</a></code> on those identifiers prints the references:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">refs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cite.html">cite</a></span><span class="op">(</span><span class="va">seed_refs</span><span class="op">$</span><span class="va">seed_mass_refs</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify references ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   [brot:Peman2012] Pemán, J., Navarro, R. M., Nicolás, J. L., Prada, M. A., Serrada, R. (2012). Producción y manejo de semillas y plantas forestales. Parques Nacionales, Ministerio de Agricultura, Alimentación y Medio Ambiente.</span></span>
@@ -387,7 +486,7 @@ as they record them.</p>
 </h2>
 <p>Six species from six groups (an oak, a bird, a mammal, a toad, a
 fungus, a fish) each get one dataset per group:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, <span class="st">"Parus major"</span>, <span class="st">"Vulpes vulpes"</span>, <span class="st">"Bufo bufo"</span>,</span>
 <span>           <span class="st">"Amanita muscaria"</span>, <span class="st">"Salmo trutta"</span><span class="op">)</span></span>
 <span><span class="va">mx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taxify.html">taxify</a></span><span class="op">(</span><span class="va">mixed</span>, backbone <span class="op">=</span> <span class="st">"col"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -398,23 +497,30 @@ fungus, a fish) each get one dataset per group:</p>
 <span><span class="co">#&gt; add_amphibio(): attaching 13 of 35 columns. Pass cols = "all" for all, or see enrichment_cols("amphibio").</span></span>
 <span><span class="co">#&gt; add_fungal_traits(): attaching 9 of 27 columns. Pass cols = "all" for all, or see enrichment_cols("fungal_traits").</span></span>
 <span><span class="co">#&gt; add_fishbase(): attaching 15 of 246 columns. Pass cols = "all" for all, or see enrichment_cols("fishbase").</span></span>
-<span><span class="va">mx</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"woodiness"</span>, <span class="st">"avonet_body_mass_g"</span>,</span>
-<span>       <span class="st">"pantheria_body_mass_g"</span>, <span class="st">"body_size_mm"</span>, <span class="st">"primary_lifestyle"</span>,</span>
-<span>       <span class="st">"fb_trophic_level"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt;         input_name woodiness avonet_body_mass_g pantheria_body_mass_g</span></span>
-<span><span class="co">#&gt; 1    Quercus robur     woody                 NA                    NA</span></span>
-<span><span class="co">#&gt; 2      Parus major      &lt;NA&gt;              16.25                    NA</span></span>
-<span><span class="co">#&gt; 3    Vulpes vulpes      &lt;NA&gt;                 NA               4820.36</span></span>
-<span><span class="co">#&gt; 4        Bufo bufo      &lt;NA&gt;                 NA                    NA</span></span>
-<span><span class="co">#&gt; 5 Amanita muscaria      &lt;NA&gt;                 NA                    NA</span></span>
-<span><span class="co">#&gt; 6     Salmo trutta      &lt;NA&gt;                 NA                    NA</span></span>
-<span><span class="co">#&gt;   body_size_mm primary_lifestyle fb_trophic_level</span></span>
-<span><span class="co">#&gt; 1           NA              &lt;NA&gt;               NA</span></span>
-<span><span class="co">#&gt; 2           NA              &lt;NA&gt;               NA</span></span>
-<span><span class="co">#&gt; 3           NA              &lt;NA&gt;               NA</span></span>
-<span><span class="co">#&gt; 4          150              &lt;NA&gt;               NA</span></span>
-<span><span class="co">#&gt; 5           NA   ectomycorrhizal               NA</span></span>
-<span><span class="co">#&gt; 6           NA              &lt;NA&gt;             3.36</span></span>
+<span><span class="va">mx</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"input_name"</span>, <span class="st">"zanne_woodiness"</span>, <span class="st">"avonet_body_mass_g"</span>,</span>
+<span>       <span class="st">"pantheria_body_mass_g"</span>, <span class="st">"amphibio_body_size_mm"</span>, <span class="st">"fungal_traits_primary_lifestyle"</span>,</span>
+<span>       <span class="st">"fishbase_fb_trophic_level"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;         input_name zanne_woodiness avonet_body_mass_g pantheria_body_mass_g</span></span>
+<span><span class="co">#&gt; 1    Quercus robur           woody                 NA                    NA</span></span>
+<span><span class="co">#&gt; 2      Parus major            &lt;NA&gt;              16.25                    NA</span></span>
+<span><span class="co">#&gt; 3    Vulpes vulpes            &lt;NA&gt;                 NA               4820.36</span></span>
+<span><span class="co">#&gt; 4        Bufo bufo            &lt;NA&gt;                 NA                    NA</span></span>
+<span><span class="co">#&gt; 5 Amanita muscaria            &lt;NA&gt;                 NA                    NA</span></span>
+<span><span class="co">#&gt; 6     Salmo trutta            &lt;NA&gt;                 NA                    NA</span></span>
+<span><span class="co">#&gt;   amphibio_body_size_mm fungal_traits_primary_lifestyle</span></span>
+<span><span class="co">#&gt; 1                    NA                            &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2                    NA                            &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3                    NA                            &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 4                   150                            &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 5                    NA                 ectomycorrhizal</span></span>
+<span><span class="co">#&gt; 6                    NA                            &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   fishbase_fb_trophic_level</span></span>
+<span><span class="co">#&gt; 1                        NA</span></span>
+<span><span class="co">#&gt; 2                        NA</span></span>
+<span><span class="co">#&gt; 3                        NA</span></span>
+<span><span class="co">#&gt; 4                        NA</span></span>
+<span><span class="co">#&gt; 5                        NA</span></span>
+<span><span class="co">#&gt; 6                      3.36</span></span>
 <span><span class="co">#&gt; Sources: COL 2026.09, Zanne et al. 2014 2026.08, AVONET 2026.08, PanTHERIA 2026.08, AmphiBIO 2026.08, FungalTraits 2026.08, FishBase 2026.08 | cite() for full citations</span></span></code></pre></div>
 <p>Each species has values only from the datasets that cover its group.
 A column with <code>NA</code> in every row usually means the dataset
@@ -422,15 +528,15 @@ does not cover the group; an <code>NA</code> in some rows means the
 species is not in the dataset, was described after it was compiled, or
 was recorded at another rank. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> counts the rows
 each dataset filled, with its version and licence:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mx</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── taxify results ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   backbone: COL v2026.09  |  6 names submitted</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt;   matched         6  (exact: 6, case-insensitive: 0, fuzzy: 0, abbrev: 0)</span></span>
 <span><span class="co">#&gt;   ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt;   taxon groups: animal: 4  angiosperm: 1  fungus: 1</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt;   enrichments:</span></span>
 <span><span class="co">#&gt;     zanne          (Zanne et al. 2014 2026.08) — 1 of 6 matched [CC0]</span></span>
 <span><span class="co">#&gt;     avonet         (AVONET 2026.08)            — 1 of 6 matched [CC BY 4.0]</span></span>
@@ -467,24 +573,26 @@ their parents or their binomial, as described in <a href="hybrids-and-aggregates
 </h2>
 <p>Each dataset is downloaded on first use into
 <code><a href="../reference/taxify_data_dir.html">taxify_data_dir()</a></code> and read from disk after that.
-<code><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment()</a></code> fetches datasets ahead of
-time:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download_enrichment.html">taxify_download_enrichment</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zanne"</span>, <span class="st">"eive"</span>, <span class="st">"griis"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code>taxify_download(kind = "enrichment")</code> fetches datasets ahead
+of time:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/taxify_download.html">taxify_download</a></span><span class="op">(</span>kind <span class="op">=</span> <span class="st">"enrichment"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"zanne"</span>, <span class="st">"eive"</span>, <span class="st">"griis"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>A dataset with <code>static = TRUE</code> in
 <code><a href="../reference/list_enrichments.html">list_enrichments()</a></code> is a fixed release and is never updated.
 The others are checked against the published version once per session
-and replaced when a newer one exists; the replaced build is kept, so
-<code><a href="../reference/taxify_restore.html">taxify_restore()</a></code> can reinstall it. The version used is
-shown by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, cited by <code><a href="../reference/cite.html">cite()</a></code> and
-written by <code><a href="../reference/taxify_lock.html">taxify_lock()</a></code>, as in <a href="taxify.html#recording-what-was-used">Get started</a>.</p>
+and replaced when a newer one exists; the replaced build is deleted, and
+<code><a href="../reference/taxify_restore.html">taxify_restore()</a></code> reinstalls it from its published copy when
+a lockfile names it. The version used is shown by
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, cited by <code><a href="../reference/cite.html">cite()</a></code> and written by
+<code><a href="../reference/taxify_lock.html">taxify_lock()</a></code>, as in <a href="taxify.html#recording-what-was-used">Get started</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="where-next">Where next<a class="anchor" aria-label="anchor" href="#where-next"></a>
 </h2>
 <ul>
-<li><p><a href="articles/databases.html">The backbones and datasets</a>:
-every dataset with its scope, version, licence and reference.</p></li>
+<li><p><a href="https://gillescolling.com/taxify/articles/databases.html">The
+backbones and datasets</a>: every dataset with its scope, version,
+licence and reference.</p></li>
 <li><p><a href="custom-data.html">Joining your own data</a>:
 <code><a href="../reference/add_data.html">add_data()</a></code> for tables of your own.</p></li>
 <li><p><a href="hybrids-and-aggregates.html">Hybrids and aggregates</a>:

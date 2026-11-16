@@ -32,47 +32,47 @@ add_useful_plants(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- useful_animal_food:
+- useful_plants_useful_animal_food:
 
   Animal food (0/1).
 
-- useful_environmental_uses:
+- useful_plants_useful_environmental_uses:
 
   Environmental uses (0/1).
 
-- useful_fuels:
+- useful_plants_useful_fuels:
 
   Fuels (0/1).
 
-- useful_gene_sources:
+- useful_plants_useful_gene_sources:
 
   Gene sources (0/1).
 
-- useful_human_food:
+- useful_plants_useful_human_food:
 
   Human food (0/1).
 
-- useful_invertebrate_food:
+- useful_plants_useful_invertebrate_food:
 
   Invertebrate food (0/1).
 
-- useful_materials:
+- useful_plants_useful_materials:
 
   Materials (0/1).
 
-- useful_medicines:
+- useful_plants_useful_medicines:
 
   Medicines (0/1).
 
-- useful_poisons:
+- useful_plants_useful_poisons:
 
   Poisons (0/1).
 
-- useful_social_uses:
+- useful_plants_useful_social_uses:
 
   Social uses (0/1).
 
-- useful_crop_wild_relative:
+- useful_plants_useful_crop_wild_relative:
 
   Crop wild relative (0/1).
 

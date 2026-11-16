@@ -37,39 +37,39 @@ add_groot(x, cols = NULL, verbose = TRUE)
 The same data.frame with additional columns (per-species means). The
 default set:
 
-- root_diameter:
+- groot_root_diameter:
 
   Mean root diameter.
 
-- specific_root_length:
+- groot_specific_root_length:
 
   Specific root length.
 
-- root_tissue_density:
+- groot_root_tissue_density:
 
   Root tissue density.
 
-- root_n_concentration:
+- groot_root_n_concentration:
 
   Root nitrogen concentration.
 
-- root_c_concentration:
+- groot_root_c_concentration:
 
   Root carbon concentration.
 
-- root_mass_fraction:
+- groot_root_mass_fraction:
 
   Root mass fraction.
 
-- lateral_spread:
+- groot_lateral_spread:
 
   Lateral spread.
 
-- root_mycorrhizal_colonization:
+- groot_root_mycorrhizal_colonization:
 
   Root mycorrhizal colonization intensity.
 
-- rooting_depth:
+- groot_rooting_depth:
 
   Maximum rooting depth.
 
@@ -101,6 +101,32 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Abies alba") |>
   add_groot()
+#> Matching 1 names against 8 backbones: col -> wcvp -> lcvp -> wfo -> fishbase -> sealifebase -> reptiledb -> gbif
+#>   [col] Matching 1 names...
+#>   [wcvp] Matching 1 remaining names...
+#>   [lcvp] Matching 1 remaining names...
+#>   [wfo] Matching 1 remaining names...
+#>   [fishbase] Skipped (all names matched)
+#>   [sealifebase] Skipped (all names matched)
+#>   [reptiledb] Skipped (all names matched)
+#>   [gbif] Skipped (all names matched)
+#>   input_name matched_name accepted_name   taxon_id accepted_id    rank   family
+#> 1 Abies alba   Abies alba    Abies alba wfo-ex-005  wfo-ex-005 species Pinaceae
+#>   genus epithet authorship accepted_authorship is_synonym taxonomic_status
+#> 1 Abies    alba      Mill.               Mill.      FALSE         ACCEPTED
+#>   is_hybrid match_type fuzzy_dist backbone         backbone_version
+#> 1     FALSE      exact         NA      wfo wfo:example (2026-06-24)
+#>   kingdom_group taxon_group  life_form qualifier qualifier_position
+#> 1       plantae  gymnosperm gymnosperm      <NA>               <NA>
+#>   aggregate_fallback hybrid_type groot_root_diameter groot_specific_root_length
+#> 1                 NA        <NA>                  11                         11
+#>   groot_root_tissue_density groot_root_n_concentration
+#> 1                        11                         11
+#>   groot_root_c_concentration groot_root_mass_fraction groot_lateral_spread
+#> 1                         11                       11                   11
+#>   groot_root_mycorrhizal_colonization groot_rooting_depth
+#> 1                                  11                  11
+#> Sources: WFO example, GRooT example | cite() for full citations
 
 options(old)
 ```

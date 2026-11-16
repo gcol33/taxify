@@ -29,10 +29,12 @@ add_sheld(x, cols = NULL, verbose = TRUE)
 
 ## Value
 
-The same data.frame with `sheld_` columns: numeric `mean_length_mm`,
-`max_length_mm`, `mature_age`, `max_age`, `growth_rate`, `fecundity`,
-`n_host_species`, `n_host_family`; categorical `brood`,
-`marsupial_gills`, `hermaphrodite`, `shell_sculpture`.
+The same data.frame with `sheld_` columns: numeric
+`sheld_mean_length_mm`, `sheld_max_length_mm`, `sheld_mature_age`,
+`sheld_max_age`, `sheld_growth_rate`, `sheld_fecundity`,
+`sheld_n_host_species`, `sheld_n_host_family`; categorical
+`sheld_brood`, `sheld_marsupial_gills`, `sheld_hermaphrodite`,
+`sheld_shell_sculpture`.
 
 ## Details
 

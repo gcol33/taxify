@@ -53,14 +53,13 @@ add_glonaf <- function(x, region, verbose = TRUE, cols = NULL) {
     stop("'region' is required. Use a GloNAF region code or \"all\".",
          call. = FALSE)
   }
-  enrich_by_group(
-    x,
-    enrichment_name = "glonaf",
-    group_col       = "region_id",
-    groups          = region,
-    value_cols      = c(naturalized = "naturalized"),
-    source_label    = "GloNAF",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_glonaf, groups = region, cols = cols, verbose = verbose)
 }
+
+
+.door_glonaf <- list(
+  enrichment_name = "glonaf",
+  group_col = "region_id",
+  value_cols = c(naturalized = "naturalized"),
+  source_label = "GloNAF"
+)

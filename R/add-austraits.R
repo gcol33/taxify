@@ -46,30 +46,29 @@
 #'
 #' @export
 add_austraits <- function(x, cols = NULL, verbose = TRUE) {
-  col_map <- c(
-    austraits_plant_growth_form      = "plant_growth_form",
-    austraits_life_history           = "life_history",
-    austraits_woodiness              = "woodiness",
-    austraits_photosynthetic_pathway = "photosynthetic_pathway",
-    austraits_dispersal_syndrome     = "dispersal_syndrome",
-    austraits_resprouting_capacity   = "resprouting_capacity",
-    austraits_flowering_time         = "flowering_time",
-    austraits_plant_height_m         = "plant_height_m",
-    austraits_leaf_length_mm         = "leaf_length_mm",
-    austraits_leaf_width_mm          = "leaf_width_mm",
-    austraits_leaf_area_mm2          = "leaf_area_mm2",
-    austraits_leaf_mass_per_area     = "leaf_mass_per_area",
-    austraits_leaf_n_per_dry_mass    = "leaf_n_per_dry_mass",
-    austraits_leaf_p_per_dry_mass    = "leaf_p_per_dry_mass",
-    austraits_seed_dry_mass_mg       = "seed_dry_mass_mg",
-    austraits_wood_density_g_cm3     = "wood_density_g_cm3"
-  )
-  enrich_simple(
-    x,
-    enrichment_name = "austraits",
-    col_map         = col_map,
-    source_label    = "AusTraits",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_austraits, cols = cols, verbose = verbose)
 }
+
+
+.door_austraits <- list(
+  enrichment_name = "austraits",
+  col_map = c(
+    austraits_plant_growth_form = "plant_growth_form",
+    austraits_life_history = "life_history",
+    austraits_woodiness = "woodiness",
+    austraits_photosynthetic_pathway = "photosynthetic_pathway",
+    austraits_dispersal_syndrome = "dispersal_syndrome",
+    austraits_resprouting_capacity = "resprouting_capacity",
+    austraits_flowering_time = "flowering_time",
+    austraits_plant_height_m = "plant_height_m",
+    austraits_leaf_length_mm = "leaf_length_mm",
+    austraits_leaf_width_mm = "leaf_width_mm",
+    austraits_leaf_area_mm2 = "leaf_area_mm2",
+    austraits_leaf_mass_per_area = "leaf_mass_per_area",
+    austraits_leaf_n_per_dry_mass = "leaf_n_per_dry_mass",
+    austraits_leaf_p_per_dry_mass = "leaf_p_per_dry_mass",
+    austraits_seed_dry_mass_mg = "seed_dry_mass_mg",
+    austraits_wood_density_g_cm3 = "wood_density_g_cm3"
+  ),
+  source_label = "AusTraits"
+)

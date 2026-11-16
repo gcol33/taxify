@@ -38,7 +38,7 @@ avoid collisions when chained with other plant-trait enrichments
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +53,7 @@ avoid collisions when chained with other plant-trait enrichments
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -131,34 +132,34 @@ the full set explicitly.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The same data.frame with German trait columns (all suffixed <code>_de</code>),
 grouped as:</p><dl><dt>Morphology</dt>
-<dd><p><code>height_de</code>, <code>life_form_de</code>, <code>leaf_shape_de</code>,
-<code>leaf_anatomy_de</code>, <code>leaf_persistence_de</code>, <code>storage_organs_de</code>,
-<code>flowering_months_de</code>, <code>flowering_months_biolflor_de</code>,
-<code>flowering_phase_de</code>, <code>phenological_season_de</code>, <code>description_de</code>.</p></dd>
+<dd><p><code>floraweb_height_de</code>, <code>floraweb_life_form_de</code>, <code>floraweb_leaf_shape_de</code>,
+<code>floraweb_leaf_anatomy_de</code>, <code>floraweb_leaf_persistence_de</code>, <code>floraweb_storage_organs_de</code>,
+<code>floraweb_flowering_months_de</code>, <code>floraweb_flowering_months_biolflor_de</code>,
+<code>floraweb_flowering_phase_de</code>, <code>floraweb_phenological_season_de</code>, <code>floraweb_description_de</code>.</p></dd>
 
 <dt>Reproductive biology</dt>
-<dd><p><code>pollination_vector_de</code>, <code>pollinator_de</code>,
-<code>pollinator_reward_de</code>, <code>flower_type_de</code>, <code>flower_class_de</code>,
-<code>dispersal_type_de</code>, <code>diaspore_type_de</code>, <code>germinule_type_de</code>,
-<code>reproduction_type_de</code>, <code>vegetative_spread_de</code>, <code>fertilization_type_de</code>,
-<code>apomixis_de</code>, <code>dicliny_de</code>, <code>dichogamy_de</code>, <code>self_incompatibility_de</code>,
-<code>si_mechanism_de</code>, <code>ploidy_de</code>, <code>chromosome_number_de</code>,
-<code>chromosome_freq_de</code>, <code>chromosomes_de</code>.</p></dd>
+<dd><p><code>floraweb_pollination_vector_de</code>, <code>floraweb_pollinator_de</code>,
+<code>floraweb_pollinator_reward_de</code>, <code>floraweb_flower_type_de</code>, <code>floraweb_flower_class_de</code>,
+<code>floraweb_dispersal_type_de</code>, <code>floraweb_diaspore_type_de</code>, <code>floraweb_germinule_type_de</code>,
+<code>floraweb_reproduction_type_de</code>, <code>floraweb_vegetative_spread_de</code>, <code>floraweb_fertilization_type_de</code>,
+<code>floraweb_apomixis_de</code>, <code>floraweb_dicliny_de</code>, <code>floraweb_dichogamy_de</code>, <code>floraweb_self_incompatibility_de</code>,
+<code>floraweb_si_mechanism_de</code>, <code>floraweb_ploidy_de</code>, <code>floraweb_chromosome_number_de</code>,
+<code>floraweb_chromosome_freq_de</code>, <code>floraweb_chromosomes_de</code>.</p></dd>
 
 <dt>Ecology</dt>
-<dd><p>the nine Ellenberg indicator values <code>ell_light_de</code>,
-<code>ell_temperature_de</code>, <code>ell_continentality_de</code>, <code>ell_moisture_de</code>,
-<code>ell_moisture_variability_de</code>, <code>ell_reaction_de</code>, <code>ell_nitrogen_de</code>,
-<code>ell_salt_de</code>, <code>heavy_metal_resistance_de</code>, plus <code>strategy_type_de</code>
-(Grime CSR), <code>habitat_site_de</code>, <code>formation_de</code>, <code>plant_community_de</code>,
-<code>biotope_type_de</code>, <code>forest_binding_de</code>, <code>hemeroby_de</code>, <code>urbanity_de</code>.</p></dd>
+<dd><p>the nine Ellenberg indicator values <code>floraweb_ell_light_de</code>,
+<code>floraweb_ell_temperature_de</code>, <code>floraweb_ell_continentality_de</code>, <code>floraweb_ell_moisture_de</code>,
+<code>floraweb_ell_moisture_variability_de</code>, <code>floraweb_ell_reaction_de</code>, <code>floraweb_ell_nitrogen_de</code>,
+<code>floraweb_ell_salt_de</code>, <code>floraweb_heavy_metal_resistance_de</code>, plus <code>floraweb_strategy_type_de</code>
+(Grime CSR), <code>floraweb_habitat_site_de</code>, <code>floraweb_formation_de</code>, <code>floraweb_plant_community_de</code>,
+<code>floraweb_biotope_type_de</code>, <code>floraweb_forest_binding_de</code>, <code>floraweb_hemeroby_de</code>, <code>floraweb_urbanity_de</code>.</p></dd>
 
 <dt>Distribution</dt>
-<dd><p><code>floristic_zones_de</code>, <code>areal_formula_de</code>,
-<code>areal_type_de</code>, <code>oceanity_de</code>, <code>range_centre_de</code>, <code>world_range_size_de</code>,
-<code>world_range_frequency_de</code>, <code>world_range_position_de</code>,
-<code>world_range_hazard_de</code>, <code>germany_range_share_de</code>,
-<code>germany_responsibility_de</code>.</p></dd>
+<dd><p><code>floraweb_floristic_zones_de</code>, <code>floraweb_areal_formula_de</code>,
+<code>floraweb_areal_type_de</code>, <code>floraweb_oceanity_de</code>, <code>floraweb_range_centre_de</code>, <code>floraweb_world_range_size_de</code>,
+<code>floraweb_world_range_frequency_de</code>, <code>floraweb_world_range_position_de</code>,
+<code>floraweb_world_range_hazard_de</code>, <code>floraweb_germany_range_share_de</code>,
+<code>floraweb_germany_responsibility_de</code>.</p></dd>
 
 
 </dl><p>Categorical traits with several applicable values are joined with "; ".
@@ -185,14 +186,83 @@ Schriftenreihe fuer Vegetationskunde 38. Bundesamt fuer Naturschutz, Bonn.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_floraweb</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Bellis perennis"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_floraweb</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names against 8 backbones: col -&gt; wcvp -&gt; lcvp -&gt; wfo -&gt; fishbase -&gt; sealifebase -&gt; reptiledb -&gt; gbif</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [col] Matching 1 names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [lcvp] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [wfo] Matching 1 remaining names...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [fishbase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [sealifebase] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [reptiledb] Skipped (all names matched)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [gbif] Skipped (all names matched)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        input_name    matched_name   accepted_name   taxon_id accepted_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Bellis perennis Bellis perennis Bellis perennis wfo-ex-009  wfo-ex-009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      rank     family  genus  epithet authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 species Asteraceae Bellis perennis         L.                  L.      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         ACCEPTED     FALSE      exact         NA      wfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           backbone_version kingdom_group taxon_group life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 wfo:example (2026-06-24)       plantae     unknown   unknown      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type floraweb_height_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;  example_height_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_life_form_de floraweb_leaf_shape_de floraweb_leaf_anatomy_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_life_form_de  example_leaf_shape_de  example_leaf_anatomy_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_leaf_persistence_de floraweb_storage_organs_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_leaf_persistence_de  example_storage_organs_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_flowering_months_de floraweb_flowering_months_biolflor_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_flowering_months_de  example_flowering_months_biolflor_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_flowering_phase_de floraweb_phenological_season_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_flowering_phase_de  example_phenological_season_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_description_de floraweb_pollination_vector_de floraweb_pollinator_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_description_de  example_pollination_vector_de  example_pollinator_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_pollinator_reward_de floraweb_flower_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_pollinator_reward_de  example_flower_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_flower_class_de floraweb_dispersal_type_de floraweb_diaspore_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_flower_class_de  example_dispersal_type_de  example_diaspore_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_germinule_type_de floraweb_reproduction_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_germinule_type_de  example_reproduction_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_vegetative_spread_de floraweb_fertilization_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_vegetative_spread_de  example_fertilization_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_apomixis_de floraweb_dicliny_de floraweb_dichogamy_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_apomixis_de  example_dicliny_de  example_dichogamy_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_self_incompatibility_de floraweb_si_mechanism_de floraweb_ploidy_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_self_incompatibility_de  example_si_mechanism_de  example_ploidy_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_chromosome_number_de floraweb_chromosome_freq_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_chromosome_number_de  example_chromosome_freq_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_chromosomes_de floraweb_ell_light_de floraweb_ell_temperature_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_chromosomes_de  example_ell_light_de  example_ell_temperature_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_ell_continentality_de floraweb_ell_moisture_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_ell_continentality_de  example_ell_moisture_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_ell_moisture_variability_de floraweb_ell_reaction_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_ell_moisture_variability_de  example_ell_reaction_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_ell_nitrogen_de floraweb_ell_salt_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_ell_nitrogen_de  example_ell_salt_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_heavy_metal_resistance_de floraweb_strategy_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_heavy_metal_resistance_de  example_strategy_type_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_habitat_site_de floraweb_formation_de floraweb_plant_community_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_habitat_site_de  example_formation_de  example_plant_community_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_biotope_type_de floraweb_forest_binding_de floraweb_hemeroby_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_biotope_type_de  example_forest_binding_de  example_hemeroby_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_urbanity_de floraweb_floristic_zones_de floraweb_areal_formula_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_urbanity_de  example_floristic_zones_de  example_areal_formula_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_areal_type_de floraweb_oceanity_de floraweb_range_centre_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_areal_type_de  example_oceanity_de  example_range_centre_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_world_range_size_de floraweb_world_range_frequency_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_world_range_size_de  example_world_range_frequency_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_world_range_position_de floraweb_world_range_hazard_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_world_range_position_de  example_world_range_hazard_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   floraweb_germany_range_share_de floraweb_germany_responsibility_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  example_germany_range_share_de  example_germany_responsibility_de</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: WFO example, FloraWeb (BfN; BiolFlor data, Klotz, Kuehn &amp; Durka 2002) example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

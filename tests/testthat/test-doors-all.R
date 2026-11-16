@@ -1,10 +1,6 @@
-# Every exported single-source door, parametrised over the namespace rather
-# than a hand-kept list, so a door added without a test is covered the moment
-# it is exported (#75). Each door is run twice. The first run swaps
-# enrich_simple() for a recorder, which yields the enrichment key and column map
-# the door declares; the second stages a mock .vtr carrying exactly those source
-# columns (plus one column the door does not map) and runs the real door against
-# it. test-doors.R keeps the value-level checks against the bundled fixtures.
+# Every exported single-source door supplies a declaration for staging its mock
+# .vtr, including one extra source column. The real door joins that fixture.
+# test-doors.R checks values against the bundled fixtures.
 
 # Doors with the plain (x, [cols], verbose) shape. Grouped doors take a group
 # argument (country, region, lang, group) and the info/verb doors are not
@@ -18,41 +14,6 @@ single_source_doors <- function() {
   sort(setdiff(ex[ok], "add_pignatti"))    # scrape-on-demand, no .vtr
 }
 
-# Doors that read their column map off the .vtr schema before joining need a
-# schema to read.
-door_schema_seed <- list(
-  add_gift = function() {
-    df <- data.frame(canonical_name = "Aaa bbb", stringsAsFactors = FALSE)
-    for (cc in taxify:::.gift_default_cols) df[[cc]] <- 1
-    list(gift = df)
-  }
-)
-
-# The enrich_simple() calls a door makes, with every argument resolved.
-record_door_calls <- function(door, seed = NULL) {
-  if (!is.null(seed)) {
-    for (nm in names(seed)) install_mock_enrichment(nm, seed[[nm]])
-  }
-  calls <- list()
-  rec <- function() {
-    a <- mget(names(formals(sys.function())), envir = environment())
-    names(a$col_map) <- taxify:::.prefix_columns(names(a$col_map), a$prefix)
-    if (!is.null(a$default_cols)) {
-      a$default_cols <- taxify:::.prefix_columns(a$default_cols, a$prefix)
-    }
-    calls[[length(calls) + 1L]] <<- a
-    a$x
-  }
-  formals(rec) <- formals(taxify:::enrich_simple)
-  x <- data.frame(accepted_name = "Aaa bbb", genus = "Aaa",
-                  stringsAsFactors = FALSE)
-  testthat::with_mocked_bindings(
-    tryCatch(door(x, verbose = FALSE), error = function(e) NULL),
-    enrich_simple = rec
-  )
-  calls
-}
-
 door_mock_frame <- function(call) {
   src <- unique(unname(call$col_map))
   df  <- data.frame(canonical_name = "Aaa bbb", genus = "Aaa",
@@ -62,22 +23,29 @@ door_mock_frame <- function(call) {
   df
 }
 
-door_calls <- local({
+door_specs <- local({
   cache <- NULL
   function() {
     if (is.null(cache)) {
       doors <- single_source_doors()
-      cache <<- stats::setNames(lapply(doors, function(d)
-        record_door_calls(get(d, envir = asNamespace("taxify")),
-                          seed = if (!is.null(door_schema_seed[[d]]))
-                            door_schema_seed[[d]]())), doors)
+      cache <<- stats::setNames(lapply(doors, function(d) {
+        keys <- if (d == "add_combine") c("combine_reported", "combine_imputed") else
+          substring(d, 5L)
+        lapply(keys, function(key) {
+          spec <- taxify:::.enrichment_door_spec(key,
+            data.frame(column = taxify:::.gift_default_cols))
+          list(enrichment_name = spec$enrichment_name, col_map = spec$map,
+               prefix = spec$prefix, default_cols = if (!is.null(spec$default_cols))
+                 taxify:::.prefix_columns(spec$default_cols, spec$prefix) else NULL)
+        })
+      }), doors)
     }
     cache
   }
 })
 
 test_that("every single-source door is found and declares its join", {
-  calls <- door_calls()
+  calls <- door_specs()
   expect_gt(length(calls), 90L)
   for (d in names(calls)) {
     expect_gt(length(calls[[d]]), 0L, label = paste0(d, " calls enrich_simple()"))
@@ -87,8 +55,8 @@ test_that("every single-source door is found and declares its join", {
 test_that("every door's enrichment key resolves to a published or build-only source", {
   mf <- taxify:::local_manifest()
   known <- c(names(mf$enrichments), taxify:::.build_only_enrichments())
-  for (d in names(door_calls())) {
-    for (cl in door_calls()[[d]]) {
+  for (d in names(door_specs())) {
+    for (cl in door_specs()[[d]]) {
       expect_true(cl$enrichment_name %in% known,
                   info = paste0(d, ": key '", cl$enrichment_name, "'"))
     }
@@ -96,8 +64,8 @@ test_that("every door's enrichment key resolves to a published or build-only sou
 })
 
 test_that("a door's column prefix is a whole token that its curated columns carry", {
-  for (d in names(door_calls())) {
-    for (cl in door_calls()[[d]]) {
+  for (d in names(door_specs())) {
+    for (cl in door_specs()[[d]]) {
       p <- cl$prefix
       if (is.null(p)) next
       expect_match(p, "_$", info = d)
@@ -110,9 +78,9 @@ test_that("a door's column prefix is a whole token that its curated columns carr
 test_that("every door attaches, selects and handles an empty input on a mock", {
   x <- data.frame(accepted_name = "Aaa bbb", genus = "Aaa",
                   stringsAsFactors = FALSE)
-  for (d in names(door_calls())) {
+  for (d in names(door_specs())) {
     door  <- get(d, envir = asNamespace("taxify"))
-    calls <- door_calls()[[d]]
+    calls <- door_specs()[[d]]
     for (cl in calls) install_mock_enrichment(cl$enrichment_name,
                                               door_mock_frame(cl))
     has_cols <- "cols" %in% names(formals(door))
@@ -168,8 +136,8 @@ test_that("every column a door maps exists in its example-database fixture", {
   exdir <- file.path(taxify_example_data(), "enrichment")
   skip_if_not(dir.exists(exdir), "example database not available")
   checked <- 0L
-  for (d in names(door_calls())) {
-    for (cl in door_calls()[[d]]) {
+  for (d in names(door_specs())) {
+    for (cl in door_specs()[[d]]) {
       p <- file.path(exdir, cl$enrichment_name, "latest",
                      paste0(cl$enrichment_name, ".vtr"))
       if (!file.exists(p)) next

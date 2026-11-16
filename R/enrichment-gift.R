@@ -91,18 +91,13 @@ add_gift <- function(x, cols = NULL, verbose = TRUE) {
       "internet connection."), call. = FALSE)
   }
 
-  # Full col_map over every bundled gift_ column (identity: .vtr name = output).
-  # The engine applies the cols selection, defaulting to .gift_default_cols, and
-  # types each column from the .vtr schema.
-  col_map <- stats::setNames(available$column, available$column)
-
-  enrich_simple(
-    x,
-    enrichment_name = "gift",
-    col_map         = col_map,
-    source_label    = "GIFT (Weigelt et al. 2020)",
-    cols            = cols,
-    default_cols    = .gift_default_cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_gift, cols = cols, verbose = verbose, available = available)
 }
+
+
+.door_gift <- list(
+  enrichment_name = "gift",
+  col_map = function(available) stats::setNames(available$column, available$column),
+  source_label = "GIFT (Weigelt et al. 2020)",
+  default_cols = .gift_default_cols
+)

@@ -90,20 +90,8 @@ add_euromed_distribution <- function(x, region, cols = NULL, verbose = TRUE) {
     stop("'region' is required. Use an ISO 3166-1 alpha-2 code (e.g., \"DE\"), ",
          "a Euro+Med area code (see euromed_areas()) or \"all\".", call. = FALSE)
   }
-  enrich_by_group(
-    x,
-    enrichment_name = "euromed_distribution",
-    group_col       = "area_code",
-    groups          = .euromed_resolve_regions(region),
-    value_cols      = c(status = "euromed_status"),
-    source_label    = "Euro+Med PlantBase",
-    cols            = cols,
-    prefer          = list(
-      col   = "euromed_status",
-      order = c("native", "naturalised", "introduced", "casual", "cultivated",
-                "doubtful", "extinct")),
-    verbose         = verbose
-  )
+  enrich_door(x, .door_euromed_distribution, groups = .euromed_resolve_regions(region),
+      cols = cols, verbose = verbose)
 }
 
 
@@ -127,3 +115,13 @@ add_euromed_distribution <- function(x, region, cols = NULL, verbose = TRUE) {
   }
   unique(out)
 }
+
+
+.door_euromed_distribution <- list(
+  enrichment_name = "euromed_distribution",
+  group_col = "area_code",
+  value_cols = c(status = "euromed_status"),
+  source_label = "Euro+Med PlantBase",
+  prefer = list(col = "euromed_status", order = c("native", "naturalised", "introduced",
+    "casual", "cultivated", "doubtful", "extinct"))
+)

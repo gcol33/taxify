@@ -26,17 +26,25 @@
 #'
 #' @export
 add_saproxylic <- function(x, cols = NULL, verbose = TRUE) {
-  base_cols <- c("body_length_mm", "body_width_mm", "body_height_mm", "mass_mg",
-            "colour_lightness", "head_length_mm", "pronotum_length_mm",
-            "elytra_length_mm", "wing_length_mm", "wing_aspect",
-            "antenna_length_mm", "eye_length_mm")
-  col_map <- stats::setNames(base_cols, paste0("saproxylic_", base_cols))
-  enrich_simple(
-    x,
-    enrichment_name = "saproxylic",
-    col_map         = col_map,
-    source_label    = "Saproxylic beetle morphology",
-    cols            = cols,
-    verbose         = verbose
-  )
+  enrich_door(x, .door_saproxylic, cols = cols, verbose = verbose)
 }
+
+
+.door_saproxylic <- list(
+  enrichment_name = "saproxylic",
+  col_map = c(
+    saproxylic_body_length_mm = "body_length_mm",
+    saproxylic_body_width_mm = "body_width_mm",
+    saproxylic_body_height_mm = "body_height_mm",
+    saproxylic_mass_mg = "mass_mg",
+    saproxylic_colour_lightness = "colour_lightness",
+    saproxylic_head_length_mm = "head_length_mm",
+    saproxylic_pronotum_length_mm = "pronotum_length_mm",
+    saproxylic_elytra_length_mm = "elytra_length_mm",
+    saproxylic_wing_length_mm = "wing_length_mm",
+    saproxylic_wing_aspect = "wing_aspect",
+    saproxylic_antenna_length_mm = "antenna_length_mm",
+    saproxylic_eye_length_mm = "eye_length_mm"
+  ),
+  source_label = "Saproxylic beetle morphology"
+)

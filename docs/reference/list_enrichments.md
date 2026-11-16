@@ -21,6 +21,12 @@ list_enrichments(verbose = TRUE)
 A data.frame with columns: `name`, `version`, `nrow`, `static`,
 `trait_cols` (comma-separated), and `source_url`.
 
+## See also
+
+Other Browse and discover:
+[`enrichment_cols()`](https://gillescolling.com/taxify/reference/enrichment_cols.md),
+[`enrichment_groups()`](https://gillescolling.com/taxify/reference/enrichment_groups.md)
+
 ## Examples
 
 ``` r

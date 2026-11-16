@@ -30,7 +30,7 @@ install still matches."><meta property="og:image" content="https://gillescolling
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@ install still matches."><meta property="og:image" content="https://gillescolling
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -118,25 +119,53 @@ installed backbone.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A lock list (invisibly when <code>file</code> is written), with elements
-<code>taxify_version</code>, <code>created</code>, <code>r_version</code>, <code>backbones</code>, and <code>enrichments</code>.</p>
+<code>taxify_version</code>, <code>created</code>, <code>r_version</code>, <code>backbones</code>, and <code>enrichments</code>.
+Each backbone entry contains <code>name</code>, <code>version</code>, <code>content_id</code>,
+<code>downloaded_at</code> and <code>installed</code>; enrichment entries also contain
+<code>source</code> and <code>license</code>. Only enrichments that supplied values are included.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Create the lock immediately after matching and enrichment. Backbone
+identities are read from the active installation when the lock is made.
+Writing a lock leaves refresh settings unchanged; <code><a href="taxify_pin.html">taxify_pin()</a></code> or
+<code>taxify_restore(install = TRUE)</code> pins installed builds.</p>
+<p>The lock records backbone and contributing enrichment assets. Save the
+input names, matching arguments and R package environment with your script;
+the lock does not record those or the register and region-boundary assets.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="taxify_restore.html">taxify_restore()</a></code> to check an install against a lockfile, <code><a href="cite.html">cite()</a></code>
-for prose citations.</p></div>
+for prose citations.</p>
+<p>Other Backbone data and cache:
+<code><a href="lookup_genus.html">lookup_genus()</a></code>,
+<code><a href="taxify_build.html">taxify_build()</a></code>,
+<code><a href="taxify_clean.html">taxify_clean()</a></code>,
+<code><a href="taxify_clear_cache.html">taxify_clear_cache()</a></code>,
+<code><a href="taxify_data_dir.html">taxify_data_dir()</a></code>,
+<code><a href="taxify_download.html">taxify_download()</a></code>,
+<code><a href="taxify_example_data.html">taxify_example_data()</a></code>,
+<code><a href="taxify_load_register.html">taxify_load_register()</a></code>,
+<code><a href="taxify_refresh_manifest.html">taxify_refresh_manifest()</a></code>,
+<code><a href="taxify_register_coverage.html">taxify_register_coverage()</a></code>,
+<code><a href="taxify_restore.html">taxify_restore()</a></code>,
+<code><a href="taxify_store.html">taxify_store()</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">res</span>  <span class="op">&lt;-</span> <span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">lock</span> <span class="op">&lt;-</span> <span class="fu">taxify_lock</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
-<span><span class="va">lock</span><span class="op">$</span><span class="va">backbones</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">name</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">res</span>  <span class="op">&lt;-</span> <span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Quercus robur"</span>, backbone <span class="op">=</span> <span class="st">"wfo"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lock</span> <span class="op">&lt;-</span> <span class="fu">taxify_lock</span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lock</span><span class="op">$</span><span class="va">backbones</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">name</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "wfo"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

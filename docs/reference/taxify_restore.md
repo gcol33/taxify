@@ -65,8 +65,22 @@ reporting drift after the install pass.
 to pin or release an installed build without a lockfile,
 [`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
 for the builds on disk,
-[`taxify_download_enrichment()`](https://gillescolling.com/taxify/reference/taxify_download_enrichment.md)
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md)
 to fetch a single build by content id.
+
+Other Backbone data and cache:
+[`lookup_genus()`](https://gillescolling.com/taxify/reference/lookup_genus.md),
+[`taxify_build()`](https://gillescolling.com/taxify/reference/taxify_build.md),
+[`taxify_clean()`](https://gillescolling.com/taxify/reference/taxify_clean.md),
+[`taxify_clear_cache()`](https://gillescolling.com/taxify/reference/taxify_clear_cache.md),
+[`taxify_data_dir()`](https://gillescolling.com/taxify/reference/taxify_data_dir.md),
+[`taxify_download()`](https://gillescolling.com/taxify/reference/taxify_download.md),
+[`taxify_example_data()`](https://gillescolling.com/taxify/reference/taxify_example_data.md),
+[`taxify_load_register()`](https://gillescolling.com/taxify/reference/taxify_load_register.md),
+[`taxify_lock()`](https://gillescolling.com/taxify/reference/taxify_lock.md),
+[`taxify_refresh_manifest()`](https://gillescolling.com/taxify/reference/taxify_refresh_manifest.md),
+[`taxify_register_coverage()`](https://gillescolling.com/taxify/reference/taxify_register_coverage.md),
+[`taxify_store()`](https://gillescolling.com/taxify/reference/taxify_store.md)
 
 ## Examples
 
@@ -77,6 +91,10 @@ old <- options(taxify.data_dir = taxify_example_data())
 res  <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
 lock <- taxify_lock(res)
 taxify_restore(lock, verbose = FALSE)
+#>   component     type locked_version installed_version locked_content_id
+#> 1       wfo backbone        example           example              <NA>
+#>   installed_content_id status
+#> 1                 <NA>     ok
 
 options(old)
 ```

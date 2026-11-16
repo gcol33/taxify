@@ -31,55 +31,55 @@ add_amphibio(x, cols = NULL, verbose = TRUE)
 
 The same data.frame with additional columns:
 
-- body_size_mm:
+- amphibio_body_size_mm:
 
   Maximum body size in mm (snout-vent length).
 
-- age_maturity_y:
+- amphibio_age_maturity_y:
 
   Age at maturity in years.
 
-- longevity_yr:
+- amphibio_longevity_yr:
 
   Maximum longevity in years.
 
-- litter_size:
+- amphibio_litter_size:
 
   Clutch/litter size.
 
-- reproductive_output:
+- amphibio_reproductive_output:
 
   Reproductive output per year.
 
-- offspring_size_mm:
+- amphibio_offspring_size_mm:
 
   Offspring size in mm.
 
-- direct_development:
+- amphibio_direct_development:
 
   Direct development (0/1).
 
-- larval:
+- amphibio_larval:
 
-  Has larval stage (0/1).
+  Has amphibio_larval stage (0/1).
 
-- aquatic:
+- amphibio_aquatic:
 
   Aquatic habitat (0/1).
 
-- fossorial:
+- amphibio_fossorial:
 
   Fossorial habitat (0/1).
 
-- arboreal:
+- amphibio_arboreal:
 
   Arboreal habitat (0/1).
 
-- diurnal:
+- amphibio_diurnal:
 
   Diurnal activity (0/1).
 
-- nocturnal_amphibio:
+- amphibio_nocturnal_amphibio:
 
   Nocturnal activity (0/1). Named `nocturnal_amphibio` to avoid
   collision with EltonTraits' `nocturnal` column.
@@ -103,6 +103,28 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 taxify("Bufo bufo", backbone = "gbif") |>
   add_amphibio()
+#> Matching 1 names...
+#>   input_name matched_name accepted_name    taxon_id accepted_id    rank
+#> 1  Bufo bufo    Bufo bufo     Bufo bufo gbif-ex-003 gbif-ex-003 species
+#>      family genus epithet       authorship accepted_authorship is_synonym
+#> 1 Bufonidae  Bufo    bufo (Linnaeus, 1758)    (Linnaeus, 1758)      FALSE
+#>   taxonomic_status is_hybrid match_type fuzzy_dist backbone
+#> 1         ACCEPTED     FALSE      exact         NA     gbif
+#>            backbone_version kingdom_group taxon_group life_form qualifier
+#> 1 gbif:example (2026-06-24)      animalia      animal    animal      <NA>
+#>   qualifier_position aggregate_fallback hybrid_type amphibio_body_size_mm
+#> 1               <NA>                 NA        <NA>  example_body_size_mm
+#>   amphibio_age_maturity_y amphibio_longevity_yr amphibio_litter_size
+#> 1                       2                    40  example_litter_size
+#>   amphibio_reproductive_output amphibio_offspring_size_mm
+#> 1  example_reproductive_output  example_offspring_size_mm
+#>   amphibio_direct_development amphibio_larval amphibio_aquatic
+#> 1  example_direct_development  example_larval  example_aquatic
+#>   amphibio_fossorial amphibio_arboreal amphibio_diurnal
+#> 1  example_fossorial  example_arboreal  example_diurnal
+#>   amphibio_nocturnal_amphibio
+#> 1  example_nocturnal_amphibio
+#> Sources: GBIF example, AmphiBIO example | cite() for full citations
 
 options(old)
 ```

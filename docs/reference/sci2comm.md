@@ -98,6 +98,14 @@ to attach vernaculars to a
 [`taxify()`](https://gillescolling.com/taxify/reference/taxify.md)
 result.
 
+Other Match and inspect names:
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md),
+[`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+[`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md),
+[`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md),
+[`reconcile()`](https://gillescolling.com/taxify/reference/reconcile.md)
+
 ## Examples
 
 ``` r
@@ -106,6 +114,10 @@ old <- options(taxify.data_dir = taxify_example_data())
 
 # The bundled example maps Quercus robur -> "example_common_name" (en + de)
 sci2comm("Quercus robur", resolve = FALSE)
+#>      input_name accepted_name           common_name lang name_rank
+#> 1 Quercus robur Quercus robur   example_common_name   de         1
+#> 2 Quercus robur Quercus robur   example_common_name   en         1
+#> 3 Quercus robur Quercus robur alternate_common_name   en         2
 
 options(old)
 ```

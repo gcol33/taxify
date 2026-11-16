@@ -51,22 +51,58 @@
 #'
 #' @export
 add_clopla <- function(x, cols = NULL, verbose = TRUE) {
-  # Trait codes are the source's own (see the CLO-PLA data paper); taxifydb
-  # keeps them verbatim rather than inventing labels for them.
-  base <- c("woody", "annual", "perennialnonclonal", "monocarpic", "polycarpic",
-            "clonal", "Primaryroot", "BB0", "BB0_mn10", "BB_gtmn10", "BB0R",
-            "BB0_mn10R", "BB_gtmn10R", "BBsize", "BBdepth", "BBRsize",
-            "BBRdepth", "persistence", "offspring", "offspring_wsmall",
-            "spread", "clonalindex", "dispersibility", "Rsprouter",
-            "branching", "cyclicity", "finalCGO", "PositionRB", "RoleRB")
-  default <- paste0("clopla_", c("clonal", "clonalindex", "woody", "annual",
-                                 "monocarpic", "polycarpic", "persistence",
-                                 "offspring", "spread", "BBsize", "BBdepth",
-                                 "finalCGO"))
-  col_map <- stats::setNames(base, paste0("clopla_", base))
-  enrich_simple(
-    x, enrichment_name = "clopla", col_map = col_map,
-    source_label = "CLO-PLA (Klimesova et al. 2017)",
-    cols = cols, default_cols = default, verbose = verbose
-  )
+  enrich_door(x, .door_clopla, cols = cols, verbose = verbose)
 }
+
+
+# Trait codes are the source's own (see the CLO-PLA data paper); taxifydb
+# keeps them verbatim rather than inventing labels for them.
+.door_clopla <- list(
+  enrichment_name = "clopla",
+  col_map = c(
+    clopla_woody = "woody",
+    clopla_annual = "annual",
+    clopla_perennialnonclonal = "perennialnonclonal",
+    clopla_monocarpic = "monocarpic",
+    clopla_polycarpic = "polycarpic",
+    clopla_clonal = "clonal",
+    clopla_Primaryroot = "Primaryroot",
+    clopla_BB0 = "BB0",
+    clopla_BB0_mn10 = "BB0_mn10",
+    clopla_BB_gtmn10 = "BB_gtmn10",
+    clopla_BB0R = "BB0R",
+    clopla_BB0_mn10R = "BB0_mn10R",
+    clopla_BB_gtmn10R = "BB_gtmn10R",
+    clopla_BBsize = "BBsize",
+    clopla_BBdepth = "BBdepth",
+    clopla_BBRsize = "BBRsize",
+    clopla_BBRdepth = "BBRdepth",
+    clopla_persistence = "persistence",
+    clopla_offspring = "offspring",
+    clopla_offspring_wsmall = "offspring_wsmall",
+    clopla_spread = "spread",
+    clopla_clonalindex = "clonalindex",
+    clopla_dispersibility = "dispersibility",
+    clopla_Rsprouter = "Rsprouter",
+    clopla_branching = "branching",
+    clopla_cyclicity = "cyclicity",
+    clopla_finalCGO = "finalCGO",
+    clopla_PositionRB = "PositionRB",
+    clopla_RoleRB = "RoleRB"
+  ),
+  source_label = "CLO-PLA (Klimesova et al. 2017)",
+  default_cols = c(
+    "clopla_clonal",
+    "clopla_clonalindex",
+    "clopla_woody",
+    "clopla_annual",
+    "clopla_monocarpic",
+    "clopla_polycarpic",
+    "clopla_persistence",
+    "clopla_offspring",
+    "clopla_spread",
+    "clopla_BBsize",
+    "clopla_BBdepth",
+    "clopla_finalCGO"
+  )
+)

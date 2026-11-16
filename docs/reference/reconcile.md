@@ -100,6 +100,14 @@ A data.frame with one row per input name, columns:
 to expand the ambiguous rows,
 [`synonyms()`](https://gillescolling.com/taxify/reference/synonyms.md).
 
+Other Match and inspect names:
+[`cite()`](https://gillescolling.com/taxify/reference/cite.md),
+[`comm2sci()`](https://gillescolling.com/taxify/reference/comm2sci.md),
+[`id2name()`](https://gillescolling.com/taxify/reference/id2name.md),
+[`inspect()`](https://gillescolling.com/taxify/reference/inspect.md),
+[`parse_name()`](https://gillescolling.com/taxify/reference/parse_name.md),
+[`sci2comm()`](https://gillescolling.com/taxify/reference/sci2comm.md)
+
 ## Examples
 
 ``` r
@@ -111,6 +119,16 @@ old <- options(taxify.data_dir = taxify_example_data())
 reconcile(c("Quercus robur", "Quercus pedunculata", "Quercus robus",
             "Notagenus imaginus"),
           backbone = "wfo", verbose = FALSE)
+#>            input_name accepted_name      status is_synonym match_type n_ids
+#> 1       Quercus robur Quercus robur   unchanged      FALSE      exact     1
+#> 2 Quercus pedunculata          <NA>  unresolved         NA       none    NA
+#> 3       Quercus robus Quercus robur misspelling      FALSE      fuzzy     1
+#> 4  Notagenus imaginus          <NA>  unresolved         NA       none    NA
+#>   merged   merged_with backbone
+#> 1   TRUE Quercus robus      wfo
+#> 2  FALSE          <NA>     <NA>
+#> 3   TRUE Quercus robur      wfo
+#> 4  FALSE          <NA>     <NA>
 
 options(old)
 ```

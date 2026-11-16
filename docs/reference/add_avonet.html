@@ -22,7 +22,7 @@ and migration to a taxify() result by looking up accepted_name."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">taxify</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,7 @@ and migration to a taxify() result by looking up accepted_name."><meta property=
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/backbones.html">Choosing and combining backbones</a></li>
+    <li><a class="dropdown-item" href="../articles/reproducibility.html">Recording and restoring data versions</a></li>
     <li><a class="dropdown-item" href="../articles/inspecting-names.html">Checking a name list</a></li>
     <li><a class="dropdown-item" href="../articles/regions.html">Matching within a region</a></li>
     <li><a class="dropdown-item" href="../articles/enrichments.html">Attaching published data</a></li>
@@ -104,37 +105,37 @@ curated set; a character vector of column names attaches just those, and
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The same data.frame with additional columns:</p><dl><dt>beak_length</dt>
+    <p>The same data.frame with additional columns:</p><dl><dt>avonet_beak_length</dt>
 <dd><p>Beak length in mm (culmen, species mean).</p></dd>
 
-<dt>beak_depth</dt>
+<dt>avonet_beak_depth</dt>
 <dd><p>Beak depth in mm (species mean).</p></dd>
 
-<dt>wing_length</dt>
+<dt>avonet_wing_length</dt>
 <dd><p>Wing length in mm (species mean).</p></dd>
 
-<dt>tail_length</dt>
+<dt>avonet_tail_length</dt>
 <dd><p>Tail length in mm (species mean).</p></dd>
 
-<dt>tarsus_length</dt>
+<dt>avonet_tarsus_length</dt>
 <dd><p>Tarsus length in mm (species mean).</p></dd>
 
 <dt>avonet_body_mass_g</dt>
 <dd><p>Body mass in grams (species mean).</p></dd>
 
-<dt>hand_wing_index</dt>
+<dt>avonet_hand_wing_index</dt>
 <dd><p>Hand-wing index (pointedness, species mean).</p></dd>
 
-<dt>habitat</dt>
-<dd><p>Primary habitat classification.</p></dd>
+<dt>avonet_habitat</dt>
+<dd><p>Primary avonet_habitat classification.</p></dd>
 
-<dt>trophic_level</dt>
+<dt>avonet_trophic_level</dt>
 <dd><p>Trophic level classification.</p></dd>
 
-<dt>trophic_niche</dt>
+<dt>avonet_trophic_niche</dt>
 <dd><p>Trophic niche classification.</p></dd>
 
-<dt>migration</dt>
+<dt>avonet_migration</dt>
 <dd><p>Migration strategy: <code>"sedentary"</code>, <code>"partial"</code>,
 or <code>"full"</code>.</p></dd>
 
@@ -153,14 +154,33 @@ geographical data for all birds. Ecology Letters 25:581-597.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Runs offline against the bundled example database.</span></span>
-<span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Parus major"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">add_avonet</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span>
-<span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Runs offline against the bundled example database.</span></span></span>
+<span class="r-in"><span><span class="va">old</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>taxify.data_dir <span class="op">=</span> <span class="fu"><a href="taxify_example_data.html">taxify_example_data</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="taxify.html">taxify</a></span><span class="op">(</span><span class="st">"Parus major"</span>, backbone <span class="op">=</span> <span class="st">"gbif"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_avonet</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Matching 1 names...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    input_name matched_name accepted_name    taxon_id accepted_id    rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Parus major  Parus major   Parus major gbif-ex-002 gbif-ex-002 species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    family genus epithet     authorship accepted_authorship is_synonym</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Paridae Parus   major Linnaeus, 1758      Linnaeus, 1758      FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taxonomic_status is_hybrid match_type fuzzy_dist backbone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         ACCEPTED     FALSE      exact         NA     gbif</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            backbone_version kingdom_group taxon_group life_form qualifier</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 gbif:example (2026-06-24)      animalia      animal    animal      &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   qualifier_position aggregate_fallback hybrid_type avonet_beak_length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1               &lt;NA&gt;                 NA        &lt;NA&gt;                 11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   avonet_beak_depth avonet_wing_length avonet_tail_length avonet_tarsus_length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                11                 11                 11                   11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   avonet_body_mass_g avonet_hand_wing_index  avonet_habitat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 11                     11 example_habitat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   avonet_trophic_level  avonet_trophic_niche  avonet_migration</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                   11 example_trophic_niche example_migration</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sources: GBIF example, AVONET example | cite() for full citations</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
