@@ -14,7 +14,7 @@ options(width = 80)
 
 `taxify()` reads a backbone in one direction, from a name to its accepted taxon. This article shows the functions that read it in the others: the synonyms of a taxon, the species of a genus, the ranks above a species, the taxon behind an ID, the parts of a name, and common names. It ends with a taxonomy tree of a species list. Installation is covered in [Get started](taxify.html). Every example reads the Catalogue of Life (COL); `backbone` names another.
 
-1. **List** synonyms with `synonyms()`, and the taxa below a genus or family with `children()` and `downstream()`.
+1. **List** synonyms with `synonyms()`, and the taxa below a genus or family with `downstream()`.
 
 2. **Climb** to the ranks above a taxon with `upstream()` and `add_classification()`.
 
@@ -42,10 +42,10 @@ The input can itself be a synonym: `synonyms("Pinus abies")` lists the same set,
 
 ## Taxa below a genus or family
 
-To complete a checklist, the species of a genus are needed. `children()` lists the accepted species of a genus, or of a family:
+To complete a checklist, the species of a genus are needed. `downstream()` lists the accepted species of a genus, or of a family:
 
-```{r children}
-spruces <- children("Picea", backbone = "col", verbose = FALSE)
+```{r genus-descendants}
+spruces <- downstream("Picea", backbone = "col", verbose = FALSE)
 nrow(spruces)
 head(spruces[, c("name", "authorship", "rank")])
 ```
@@ -58,7 +58,7 @@ genera <- downstream("Pinaceae", backbone = "col", downto = "genus",
 genera$name
 ```
 
-Both return accepted taxa only, and never the parent itself. A genus name used in two kingdoms, such as *Prunella*, is split with `kingdom`, as in `taxify()`.
+The result contains accepted descendants. A genus name used in two kingdoms, such as *Prunella*, is split with `kingdom`, as in `taxify()`.
 
 ## Ranks above a taxon
 

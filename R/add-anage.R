@@ -8,16 +8,16 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{max_longevity_yr}{Maximum longevity in years.}
+#'   \item{anage_max_longevity_yr}{Maximum longevity in years.}
 #'   \item{anage_body_mass_g}{Adult body mass in grams.}
-#'   \item{metabolic_rate_w}{Basal metabolic rate in watts.}
-#'   \item{female_maturity_d}{Female age at sexual maturity in days.}
-#'   \item{male_maturity_d}{Male age at sexual maturity in days.}
-#'   \item{gestation_incubation_d}{Gestation or incubation length in days.}
+#'   \item{anage_metabolic_rate_w}{Basal metabolic rate in watts.}
+#'   \item{anage_female_maturity_d}{Female age at sexual maturity in days.}
+#'   \item{anage_male_maturity_d}{Male age at sexual maturity in days.}
+#'   \item{anage_gestation_incubation_d}{Gestation or incubation length in days.}
 #'   \item{anage_litter_size}{Litter or clutch size.}
-#'   \item{birth_mass_g}{Mass at birth in grams.}
-#'   \item{growth_rate}{Growth rate (1/days).}
-#'   \item{temperature_k}{Body temperature in Kelvin.}
+#'   \item{anage_birth_mass_g}{Mass at birth in grams.}
+#'   \item{anage_growth_rate}{Growth rate (1/days).}
+#'   \item{anage_temperature_k}{Body temperature in Kelvin.}
 #' }
 #'
 #' @details

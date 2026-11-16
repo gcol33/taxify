@@ -3493,7 +3493,7 @@
         source_label = enrichment,
         na_types     = na_t,
         join_col     = join_col,
-        expose_all   = FALSE,
+        expose_all   = FALSE, prefix = "",
         verbose      = FALSE,
         aggregate_trait_fallback = aggregate_trait_fallback
       )
@@ -3509,7 +3509,7 @@
         value_cols   = stats::setNames(col, tmp),
         source_label = enrichment,
         na_types     = na_t,
-        expose_all   = FALSE,
+        expose_all   = FALSE, prefix = "",
         verbose      = FALSE
       )
     },
@@ -3538,7 +3538,7 @@
       x, enrichment_name = enrichment,
       col_map = cm, source_label = enrichment,
       na_types = na_t, join_col = join_col,
-      expose_all = FALSE, verbose = FALSE,
+      expose_all = FALSE, prefix = "", verbose = FALSE,
       aggregate_trait_fallback = aggregate_trait_fallback
     ),
     error = function(e) .trait_join_failed(e, enrichment, warn)

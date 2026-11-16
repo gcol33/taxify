@@ -7,10 +7,10 @@
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `zooplankton_` columns: numeric
-#'   `body_length_max_mm`, `carbon_weight_mg`, `nitrogen_pdw_pct`; categorical
-#'   `vertical_distribution`, `reproduction_mode`, `trophic_group`,
-#'   `feeding_mode`, `myelination`, `habitat_association`,
-#'   `diel_vertical_migration`, `bioluminescence`.
+#'   `zooplankton_body_length_max_mm`, `zooplankton_carbon_weight_mg`, `zooplankton_nitrogen_pdw_pct`; categorical
+#'   `zooplankton_vertical_distribution`, `zooplankton_reproduction_mode`, `zooplankton_trophic_group`,
+#'   `zooplankton_feeding_mode`, `zooplankton_myelination`, `zooplankton_habitat_association`,
+#'   `zooplankton_diel_vertical_migration`, `zooplankton_bioluminescence`.
 #'
 #' @details Source: Pata & Hunt global marine zooplankton trait database
 #'   (Zenodo, CC-BY-SA 4.0).

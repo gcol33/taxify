@@ -9,8 +9,8 @@
 #'   for sub-national units (e.g., `"DEU"` for Germany, `"USA.CA"` for
 #'   California). List them with `enrichment_groups("glonaf")`.
 #'   \itemize{
-#'     \item Single region: adds `naturalized` column (no suffix).
-#'     \item Multiple regions: adds `naturalized_<region>` columns.
+#'     \item Single region: adds `glonaf_naturalized` column (no suffix).
+#'     \item Multiple regions: adds `glonaf_naturalized_<region>` columns.
 #'     \item `"all"`: adds one column per region in the dataset.
 #'   }
 #' @param verbose Logical. Default `TRUE`.
@@ -19,7 +19,7 @@
 #'   `"all"` attaches every column the source carries (see [enrichment_cols()]).
 #' @return The same data.frame with additional column(s):
 #' \describe{
-#'   \item{naturalized}{`1` if the species is recorded as
+#'   \item{glonaf_naturalized}{`1` if the species is recorded as
 #'     naturalized in that region, `NA` otherwise.}
 #' }
 #'

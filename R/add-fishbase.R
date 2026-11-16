@@ -8,31 +8,31 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{fb_body_length_cm}{Maximum body length in centimetres.}
-#'   \item{fb_body_mass_g}{Maximum published weight in grams (FishBase
+#'   \item{fishbase_fb_body_length_cm}{Maximum body length in centimetres.}
+#'   \item{fishbase_fb_body_mass_g}{Maximum published weight in grams (FishBase
 #'     \code{SPECIES.Weight}). This is a record maximum, not a typical or
 #'     adult-mean mass.}
-#'   \item{fb_trophic_level}{Trophic level.}
-#'   \item{fb_depth_min_m}{Minimum depth in metres.}
-#'   \item{fb_depth_max_m}{Maximum depth in metres.}
-#'   \item{fb_vulnerability}{Vulnerability index (0--100).}
-#'   \item{fb_habitat}{Habitat type (e.g. demersal, pelagic).}
-#'   \item{fb_importance}{Commercial importance category.}
-#'   \item{fb_lw_a}{Coefficient \code{a} of the length-weight relationship
+#'   \item{fishbase_fb_trophic_level}{Trophic level.}
+#'   \item{fishbase_fb_depth_min_m}{Minimum depth in metres.}
+#'   \item{fishbase_fb_depth_max_m}{Maximum depth in metres.}
+#'   \item{fishbase_fb_vulnerability}{Vulnerability index (0--100).}
+#'   \item{fishbase_fb_habitat}{Habitat type (e.g. demersal, pelagic).}
+#'   \item{fishbase_fb_importance}{Commercial importance category.}
+#'   \item{fishbase_fb_lw_a}{Coefficient \code{a} of the length-weight relationship
 #'     \code{W = a * L^b} (weight in g, length in cm of type \code{fb_lw_type}),
 #'     from FishBase's POPLW table.}
-#'   \item{fb_lw_b}{Exponent \code{b} of the length-weight relationship.}
-#'   \item{fb_lw_type}{Length convention the coefficients were fitted against
+#'   \item{fishbase_fb_lw_b}{Exponent \code{b} of the length-weight relationship.}
+#'   \item{fishbase_fb_lw_type}{Length convention the coefficients were fitted against
 #'     (\code{TL} total, \code{SL} standard, \code{FL} fork, \code{WD} width,
 #'     ...). Chosen to match the species' maximum-length type where recorded, so
 #'     it applies to \code{fb_body_length_cm}. Applying a coefficient to a
 #'     different length type is a silent error.}
-#'   \item{fb_lw_method}{How the fit was obtained (e.g. "type I linear
+#'   \item{fishbase_fb_lw_method}{How the fit was obtained (e.g. "type I linear
 #'     regression", "single L-W pair with b=3").}
-#'   \item{fb_lw_sex}{Sex the fit applies to (unsexed, mixed, female, male,
+#'   \item{fishbase_fb_lw_sex}{Sex the fit applies to (unsexed, mixed, female, male,
 #'     juvenile).}
-#'   \item{fb_lw_n}{Sample size the fit was based on.}
-#'   \item{fb_lw_r2}{Coefficient of determination (\code{r^2}) of the fit.}
+#'   \item{fishbase_fb_lw_n}{Sample size the fit was based on.}
+#'   \item{fishbase_fb_lw_r2}{Coefficient of determination (\code{r^2}) of the fit.}
 #' }
 #'
 #' @details

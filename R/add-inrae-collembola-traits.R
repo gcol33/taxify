@@ -51,8 +51,6 @@ add_inrae_collembola_traits <- function(x, cols = NULL, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Collembola traits (Data INRAE / Joimel et al. 2021)",
     cols            = cols,
-    col_prefix      = "inrae_",
-    out_prefix      = "inrae_",
     verbose         = verbose
   )
 }

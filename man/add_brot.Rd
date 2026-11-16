@@ -14,10 +14,10 @@ add_brot(x, cols = NULL, verbose = TRUE)
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{brot_} columns: numeric \code{seed_mass_mg},
-\code{sla_mm2_mg}, \code{height_m}, \code{leaf_area_mm2}; categorical \code{resp_fire},
-\code{growth_form}, \code{disp_mode}, \code{fruit_type}, \code{soil_seed_bank},
-\code{seedling_emergence}.
+The same data.frame with \code{brot_} columns: numeric \code{brot_seed_mass_mg},
+\code{brot_sla_mm2_mg}, \code{brot_height_m}, \code{brot_leaf_area_mm2}; categorical \code{brot_resp_fire},
+\code{brot_growth_form}, \code{brot_disp_mode}, \code{brot_fruit_type}, \code{brot_soil_seed_bank},
+\code{brot_seedling_emergence}.
 }
 \description{
 Joins Mediterranean-Basin plant fire-response, regeneration and functional

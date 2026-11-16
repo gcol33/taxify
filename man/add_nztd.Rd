@@ -14,9 +14,9 @@ add_nztd(x, cols = NULL, verbose = TRUE)
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with categorical \code{nztd_} columns: \code{bioturbation},
-\code{body_size}, \code{degree_of_attachment}, \code{feeding_mode}, \code{living_habit},
-\code{mobility}, \code{morphology}, \code{movement_method}, \code{rigidity}.
+The same data.frame with categorical \code{nztd_} columns: \code{nztd_bioturbation},
+\code{nztd_body_size}, \code{nztd_degree_of_attachment}, \code{nztd_feeding_mode}, \code{nztd_living_habit},
+\code{nztd_mobility}, \code{nztd_morphology}, \code{nztd_movement_method}, \code{nztd_rigidity}.
 }
 \description{
 Joins New Zealand marine benthic-invertebrate functional traits to a

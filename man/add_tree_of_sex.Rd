@@ -16,15 +16,15 @@ add_tree_of_sex(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{tos_taxon_group}{Source group (plants/vertebrates/invertebrates).}
-\item{tos_sexual_system}{Sexual system (vocabulary differs by group).}
-\item{tos_karyotype}{Sex-chromosome system (XY/ZW/XO/homomorphic/...).}
-\item{tos_genotypic}{Heterogamety (male/female heterogametic/GSD/...).}
-\item{tos_molecular_basis}{Molecular basis (Y dominant/W dominant/dosage).}
-\item{tos_selfing}{Selfing (plants; self compatible/incompatible).}
-\item{tos_environmental_sd}{Environmental sex determination (vertebrates;
+\item{tree_of_sex_tos_taxon_group}{Source group (plants/vertebrates/invertebrates).}
+\item{tree_of_sex_tos_sexual_system}{Sexual system (vocabulary differs by group).}
+\item{tree_of_sex_tos_karyotype}{Sex-chromosome system (XY/ZW/XO/homomorphic/...).}
+\item{tree_of_sex_tos_genotypic}{Heterogamety (male/female heterogametic/GSD/...).}
+\item{tree_of_sex_tos_molecular_basis}{Molecular basis (Y dominant/W dominant/dosage).}
+\item{tree_of_sex_tos_selfing}{Selfing (plants; self compatible/incompatible).}
+\item{tree_of_sex_tos_environmental_sd}{Environmental sex determination (vertebrates;
 TSD/...).}
-\item{tos_haplodiploidy}{Haplodiploidy (invertebrates).}
+\item{tree_of_sex_tos_haplodiploidy}{Haplodiploidy (invertebrates).}
 }
 }
 \description{

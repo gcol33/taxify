@@ -9,16 +9,16 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns. The curated set:
 #' \describe{
-#'   \item{edwards_taxon_group}{Coarse phytoplankton group (diatom, green, ...).}
-#'   \item{edwards_habitat_system}{Habitat (marine/freshwater).}
-#'   \item{edwards_cell_volume}{Cell volume (micron^3).}
-#'   \item{edwards_carbon_per_cell}{Carbon content per cell (pg C).}
-#'   \item{edwards_mu_inf_nit}{Maximum growth rate on nitrate (per day).}
-#'   \item{edwards_k_nit}{Half-saturation constant for growth on nitrate.}
-#'   \item{edwards_qmin_nit}{Minimum cell nitrogen quota.}
-#'   \item{edwards_mu_inf_p}{Maximum growth rate on phosphorus (per day).}
-#'   \item{edwards_k_p}{Half-saturation constant for growth on phosphorus.}
-#'   \item{edwards_qmin_p}{Minimum cell phosphorus quota.}
+#'   \item{edwards_phyto_edwards_taxon_group}{Coarse phytoplankton group (diatom, green, ...).}
+#'   \item{edwards_phyto_edwards_habitat_system}{Habitat (marine/freshwater).}
+#'   \item{edwards_phyto_edwards_cell_volume}{Cell volume (micron^3).}
+#'   \item{edwards_phyto_edwards_carbon_per_cell}{Carbon content per cell (pg C).}
+#'   \item{edwards_phyto_edwards_mu_inf_nit}{Maximum growth rate on nitrate (per day).}
+#'   \item{edwards_phyto_edwards_k_nit}{Half-saturation constant for growth on nitrate.}
+#'   \item{edwards_phyto_edwards_qmin_nit}{Minimum cell nitrogen quota.}
+#'   \item{edwards_phyto_edwards_mu_inf_p}{Maximum growth rate on phosphorus (per day).}
+#'   \item{edwards_phyto_edwards_k_p}{Half-saturation constant for growth on phosphorus.}
+#'   \item{edwards_phyto_edwards_qmin_p}{Minimum cell phosphorus quota.}
 #' }
 #' With `cols = "all"` the full set of ammonium/nitrate/phosphorus uptake and
 #' quota parameters (`vmax_amm`, `mu_nit`, `vmax_p`, `qmax_p`, ...) is attached under

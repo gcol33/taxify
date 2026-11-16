@@ -14,10 +14,10 @@ add_sheld(x, cols = NULL, verbose = TRUE)
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{sheld_} columns: numeric \code{mean_length_mm},
-\code{max_length_mm}, \code{mature_age}, \code{max_age}, \code{growth_rate}, \code{fecundity},
-\code{n_host_species}, \code{n_host_family}; categorical \code{brood}, \code{marsupial_gills},
-\code{hermaphrodite}, \code{shell_sculpture}.
+The same data.frame with \code{sheld_} columns: numeric \code{sheld_mean_length_mm},
+\code{sheld_max_length_mm}, \code{sheld_mature_age}, \code{sheld_max_age}, \code{sheld_growth_rate}, \code{sheld_fecundity},
+\code{sheld_n_host_species}, \code{sheld_n_host_family}; categorical \code{sheld_brood}, \code{sheld_marsupial_gills},
+\code{sheld_hermaphrodite}, \code{sheld_shell_sculpture}.
 }
 \description{
 Joins US freshwater-mussel life-history and host traits to a \code{\link[=taxify]{taxify()}} result

@@ -14,19 +14,19 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional `_uk` columns:
 #' \describe{
-#'   \item{height_max_mm_uk, height_min_mm_uk}{Typical maximum and minimum
+#'   \item{ecoflora_height_max_mm_uk, ecoflora_height_min_mm_uk}{Typical maximum and minimum
 #'     plant height (mm; Ecoflora records cm).}
-#'   \item{leaf_area_uk}{Leaf area class (cm\eqn{^2}).}
-#'   \item{leaf_longevity_uk}{Leaf longevity (e.g. evergreen, deciduous).}
-#'   \item{root_system_uk}{Root system type.}
-#'   \item{photosynthetic_pathway_uk}{Photosynthetic pathway (C3/C4/CAM).}
-#'   \item{life_form_uk}{Raunkiaer life form.}
-#'   \item{reproduction_uk}{Reproduction method.}
-#'   \item{flower_begin_month_uk, flower_end_month_uk}{Flowering months (1-12).}
-#'   \item{pollination_vector_uk}{Pollen vector(s).}
-#'   \item{seed_weight_mg_uk}{Seed weight (mg).}
-#'   \item{propagule_uk}{Propagule / dispersule type.}
-#'   \item{ell_light_uk, ell_moisture_uk, ell_reaction_uk, ell_nitrogen_uk,
+#'   \item{ecoflora_leaf_area_uk}{Leaf area class (cm\eqn{^2}).}
+#'   \item{ecoflora_leaf_longevity_uk}{Leaf longevity (e.g. evergreen, deciduous).}
+#'   \item{ecoflora_root_system_uk}{Root system type.}
+#'   \item{ecoflora_photosynthetic_pathway_uk}{Photosynthetic pathway (C3/C4/CAM).}
+#'   \item{ecoflora_life_form_uk}{Raunkiaer life form.}
+#'   \item{ecoflora_reproduction_uk}{Reproduction method.}
+#'   \item{ecoflora_flower_begin_month_uk, ecoflora_flower_end_month_uk}{Flowering months (1-12).}
+#'   \item{ecoflora_pollination_vector_uk}{Pollen vector(s).}
+#'   \item{ecoflora_seed_weight_mg_uk}{Seed weight (mg).}
+#'   \item{ecoflora_propagule_uk}{Propagule / dispersule type.}
+#'   \item{ecoflora_ell_light_uk, ecoflora_ell_moisture_uk, ecoflora_ell_reaction_uk, ecoflora_ell_nitrogen_uk,
 #'     ell_salt_uk}{Ellenberg indicator values calibrated for the British flora
 #'     (light, moisture, reaction, nitrogen, salt).}
 #' }

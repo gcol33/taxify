@@ -26,6 +26,9 @@
 #' @noRd
 enrich_via_tr8 <- function(x, db, col_map, source_label, license,
                            na_types = NULL, verbose = TRUE) {
+  prefix <- .enrichment_prefix(tolower(db))
+  names(col_map) <- .prefix_columns(names(col_map), prefix)
+  if (!is.null(na_types)) names(na_types) <- .prefix_columns(names(na_types), prefix)
   if (!requireNamespace("TR8", quietly = TRUE)) {
     stop(sprintf(paste0(
       "Package 'TR8' is required for add_%s(): it fetches %s data on demand ",
@@ -126,12 +129,14 @@ enrich_via_tr8 <- function(x, db, col_map, source_label, license,
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{light_it, temperature_it, continentality_it, moisture_it,
-#'     reaction_it, nutrients_it, salinity_it}{Ellenberg-type indicator values
+#'   \item{pignatti_light_it, pignatti_temperature_it,
+#'     pignatti_continentality_it, pignatti_moisture_it,
+#'     pignatti_reaction_it, pignatti_nutrients_it,
+#'     pignatti_salinity_it}{Ellenberg-type indicator values
 #'     calibrated for the Italian flora (codes; `X` = indifferent, `0` = not
 #'     applicable).}
-#'   \item{life_form_it}{Life form for the Italian flora.}
-#'   \item{chorotype_it}{Chorological type (distribution).}
+#'   \item{pignatti_life_form_it}{Life form for the Italian flora.}
+#'   \item{pignatti_chorotype_it}{Chorological type (distribution).}
 #' }
 #'
 #' @details

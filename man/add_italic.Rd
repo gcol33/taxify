@@ -18,10 +18,10 @@ See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{growth_form}{Thallus growth form (crustose, foliose, fruticose, ...).}
-\item{substrata}{Substrata the species grows on.}
-\item{photobiont}{Photosynthetic partner.}
-\item{reproductive_strategy}{Reproductive strategy.}
+\item{italic_growth_form}{Thallus growth form (crustose, foliose, fruticose, ...).}
+\item{italic_substrata}{Substrata the species grows on.}
+\item{italic_photobiont}{Photosynthetic partner.}
+\item{italic_reproductive_strategy}{Reproductive strategy.}
 }
 }
 \description{

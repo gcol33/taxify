@@ -84,8 +84,8 @@ test_that("add_wcvp() attaches the native status for one TDWG region", {
   skip_if_not(enrichment_ready("wcvp"), "wcvp fixture missing")
   out <- add_wcvp(grouped_probe(), region = "GER", verbose = FALSE)
 
-  expect_true("native_status" %in% names(out))
-  expect_equal(out$native_status, c("native", NA_character_, NA_character_))
+  expect_true("wcvp_native_status" %in% names(out))
+  expect_equal(out$wcvp_native_status, c("native", NA_character_, NA_character_))
 })
 
 test_that("add_wcvp() suffixes one column per region when several are asked", {
@@ -93,11 +93,11 @@ test_that("add_wcvp() suffixes one column per region when several are asked", {
   skip_if_not(enrichment_ready("wcvp"), "wcvp fixture missing")
   out <- add_wcvp(grouped_probe(), region = c("GER", "BGM"), verbose = FALSE)
 
-  expect_true(all(c("native_status_GER", "native_status_BGM") %in% names(out)))
-  expect_false("native_status" %in% names(out))
-  expect_equal(out$native_status_GER[1L], "native")
-  expect_equal(out$native_status_BGM[1L], "native")
-  expect_true(all(is.na(out$native_status_GER[2:3])))
+  expect_true(all(c("wcvp_native_status_GER", "wcvp_native_status_BGM") %in% names(out)))
+  expect_false("wcvp_native_status" %in% names(out))
+  expect_equal(out$wcvp_native_status_GER[1L], "native")
+  expect_equal(out$wcvp_native_status_BGM[1L], "native")
+  expect_true(all(is.na(out$wcvp_native_status_GER[2:3])))
 })
 
 test_that("add_wcvp() returns NA for a region outside the source", {
@@ -105,8 +105,8 @@ test_that("add_wcvp() returns NA for a region outside the source", {
   skip_if_not(enrichment_ready("wcvp"), "wcvp fixture missing")
   out <- add_wcvp(grouped_probe(), region = "ZZZ", verbose = FALSE)
 
-  expect_true("native_status" %in% names(out))
-  expect_true(all(is.na(out$native_status)))
+  expect_true("wcvp_native_status" %in% names(out))
+  expect_true(all(is.na(out$wcvp_native_status)))
 })
 
 test_that("add_wcvp() requires a region", {
@@ -122,8 +122,8 @@ test_that("add_glonaf() flags only the species GloNAF records for the region", {
   skip_if_not(enrichment_ready("glonaf"), "glonaf fixture missing")
   out <- add_glonaf(grouped_probe(), region = "DEU", verbose = FALSE)
 
-  expect_true("naturalized" %in% names(out))
-  expect_equal(out$naturalized, c(NA_real_, 1, NA_real_))
+  expect_true("glonaf_naturalized" %in% names(out))
+  expect_equal(out$glonaf_naturalized, c(NA_real_, 1, NA_real_))
 })
 
 test_that("add_glonaf() suffixes one column per region when several are asked", {
@@ -131,10 +131,10 @@ test_that("add_glonaf() suffixes one column per region when several are asked", 
   skip_if_not(enrichment_ready("glonaf"), "glonaf fixture missing")
   out <- add_glonaf(grouped_probe(), region = c("DEU", "AUT"), verbose = FALSE)
 
-  expect_true(all(c("naturalized_DEU", "naturalized_AUT") %in% names(out)))
-  expect_equal(out$naturalized_DEU[2L], 1)
-  expect_equal(out$naturalized_AUT[2L], 1)
-  expect_true(is.na(out$naturalized_DEU[1L]))
+  expect_true(all(c("glonaf_naturalized_DEU", "glonaf_naturalized_AUT") %in% names(out)))
+  expect_equal(out$glonaf_naturalized_DEU[2L], 1)
+  expect_equal(out$glonaf_naturalized_AUT[2L], 1)
+  expect_true(is.na(out$glonaf_naturalized_DEU[1L]))
 })
 
 test_that("add_glonaf() records how many rows it enriched", {
@@ -163,12 +163,12 @@ test_that("add_alien_first_records() attaches the year and its provenance column
   out <- add_alien_first_records(grouped_probe(), location = "AT",
                                  verbose = FALSE)
 
-  expect_true(all(c("alien_first_record", "alien_first_record_source",
-                    "alien_first_record_reference") %in% names(out)))
-  expect_equal(out$alien_first_record, c(NA, 11, 13))
-  expect_equal(out$alien_first_record_source,
+  expect_true(all(c("alien_first_records_year", "alien_first_records_source",
+                    "alien_first_records_reference") %in% names(out)))
+  expect_equal(out$alien_first_records_year, c(NA, 11, 13))
+  expect_equal(out$alien_first_records_source,
                c(NA_character_, rep("example_alien_first_record_source", 2L)))
-  expect_equal(out$alien_first_record_reference[2L],
+  expect_equal(out$alien_first_records_reference[2L],
                "example_alien_first_record_reference")
 })
 
@@ -179,10 +179,10 @@ test_that("add_alien_first_records() keeps each location's year in its own colum
   out <- add_alien_first_records(grouped_probe(), location = c("AT", "DE"),
                                  verbose = FALSE)
 
-  expect_true(all(c("alien_first_record_AT", "alien_first_record_DE")
+  expect_true(all(c("alien_first_records_year_AT", "alien_first_records_year_DE")
                   %in% names(out)))
-  expect_equal(out$alien_first_record_AT, c(NA, 11, 13))
-  expect_equal(out$alien_first_record_DE, c(NA, 12, 14))
+  expect_equal(out$alien_first_records_year_AT, c(NA, 11, 13))
+  expect_equal(out$alien_first_records_year_DE, c(NA, 12, 14))
 })
 
 test_that("add_alien_first_records() keeps an island apart from its country", {
@@ -195,9 +195,9 @@ test_that("add_alien_first_records() keeps an island apart from its country", {
                                  cols = c("alien_first_record", "country_code"),
                                  verbose = FALSE)
 
-  expect_equal(out$alien_first_record_Hawaii, c(NA, 15, NA))
-  expect_equal(out$country_code_Hawaii, c(NA, "US", NA))
-  expect_true(all(is.na(out$alien_first_record_US)))
+  expect_equal(out$alien_first_records_year_Hawaii, c(NA, 15, NA))
+  expect_equal(out$alien_first_records_country_code_Hawaii, c(NA, "US", NA))
+  expect_true(all(is.na(out$alien_first_records_year_US)))
   expect_true("Hawaii" %in% enrichment_groups("alien_first_records",
                                               verbose = FALSE))
 })
@@ -209,9 +209,9 @@ test_that("add_alien_first_records() honours cols=", {
   out <- add_alien_first_records(grouped_probe(), location = "AT",
                                  cols = "alien_first_record", verbose = FALSE)
 
-  expect_true("alien_first_record" %in% names(out))
-  expect_false("alien_first_record_source" %in% names(out))
-  expect_equal(out$alien_first_record, c(NA, 11, 13))
+  expect_true("alien_first_records_year" %in% names(out))
+  expect_false("alien_first_records_source" %in% names(out))
+  expect_equal(out$alien_first_records_year, c(NA, 11, 13))
 })
 
 test_that("add_alien_first_records() returns NA for a location outside the source", {
@@ -221,7 +221,7 @@ test_that("add_alien_first_records() returns NA for a location outside the sourc
   out <- add_alien_first_records(grouped_probe(), location = "ZZ",
                                  verbose = FALSE)
 
-  expect_true(all(is.na(out$alien_first_record)))
+  expect_true(all(is.na(out$alien_first_records_year)))
 })
 
 test_that("add_alien_first_records() requires a location", {

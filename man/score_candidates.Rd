@@ -72,7 +72,7 @@ candidates <- data.frame(
   taxonID = c("2", "1"), taxonomicStatus = c("SYNONYM", "ACCEPTED"),
   taxonRank = "SPECIES", is_synonym = c(TRUE, FALSE)
 )
-score_candidates(candidates)
+taxify:::score_candidates(candidates)
 
 }
 \seealso{

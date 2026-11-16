@@ -1,4 +1,4 @@
-# Backbone-browsing verbs: synonyms(), children(), add_classification(),
+# Backbone-browsing verbs: synonyms(), downstream(), add_classification(),
 # taxify_ids(). Run against the bundled example database, where the
 # reptiledb backbone carries a synonym (Amphibolurus vitticeps -> Pogona
 # vitticeps) and the full higher classification, and the wfo backbone carries
@@ -38,13 +38,13 @@ test_that("synonyms() returns an empty frame when there are no synonyms", {
   expect_equal(nrow(s), 0L)
 })
 
-test_that("children() lists the accepted species of a genus", {
+test_that("downstream() lists the accepted species of a genus", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  ch <- children("Quercus", backbone = "wfo", verbose = FALSE)
+  ch <- downstream("Quercus", backbone = "wfo", verbose = FALSE)
   expect_true(all(c("Quercus robur", "Quercus petraea", "Quercus pyrenaica")
                   %in% ch$name))
   expect_true(all(ch$genus == "Quercus"))
@@ -53,31 +53,31 @@ test_that("children() lists the accepted species of a genus", {
   expect_true(all(toupper(ch$rank) == "SPECIES"))
 })
 
-test_that("children() auto-detects a family parent", {
+test_that("downstream() auto-detects a family parent", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  ch <- children("Fagaceae", backbone = "wfo", rank = "any", verbose = FALSE)
+  ch <- downstream("Fagaceae", backbone = "wfo", downto = "any", verbose = FALSE)
   expect_true(nrow(ch) >= 3L)
   expect_true(all(ch$parent_rank == "family"))
   expect_true(all(ch$family == "Fagaceae"))
 })
 
-test_that("children() input is case-insensitive and returns empty on no match", {
+test_that("downstream() input is case-insensitive and returns empty on no match", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()  # drop any backbone paths cached by earlier test files
   skip_if_not(backbone_ready("wfo"), "wfo example backbone missing")
 
-  lower <- children("quercus", backbone = "wfo", verbose = FALSE)
-  upper <- children("Quercus", backbone = "wfo", verbose = FALSE)
-  # Matching row counts alone would also hold if children() found nothing at
+  lower <- downstream("quercus", backbone = "wfo", verbose = FALSE)
+  upper <- downstream("Quercus", backbone = "wfo", verbose = FALSE)
+  # Matching row counts alone would also hold if downstream() found nothing at
   # all, so pin that the genus resolves and that the two agree in content.
   expect_gt(nrow(upper), 0L)
   expect_identical(lower, upper)
-  expect_equal(nrow(children("Notagenus", backbone = "wfo", verbose = FALSE)), 0L)
+  expect_equal(nrow(downstream("Notagenus", backbone = "wfo", verbose = FALSE)), 0L)
 })
 
 test_that("backbone = NULL resolves to the top-priority installed backbone (#24)", {

@@ -33,15 +33,15 @@ enrichment_group_vocabulary <- function() {
 #' Reshape grouped enrichment columns to long format
 #'
 #' Converts wide-format columns produced by grouped enrichments (e.g.,
-#' `invasive_status_AT`, `invasive_status_DE`) back to long format with
+#' `griis_invasive_status_AT`, `griis_invasive_status_DE`) back to long format with
 #' one row per species x group combination.
 #'
 #' @param x A data.frame, typically a [taxify()] result after applying
 #'   a grouped enrichment like [add_griis()],
 #'   [add_alien_first_records()], or [add_wcvp()].
 #' @param cols Character vector of base column names to reshape. These are
-#'   the column names without the group suffix (e.g., `"invasive_status"`,
-#'   not `"invasive_status_AT"`). If omitted, auto-detected from the
+#'   the column names without the group suffix (e.g., `"griis_invasive_status"`,
+#'   not `"griis_invasive_status_AT"`). If omitted, auto-detected from the
 #'   enrichment metadata stamped by the `add_*()` functions.
 #' @param group_col Character. Name for the output group column.
 #'   If omitted, auto-detected from enrichment metadata (e.g.,
@@ -85,7 +85,7 @@ enrichment_group_vocabulary <- function() {
 #' # Explicit: override auto-detection
 #' taxify("Robinia pseudoacacia") |>
 #'   add_griis(country = c("AT", "DE")) |>
-#'   taxify_long(cols = "invasive_status", group_col = "country")
+#'   taxify_long(cols = "griis_invasive_status", group_col = "country")
 #'
 #' options(old)
 #'

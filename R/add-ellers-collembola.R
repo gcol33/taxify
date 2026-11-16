@@ -10,13 +10,13 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{ellers_vertical_distribution}{Vertical stratification (soil depth
+#'   \item{ellers_collembola_ellers_vertical_distribution}{Vertical stratification (soil depth
 #'     class).}
-#'   \item{ellers_body_size_mm}{Body size (mm).}
-#'   \item{ellers_reproduction}{Reproduction mode (sexual or asexual).}
-#'   \item{ellers_moisture_pref}{Moisture preference.}
-#'   \item{ellers_temperature_pref}{Temperature preference.}
-#'   \item{ellers_thermal_niche_breadth}{Thermal niche breadth.}
+#'   \item{ellers_collembola_ellers_body_size_mm}{Body size (mm).}
+#'   \item{ellers_collembola_ellers_reproduction}{Reproduction mode (sexual or asexual).}
+#'   \item{ellers_collembola_ellers_moisture_pref}{Moisture preference.}
+#'   \item{ellers_collembola_ellers_temperature_pref}{Temperature preference.}
+#'   \item{ellers_collembola_ellers_thermal_niche_breadth}{Thermal niche breadth.}
 #' }
 #'
 #' @details

@@ -12,8 +12,8 @@ a grouped enrichment like \code{\link[=add_griis]{add_griis()}},
 \code{\link[=add_alien_first_records]{add_alien_first_records()}}, or \code{\link[=add_wcvp]{add_wcvp()}}.}
 
 \item{cols}{Character vector of base column names to reshape. These are
-the column names without the group suffix (e.g., \code{"invasive_status"},
-not \code{"invasive_status_AT"}). If omitted, auto-detected from the
+the column names without the group suffix (e.g., \code{"griis_invasive_status"},
+not \code{"griis_invasive_status_AT"}). If omitted, auto-detected from the
 enrichment metadata stamped by the \verb{add_*()} functions.}
 
 \item{group_col}{Character. Name for the output group column.
@@ -32,7 +32,7 @@ group code extracted from the suffix.
 }
 \description{
 Converts wide-format columns produced by grouped enrichments (e.g.,
-\code{invasive_status_AT}, \code{invasive_status_DE}) back to long format with
+\code{griis_invasive_status_AT}, \code{griis_invasive_status_DE}) back to long format with
 one row per species x group combination.
 }
 \details{
@@ -64,7 +64,7 @@ taxify("Robinia pseudoacacia") |>
 # Explicit: override auto-detection
 taxify("Robinia pseudoacacia") |>
   add_griis(country = c("AT", "DE")) |>
-  taxify_long(cols = "invasive_status", group_col = "country")
+  taxify_long(cols = "griis_invasive_status", group_col = "country")
 
 options(old)
 

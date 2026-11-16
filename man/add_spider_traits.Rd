@@ -16,17 +16,17 @@ add_spider_traits(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{spider_body_length_mm}{Body length (mm).}
-\item{spider_prosoma_length_mm}{Cephalothorax (prosoma) length (mm).}
-\item{spider_prosoma_width_mm}{Cephalothorax (prosoma) width (mm).}
-\item{spider_abdomen_length_mm}{Abdomen (opisthosoma) length (mm).}
-\item{spider_leg1_length_mm}{Leg I length (mm).}
-\item{spider_ballooning}{Ballooning (aerial dispersal): yes/no.}
-\item{spider_web_building}{Web building: yes/no.}
-\item{spider_hunting_guild}{Hunting guild.}
-\item{spider_web_type}{Web type.}
-\item{spider_circadian_activity}{Circadian activity (diurnal/nocturnal).}
-\item{spider_stratum}{Vertical stratum (habitat layer).}
+\item{spider_traits_spider_body_length_mm}{Body length (mm).}
+\item{spider_traits_spider_prosoma_length_mm}{Cephalothorax (prosoma) length (mm).}
+\item{spider_traits_spider_prosoma_width_mm}{Cephalothorax (prosoma) width (mm).}
+\item{spider_traits_spider_abdomen_length_mm}{Abdomen (opisthosoma) length (mm).}
+\item{spider_traits_spider_leg1_length_mm}{Leg I length (mm).}
+\item{spider_traits_spider_ballooning}{Ballooning (aerial dispersal): yes/no.}
+\item{spider_traits_spider_web_building}{Web building: yes/no.}
+\item{spider_traits_spider_hunting_guild}{Hunting guild.}
+\item{spider_traits_spider_web_type}{Web type.}
+\item{spider_traits_spider_circadian_activity}{Circadian activity (diurnal/nocturnal).}
+\item{spider_traits_spider_stratum}{Vertical stratum (habitat layer).}
 }
 }
 \description{

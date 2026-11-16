@@ -29,7 +29,7 @@ test_that("enrich_simple() recovers a row the source holds under another backbon
                   stringsAsFactors = FALSE)
 
   r <- testthat::with_mocked_bindings(
-    taxify:::enrich_simple(x, "mockrecovery", col_map = c(regions = "regions"),
+    taxify:::enrich_simple(prefix = "", x, "mockrecovery", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
     .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       alt_frame(list("Minuartia hybrida", "wcvp",
@@ -54,7 +54,7 @@ test_that("recovery reports once per call, naming the backbone that supplied it"
 
   expect_message(
     testthat::with_mocked_bindings(
-      taxify:::enrich_simple(x, "mockreport", col_map = c(regions = "regions"),
+      taxify:::enrich_simple(prefix = "", x, "mockreport", col_map = c(regions = "regions"),
                              source_label = "mock", verbose = TRUE),
       .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
         alt_frame(list("Minuartia hybrida", "col", "Sabulina tenuifolia"),
@@ -75,7 +75,7 @@ test_that("recovery leaves a direct hit alone and only fills empty cells", {
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
   r <- testthat::with_mocked_bindings(
-    taxify:::enrich_simple(x, "mockdirect", col_map = c(regions = "regions"),
+    taxify:::enrich_simple(prefix = "", x, "mockdirect", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
     .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       # An alternative is offered for the row that already matched too; the
@@ -98,7 +98,7 @@ test_that("options(taxify.cross_backbone_recovery = FALSE) leaves the gap empty"
 
   withr::local_options(taxify.cross_backbone_recovery = FALSE)
   r <- testthat::with_mocked_bindings(
-    taxify:::enrich_simple(x, "mockoff", col_map = c(regions = "regions"),
+    taxify:::enrich_simple(prefix = "", x, "mockoff", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
     .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       stop("alternatives must not be resolved when recovery is off")
@@ -122,7 +122,7 @@ test_that("recovery prefers the backbone the enrichment is named after", {
                   stringsAsFactors = FALSE)
 
   r <- testthat::with_mocked_bindings(
-    taxify:::enrich_simple(x, "wcvp", col_map = c(regions = "regions"),
+    taxify:::enrich_simple(prefix = "", x, "wcvp", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
     .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       alt_frame(list("Minuartia hybrida", "col",
@@ -145,7 +145,7 @@ test_that("recovery falls back to fallback priority when the source is not a bac
                   stringsAsFactors = FALSE)
 
   r <- testthat::with_mocked_bindings(
-    taxify:::enrich_simple(x, "mockprio", col_map = c(regions = "regions"),
+    taxify:::enrich_simple(prefix = "", x, "mockprio", col_map = c(regions = "regions"),
                            source_label = "mock", verbose = FALSE),
     .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
       # Offered lowest-priority first, so a bare "take the first row" would
@@ -168,7 +168,7 @@ test_that("a genus-keyed enrichment recovers on the alternative's genus", {
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
   r <- testthat::with_mocked_bindings(
-    taxify:::enrich_simple(x, "mockgenusrec", col_map = c(myco = "myco"),
+    taxify:::enrich_simple(prefix = "", x, "mockgenusrec", col_map = c(myco = "myco"),
                            source_label = "mock", join_col = "genus",
                            verbose = FALSE),
     .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
@@ -189,7 +189,7 @@ test_that("enrich_by_group() recovers, including when the direct join matched no
                   stringsAsFactors = FALSE)
 
   r <- testthat::with_mocked_bindings(
-    taxify:::enrich_by_group(x, "mockgroup", group_col = "tdwg_code",
+    taxify:::enrich_by_group(prefix = "", x, "mockgroup", group_col = "tdwg_code",
                              groups = c("BGM", "GER"),
                              value_cols = c(native_status = "native_status"),
                              source_label = "mock", verbose = FALSE),

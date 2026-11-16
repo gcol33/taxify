@@ -22,8 +22,8 @@ as the country; anything else must be an area code, as listed by
 \item{cols}{Which columns to attach. \code{NULL} (the default) attaches
 \code{euromed_status}; a character vector attaches just those, and \code{"all"}
 attaches every column the source carries (see \code{\link[=enrichment_cols]{enrichment_cols()}}), among
-them \code{euromed_status_detail}, \code{euromed_status_source}, \code{area_name},
-\code{iso2} and the taxon's Euro+Med UUID, \code{taxon_id}.}
+them \code{euromed_status_detail}, \code{euromed_status_source}, \code{euromed_area_name},
+\code{euromed_iso2} and the taxon's Euro+Med UUID, \code{euromed_taxon_id}.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }

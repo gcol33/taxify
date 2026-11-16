@@ -37,12 +37,12 @@ test_that("add_gift() attaches curated GIFT trait columns by accepted name", {
   expect_type(r$gift_plant_height_max, "double")
 })
 
-test_that("gift_traits() lists columns and add_gift() honours cols=", {
+test_that("enrichment_cols lists GIFT columns and add_gift() honours cols=", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   skip_if_not(gift_ready(), "gift enrichment not available")
 
-  cat_df <- gift_traits()
+  cat_df <- enrichment_cols("gift")
   expect_true(all(c("column", "type") %in% names(cat_df)))
   expect_true(all(grepl("^gift_", cat_df$column)))
 
@@ -64,8 +64,8 @@ test_that("enrichment_cols() is the generic browse and cols= works on any door",
   on.exit(options(old), add = TRUE)
   skip_if_not(gift_ready(), "gift enrichment not available")
 
-  # generic browse == gift_traits()
-  expect_equal(enrichment_cols("gift"), gift_traits())
+  # generic browse == enrichment_cols("gift")
+  expect_equal(enrichment_cols("gift"), enrichment_cols("gift"))
 
   # add_gift(cols = "all") attaches every bundled column, more than the default.
   x <- data.frame(query = "Abies alba", accepted_name = "Abies alba",
@@ -89,7 +89,7 @@ test_that("enrichment_cols() is the generic browse and cols= works on any door",
   n_sub  <- length(grep("_de$", names(sub)))
   expect_equal(n_sub, 2L)
   expect_lt(n_sub, n_full)
-  expect_true(all(c("ell_light_de", "ell_nitrogen_de") %in% names(sub)))
+  expect_true(all(c("floraweb_ell_light_de", "floraweb_ell_nitrogen_de") %in% names(sub)))
 })
 
 test_that("add_gift() attaches NA for species absent from GIFT", {

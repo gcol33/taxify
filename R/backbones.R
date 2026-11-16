@@ -298,7 +298,7 @@ resolve_default_backend <- function(verbose = TRUE) {
 
 #' Resolve a single default backbone for the reverse/browse verbs
 #'
-#' The browse and lookup verbs ([synonyms()], [children()], [downstream()],
+#' The browse and lookup verbs ([synonyms()], [downstream()],
 #' [upstream()], [id2name()]) read one backbone directly rather than running the
 #' whole fallback chain, so `backbone = NULL` resolves to the highest-priority
 #' installed backbone -- offering the default set on a fresh machine exactly as

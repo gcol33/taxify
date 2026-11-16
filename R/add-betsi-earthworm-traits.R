@@ -53,8 +53,6 @@ add_betsi_earthworm_traits <- function(x, cols = NULL, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Earthworm traits (Pelosi et al. 2014)",
     cols            = cols,
-    col_prefix      = "betsi_ew_",
-    out_prefix      = "betsi_ew_",
     verbose         = verbose
   )
 }

@@ -23,7 +23,7 @@ Auto-loads the register on first call.
 \examples{
 old <- options(taxify.data_dir = taxify_example_data(),
                taxify.offline = TRUE)
-taxify_load_register(force = TRUE, verbose = FALSE)
+taxify:::taxify_load_register(force = TRUE, verbose = FALSE)
 lookup_genus("Quercus")
 lookup_genus(NA_character_)
 options(old)
@@ -34,12 +34,10 @@ options(old)
 
 Other Backbone data and cache:
 \code{\link[=taxify_build]{taxify_build()}},
-\code{\link[=taxify_build_register]{taxify_build_register()}},
 \code{\link[=taxify_clean]{taxify_clean()}},
 \code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
 \code{\link[=taxify_data_dir]{taxify_data_dir()}},
 \code{\link[=taxify_download]{taxify_download()}},
-\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
 \code{\link[=taxify_example_data]{taxify_example_data()}},
 \code{\link[=taxify_load_register]{taxify_load_register()}},
 \code{\link[=taxify_lock]{taxify_lock()}},

@@ -77,7 +77,7 @@ test_that("trait ladder averages numeric parents and keeps agreeing categoricals
     plant_height = c(20, 15), woodiness = c("woody", "woody"),
     stringsAsFactors = FALSE))
   x <- taxify("Salix alba x Salix fragilis", verbose = FALSE)
-  x <- enrich_simple(x, "mocktrait",
+  x <- enrich_simple(prefix = "", x, "mocktrait",
     col_map = c(plant_height = "plant_height", woodiness = "woodiness"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = FALSE, verbose = FALSE)
@@ -92,7 +92,7 @@ test_that("trait ladder flags a categorical conflict as 'A x B' with a warning",
     woodiness = c("woody", "non-woody"), stringsAsFactors = FALSE))
   x <- taxify("Salix alba x Salix fragilis", verbose = FALSE)
   expect_warning(
-    x <- enrich_simple(x, "mockconf", col_map = c(woodiness = "woodiness"),
+    x <- enrich_simple(prefix = "", x, "mockconf", col_map = c(woodiness = "woodiness"),
       source_label = "mock", join_col = "accepted_name",
       expose_all = TRUE, verbose = TRUE),
     "combined as")
@@ -104,7 +104,7 @@ test_that("trait ladder uses the single available parent", {
   install_mock_enrichment("mockone", data.frame(
     canonical_name = "Salix alba", plant_height = 20, stringsAsFactors = FALSE))
   x <- taxify("Salix alba x Salix fragilis", verbose = FALSE)
-  x <- enrich_simple(x, "mockone", col_map = c(plant_height = "plant_height"),
+  x <- enrich_simple(prefix = "", x, "mockone", col_map = c(plant_height = "plant_height"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = FALSE, verbose = FALSE)
   expect_equal(x$plant_height, 20)
@@ -116,7 +116,7 @@ test_that("per-parent trait columns appear when parents are materialized", {
     canonical_name = c("Salix alba", "Salix fragilis"),
     plant_height = c(20, 15), stringsAsFactors = FALSE))
   x <- taxify("Salix alba x Salix fragilis", verbose = FALSE) |> add_hybrid_info()
-  x <- enrich_simple(x, "mockpp", col_map = c(plant_height = "plant_height"),
+  x <- enrich_simple(prefix = "", x, "mockpp", col_map = c(plant_height = "plant_height"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = TRUE, verbose = FALSE)
   expect_equal(x$plant_height, 17.5)
@@ -131,7 +131,7 @@ test_that("a non-hybrid row is unaffected by the ladder", {
     canonical_name = c("Salix alba", "Salix fragilis"),
     plant_height = c(20, 15), stringsAsFactors = FALSE))
   x <- taxify("Salix alba", verbose = FALSE)
-  x <- enrich_simple(x, "mockplain", col_map = c(plant_height = "plant_height"),
+  x <- enrich_simple(prefix = "", x, "mockplain", col_map = c(plant_height = "plant_height"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = FALSE, verbose = FALSE)
   expect_equal(x$plant_height, 20)

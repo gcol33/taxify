@@ -11,7 +11,7 @@
 # The default subset attached when `cols` is not given: well-populated, broadly
 # useful traits spanning growth form, life history, size, reproduction, and leaf
 # economics. Not a ceiling -- pass cols = "all" for every bundled trait, or any
-# column names. Browse them with gift_traits(). Column names follow GIFT's
+# column names. Browse them with enrichment_cols("gift"). Column names follow GIFT's
 # labels (verbatim, including GIFT's own numeric coding suffixes).
 .gift_default_cols <- c(
   "gift_woodiness_1", "gift_growth_form_1", "gift_lifecycle_1",
@@ -22,31 +22,6 @@
 )
 
 
-#' Browse the bundled GIFT trait columns
-#'
-#' Returns the species-level trait columns available from the bundled GIFT
-#' dataset, for picking which to attach in [add_gift()]. Read offline
-#' from the local `.vtr` (downloaded or built once); the first call may trigger
-#' that one-time download.
-#'
-#' @return A data.frame with one row per trait column:
-#' \describe{
-#'   \item{column}{The `gift_<trait>` column name.}
-#'   \item{type}{`"numeric"` or `"character"`.}
-#' }
-#' @seealso [add_gift()], [enrichment_cols()] for the same listing on any
-#'   enrichment.
-#' @examples
-#' old <- options(taxify.data_dir = taxify_example_data())
-#' gift_traits()
-#' options(old)
-#' @family Published data: plants
-#' @export
-gift_traits <- function() {
-  enrichment_cols("gift")
-}
-
-
 #' Add plant traits from GIFT
 #'
 #' Joins species-level plant traits from GIFT, the Global Inventory of Floras
@@ -54,14 +29,14 @@ gift_traits <- function() {
 #' GIFT aggregates published trait records to one value per species (mean for
 #' numeric traits, most frequent entry for categorical ones). `cols` chooses which
 #' traits to attach; browse the available columns with
-#' [gift_traits()].
+#' [enrichment_cols()].
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param cols Which GIFT trait columns to attach. One of: `NULL` (the default)
 #'   for a convenient set of well-populated traits; the string `"all"` for every
 #'   bundled trait; or a character vector of `gift_` column names (e.g.
 #'   `"plant_height_max"`, with or without the `gift_` prefix). See
-#'   [gift_traits()]. When left `NULL`, a one-time message notes the default set
+#'   [enrichment_cols()]. When left `NULL`, a one-time message notes the default set
 #'   and how to request all traits.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with one added column per requested trait, named
@@ -91,7 +66,7 @@ gift_traits <- function() {
 #' Inventory of Floras and Traits. Methods in Ecology and Evolution
 #' 14:2738-2748. \doi{10.1111/2041-210X.14213}
 #'
-#' @seealso [gift_traits()] to browse the available columns.
+#' @seealso [enrichment_cols()] to browse the available columns.
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data())
 #'
@@ -128,7 +103,6 @@ add_gift <- function(x, cols = NULL, verbose = TRUE) {
     source_label    = "GIFT (Weigelt et al. 2020)",
     cols            = cols,
     default_cols    = .gift_default_cols,
-    col_prefix      = "gift_",
     verbose         = verbose
   )
 }

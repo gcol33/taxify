@@ -171,7 +171,7 @@ resolve_ref_ids <- function(parsed) {
       stop(sprintf(
         paste0("Enrichment '%s' has no reference table installed. Its build ",
                "may predate per-value provenance; reinstall it with ",
-               "taxify_download_enrichment(\"%s\")."), src, src),
+               "taxify_download(\"%s\", kind = \"enrichment\")."), src, src),
         call. = FALSE)
     }
     tab <- as.data.frame(vectra::collect(vectra::tbl(path)),

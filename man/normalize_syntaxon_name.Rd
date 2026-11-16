@@ -22,7 +22,7 @@ orthographic alternations of \code{\link[=normalize_epithets]{normalize_epithets
 \verb{Juncion gerardii}, share a key.
 }
 \examples{
-normalize_syntaxon_name(c("Fagion silvaticae", "Fagion sylvaticae",
+taxify:::normalize_syntaxon_name(c("Fagion silvaticae", "Fagion sylvaticae",
                           "Thero - Suaedion"))
 }
 \keyword{internal}

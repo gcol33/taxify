@@ -17,7 +17,7 @@ add_nesttrait(x, cols = NULL, verbose = TRUE)
 The same data.frame with three collapsed categorical columns
 (\code{nesttrait_structure}, \code{nesttrait_site}, \code{nesttrait_attachment}, each a
 pipe-delimited set of modalities for multi-modal species) plus 20 raw 0/1
-indicator columns prefixed \code{nesttrait_}: \code{brood_parasite}, \code{mound_builder},
+indicator columns prefixed \code{nesttrait_}: \code{nesttrait_brood_parasite}, \code{nesttrait_mound_builder},
 seven \verb{nestsite_*}, seven \verb{neststr_*} and four \verb{nestatt_*} flags.
 }
 \description{

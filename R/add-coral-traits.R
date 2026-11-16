@@ -9,19 +9,19 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{coral_symbiotic_state}{Zooxanthellate / azooxanthellate.}
-#'   \item{coral_growth_form}{Typical growth form (massive/branching/...).}
-#'   \item{coral_coloniality}{Colonial / solitary.}
-#'   \item{coral_substrate_attachment}{Attached / unattached.}
-#'   \item{coral_sexual_system}{Hermaphrodite / gonochore.}
-#'   \item{coral_larval_development_mode}{Spawner / brooder.}
-#'   \item{coral_symbiont_clade}{Symbiodinium clade.}
-#'   \item{coral_corallite_width_max_mm}{Maximum corallite width (mm).}
-#'   \item{coral_colony_max_diameter_cm}{Maximum colony diameter (cm).}
-#'   \item{coral_growth_rate_mm_yr}{Linear extension rate (mm/year).}
-#'   \item{coral_depth_lower_m}{Lower depth limit (m).}
-#'   \item{coral_depth_upper_m}{Upper depth limit (m).}
-#'   \item{coral_skeletal_density_g_cm3}{Skeletal density (g/cm3).}
+#'   \item{coral_traits_coral_symbiotic_state}{Zooxanthellate / azooxanthellate.}
+#'   \item{coral_traits_coral_growth_form}{Typical growth form (massive/branching/...).}
+#'   \item{coral_traits_coral_coloniality}{Colonial / solitary.}
+#'   \item{coral_traits_coral_substrate_attachment}{Attached / unattached.}
+#'   \item{coral_traits_coral_sexual_system}{Hermaphrodite / gonochore.}
+#'   \item{coral_traits_coral_larval_development_mode}{Spawner / brooder.}
+#'   \item{coral_traits_coral_symbiont_clade}{Symbiodinium clade.}
+#'   \item{coral_traits_coral_corallite_width_max_mm}{Maximum corallite width (mm).}
+#'   \item{coral_traits_coral_colony_max_diameter_cm}{Maximum colony diameter (cm).}
+#'   \item{coral_traits_coral_growth_rate_mm_yr}{Linear extension rate (mm/year).}
+#'   \item{coral_traits_coral_depth_lower_m}{Lower depth limit (m).}
+#'   \item{coral_traits_coral_depth_upper_m}{Upper depth limit (m).}
+#'   \item{coral_traits_coral_skeletal_density_g_cm3}{Skeletal density (g/cm3).}
 #' }
 #'
 #' @details

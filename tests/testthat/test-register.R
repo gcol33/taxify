@@ -339,12 +339,6 @@ test_that("both register assets have a manifest entry", {
 })
 
 
-test_that("taxify_build_register() delegates to taxifydb", {
-  skip_if(requireNamespace("taxifydb", quietly = TRUE),
-          "taxifydb is installed, so the missing-dependency error cannot fire")
-  expect_error(taxify_build_register(verbose = FALSE), "taxifydb")
-})
-
 
 test_that("a multi-kingdom genus takes the kingdom of the record it matched", {
   # Olea is the olive and a sea slug; WoRMS carries both, with a kingdom

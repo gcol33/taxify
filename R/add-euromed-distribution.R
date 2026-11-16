@@ -53,8 +53,8 @@ euromed_areas <- function() {
 #' @param cols Which columns to attach. `NULL` (the default) attaches
 #'   `euromed_status`; a character vector attaches just those, and `"all"`
 #'   attaches every column the source carries (see [enrichment_cols()]), among
-#'   them `euromed_status_detail`, `euromed_status_source`, `area_name`,
-#'   `iso2` and the taxon's Euro+Med UUID, `taxon_id`.
+#'   them `euromed_status_detail`, `euromed_status_source`, `euromed_area_name`,
+#'   `euromed_iso2` and the taxon's Euro+Med UUID, `euromed_taxon_id`.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `euromed_status`, one of `"native"`,
 #'   `"naturalised"`, `"introduced"`, `"casual"`, `"cultivated"`,
@@ -95,7 +95,7 @@ add_euromed_distribution <- function(x, region, cols = NULL, verbose = TRUE) {
     enrichment_name = "euromed_distribution",
     group_col       = "area_code",
     groups          = .euromed_resolve_regions(region),
-    value_cols      = c(euromed_status = "euromed_status"),
+    value_cols      = c(status = "euromed_status"),
     source_label    = "Euro+Med PlantBase",
     cols            = cols,
     prefer          = list(

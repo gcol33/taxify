@@ -362,9 +362,8 @@ parse_syntaxon_one <- function(s) {
 #' @param x Character vector of syntaxon names (no author).
 #' @return Character vector of keys; `NA` in, `NA` out.
 #' @keywords internal
-#' @export
 #' @examples
-#' normalize_syntaxon_name(c("Fagion silvaticae", "Fagion sylvaticae",
+#' taxify:::normalize_syntaxon_name(c("Fagion silvaticae", "Fagion sylvaticae",
 #'                           "Thero - Suaedion"))
 normalize_syntaxon_name <- function(x) {
   y <- .strip_accents(tolower(as.character(x)))

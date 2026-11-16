@@ -11,7 +11,7 @@ add_griis(x, country, cols = NULL, verbose = TRUE)
 
 \item{country}{Character. ISO 3166-1 alpha-2 country code(s), or \code{"all"}.
 \itemize{
-\item Single code (e.g., \code{"AT"}): adds \code{invasive_status} column
+\item Single code (e.g., \code{"AT"}): adds \code{griis_invasive_status} column
 (no suffix).
 \item Multiple codes (e.g., \code{c("AT", "DE")}): adds
 \code{invasive_status_AT}, \code{invasive_status_DE}.
@@ -28,7 +28,7 @@ curated set; a character vector of column names attaches just those, and
 \value{
 The same data.frame with additional column(s):
 \describe{
-\item{invasive_status}{One of \code{"native"}, \code{"introduced"}, \code{"invasive"},
+\item{griis_invasive_status}{One of \code{"native"}, \code{"introduced"}, \code{"invasive"},
 or \code{NA} if not recorded for that country.}
 }
 }

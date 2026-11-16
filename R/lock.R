@@ -337,7 +337,7 @@ taxify_lock <- function(x = NULL, file = NULL, verbose = TRUE) {
 #'
 #' @seealso [taxify_lock()], [taxify_pin()] to pin or release an installed
 #'   build without a lockfile, [taxify_store()] for the builds on disk,
-#'   [taxify_download_enrichment()] to fetch a single build by content id.
+#'   [taxify_download()] to fetch a single build by content id.
 #'
 #' @examples
 #' # Runs offline against the bundled example database.
@@ -444,7 +444,7 @@ taxify_restore <- function(file, install = FALSE, verbose = TRUE) {
 #'
 #' [taxify_restore()] with `install = TRUE` pins every build matching a lockfile,
 #' and a build fetched with `taxify_download(content_id = )` or
-#' `taxify_download_enrichment(content_id = )` is pinned when it is activated.
+#' `taxify_download(kind = "enrichment", content_id = )` is pinned when it is activated.
 #'
 #' @param name Character vector of installed backbone and/or enrichment names.
 #' @param pin Logical. `TRUE` (default) pins; `FALSE` releases the pin, so the

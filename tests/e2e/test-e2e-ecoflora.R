@@ -37,12 +37,12 @@ enrich <- function(x) {
   data.frame(
     accepted_name = r$accepted_name,
     accepted_id   = r$accepted_id,
-    life_form     = as.character(r$life_form_uk),
-    fbeg          = r$flower_begin_month_uk,
-    fend          = r$flower_end_month_uk,
-    poll          = as.character(r$pollination_vector_uk),
-    seed          = r$seed_weight_mg_uk,
-    light         = as.character(r$ell_light_uk),
+    life_form     = as.character(r$ecoflora_life_form_uk),
+    fbeg          = r$ecoflora_flower_begin_month_uk,
+    fend          = r$ecoflora_flower_end_month_uk,
+    poll          = as.character(r$ecoflora_pollination_vector_uk),
+    seed          = r$ecoflora_seed_weight_mg_uk,
+    light         = as.character(r$ecoflora_ell_light_uk),
     stringsAsFactors = FALSE
   )
 }

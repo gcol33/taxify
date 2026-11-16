@@ -108,9 +108,8 @@ code_spec <- function(code) {
 #' @param name Character vector of backbone names, or a `taxify_backend`.
 #' @return Character vector of codes, `NA` for an unknown name.
 #' @keywords internal
-#' @export
 #' @examples
-#' backbone_code(c("wfo", "evc"))
+#' taxify:::backbone_code(c("wfo", "evc"))
 backbone_code <- function(name) {
   if (inherits(name, "taxify_backend")) return(name$code %||% "taxon")
   reg <- .backbone_registry()

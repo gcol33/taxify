@@ -8,21 +8,21 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{chelonian_carapace_length_mm}{Maximum straight-line carapace length
+#'   \item{chelonians_chelonian_carapace_length_mm}{Maximum straight-line carapace length
 #'     (mm).}
-#'   \item{chelonian_max_mass_g}{Maximum body mass (g).}
-#'   \item{chelonian_clutch_size_mean}{Mean clutch size (count).}
-#'   \item{chelonian_clutch_size_max}{Maximum clutch size (count).}
-#'   \item{chelonian_clutches_per_year}{Clutches per year (count).}
-#'   \item{chelonian_incubation_d}{Incubation period (days).}
-#'   \item{chelonian_age_maturity_y}{Age at sexual maturity (years).}
-#'   \item{chelonian_max_lifespan_y}{Maximum lifespan (years).}
-#'   \item{chelonian_range_size_km2}{Range size (km2).}
-#'   \item{chelonian_diet}{Diet (herbivorous/carnivorous/omnivorous).}
-#'   \item{chelonian_activity_time}{Activity time.}
-#'   \item{chelonian_microhabitat}{Microhabitat (aquatic/terrestrial/...).}
-#'   \item{chelonian_habitat_type}{Habitat type.}
-#'   \item{chelonian_shell_type}{Shell type (hardshell/softshell).}
+#'   \item{chelonians_chelonian_max_mass_g}{Maximum body mass (g).}
+#'   \item{chelonians_chelonian_clutch_size_mean}{Mean clutch size (count).}
+#'   \item{chelonians_chelonian_clutch_size_max}{Maximum clutch size (count).}
+#'   \item{chelonians_chelonian_clutches_per_year}{Clutches per year (count).}
+#'   \item{chelonians_chelonian_incubation_d}{Incubation period (days).}
+#'   \item{chelonians_chelonian_age_maturity_y}{Age at sexual maturity (years).}
+#'   \item{chelonians_chelonian_max_lifespan_y}{Maximum lifespan (years).}
+#'   \item{chelonians_chelonian_range_size_km2}{Range size (km2).}
+#'   \item{chelonians_chelonian_diet}{Diet (herbivorous/carnivorous/omnivorous).}
+#'   \item{chelonians_chelonian_activity_time}{Activity time.}
+#'   \item{chelonians_chelonian_microhabitat}{Microhabitat (aquatic/terrestrial/...).}
+#'   \item{chelonians_chelonian_habitat_type}{Habitat type.}
+#'   \item{chelonians_chelonian_shell_type}{Shell type (hardshell/softshell).}
 #' }
 #'
 #' @details

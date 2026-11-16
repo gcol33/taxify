@@ -120,7 +120,7 @@ The backbone files also answer lookups by synonym, rank and lineage:
 
 ``` r
 synonyms("Picea abies")                     # every synonym of a name
-children("Quercus")                         # the species of a genus
+downstream("Quercus")                         # the species of a genus
 upstream("Quercus robur", to = "family")    # the family of a name
 sci2comm("Quercus robur")                   # common names
 parse_name("Quercus robur (L.) H.Karst.")   # genus, epithet, author
@@ -179,7 +179,7 @@ If you use taxify, please cite the package and the backbones and datasets your r
 Colling G (2026). _taxify: Offline Taxonomic Name Matching Against
 Darwin Core Backbones_. doi:10.32614/CRAN.package.taxify
 <https://doi.org/10.32614/CRAN.package.taxify>. R package version
-0.7.0, <https://gillescolling.com/taxify/>.
+0.7.1, <https://gillescolling.com/taxify/>.
 ```
 
 BibTeX:
@@ -189,7 +189,7 @@ BibTeX:
   title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
   author = {Gilles Colling},
   year = {2026},
-  note = {R package version 0.7.0},
+  note = {R package version 0.7.1},
   doi = {10.32614/CRAN.package.taxify},
   url = {https://gillescolling.com/taxify/},
 }

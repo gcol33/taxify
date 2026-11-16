@@ -9,23 +9,23 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{fish_max_body_length}{Maximum body length (cm).}
-#'   \item{fish_body_elongation}{Body elongation (body length / body depth).}
-#'   \item{fish_vertical_eye_position}{Vertical eye position (eye position /
+#'   \item{fishmorph_fish_max_body_length}{Maximum body length (cm).}
+#'   \item{fishmorph_fish_body_elongation}{Body elongation (body length / body depth).}
+#'   \item{fishmorph_fish_vertical_eye_position}{Vertical eye position (eye position /
 #'     head depth).}
-#'   \item{fish_relative_eye_size}{Relative eye size (eye diameter / head
+#'   \item{fishmorph_fish_relative_eye_size}{Relative eye size (eye diameter / head
 #'     length).}
-#'   \item{fish_oral_gape_position}{Oral gape position (mouth position:
+#'   \item{fishmorph_fish_oral_gape_position}{Oral gape position (mouth position:
 #'     0 = inferior, 0.5 = terminal, 1 = superior).}
-#'   \item{fish_relative_maxillary_length}{Relative maxillary length (maxillary
+#'   \item{fishmorph_fish_relative_maxillary_length}{Relative maxillary length (maxillary
 #'     length / head length).}
-#'   \item{fish_body_lateral_shape}{Body lateral shape (body depth /
+#'   \item{fishmorph_fish_body_lateral_shape}{Body lateral shape (body depth /
 #'     caudal peduncle depth).}
-#'   \item{fish_pectoral_fin_position}{Pectoral fin vertical position (fin
+#'   \item{fishmorph_fish_pectoral_fin_position}{Pectoral fin vertical position (fin
 #'     insertion depth / body depth).}
-#'   \item{fish_pectoral_fin_size}{Pectoral fin size (fin length / body
+#'   \item{fishmorph_fish_pectoral_fin_size}{Pectoral fin size (fin length / body
 #'     length).}
-#'   \item{fish_caudal_peduncle_throttling}{Caudal peduncle throttling (caudal
+#'   \item{fishmorph_fish_caudal_peduncle_throttling}{Caudal peduncle throttling (caudal
 #'     peduncle depth / caudal fin depth).}
 #' }
 #'

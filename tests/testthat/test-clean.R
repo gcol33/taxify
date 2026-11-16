@@ -255,54 +255,54 @@ test_that("clean_names handles complex authorship chains", {
 test_that("normalize_epithets folds ligatures and digraph variants", {
   # ae-ligature and ae-digraph collapse to the same key
   expect_identical(
-    normalize_epithets("Quercus \u00e6gypticus"),
-    normalize_epithets("Quercus aegypticus")
+    taxify:::normalize_epithets("Quercus \u00e6gypticus"),
+    taxify:::normalize_epithets("Quercus aegypticus")
   )
   # oe-ligature and oe-digraph collapse to the same key
   expect_identical(
-    normalize_epithets("Genus p\u0153cilia"),
-    normalize_epithets("Genus poecilia")
+    taxify:::normalize_epithets("Genus p\u0153cilia"),
+    taxify:::normalize_epithets("Genus poecilia")
   )
 })
 
 test_that("normalize_epithets folds German umlauts to digraphs", {
   # Umlauted and de-umlauted German spellings of author names match
   expect_identical(
-    normalize_epithets("Carex b\u00f6hmii"),
-    normalize_epithets("Carex boehmii")
+    taxify:::normalize_epithets("Carex b\u00f6hmii"),
+    taxify:::normalize_epithets("Carex boehmii")
   )
   expect_identical(
-    normalize_epithets("Hieracium m\u00fcllerianum"),
-    normalize_epithets("Hieracium muellerianum")
+    taxify:::normalize_epithets("Hieracium m\u00fcllerianum"),
+    taxify:::normalize_epithets("Hieracium muellerianum")
   )
 })
 
 test_that("normalize_epithets strips other Latin-1 diacritics", {
   expect_identical(
-    normalize_epithets("Genus l\u00e9ve\u00edllei"),
-    normalize_epithets("Genus leveillei")
+    taxify:::normalize_epithets("Genus l\u00e9ve\u00edllei"),
+    taxify:::normalize_epithets("Genus leveillei")
   )
   expect_identical(
-    normalize_epithets("Genus n\u00fa\u00f1ezii"),
-    normalize_epithets("Genus nunezii")
+    taxify:::normalize_epithets("Genus n\u00fa\u00f1ezii"),
+    taxify:::normalize_epithets("Genus nunezii")
   )
 })
 
 test_that("normalize_epithets still applies orthographic alternation", {
   # ae -> i collapses hirtaeformis and hirtiformis
   expect_identical(
-    normalize_epithets("Quercus hirtaeformis"),
-    normalize_epithets("Quercus hirtiformis")
+    taxify:::normalize_epithets("Quercus hirtaeformis"),
+    taxify:::normalize_epithets("Quercus hirtiformis")
   )
   # y -> i, ph -> f, th -> t
-  expect_equal(normalize_epithets("Genus phyllothalamus"),
+  expect_equal(taxify:::normalize_epithets("Genus phyllothalamus"),
                "genus fillotalamus")
 })
 
 test_that("normalize_epithets handles NA, empty, and single-word input", {
-  expect_true(is.na(normalize_epithets(NA_character_)))
-  expect_equal(normalize_epithets(""), "")
-  expect_equal(normalize_epithets("Festulolium"), "festulolium")
+  expect_true(is.na(taxify:::normalize_epithets(NA_character_)))
+  expect_equal(taxify:::normalize_epithets(""), "")
+  expect_equal(taxify:::normalize_epithets("Festulolium"), "festulolium")
 })
 
 # ---- Title-Case / all-caps epithets vs authorship (#8) ----

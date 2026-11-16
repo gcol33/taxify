@@ -12,8 +12,8 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{fungus_host_count}{Number of distinct host plant species recorded.}
-#'   \item{fungus_host_genus_count}{Number of distinct host plant genera
+#'   \item{usda_fungus_host_fungus_host_count}{Number of distinct host plant species recorded.}
+#'   \item{usda_fungus_host_fungus_host_genus_count}{Number of distinct host plant genera
 #'     recorded.}
 #' }
 #'

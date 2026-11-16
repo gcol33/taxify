@@ -1,6 +1,6 @@
 # ---- Download: manifest-driven backbone downloads ----
 #
-# taxify_download(backbone, version = "latest") is the user-facing function.
+# taxify_download(name, kind, version) is the user-facing function.
 # It downloads the pre-built .vtr from Zenodo (via the manifest URL), writes
 # a meta.json alongside it, and returns the path to the .vtr.
 #
@@ -217,13 +217,13 @@ versioned_vtr_path <- function(backbone_name, version = "latest") {
 download_backbone <- function(backbone_name,
                               version   = "latest",
                               dest_dir  = NULL,
-                              verbose   = TRUE) {
+                              verbose   = TRUE, force = FALSE) {
 
   dest_dir <- dest_dir %||% versioned_dir(backbone_name, version)
   vtr_path <- file.path(dest_dir, paste0(backbone_name, ".vtr"))
 
   # Pinned versions: never overwrite if already present
-  if (version != "latest" && file.exists(vtr_path)) {
+  if (!force && version != "latest" && file.exists(vtr_path)) {
     if (verbose) {
       message(sprintf("\u2713 %s backbone v%s already present (pinned). Skipping.",
                       toupper(backbone_name), version))
@@ -459,37 +459,40 @@ has_xdelta3 <- function() {
 
 # ---- User-facing download function ----
 
-#' Download a pre-built taxify backbone
+#' Download pre-built backbones or published datasets
 #'
-#' Downloads a pre-built `.vtr` backbone from GitHub Releases using the taxify
+#' Downloads pre-built `.vtr` files from GitHub Releases using the taxify
 #' manifest. This needs no build tools and does not require `taxifydb`; it is the
 #' fast path [taxify()] uses internally on first use. Call it directly to
-#' pre-fetch backbones before an offline session. Progress is always shown; no
+#' pre-fetch backbones and enrichment datasets before an offline session. No
 #' prompts are shown, so calling this function is consent.
 #'
 #' If no pre-built `.vtr` is available for a backbone, it falls back to building
 #' from source via [taxify_build()] (which requires `taxifydb`).
 #'
-#' @param backbone Character. A backbone name (e.g. `"wfo"`, `"col"`, `"gbif"`;
-#'   [list_backbones()] lists them all) or
-#'   `"register"` for the genus register. Multiple backbones can be given as a
-#'   character vector.
+#' @param name Character. One or more names from [list_backbones()] or
+#'   [list_enrichments()], according to `kind`. With `kind = "backbone"`,
+#'   `"register"` resolves the genus register and its coverage table.
+#' @param kind Character. `"backbone"` (default) or `"enrichment"`. Selects
+#'   the catalogue, including names present in both, such as WCVP.
+#' @param force Logical. Re-download an existing version when `TRUE`. Default
+#'   `FALSE`. An exact `content_id` identifies immutable bytes.
 #' @param version Character. `"latest"` (default) downloads into
-#'   `<data_dir>/<backbone>/latest/` and will be overwritten on future updates.
+#'   the asset's `latest/` directory and will be overwritten on future updates.
 #'   A specific version string (e.g., `"2024.01"`) downloads into a pinned
-#'   folder that is never overwritten.
+#'   folder retained until explicitly refreshed with `force = TRUE`.
 #' @param content_id Character or `NULL` (default). The content id of one exact
 #'   build, the md5 of its `.vtr`, as recorded by [taxify_lock()] and by the
 #'   manifest. Given one, taxify fetches that build from the immutable copy
 #'   published beside the rolling asset, verifies the bytes hash back to the id,
-#'   and makes it the active backbone; the build it replaces is kept under its
-#'   own content id. Pass one id per `backbone`, or one shared by all of them.
+#'   and makes it the active build; the build it replaces is kept under its
+#'   own content id. Pass one id per `name`, or one shared by all of them.
 #' @param verbose Logical. Default `TRUE`.
-#' @return Invisibly, a character vector of file paths, named by `backbone`
+#' @return Invisibly, a character vector of file paths, named by `name`
 #'   and in the requested order. `"register"` returns the genus-register
 #'   path after resolving both the register and its coverage table.
 #' @seealso [taxify_build()] to build a backbone from source via `taxifydb`,
-#'   [taxify_download_enrichment()] for published datasets, [taxify_store()] for
+#'   [list_enrichments()] for published datasets, [taxify_store()] for
 #'   the builds already on disk.
 #' @family Backbone data and cache
 #' @examples
@@ -500,40 +503,43 @@ has_xdelta3 <- function() {
 #' options(old)
 #'
 #' @export
-taxify_download <- function(backbone = "wfo",
-                            version = "latest",
-                            content_id = NULL,
-                            verbose = TRUE) {
-  content_id <- recycle_content_ids(content_id, backbone, "backbone")
-  paths <- with_download_consent(vapply(seq_along(backbone), function(i) {
-    be <- backbone[[i]]
+taxify_download <- function(name = "wfo", kind = c("backbone", "enrichment"),
+                            version = "latest", content_id = NULL,
+                            force = FALSE, verbose = TRUE) {
+  kind <- match.arg(kind)
+  content_id <- recycle_content_ids(content_id, name, kind)
+  paths <- with_download_consent(vapply(seq_along(name), function(i) {
+    asset <- name[[i]]
     if (!is.null(content_id)) {
-      return(download_content_build(be, content_id[[i]], "backbone",
+      return(download_content_build(asset, content_id[[i]], kind,
                                     version = version, verbose = verbose))
     }
-    # "register" is an alias for the published pair: the genus register and the
-    # backbone-coverage table that accompanies it.
-    if (identical(be, "register")) {
+    if (kind == "backbone" && identical(asset, "register")) {
+      if (isTRUE(force) || version != "latest") {
+        download_backbone("backend_coverage", version = version, verbose = verbose,
+                          force = force)
+        return(download_backbone("genus_register", version = version,
+                                 verbose = verbose, force = force))
+      }
       ensure_coverage(verbose = verbose)
       reg <- ensure_register(verbose = verbose)
-      if (is.null(reg)) {
-        stop("Could not resolve the genus register.", call. = FALSE)
-      }
+      if (is.null(reg)) stop("Could not resolve the genus register.", call. = FALSE)
       return(reg)
     }
+    if (kind == "enrichment") {
+      return(download_enrichment(asset, version = version, verbose = verbose,
+                                 force = force))
+    }
     tryCatch(
-      download_backbone(be, version = version, verbose = verbose),
+      download_backbone(asset, version = version, verbose = verbose, force = force),
       error = function(e) {
-        if (verbose) {
-          message(sprintf(
-            "Pre-built .vtr not available for '%s'. Building from source...", be
-          ))
-        }
-        taxify_build(be, verbose = verbose)
+        if (verbose) message(sprintf(
+          "Pre-built .vtr not available for '%s'. Building from source...", asset))
+        taxify_build(asset, verbose = verbose)
       }
     )
   }, character(1L)))
-  names(paths) <- backbone
+  names(paths) <- name
   invisible(paths)
 }
 

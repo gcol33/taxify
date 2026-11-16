@@ -15,10 +15,10 @@ add_octocoral(x, cols = NULL, verbose = TRUE)
 }
 \value{
 The same data.frame with \code{octocoral_} columns: numeric
-\code{colony_height}, \code{colony_width}, \code{tentacles_per_polyp}; categorical
-\code{growth_form}, \code{type_of_growth}, \code{type_of_skeleton}, \code{polyp_retractability},
-\code{polyp_dimorphism}, \code{zooxanthellate}, \code{axis_presence}, \code{feeding_mechanism},
-\code{coloniality}, \code{skeletal_rigidity}, \code{calcareous_sclerites_presence}.
+\code{octocoral_colony_height}, \code{octocoral_colony_width}, \code{octocoral_tentacles_per_polyp}; categorical
+\code{octocoral_growth_form}, \code{octocoral_type_of_growth}, \code{octocoral_type_of_skeleton}, \code{octocoral_polyp_retractability},
+\code{octocoral_polyp_dimorphism}, \code{octocoral_zooxanthellate}, \code{octocoral_axis_presence}, \code{octocoral_feeding_mechanism},
+\code{octocoral_coloniality}, \code{octocoral_skeletal_rigidity}, \code{octocoral_calcareous_sclerites_presence}.
 }
 \description{
 Joins soft-coral (octocoral) colony, polyp, skeleton, symbiosis and feeding

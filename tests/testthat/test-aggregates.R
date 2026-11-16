@@ -225,7 +225,7 @@ test_that("an aggregate query inherits the nominal binomial's trait by default",
   x <- taxify("Taraxacum officinale agg.", backbone = "euromed", verbose = FALSE)
   # resolved to the aggregate taxon, which the source does not carry
   expect_equal(x$accepted_name, "Taraxacum officinale aggr.")
-  x <- enrich_simple(x, "mockagg", col_map = c(plant_height = "plant_height"),
+  x <- enrich_simple(prefix = "", x, "mockagg", col_map = c(plant_height = "plant_height"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = FALSE, verbose = FALSE)
   # falls up to the nominal binomial's value
@@ -238,7 +238,7 @@ test_that("aggregate_trait_fallback = FALSE keeps the aggregate NA", {
     canonical_name = "Taraxacum officinale", plant_height = 30,
     stringsAsFactors = FALSE))
   x <- taxify("Taraxacum officinale agg.", backbone = "euromed", verbose = FALSE)
-  x <- enrich_simple(x, "mockagg2", col_map = c(plant_height = "plant_height"),
+  x <- enrich_simple(prefix = "", x, "mockagg2", col_map = c(plant_height = "plant_height"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = FALSE, verbose = FALSE, aggregate_trait_fallback = FALSE)
   expect_true(is.na(x$plant_height))
@@ -250,7 +250,7 @@ test_that("a real aggregate-level value wins over the binomial fallback", {
     canonical_name = c("Taraxacum officinale aggr.", "Taraxacum officinale"),
     plant_height = c(45, 30), stringsAsFactors = FALSE))
   x <- taxify("Taraxacum officinale agg.", backbone = "euromed", verbose = FALSE)
-  x <- enrich_simple(x, "mockagg3", col_map = c(plant_height = "plant_height"),
+  x <- enrich_simple(prefix = "", x, "mockagg3", col_map = c(plant_height = "plant_height"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = FALSE, verbose = FALSE)
   # the aggregate-level measurement, not the binomial stand-in
@@ -264,10 +264,10 @@ test_that("the trait provenance option records basis = 'binomial'", {
     stringsAsFactors = FALSE))
   withr::local_options(taxify.trait_provenance = TRUE)
   x <- taxify("Taraxacum officinale agg.", backbone = "euromed", verbose = FALSE)
-  x <- enrich_simple(x, "mockagg4", col_map = c(plant_height = "plant_height"),
+  x <- enrich_simple(prefix = "", x, "mockagg4", col_map = c(plant_height = "plant_height"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = FALSE, verbose = FALSE)
-  expect_equal(x$mockagg4_basis, "binomial")
+  expect_equal(x$basis, "binomial")
 })
 
 test_that("a preserve-fell-back aggregate still reaches the binomial's trait", {
@@ -279,7 +279,7 @@ test_that("a preserve-fell-back aggregate still reaches the binomial's trait", {
     stringsAsFactors = FALSE))
   x <- taxify("Fagus sylvatica agg.", backbone = "euromed", verbose = FALSE)
   expect_true(x$aggregate_fallback)
-  x <- enrich_simple(x, "mockagg5", col_map = c(plant_height = "plant_height"),
+  x <- enrich_simple(prefix = "", x, "mockagg5", col_map = c(plant_height = "plant_height"),
     source_label = "mock", join_col = "accepted_name",
     expose_all = FALSE, verbose = FALSE)
   expect_equal(x$plant_height, 40)

@@ -15,10 +15,10 @@ add_quimbayo(x, cols = NULL, verbose = TRUE)
 }
 \value{
 The same data.frame with \code{quimbayo_} columns: numeric
-\code{body_size_max_cm}, \code{aspect_ratio}, \code{trophic_level}, \code{depth_min_m},
-\code{depth_max_m}, \code{temp_occurrence_mean_c}; categorical \code{home_range},
-\code{diel_activity}, \code{water_level}, \code{body_shape}, \code{mouth_position}, \code{diet},
-\code{spawning}, \code{size_group}.
+\code{quimbayo_body_size_max_cm}, \code{quimbayo_aspect_ratio}, \code{quimbayo_trophic_level}, \code{quimbayo_depth_min_m},
+\code{quimbayo_depth_max_m}, \code{quimbayo_temp_occurrence_mean_c}; categorical \code{quimbayo_home_range},
+\code{quimbayo_diel_activity}, \code{quimbayo_water_level}, \code{quimbayo_body_shape}, \code{quimbayo_mouth_position}, \code{quimbayo_diet},
+\code{quimbayo_spawning}, \code{quimbayo_size_group}.
 }
 \description{
 Joins Atlantic and Eastern-Pacific reef-fish life-history, ecology and

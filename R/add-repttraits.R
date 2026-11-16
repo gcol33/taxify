@@ -15,26 +15,26 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{biogeographic_realm}{Main biogeographic realm (e.g. Neotropic,
+#'   \item{repttraits_biogeographic_realm}{Main biogeographic realm (e.g. Neotropic,
 #'     Palearctic, Afrotropic, Australo-Pacific, Marine).}
-#'   \item{microhabitat}{Microhabitat (e.g. Terrestrial, Saxicolous, Arboreal).}
-#'   \item{habitat_type}{Habitat type(s) (e.g. Forest, Desert, Wetlands).}
-#'   \item{elevation_min_m}{Minimum recorded elevation in metres.}
-#'   \item{elevation_max_m}{Maximum recorded elevation in metres.}
-#'   \item{mean_annual_temp_c}{Mean annual temperature across the range
+#'   \item{repttraits_microhabitat}{Microhabitat (e.g. Terrestrial, Saxicolous, Arboreal).}
+#'   \item{repttraits_habitat_type}{Habitat type(s) (e.g. Forest, Desert, Wetlands).}
+#'   \item{repttraits_elevation_min_m}{Minimum recorded elevation in metres.}
+#'   \item{repttraits_elevation_max_m}{Maximum recorded elevation in metres.}
+#'   \item{repttraits_mean_annual_temp_c}{Mean annual temperature across the range
 #'     (degrees Celsius).}
-#'   \item{insular_endemic}{Whether the species is insular/endemic
+#'   \item{repttraits_insular_endemic}{Whether the species is insular/endemic
 #'     (\code{"Yes"}/\code{"No"}).}
-#'   \item{body_mass_g}{Maximum body mass in grams.}
-#'   \item{svl_mm}{Maximum snout-vent length (straight carapace length for
+#'   \item{repttraits_body_mass_g}{Maximum body mass in grams.}
+#'   \item{repttraits_svl_mm}{Maximum snout-vent length (straight carapace length for
 #'     turtles) in mm.}
-#'   \item{total_length_mm}{Maximum total length in mm.}
-#'   \item{longevity_yr}{Maximum longevity in years.}
-#'   \item{diet}{Diet category (e.g. Carnivorous, Herbivorous, Omnivorous).}
-#'   \item{reproductive_mode}{Reproductive mode (oviparous/viviparous/...).}
-#'   \item{clutch_size}{Mean clutch or litter size.}
-#'   \item{active_time}{Activity time (Diurnal/Nocturnal/Cathemeral).}
-#'   \item{foraging_mode}{Foraging mode (ACT active / AMB ambush / Mixed).}
+#'   \item{repttraits_total_length_mm}{Maximum total length in mm.}
+#'   \item{repttraits_longevity_yr}{Maximum longevity in years.}
+#'   \item{repttraits_diet}{Diet category (e.g. Carnivorous, Herbivorous, Omnivorous).}
+#'   \item{repttraits_reproductive_mode}{Reproductive mode (oviparous/viviparous/...).}
+#'   \item{repttraits_clutch_size}{Mean clutch or litter size.}
+#'   \item{repttraits_active_time}{Activity time (Diurnal/Nocturnal/Cathemeral).}
+#'   \item{repttraits_foraging_mode}{Foraging mode (ACT active / AMB ambush / Mixed).}
 #' }
 #'
 #' @details

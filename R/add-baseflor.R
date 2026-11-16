@@ -10,27 +10,27 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{flower_begin_month}{First month of flowering (1-12).}
-#'   \item{flower_end_month}{Last month of flowering (1-12). A value smaller
+#'   \item{baseflor_flower_begin_month}{First month of flowering (1-12).}
+#'   \item{baseflor_flower_end_month}{Last month of flowering (1-12). A value smaller
 #'     than \code{flower_begin_month} denotes a flowering period that wraps
 #'     across the new year (e.g. begin 10, end 6).}
-#'   \item{pollination_vector}{Pollination vector(s): insect, wind, water,
+#'   \item{baseflor_pollination_vector}{Pollination vector(s): insect, wind, water,
 #'     self, apogamy. Comma-separated when more than one applies.}
-#'   \item{dispersal_mode}{Diaspore dispersal mode(s): anemochory, barochory,
+#'   \item{baseflor_dispersal_mode}{Diaspore dispersal mode(s): anemochory, barochory,
 #'     epizoochory, endozoochory, myrmecochory, hydrochory, autochory,
 #'     dyszoochory. Comma-separated when more than one applies.}
-#'   \item{breeding_system}{Sexual system: hermaphroditic, monoecious,
+#'   \item{baseflor_breeding_system}{Sexual system: hermaphroditic, monoecious,
 #'     dioecious, gynodioecious, androdioecious, gynomonoecious, polygamous.}
-#'   \item{flower_colour}{Flower colour(s): white, yellow, pink, green, blue,
+#'   \item{baseflor_flower_colour}{Flower colour(s): white, yellow, pink, green, blue,
 #'     brown, black. Comma-separated when more than one applies.}
-#'   \item{fruit_type}{Fruit type: achene, capsule, caryopsis, drupe, legume,
+#'   \item{baseflor_fruit_type}{Fruit type: achene, capsule, caryopsis, drupe, legume,
 #'     silique, berry, follicle, cone, samara, pyxid.}
-#'   \item{woody_growth_form}{Woody growth form for woody taxa: tree, small
+#'   \item{baseflor_woody_growth_form}{Woody growth form for woody taxa: tree, small
 #'     tree, large tree, shrub, bush, subshrub, liana, parasite. NA for
 #'     non-woody (herbaceous) taxa.}
-#'   \item{continentality}{Ellenberg-style continentality indicator value
+#'   \item{baseflor_continentality}{Ellenberg-style baseflor_continentality indicator value
 #'     (1-9), the axis absent from EIVE.}
-#'   \item{salinity}{Ellenberg-style salinity indicator value (0-9), the axis
+#'   \item{baseflor_salinity}{Ellenberg-style baseflor_salinity indicator value (0-9), the axis
 #'     absent from EIVE.}
 #' }
 #'

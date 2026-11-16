@@ -49,15 +49,15 @@ test_that("add_repttraits joins the distribution and trait columns", {
     add_repttraits(verbose = FALSE)
 
   rt_cols <- c(
-    "biogeographic_realm", "microhabitat", "habitat_type",
-    "elevation_min_m", "elevation_max_m", "mean_annual_temp_c",
-    "insular_endemic", "body_mass_g", "svl_mm", "total_length_mm",
-    "longevity_yr", "diet", "reproductive_mode", "clutch_size",
-    "active_time", "foraging_mode"
+    "repttraits_biogeographic_realm", "repttraits_microhabitat", "repttraits_habitat_type",
+    "repttraits_elevation_min_m", "repttraits_elevation_max_m", "repttraits_mean_annual_temp_c",
+    "repttraits_insular_endemic", "repttraits_body_mass_g", "repttraits_svl_mm", "repttraits_total_length_mm",
+    "repttraits_longevity_yr", "repttraits_diet", "repttraits_reproductive_mode", "repttraits_clutch_size",
+    "repttraits_active_time", "repttraits_foraging_mode"
   )
   expect_true(all(rt_cols %in% names(enriched)))
-  expect_false(is.na(enriched$biogeographic_realm))
-  expect_type(enriched$elevation_max_m, "double")
+  expect_false(is.na(enriched$repttraits_biogeographic_realm))
+  expect_type(enriched$repttraits_elevation_max_m, "double")
 })
 
 test_that("add_repttraits returns NA for reptiles absent from ReptTraits", {
@@ -67,6 +67,6 @@ test_that("add_repttraits returns NA for reptiles absent from ReptTraits", {
   enriched <- taxify("Naja naja", backbone = "reptiledb", verbose = FALSE) |>
     add_repttraits(verbose = FALSE)
 
-  expect_true("biogeographic_realm" %in% names(enriched))
-  expect_true(is.na(enriched$biogeographic_realm))
+  expect_true("repttraits_biogeographic_realm" %in% names(enriched))
+  expect_true(is.na(enriched$repttraits_biogeographic_realm))
 })

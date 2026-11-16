@@ -16,7 +16,7 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 }
 \value{
 The same data.frame with \code{alpine_} columns: numeric
-\code{body_length_mm}, categorical \code{wing_morph}.
+\code{alpine_carabids_alpine_body_length_mm}, categorical \code{alpine_carabids_alpine_wing_morph}.
 }
 \description{
 Joins body size and wing morphology for the carabid fauna of the Italian

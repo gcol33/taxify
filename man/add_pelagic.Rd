@@ -14,10 +14,10 @@ add_pelagic(x, cols = NULL, verbose = TRUE)
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{pelagic_} columns: numeric \code{depth_min_m},
-\code{depth_max_m}, \code{temp_min_c}, \code{temp_max_c}, \code{temp_mean_c},
-\code{length_min_tl_cm}, \code{length_max_tl_cm}, \code{trophic_level}; categorical
-\code{vert_habitat}, \code{horz_habitat}, \code{body_shape}, \code{phys_defense}, \code{gregarious}.
+The same data.frame with \code{pelagic_} columns: numeric \code{pelagic_depth_min_m},
+\code{pelagic_depth_max_m}, \code{pelagic_temp_min_c}, \code{pelagic_temp_max_c}, \code{pelagic_temp_mean_c},
+\code{pelagic_length_min_tl_cm}, \code{pelagic_length_max_tl_cm}, \code{pelagic_trophic_level}; categorical
+\code{pelagic_vert_habitat}, \code{pelagic_horz_habitat}, \code{pelagic_body_shape}, \code{pelagic_phys_defense}, \code{pelagic_gregarious}.
 }
 \description{
 Joins pelagic fish/cephalopod/gelatinous traits to a \code{\link[=taxify]{taxify()}} result by

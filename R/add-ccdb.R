@@ -55,6 +55,6 @@ add_ccdb <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x, enrichment_name = "ccdb", col_map = col_map,
     source_label = "Chromosome Counts Database (Rice et al. 2015)",
-    cols = cols, col_prefix = "ccdb_", out_prefix = "ccdb_", verbose = verbose
+    cols = cols, verbose = verbose
   )
 }

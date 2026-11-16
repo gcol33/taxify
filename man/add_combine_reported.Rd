@@ -18,23 +18,23 @@ names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns (reported values):
 \describe{
-\item{combine_adult_mass_g}{Adult body mass (g).}
-\item{combine_adult_body_length_mm}{Adult head-body length (mm).}
-\item{combine_litter_size_n}{Litter size (count).}
-\item{combine_litters_per_year_n}{Litters per year (count).}
-\item{combine_max_longevity_d}{Maximum longevity (days).}
-\item{combine_gestation_length_d}{Gestation length (days).}
-\item{combine_weaning_age_d}{Weaning age (days).}
-\item{combine_generation_length_d}{Generation length (days).}
-\item{combine_dispersal_km}{Natal dispersal distance (km).}
-\item{combine_habitat_breadth_n}{Number of IUCN habitats (count).}
-\item{combine_diet_breadth_n}{Number of diet categories (count).}
-\item{combine_trophic_level}{Trophic level (1 herbivore, 2 omnivore,
+\item{combine_reported_adult_mass_g}{Adult body mass (g).}
+\item{combine_reported_adult_body_length_mm}{Adult head-body length (mm).}
+\item{combine_reported_litter_size_n}{Litter size (count).}
+\item{combine_reported_litters_per_year_n}{Litters per year (count).}
+\item{combine_reported_max_longevity_d}{Maximum longevity (days).}
+\item{combine_reported_gestation_length_d}{Gestation length (days).}
+\item{combine_reported_weaning_age_d}{Weaning age (days).}
+\item{combine_reported_generation_length_d}{Generation length (days).}
+\item{combine_reported_dispersal_km}{Natal dispersal distance (km).}
+\item{combine_reported_habitat_breadth_n}{Number of IUCN habitats (count).}
+\item{combine_reported_diet_breadth_n}{Number of diet categories (count).}
+\item{combine_reported_trophic_level}{Trophic level (1 herbivore, 2 omnivore,
 3 carnivore).}
-\item{combine_activity_cycle}{Activity cycle (1 nocturnal, 2 cathemeral,
+\item{combine_reported_activity_cycle}{Activity cycle (1 nocturnal, 2 cathemeral,
 3 diurnal).}
-\item{combine_foraging_stratum}{Foraging stratum (G/Ar/A/S/M).}
-\item{combine_biogeographical_realm}{Biogeographical realm(s).}
+\item{combine_reported_foraging_stratum}{Foraging stratum (G/Ar/A/S/M).}
+\item{combine_reported_biogeographical_realm}{Biogeographical realm(s).}
 }
 }
 \description{

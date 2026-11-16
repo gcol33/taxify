@@ -15,10 +15,10 @@ add_saproxylic(x, cols = NULL, verbose = TRUE)
 }
 \value{
 The same data.frame with numeric \code{saproxylic_} columns:
-\code{body_length_mm}, \code{body_width_mm}, \code{body_height_mm}, \code{mass_mg},
-\code{colour_lightness}, \code{head_length_mm}, \code{pronotum_length_mm},
-\code{elytra_length_mm}, \code{wing_length_mm}, \code{wing_aspect}, \code{antenna_length_mm},
-\code{eye_length_mm}.
+\code{saproxylic_body_length_mm}, \code{saproxylic_body_width_mm}, \code{saproxylic_body_height_mm}, \code{saproxylic_mass_mg},
+\code{saproxylic_colour_lightness}, \code{saproxylic_head_length_mm}, \code{saproxylic_pronotum_length_mm},
+\code{saproxylic_elytra_length_mm}, \code{saproxylic_wing_length_mm}, \code{saproxylic_wing_aspect}, \code{saproxylic_antenna_length_mm},
+\code{saproxylic_eye_length_mm}.
 }
 \description{
 Joins European deadwood-beetle body and appendage morphometrics to a

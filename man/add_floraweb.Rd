@@ -20,28 +20,28 @@ the full set explicitly.}
 The same data.frame with German trait columns (all suffixed \verb{_de}),
 grouped as:
 \describe{
-\item{Morphology}{\code{height_de}, \code{life_form_de}, \code{leaf_shape_de},
-\code{leaf_anatomy_de}, \code{leaf_persistence_de}, \code{storage_organs_de},
-\code{flowering_months_de}, \code{flowering_months_biolflor_de},
-\code{flowering_phase_de}, \code{phenological_season_de}, \code{description_de}.}
-\item{Reproductive biology}{\code{pollination_vector_de}, \code{pollinator_de},
-\code{pollinator_reward_de}, \code{flower_type_de}, \code{flower_class_de},
-\code{dispersal_type_de}, \code{diaspore_type_de}, \code{germinule_type_de},
-\code{reproduction_type_de}, \code{vegetative_spread_de}, \code{fertilization_type_de},
-\code{apomixis_de}, \code{dicliny_de}, \code{dichogamy_de}, \code{self_incompatibility_de},
-\code{si_mechanism_de}, \code{ploidy_de}, \code{chromosome_number_de},
-\code{chromosome_freq_de}, \code{chromosomes_de}.}
-\item{Ecology}{the nine Ellenberg indicator values \code{ell_light_de},
-\code{ell_temperature_de}, \code{ell_continentality_de}, \code{ell_moisture_de},
-\code{ell_moisture_variability_de}, \code{ell_reaction_de}, \code{ell_nitrogen_de},
-\code{ell_salt_de}, \code{heavy_metal_resistance_de}, plus \code{strategy_type_de}
-(Grime CSR), \code{habitat_site_de}, \code{formation_de}, \code{plant_community_de},
-\code{biotope_type_de}, \code{forest_binding_de}, \code{hemeroby_de}, \code{urbanity_de}.}
-\item{Distribution}{\code{floristic_zones_de}, \code{areal_formula_de},
-\code{areal_type_de}, \code{oceanity_de}, \code{range_centre_de}, \code{world_range_size_de},
-\code{world_range_frequency_de}, \code{world_range_position_de},
-\code{world_range_hazard_de}, \code{germany_range_share_de},
-\code{germany_responsibility_de}.}
+\item{Morphology}{\code{floraweb_height_de}, \code{floraweb_life_form_de}, \code{floraweb_leaf_shape_de},
+\code{floraweb_leaf_anatomy_de}, \code{floraweb_leaf_persistence_de}, \code{floraweb_storage_organs_de},
+\code{floraweb_flowering_months_de}, \code{floraweb_flowering_months_biolflor_de},
+\code{floraweb_flowering_phase_de}, \code{floraweb_phenological_season_de}, \code{floraweb_description_de}.}
+\item{Reproductive biology}{\code{floraweb_pollination_vector_de}, \code{floraweb_pollinator_de},
+\code{floraweb_pollinator_reward_de}, \code{floraweb_flower_type_de}, \code{floraweb_flower_class_de},
+\code{floraweb_dispersal_type_de}, \code{floraweb_diaspore_type_de}, \code{floraweb_germinule_type_de},
+\code{floraweb_reproduction_type_de}, \code{floraweb_vegetative_spread_de}, \code{floraweb_fertilization_type_de},
+\code{floraweb_apomixis_de}, \code{floraweb_dicliny_de}, \code{floraweb_dichogamy_de}, \code{floraweb_self_incompatibility_de},
+\code{floraweb_si_mechanism_de}, \code{floraweb_ploidy_de}, \code{floraweb_chromosome_number_de},
+\code{floraweb_chromosome_freq_de}, \code{floraweb_chromosomes_de}.}
+\item{Ecology}{the nine Ellenberg indicator values \code{floraweb_ell_light_de},
+\code{floraweb_ell_temperature_de}, \code{floraweb_ell_continentality_de}, \code{floraweb_ell_moisture_de},
+\code{floraweb_ell_moisture_variability_de}, \code{floraweb_ell_reaction_de}, \code{floraweb_ell_nitrogen_de},
+\code{floraweb_ell_salt_de}, \code{floraweb_heavy_metal_resistance_de}, plus \code{floraweb_strategy_type_de}
+(Grime CSR), \code{floraweb_habitat_site_de}, \code{floraweb_formation_de}, \code{floraweb_plant_community_de},
+\code{floraweb_biotope_type_de}, \code{floraweb_forest_binding_de}, \code{floraweb_hemeroby_de}, \code{floraweb_urbanity_de}.}
+\item{Distribution}{\code{floraweb_floristic_zones_de}, \code{floraweb_areal_formula_de},
+\code{floraweb_areal_type_de}, \code{floraweb_oceanity_de}, \code{floraweb_range_centre_de}, \code{floraweb_world_range_size_de},
+\code{floraweb_world_range_frequency_de}, \code{floraweb_world_range_position_de},
+\code{floraweb_world_range_hazard_de}, \code{floraweb_germany_range_share_de},
+\code{floraweb_germany_responsibility_de}.}
 }
 Categorical traits with several applicable values are joined with "; ".
 Trait values are German (as published by FloraWeb / BiolFlor).

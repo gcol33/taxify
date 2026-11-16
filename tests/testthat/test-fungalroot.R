@@ -47,11 +47,11 @@ test_that("add_fungalroot joins mycorrhizal type by genus", {
   result <- taxify("Quercus robur", backbone = "wfo", verbose = FALSE)
   enriched <- add_fungalroot(result, verbose = FALSE)
 
-  expect_true(all(c("mycorrhizal_type", "mycorrhizal_status",
-                    "mycorrhizal_records") %in% names(enriched)))
-  expect_equal(enriched$mycorrhizal_type, "EcM")
-  expect_equal(enriched$mycorrhizal_status, "mycorrhizal")
-  expect_equal(enriched$mycorrhizal_records, 163L)
+  expect_true(all(c("fungalroot_mycorrhizal_type", "fungalroot_mycorrhizal_status",
+                    "fungalroot_mycorrhizal_records") %in% names(enriched)))
+  expect_equal(enriched$fungalroot_mycorrhizal_type, "EcM")
+  expect_equal(enriched$fungalroot_mycorrhizal_status, "mycorrhizal")
+  expect_equal(enriched$fungalroot_mycorrhizal_records, 163L)
 })
 
 test_that("add_fungalroot annotates any species in a covered genus", {
@@ -64,8 +64,8 @@ test_that("add_fungalroot annotates any species in a covered genus", {
   result <- taxify("Pinus sylvestris", backbone = "wfo", verbose = FALSE)
   enriched <- add_fungalroot(result, verbose = FALSE)
 
-  expect_equal(enriched$mycorrhizal_type, "EcM")
-  expect_equal(enriched$mycorrhizal_records, 500L)
+  expect_equal(enriched$fungalroot_mycorrhizal_type, "EcM")
+  expect_equal(enriched$fungalroot_mycorrhizal_records, 500L)
 })
 
 test_that("add_fungalroot returns NA for genera not in FungalRoot", {
@@ -78,6 +78,6 @@ test_that("add_fungalroot returns NA for genera not in FungalRoot", {
   result <- taxify("Picea polita", backbone = "wfo", verbose = FALSE)
   enriched <- add_fungalroot(result, verbose = FALSE)
 
-  expect_true(is.na(enriched$mycorrhizal_type))
-  expect_true(is.na(enriched$mycorrhizal_records))
+  expect_true(is.na(enriched$fungalroot_mycorrhizal_type))
+  expect_true(is.na(enriched$fungalroot_mycorrhizal_records))
 })

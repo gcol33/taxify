@@ -15,8 +15,8 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{finand_} columns: numeric \code{body_length_mm};
-categorical \code{wing_morph}, \code{feeding_type}, \code{habitat_pref}, \code{moisture_pref}.
+The same data.frame with \code{finand_} columns: numeric \code{finand_body_length_mm};
+categorical \code{finand_wing_morph}, \code{finand_feeding_type}, \code{finand_habitat_pref}, \code{finand_moisture_pref}.
 }
 \description{
 Joins ground-beetle traits measured from Helsinki specimens to a \code{\link[=taxify]{taxify()}}

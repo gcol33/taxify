@@ -16,13 +16,13 @@ add_funguild(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{trophic_mode}{Trophic mode (e.g., Pathotroph, Saprotroph,
+\item{funguild_trophic_mode}{Trophic mode (e.g., Pathotroph, Saprotroph,
 Symbiotroph, or hyphenated combinations).}
-\item{guild}{Functional guild (e.g., "Ectomycorrhizal",
+\item{funguild_guild}{Functional funguild_guild (e.g., "Ectomycorrhizal",
 "Plant Pathogen", "Wood Saprotroph").}
 \item{funguild_growth_form}{Growth morphology (e.g., "Agaricoid",
 "Microfungus"). Prefixed to avoid collision with FungalTraits.}
-\item{confidence_ranking}{Confidence of the guild assignment
+\item{funguild_confidence_ranking}{Confidence of the funguild_guild assignment
 (Possible, Probable, Highly Probable).}
 }
 }

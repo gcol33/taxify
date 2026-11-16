@@ -18,8 +18,8 @@ names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{host_plant_count}{Number of distinct hostplant species recorded.}
-\item{host_family_count}{Number of distinct hostplant families recorded.}
+\item{hosts_host_plant_count}{Number of distinct hostplant species recorded.}
+\item{hosts_host_family_count}{Number of distinct hostplant families recorded.}
 }
 }
 \description{

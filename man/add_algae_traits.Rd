@@ -16,18 +16,18 @@ add_algae_traits(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{algae_body_size_cm}{Maximum body size in centimetres.}
-\item{algae_growth_form}{Growth form / body shape (e.g., filamentous,
+\item{algae_traits_algae_body_size_cm}{Maximum body size in centimetres.}
+\item{algae_traits_algae_growth_form}{Growth form / body shape (e.g., filamentous,
 foliose, crustose).}
-\item{algae_calcification}{Calcification type (e.g., uncalcified,
+\item{algae_traits_algae_calcification}{Calcification type (e.g., uncalcified,
 articulated, encrusting).}
-\item{algae_life_span}{Life span category (annual, perennial, etc.).}
-\item{algae_tidal_zone}{Tidal zonation (e.g., supralittoral, eulittoral,
+\item{algae_traits_algae_life_span}{Life span category (annual, perennial, etc.).}
+\item{algae_traits_algae_tidal_zone}{Tidal zonation (e.g., supralittoral, eulittoral,
 sublittoral).}
-\item{algae_wave_exposure}{Wave exposure tolerance (sheltered, moderately
+\item{algae_traits_algae_wave_exposure}{Wave exposure tolerance (sheltered, moderately
 exposed, exposed).}
-\item{algae_environment}{Habitat environment (marine, brackish, freshwater).}
-\item{algae_substrate}{Environmental position / substrate type.}
+\item{algae_traits_algae_environment}{Habitat environment (marine, brackish, freshwater).}
+\item{algae_traits_algae_substrate}{Environmental position / substrate type.}
 }
 }
 \description{

@@ -8,15 +8,15 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{wingspan_mm}{Wingspan in mm (midpoint of lower and upper bounds).}
-#'   \item{voltinism}{Number of generations per year.}
-#'   \item{diapause_stage}{Overwintering/diapause life stage.}
-#'   \item{canopy_affinity}{Canopy association category.}
-#'   \item{edge_affinity}{Edge/gap affinity category.}
-#'   \item{moisture_affinity}{Moisture affinity category.}
-#'   \item{disturbance_affinity}{Disturbance affinity category.}
-#'   \item{n_hostplant_families}{Number of host plant families used.}
-#'   \item{flight_months}{Number of months with adult flight activity.}
+#'   \item{leptraits_wingspan_mm}{Wingspan in mm (midpoint of lower and upper bounds).}
+#'   \item{leptraits_voltinism}{Number of generations per year.}
+#'   \item{leptraits_diapause_stage}{Overwintering/diapause life stage.}
+#'   \item{leptraits_canopy_affinity}{Canopy association category.}
+#'   \item{leptraits_edge_affinity}{Edge/gap affinity category.}
+#'   \item{leptraits_moisture_affinity}{Moisture affinity category.}
+#'   \item{leptraits_disturbance_affinity}{Disturbance affinity category.}
+#'   \item{leptraits_n_hostplant_families}{Number of host plant families used.}
+#'   \item{leptraits_flight_months}{Number of months with adult flight activity.}
 #' }
 #'
 #' @details

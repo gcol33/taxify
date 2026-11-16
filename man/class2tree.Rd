@@ -54,7 +54,6 @@ options(old)
 \code{\link[=lowest_common]{lowest_common()}}, \code{\link[=add_classification]{add_classification()}}, \code{\link[=taxify]{taxify()}}.
 
 Other Explore the backbone:
-\code{\link[=children]{children()}},
 \code{\link[=downstream]{downstream()}},
 \code{\link[=lowest_common]{lowest_common()}},
 \code{\link[=synonyms]{synonyms()}},

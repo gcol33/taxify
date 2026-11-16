@@ -18,13 +18,13 @@ curated set; a character vector of column names attaches just those, and
 \value{
 The same data.frame with three additional columns:
 \describe{
-\item{mycorrhizal_type}{Genus-level majority-consensus type, one of \code{AM}
+\item{fungalroot_mycorrhizal_type}{Genus-level majority-consensus type, one of \code{AM}
 (arbuscular), \code{EcM} (ecto), \code{ErM} (ericoid), \code{OM} (orchid), \code{NM}
 (non-mycorrhizal), the dual types \code{EcM-AM} / \code{ErM-EcM} / \code{ErM-AM},
 \code{Other}, or \code{uncertain}. \code{NA} if the genus is not in FungalRoot.}
-\item{mycorrhizal_status}{Coarse status derived from the type:
+\item{fungalroot_mycorrhizal_status}{Coarse status derived from the type:
 \code{"mycorrhizal"}, \code{"non-mycorrhizal"}, or \code{"uncertain"}.}
-\item{mycorrhizal_records}{Number of FungalRoot observations supporting the
+\item{fungalroot_mycorrhizal_records}{Number of FungalRoot observations supporting the
 genus-level consensus.}
 }
 }

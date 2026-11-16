@@ -11,12 +11,12 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{betsi_body_length_mm}{Body length (mm), median of the per-source
+#'   \item{betsi_collembola_body_length_betsi_body_length_mm}{Body length (mm), median of the per-source
 #'     measurements.}
-#'   \item{betsi_body_length_min_mm}{Smallest measurement (mm).}
-#'   \item{betsi_body_length_max_mm}{Largest measurement (mm).}
-#'   \item{betsi_body_length_n}{Number of measurements aggregated.}
-#'   \item{betsi_body_length_sources}{Number of distinct literature sources.}
+#'   \item{betsi_collembola_body_length_betsi_body_length_min_mm}{Smallest measurement (mm).}
+#'   \item{betsi_collembola_body_length_betsi_body_length_max_mm}{Largest measurement (mm).}
+#'   \item{betsi_collembola_body_length_betsi_body_length_n}{Number of measurements aggregated.}
+#'   \item{betsi_collembola_body_length_betsi_body_length_sources}{Number of distinct literature sources.}
 #' }
 #'
 #' @details

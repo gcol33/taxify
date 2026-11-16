@@ -19,8 +19,8 @@ names. See \code{\link{enrichment_cols}}.}
 The same data.frame with additional columns, mirroring
 \code{\link[=add_combine_reported]{add_combine_reported()}} but named \verb{combine_imputed_*} (e.g.
 \code{combine_imputed_adult_mass_g}, \code{combine_imputed_gestation_length_d}).
-Traits COMBINE does not impute (for example \code{biogeographical_realm} and
-\code{habitat_breadth_n}) carry the reported coverage; the life-history traits
+Traits COMBINE does not impute (for example \code{combine_imputed_biogeographical_realm} and
+\code{combine_imputed_habitat_breadth_n}) carry the reported coverage; the life-history traits
 (gestation, weaning, longevity, litter size, generation length, ...) are
 near-complete.
 }

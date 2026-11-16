@@ -12,7 +12,7 @@ add_wcvp(x, region, cols = NULL, verbose = TRUE)
 \item{region}{Character. TDWG Level 3 region code(s), or \code{"all"}. See
 \code{\link[=taxify_regions]{taxify_regions()}} for the full list of codes.
 \itemize{
-\item Single code (e.g., \code{"BGM"} for Belgium): adds \code{native_status}
+\item Single code (e.g., \code{"BGM"} for Belgium): adds \code{wcvp_native_status}
 column (no suffix).
 \item Multiple codes (e.g., \code{c("BGM", "GER")}): adds
 \code{native_status_BGM}, \code{native_status_GER}.
@@ -29,7 +29,7 @@ curated set; a character vector of column names attaches just those, and
 \value{
 The same data.frame with additional column(s):
 \describe{
-\item{native_status}{One of \code{"native"}, \code{"introduced"}, \code{"extinct"},
+\item{wcvp_native_status}{One of \code{"native"}, \code{"introduced"}, \code{"extinct"},
 or \code{NA} if not recorded for that region.}
 }
 }

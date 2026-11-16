@@ -7,8 +7,8 @@
 #' @param cols Which columns to attach: \code{NULL} (default) all of them, or a
 #'   character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with `finand_` columns: numeric `body_length_mm`;
-#'   categorical `wing_morph`, `feeding_type`, `habitat_pref`, `moisture_pref`.
+#' @return The same data.frame with `finand_` columns: numeric `finand_body_length_mm`;
+#'   categorical `finand_wing_morph`, `finand_feeding_type`, `finand_habitat_pref`, `finand_moisture_pref`.
 #'
 #' @details Source: Finand & Kotze (2025), 34 species from 25 remnant urban
 #'   forests in Helsinki.

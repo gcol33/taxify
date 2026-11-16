@@ -8,13 +8,13 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns. The curated set:
 #' \describe{
-#'   \item{sid_thousand_seed_weight}{Thousand-seed weight (grams per 1000 seeds,
+#'   \item{kew_sid_sid_thousand_seed_weight}{Thousand-seed weight (grams per 1000 seeds,
 #'     median of all records).}
-#'   \item{sid_storage_behaviour}{Seed storage behaviour
+#'   \item{kew_sid_sid_storage_behaviour}{Seed storage behaviour
 #'     (Orthodox/Recalcitrant/Intermediate/Uncertain).}
-#'   \item{sid_oil_content_pct}{Seed oil content (percent, median).}
-#'   \item{sid_protein_content_pct}{Seed protein content (percent, median).}
-#'   \item{sid_lifeform}{Raunkiaer life-form code as recorded by SID.}
+#'   \item{kew_sid_sid_oil_content_pct}{Seed oil content (percent, median).}
+#'   \item{kew_sid_sid_protein_content_pct}{Seed protein content (percent, median).}
+#'   \item{kew_sid_sid_lifeform}{Raunkiaer life-form code as recorded by SID.}
 #' }
 #' With `cols = "all"` the seed-weight record count (`n_seed_weight_records`)
 #' and modal `fruit_type` are also attached under their source names. Joined on
@@ -54,7 +54,6 @@ add_kew_sid <- function(x, cols = NULL, verbose = TRUE) {
     enrichment_name = "kew_sid",
     col_map         = col_map,
     source_label    = "Kew Seed Information Database (SID)",
-    col_prefix      = "sid_",
     cols            = cols,
     verbose         = verbose
   )

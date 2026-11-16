@@ -58,7 +58,7 @@ Anchors: `@p:readme.<slug>`, `@p:desc.<slug>`, `@p:vig.<article>.<slug>`, `?fn` 
 - avoid: "ambiguous" as the column name (the old `is_ambiguous` column is gone); `inspect()` and `reconcile()` still label such rows "ambiguous", which is their label, not a column
 
 ### enrichment
-- forms: published dataset (plain words); enrichment (the API word: `list_enrichments()`, `taxify_download_enrichment()`); `add_<source>()` function
+- forms: published dataset (plain words); enrichment (the API word: `list_enrichments()`, `taxify_download(kind = "enrichment")`); `add_<source>()` function
 - as: a published trait, status or distribution dataset prepared as a file keyed on accepted names, attached by its own `add_<source>()` function
 - defined: @p:vig.taxify.enrich (plain words); home vignettes/enrichments.Rmd
 - avoid: "door" (internal jargon); "layer" as a third word

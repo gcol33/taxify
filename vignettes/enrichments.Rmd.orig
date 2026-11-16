@@ -54,10 +54,10 @@ res <- taxify(plants, backbone = "col", verbose = FALSE)
 
 ```{r zanne}
 wood <- add_zanne(res)
-wood[, c("input_name", "woodiness")]
+wood[, c("input_name", "zanne_woodiness")]
 ```
 
-`enrichment_cols()` lists all of a dataset's columns, and `cols` chooses: a vector of names, or `"all"`:
+`enrichment_cols()` lists source columns alongside their attached output names. Attached names start with the source key and `_`; common names use `common_`. The `cols` selector accepts the source name, the output name with or without its prefix, or `"all"`:
 
 ```{r cols}
 enrichment_cols("zanne")
@@ -69,12 +69,12 @@ The functions return the result with the new columns on the right, so they can b
 
 ```{r chain}
 both <- res |> add_zanne() |> add_eive()
-both[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
+both[, c("accepted_name", "zanne_woodiness", "eive_light", "eive_moisture")]
 ```
 
 ## Datasets with one value per place or language
 
-Some datasets hold a value for each country, region or language. Their function takes the place or language as an argument. `add_griis()` reads the Global Register of Introduced and Invasive Species (GRIIS) for countries given as two-letter ISO codes. One code gives one column, `invasive_status`; several give a column each, with the code as suffix:
+Some datasets hold a value for each country, region or language. Their function takes the place or language as an argument. `add_griis()` reads the Global Register of Introduced and Invasive Species (GRIIS) for countries given as two-letter ISO codes. One code gives one column, `griis_invasive_status`; several give a column each, with the code as suffix:
 
 ```{r griis}
 aliens <- c(
@@ -83,8 +83,8 @@ aliens <- c(
 )
 al <- taxify(aliens, backbone = "col", verbose = FALSE)
 gr <- add_griis(al, country = c("AT", "DE", "GB"))
-gr[, c("input_name", "invasive_status_AT", "invasive_status_DE",
-       "invasive_status_GB")]
+gr[, c("input_name", "griis_invasive_status_AT", "griis_invasive_status_DE",
+       "griis_invasive_status_GB")]
 ```
 
 *Quercus robur* is native in all three countries. GRIIS focuses on introduced and invasive species, so it has no record for the oak, and its rows are `NA`: an `NA` means that the dataset has no record, not that the species is native. `enrichment_groups("griis")` lists the codes, and `country = "all"` takes every country.
@@ -93,7 +93,7 @@ gr[, c("input_name", "invasive_status_AT", "invasive_status_DE",
 
 ```{r long}
 long <- taxify_long(gr)
-head(long[, c("input_name", "country_code", "invasive_status")])
+head(long[, c("input_name", "country_code", "griis_invasive_status")])
 ```
 
 `add_wcvp()` works the same way for the botanical regions of the World Checklist of Vascular Plants (WCVP), coded as in [Matching within a region](regions.html), and `add_common_names()` for languages:
@@ -215,9 +215,9 @@ mixed <- c("Quercus robur", "Parus major", "Vulpes vulpes", "Bufo bufo",
 mx <- taxify(mixed, backbone = "col", verbose = FALSE)
 mx <- mx |> add_zanne() |> add_avonet() |> add_pantheria() |>
   add_amphibio() |> add_fungal_traits() |> add_fishbase()
-mx[, c("input_name", "woodiness", "avonet_body_mass_g",
-       "pantheria_body_mass_g", "body_size_mm", "primary_lifestyle",
-       "fb_trophic_level")]
+mx[, c("input_name", "zanne_woodiness", "avonet_body_mass_g",
+       "pantheria_body_mass_g", "amphibio_body_size_mm", "fungal_traits_primary_lifestyle",
+       "fishbase_fb_trophic_level")]
 ```
 
 Each species has values only from the datasets that cover its group. A column with `NA` in every row usually means the dataset does not cover the group; an `NA` in some rows means the species is not in the dataset, was described after it was compiled, or was recorded at another rank. `summary()` counts the rows each dataset filled, with its version and licence:
@@ -236,10 +236,10 @@ Some datasets are keyed on the genus, such as FungalTraits (Polme et al. [2020](
 
 ## Downloads and versions
 
-Each dataset is downloaded on first use into `taxify_data_dir()` and read from disk after that. `taxify_download_enrichment()` fetches datasets ahead of time:
+Each dataset is downloaded on first use into `taxify_data_dir()` and read from disk after that. `taxify_download(kind = "enrichment")` fetches datasets ahead of time:
 
 ```{r download, eval = FALSE}
-taxify_download_enrichment(c("zanne", "eive", "griis"))
+taxify_download(kind = "enrichment", c("zanne", "eive", "griis"))
 ```
 
 A dataset with `static = TRUE` in `list_enrichments()` is a fixed release and is never updated. The others are checked against the published version once per session and replaced when a newer one exists; the replaced build is deleted, and `taxify_restore()` reinstalls it from its published copy when a lockfile names it. The version used is shown by `summary()`, cited by `cite()` and written by `taxify_lock()`, as in [Get started](taxify.html#recording-what-was-used).

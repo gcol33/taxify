@@ -16,6 +16,6 @@ Character vector of codes, \code{NA} for an unknown name.
 The nomenclature code of each backbone
 }
 \examples{
-backbone_code(c("wfo", "evc"))
+taxify:::backbone_code(c("wfo", "evc"))
 }
 \keyword{internal}

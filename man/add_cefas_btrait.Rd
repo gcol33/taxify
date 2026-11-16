@@ -18,13 +18,13 @@ names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns. The default set:
 \describe{
-\item{cefas_body_size}{Maximum body-size class.}
-\item{cefas_morphology}{Body morphology.}
-\item{cefas_lifespan}{Life-span class.}
-\item{cefas_living_habit}{Living habit.}
-\item{cefas_feeding_mode}{Feeding mode.}
-\item{cefas_mobility}{Mobility.}
-\item{cefas_bioturbation}{Bioturbation mode.}
+\item{cefas_btrait_cefas_body_size}{Maximum body-size class.}
+\item{cefas_btrait_cefas_morphology}{Body morphology.}
+\item{cefas_btrait_cefas_lifespan}{Life-span class.}
+\item{cefas_btrait_cefas_living_habit}{Living habit.}
+\item{cefas_btrait_cefas_feeding_mode}{Feeding mode.}
+\item{cefas_btrait_cefas_mobility}{Mobility.}
+\item{cefas_btrait_cefas_bioturbation}{Bioturbation mode.}
 }
 \code{cols = "all"} also attaches egg and larval development and sediment position.
 }

@@ -160,7 +160,7 @@ add_data(res, traits, species_col = "taxon", fuzzy = FALSE)
 both <- res |>
   add_zanne() |>
   add_data(traits, species_col = "taxon", cols = "sla")
-both[, c("accepted_name", "woodiness", "sla")]
+both[, c("accepted_name", "zanne_woodiness", "sla")]
 ```
 
 ## Exporting the result

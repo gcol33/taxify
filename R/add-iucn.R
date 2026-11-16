@@ -11,7 +11,7 @@
 #'   to be fetched. Default `TRUE`.
 #' @return The same data.frame with an additional column:
 #' \describe{
-#'   \item{conservation_status}{IUCN category: `"LC"` (Least Concern),
+#'   \item{iucn_conservation_status}{IUCN category: `"LC"` (Least Concern),
 #'     `"NT"` (Near Threatened), `"VU"` (Vulnerable), `"EN"` (Endangered),
 #'     `"CR"` (Critically Endangered), `"EW"` (Extinct in the Wild),
 #'     `"EX"` (Extinct), or `NA` if not assessed.}

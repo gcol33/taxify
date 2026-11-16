@@ -88,36 +88,6 @@ ensure_coverage <- function(verbose = TRUE) {
 }
 
 
-# ---- Build-from-source escape hatch ----
-
-#' Build the genus register from source
-#'
-#' Rebuilds `genus_register.vtr` and `backend_coverage.vtr` locally instead of
-#' downloading the published pair. The build itself lives in `taxifydb`, which
-#' resolves every backbone in the register's fixed backbone set and can take
-#' well over an hour; the download takes seconds and yields the same file, so
-#' this is an escape hatch rather than the normal route.
-#'
-#' `taxify_download("register")` fetches the published pair.
-#'
-#' @param verbose Logical. Print progress messages. Default `TRUE`.
-#' @return Path to `genus_register.vtr` (invisibly).
-#' @seealso [taxify_load_register()] to load it into memory,
-#'   [taxify_register_coverage()] to query backbone coverage for a genus.
-#' @family Backbone data and cache
-#' @examples
-#' \dontrun{
-#' taxify_build_register()
-#' }
-#'
-#' @export
-taxify_build_register <- function(verbose = TRUE) {
-  require_taxifydb("Building the genus register")
-  res <- taxifydb::build_register(verbose = verbose)
-  invisible(if (is.list(res)) res$register else res)
-}
-
-
 # ---- User-facing functions (exported) ----
 
 #' Load the unified genus register into memory
@@ -137,16 +107,16 @@ taxify_build_register <- function(verbose = TRUE) {
 #' @return Invisibly, the full register data.frame, with the classification
 #'   and group columns described above. Missing classifications are `NA`.
 #' @seealso [lookup_genus()], [taxify_register_coverage()],
-#'   [taxify_download()] with `backbone = "register"`.
+#'   [taxify_download()] with `name = "register"`.
 #' @family Backbone data and cache
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data(),
 #'                taxify.offline = TRUE)
-#' reg <- taxify_load_register(force = TRUE, verbose = FALSE)
+#' reg <- taxify:::taxify_load_register(force = TRUE, verbose = FALSE)
 #' head(reg[, c("genus", "kingdom", "family")])
 #' options(old)
 #'
-#' @export
+#' @keywords internal
 taxify_load_register <- function(force = FALSE, verbose = TRUE) {
   if (!force && !is.null(.taxify_env$register)) {
     return(invisible(.taxify_env$register))
@@ -157,7 +127,7 @@ taxify_load_register <- function(force = FALSE, verbose = TRUE) {
     stop(sprintf(
       paste0("Genus register not available at: %s\n",
              "Download it with taxify_download(\"register\"), or build it ",
-             "locally with taxify_build_register()."),
+             "locally with taxifydb::build_register()."),
       register_vtr_path()
     ), call. = FALSE)
   }
@@ -187,7 +157,7 @@ taxify_load_register <- function(force = FALSE, verbose = TRUE) {
 #' @examples
 #' old <- options(taxify.data_dir = taxify_example_data(),
 #'                taxify.offline = TRUE)
-#' taxify_load_register(force = TRUE, verbose = FALSE)
+#' taxify:::taxify_load_register(force = TRUE, verbose = FALSE)
 #' lookup_genus("Quercus")
 #' lookup_genus(NA_character_)
 #' options(old)
@@ -239,7 +209,7 @@ taxify_register_coverage <- function(genus) {
     stop(sprintf(
       paste0("Backbone coverage not available at: %s\n",
              "Download it with taxify_download(\"register\"), or build it ",
-             "locally with taxify_build_register()."),
+             "locally with taxifydb::build_register()."),
       coverage_vtr_path()
     ), call. = FALSE)
   }

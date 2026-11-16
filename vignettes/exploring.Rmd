@@ -11,7 +11,7 @@ vignette: >
 
 `taxify()` reads a backbone in one direction, from a name to its accepted taxon. This article shows the functions that read it in the others: the synonyms of a taxon, the species of a genus, the ranks above a species, the taxon behind an ID, the parts of a name, and common names. It ends with a taxonomy tree of a species list. Installation is covered in [Get started](taxify.html). Every example reads the Catalogue of Life (COL); `backbone` names another.
 
-1. **List** synonyms with `synonyms()`, and the taxa below a genus or family with `children()` and `downstream()`.
+1. **List** synonyms with `synonyms()`, and the taxa below a genus or family with `downstream()`.
 
 2. **Climb** to the ranks above a taxon with `upstream()` and `add_classification()`.
 
@@ -49,11 +49,11 @@ The input can itself be a synonym: `synonyms("Pinus abies")` lists the same set,
 
 ## Taxa below a genus or family
 
-To complete a checklist, the species of a genus are needed. `children()` lists the accepted species of a genus, or of a family:
+To complete a checklist, the species of a genus are needed. `downstream()` lists the accepted species of a genus, or of a family:
 
 
 ``` r
-spruces <- children("Picea", backbone = "col", verbose = FALSE)
+spruces <- downstream("Picea", backbone = "col", verbose = FALSE)
 nrow(spruces)
 #> [1] 42
 head(spruces[, c("name", "authorship", "rank")])
@@ -73,12 +73,12 @@ head(spruces[, c("name", "authorship", "rank")])
 genera <- downstream("Pinaceae", backbone = "col", downto = "genus",
                      verbose = FALSE)
 genera$name
-#>  [1] "Abies"       "Cathaya"     "Cedrus"      "Keteleeria"  "Larix"      
+#>  [1] "Abies"       "Cathaya"     "Cedrus"      "Keteleeria"  "Larix"
 #>  [6] "Nothotsuga"  "Picea"       "Pinus"       "Pseudolarix" "Pseudotsuga"
 #> [11] "Tsuga"
 ```
 
-Both return accepted taxa only, and never the parent itself. A genus name used in two kingdoms, such as *Prunella*, is split with `kingdom`, as in `taxify()`.
+The result contains accepted descendants. A genus name used in two kingdoms, such as *Prunella*, is split with `kingdom`, as in `taxify()`.
 
 ## Ranks above a taxon
 
@@ -197,8 +197,8 @@ sp <- comm2sci("Norway spruce", lang = "en", verbose = FALSE)
 nrow(sp)
 #> [1] 31
 head(sp$accepted_name)
-#> [1] "Abies dicksonii"                 "Abies excelsa var. attenuata"   
-#> [3] "Abies excelsa var. aurea"        "Abies excelsa var. brevifolia"  
+#> [1] "Abies dicksonii"                 "Abies excelsa var. attenuata"
+#> [3] "Abies excelsa var. aurea"        "Abies excelsa var. brevifolia"
 #> [5] "Abies excelsa var. eremita"      "Abies excelsa var. finedonensis"
 ```
 
@@ -209,12 +209,12 @@ With `output = "result"`, the names are matched with `taxify()`, and `query_comm
 sp_res <- comm2sci("Norway spruce", lang = "en", output = "result",
                    backbone = "col", verbose = FALSE)
 table(sp_res$accepted_name)
-#> 
-#>                          Abies alba Abies sachalinensis var. nemorensis 
-#>                                   2                                   1 
-#>                         Picea abies              Picea abies var. abies 
-#>                                  19                                   6 
-#>          Picea abies var. acuminata 
+#>
+#>                          Abies alba Abies sachalinensis var. nemorensis
+#>                                   2                                   1
+#>                         Picea abies              Picea abies var. abies
+#>                                  19                                   6
+#>          Picea abies var. acuminata
 #>                                   2
 ```
 

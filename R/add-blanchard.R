@@ -7,8 +7,8 @@
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `blanchard_` columns: categorical
-#'   `subfamily`, `spines`, `sting`, `diet`, `nesting`, `foraging`; numeric
-#'   `colony_size_workers` (joined on genus).
+#'   `blanchard_subfamily`, `blanchard_spines`, `blanchard_sting`, `blanchard_diet`, `blanchard_nesting`, `blanchard_foraging`; numeric
+#'   `blanchard_colony_size_workers` (joined on genus).
 #'
 #' @details Source: Blanchard & Moreau (2017) ant defensive traits (Dryad, CC0).
 #'   Joins on genus because the database is genus-resolved.

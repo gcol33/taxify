@@ -13,16 +13,16 @@
 #' @return The same data.frame with additional columns (per-species means). The
 #'   default set:
 #' \describe{
-#'   \item{root_diameter}{Mean root diameter.}
-#'   \item{specific_root_length}{Specific root length.}
-#'   \item{root_tissue_density}{Root tissue density.}
-#'   \item{root_n_concentration}{Root nitrogen concentration.}
-#'   \item{root_c_concentration}{Root carbon concentration.}
-#'   \item{root_mass_fraction}{Root mass fraction.}
-#'   \item{lateral_spread}{Lateral spread.}
-#'   \item{root_mycorrhizal_colonization}{Root mycorrhizal colonization
+#'   \item{groot_root_diameter}{Mean root diameter.}
+#'   \item{groot_specific_root_length}{Specific root length.}
+#'   \item{groot_root_tissue_density}{Root tissue density.}
+#'   \item{groot_root_n_concentration}{Root nitrogen concentration.}
+#'   \item{groot_root_c_concentration}{Root carbon concentration.}
+#'   \item{groot_root_mass_fraction}{Root mass fraction.}
+#'   \item{groot_lateral_spread}{Lateral spread.}
+#'   \item{groot_root_mycorrhizal_colonization}{Root mycorrhizal colonization
 #'     intensity.}
-#'   \item{rooting_depth}{Maximum rooting depth.}
+#'   \item{groot_rooting_depth}{Maximum rooting depth.}
 #' }
 #' `cols = "all"` additionally attaches root chemistry (P/K/Ca/Mg/Mn
 #' concentrations, C:N and N:P ratios), architecture (branching density and

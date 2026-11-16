@@ -15,9 +15,9 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{noddb_} columns: \code{nodulation_consensus},
-\code{nodulation_type}, \code{nodulation_clade}, \code{nodulation_family},
-\code{spp_recognized}, \code{spp_studied}, \code{positive_reports}, \code{negative_reports}.
+The same data.frame with \code{noddb_} columns: \code{noddb_nodulation_consensus},
+\code{noddb_nodulation_type}, \code{noddb_nodulation_clade}, \code{noddb_nodulation_family},
+\code{noddb_spp_recognized}, \code{noddb_spp_studied}, \code{noddb_positive_reports}, \code{noddb_negative_reports}.
 }
 \description{
 Joins the nodulation status of a plant genus to a \code{\link[=taxify]{taxify()}} result. NodDB

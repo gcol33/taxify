@@ -19,7 +19,7 @@
 #'     accepted name; each published dataset has its own `add_<source>()`
 #'     function, listed by [list_enrichments()]; [add_trait()] gathers one trait
 #'     from every dataset that carries it.}
-#'   \item{Exploring the backbone}{[synonyms()], [children()], [downstream()],
+#'   \item{Exploring the backbone}{[synonyms()], [downstream()],
 #'     [upstream()], [add_classification()], [class2tree()], [id2name()],
 #'     [parse_name()], [comm2sci()] and [sci2comm()].}
 #'   \item{Backbones and versions}{[list_backbones()], [install_backbones()],

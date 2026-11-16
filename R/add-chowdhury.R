@@ -8,9 +8,9 @@
 #'   character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `chowdhury_` columns: numeric
-#'   `body_length_mm` and `occupancy_trend`; categorical `wing_morph`,
-#'   `trophic_level`, `habitat_pref`, `red_list_germany`, `red_list_iucn`,
-#'   `threat_status`, `trend_status`, `trend_significance`.
+#'   `chowdhury_body_length_mm` and `chowdhury_occupancy_trend`; categorical `chowdhury_wing_morph`,
+#'   `chowdhury_trophic_level`, `chowdhury_habitat_pref`, `chowdhury_red_list_germany`, `chowdhury_red_list_iucn`,
+#'   `chowdhury_threat_status`, `chowdhury_trend_status`, `chowdhury_trend_significance`.
 #'
 #' @details Source: Supporting Information Data S1 of Chowdhury et al. (2025),
 #'   383 German carabid species, 382 of them with traits. Ground beetles are one

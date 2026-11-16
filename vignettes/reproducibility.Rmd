@@ -51,10 +51,10 @@ The miniature WFO data include the oak *Quercus robur* and the fir *Abies alba*.
 res <- taxify(c("Quercus robur", "Abies alba"), backbone = "wfo",
               verbose = FALSE)
 res <- add_zanne(res, verbose = FALSE)
-res[, c("input_name", "accepted_name", "woodiness")]
-#>      input_name accepted_name woodiness
-#> 1 Quercus robur Quercus robur     woody
-#> 2    Abies alba    Abies alba     woody
+res[, c("input_name", "accepted_name", "zanne_woodiness")]
+#>      input_name accepted_name zanne_woodiness
+#> 1 Quercus robur Quercus robur           woody
+#> 2    Abies alba    Abies alba           woody
 #> Sources: WFO example, Zanne et al. 2014 example | cite() for full citations
 ```
 
@@ -67,7 +67,7 @@ A lockfile is a JSON file listing the backbone and contributing enrichment build
 lock_path <- tempfile(fileext = ".json")
 lock <- taxify_lock(res, file = lock_path, verbose = FALSE)
 names(lock)
-#> [1] "taxify_version" "created"        "r_version"      "backbones"     
+#> [1] "taxify_version" "created"        "r_version"      "backbones"
 #> [5] "enrichments"
 vapply(lock$backbones, function(x) x$name, character(1))
 #> [1] "wfo"
@@ -90,7 +90,7 @@ invisible(cite(res, file = bib_path))
 #>   [2] Borsch T, Berendsohn W, Dalcin E, Delmas M, Demissew S, Elliott A, Fritsch P, Fuchs A, Geltman D, Guner A, et al. (2020). World Flora Online: Placing taxonomists at the heart of a definitive and comprehensive global resource on the world's plants. Taxon 69:1311-1341. doi:10.1002/tax.12373
 #>   [3] Zanne AE, Tank DC, Cornwell WK, Eastman JM, Smith SA, FitzJohn RG, McGlinn DJ, O'Meara BC, Moles AT, Reich PB, et al. (2014). Three keys to the radiation of angiosperms into freezing environments. Nature 506:89-92. doi:10.1038/nature12872
 #>   ────────────────────────────────────────────────────────────
-#>   BibTeX written to: C:\Users\GILLES~1\AppData\Local\Temp\RtmpmYOx4S\fileb15051b36864.bib
+#>   BibTeX written to: C:\Users\GILLES~1\AppData\Local\Temp\Rtmpyk4twC\fileeb6c40a75966.bib
 file.exists(bib_path)
 #> [1] TRUE
 ```

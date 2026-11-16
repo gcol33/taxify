@@ -6,8 +6,8 @@
 #' @param cols Which columns to attach: \code{NULL} (default) all, or a
 #'   character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with `virion_` columns: `virus_richness`,
-#'   `virus_family_count`, `virus_record_count`, `host_class`.
+#' @return The same data.frame with `virion_` columns: `virion_virus_richness`,
+#'   `virion_virus_family_count`, `virion_virus_record_count`, `virion_host_class`.
 #'
 #' @details Source: Carlson et al. (2022), 4223 vertebrate hosts and 9833
 #'   viruses. ODbL-1.0. As with [add_globi()] and [add_invacost()], only the

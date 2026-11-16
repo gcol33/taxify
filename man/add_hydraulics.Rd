@@ -15,10 +15,10 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{hyd_} columns: \code{p50_mpa},
-\code{sapwood_conductivity}, \code{leaf_conductivity}, \code{huber_value_cm2_m2},
-\code{min_water_potential_mpa}, \code{hydraulic_safety_margin_mpa},
-\code{mean_annual_temp_c}.
+The same data.frame with \code{hyd_} columns: \code{hydraulics_hyd_p50_mpa},
+\code{hydraulics_hyd_sapwood_conductivity}, \code{hydraulics_hyd_leaf_conductivity}, \code{hydraulics_hyd_huber_value_cm2_m2},
+\code{hydraulics_hyd_min_water_potential_mpa}, \code{hydraulics_hyd_hydraulic_safety_margin_mpa},
+\code{hydraulics_hyd_mean_annual_temp_c}.
 }
 \description{
 Joins the drought-mortality trait block (xylem embolism resistance, xylem

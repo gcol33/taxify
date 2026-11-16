@@ -14,12 +14,14 @@ add_pignatti(x, verbose = TRUE)
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{light_it, temperature_it, continentality_it, moisture_it,
-reaction_it, nutrients_it, salinity_it}{Ellenberg-type indicator values
+\item{pignatti_light_it, pignatti_temperature_it,
+pignatti_continentality_it, pignatti_moisture_it,
+pignatti_reaction_it, pignatti_nutrients_it,
+pignatti_salinity_it}{Ellenberg-type indicator values
 calibrated for the Italian flora (codes; \code{X} = indifferent, \code{0} = not
 applicable).}
-\item{life_form_it}{Life form for the Italian flora.}
-\item{chorotype_it}{Chorological type (distribution).}
+\item{pignatti_life_form_it}{Life form for the Italian flora.}
+\item{pignatti_chorotype_it}{Chorological type (distribution).}
 }
 }
 \description{

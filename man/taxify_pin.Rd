@@ -39,7 +39,7 @@ which, nothing is pinned.
 
 \code{\link[=taxify_restore]{taxify_restore()}} with \code{install = TRUE} pins every build matching a lockfile,
 and a build fetched with \code{taxify_download(content_id = )} or
-\code{taxify_download_enrichment(content_id = )} is pinned when it is activated.
+\code{taxify_download(kind = "enrichment", content_id = )} is pinned when it is activated.
 }
 \examples{
 demo <- tempfile("taxify-pin-")

@@ -64,7 +64,7 @@ test_that("rank is read from the last stem's suffix", {
 })
 
 test_that("normalize_syntaxon_name folds the spelling variants", {
-  k <- normalize_syntaxon_name(c("Fagion silvaticae", "Fagion sylvaticae",
+  k <- taxify:::normalize_syntaxon_name(c("Fagion silvaticae", "Fagion sylvaticae",
                                  "Juncion gerardi", "Juncion gerardii",
                                  "Thero - Suaedion", "Thero-Suaedion",
                                  "Isoëtion", "Isoetion", NA))
@@ -76,7 +76,7 @@ test_that("normalize_syntaxon_name folds the spelling variants", {
 })
 
 test_that("evc is a syntaxon backbone outside the default chain", {
-  expect_equal(backbone_code(c("wfo", "evc")), c("taxon", "syntaxon"))
+  expect_equal(taxify:::backbone_code(c("wfo", "evc")), c("taxon", "syntaxon"))
   be <- evc_backend()
   expect_equal(be$code, "syntaxon")
   expect_equal(be$col_map$hierarchy,

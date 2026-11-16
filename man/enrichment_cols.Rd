@@ -10,7 +10,8 @@ enrichment_cols(source)
 \item{source}{Character. An enrichment name (see \code{\link[=list_enrichments]{list_enrichments()}}).}
 }
 \value{
-A data.frame with one row per column: \code{column} (the name) and \code{type}
+A data.frame with one row per column: \code{column} (source name),
+\code{output} (attached name), and \code{type}
 (\code{"numeric"} or \code{"character"}).
 }
 \description{
@@ -20,10 +21,13 @@ as \code{\link[=add_gift]{add_gift()}} and \code{\link[=add_floraweb]{add_floraw
 the first call may trigger the one-time download.
 }
 \details{
-\code{column} contains source names. A source function can rename them in its
-output; its help page lists the names its \code{cols} selector accepts. For
-example, \code{\link[=add_avonet]{add_avonet()}} exposes source \code{body_mass_g} as
-\code{avonet_body_mass_g}.
+Source outputs start with the source key followed by \verb{_}. Common names use
+\code{common_}. Names already carrying the prefix keep it once. The \code{cols}
+selector accepts source names, output names, and output names without the
+prefix. Grouped outputs append the group code when several groups are
+requested. The grouping key is used for filtering and reshaping; it is
+excluded from attached values. Other country, region, or language fields
+receive the source prefix. \code{output} is \code{NA} for the grouping key.
 }
 \examples{
 old <- options(taxify.data_dir = taxify_example_data())

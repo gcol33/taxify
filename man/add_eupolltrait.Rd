@@ -14,10 +14,10 @@ add_eupolltrait(x, cols = NULL, verbose = TRUE)
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{eupolltrait_} columns: numeric \code{itd_mm},
-\code{tongue_length_mm}, \code{species_temperature_index},
-\code{species_continentality_index}, \code{area_of_occupancy}, \code{extent_of_occurrence};
-categorical \code{sociality}, \code{nest}, \code{larval_nutrition}, \code{body_length_category}.
+The same data.frame with \code{eupolltrait_} columns: numeric \code{eupolltrait_itd_mm},
+\code{eupolltrait_tongue_length_mm}, \code{eupolltrait_species_temperature_index},
+\code{eupolltrait_species_continentality_index}, \code{eupolltrait_area_of_occupancy}, \code{eupolltrait_extent_of_occurrence};
+categorical \code{eupolltrait_sociality}, \code{eupolltrait_nest}, \code{eupolltrait_larval_nutrition}, \code{eupolltrait_body_length_category}.
 }
 \description{
 Joins European bee and hoverfly morphological, biogeographic and ecological

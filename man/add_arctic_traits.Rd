@@ -15,9 +15,9 @@ add_arctic_traits(x, cols = NULL, verbose = TRUE)
 }
 \value{
 The same data.frame with categorical \code{arctic_traits_} columns:
-\code{feeding_habit}, \code{skeleton}, \code{reproduction}, \code{larval_development}, \code{size},
-\code{living_habit}, \code{body_form}, \code{mobility}, \code{bioturbation}, \code{depth_range},
-\code{trophic_level}, \code{fragility}, \code{sociability}, \code{longevity}.
+\code{arctic_traits_feeding_habit}, \code{arctic_traits_skeleton}, \code{arctic_traits_reproduction}, \code{arctic_traits_larval_development}, \code{arctic_traits_size},
+\code{arctic_traits_living_habit}, \code{arctic_traits_body_form}, \code{arctic_traits_mobility}, \code{arctic_traits_bioturbation}, \code{arctic_traits_depth_range},
+\code{arctic_traits_trophic_level}, \code{arctic_traits_fragility}, \code{arctic_traits_sociability}, \code{arctic_traits_longevity}.
 }
 \description{
 Joins Arctic Traits Database functional traits to a \code{\link[=taxify]{taxify()}} result by

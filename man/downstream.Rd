@@ -43,8 +43,7 @@ column (e.g. subfamily, tribe), or it has no descendants at \code{downto}.
 Returns every accepted taxon at \code{downto} rank that sits beneath \code{taxon},
 for example every species in an order or family. The parent's rank is
 detected from the backbone, then descendants are read from the denormalized
-classification the backbone stores. \code{\link[=children]{children()}} is the same query for a
-genus or family parent.
+classification the backbone stores.
 }
 \examples{
 # Runs offline against the bundled example database.
@@ -57,11 +56,10 @@ options(old)
 
 }
 \seealso{
-\code{\link[=children]{children()}} for a genus or family parent, \code{\link[=upstream]{upstream()}} for the
+\code{\link[=upstream]{upstream()}} for the
 ancestors, \code{\link[=taxify]{taxify()}}, \code{\link[=synonyms]{synonyms()}}.
 
 Other Explore the backbone:
-\code{\link[=children]{children()}},
 \code{\link[=class2tree]{class2tree()}},
 \code{\link[=lowest_common]{lowest_common()}},
 \code{\link[=synonyms]{synonyms()}},

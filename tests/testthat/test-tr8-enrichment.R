@@ -20,13 +20,13 @@ test_that("add_pignatti() attaches Italian indicator values from bundled data", 
   skip_if(is.null(r), "TR8 Pignatti fetch failed")
 
   # Columns are added with the _it region suffix (no collision with add_eive)
-  expect_true(all(c("light_it", "temperature_it", "life_form_it",
-                    "chorotype_it") %in% names(r)))
+  expect_true(all(c("pignatti_light_it", "pignatti_temperature_it", "pignatti_life_form_it",
+                    "pignatti_chorotype_it") %in% names(r)))
   # Row count and order preserved
   expect_equal(nrow(r), 2L)
   expect_equal(r$accepted_name, x$accepted_name)
 
-  abies_light <- r$light_it[r$accepted_name == "Abies alba"][1]
+  abies_light <- r$pignatti_light_it[r$accepted_name == "Abies alba"][1]
   skip_if(is.na(abies_light), "TR8 Pignatti returned no value (offline?)")
   # Known truth from TR8's bundled pignatti data: Abies alba light = 3
   expect_identical(abies_light, "3")

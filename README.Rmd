@@ -117,7 +117,7 @@ The backbone files also answer lookups by synonym, rank and lineage:
 
 ```r
 synonyms("Picea abies")                     # every synonym of a name
-children("Quercus")                         # the species of a genus
+downstream("Quercus")                         # the species of a genus
 upstream("Quercus robur", to = "family")    # the family of a name
 sci2comm("Quercus robur")                   # common names
 parse_name("Quercus robur (L.) H.Karst.")   # genus, epithet, author

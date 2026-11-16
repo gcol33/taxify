@@ -50,28 +50,28 @@
 #' @return The same data.frame with German trait columns (all suffixed `_de`),
 #'   grouped as:
 #' \describe{
-#'   \item{Morphology}{`height_de`, `life_form_de`, `leaf_shape_de`,
-#'     `leaf_anatomy_de`, `leaf_persistence_de`, `storage_organs_de`,
-#'     `flowering_months_de`, `flowering_months_biolflor_de`,
-#'     `flowering_phase_de`, `phenological_season_de`, `description_de`.}
-#'   \item{Reproductive biology}{`pollination_vector_de`, `pollinator_de`,
-#'     `pollinator_reward_de`, `flower_type_de`, `flower_class_de`,
-#'     `dispersal_type_de`, `diaspore_type_de`, `germinule_type_de`,
-#'     `reproduction_type_de`, `vegetative_spread_de`, `fertilization_type_de`,
-#'     `apomixis_de`, `dicliny_de`, `dichogamy_de`, `self_incompatibility_de`,
-#'     `si_mechanism_de`, `ploidy_de`, `chromosome_number_de`,
-#'     `chromosome_freq_de`, `chromosomes_de`.}
-#'   \item{Ecology}{the nine Ellenberg indicator values `ell_light_de`,
-#'     `ell_temperature_de`, `ell_continentality_de`, `ell_moisture_de`,
-#'     `ell_moisture_variability_de`, `ell_reaction_de`, `ell_nitrogen_de`,
-#'     `ell_salt_de`, `heavy_metal_resistance_de`, plus `strategy_type_de`
-#'     (Grime CSR), `habitat_site_de`, `formation_de`, `plant_community_de`,
-#'     `biotope_type_de`, `forest_binding_de`, `hemeroby_de`, `urbanity_de`.}
-#'   \item{Distribution}{`floristic_zones_de`, `areal_formula_de`,
-#'     `areal_type_de`, `oceanity_de`, `range_centre_de`, `world_range_size_de`,
-#'     `world_range_frequency_de`, `world_range_position_de`,
-#'     `world_range_hazard_de`, `germany_range_share_de`,
-#'     `germany_responsibility_de`.}
+#'   \item{Morphology}{`floraweb_height_de`, `floraweb_life_form_de`, `floraweb_leaf_shape_de`,
+#'     `floraweb_leaf_anatomy_de`, `floraweb_leaf_persistence_de`, `floraweb_storage_organs_de`,
+#'     `floraweb_flowering_months_de`, `floraweb_flowering_months_biolflor_de`,
+#'     `floraweb_flowering_phase_de`, `floraweb_phenological_season_de`, `floraweb_description_de`.}
+#'   \item{Reproductive biology}{`floraweb_pollination_vector_de`, `floraweb_pollinator_de`,
+#'     `floraweb_pollinator_reward_de`, `floraweb_flower_type_de`, `floraweb_flower_class_de`,
+#'     `floraweb_dispersal_type_de`, `floraweb_diaspore_type_de`, `floraweb_germinule_type_de`,
+#'     `floraweb_reproduction_type_de`, `floraweb_vegetative_spread_de`, `floraweb_fertilization_type_de`,
+#'     `floraweb_apomixis_de`, `floraweb_dicliny_de`, `floraweb_dichogamy_de`, `floraweb_self_incompatibility_de`,
+#'     `floraweb_si_mechanism_de`, `floraweb_ploidy_de`, `floraweb_chromosome_number_de`,
+#'     `floraweb_chromosome_freq_de`, `floraweb_chromosomes_de`.}
+#'   \item{Ecology}{the nine Ellenberg indicator values `floraweb_ell_light_de`,
+#'     `floraweb_ell_temperature_de`, `floraweb_ell_continentality_de`, `floraweb_ell_moisture_de`,
+#'     `floraweb_ell_moisture_variability_de`, `floraweb_ell_reaction_de`, `floraweb_ell_nitrogen_de`,
+#'     `floraweb_ell_salt_de`, `floraweb_heavy_metal_resistance_de`, plus `floraweb_strategy_type_de`
+#'     (Grime CSR), `floraweb_habitat_site_de`, `floraweb_formation_de`, `floraweb_plant_community_de`,
+#'     `floraweb_biotope_type_de`, `floraweb_forest_binding_de`, `floraweb_hemeroby_de`, `floraweb_urbanity_de`.}
+#'   \item{Distribution}{`floraweb_floristic_zones_de`, `floraweb_areal_formula_de`,
+#'     `floraweb_areal_type_de`, `floraweb_oceanity_de`, `floraweb_range_centre_de`, `floraweb_world_range_size_de`,
+#'     `floraweb_world_range_frequency_de`, `floraweb_world_range_position_de`,
+#'     `floraweb_world_range_hazard_de`, `floraweb_germany_range_share_de`,
+#'     `floraweb_germany_responsibility_de`.}
 #' }
 #'   Categorical traits with several applicable values are joined with "; ".
 #'   Trait values are German (as published by FloraWeb / BiolFlor).

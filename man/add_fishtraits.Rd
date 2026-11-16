@@ -18,16 +18,16 @@ names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns. The default set:
 \describe{
-\item{ft_common_name}{Common name.}
-\item{ft_native}{Whether native to the contiguous United States.}
-\item{ft_max_length_cm}{Maximum total length (cm).}
-\item{ft_longevity_yr}{Maximum reported age (years).}
-\item{ft_maturity_age_yr}{Age at maturity (years).}
-\item{ft_fecundity_max}{Maximum fecundity.}
-\item{ft_repro_guild}{Reproductive guild.}
-\item{ft_min_temp_c}{Lower temperature tolerance (deg C).}
-\item{ft_max_temp_c}{Upper temperature tolerance (deg C).}
-\item{ft_extinct}{Whether recorded as extinct.}
+\item{fishtraits_ft_common_name}{Common name.}
+\item{fishtraits_ft_native}{Whether native to the contiguous United States.}
+\item{fishtraits_ft_max_length_cm}{Maximum total length (cm).}
+\item{fishtraits_ft_longevity_yr}{Maximum reported age (years).}
+\item{fishtraits_ft_maturity_age_yr}{Age at maturity (years).}
+\item{fishtraits_ft_fecundity_max}{Maximum fecundity.}
+\item{fishtraits_ft_repro_guild}{Reproductive guild.}
+\item{fishtraits_ft_min_temp_c}{Lower temperature tolerance (deg C).}
+\item{fishtraits_ft_max_temp_c}{Upper temperature tolerance (deg C).}
+\item{fishtraits_ft_extinct}{Whether recorded as extinct.}
 }
 \code{cols = "all"} also attaches the ten diet-category flags, salinity tolerance,
 flow preferences, migratory strategy, listing status, and the ITIS TSN.

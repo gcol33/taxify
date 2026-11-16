@@ -812,8 +812,8 @@ test_that("add_zanne() is the source-named woodiness door", {
   skip_if_not(trait_ready(), "example enrichments not available")
 
   r <- add_zanne(mk("Quercus robur"), verbose = FALSE)
-  expect_true("woodiness" %in% names(r))
-  expect_equal(r$woodiness, "woody")
+  expect_true("zanne_woodiness" %in% names(r))
+  expect_equal(r$zanne_woodiness, "woody")
 })
 
 

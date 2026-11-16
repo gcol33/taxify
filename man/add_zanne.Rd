@@ -16,7 +16,7 @@ add_zanne(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with an additional column:
 \describe{
-\item{woodiness}{One of \code{"woody"}, \code{"herbaceous"}, \code{"variable"},
+\item{zanne_woodiness}{One of \code{"woody"}, \code{"herbaceous"}, \code{"variable"},
 or \code{NA} if not in the dataset.}
 }
 }
@@ -25,7 +25,7 @@ Joins the woody / herbaceous classification of Zanne et al. (2014) to a
 \code{\link[=taxify]{taxify()}} result by looking up \code{accepted_name}. This function is named
 after its source, the Zanne Global Woodiness Database; for woodiness reconciled across
 every source that carries it (Zanne, GIFT), use \code{\link[=add_trait]{add_trait()}} with
-\code{"woodiness"}.
+\code{"zanne_woodiness"}.
 }
 \details{
 Source: Zanne et al. 2014, Nature (Dryad, CC0). Coverage: ~50k plant

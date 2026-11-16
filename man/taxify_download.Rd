@@ -2,45 +2,52 @@
 % Please edit documentation in R/download.R
 \name{taxify_download}
 \alias{taxify_download}
-\title{Download a pre-built taxify backbone}
+\title{Download pre-built backbones or published datasets}
 \usage{
 taxify_download(
-  backbone = "wfo",
+  name = "wfo",
+  kind = c("backbone", "enrichment"),
   version = "latest",
   content_id = NULL,
+  force = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{backbone}{Character. A backbone name (e.g. \code{"wfo"}, \code{"col"}, \code{"gbif"};
-\code{\link[=list_backbones]{list_backbones()}} lists them all) or
-\code{"register"} for the genus register. Multiple backbones can be given as a
-character vector.}
+\item{name}{Character. One or more names from \code{\link[=list_backbones]{list_backbones()}} or
+\code{\link[=list_enrichments]{list_enrichments()}}, according to \code{kind}. With \code{kind = "backbone"},
+\code{"register"} resolves the genus register and its coverage table.}
+
+\item{kind}{Character. \code{"backbone"} (default) or \code{"enrichment"}. Selects
+the catalogue, including names present in both, such as WCVP.}
 
 \item{version}{Character. \code{"latest"} (default) downloads into
-\verb{<data_dir>/<backbone>/latest/} and will be overwritten on future updates.
+the asset's \verb{latest/} directory and will be overwritten on future updates.
 A specific version string (e.g., \code{"2024.01"}) downloads into a pinned
-folder that is never overwritten.}
+folder retained until explicitly refreshed with \code{force = TRUE}.}
 
 \item{content_id}{Character or \code{NULL} (default). The content id of one exact
 build, the md5 of its \code{.vtr}, as recorded by \code{\link[=taxify_lock]{taxify_lock()}} and by the
 manifest. Given one, taxify fetches that build from the immutable copy
 published beside the rolling asset, verifies the bytes hash back to the id,
-and makes it the active backbone; the build it replaces is kept under its
-own content id. Pass one id per \code{backbone}, or one shared by all of them.}
+and makes it the active build; the build it replaces is kept under its
+own content id. Pass one id per \code{name}, or one shared by all of them.}
+
+\item{force}{Logical. Re-download an existing version when \code{TRUE}. Default
+\code{FALSE}. An exact \code{content_id} identifies immutable bytes.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-Invisibly, a character vector of file paths, named by \code{backbone}
+Invisibly, a character vector of file paths, named by \code{name}
 and in the requested order. \code{"register"} returns the genus-register
 path after resolving both the register and its coverage table.
 }
 \description{
-Downloads a pre-built \code{.vtr} backbone from GitHub Releases using the taxify
+Downloads pre-built \code{.vtr} files from GitHub Releases using the taxify
 manifest. This needs no build tools and does not require \code{taxifydb}; it is the
 fast path \code{\link[=taxify]{taxify()}} uses internally on first use. Call it directly to
-pre-fetch backbones before an offline session. Progress is always shown; no
+pre-fetch backbones and enrichment datasets before an offline session. No
 prompts are shown, so calling this function is consent.
 }
 \details{
@@ -57,17 +64,15 @@ options(old)
 }
 \seealso{
 \code{\link[=taxify_build]{taxify_build()}} to build a backbone from source via \code{taxifydb},
-\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}} for published datasets, \code{\link[=taxify_store]{taxify_store()}} for
+\code{\link[=list_enrichments]{list_enrichments()}} for published datasets, \code{\link[=taxify_store]{taxify_store()}} for
 the builds already on disk.
 
 Other Backbone data and cache:
 \code{\link[=lookup_genus]{lookup_genus()}},
 \code{\link[=taxify_build]{taxify_build()}},
-\code{\link[=taxify_build_register]{taxify_build_register()}},
 \code{\link[=taxify_clean]{taxify_clean()}},
 \code{\link[=taxify_clear_cache]{taxify_clear_cache()}},
 \code{\link[=taxify_data_dir]{taxify_data_dir()}},
-\code{\link[=taxify_download_enrichment]{taxify_download_enrichment()}},
 \code{\link[=taxify_example_data]{taxify_example_data()}},
 \code{\link[=taxify_load_register]{taxify_load_register()}},
 \code{\link[=taxify_lock]{taxify_lock()}},

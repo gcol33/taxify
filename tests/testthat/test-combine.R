@@ -40,14 +40,14 @@ test_that("add_combine_reported() joins reported values under combine_* columns"
 
   r <- add_combine_reported(mk_res(c("Vulpes vulpes", "Panthera leo")),
                             verbose = FALSE)
-  expect_true(all(c("combine_adult_mass_g", "combine_gestation_length_d",
-                    "combine_biogeographical_realm") %in% names(r)))
-  expect_equal(r$combine_adult_mass_g[r$accepted_name == "Vulpes vulpes"], 4820)
-  expect_equal(r$combine_gestation_length_d[r$accepted_name == "Panthera leo"], 110)
-  expect_equal(r$combine_biogeographical_realm[r$accepted_name == "Vulpes vulpes"],
+  expect_true(all(c("combine_reported_adult_mass_g", "combine_reported_gestation_length_d",
+                    "combine_reported_biogeographical_realm") %in% names(r)))
+  expect_equal(r$combine_reported_adult_mass_g[r$accepted_name == "Vulpes vulpes"], 4820)
+  expect_equal(r$combine_reported_gestation_length_d[r$accepted_name == "Panthera leo"], 110)
+  expect_equal(r$combine_reported_biogeographical_realm[r$accepted_name == "Vulpes vulpes"],
                "Palearctic")
   # a reported gap stays NA (Panthera leo has no measured adult mass here)
-  expect_true(is.na(r$combine_adult_mass_g[r$accepted_name == "Panthera leo"]))
+  expect_true(is.na(r$combine_reported_adult_mass_g[r$accepted_name == "Panthera leo"]))
 })
 
 test_that("add_combine_imputed() attaches combine_imputed_* columns", {
@@ -72,14 +72,14 @@ test_that("imputed table has higher coverage than the reported table", {
     add_combine_imputed(verbose = FALSE)
 
   # generation length is absent from the reported table, filled in the imputed one
-  expect_true(all(is.na(r$combine_generation_length_d)))
+  expect_true(all(is.na(r$combine_reported_generation_length_d)))
   expect_equal(r$combine_imputed_generation_length_d[r$accepted_name == "Vulpes vulpes"],
                730)
   expect_equal(r$combine_imputed_generation_length_d[r$accepted_name == "Panthera leo"],
                2500)
   # reported adult mass is measured for the fox, missing for the lion; imputed
   # fills the lion
-  expect_true(is.na(r$combine_adult_mass_g[r$accepted_name == "Panthera leo"]))
+  expect_true(is.na(r$combine_reported_adult_mass_g[r$accepted_name == "Panthera leo"]))
   expect_equal(r$combine_imputed_adult_mass_g[r$accepted_name == "Panthera leo"],
                190000)
 })
@@ -92,7 +92,7 @@ test_that("reported and imputed columns coexist without collision", {
     add_combine_reported(verbose = FALSE) |>
     add_combine_imputed(verbose = FALSE)
 
-  expect_true("combine_gestation_length_d" %in% names(r))
+  expect_true("combine_reported_gestation_length_d" %in% names(r))
   expect_true("combine_imputed_gestation_length_d" %in% names(r))
   # no name was silently dropped or clobbered: the two families are disjoint
   rep_cols <- grep("^combine_(?!imputed_)", names(r), value = TRUE, perl = TRUE)
@@ -135,6 +135,9 @@ test_that("add_combine() coalesces reported over imputed and tags provenance", {
   # a non-imputed trait is always "reported" where present
   expect_equal(r$combine_biogeographical_realm[fox], "Palearctic")
   expect_equal(r$combine_biogeographical_realm_src[fox], "reported")
+  meta <- attr(r, "taxify_meta")$enrichments
+  expect_identical(vapply(meta, `[[`, "", "name"), c("combine", "combine_imputed"))
+  expect_identical(tail(meta, 1)[[1]]$n_matched, 2L)
 
   # no bare combine_imputed_* columns leak into the output
   expect_false(any(grepl("^combine_imputed_", names(r))))

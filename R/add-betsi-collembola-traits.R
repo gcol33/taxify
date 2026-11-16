@@ -10,15 +10,15 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{betsi_ct_body_length_mm}{Maximum body length (mm).}
-#'   \item{betsi_ct_antenna_body_ratio}{Antenna to body length ratio.}
-#'   \item{betsi_ct_ocelli_number}{Number of ocelli.}
-#'   \item{betsi_ct_furca}{Furca (springing organ) development.}
-#'   \item{betsi_ct_pigment_scaled}{Pigmentation (scaled).}
-#'   \item{betsi_ct_reproduction}{Reproduction mode.}
-#'   \item{betsi_ct_stratification_scaled}{Vertical stratification (scaled).}
-#'   \item{betsi_ct_trophic_position}{Trophic position.}
-#'   \item{betsi_ct_life_form}{Life form (after Potapov et al. 2016).}
+#'   \item{betsi_collembola_traits_betsi_ct_body_length_mm}{Maximum body length (mm).}
+#'   \item{betsi_collembola_traits_betsi_ct_antenna_body_ratio}{Antenna to body length ratio.}
+#'   \item{betsi_collembola_traits_betsi_ct_ocelli_number}{Number of ocelli.}
+#'   \item{betsi_collembola_traits_betsi_ct_furca}{Furca (springing organ) development.}
+#'   \item{betsi_collembola_traits_betsi_ct_pigment_scaled}{Pigmentation (scaled).}
+#'   \item{betsi_collembola_traits_betsi_ct_reproduction}{Reproduction mode.}
+#'   \item{betsi_collembola_traits_betsi_ct_stratification_scaled}{Vertical stratification (scaled).}
+#'   \item{betsi_collembola_traits_betsi_ct_trophic_position}{Trophic position.}
+#'   \item{betsi_collembola_traits_betsi_ct_life_form}{Life form (after Potapov et al. 2016).}
 #' }
 #'
 #' @details
@@ -52,8 +52,6 @@ add_betsi_collembola_traits <- function(x, cols = NULL, verbose = TRUE) {
     col_map         = col_map,
     source_label    = "Collembola traits (Lu et al. 2025)",
     cols            = cols,
-    col_prefix      = "betsi_ct_",
-    out_prefix      = "betsi_ct_",
     verbose         = verbose
   )
 }

@@ -10,17 +10,17 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{useful_animal_food}{Animal food (0/1).}
-#'   \item{useful_environmental_uses}{Environmental uses (0/1).}
-#'   \item{useful_fuels}{Fuels (0/1).}
-#'   \item{useful_gene_sources}{Gene sources (0/1).}
-#'   \item{useful_human_food}{Human food (0/1).}
-#'   \item{useful_invertebrate_food}{Invertebrate food (0/1).}
-#'   \item{useful_materials}{Materials (0/1).}
-#'   \item{useful_medicines}{Medicines (0/1).}
-#'   \item{useful_poisons}{Poisons (0/1).}
-#'   \item{useful_social_uses}{Social uses (0/1).}
-#'   \item{useful_crop_wild_relative}{Crop wild relative (0/1).}
+#'   \item{useful_plants_useful_animal_food}{Animal food (0/1).}
+#'   \item{useful_plants_useful_environmental_uses}{Environmental uses (0/1).}
+#'   \item{useful_plants_useful_fuels}{Fuels (0/1).}
+#'   \item{useful_plants_useful_gene_sources}{Gene sources (0/1).}
+#'   \item{useful_plants_useful_human_food}{Human food (0/1).}
+#'   \item{useful_plants_useful_invertebrate_food}{Invertebrate food (0/1).}
+#'   \item{useful_plants_useful_materials}{Materials (0/1).}
+#'   \item{useful_plants_useful_medicines}{Medicines (0/1).}
+#'   \item{useful_plants_useful_poisons}{Poisons (0/1).}
+#'   \item{useful_plants_useful_social_uses}{Social uses (0/1).}
+#'   \item{useful_plants_useful_crop_wild_relative}{Crop wild relative (0/1).}
 #' }
 #'
 #' @details

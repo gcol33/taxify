@@ -8,10 +8,10 @@
 #' @param cols Which columns to attach: \code{NULL} (default) all, or a
 #'   character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with `hyd_` columns: `p50_mpa`,
-#'   `sapwood_conductivity`, `leaf_conductivity`, `huber_value_cm2_m2`,
-#'   `min_water_potential_mpa`, `hydraulic_safety_margin_mpa`,
-#'   `mean_annual_temp_c`.
+#' @return The same data.frame with `hyd_` columns: `hydraulics_hyd_p50_mpa`,
+#'   `hydraulics_hyd_sapwood_conductivity`, `hydraulics_hyd_leaf_conductivity`, `hydraulics_hyd_huber_value_cm2_m2`,
+#'   `hydraulics_hyd_min_water_potential_mpa`, `hydraulics_hyd_hydraulic_safety_margin_mpa`,
+#'   `hydraulics_hyd_mean_annual_temp_c`.
 #'
 #' @details Source: Sanchez-Martinez et al. (2020), 2024 seed-plant species.
 #'   CC BY 4.0. The widest P50 coverage in the bundled sources by an order of

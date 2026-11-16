@@ -9,13 +9,13 @@ test_that("add_groot joins the nine root-trait columns by accepted name", {
     add_groot(verbose = FALSE)
 
   root_cols <- c(
-    "root_diameter", "specific_root_length", "root_tissue_density",
-    "root_n_concentration", "root_c_concentration", "root_mass_fraction",
-    "lateral_spread", "root_mycorrhizal_colonization", "rooting_depth"
+    "groot_root_diameter", "groot_specific_root_length", "groot_root_tissue_density",
+    "groot_root_n_concentration", "groot_root_c_concentration", "groot_root_mass_fraction",
+    "groot_lateral_spread", "groot_root_mycorrhizal_colonization", "groot_rooting_depth"
   )
   expect_true(all(root_cols %in% names(enriched)))
-  expect_false(is.na(enriched$root_diameter))
-  expect_type(enriched$root_diameter, "double")
+  expect_false(is.na(enriched$groot_root_diameter))
+  expect_type(enriched$groot_root_diameter, "double")
 })
 
 test_that("add_groot returns NA for species absent from GRooT", {
@@ -25,8 +25,8 @@ test_that("add_groot returns NA for species absent from GRooT", {
   enriched <- taxify("Bellis perennis", verbose = FALSE) |>
     add_groot(verbose = FALSE)
 
-  expect_true("rooting_depth" %in% names(enriched))
-  expect_true(is.na(enriched$rooting_depth))
+  expect_true("groot_rooting_depth" %in% names(enriched))
+  expect_true(is.na(enriched$groot_rooting_depth))
 })
 
 test_that("add_sealifebase joins aquatic traits by accepted name", {
@@ -37,12 +37,12 @@ test_that("add_sealifebase joins aquatic traits by accepted name", {
     add_sealifebase(verbose = FALSE)
 
   sb_cols <- c(
-    "sb_body_length_cm", "sb_body_mass_g", "sb_trophic_level",
-    "sb_depth_min_m", "sb_depth_max_m", "sb_vulnerability",
-    "sb_habitat", "sb_importance"
+    "sealifebase_sb_body_length_cm", "sealifebase_sb_body_mass_g", "sealifebase_sb_trophic_level",
+    "sealifebase_sb_depth_min_m", "sealifebase_sb_depth_max_m", "sealifebase_sb_vulnerability",
+    "sealifebase_sb_habitat", "sealifebase_sb_importance"
   )
   expect_true(all(sb_cols %in% names(enriched)))
-  expect_false(is.na(enriched$sb_habitat))
+  expect_false(is.na(enriched$sealifebase_sb_habitat))
 })
 
 test_that("add_sealifebase returns NA for species absent from SeaLifeBase", {
@@ -52,6 +52,6 @@ test_that("add_sealifebase returns NA for species absent from SeaLifeBase", {
   enriched <- taxify("Gadus morhua", backbone = "gbif", verbose = FALSE) |>
     add_sealifebase(verbose = FALSE)
 
-  expect_true("sb_habitat" %in% names(enriched))
-  expect_true(is.na(enriched$sb_habitat))
+  expect_true("sealifebase_sb_habitat" %in% names(enriched))
+  expect_true(is.na(enriched$sealifebase_sb_habitat))
 })

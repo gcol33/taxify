@@ -7,9 +7,9 @@
 #' @param x A data.frame returned by [taxify()].
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with categorical `nztd_` columns: `bioturbation`,
-#'   `body_size`, `degree_of_attachment`, `feeding_mode`, `living_habit`,
-#'   `mobility`, `morphology`, `movement_method`, `rigidity`.
+#' @return The same data.frame with categorical `nztd_` columns: `nztd_bioturbation`,
+#'   `nztd_body_size`, `nztd_degree_of_attachment`, `nztd_feeding_mode`, `nztd_living_habit`,
+#'   `nztd_mobility`, `nztd_morphology`, `nztd_movement_method`, `nztd_rigidity`.
 #'
 #' @details Source: NZTD (Lam-Gordillo et al. 2023, figshare, CC-BY 4.0).
 #'

@@ -18,11 +18,11 @@ names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns. The default set:
 \describe{
-\item{epa_feeding_mode}{Functional feeding group.}
-\item{epa_habit}{Primary habit (e.g. clinger, burrower, swimmer).}
-\item{epa_voltinism}{Number of generations per year.}
-\item{epa_thermal_preference}{Thermal preference.}
-\item{epa_body_size_class}{Maximum body-size class.}
+\item{epa_freshwater_epa_feeding_mode}{Functional feeding group.}
+\item{epa_freshwater_epa_habit}{Primary habit (e.g. clinger, burrower, swimmer).}
+\item{epa_freshwater_epa_voltinism}{Number of generations per year.}
+\item{epa_freshwater_epa_thermal_preference}{Thermal preference.}
+\item{epa_freshwater_epa_body_size_class}{Maximum body-size class.}
 }
 \code{cols = "all"} also attaches body shape, rheophily, oviposition behaviour,
 and diapause.

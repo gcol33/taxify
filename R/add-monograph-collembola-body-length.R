@@ -11,12 +11,12 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{monograph_body_length_mm}{Body length (mm), median of the
+#'   \item{monograph_collembola_body_length_monograph_body_length_mm}{Body length (mm), median of the
 #'     per-monograph medians.}
-#'   \item{monograph_body_length_min_mm}{Smallest measurement (mm).}
-#'   \item{monograph_body_length_max_mm}{Largest measurement (mm).}
-#'   \item{monograph_body_length_n}{Number of measurements aggregated.}
-#'   \item{monograph_body_length_sources}{Number of monographs contributing.}
+#'   \item{monograph_collembola_body_length_monograph_body_length_min_mm}{Smallest measurement (mm).}
+#'   \item{monograph_collembola_body_length_monograph_body_length_max_mm}{Largest measurement (mm).}
+#'   \item{monograph_collembola_body_length_monograph_body_length_n}{Number of measurements aggregated.}
+#'   \item{monograph_collembola_body_length_monograph_body_length_sources}{Number of monographs contributing.}
 #' }
 #'
 #' @details

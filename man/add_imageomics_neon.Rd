@@ -16,7 +16,7 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 }
 \value{
 The same data.frame with \code{neon_} columns: numeric
-\code{elytra_length_mm}, \code{elytra_width_mm}, and \code{measurement_n} (the number of
+\code{imageomics_neon_neon_elytra_length_mm}, \code{imageomics_neon_neon_elytra_width_mm}, and \code{imageomics_neon_neon_measurement_n} (the number of
 individual measurements behind the median).
 }
 \description{

@@ -111,7 +111,6 @@ add_gidias <- function(x, group = "Any", cols = NULL, verbose = TRUE) {
     value_cols      = stats::setNames(base_cols, base_cols),
     source_label    = "GIDIAS (Bacher et al. 2025)",
     cols            = cols,
-    col_prefix      = "gidias_",
     verbose         = verbose
   )
 }

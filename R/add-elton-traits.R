@@ -8,25 +8,25 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{diet_inv}{Percentage of diet: invertebrates.}
-#'   \item{diet_vend}{Percentage of diet: endothermic vertebrates.}
-#'   \item{diet_vect}{Percentage of diet: ectothermic vertebrates.}
-#'   \item{diet_vfish}{Percentage of diet: fish.}
-#'   \item{diet_vunk}{Percentage of diet: unknown vertebrates.}
-#'   \item{diet_scav}{Percentage of diet: scavenging.}
-#'   \item{diet_fruit}{Percentage of diet: fruit.}
-#'   \item{diet_nect}{Percentage of diet: nectar.}
-#'   \item{diet_seed}{Percentage of diet: seeds and nuts.}
-#'   \item{diet_plantother}{Percentage of diet: other plant material.}
-#'   \item{foraging_water}{Percentage of foraging: below water surface.}
-#'   \item{foraging_ground}{Percentage of foraging: on ground.}
-#'   \item{foraging_understory}{Percentage of foraging: in understory.}
-#'   \item{foraging_midhigh}{Percentage of foraging: in mid to high strata.}
-#'   \item{foraging_canopy}{Percentage of foraging: in canopy.}
-#'   \item{foraging_aerial}{Percentage of foraging: aerial.}
-#'   \item{elton_body_mass_g}{Body mass in grams.}
-#'   \item{nocturnal}{Nocturnal activity (0 = diurnal, 1 = nocturnal).}
-#'   \item{diet_guild}{Dominant diet guild derived from the ten diet-fraction
+#'   \item{elton_traits_diet_inv}{Percentage of diet: invertebrates.}
+#'   \item{elton_traits_diet_vend}{Percentage of diet: endothermic vertebrates.}
+#'   \item{elton_traits_diet_vect}{Percentage of diet: ectothermic vertebrates.}
+#'   \item{elton_traits_diet_vfish}{Percentage of diet: fish.}
+#'   \item{elton_traits_diet_vunk}{Percentage of diet: unknown vertebrates.}
+#'   \item{elton_traits_diet_scav}{Percentage of diet: scavenging.}
+#'   \item{elton_traits_diet_fruit}{Percentage of diet: fruit.}
+#'   \item{elton_traits_diet_nect}{Percentage of diet: nectar.}
+#'   \item{elton_traits_diet_seed}{Percentage of diet: seeds and nuts.}
+#'   \item{elton_traits_diet_plantother}{Percentage of diet: other plant material.}
+#'   \item{elton_traits_foraging_water}{Percentage of foraging: below water surface.}
+#'   \item{elton_traits_foraging_ground}{Percentage of foraging: on ground.}
+#'   \item{elton_traits_foraging_understory}{Percentage of foraging: in understory.}
+#'   \item{elton_traits_foraging_midhigh}{Percentage of foraging: in mid to high strata.}
+#'   \item{elton_traits_foraging_canopy}{Percentage of foraging: in canopy.}
+#'   \item{elton_traits_foraging_aerial}{Percentage of foraging: aerial.}
+#'   \item{elton_traits_elton_body_mass_g}{Body mass in grams.}
+#'   \item{elton_traits_nocturnal}{Nocturnal activity (0 = diurnal, 1 = elton_traits_nocturnal).}
+#'   \item{elton_traits_diet_guild}{Dominant diet guild derived from the ten diet-fraction
 #'     columns (fractions summed within guild, the guild reaching 50 percent
 #'     wins, otherwise omnivore): carnivore, herbivore, omnivore, invertivore,
 #'     frugivore, granivore, nectarivore, scavenger. Also reachable across

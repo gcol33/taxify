@@ -8,7 +8,7 @@
 #'   character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `alpine_` columns: numeric
-#'   `body_length_mm`, categorical `wing_morph`.
+#'   `alpine_carabids_alpine_body_length_mm`, categorical `alpine_carabids_alpine_wing_morph`.
 #'
 #' @details Source: Chamberlain et al. (2020), 185 species recorded at 416 sites
 #'   between 697 and 2840 m in the Italian Alps. CC0.

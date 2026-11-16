@@ -8,19 +8,19 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{body_size_mm}{Maximum body size in mm (snout-vent length).}
-#'   \item{age_maturity_y}{Age at maturity in years.}
-#'   \item{longevity_yr}{Maximum longevity in years.}
-#'   \item{litter_size}{Clutch/litter size.}
-#'   \item{reproductive_output}{Reproductive output per year.}
-#'   \item{offspring_size_mm}{Offspring size in mm.}
-#'   \item{direct_development}{Direct development (0/1).}
-#'   \item{larval}{Has larval stage (0/1).}
-#'   \item{aquatic}{Aquatic habitat (0/1).}
-#'   \item{fossorial}{Fossorial habitat (0/1).}
-#'   \item{arboreal}{Arboreal habitat (0/1).}
-#'   \item{diurnal}{Diurnal activity (0/1).}
-#'   \item{nocturnal_amphibio}{Nocturnal activity (0/1). Named
+#'   \item{amphibio_body_size_mm}{Maximum body size in mm (snout-vent length).}
+#'   \item{amphibio_age_maturity_y}{Age at maturity in years.}
+#'   \item{amphibio_longevity_yr}{Maximum longevity in years.}
+#'   \item{amphibio_litter_size}{Clutch/litter size.}
+#'   \item{amphibio_reproductive_output}{Reproductive output per year.}
+#'   \item{amphibio_offspring_size_mm}{Offspring size in mm.}
+#'   \item{amphibio_direct_development}{Direct development (0/1).}
+#'   \item{amphibio_larval}{Has amphibio_larval stage (0/1).}
+#'   \item{amphibio_aquatic}{Aquatic habitat (0/1).}
+#'   \item{amphibio_fossorial}{Fossorial habitat (0/1).}
+#'   \item{amphibio_arboreal}{Arboreal habitat (0/1).}
+#'   \item{amphibio_diurnal}{Diurnal activity (0/1).}
+#'   \item{amphibio_nocturnal_amphibio}{Nocturnal activity (0/1). Named
 #'     \code{nocturnal_amphibio} to avoid collision with EltonTraits'
 #'     \code{nocturnal} column.}
 #' }

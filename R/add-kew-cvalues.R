@@ -13,9 +13,9 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns. The default set:
 #' \describe{
-#'   \item{cval_genome_size_1c_pg}{Genome size (1C DNA amount, picograms).}
-#'   \item{cval_chromosome_2n}{Somatic chromosome number (2n), base cytotype.}
-#'   \item{cval_ploidy_x}{Ploidy level, base cytotype.}
+#'   \item{kew_cvalues_cval_genome_size_1c_pg}{Genome size (1C DNA amount, picograms).}
+#'   \item{kew_cvalues_cval_chromosome_2n}{Somatic chromosome number (2n), base cytotype.}
+#'   \item{kew_cvalues_cval_ploidy_x}{Ploidy level, base cytotype.}
 #' }
 #' `cols = "all"` also attaches the per-species min/max/n spread of each value,
 #' plus per-species provenance:
@@ -51,6 +51,6 @@ add_kew_cvalues <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x, enrichment_name = "kew_cvalues", col_map = col_map,
     source_label = "Kew Plant DNA C-values (Pellicer & Leitch 2020)",
-    cols = cols, col_prefix = "cval_", out_prefix = "cval_", verbose = verbose
+    cols = cols, verbose = verbose
   )
 }

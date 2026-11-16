@@ -7,7 +7,7 @@
 #' @param region Character. TDWG Level 3 region code(s), or `"all"`. See
 #'   [taxify_regions()] for the full list of codes.
 #'   \itemize{
-#'     \item Single code (e.g., `"BGM"` for Belgium): adds `native_status`
+#'     \item Single code (e.g., `"BGM"` for Belgium): adds `wcvp_native_status`
 #'       column (no suffix).
 #'     \item Multiple codes (e.g., `c("BGM", "GER")`): adds
 #'       `native_status_BGM`, `native_status_GER`.
@@ -20,7 +20,7 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional column(s):
 #' \describe{
-#'   \item{native_status}{One of `"native"`, `"introduced"`, `"extinct"`,
+#'   \item{wcvp_native_status}{One of `"native"`, `"introduced"`, `"extinct"`,
 #'     or `NA` if not recorded for that region.}
 #' }
 #'

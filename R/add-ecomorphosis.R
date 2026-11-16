@@ -10,7 +10,7 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{ecomorphosis}{Whether the species is known to display ecomorphosis.}
+#'   \item{ecomorphosis_ecomorphosis}{Whether the species is known to display ecomorphosis_ecomorphosis.}
 #'   \item{ecomorphosis_area}{The morphological area affected.}
 #'   \item{ecomorphosis_reference}{The literature record establishing it.}
 #' }

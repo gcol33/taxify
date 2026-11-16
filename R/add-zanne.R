@@ -4,14 +4,14 @@
 #' [taxify()] result by looking up `accepted_name`. This function is named
 #' after its source, the Zanne Global Woodiness Database; for woodiness reconciled across
 #' every source that carries it (Zanne, GIFT), use [add_trait()] with
-#' `"woodiness"`.
+#' `"zanne_woodiness"`.
 #'
 #' @param x A data.frame returned by [taxify()].
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with an additional column:
 #' \describe{
-#'   \item{woodiness}{One of `"woody"`, `"herbaceous"`, `"variable"`,
+#'   \item{zanne_woodiness}{One of `"woody"`, `"herbaceous"`, `"variable"`,
 #'     or `NA` if not in the dataset.}
 #' }
 #'

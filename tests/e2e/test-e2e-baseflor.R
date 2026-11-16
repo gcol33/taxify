@@ -39,11 +39,11 @@ enrich <- function(x) {
   data.frame(
     accepted_name = r$accepted_name,
     accepted_id   = r$accepted_id,
-    fbeg          = r$flower_begin_month,
-    fend          = r$flower_end_month,
-    poll          = as.character(r$pollination_vector),
-    breed         = as.character(r$breeding_system),
-    fruit         = as.character(r$fruit_type),
+    fbeg          = r$baseflor_flower_begin_month,
+    fend          = r$baseflor_flower_end_month,
+    poll          = as.character(r$baseflor_pollination_vector),
+    breed         = as.character(r$baseflor_breeding_system),
+    fruit         = as.character(r$baseflor_fruit_type),
     stringsAsFactors = FALSE
   )
 }

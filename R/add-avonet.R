@@ -10,17 +10,17 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{beak_length}{Beak length in mm (culmen, species mean).}
-#'   \item{beak_depth}{Beak depth in mm (species mean).}
-#'   \item{wing_length}{Wing length in mm (species mean).}
-#'   \item{tail_length}{Tail length in mm (species mean).}
-#'   \item{tarsus_length}{Tarsus length in mm (species mean).}
+#'   \item{avonet_beak_length}{Beak length in mm (culmen, species mean).}
+#'   \item{avonet_beak_depth}{Beak depth in mm (species mean).}
+#'   \item{avonet_wing_length}{Wing length in mm (species mean).}
+#'   \item{avonet_tail_length}{Tail length in mm (species mean).}
+#'   \item{avonet_tarsus_length}{Tarsus length in mm (species mean).}
 #'   \item{avonet_body_mass_g}{Body mass in grams (species mean).}
-#'   \item{hand_wing_index}{Hand-wing index (pointedness, species mean).}
-#'   \item{habitat}{Primary habitat classification.}
-#'   \item{trophic_level}{Trophic level classification.}
-#'   \item{trophic_niche}{Trophic niche classification.}
-#'   \item{migration}{Migration strategy: `"sedentary"`, `"partial"`,
+#'   \item{avonet_hand_wing_index}{Hand-wing index (pointedness, species mean).}
+#'   \item{avonet_habitat}{Primary avonet_habitat classification.}
+#'   \item{avonet_trophic_level}{Trophic level classification.}
+#'   \item{avonet_trophic_niche}{Trophic niche classification.}
+#'   \item{avonet_migration}{Migration strategy: `"sedentary"`, `"partial"`,
 #'     or `"full"`.}
 #' }
 #'

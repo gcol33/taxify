@@ -7,7 +7,7 @@
 #' @param x A data.frame returned by [taxify()].
 #' @param country Character. ISO 3166-1 alpha-2 country code(s), or `"all"`.
 #'   \itemize{
-#'     \item Single code (e.g., `"AT"`): adds `invasive_status` column
+#'     \item Single code (e.g., `"AT"`): adds `griis_invasive_status` column
 #'       (no suffix).
 #'     \item Multiple codes (e.g., `c("AT", "DE")`): adds
 #'       `invasive_status_AT`, `invasive_status_DE`.
@@ -20,7 +20,7 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional column(s):
 #' \describe{
-#'   \item{invasive_status}{One of `"native"`, `"introduced"`, `"invasive"`,
+#'   \item{griis_invasive_status}{One of `"native"`, `"introduced"`, `"invasive"`,
 #'     or `NA` if not recorded for that country.}
 #' }
 #'

@@ -53,7 +53,7 @@ add_bryoatt <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x, enrichment_name = "bryoatt", col_map = col_map,
     source_label = "BRYOATT (Hill et al. 2007)",
-    cols = cols, col_prefix = "bryoatt_", out_prefix = "bryoatt_",
+    cols = cols,
     verbose = verbose
   )
 }

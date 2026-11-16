@@ -10,26 +10,26 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{raunkiaer_life_form}{Most frequent LEDA plant growth form: the
+#'   \item{leda_raunkiaer_life_form}{Most frequent LEDA plant growth form: the
 #'     Raunkiaer classes (Phanerophyte, Chamaephyte, Hemicryptophyte, Geophyte,
 #'     Therophyte, Hydrophyte) plus Liana, Vascular semi-parasite and Vascular
 #'     parasite.}
-#'   \item{raunkiaer_variable}{1 if the species' records name more than one
+#'   \item{leda_raunkiaer_variable}{1 if the species' records name more than one
 #'     growth form, 0 otherwise.}
-#'   \item{dispersal_type}{Most frequent dispersal type, as LEDA's -chor term
+#'   \item{leda_dispersal_type}{Most frequent dispersal type, as LEDA's -chor term
 #'     (meteorochor, epizoochor, nautochor, ...).}
-#'   \item{terminal_velocity_ms}{Diaspore terminal velocity in m/s (species
+#'   \item{leda_terminal_velocity_ms}{Diaspore terminal velocity in m/s (species
 #'     median).}
-#'   \item{seed_mass_mg}{Seed mass in mg (species median). Prefixed with
+#'   \item{leda_seed_mass_mg}{Seed mass in mg (species median). Prefixed with
 #'     \code{leda_} in the .vtr to avoid collision with Diaz traits.}
-#'   \item{canopy_height_m}{Canopy height in metres (species median): the
+#'   \item{leda_canopy_height_m}{Canopy height in metres (species median): the
 #'     height of the highest photosynthetic tissue, which LEDA distinguishes from
 #'     plant height.}
-#'   \item{leaf_mass_mg}{Leaf dry mass in mg (species median).}
-#'   \item{sla_mm2_mg}{Specific leaf area in mm\eqn{^2}/mg (species median).}
-#'   \item{clonal_growth_organ}{Most frequent primary clonal growth organ
+#'   \item{leda_leaf_mass_mg}{Leaf dry mass in mg (species median).}
+#'   \item{leda_sla_mm2_mg}{Specific leaf area in mm\eqn{^2}/mg (species median).}
+#'   \item{leda_clonal_growth_organ}{Most frequent primary clonal growth organ
 #'     (epigeogeneous stems, root-splitters, bulbs, ...).}
-#'   \item{floating_capacity_1week_pct}{Percentage of diaspores still floating
+#'   \item{leda_floating_capacity_1week_pct}{Percentage of diaspores still floating
 #'     after one week (species median).}
 #' }
 #'

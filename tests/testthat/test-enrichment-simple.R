@@ -15,7 +15,7 @@ test_that("enrich_simple() stops on an explicit join_col the .vtr lacks (#12)", 
   x <- data.frame(accepted_name = "Amanita muscaria", genus = "Amanita",
                   qualifier = NA_character_, stringsAsFactors = FALSE)
   expect_error(
-    taxify:::enrich_simple(x, "mockspeciesjoin",
+    taxify:::enrich_simple(prefix = "", x, "mockspeciesjoin",
                            col_map = c(trophic = "trophic"),
                            source_label = "mock", join_col = "genus",
                            verbose = FALSE),
@@ -30,7 +30,7 @@ test_that("enrich_simple() default accepted_name path joins on canonical_name (#
     canonical_name = "Quercus robur", trait_x = 42, stringsAsFactors = FALSE))
   x <- data.frame(accepted_name = "Quercus robur", qualifier = NA_character_,
                   stringsAsFactors = FALSE)
-  r <- taxify:::enrich_simple(x, "mockspeciesok",
+  r <- taxify:::enrich_simple(prefix = "", x, "mockspeciesok",
                               col_map = c(trait_x = "trait_x"),
                               source_label = "mock", verbose = FALSE)
   expect_equal(r$trait_x, 42)
@@ -44,7 +44,7 @@ test_that("enrich_simple() joins a genus-keyed .vtr with a genus column (#12)", 
     stringsAsFactors = FALSE))
   x <- data.frame(accepted_name = "Abies alba", genus = "Abies",
                   qualifier = NA_character_, stringsAsFactors = FALSE)
-  r <- taxify:::enrich_simple(x, "mockgenuskeyed", col_map = c(myco = "myco"),
+  r <- taxify:::enrich_simple(prefix = "", x, "mockgenuskeyed", col_map = c(myco = "myco"),
                               source_label = "mock", join_col = "genus",
                               verbose = FALSE)
   expect_equal(r$myco, "EcM")
@@ -59,7 +59,7 @@ test_that("enrich_simple() warns when a mapped column is absent from the .vtr (#
   x <- data.frame(accepted_name = "Quercus robur", qualifier = NA_character_,
                   stringsAsFactors = FALSE)
   expect_warning(
-    taxify:::enrich_simple(
+    taxify:::enrich_simple(prefix = "",
       x, "mockmissingcol",
       col_map = c(present = "present_trait", missing = "absent_trait"),
       source_label = "mock", verbose = FALSE),

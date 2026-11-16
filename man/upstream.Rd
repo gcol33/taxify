@@ -56,7 +56,6 @@ options(old)
 ranks to a \code{\link[=taxify]{taxify()}} result, \code{\link[=lowest_common]{lowest_common()}}.
 
 Other Explore the backbone:
-\code{\link[=children]{children()}},
 \code{\link[=class2tree]{class2tree()}},
 \code{\link[=downstream]{downstream()}},
 \code{\link[=lowest_common]{lowest_common()}},

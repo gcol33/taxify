@@ -18,11 +18,11 @@ names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns. The default set:
 \describe{
-\item{cop_body_length_mm}{Body length (mm).}
-\item{cop_egg_diameter_um}{Egg outer diameter (micrometres).}
-\item{cop_clutch_size}{Clutch size.}
-\item{cop_feeding_mode}{Feeding mode.}
-\item{cop_spawning_strategy}{Spawning strategy.}
+\item{copepod_traits_cop_body_length_mm}{Body length (mm).}
+\item{copepod_traits_cop_egg_diameter_um}{Egg outer diameter (micrometres).}
+\item{copepod_traits_cop_clutch_size}{Clutch size.}
+\item{copepod_traits_cop_feeding_mode}{Feeding mode.}
+\item{copepod_traits_cop_spawning_strategy}{Spawning strategy.}
 }
 \code{cols = "all"} also attaches feeder type, myelination, resting-egg presence,
 and the per-species min/max/n spread of the numeric values.

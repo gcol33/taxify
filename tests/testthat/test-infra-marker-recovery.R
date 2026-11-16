@@ -20,7 +20,7 @@ test_that("enrich_simple() recovers a marker-ful key against a marker-less GBIF 
   x <- data.frame(accepted_name = "Erica tenella tenella",
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
-  r <- taxify:::enrich_simple(x, "mockinfra", col_map = c(regions = "regions"),
+  r <- taxify:::enrich_simple(prefix = "", x, "mockinfra", col_map = c(regions = "regions"),
                               source_label = "mock", verbose = FALSE)
   expect_equal(r$regions, 12L)
 })
@@ -33,7 +33,7 @@ test_that("enrich_simple() recovers in the reverse direction (marker-less key, m
   x <- data.frame(accepted_name = "Erica tenella var. tenella",
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
-  r <- taxify:::enrich_simple(x, "mockinfrarev", col_map = c(regions = "regions"),
+  r <- taxify:::enrich_simple(prefix = "", x, "mockinfrarev", col_map = c(regions = "regions"),
                               source_label = "mock", verbose = FALSE)
   expect_equal(r$regions, 7L)
 })
@@ -46,7 +46,7 @@ test_that("a zoological trinomial matched directly is not altered, and a missing
   x <- data.frame(accepted_name = c("Panthera leo persica", "Panthera leo nubica"),
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
-  r <- taxify:::enrich_simple(x, "mockzoo", col_map = c(mass = "mass"),
+  r <- taxify:::enrich_simple(prefix = "", x, "mockzoo", col_map = c(mass = "mass"),
                               source_label = "mock", verbose = FALSE)
   # The trinomial the source carries matches directly and keeps its value; the
   # one the source lacks has no marker-ful botanical form to recover and is NA.
@@ -61,7 +61,7 @@ test_that("an ambiguous rank-insensitive collision is left unmatched, not guesse
   x <- data.frame(accepted_name = "Aus bus cus", qualifier = NA_character_,
                   stringsAsFactors = FALSE)
 
-  r <- taxify:::enrich_simple(x, "mockambig", col_map = c(regions = "regions"),
+  r <- taxify:::enrich_simple(prefix = "", x, "mockambig", col_map = c(regions = "regions"),
                               source_label = "mock", verbose = FALSE)
   expect_true(is.na(r$regions))
 })
@@ -75,7 +75,7 @@ test_that("options(taxify.infra_marker_recovery = FALSE) leaves the gap empty", 
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
   withr::local_options(taxify.infra_marker_recovery = FALSE)
-  r <- taxify:::enrich_simple(x, "mockinfraoff", col_map = c(regions = "regions"),
+  r <- taxify:::enrich_simple(prefix = "", x, "mockinfraoff", col_map = c(regions = "regions"),
                               source_label = "mock", verbose = FALSE)
   expect_true(is.na(r$regions))
 })
@@ -88,7 +88,7 @@ test_that("a direct hit survives the marker fallback (only empty cells are fille
   x <- data.frame(accepted_name = c("Quercus robur", "Erica tenella tenella"),
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
-  r <- taxify:::enrich_simple(x, "mockinfradirect", col_map = c(regions = "regions"),
+  r <- taxify:::enrich_simple(prefix = "", x, "mockinfradirect", col_map = c(regions = "regions"),
                               source_label = "mock", verbose = FALSE)
   expect_equal(r$regions, c(3L, 12L))
 })
@@ -102,7 +102,7 @@ test_that("enrich_by_group() recovers a marker-ful key against a marker-less GBI
   x <- data.frame(accepted_name = "Erica tenella tenella",
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
-  r <- taxify:::enrich_by_group(x, "mockinfragroup", group_col = "tdwg_code",
+  r <- taxify:::enrich_by_group(prefix = "", x, "mockinfragroup", group_col = "tdwg_code",
                                 groups = c("BGM", "GER"),
                                 value_cols = c(native_status = "native_status"),
                                 source_label = "mock", verbose = FALSE)

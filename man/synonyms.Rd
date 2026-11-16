@@ -49,11 +49,10 @@ options(old)
 
 }
 \seealso{
-\code{\link[=taxify]{taxify()}} for the forward direction, \code{\link[=children]{children()}} to list the
+\code{\link[=taxify]{taxify()}} for the forward direction, \code{\link[=downstream]{downstream()}} to list the
 accepted taxa within a genus or family.
 
 Other Explore the backbone:
-\code{\link[=children]{children()}},
 \code{\link[=class2tree]{class2tree()}},
 \code{\link[=downstream]{downstream()}},
 \code{\link[=lowest_common]{lowest_common()}},

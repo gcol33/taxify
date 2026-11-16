@@ -16,9 +16,9 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 }
 \value{
 The same data.frame with \code{eberswalde_} columns: numeric
-\code{body_length_mm}, \code{humidity_pref}, \code{range_centre_lat}, \code{abundance_total};
-categorical \code{wing_morph}, \code{feeding_guild}, \code{abundance_trend},
-\code{drought_effect}.
+\code{eberswalde_body_length_mm}, \code{eberswalde_humidity_pref}, \code{eberswalde_range_centre_lat}, \code{eberswalde_abundance_total};
+categorical \code{eberswalde_wing_morph}, \code{eberswalde_feeding_guild}, \code{eberswalde_abundance_trend},
+\code{eberswalde_drought_effect}.
 }
 \description{
 Joins ground-beetle traits and 24-year local population trends to a

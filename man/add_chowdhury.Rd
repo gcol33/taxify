@@ -16,9 +16,9 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 }
 \value{
 The same data.frame with \code{chowdhury_} columns: numeric
-\code{body_length_mm} and \code{occupancy_trend}; categorical \code{wing_morph},
-\code{trophic_level}, \code{habitat_pref}, \code{red_list_germany}, \code{red_list_iucn},
-\code{threat_status}, \code{trend_status}, \code{trend_significance}.
+\code{chowdhury_body_length_mm} and \code{chowdhury_occupancy_trend}; categorical \code{chowdhury_wing_morph},
+\code{chowdhury_trophic_level}, \code{chowdhury_habitat_pref}, \code{chowdhury_red_list_germany}, \code{chowdhury_red_list_iucn},
+\code{chowdhury_threat_status}, \code{chowdhury_trend_status}, \code{chowdhury_trend_significance}.
 }
 \description{
 Joins carabid (ground beetle) traits and modelled national occupancy trends to

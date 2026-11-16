@@ -145,7 +145,7 @@ A run on a server or a cluster can download what it needs first, so that the mat
 
 ```{r download, eval = FALSE}
 taxify_download(c("col", "wfo"))
-taxify_download_enrichment(c("iucn", "zanne"))
+taxify_download(kind = "enrichment", c("iucn", "zanne"))
 Sys.setenv(TAXIFY_OFFLINE = "1")
 ```
 

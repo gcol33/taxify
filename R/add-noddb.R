@@ -8,9 +8,9 @@
 #' @param cols Which columns to attach: \code{NULL} (default) all, or a
 #'   character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with `noddb_` columns: `nodulation_consensus`,
-#'   `nodulation_type`, `nodulation_clade`, `nodulation_family`,
-#'   `spp_recognized`, `spp_studied`, `positive_reports`, `negative_reports`.
+#' @return The same data.frame with `noddb_` columns: `noddb_nodulation_consensus`,
+#'   `noddb_nodulation_type`, `noddb_nodulation_clade`, `noddb_nodulation_family`,
+#'   `noddb_spp_recognized`, `noddb_spp_studied`, `noddb_positive_reports`, `noddb_negative_reports`.
 #'
 #' @details Source: Tedersoo et al. (2018), 824 plant genera. CC BY-SA 4.0.
 #'

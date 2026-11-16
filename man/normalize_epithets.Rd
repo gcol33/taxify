@@ -32,7 +32,7 @@ Step 2 runs before step 3, so ae-ligature -> \code{ae} -> \code{i} and oe-ligatu
 -> \code{oe} -> \code{i} fold into the same key as the de-ligatured forms.
 }
 \examples{
-normalize_epithets(c("Pinus sylvestris", "Pinus silvestris", NA))
+taxify:::normalize_epithets(c("Pinus sylvestris", "Pinus silvestris", NA))
 
 }
 \seealso{

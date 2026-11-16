@@ -67,7 +67,6 @@ add_clopla <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x, enrichment_name = "clopla", col_map = col_map,
     source_label = "CLO-PLA (Klimesova et al. 2017)",
-    cols = cols, default_cols = default, col_prefix = "clopla_",
-    out_prefix = "clopla_", verbose = verbose
+    cols = cols, default_cols = default, verbose = verbose
   )
 }

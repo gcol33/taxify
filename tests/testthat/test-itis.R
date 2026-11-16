@@ -250,9 +250,9 @@ test_that("synonyms() lists the ITIS synonyms of an accepted taxon", {
   expect_equal(syn$accepted_name, "Ursus arctos")
 })
 
-test_that("children() lists accepted ITIS species and skips synonyms", {
+test_that("downstream() lists accepted ITIS species and skips synonyms", {
   itis_fixture()
-  kids <- children("Acer", backbone = "itis", verbose = FALSE)
+  kids <- downstream("Acer", backbone = "itis", verbose = FALSE)
 
   expect_equal(kids$name, "Acer saccharum")
   expect_equal(kids$taxon_id, "28728")

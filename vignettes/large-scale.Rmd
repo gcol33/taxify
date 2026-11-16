@@ -50,8 +50,8 @@ checked <- c("Quercus robur", "Fagus sylvatica", "Betula pendula",
              "Pinus sylvestris", "Acer pseudoplatanus", "Qurecus petraea")
 exact <- taxify(checked, backbone = "wfo", fuzzy = FALSE, verbose = FALSE)
 table(exact$match_type)
-#> 
-#> exact  none 
+#>
+#> exact  none
 #>     5     1
 ```
 
@@ -86,25 +86,25 @@ bb <- list_backbones(verbose = FALSE)
 bb <- bb[bb$code == "taxon", c("name", "n_names", "size_mb")]
 bb[order(bb$n_names), ]
 #>           name n_names size_mb
-#> 18     avilist   40572       8
-#> 19        lpsn   44885      12
-#> 14   reptiledb   50043       9
-#> 17         mdd   61862      10
-#> 12    fishbase  102703      18
-#> 13 sealifebase  134031      27
-#> 9      euromed  146922      33
-#> 11   algaebase  172351      34
-#> 10    fungorum  315037      68
-#> 5         itis 1000552     197
-#> 15        lcvp 1337891     241
-#> 16        wcvp 1448984     326
-#> 8        worms 1565652     290
-#> 1          wfo 1664014     785
-#> 6         ncbi 2952424     524
-#> 7          ott 3690217     728
-#> 2          col 5432444    1997
-#> 4         gbif 6404001    1622
-#> 3        colxr 8479599    1393
+#> 18     avilist   40572       2
+#> 19        lpsn   44885       3
+#> 14   reptiledb   50043       2
+#> 17         mdd   61862       3
+#> 12    fishbase  102703       5
+#> 13 sealifebase  134031       7
+#> 9      euromed  146922      11
+#> 11   algaebase  172351       9
+#> 10    fungorum  315037      18
+#> 5         itis 1000552      52
+#> 15        lcvp 1337891      60
+#> 16        wcvp 1448984      82
+#> 8        worms 1565652      80
+#> 1          wfo 1664014     120
+#> 6         ncbi 2952424     110
+#> 7          ott 3690217     166
+#> 2          col 5432444     573
+#> 4         gbif 6404001     461
+#> 3        colxr 8479599     399
 ```
 
 The order also decides the accepted name of a name both backbones hold, as described in [Choosing and combining backbones](backbones.html).
@@ -161,7 +161,7 @@ A run on a server or a cluster can download what it needs first, so that the mat
 
 ``` r
 taxify_download(c("col", "wfo"))
-taxify_download_enrichment(c("iucn", "zanne"))
+taxify_download(kind = "enrichment", c("iucn", "zanne"))
 Sys.setenv(TAXIFY_OFFLINE = "1")
 ```
 

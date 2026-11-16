@@ -1,4 +1,4 @@
-# ---- Backbone browsing: reverse synonyms, classification, children ----
+# ---- Backbone browsing and identifier lookup ----
 #
 # taxify() resolves a name forward (synonym -> accepted). These verbs read the
 # backbone the other ways: list the synonyms of an accepted name, attach the
@@ -294,7 +294,7 @@ enrich_from_backbone <- function(x, backbone, col_map, label,
 #' }
 #' Names that resolve to an accepted taxon with no synonyms contribute no rows.
 #'
-#' @seealso [taxify()] for the forward direction, [children()] to list the
+#' @seealso [taxify()] for the forward direction, [downstream()] to list the
 #'   accepted taxa within a genus or family.
 #'
 #' @examples
@@ -600,49 +600,4 @@ id_roles <- function(tab, x, rows) {
     ((!is.na(own) & id_name == norm(own)) |
        (!is.na(x$accepted_name[rows]) & id_name == norm(x$accepted_name[rows])))
   ifelse(tab$is_pick, "pick", ifelse(same, "same_name", "other_taxon"))
-}
-
-
-#' List the accepted taxa within a genus or family
-#'
-#' Returns the accepted taxa a backbone places inside a genus or family, so a
-#' checklist can be built from the backbone as well as checked against it. The
-#' parent's rank is read from the backbone, as in [downstream()], restricted to
-#' genus and family: `children()` is [downstream()] for a genus or family parent.
-#'
-#' @param taxon A single genus or family name.
-#' @param backbone A single backbone name (e.g. `"wfo"`) or a `taxify_backend`
-#'   object. `NULL` (default) uses the highest-priority installed backbone.
-#' @param rank Rank of the children to return (`"species"` by default), or
-#'   `"any"` (or `NULL`) for every rank below the parent. The parent itself is
-#'   never returned.
-#' @param kingdom Optional kingdom (or kingdoms) the parent belongs to, as in
-#'   [taxify()] (`"plantae"`, `"animals"`, ...). A genus or family name can be
-#'   used in more than one kingdom (*Morus* is both mulberries and gannets);
-#'   `kingdom` picks one. Without it such a result mixes the kingdoms, with a
-#'   warning.
-#' @param verbose Logical. Default `TRUE`.
-#'
-#' @return A data.frame of accepted taxa, columns: `name`, `authorship`, `rank`,
-#'   `kingdom_group`, `family`, `genus`, `taxon_id`, `parent`, `parent_rank`
-#'   (`"genus"` or `"family"`), `backbone`. Empty if the parent is not found.
-#'
-#' @seealso [downstream()] to reach below a higher rank, [synonyms()],
-#'   [taxify()].
-#'
-#' @examples
-#' # Runs offline against the bundled example database.
-#' old <- options(taxify.data_dir = taxify_example_data())
-#'
-#' children("Quercus", backbone = "wfo")
-#'
-#' options(old)
-#'
-#' @family Explore the backbone
-#' @export
-children <- function(taxon, backbone = NULL, rank = "species", kingdom = NULL,
-                     verbose = TRUE) {
-  collect_descendants(taxon, backbone = backbone, target_rank = rank,
-                      kingdom = kingdom, parent_cols = c("genus", "family"),
-                      caller = "children", verbose = verbose)
 }

@@ -320,9 +320,9 @@ publication_year <- function(year, published_in) {
 #'   taxonID = c("2", "1"), taxonomicStatus = c("SYNONYM", "ACCEPTED"),
 #'   taxonRank = "SPECIES", is_synonym = c(TRUE, FALSE)
 #' )
-#' score_candidates(candidates)
+#' taxify:::score_candidates(candidates)
 #'
-#' @export
+#' @keywords internal
 score_candidates <- function(candidates) {
   status_score <- as.numeric(status_score_vec(candidates$taxonomicStatus,
                                               candidates$is_synonym))

@@ -15,8 +15,8 @@ add_blanchard(x, cols = NULL, verbose = TRUE)
 }
 \value{
 The same data.frame with \code{blanchard_} columns: categorical
-\code{subfamily}, \code{spines}, \code{sting}, \code{diet}, \code{nesting}, \code{foraging}; numeric
-\code{colony_size_workers} (joined on genus).
+\code{blanchard_subfamily}, \code{blanchard_spines}, \code{blanchard_sting}, \code{blanchard_diet}, \code{blanchard_nesting}, \code{blanchard_foraging}; numeric
+\code{blanchard_colony_size_workers} (joined on genus).
 }
 \description{
 Joins genus-level ant defensive and ecological traits to a \code{\link[=taxify]{taxify()}} result

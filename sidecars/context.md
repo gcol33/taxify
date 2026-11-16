@@ -24,7 +24,7 @@
 - taxify shows agreement with WorldFlora on the same names and states where and why it differs; taxize and WorldFlora are never asked to justify themselves.
 
 ## Debt
-- taxize: the verbs and their names (`synonyms()`, `children()`, `downstream()`, `upstream()`, `class2tree()`, `lowest_common()`, `sci2comm()`, `comm2sci()`, `id2name()`).
+- taxize: the verbs and their names (`synonyms()`, `downstream()`, `upstream()`, `class2tree()`, `lowest_common()`, `sci2comm()`, `comm2sci()`, `id2name()`).
 - WorldFlora: the workflow of exact then fuzzy matching against WFO and keeping one row per name (`WFO.match()` + `WFO.one()`).
 - The backbones themselves are the work of their publishers (WFO consortium, COL, GBIF, ...), credited through `cite()`.
 - credit: first paragraph of vignettes/migration.Rmd, with both citations; the relation phrase in DESCRIPTION, README, `?taxify-package`.

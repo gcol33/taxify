@@ -202,7 +202,7 @@ test_that("score_candidates grades a homotypic synonym between accepted and unpl
     accepted_authorship = c("Steph.", "(L.) Nordh.", "Nobody"),
     stringsAsFactors    = FALSE
   )
-  s <- score_candidates(cand)
+  s <- taxify:::score_candidates(cand)
   expect_equal(s$status_score, c(1, 0.5, 0))
   expect_equal(candidate_order(cand), c(3L, 2L, 1L))
 })

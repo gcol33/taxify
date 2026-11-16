@@ -18,18 +18,18 @@
 #'   List the locations covered with
 #'   `enrichment_groups("alien_first_records")`.
 #' @param cols Character vector of value columns to attach (from
-#'   `alien_first_record`, `alien_first_record_source`,
-#'   `alien_first_record_reference`, plus the dataset's further columns such as
+#'   `alien_first_records_year`, `alien_first_records_source`,
+#'   `alien_first_records_reference`, plus the dataset's further columns such as
 #'   `country_code` and `alien_first_record_status`), or `"all"`. `NULL`
 #'   (default) attaches the first three.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional column(s):
 #' \describe{
-#'   \item{alien_first_record}{Year of the first record (integer), or `NA`
+#'   \item{alien_first_records_year}{Year of the first record (integer), or `NA`
 #'     if not recorded for that location.}
-#'   \item{alien_first_record_source}{Database that contributed the record
+#'   \item{alien_first_records_source}{Database that contributed the record
 #'     (e.g., `"GAVIA"`, `"CABI ISC"`).}
-#'   \item{alien_first_record_reference}{Original citation or reference for
+#'   \item{alien_first_records_reference}{Original citation or reference for
 #'     the record.}
 #' }
 #'
@@ -77,9 +77,9 @@ add_alien_first_records <- function(x, location, cols = NULL, verbose = TRUE) {
     group_col       = "location",
     groups          = location,
     value_cols      = c(
-      alien_first_record           = "alien_first_record",
-      alien_first_record_source    = "alien_first_record_source",
-      alien_first_record_reference = "alien_first_record_reference"
+      year                         = "alien_first_record",
+      source                       = "alien_first_record_source",
+      reference                    = "alien_first_record_reference"
     ),
     source_label    = "Alien first records (Seebens et al.)",
     cols            = cols,

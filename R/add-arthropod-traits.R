@@ -8,16 +8,16 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns:
 #' \describe{
-#'   \item{arthropod_body_size_mm}{Body size in mm.}
-#'   \item{arthropod_dispersal}{Dispersal ability (0--1 ratio within order).}
-#'   \item{arthropod_voltinism}{Mean number of generations per year.}
-#'   \item{arthropod_fecundity}{Fecundity (number of eggs/offspring).}
-#'   \item{arthropod_development_d}{Development time in days.}
-#'   \item{arthropod_lifespan_d}{Adult lifespan in days.}
-#'   \item{arthropod_thermal_mean}{Mean thermal niche (degrees C).}
-#'   \item{arthropod_diurnality}{Activity period (diurnal/nocturnal/both).}
-#'   \item{arthropod_feeding_guild}{Feeding guild of adult.}
-#'   \item{arthropod_trophic_range}{Trophic range of adult (specialist/generalist).}
+#'   \item{arthropod_traits_arthropod_body_size_mm}{Body size in mm.}
+#'   \item{arthropod_traits_arthropod_dispersal}{Dispersal ability (0--1 ratio within order).}
+#'   \item{arthropod_traits_arthropod_voltinism}{Mean number of generations per year.}
+#'   \item{arthropod_traits_arthropod_fecundity}{Fecundity (number of eggs/offspring).}
+#'   \item{arthropod_traits_arthropod_development_d}{Development time in days.}
+#'   \item{arthropod_traits_arthropod_lifespan_d}{Adult lifespan in days.}
+#'   \item{arthropod_traits_arthropod_thermal_mean}{Mean thermal niche (degrees C).}
+#'   \item{arthropod_traits_arthropod_diurnality}{Activity period (diurnal/nocturnal/both).}
+#'   \item{arthropod_traits_arthropod_feeding_guild}{Feeding guild of adult.}
+#'   \item{arthropod_traits_arthropod_trophic_range}{Trophic range of adult (specialist/generalist).}
 #' }
 #'
 #' @details

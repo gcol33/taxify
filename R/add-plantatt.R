@@ -54,7 +54,7 @@ add_plantatt <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x, enrichment_name = "plantatt", col_map = col_map,
     source_label = "PLANTATT (Hill et al. 2004)",
-    cols = cols, col_prefix = "plantatt_", out_prefix = "plantatt_",
+    cols = cols,
     verbose = verbose
   )
 }

@@ -8,7 +8,7 @@
 #'   character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with `neon_` columns: numeric
-#'   `elytra_length_mm`, `elytra_width_mm`, and `measurement_n` (the number of
+#'   `imageomics_neon_neon_elytra_length_mm`, `imageomics_neon_neon_elytra_width_mm`, and `imageomics_neon_neon_measurement_n` (the number of
 #'   individual measurements behind the median).
 #'
 #' @details Source: the Imageomics `2018-NEON-beetles` dataset, 39,064

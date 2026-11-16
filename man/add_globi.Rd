@@ -18,11 +18,11 @@ names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{interaction_degree}{Number of distinct partner taxa recorded
+\item{globi_interaction_degree}{Number of distinct partner taxa recorded
 interacting with the species (both directions).}
-\item{n_interaction_types}{Number of distinct interaction types
+\item{globi_n_interaction_types}{Number of distinct interaction types
 (eats, pollinates, parasitises, ...).}
-\item{n_interaction_records}{Total number of interaction records touching
+\item{globi_n_interaction_records}{Total number of interaction records touching
 the species.}
 }
 }

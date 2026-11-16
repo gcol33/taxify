@@ -36,6 +36,10 @@ record_door_calls <- function(door, seed = NULL) {
   calls <- list()
   rec <- function() {
     a <- mget(names(formals(sys.function())), envir = environment())
+    names(a$col_map) <- taxify:::.prefix_columns(names(a$col_map), a$prefix)
+    if (!is.null(a$default_cols)) {
+      a$default_cols <- taxify:::.prefix_columns(a$default_cols, a$prefix)
+    }
     calls[[length(calls) + 1L]] <<- a
     a$x
   }
@@ -92,11 +96,9 @@ test_that("every door's enrichment key resolves to a published or build-only sou
 })
 
 test_that("a door's column prefix is a whole token that its curated columns carry", {
-  # col_prefix = "sid" pasted onto "thousand_seed_weight" gives
-  # "sidthousand_seed_weight", so no unprefixed name could be selected (#74).
   for (d in names(door_calls())) {
     for (cl in door_calls()[[d]]) {
-      p <- cl$col_prefix
+      p <- cl$prefix
       if (is.null(p)) next
       expect_match(p, "_$", info = d)
       expect_true(all(startsWith(names(cl$col_map), p)),
@@ -142,8 +144,8 @@ test_that("every door attaches, selects and handles an empty input on a mock", {
 
     # One curated column, written without the door's prefix.
     first <- names(cl$col_map)[1L]
-    bare  <- if (is.null(cl$col_prefix)) first else
-      sub(paste0("^", cl$col_prefix), "", first)
+    bare  <- if (is.null(cl$prefix)) first else
+      sub(paste0("^", cl$prefix), "", first)
     one <- tryCatch(door(x, cols = bare, verbose = FALSE),
                     error = function(e) conditionMessage(e))
     expect_true(is.data.frame(one) && first %in% names(one),

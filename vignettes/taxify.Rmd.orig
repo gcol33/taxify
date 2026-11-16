@@ -155,7 +155,7 @@ Traits you did not measure can come from published datasets. Each one taxify can
 
 ```{r enrich}
 traits <- kept |> add_zanne() |> add_eive()
-traits[, c("accepted_name", "woodiness", "eive_light", "eive_moisture")]
+traits[, c("accepted_name", "zanne_woodiness", "eive_light", "eive_moisture")]
 ```
 
 The message of each function says how many of the source's columns were attached; `cols = "all"` attaches the rest. `list_enrichments()` lists every dataset, and `add_trait()` gathers one trait from all sources that carry it, as described in [Attaching published data](enrichments.html).

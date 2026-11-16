@@ -17,13 +17,13 @@ add_pantheria(x, cols = NULL, verbose = TRUE)
 The same data.frame with additional columns:
 \describe{
 \item{pantheria_body_mass_g}{Adult body mass in grams.}
-\item{longevity_mo}{Maximum longevity in months.}
-\item{litter_size}{Litter size (mean).}
-\item{gestation_d}{Gestation length in days.}
-\item{weaning_d}{Weaning age in days.}
-\item{home_range_km2}{Home range size in km\eqn{^2}.}
-\item{diet_breadth}{Diet breadth (number of diet categories).}
-\item{habitat_breadth}{Habitat breadth (number of habitat types).}
+\item{pantheria_longevity_mo}{Maximum longevity in months.}
+\item{pantheria_litter_size}{Litter size (mean).}
+\item{pantheria_gestation_d}{Gestation length in days.}
+\item{pantheria_weaning_d}{Weaning age in days.}
+\item{pantheria_home_range_km2}{Home range size in km\eqn{^2}.}
+\item{pantheria_diet_breadth}{Diet breadth (number of diet categories).}
+\item{pantheria_habitat_breadth}{Habitat breadth (number of habitat types).}
 }
 }
 \description{

@@ -6,10 +6,10 @@
 #' @param x A data.frame returned by [taxify()].
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with `eupolltrait_` columns: numeric `itd_mm`,
-#'   `tongue_length_mm`, `species_temperature_index`,
-#'   `species_continentality_index`, `area_of_occupancy`, `extent_of_occurrence`;
-#'   categorical `sociality`, `nest`, `larval_nutrition`, `body_length_category`.
+#' @return The same data.frame with `eupolltrait_` columns: numeric `eupolltrait_itd_mm`,
+#'   `eupolltrait_tongue_length_mm`, `eupolltrait_species_temperature_index`,
+#'   `eupolltrait_species_continentality_index`, `eupolltrait_area_of_occupancy`, `eupolltrait_extent_of_occurrence`;
+#'   categorical `eupolltrait_sociality`, `eupolltrait_nest`, `eupolltrait_larval_nutrition`, `eupolltrait_body_length_category`.
 #'
 #' @details Source: EuPollTrait (Milicic et al. 2025, Zenodo, CC-BY 4.0).
 #'

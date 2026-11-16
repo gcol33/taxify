@@ -78,7 +78,6 @@ options(old)
 \code{\link[=taxify]{taxify()}}, \code{\link[=synonyms]{synonyms()}}.
 
 Other Explore the backbone:
-\code{\link[=children]{children()}},
 \code{\link[=class2tree]{class2tree()}},
 \code{\link[=downstream]{downstream()}},
 \code{\link[=lowest_common]{lowest_common()}},

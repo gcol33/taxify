@@ -14,10 +14,10 @@ test_that("add_kew_cvalues() attaches prefixed genome-size columns", {
     canonical_name = "Zea mays", genome_size_1c_pg = 2.7,
     chromosome_2n = 20, ploidy_x = 2, stringsAsFactors = FALSE))
   r <- add_kew_cvalues(mk_res(c("Zea mays", "Abies alba")), verbose = FALSE)
-  expect_true(all(c("cval_genome_size_1c_pg", "cval_chromosome_2n",
-                    "cval_ploidy_x") %in% names(r)))
-  expect_equal(r$cval_genome_size_1c_pg[r$accepted_name == "Zea mays"], 2.7)
-  expect_true(is.na(r$cval_genome_size_1c_pg[r$accepted_name == "Abies alba"]))
+  expect_true(all(c("kew_cvalues_cval_genome_size_1c_pg", "kew_cvalues_cval_chromosome_2n",
+                    "kew_cvalues_cval_ploidy_x") %in% names(r)))
+  expect_equal(r$kew_cvalues_cval_genome_size_1c_pg[r$accepted_name == "Zea mays"], 2.7)
+  expect_true(is.na(r$kew_cvalues_cval_genome_size_1c_pg[r$accepted_name == "Abies alba"]))
 })
 
 test_that("add_copepod_traits() attaches prefixed body/egg traits", {
@@ -26,10 +26,10 @@ test_that("add_copepod_traits() attaches prefixed body/egg traits", {
     egg_diameter_um = 150, clutch_size = 40, feeding_mode = "active",
     spawning_strategy = "broadcaster", stringsAsFactors = FALSE))
   r <- add_copepod_traits(mk_res("Calanus finmarchicus"), verbose = FALSE)
-  expect_true(all(c("cop_body_length_mm", "cop_feeding_mode",
-                    "cop_spawning_strategy") %in% names(r)))
-  expect_equal(r$cop_body_length_mm[1L], 3.5)
-  expect_equal(r$cop_feeding_mode[1L], "active")
+  expect_true(all(c("copepod_traits_cop_body_length_mm", "copepod_traits_cop_feeding_mode",
+                    "copepod_traits_cop_spawning_strategy") %in% names(r)))
+  expect_equal(r$copepod_traits_cop_body_length_mm[1L], 3.5)
+  expect_equal(r$copepod_traits_cop_feeding_mode[1L], "active")
 })
 
 test_that("add_fishtraits() attaches prefixed life-history columns", {
@@ -40,10 +40,10 @@ test_that("add_fishtraits() attaches prefixed life-history columns", {
     min_temp_c = 10, max_temp_c = 32, extinct = "FALSE",
     stringsAsFactors = FALSE))
   r <- add_fishtraits(mk_res("Micropterus salmoides"), verbose = FALSE)
-  expect_true(all(c("ft_common_name", "ft_max_length_cm",
-                    "ft_longevity_yr") %in% names(r)))
-  expect_equal(r$ft_max_length_cm[1L], 97)
-  expect_equal(r$ft_common_name[1L], "Largemouth Bass")
+  expect_true(all(c("fishtraits_ft_common_name", "fishtraits_ft_max_length_cm",
+                    "fishtraits_ft_longevity_yr") %in% names(r)))
+  expect_equal(r$fishtraits_ft_max_length_cm[1L], 97)
+  expect_equal(r$fishtraits_ft_common_name[1L], "Largemouth Bass")
 })
 
 test_that("add_epa_freshwater() falls back from species to genus-level rows", {
@@ -58,13 +58,13 @@ test_that("add_epa_freshwater() falls back from species to genus-level rows", {
     stringsAsFactors = FALSE))
   r <- add_epa_freshwater(
     mk_res(c("Baetis rhodani", "Baetis fuscatus")), verbose = FALSE)
-  expect_true(all(c("epa_feeding_mode", "epa_habit",
-                    "epa_voltinism") %in% names(r)))
+  expect_true(all(c("epa_freshwater_epa_feeding_mode", "epa_freshwater_epa_habit",
+                    "epa_freshwater_epa_voltinism") %in% names(r)))
   # Species with its own row keeps the finer species-level value.
-  expect_equal(r$epa_habit[r$accepted_name == "Baetis rhodani"], "clinger")
+  expect_equal(r$epa_freshwater_epa_habit[r$accepted_name == "Baetis rhodani"], "clinger")
   # Species with no row inherits the genus-level value.
-  expect_equal(r$epa_habit[r$accepted_name == "Baetis fuscatus"], "swimmer")
-  expect_equal(r$epa_feeding_mode[r$accepted_name == "Baetis fuscatus"],
+  expect_equal(r$epa_freshwater_epa_habit[r$accepted_name == "Baetis fuscatus"], "swimmer")
+  expect_equal(r$epa_freshwater_epa_feeding_mode[r$accepted_name == "Baetis fuscatus"],
                "collector-gatherer")
 })
 
@@ -77,11 +77,11 @@ test_that("add_cefas_btrait() joins genus-level benthic traits on genus", {
     lifespan = "1 to 3", living_habit = "burrower", feeding_mode = "Suspension",
     mobility = "low", bioturbation = "Diffusive mixing", stringsAsFactors = FALSE))
   r <- add_cefas_btrait(mk_res("Abra alba"), verbose = FALSE)
-  expect_true(all(c("cefas_body_size", "cefas_feeding_mode",
-                    "cefas_bioturbation") %in% names(r)))
+  expect_true(all(c("cefas_btrait_cefas_body_size", "cefas_btrait_cefas_feeding_mode",
+                    "cefas_btrait_cefas_bioturbation") %in% names(r)))
   # The species query resolves through its genus.
-  expect_equal(r$cefas_feeding_mode[1L], "Suspension")
-  expect_equal(r$cefas_bioturbation[1L], "Diffusive mixing")
+  expect_equal(r$cefas_btrait_cefas_feeding_mode[1L], "Suspension")
+  expect_equal(r$cefas_btrait_cefas_bioturbation[1L], "Diffusive mixing")
 })
 
 test_that("the five new enrichments are registered in the bundled manifest", {

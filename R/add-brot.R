@@ -6,10 +6,10 @@
 #' @param x A data.frame returned by [taxify()].
 #' @param cols Which columns to attach: \code{NULL} (default) the curated set, \code{"all"} every column the source carries, or a character vector of names. See \code{\link{enrichment_cols}}.
 #' @param verbose Logical. Default `TRUE`.
-#' @return The same data.frame with `brot_` columns: numeric `seed_mass_mg`,
-#'   `sla_mm2_mg`, `height_m`, `leaf_area_mm2`; categorical `resp_fire`,
-#'   `growth_form`, `disp_mode`, `fruit_type`, `soil_seed_bank`,
-#'   `seedling_emergence`.
+#' @return The same data.frame with `brot_` columns: numeric `brot_seed_mass_mg`,
+#'   `brot_sla_mm2_mg`, `brot_height_m`, `brot_leaf_area_mm2`; categorical `brot_resp_fire`,
+#'   `brot_growth_form`, `brot_disp_mode`, `brot_fruit_type`, `brot_soil_seed_bank`,
+#'   `brot_seedling_emergence`.
 #'
 #' @details Source: BROT 2.0 (Tavsanoglu & Pausas 2018, Scientific Data, CC-BY 4.0).
 #'

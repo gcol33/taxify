@@ -1,7 +1,7 @@
 # Exports that the rest of the suite reaches only through other functions, if at
 # all (#75): each is called here directly, on its own contract.
 
-test_that("score_candidates() grades status, rank, epithet and distance", {
+test_that("taxify:::score_candidates() grades status, rank, epithet and distance", {
   cand <- data.frame(
     taxonID          = c("a", "b", "c", "d"),
     taxonomicStatus  = c("SYNONYM", "ACCEPTED", "ACCEPTED", "ACCEPTED"),
@@ -9,7 +9,7 @@ test_that("score_candidates() grades status, rank, epithet and distance", {
     fuzzy_dist       = c(0, 0, 0, 0.1),
     stringsAsFactors = FALSE
   )
-  s <- score_candidates(cand)
+  s <- taxify:::score_candidates(cand)
   expect_named(s, c("dist_score", "data_score", "year_score", "occ_score",
                     "status_score", "rank_score", "valid_score",
                     "epithet_score", "tier"))
@@ -23,12 +23,12 @@ test_that("score_candidates() grades status, rank, epithet and distance", {
   expect_length(unique(s$tier), 4L)
 })
 
-test_that("score_candidates() keeps validity out of the tier", {
+test_that("taxify:::score_candidates() keeps validity out of the tier", {
   cand <- data.frame(
     taxonID = c("x1", "x2"), taxonomicStatus = "SYNONYM", taxonRank = "SPECIES",
     nomenclaturalStatus = c("Illegitimate", "Valid"), stringsAsFactors = FALSE
   )
-  s <- score_candidates(cand)
+  s <- taxify:::score_candidates(cand)
   expect_equal(s$valid_score, c(1L, 0L))
   expect_identical(s$tier[1], s$tier[2])
 })
@@ -47,31 +47,31 @@ test_that("candidate_order() sorts by the scores, then validity, then taxonID", 
   expect_equal(cand$taxonID[candidate_order(cand, group_col = "grp")],
                c("t1", "t2", "t3", "t4"))
   # A precomputed score list gives the same permutation.
-  expect_identical(candidate_order(cand, scores = score_candidates(cand)),
+  expect_identical(candidate_order(cand, scores = taxify:::score_candidates(cand)),
                    candidate_order(cand))
 })
 
-test_that("taxify_load_register() reads and caches the register", {
+test_that("taxify:::taxify_load_register() reads and caches the register", {
   old <- options(taxify.data_dir = taxify_example_data())
   env <- taxify:::.taxify_env
   prev <- env$register
   on.exit({ options(old); env$register <- prev }, add = TRUE)
 
-  reg <- taxify_load_register(force = TRUE, verbose = FALSE)
+  reg <- taxify:::taxify_load_register(force = TRUE, verbose = FALSE)
   expect_s3_class(reg, "data.frame")
   expect_true(all(c("genus", "kingdom", "family", "kingdom_group",
                     "taxon_group", "life_form") %in% names(reg)))
   expect_gt(nrow(reg), 0L)
   expect_identical(env$register, reg)
   # A second call serves the cache rather than re-reading.
-  expect_identical(taxify_load_register(verbose = FALSE), reg)
+  expect_identical(taxify:::taxify_load_register(verbose = FALSE), reg)
 })
 
 test_that("taxify_register_coverage() lists the backbones carrying a genus", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
 
-  reg <- taxify_load_register(force = TRUE, verbose = FALSE)
+  reg <- taxify:::taxify_load_register(force = TRUE, verbose = FALSE)
   cov <- taxify_register_coverage("Quercus")
   expect_s3_class(cov, "data.frame")
   expect_true(all(c("genus", "backbone", "version", "date_added") %in% names(cov)))

@@ -9,7 +9,7 @@ test_that("species-level recovery runs before the genus fill", {
                   qualifier = NA_character_, stringsAsFactors = FALSE)
 
   r <- testthat::with_mocked_bindings(
-    enrich_simple(x, "mockgenusfb", col_map = c(habit = "habit"),
+    enrich_simple(prefix = "", x, "mockgenusfb", col_map = c(habit = "habit"),
                   source_label = "mock", genus_fallback = TRUE,
                   verbose = FALSE),
     .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
@@ -23,7 +23,7 @@ test_that("species-level recovery runs before the genus fill", {
 
   # With nothing to recover, the genus row still fills the gap.
   g <- testthat::with_mocked_bindings(
-    enrich_simple(x, "mockgenusfb", col_map = c(habit = "habit"),
+    enrich_simple(prefix = "", x, "mockgenusfb", col_map = c(habit = "habit"),
                   source_label = "mock", genus_fallback = TRUE,
                   verbose = FALSE),
     .cross_backbone_alternatives = function(names_in, kingdoms = NULL, only = NULL) {
@@ -66,7 +66,7 @@ test_that('groups = "all" reads the installed build, not the manifest', {
 
   x <- data.frame(accepted_name = "Quercus robur", matched_name = "Quercus robur",
                   stringsAsFactors = FALSE)
-  r <- enrich_by_group(x, "mockgrp", "lang", "all", c(vname = "vname"),
+  r <- enrich_by_group(prefix = "", x, "mockgrp", "lang", "all", c(vname = "vname"),
                        "mock", verbose = FALSE)
   expect_true(all(c("vname_de", "vname_fr") %in% names(r)))
   expect_false(any(c("vname_en", "vname_it") %in% names(r)))
@@ -79,7 +79,7 @@ test_that("the emergency grouped path keeps the NA group", {
                    stringsAsFactors = FALSE)
   x <- data.frame(accepted_name = "Quercus robur", matched_name = "Quercus robur",
                   stringsAsFactors = FALSE)
-  r <- enrich_from_dataframe_grouped(x, df, "common_names", "lang",
+  r <- enrich_from_dataframe_grouped(prefix = "", x, df, "common_names", "lang",
                                      NA_character_,
                                      c(common_name = "common_name"), "mock")
   expect_equal(r$common_name, "oak (ncbi)")
@@ -91,7 +91,7 @@ test_that("the emergency grouped path honours prefer", {
                    stringsAsFactors = FALSE)
   x <- data.frame(accepted_name = "Quercus robur", matched_name = "Quercus robur",
                   stringsAsFactors = FALSE)
-  r <- enrich_from_dataframe_grouped(x, df, "common_names", "lang", "en",
+  r <- enrich_from_dataframe_grouped(prefix = "", x, df, "common_names", "lang", "en",
                                      c(common_name = "common_name"), "mock",
                                      prefer = list(col = "name_rank", order = 1L))
   expect_equal(r$common_name, "first")

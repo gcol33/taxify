@@ -397,7 +397,7 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 - job: `synonyms()` of *Picea abies*.
 
 ### vig.exploring.below  [A6]  (section, code)
-- job: `children()` and `downstream()`.
+- job: `downstream()`.
 
 ### vig.exploring.above  [A6]  (section, code)
 - job: `upstream()` from a synonym; `add_classification()`.
@@ -441,7 +441,7 @@ Source is README.Rmd, knitted in the default view (COL, GBIF, ITIS installed).
 - job: Join on the accepted name, the build-time expansion over all backbones, recovery at join time, refused rows, genus-keyed datasets.
 
 ### vig.enrich.versions  [A2]  (section, code)
-- job: Download on first use, `taxify_download_enrichment()`, fixed vs updated releases, kept builds.
+- job: Download on first use, `taxify_download(kind = "enrichment")`, fixed vs updated releases, kept builds.
 
 ### vig.enrich.where-next  (list)
 - job: The catalogue, custom data and hybrids articles, labelled by job.

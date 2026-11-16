@@ -38,11 +38,11 @@ enrich <- function(x) {
   data.frame(
     accepted_name = r$accepted_name,
     accepted_id   = r$accepted_id,
-    life_form     = as.character(r$life_form_de),
-    ploidy        = as.character(r$ploidy_de),
-    chrom         = as.character(r$chromosome_number_de),
-    light         = as.character(r$ell_light_de),
-    strategy      = as.character(r$strategy_type_de),
+    life_form     = as.character(r$floraweb_life_form_de),
+    ploidy        = as.character(r$floraweb_ploidy_de),
+    chrom         = as.character(r$floraweb_chromosome_number_de),
+    light         = as.character(r$floraweb_ell_light_de),
+    strategy      = as.character(r$floraweb_strategy_type_de),
     stringsAsFactors = FALSE
   )
 }

@@ -13,7 +13,7 @@ add_gift(x, cols = NULL, verbose = TRUE)
 for a convenient set of well-populated traits; the string \code{"all"} for every
 bundled trait; or a character vector of \code{gift_} column names (e.g.
 \code{"plant_height_max"}, with or without the \code{gift_} prefix). See
-\code{\link[=gift_traits]{gift_traits()}}. When left \code{NULL}, a one-time message notes the default set
+\code{\link[=enrichment_cols]{enrichment_cols()}}. When left \code{NULL}, a one-time message notes the default set
 and how to request all traits.}
 
 \item{verbose}{Logical. Default \code{TRUE}.}
@@ -35,7 +35,7 @@ and Traits (Weigelt et al. 2020), to a \code{\link[=taxify]{taxify()}} result by
 GIFT aggregates published trait records to one value per species (mean for
 numeric traits, most frequent entry for categorical ones). \code{cols} chooses which
 traits to attach; browse the available columns with
-\code{\link[=gift_traits]{gift_traits()}}.
+\code{\link[=enrichment_cols]{enrichment_cols()}}.
 }
 \details{
 The GIFT trait table is bundled as a pre-built \code{.vtr} and joined offline, so
@@ -64,5 +64,5 @@ Inventory of Floras and Traits. Methods in Ecology and Evolution
 14:2738-2748. \doi{10.1111/2041-210X.14213}
 }
 \seealso{
-\code{\link[=gift_traits]{gift_traits()}} to browse the available columns.
+\code{\link[=enrichment_cols]{enrichment_cols()}} to browse the available columns.
 }

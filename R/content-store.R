@@ -728,7 +728,7 @@ download_content_build <- function(name, content_id,
 #' Restoring a pinned build archives the build it replaces either way.
 #'
 #' @seealso [taxify_lock()] to record a build, [taxify_restore()] to check or
-#'   reinstall one, [taxify_download_enrichment()] to fetch one by content id,
+#'   reinstall one, [taxify_download()] to fetch one by content id,
 #'   [taxify_clean()] to remove builds.
 #'
 #' @examples

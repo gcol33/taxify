@@ -16,21 +16,21 @@ add_fungal_traits(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{primary_lifestyle}{Primary ecological role (e.g., saprotroph,
+\item{fungal_traits_primary_lifestyle}{Primary ecological role (e.g., saprotroph,
 mycorrhizal, pathogen, endophyte, lichenized, parasite).}
-\item{secondary_lifestyle}{Secondary ecological role, if any.}
-\item{growth_form}{Morphological growth form (e.g., agaricoid,
+\item{fungal_traits_secondary_lifestyle}{Secondary ecological role, if any.}
+\item{fungal_traits_growth_form}{Morphological growth form (e.g., agaricoid,
 corticioid, polyporoid, yeast).}
-\item{fruitbody_type}{Fruiting body morphology (e.g., gasteroid,
+\item{fungal_traits_fruitbody_type}{Fruiting body morphology (e.g., gasteroid,
 pileate, resupinate).}
-\item{decay_substrate}{Substrate type for saprotrophic genera
+\item{fungal_traits_decay_substrate}{Substrate type for saprotrophic genera
 (e.g., wood, litter, dung, soil).}
-\item{plant_pathogenic_capacity}{Capacity to cause plant disease
+\item{fungal_traits_plant_pathogenic_capacity}{Capacity to cause plant disease
 (e.g., high, medium, low, none).}
-\item{animal_biotrophic_capacity}{Capacity for animal biotrophy.}
-\item{endophytic_interaction_capability}{Capacity for endophytic
+\item{fungal_traits_animal_biotrophic_capacity}{Capacity for animal biotrophy.}
+\item{fungal_traits_endophytic_interaction_capability}{Capacity for endophytic
 interactions with plants.}
-\item{ectomycorrhiza_exploration_type}{Exploration type for
+\item{fungal_traits_ectomycorrhiza_exploration_type}{Exploration type for
 ectomycorrhizal genera (e.g., contact, short, medium, long).}
 }
 }

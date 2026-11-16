@@ -48,7 +48,7 @@ The miniature WFO data include the oak *Quercus robur* and the fir *Abies alba*.
 res <- taxify(c("Quercus robur", "Abies alba"), backbone = "wfo",
               verbose = FALSE)
 res <- add_zanne(res, verbose = FALSE)
-res[, c("input_name", "accepted_name", "woodiness")]
+res[, c("input_name", "accepted_name", "zanne_woodiness")]
 ```
 
 ## Writing the record and citations

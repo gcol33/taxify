@@ -14,8 +14,8 @@ Regions are ISO 3166 alpha-3 country codes extended with dot notation
 for sub-national units (e.g., \code{"DEU"} for Germany, \code{"USA.CA"} for
 California). List them with \code{enrichment_groups("glonaf")}.
 \itemize{
-\item Single region: adds \code{naturalized} column (no suffix).
-\item Multiple regions: adds \verb{naturalized_<region>} columns.
+\item Single region: adds \code{glonaf_naturalized} column (no suffix).
+\item Multiple regions: adds \verb{glonaf_naturalized_<region>} columns.
 \item \code{"all"}: adds one column per region in the dataset.
 }}
 
@@ -28,7 +28,7 @@ curated set; a character vector of column names attaches just those, and
 \value{
 The same data.frame with additional column(s):
 \describe{
-\item{naturalized}{\code{1} if the species is recorded as
+\item{glonaf_naturalized}{\code{1} if the species is recorded as
 naturalized in that region, \code{NA} otherwise.}
 }
 }

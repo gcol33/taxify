@@ -1,6 +1,4 @@
-# children() and downstream() share one engine (#69): the same parent-rank
-# detection, the same exclusion of the parent under rank = "any", and the same
-# kingdom constraint for a name used in more than one kingdom.
+# Descendant selection excludes the parent and respects kingdom constraints.
 
 # A backbone where Morus is both a plant genus (mulberries) and a bird genus
 # (gannets), each with its own genus row.
@@ -37,7 +35,7 @@ with_morus <- function(code) {
 
 test_that("kingdom = splits a genus name used in two kingdoms", {
   with_morus({
-    plants <- children("Morus", kingdom = "plantae", verbose = FALSE)
+    plants <- downstream("Morus", kingdom = "plantae", verbose = FALSE)
     expect_setequal(plants$name, c("Morus alba", "Morus nigra"))
     expect_true(all(plants$kingdom_group == "plantae"))
 
@@ -49,7 +47,7 @@ test_that("kingdom = splits a genus name used in two kingdoms", {
 
 test_that("a result mixing kingdoms warns and labels each row", {
   with_morus({
-    expect_warning(both <- children("Morus", verbose = FALSE),
+    expect_warning(both <- downstream("Morus", verbose = FALSE),
                    "more than one kingdom.*animalia, plantae")
     expect_equal(nrow(both), 4L)
     expect_setequal(both$kingdom_group, c("animalia", "plantae"))
@@ -57,33 +55,32 @@ test_that("a result mixing kingdoms warns and labels each row", {
   })
 })
 
-test_that("rank = \"any\" never returns the parent, in either verb", {
+test_that("downto = \"any\" never returns the parent", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()
 
-  ch <- children("Quercus", backbone = "wfo", rank = "any", verbose = FALSE)
-  ds <- downstream("Quercus", backbone = "wfo", downto = "any",
-                   verbose = FALSE)
+  ch <- downstream("Quercus", backbone = "wfo", downto = "any", verbose = FALSE)
   expect_false("Quercus" %in% ch$name)
-  expect_identical(ch, ds)
-  expect_identical(children("Quercus", backbone = "wfo", rank = NULL,
+  expect_identical(downstream("Quercus", backbone = "wfo", downto = NULL,
                             verbose = FALSE), ch)
 
   with_morus(expect_false("Morus" %in%
-    children("Morus", rank = "any", kingdom = "plantae", verbose = FALSE)$name))
+    downstream("Morus", downto = "any", kingdom = "plantae", verbose = FALSE)$name))
 })
 
-test_that("children() is downstream() for a genus or family parent", {
+test_that("downstream reaches species below genus and family parents", {
   old <- options(taxify.data_dir = taxify_example_data())
   on.exit(options(old), add = TRUE)
   taxify_clear_cache()
-
-  expect_identical(children("Quercus", backbone = "wfo", verbose = FALSE),
-                   downstream("Quercus", backbone = "wfo", verbose = FALSE))
-  expect_identical(children("Fagaceae", backbone = "col", verbose = FALSE),
-                   downstream("Fagaceae", backbone = "col", verbose = FALSE))
+  genus <- downstream("Quercus", backbone = "wfo", verbose = FALSE)
+  family <- downstream("Fagaceae", backbone = "wfo", verbose = FALSE)
+  expect_gt(nrow(genus), 0L)
+  expect_true(all(genus$name %in% family$name))
+  expect_true(all(genus$parent_rank == "genus"))
+  expect_true(all(family$parent_rank == "family"))
 })
+
 
 test_that("a kingdom the backbone's scope excludes returns no children", {
   old <- options(taxify.data_dir = taxify_example_data())
@@ -91,8 +88,8 @@ test_that("a kingdom the backbone's scope excludes returns no children", {
   taxify_clear_cache()
 
   # WFO is plants only, so its Quercus has no animal children.
-  expect_equal(nrow(children("Quercus", backbone = "wfo", kingdom = "animalia",
+  expect_equal(nrow(downstream("Quercus", backbone = "wfo", kingdom = "animalia",
                              verbose = FALSE)), 0L)
-  expect_error(children("Quercus", backbone = "wfo", kingdom = "rocks",
+  expect_error(downstream("Quercus", backbone = "wfo", kingdom = "rocks",
                         verbose = FALSE), "recognised kingdom")
 })

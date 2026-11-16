@@ -18,14 +18,14 @@ names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{gram_stain}{Gram reaction (positive / negative / variable).}
-\item{cell_shape}{Cell morphology (rod, coccus, ...).}
-\item{motility}{motile / non-motile.}
-\item{oxygen_metabolism}{Oxygen tolerance (aerobe, anaerobe, facultative
+\item{bacdive_gram_stain}{Gram reaction (positive / negative / variable).}
+\item{bacdive_cell_shape}{Cell morphology (rod, coccus, ...).}
+\item{bacdive_motility}{motile / non-motile.}
+\item{bacdive_oxygen_metabolism}{Oxygen tolerance (aerobe, anaerobe, facultative
 anaerobe, microaerophile, ...).}
-\item{cell_length_um, cell_width_um}{Cell dimensions in micrometres.}
-\item{optimal_growth_temp_c}{Optimal (or reported growth) temperature, C.}
-\item{optimal_growth_ph}{Optimal (or reported growth) pH.}
+\item{bacdive_cell_length_um, bacdive_cell_width_um}{Cell dimensions in micrometres.}
+\item{bacdive_optimal_growth_temp_c}{Optimal (or reported growth) temperature, C.}
+\item{bacdive_optimal_growth_ph}{Optimal (or reported growth) pH.}
 }
 }
 \description{

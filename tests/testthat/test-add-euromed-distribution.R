@@ -41,7 +41,7 @@ test_that("cols = 'all' carries the wording, references and the Euro+Med UUID", 
   expect_equal(out$euromed_status_detail,
                "introduced: uncertain degree of naturalisation")
   expect_equal(out$euromed_status_source, "ref-ex-2")
-  expect_equal(out$taxon_id, "example-taxon-robinia")
+  expect_equal(out$euromed_taxon_id, "example-taxon-robinia")
 })
 
 test_that("an unknown region is refused", {

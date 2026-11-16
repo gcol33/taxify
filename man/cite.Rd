@@ -23,7 +23,7 @@ to this file (extension should be \code{.bib}).}
 
 \item{source}{For a character \code{x} only: \code{NULL} (default) when the ids carry
 their enrichment prefix, or the enrichment the bare ids belong to (e.g.
-\code{"austraits"} for the \code{dispersal_syndrome_source} column of
+\code{"austraits"} for the \code{austraits_dispersal_syndrome_source} column of
 \code{add_austraits(cols = "all")}).}
 }
 \value{

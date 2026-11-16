@@ -56,6 +56,6 @@ add_gmpd <- function(x, cols = NULL, verbose = TRUE) {
   enrich_simple(
     x, enrichment_name = "gmpd", col_map = col_map,
     source_label = "Global Mammal Parasite Database 2.0 (Stephens et al. 2017)",
-    cols = cols, col_prefix = "gmpd_", out_prefix = "gmpd_", verbose = verbose
+    cols = cols, verbose = verbose
   )
 }

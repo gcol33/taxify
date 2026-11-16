@@ -419,13 +419,14 @@ download_enrichment_references <- function(entry, dest_dir, verbose = TRUE) {
 #' @param verbose Logical.
 #' @return Path to the downloaded .vtr (invisibly).
 #' @noRd
-download_enrichment <- function(name, version = "latest", verbose = TRUE) {
+download_enrichment <- function(name, version = "latest", verbose = TRUE,
+                                force = FALSE) {
   dest_dir <- enrichment_dir(name, version)
   vtr_path <- file.path(dest_dir, paste0(name, ".vtr"))
 
   # Pinned versions: never overwrite
 
-  if (version != "latest" && file.exists(vtr_path)) {
+  if (!force && version != "latest" && file.exists(vtr_path)) {
     if (verbose) {
       message(sprintf(
         "\u2713 Enrichment '%s' v%s already present (pinned). Skipping.",
@@ -531,56 +532,6 @@ resolve_enrichment_entry <- function(manifest, name) {
   } else {
     NULL
   }
-}
-
-
-#' Download one or more enrichment .vtr files
-#'
-#' Downloads pre-built enrichment `.vtr` files from the taxify manifest.
-#'
-#' @param enrichment Character. One or more enrichment names (e.g.,
-#'   `"iucn"`, `"griis"`, `"zanne"`).
-#' @param version Character. `"latest"` (default) or a specific version string.
-#' @param content_id Character or `NULL` (default). The content id of one exact
-#'   build, the md5 of its `.vtr`, as recorded by [taxify_lock()] and by the
-#'   manifest. Given one, taxify fetches that build from the immutable copy
-#'   published beside the rolling asset, verifies the bytes hash back to the id,
-#'   and makes it the active build; the build it replaces is kept on disk under
-#'   its own content id. This is what turns a lockfile's recorded id back into
-#'   bytes. Pass one id per `enrichment`, or one shared by all of them.
-#' @param verbose Logical. Default `TRUE`.
-#' @return Invisibly, a character vector of file paths, named by `enrichment`
-#'   and in the requested order.
-#'
-#' @details
-#' [list_enrichments()] lists available datasets and versions. Downloads
-#' require network access unless a specifically named version is already present.
-#' Use [taxify_example_data()] to run enrichment examples offline.
-#'
-#' @seealso [taxify_store()] for the builds already on disk, [taxify_restore()]
-#'   to reinstall everything a lockfile pins.
-#' @family Backbone data and cache
-#' @examples
-#' \dontrun{
-#' taxify_download_enrichment(c("zanne", "eive"))
-#' }
-#'
-#' @export
-taxify_download_enrichment <- function(enrichment,
-                                       version = "latest",
-                                       content_id = NULL,
-                                       verbose = TRUE) {
-  content_id <- recycle_content_ids(content_id, enrichment, "enrichment")
-  paths <- vapply(seq_along(enrichment), function(i) {
-    name <- enrichment[[i]]
-    if (!is.null(content_id)) {
-      return(download_content_build(name, content_id[[i]], "enrichment",
-                                    version = version, verbose = verbose))
-    }
-    download_enrichment(name, version = version, verbose = verbose)
-  }, character(1L))
-  names(paths) <- enrichment
-  invisible(paths)
 }
 
 
@@ -704,7 +655,10 @@ agg_select_idx <- function(keys, enr_key) {
 #' @noRd
 enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
                                   source_label, na_types = NULL,
-                                  join_col = "accepted_name") {
+                                  join_col = "accepted_name",
+                                  prefix = .enrichment_prefix(enrichment_name)) {
+  names(col_map) <- .prefix_columns(names(col_map), prefix)
+  if (!is.null(na_types)) names(na_types) <- .prefix_columns(names(na_types), prefix)
   # Filter col_map to columns that exist in df
   col_map <- col_map[col_map %in% names(df)]
   if (length(col_map) == 0L) return(x)
@@ -748,7 +702,7 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
     sel <- agg_select_idx(keys, enr_key)
     idx <- sel$idx
     if (isTRUE(getOption("taxify.trait_provenance", FALSE))) {
-      x[[paste0(enrichment_name, "_basis")]] <- sel$basis
+      x[[paste0(prefix, "basis")]] <- sel$basis
     }
   } else {
     df  <- df[!duplicated(df[[df_join_key]]), , drop = FALSE]
@@ -790,7 +744,10 @@ enrich_from_dataframe <- function(x, df, enrichment_name, col_map,
 #' @noRd
 enrich_from_dataframe_grouped <- function(x, df, enrichment_name, group_col,
                                           groups, value_cols, source_label,
-                                          na_types = NULL, prefer = NULL) {
+                                          na_types = NULL, prefer = NULL,
+                                          prefix = .enrichment_prefix(enrichment_name)) {
+  names(value_cols) <- .prefix_columns(names(value_cols), prefix)
+  if (!is.null(na_types)) names(na_types) <- .prefix_columns(names(na_types), prefix)
   if (!group_col %in% names(df)) return(x)
 
   # License lookup is delegated to taxifydb; emergency fallback leaves it unset.
@@ -998,9 +955,7 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
   }
   if (length(cols) == 1L && identical(tolower(cols), "all")) return(col_map)
   want <- as.character(cols)
-  # A name as given first, then with the prefix: the auto-exposed extras keep
-  # their raw names when a door sets no out_prefix, so only the as-given pass
-  # can reach them.
+  # Match the full output name before its prefix-free spelling.
   idx  <- match(tolower(want), tolower(out))
   if (!is.null(prefix) && anyNA(idx)) {
     miss <- is.na(idx)
@@ -1032,7 +987,8 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 #' the first call may trigger the one-time download.
 #'
 #' @param source Character. An enrichment name (see [list_enrichments()]).
-#' @return A data.frame with one row per column: `column` (the name) and `type`
+#' @return A data.frame with one row per column: `column` (source name),
+#'   `output` (attached name), and `type`
 #'   (`"numeric"` or `"character"`).
 #' @seealso [add_gift()], [add_floraweb()], [list_enrichments()]
 #' @examples
@@ -1041,20 +997,34 @@ try_emergency_fallback <- function(name, download_error = NULL, verbose = TRUE) 
 #' options(old)
 #' @family Browse and discover
 #' @details
-#' `column` contains source names. A source function can rename them in its
-#' output; its help page lists the names its `cols` selector accepts. For
-#' example, [add_avonet()] exposes source `body_mass_g` as
-#' `avonet_body_mass_g`.
+#' Source outputs start with the source key followed by `_`. Common names use
+#' `common_`. Names already carrying the prefix keep it once. The `cols`
+#' selector accepts source names, output names, and output names without the
+#' prefix. Grouped outputs append the group code when several groups are
+#' requested. The grouping key is used for filtering and reshaping; it is
+#' excluded from attached values. Other country, region, or language fields
+#' receive the source prefix. `output` is `NA` for the grouping key.
 #' @export
 enrichment_cols <- function(source) {
-  ac <- .enrichment_available_cols(source, verbose = FALSE)
+  spec <- .enrichment_door_spec(source, data.frame(column = character()))
+  asset <- if (is.null(spec)) source else spec$enrichment_name
+  ac <- .enrichment_available_cols(asset, verbose = FALSE)
   if (is.null(ac)) {
     stop(sprintf(paste0(
       "enrichment_cols(): enrichment '%s' is not available. It downloads on ",
       "first use; install 'taxifydb' to build it, or check your connection."),
       source), call. = FALSE)
   }
-  ac
+  spec <- .enrichment_door_spec(source, ac)
+  prefix <- if (is.null(spec)) .enrichment_prefix(source) else spec$prefix
+  ac$output <- .prefix_columns(ac$column, prefix)
+  if (!is.null(spec)) {
+    idx <- match(ac$column, unname(spec$map))
+    hit <- !is.na(idx)
+    ac$output[hit] <- names(spec$map)[idx[hit]]
+    ac$output[ac$column %in% spec$group_col] <- NA_character_
+  }
+  ac[, c("column", "output", "type")]
 }
 
 
@@ -1745,10 +1715,52 @@ resolve_all_groups <- function(vtr_path, name, group_col, entry = NULL) {
 }
 
 
+# Column prefix of a source door: the source key, except where the key would
+# repeat a word of the source's own column names (common_names -> common_name,
+# euromed_distribution -> euromed_status).
+.enrichment_prefix_overrides <- c(
+  common_names         = "common_",
+  euromed_distribution = "euromed_"
+)
+
+.enrichment_prefix <- function(name) {
+  if (name %in% names(.enrichment_prefix_overrides)) {
+    return(.enrichment_prefix_overrides[[name]])
+  }
+  paste0(name, "_")
+}
+
+.prefix_columns <- function(columns, prefix) {
+  ifelse(startsWith(columns, prefix), columns, paste0(prefix, columns))
+}
+
+.prepare_enrichment_columns <- function(col_map, schema, prefix, cols = NULL,
+                                        default_cols = NULL, na_types = NULL,
+                                        expose_all = TRUE, reserved = character(),
+                                        enrichment_name) {
+  names(col_map) <- .prefix_columns(names(col_map), prefix)
+  if (!is.null(na_types)) names(na_types) <- .prefix_columns(names(na_types), prefix)
+  defaults <- if (is.null(default_cols)) names(col_map) else
+    .prefix_columns(default_cols, prefix)
+  if (isTRUE(expose_all) && is.null(default_cols)) {
+    extra <- setdiff(names(schema), c("canonical_name", "accepted_name", "genus",
+                                     reserved, unname(col_map)))
+    output <- .prefix_columns(extra, prefix)
+    if (any(output %in% names(col_map))) {
+      stop("Source columns map to duplicate output names: ",
+           paste(output[output %in% names(col_map)], collapse = ", "), call. = FALSE)
+    }
+    col_map <- c(col_map, stats::setNames(extra, output))
+  }
+  n_available <- length(col_map)
+  col_map <- .apply_col_selection(col_map, cols, defaults, prefix, enrichment_name)
+  list(map = col_map, na_types = na_types, n_available = n_available)
+}
+
 enrich_simple <- function(x, enrichment_name, col_map, source_label,
                           na_types = NULL, join_col = "accepted_name",
-                          cols = NULL, default_cols = NULL, col_prefix = NULL,
-                          out_prefix = NULL,
+                          cols = NULL, default_cols = NULL,
+                          prefix = .enrichment_prefix(enrichment_name),
                           expose_all = TRUE, verbose = TRUE,
                           genus_fallback = FALSE,
                           aggregate_trait_fallback =
@@ -1758,67 +1770,33 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
          call. = FALSE)
   }
 
-  # Expose every other column the .vtr carries (the sources were widened at
-  # build time so no trait is dropped), while keeping the door's curated
-  # col_map as the default output. One place makes all doors cols=-aware: the
-  # default attaches the curated set, cols = "all" attaches everything, cols =
-  # <names> picks any. Doors that manage selection themselves (default_cols
-  # given, e.g. add_gift) opt out.
-  if (isTRUE(expose_all) && is.null(default_cols)) {
-    av <- tryCatch(.enrichment_available_cols(enrichment_name, verbose = FALSE),
-                   error = function(e) NULL)
-    if (!is.null(av)) {
-      extra <- setdiff(av$column, unname(col_map))
-      if (length(extra) > 0L) {
-        default_cols <- names(col_map)               # curated output = default
-        # Auto-exposed extras keep their raw .vtr names unless the door sets an
-        # out_prefix (namespacing every exposed column, so two sibling sources
-        # -- e.g. combine + combine_imputed -- never collide on a shared extra).
-        raw_out <- if (is.null(out_prefix)) extra else paste0(out_prefix, extra)
-        ex_out  <- make.unique(c(names(col_map), raw_out))[-seq_along(col_map)]
-        col_map <- c(col_map, stats::setNames(extra, ex_out))
-        if (is.null(na_types)) na_types <- list()
-        et <- av$type[match(extra, av$column)]
-        for (k in seq_along(ex_out)) {
-          na_types[[ex_out[k]]] <-
-            if (identical(et[k], "numeric")) NA_real_ else NA_character_
-        }
-      }
-    }
-  }
-
-  # User column selection (only engaged when a door forwards cols/default_cols).
-  if (!is.null(cols) || !is.null(default_cols)) {
-    full_n  <- length(col_map)
-    col_map <- .apply_col_selection(col_map, cols, default_cols, col_prefix,
-                                    enrichment_name)
-    if (is.null(cols) && !is.null(default_cols) && verbose &&
-        length(col_map) < full_n &&
-        is.null(.taxify_env[[paste0(".cols_notice.", enrichment_name)]])) {
-      message(sprintf(paste0(
-        "add_%s(): attaching %d of %d columns. Pass cols = \"all\" for all, ",
-        "or see enrichment_cols(\"%s\")."),
-        enrichment_name, length(col_map), full_n, enrichment_name))
-      .taxify_env[[paste0(".cols_notice.", enrichment_name)]] <- TRUE
-    }
-  }
-
   vtr_path <- ensure_enrichment(enrichment_name, verbose = verbose)
-
-  # Emergency fallback: ensure_enrichment() returned NULL → all paths failed
-
+  df <- if (is.null(vtr_path)) try_emergency_fallback(enrichment_name, verbose = verbose) else NULL
+  schema <- if (is.null(vtr_path)) df else
+    vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
+  prepared <- .prepare_enrichment_columns(
+    col_map, schema, prefix, cols, default_cols, na_types, expose_all,
+    enrichment_name = enrichment_name)
+  col_map <- prepared$map
+  na_types <- prepared$na_types
+  if (is.null(cols) && verbose && length(col_map) < prepared$n_available &&
+      is.null(.taxify_env[[paste0(".cols_notice.", enrichment_name)]])) {
+    message(sprintf(paste0(
+      "add_%s(): attaching %d of %d columns. Pass cols = \"all\" for all, ",
+      "or see enrichment_cols(\"%s\")."), enrichment_name, length(col_map),
+      prepared$n_available, enrichment_name))
+    .taxify_env[[paste0(".cols_notice.", enrichment_name)]] <- TRUE
+  }
   if (is.null(vtr_path)) {
-    df <- try_emergency_fallback(enrichment_name, verbose = verbose)
     return(enrich_from_dataframe(x, df, enrichment_name, col_map,
-                                 source_label, na_types,
-                                 join_col = join_col))
+                                 source_label, na_types, join_col = join_col,
+                                 prefix = prefix))
   }
 
   # Read the .vtr schema once: it types the output columns and confirms which
   # source columns exist. NA sentinels are derived from the source column's type
   # (numeric -> NA_real_, else NA_character_), so a door never hand-declares
   # na_types; an explicit na_types entry still wins.
-  schema <- vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
   if (is.null(na_types)) na_types <- list()
   for (out_col in names(col_map)) {
     if (is.null(na_types[[out_col]])) {
@@ -1934,7 +1912,7 @@ enrich_simple <- function(x, enrichment_name, col_map, source_label,
         sel <- agg_select_idx(keys, enr_key)
         idx <- sel$idx
         if (isTRUE(getOption("taxify.trait_provenance", FALSE))) {
-          x[[paste0(enrichment_name, "_basis")]] <- sel$basis
+          x[[paste0(prefix, "basis")]] <- sel$basis
         }
       } else {
         joined <- joined[!duplicated(joined$lookup_name), , drop = FALSE]
@@ -2950,7 +2928,8 @@ disambiguate_by_name_authorship <- function(joined, x, authorship_col,
 #' @noRd
 enrich_by_group <- function(x, enrichment_name, group_col, groups,
                             value_cols, source_label,
-                            na_types = NULL, cols = NULL, col_prefix = NULL,
+                            na_types = NULL, cols = NULL,
+                            prefix = .enrichment_prefix(enrichment_name),
                             expose_all = TRUE, prefer = NULL, verbose = TRUE) {
   if (!"accepted_name" %in% names(x)) {
     stop("x must have an 'accepted_name' column (from taxify())", call. = FALSE)
@@ -2958,16 +2937,21 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
 
   vtr_path <- ensure_enrichment(enrichment_name, verbose = verbose)
 
-  # Emergency fallback: ensure_enrichment() returned NULL → all paths failed
+  df <- if (is.null(vtr_path)) try_emergency_fallback(enrichment_name, verbose = verbose) else NULL
+  schema <- if (is.null(vtr_path)) df else
+    vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
+  prepared <- .prepare_enrichment_columns(
+    value_cols, schema, prefix, cols, na_types = na_types,
+    expose_all = expose_all, reserved = group_col,
+    enrichment_name = enrichment_name)
+  value_cols <- prepared$map
+  na_types <- prepared$na_types
   if (is.null(vtr_path)) {
-    df <- try_emergency_fallback(enrichment_name, verbose = verbose)
     return(enrich_from_dataframe_grouped(x, df, enrichment_name, group_col,
                                           groups, value_cols, source_label,
-                                          na_types, prefer))
+                                          na_types, prefer, prefix = prefix))
   }
 
-  # Check schema
-  schema <- vectra::tbl(vtr_path) |> utils::head(1L) |> vectra::collect()
   join_key <- if ("canonical_name" %in% names(schema)) {
     "canonical_name"
   } else if ("accepted_name" %in% names(schema)) {
@@ -2984,31 +2968,6 @@ enrich_by_group <- function(x, enrichment_name, group_col, groups,
       "Enrichment '%s' .vtr has no '%s' column.", enrichment_name, group_col
     ), call. = FALSE)
   }
-
-  # Expose every other per-(species, group) column the widened .vtr carries,
-  # defaulting output to the door's curated value_cols. cols selects among them
-  # ("all" or a vector); the extras keep their .vtr names.
-  default_vc <- names(value_cols)
-  if (isTRUE(expose_all)) {
-    reserved <- c(join_key, group_col, "canonical_name", "accepted_name",
-                  "genus", unname(value_cols))
-    extra <- setdiff(names(schema), reserved)
-    extra <- extra[!is.na(extra) & nzchar(extra)]
-    if (length(extra) > 0L) {
-      ex_out <- make.unique(c(names(value_cols), extra))[-seq_along(value_cols)]
-      value_cols <- c(value_cols, stats::setNames(extra, ex_out))
-      if (is.null(na_types)) na_types <- list()
-      for (k in seq_along(ex_out)) {
-        na_types[[ex_out[k]]] <-
-          if (is.numeric(schema[[extra[k]]])) NA_real_ else NA_character_
-      }
-    }
-  }
-  # Same selector the ungrouped doors use, so cols behaves identically on both
-  # (and is honoured even when the .vtr carries no extras beyond the curated
-  # set, which the grouped path used to skip).
-  value_cols <- .apply_col_selection(value_cols, cols, default_vc, col_prefix,
-                                     enrichment_name)
 
   # Resolve "all" groups against the build actually installed, not the manifest.
   if (length(groups) == 1L && !anyNA(groups) && groups == "all") {

@@ -1,5 +1,39 @@
 # taxify (development version)
 
+## Breaking changes
+
+* Every source-specific `add_*()` function prefixes its attached columns with
+  its source key, including columns selected with `cols = "all"`. An existing
+  prefix is kept once. Common names use `common_`, preserving `common_name`.
+  Grouped values use the same prefix and append group codes for multiple groups;
+  the grouping key remains a filter and reshape key. `enrichment_cols()` now
+  reports both source `column` and attached `output` names. Selection accepts
+  the source name, full output name, or output name without its prefix.
+  The internal join engines use one `prefix` argument, replacing `col_prefix`
+  and `out_prefix`.
+* The overlapping `growth_form`, `litter_size`, `longevity_yr`, and
+  `seed_mass_mg` outputs now carry their respective source prefixes. COMBINE
+  outputs use `combine_`, `combine_reported_`, and `combine_imputed_` for the
+  coalesced, reported, and imputed doors. Euro+Med distribution exposes
+  `euromed_status`; alien first records expose
+  `alien_first_records_year`, `alien_first_records_source`, and
+  `alien_first_records_reference`.
+* Removed `gift_traits()`. Use `enrichment_cols("gift")`.
+* Removed `children()`. Use `downstream(taxon, downto = )` for descendants
+  beneath a genus, family, or higher taxon.
+* Made `taxify_load_register()` internal and removed `taxify_build_register()`.
+  Use `lookup_genus()` and `taxify_register_coverage()` to query the register,
+  `taxify_download("register")` to download it, or `taxifydb::build_register()`
+  to build it from source.
+* Made `score_candidates()`, `normalize_epithets()`,
+  `normalize_syntaxon_name()`, and `backbone_code()` internal.
+* Merged `taxify_download_enrichment()` into
+  `taxify_download(name, kind = c("backbone", "enrichment"), ...)`.
+  The first argument is the asset name; `kind` selects its catalogue.
+  Version and content-ID downloads, named path returns, the register alias,
+  and backbone source-build delegation remain available. `force = TRUE`
+  refreshes an installed version. `install_backbones()` installs the default set.
+
 ## Bug fixes
 
 * Abbreviated-genus matching no longer stops with "missing value where

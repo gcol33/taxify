@@ -79,7 +79,6 @@ reference:
   desc: List synonyms, the taxa within or beneath a group, the classification of a name, and a taxonomy tree, from the backbone files.
   contents:
   - synonyms
-  - children
   - downstream
   - upstream
   - add_classification
@@ -94,13 +93,10 @@ reference:
   contents:
   - install_backbones
   - taxify_download
-  - taxify_download_enrichment
   - taxify_data_dir
   - taxify_example_data
   - taxify_clear_cache
   - taxify_refresh_manifest
-  - taxify_build_register
-  - taxify_load_register
   - taxify_register_coverage
   - lookup_genus
   - taxify_lock
@@ -169,7 +165,6 @@ reference:
   - add_gwdd
   - add_pignatti
   - add_gift
-  - gift_traits
 - title: "Published data: fungi, algae, lichens, and microbes"
   contents:
   - add_fungal_traits
@@ -265,16 +260,12 @@ reference:
   desc: Exported internals for power users and custom pipelines.
   contents:
   - taxify_build
-  - score_candidates
   - embed_accepted
   - precompute_keys
-  - normalize_epithets
   - is_aggregate_name
   - normalize_aggregate_name
   - normalize_kingdom_group
   - backbone_fixed_kingdom
-  - backbone_code
-  - normalize_syntaxon_name
   - candidate_order
   - basionym_placement
   - enrichment_authorship_col

@@ -16,8 +16,8 @@ add_diaz_traits(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{seed_mass_mg}{Seed mass in milligrams (species-level mean).}
-\item{plant_height_m}{Plant height in metres (species-level mean).}
+\item{diaz_traits_seed_mass_mg}{Seed mass in milligrams (species-level mean).}
+\item{diaz_traits_plant_height_m}{Plant height in metres (species-level mean).}
 }
 }
 \description{

@@ -16,31 +16,31 @@ add_sealifebase(x, cols = NULL, verbose = TRUE)
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{sb_body_length_cm}{Maximum body length in centimetres.}
-\item{sb_body_mass_g}{Maximum published weight in grams (SeaLifeBase
+\item{sealifebase_sb_body_length_cm}{Maximum body length in centimetres.}
+\item{sealifebase_sb_body_mass_g}{Maximum published weight in grams (SeaLifeBase
 \code{SPECIES.Weight}). This is a record maximum, not a typical or
 adult-mean mass.}
-\item{sb_trophic_level}{Trophic level.}
-\item{sb_depth_min_m}{Minimum depth in metres.}
-\item{sb_depth_max_m}{Maximum depth in metres.}
-\item{sb_vulnerability}{Vulnerability index (0--100).}
-\item{sb_habitat}{Habitat type (e.g. benthic, pelagic).}
-\item{sb_importance}{Commercial importance category.}
-\item{sb_lw_a}{Coefficient \code{a} of the length-weight relationship
+\item{sealifebase_sb_trophic_level}{Trophic level.}
+\item{sealifebase_sb_depth_min_m}{Minimum depth in metres.}
+\item{sealifebase_sb_depth_max_m}{Maximum depth in metres.}
+\item{sealifebase_sb_vulnerability}{Vulnerability index (0--100).}
+\item{sealifebase_sb_habitat}{Habitat type (e.g. benthic, pelagic).}
+\item{sealifebase_sb_importance}{Commercial importance category.}
+\item{sealifebase_sb_lw_a}{Coefficient \code{a} of the length-weight relationship
 \code{W = a * L^b} (weight in g, length in cm of type \code{sb_lw_type}),
 from SeaLifeBase's POPLW table.}
-\item{sb_lw_b}{Exponent \code{b} of the length-weight relationship.}
-\item{sb_lw_type}{Length convention the coefficients were fitted against
+\item{sealifebase_sb_lw_b}{Exponent \code{b} of the length-weight relationship.}
+\item{sealifebase_sb_lw_type}{Length convention the coefficients were fitted against
 (\code{TL} total, \code{SL} standard, \code{WD} width, ...). Chosen to
 match the species' maximum-length type where recorded, so it applies to
 \code{sb_body_length_cm}. Applying a coefficient to a different length
 type is a silent error.}
-\item{sb_lw_method}{How the fit was obtained (e.g. "type I linear
+\item{sealifebase_sb_lw_method}{How the fit was obtained (e.g. "type I linear
 regression", "single L-W pair with b=3").}
-\item{sb_lw_sex}{Sex the fit applies to (unsexed, mixed, female, male,
+\item{sealifebase_sb_lw_sex}{Sex the fit applies to (unsexed, mixed, female, male,
 juvenile).}
-\item{sb_lw_n}{Sample size the fit was based on.}
-\item{sb_lw_r2}{Coefficient of determination (\code{r^2}) of the fit.}
+\item{sealifebase_sb_lw_n}{Sample size the fit was based on.}
+\item{sealifebase_sb_lw_r2}{Coefficient of determination (\code{r^2}) of the fit.}
 }
 }
 \description{

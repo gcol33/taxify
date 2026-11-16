@@ -93,7 +93,7 @@ To check your own list, run it through both packages and compare `accepted_name`
 | `classification()` | `upstream()`, `add_classification()` | One taxon as rows, or a result as columns |
 | `tax_name()` | `taxify()` | `family`, `genus` and `rank` are columns |
 | `synonyms()` | `synonyms()` | Every synonym of the accepted taxon |
-| `children()` | `children()` | Accepted taxa of a genus or family |
+| `children()` | `downstream()` | Accepted taxa of a genus or family |
 | `downstream()` | `downstream()` | Accepted taxa at any rank below a taxon |
 | `upstream()` | `upstream()` | The ranks above a taxon |
 | `sci2comm()`, `comm2sci()` | `sci2comm()`, `comm2sci()` | From the vernacular names of GBIF, NCBI and the Open Tree of Life |

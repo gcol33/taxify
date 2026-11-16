@@ -10,7 +10,7 @@
 #' @return The same data.frame with three collapsed categorical columns
 #'   (`nesttrait_structure`, `nesttrait_site`, `nesttrait_attachment`, each a
 #'   pipe-delimited set of modalities for multi-modal species) plus 20 raw 0/1
-#'   indicator columns prefixed `nesttrait_`: `brood_parasite`, `mound_builder`,
+#'   indicator columns prefixed `nesttrait_`: `nesttrait_brood_parasite`, `nesttrait_mound_builder`,
 #'   seven `nestsite_*`, seven `neststr_*` and four `nestatt_*` flags.
 #'
 #' @details Source: NestTrait v2 (Chia et al. 2023, Scientific Data, CC-BY 4.0).

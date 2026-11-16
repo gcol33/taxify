@@ -1214,7 +1214,7 @@ demote_match_rows <- function(result, rows) {
 #' (`backbone_fixed_kingdom()`, for a single-kingdom backbone with no `kingdom`
 #' column of its own), then the backbone's own `kingdom` value where it stores
 #' one, then the genus register's `kingdom_group` as a last resort. Shared by
-#' the `kingdom =` filter of [taxify()] and by [children()] / [downstream()].
+#' the `kingdom =` filter of [taxify()] and by [downstream()].
 #'
 #' @param bb_name Backbone name, used to look up a fixed scope.
 #' @param kingdom The rows' backbone `kingdom` values, or `NULL` when the

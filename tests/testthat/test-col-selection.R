@@ -27,3 +27,12 @@ test_that("cols errors on an unknown name", {
     "unknown column"
   )
 })
+
+test_that("prefixed maps accept full, short and source names", {
+  map <- c(avonet_beak_length = "beak_length_mm", avonet_body_mass_g = "body_mass_g")
+  for (name in c("avonet_beak_length", "beak_length", "beak_length_mm")) {
+    expect_identical(
+      taxify:::.apply_col_selection(map, name, NULL, "avonet_", "avonet"),
+      map["avonet_beak_length"])
+  }
+})

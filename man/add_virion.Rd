@@ -15,8 +15,8 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{virion_} columns: \code{virus_richness},
-\code{virus_family_count}, \code{virus_record_count}, \code{host_class}.
+The same data.frame with \code{virion_} columns: \code{virion_virus_richness},
+\code{virion_virus_family_count}, \code{virion_virus_record_count}, \code{virion_host_class}.
 }
 \description{
 Joins per-host counts of recorded virus associations to a \code{\link[=taxify]{taxify()}} result.

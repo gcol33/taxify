@@ -17,7 +17,7 @@ to be fetched. Default \code{TRUE}.}
 \value{
 The same data.frame with an additional column:
 \describe{
-\item{conservation_status}{IUCN category: \code{"LC"} (Least Concern),
+\item{iucn_conservation_status}{IUCN category: \code{"LC"} (Least Concern),
 \code{"NT"} (Near Threatened), \code{"VU"} (Vulnerable), \code{"EN"} (Endangered),
 \code{"CR"} (Critically Endangered), \code{"EW"} (Extinct in the Wild),
 \code{"EX"} (Extinct), or \code{NA} if not assessed.}

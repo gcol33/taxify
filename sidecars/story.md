@@ -64,7 +64,7 @@ Ecologists, botanists, zoologists and data managers with a species list (a field
 
 ### A6 Reading the backbone the other ways
 - question: Can I list the synonyms of a species, the species in a genus, the family of a name, or a tree of my list?
-- answer: The same local files answer `synonyms()`, `children()`, `downstream()`, `upstream()`, `add_classification()`, `class2tree()`, `lowest_common()`, `id2name()`, `parse_name()`, `comm2sci()` and `sci2comm()`.
+- answer: The same local files answer `synonyms()`, `downstream()`, `upstream()`, `add_classification()`, `class2tree()`, `lowest_common()`, `id2name()`, `parse_name()`, `comm2sci()` and `sci2comm()`.
 - payoff: taxize's lookup functions have offline counterparts on the backbone the names were matched against.
 - evidence: vignettes/exploring.Rmd; the help pages of each verb
 - limits: common names come from the vernacular names GBIF, NCBI and OTT publish

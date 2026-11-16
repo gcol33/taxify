@@ -15,10 +15,10 @@ add_zooplankton(x, cols = NULL, verbose = TRUE)
 }
 \value{
 The same data.frame with \code{zooplankton_} columns: numeric
-\code{body_length_max_mm}, \code{carbon_weight_mg}, \code{nitrogen_pdw_pct}; categorical
-\code{vertical_distribution}, \code{reproduction_mode}, \code{trophic_group},
-\code{feeding_mode}, \code{myelination}, \code{habitat_association},
-\code{diel_vertical_migration}, \code{bioluminescence}.
+\code{zooplankton_body_length_max_mm}, \code{zooplankton_carbon_weight_mg}, \code{zooplankton_nitrogen_pdw_pct}; categorical
+\code{zooplankton_vertical_distribution}, \code{zooplankton_reproduction_mode}, \code{zooplankton_trophic_group},
+\code{zooplankton_feeding_mode}, \code{zooplankton_myelination}, \code{zooplankton_habitat_association},
+\code{zooplankton_diel_vertical_migration}, \code{zooplankton_bioluminescence}.
 }
 \description{
 Joins global marine-zooplankton traits to a \code{\link[=taxify]{taxify()}} result by

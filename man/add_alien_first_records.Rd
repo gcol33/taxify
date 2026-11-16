@@ -23,8 +23,8 @@ List the locations covered with
 \code{enrichment_groups("alien_first_records")}.}
 
 \item{cols}{Character vector of value columns to attach (from
-\code{alien_first_record}, \code{alien_first_record_source},
-\code{alien_first_record_reference}, plus the dataset's further columns such as
+\code{alien_first_records_year}, \code{alien_first_records_source},
+\code{alien_first_records_reference}, plus the dataset's further columns such as
 \code{country_code} and \code{alien_first_record_status}), or \code{"all"}. \code{NULL}
 (default) attaches the first three.}
 
@@ -33,11 +33,11 @@ List the locations covered with
 \value{
 The same data.frame with additional column(s):
 \describe{
-\item{alien_first_record}{Year of the first record (integer), or \code{NA}
+\item{alien_first_records_year}{Year of the first record (integer), or \code{NA}
 if not recorded for that location.}
-\item{alien_first_record_source}{Database that contributed the record
+\item{alien_first_records_source}{Database that contributed the record
 (e.g., \code{"GAVIA"}, \code{"CABI ISC"}).}
-\item{alien_first_record_reference}{Original citation or reference for
+\item{alien_first_records_reference}{Original citation or reference for
 the record.}
 }
 }

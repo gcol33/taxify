@@ -15,8 +15,8 @@ add_frugivoria(x, cols = NULL, verbose = TRUE)
 }
 \value{
 The same data.frame with \code{frugivoria_} columns: categorical
-\code{taxon_group}, \code{diet_category}; numeric \code{diet_breadth}, \code{body_mass_g},
-\code{body_size_mm}, \code{longevity}, \code{generation_time}.
+\code{frugivoria_taxon_group}, \code{frugivoria_diet_category}; numeric \code{frugivoria_diet_breadth}, \code{frugivoria_body_mass_g},
+\code{frugivoria_body_size_mm}, \code{frugivoria_longevity}, \code{frugivoria_generation_time}.
 }
 \description{
 Joins shared bird/mammal frugivore traits to a \code{\link[=taxify]{taxify()}} result by

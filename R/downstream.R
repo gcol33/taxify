@@ -1,13 +1,8 @@
 # ---- Downstream: all descendants of a taxon at a target rank ----
 #
-# children() lists the accepted taxa inside a genus or family. downstream() goes
-# the whole way down: every accepted taxon at a chosen rank (species by default)
-# beneath a higher taxon -- every species in an order, say. Both read through
-# collect_descendants(), which differs between them only in which ranks the
-# parent may hold. The backbones store classification denormalized (a species
-# row carries its order/class/phylum/kingdom text where the backbone has them),
-# so this is a single filter on the ancestor column, not a recursive parent-key
-# walk.
+# Descendants are selected from the denormalized classification column for
+# the parent rank. The parent itself is excluded.
+
 
 
 #' Rank name -> the backbone column that stores it
@@ -51,7 +46,7 @@ collect_by_ancestor <- function(bb, col, value, sel_cols) {
 }
 
 
-#' Accepted descendants of a taxon: the engine behind children() and downstream()
+#' Accepted descendants of a taxon: the engine behind downstream()
 #'
 #' Detects the parent's rank from its own accepted row(s), restricted to the
 #' ranks in `parent_cols`; when the parent is not a stored node, probes each of
@@ -210,8 +205,7 @@ collect_descendants <- function(taxon, backbone, target_rank, kingdom,
 #' Returns every accepted taxon at `downto` rank that sits beneath `taxon`,
 #' for example every species in an order or family. The parent's rank is
 #' detected from the backbone, then descendants are read from the denormalized
-#' classification the backbone stores. [children()] is the same query for a
-#' genus or family parent.
+#' classification the backbone stores.
 #'
 #' @param taxon A single higher-taxon name (a genus, family, order, class,
 #'   phylum, or kingdom).
@@ -234,7 +228,7 @@ collect_descendants <- function(taxon, backbone, target_rank, kingdom,
 #'   when `taxon` is not found, its rank is one the backbone does not store as a
 #'   column (e.g. subfamily, tribe), or it has no descendants at `downto`.
 #'
-#' @seealso [children()] for a genus or family parent, [upstream()] for the
+#' @seealso [upstream()] for the
 #'   ancestors, [taxify()], [synonyms()].
 #'
 #' @examples

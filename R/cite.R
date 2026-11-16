@@ -20,7 +20,7 @@
 #'   to this file (extension should be `.bib`).
 #' @param source For a character `x` only: `NULL` (default) when the ids carry
 #'   their enrichment prefix, or the enrichment the bare ids belong to (e.g.
-#'   `"austraits"` for the `dispersal_syndrome_source` column of
+#'   `"austraits"` for the `austraits_dispersal_syndrome_source` column of
 #'   `add_austraits(cols = "all")`).
 #' @param ... Unused.
 #' @return For a `taxify_result`, `x`, invisibly (pipe-friendly). For reference

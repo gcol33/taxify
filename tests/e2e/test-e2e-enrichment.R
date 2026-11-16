@@ -42,9 +42,9 @@ enrich <- function(x) {
 as_df <- function(r) data.frame(
   accepted_name = r$accepted_name,
   accepted_id   = r$accepted_id,
-  status        = as.character(r$conservation_status),
+  status        = as.character(r$iucn_conservation_status),
   common        = as.character(r$common_name),
-  woodiness     = as.character(r$woodiness),
+  woodiness     = as.character(r$zanne_woodiness),
   stringsAsFactors = FALSE
 )
 
@@ -72,7 +72,7 @@ cmp <- merge(solo, batch, by = "accepted_id", suffixes = c(".solo", ".batch"))
 same <- function(a, b) (is.na(a) & is.na(b)) | (!is.na(a) & !is.na(b) & a == b)
 ok_status <- same(cmp$status.solo, cmp$status.batch)
 ok_common <- same(cmp$common.solo, cmp$common.batch)
-ok_wood   <- same(cmp$woodiness.solo, cmp$woodiness.batch)
+ok_wood   <- same(cmp$zanne_woodiness.solo, cmp$zanne_woodiness.batch)
 bad <- !(ok_status & ok_common & ok_wood)
 if (any(bad)) {
   cat("  MISMATCH (solo vs in-batch):\n")
@@ -99,7 +99,7 @@ cat("  PASS: conservation_status + common_name on the correct taxon\n\n")
 
 # --- 5. woodiness (the layer that was already correct) ---
 cat("--- Step 5: woodiness control ---\n")
-stopifnot(all(solo$woodiness == "woody"))
+stopifnot(all(solo$zanne_woodiness == "woody"))
 cat("  PASS: all six congeners woody\n\n")
 
 cat("=== enrichment join test COMPLETE ===\n")

@@ -113,7 +113,7 @@ test_that("a content-pinned download installs and activates that exact build", {
   on.exit(options(old), add = TRUE)
   taxify:::taxify_refresh_manifest()
 
-  p <- taxify_download_enrichment("demo", content_id = a$md5, verbose = FALSE)
+  p <- taxify_download(kind = "enrichment", "demo", content_id = a$md5, verbose = FALSE)
   expect_true(file.exists(p))
   expect_identical(unname(tools::md5sum(p)), a$md5)
   # Activated: it is the build taxify would now read.
@@ -146,7 +146,7 @@ test_that("an earlier build is fetched from the immutable copy in its tag", {
   on.exit(options(old), add = TRUE)
   taxify:::taxify_refresh_manifest()
 
-  p <- taxify_download_enrichment("demo", content_id = a$md5, verbose = FALSE)
+  p <- taxify_download(kind = "enrichment", "demo", content_id = a$md5, verbose = FALSE)
   expect_identical(unname(tools::md5sum(p)), a$md5)
   expect_identical(normalizePath(p),
                    normalizePath(taxify:::enrichment_vtr_path("demo")))
@@ -170,7 +170,7 @@ test_that("bytes that do not hash to the requested id are refused", {
   taxify:::taxify_refresh_manifest()
 
   expect_error(
-    taxify_download_enrichment("demo", content_id = wrong, verbose = FALSE),
+    taxify_download(kind = "enrichment", "demo", content_id = wrong, verbose = FALSE),
     "not the build asked for"
   )
   # Nothing was installed under the id it failed to match.
@@ -180,7 +180,7 @@ test_that("bytes that do not hash to the requested id are refused", {
 test_that("a malformed content_id is rejected before any download", {
   dd <- local_store()
   expect_error(
-    taxify_download_enrichment("demo", content_id = "2026.08", verbose = FALSE),
+    taxify_download(kind = "enrichment", "demo", content_id = "2026.08", verbose = FALSE),
     "32-character md5"
   )
 })
@@ -270,7 +270,7 @@ test_that("a build already on disk is activated without a download", {
                        "https://example.invalid/gone.vtr", b$md5)
   taxify:::taxify_refresh_manifest()
 
-  p <- taxify_download_enrichment("demo", content_id = a$md5, verbose = FALSE)
+  p <- taxify_download(kind = "enrichment", "demo", content_id = a$md5, verbose = FALSE)
   expect_identical(unname(tools::md5sum(p)), a$md5)
   expect_identical(normalizePath(p),
                    normalizePath(taxify:::enrichment_vtr_path("demo")))
@@ -288,7 +288,7 @@ test_that("a pinned build is not refreshed away", {
   on.exit(options(old), add = TRUE)
   taxify:::taxify_refresh_manifest()
 
-  taxify_download_enrichment("demo", content_id = a$md5, verbose = FALSE)
+  taxify_download(kind = "enrichment", "demo", content_id = a$md5, verbose = FALSE)
 
   # The release moves on; the pin holds.
   b <- stage_asset(src, "demo", df2)

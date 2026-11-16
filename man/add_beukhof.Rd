@@ -14,10 +14,10 @@ add_beukhof(x, cols = NULL, verbose = TRUE)
 \item{verbose}{Logical. Default \code{TRUE}.}
 }
 \value{
-The same data.frame with \code{beukhof_} columns: numeric \code{trophic_level},
-\code{aspect_ratio}, \code{offspring_size}, \code{age_maturity}, \code{fecundity},
-\code{length_infinity_cm}, \code{growth_coefficient}, \code{length_max_cm}; categorical
-\code{habitat}, \code{feeding_mode}, \code{body_shape}, \code{fin_shape}, \code{spawning_type}.
+The same data.frame with \code{beukhof_} columns: numeric \code{beukhof_trophic_level},
+\code{beukhof_aspect_ratio}, \code{beukhof_offspring_size}, \code{beukhof_age_maturity}, \code{beukhof_fecundity},
+\code{beukhof_length_infinity_cm}, \code{beukhof_growth_coefficient}, \code{beukhof_length_max_cm}; categorical
+\code{beukhof_habitat}, \code{beukhof_feeding_mode}, \code{beukhof_body_shape}, \code{beukhof_fin_shape}, \code{beukhof_spawning_type}.
 }
 \description{
 Joins North Atlantic / NE Pacific shelf marine-fish life-history and ecology

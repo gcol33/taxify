@@ -59,15 +59,15 @@ test_that("add_wcvp() does not attach a homonym's native range", {
   # is the silent, no-warning path.
   in_concept <- expect_no_warning(
     add_wcvp(r, region = c("EUR", "NAM"), verbose = FALSE))
-  expect_equal(in_concept$native_status_EUR, "native")
-  expect_equal(in_concept$native_status_NAM, "introduced")
+  expect_equal(in_concept$wcvp_native_status_EUR, "native")
+  expect_equal(in_concept$wcvp_native_status_NAM, "introduced")
 
   # GER only exists for the "Mill." homonym in this fixture: it must come
   # back NA, not the wrong concept's "native".
   out <- expect_no_warning(
     add_wcvp(r, region = c("EUR", "GER"), verbose = FALSE))
-  expect_equal(out$native_status_EUR, "native")
-  expect_true(is.na(out$native_status_GER))
+  expect_equal(out$wcvp_native_status_EUR, "native")
+  expect_true(is.na(out$wcvp_native_status_GER))
 })
 
 test_that("add_wcvp() warns 'no match' when the query shares nothing with any candidate", {
@@ -88,8 +88,8 @@ test_that("add_wcvp() warns 'no match' when the query shares nothing with any ca
   expect_warning(add_wcvp(r, region = "GER", verbose = FALSE),
                  "none share any authorship")
   out <- suppressWarnings(add_wcvp(r, region = c("EUR", "GER"), verbose = FALSE))
-  expect_true(is.na(out$native_status_EUR))
-  expect_true(is.na(out$native_status_GER))
+  expect_true(is.na(out$wcvp_native_status_EUR))
+  expect_true(is.na(out$wcvp_native_status_GER))
 })
 
 test_that("a single-concept name is unaffected by the authorship check", {
@@ -139,18 +139,18 @@ test_that("a spelling variant of the resolved authorship still matches", {
   # basionym author. Pre-fix this dropped every row and returned NA.
   out <- expect_no_warning(
     enrich_with("(L.) Hill", wcvp_variant_df("(L.) Hull")))
-  expect_equal(out$native_status_EUR, "native")
-  expect_equal(out$native_status_NAM, "introduced")
+  expect_equal(out$wcvp_native_status_EUR, "native")
+  expect_equal(out$wcvp_native_status_NAM, "introduced")
 
   # Abbreviated to full: "Schischk." of "Schischkin".
   out <- expect_no_warning(
     enrich_with("(Vill.) Schischk.", wcvp_variant_df("(Vill.) Schischkin")))
-  expect_equal(out$native_status_EUR, "native")
+  expect_equal(out$wcvp_native_status_EUR, "native")
 
   # "et" and "&" are the same separator.
   out <- expect_no_warning(
     enrich_with("Hoppe et Hornsch.", wcvp_variant_df("Hoppe & Hornsch.")))
-  expect_equal(out$native_status_EUR, "native")
+  expect_equal(out$wcvp_native_status_EUR, "native")
 })
 
 test_that("a shared basionym author resolves a recombination disagreement", {
@@ -158,8 +158,8 @@ test_that("a shared basionym author resolves a recombination disagreement", {
   # combination, and the only candidate carrying the query's basionym author.
   out <- expect_no_warning(
     enrich_with("(L.) Curtis", wcvp_variant_df("(L.) Rudolph")))
-  expect_equal(out$native_status_EUR, "native")
-  expect_equal(out$native_status_NAM, "introduced")
+  expect_equal(out$wcvp_native_status_EUR, "native")
+  expect_equal(out$wcvp_native_status_NAM, "introduced")
 })
 
 test_that("the basionym pass needs a unique candidate and a real basionym", {
@@ -174,7 +174,7 @@ test_that("the basionym pass needs a unique candidate and a real basionym", {
   )
   expect_warning(enrich_with("(L.) Curtis", two), "more than one concept")
   out <- suppressWarnings(enrich_with("(L.) Curtis", two))
-  expect_true(is.na(out$native_status_EUR))
+  expect_true(is.na(out$wcvp_native_status_EUR))
 
   # No basionym author on either side: two original publications of one
   # binomial are genuine homonyms (#50's Erigeron pulchellus), and an author
@@ -184,7 +184,7 @@ test_that("the basionym pass needs a unique candidate and a real basionym", {
   expect_warning(enrich_with("L.f.", wcvp_variant_df("L.")),
                  "none share any authorship")
   out <- suppressWarnings(enrich_with("L.f.", wcvp_variant_df("L.")))
-  expect_true(is.na(out$native_status_EUR))
+  expect_true(is.na(out$wcvp_native_status_EUR))
 })
 
 test_that("add_wcvp() gives the 'no match' warning for #87's own repro shape", {
@@ -210,8 +210,8 @@ test_that("add_wcvp() gives the 'no match' warning for #87's own repro shape", {
   expect_warning(add_wcvp(r, region = c("EUR", "GER"), verbose = FALSE),
                  "none share any authorship")
   out <- suppressWarnings(add_wcvp(r, region = c("EUR", "GER"), verbose = FALSE))
-  expect_true(is.na(out$native_status_EUR))
-  expect_true(is.na(out$native_status_GER))
+  expect_true(is.na(out$wcvp_native_status_EUR))
+  expect_true(is.na(out$wcvp_native_status_GER))
 })
 
 
@@ -244,8 +244,8 @@ test_that("another name's autonym under a name is not its range", {
   df <- wcvp_ranked_df("Quercus robur", c("EUR", "TUR"), c("L.", NA),
                        c("Species", "Subspecies"), c(NA, "caucasicus"))
   out <- expect_no_warning(enrich_ranked("Quercus robur", df, c("EUR", "TUR")))
-  expect_equal(out$native_status_EUR, "native")
-  expect_true(is.na(out$native_status_TUR))
+  expect_equal(out$wcvp_native_status_EUR, "native")
+  expect_true(is.na(out$wcvp_native_status_TUR))
 })
 
 test_that("the concept of a name the matched backbone places inside the taxon is added", {
@@ -263,11 +263,11 @@ test_that("the concept of a name the matched backbone places inside the taxon is
   )
   out <- expect_no_warning(
     enrich_ranked("Quercus robur", df, c("EUR", "GER", "NAM", "SPA")))
-  expect_equal(out$native_status_EUR, "native")
-  expect_equal(out$native_status_GER, "native")
-  expect_true(is.na(out$native_status_NAM))
+  expect_equal(out$wcvp_native_status_EUR, "native")
+  expect_equal(out$wcvp_native_status_GER, "native")
+  expect_true(is.na(out$wcvp_native_status_NAM))
   # The other concept under the synonym's name is not the synonym's.
-  expect_true(is.na(out$native_status_SPA))
+  expect_true(is.na(out$wcvp_native_status_SPA))
 })
 
 test_that("a name with rows of one foreign concept only keeps none of them", {
@@ -277,8 +277,8 @@ test_that("a name with rows of one foreign concept only keeps none of them", {
                        rep("Species", 2L), rep(NA, 2L))
   expect_warning(out <- enrich_ranked("Quercus robur", df, c("EUR", "NAM")),
                  "none share any authorship")
-  expect_true(is.na(out$native_status_EUR))
-  expect_true(is.na(out$native_status_NAM))
+  expect_true(is.na(out$wcvp_native_status_EUR))
+  expect_true(is.na(out$wcvp_native_status_NAM))
 })
 
 test_that("an accepted subspecies' range is part of its species", {
@@ -291,8 +291,8 @@ test_that("an accepted subspecies' range is part of its species", {
   )
   out <- expect_no_warning(
     enrich_ranked("Quercus robur", df, c("EUR", "TUR")))
-  expect_equal(out$native_status_EUR, "native")
-  expect_equal(out$native_status_TUR, "native")
+  expect_equal(out$wcvp_native_status_EUR, "native")
+  expect_equal(out$wcvp_native_status_TUR, "native")
 })
 
 test_that("an autonym keeps its own rows, not its species' range", {
@@ -303,8 +303,8 @@ test_that("an autonym keeps its own rows, not its species' range", {
                        c("robur", NA))
   out <- expect_no_warning(
     enrich_ranked("Quercus robur subsp. robur", df, c("EUR", "NAM")))
-  expect_equal(out$native_status_EUR, "native")
-  expect_true(is.na(out$native_status_NAM))
+  expect_equal(out$wcvp_native_status_EUR, "native")
+  expect_true(is.na(out$wcvp_native_status_NAM))
 })
 
 test_that("a recombination of a part, filed under the name, is kept", {
@@ -318,7 +318,7 @@ test_that("a recombination of a part, filed under the name, is kept", {
                        c(NA, "pedunculata", "sessiliflora"))
   out <- expect_no_warning(
     enrich_ranked("Quercus robur", df, c("EUR", "GER", "NAM")))
-  expect_equal(out$native_status_EUR, "native")
-  expect_equal(out$native_status_GER, "native")
-  expect_true(is.na(out$native_status_NAM))
+  expect_equal(out$wcvp_native_status_EUR, "native")
+  expect_equal(out$wcvp_native_status_GER, "native")
+  expect_true(is.na(out$wcvp_native_status_NAM))
 })

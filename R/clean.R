@@ -656,9 +656,9 @@ strip_qualifier <- function(name) {
 #' @keywords internal
 #' @family Low-level building blocks
 #' @examples
-#' normalize_epithets(c("Pinus sylvestris", "Pinus silvestris", NA))
+#' taxify:::normalize_epithets(c("Pinus sylvestris", "Pinus silvestris", NA))
 #'
-#' @export
+#' @keywords internal
 normalize_epithets <- function(names) {
   genus <- sub(" .*", "", names)
   rest  <- sub("^\\S+\\s*", "", names)

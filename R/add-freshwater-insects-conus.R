@@ -12,12 +12,12 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns. The curated set:
 #' \describe{
-#'   \item{fwinsect_thermal_pref}{Thermal preference class.}
-#'   \item{fwinsect_feed_prim}{Primary functional feeding group code.}
-#'   \item{fwinsect_habit_prim}{Primary habit (swimmer, clinger, burrower, ...).}
-#'   \item{fwinsect_rheophily}{Rheophily (current preference) code.}
-#'   \item{fwinsect_voltinism}{Voltinism (generations per year) code.}
-#'   \item{fwinsect_max_body_size}{Maximum body size class.}
+#'   \item{freshwater_insects_conus_fwinsect_thermal_pref}{Thermal preference class.}
+#'   \item{freshwater_insects_conus_fwinsect_feed_prim}{Primary functional feeding group code.}
+#'   \item{freshwater_insects_conus_fwinsect_habit_prim}{Primary habit (swimmer, clinger, burrower, ...).}
+#'   \item{freshwater_insects_conus_fwinsect_rheophily}{Rheophily (current preference) code.}
+#'   \item{freshwater_insects_conus_fwinsect_voltinism}{Voltinism (generations per year) code.}
+#'   \item{freshwater_insects_conus_fwinsect_max_body_size}{Maximum body size class.}
 #' }
 #' With `cols = "all"` the remaining trait groups (emergence, dispersal,
 #' respiration, ...) are attached under their source names.

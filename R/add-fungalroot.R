@@ -21,13 +21,13 @@
 #'   `"all"` attaches every column the source carries (see [enrichment_cols()]).
 #' @return The same data.frame with three additional columns:
 #' \describe{
-#'   \item{mycorrhizal_type}{Genus-level majority-consensus type, one of `AM`
+#'   \item{fungalroot_mycorrhizal_type}{Genus-level majority-consensus type, one of `AM`
 #'     (arbuscular), `EcM` (ecto), `ErM` (ericoid), `OM` (orchid), `NM`
 #'     (non-mycorrhizal), the dual types `EcM-AM` / `ErM-EcM` / `ErM-AM`,
 #'     `Other`, or `uncertain`. `NA` if the genus is not in FungalRoot.}
-#'   \item{mycorrhizal_status}{Coarse status derived from the type:
+#'   \item{fungalroot_mycorrhizal_status}{Coarse status derived from the type:
 #'     `"mycorrhizal"`, `"non-mycorrhizal"`, or `"uncertain"`.}
-#'   \item{mycorrhizal_records}{Number of FungalRoot observations supporting the
+#'   \item{fungalroot_mycorrhizal_records}{Number of FungalRoot observations supporting the
 #'     genus-level consensus.}
 #' }
 #'

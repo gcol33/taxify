@@ -14,11 +14,11 @@
 #' @param verbose Logical. Default `TRUE`.
 #' @return The same data.frame with additional columns. The default set:
 #' \describe{
-#'   \item{epa_feeding_mode}{Functional feeding group.}
-#'   \item{epa_habit}{Primary habit (e.g. clinger, burrower, swimmer).}
-#'   \item{epa_voltinism}{Number of generations per year.}
-#'   \item{epa_thermal_preference}{Thermal preference.}
-#'   \item{epa_body_size_class}{Maximum body-size class.}
+#'   \item{epa_freshwater_epa_feeding_mode}{Functional feeding group.}
+#'   \item{epa_freshwater_epa_habit}{Primary habit (e.g. clinger, burrower, swimmer).}
+#'   \item{epa_freshwater_epa_voltinism}{Number of generations per year.}
+#'   \item{epa_freshwater_epa_thermal_preference}{Thermal preference.}
+#'   \item{epa_freshwater_epa_body_size_class}{Maximum body-size class.}
 #' }
 #' `cols = "all"` also attaches body shape, rheophily, oviposition behaviour,
 #' and diapause.
@@ -48,6 +48,6 @@ add_epa_freshwater <- function(x, cols = NULL, verbose = TRUE) {
     x, enrichment_name = "epa_freshwater", col_map = col_map,
     source_label = "US EPA Freshwater Biological Traits",
     genus_fallback = TRUE,
-    cols = cols, col_prefix = "epa_", out_prefix = "epa_", verbose = verbose
+    cols = cols, verbose = verbose
   )
 }

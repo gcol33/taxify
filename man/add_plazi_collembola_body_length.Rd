@@ -17,12 +17,12 @@ character vector of names. See \code{\link{enrichment_cols}}.}
 \value{
 The same data.frame with additional columns:
 \describe{
-\item{plazi_body_length_mm}{Body length (mm), median of the mined
+\item{plazi_collembola_body_length_plazi_body_length_mm}{Body length (mm), median of the mined
 measurements.}
-\item{plazi_body_length_min_mm}{Smallest measurement (mm).}
-\item{plazi_body_length_max_mm}{Largest measurement (mm).}
-\item{plazi_body_length_n}{Number of measurements aggregated.}
-\item{plazi_body_length_sources}{Number of distinct treatment papers.}
+\item{plazi_collembola_body_length_plazi_body_length_min_mm}{Smallest measurement (mm).}
+\item{plazi_collembola_body_length_plazi_body_length_max_mm}{Largest measurement (mm).}
+\item{plazi_collembola_body_length_plazi_body_length_n}{Number of measurements aggregated.}
+\item{plazi_collembola_body_length_plazi_body_length_sources}{Number of distinct treatment papers.}
 }
 }
 \description{

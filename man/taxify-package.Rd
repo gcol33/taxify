@@ -26,7 +26,7 @@ treatment.}
 accepted name; each published dataset has its own \verb{add_<source>()}
 function, listed by \code{\link[=list_enrichments]{list_enrichments()}}; \code{\link[=add_trait]{add_trait()}} gathers one trait
 from every dataset that carries it.}
-\item{Exploring the backbone}{\code{\link[=synonyms]{synonyms()}}, \code{\link[=children]{children()}}, \code{\link[=downstream]{downstream()}},
+\item{Exploring the backbone}{\code{\link[=synonyms]{synonyms()}}, \code{\link[=downstream]{downstream()}},
 \code{\link[=upstream]{upstream()}}, \code{\link[=add_classification]{add_classification()}}, \code{\link[=class2tree]{class2tree()}}, \code{\link[=id2name]{id2name()}},
 \code{\link[=parse_name]{parse_name()}}, \code{\link[=comm2sci]{comm2sci()}} and \code{\link[=sci2comm]{sci2comm()}}.}
 \item{Backbones and versions}{\code{\link[=list_backbones]{list_backbones()}}, \code{\link[=install_backbones]{install_backbones()}},
