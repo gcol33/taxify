@@ -1,4 +1,4 @@
-# taxify (development version)
+# taxify 0.8.0
 
 ## Breaking changes
 

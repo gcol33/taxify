@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: If you use this software, please cite it as below.
 type: software
 title: 'taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones'
-version: 0.7.0
+version: 0.8.0
 authors:
 - family-names: Colling
   given-names: Gilles
@@ -20,4 +20,4 @@ preferred-citation:
   year: 2026
   doi: 10.32614/CRAN.package.taxify
   url: https://gillescolling.com/taxify/
-  notes: R package version 0.7.0
+  notes: R package version 0.8.0

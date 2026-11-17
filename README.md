@@ -179,7 +179,7 @@ If you use taxify, please cite the package and the backbones and datasets your r
 Colling G (2026). _taxify: Offline Taxonomic Name Matching Against
 Darwin Core Backbones_. doi:10.32614/CRAN.package.taxify
 <https://doi.org/10.32614/CRAN.package.taxify>. R package version
-0.7.1, <https://gillescolling.com/taxify/>.
+0.8.0, <https://gillescolling.com/taxify/>.
 ```
 
 BibTeX:
@@ -189,7 +189,7 @@ BibTeX:
   title = {taxify: Offline Taxonomic Name Matching Against Darwin Core Backbones},
   author = {Gilles Colling},
   year = {2026},
-  note = {R package version 0.7.1},
+  note = {R package version 0.8.0},
   doi = {10.32614/CRAN.package.taxify},
   url = {https://gillescolling.com/taxify/},
 }
